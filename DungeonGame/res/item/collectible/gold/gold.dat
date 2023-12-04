@@ -1,0 +1,34 @@
+id: 3002
+name: gold
+displayName: "Gold"
+category: collectible
+
+model: "gold.gltf"
+colliders: [
+	{
+		type: box
+		size = [0.08, 0.06, 0.005]
+		offset = [0.0, 0.0, 0.0]
+	},
+	{
+		type: box
+		size = [0.06, 0.08, 0.005]
+		offset = [0.0, 0.0, 0.0]
+	},
+	{
+		type: box
+		size = [0.1, 0.02, 0.005]
+		offset = [0.0, 0.0, 0.0]
+	},
+	{
+		type: box
+		size = [0.02, 0.1, 0.005]
+		offset = [0.0, 0.0, 0.0]
+	}
+]
+
+icon: "gold_icon.png"
+
+description: "shiny"
+
+pickupTransform = [1, 0, 0, 90]

@@ -1,0 +1,34 @@
+id = 101
+name = longbow
+displayName = "Longbow"
+category = weapon
+inventorySize = [1, 5]
+
+model = "longbow.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.1, 1.6, 0.02]
+		offset = [0.0, 0.5, 0.0]
+	},
+	{
+		type: box
+		size = [0.3, 0.03, 0.04]
+		offset = [0.0, 0.08, 0.0]
+	}
+]
+flipOnLeft = 1
+
+moveset = "longbow_moveset.gltf"
+
+icon = "longbow_icon.png"
+
+description: "it go pew pew"
+
+weaponType = bow
+twoHanded: 1
+
+baseDamage: 120
+
+sfxShoot = "longbow_shoot.ogg"
+sfxBowDraw = "longbow_arrow_draw.ogg"

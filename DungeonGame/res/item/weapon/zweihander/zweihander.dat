@@ -1,0 +1,124 @@
+id: 5
+name: zweihander
+displayName: "Zweihander"
+category: weapon
+
+model: "zweihander.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.1, 1.6, 0.02]
+		offset = [0.0, 0.5, 0.0]
+	},
+	{
+		type: box
+		size = [0.3, 0.03, 0.04]
+		offset = [0.0, 0.08, 0.0]
+	}
+]
+
+moveset: "zweihander_moveset.gltf"
+
+icon: "zweihander_icon.png"
+
+description: "very big sword"
+
+weaponType: melee
+twoHanded: 1
+
+baseDamage: 70
+range: 1.2
+
+sfxHit = "hit.ogg"
+sfxSwing = "swing.ogg"
+sfxDraw = "draw.ogg"
+
+attackSfx: [
+	longsword_attack.ogg
+]
+
+attacks: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 18
+		damageFramesEnd: 24
+		followUpCancelFrame: 39
+		sfxFrame: 13
+		staminaCost: 5.5
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 18
+		damageFramesEnd: 24
+		followUpCancelFrame: 39
+		sfxFrame: 13
+		staminaCost: 5.5
+	}
+]
+
+attacksCopy: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 11
+		damageFramesEnd: 19
+		followUpCancelFrame: 21
+		sfxFrame: 13
+		staminaCost: 35
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 11
+		damageFramesEnd: 19
+		followUpCancelFrame: 21
+		sfxFrame: 13
+		staminaCost: 35
+	},
+	{
+		type: heavy
+		index: 0
+		animName: attack_heavy1
+		damageFramesStart: 16
+		damageFramesEnd: 29
+		followUpCancelFrame: 34
+		sfxFrame: 13
+		damageMultiplier: 1.2
+		staminaCost: 80
+	},
+	{
+		type: heavy
+		index: 1
+		animName: attack_heavy2
+		damageFramesStart: 16
+		damageFramesEnd: 29
+		followUpCancelFrame: 34
+		sfxFrame: 16
+		damageMultiplier: 1.2
+		staminaCost: 80
+	},
+	{
+		type: running
+		animName: attack_run
+		damageFramesStart: 10
+		damageFramesEnd: 17
+		sfxFrame: 13
+		damageMultiplier: 1.1
+		staminaCost: 50
+	},
+	{
+		type: dodging
+		animName: attack_dodge
+		damageFramesStart: 7
+		damageFramesEnd: 11
+		sfxFrame: 9
+		damageMultiplier: 0.9
+		staminaCost: 30
+	}
+]

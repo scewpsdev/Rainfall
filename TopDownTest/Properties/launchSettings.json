@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TopDownTest": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

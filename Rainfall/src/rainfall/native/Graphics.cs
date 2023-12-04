@@ -1,0 +1,193 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Rainfall
+{
+	public enum BufferFlags : UInt16
+	{
+		None = 0x0000,
+		ComputeRead = 0x0100,
+		ComputeWrite = 0x0200,
+		DrawIndirect = 0x0400,
+		AllowResize = 0x0800,
+		Index32 = 0x1000,
+	}
+
+	namespace Native
+	{
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct TransientVertexBufferData
+		{
+			internal IntPtr data;                      //!< Pointer to data.
+			internal UInt32 size;                      //!< Data size.
+			internal UInt32 startVertex;               //!< First vertex.
+			internal UInt16 stride;                    //!< Vertex stride.
+			internal UInt16 handle;                    //!< Vertex buffer handle.
+			internal UInt16 layoutHandle;              //!< Vertex layout handle.
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct TransientIndexBufferData
+		{
+			internal IntPtr data;            //!< Pointer to data.
+			internal UInt32 size;            //!< Data size.
+			internal UInt32 startIndex;      //!< First index.
+			internal UInt16 handle;          //!< Index buffer handle.
+			internal byte isIndex16;         //!< Index buffer format is 16-bits if true, otherwise it is 32-bit.
+		}
+
+
+		internal static class Graphics
+		{
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern IntPtr Graphics_AllocateVideoMemory(int size, out IntPtr memoryHandle);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void Graphics_CreateVideoMemoryRef(int size, void* data, out IntPtr memoryHandle);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe ushort Graphics_CreateVertexBuffer(IntPtr memoryHandle, VertexElement* layoutElements, int layoutElementsCount, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe ushort Graphics_CreateDynamicVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe TransientVertexBufferData Graphics_CreateTransientVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateIndexBuffer(IntPtr memoryHandle, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateDynamicIndexBuffer(int indexCount, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern TransientIndexBufferData Graphics_CreateTransientIndexBuffer(int indexCount, bool index32);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern byte Graphics_CreateInstanceBuffer(int count, int stride, out InstanceBufferData buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateTextureMutable(int width, int height, TextureFormat format, ulong flags, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTextureData(ushort texture, int x, int y, int width, int height, IntPtr memory);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateTextureImmutable(int width, int height, TextureFormat format, ulong flags, IntPtr memory, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateTextureFromMemory(IntPtr memoryHandle, ulong flags, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateCubemap(int size, TextureFormat format, ulong flags, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern IntPtr Graphics_CreateShader(IntPtr vertexMemory, IntPtr fragmentMemory);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe ushort Graphics_ShaderGetUniform(IntPtr shader, byte* name, UniformType type, int num);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_ShaderGetUniform(IntPtr shader, [MarshalAs(UnmanagedType.LPStr)] string name, UniformType type, int num);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateRenderTarget(int numAttachments, ref RenderTargetAttachment attachmentInfo, ref TextureInfo textureInfos, [MarshalAs(UnmanagedType.LPArray)] ushort[] textures);
+
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_ResetState();
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetBlendState(BlendState blendState);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetDepthTest(DepthTest depthTest);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetCullState(CullState cullState);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetVertexBuffer(ushort handle);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetDynamicVertexBuffer(ushort handle);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTransientVertexBuffer(ref TransientVertexBufferData buffer);
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTransientVertexBuffer(IntPtr buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetIndexBuffer(ushort handle);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetDynamicIndexBuffer(ushort handle);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTransientIndexBuffer(ref TransientIndexBufferData buffer);
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTransientIndexBuffer(IntPtr buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetInstanceBuffer(ref InstanceBufferData buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetInstanceBufferN(ref InstanceBufferData buffer, int offset, int count);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void Graphics_SetUniform(ushort handle, void* value, int num);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTexture(ushort sampler, int unit, ushort texture, uint flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetRenderTarget(int pass, ushort renderTarget, int width, int height, byte hasRGB, byte hasDepth, uint rgba, float depth);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetRenderTargetR(int pass, ushort renderTarget, BackbufferRatio ratio, byte hasRGB, byte hasDepth, uint rgba, float depth);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTransform(int pass, ref Matrix transform);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetViewTransform(int pass, ref Matrix projection, ref Matrix view);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_Draw(int pass, IntPtr shader);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DrawMesh(int pass, IntPtr model, int meshID, IntPtr shader, ref Matrix transform);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DrawMeshAnimated(int pass, IntPtr model, int meshID, IntPtr shader, IntPtr animationState, ref Matrix transform);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DrawModel(int pass, IntPtr model, IntPtr shader, IntPtr animatedShader, IntPtr animationState, ref Matrix transform);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, byte* text, int length, IntPtr font, uint color, IntPtr batch);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, [MarshalAs(UnmanagedType.LPStr)] string text, int length, IntPtr font, uint color, IntPtr batch);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void Graphics_DrawDebugText(int x, int y, byte color, byte* text);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DrawDebugText(int x, int y, byte color, [MarshalAs(UnmanagedType.LPStr)] string text);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_GetDebugTextSize(out int width, out int height);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_Blit(int pass, ushort dst, ushort src);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_CompleteFrame();
+		}
+	}
+}

@@ -1,0 +1,17 @@
+id = 3001
+name = arrow
+displayName = "Arrow"
+category = arrow
+
+model = "arrow.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.04, 0.04, 0.8]
+		offset = [0.0, 0.0, -0.4]
+	}
+]
+
+icon = "arrow_icon.png"
+
+description: "stick but sharp"

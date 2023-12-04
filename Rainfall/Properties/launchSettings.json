@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Rainfall": {
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "hotReloadEnabled": false
+    }
+  }
+}

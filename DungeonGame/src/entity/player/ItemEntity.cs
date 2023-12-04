@@ -1,0 +1,299 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+
+public class ItemEntity
+{
+	public Item item;
+	public ParticleSystem particles;
+	public RigidBody hitbox;
+	public AudioSource audio;
+
+	public Model currentModel;
+	Animator animator = null;
+	bool flipTransform = false;
+
+	Player player;
+	int handID;
+
+	public Matrix transform;
+	Matrix renderScale;
+	Matrix lastTransform;
+
+	long lastSparkEffectTime = 0;
+
+
+	public ItemEntity(Player player, int handID)
+	{
+		this.player = player;
+		this.handID = handID;
+
+		particles = new ParticleSystem(256);
+		hitbox = new RigidBody(player, RigidBodyType.Kinematic);
+		audio = Audio.CreateSource(player.position);
+	}
+
+	public void setItem(Item item)
+	{
+		this.item = item;
+
+		hitbox.clearColliders();
+
+		if (item != null)
+		{
+			particles.emissionRate = 0.0f;
+			if (item.particles != null)
+			{
+				particles.copyData(item.particles);
+			}
+
+			foreach (Collider collider in item.colliders)
+			{
+				if (collider.type == ColliderType.Box)
+					hitbox.addBoxTrigger(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+				else if (collider.type == ColliderType.Sphere)
+					hitbox.addSphereTrigger(collider.radius, collider.offset);
+				else if (collider.type == ColliderType.Capsule)
+					hitbox.addCapsuleTrigger(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+				else
+				{
+					Debug.Assert(false);
+				}
+			}
+
+			animator = new Animator(item.model);
+			animator.setState(new AnimationState(item.model, "default"));
+		}
+		else
+		{
+			particles.emissionRate = 0.0f;
+
+			animator = null;
+		}
+	}
+
+	void onContact(HitData hit, ContactType contactType, AttackAction attackAction, Item item)
+	{
+		Entity otherEntity = hit.body.entity as Entity;
+
+		if (contactType == ContactType.Found)
+		{
+			if (otherEntity is Hittable)
+			{
+				float knockbackMultiplier = attackAction.attack.type == AttackType.Heavy ? 1.5f : 1.0f;
+				Vector3 force = (otherEntity.position - player.position).normalized * 2.0f * knockbackMultiplier; // TODO influenced by weapon weight
+				int damage = (int)(attackAction.item.baseDamage * attackAction.attack.damageMultiplier);
+
+				if (otherEntity is Creature)
+				{
+					Creature creature = otherEntity as Creature;
+					if (creature.isAlive)
+					{
+						int linkID = creature.hitboxes.IndexOf(hit.body);
+						creature.hit(damage, player, force, linkID);
+					}
+					else
+					{
+						hit.body.addForce(force);
+					}
+				}
+				else
+				{
+					Hittable hittable = otherEntity as Hittable;
+					hittable.hit(damage, player, force, 0);
+				}
+			}
+			/*
+			else if (otherEntity is RagdollEntity)
+			{
+				Vector3 force = (hit.body.entity.getPosition() - player.position).normalized * 2.0f; // TODO influenced by weapon weight
+				hit.body.addForce(force);
+			}
+			*/
+
+			if (item.sfxHit != null)
+				audio.playSoundOrganic(item.sfxHit);
+		}
+		else if (contactType == ContactType.Persists)
+		{
+			//Entity otherEntity = hit.body.entity as Entity;
+			//if (otherEntity == null)
+			{
+				if ((Time.currentTime - lastSparkEffectTime) / 1e9f > 0.02f)
+				{
+					Vector3 direction = hit.normal; // ((player.position - hit.position) * new Vector3(1.0f, 0.0f, 1.0f)).normalized;
+					DungeonGame.instance.level.addEntity(new SparkEffect(direction), hit.position, Quaternion.Identity);
+					lastSparkEffectTime = Time.currentTime;
+				}
+			}
+
+			attackAction.onHit(otherEntity, hit, player, handID);
+		}
+	}
+
+	void checkCollision(AttackAction attackAction, Item item)
+	{
+		Span<HitData> hits = stackalloc HitData[32];
+		int numHits = 0;
+
+		if (item.hitboxRange != 0)
+		{
+			if (item.hitbox.type == ColliderType.Box)
+			{
+				numHits += Physics.OverlapBox(item.hitbox.size * 0.5f, transform.translation, transform.rotation, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			}
+			else if (item.hitbox.type == ColliderType.Sphere)
+			{
+				numHits += Physics.OverlapSphere(item.hitbox.radius, transform.translation, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			}
+			else if (item.hitbox.type == ColliderType.Capsule)
+			{
+				numHits += Physics.OverlapCapsule(item.hitbox.radius, item.hitbox.size.y, transform.translation, transform.rotation, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			}
+
+			numHits += Physics.Raycast(transform.translation, transform.rotation.up, item.hitboxRange, hits.Slice(numHits), QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+		}
+		else
+		{
+			Debug.Assert(false);
+		}
+
+		/*
+		if (collider.type == ColliderType.Box)
+		{
+			numHits = Physics.SweepBox(collider.size * 0.5f, lastPosition, shapeTransform.rotation, delta / distance, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+		}
+		else if (collider.type == ColliderType.Sphere)
+		{
+			numHits = Physics.SweepSphere(collider.radius, lastPosition, delta / distance, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+		}
+		else if (collider.type == ColliderType.Capsule)
+		{
+			numHits = Physics.SweepCapsule(collider.radius, collider.size.y, lastPosition, shapeTransform.rotation, delta / distance, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+		}
+		else
+		{
+			Debug.Assert(false);
+		}
+		*/
+
+		float shortestDistance = 1000.0f;
+		HitData hit = new HitData();
+		for (int i = 0; i < numHits; i++)
+		{
+			if (hits[i].body != null &&
+				(hits[i].body.filterMask & (uint)PhysicsFilterGroup.Weapon) != 0 &&
+				hits[i].body.entity is not Player)
+			{
+				if (hits[i].distance < shortestDistance)
+				{
+					shortestDistance = hits[i].distance;
+					hit = hits[i];
+				}
+			}
+		}
+
+		if (hit.body != null)
+		{
+			if (!attackAction.hitEntities.Contains(hit.body.entity))
+			{
+				onContact(hit, ContactType.Found, attackAction, item);
+				attackAction.hitEntities.Add((Entity)hit.body.entity);
+			}
+
+			onContact(hit, ContactType.Persists, attackAction, item);
+		}
+	}
+
+	public void update()
+	{
+		if (player.currentAction != null && player.currentAction.overrideHandModels[handID])
+		{
+			currentModel = player.currentAction.handItemModels[handID];
+			flipTransform = player.currentAction.flipHandModels[handID];
+		}
+		else
+		{
+			currentModel = item != null ? item.model : null;
+			flipTransform = false;
+		}
+		if (animator != null)
+		{
+			if (player.currentAction != null && player.currentAction.handItemAnimations[handID] != null)
+			{
+				animator.getState().layers[0].animationName = player.currentAction.handItemAnimations[handID];
+				animator.setTimer(player.currentAction.elapsedTime);
+			}
+			else
+			{
+				animator.getState().layers[0].animationName = "default";
+			}
+		}
+
+		//if (item != null)
+		{
+			if (player.currentAction != null)
+			{
+				if (player.currentAction.type == ActionType.Attack)
+				{
+					AttackAction attackAction = (AttackAction)player.currentAction;
+					if (attackAction.handID == handID && attackAction.elapsedTime >= attackAction.attack.damageTimeStart && attackAction.elapsedTime <= attackAction.attack.damageTimeEnd)
+					{
+						checkCollision(attackAction, item != null ? item : Item.Get("default"));
+					}
+				}
+			}
+			lastTransform = transform;
+		}
+
+		if (currentModel != null && animator != null && animator.model == currentModel)
+		{
+			animator.update();
+			animator.applyAnimation();
+			//currentModel.applyAnimation(animator.nodeLocalTransforms);
+		}
+
+		particles.update();
+	}
+
+	public void setTransform(Matrix transform, Matrix renderScale)
+	{
+		//position = transform.translation;
+		//rotation = transform.rotation;
+		transform *= Matrix.CreateRotation(Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI));
+		if (item != null && item.flipOnLeft && handID == 1 || flipTransform)
+		{
+			transform *= Matrix.CreateRotation(Vector3.UnitY, MathF.PI);
+		}
+		this.transform = transform;
+		this.renderScale = renderScale;
+		particles.transform = renderScale * transform;
+		hitbox.setTransform(transform.translation, transform.rotation);
+		audio.updateTransform(transform.translation + player.rotation.forward * 2); // adding forward vector to make it easier on the ears
+	}
+
+	public void draw(GraphicsDevice graphics)
+	{
+		if (currentModel != null)
+		{
+			Renderer.DrawModel(currentModel, renderScale * transform, animator);
+
+			if (item != null && currentModel == item.model)
+			{
+				foreach (ItemLight light in item.lights)
+				{
+					Matrix lightTransform = renderScale * transform * Matrix.CreateTranslation(light.position);
+					Renderer.DrawLight(lightTransform.translation, light.color);
+				}
+
+				particles.draw(graphics);
+			}
+		}
+	}
+}

@@ -1,0 +1,28 @@
+id: 2002
+name: firebomb
+displayName: "Firebomb"
+category: consumable
+
+model: "firebomb.gltf"
+colliders: [
+	{
+		type: sphere
+		radius: 0.08
+		offset: [0, -0.162, 0]
+	},
+	{
+		type: capsule
+		radius: 0.01
+		height: 0.2
+		offset: [0, -0.037, 0]
+	}
+]
+
+moveset: "firebomb_moveset.gltf"
+
+icon: "firebomb_icon.png"
+
+description: "da ting goes skrrra"
+
+consumableThrowable = 1
+consumableUseTime = 14

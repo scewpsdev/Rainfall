@@ -1,0 +1,14 @@
+id: 5001
+name: leather_chestplate
+displayName: "Leather Chestplate"
+category: armor
+armorType = torso
+
+//model: "quemick.gltf"
+//moveset: "quemick_moveset.gltf"
+
+icon: "leather_chestplate_icon.png"
+
+description: "thicc armor"
+
+damageAbsorption = 50

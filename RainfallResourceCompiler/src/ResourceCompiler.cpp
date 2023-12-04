@@ -1,0 +1,365 @@
+
+
+#include "ShaderCompiler.h"
+#include "TextureCompiler.h"
+#include "GeometryCompiler.h"
+
+#include <bx/file.h>
+
+#include <iostream>
+#include <filesystem>
+
+#include <vector>
+#include <map>
+#include <future>
+#include <mutex>
+
+namespace fs = std::filesystem;
+
+
+struct ResourceTask
+{
+	fs::path path;
+	std::string outpath;
+};
+
+
+static int assetsCompiled = 0;
+static int assetsUpToDate = 0;
+
+static std::vector<ResourceTask> resourcesToCompile;
+static std::vector<std::future<void>> resourceFutures;
+
+static std::map<std::string, int64_t> assetTable;
+static std::mutex assetTableMutex;
+
+
+static void TryLoadAssetTable(const char* assetTableFile)
+{
+	using namespace bx;
+
+	Error err;
+	FileReader reader;
+	if (open(&reader, assetTableFile))
+	{
+		int numAssets = 0;
+		read(&reader, numAssets, &err);
+
+		for (int i = 0; i < numAssets; i++)
+		{
+			char path[256] = {};
+			read(&reader, path, &err);
+
+			int64_t lastWriteTime;
+			read(&reader, lastWriteTime, &err);
+
+			assetTable.emplace(std::string(path), lastWriteTime);
+		}
+
+		close(&reader);
+	}
+}
+
+static void WriteAssetTable(const char* assetTableFile)
+{
+	using namespace bx;
+
+	Error err;
+	FileWriter writer;
+	if (open(&writer, assetTableFile))
+	{
+		write(&writer, (int)assetTable.size(), &err);
+
+		for (const auto& pair : assetTable)
+		{
+			char path[256] = {};
+			strcpy(path, pair.first.c_str());
+			write(&writer, path, &err);
+
+			int64_t lastWriteTime = pair.second;
+			write(&writer, lastWriteTime, &err);
+		}
+
+		close(&writer);
+	}
+}
+
+static void CreateDirectory(fs::path directory)
+{
+	if (!fs::is_directory(directory) || !fs::exists(directory))
+		fs::create_directories(directory);
+}
+
+static bool CopyFile(const char* path, const char* out)
+{
+	bx::FileReader reader;
+	if (bx::open(&reader, path))
+	{
+		int64_t size = reader.seek(0, bx::Whence::End);
+		reader.seek(0, bx::Whence::Begin);
+
+		char* data = new char[size];
+		bx::read(&reader, data, (int32_t)size, nullptr);
+
+		bx::close(&reader);
+
+		bx::FileWriter writer;
+		if (bx::open(&writer, out, false, nullptr))
+		{
+			bx::write(&writer, data, (int32_t)size, nullptr);
+
+			bx::close(&writer);
+
+			delete[] data;
+
+			return true;
+		}
+		else
+		{
+			delete[] data;
+			return false;
+		}
+	}
+	return false;
+}
+
+static void CompileFile(const fs::path& file, const std::string& outpath)
+{
+	std::string filepathStr = file.string();
+	std::string extension = file.extension().string();
+
+	fprintf(stderr, "%s\n", filepathStr.c_str());
+
+	bool success = true;
+
+	if (extension == ".glsl" || extension == ".shader")
+	{
+		std::string name = file.stem().string();
+		if (name.size() > 3 && name[name.size() - 3] == '.')
+		{
+			if (strncmp(&name[name.size() - 2], "vs", 2) == 0)
+				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "vertex");
+			else if (strncmp(&name[name.size() - 2], "fs", 2) == 0)
+				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "fragment") && success;
+		}
+	}
+	else if (extension == ".png")
+	{
+		std::string name = file.stem().string();
+
+		if (name.find("_cubemap") != std::string::npos)
+		{
+			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, false, false, true, false, true);
+		}
+		else
+		{
+			std::string format;
+			bool linear = false, normal = false, mipmaps = false;
+			if (name.find("BaseColor") != std::string::npos || name.find("baseColor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
+			{
+				format = "BC3";
+				linear = true;
+				mipmaps = true;
+			}
+			else if (name.find("Normal") != std::string::npos || name.find("normal") != std::string::npos)
+			{
+				format = "BC3";
+				linear = true;
+				normal = true;
+				mipmaps = true;
+			}
+			else if (name.find("occlusionRoughnessMetallic") != std::string::npos)
+			{
+				format = "BC3";
+				linear = true;
+				mipmaps = true;
+			}
+			else if (name.find("Roughness") != std::string::npos || name.find("roughness") != std::string::npos)
+			{
+				format = "BC3";
+				linear = true;
+				mipmaps = true;
+			}
+			else if (name.find("Metallic") != std::string::npos || name.find("metallic") != std::string::npos)
+			{
+				format = "BC3";
+				linear = true;
+				mipmaps = true;
+			}
+			else if (name.find("Height") != std::string::npos || name.find("Displacement") != std::string::npos || name.find("height") != std::string::npos)
+			{
+				format = "BC4";
+				linear = true;
+				mipmaps = true;
+			}
+			else if (name.find("Emissive") != std::string::npos || name.find("Emission") != std::string::npos || name.find("emissive") != std::string::npos)
+			{
+				format = "BC3";
+				//linear = true;
+				mipmaps = true;
+			}
+			else if (name.find("AO") != std::string::npos || name.find("_ao") != std::string::npos)
+			{
+				format = "BC4";
+				linear = true;
+				mipmaps = true;
+			}
+			else
+			{
+				format = "BGRA8";
+				linear = true;
+			}
+
+			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), format.c_str(), linear, normal, mipmaps);
+		}
+	}
+	else if (extension == ".jpg")
+	{
+		std::string name = file.stem().string();
+
+		std::string format = "BC3";
+		bool linear = false, normal = false, mipmaps = false;
+
+		success = CompileTexture(filepathStr.c_str(), outpath.c_str(), format.c_str(), linear, normal, mipmaps);
+	}
+	else if (extension == ".hdr")
+	{
+		std::string name = file.stem().string();
+
+		success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, true, false, true, true, false);
+	}
+	else if (extension == ".glb" || extension == ".gltf")
+	{
+		success = CompileGeometry(filepathStr.c_str(), outpath.c_str());
+	}
+	else
+	{
+		success = CopyFile(filepathStr.c_str(), outpath.c_str());
+	}
+
+	if (success)
+	{
+		assetTableMutex.lock();
+		assetTable[file.string()] = fs::last_write_time(file).time_since_epoch().count();
+		assetTableMutex.unlock();
+	}
+}
+
+static void ProcessFile(fs::path file, const std::string& outputDirectory, fs::path rootDirectory)
+{
+	std::string extension = file.extension().string();
+	std::string filepathStr = file.string();
+	std::string outdir = outputDirectory + file.parent_path().string().substr(rootDirectory.string().size());
+	std::string outpath = outdir + "\\" + file.filename().string() + ".bin";
+
+	bool fileOutdated = true;
+
+	auto it = assetTable.find(file.string());
+	if (it != assetTable.end())
+	{
+		int64_t lastWriteTime = fs::last_write_time(file).time_since_epoch().count();
+		int64_t tableTime = it->second;
+		if (lastWriteTime == tableTime)
+		{
+			if (fs::exists(outpath))
+			{
+				fileOutdated = false;
+			}
+		}
+	}
+
+	if (extension == ".shader")
+	{
+		std::string name = file.stem().string();
+		if (name.size() > 3 && name[name.size() - 3] == '.' &&
+			(strncmp(&name[name.size() - 2], "vs", 2) == 0 ||
+				strncmp(&name[name.size() - 2], "fs", 2) == 0))
+			;
+		else
+			fileOutdated = false;
+	}
+
+	if (fileOutdated)
+	{
+		assetsCompiled++;
+		CreateDirectory(outdir);
+		resourcesToCompile.push_back({ file, outpath });
+	}
+	else
+	{
+		assetsUpToDate++;
+	}
+}
+
+static void ProcessDirectory(fs::path directory, const std::string& outputDirectory, fs::path rootDirectory, const std::vector<std::string>& formats)
+{
+	for (auto entry : fs::directory_iterator(directory))
+	{
+		if (fs::is_directory(entry))
+		{
+			ProcessDirectory(entry, outputDirectory, rootDirectory, formats);
+		}
+		else
+		{
+			if (entry.path().has_extension())
+			{
+				std::string extension = entry.path().extension().string().substr(1);
+				if (std::find(formats.begin(), formats.end(), extension) != formats.end())
+					ProcessFile(entry, outputDirectory, rootDirectory);
+			}
+		}
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	if (argc >= 3)
+	{
+		fs::path rootDirectory = argv[1];
+		std::string outputDirectory = argv[2];
+
+		std::string assetTableFile = outputDirectory + std::string("\\asset_table");
+
+		std::vector<std::string> formats;
+
+		TryLoadAssetTable(assetTableFile.c_str());
+
+		for (int i = 3; i < argc; i++)
+		{
+			formats.push_back(argv[i]);
+		}
+
+		ProcessDirectory(rootDirectory, outputDirectory, rootDirectory, formats);
+
+		resourceFutures.resize(resourcesToCompile.size());
+		for (size_t i = 0; i < resourcesToCompile.size(); i++)
+		{
+			ResourceTask task = resourcesToCompile[i];
+			resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath);
+			//CompileFile(task.path, task.outpath);
+		}
+
+		bool allResourcesCompiled = false;
+		while (!allResourcesCompiled)
+		{
+			allResourcesCompiled = true;
+			for (size_t i = 0; i < resourceFutures.size(); i++)
+			{
+				if (!resourceFutures[i]._Is_ready())
+				{
+					allResourcesCompiled = false;
+					break;
+				}
+			}
+		}
+
+		printf("%d assets compiled, %d up to date.\n", assetsCompiled, assetsUpToDate);
+
+		WriteAssetTable(assetTableFile.c_str());
+
+		return 0;
+	}
+
+	printf("Usage: ResourceCompiler.exe <res folder> <out folder> [formats...]\n");
+	return 0;
+}

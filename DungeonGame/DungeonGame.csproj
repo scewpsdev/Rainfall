@@ -1,0 +1,158 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Platforms>AnyCPU;x64</Platforms>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Configurations>Debug;Release;Distribution</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="builds\**" />
+    <Compile Remove="Properties\**" />
+    <Compile Remove="screenshots\**" />
+    <Compile Remove="src\graphics\**" />
+    <Compile Remove="src\input\**" />
+    <Compile Remove="src\level\generator_\**" />
+    <EmbeddedResource Remove="builds\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <EmbeddedResource Remove="screenshots\**" />
+    <EmbeddedResource Remove="src\graphics\**" />
+    <EmbeddedResource Remove="src\input\**" />
+    <EmbeddedResource Remove="src\level\generator_\**" />
+    <None Remove="builds\**" />
+    <None Remove="Properties\**" />
+    <None Remove="screenshots\**" />
+    <None Remove="src\graphics\**" />
+    <None Remove="src\input\**" />
+    <None Remove="src\level\generator_\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="publish.bat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rainfall3D\Rainfall3D.csproj" />
+    <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GraphicsSettings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ImGuizmo.NET.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="InputBindings.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="InputBindings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\bgfx\bgfx_shader.shader">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\common\common.shader">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\common\shaderlib.shader">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\common\utils.shader">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\model\model.fs.shader">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\model\model.vs.shader">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\shaders\model\varying.def.sc">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="res\wfc.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+	<PropertyGroup>
+		<PublishAot>true</PublishAot>
+		<RootNamespace />
+		<RunPostBuildEvent>Always</RunPostBuildEvent>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Distribution|AnyCPU'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Distribution|x64'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PrivateSdkAssemblies Remove="screenshots\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <FrameworkAssemblies Remove="screenshots\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PrivateSdkAssemblies Remove="builds\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <FrameworkAssemblies Remove="builds\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PrivateSdkAssemblies Remove="Properties\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <FrameworkAssemblies Remove="Properties\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="src\audio\AudioManager.cs" />
+	  <Compile Remove="src\entity\Camera.cs" />
+	  <Compile Remove="src\entity\Entity.cs" />
+	  <Compile Remove="src\entity\ParticleSystem.cs" />
+	  <Compile Remove="src\level\testmaps\HubArea.cs" />
+	  <Compile Remove="src\level\Terrain.cs" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="xcopy /y &quot;$(SolutionDir)RainfallNative\bin\$(Platform)\$(Configuration)\RainfallNative.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /y &quot;$(ProjectDir)lib\$(Configuration)\*.dll&quot; &quot;$(OutDir)&quot;" />
+	</Target>
+
+	<ItemGroup>
+	  <PrivateSdkAssemblies Remove="src\input\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <FrameworkAssemblies Remove="src\input\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PrivateSdkAssemblies Remove="src\graphics\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <FrameworkAssemblies Remove="src\graphics\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PrivateSdkAssemblies Remove="src\level\generator_\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <FrameworkAssemblies Remove="src\level\generator_\**" />
+	</ItemGroup>
+	
+</Project>

@@ -1,0 +1,28 @@
+id = 201
+name = oak_staff
+displayName = "Oak Staff"
+category = weapon
+
+model = "oak_staff.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.1, 1.6, 0.02]
+		offset = [0.0, 0.5, 0.0]
+	},
+	{
+		type: box
+		size = [0.3, 0.03, 0.04]
+		offset = [0.0, 0.08, 0.0]
+	}
+]
+
+moveset = "oak_staff_moveset.gltf"
+
+icon = "oak_staff_icon.png"
+
+description = "magic stick"
+
+weaponType = staff
+
+staffSpellSlots = 2

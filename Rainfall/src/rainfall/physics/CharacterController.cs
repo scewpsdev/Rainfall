@@ -1,0 +1,115 @@
+﻿using System;
+using Rainfall;
+
+namespace Rainfall
+{
+	public enum ControllerCollisionFlag : byte
+	{
+		Sides = (1 << 0),    //!< Character is colliding to the sides.
+		Up = (1 << 1),       //!< Character has collision above.
+		Down = (1 << 2)
+	}
+
+	public struct ControllerHit
+	{
+		public Vector3 position;
+		public Vector3 normal;
+		public float length;
+		public Vector3 direction;
+	}
+
+	public interface ControllerHitCallback
+	{
+		void onShapeHit(ControllerHit hit);
+	}
+
+	public class CharacterController
+	{
+		static Dictionary<IntPtr, CharacterController> controllers = new Dictionary<IntPtr, CharacterController>();
+
+
+		public readonly PhysicsEntity entity;
+
+		internal ControllerHitCallback hitCallback;
+
+		IntPtr controller;
+		float _height, _radius;
+		Vector3 _offset;
+
+		uint filterGroup, filterMask;
+
+
+		public CharacterController(PhysicsEntity entity, float radius, Vector3 offset, float height, float stepOffset, uint filterGroup, uint filterMask, ControllerHitCallback hitCallback = null)
+		{
+			this.entity = entity;
+			this._height = height;
+			this._radius = radius;
+			this._offset = offset;
+			this.filterGroup = filterGroup;
+			this.filterMask = filterMask;
+
+			this.hitCallback = hitCallback;
+
+			controller = Native.Physics.Physics_CreateCharacterController(radius, height, offset, stepOffset, entity.getPosition());
+			controllers.Add(controller, this);
+		}
+
+		public void destroy()
+		{
+			Native.Physics.Physics_DestroyCharacterController(controller);
+		}
+
+		public void resize(float height)
+		{
+			Native.Physics.Physics_ResizeCharacterController(controller, height);
+			_height = height;
+		}
+
+		public ControllerCollisionFlag move(Vector3 delta)
+		{
+			return Native.Physics.Physics_MoveCharacterController(controller, delta, filterGroup, filterMask);
+		}
+
+		public void setPosition(Vector3 position)
+		{
+			Native.Physics.Physics_CharacterControllerSetPosition(controller, position);
+		}
+
+		public float height
+		{
+			get { return _height; }
+			set
+			{
+				Native.Physics.Physics_CharacterControllerSetHeight(controller, value);
+				_height = value;
+			}
+		}
+
+		public float radius
+		{
+			get { return _radius; }
+			set
+			{
+				Native.Physics.Physics_CharacterControllerSetRadius(controller, value);
+				_radius = value;
+			}
+		}
+
+		public Vector3 offset
+		{
+			get { return _offset; }
+			set
+			{
+				Native.Physics.Physics_CharacterControllerSetOffset(controller, value);
+				_offset = value;
+			}
+		}
+
+		internal static CharacterController GetControllerFromHandle(IntPtr handle)
+		{
+			if (controllers.ContainsKey(handle))
+				return controllers[handle];
+			return null;
+		}
+	}
+}

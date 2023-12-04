@@ -1,0 +1,52 @@
+id = 4002
+name = homing_orbs
+displayName = "Homing Orbs"
+category = spell
+
+model = "../spell.gltf"
+colliders = [
+	{
+		type: sphere
+		radius: 0.08
+		offset: [0, -0.162, 0]
+	},
+	{
+		type: capsule
+		radius: 0.01
+		height: 0.2
+		offset: [0, -0.037, 0]
+	}
+]
+
+moveset = "homing_orbs_moveset.gltf"
+
+icon = "homing_orbs_icon.png"
+
+description: "many smol blue marbols"
+
+baseDamage = 30
+
+spellManaCost = 6
+
+spellProjectiles = [
+	{
+		castTime = 0.666
+		type = homing
+	},
+	{
+		castTime = 0.875
+		type = homing
+	},
+	{
+		castTime = 1.083
+		type = homing
+	},
+	{
+		castTime = 1.291
+		type = homing
+	},
+	{
+		castTime = 1.5
+		type = homing
+	}
+]
