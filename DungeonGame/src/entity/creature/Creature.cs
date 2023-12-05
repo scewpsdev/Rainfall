@@ -95,7 +95,7 @@ public class Creature : Entity, Hittable
 	bool isGrounded = false;
 
 	AudioSource audio;
-	protected Sound hitSound;
+	protected Sound[] hitSound;
 
 	Item[] handItem = new Item[2];
 	MobItemEntity[] weaponEntities = new MobItemEntity[2];

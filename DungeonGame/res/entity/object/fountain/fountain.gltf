@@ -56,8 +56,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"fountain.png",
-			"uri":"fountain.png"
+			"name":"fountain.png.001",
+			"uri":"textures/fountain.png"
 		}
 	],
 	"accessors":[

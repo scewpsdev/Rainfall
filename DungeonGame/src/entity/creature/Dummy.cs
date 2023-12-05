@@ -31,7 +31,12 @@ internal class Dummy : Creature
 		stats.maxHealth = 10000;
 		stats.health = 10000;
 
-		hitSound = Resource.GetSound("res/entity/creature/dummy/sfx/slash.ogg");
+		hitSound = new Sound[] {
+			Resource.GetSound("res/entity/creature/sfx/impact1.ogg"),
+			Resource.GetSound("res/entity/creature/sfx/impact2.ogg"),
+			Resource.GetSound("res/entity/creature/sfx/impact3.ogg"),
+			Resource.GetSound("res/entity/creature/sfx/impact4.ogg"),
+		};
 	}
 
 	protected override void onHit(int damage, Entity from, Vector3 force)

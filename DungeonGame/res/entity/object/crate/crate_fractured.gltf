@@ -276,8 +276,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"crate_diffuse.png",
-			"uri":"crate_diffuse.png"
+			"name":"crate_diffuse.png.001",
+			"uri":"textures/crate_diffuse.png"
 		}
 	],
 	"accessors":[

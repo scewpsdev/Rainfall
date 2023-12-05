@@ -16,11 +16,11 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cube"
+			"name":"Block"
 		},
 		{
 			"mesh":1,
-			"name":"Cube.002"
+			"name":"Handle"
 		}
 	],
 	"materials":[
@@ -80,13 +80,13 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"lever.png",
-			"uri":"lever.png"
+			"name":"lever_diffuse.png",
+			"uri":"textures/lever_diffuse.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"lever_roughness.png",
-			"uri":"lever_roughness.png"
+			"name":"lever_roughness.png.001",
+			"uri":"textures/lever_roughness.png"
 		}
 	],
 	"accessors":[

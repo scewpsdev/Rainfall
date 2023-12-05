@@ -55,8 +55,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"crate_diffuse.png",
-			"uri":"crate_diffuse.png"
+			"name":"crate_diffuse.png.001",
+			"uri":"textures/crate_diffuse.png"
 		}
 	],
 	"accessors":[
@@ -65,14 +65,14 @@
 			"componentType":5126,
 			"count":24,
 			"max":[
-				0.4000000059604645,
-				0.4000000059604645,
-				0.4000000059604645
+				0.5,
+				0.5,
+				0.5
 			],
 			"min":[
-				-0.4000000059604645,
-				-0.4000000059604645,
-				-0.4000000059604645
+				-0.5,
+				-0.5,
+				-0.5
 			],
 			"type":"VEC3"
 		},

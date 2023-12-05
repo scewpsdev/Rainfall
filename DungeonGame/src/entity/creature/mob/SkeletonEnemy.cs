@@ -66,7 +66,9 @@ internal class SkeletonEnemy : Creature
 
 		itemDrops.Add(new ItemDrop(Item.Get("quemick").id, 1, 0.25f));
 
-		hitSound = Resource.GetSound("res/entity/creature/skeleton/sfx/hit.ogg");
+		hitSound = new Sound[] {
+			Resource.GetSound("res/entity/creature/skeleton/sfx/hit.ogg")
+		};
 
 
 		setItem(0, Item.Get("shortsword"));
