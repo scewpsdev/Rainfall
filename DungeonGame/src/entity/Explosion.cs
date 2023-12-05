@@ -78,24 +78,29 @@ internal class Explosion : Entity
 
 
 
-		Span<HitData> hits = stackalloc HitData[16];
-		int numHits = Physics.OverlapSphere(RANGE, position, hits, QueryFilterFlags.Dynamic);
+		Span<HitData> hits = stackalloc HitData[32];
+		int numHits = Physics.OverlapSphere(RANGE, position, hits, QueryFilterFlags.Default);
 		for (int i = 0; i < numHits; i++)
 		{
 			RigidBody body = hits[i].body;
 			if (body != null && !hitEntities.Contains(body.entity))
 			{
-				if (hits[i].body.entity is Creature)
+				if (hits[i].body.entity is Hittable)
 				{
-					Creature creature = hits[i].body.entity as Creature;
+					Hittable hittable = hits[i].body.entity as Hittable;
+					Entity entity = hits[i].body.entity as Entity;
 
-					Vector3 direction = (creature.position + new Vector3(0.0f, 1.0f, 0.0f) - position).normalized;
+					Vector3 direction = (entity.position + new Vector3(0.0f, 1.0f, 0.0f) - position).normalized;
 					Vector3 force = direction * EXPLOSION_FORCE;
 
-					if (creature.isAlive)
-						creature.hit(DAMAGE, shooter, force, 0);
-					else
-						creature.ragdoll.hitboxes[0].addForce(force);
+					hittable.hit(DAMAGE, shooter, force, 0);
+
+					if (entity is Creature)
+					{
+						Creature creature = entity as Creature;
+						if (!creature.isAlive)
+							creature.ragdoll.hitboxes[0].addForce(force);
+					}
 				}
 				/*
 				else if (hits[i].body.entity is RagdollEntity)

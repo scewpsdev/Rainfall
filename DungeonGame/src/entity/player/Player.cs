@@ -272,11 +272,11 @@ public class Player : Entity
 
 		//giveItem(Item.Get("shortsword"), 1);
 		//giveItem(Item.Get("torch"), 1);
-		giveItem(Item.Get("longbow"));
-		giveItem(Item.Get("arrow"), 50);
+		//giveItem(Item.Get("longbow"));
+		//giveItem(Item.Get("arrow"), 50);
 		//giveItem(Item.Get("quemick"), 3);
 
-		giveItem(Item.Get("leather_chestplate"));
+		//giveItem(Item.Get("leather_chestplate"));
 	}
 
 	public void hit(int damage, Entity from)
@@ -1829,7 +1829,7 @@ public class Player : Entity
 
 		if (inventory.getSelectedHandSlot(handID) == slot && slot.item != null)
 		{
-			if (slot.item.hasDrawAnim)
+			if (slot.item.moveset.getAnimationData("draw") != null)
 				queueAction(new WeaponDrawAction(slot.item, handID));
 			else
 				audioAction.playSoundOrganic(slot.item.sfxDraw);

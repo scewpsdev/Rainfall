@@ -529,24 +529,34 @@ public class InventoryUI
 
 				if (hoveredItem.item.category == ItemCategory.Weapon)
 				{
-					drawTooltipInfo("Base damage");
+					drawTooltipInfo("Damage");
 					drawTooltipInfoRight(hoveredItem.item.baseDamage.ToString());
 					yscroll += lineHeight;
 
+					if (hoveredItem.item.damageAbsorption > 0)
+					{
+						drawTooltipInfo("Blocking");
+						drawTooltipInfoRight(hoveredItem.item.damageAbsorption.ToString());
+						yscroll += lineHeight;
+					}
+
 					if (hoveredItem.item.parryFramesCount > 0)
 					{
-						drawTooltipInfo("Parry-frames");
+						drawTooltipInfo("Parry");
 						drawTooltipInfoRight(hoveredItem.item.parryFramesCount.ToString());
 						yscroll += lineHeight;
 					}
 				}
 				else if (hoveredItem.item.category == ItemCategory.Shield)
 				{
-					drawTooltipInfo("Base absorption");
+					drawTooltipInfo("Protection");
 					drawTooltipInfoRight(hoveredItem.item.damageAbsorption.ToString());
 					yscroll += lineHeight;
 
-					drawTooltipInfo("Parry-frames");
+					drawTooltipInfo("Stability");
+					drawTooltipInfoRight((10 - hoveredItem.item.shieldHitStaminaCost).ToString());
+
+					drawTooltipInfo("Parry");
 					drawTooltipInfoRight(hoveredItem.item.parryFramesCount.ToString());
 					yscroll += lineHeight;
 				}

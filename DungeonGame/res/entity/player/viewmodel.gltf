@@ -1345,7 +1345,7 @@
 		},
 		{
 			"mesh":0,
-			"name":"Human.001",
+			"name":"Viewmodel",
 			"skin":0
 		},
 		{
@@ -1357,7 +1357,7 @@
 				62,
 				63
 			],
-			"name":"Human.rig"
+			"name":"Skeleton"
 		}
 	],
 	"animations":[
@@ -33722,9 +33722,9 @@
 			"name":"Material",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.6738478541374207,
-					0.40717974305152893,
-					0.23786696791648865,
+					0.6017049551010132,
+					0.26906818151474,
+					0.16125592589378357,
 					1
 				],
 				"metallicFactor":0,
@@ -33844,7 +33844,7 @@
 				62,
 				63
 			],
-			"name":"Human.rig"
+			"name":"Skeleton"
 		}
 	],
 	"accessors":[

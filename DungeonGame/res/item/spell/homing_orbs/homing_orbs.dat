@@ -3,7 +3,7 @@ name = homing_orbs
 displayName = "Homing Orbs"
 category = spell
 
-model = "../spell.gltf"
+//model = "../spell.gltf"
 colliders = [
 	{
 		type: sphere

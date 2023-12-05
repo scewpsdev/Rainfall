@@ -5,7 +5,7 @@ category: weapon
 
 description: "you shouldn't be here"
 
-model: "default.gltf"
+//model: "default.gltf"
 moveset: "default_moveset.gltf"
 hitbox = {
 	type: sphere

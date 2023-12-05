@@ -48,6 +48,5 @@ internal class SpawnAction : Action
 		player.pitch = 0.0f;
 
 		player.hud.fadeout = 1.0f - MathF.Exp(-elapsedTime / duration * 10.0f);
-		player.hud.fadeout = 0.0f;
 	}
 }

@@ -116,6 +116,30 @@ namespace Rainfall
 			}
 		}
 
+		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, uint filterMask = 0xFFFF, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		{
+			Span<HitData> hits = stackalloc HitData[16];
+			int numHits = Raycast(origin, direction, distance, hits, filterData);
+
+			if (numHits > 0)
+			{
+				float shortestDistance = float.MaxValue;
+				int closestHit = -1;
+				for (int i = 0; i < numHits; i++)
+				{
+					if (hits[i].body != null && (hits[i].body.filterGroup & filterMask) != 0 && hits[i].distance < shortestDistance)
+					{
+						shortestDistance = hits[i].distance;
+						closestHit = i;
+					}
+				}
+				if (closestHit != -1)
+					return hits[closestHit];
+			}
+
+			return null;
+		}
+
 		public static int SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
 		{
 			unsafe

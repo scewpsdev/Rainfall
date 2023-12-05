@@ -3,7 +3,7 @@ name = magic_orb
 displayName = "Magic Orb"
 category = spell
 
-model = "../spell.gltf"
+//model = "../spell.gltf"
 colliders = [
 	{
 		type: sphere

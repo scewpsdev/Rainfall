@@ -55,8 +55,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"weapon_stand_diffuse",
-			"uri":"weapon_stand_diffuse.png"
+			"name":"weapon_stand_diffuse.png",
+			"uri":"textures/weapon_stand_diffuse.png"
 		}
 	],
 	"accessors":[

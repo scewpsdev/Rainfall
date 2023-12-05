@@ -193,6 +193,17 @@ public class Inventory : ItemContainer
 
 	public bool addHotbarItem(Item item, int amount)
 	{
+		if (item.stackable)
+		{
+			for (int i = 0; i < hotbar.Length; i++)
+			{
+				if (hotbar[i].item == item)
+				{
+					hotbar[i].stackSize += amount;
+					return true;
+				}
+			}
+		}
 		for (int i = 0; i < hotbar.Length; i++)
 		{
 			if (hotbar[i].item == null)

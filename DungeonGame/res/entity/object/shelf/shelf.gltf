@@ -79,8 +79,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"shelf_diffuse",
-			"uri":"shelf_diffuse.png"
+			"name":"shelf_diffuse.png",
+			"uri":"textures/shelf_diffuse.png"
 		}
 	],
 	"accessors":[

@@ -87,8 +87,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"wall_torch.png",
-			"uri":"wall_torch.png"
+			"name":"wall_torch_diffuse.png",
+			"uri":"textures/wall_torch_diffuse.png"
 		}
 	],
 	"accessors":[

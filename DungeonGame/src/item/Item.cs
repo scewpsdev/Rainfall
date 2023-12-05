@@ -152,8 +152,6 @@ public class Item
 	public Texture icon;
 	public Model moveset;
 
-	public bool hasDrawAnim = false;
-
 	public List<ItemLight> lights = new List<ItemLight>();
 	public List<Collider> colliders = new List<Collider>();
 	public Vector3 colliderCenterOfMass = Vector3.Zero;
@@ -205,22 +203,13 @@ public class Item
 	public Sound sfxBowDraw;
 
 
-	public Item(int id, string name, string displayName, ItemCategory category, string modelPath, string iconPath, string movesetPath)
+	public Item(int id, string name, string displayName, ItemCategory category)
 	{
 		this.id = id;
 		this.name = name;
 		this.displayName = displayName;
 		this.category = category;
 		this.stackable = category == ItemCategory.Consumable || category == ItemCategory.Arrow || category == ItemCategory.Collectible;
-
-		model = Resource.GetModel(modelPath);
-		icon = Resource.GetTexture(iconPath);
-
-		if (movesetPath != null)
-		{
-			moveset = Resource.GetModel(movesetPath);
-			hasDrawAnim = moveset.getAnimationData("draw") != null;
-		}
 	}
 
 	public float hitboxRange
@@ -418,19 +407,21 @@ public class Item
 		file.getIdentifier("name", out string name);
 		file.getStringContent("displayName", out string displayName);
 		file.getIdentifier("category", out string categoryName);
-		file.getStringContent("model", out string modelFile);
-		file.getStringContent("icon", out string iconFile);
-		file.getStringContent("moveset", out string movesetFile);
 
 		Item item = new Item(
 			id,
 			name,
 			displayName,
-			ParseCategory(categoryName),
-			directory + "/" + modelFile,
-			directory + "/" + iconFile,
-			movesetFile != null ? directory + "/" + movesetFile : null
+			ParseCategory(categoryName)
 		);
+
+		if (file.getStringContent("model", out string modelFile))
+			item.model = Resource.GetModel(directory + "/" + modelFile);
+		if (file.getStringContent("moveset", out string movesetFile))
+			item.moveset = Resource.GetModel(directory + "/" + movesetFile);
+		if (file.getStringContent("icon", out string iconFile))
+			item.icon = Resource.GetTexture(directory + "/" + iconFile);
+
 
 		if (file.getVector2("inventorySize", out Vector2 inventorySize))
 			item.inventorySize = (Vector2i)inventorySize;
@@ -762,7 +753,7 @@ public class Item
 		Load("weapon", "zweihander");
 		Load("weapon", "longsword");
 		Load("weapon", "shortsword");
-		Load("weapon", "dagger");
+		//Load("weapon", "dagger");
 		Load("weapon", "axe");
 
 		Load("weapon", "longbow");
