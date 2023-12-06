@@ -16,7 +16,6 @@ public class Player : Entity
 		Normal,
 		Walk,
 		Sprint,
-		Ducked,
 	}
 
 	class PlayerCollisionCallback : ControllerHitCallback
@@ -274,7 +273,7 @@ public class Player : Entity
 		//giveItem(Item.Get("torch"), 1);
 		//giveItem(Item.Get("longbow"));
 		//giveItem(Item.Get("arrow"), 50);
-		//giveItem(Item.Get("quemick"), 3);
+		//giveItem(Item.Get("flask"), 3);
 
 		//giveItem(Item.Get("leather_chestplate"));
 	}
@@ -799,8 +798,8 @@ public class Player : Entity
 					{
 						audioMovement.playSoundOrganic(sfxStep, 0.04f);
 						AIManager.NotifySound(position, 3.0f);
-						lastStep = stepsWalked;
 					}
+					lastStep = stepsWalked;
 				}
 			}
 		}

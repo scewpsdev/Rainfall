@@ -118,7 +118,10 @@ public class ItemEntity
 			*/
 
 			if (item.sfxHit != null)
+			{
 				audio.playSoundOrganic(item.sfxHit);
+				AIManager.NotifySound(transform.translation, 4.0f);
+			}
 		}
 		else if (contactType == ContactType.Persists)
 		{

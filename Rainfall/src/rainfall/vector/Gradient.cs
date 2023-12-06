@@ -15,6 +15,12 @@ namespace Rainfall
 		{
 			public U value;
 			public float position;
+
+			public VectorGradientValue(float position, U value)
+			{
+				this.value = value;
+				this.position = position;
+			}
 		}
 
 		List<VectorGradientValue<T>> values = new List<VectorGradientValue<T>>();
@@ -25,6 +31,12 @@ namespace Rainfall
 			clearValues(value);
 		}
 
+		public Gradient(T value0, T value1)
+		{
+			clearValues(value0);
+			values.Add(new VectorGradientValue<T>(1.0f, value1));
+		}
+
 		public Gradient(Gradient<T> gradient)
 		{
 			values.AddRange(gradient.values);
@@ -33,7 +45,7 @@ namespace Rainfall
 		public void clearValues(T value)
 		{
 			values.Clear();
-			values.Add(new VectorGradientValue<T> { value = value, position = 0.0f });
+			values.Add(new VectorGradientValue<T>(0.0f, value));
 		}
 
 		int getValueIndex(float position)

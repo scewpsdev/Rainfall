@@ -764,7 +764,7 @@ public class Item
 
 		Load("utility", "torch");
 
-		Load("consumable", "quemick");
+		Load("consumable", "flask");
 		Load("consumable", "firebomb");
 
 		Load("armor", "leather_chestplate");

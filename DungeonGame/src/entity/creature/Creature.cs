@@ -69,7 +69,6 @@ public class Creature : Entity, Hittable
 
 	public Ragdoll ragdoll { get; private set; }
 	Sound[] ragdollImpactSounds;
-	Model cube;
 
 	protected ParticleSystem hitParticles;
 
@@ -122,8 +121,6 @@ public class Creature : Entity, Hittable
 			Resource.GetSound("res/entity/creature/sfx/impact3.ogg"),
 			Resource.GetSound("res/entity/creature/sfx/impact4.ogg"),
 		};
-
-		cube = Resource.GetModel("res/models/cube.gltf");
 	}
 
 	protected void setItem(int handID, Item item)
@@ -255,10 +252,10 @@ public class Creature : Entity, Hittable
 		if (hitParticles != null && from != null)
 		{
 			Vector3 hitDirection = (position - from.position).normalized;
-			int numBloodParticles = MathHelper.RandomInt(10, 24);
+			int numBloodParticles = MathHelper.RandomInt(1, 3);
 			for (int i = 0; i < numBloodParticles; i++)
 			{
-				Vector3 particleDirection = -hitDirection.normalized * 2.0f;
+				Vector3 particleDirection = -hitDirection.normalized * 0.5f;
 				Vector3 randomVector = new Vector3(Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle()) * 2.0f - 1.0f;
 				particleDirection += randomVector * Vector3.Dot(randomVector.normalized, particleDirection);
 				hitParticles.emitParticle(particleDirection);

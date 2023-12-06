@@ -28,15 +28,18 @@ internal class SkeletonEnemy : Creature
 		hitParticles.spawnShape = ParticleSpawnShape.Circle;
 		hitParticles.spawnRadius = 0.25f;
 		hitParticles.emissionRate = 0.0f;
-		hitParticles.lifetime = 1.0f;
+		hitParticles.lifetime = 0.5f;
+		hitParticles.gravity = 0.0f;
 		hitParticles.initialVelocity = Vector3.Zero;
 		hitParticles.spriteTint = new Vector4(0.125f, 0.0f, 0.0f, 1.0f);
 		hitParticles.particleSize = 0.5f;
 		hitParticles.textureAtlas = Resource.GetTexture("res/texture/particle/blood.png");
+		hitParticles.particleSizeAnim = new Gradient<float>(0.05f, 1.5f);
 		//hitParticles.atlasColumns = 1;
 		hitParticles.frameWidth = 256;
 		hitParticles.frameHeight = 256;
 		hitParticles.numFrames = 1;
+		hitParticles.randomRotation = true;
 
 		stats.maxHealth = 200;
 		stats.health = 200;
@@ -64,7 +67,7 @@ internal class SkeletonEnemy : Creature
 
 		ai = new EnemyAI(this);
 
-		itemDrops.Add(new ItemDrop(Item.Get("quemick").id, 1, 0.25f));
+		itemDrops.Add(new ItemDrop(Item.Get("flask").id, 1, 0.25f));
 
 		hitSound = new Sound[] {
 			Resource.GetSound("res/entity/creature/skeleton/sfx/hit.ogg")

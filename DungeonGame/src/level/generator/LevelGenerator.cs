@@ -580,7 +580,7 @@ internal class LevelGenerator
 			Item.Get("torch"),
 			Item.Get("wooden_round_shield"),
 			Item.Get("leather_chestplate"),
-			Item.Get("quemick"),
+			Item.Get("flask"),
 			Item.Get("firebomb"),
 		},
 		new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 }), startingChestPosition, Quaternion.Identity);

@@ -43,12 +43,12 @@ internal class DemoScene : Room
 		//addEntity(new WallTorch(), new Vector3(5.0f, 0.0f, -20.0f), Quaternion.FromAxisAngle(Vector3.Up, -MathF.PI * 0.5f));
 		//addEntity(new WallTorch(), new Vector3(-2.0f, -2.0f, -28.0f), Quaternion.Identity);
 		//addEntity(new WallTorch(), new Vector3(2.0f, -2.0f, -28.0f), Quaternion.Identity);
-		addEntity(new Chest(new Item[] { Item.Get("quemick") }, new int[] { 1 }), new Vector3(-13, 16, -69), Quaternion.Identity);
+		addEntity(new Chest(new Item[] { Item.Get("flask") }, new int[] { 1 }), new Vector3(-13, 16, -69), Quaternion.Identity);
 		//addEntity(new Door(DoorType.Normal), new Vector3(-2.0f, 0.0f, -3.0f), Quaternion.Identity);
 
 		//addEntity(new ItemPickup(Item.Get("shortsword")), new Vector3(0.5f, 1.0f, 0.0f), Quaternion.FromAxisAngle(Vector3.Right, MathHelper.PiOver2));
 		//addEntity(new ItemPickup(Item.Get("shortsword"), 1, null, null, false), new Vector3(-2.0411f, 16.7006f, -49.312f), new Quaternion(0.753861f, -0.584183f, 0.237691f, 0.184192f));
-		addEntity(new Chest(new Item[] { Item.Get("shortsword"), Item.Get("quemick") }, new int[] { 1, 2 }), new Vector3(-2, 16, -50.0f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
+		addEntity(new Chest(new Item[] { Item.Get("shortsword"), Item.Get("flask") }, new int[] { 1, 2 }), new Vector3(-2, 16, -50.0f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
 		//addEntity(new ItemPickup(Item.Get("zweihander")), new Vector3(-0.5f, 1.0f, 0.0f), Quaternion.FromAxisAngle(Vector3.Right, MathHelper.PiOver2));
 		addEntity(new ItemPickup(Item.Get("longsword"), 1, null, null, false), new Vector3(-10.594f, 43.6672f, -50.1465f), new Quaternion(0.119981f, 0.03783f, 0.94614f, 0.298317f));
 		//addEntity(new ItemPickup(Item.Get("longbow")), new Vector3(0.0f, 1.0f, -3.0f), Quaternion.FromAxisAngle(Vector3.Right, MathHelper.PiOver2));

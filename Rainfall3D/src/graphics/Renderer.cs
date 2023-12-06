@@ -1446,6 +1446,76 @@ public static class Renderer
 		{
 			graphics.resetState();
 
+			particleSystems.Sort(ParticleSystemDepthComparator);
+
+			int maxParticleSystems = 32;
+			float maxParticleDistance = 20.0f;
+			Vector3 cameraPosition = camera.position;
+			Vector3 cameraAxis = camera.rotation.forward;
+			for (int i = 0; i < particleSystems.Count; i++)
+			{
+				Vector3 toParticles = particleSystems[i].transform.translation - cameraPosition;
+				float d = Vector3.Dot(toParticles, cameraAxis);
+				float l2 = Vector3.Dot(toParticles, toParticles);
+				if (d < 0.0f || l2 > maxParticleDistance * maxParticleDistance)
+				{
+					particleSystems.RemoveAt(i--);
+				}
+			}
+			if (particleSystems.Count > maxParticleSystems)
+				particleSystems.RemoveRange(0, particleSystems.Count - maxParticleSystems);
+
+			graphics.setUniform(particleShader, "u_cameraAxisRight", new Vector4(camera.rotation.right, 1.0f));
+			graphics.setUniform(particleShader, "u_cameraAxisUp", new Vector4(camera.rotation.up, 1.0f));
+
+			foreach (ParticleSystemDrawCommand draw in particleSystems)
+			{
+				int numParticles = draw.particleIndices.Count;
+				graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
+
+				float scale = draw.transform.scale.x;
+				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
+
+				graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
+				graphics.setUniform(particleShader, "u_atlasSize", new Vector4(draw.atlasSize.x, draw.atlasSize.y, draw.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
+
+				for (int i = 0; i < numParticles; i++)
+				{
+					int particleID = draw.particleIndices[i];
+					Particle particle = draw.particles[particleID];
+					Debug.Assert(particle.active);
+
+					Vector3 position = particle.position;
+					float size = scale * particle.size;
+
+					if (draw.followMode == ParticleFollowMode.Follow)
+						position = globalSpawnPos + particle.position * scale;
+
+					unsafe
+					{
+						ParticleInstanceData* particleData = particleInstanceBuffer.getData<ParticleInstanceData>();
+						particleData[i].positionRotation.xyz = position;
+						particleData[i].positionRotation.w = particle.rotation;
+						particleData[i].color = particle.color;
+						particleData[i].sizeAnimation.x = size;
+						particleData[i].sizeAnimation.y = particle.animationFrame;
+					}
+				}
+
+				graphics.setBlendState(BlendState.Alpha);
+				graphics.setViewTransform(projection, view);
+
+				graphics.setInstanceBuffer(particleInstanceBuffer, 0, numParticles);
+				graphics.setVertexBuffer(particleVertexBuffer);
+				graphics.setIndexBuffer(particleIndexBuffer);
+
+				graphics.draw(particleShader);
+			}
+		}
+
+		{
+			graphics.resetState();
+
 			particleSystemsAdditive.Sort(ParticleSystemDepthComparator);
 
 			int maxParticleSystems = 32;
