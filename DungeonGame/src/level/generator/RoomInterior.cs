@@ -118,7 +118,7 @@ public class LibraryRoom_ : RoomInterior
 					{
 						Vector3 position = room.gridPosition + p + new Vector3(0.4f, 0.0f, 1.0f);
 						Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						//level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
 					}
 				}
 			}
@@ -132,7 +132,7 @@ public class LibraryRoom_ : RoomInterior
 					{
 						Vector3 position = room.gridPosition + p + new Vector3(1 - 0.4f, 0.0f, 1.0f);
 						Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * -0.5f);
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						//level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
 					}
 				}
 			}
@@ -149,7 +149,7 @@ public class LibraryRoom_ : RoomInterior
 					{
 						Vector3 position = room.gridPosition + p + new Vector3(1.0f, 0.0f, 0.4f);
 						Quaternion rotation = Quaternion.Identity;
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						//level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
 					}
 				}
 			}
@@ -163,7 +163,7 @@ public class LibraryRoom_ : RoomInterior
 					{
 						Vector3 position = room.gridPosition + p + new Vector3(1.0f, 0.0f, 1 - 0.4f);
 						Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI);
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						//level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
 					}
 				}
 			}

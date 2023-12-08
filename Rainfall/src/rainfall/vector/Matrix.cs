@@ -290,6 +290,14 @@ namespace Rainfall
 			return result;
 		}
 
+		public static Quaternion operator *(Matrix a, Quaternion b)
+		{
+			// TODO optimize
+			Matrix bMat = CreateRotation(b);
+			Matrix result = a * bMat;
+			return result.rotation;
+		}
+
 		public static Matrix CreateTranslation(float x, float y, float z, float w)
 		{
 			Matrix matrix = Identity;

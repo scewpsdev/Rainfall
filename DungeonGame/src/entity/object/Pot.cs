@@ -52,7 +52,7 @@ internal class Pot : Entity, Hittable
 		body.destroy();
 	}
 
-	public void hit(int damage, Entity from, Vector3 force, int linkID)
+	public void hit(int damage, Entity from, Vector3 hitPosition, Vector3 force, int linkID)
 	{
 		remove();
 		if (fracturedModel != null)

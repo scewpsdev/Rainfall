@@ -108,5 +108,7 @@ namespace Rainfall
 
 		public static bool operator ==(Vector3i a, Vector3i b) => a.x == b.x && a.y == b.y && a.z == b.z;
 		public static bool operator !=(Vector3i a, Vector3i b) => a.x != b.x || a.y != b.y || a.z != b.z;
+
+		public static explicit operator Vector3(Vector3i v) => new Vector3(v.x, v.y, v.z);
 	}
 }

@@ -289,10 +289,10 @@ public class HUD
 				Renderer.DrawUITexture(x + padding, y + padding, iconSize, iconSize, item.icon);
 
 				if (notif.amount > 1 || notif.item.stackable)
-					Renderer.DrawText(x + padding + iconSize - padding * 2, y + padding + iconSize - (int)stackSizeFont.size, 1.0f, notif.amount.ToString(), stackSizeFont, 0xffaaaaaa);
+					Renderer.DrawText(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)stackSizeFont.size, 1.0f, notif.amount.ToString(), stackSizeFont, 0xffaaaaaa);
 
-				Renderer.DrawText(x + padding + iconSize + padding * 3, y + padding * 2, 1.0f, item.displayName, notificationFont, 0xffaaaaaa);
-				Renderer.DrawText(x + padding + iconSize + padding * 3, y + padding + iconSize - padding - (int)notificationFont.size, 1.0f, item.typeSpecifier, notificationFont, 0xff777777);
+				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, notificationFont, 0xffaaaaaa);
+				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)notificationFont.size, 1.0f, item.typeSpecifier, notificationFont, 0xff777777);
 			}
 		}
 	}

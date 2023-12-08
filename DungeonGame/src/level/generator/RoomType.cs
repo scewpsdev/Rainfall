@@ -34,6 +34,22 @@ public struct EnemySpawnInfo
 	}
 }
 
+public struct ChestSpawnInfo
+{
+	public Vector3i tile;
+	public Vector3i direction;
+	public Item[] items;
+	public int[] amounts;
+
+	public ChestSpawnInfo(Vector3i tile, Vector3i direction, Item[] items, int[] amounts)
+	{
+		this.tile = tile;
+		this.direction = direction;
+		this.items = items;
+		this.amounts = amounts;
+	}
+}
+
 public class RoomType
 {
 	public int id;
@@ -44,6 +60,7 @@ public class RoomType
 	public bool[] mask;
 	public List<DoorwayInfo> doorwayInfo = new List<DoorwayInfo>();
 	public List<EnemySpawnInfo> enemySpawns = new List<EnemySpawnInfo>();
+	public List<ChestSpawnInfo> chestSpawns = new List<ChestSpawnInfo>();
 
 	public bool isTemplate = false;
 	public RoomType originalTemplate = null;
@@ -78,7 +95,7 @@ public class RoomType
 		}
 	}
 
-	protected RoomType copy(RoomType type)
+	protected T copy<T>(T type) where T : RoomType
 	{
 		type.id = id;
 		type.model = model;
@@ -456,6 +473,72 @@ public class LibraryRoom : RoomType
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
 
+	void placeShelf(Room room, Vector3 position, Vector3i direction, Random random)
+	{
+		Quaternion rotation = Quaternion.LookAt((Vector3)direction);
+
+		List<Item> items = new List<Item>();
+		List<int> amounts = new List<int>();
+
+		float flaskChance = 0.1f;
+		if (random.NextSingle() < flaskChance)
+		{
+			items.Add(Item.Get("flask"));
+			amounts.Add(1);
+		}
+
+		float arrowChance = 0.08f;
+		if (random.NextSingle() < arrowChance)
+		{
+			items.Add(Item.Get("arrow"));
+			int amount = MathHelper.RandomInt(7, 15, random);
+			amounts.Add(amount);
+		}
+
+		float goldChance = 0.25f;
+		if (random.NextSingle() < goldChance || items.Count == 0)
+		{
+			items.Add(Item.Get("gold"));
+			int amount = MathHelper.RandomInt(3, 10, random);
+			amounts.Add(amount);
+		}
+
+		room.addEntity(new BookShelf(items.ToArray(), amounts.ToArray(), random), position, rotation);
+	}
+
+	void placeChest(Room room, Vector3 position, Vector3i direction, Random random)
+	{
+		Quaternion rotation = Quaternion.LookAt((Vector3)direction);
+
+		List<Item> items = new List<Item>();
+		List<int> amounts = new List<int>();
+
+		float flaskChance = 0.1f;
+		if (random.NextSingle() < flaskChance)
+		{
+			items.Add(Item.Get("flask"));
+			amounts.Add(1);
+		}
+
+		float arrowChance = 0.08f;
+		if (random.NextSingle() < arrowChance)
+		{
+			items.Add(Item.Get("arrow"));
+			int amount = MathHelper.RandomInt(7, 15, random);
+			amounts.Add(amount);
+		}
+
+		float goldChance = 0.25f;
+		if (random.NextSingle() < goldChance || items.Count == 0)
+		{
+			items.Add(Item.Get("gold"));
+			int amount = MathHelper.RandomInt(3, 10, random);
+			amounts.Add(amount);
+		}
+
+		room.addEntity(new Chest(items.ToArray(), amounts.ToArray()), position, rotation);
+	}
+
 	public override void onSpawn(Room room, Level level, Random random)
 	{
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
@@ -468,12 +551,20 @@ public class LibraryRoom : RoomType
 				Vector3i p = new Vector3i(x, 0, z);
 				if (!isInFrontOfDoorway(room.gridPosition + p, room) && !isInFrontOfDoorway(room.gridPosition + p + Vector3i.Back, room))
 				{
-					bool spawnShelf = random.Next() % 3 == 0;
+					Vector3 position = room.gridPosition + p + new Vector3(0.4f, 0.0f, 1.0f);
+
+					bool spawnShelf = random.Next() % 5 == 0;
 					if (spawnShelf)
 					{
-						Vector3 position = room.gridPosition + p + new Vector3(0.4f, 0.0f, 1.0f);
-						Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						placeShelf(room, position, Vector3i.Left, random);
+					}
+					else
+					{
+						bool spawnChest = random.Next() % 10 == 0;
+						if (spawnChest)
+						{
+							placeChest(room, position, Vector3i.Left, random);
+						}
 					}
 				}
 			}
@@ -482,12 +573,20 @@ public class LibraryRoom : RoomType
 				Vector3i p = new Vector3i(x, 0, z);
 				if (!isInFrontOfDoorway(room.gridPosition + p, room) && !isInFrontOfDoorway(room.gridPosition + p + Vector3i.Back, room))
 				{
-					bool spawnShelf = random.Next() % 3 == 0;
+					Vector3 position = room.gridPosition + p + new Vector3(1 - 0.4f, 0.0f, 1.0f);
+
+					bool spawnShelf = random.Next() % 5 == 0;
 					if (spawnShelf)
 					{
-						Vector3 position = room.gridPosition + p + new Vector3(1 - 0.4f, 0.0f, 1.0f);
-						Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * -0.5f);
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						placeShelf(room, position, Vector3i.Right, random);
+					}
+					else
+					{
+						bool spawnChest = random.Next() % 10 == 0;
+						if (spawnChest)
+						{
+							placeChest(room, position, Vector3i.Right, random);
+						}
 					}
 				}
 			}
@@ -499,12 +598,20 @@ public class LibraryRoom : RoomType
 				Vector3i p = new Vector3i(x, 0, z);
 				if (!isInFrontOfDoorway(room.gridPosition + p, room) && !isInFrontOfDoorway(room.gridPosition + p + Vector3i.Right, room))
 				{
-					bool spawnShelf = random.Next() % 3 == 0;
+					Vector3 position = room.gridPosition + p + new Vector3(1.0f, 0.0f, 0.4f);
+
+					bool spawnShelf = random.Next() % 5 == 0;
 					if (spawnShelf)
 					{
-						Vector3 position = room.gridPosition + p + new Vector3(1.0f, 0.0f, 0.4f);
-						Quaternion rotation = Quaternion.Identity;
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						placeShelf(room, position, Vector3i.Forward, random);
+					}
+					else
+					{
+						bool spawnChest = random.Next() % 10 == 0;
+						if (spawnChest)
+						{
+							placeChest(room, position, Vector3i.Forward, random);
+						}
 					}
 				}
 			}
@@ -513,12 +620,20 @@ public class LibraryRoom : RoomType
 				Vector3i p = new Vector3i(x, 0, z);
 				if (!isInFrontOfDoorway(room.gridPosition + p, room) && !isInFrontOfDoorway(room.gridPosition + p + Vector3i.Right, room))
 				{
-					bool spawnShelf = random.Next() % 3 == 0;
+					Vector3 position = room.gridPosition + p + new Vector3(1.0f, 0.0f, 1 - 0.4f);
+
+					bool spawnShelf = random.Next() % 5 == 0;
 					if (spawnShelf)
 					{
-						Vector3 position = room.gridPosition + p + new Vector3(1.0f, 0.0f, 1 - 0.4f);
-						Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI);
-						level.addEntity(new BookShelf(new Item[] { Item.Get("gold") }, random), position, rotation);
+						placeShelf(room, position, Vector3i.Back, random);
+					}
+					else
+					{
+						bool spawnChest = random.Next() % 10 == 0;
+						if (spawnChest)
+						{
+							placeChest(room, position, Vector3i.Back, random);
+						}
 					}
 				}
 			}

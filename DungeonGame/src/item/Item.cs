@@ -628,7 +628,7 @@ public class Item
 					attack.animationName = animationNameNode.identifier;
 					attack.damageTimeStart = damageFramesStartNode.integer / 24.0f;
 					attack.damageTimeEnd = damageFramesEndNode.integer / 24.0f;
-					attack.followUpCancelTime = followUpCancelFrameNode != null ? followUpCancelFrameNode.integer / 24.0f : 0.0f;
+					attack.followUpCancelTime = followUpCancelFrameNode != null ? followUpCancelFrameNode.integer / 24.0f : 1000.0f;
 					attack.damageMultiplier = damageMultiplierNode != null ? (float)damageMultiplierNode.number : 1.0f;
 					attack.staminaCost = staminaCostNode != null ? (float)staminaCostNode.number : 0.0f;
 

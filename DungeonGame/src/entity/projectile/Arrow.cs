@@ -25,6 +25,7 @@ internal class Arrow : Entity, Interactable
 	bool hit = false;
 	bool hitHandled = false;
 	RigidBody hitTarget;
+	Vector3 hitPosition;
 	Creature hitTargetCreature;
 	int hitTargetLinkID = -1;
 
@@ -120,6 +121,7 @@ internal class Arrow : Entity, Interactable
 			{
 				hit = true;
 				hitTarget = other;
+				hitPosition = position + rotation.forward * 1.6f;
 				hitTargetLinkID = getLinkIDFromShape(other);
 				if (hitTarget.entity is Creature)
 					hitTargetCreature = hitTarget.entity as Creature;
@@ -154,7 +156,7 @@ internal class Arrow : Entity, Interactable
 					Creature creature = hitTarget.entity as Creature;
 					if (creature.isAlive)
 					{
-						creature.hit(bow.baseDamage, this, force, hitTargetLinkID != -1 ? hitTargetLinkID : 0);
+						creature.hit(bow.baseDamage, this, hitPosition, force, hitTargetLinkID != -1 ? hitTargetLinkID : 0);
 						//remove();
 					}
 					else
@@ -165,7 +167,7 @@ internal class Arrow : Entity, Interactable
 				else if (hitTarget.entity is Hittable)
 				{
 					Hittable hittable = hitTarget.entity as Hittable;
-					hittable.hit(bow.baseDamage, this, force, hitTargetLinkID != -1 ? hitTargetLinkID : 0);
+					hittable.hit(bow.baseDamage, this, force, hitPosition, hitTargetLinkID != -1 ? hitTargetLinkID : 0);
 				}
 
 				//if (hitTarget.entity is Creature || hitTarget.entity == null)

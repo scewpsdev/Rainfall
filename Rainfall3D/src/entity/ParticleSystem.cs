@@ -165,7 +165,7 @@ public class ParticleSystem
 		return -1;
 	}
 
-	public void emitParticle(Vector3 particleVelocity, int num = 1)
+	public void emitParticle(Vector3 particleOffset, Vector3 particleVelocity, int num = 1)
 	{
 		for (int i = 0; i < num; i++)
 		{
@@ -203,6 +203,8 @@ public class ParticleSystem
 					break;
 			}
 
+			position += particleOffset;
+
 			switch (followMode)
 			{
 				case ParticleFollowMode.Trail:
@@ -237,6 +239,11 @@ public class ParticleSystem
 		}
 	}
 
+	public void emitParticle(Vector3 particleVelocity, int num = 1)
+	{
+		emitParticle(Vector3.Zero, particleVelocity, num);
+	}
+
 	public void update()
 	{
 		long now = Time.currentTime;
@@ -244,7 +251,7 @@ public class ParticleSystem
 		{
 			if (now - lastEmitted > 1e9 / emissionRate)
 			{
-				emitParticle(Vector3.Zero, 1);
+				emitParticle(Vector3.Zero, Vector3.Zero, 1);
 				lastEmitted = now;
 			}
 		}

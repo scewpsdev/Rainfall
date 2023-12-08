@@ -64,7 +64,7 @@ internal class MobItemEntity
 		}
 	}
 
-	void onContact(RigidBody body, CharacterController controller, ContactType contactType, MobAttackAction attackAction)
+	void onContact(RigidBody body, CharacterController controller, ContactType contactType, Vector3 contactPosition, MobAttackAction attackAction)
 	{
 		if (body != null && body.entity != creature && !attackAction.hitEntities.Contains(body.entity))
 		{
@@ -79,7 +79,7 @@ internal class MobItemEntity
 			else if (otherEntity is Creature)
 			{
 				Creature otherCreature = otherEntity as Creature;
-				otherCreature.hit(damage, creature);
+				otherCreature.hit(damage, creature, contactPosition, Vector3.Zero, 0);
 			}
 
 			attackAction.hitEntities.Add((Entity)body.entity);
@@ -119,7 +119,7 @@ internal class MobItemEntity
 			{
 				if (hits[i].body != null)
 				{
-					onContact(hits[i].body, hits[i].controller, ContactType.Found, attackAction);
+					onContact(hits[i].body, hits[i].controller, ContactType.Found, hits[i].position, attackAction);
 					hitFound = true;
 				}
 			}

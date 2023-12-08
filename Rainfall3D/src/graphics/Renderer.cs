@@ -1476,7 +1476,8 @@ public static class Renderer
 				float scale = draw.transform.scale.x;
 				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
 
-				graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
+				if (draw.textureAtlas != null)
+					graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
 				graphics.setUniform(particleShader, "u_atlasSize", new Vector4(draw.atlasSize.x, draw.atlasSize.y, draw.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
 
 				for (int i = 0; i < numParticles; i++)
@@ -1546,7 +1547,8 @@ public static class Renderer
 				float scale = draw.transform.scale.x;
 				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
 
-				graphics.setTexture(particleAdditiveShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
+				if (draw.textureAtlas != null)
+					graphics.setTexture(particleAdditiveShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
 				graphics.setUniform(particleAdditiveShader, "u_atlasSize", new Vector4(draw.atlasSize.x, draw.atlasSize.y, draw.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
 
 				for (int i = 0; i < numParticles; i++)

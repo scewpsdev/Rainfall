@@ -73,12 +73,12 @@ internal class Explosion : Entity
 
 		for (int i = 0; i < 12; i++)
 		{
-			dustParticles.emitParticle(new Vector3(MathHelper.RandomFloat(-1.0f, 1.0f), 1.0f, MathHelper.RandomFloat(-1.0f, 1.0f)).normalized * 5.0f);
+			dustParticles.emitParticle(Vector3.Zero, new Vector3(MathHelper.RandomFloat(-1.0f, 1.0f), 1.0f, MathHelper.RandomFloat(-1.0f, 1.0f)).normalized * 5.0f);
 		}
 
 
 
-		Span<HitData> hits = stackalloc HitData[32];
+		Span<HitData> hits = stackalloc HitData[64];
 		int numHits = Physics.OverlapSphere(RANGE, position, hits, QueryFilterFlags.Default);
 		for (int i = 0; i < numHits; i++)
 		{
@@ -93,7 +93,7 @@ internal class Explosion : Entity
 					Vector3 direction = (entity.position + new Vector3(0.0f, 1.0f, 0.0f) - position).normalized;
 					Vector3 force = direction * EXPLOSION_FORCE;
 
-					hittable.hit(DAMAGE, shooter, force, 0);
+					hittable.hit(DAMAGE, shooter, hits[i].position, force, 0);
 
 					if (entity is Creature)
 					{

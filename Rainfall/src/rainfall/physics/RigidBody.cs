@@ -198,6 +198,12 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyGetTransform(body, out position, out rotation);
 		}
 
+		public Vector3 getPosition()
+		{
+			getTransform(out Vector3 position, out Quaternion _);
+			return position;
+		}
+
 		public Vector3 getVelocity()
 		{
 			Native.Physics.Physics_RigidBodyGetVelocity(body, out Vector3 velocity);

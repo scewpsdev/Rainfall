@@ -214,6 +214,14 @@ public class Room
 			addEntity(enemy, enemySpawns[i].position, enemySpawns[i].rotation);
 		}
 
+		for (int i = 0; i < type.chestSpawns.Count; i++)
+		{
+			Vector3 position = transform * (type.chestSpawns[i].tile + new Vector3(0.5f, 0.0f, 0.5f));
+			Quaternion rotation = transform * Quaternion.LookAt((Vector3)type.chestSpawns[i].direction);
+			Chest chest = new Chest(type.chestSpawns[i].items, type.chestSpawns[i].amounts);
+			addEntity(chest, position, rotation);
+		}
+
 		type.onSpawn(this, level, random);
 	}
 

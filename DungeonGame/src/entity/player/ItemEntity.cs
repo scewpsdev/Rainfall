@@ -78,7 +78,7 @@ public class ItemEntity
 		}
 	}
 
-	void onContact(HitData hit, ContactType contactType, AttackAction attackAction, Item item)
+	void onContact(HitData hit, ContactType contactType, Vector3 contactPosition, AttackAction attackAction, Item item)
 	{
 		Entity otherEntity = hit.body.entity as Entity;
 
@@ -96,7 +96,7 @@ public class ItemEntity
 					if (creature.isAlive)
 					{
 						int linkID = creature.hitboxes.IndexOf(hit.body);
-						creature.hit(damage, player, force, linkID);
+						creature.hit(damage, player, contactPosition, force, linkID);
 					}
 					else
 					{
@@ -106,7 +106,7 @@ public class ItemEntity
 				else
 				{
 					Hittable hittable = otherEntity as Hittable;
-					hittable.hit(damage, player, force, 0);
+					hittable.hit(damage, player, contactPosition, force, 0);
 				}
 			}
 			/*
@@ -194,7 +194,7 @@ public class ItemEntity
 				(hits[i].body.filterMask & (uint)PhysicsFilterGroup.Weapon) != 0 &&
 				hits[i].body.entity is not Player)
 			{
-				if (hits[i].distance < shortestDistance)
+				if (hits[i].distance < shortestDistance || hits[i].distance < shortestDistance + 0.1f && hits[i].position != Vector3.Zero)
 				{
 					shortestDistance = hits[i].distance;
 					hit = hits[i];
@@ -204,13 +204,15 @@ public class ItemEntity
 
 		if (hit.body != null)
 		{
+			Vector3 hitPosition = hit.position != Vector3.Zero ? hit.position : hit.body.getPosition();
+
 			if (!attackAction.hitEntities.Contains(hit.body.entity))
 			{
-				onContact(hit, ContactType.Found, attackAction, item);
+				onContact(hit, ContactType.Found, hitPosition, attackAction, item);
 				attackAction.hitEntities.Add((Entity)hit.body.entity);
 			}
 
-			onContact(hit, ContactType.Persists, attackAction, item);
+			onContact(hit, ContactType.Persists, hitPosition, attackAction, item);
 		}
 	}
 

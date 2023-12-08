@@ -24,7 +24,7 @@ internal class SkeletonEnemy : Creature
 		animator.setState(idleState);
 
 		hitParticles = new ParticleSystem(64);
-		hitParticles.spawnOffset = new Vector3(0.0f, 0.8f, 0.0f);
+		//hitParticles.spawnOffset = new Vector3(0.0f, 0.8f, 0.0f);
 		hitParticles.spawnShape = ParticleSpawnShape.Circle;
 		hitParticles.spawnRadius = 0.25f;
 		hitParticles.emissionRate = 0.0f;
@@ -34,7 +34,7 @@ internal class SkeletonEnemy : Creature
 		hitParticles.spriteTint = new Vector4(0.125f, 0.0f, 0.0f, 1.0f);
 		hitParticles.particleSize = 0.5f;
 		hitParticles.textureAtlas = Resource.GetTexture("res/texture/particle/blood.png");
-		hitParticles.particleSizeAnim = new Gradient<float>(0.05f, 1.5f);
+		hitParticles.particleSizeAnim = new Gradient<float>(0.05f, 0.8f);
 		//hitParticles.atlasColumns = 1;
 		hitParticles.frameWidth = 256;
 		hitParticles.frameHeight = 256;

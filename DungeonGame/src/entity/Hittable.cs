@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 interface Hittable
 {
-	void hit(int damage, Entity from, Vector3 force, int linkID);
+	void hit(int damage, Entity from, Vector3 hitPosition, Vector3 force, int linkID);
 }

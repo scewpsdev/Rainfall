@@ -12,12 +12,14 @@ internal class BookShelf : Entity
 	RigidBody body;
 
 	Item[] items;
+	int[] amounts;
 	Random random;
 
 
-	public BookShelf(Item[] items, Random random)
+	public BookShelf(Item[] items, int[] amounts, Random random)
 	{
 		this.items = items;
+		this.amounts = amounts;
 		this.random = random;
 
 		model = Resource.GetModel("res/entity/object/shelf/shelf.gltf");
@@ -33,9 +35,11 @@ internal class BookShelf : Entity
 		body.addBoxCollider(new Vector3(1.0f, 0.05f, 0.25f), new Vector3(0.0f, 1.25f, 0.0f), Quaternion.Identity);
 		body.addBoxCollider(new Vector3(1.0f, 0.05f, 0.25f), new Vector3(0.0f, 1.75f, 0.0f), Quaternion.Identity);
 
-		foreach (Item item in items)
+		for (int i = 0; i < items.Length; i++)
 		{
-			ItemPickup pickup = new ItemPickup(item);
+			Item item = items[i];
+			int amount = amounts[i];
+			ItemPickup pickup = new ItemPickup(item, amount);
 			int level = random.Next() % 3;
 			Matrix itemTransform = getModelMatrix()
 				* Matrix.CreateTranslation(new Vector3(MathHelper.RandomFloat(-0.8f, 0.8f, random), 0.3f + level * 0.5f + 0.1f, MathHelper.RandomFloat(-0.2f, 0.2f, random)))

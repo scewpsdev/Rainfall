@@ -434,6 +434,9 @@ public class Player : Entity
 				if (dir.lengthSquared == 0.0f)
 					dir = new Vector3(0.0f, 0.0f, -1.0f);
 				queueAction(new DodgeAction(dir));
+
+				isDucked = false;
+				inDuckTimer = -1;
 			}
 		}
 
@@ -479,6 +482,12 @@ public class Player : Entity
 			if (!isGrounded || inDuckTimer >= DUCK_TRANSITION_DURATION)
 			{
 				isDucked = true;
+			}
+
+			if (InputManager.IsDown("Walk") || InputManager.IsDown("Sprint"))
+			{
+				isDucked = false;
+				inDuckTimer = -1;
 			}
 		}
 		else

@@ -59,7 +59,7 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 		return container;
 	}
 
-	public void hit(int damage, Entity from, Vector3 force, int linkID)
+	public void hit(int damage, Entity from, Vector3 hitPosition, Vector3 force, int linkID)
 	{
 		remove();
 		DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, null), position, rotation);

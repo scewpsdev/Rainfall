@@ -207,7 +207,7 @@ public class Creature : Entity, Hittable
 		}
 	}
 
-	public void hit(int damage, Entity from, Vector3 force, int linkID)
+	public void hit(int damage, Entity from, Vector3 hitPosition, Vector3 force, int linkID)
 	{
 		if (from is Creature)
 			return;
@@ -258,14 +258,14 @@ public class Creature : Entity, Hittable
 				Vector3 particleDirection = -hitDirection.normalized * 0.5f;
 				Vector3 randomVector = new Vector3(Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle()) * 2.0f - 1.0f;
 				particleDirection += randomVector * Vector3.Dot(randomVector.normalized, particleDirection);
-				hitParticles.emitParticle(particleDirection);
+				hitParticles.emitParticle(hitPosition - hitParticles.transform.translation, particleDirection);
 			}
 		}
 	}
 
 	public void hit(int damage, Entity from)
 	{
-		hit(damage, from, Vector3.Zero, 0);
+		hit(damage, from, position, Vector3.Zero, 0);
 	}
 
 	void updateMovement()
