@@ -35,14 +35,9 @@ internal class BlockingHitAction : Action
 
 		mirrorAnimation = handID == 1;
 
-		movementSpeedMultiplier = 0.5f;
+		movementSpeedMultiplier = 0.2f;
 
 		staminaCost = item.shieldHitStaminaCost;
 		staminaCostTime = 0.0f;
-	}
-
-	public override void onFinished(Player player)
-	{
-		base.onFinished(player);
 	}
 }

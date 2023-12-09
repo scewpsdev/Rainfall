@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 internal class AttackAction : Action
 {
 	const float HIT_SLOWDOWN_MAX_DURATION = 0.2f;
-	const float HIT_SLOWDOWN_STRENGTH = 0.1f;
+	const float HIT_SLOWDOWN_STRENGTH = 0.3f;
 
 	const float HIT_KNOCKBACK_DURATION = 0.4f;
 

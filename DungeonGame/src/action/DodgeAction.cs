@@ -19,7 +19,8 @@ internal class DodgeAction : Action
 	public DodgeAction(Vector3 fsu)
 		: base(ActionType.Dodge)
 	{
-		movementSpeedMultiplier = 0.0f;
+		movementSpeedMultiplier = 1.0f;
+		lockMovement = true;
 		duration = DODGE_DURATION;
 
 		movementInput = fsu;

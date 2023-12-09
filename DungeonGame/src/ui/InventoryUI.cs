@@ -533,10 +533,10 @@ public class InventoryUI
 					drawTooltipInfoRight(hoveredItem.item.baseDamage.ToString());
 					yscroll += lineHeight;
 
-					if (hoveredItem.item.damageAbsorption > 0)
+					if (hoveredItem.item.blockDamageAbsorption > 0)
 					{
 						drawTooltipInfo("Blocking");
-						drawTooltipInfoRight(hoveredItem.item.damageAbsorption.ToString());
+						drawTooltipInfoRight(hoveredItem.item.blockDamageAbsorption.ToString());
 						yscroll += lineHeight;
 					}
 
@@ -550,7 +550,7 @@ public class InventoryUI
 				else if (hoveredItem.item.category == ItemCategory.Shield)
 				{
 					drawTooltipInfo("Protection");
-					drawTooltipInfoRight(hoveredItem.item.damageAbsorption.ToString());
+					drawTooltipInfoRight(hoveredItem.item.blockDamageAbsorption.ToString());
 					yscroll += lineHeight;
 
 					drawTooltipInfo("Stability");

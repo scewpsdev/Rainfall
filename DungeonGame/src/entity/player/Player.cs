@@ -285,6 +285,7 @@ public class Player : Entity
 			damage = 0;
 
 		bool parry = currentAction != null && currentAction.elapsedTime >= currentAction.parryFramesStartTime && currentAction.elapsedTime < currentAction.parryFramesEndTime;
+		Console.WriteLine(parry);
 		if (parry)
 		{
 			Item shield = null;
@@ -295,9 +296,9 @@ public class Player : Entity
 				shield = shieldParryAction.item;
 				handID = shieldParryAction.handID;
 			}
-			else if (currentAction.type == ActionType.ShieldRaise)
+			else if (currentAction.type == ActionType.ShieldStance)
 			{
-				ShieldRaiseAction blockAction = currentAction as ShieldRaiseAction;
+				ShieldStanceAction blockAction = currentAction as ShieldStanceAction;
 				shield = blockAction.item;
 				handID = blockAction.handID;
 			}
@@ -321,14 +322,14 @@ public class Player : Entity
 			damage = 0;
 		}
 
-		bool blocking = !parry && currentAction != null && (currentAction.type == ActionType.ShieldRaise || currentAction.type == ActionType.BlockingHit);
+		bool blocking = isBlocking;
 		if (blocking)
 		{
 			Item shield = null;
 			int handID = -1;
-			if (currentAction is ShieldRaiseAction)
+			if (currentAction is ShieldStanceAction)
 			{
-				ShieldRaiseAction shieldRaiseAction = currentAction as ShieldRaiseAction;
+				ShieldStanceAction shieldRaiseAction = currentAction as ShieldStanceAction;
 				shield = shieldRaiseAction.item;
 				handID = shieldRaiseAction.handID;
 			}
@@ -343,21 +344,32 @@ public class Player : Entity
 				Debug.Assert(false);
 			}
 
-			damage = (int)(damage * (1.0f - shield.damageAbsorption / 100.0f));
+			damage = (int)(damage * (1.0f - shield.blockDamageAbsorption / 100.0f));
 
-			//if (currentAction.type == ActionType.ShieldHit)
-			//	cancelAction();
-			cancelAllActions();
-			queueAction(new BlockingHitAction(shield, handID, isTwoHanded(handID)));
-
-			if (shield.sfxBlock != null)
-				handEntities[handID].audio.playSoundOrganic(shield.sfxBlock, 1, 1, 0.1f, 0.1f);
-
-			if (from is Creature && shield.category == ItemCategory.Shield) // Dont stagger if blocking with weapon
+			if (stats.stamina >= shield.shieldHitStaminaCost)
 			{
-				Creature creature = from as Creature;
-				creature.cancelAction();
-				creature.queueAction(new MobStaggerAction(MobActionType.StaggerBlocked));
+				//if (currentAction.type == ActionType.ShieldHit)
+				//	cancelAction();
+				cancelAllActions();
+				queueAction(new BlockingHitAction(shield, handID, isTwoHanded(handID)));
+
+				if (shield.sfxBlock != null)
+					handEntities[handID].audio.playSoundOrganic(shield.sfxBlock, 1, 1, 0.1f, 0.1f);
+
+				if (from is Creature && shield.category == ItemCategory.Shield) // Dont stagger if blocking with weapon
+				{
+					Creature creature = from as Creature;
+					creature.cancelAction();
+					creature.queueAction(new MobStaggerAction(MobActionType.StaggerBlocked));
+				}
+			}
+			else
+			{
+				cancelAllActions();
+				queueAction(new GuardBreakAction(shield, handID, isTwoHanded(handID)));
+
+				if (shield.sfxGuardBreak != null)
+					handEntities[handID].audio.playSoundOrganic(shield.sfxGuardBreak, 1, 1, 0.1f, 0.1f);
 			}
 		}
 
@@ -369,7 +381,7 @@ public class Player : Entity
 				ItemSlot armor = inventory.armor[i];
 				if (armor.item != null)
 				{
-					damageMultiplier *= 1.0f - armor.item.damageAbsorption / 100.0f;
+					damageMultiplier *= 1.0f - armor.item.blockDamageAbsorption / 100.0f;
 				}
 			}
 			damage = (int)(damage * damageMultiplier);
@@ -397,25 +409,34 @@ public class Player : Entity
 		Vector3 fsu = Vector3.Zero;
 
 		{
-			if (InputManager.IsDown("Left"))
-				fsu.x--;
-			if (InputManager.IsDown("Right"))
-				fsu.x++;
-			if (InputManager.IsDown("Back"))
-				fsu.z--;
-			if (InputManager.IsDown("Forward"))
-				fsu.z++;
-
-			if (currentAction != null)
+			if (currentAction == null || !currentAction.lockMovement)
 			{
-				fsu *= currentAction.movementSpeedMultiplier;
-				fsu += currentAction.movementInput;
+				if (InputManager.IsDown("Left"))
+					fsu.x--;
+				if (InputManager.IsDown("Right"))
+					fsu.x++;
+				if (InputManager.IsDown("Back"))
+					fsu.z--;
+				if (InputManager.IsDown("Forward"))
+					fsu.z++;
 			}
 
-			if (fsu.lengthSquared > 0.0f)
 			{
-				fsu = fsu.normalized;
-				fsu *= MAX_GROUND_SPEED;
+				if (currentAction != null)
+				{
+					fsu += currentAction.movementInput;
+				}
+
+				if (fsu.lengthSquared > 0.0f)
+				{
+					fsu = fsu.normalized;
+					fsu *= MAX_GROUND_SPEED;
+
+					if (currentAction != null)
+					{
+						fsu *= currentAction.movementSpeedMultiplier;
+					}
+				}
 			}
 		}
 
@@ -974,7 +995,7 @@ public class Player : Entity
 								handID == 1 && InputManager.IsDown("Action0") && isTwoHanded(1)
 							))
 							{
-								queueAction(new ShieldRaiseAction(handItem, handID, true));
+								queueAction(new ShieldStanceAction(handItem, handID, true));
 
 								/*
 								if (InputManager.IsDown("ActionModifier"))
@@ -991,9 +1012,9 @@ public class Player : Entity
 							}
 							if (currentAction != null)
 							{
-								if (currentAction.type == ActionType.ShieldRaise)
+								if (currentAction.type == ActionType.ShieldStance)
 								{
-									ShieldRaiseAction shieldRaiseAction = currentAction as ShieldRaiseAction;
+									ShieldStanceAction shieldRaiseAction = currentAction as ShieldStanceAction;
 									if (shieldRaiseAction.handID == handID && shieldRaiseAction.handID == 0 && !InputManager.IsDown("Action1") ||
 										shieldRaiseAction.handID == handID && shieldRaiseAction.handID == 1 && !InputManager.IsDown("Action0") ||
 										actionQueue.Count > 1)
@@ -1069,14 +1090,14 @@ public class Player : Entity
 							}
 							else
 							{
-								queueAction(new ShieldRaiseAction(handItem, handID, false));
+								queueAction(new ShieldStanceAction(handItem, handID, false));
 							}
 						}
 						if (currentAction != null)
 						{
-							if (currentAction.type == ActionType.ShieldRaise)
+							if (currentAction.type == ActionType.ShieldStance)
 							{
-								ShieldRaiseAction shieldRaiseAction = currentAction as ShieldRaiseAction;
+								ShieldStanceAction shieldRaiseAction = currentAction as ShieldStanceAction;
 								if (shieldRaiseAction.handID == handID && shieldRaiseAction.handID == 0 && !InputManager.IsDown("Action0") ||
 									shieldRaiseAction.handID == handID && shieldRaiseAction.handID == 1 && !InputManager.IsDown("Action1") ||
 									actionQueue.Count > 1)
@@ -1173,15 +1194,15 @@ public class Player : Entity
 							else
 							*/
 							{
-								queueAction(new ShieldRaiseAction(fistItem, handID, true));
+								queueAction(new ShieldStanceAction(fistItem, handID, true));
 							}
 						}
 					}
 					else if (currentAction != null && handID == 1)
 					{
-						if (currentAction.type == ActionType.ShieldRaise)
+						if (currentAction.type == ActionType.ShieldStance)
 						{
-							ShieldRaiseAction shieldRaiseAction = currentAction as ShieldRaiseAction;
+							ShieldStanceAction shieldRaiseAction = currentAction as ShieldStanceAction;
 							if (shieldRaiseAction.handID == handID && shieldRaiseAction.handID == 1 && !InputManager.IsDown("Action1") ||
 								actionQueue.Count > 1)
 							{
@@ -2029,5 +2050,23 @@ public class Player : Entity
 	public bool isAlive
 	{
 		get => stats.health > 0;
+	}
+
+	public bool isBlocking
+	{
+		get
+		{
+			if (currentAction != null)
+			{
+				if (currentAction.type == ActionType.BlockingHit)
+					return true;
+				else if (currentAction.type == ActionType.ShieldStance)
+				{
+					ShieldStanceAction shieldStance = currentAction as ShieldStanceAction;
+					return shieldStance.isBlocking;
+				}
+			}
+			return false;
+		}
 	}
 }

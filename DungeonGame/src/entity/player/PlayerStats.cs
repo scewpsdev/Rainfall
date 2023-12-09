@@ -59,6 +59,7 @@ public class PlayerStats
 	const float STAMINA_REGEN_RATE = 8.0f;
 	const float STAMINA_EXHAUST_PENALTY = 3.0f;
 	const float STAMINA_DRAIN_MIN_VALUE = -5.0f;
+	const float SHIELD_BLOCK_STAMINA_REGEN_PENALTY = 0.2f;
 
 	const float SPRINT_STAMINA_COST = 4.0f;
 
@@ -145,7 +146,12 @@ public class PlayerStats
 			{
 				// Regen stamina
 				if (stamina < maxStamina)
-					stamina = Math.Min(stamina + STAMINA_REGEN_RATE * Time.deltaTime, maxStamina);
+				{
+					if (player.isBlocking)
+						stamina = Math.Min(stamina + STAMINA_REGEN_RATE * SHIELD_BLOCK_STAMINA_REGEN_PENALTY * Time.deltaTime, maxStamina);
+					else
+						stamina = Math.Min(stamina + STAMINA_REGEN_RATE * Time.deltaTime, maxStamina);
+				}
 			}
 		}
 

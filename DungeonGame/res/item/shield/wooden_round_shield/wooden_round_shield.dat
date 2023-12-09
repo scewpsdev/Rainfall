@@ -26,12 +26,14 @@ description: "very cool shield"
 
 damageAbsorption = 80
 
-shieldHitStaminaCost = 4
+shieldHitStaminaCost = 8
 shieldBlockSfx = "../wooden_shield_block.ogg"
 shieldGuardBreakSfx = "../wooden_shield_guard_break.ogg"
+blockRaiseDuration = 0.1
 
 sfxBlock = "block.ogg"
 sfxParry = "../../parry.ogg"
+sfxGuardBreak = "../../guard_break.ogg"
 
 parryFramesDelay = 9
 parryFramesCount = 5

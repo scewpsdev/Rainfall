@@ -183,7 +183,8 @@ public class Item
 	public ArmorType armorType = ArmorType.None;
 
 	public int shieldHitStaminaCost = 0;
-	public int damageAbsorption = 0;
+	public float blockRaiseDuration = 0.0f;
+	public int blockDamageAbsorption = 0;
 	public int parryFramesDelay = 0;
 	public int parryFramesCount = 0;
 
@@ -196,6 +197,7 @@ public class Item
 	public Sound sfxSwingHeavy;
 	public Sound sfxBlock;
 	public Sound sfxParry;
+	public Sound sfxGuardBreak;
 	public Sound sfxTake;
 	public Sound sfxDraw;
 	public Sound sfxDrop;
@@ -641,11 +643,16 @@ public class Item
 		{
 			file.getInteger("shieldHitStaminaCost", out item.shieldHitStaminaCost);
 
+			file.getNumber("blockRaiseDuration", out item.blockRaiseDuration);
+
 			if (file.getStringContent("sfxBlock", out string sfxBlockPath))
 				item.sfxBlock = Resource.GetSound(directory + "/sfx/" + sfxBlockPath);
 
 			if (file.getStringContent("sfxParry", out string sfxParryPath))
 				item.sfxParry = Resource.GetSound(directory + "/sfx/" + sfxParryPath);
+
+			if (file.getStringContent("sfxGuardBreak", out string sfxGuardBreakPath))
+				item.sfxGuardBreak = Resource.GetSound(directory + "/sfx/" + sfxGuardBreakPath);
 		}
 
 		// Armor
@@ -662,7 +669,7 @@ public class Item
 
 		// Weapons, shields and armor
 		{
-			file.getInteger("damageAbsorption", out item.damageAbsorption);
+			file.getInteger("damageAbsorption", out item.blockDamageAbsorption);
 		}
 
 		// Consumables
