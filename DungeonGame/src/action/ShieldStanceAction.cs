@@ -18,53 +18,37 @@ internal class ShieldStanceAction : Action
 		this.handID = handID;
 		this.item = item;
 
+		if (twoHanded)
+		{
+			animationName[0] = "block_stance";
+			animationName[1] = "block_stance";
+			animationSet[0] = item.moveset;
+			animationSet[1] = item.moveset;
+		}
+		else
+		{
+			animationName[handID] = "block_stance";
+			animationSet[handID] = item.moveset;
+		}
+
 		if (item.category == ItemCategory.Weapon)
 		{
-			if (twoHanded)
-			{
-				animationName[0] = "block_stance";
-				animationName[1] = "block_stance";
-				animationSet[0] = item.moveset;
-				animationSet[1] = item.moveset;
-			}
-			else
-			{
-				animationName[handID] = "block_stance";
-				animationSet[handID] = item.moveset;
-			}
-
-			mirrorAnimation = handID == 1;
-
 			animationTransitionDuration = item.parryFramesDelay / 24.0f;
-			duration = 1000.0f;
 
 			parryFramesStartTime = item.parryFramesDelay / 24.0f;
 			parryFramesEndTime = item.parryFramesDelay / 24.0f + item.parryFramesCount / 24.0f;
 		}
 		else if (item.category == ItemCategory.Shield)
 		{
-			if (twoHanded)
-			{
-				animationName[0] = "block_stance";
-				animationName[1] = "block_stance";
-				animationSet[0] = item.moveset;
-				animationSet[1] = item.moveset;
-			}
-			else
-			{
-				animationName[handID] = "block_stance";
-				animationSet[handID] = item.moveset;
-			}
-
-			mirrorAnimation = handID == 1;
-
 			animationTransitionDuration = item.blockRaiseDuration;
-			duration = 1000.0f;
 		}
 		else
 		{
 			Debug.Assert(false);
 		}
+
+		mirrorAnimation = handID == 1;
+		duration = 1000.0f;
 	}
 
 	public bool isBlocking

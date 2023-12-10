@@ -127,6 +127,7 @@ public class Player : Entity
 	float cameraSwayY = 0.0f;
 
 	List<Action> actionQueue = new List<Action>();
+	Action lastAction = null;
 
 
 	/* ANIMATION VARIABLES */
@@ -285,7 +286,6 @@ public class Player : Entity
 			damage = 0;
 
 		bool parry = currentAction != null && currentAction.elapsedTime >= currentAction.parryFramesStartTime && currentAction.elapsedTime < currentAction.parryFramesEndTime;
-		Console.WriteLine(parry);
 		if (parry)
 		{
 			Item shield = null;
@@ -308,7 +308,7 @@ public class Player : Entity
 				Creature creature = from as Creature;
 				Debug.Assert(creature.currentAction != null && creature.currentAction.type == MobActionType.Attack);
 				creature.cancelAllActions();
-				creature.queueAction(new MobStaggerAction(MobActionType.StaggerParry));
+				creature.queueAction(new MobStaggerAction(MobActionType.StaggerBlocked));
 
 				if (shield.category == ItemCategory.Weapon)
 				{
@@ -323,7 +323,7 @@ public class Player : Entity
 		}
 
 		bool blocking = isBlocking;
-		if (blocking)
+		if (blocking && !parry)
 		{
 			Item shield = null;
 			int handID = -1;
@@ -1356,6 +1356,7 @@ public class Player : Entity
 				if (actionShouldFinish)
 				{
 					currentAction.onFinished(this);
+					lastAction = currentAction;
 					actionQueue.RemoveAt(0);
 					currentAction = actionQueue.Count > 0 ? actionQueue[0] : null;
 				}
@@ -1959,6 +1960,7 @@ public class Player : Entity
 	{
 		Debug.Assert(actionQueue.Count > 0);
 		currentAction.onFinished(this);
+		lastAction = currentAction;
 		actionQueue.RemoveAt(0);
 	}
 
@@ -1968,6 +1970,7 @@ public class Player : Entity
 		{
 			if (actionQueue[0].hasStarted)
 				currentAction.onFinished(this);
+			lastAction = currentAction;
 			actionQueue.RemoveAt(0);
 		}
 	}
@@ -2029,7 +2032,7 @@ public class Player : Entity
 
 	public Action currentAction
 	{
-		get => actionQueue.Count > 0 && actionQueue[0].startTime != 0 ? actionQueue[0] : null;
+		get => actionQueue.Count > 0 ? actionQueue[0] : null;
 	}
 
 	public Vector3 lookOrigin
