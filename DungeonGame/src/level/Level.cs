@@ -26,6 +26,7 @@ public class Level
 	public Vector3 spawnPoint;
 
 	public List<LevelMesh> levelMeshes = new List<LevelMesh>();
+	public List<ReflectionProbe> reflections = new List<ReflectionProbe>();
 	List<Entity> entities = new List<Entity>();
 
 	public RigidBody body;
@@ -123,6 +124,11 @@ public class Level
 		for (int i = 0; i < entities.Count; i++)
 		{
 			entities[i].draw(graphics);
+		}
+
+		foreach (ReflectionProbe reflection in reflections)
+		{
+			Renderer.DrawReflectionProbe(reflection);
 		}
 	}
 }

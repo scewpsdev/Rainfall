@@ -96,6 +96,7 @@ float DistanceToBox(vec3 position, vec3 size, vec3 p)
 	return -1.0;
 }
 
+/*
 vec4 SampleCubemapParallax(samplerCube cubemap, vec3 direction, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin, vec3 position)
 {
 	vec3 boxMax = cubemapPosition + 0.5 * cubemapSize;
@@ -111,6 +112,7 @@ vec4 SampleCubemapParallax(samplerCube cubemap, vec3 direction, vec3 cubemapPosi
 
 	return textureCube(cubemap, boxToIntersection);
 }
+*/
 
 void main()
 {

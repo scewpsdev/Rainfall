@@ -1020,7 +1020,7 @@ public static class Renderer
 
 		for (int i = 0; i < reflectionProbes.Count; i++)
 		{
-			if (!reflectionProbes[i].reflectionProbe.needsUpdate)
+			if (!reflectionProbes[i].reflectionProbe.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
 				continue;
 			reflectionProbes[i].reflectionProbe.needsUpdate = false;
 			for (int j = 0; j < 6; j++)
@@ -1028,66 +1028,69 @@ public static class Renderer
 				graphics.resetState();
 				graphics.setPass((int)RenderPass.ReflectionProbe + i * 6 + j);
 
-				graphics.setRenderTarget(reflectionProbes[i].reflectionProbe.renderTargets[j], 0xff00ffff);
-
-				graphics.setUniform(modelSimpleShader, "u_cameraPosition", new Vector4(reflectionProbes[i].origin, 0.0f));
+				graphics.setRenderTarget(reflectionProbes[i].reflectionProbe.renderTargets[j], 0x00ffffff);
 
 				Matrix reflectionProbeProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, 0.1f, 1000.0f);
 				Matrix reflectionProbeView = cubemapFaceRotations[j] * Matrix.CreateTranslation(-reflectionProbes[i].origin);
 				Matrix reflectionProbePV = reflectionProbeProjection * reflectionProbeView;
 				graphics.setViewTransform(reflectionProbeProjection, reflectionProbeView);
 
-				// TODO optimize meshes in resource compiler
-
-				// TODO frustum culling
-				for (int k = 0; k < models.Count; k++)
 				{
-					for (int l = 0; l < models[k].model.meshCount; l++)
+					graphics.setUniform(modelSimpleShader, "u_cameraPosition", new Vector4(reflectionProbes[i].origin, 0.0f));
+
+					// TODO optimize meshes in resource compiler
+
+					// TODO frustum culling
+					for (int k = 0; k < models.Count; k++)
 					{
-						graphics.setCullState(CullState.CounterClockWise);
-
-						if (directionalLights.Count > 0)
+						for (int l = 0; l < models[k].model.meshCount; l++)
 						{
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].light.direction, 0.0f));
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].light.color, 0.0f));
+							graphics.setCullState(CullState.CounterClockWise);
 
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+							if (directionalLights.Count > 0)
+							{
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].light.direction, 0.0f));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].light.color, 0.0f));
 
-							ShadowMap shadowMap = directionalLights[0].light.shadowMap;
-							int lastCascade = shadowMap.renderTargets.Length - 1;
-							RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
-							Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
-							graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, renderTarget.getAttachmentTexture(0));
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), toLightSpace);
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+
+								ShadowMap shadowMap = directionalLights[0].light.shadowMap;
+								int lastCascade = shadowMap.renderTargets.Length - 1;
+								RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
+								Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
+								graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, renderTarget.getAttachmentTexture(0));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), toLightSpace);
+							}
+							else
+							{
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
+
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+
+								graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, emptyShadowTexture);
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
+							}
+
+
+							for (int m = 0; m < MAX_LIGHTS_PER_PASS; m++)
+							{
+								int lightID = m;
+								lightPositionBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].position, 0.0f) : new Vector4(0.0f);
+								lightColorBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].color, 0.0f) : new Vector4(0.0f);
+							}
+							graphics.setUniform(modelSimpleShader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
+							graphics.setUniform(modelSimpleShader.getUniform("u_lightColor", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightColorBuffer);
+
+							//graphics.drawSubModel(models[k].model, l, modelSimpleShader, models[k].transform);
+							SubmitMesh(models[k].model, l, null, modelSimpleShader, null, models[k].transform, reflectionProbePV);
 						}
-						else
-						{
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
-
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-							graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, emptyShadowTexture);
-							graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
-						}
-
-
-						for (int m = 0; m < MAX_LIGHTS_PER_PASS; m++)
-						{
-							int lightID = m;
-							lightPositionBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].position, 0.0f) : new Vector4(0.0f);
-							lightColorBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].color, 0.0f) : new Vector4(0.0f);
-						}
-						graphics.setUniform(modelSimpleShader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
-						graphics.setUniform(modelSimpleShader.getUniform("u_lightColor", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightColorBuffer);
-
-						//graphics.drawSubModel(models[k].model, l, modelSimpleShader, models[k].transform);
-						SubmitMesh(models[k].model, l, null, modelSimpleShader, null, models[k].transform, reflectionProbePV);
 					}
 				}
 
 				for (int k = 0; k < skies.Count; k++)
 				{
+					// TODO cull
 					graphics.setCullState(CullState.None);
 
 					graphics.setVertexBuffer(skydome);
@@ -1330,8 +1333,8 @@ public static class Renderer
 		graphics.setRenderTarget(forward);
 
 		RenderPointLights();
-		//RenderDirectionalLights();
-		RenderEnvironmentLights();
+		RenderDirectionalLights();
+		//RenderEnvironmentLights();
 	}
 
 	static void RenderSky()
@@ -1938,8 +1941,8 @@ public static class Renderer
 		lights.Sort(LightDistanceComparator);
 
 		GeometryPass();
-		//ShadowPass();
-		//ReflectionProbePass();
+		ShadowPass();
+		ReflectionProbePass();
 		AmbientOcclusionPass();
 		DeferredPass();
 

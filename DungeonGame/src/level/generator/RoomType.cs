@@ -58,6 +58,10 @@ public class RoomType
 	public SectorType sectorType;
 	public Vector3i size;
 	public bool[] mask;
+
+	public bool allowSecretDoorConnections = true;
+	public bool generateWallMeshes = true;
+
 	public List<DoorwayInfo> doorwayInfo = new List<DoorwayInfo>();
 	public List<EnemySpawnInfo> enemySpawns = new List<EnemySpawnInfo>();
 	public List<ChestSpawnInfo> chestSpawns = new List<ChestSpawnInfo>();
@@ -165,12 +169,14 @@ public class RoomType
 
 	public static RoomType StartingRoom;
 	public static RoomType FinalRoom;
+	public static RoomType MainRoom;
 
 	public static void Init()
 	{
 		//StartingRoom = CreateRoomType(1, "room1", SectorType.Room);// new RoomType() { name = "room1", model = Resource.GetModel("res/level/room/room1/room1.gltf"), sectorType = SectorType.Room };
-		AddRoomType(StartingRoom = new StartingRoom());
-		AddRoomType(FinalRoom = new FinalRoom());
+		StartingRoom = new StartingRoom();
+		FinalRoom = new FinalRoom();
+		MainRoom = new MainRoom();
 		AddRoomType(new PotRoom());
 		AddRoomType(new LibraryRoom());
 		AddRoomType(new FountainRoom());
@@ -190,13 +196,19 @@ public class RoomType
 	static void AddRoomType(RoomType type)
 	{
 		types.Add(type);
-		type.id = types.Count;
+		type.id = 100 + types.Count;
 		idMap.Add(type.id, types.Count - 1);
 	}
 
 	public static RoomType Get(int id)
 	{
-		if (idMap.ContainsKey(id))
+		if (id == StartingRoom.id)
+			return StartingRoom;
+		else if (id == FinalRoom.id)
+			return FinalRoom;
+		else if (id == MainRoom.id)
+			return MainRoom;
+		else if (idMap.ContainsKey(id))
 			return types[idMap[id]];
 		return null;
 	}
@@ -305,6 +317,7 @@ public class StartingRoom : RoomType
 	{
 		sectorType = SectorType.Room;
 		size = new Vector3i(15, 9, 15);
+		id = 1;
 
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, -1), new Vector3i(0, 0, -1)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(7, 0, 15), new Vector3i(0, 0, 1)));
@@ -320,6 +333,7 @@ public class FinalRoom : RoomType
 	{
 		sectorType = SectorType.Room;
 		size = new Vector3i(15, 9, 15);
+		id = 2;
 
 		initMask(true);
 		fillMask(0, 0, 0, size.x, size.y, 2, false);
@@ -336,8 +350,41 @@ public class FinalRoom : RoomType
 		Matrix leverTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f + 2.0f, 1.5f, 2);
 		Lever lever = new Lever(gate);
 
-		level.addEntity(gate, gateTransform.translation, gateTransform.rotation);
-		level.addEntity(lever, leverTransform.translation, leverTransform.rotation);
+		room.addEntity(gate, gateTransform.translation, gateTransform.rotation);
+		room.addEntity(lever, leverTransform.translation, leverTransform.rotation);
+	}
+}
+
+public class MainRoom : RoomType
+{
+	public MainRoom()
+		: base()
+	{
+		sectorType = SectorType.Room;
+		size = new Vector3i(40, 100, 40);
+		id = 3;
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 19), Vector3i.Left));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(40, 0, 19), Vector3i.Right));
+	}
+
+	public override void onSpawn(Room room, Level level, Random random)
+	{
+		Model model = Resource.GetModel("res/level/room/pillar_foundation/pillar_foundation.gltf");
+		Matrix transform = room.transform * Matrix.CreateTranslation(new Vector3(20, 0, 20));
+		level.levelMeshes.Add(new LevelMesh(model, transform));
+		level.body.addMeshCollider(model, 1, transform);
+
+		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
+		GraphicsManager.skyboxIntensity = 2.0f;
+
+		GraphicsManager.sun = new DirectionalLight(new Vector3(1.0f, -1.0f, 1.0f).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
+
+		ReflectionProbe reflection = new ReflectionProbe(128, transform.translation + new Vector3(0, 35, 0), new Vector3(40.1f, 70.1f, 40.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
+		level.reflections.Add(reflection);
 	}
 }
 

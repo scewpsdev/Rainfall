@@ -14,6 +14,6 @@ void main()
 	vec3 direction = normalize(v_position);
 
 	float skyIntensity = u_skyData[0];
-	gl_FragColor = SRGBToLinear(textureCube(s_skyTexture, direction)) * skyIntensity;
+	gl_FragColor = textureCube(s_skyTexture, direction) * skyIntensity;
 	gl_FragDepth = 0.9999999;
 }

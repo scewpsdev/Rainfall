@@ -21,7 +21,7 @@ internal class LevelGenerator
 	Random random;
 
 	List<Room> rooms = new List<Room>();
-	Room startingRoom, finalRoom;
+	Room startingRoom, finalRoom, mainRoom;
 
 	Model floor, wall, ceiling;
 
@@ -423,16 +423,19 @@ internal class LevelGenerator
 							Room otherRoom = findRoomAtPosition(doorway.globalPosition + doorway.globalDirection);
 							Debug.Assert(otherRoom != null);
 
-							Vector3i position = globalToLocal(doorway.globalPosition, otherRoom.transform);
-							Vector3i direction = (Vector3i)Vector3.Round((otherRoom.transform.inverted * new Vector4(-doorway.globalDirection * 1.0f, 0.0f)).xyz);
-							Doorway secretWall = new Doorway(otherRoom.doorways.Count, otherRoom, position, direction);
-							secretWall.secret = true;
-							otherRoom.doorways.Add(secretWall);
+							if (otherRoom.type.allowSecretDoorConnections)
+							{
+								Vector3i position = globalToLocal(doorway.globalPosition, otherRoom.transform);
+								Vector3i direction = (Vector3i)Vector3.Round((otherRoom.transform.inverted * new Vector4(-doorway.globalDirection * 1.0f, 0.0f)).xyz);
+								Doorway secretWall = new Doorway(otherRoom.doorways.Count, otherRoom, position, direction);
+								secretWall.secret = true;
+								otherRoom.doorways.Add(secretWall);
 
-							doorway.connectedDoorway = secretWall;
-							secretWall.connectedDoorway = doorway;
+								doorway.connectedDoorway = secretWall;
+								secretWall.connectedDoorway = doorway;
 
-							placeDoorwayToTilemap(secretWall, tilemap);
+								placeDoorwayToTilemap(secretWall, tilemap);
+							}
 						}
 					}
 					/*
@@ -518,9 +521,12 @@ internal class LevelGenerator
 					Vector3i p = new Vector3i(x, y, z);
 					Matrix tileTransform = Matrix.CreateTranslation(new Vector3(x + 0.5f, y, z + 0.5f));
 
+					Room room = findRoomAtPosition(p);
+
 					if (tilemap.isWall(p + Vector3i.Down))
 					{
-						floorBatch.addModel(floor, tileTransform, mod(x, 3) + mod(z, 3) * 3, new Vector2i(3));
+						if (room == null || room.type.generateWallMeshes)
+							floorBatch.addModel(floor, tileTransform, mod(x, 3) + mod(z, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(
 							new Vector3(0.5f),
 							tileTransform.translation + new Vector3(0, -0.5f, 0),
@@ -528,7 +534,8 @@ internal class LevelGenerator
 					}
 					if (tilemap.isWall(p + Vector3i.Up))
 					{
-						ceilingBatch.addModel(ceiling, Matrix.CreateTranslation(0, 1, 0) * tileTransform, mod(-x, 3) + mod(z, 3) * 3, new Vector2i(3));
+						if (room == null || room.type.generateWallMeshes)
+							ceilingBatch.addModel(ceiling, Matrix.CreateTranslation(0, 1, 0) * tileTransform, mod(-x, 3) + mod(z, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(
 							new Vector3(0.5f),
 							tileTransform.translation + new Vector3(0, 1.5f, 0),
@@ -536,22 +543,26 @@ internal class LevelGenerator
 					}
 					if (tilemap.isWall(p + Vector3i.Forward))
 					{
-						wallBatch.addModel(wall, tileTransform, mod(x + z - 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						if (room == null || room.type.generateWallMeshes)
+							wallBatch.addModel(wall, tileTransform, mod(x + z - 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, -1.0f), Quaternion.Identity);
 					}
 					if (tilemap.isWall(p + Vector3i.Back))
 					{
-						wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI), mod(-x + z + 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						if (room == null || room.type.generateWallMeshes)
+							wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI), mod(-x + z + 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, 1.0f), Quaternion.Identity);
 					}
 					if (tilemap.isWall(p + Vector3i.Left))
 					{
-						wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f), mod(x - 1 - z, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						if (room == null || room.type.generateWallMeshes)
+							wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f), mod(x - 1 - z, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(-1.0f, 0.5f, 0.0f), Quaternion.Identity);
 					}
 					if (tilemap.isWall(p + Vector3i.Right))
 					{
-						wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f), mod(x + 1 + z, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						if (room == null || room.type.generateWallMeshes)
+							wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f), mod(x + 1 + z, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(1.0f, 0.5f, 0.0f), Quaternion.Identity);
 					}
 				}
@@ -568,7 +579,7 @@ internal class LevelGenerator
 		level.levelMeshes.Add(new LevelMesh(ceilingBatch.createModel(), Matrix.Identity));
 
 
-		Room spawnRoom = startingRoom;
+		Room spawnRoom = mainRoom;
 		level.spawnPoint = (spawnRoom.gridPosition * 1.0f + new Vector3(spawnRoom.gridSize.x * 0.5f, 0.0f, spawnRoom.gridSize.z * 0.5f)) * TILE_SIZE;
 		Vector3 startingChestPosition = (spawnRoom.gridPosition + new Vector3i(spawnRoom.gridSize.x / 4 * 3, 0, 0)) * TILE_SIZE + new Vector3(0.0f, 0.0f, 1.0f);
 		level.addEntity(new Chest(new Item[]
@@ -601,8 +612,9 @@ internal class LevelGenerator
 
 		//tilemap.resize(-10, 0, -10, 10, 10, 10);
 
-		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.Identity);
-		finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(0, 0, -50));
+		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.CreateTranslation(0, 0, 30));
+		finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(0, 0, -70));
+		mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
 
 		while (rooms.Count < maxRooms)
 		{

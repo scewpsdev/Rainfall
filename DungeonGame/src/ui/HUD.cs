@@ -323,15 +323,25 @@ public class HUD
 					color = 0xFF77FFFF;
 				else if (tile != 0)
 				{
-					RoomType type = RoomType.Get(tile);
-					if (type != null && type.sectorType == SectorType.Room)
-						color = 0xFFFF0000;
+					if (tile == 0xFFFF)
+					{
+						color = 0xFF444444;
+					}
 					else
-						color = 0xFF777777;
-				}
-				else if (tile == int.MaxValue)
-				{
-					color = 0xFF444444;
+					{
+						RoomType type = RoomType.Get(tile);
+						if (type != null)
+						{
+							if (type.sectorType == SectorType.Room)
+								color = 0xFFFF0000;
+							else
+								color = 0xFF777777;
+						}
+						else
+						{
+							Debug.Assert(false);
+						}
+					}
 				}
 				minimapPixels[x + z * level.tilemap.mapSize.x] = color;
 			}

@@ -560,8 +560,14 @@ public class InventoryUI
 					drawTooltipInfoRight(hoveredItem.item.parryFramesCount.ToString());
 					yscroll += lineHeight;
 				}
+				else if (hoveredItem.item.category == ItemCategory.Armor)
+				{
+					drawTooltipInfo("Protection");
+					drawTooltipInfoRight(hoveredItem.item.blockDamageAbsorption.ToString());
+					yscroll += lineHeight;
+				}
 
-				tooltipCurrentContentHeight = yscroll;
+				tooltipCurrentContentHeight = yscroll - 10;
 			}
 		}
 	}
