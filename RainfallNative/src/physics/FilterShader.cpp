@@ -260,12 +260,7 @@ namespace Physics
 		PX_UNUSED(constantBlock);
 		PX_UNUSED(constantBlockSize);
 
-		if (filterData0.word0 == 2 || filterData1.word0 == 2)
-		{
-			int a = 5;
-		}
-
-		if (!(filterData0.word0 & filterData1.word1) || !(filterData1.word0 & filterData0.word1))
+		if (!(filterData0.word0 & filterData1.word1) && !(filterData1.word0 & filterData0.word1))
 		{
 			return PxFilterFlag::eKILL;
 		}

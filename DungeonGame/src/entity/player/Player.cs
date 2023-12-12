@@ -93,7 +93,7 @@ public class Player : Entity
 
 	public MoveType moveType = MoveType.Walk;
 	public bool noclip = false;
-	public Ladder currentLadder = null;
+	public LadderRegion currentLadder = null;
 
 	public Vector3 resetPoint;
 
@@ -725,7 +725,7 @@ public class Player : Entity
 
 
 				distanceWalked += MathF.Abs(velocity.y) * Time.deltaTime;
-				int stepsWalked = (int)(distanceWalked * STEP_FREQUENCY);
+				int stepsWalked = (int)(distanceWalked * STEP_FREQUENCY + 0.5f);
 				if (stepsWalked > lastStep)
 				{
 					audioMovement.playSoundOrganic(currentLadder.sfxStep);
@@ -821,7 +821,7 @@ public class Player : Entity
 			if (isGrounded)
 			{
 				distanceWalked += velocity.xz.length * Time.deltaTime;
-				int stepsWalked = (int)(distanceWalked * STEP_FREQUENCY);
+				int stepsWalked = (int)(distanceWalked * STEP_FREQUENCY + 0.5f);
 				if (stepsWalked > lastStep)
 				{
 					if ((walkMode == WalkMode.Normal || walkMode == WalkMode.Sprint) && !isDucked)
@@ -1108,6 +1108,7 @@ public class Player : Entity
 						}
 						break;
 					case ItemCategory.Utility:
+						/*
 						if (currentAction == null && (
 							handID == 0 && InputManager.IsDown("Action0") ||
 							handID == 1 && InputManager.IsDown("Action1")
@@ -1137,6 +1138,7 @@ public class Player : Entity
 								}
 							}
 						}
+						*/
 						break;
 					case ItemCategory.Consumable:
 						if (handID == 0 && InputManager.IsPressed("Action0") ||
@@ -1401,7 +1403,7 @@ public class Player : Entity
 			else
 			*/
 			{
-				if (currentSpeed > 0.5f)
+				if (currentSpeed > 0.5f && currentAction == null)
 				{
 					movementState0 = runState[0];
 					runState[0].animationSpeed = currentSpeed;
@@ -1460,7 +1462,8 @@ public class Player : Entity
 		//movementState1 = idleState[1];
 
 
-		movementAnimationTimerLooping += Time.deltaTime * movementState2.animationSpeed;
+		//movementAnimationTimerLooping += Time.deltaTime * movementState2.animationSpeed;
+		movementAnimationTimerLooping = distanceWalked * STEP_FREQUENCY * 0.5f;
 
 		if (currentAction != null)
 		{
@@ -1478,7 +1481,8 @@ public class Player : Entity
 			}
 			else
 			{
-				animator0.setStateIfNot(movementState0, movementAnimationTimerLooping);
+				animator0.setStateIfNot(movementState0);
+				animator0.setTimer(movementAnimationTimerLooping);
 			}
 			if (currentAction.animationName[1] != null)
 			{
@@ -1490,27 +1494,39 @@ public class Player : Entity
 			}
 			else
 			{
-				animator1.setStateIfNot(movementState1, movementAnimationTimerLooping);
+				animator1.setStateIfNot(movementState1);
+				animator1.setTimer(movementAnimationTimerLooping);
 			}
 
 			if (currentAction.fullBodyAnimation)
 			{
 				if (currentAction.startTime == Time.currentTime)
-					moveAnimator.setState(currentActionState[2], movementAnimationTimerLooping);
+				{
+					moveAnimator.setState(currentActionState[2]);
+					moveAnimator.setTimer(movementAnimationTimerLooping);
+				}
 				else
-					moveAnimator.setStateIfNot(currentActionState[2], movementAnimationTimerLooping);
+				{
+					moveAnimator.setStateIfNot(currentActionState[2]);
+					moveAnimator.setTimer(movementAnimationTimerLooping);
+				}
 				moveAnimator.timer = currentAction.elapsedTime;
 			}
 			else
 			{
-				moveAnimator.setStateIfNot(movementState2, movementAnimationTimerLooping);
+				moveAnimator.setStateIfNot(movementState2);
+				moveAnimator.setTimer(movementAnimationTimerLooping);
 			}
 		}
 		else
 		{
-			animator0.setStateIfNot(movementState0, movementAnimationTimerLooping);
-			animator1.setStateIfNot(movementState1, movementAnimationTimerLooping);
-			moveAnimator.setStateIfNot(movementState2, movementAnimationTimerLooping);
+			animator0.setStateIfNot(movementState0);
+			animator1.setStateIfNot(movementState1);
+			moveAnimator.setStateIfNot(movementState2);
+
+			animator0.setTimer(movementAnimationTimerLooping);
+			animator1.setTimer(movementAnimationTimerLooping);
+			moveAnimator.setTimer(movementAnimationTimerLooping);
 		}
 
 

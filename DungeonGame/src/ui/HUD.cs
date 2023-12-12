@@ -307,13 +307,14 @@ public class HUD
 			minimapPixels = new uint[minimap.width * minimap.height];
 		}
 
+		int playerY = (int)MathF.Floor(player.position.y + 0.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
+
 		level.tilemap.getRelativeTilePosition(player.position / LevelGenerator.TILE_SIZE, out Vector3i playerPos);
 		for (int z = 0; z < level.tilemap.mapSize.z; z++)
 		{
 			for (int x = 0; x < level.tilemap.mapSize.x; x++)
 			{
-				int y = 0; // MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
-				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, y + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
+				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, playerY + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
 				uint color = 0xFF000000;
 				if (x == playerPos.x && z == playerPos.z)
 					color = 0xFF77FFFF;
@@ -348,7 +349,8 @@ public class HUD
 			{
 				int x = doorway.globalPosition.x - level.tilemap.mapPosition.x;
 				int z = doorway.globalPosition.z - level.tilemap.mapPosition.z;
-				if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z)
+				int y = doorway.globalPosition.y - level.tilemap.mapPosition.y;
+				if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z && y > playerY - 3 && y < playerY + 3)
 				{
 					uint color = 0xFF00FF00;
 					minimapPixels[x + z * level.tilemap.mapSize.x] = color;

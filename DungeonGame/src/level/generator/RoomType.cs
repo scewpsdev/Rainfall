@@ -125,6 +125,10 @@ public class RoomType
 		return sectorType == SectorType.Room ? SectorType.Corridor : SectorType.Room;
 	}
 
+	public virtual void onTilemapPlaced(Room room, TileMap tilemap)
+	{
+	}
+
 	public virtual void onSpawn(Room room, Level level, Random random)
 	{
 	}
@@ -293,7 +297,7 @@ public class RoomType
 			new DoorwayInfo(end - min, endDirection)
 		};
 
-		RoomType type = new RoomType();
+		AStarRoomType type = new AStarRoomType();
 		type.id = 0xFFFF;
 		type.model = null;
 		type.collider = null;
@@ -303,10 +307,29 @@ public class RoomType
 		type.doorwayInfo = doorwayPositions;
 		type.isTemplate = false;
 		type.originalTemplate = null;
+		type.path = path;
 
 		transform = Matrix.CreateTranslation(min * LevelGenerator.TILE_SIZE);
 
 		return type;
+	}
+}
+
+public class AStarRoomType : RoomType
+{
+	internal List<Vector3i> path;
+
+
+	public AStarRoomType()
+	{
+	}
+
+	public override void onTilemapPlaced(Room room, TileMap tilemap)
+	{
+		foreach (Vector3i p in path)
+		{
+			tilemap.setFlag(p, TileMap.FLAG_ASTAR_PATH, true);
+		}
 	}
 }
 
@@ -369,6 +392,8 @@ public class MainRoom : RoomType
 
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 0, 9), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 16, 14), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(1, 9, 20), Vector3i.Back));
 	}
 
 	public override void onSpawn(Room room, Level level, Random random)

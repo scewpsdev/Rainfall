@@ -72,7 +72,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":32,
+			"count":36,
 			"max":[
 				10,
 				44.42107009887695,
@@ -88,19 +88,19 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":32,
+			"count":36,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":32,
+			"count":36,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":84,
+			"count":102,
 			"type":"SCALAR"
 		},
 		{
@@ -141,56 +141,56 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":384,
+			"byteLength":432,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":384,
-			"byteOffset":384,
+			"byteLength":432,
+			"byteOffset":432,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":256,
-			"byteOffset":768,
+			"byteLength":288,
+			"byteOffset":864,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":168,
-			"byteOffset":1024,
+			"byteLength":204,
+			"byteOffset":1152,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":7272,
-			"byteOffset":1192,
+			"byteOffset":1356,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7272,
-			"byteOffset":8464,
+			"byteOffset":8628,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4848,
-			"byteOffset":15736,
+			"byteOffset":15900,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":2256,
-			"byteOffset":20584,
+			"byteOffset":20748,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":22840,
+			"byteLength":23004,
 			"uri":"pillar_foundation.bin"
 		}
 	]

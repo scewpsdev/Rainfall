@@ -228,13 +228,13 @@ namespace Physics
 
 				if (pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 				{
-					contactEvents.push_back({ body, other, shapeID, otherShapeID, true, pair.otherShape->getFlags() | PxShapeFlag::eTRIGGER_SHAPE, ContactType::Found, otherController });
+					contactEvents.push_back({ body, other, shapeID, otherShapeID, true, pair.otherShape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE, ContactType::Found, otherController });
 
 					//triggerPairs.push_back(pair);
 				}
 				else if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 				{
-					contactEvents.push_back({ body, other, shapeID, otherShapeID, true, pair.otherShape->getFlags() | PxShapeFlag::eTRIGGER_SHAPE, ContactType::Lost, otherController });
+					contactEvents.push_back({ body, other, shapeID, otherShapeID, true, pair.otherShape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE, ContactType::Lost, otherController });
 
 					// Reimplementation of triggerPairs.remove() because C++ templates suck ass
 					/*

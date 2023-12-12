@@ -12,9 +12,12 @@ public class TileMap
 	public const int FLAG_DOORWAY = 1 << 2;
 	public const int FLAG_CORRIDOR = 1 << 3;
 	public const int FLAG_STRUCTURE = FLAG_ROOM | FLAG_DOORWAY | FLAG_CORRIDOR;
+
 	public const int FLAG_ROOM_WALL = 1 << 4;
 	public const int FLAG_CORRIDOR_WALL = 1 << 5;
 	public const int FLAG_WALL = FLAG_ROOM_WALL | FLAG_CORRIDOR_WALL;
+
+	public const int FLAG_ASTAR_PATH = 1 << 6;
 
 
 	public Vector3i mapPosition;
@@ -239,7 +242,7 @@ public class TileMap
 			{
 				if (roomType.mask != null)
 				{
-					Vector3i localPos = globalToLocal(new Vector3i(x, 0, z), transform);
+					Vector3i localPos = globalToLocal(new Vector3i(x, y0, z), transform);
 					if (!roomType.mask[localPos.x + localPos.y * roomType.size.x + localPos.z * roomType.size.x * roomType.size.y])
 						continue;
 				}

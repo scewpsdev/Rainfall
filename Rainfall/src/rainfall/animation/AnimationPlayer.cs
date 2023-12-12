@@ -167,23 +167,23 @@ namespace Rainfall
 			Native.Animation.Animation_UpdateAnimationState(handle, model.handle, nodeGlobalTransforms, nodeGlobalTransforms.Length);
 		}
 
-		public void setState(AnimationState state, float loopingAnimationTimer = 0.0f)
+		public void setState(AnimationState state)
 		{
 			//if (states.Count == 0 || state != states[states.Count - 1])
 			{
 				states.Add(state);
 				stateTransitionTimers.Add(0.0f);
-				stateAnimationTimers.Add(state.layers[0].looping ? loopingAnimationTimer : 0.0f);
+				stateAnimationTimers.Add(0.0f);
 
 				//if (!state.layers[0].looping)
 				//	state.timer = 0.0f;
 			}
 		}
 
-		public void setStateIfNot(AnimationState state, float loopingAnimationTimer = 0.0f)
+		public void setStateIfNot(AnimationState state)
 		{
 			if (states.Count == 0 || state != states[states.Count - 1])
-				setState(state, loopingAnimationTimer);
+				setState(state);
 		}
 
 		public void setTimer(float timer)

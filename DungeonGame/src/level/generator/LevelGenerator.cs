@@ -353,6 +353,8 @@ internal class LevelGenerator
 		rooms.Add(room);
 
 		tilemap.placeRoom(room);
+		type.onTilemapPlaced(room, tilemap);
+
 		room.placeDoorways(tilemap);
 		room.chooseEnemies(random);
 
@@ -599,6 +601,88 @@ internal class LevelGenerator
 		//level.addEntity(new SkeletonEnemy(), level.spawnPoint + new Vector3(0.0f, 0.0f, -3.0f), Quaternion.Identity);
 	}
 
+	void placeLadders()
+	{
+		var getCeilingHeight = (Vector3i p) =>
+		{
+			for (int y = p.y; y < tilemap.mapPosition.y + tilemap.mapSize.y; y++)
+			{
+				if (tilemap.isWall(new Vector3i(p.x, y, p.z)))
+					return y - p.y;
+			}
+			return -1;
+		};
+		var getElevation = (Vector3i p, int maxHeight) =>
+		{
+			for (int y = p.y; y < p.y + maxHeight; y++)
+			{
+				if (!tilemap.isWall(new Vector3i(p.x, y, p.z)))
+					return y - p.y;
+			}
+			return -1;
+		};
+		var isBelowAStarPath = (Vector3i p, int maxHeight) =>
+		{
+			for (int y = p.y; y < p.y + maxHeight; y++)
+			{
+				if (tilemap.getFlag(new Vector3i(p.x, y, p.z), TileMap.FLAG_ASTAR_PATH))
+					return true;
+			}
+			return false;
+		};
+
+		for (int z = tilemap.mapPosition.z; z < tilemap.mapPosition.z + tilemap.mapSize.z; z++)
+		{
+			for (int x = tilemap.mapPosition.x; x < tilemap.mapPosition.x + tilemap.mapSize.x; x++)
+			{
+				for (int y = tilemap.mapPosition.y; y < tilemap.mapPosition.y + tilemap.mapSize.y; y++)
+				{
+					Vector3i p = new Vector3i(x, y, z);
+					Vector3i down = p + Vector3i.Down;
+					Vector3i left = p + Vector3i.Left;
+					Vector3i right = p + Vector3i.Right;
+					Vector3i forward = p + Vector3i.Forward;
+					Vector3i back = p + Vector3i.Back;
+
+					bool isCorridorFloor = tilemap.getFlag(p, TileMap.FLAG_STRUCTURE) && tilemap.getFlag(down, TileMap.FLAG_CORRIDOR_WALL);
+					if (isCorridorFloor)
+					{
+						int ceilingHeight = getCeilingHeight(p);
+						bool isAStarFloor = isBelowAStarPath(p, ceilingHeight);
+						if (isAStarFloor)
+						{
+							Debug.Assert(ceilingHeight != -1);
+							//if (p == new Vector3i(-6, 9, -9))
+							//	Debug.Assert(false);
+							if (tilemap.isWall(left))
+							{
+								int elevation = getElevation(left, ceilingHeight);
+								if (elevation != -1)
+								{
+									ResizableLadder ladder = new ResizableLadder(elevation);
+									Vector3 position = p + new Vector3(0.5f, 0.0f, 0.5f);
+									Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
+									level.addEntity(ladder, position, rotation);
+								}
+							}
+							if (tilemap.isWall(right))
+							{
+								int elevation = getElevation(right, ceilingHeight);
+								if (elevation != -1)
+								{
+									ResizableLadder ladder = new ResizableLadder(elevation);
+									Vector3 position = p + new Vector3(0.5f, 0.0f, 0.5f);
+									Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * -0.5f);
+									level.addEntity(ladder, position, rotation);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	public void generateLevel()
 	{
 		Console.WriteLine("Generating level");
@@ -630,6 +714,7 @@ internal class LevelGenerator
 
 		level.init();
 		spawnRooms();
+		placeLadders();
 
 		for (int i = 0; i < 24; i++)
 		{
