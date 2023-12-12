@@ -57,6 +57,9 @@ void main()
 	
 	gl_FragColor = vec4(lightS, 1.0);
 
+	//if (v_texcoord0.x > 0.75 && v_texcoord0.y < 0.25)
+	//	gl_FragColor = vec4(vec3_splat(shadow2D(s_directionalLightShadowMap0, vec3(v_texcoord0.x * 4 - 3, v_texcoord0.y * 4, u_cameraPosition.w))), 1.0);
+
 	if (positionW.a < 0.5)
 		discard;
 }

@@ -130,7 +130,7 @@ vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distanc
 	//default: radiance = vec3(0, 0, 1); break;
 	}
 
-	vec3 s = (specular * ao + fLambert * kd * ao) * radiance * ndotwi; //	 * shadow;
+	vec3 s = (specular * ao + fLambert * kd * ao) * radiance * ndotwi * shadow;
 
 	return s;
 }

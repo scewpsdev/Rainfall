@@ -581,7 +581,7 @@ internal class LevelGenerator
 
 		Room spawnRoom = mainRoom;
 		level.spawnPoint = (spawnRoom.gridPosition * 1.0f + new Vector3(spawnRoom.gridSize.x * 0.5f, 0.0f, spawnRoom.gridSize.z * 0.5f)) * TILE_SIZE;
-		Vector3 startingChestPosition = (spawnRoom.gridPosition + new Vector3i(spawnRoom.gridSize.x / 4 * 3, 0, 0)) * TILE_SIZE + new Vector3(0.0f, 0.0f, 1.0f);
+		Vector3 startingChestPosition = (spawnRoom.gridPosition + new Vector3i(spawnRoom.gridSize.x / 4 * 3, 0, spawnRoom.gridSize.z)) * TILE_SIZE - new Vector3(0.0f, 0.0f, 1.0f);
 		level.addEntity(new Chest(new Item[]
 		{
 			Item.Get("shortsword"),
@@ -594,7 +594,7 @@ internal class LevelGenerator
 			Item.Get("flask"),
 			Item.Get("firebomb"),
 		},
-		new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 }), startingChestPosition, Quaternion.Identity);
+		new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 }), startingChestPosition, Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
 
 		//level.addEntity(new SkeletonEnemy(), level.spawnPoint + new Vector3(0.0f, 0.0f, -3.0f), Quaternion.Identity);
 	}

@@ -465,11 +465,11 @@ namespace Rainfall
 
 			matrix.m00 = 2.0f / width;
 			matrix.m11 = 2.0f / height;
-			matrix.m22 = 1.0f / depth; // Convert to 0.0->1.0 instead of -1.0->1.0 (because of DirectX I guess?)
+			matrix.m22 = -1.0f / depth; // Convert to 0.0->1.0 instead of -1.0->1.0 (because of DirectX I guess?)
 
 			matrix.m30 = -(right + left) / width;
 			matrix.m31 = -(top + bottom) / height;
-			matrix.m32 = -(far + near) / depth + 0.5f;
+			matrix.m32 = (far + near) / depth + 0.5f;
 
 			return matrix;
 		}

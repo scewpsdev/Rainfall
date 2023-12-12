@@ -965,6 +965,10 @@ public static class Renderer
 	{
 		if (directionalLights.Count > 0)
 		{
+			if (!directionalLights[0].light.shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
+				return;
+			directionalLights[0].light.shadowMap.needsUpdate = false;
+
 			ShadowMap shadowMap = directionalLights[0].light.shadowMap;
 
 			shadowMap.calculateCascadeTransforms(camera.position, camera.rotation, camera.fov, Display.aspectRatio);
@@ -1023,6 +1027,7 @@ public static class Renderer
 			if (!reflectionProbes[i].reflectionProbe.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
 				continue;
 			reflectionProbes[i].reflectionProbe.needsUpdate = false;
+
 			for (int j = 0; j < 6; j++)
 			{
 				graphics.resetState();
@@ -1230,7 +1235,7 @@ public static class Renderer
 
 			graphics.setTexture(deferredDirectionalShader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
 
-			graphics.setUniform(deferredDirectionalShader, "u_cameraPosition", new Vector4(camera.position, 0.0f));
+			graphics.setUniform(deferredDirectionalShader, "u_cameraPosition", new Vector4(camera.position, (Time.currentTime / 5 % 1000000000) / 1e9f));
 
 			graphics.setUniform(deferredDirectionalShader, "u_directionalLightDirection", new Vector4(directionalLights[i].light.direction, 0.0f));
 			graphics.setUniform(deferredDirectionalShader, "u_directionalLightColor", new Vector4(directionalLights[i].light.color, 0.0f));
@@ -1334,7 +1339,7 @@ public static class Renderer
 
 		RenderPointLights();
 		RenderDirectionalLights();
-		//RenderEnvironmentLights();
+		RenderEnvironmentLights();
 	}
 
 	static void RenderSky()
@@ -1873,7 +1878,7 @@ public static class Renderer
 			//graphics.setDepthTest(DepthTest.None);
 			graphics.setBlendState(BlendState.Alpha);
 
-			graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.viewportSize.x, 0, Display.viewportSize.y, 1.0f, -1.0f), Matrix.Identity);
+			graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.viewportSize.x, 0, Display.viewportSize.y, -1.0f, 1.0f), Matrix.Identity);
 
 			uiTextureBatch.submitDrawCall(i, uiTextureShader);
 		}

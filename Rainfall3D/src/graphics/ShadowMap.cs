@@ -22,6 +22,8 @@ public class ShadowMap
 	DirectionalLight light;
 	int resolution;
 
+	internal bool needsUpdate = true;
+
 
 	public ShadowMap(int resolution, DirectionalLight light, GraphicsDevice graphics)
 	{

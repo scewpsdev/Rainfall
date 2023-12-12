@@ -20,7 +20,7 @@
 		},
 		{
 			"mesh":1,
-			"name":"Plane"
+			"name":"Stairs"
 		}
 	],
 	"materials":[
@@ -54,7 +54,7 @@
 			]
 		},
 		{
-			"name":"Plane",
+			"name":"Plane.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -62,7 +62,8 @@
 						"NORMAL":5,
 						"TEXCOORD_0":6
 					},
-					"indices":7
+					"indices":7,
+					"material":0
 				}
 			]
 		}
@@ -71,125 +72,125 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":60,
+			"count":32,
 			"max":[
-				20.584745407104492,
-				69.08027648925781,
-				20.584745407104492
+				10,
+				44.42107009887695,
+				10
 			],
 			"min":[
-				-20.584745407104492,
+				-10,
 				0,
-				-20.584745407104492
+				-10
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":60,
+			"count":32,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":60,
+			"count":32,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":114,
+			"count":84,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":18,
+			"count":606,
 			"max":[
-				20,
-				18,
-				20
+				10.001165390014648,
+				38.443538665771484,
+				10
 			],
 			"min":[
-				-20,
+				-10.105217933654785,
 				0,
-				-20
+				-10.000000953674316
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":18,
+			"count":606,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":18,
+			"count":606,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":30,
+			"count":1128,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":720,
+			"byteLength":384,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":720,
-			"byteOffset":720,
+			"byteLength":384,
+			"byteOffset":384,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":480,
-			"byteOffset":1440,
+			"byteLength":256,
+			"byteOffset":768,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":228,
-			"byteOffset":1920,
+			"byteLength":168,
+			"byteOffset":1024,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":216,
-			"byteOffset":2148,
+			"byteLength":7272,
+			"byteOffset":1192,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":216,
-			"byteOffset":2364,
+			"byteLength":7272,
+			"byteOffset":8464,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":144,
-			"byteOffset":2580,
+			"byteLength":4848,
+			"byteOffset":15736,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":60,
-			"byteOffset":2724,
+			"byteLength":2256,
+			"byteOffset":20584,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":2784,
+			"byteLength":22840,
 			"uri":"pillar_foundation.bin"
 		}
 	]

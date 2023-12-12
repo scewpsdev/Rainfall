@@ -297,10 +297,6 @@ public class HUD
 		}
 	}
 
-	void initMinimap()
-	{
-	}
-
 	void renderMinimap()
 	{
 		Level level = DungeonGame.instance.level;

@@ -252,6 +252,22 @@ namespace Rainfall
 			}
 		}
 
+		public int getMeshIndex(string name)
+		{
+			unsafe
+			{
+				SceneData* scene = (SceneData*)sceneDataHandle;
+				for (int i = 0; i < scene->numMeshes; i++)
+				{
+					int nodeID = scene->meshes[i].nodeID;
+					NodeData* node = &scene->nodes[nodeID];
+					if (StringUtils.CompareStrings(name, node->name))
+						return i;
+				}
+				return -1;
+			}
+		}
+
 		public int meshCount
 		{
 			get

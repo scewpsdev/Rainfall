@@ -1432,25 +1432,32 @@ public class Player : Entity
 			else
 			*/
 			{
+
 				if (velocity.y > 0.0f)
 				{
-					movementState0 = jumpState[0];
-					movementState1 = jumpState[1];
-					movementState2 = jumpState[2];
+					//movementState0 = jumpState[0];
+					//movementState1 = jumpState[1];
+					//movementState2 = jumpState[2];
+					movementState0 = idleState[0];
+					movementState1 = idleState[1];
+					movementState2 = idleState[2];
 				}
 				else
 				{
-					movementState0 = fallState[0];
-					movementState1 = fallState[1];
-					movementState2 = fallState[2];
+					//movementState0 = fallState[0];
+					//movementState1 = fallState[1];
+					//movementState2 = fallState[2];
+					movementState0 = idleState[0];
+					movementState1 = idleState[1];
+					movementState2 = idleState[2];
 				}
 			}
 		}
 
 
 		// Testing procedural viewmodel animations
-		movementState0 = idleState[0];
-		movementState1 = idleState[1];
+		//movementState0 = idleState[0];
+		//movementState1 = idleState[1];
 
 
 		movementAnimationTimerLooping += Time.deltaTime * movementState2.animationSpeed;
@@ -1541,11 +1548,13 @@ public class Player : Entity
 			cameraSwayY = 0.0f;
 
 			// Walk animation
+			/*
 			viewmodelWalkAnim.x = 0.03f * MathF.Sin(distanceWalked * STEP_FREQUENCY * MathF.PI);
 			viewmodelWalkAnim.y = 0.015f * -MathF.Abs(MathF.Cos(distanceWalked * STEP_FREQUENCY * MathF.PI));
 			viewmodelWalkAnim *= currentSpeed;
 			viewmodelSwayYaw += viewmodelWalkAnim.x;
 			viewmodelSwayY += viewmodelWalkAnim.y;
+			*/
 
 			// Vertical speed animation
 			float verticalSpeedAnimDst = velocity.y;

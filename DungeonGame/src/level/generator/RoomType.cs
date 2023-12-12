@@ -361,29 +361,29 @@ public class MainRoom : RoomType
 		: base()
 	{
 		sectorType = SectorType.Room;
-		size = new Vector3i(40, 100, 40);
+		size = new Vector3i(20, 50, 20);
 		id = 3;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 19), Vector3i.Left));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(40, 0, 19), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 0, 9), Vector3i.Right));
 	}
 
 	public override void onSpawn(Room room, Level level, Random random)
 	{
 		Model model = Resource.GetModel("res/level/room/pillar_foundation/pillar_foundation.gltf");
-		Matrix transform = room.transform * Matrix.CreateTranslation(new Vector3(20, 0, 20));
+		Matrix transform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0, size.z * 0.5f);
 		level.levelMeshes.Add(new LevelMesh(model, transform));
-		level.body.addMeshCollider(model, 1, transform);
+		level.body.addMeshCollider(model, model.getMeshIndex("Stairs"), transform);
 
 		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
-		GraphicsManager.skyboxIntensity = 2.0f;
+		GraphicsManager.skyboxIntensity = 3.0f;
 
-		GraphicsManager.sun = new DirectionalLight(new Vector3(1.0f, -1.0f, 1.0f).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
+		GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
 
-		ReflectionProbe reflection = new ReflectionProbe(128, transform.translation + new Vector3(0, 35, 0), new Vector3(40.1f, 70.1f, 40.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
+		ReflectionProbe reflection = new ReflectionProbe(64, transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
 		level.reflections.Add(reflection);
 	}
 }
