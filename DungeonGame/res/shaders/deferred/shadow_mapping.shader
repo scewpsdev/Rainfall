@@ -71,7 +71,7 @@ float CalculateDirectionalShadow(vec3 position, float distance, sampler2DShadow 
 		vec2 sampleStride = 1.0 / shadowMapSize;
 		vec2 sampleOffset = StratifiedPoisson(i) * sampleStride;
 		//vec4 shadowSample = textureGather(shadowMap, sampleCoords.xy + sampleOffset, 0);
-		result += shadow2D(shadowMap, vec3(sampleCoords.xy + sampleOffset, projectedCoords.z - SHADOW_MAP_EPSILON));
+		result += shadow2D(shadowMap, vec3(sampleCoords.xy + sampleOffset, projectedCoords.z + SHADOW_MAP_EPSILON));
 		//result += texture2D(shadowMap, sampleCoords + sampleOffset).r <= projectedCoords.z - SHADOW_MAP_EPSILON ? 0.0 : 1.0;
 	}
 	result /= NUM_SAMPLES;

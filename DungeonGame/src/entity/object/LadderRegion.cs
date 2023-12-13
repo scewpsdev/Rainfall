@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 public class LadderRegion : Entity
 {
 	RigidBody body;
-	Vector3 halfExtents;
-	Vector3 offset;
+	public Vector3 halfExtents;
+	public Vector3 offset;
 
 	public readonly Sound[] sfxStep = new Sound[5];
 
@@ -30,7 +30,7 @@ public class LadderRegion : Entity
 	public override void init()
 	{
 		body = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default, (uint)PhysicsFilterMask.All | (uint)PhysicsFilterGroup.PlayerControllerKinematicBody);
-		body.addBoxTrigger(halfExtents + new Vector3(-0.1f, 0.1f, 0.0f), offset, Quaternion.Identity);
+		body.addBoxTrigger(halfExtents, offset, Quaternion.Identity);
 	}
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)

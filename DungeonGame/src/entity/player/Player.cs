@@ -673,14 +673,23 @@ public class Player : Entity
 		return velocity;
 	}
 
-	Vector3 updateVelocityLadder(Vector3 velocity, Vector3 wishdir, Vector3 ladderNormal, float frametime, Vector3 forward, Vector3 right, Vector3 up)
+	Vector3 updateVelocityLadder(Vector3 velocity, Vector3 wishdir, Vector3 ladderNormal, float frametime, Vector3 forward, Vector3 right, Vector3 up, bool topEdge, bool bottomEdge)
 	{
 		Vector3 u = wishdir.x * right + wishdir.y * up + wishdir.z * forward;
 		Vector3 n = ladderNormal;
 
-		Vector3 cu = Vector3.Cross(Vector3.Up, n);
-		velocity = u - Vector3.Dot(u, n) * (n + Vector3.Cross(n, cu / cu.length));
-		velocity *= LADDER_SPEED;
+		if (topEdge || bottomEdge && Vector3.Dot(u, n) > 0.0f)
+		{
+			Vector3 cu = Vector3.Cross(Vector3.Up, n);
+			velocity = u - Vector3.Dot(u, n) * (Vector3.Cross(n, cu / cu.length));
+			velocity *= LADDER_SPEED;
+		}
+		else
+		{
+			Vector3 cu = Vector3.Cross(Vector3.Up, n);
+			velocity = u - Vector3.Dot(u, n) * (n + Vector3.Cross(n, cu / cu.length));
+			velocity *= LADDER_SPEED;
+		}
 
 		return velocity;
 	}
@@ -716,7 +725,9 @@ public class Player : Entity
 
 			if (moveType == MoveType.Ladder)
 			{
-				velocity = updateVelocityLadder(velocity, fsu, currentLadder.normal, Time.deltaTime, forward, right, up);
+				bool topEdge = position.y > currentLadder.position.y + currentLadder.offset.y + currentLadder.halfExtents.y - PLAYER_RADIUS;
+				bool bottomEdge = position.y < currentLadder.position.y + currentLadder.offset.y - currentLadder.halfExtents.y + PLAYER_RADIUS;
+				velocity = updateVelocityLadder(velocity, fsu, currentLadder.normal, Time.deltaTime, forward, right, up, topEdge, bottomEdge);
 
 				Vector3 displacement = velocity * Time.deltaTime;
 

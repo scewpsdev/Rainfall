@@ -992,7 +992,7 @@ public static class Renderer
 
 					for (int k = 0; k < models[j].model.meshCount; k++)
 					{
-						graphics.setCullState(CullState.None);
+						graphics.setCullState(CullState.CounterClockWise);
 
 						SubmitMesh(model, k, animator, modelDepthShader, modelAnimDepthShader, transform, cascadePV);
 					}

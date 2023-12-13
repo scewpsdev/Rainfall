@@ -14,7 +14,7 @@ public class ResizableLadder : LadderRegion
 
 
 	public ResizableLadder(int height)
-		: base(new Vector3(0.5f, height * 0.5f, 0.1f), new Vector3(0.0f, height * 0.5f, -0.4f))
+		: base(new Vector3(0.5f, height * 0.5f, 0.1f), new Vector3(0.0f, height * 0.5f, 0.0f))
 	{
 		this.height = height;
 
