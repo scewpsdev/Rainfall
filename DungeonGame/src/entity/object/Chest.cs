@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 public class Chest : Entity, Interactable, ItemContainerEntity
 {
 	public const int WIDTH = 10;
