@@ -320,13 +320,13 @@ public class HUD
 					color = 0xFF77FFFF;
 				else if (tile != 0)
 				{
-					if (tile == 0xFFFF)
+					if (tile / 100 == 0xFF)
 					{
 						color = 0xFF444444;
 					}
 					else
 					{
-						RoomType type = RoomType.Get(tile);
+						RoomType type = RoomType.Get(tile / 100);
 						if (type != null)
 						{
 							if (type.sectorType == SectorType.Room)

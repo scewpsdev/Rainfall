@@ -37,15 +37,18 @@ internal class LevelGenerator
 		ceiling = Resource.GetModel("res/models/tiles/ceiling.gltf");
 	}
 
-	void propagateRooms()
+	void propagateRooms(SectorType type)
 	{
 		List<Doorway> openDoorways = new List<Doorway>();
 		foreach (Room room in rooms)
 		{
-			foreach (Doorway doorway in room.doorways)
+			if (type == SectorType.None || room.type.sectorType == type)
 			{
-				if (doorway.connectedDoorway == null)
-					openDoorways.Add(doorway);
+				foreach (Doorway doorway in room.doorways)
+				{
+					if (doorway.connectedDoorway == null)
+						openDoorways.Add(doorway);
+				}
 			}
 		}
 
@@ -63,7 +66,6 @@ internal class LevelGenerator
 		{
 			if (rooms.Count >= maxRooms)
 				break;
-
 			SectorType nextSectorType = openDoorway.room.type.getNextSectorType(openDoorway);
 			RoomType connectedType = RoomType.GetRandom(nextSectorType, random);
 			Matrix transform = openDoorway.room.transform * openDoorway.transform * Matrix.CreateRotation(Vector3.Up, MathF.PI);
@@ -128,16 +130,21 @@ internal class LevelGenerator
 		}
 	}
 
-	Room findRoomAtPosition(Vector3i position)
+	Room getRoomByID(int id)
 	{
 		foreach (Room room in rooms)
 		{
-			if (position.x >= room.gridPosition.x && position.x < room.gridPosition.x + room.gridSize.x &&
-				position.y >= room.gridPosition.y && position.y < room.gridPosition.y + room.gridSize.y &&
-				position.z >= room.gridPosition.z && position.z < room.gridPosition.z + room.gridSize.z)
+			if (room.id == id)
 				return room;
 		}
 		return null;
+	}
+
+	Room findRoomAtPosition(Vector3i position)
+	{
+		int roomID = tilemap.getTile(position);
+		Room room = getRoomByID(roomID);
+		return room;
 	}
 
 	Vector3i localToGlobal(Vector3i position, Matrix roomTransform)
@@ -193,15 +200,110 @@ internal class LevelGenerator
 		return 0;
 	}
 
-	int getNumDoorsBetween(Doorway doorway1, Doorway doorway2)
+	int getNumDoorsBetween(Room room1, Doorway doorway2)
 	{
 		List<Room> checkedRooms = new List<Room>();
-		int chainLength = checkRoomForDoorway(doorway1.room, doorway2, null, checkedRooms);
+		int chainLength = checkRoomForDoorway(room1, doorway2, null, checkedRooms);
 		if (chainLength != 0)
 			return chainLength;
 
 		//Debug.Assert(false);
 		return -1;
+	}
+
+	void connectDoorways(Doorway doorway1, Doorway doorway2)
+	{
+		bool[] walkable = new bool[tilemap.mapSize.x * tilemap.mapSize.y * tilemap.mapSize.z];
+		Array.Fill(walkable, true);
+		foreach (Room room in rooms)
+		{
+			if (room.type.sectorType == SectorType.Room)
+			{
+				for (int z = room.gridPosition.z - 2; z < room.gridPosition.z + room.gridSize.z + 2; z++)
+				{
+					for (int x = room.gridPosition.x - 2; x < room.gridPosition.x + room.gridSize.x + 2; x++)
+					{
+						for (int y = room.gridPosition.y - 2; y < room.gridPosition.y + room.gridSize.y + 2; y++)
+						{
+							Vector3i p = new Vector3i(x, y, z);
+							bool isInsideRoom = p >= room.gridPosition && p < room.gridPosition + room.gridSize;
+							if (!isInsideRoom)
+							{
+								bool isDoorway = false;
+								foreach (Doorway doorway in room.doorways)
+								{
+									if (p == doorway.globalPosition || p == doorway.globalPosition + doorway.globalDirection)
+									{
+										isDoorway = true;
+										break;
+									}
+								}
+								if (!isDoorway)
+								{
+									int xx = x - tilemap.mapPosition.x;
+									int yy = y - tilemap.mapPosition.y;
+									int zz = z - tilemap.mapPosition.z;
+									walkable[xx + yy * tilemap.mapSize.x + zz * tilemap.mapSize.x * tilemap.mapSize.y] = false;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		{
+			Vector3i behindDoorway = doorway1.globalPosition - doorway1.globalDirection - tilemap.mapPosition;
+			walkable[behindDoorway.x + behindDoorway.y * tilemap.mapSize.x + behindDoorway.z * tilemap.mapSize.x * tilemap.mapSize.y] = false;
+		}
+		{
+			Vector3i behindDoorway = doorway2.globalPosition - doorway2.globalDirection - tilemap.mapPosition;
+			walkable[behindDoorway.x + behindDoorway.y * tilemap.mapSize.x + behindDoorway.z * tilemap.mapSize.x * tilemap.mapSize.y] = false;
+		}
+
+		int[] costs = new int[tilemap.mapSize.x * tilemap.mapSize.y * tilemap.mapSize.z];
+		Array.Fill(costs, 2);
+		for (int z = 0; z < tilemap.mapSize.z; z++)
+		{
+			for (int y = 0; y < tilemap.mapSize.y; y++)
+			{
+				for (int x = 0; x < tilemap.mapSize.x; x++)
+				{
+					if (tilemap.getTile(tilemap.mapPosition + new Vector3i(x, y, z)) != 0)
+						costs[x + y * tilemap.mapSize.x + z * tilemap.mapSize.x * tilemap.mapSize.y] = 1;
+				}
+			}
+		}
+
+		Vector3i start = doorway1.globalPosition;
+		Vector3i end = doorway2.globalPosition;
+
+		List<Vector3i> path = AStar3D.Run(start - tilemap.mapPosition, end - tilemap.mapPosition, tilemap.mapSize, walkable, costs);
+		if (path != null)
+		{
+			for (int j = 0; j < path.Count; j++)
+				path[j] = path[j] + tilemap.mapPosition;
+			Vector3i startDirection = -doorway1.globalDirection;
+			Vector3i endDirection = -doorway2.globalDirection;
+			RoomType type = RoomType.GetAStarCorridor(path, startDirection, endDirection, tilemap, out Matrix transform);
+			Room newRoom = placeRoom(type, transform);
+
+			bool directConnection = doorway1.room.type.sectorType == SectorType.Corridor || doorway2.room.type.sectorType == SectorType.Corridor;
+			directConnection = false;
+			if (directConnection)
+			{
+				newRoom.doorways[0].connectedDoorway = doorway1;
+				newRoom.doorways[1].connectedDoorway = doorway2;
+				doorway1.connectedDoorway = doorway2;
+				doorway2.connectedDoorway = doorway1;
+			}
+			else
+			{
+				newRoom.doorways[0].connectedDoorway = doorway1;
+				newRoom.doorways[1].connectedDoorway = doorway2;
+				doorway1.connectedDoorway = newRoom.doorways[0];
+				doorway2.connectedDoorway = newRoom.doorways[1];
+			}
+		}
 	}
 
 	void interconnectRooms(int count)
@@ -224,7 +326,7 @@ internal class LevelGenerator
 				if (openDoorways[i].room != openDoorways[j].room &&
 					(openDoorways[i].room.type.sectorType == SectorType.Corridor || openDoorways[j].room.type.sectorType == SectorType.Corridor))
 				{
-					int numDoorsBetween = getNumDoorsBetween(openDoorways[i], openDoorways[j]);
+					int numDoorsBetween = getNumDoorsBetween(openDoorways[i].room, openDoorways[j]);
 					if (numDoorsBetween == -1 || numDoorsBetween > 6)
 						openDoorwayPairs.Add(new Tuple<Doorway, Doorway>(openDoorways[i], openDoorways[j]));
 					//if (numDoorsBetween > 6)
@@ -253,95 +355,99 @@ internal class LevelGenerator
 				continue;
 			}
 
-			bool[] walkable = new bool[tilemap.mapSize.x * tilemap.mapSize.y * tilemap.mapSize.z];
-			Array.Fill(walkable, true);
-			foreach (Room room in rooms)
+			connectDoorways(doorway1, doorway2);
+		}
+	}
+
+	void collectRoomConnections(Room room, List<Room> rooms)
+	{
+		foreach (Doorway doorway in room.doorways)
+		{
+			if (doorway.connectedDoorway != null)
 			{
-				if (room.type.sectorType == SectorType.Room)
+				Room connectedRoom = doorway.connectedDoorway.room;
+				if (!rooms.Contains(connectedRoom))
 				{
-					for (int z = room.gridPosition.z - 2; z < room.gridPosition.z + room.gridSize.z + 2; z++)
+					rooms.Add(connectedRoom);
+					collectRoomConnections(connectedRoom, rooms);
+				}
+			}
+		}
+	}
+
+	List<Doorway> getEmptyDoorwaysConnectedToRoom(Room room)
+	{
+		List<Room> connectedRooms = new List<Room>();
+		connectedRooms.Add(room);
+		collectRoomConnections(room, connectedRooms);
+
+		List<Doorway> emptyDoorways = new List<Doorway>();
+		foreach (Room connectedRoom in connectedRooms)
+		{
+			foreach (Doorway doorway in connectedRoom.doorways)
+			{
+				if (doorway.connectedDoorway == null)
+					emptyDoorways.Add(doorway);
+			}
+		}
+		return emptyDoorways;
+	}
+
+	void connectRoomsIfNot(Room room1, Room room2)
+	{
+		int numDoorsBetween = getNumDoorsBetween(room1, room2.doorways[0]);
+		if (numDoorsBetween == -1)
+		{
+			List<Doorway> doorways1 = getEmptyDoorwaysConnectedToRoom(room1);
+			List<Doorway> doorways2 = getEmptyDoorwaysConnectedToRoom(room2);
+			List<Tuple<Doorway, Doorway>> doorwayPairs = new List<Tuple<Doorway, Doorway>>();
+			for (int i = 0; i < doorways1.Count; i++)
+			{
+				for (int j = 0; j < doorways2.Count; j++)
+				{
+					doorwayPairs.Add(new Tuple<Doorway, Doorway>(doorways1[i], doorways2[j]));
+				}
+			}
+
+			doorwayPairs.Sort((Tuple<Doorway, Doorway> pair1, Tuple<Doorway, Doorway> pair2) =>
+			{
+				int distance1 = manhattanDistance(pair1.Item1.globalPosition, pair1.Item2.globalPosition);
+				int distance2 = manhattanDistance(pair2.Item1.globalPosition, pair2.Item2.globalPosition);
+				return distance1 > distance2 ? 1 : distance1 < distance2 ? -1 : 0;
+			});
+
+			Doorway doorway1 = doorwayPairs[0].Item1;
+			Doorway doorway2 = doorwayPairs[0].Item2;
+			connectDoorways(doorway1, doorway2);
+		}
+	}
+
+	void removeEmptyCorridors()
+	{
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			if (room.type.sectorType == SectorType.Corridor)
+			{
+				int numConnectedDoorways = 0;
+				Doorway nonEmptyDoorway = null;
+				foreach (Doorway doorway in room.doorways)
+				{
+					if (doorway.connectedDoorway != null)
 					{
-						for (int x = room.gridPosition.x - 2; x < room.gridPosition.x + room.gridSize.x + 2; x++)
-						{
-							for (int y = room.gridPosition.y - 2; y < room.gridPosition.y + room.gridSize.y + 2; y++)
-							{
-								Vector3i p = new Vector3i(x, y, z);
-								bool isInsideRoom = p >= room.gridPosition && p < room.gridPosition + room.gridSize;
-								if (!isInsideRoom)
-								{
-									bool isDoorway = false;
-									foreach (Doorway doorway in room.doorways)
-									{
-										if (p == doorway.globalPosition || p == doorway.globalPosition + doorway.globalDirection)
-										{
-											isDoorway = true;
-											break;
-										}
-									}
-									if (!isDoorway)
-									{
-										int xx = x - tilemap.mapPosition.x;
-										int yy = y - tilemap.mapPosition.y;
-										int zz = z - tilemap.mapPosition.z;
-										walkable[xx + yy * tilemap.mapSize.x + zz * tilemap.mapSize.x * tilemap.mapSize.y] = false;
-									}
-								}
-							}
-						}
+						numConnectedDoorways++;
+						nonEmptyDoorway = doorway;
 					}
 				}
-			}
-			{
-				Vector3i behindDoorway = doorway1.globalPosition - doorway1.globalDirection - tilemap.mapPosition;
-				walkable[behindDoorway.x + behindDoorway.y * tilemap.mapSize.x + behindDoorway.z * tilemap.mapSize.x * tilemap.mapSize.y] = false;
-			}
-			{
-				Vector3i behindDoorway = doorway2.globalPosition - doorway2.globalDirection - tilemap.mapPosition;
-				walkable[behindDoorway.x + behindDoorway.y * tilemap.mapSize.x + behindDoorway.z * tilemap.mapSize.x * tilemap.mapSize.y] = false;
-			}
-
-			int[] costs = new int[tilemap.mapSize.x * tilemap.mapSize.y * tilemap.mapSize.z];
-			Array.Fill(costs, 2);
-			for (int z = 0; z < tilemap.mapSize.z; z++)
-			{
-				for (int y = 0; y < tilemap.mapSize.y; y++)
+				Debug.Assert(numConnectedDoorways > 0);
+				if (numConnectedDoorways == 1)
 				{
-					for (int x = 0; x < tilemap.mapSize.x; x++)
-					{
-						if (tilemap.getTile(tilemap.mapPosition + new Vector3i(x, y, z)) != 0)
-							costs[x + y * tilemap.mapSize.x + z * tilemap.mapSize.x * tilemap.mapSize.y] = 1;
-					}
-				}
-			}
-
-			Vector3i start = doorway1.globalPosition;
-			Vector3i end = doorway2.globalPosition;
-
-			List<Vector3i> path = AStar3D.Run(start - tilemap.mapPosition, end - tilemap.mapPosition, tilemap.mapSize, walkable, costs);
-			if (path != null)
-			{
-				for (int j = 0; j < path.Count; j++)
-					path[j] = path[j] + tilemap.mapPosition;
-				Vector3i startDirection = -doorway1.globalDirection;
-				Vector3i endDirection = -doorway2.globalDirection;
-				RoomType type = RoomType.GetAStarCorridor(path, startDirection, endDirection, tilemap, out Matrix transform);
-				Room newRoom = placeRoom(type, transform);
-
-				bool directConnection = doorway1.room.type.sectorType == SectorType.Corridor || doorway2.room.type.sectorType == SectorType.Corridor;
-				directConnection = false;
-				if (directConnection)
-				{
-					newRoom.doorways[0].connectedDoorway = doorway1;
-					newRoom.doorways[1].connectedDoorway = doorway2;
-					doorway1.connectedDoorway = doorway2;
-					doorway2.connectedDoorway = doorway1;
-				}
-				else
-				{
-					newRoom.doorways[0].connectedDoorway = doorway1;
-					newRoom.doorways[1].connectedDoorway = doorway2;
-					doorway1.connectedDoorway = newRoom.doorways[0];
-					doorway2.connectedDoorway = newRoom.doorways[1];
+					if (room.type.id == 0xFF)
+						Debug.Assert(false);
+					nonEmptyDoorway.connectedDoorway.connectedDoorway = null;
+					nonEmptyDoorway.connectedDoorway = null;
+					tilemap.removeRoom(room);
+					rooms.RemoveAt(i--);
 				}
 			}
 		}
@@ -485,8 +591,8 @@ internal class LevelGenerator
 					// only spawn the door for one of the two rooms. preferrably let the room spawn it instead of the corridor, otherwise just choose an arbitrary criteria.
 					// also don't spawn doors for doorways connected to a* generated corridors.
 					bool corridorConnectedToAStar =
-						doorway.room.type.id == 0xFFFF && doorway.connectedDoorway.room.type.sectorType == SectorType.Corridor ||
-						doorway.room.type.sectorType == SectorType.Corridor && doorway.connectedDoorway.room.type.id == 0xFFFF;
+						doorway.room.type.id == 0xFF && doorway.connectedDoorway.room.type.sectorType == SectorType.Corridor ||
+						doorway.room.type.sectorType == SectorType.Corridor && doorway.connectedDoorway.room.type.id == 0xFF;
 					bool shouldSpawnDoor = doorway.room.type.id < doorway.connectedDoorway.room.type.id ||
 						doorway.room.type.id == doorway.connectedDoorway.room.type.id && Hash.hash(doorway.room.gridPosition) < Hash.hash(doorway.connectedDoorway.room.gridPosition);
 					shouldSpawnDoor = shouldSpawnDoor && !corridorConnectedToAStar;
@@ -702,10 +808,14 @@ internal class LevelGenerator
 
 		while (rooms.Count < maxRooms)
 		{
-			propagateRooms();
+			propagateRooms(SectorType.None);
 		}
 		//placeFinalRoom();
 		interconnectRooms(2);
+		propagateRooms(SectorType.Corridor);
+		connectRoomsIfNot(startingRoom, mainRoom);
+		connectRoomsIfNot(finalRoom, mainRoom);
+		//removeEmptyCorridors();
 
 		createDoorways();
 		createSecretWalls();

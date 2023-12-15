@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public enum SectorType
 {
+	None = 0,
+
 	Room,
 	Corridor,
 }
@@ -97,6 +99,22 @@ public class RoomType
 				}
 			}
 		}
+	}
+
+	public bool getMask(int x, int y, int z)
+	{
+		if (x >= 0 && x < size.x && y >= 0 && y < size.y && z >= 0 && z < size.z)
+		{
+			if (mask != null)
+				return mask[x + y * size.x + z * size.x * size.y];
+			return true;
+		}
+		return false;
+	}
+
+	public bool getMask(Vector3i p)
+	{
+		return getMask(p.x, p.y, p.z);
 	}
 
 	protected T copy<T>(T type) where T : RoomType
@@ -298,7 +316,7 @@ public class RoomType
 		};
 
 		AStarRoomType type = new AStarRoomType();
-		type.id = 0xFFFF;
+		type.id = 0xFF;
 		type.model = null;
 		type.collider = null;
 		type.sectorType = SectorType.Corridor;

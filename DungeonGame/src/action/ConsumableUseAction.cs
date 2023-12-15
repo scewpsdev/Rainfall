@@ -31,6 +31,8 @@ internal class ConsumableUseAction : Action
 
 		followUpCancelTime = item.consumableFollowUpTime;
 
+		movementSpeedMultiplier = 0.3f;
+
 		if (item.sfxUse != null)
 			addSoundEffect(item.sfxUse, handID, item.consumableUseTime, true);
 	}

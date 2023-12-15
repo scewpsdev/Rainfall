@@ -197,16 +197,21 @@ public class TileMap
 			{
 				for (int y = y0 - 1; y <= y1 + 1; y++)
 				{
+					Vector3i localPos = globalToLocal(new Vector3i(x, y, z), room.transform);
+
+					bool insideRoom = false;
 					if (z >= z0 && z <= z1 && x >= x0 && x <= x1 && y >= y0 && y <= y1)
 					{
+						insideRoom = true;
 						if (room.type.mask != null)
 						{
-							Vector3i localPos = globalToLocal(new Vector3i(x, y, z), room.transform);
 							if (!room.type.mask[localPos.x + localPos.y * room.type.size.x + localPos.z * room.type.size.x * room.type.size.y])
-								continue;
+								insideRoom = false;
 						}
-
-						grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = room.type.id;
+					}
+					if (insideRoom)
+					{
+						grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = room.id;
 
 						if (room.type.sectorType == SectorType.Room)
 							setFlag(x, y, z, FLAG_ROOM, true);
@@ -214,10 +219,74 @@ public class TileMap
 							setFlag(x, y, z, FLAG_CORRIDOR, true);
 
 						setFlag(x, y, z, FLAG_WALL, false);
+						setFlag(x, y, z, FLAG_CORRIDOR_WALL, false);
 					}
 					else
 					{
-						setFlag(x, y, z, room.type.sectorType == SectorType.Room ? FLAG_ROOM_WALL : FLAG_CORRIDOR_WALL, true);
+						if (room.type.getMask(localPos + Vector3i.Left) ||
+							room.type.getMask(localPos + Vector3i.Right) ||
+							room.type.getMask(localPos + Vector3i.Down) ||
+							room.type.getMask(localPos + Vector3i.Up) ||
+							room.type.getMask(localPos + Vector3i.Forward) ||
+							room.type.getMask(localPos + Vector3i.Back))
+						{
+							setFlag(x, y, z, room.type.sectorType == SectorType.Room ? FLAG_ROOM_WALL : FLAG_CORRIDOR_WALL, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void removeRoom(Room room)
+	{
+		int x0 = room.gridPosition.x;
+		int x1 = room.gridPosition.x + room.gridSize.x - 1;
+		int y0 = room.gridPosition.y;
+		int y1 = room.gridPosition.y + room.gridSize.y - 1;
+		int z0 = room.gridPosition.z;
+		int z1 = room.gridPosition.z + room.gridSize.z - 1;
+
+		for (int z = z0 - 1; z <= z1 + 1; z++)
+		{
+			for (int x = x0 - 1; x <= x1 + 1; x++)
+			{
+				for (int y = y0 - 1; y <= y1 + 1; y++)
+				{
+					Vector3i localPos = globalToLocal(new Vector3i(x, y, z), room.transform);
+
+					bool insideRoom = false;
+					if (z >= z0 && z <= z1 && x >= x0 && x <= x1 && y >= y0 && y <= y1)
+					{
+						insideRoom = true;
+						if (room.type.mask != null)
+						{
+							if (!room.type.mask[localPos.x + localPos.y * room.type.size.x + localPos.z * room.type.size.x * room.type.size.y])
+								insideRoom = false;
+						}
+					}
+					if (insideRoom)
+					{
+						grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = 0;
+
+						setFlag(x, y, z, FLAG_ROOM, false);
+						setFlag(x, y, z, FLAG_CORRIDOR, false);
+
+						setFlag(x, y, z, FLAG_WALL, false);
+						setFlag(x, y, z, FLAG_CORRIDOR_WALL, false);
+					}
+					else
+					{
+						if (room.type.getMask(localPos + Vector3i.Left) ||
+							room.type.getMask(localPos + Vector3i.Right) ||
+							room.type.getMask(localPos + Vector3i.Down) ||
+							room.type.getMask(localPos + Vector3i.Up) ||
+							room.type.getMask(localPos + Vector3i.Forward) ||
+							room.type.getMask(localPos + Vector3i.Back))
+						{
+							setFlag(x, y, z, FLAG_WALL, false);
+							setFlag(x, y, z, FLAG_CORRIDOR_WALL, false);
+						}
 					}
 				}
 			}

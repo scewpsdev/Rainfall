@@ -54,6 +54,9 @@ public class EnemySpawn
 
 public class Room
 {
+	static int idCounter = 1;
+
+	public readonly int id;
 	public RoomType type;
 	public Level level;
 
@@ -68,6 +71,7 @@ public class Room
 
 	public Room(RoomType type, Matrix transform, Level level)
 	{
+		id = type.id * 100 + idCounter++;
 		this.type = type;
 		this.level = level;
 		this.transform = transform;
