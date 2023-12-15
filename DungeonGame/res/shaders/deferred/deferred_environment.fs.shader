@@ -129,6 +129,9 @@ void main()
 	vec3 emissive = emissionColor * emissionStrength;
 	float roughness = albedoRoughness.a;
 	float metallic = emissiveMetallic.a;
+	
+	roughness = 1.0;
+	albedo *= 4;
 
 	float ao = 1.0 - texture2D(s_ambientOcclusion, v_texcoord0).r;
 
@@ -168,6 +171,7 @@ void main()
 	}
 	
 	gl_FragColor = vec4(ambient, 1.0);
+	//gl_FragColor = vec4(ao, ao, ao, 1.0);
 
 	if (positionW.a < 0.5)
 		discard;

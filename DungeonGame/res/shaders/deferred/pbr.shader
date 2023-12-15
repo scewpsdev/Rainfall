@@ -189,7 +189,7 @@ vec3 RenderEnvironmentMapParallax(vec3 position, vec3 normal, vec3 view, vec3 al
 
 	vec3 r = reflect(-view, normal);
 	float maxLod = log2(textureSize(environmentMap, 0).x);
-	float lodFactor = (1.0 - exp(-roughness * 2.5)) * maxLod;
+	float lodFactor = (1.0 - exp(-roughness * 6.0)) * maxLod;
 	vec3 prefiltered = SampleCubemapParallax(environmentMap, r, lodFactor, environmentMapPosition, environmentMapSize, environmentMapOrigin, position).rgb * environmentMapIntensity;
 
 	vec2 brdfInteg = vec2(1.0, 0.0);

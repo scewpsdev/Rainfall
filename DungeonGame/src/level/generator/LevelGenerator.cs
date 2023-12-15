@@ -720,10 +720,18 @@ internal class LevelGenerator
 		};
 		var getElevation = (Vector3i p, int maxHeight) =>
 		{
-			for (int y = p.y; y < p.y + maxHeight; y++)
+			bool hasMetAir = false;
+			for (int y = p.y + maxHeight - 1; y >= p.y; y--)
 			{
-				if (!tilemap.isWall(new Vector3i(p.x, y, p.z)))
-					return y - p.y;
+				if (tilemap.isWall(new Vector3i(p.x, y, p.z)))
+				{
+					if (hasMetAir)
+						return y - p.y + 1;
+				}
+				else
+				{
+					hasMetAir = true;
+				}
 			}
 			return -1;
 		};
@@ -758,17 +766,21 @@ internal class LevelGenerator
 						if (isAStarFloor)
 						{
 							Debug.Assert(ceilingHeight != -1);
-							//if (p == new Vector3i(-6, 9, -9))
-							//	Debug.Assert(false);
+
+							ResizableLadder ladder = null;
+							Vector3 position = Vector3.Zero;
+							Quaternion rotation = Quaternion.Identity;
+
+							// Try straight ladders
+
 							if (tilemap.isWall(left))
 							{
 								int elevation = getElevation(left, ceilingHeight);
 								if (elevation != -1)
 								{
-									ResizableLadder ladder = new ResizableLadder(elevation);
-									Vector3 position = p + new Vector3(0.5f, 0.0f, 0.5f);
-									Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
-									level.addEntity(ladder, position, rotation);
+									ladder = new ResizableLadder(elevation);
+									position = p + new Vector3(0.5f, 0.0f, 0.5f);
+									rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
 								}
 							}
 							if (tilemap.isWall(right))
@@ -776,11 +788,70 @@ internal class LevelGenerator
 								int elevation = getElevation(right, ceilingHeight);
 								if (elevation != -1)
 								{
-									ResizableLadder ladder = new ResizableLadder(elevation);
-									Vector3 position = p + new Vector3(0.5f, 0.0f, 0.5f);
-									Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * -0.5f);
-									level.addEntity(ladder, position, rotation);
+									ladder = new ResizableLadder(elevation);
+									position = p + new Vector3(0.5f, 0.0f, 0.5f);
+									rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * -0.5f);
 								}
+							}
+							if (tilemap.isWall(forward))
+							{
+								int elevation = getElevation(forward, ceilingHeight);
+								if (elevation != -1)
+								{
+									ladder = new ResizableLadder(elevation);
+									position = p + new Vector3(0.5f, 0.0f, 0.5f);
+									rotation = Quaternion.Identity;
+								}
+							}
+							if (tilemap.isWall(back))
+							{
+								int elevation = getElevation(back, ceilingHeight);
+								if (elevation != -1)
+								{
+									ladder = new ResizableLadder(elevation);
+									position = p + new Vector3(0.5f, 0.0f, 0.5f);
+									rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI);
+								}
+							}
+
+							if (ladder == null)
+							{
+								int leftElevation = getElevation(left, ceilingHeight);
+								if (leftElevation != -1)
+								{
+									if (!tilemap.isWall(left))
+									{
+										if (tilemap.isWall(left + Vector3i.Forward))
+										{
+											ladder = new ResizableLadder(leftElevation);
+											position = left + Vector3i.Forward + new Vector3(0.5f, 0.0f, 0.5f);
+											rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
+										}
+										else if (tilemap.isWall(left + Vector3i.Back))
+										{
+											ladder = new ResizableLadder(leftElevation);
+											position = left + Vector3i.Back + new Vector3(0.5f, 0.0f, 0.5f);
+											rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
+										}
+										else if (tilemap.isWall(p + Vector3i.Forward * 2))
+										{
+											ladder = new ResizableLadder(leftElevation);
+											position = p + Vector3i.Forward + new Vector3(0.5f, 0.0f, 0.5f);
+											rotation = Quaternion.Identity;
+										}
+										else if (tilemap.isWall(p + Vector3i.Back * 2))
+										{
+											ladder = new ResizableLadder(leftElevation);
+											position = p + Vector3i.Back + new Vector3(0.5f, 0.0f, 0.5f);
+											rotation = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI);
+										}
+									}
+								}
+							}
+
+							if (ladder != null)
+							{
+								level.addEntity(ladder, position, rotation);
 							}
 						}
 					}
@@ -815,7 +886,7 @@ internal class LevelGenerator
 		propagateRooms(SectorType.Corridor);
 		connectRoomsIfNot(startingRoom, mainRoom);
 		connectRoomsIfNot(finalRoom, mainRoom);
-		//removeEmptyCorridors();
+		removeEmptyCorridors();
 
 		createDoorways();
 		createSecretWalls();

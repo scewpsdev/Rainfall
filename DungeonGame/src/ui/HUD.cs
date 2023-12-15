@@ -307,7 +307,7 @@ public class HUD
 			minimapPixels = new uint[minimap.width * minimap.height];
 		}
 
-		int playerY = (int)MathF.Floor(player.position.y + 0.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
+		int playerY = (int)MathF.Floor(player.position.y - level.tilemap.mapPosition.y + 0.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
 
 		level.tilemap.getRelativeTilePosition(player.position / LevelGenerator.TILE_SIZE, out Vector3i playerPos);
 		for (int z = 0; z < level.tilemap.mapSize.z; z++)

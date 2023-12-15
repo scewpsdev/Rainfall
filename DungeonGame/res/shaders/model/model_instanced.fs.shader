@@ -41,7 +41,7 @@ void main()
 	float roughness = mix(roughnessFactor, texture2DLod(s_roughness, v_texcoord0, lod).g, hasTexCoords * hasRoughness);
 	float metallic = mix(metallicFactor, texture2DLod(s_metallic, v_texcoord0, lod).b, hasTexCoords * hasMetallic);
 	vec3 emissive = mix(emissionColor, texture2DLod(s_emissive, v_texcoord0, lod).rgb, hasTexCoords * hasEmissive);
-
+	
 	vec3 normalMapValue = 2.0 * texture2DLod(s_normal, v_texcoord0, lod).rgb - 1.0;
 	vec3 norm = normalize(v_normal);
 	vec3 tang = normalize(v_tangent);

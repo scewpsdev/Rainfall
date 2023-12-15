@@ -411,7 +411,7 @@ public class MainRoom : RoomType
 		}
 
 		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
-		GraphicsManager.skyboxIntensity = 3.0f;
+		GraphicsManager.skyboxIntensity = 5.0f;
 
 		GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
 

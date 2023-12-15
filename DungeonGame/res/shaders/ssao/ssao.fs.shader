@@ -106,8 +106,8 @@ void main_()
 #define INTENSITY 1.
 #define SCALE 2.5
 #define BIAS 0.05
-#define SAMPLE_RAD 0.02
-#define MAX_DISTANCE 0.03
+#define SAMPLE_RAD 0.05
+#define MAX_DISTANCE 0.5
 
 #define MOD3 vec3(.1031,.11369,.13787)
 
@@ -150,18 +150,19 @@ vec2 getRandom(vec2 uv) {
 }
 
 
-float doAmbientOcclusion(in vec2 tcoord, in vec2 uv, in vec3 p, in vec3 cnorm)
+float doAmbientOcclusion(in vec2 tcoord, in vec2 uv, in vec3 p, in vec3 cnorm, float scale)
 {
-	vec3 diff = getPosition(tcoord + uv) - p;
+	vec3 diff = (getPosition(tcoord + uv) - p) / scale;
 	float l = length(diff);
 	vec3 v = diff / l;
 	float d = l * SCALE;
-	float ao = max(0.0, dot(cnorm, v) - BIAS) * (1.0 / (1.0 + d));
-	ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, l);
+	float ao = max(0.0, dot(cnorm, v) - BIAS) * (1.0 / (1.0 + d / scale));
+	//ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, l);
+	ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, diff.z);
 	return ao;
 }
 
-float spiralAO(vec2 uv, vec3 p, vec3 n, float rad)
+float spiralAO(vec2 uv, vec3 p, vec3 n, float scale)
 {
 	float goldenAngle = 2.4;
 	float ao = 0.;
@@ -169,14 +170,14 @@ float spiralAO(vec2 uv, vec3 p, vec3 n, float rad)
 	float radius = 0.;
 
 	float rotatePhase = texture2D(s_ssaoNoise, uv / (u_viewTexel.xy * 4.0)).x * 6.28;
-	float rStep = inv * rad;
+	float rStep = inv * SAMPLE_RAD;
 	vec2 spiralUV;
 
 	for (int i = 0; i < SAMPLES; i++) {
 		spiralUV.x = sin(rotatePhase);
 		spiralUV.y = cos(rotatePhase);
 		radius += rStep;
-		ao += doAmbientOcclusion(uv, spiralUV * radius, p, n);
+		ao += doAmbientOcclusion(uv, spiralUV * radius, p, n, scale);
 		rotatePhase += goldenAngle;
 	}
 	ao *= inv;
@@ -191,9 +192,10 @@ void main()
 	vec3 n = getNormal(uv);
 
 	float ao = 0.;
-	float rad = min(SAMPLE_RAD / -p.z, SAMPLE_RAD / 0.5);
+	//float rad = min(SAMPLE_RAD / -p.z, SAMPLE_RAD / 0.5);
+	float scale = -p.z;
 
-	ao = spiralAO(uv, p, n, rad);
+	ao = spiralAO(uv, p, n, scale);
 
 	ao = 1. - ao * INTENSITY;
 	ao = pow(ao, 4.0);

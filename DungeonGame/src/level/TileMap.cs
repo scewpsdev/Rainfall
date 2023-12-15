@@ -69,13 +69,18 @@ public class TileMap
 		grid = newGrid;
 	}
 
+	public void makeSpaceFor(int x0, int y0, int z0, int x1, int y1, int z1)
+	{
+		if (!(x0 >= mapPosition.x && x1 < mapPosition.x + mapSize.x && y0 >= mapPosition.y && y1 < mapPosition.y + mapSize.y && z0 >= mapPosition.z && z1 < mapPosition.z + mapSize.z))
+			resize(Math.Min(x0, mapPosition.x), Math.Min(y0, mapPosition.y), Math.Min(z0, mapPosition.z), Math.Max(x1, mapPosition.x + mapSize.x - 1), Math.Max(y1, mapPosition.y + mapSize.y - 1), Math.Max(z1, mapPosition.z + mapSize.z - 1));
+	}
+
 	public void setTile(int x, int y, int z, int tile)
 	{
-		if (x >= mapPosition.x && x < mapPosition.x + mapSize.x && y >= mapPosition.y && y < mapPosition.y + mapSize.y && z >= mapPosition.z && z < mapPosition.z + mapSize.z)
-		{
-			int flags = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & unchecked((int)0xFFFF0000);
-			grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = flags | tile;
-		}
+		makeSpaceFor(x, y, z, x, y, z);
+
+		int flags = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & unchecked((int)0xFFFF0000);
+		grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = flags | tile;
 	}
 
 	public void setTile(Vector3i position, int tile)
@@ -97,16 +102,15 @@ public class TileMap
 
 	public void setFlag(int x, int y, int z, int flag, bool set)
 	{
-		if (x >= mapPosition.x && x < mapPosition.x + mapSize.x && y >= mapPosition.y && y < mapPosition.y + mapSize.y && z >= mapPosition.z && z < mapPosition.z + mapSize.z)
-		{
-			int data = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z];
-			flag <<= 16;
-			if (set)
-				data |= flag;
-			else
-				data = (data | flag) ^ flag;
-			grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = data;
-		}
+		makeSpaceFor(x, y, z, x, y, z);
+
+		int data = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z];
+		flag <<= 16;
+		if (set)
+			data |= flag;
+		else
+			data = (data | flag) ^ flag;
+		grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = data;
 	}
 
 	public void setFlag(Vector3i position, int flag, bool set)
@@ -186,10 +190,7 @@ public class TileMap
 		int z0 = room.gridPosition.z;
 		int z1 = room.gridPosition.z + room.gridSize.z - 1;
 
-		if (x0 < mapPosition.x || x1 >= mapPosition.x + mapSize.x ||
-			y0 < mapPosition.y || y1 >= mapPosition.y + mapSize.y ||
-			z0 < mapPosition.z || z1 >= mapPosition.z + mapSize.z)
-			resize(Math.Min(x0, mapPosition.x), Math.Min(y0, mapPosition.y), Math.Min(z0, mapPosition.z), Math.Max(x1, mapPosition.x + mapSize.x - 1), Math.Max(y1, mapPosition.y + mapSize.y - 1), Math.Max(z1, mapPosition.z + mapSize.z - 1));
+		makeSpaceFor(x0, y0, z0, x1, y1, z1);
 
 		for (int z = z0 - 1; z <= z1 + 1; z++)
 		{

@@ -578,8 +578,8 @@ public class Player : Entity
 
 				if (velocity.y < FALL_DMG_THRESHHOLD)
 				{
-					float damage = (FALL_DMG_THRESHHOLD - velocity.y) * 5;
-					stats.applyDamage(damage);
+					float fallDamage = MathF.Pow(FALL_DMG_THRESHHOLD - velocity.y, 2);
+					stats.applyDamage(fallDamage);
 				}
 			}
 
@@ -1414,7 +1414,7 @@ public class Player : Entity
 			else
 			*/
 			{
-				if (currentSpeed > 0.5f && currentAction == null)
+				if (currentSpeed > 0.25f && currentAction == null)
 				{
 					movementState0 = runState[0];
 					runState[0].animationSpeed = currentSpeed;
