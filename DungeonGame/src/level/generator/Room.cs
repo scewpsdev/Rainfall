@@ -192,6 +192,38 @@ public class Room
 		return false;
 	}
 
+	void getRandomLootSelection(out Item[] items, out int[] amounts, Random random)
+	{
+		List<Item> itemList = new List<Item>();
+		List<int> amountList = new List<int>();
+
+		float flaskChance = 0.1f;
+		if (random.NextSingle() < flaskChance)
+		{
+			itemList.Add(Item.Get("flask"));
+			amountList.Add(1);
+		}
+
+		float arrowChance = 0.08f;
+		if (random.NextSingle() < arrowChance)
+		{
+			itemList.Add(Item.Get("arrow"));
+			int amount = MathHelper.RandomInt(7, 15, random);
+			amountList.Add(amount);
+		}
+
+		float goldChance = 0.25f;
+		if (random.NextSingle() < goldChance || itemList.Count == 0)
+		{
+			itemList.Add(Item.Get("gold"));
+			int amount = MathHelper.RandomInt(3, 10, random);
+			amountList.Add(amount);
+		}
+
+		items = itemList.ToArray();
+		amounts = amountList.ToArray();
+	}
+
 	public virtual void spawn(Level level, Random random)
 	{
 		for (int i = 0; i < doorways.Count; i++)
@@ -218,13 +250,21 @@ public class Room
 			addEntity(enemy, enemySpawns[i].position, enemySpawns[i].rotation);
 		}
 
+		/*
 		for (int i = 0; i < type.chestSpawns.Count; i++)
 		{
 			Vector3 position = transform * (type.chestSpawns[i].tile + new Vector3(0.5f, 0.0f, 0.5f));
 			Quaternion rotation = transform * Quaternion.LookAt((Vector3)type.chestSpawns[i].direction);
-			Chest chest = new Chest(type.chestSpawns[i].items, type.chestSpawns[i].amounts);
+
+			Item[] items = type.chestSpawns[i].items;
+			int[] amounts = type.chestSpawns[i].amounts;
+			if (items == null)
+				getRandomLootSelection(out items, out amounts, random);
+
+			Chest chest = new Chest(items, amounts);
 			addEntity(chest, position, rotation);
 		}
+		*/
 
 		type.onSpawn(this, level, random);
 	}

@@ -36,22 +36,6 @@ public struct EnemySpawnInfo
 	}
 }
 
-public struct ChestSpawnInfo
-{
-	public Vector3i tile;
-	public Vector3i direction;
-	public Item[] items;
-	public int[] amounts;
-
-	public ChestSpawnInfo(Vector3i tile, Vector3i direction, Item[] items, int[] amounts)
-	{
-		this.tile = tile;
-		this.direction = direction;
-		this.items = items;
-		this.amounts = amounts;
-	}
-}
-
 public class RoomType
 {
 	public int id;
@@ -66,7 +50,6 @@ public class RoomType
 
 	public List<DoorwayInfo> doorwayInfo = new List<DoorwayInfo>();
 	public List<EnemySpawnInfo> enemySpawns = new List<EnemySpawnInfo>();
-	public List<ChestSpawnInfo> chestSpawns = new List<ChestSpawnInfo>();
 
 	public bool isTemplate = false;
 	public RoomType originalTemplate = null;
@@ -420,6 +403,12 @@ public class MainRoom : RoomType
 		Matrix transform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0, size.z * 0.5f);
 		level.levelMeshes.Add(new LevelMesh(model, transform));
 		level.body.addMeshCollider(model, model.getMeshIndex("Stairs"), transform);
+
+		{
+			Vector3 position = room.transform * new Vector3(18.5f, 16, 1);
+			Quaternion rotation = room.transform.rotation;
+			level.addEntity(new Chest(), position, rotation);
+		}
 
 		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
 		GraphicsManager.skyboxIntensity = 3.0f;
