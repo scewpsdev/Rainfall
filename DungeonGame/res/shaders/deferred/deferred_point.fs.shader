@@ -35,9 +35,6 @@ void main()
 	float roughness = albedoRoughness.a;
 	float metallic = emissiveMetallic.a;
 	
-	roughness = 1.0;
-	albedo *= 4;
-
 	float ao = 1.0 - texture2D(s_ambientOcclusion, v_texcoord0).r;
 
 	vec3 toCamera = u_cameraPosition.xyz - position;

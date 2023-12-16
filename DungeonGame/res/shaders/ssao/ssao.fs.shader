@@ -200,7 +200,7 @@ void main()
 	ao = 1. - ao * INTENSITY;
 	ao = pow(ao, 4.0);
 	ao = 1. - ao;
-
+	
 	gl_FragColor = vec4(ao, ao, ao, 1.0);
 	//gl_FragColor = vec4(n.y, 0.0, 0.0, 1.0);
 }

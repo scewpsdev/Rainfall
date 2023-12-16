@@ -35,7 +35,7 @@ public class Player : Entity
 	}
 
 
-	public const float MAX_GROUND_SPEED = 2.4f;
+	public const float MAX_GROUND_SPEED = 2.8f;
 	const float MAX_AIR_SPEED = 0.3f;
 	const float LADDER_SPEED = 1.5f;
 	const float ACCELERATION = 10.0f;
@@ -140,6 +140,7 @@ public class Player : Entity
 	AnimationState[]
 		idleState = new AnimationState[3],
 		runState = new AnimationState[3],
+		sprintState = new AnimationState[3],
 		duckedState = new AnimationState[3],
 		duckedWalkState = new AnimationState[3],
 		fallDuckedState = new AnimationState[3],
@@ -244,6 +245,7 @@ public class Player : Entity
 		{
 			idleState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "idle", true) }, 0.5f);
 			runState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "run", true) }, 0.2f) { animationSpeed = 1.6f };
+			sprintState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "sprint", true) }, 1.0f) { animationSpeed = 1.6f };
 			duckedState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "ducked", true) }, 0.2f);
 			duckedWalkState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "ducked_walk", true) }, 0.2f) { animationSpeed = 1.6f };
 			fallDuckedState[i] = new AnimationState(viewmodel, "idle", true) { transitionFromDuration = 0.0f };
@@ -1389,7 +1391,7 @@ public class Player : Entity
 
 	void updateAnimations()
 	{
-		float currentSpeed = velocity.xz.length / (MAX_GROUND_SPEED * (isDucked ? DUCK_SPEED_MULTIPLIER : 1.0f));
+		float movementSpeed = velocity.xz.length / MAX_GROUND_SPEED; // (MAX_GROUND_SPEED * (isDucked ? DUCK_SPEED_MULTIPLIER : 1.0f));
 
 		AnimationState movementState0, movementState1, movementState2;
 
@@ -1414,16 +1416,27 @@ public class Player : Entity
 			else
 			*/
 			{
-				if (currentSpeed > 0.25f && currentAction == null)
+				if (movementSpeed > SPRINT_SPEED_MULTIPLIER - 0.1f && currentAction == null)
 				{
-					movementState0 = runState[0];
-					runState[0].animationSpeed = currentSpeed;
+					movementState0 = handEntities[0].item != null ? runState[0] : sprintState[0];
+					movementState0.animationSpeed = movementSpeed;
 
-					movementState1 = runState[1];
-					runState[1].animationSpeed = currentSpeed;
+					movementState1 = handEntities[1].item != null ? runState[1] : sprintState[1];
+					movementState1.animationSpeed = movementSpeed;
 
 					movementState2 = runState[2];
-					runState[2].animationSpeed = currentSpeed;
+					runState[2].animationSpeed = movementSpeed;
+				}
+				else if (movementSpeed > 0.25f && currentAction == null)
+				{
+					movementState0 = runState[0];
+					runState[0].animationSpeed = movementSpeed;
+
+					movementState1 = runState[1];
+					runState[1].animationSpeed = movementSpeed;
+
+					movementState2 = runState[2];
+					runState[2].animationSpeed = movementSpeed;
 				}
 				else
 				{
@@ -1608,6 +1621,11 @@ public class Player : Entity
 			float swayYawDst = -0.5f * InputManager.lookVector.x;
 			viewmodelLookSwayAnim = MathHelper.Lerp(viewmodelLookSwayAnim, swayYawDst, 5.0f * Time.deltaTime);
 			viewmodelSwayYaw += viewmodelLookSwayAnim;
+
+
+			float fastFOV = MathF.Min(MathHelper.ToDegrees(MathF.Atan2(1 + (movementSpeed - 1) * 0.5f, 1.0f) * 2), 100);
+			float cameraTargetFOV = movementSpeed > 1.25f ? fastFOV : 90;
+			camera.fov = MathHelper.Lerp(camera.fov, cameraTargetFOV, 3 * Time.deltaTime);
 		}
 
 
@@ -1702,6 +1720,9 @@ public class Player : Entity
 		}
 
 		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw);
+
+
+
 	}
 
 	public override void update()
@@ -2057,7 +2078,7 @@ public class Player : Entity
 		Renderer.DrawModel(viewmodel, transform, moveAnimator);
 
 		// Camera light
-		Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.01f);
+		Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.03f);
 
 		handEntities[0].draw(graphics);
 		handEntities[1].draw(graphics);

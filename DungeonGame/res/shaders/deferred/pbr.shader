@@ -183,19 +183,20 @@ vec3 RenderEnvironmentMapParallax(vec3 position, vec3 normal, vec3 view, vec3 al
 
 	vec3 ks = fresnel2(max(dot(normal, view), 0.0), f0, roughness);
 	vec3 kd = (1.0 - ks) * (1.0 - metallic);
+	
+	float maxLod = log2(textureSize(environmentMap, 0).x);
 
-	vec3 irradiance = SampleCubemapParallax(environmentMap, normal, 12.0, environmentMapPosition, environmentMapSize, environmentMapOrigin, position).rgb * environmentMapIntensity;
+	vec3 irradiance = SampleCubemapParallax(environmentMap, normal, maxLod, environmentMapPosition, environmentMapSize, environmentMapOrigin, position).rgb * environmentMapIntensity;
 	vec3 diffuse = irradiance * albedo;
 
 	vec3 r = reflect(-view, normal);
-	float maxLod = log2(textureSize(environmentMap, 0).x);
-	float lodFactor = (1.0 - exp(-roughness * 6.0)) * maxLod;
+	float lodFactor = (1.0 - exp(-roughness * 12.0)) * maxLod;
 	vec3 prefiltered = SampleCubemapParallax(environmentMap, r, lodFactor, environmentMapPosition, environmentMapSize, environmentMapOrigin, position).rgb * environmentMapIntensity;
 
 	vec2 brdfInteg = vec2(1.0, 0.0);
 	vec3 specular = prefiltered * (ks * brdfInteg.r + brdfInteg.g);
 
-	vec3 ambient = kd * diffuse * ao + specular * ao;
+	vec3 ambient = kd * diffuse * ao + specular * ao; // + kd * 0.2 * diffuse * ao;
 
 	return ambient;
 }
