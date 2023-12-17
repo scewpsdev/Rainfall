@@ -685,26 +685,6 @@ internal class LevelGenerator
 		level.levelMeshes.Add(new LevelMesh(wallBatch.createModel(), Matrix.Identity));
 		level.levelMeshes.Add(new LevelMesh(floorBatch.createModel(), Matrix.Identity));
 		level.levelMeshes.Add(new LevelMesh(ceilingBatch.createModel(), Matrix.Identity));
-
-
-		Room spawnRoom = mainRoom;
-		level.spawnPoint = (spawnRoom.gridPosition * 1.0f + new Vector3(spawnRoom.gridSize.x * 0.5f, 0.0f, spawnRoom.gridSize.z * 0.5f)) * TILE_SIZE;
-		Vector3 startingChestPosition = (spawnRoom.gridPosition + new Vector3i(spawnRoom.gridSize.x / 4 * 3, 0, spawnRoom.gridSize.z)) * TILE_SIZE - new Vector3(0.0f, 0.0f, 1.0f);
-		level.addEntity(new Chest(new Item[]
-		{
-			Item.Get("shortsword"),
-			Item.Get("longsword"),
-			Item.Get("longbow"),
-			Item.Get("arrow"),
-			Item.Get("torch"),
-			Item.Get("wooden_round_shield"),
-			Item.Get("leather_chestplate"),
-			Item.Get("flask"),
-			Item.Get("firebomb"),
-		},
-		new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 }), startingChestPosition, Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
-
-		//level.addEntity(new SkeletonEnemy(), level.spawnPoint + new Vector3(0.0f, 0.0f, -3.0f), Quaternion.Identity);
 	}
 
 	void placeLadders()

@@ -83,6 +83,10 @@ internal class DungeonGame : Game
 		{
 			Display.ToggleFullscreen();
 		}
+		if (Input.IsKeyPressed(KeyCode.F9))
+		{
+			GraphicsManager.cinematicMode = !GraphicsManager.cinematicMode;
+		}
 
 		if (Input.IsKeyPressed(KeyCode.KeyP))
 		{
@@ -116,9 +120,16 @@ internal class DungeonGame : Game
 
 		level.draw(graphics);
 
-		Renderer.End();
-
 #if !DISTRIBUTION
+		if (!GraphicsManager.cinematicMode)
+			drawDebugStats();
+#endif
+
+		Renderer.End();
+	}
+
+	void drawDebugStats()
+	{
 		int line = 0;
 
 		Span<byte> str = stackalloc byte[64];
@@ -181,7 +192,6 @@ internal class DungeonGame : Game
 		StringUtils.WriteString(str, "z=");
 		StringUtils.AppendInteger(str, (int)(player.position.z * 100));
 		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
-#endif
 	}
 
 	public static void Main(string[] args)

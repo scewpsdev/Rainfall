@@ -340,13 +340,58 @@ public class StartingRoom : RoomType
 		: base()
 	{
 		sectorType = SectorType.Room;
-		size = new Vector3i(15, 9, 15);
+		size = new Vector3i(15, 4, 15);
 		id = 1;
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
 
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, -1), new Vector3i(0, 0, -1)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(7, 0, 15), new Vector3i(0, 0, 1)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(15, 0, 7), new Vector3i(1, 0, 0)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(-1, 0, 7), new Vector3i(-1, 0, 0)));
+	}
+
+	public override void onSpawn(Room room, Level level, Random random)
+	{
+		Model model = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell.gltf");
+		level.levelMeshes.Add(new LevelMesh(model, room.transform));
+
+		Model collider = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell_collider.gltf");
+		level.body.addMeshColliders(collider, room.transform);
+
+		{
+			Vector3 position = room.transform * new Vector3(1, 0, 1.5f);
+			Quaternion rotation = room.transform.rotation * Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
+
+			// Starting equipment chest
+			Chest chest = new Chest(new Item[]
+			{
+				Item.Get("shortsword"),
+				Item.Get("longsword"),
+				Item.Get("longbow"),
+				Item.Get("arrow"),
+				Item.Get("torch"),
+				Item.Get("wooden_round_shield"),
+				Item.Get("leather_chestplate"),
+				Item.Get("flask"),
+				Item.Get("firebomb"),
+			},
+			new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 });
+			level.addEntity(chest, position, rotation);
+
+			level.spawnPoint = room.transform * new Vector3(2.5f, 0.0f, 12.0f);
+		}
+
+		/*
+		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
+		GraphicsManager.skyboxIntensity = 5.0f;
+
+		GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
+
+		ReflectionProbe reflection = new ReflectionProbe(64, transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
+		level.reflections.Add(reflection);
+		*/
 	}
 }
 

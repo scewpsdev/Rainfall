@@ -368,21 +368,24 @@ public class HUD
 
 	public void draw(GraphicsDevice graphics)
 	{
-		//renderPrompt();
-		renderCrosshair();
-		renderHealthBar();
-		renderStaminaBar();
-		renderManaBar();
-		renderEquipment();
-		//renderXP();
-		renderCollectedItems();
-		renderMinimap();
-
-		if (player.hasWon)
+		if (!GraphicsManager.cinematicMode)
 		{
-			string text = "V I C T O R Y";
-			int width = victoryFont.measureText(text);
-			Renderer.DrawText(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - 10, 1.0f, text, victoryFont, 0xFFCCAA66);
+			//renderPrompt();
+			renderCrosshair();
+			renderHealthBar();
+			renderStaminaBar();
+			renderManaBar();
+			renderEquipment();
+			//renderXP();
+			renderCollectedItems();
+			renderMinimap();
+
+			if (player.hasWon)
+			{
+				string text = "V I C T O R Y";
+				int width = victoryFont.measureText(text);
+				Renderer.DrawText(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - 10, 1.0f, text, victoryFont, 0xFFCCAA66);
+			}
 		}
 
 		float timeSinceHit = (Time.currentTime - lastHit) / 1e9f;

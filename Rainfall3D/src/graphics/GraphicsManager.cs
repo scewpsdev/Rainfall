@@ -21,6 +21,8 @@ public static class GraphicsManager
 
 	static GraphicsSettings settings;
 
+	public static bool cinematicMode = false;
+
 	public static Cubemap skybox = null;
 	public static float skyboxIntensity = 1.0f;
 	public static Cubemap environmentMap = null;
