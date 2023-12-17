@@ -1418,10 +1418,10 @@ public class Player : Entity
 			{
 				if (movementSpeed > SPRINT_SPEED_MULTIPLIER - 0.1f && currentAction == null)
 				{
-					movementState0 = handEntities[0].item != null ? runState[0] : sprintState[0];
+					movementState0 = sprintState[0];
 					movementState0.animationSpeed = movementSpeed;
 
-					movementState1 = handEntities[1].item != null ? runState[1] : sprintState[1];
+					movementState1 = sprintState[1];
 					movementState1.animationSpeed = movementSpeed;
 
 					movementState2 = runState[2];
@@ -1775,6 +1775,7 @@ public class Player : Entity
 			{
 				idleState[handID].layers[0].animationData = item.moveset;
 				runState[handID].layers[0].animationData = item.moveset;
+				sprintState[handID].layers[0].animationData = item.moveset;
 				duckedState[handID].layers[0].animationData = item.moveset;
 				duckedWalkState[handID].layers[0].animationData = item.moveset;
 				jumpState[handID].layers[0].animationData = item.moveset;
@@ -1782,12 +1783,14 @@ public class Player : Entity
 
 				idleState[handID].layers[0].mirrored = handID == 1;
 				runState[handID].layers[0].mirrored = handID == 1;
+				sprintState[handID].layers[0].mirrored = handID == 1;
 				duckedState[handID].layers[0].mirrored = handID == 1;
 				duckedWalkState[handID].layers[0].mirrored = handID == 1;
 				jumpState[handID].layers[0].mirrored = handID == 1;
 				fallState[handID].layers[0].mirrored = handID == 1;
 
 				runState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				sprintState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 				duckedWalkState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(item);
@@ -1796,6 +1799,7 @@ public class Player : Entity
 			{
 				idleState[handID].layers[0].animationData = otherItem.moveset;
 				runState[handID].layers[0].animationData = otherItem.moveset;
+				sprintState[handID].layers[0].animationData = otherItem.moveset;
 				duckedState[handID].layers[0].animationData = otherItem.moveset;
 				duckedWalkState[handID].layers[0].animationData = otherItem.moveset;
 				jumpState[handID].layers[0].animationData = otherItem.moveset;
@@ -1803,12 +1807,14 @@ public class Player : Entity
 
 				idleState[handID].layers[0].mirrored = handID != 1;
 				runState[handID].layers[0].mirrored = handID != 1;
+				sprintState[handID].layers[0].mirrored = handID != 1;
 				duckedState[handID].layers[0].mirrored = handID != 1;
 				duckedWalkState[handID].layers[0].mirrored = handID != 1;
 				jumpState[handID].layers[0].mirrored = handID != 1;
 				fallState[handID].layers[0].mirrored = handID != 1;
 
 				runState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				sprintState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
 				duckedWalkState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(null);
@@ -1819,6 +1825,7 @@ public class Player : Entity
 
 				idleState[handID].layers[0].animationData = item.moveset;
 				runState[handID].layers[0].animationData = item.moveset;
+				sprintState[handID].layers[0].animationData = item.moveset;
 				duckedState[handID].layers[0].animationData = item.moveset;
 				duckedWalkState[handID].layers[0].animationData = item.moveset;
 				jumpState[handID].layers[0].animationData = item.moveset;
@@ -1826,12 +1833,14 @@ public class Player : Entity
 
 				idleState[handID].layers[0].mirrored = handID == 1;
 				runState[handID].layers[0].mirrored = handID == 1;
+				sprintState[handID].layers[0].mirrored = handID == 1;
 				duckedState[handID].layers[0].mirrored = handID == 1;
 				duckedWalkState[handID].layers[0].mirrored = handID == 1;
 				jumpState[handID].layers[0].mirrored = handID == 1;
 				fallState[handID].layers[0].mirrored = handID == 1;
 
 				runState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				sprintState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 				duckedWalkState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(item);
@@ -1843,6 +1852,7 @@ public class Player : Entity
 			{
 				idleState[handID].layers[0].animationData = otherItem.moveset;
 				runState[handID].layers[0].animationData = otherItem.moveset;
+				sprintState[handID].layers[0].animationData = otherItem.moveset;
 				duckedState[handID].layers[0].animationData = otherItem.moveset;
 				duckedWalkState[handID].layers[0].animationData = otherItem.moveset;
 				jumpState[handID].layers[0].animationData = otherItem.moveset;
@@ -1850,6 +1860,7 @@ public class Player : Entity
 
 				idleState[handID].layers[0].mirrored = handID != 1;
 				runState[handID].layers[0].mirrored = handID != 1;
+				sprintState[handID].layers[0].mirrored = handID != 1;
 				duckedState[handID].layers[0].mirrored = handID != 1;
 				duckedWalkState[handID].layers[0].mirrored = handID != 1;
 				jumpState[handID].layers[0].mirrored = handID != 1;
@@ -1864,6 +1875,7 @@ public class Player : Entity
 			{
 				idleState[handID].layers[0].animationData = viewmodel;
 				runState[handID].layers[0].animationData = viewmodel;
+				sprintState[handID].layers[0].animationData = viewmodel;
 				duckedState[handID].layers[0].animationData = viewmodel;
 				duckedWalkState[handID].layers[0].animationData = viewmodel;
 				jumpState[handID].layers[0].animationData = viewmodel;
@@ -1871,17 +1883,22 @@ public class Player : Entity
 
 				idleState[handID].layers[0].mirrored = false;
 				runState[handID].layers[0].mirrored = false;
+				sprintState[handID].layers[0].mirrored = false;
 				duckedState[handID].layers[0].mirrored = false;
 				duckedWalkState[handID].layers[0].mirrored = false;
 				jumpState[handID].layers[0].mirrored = false;
 				fallState[handID].layers[0].mirrored = false;
 
 				runState[handID].layers[0].timerOffset = 0.0f;
+				sprintState[handID].layers[0].timerOffset = 0.0f;
 				duckedWalkState[handID].layers[0].timerOffset = 0.0f;
 
 				handEntities[handID].setItem(null);
 			}
 		}
+
+		bool hasSprintAnim = sprintState[handID].layers[0].animationData.getAnimationData("sprint") != null;
+		sprintState[handID].layers[0].animationName = hasSprintAnim ? "sprint" : "run";
 	}
 
 	public void throwItem(Item item, int amount)

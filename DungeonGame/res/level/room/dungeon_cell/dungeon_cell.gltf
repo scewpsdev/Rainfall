@@ -170,7 +170,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":124,
+			"count":128,
 			"max":[
 				15,
 				4,
@@ -186,13 +186,13 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":124,
+			"count":128,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":124,
+			"count":128,
 			"type":"VEC2"
 		},
 		{
@@ -323,104 +323,104 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1488,
+			"byteLength":1536,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1488,
-			"byteOffset":1488,
+			"byteLength":1536,
+			"byteOffset":1536,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":992,
-			"byteOffset":2976,
+			"byteLength":1024,
+			"byteOffset":3072,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":396,
-			"byteOffset":3968,
+			"byteOffset":4096,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":4364,
+			"byteOffset":4492,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":11492,
+			"byteOffset":11620,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4752,
-			"byteOffset":18620,
+			"byteOffset":18748,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":2124,
-			"byteOffset":23372,
+			"byteOffset":23500,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":25496,
+			"byteOffset":25624,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":32624,
+			"byteOffset":32752,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4752,
-			"byteOffset":39752,
+			"byteOffset":39880,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":44504,
+			"byteOffset":44632,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":51632,
+			"byteOffset":51760,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4752,
-			"byteOffset":58760,
+			"byteOffset":58888,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":63512,
+			"byteOffset":63640,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7128,
-			"byteOffset":70640,
+			"byteOffset":70768,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4752,
-			"byteOffset":77768,
+			"byteOffset":77896,
 			"target":34962
 		}
 	],
@@ -432,7 +432,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":82520,
+			"byteLength":82648,
 			"uri":"dungeon_cell.bin"
 		}
 	]

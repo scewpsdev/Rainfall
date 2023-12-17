@@ -18,11 +18,18 @@ public struct DoorwayInfo
 {
 	public Vector3i position;
 	public Vector3i direction;
+	public float spawnChance;
 
-	public DoorwayInfo(Vector3i position, Vector3i direction)
+	public DoorwayInfo(Vector3i position, Vector3i direction, float spawnChance)
 	{
 		this.position = position;
 		this.direction = direction;
+		this.spawnChance = spawnChance;
+	}
+
+	public DoorwayInfo(Vector3i position, Vector3i direction)
+		: this(position, direction, 0.5f)
+	{
 	}
 }
 

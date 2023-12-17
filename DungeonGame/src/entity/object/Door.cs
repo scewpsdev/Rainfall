@@ -18,6 +18,7 @@ internal class Door : Entity, Interactable
 	const float DOOR_HINGE_OFFSET = 0.75f;
 
 
+	DoorType type;
 	Model model;
 	int doorMeshIdx;
 
@@ -35,6 +36,8 @@ internal class Door : Entity, Interactable
 
 	public Door(DoorType type)
 	{
+		this.type = type;
+
 		if (type == DoorType.Normal)
 		{
 			model = Resource.GetModel("res/entity/object/door/door.gltf");
@@ -55,13 +58,27 @@ internal class Door : Entity, Interactable
 		frameBody = new RigidBody(this, RigidBodyType.Static);
 		frameBody.addBoxCollider(new Vector3(0.4f, 1.5f, 0.2f), new Vector3(-1.1f, 1.5f, 0.0f), Quaternion.Identity);
 		frameBody.addBoxCollider(new Vector3(0.4f, 1.5f, 0.2f), new Vector3(1.1f, 1.5f, 0.0f), Quaternion.Identity);
+		frameBody.addBoxCollider(new Vector3(0.7f, 0.35f, 0.2f), new Vector3(0.0f, 2.65f, 0.0f), Quaternion.Identity);
 
-		doorBody = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
-		doorBody.addBoxCollider(new Vector3(0.7f, 0.75f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET, 0.75f, 0.0f), Quaternion.Identity, 0.0f);
-		doorBody.addBoxCollider(new Vector3(0.7f, 0.2f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET, 2.1f, 0.0f), Quaternion.Identity, 0.0f);
-		doorBody.addBoxCollider(new Vector3(0.2f, 0.2f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET - 0.5f, 1.7f, 0.0f), Quaternion.Identity, 0.0f);
-		doorBody.addBoxCollider(new Vector3(0.2f, 0.2f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET + 0.5f, 1.7f, 0.0f), Quaternion.Identity, 0.0f);
-		doorBody.setTransform(position, rotation);
+		if (type == DoorType.Normal)
+		{
+			doorBody = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
+			doorBody.addBoxCollider(new Vector3(0.7f, 1.15f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET, 1.15f, 0.0f), Quaternion.Identity, 0.0f);
+			doorBody.setTransform(position, rotation);
+		}
+		else if (type == DoorType.Windowed)
+		{
+			doorBody = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
+			doorBody.addBoxCollider(new Vector3(0.7f, 0.7f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET, 0.7f, 0.0f), Quaternion.Identity, 0.0f);
+			doorBody.addBoxCollider(new Vector3(0.7f, 0.25f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET, 2.05f, 0.0f), Quaternion.Identity, 0.0f);
+			doorBody.addBoxCollider(new Vector3(0.2f, 0.2f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET - 0.5f, 1.6f, 0.0f), Quaternion.Identity, 0.0f);
+			doorBody.addBoxCollider(new Vector3(0.2f, 0.2f, 0.1f), new Vector3(-DOOR_HINGE_OFFSET + 0.5f, 1.6f, 0.0f), Quaternion.Identity, 0.0f);
+			doorBody.setTransform(position, rotation);
+		}
+		else
+		{
+			Debug.Assert(false);
+		}
 
 		audio = Audio.CreateSource(position);
 	}

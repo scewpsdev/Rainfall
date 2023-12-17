@@ -17,17 +17,19 @@ public class Doorway
 	public Vector3i position, direction;
 	public Matrix transform;
 	public Vector3i globalPosition, globalDirection;
+	public float spawnChance;
 
 	public bool spawnDoor = false;
 	public bool secret = false;
 
 
-	public Doorway(int id, Room room, Vector3i position, Vector3i direction)
+	public Doorway(int id, Room room, Vector3i position, Vector3i direction, float spawnChance)
 	{
 		this.id = id;
 		this.room = room;
 		this.position = position;
 		this.direction = direction;
+		this.spawnChance = spawnChance;
 
 		transform = Matrix.CreateTranslation((position * 1.0f + new Vector3(0.5f, 0.0f, 0.5f))) * Matrix.CreateRotation(Quaternion.LookAt(direction * 1.0f));
 		Matrix doorwayGlobalTransform = room.transform * transform;
@@ -117,7 +119,8 @@ public class Room
 		{
 			Vector3i position = type.doorwayInfo[i].position;
 			Vector3i direction = type.doorwayInfo[i].direction;
-			Doorway doorway = new Doorway(i, this, position, direction);
+			float spawnChance = type.doorwayInfo[i].spawnChance;
+			Doorway doorway = new Doorway(i, this, position, direction, spawnChance);
 			doorways.Add(doorway);
 		}
 	}

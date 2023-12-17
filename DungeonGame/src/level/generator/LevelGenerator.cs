@@ -535,7 +535,7 @@ internal class LevelGenerator
 							{
 								Vector3i position = globalToLocal(doorway.globalPosition, otherRoom.transform);
 								Vector3i direction = (Vector3i)Vector3.Round((otherRoom.transform.inverted * new Vector4(-doorway.globalDirection * 1.0f, 0.0f)).xyz);
-								Doorway secretWall = new Doorway(otherRoom.doorways.Count, otherRoom, position, direction);
+								Doorway secretWall = new Doorway(otherRoom.doorways.Count, otherRoom, position, direction, 1.0f);
 								secretWall.secret = true;
 								otherRoom.doorways.Add(secretWall);
 
@@ -595,7 +595,8 @@ internal class LevelGenerator
 						doorway.room.type.sectorType == SectorType.Corridor && doorway.connectedDoorway.room.type.id == 0xFF;
 					bool shouldSpawnDoor = doorway.room.type.id < doorway.connectedDoorway.room.type.id ||
 						doorway.room.type.id == doorway.connectedDoorway.room.type.id && Hash.hash(doorway.room.gridPosition) < Hash.hash(doorway.connectedDoorway.room.gridPosition);
-					shouldSpawnDoor = shouldSpawnDoor && !corridorConnectedToAStar;
+					bool randomFactor = random.NextSingle() < doorway.spawnChance;
+					shouldSpawnDoor = shouldSpawnDoor && !corridorConnectedToAStar && randomFactor;
 					doorway.spawnDoor = shouldSpawnDoor;
 
 					if (!corridorConnectedToAStar)
