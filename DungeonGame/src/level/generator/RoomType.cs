@@ -469,6 +469,8 @@ public class MainRoom : RoomType
 
 		ReflectionProbe reflection = new ReflectionProbe(64, transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
 		level.reflections.Add(reflection);
+
+		//level.spawnPoint = room.transform * new Vector3(2.5f, 0.0f, 12.0f);
 	}
 }
 

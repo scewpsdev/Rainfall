@@ -47,7 +47,7 @@ vec3 RenderPointLightSimple(vec3 position, vec3 normal, vec3 albedo, vec3 lightP
 	float distance = sqrt(distanceSq);
 	vec3 lightDir = toLight / distance;
 	float diffuseFactor = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse = albedo * diffuseFactor;
+	vec3 diffuse = albedo * diffuseFactor * lightColor;
 
 	diffuse = attenuate(diffuse, distanceSq);
 
@@ -57,13 +57,12 @@ vec3 RenderPointLightSimple(vec3 position, vec3 normal, vec3 albedo, vec3 lightP
 float CalculateDirectionalShadowSimple(vec3 position, float distance, sampler2DShadow shadowMap, float shadowMapFar, mat4 toLightSpace)
 {
 	const float SHADOW_MAP_EPSILON = 0.001;
-	const int NUM_SAMPLES = 16;
 
 	vec4 lightSpacePosition = mul(toLightSpace, vec4(position, 1.0));
 	vec3 projectedCoords = lightSpacePosition.xyz / lightSpacePosition.w;
 	vec2 sampleCoords = 0.5 * projectedCoords.xy * vec2(1.0, -1.0) + 0.5;
 
-	ivec2 shadowMapSize = textureSize(s_directionalLightShadowMap, 0);
+	ivec2 shadowMapSize = textureSize(shadowMap, 0);
 
 	float result = shadow2D(shadowMap, vec3(sampleCoords.xy, projectedCoords.z - SHADOW_MAP_EPSILON));
 
@@ -78,7 +77,7 @@ float CalculateDirectionalShadowSimple(vec3 position, float distance, sampler2DS
 vec3 RenderDirectionalLightSimple(vec3 position, vec3 normal, float distance, vec3 albedo, vec3 lightDirection, vec3 lightColor, sampler2DShadow shadowMap, float shadowMapFar, mat4 toLightSpace)
 {
 	float diffuseFactor = max(dot(normal, -lightDirection), 0.0);
-	vec3 diffuse = albedo * diffuseFactor;
+	vec3 diffuse = albedo * diffuseFactor * lightColor;
 
 	float shadow = CalculateDirectionalShadowSimple(position, distance, shadowMap, shadowMapFar, toLightSpace);
 
