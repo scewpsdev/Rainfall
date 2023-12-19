@@ -58,6 +58,11 @@ namespace Rainfall
 			return (f - min) / (max - min) * (newMax - newMin) + newMin;
 		}
 
+		public static float Clamp(float f, float min, float max)
+		{
+			return Math.Max(Math.Min(f, max), min);
+		}
+
 		public static int Clamp(int i, int min, int max)
 		{
 			return Math.Max(Math.Min(i, max), min);

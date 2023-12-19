@@ -347,7 +347,7 @@ public class StartingRoom : RoomType
 		: base()
 	{
 		sectorType = SectorType.Room;
-		size = new Vector3i(15, 4, 15);
+		size = new Vector3i(21, 4, 21);
 		id = 1;
 
 		allowSecretDoorConnections = false;
@@ -385,9 +385,34 @@ public class StartingRoom : RoomType
 				Item.Get("firebomb"),
 			},
 			new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 });
-			level.addEntity(chest, position, rotation);
+			room.addEntity(chest, position, rotation);
 
 			level.spawnPoint = room.transform * new Vector3(2.5f, 0.0f, 12.0f);
+		}
+
+		{
+			Matrix doorTransform = room.transform * Matrix.CreateTranslation(5.5f, 0.0f, 6.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
+			room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+		}
+		{
+			//Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 6.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+			//room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+		}
+		{
+			Matrix doorTransform = room.transform * Matrix.CreateTranslation(5.5f, 0.0f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
+			room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+		}
+		{
+			Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+			room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+		}
+		{
+			//Matrix doorTransform = room.transform * Matrix.CreateTranslation(5.5f, 0.0f, 18.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
+			//room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+		}
+		{
+			//Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 18.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+			//room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
 		}
 
 		/*

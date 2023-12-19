@@ -12,7 +12,9 @@
 				1,
 				2,
 				3,
-				4
+				4,
+				5,
+				6
 			]
 		}
 	],
@@ -76,6 +78,34 @@
 		{
 			"mesh":4,
 			"name":"ColliderWalls"
+		},
+		{
+			"mesh":5,
+			"name":"ColliderCell1.001",
+			"scale":[
+				1,
+				1,
+				2
+			],
+			"translation":[
+				5.5,
+				0,
+				17
+			]
+		},
+		{
+			"mesh":6,
+			"name":"ColliderCell2.001",
+			"scale":[
+				1,
+				1,
+				2
+			],
+			"translation":[
+				9.5,
+				0,
+				17
+			]
 		}
 	],
 	"materials":[
@@ -156,6 +186,32 @@
 					},
 					"indices":16,
 					"material":0
+				}
+			]
+		},
+		{
+			"name":"Cube.016",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":17,
+						"NORMAL":18,
+						"TEXCOORD_0":19
+					},
+					"indices":20
+				}
+			]
+		},
+		{
+			"name":"Cube.017",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":21,
+						"NORMAL":22,
+						"TEXCOORD_0":23
+					},
+					"indices":24
 				}
 			]
 		}
@@ -304,11 +360,11 @@
 		{
 			"bufferView":13,
 			"componentType":5126,
-			"count":124,
+			"count":172,
 			"max":[
 				15,
 				4,
-				15
+				21
 			],
 			"min":[
 				0,
@@ -320,19 +376,87 @@
 		{
 			"bufferView":14,
 			"componentType":5126,
-			"count":124,
+			"count":172,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":15,
 			"componentType":5126,
-			"count":124,
+			"count":172,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":16,
 			"componentType":5123,
-			"count":198,
+			"count":270,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":17,
+			"componentType":5126,
+			"count":48,
+			"max":[
+				0.25,
+				4,
+				2
+			],
+			"min":[
+				-0.25,
+				0,
+				-0.5
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":18,
+			"componentType":5126,
+			"count":48,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":19,
+			"componentType":5126,
+			"count":48,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":20,
+			"componentType":5123,
+			"count":72,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":21,
+			"componentType":5126,
+			"count":24,
+			"max":[
+				0.25,
+				4,
+				2
+			],
+			"min":[
+				-0.25,
+				0,
+				-0.5
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":22,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":23,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":24,
+			"componentType":5123,
+			"count":36,
 			"type":"SCALAR"
 		}
 	],
@@ -417,26 +541,74 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":1488,
+			"byteLength":2064,
 			"byteOffset":9432,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1488,
-			"byteOffset":10920,
+			"byteLength":2064,
+			"byteOffset":11496,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":992,
-			"byteOffset":12408,
+			"byteLength":1376,
+			"byteOffset":13560,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":396,
-			"byteOffset":13400,
+			"byteLength":540,
+			"byteOffset":14936,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":576,
+			"byteOffset":15476,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":576,
+			"byteOffset":16052,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":384,
+			"byteOffset":16628,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":144,
+			"byteOffset":17012,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":17156,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":17444,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":17732,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":17924,
 			"target":34963
 		}
 	],
@@ -448,7 +620,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":13796,
+			"byteLength":17996,
 			"uri":"dungeon_cell_collider.bin"
 		}
 	]
