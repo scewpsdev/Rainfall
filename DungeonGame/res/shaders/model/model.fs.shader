@@ -35,14 +35,14 @@ void main()
     float emissionStrength = u_materialInfo4[3];
 
 
-    float lod = max(log2(textureSize(s_diffuse, 0).x) - 6, 0);
+    //float lod = max(log2(textureSize(s_diffuse, 0).x) - 6, 0);
 
-	vec4 albedo = mix(DEFAULT_ALBEDO, texture2DLod(s_diffuse, v_texcoord0, lod), hasTexCoords * hasDiffuse) * vec4(linearToSRGB(color), 1.0);
-	float roughness = mix(roughnessFactor, texture2DLod(s_roughness, v_texcoord0, lod).g, hasTexCoords * hasRoughness);
-	float metallic = mix(metallicFactor, texture2DLod(s_metallic, v_texcoord0, lod).b, hasTexCoords * hasMetallic);
-	vec3 emissive = mix(emissionColor, texture2DLod(s_emissive, v_texcoord0, lod).rgb, hasTexCoords * hasEmissive);
+	vec4 albedo = mix(DEFAULT_ALBEDO, texture2D(s_diffuse, v_texcoord0), hasTexCoords * hasDiffuse) * vec4(linearToSRGB(color), 1.0);
+	float roughness = mix(roughnessFactor, texture2D(s_roughness, v_texcoord0).g, hasTexCoords * hasRoughness);
+	float metallic = mix(metallicFactor, texture2D(s_metallic, v_texcoord0).b, hasTexCoords * hasMetallic);
+	vec3 emissive = mix(emissionColor, texture2D(s_emissive, v_texcoord0).rgb, hasTexCoords * hasEmissive);
     
-	vec3 normalMapValue = 2.0 * texture2DLod(s_normal, v_texcoord0, lod).rgb - 1.0;
+	vec3 normalMapValue = 2.0 * texture2D(s_normal, v_texcoord0).rgb - 1.0;
 	vec3 norm = normalize(v_normal);
 	vec3 tang = normalize(v_tangent);
 	vec3 bitang = normalize(v_bitangent);

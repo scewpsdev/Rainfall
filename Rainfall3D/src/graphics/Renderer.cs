@@ -1324,7 +1324,7 @@ public static class Renderer
 			{
 				graphics.setTexture(shader, reflectionProbeUniform, 6 + j, emptyCubemap);
 				graphics.setUniform(shader, reflectionProbePositionUniform, new Vector4(0.0f, -100000.0f, 0.0f, 0.0f));
-				graphics.setUniform(shader, reflectionProbeSizeUniform, Vector4.Zero);
+				graphics.setUniform(shader, reflectionProbeSizeUniform, Vector4.One);
 				graphics.setUniform(shader, reflectionProbeOriginUniform, Vector4.Zero);
 			}
 		}

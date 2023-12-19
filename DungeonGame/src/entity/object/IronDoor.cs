@@ -39,7 +39,7 @@ public class IronDoor : Entity, Interactable
 	public override void update()
 	{
 		float dstRotation = open ? MathF.PI * -0.5f : 0.0f;
-		doorRotation = MathHelper.Lerp(doorRotation, dstRotation, 3 * Time.deltaTime);
+		doorRotation = MathHelper.Lerp(doorRotation, dstRotation, 5 * Time.deltaTime);
 		Matrix doorTransform = getModelMatrix() * Matrix.CreateTranslation(0.5f, 0.0f, 0.0f) * Matrix.CreateRotation(Vector3.Up, doorRotation) * Matrix.CreateTranslation(-0.5f, 0.0f, 0.0f);
 		body.setTransform(doorTransform.translation, doorTransform.rotation);
 	}
