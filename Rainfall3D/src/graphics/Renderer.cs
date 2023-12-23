@@ -97,7 +97,7 @@ public static class Renderer
 		internal List<int> particleIndices;
 		internal Matrix transform;
 		internal Vector3 spawnOffset;
-		internal ParticleFollowMode followMode;
+		internal bool follow;
 		internal Texture textureAtlas;
 		internal Vector2i atlasSize;
 		internal bool linearFiltering;
@@ -582,9 +582,9 @@ public static class Renderer
 		waterTiles.Add(new WaterDrawCommand { position = position, size = 1.0f, model = model });
 	}
 
-	public static void DrawParticleSystem(Particle[] particles, List<int> particleIndices, Matrix transform, Vector3 spawnOffset, ParticleFollowMode followMode, Texture textureAtlas, Vector2i atlasSize, bool linearFiltering, bool additive)
+	public static void DrawParticleSystem(Particle[] particles, List<int> particleIndices, Matrix transform, Vector3 spawnOffset, bool follow, Texture textureAtlas, Vector2i atlasSize, bool linearFiltering, bool additive)
 	{
-		(additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particles = particles, particleIndices = particleIndices, transform = transform, spawnOffset = spawnOffset, followMode = followMode, textureAtlas = textureAtlas, atlasSize = atlasSize, linearFiltering = linearFiltering, additive = additive });
+		(additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particles = particles, particleIndices = particleIndices, transform = transform, spawnOffset = spawnOffset, follow = follow, textureAtlas = textureAtlas, atlasSize = atlasSize, linearFiltering = linearFiltering, additive = additive });
 	}
 
 	public static void DrawGrassPatch(Terrain terrain, Vector2 position)
@@ -1497,7 +1497,7 @@ public static class Renderer
 					Vector3 position = particle.position;
 					float size = scale * particle.size;
 
-					if (draw.followMode == ParticleFollowMode.Follow)
+					if (draw.follow)
 						position = globalSpawnPos + particle.position * scale;
 
 					unsafe
@@ -1568,7 +1568,7 @@ public static class Renderer
 					Vector3 position = particle.position;
 					float size = scale * particle.size;
 
-					if (draw.followMode == ParticleFollowMode.Follow)
+					if (draw.follow)
 						position = globalSpawnPos + particle.position * scale;
 
 					unsafe

@@ -242,7 +242,7 @@ public class Room
 				else
 				{
 					DoorType doorType = (DoorType)(random.Next() % 2);
-					addEntity(new Door(doorType), globalTransform.translation, globalTransform.rotation);
+					addEntity(new WoodenDoor(doorType), globalTransform.translation, globalTransform.rotation);
 				}
 			}
 		}
@@ -278,6 +278,12 @@ public class Room
 		entity.rotation = rotation;
 		entities.Add(entity);
 		level.addEntity(entity);
+	}
+
+	public void addEntity(Entity entity, Matrix transform)
+	{
+		transform.decompose(out Vector3 position, out Quaternion rotation, out Vector3 _);
+		addEntity(entity, position, rotation);
 	}
 
 	public void update()

@@ -1,4 +1,5 @@
-$input v_texcoord0
+$
+input v_texcoord0
 
 #include "../common/common.shader"
 
@@ -24,21 +25,24 @@ uniform mat4 u_projectionViewInv;
 
 
 #define FK(k) floatBitsToInt(cos(k))^floatBitsToInt(k)
-float hash(float a, float b) {
-	int x = FK(a); int y = FK(b);
-	return float((x * x + y) * (y * y - x) + x) / 2.14e9;
+float hash(float a, float b)
+{
+    int x = FK(a);
+    int y = FK(b);
+    return float((x * x + y) * (y * y - x) + x) / 2.14e9;
 }
 
-vec3 randvec(float seed) {
-	float h1 = hash(seed, seed);
-	float h2 = hash(h1, seed);
-	float h3 = hash(h2, seed);
-	return vec3(h1, h2, h3);
+vec3 randvec(float seed)
+{
+    float h1 = hash(seed, seed);
+    float h2 = hash(h1, seed);
+    float h3 = hash(h2, seed);
+    return vec3(h1, h2, h3);
 }
 
 float rand(float seed)
 {
-	return hash(seed, seed);
+    return hash(seed, seed);
 }
 
 /*
@@ -113,94 +117,102 @@ void main_()
 
 float hash12(vec2 p)
 {
-	vec3 p3 = fract(vec3(p.xyx) * MOD3);
-	p3 += dot(p3, p3.yzx + 19.19);
-	return fract((p3.x + p3.y) * p3.z);
+    vec3 p3 = fract(vec3(p.xyx) * MOD3);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.x + p3.y) * p3.z);
 }
 
 vec2 hash22(vec2 p)
 {
-	vec3 p3 = fract(vec3(p.xyx) * MOD3);
-	p3 += dot(p3, p3.yzx + 19.19);
-	return fract(vec2((p3.x + p3.y) * p3.z, (p3.x + p3.z) * p3.y));
+    vec3 p3 = fract(vec3(p.xyx) * MOD3);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract(vec2((p3.x + p3.y) * p3.z, (p3.x + p3.z) * p3.y));
 }
 
-vec3 getPosition(vec2 uv) {
-	float near = u_cameraFrustum[0];
-	float far = u_cameraFrustum[1];
+vec3 getPosition(vec2 uv)
+{
+    float near = u_cameraFrustum[0];
+    float far = u_cameraFrustum[1];
 
-	float depth = texture2DLod(s_depthBuffer, uv, 2.0).r;
-	float distance = depthToDistance(depth, near, far);
-	vec3 positionClipSpace = vec3(uv.x * 2.0 - 1.0, uv.y * -2.0 + 1.0, depth);
-	vec3 positionViewSpace = clipToWorld(u_projectionInv, positionClipSpace);
+    float depth = texture2DLod(s_depthBuffer, uv, 2.0).r;
+    float distance = depthToDistance(depth, near, far);
+    vec3 positionClipSpace = vec3(uv.x * 2.0 - 1.0, uv.y * -2.0 + 1.0, depth);
+    vec3 positionViewSpace = clipToWorld(u_projectionInv, positionClipSpace);
 	//vec3 position = clipToWorld(u_projectionViewInv, positionClipSpace);
 
-	return positionViewSpace * 0.1;
+    return positionViewSpace * 0.1;
 }
 
-vec3 getNormal(vec2 uv) {
-	vec3 normal = normalize(texture2D(s_normalBuffer, uv).xyz * 2.0 - 1.0);
-	vec3 normalViewSpace = mul(u_viewMatrix, vec4(normal, 0.0)).xyz;
+vec3 getNormal(vec2 uv)
+{
+    vec3 normal = normalize(
+    texture2D( s_normalBuffer, uv).
+    xyz * 2.0 - 1.0);
+    vec3 normalViewSpace = mul(u_viewMatrix, vec4(normal, 0.0)).xyz;
 	//vec3 normalViewSpace = normalize(mul(u_viewMatrix, vec4(normal, 0.0)).xyz);
-	return normalViewSpace;
+    return normalViewSpace;
 }
 
-vec2 getRandom(vec2 uv) {
-	return normalize(hash22(uv * 126.1231) * 2. - 1.);
+vec2 getRandom(vec2 uv)
+{
+    return normalize(hash22(uv * 126.1231) * 2. - 1.);
 }
 
 
 float doAmbientOcclusion(in vec2 tcoord, in vec2 uv, in vec3 p, in vec3 cnorm, float scale)
 {
-	vec3 diff = (getPosition(tcoord + uv) - p) / scale;
-	float l = length(diff);
-	vec3 v = diff / l;
-	float d = l * SCALE;
-	float ao = max(0.0, dot(cnorm, v) - BIAS) * (1.0 / (1.0 + d / scale));
+    vec3 diff = (getPosition(tcoord + uv) - p) / scale;
+    float l = length(diff);
+    vec3 v = diff / l;
+    float d = l * SCALE;
+    float ao = max(0.0, dot(cnorm, v) - BIAS) * (1.0 / (1.0 + d / scale));
 	//ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, l);
-	ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, diff.z);
-	return ao;
+    ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, diff.z);
+    return ao;
 }
 
 float spiralAO(vec2 uv, vec3 p, vec3 n, float scale)
 {
-	float goldenAngle = 2.4;
-	float ao = 0.;
-	float inv = 1. / float(SAMPLES);
-	float radius = 0.;
+    float goldenAngle = 2.4;
+    float ao = 0.;
+    float inv = 1. / float(SAMPLES);
+    float radius = 0.;
 
-	float rotatePhase = texture2D(s_ssaoNoise, uv / (u_viewTexel.xy * 4.0)).x * 6.28;
-	float rStep = inv * SAMPLE_RAD;
-	vec2 spiralUV;
+    float rotatePhase = 
+    texture2D( s_ssaoNoise, uv / (u_viewTexel.xy * 4.0)).
+    x * 6.28;
+    float rStep = inv * SAMPLE_RAD;
+    vec2 spiralUV;
 
-	for (int i = 0; i < SAMPLES; i++) {
-		spiralUV.x = sin(rotatePhase);
-		spiralUV.y = cos(rotatePhase);
-		radius += rStep;
-		ao += doAmbientOcclusion(uv, spiralUV * radius, p, n, scale);
-		rotatePhase += goldenAngle;
-	}
-	ao *= inv;
-	return ao;
+    for (int i = 0; i < SAMPLES; i++)
+    {
+        spiralUV.x = sin(rotatePhase);
+        spiralUV.y = cos(rotatePhase);
+        radius += rStep;
+        ao += doAmbientOcclusion(uv, spiralUV * radius, p, n, scale);
+        rotatePhase += goldenAngle;
+    }
+    ao *= inv;
+    return ao;
 }
 
 void main()
 {
-	vec2 uv = v_texcoord0;
+    vec2 uv = v_texcoord0;
 
-	vec3 p = getPosition(uv);
-	vec3 n = getNormal(uv);
+    vec3 p = getPosition(uv);
+    vec3 n = getNormal(uv);
 
-	float ao = 0.;
+    float ao = 0.;
 	//float rad = min(SAMPLE_RAD / -p.z, SAMPLE_RAD / 0.5);
-	float scale = -p.z;
+    float scale = -p.z;
 
-	ao = spiralAO(uv, p, n, scale);
+    ao = spiralAO(uv, p, n, scale);
 
-	ao = 1. - ao * INTENSITY;
-	ao = pow(ao, 4.0);
-	ao = 1. - ao;
+    ao = 1. - ao * INTENSITY;
+    ao = pow(ao, 2.0);
+    ao = 1. - ao;
 	
-	gl_FragColor = vec4(ao, ao, ao, 1.0);
+    gl_FragColor = vec4(ao, ao, ao, 1.0);
 	//gl_FragColor = vec4(n.y, 0.0, 0.0, 1.0);
 }

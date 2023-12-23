@@ -37,6 +37,8 @@ namespace Rainfall
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
 			Native.Audio.Audio_SourcePlaySound(handle, sound.handle, gainFactor * gain, pitchFactor * pitch);
+			currentSound = sound;
+			lastPlayed = Time.currentTime;
 		}
 
 		public void playSoundOrganic(Span<Sound> sound, float gain = 1.0f, float pitch = 1.0f)

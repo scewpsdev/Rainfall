@@ -184,14 +184,28 @@ public class Inventory : ItemContainer
 		return slot;
 	}
 
-	public void addHotbarItem(int idx, Item item, int amount)
+	public ItemSlot addHandItem(int handID, Item item, int amount)
+	{
+		ItemSlot[] handItems = (handID == 0 ? rightHand : leftHand);
+		int idx = handItems[0] != null ? 0 : handItems[1] != null ? 1 : -1;
+		if (idx != -1)
+		{
+			handItems[idx].setItem(item);
+			handItems[idx].stackSize = amount;
+			return handItems[idx];
+		}
+		return null;
+	}
+
+	public ItemSlot addHotbarItem(int idx, Item item, int amount)
 	{
 		ItemSlot slot = hotbar[idx];
 		slot.setItem(item);
 		slot.stackSize = amount;
+		return slot;
 	}
 
-	public bool addHotbarItem(Item item, int amount)
+	public ItemSlot addHotbarItem(Item item, int amount)
 	{
 		if (item.stackable)
 		{
@@ -200,7 +214,7 @@ public class Inventory : ItemContainer
 				if (hotbar[i].item == item)
 				{
 					hotbar[i].stackSize += amount;
-					return true;
+					return hotbar[i];
 				}
 			}
 		}
@@ -210,10 +224,10 @@ public class Inventory : ItemContainer
 			{
 				hotbar[i].setItem(item);
 				hotbar[i].stackSize = amount;
-				return true;
+				return hotbar[i];
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/*
@@ -260,6 +274,59 @@ public class Inventory : ItemContainer
 	{
 		ItemSlot slot = getSelectedHandSlot(handID);
 		return slot != null ? slot.item : null;
+	}
+
+	public bool hasItemEquipped(Item item, out ItemSlot slot)
+	{
+		Item rightItem = getSelectedHandItem(0);
+		Item leftItem = getSelectedHandItem(1);
+		if (rightItem == item)
+		{
+			slot = getSelectedHandSlot(0);
+			return true;
+		}
+		else if (leftItem == item)
+		{
+			slot = getSelectedHandSlot(1);
+			return true;
+		}
+		slot = null;
+		return false;
+	}
+
+	public bool hasItemEquipped(Item item)
+	{
+		return hasItemEquipped(item, out _);
+	}
+
+	public ItemSlot findItemOfType(ItemCategory category)
+	{
+		for (int i = 0; i < items.Length; i++)
+		{
+			if (items[i].item != null && items[i].item.category == category)
+				return items[i];
+		}
+		for (int i = 0; i < rightHand.Length; i++)
+		{
+			if (rightHand[i].item != null && rightHand[i].item.category == category)
+				return rightHand[i];
+		}
+		for (int i = 0; i < leftHand.Length; i++)
+		{
+			if (leftHand[i].item != null && leftHand[i].item.category == category)
+				return leftHand[i];
+		}
+		for (int i = 0; i < armor.Length; i++)
+		{
+			if (armor[i].item != null && armor[i].item.category == category)
+				return armor[i];
+		}
+		for (int i = 0; i < hotbar.Length; i++)
+		{
+			if (hotbar[i].item != null && hotbar[i].item.category == category)
+				return hotbar[i];
+		}
+		return null;
 	}
 
 	/*

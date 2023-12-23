@@ -370,15 +370,14 @@ public class Item
 		return ParticleSpawnShape.None;
 	}
 
-	static ParticleFollowMode ParseParticleFollowMode(string identifier)
+	static bool ParseParticleFollow(string identifier)
 	{
-		foreach (ParticleFollowMode followMode in Enum.GetValues<ParticleFollowMode>())
-		{
-			if (followMode.ToString().ToLower() == identifier)
-				return followMode;
-		}
+		if (identifier == "follow")
+			return true;
+		else if (identifier == "trail")
+			return false;
 		Debug.Assert(false);
-		return ParticleFollowMode.None;
+		return false;
 	}
 
 	static AttackType ParseAttackType(string identifier)
@@ -561,7 +560,7 @@ public class Item
 			if (file.getIdentifier("particleSpawnShape", out string spawnShape))
 				item.particles.spawnShape = ParseParticleSpawnShape(spawnShape);
 			if (file.getIdentifier("particleFollowMode", out string followMode))
-				item.particles.followMode = ParseParticleFollowMode(followMode);
+				item.particles.follow = ParseParticleFollow(followMode);
 			if (file.getNumber("particleGravity", out float gravity))
 				item.particles.gravity = gravity;
 			if (file.getVector3("particleInitialVelocity", out Vector3 initialVelocity))
@@ -782,6 +781,8 @@ public class Item
 		Load("spell", "magic_arrow");
 		Load("spell", "homing_orbs");
 		Load("spell", "magic_orb");
+
+		Load("artifact", "key_cell");
 	}
 
 	public static Item Get(int id)

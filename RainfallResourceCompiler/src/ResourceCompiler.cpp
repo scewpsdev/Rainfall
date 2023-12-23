@@ -146,8 +146,9 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 	else if (extension == ".png")
 	{
 		std::string name = file.stem().string();
+		std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) {return std::tolower(c); });
 
-		if (name.find("_cubemap") != std::string::npos)
+		if (name.find("cubemap") != std::string::npos)
 		{
 			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, false, false, true, false, true);
 		}
@@ -155,50 +156,50 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 		{
 			std::string format;
 			bool linear = false, normal = false, mipmaps = false;
-			if (name.find("BaseColor") != std::string::npos || name.find("baseColor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
+			if (name.find("basecolor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
 			{
 				format = "BC3";
 				linear = true;
 				mipmaps = true;
 			}
-			else if (name.find("Normal") != std::string::npos || name.find("normal") != std::string::npos)
+			else if (name.find("normal") != std::string::npos)
 			{
 				format = "BC3";
 				linear = true;
 				normal = true;
 				mipmaps = true;
 			}
-			else if (name.find("occlusionRoughnessMetallic") != std::string::npos)
+			else if (name.find("occlusionroughnessmetallic") != std::string::npos)
 			{
 				format = "BC3";
 				linear = true;
 				mipmaps = true;
 			}
-			else if (name.find("Roughness") != std::string::npos || name.find("roughness") != std::string::npos)
+			else if (name.find("roughness") != std::string::npos)
 			{
 				format = "BC3";
 				linear = true;
 				mipmaps = true;
 			}
-			else if (name.find("Metallic") != std::string::npos || name.find("metallic") != std::string::npos)
+			else if (name.find("metallic") != std::string::npos)
 			{
 				format = "BC3";
 				linear = true;
 				mipmaps = true;
 			}
-			else if (name.find("Height") != std::string::npos || name.find("Displacement") != std::string::npos || name.find("height") != std::string::npos)
+			else if (name.find("height") != std::string::npos || name.find("displacement") != std::string::npos)
 			{
 				format = "BC4";
 				linear = true;
 				mipmaps = true;
 			}
-			else if (name.find("Emissive") != std::string::npos || name.find("Emission") != std::string::npos || name.find("emissive") != std::string::npos)
+			else if (name.find("emissive") != std::string::npos || name.find("emission") != std::string::npos)
 			{
 				format = "BC3";
 				//linear = true;
 				mipmaps = true;
 			}
-			else if (name.find("AO") != std::string::npos || name.find("_ao") != std::string::npos)
+			else if (name.find("_ao") != std::string::npos)
 			{
 				format = "BC4";
 				linear = true;

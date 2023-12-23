@@ -1,0 +1,24 @@
+id: 6001
+name: key_cell
+displayName: "Cell Key"
+category: artifact
+inventorySize = [1, 1]
+
+model: "key_cell.gltf"
+
+colliders: [
+	{
+		type = box
+		size = [0.1, 0.12, 0.02]
+		offset = [0.0, 0.0, 0.0]
+	},
+	{
+		type: box
+		size = [0.26, 0.06, 0.02]
+		offset = [0.13, -0.02, 0.0]
+	}
+]
+
+icon: "key_cell_icon.png"
+
+description: "cell key"

@@ -77,6 +77,15 @@ namespace Rainfall
 			return new Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 		}
 
+		public static Vector3 SRGBToLinear(float r, float g, float b)
+		{
+			float gamma = 2.2f;
+			float rr = MathF.Pow(r, gamma);
+			float gg = MathF.Pow(g, gamma);
+			float bb = MathF.Pow(b, gamma);
+			return new Vector3(rr, gg, bb);
+		}
+
 		public static Vector2i WorldToScreenSpace(Vector3 p, Matrix vp, Vector2i displaySize)
 		{
 			Vector4 clipSpacePosition = vp * new Vector4(p, 1.0f);

@@ -5,6 +5,8 @@
 #include "Resource.h"
 #include "Console.h"
 
+#include "Hash.h"
+
 #include <bx/allocator.h>
 
 #include <bimg/bimg.h>
@@ -14,8 +16,13 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <map>
+
 
 #define MAX_BONES 128
+
+
+std::map<uint32_t, bgfx::TextureHandle> loadedTextures;
 
 
 Model::Model(SceneData* scene)
@@ -240,14 +247,24 @@ static void InitializeTexture(TextureData& texture, const char* scenePath, uint6
 				sprintf(compiledPath, "%s.bin", texture.path);
 			}
 
-			if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), compiledPath))
+			uint32_t pathHash = hash(compiledPath);
+			auto it = loadedTextures.find(pathHash);
+			if (it != loadedTextures.end())
 			{
-				texture.handle = bgfx::createTexture(memory, flags);
+				texture.handle = it->second;
 			}
 			else
 			{
-				Console_Error("Failed to read model texture file '%s'", texture.path);
-				texture.handle = BGFX_INVALID_HANDLE;
+				if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), compiledPath))
+				{
+					texture.handle = bgfx::createTexture(memory, flags);
+					loadedTextures.emplace(pathHash, texture.handle);
+				}
+				else
+				{
+					Console_Error("Failed to read model texture file '%s'", texture.path);
+					texture.handle = BGFX_INVALID_HANDLE;
+				}
 			}
 		}
 	}

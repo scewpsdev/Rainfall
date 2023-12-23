@@ -69,6 +69,7 @@ void main()
 		s_reflectionProbe3, u_reflectionProbePosition3, u_reflectionProbeSize3, u_reflectionProbeOrigin3, 1.0);
 
 	gl_FragColor = vec4(ambient, 1.0);
+	//gl_FragColor = vec4(0.0, roughness, metallic, 1.0);
 
 	if (positionW.a < 0.5)
 		discard;

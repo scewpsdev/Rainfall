@@ -52,7 +52,7 @@ internal class DungeonGame : Game
 		levelGenerator.generateLevel();
 
 		level.addEntity(camera = new Camera());
-		level.addEntity(player = new Player(camera, graphics), level.spawnPoint, Quaternion.Identity);
+		level.addEntity(player = new Player(camera, graphics), level.spawnPoint);
 		player.resetPoint = level.spawnPoint;
 		//level.addEntity(player = new Player(camera), new Vector3(0, -37, 54), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
 		//player.queueAction(new SpawnAction());
@@ -91,8 +91,8 @@ internal class DungeonGame : Game
 		if (Input.IsKeyPressed(KeyCode.KeyP))
 		{
 			//player.setPosition(new Vector3(0.0f, 1.0f, 0.0f));
-			player.setPosition(player.resetPoint);
-			player.setRotation(0.0f);
+			player.setPosition(player.resetPoint.translation);
+			player.setRotation(player.resetPoint.rotation);
 			player.pitch = 0.0f;
 		}
 		/*

@@ -109,13 +109,6 @@ public class ItemEntity
 					hittable.hit(damage, player, contactPosition, force, 0);
 				}
 			}
-			/*
-			else if (otherEntity is RagdollEntity)
-			{
-				Vector3 force = (hit.body.entity.getPosition() - player.position).normalized * 2.0f; // TODO influenced by weapon weight
-				hit.body.addForce(force);
-			}
-			*/
 
 			if (item.sfxHit != null)
 			{

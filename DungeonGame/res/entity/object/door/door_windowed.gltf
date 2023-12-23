@@ -8,29 +8,14 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0,
-				1
+				0
 			]
 		}
 	],
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Door",
-			"scale":[
-				1.111111044883728,
-				1.111111044883728,
-				1.111111044883728
-			]
-		},
-		{
-			"mesh":1,
-			"name":"Frame",
-			"scale":[
-				1.111127495765686,
-				1.111127495765686,
-				1.111127495765686
-			]
+			"name":"Door"
 		}
 	],
 	"materials":[
@@ -43,19 +28,6 @@
 				},
 				"metallicRoughnessTexture":{
 					"index":1
-				}
-			}
-		},
-		{
-			"doubleSided":true,
-			"name":"Material.001",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":2
-				},
-				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":3
 				}
 			}
 		}
@@ -74,20 +46,6 @@
 					"material":0
 				}
 			]
-		},
-		{
-			"name":"Cube.003",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":4,
-						"NORMAL":5,
-						"TEXCOORD_0":6
-					},
-					"indices":7,
-					"material":1
-				}
-			]
 		}
 	],
 	"textures":[
@@ -98,14 +56,6 @@
 		{
 			"sampler":0,
 			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
-		},
-		{
-			"sampler":0,
-			"source":3
 		}
 	],
 	"images":[
@@ -118,16 +68,6 @@
 			"mimeType":"image/png",
 			"name":"door_roughness.png",
 			"uri":"textures/door_roughness.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"door_frame_diffuse.png.001",
-			"uri":"textures/door_frame_diffuse.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"door_frame_roughness.png.002",
-			"uri":"textures/door_frame_roughness.png"
 		}
 	],
 	"accessors":[
@@ -136,14 +76,14 @@
 			"componentType":5126,
 			"count":3066,
 			"max":[
-				0.6156370639801025,
-				2.087028980255127,
-				0.11854492127895355
+				0.6840411424636841,
+				2.318920850753784,
+				0.1317165642976761
 			],
 			"min":[
-				-0.6003422737121582,
+				-0.6670469045639038,
 				0,
-				-0.11877832561731339
+				-0.1319759041070938
 			],
 			"type":"VEC3"
 		},
@@ -163,40 +103,6 @@
 			"bufferView":3,
 			"componentType":5123,
 			"count":15264,
-			"type":"SCALAR"
-		},
-		{
-			"bufferView":4,
-			"componentType":5126,
-			"count":500,
-			"max":[
-				1.3499799966812134,
-				2.6999599933624268,
-				0.5387577414512634
-			],
-			"min":[
-				-1.3499799966812134,
-				-0.004576206207275391,
-				-0.5387577414512634
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":500,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":500,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":7,
-			"componentType":5123,
-			"count":864,
 			"type":"SCALAR"
 		}
 	],
@@ -224,30 +130,6 @@
 			"byteLength":30528,
 			"byteOffset":98112,
 			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":6000,
-			"byteOffset":128640,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":6000,
-			"byteOffset":134640,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":4000,
-			"byteOffset":140640,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":1728,
-			"byteOffset":144640,
-			"target":34963
 		}
 	],
 	"samplers":[
@@ -258,7 +140,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":146368,
+			"byteLength":128640,
 			"uri":"door_windowed.bin"
 		}
 	]

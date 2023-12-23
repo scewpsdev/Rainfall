@@ -131,26 +131,20 @@ namespace Rainfall
 			{
 				Vector3 s = scale;
 
-				float sx = 1.0f / s.x;
-				float sy = 1.0f / s.y;
-				float sz = 1.0f / s.z;
+				float c00 = m00 / s.x;
+				float c11 = m11 / s.y;
+				float c22 = m22 / s.z;
 
-				Matrix matrix = this;
+				float qw = MathF.Sqrt(MathF.Max(0.0f, 1.0f + c00 + c11 + c22)) / 2.0f;
+				float qx = MathF.Sqrt(MathF.Max(0.0f, 1.0f + c00 - c11 - c22)) / 2.0f;
+				float qy = MathF.Sqrt(MathF.Max(0.0f, 1.0f - c00 + c11 - c22)) / 2.0f;
+				float qz = MathF.Sqrt(MathF.Max(0.0f, 1.0f - c00 - c11 + c22)) / 2.0f;
 
-				matrix.column0 = new Vector4(matrix.column0.xyz * sx, matrix.column0.w);
-				matrix.column1 = new Vector4(matrix.column1.xyz * sy, matrix.column1.w);
-				matrix.column2 = new Vector4(matrix.column2.xyz * sz, matrix.column2.w);
+				qx = MathF.CopySign(qx, m12 - m21);
+				qy = MathF.CopySign(qy, m20 - m02);
+				qz = MathF.CopySign(qz, m01 - m10);
 
-				float width = MathF.Sqrt(MathF.Max(0.0f, 1.0f + matrix.m00 + matrix.m11 + matrix.m22)) / 2.0f;
-				float x = MathF.Sqrt(MathF.Max(0.0f, 1.0f + matrix.m00 - matrix.m11 - matrix.m22)) / 2.0f;
-				float y = MathF.Sqrt(MathF.Max(0.0f, 1.0f - matrix.m00 + matrix.m11 - matrix.m22)) / 2.0f;
-				float z = MathF.Sqrt(MathF.Max(0.0f, 1.0f - matrix.m00 - matrix.m11 + matrix.m22)) / 2.0f;
-
-				x = MathF.CopySign(x, m12 - m21);
-				y = MathF.CopySign(y, m20 - m02);
-				z = MathF.CopySign(z, m01 - m10);
-
-				return new Quaternion(x, y, z, width).normalized;
+				return new Quaternion(qx, qy, qz, qw).normalized;
 			}
 		}
 
@@ -163,6 +157,31 @@ namespace Rainfall
 				float z = MathF.Sqrt(m20 * m20 + m21 * m21 + m22 * m22);
 				return new Vector3(x, y, z);
 			}
+		}
+
+		public void decompose(out Vector3 position, out Quaternion rotation, out Vector3 scale)
+		{
+			position = new Vector3(m30, m31, m32);
+
+			float sx = MathF.Sqrt(m00 * m00 + m01 * m01 + m02 * m02);
+			float sy = MathF.Sqrt(m10 * m10 + m11 * m11 + m12 * m12);
+			float sz = MathF.Sqrt(m20 * m20 + m21 * m21 + m22 * m22);
+			scale = new Vector3(sx, sy, sz);
+
+			float c00 = m00 / sx;
+			float c11 = m11 / sy;
+			float c22 = m22 / sz;
+
+			float qw = MathF.Sqrt(MathF.Max(0.0f, 1.0f + c00 + c11 + c22)) / 2.0f;
+			float qx = MathF.Sqrt(MathF.Max(0.0f, 1.0f + c00 - c11 - c22)) / 2.0f;
+			float qy = MathF.Sqrt(MathF.Max(0.0f, 1.0f - c00 + c11 - c22)) / 2.0f;
+			float qz = MathF.Sqrt(MathF.Max(0.0f, 1.0f - c00 - c11 + c22)) / 2.0f;
+
+			qx = MathF.CopySign(qx, m12 - m21);
+			qy = MathF.CopySign(qy, m20 - m02);
+			qz = MathF.CopySign(qz, m01 - m10);
+
+			rotation = new Quaternion(qx, qy, qz, qw).normalized;
 		}
 
 		public float determinant

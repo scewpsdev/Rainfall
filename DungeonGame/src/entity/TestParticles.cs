@@ -27,7 +27,6 @@ internal class TestFire : Entity
 		particles.particleSize = 0.2f;
 		particles.initialVelocity = new Vector3(0.0f, 0.0f, 0.0f);
 		particles.gravity = 1.0f;
-		particles.followMode = ParticleFollowMode.Trail;
 		particles.additive = true;
 		particles.spriteTint = new Vector4(1.0f);
 	}

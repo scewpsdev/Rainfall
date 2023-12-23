@@ -6,47 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class IronDoor : Entity, Interactable
+public class IronDoor : Door
 {
-	Model model;
-	RigidBody body;
-
-	bool open = false;
-	float doorRotation = 0.0f;
-
-
-	public IronDoor()
+	public IronDoor(Item requiredKey = null)
 	{
+		this.requiredKey = requiredKey;
+
 		model = Resource.GetModel("res/entity/object/door_iron/door_iron.gltf");
+
+		sfxOpen = Resource.GetSound("res/entity/object/door_iron/sfx/unlock.ogg");
+		sfxClose = Resource.GetSound("res/entity/object/door_iron/sfx/close.ogg");
+		sfxLocked = Resource.GetSound("res/entity/object/door_iron/sfx/locked.ogg");
 	}
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
-		body.addBoxCollider(new Vector3(0.5f, 1.0f, 0.05f), new Vector3(0.0f, 1.0f, 0.0f), Quaternion.Identity);
-	}
+		base.init();
 
-	public bool canInteract(Entity by)
-	{
-		return true;
-	}
-
-	public void interact(Entity by)
-	{
-		open = !open;
-	}
-
-	public override void update()
-	{
-		float dstRotation = open ? MathF.PI * -0.5f : 0.0f;
-		doorRotation = MathHelper.Lerp(doorRotation, dstRotation, 5 * Time.deltaTime);
-		Matrix doorTransform = getModelMatrix() * Matrix.CreateTranslation(0.5f, 0.0f, 0.0f) * Matrix.CreateRotation(Vector3.Up, doorRotation) * Matrix.CreateTranslation(-0.5f, 0.0f, 0.0f);
-		body.setTransform(doorTransform.translation, doorTransform.rotation);
-	}
-
-	public override void draw(GraphicsDevice graphics)
-	{
-		Matrix doorTransform = getModelMatrix() * Matrix.CreateTranslation(0.5f, 0.0f, 0.0f) * Matrix.CreateRotation(Vector3.Up, doorRotation) * Matrix.CreateTranslation(-0.5f, 0.0f, 0.0f);
-		Renderer.DrawModelStaticInstanced(model, doorTransform);
+		doorBody.addBoxCollider(new Vector3(0.5f, 1.0f, 0.05f), new Vector3(-doorHingeOffset, 1.0f, 0.0f), Quaternion.Identity);
 	}
 }

@@ -23,7 +23,7 @@ public class Level
 	//public int[] heightmap;
 	public TileMap tilemap;
 	public List<Room> rooms;
-	public Vector3 spawnPoint;
+	public Matrix spawnPoint;
 
 	public List<LevelMesh> levelMeshes = new List<LevelMesh>();
 	public List<ReflectionProbe> reflections = new List<ReflectionProbe>();
@@ -81,6 +81,12 @@ public class Level
 		entity.rotation = rotation;
 		entity.scale = scale;
 		addEntity(entity);
+	}
+
+	public void addEntity(Entity entity, Matrix transform)
+	{
+		transform.decompose(out Vector3 position, out Quaternion rotation, out Vector3 scale);
+		addEntity(entity, position, rotation, scale);
 	}
 
 	public void update()

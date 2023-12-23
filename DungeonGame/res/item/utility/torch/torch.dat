@@ -22,8 +22,8 @@ colliders: [
 lights: [
 	{
 		position: [0.04, 0.4, 0.05]
-		color: [0.965, 0.604, 0.329]
-		intensity: 20.0
+		color: [2.7738395,0.9894696,0.25998735]
+		intensity: 1.0
 		flicker: true
 	}
 ]
@@ -38,20 +38,20 @@ hitboxRadius = 0.05
 hitboxRange = 0.5
 hitboxPosition = [0.0, 0.25, 0.0]
 
-particleTexture = "res/texture/particle/torch_flame.png"
-particleFrameSize = 32
-particleFrameCount = 12
-particleEmissionRate = 200.0
-particleLifetime = 0.8
-particleSpawnOffset = [0, 0.2, 0]
+//particleTexture = "res/texture/particle/torch_flame.png"
+//particleLinearFiltering = 1
+//particleFrameSize = 32
+//particleFrameCount = 12
+particleEmissionRate = 120.0
+particleLifetime = 0.5
+particleSpawnOffset = [0, 0.22, 0]
 particleSpawnRadius = 0.05
 particleSpawnShape = sphere
-particleSize = [0.2, 0.01]
+particleSize = [0.1, 0.02]
 particleInitialVelocity = [0, 0, 0]
 particleGravity = 2.0
 particleFollowMode = follow
 particleAdditive = 1
-particleTint = [3.0, 3.0, 3.0]
-particleLinearFiltering = 1
+particleTint = [2.7738395,0.9894696,0.25998735]
 
 sfxDraw = "ignite.ogg"

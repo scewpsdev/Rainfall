@@ -387,33 +387,59 @@ public class StartingRoom : RoomType
 			new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 });
 			room.addEntity(chest, position, rotation);
 
-			//level.spawnPoint = room.transform * new Vector3(2.5f, 0.0f, 12.0f);
+			level.spawnPoint = room.transform * Matrix.CreateTranslation(2.5f, 0.0f, 12.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 		}
 
 		{
 			Matrix doorTransform = room.transform * Matrix.CreateTranslation(5.5f, 0.0f, 6.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
 			room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+
+			Matrix torchTransform = room.transform * Matrix.CreateTranslation(0, 1.5f, 6.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+			room.addEntity(new WallTorch(TorchState.Off), torchTransform);
 		}
 		{
 			//Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 6.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 			//room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+
+			Matrix torchTransform = room.transform * Matrix.CreateTranslation(15, 1.5f, 6.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
+			room.addEntity(new WallTorch(TorchState.Off), torchTransform);
 		}
 		{
 			Matrix doorTransform = room.transform * Matrix.CreateTranslation(5.5f, 0.0f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
-			room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+			room.addEntity(new IronDoor(Item.Get("key_cell")), doorTransform.translation, doorTransform.rotation);
+
+			Matrix torchTransform = room.transform * Matrix.CreateTranslation(0, 1.5f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+			WallTorch torch = new WallTorch();
+			torch.state = TorchState.Glimming;
+			room.addEntity(torch, torchTransform);
+
+			Matrix keyTransform = room.transform * Matrix.CreateTranslation(0.65f, 0.0f, 13.2f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.6f) * Matrix.CreateRotation(Vector3.Right, MathF.PI * -0.5f);
+			room.addEntity(new ItemPickup(Item.Get("key_cell")), keyTransform);
 		}
 		{
 			Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 			room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+
+			Matrix torchTransform = room.transform * Matrix.CreateTranslation(15, 1.5f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
+			room.addEntity(new WallTorch(TorchState.Off), torchTransform);
 		}
 		{
 			//Matrix doorTransform = room.transform * Matrix.CreateTranslation(5.5f, 0.0f, 18.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
 			//room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+
+			//Matrix torchTransform = room.transform * Matrix.CreateTranslation(0, 1.5f, 18.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+			//room.addEntity(new WallTorch(TorchState.Off), torchTransform);
 		}
 		{
 			//Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 18.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 			//room.addEntity(new IronDoor(), doorTransform.translation, doorTransform.rotation);
+
+			Matrix torchTransform = room.transform * Matrix.CreateTranslation(15, 1.5f, 18.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f);
+			room.addEntity(new WallTorch(TorchState.Off), torchTransform);
 		}
+
+		//ReflectionProbe cellReflection = new ReflectionProbe(32, room.transform * new Vector3(2.5f, 2, 12.5f), new Vector3(5.1f, 4.1f, 5.1f), room.transform * new Vector3(2.5f, 2, 12.5f), Renderer.graphics);
+		//level.reflections.Add(cellReflection);
 
 		/*
 		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
@@ -495,7 +521,7 @@ public class MainRoom : RoomType
 		ReflectionProbe reflection = new ReflectionProbe(64, transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
 		level.reflections.Add(reflection);
 
-		level.spawnPoint = room.transform * new Vector3(2.5f, 0.0f, 12.0f);
+		//level.spawnPoint = room.transform * Matrix.CreateTranslation(2.5f, 0.0f, 12.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 	}
 }
 

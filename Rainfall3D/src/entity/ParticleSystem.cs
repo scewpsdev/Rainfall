@@ -17,14 +17,6 @@ public enum ParticleSpawnShape
 	Line,
 }
 
-public enum ParticleFollowMode
-{
-	None = 0,
-
-	Trail,
-	Follow,
-}
-
 public struct Particle
 {
 	public bool active;
@@ -65,9 +57,10 @@ public class ParticleSystem
 	public float emissionRate = 0.0f;
 	public float lifetime = 1.0f;
 	public float particleSize = 0.1f;
+	public Gradient<float> particleSizeAnim = null;
 	public Vector3 spawnOffset = Vector3.Zero;
 	public ParticleSpawnShape spawnShape = ParticleSpawnShape.Point;
-	public ParticleFollowMode followMode = ParticleFollowMode.Trail;
+	public bool follow = false;
 	public float gravity = -10.0f;
 	public Vector3 initialVelocity = Vector3.Zero;
 	public Vector3 constantVelocity = Vector3.Zero;
@@ -80,6 +73,7 @@ public class ParticleSystem
 	public bool linearFiltering = false;
 
 	public Vector4 spriteTint = Vector4.One;
+	public Gradient<Vector4> colorAnim = null;
 	public bool additive = false;
 
 	public float spawnRadius = 1.0f;
@@ -90,8 +84,6 @@ public class ParticleSystem
 	public float randomVelocityMultiplier = 1.0f;
 	public bool randomRotation = false;
 	public bool randomRotationSpeed = false;
-
-	public Gradient<float> particleSizeAnim = null;
 
 	Particle[] particles = null;
 	List<int> particleIndices;
@@ -124,9 +116,10 @@ public class ParticleSystem
 		emissionRate = from.emissionRate;
 		lifetime = from.lifetime;
 		particleSize = from.particleSize;
+		particleSizeAnim = from.particleSizeAnim != null ? new Gradient<float>(from.particleSizeAnim) : null;
 		spawnOffset = from.spawnOffset;
 		spawnShape = from.spawnShape;
-		followMode = from.followMode;
+		follow = from.follow;
 		gravity = from.gravity;
 		initialVelocity = from.initialVelocity;
 		constantVelocity = from.constantVelocity;
@@ -137,6 +130,7 @@ public class ParticleSystem
 		numFrames = from.numFrames;
 		linearFiltering = from.linearFiltering;
 		spriteTint = from.spriteTint;
+		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
 		additive = from.additive;
 		spawnRadius = from.spawnRadius;
 		point1 = from.point1;
@@ -145,7 +139,6 @@ public class ParticleSystem
 		randomVelocityMultiplier = from.randomVelocityMultiplier;
 		randomRotation = from.randomRotation;
 		randomRotationSpeed = from.randomRotationSpeed;
-		particleSizeAnim = new Gradient<float>(from.particleSizeAnim);
 	}
 
 	int getNewParticle()
@@ -205,17 +198,9 @@ public class ParticleSystem
 
 			position += particleOffset;
 
-			switch (followMode)
+			if (!follow)
 			{
-				case ParticleFollowMode.Trail:
-					position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
-					break;
-				case ParticleFollowMode.Follow:
-					//position += spawnOffset;
-					break;
-				default:
-					Debug.Assert(false);
-					break;
+				position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
 			}
 
 			Vector3 velocity = initialVelocity + particleVelocity;
@@ -277,8 +262,13 @@ public class ParticleSystem
 
 				particle.rotation += particle.rotationVelocity * Time.deltaTime;
 
+				float progress = particleTimer / lifetime;
+
 				if (particleSizeAnim != null)
-					particle.size = particleSizeAnim.getValue(particleTimer / lifetime);
+					particle.size = particleSizeAnim.getValue(progress);
+
+				if (colorAnim != null)
+					particle.color = colorAnim.getValue(progress);
 
 				if (textureAtlas != null && numFrames > 0)
 				{
@@ -377,7 +367,7 @@ public class ParticleSystem
 				atlasColumns = textureAtlas.width / frameWidth;
 				atlasRows = textureAtlas.height / frameHeight;
 			}
-			Renderer.DrawParticleSystem(particles, particleIndices, transform, spawnOffset, followMode, textureAtlas, new Vector2i(atlasColumns, atlasRows), linearFiltering, additive);
+			Renderer.DrawParticleSystem(particles, particleIndices, transform, spawnOffset, follow, textureAtlas, new Vector2i(atlasColumns, atlasRows), linearFiltering, additive);
 		}
 	}
 

@@ -75,8 +75,6 @@ internal class EnemyAI : AI
 
 	void seekTarget()
 	{
-		// TODO line of sight and last seen position
-
 		Span<HitData> hits = stackalloc HitData[16];
 		int numHits = Physics.OverlapSphere(detectionRange, creature.position, hits, QueryFilterFlags.Dynamic);
 		for (int i = 0; i < numHits; i++)

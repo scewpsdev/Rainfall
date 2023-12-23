@@ -494,6 +494,11 @@ public class InventoryUI
 				Renderer.DrawUIRect(tooltipX + 1, tooltipY + 1, tooltipWidth - 2, tooltipHeight - 2, 0xFF000000);
 				Renderer.DrawUIRect(tooltipX + 2, tooltipY + 2, tooltipWidth - 4, tooltipHeight - 4, 0xFF222222);
 
+				Texture icon = hoveredItem.item.icon;
+				int iconSize = 128;
+				Renderer.DrawUITexture(tooltipX + tooltipWidth / 2 - iconSize / 2, tooltipY + yscroll, iconSize, iconSize, icon);
+				yscroll += iconSize + 10;
+
 				string nameStr = hoveredItem.item.displayName;
 				int nameStrWidth = tooltipFontBig.measureText(nameStr);
 				Renderer.DrawText(tooltipX + tooltipWidth / 2 - nameStrWidth / 2, tooltipY + yscroll, 1.0f, nameStr, tooltipFontBig, 0xFFAAAAAA);

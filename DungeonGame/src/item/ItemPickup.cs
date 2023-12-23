@@ -18,6 +18,8 @@ public class ItemPickup : Entity, Interactable
 	ParticleSystem particles;
 	AudioSource audio;
 
+	bool looted = false;
+
 
 	public ItemPickup(Item item, int amount, Item[] equippedSpells, Chest chest, bool simulate)
 	{
@@ -35,7 +37,7 @@ public class ItemPickup : Entity, Interactable
 
 	public override void init()
 	{
-		rotation = item.pickupTransform;
+		rotation = rotation * item.pickupTransform;
 
 		body = new RigidBody(this, simulate ? RigidBodyType.Dynamic : RigidBodyType.Kinematic, 1.0f, item.colliderCenterOfMass, (uint)PhysicsFilterGroup.ItemPickup | (uint)PhysicsFilterGroup.Interactable, (uint)PhysicsFilterMask.ItemPickup);
 
@@ -80,6 +82,13 @@ public class ItemPickup : Entity, Interactable
 
 	public override void update()
 	{
+		if (looted)
+		{
+			if (!audio.isPlaying)
+				remove();
+			return;
+		}
+
 		if (simulate)
 			body.getTransform(out position, out rotation);
 
@@ -94,6 +103,9 @@ public class ItemPickup : Entity, Interactable
 
 	public override void draw(GraphicsDevice graphics)
 	{
+		if (looted)
+			return;
+
 		Matrix modelMatrix = getModelMatrix();
 
 		Renderer.DrawModel(item.model, modelMatrix);
@@ -110,11 +122,12 @@ public class ItemPickup : Entity, Interactable
 
 	public bool canInteract(Entity by)
 	{
-		return true;
+		return !looted;
 	}
 
 	public void interact(Entity by)
 	{
+		Debug.Assert(!looted);
 		if (by is Player)
 		{
 			Player player = (Player)by;
@@ -122,6 +135,8 @@ public class ItemPickup : Entity, Interactable
 		}
 		if (chest != null)
 			chest.removePickup(this);
-		remove();
+		if (item.sfxTake != null)
+			audio.playSoundOrganic(item.sfxTake);
+		looted = true;
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using Rainfall;
 using System.Reflection.Metadata;
-
+using System.Runtime.CompilerServices;
 
 public class Player : Entity
 {
@@ -95,7 +95,7 @@ public class Player : Entity
 	public bool noclip = false;
 	public LadderRegion currentLadder = null;
 
-	public Vector3 resetPoint;
+	public Matrix resetPoint;
 
 	public bool isDucked = false;
 	public float inDuckTimer = -1.0f;
@@ -1960,12 +1960,15 @@ public class Player : Entity
 
 	public void giveItem(Item item, int amount = 1, Item[] equippedSpells = null)
 	{
+		ItemSlot slot;
+		bool firstOfType = inventory.findItemOfType(item.category) == null;
+
 		if (item.category == ItemCategory.Weapon)
 		{
 			//if (handEntities[0].item != null)
 			//	dropItem(0);
 			//ItemSlot slot = inventory.addHandItem(0, 0, item, 1);
-			ItemSlot slot = inventory.addItem(item, amount);
+			slot = inventory.addItem(item, amount);
 			if (equippedSpells != null)
 			{
 				ItemSlot[] spellSlots = new ItemSlot[equippedSpells.Length];
@@ -1982,17 +1985,34 @@ public class Player : Entity
 			//if (handEntities[1].item != null)
 			//	dropItem(1);
 			//inventory.addHandItem(1, 0, item, amount);
-			ItemSlot slot = inventory.addItem(item, amount);
+			slot = inventory.addItem(item, amount);
 		}
 		else if (item.category == ItemCategory.Consumable)
 		{
 			//inventory.addHotbarItem(0, item, amount);
-			if (!inventory.addHotbarItem(item, amount))
-				inventory.addItem(item, amount);
+			slot = inventory.addHotbarItem(item, amount);
+			if (slot == null)
+				slot = inventory.addItem(item, amount);
 		}
 		else
 		{
-			inventory.addItem(item, amount);
+			slot = inventory.addItem(item, amount);
+		}
+
+		if (firstOfType)
+		{
+			ItemSlot newSlot = null;
+			if (item.category == ItemCategory.Weapon)
+				newSlot = inventory.addHandItem(0, item, amount);
+			else if (item.category == ItemCategory.Shield)
+				newSlot = inventory.addHandItem(1, item, amount);
+			else if (item.category == ItemCategory.Utility)
+				newSlot = inventory.addHandItem(1, item, amount);
+			else if (item.category == ItemCategory.Consumable)
+				newSlot = inventory.addHotbarItem(item, amount);
+
+			if (newSlot != null)
+				inventory.removeItem(slot, amount);
 		}
 
 		hud.onItemCollected(item, amount, Time.currentTime);
