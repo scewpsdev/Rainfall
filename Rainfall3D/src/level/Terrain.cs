@@ -53,9 +53,9 @@ public class Terrain
 
 		unsafe
 		{
-			heights = graphics.allocateVideoMemory(heightmapWidth * heightmapWidth * sizeof(float));
-			normals = graphics.allocateVideoMemory(heightmapWidth * heightmapWidth * sizeof(Vector4));
-			splat = graphics.allocateVideoMemory(SPLATMAP_RES * SPLATMAP_RES * sizeof(uint));
+			heights = graphics.createVideoMemory(heightmapWidth * heightmapWidth * sizeof(float));
+			normals = graphics.createVideoMemory(heightmapWidth * heightmapWidth * sizeof(Vector4));
+			splat = graphics.createVideoMemory(SPLATMAP_RES * SPLATMAP_RES * sizeof(uint));
 		}
 
 

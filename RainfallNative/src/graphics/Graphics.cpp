@@ -175,9 +175,9 @@ RFAPI const void* Graphics_AllocateVideoMemory(int size, const bgfx::Memory** ou
 	return memory->data;
 }
 
-RFAPI void Graphics_CreateVideoMemoryRef(int size, const void* data, const bgfx::Memory** outDataPtr)
+RFAPI void Graphics_CreateVideoMemoryRef(int size, const void* data, void(releaseCallback)(void* _ptr, void* _userData), const bgfx::Memory** outDataPtr)
 {
-	const bgfx::Memory* memory = bgfx::makeRef(data, size);
+	const bgfx::Memory* memory = bgfx::makeRef(data, size, releaseCallback);
 	*outDataPtr = memory;
 }
 

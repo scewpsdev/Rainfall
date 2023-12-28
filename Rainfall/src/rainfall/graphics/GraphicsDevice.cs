@@ -47,10 +47,10 @@ namespace Rainfall
 		internal int currentPass = 0;
 
 
-		public VideoMemory allocateVideoMemory(int size)
+		public VideoMemory createVideoMemory(int size)
 		{
 			IntPtr dataPtr = Native.Graphics.Graphics_AllocateVideoMemory(size, out IntPtr memoryHandle);
-			return new VideoMemory(memoryHandle, dataPtr);
+			return new VideoMemory(memoryHandle, dataPtr, size);
 		}
 
 		public unsafe VideoMemory createVideoMemory(void* data, int length)
@@ -58,7 +58,7 @@ namespace Rainfall
 			IntPtr dstPtr = Native.Graphics.Graphics_AllocateVideoMemory(length, out IntPtr memoryHandle);
 			Unsafe.CopyBlock((void*)dstPtr, data, (uint)length);
 
-			return new VideoMemory(memoryHandle, dstPtr);
+			return new VideoMemory(memoryHandle, dstPtr, length);
 		}
 
 		public VideoMemory createVideoMemory(Span<byte> data)
@@ -226,20 +226,6 @@ namespace Rainfall
 			Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memory.memoryHandle);
 		}
 
-		public void setTextureData(Texture texture, int x, int y, int width, int height, Span<float> data)
-		{
-			unsafe
-			{
-				Debug.Assert(data.Length >= width * height);
-				Debug.Assert(texture.info.format == TextureFormat.R32F);
-				fixed (void* dataPtr = data)
-				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, out IntPtr memoryHandle);
-					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
-				}
-			}
-		}
-
 		public void setTextureData(Texture texture, int x, int y, int width, int height, Span<uint> data)
 		{
 			unsafe
@@ -248,7 +234,21 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA8 || texture.info.format == TextureFormat.BGRA8);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
+				}
+			}
+		}
+
+		public void setTextureData(Texture texture, int x, int y, int width, int height, Span<float> data)
+		{
+			unsafe
+			{
+				Debug.Assert(data.Length >= width * height);
+				Debug.Assert(texture.info.format == TextureFormat.R32F);
+				fixed (void* dataPtr = data)
+				{
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, null, out IntPtr memoryHandle);
 					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
 				}
 			}
@@ -262,7 +262,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA32F);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, null, out IntPtr memoryHandle);
 					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
 				}
 			}
@@ -309,15 +309,28 @@ namespace Rainfall
 			Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memory.memoryHandle);
 		}
 
-		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<float> data)
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<byte> data)
+		{
+			unsafe
+			{
+				fixed (void* dataPtr = data)
+				{
+					Native.Graphics.Graphics_CreateVideoMemoryRef(data.Length, dataPtr, null, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
+				}
+			}
+		}
+
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<ushort> data)
 		{
 			unsafe
 			{
 				Debug.Assert(data.Length >= width * height * depth);
-				Debug.Assert(texture.info.format == TextureFormat.R32F);
+				Debug.Assert(texture.info.format >= TextureFormat.R16 && texture.info.format <= TextureFormat.R16S ||
+					texture.info.format >= TextureFormat.RG8 && texture.info.format <= TextureFormat.RG8S);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(ushort) * data.Length, dataPtr, null, out IntPtr memoryHandle);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -331,7 +344,21 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA8 || texture.info.format == TextureFormat.BGRA8);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
+				}
+			}
+		}
+
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<float> data)
+		{
+			unsafe
+			{
+				Debug.Assert(data.Length >= width * height * depth);
+				Debug.Assert(texture.info.format == TextureFormat.R32F);
+				fixed (void* dataPtr = data)
+				{
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, null, out IntPtr memoryHandle);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -345,7 +372,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA32F);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, null, out IntPtr memoryHandle);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}

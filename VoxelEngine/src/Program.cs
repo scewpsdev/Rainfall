@@ -39,7 +39,7 @@ internal class Program : Game
 		chunks = new Chunk[8];
 		for (int i = 0; i < chunks.Length; i++)
 		{
-			chunks[i] = new Chunk(16, graphics);
+			chunks[i] = new Chunk(64, graphics);
 			int x = i % 2 - 1;
 			int y = i / 2 % 2 - 1;
 			int z = i / 4 % 2 - 1;
@@ -63,7 +63,7 @@ internal class Program : Game
 					Vector3 toPoint = p - center;
 					int radius = chunk.resolution / 4;
 					if (toPoint.lengthSquared < radius * radius)
-						chunk.setVoxel(x, y, z, new Vector4(toPoint.normalized, 1.0f));
+						chunk.setVoxel(x, y, z, toPoint.normalized);
 				}
 			}
 		}
@@ -85,7 +85,7 @@ internal class Program : Game
 					else if (z == chunk.resolution - 1)
 						normal += Vector3.Back;
 					normal = normal.normalized;
-					chunk.setVoxel(x, y, z, new Vector4(normal, 1.0f));
+					chunk.setVoxel(x, y, z, normal);
 				}
 			}
 		}
@@ -184,12 +184,40 @@ internal class Program : Game
 		StringUtils.AppendString(str, " ms");
 		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
 
-		StringUtils.WriteFloat(str, Time.memory / 1e6f, 2);
-		StringUtils.AppendString(str, " MB");
+		long mem = Time.memory;
+		if (mem >= 1 << 20)
+		{
+			StringUtils.WriteFloat(str, mem / (float)(1 << 20), 2);
+			StringUtils.AppendString(str, " MB");
+		}
+		else if (mem >= 1 << 10)
+		{
+			StringUtils.WriteFloat(str, mem / (float)(1 << 10), 2);
+			StringUtils.AppendString(str, " KB");
+		}
+		else
+		{
+			StringUtils.WriteFloat(str, mem, 2);
+			StringUtils.AppendString(str, " By");
+		}
 		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
 
-		StringUtils.WriteFloat(str, Time.nativeMemory / 1e6f, 2);
-		StringUtils.AppendString(str, " MB");
+		long nativeMem = Time.nativeMemory;
+		if (nativeMem >= 1 << 20)
+		{
+			StringUtils.WriteFloat(str, nativeMem / (float)(1 << 20), 2);
+			StringUtils.AppendString(str, " MB");
+		}
+		else if (nativeMem >= 1 << 10)
+		{
+			StringUtils.WriteFloat(str, nativeMem / (float)(1 << 10), 2);
+			StringUtils.AppendString(str, " KB");
+		}
+		else
+		{
+			StringUtils.WriteFloat(str, nativeMem, 2);
+			StringUtils.AppendString(str, " By");
+		}
 		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
 
 		StringUtils.WriteInteger(str, Time.numAllocations);
@@ -219,7 +247,7 @@ internal class Program : Game
 		launchParams.height = 900;
 		launchParams.maximized = true;
 		//launchParams.fullscreen = false;
-		launchParams.fpsCap = 60;
+		//launchParams.fpsCap = 60;
 		//launchParams.vsync = 1;
 
 		Game game = new Program();

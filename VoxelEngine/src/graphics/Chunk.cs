@@ -12,8 +12,8 @@ public class Chunk
 	public Vector3i position;
 
 	Texture texture;
-	Vector4[] voxelData;
-	List<Vector4[]> mips = new List<Vector4[]>();
+	ushort[] voxelData;
+	List<ushort[]> mips = new List<ushort[]>();
 
 	bool hasChanged = true;
 
@@ -21,8 +21,8 @@ public class Chunk
 	public Chunk(int resolution, GraphicsDevice graphics)
 	{
 		this.resolution = resolution;
-		texture = graphics.createTexture(resolution, resolution, resolution, true, TextureFormat.RGBA32F, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
-		voxelData = new Vector4[resolution * resolution * resolution];
+		texture = graphics.createTexture(resolution, resolution, resolution, true, TextureFormat.RG8, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
+		voxelData = new ushort[resolution * resolution * resolution];
 	}
 
 	public bool update(GraphicsDevice graphics)
@@ -38,15 +38,34 @@ public class Chunk
 		return false;
 	}
 
+	ushort encodeVoxelData(byte value, Vector3 normal, byte material)
+	{
+		byte nx = (byte)(normal.x < -0.38f ? 0 : normal.x > 0.38f ? 2 : 1);
+		byte ny = (byte)(normal.y < -0.38f ? 0 : normal.y > 0.38f ? 2 : 1);
+		byte nz = (byte)(normal.z < -0.38f ? 0 : normal.z > 0.38f ? 2 : 1);
+		ushort voxel = (ushort)((material << 8) | (nx << 6) | (ny << 4) | (nz << 2) | value);
+		return voxel;
+	}
+
+	void decodeVoxelData(ushort voxel, out byte value, out Vector3 normal, out byte material)
+	{
+		material = (byte)((voxel & 0xFF) >> 8);
+		value = (byte)(voxel & 0b00000011);
+		byte nx = (byte)((voxel & 0b11000000) >> 6);
+		byte ny = (byte)((voxel & 0b00110000) >> 4);
+		byte nz = (byte)((voxel & 0b00001100) >> 2);
+		normal = new Vector3(nx - 1, ny - 1, nz - 1).normalized;
+	}
+
 	void generateMips(GraphicsDevice graphics)
 	{
 		int maxMip = Math.ILogB(resolution);
 
 		int mipRes = resolution / 2;
-		Vector4[] lastMip = voxelData;
+		ushort[] lastMip = voxelData;
 		for (int mip = 1; mip <= maxMip; mip++)
 		{
-			Vector4[] mipData = new Vector4[mipRes * mipRes * mipRes];
+			ushort[] mipData = new ushort[mipRes * mipRes * mipRes];
 			for (int z = 0; z < mipRes; z++)
 			{
 				for (int y = 0; y < mipRes; y++)
@@ -57,31 +76,34 @@ public class Chunk
 						int yy = y * 2;
 						int zz = z * 2;
 
-						Vector4 value0 = lastMip[xx + yy * mipRes * 2 + zz * mipRes * 2 * mipRes * 2];
-						Vector4 value1 = lastMip[xx + 1 + yy * mipRes * 2 + zz * mipRes * 2 * mipRes * 2];
-						Vector4 value2 = lastMip[xx + (yy + 1) * mipRes * 2 + zz * mipRes * 2 * mipRes * 2];
-						Vector4 value3 = lastMip[xx + 1 + (yy + 1) * mipRes * 2 + zz * mipRes * 2 * mipRes * 2];
-						Vector4 value4 = lastMip[xx + yy * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2];
-						Vector4 value5 = lastMip[xx + 1 + yy * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2];
-						Vector4 value6 = lastMip[xx + (yy + 1) * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2];
-						Vector4 value7 = lastMip[xx + 1 + (yy + 1) * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2];
+						decodeVoxelData(lastMip[xx + yy * mipRes * 2 + zz * mipRes * 2 * mipRes * 2], out byte value0, out Vector3 normal0, out byte material0);
+						decodeVoxelData(lastMip[xx + 1 + yy * mipRes * 2 + zz * mipRes * 2 * mipRes * 2], out byte value1, out Vector3 normal1, out byte material1);
+						decodeVoxelData(lastMip[xx + (yy + 1) * mipRes * 2 + zz * mipRes * 2 * mipRes * 2], out byte value2, out Vector3 normal2, out byte material2);
+						decodeVoxelData(lastMip[xx + 1 + (yy + 1) * mipRes * 2 + zz * mipRes * 2 * mipRes * 2], out byte value3, out Vector3 normal3, out byte material3);
+						decodeVoxelData(lastMip[xx + yy * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2], out byte value4, out Vector3 normal4, out byte material4);
+						decodeVoxelData(lastMip[xx + 1 + yy * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2], out byte value5, out Vector3 normal5, out byte material5);
+						decodeVoxelData(lastMip[xx + (yy + 1) * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2], out byte value6, out Vector3 normal6, out byte material6);
+						decodeVoxelData(lastMip[xx + 1 + (yy + 1) * mipRes * 2 + (zz + 1) * mipRes * 2 * mipRes * 2], out byte value7, out Vector3 normal7, out byte material7);
 
-						float w = (value0.w > 0.5 || value1.w > 0.5 || value2.w > 0.5 || value3.w > 0.5 ||
-							value4.w > 0.5 || value5.w > 0.5 || value6.w > 0.5 || value7.w > 0.5) ? 1 : 0;
-						Vector3 xyz =
+						bool isEmpty = value0 == 0 && value1 == 0 && value2 == 0 && value3 == 0 &&
+							value4 == 0 && value5 == 0 && value6 == 0 && value7 == 0;
+						bool isLeaf = value0 == 2 && value1 == 2 && value2 == 2 && value3 == 2 &&
+							value4 == 2 && value5 == 2 && value6 == 2 && value7 == 2;
+						byte value = (byte)(isEmpty ? 0 : isLeaf ? 2 : 1);
+
+						Vector3 normal =
 							Vector3.Lerp(
 								Vector3.Lerp(
-									Vector3.Lerp(value0.xyz, value1.xyz, 0.5f),
-									Vector3.Lerp(value2.xyz, value3.xyz, 0.5f),
+									Vector3.Lerp(normal0, normal1, 0.5f),
+									Vector3.Lerp(normal2, normal3, 0.5f),
 									0.5f),
 								Vector3.Lerp(
-									Vector3.Lerp(value4.xyz, value5.xyz, 0.5f),
-									Vector3.Lerp(value5.xyz, value6.xyz, 0.5f),
+									Vector3.Lerp(normal4, normal5, 0.5f),
+									Vector3.Lerp(normal5, normal6, 0.5f),
 									0.5f),
-								0.5f);
-						xyz = xyz.normalized;
+								0.5f).normalized;
 
-						mipData[x + y * mipRes + z * mipRes * mipRes] = new Vector4(xyz, w);
+						mipData[x + y * mipRes + z * mipRes * mipRes] = encodeVoxelData(value, normal, 0);
 					}
 				}
 			}
@@ -92,9 +114,12 @@ public class Chunk
 		}
 	}
 
-	public void setVoxel(int x, int y, int z, Vector4 data)
+	public void setVoxel(int x, int y, int z, Vector3 normal)
 	{
-		voxelData[x + y * resolution + z * resolution * resolution] = data;
+		byte value = 2; // Leaf node
+		byte material = 0;
+		ushort voxel = encodeVoxelData(value, normal, material);
+		voxelData[x + y * resolution + z * resolution * resolution] = voxel;
 		hasChanged = true;
 	}
 

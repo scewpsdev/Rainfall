@@ -12,17 +12,24 @@ namespace Rainfall
 	{
 		internal IntPtr memoryHandle;
 		internal IntPtr dataPtr;
+		internal int dataSize;
 
 
-		internal VideoMemory(IntPtr memoryHandle, IntPtr dataPtr)
+		internal VideoMemory(IntPtr memoryHandle, IntPtr dataPtr, int dataSize)
 		{
 			this.memoryHandle = memoryHandle;
 			this.dataPtr = dataPtr;
+			this.dataSize = dataSize;
 		}
 
 		public unsafe void* data
 		{
 			get => (void*)dataPtr;
+		}
+
+		public int size
+		{
+			get => dataSize;
 		}
 	}
 }

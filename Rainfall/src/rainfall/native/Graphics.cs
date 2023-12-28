@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,11 +44,14 @@ namespace Rainfall
 
 		internal static class Graphics
 		{
+			internal unsafe delegate void MemoryReleaseCallback_t(void* ptr, void* userPtr);
+
+
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern IntPtr Graphics_AllocateVideoMemory(int size, out IntPtr memoryHandle);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern unsafe void Graphics_CreateVideoMemoryRef(int size, void* data, out IntPtr memoryHandle);
+			internal static extern unsafe void Graphics_CreateVideoMemoryRef(int size, void* data, MemoryReleaseCallback_t releaseCallback, out IntPtr memoryHandle);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe ushort Graphics_CreateVertexBuffer(IntPtr memoryHandle, VertexElement* layoutElements, int layoutElementsCount, BufferFlags flags);
