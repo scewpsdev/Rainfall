@@ -13,6 +13,8 @@ RainfallResourceCompiler/lib/
 DungeonGame/bin/
 DungeonGame/obj/
 DungeonGame/builds/
+VoxelEngine/obj/
+VoxelEngine/bin/
 TopDownTest/bin/
 TopDownTest/obj/
 DDB/
