@@ -266,6 +266,26 @@ RFAPI uint16_t Graphics_CreateTextureFromMemory(const bgfx::Memory* memory, uint
 	return handle.idx;
 }
 
+RFAPI uint16_t Graphics_CreateTexture3DImmutable(int width, int height, int depth, bgfx::TextureFormat::Enum format, uint64_t flags, const bgfx::Memory* memory, bgfx::TextureInfo* info)
+{
+	bgfx::TextureHandle handle = bgfx::createTexture3D(width, height, depth, false, format, flags, memory);
+	bgfx::calcTextureSize(*info, width, height, depth, false, false, 1, format);
+	return handle.idx;
+}
+
+RFAPI uint16_t Graphics_CreateTexture3DMutable(int width, int height, int depth, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+{
+	bgfx::TextureHandle handle = bgfx::createTexture3D(width, height, depth, hasMips, format, flags);
+	bgfx::calcTextureSize(*info, width, height, depth, false, hasMips, 1, format);
+	return handle.idx;
+}
+
+RFAPI void Graphics_SetTexture3DData(uint16_t texture, int mip, int x, int y, int z, int width, int height, int depth, const bgfx::Memory* memory)
+{
+	bgfx::TextureHandle handle = { texture };
+	bgfx::updateTexture3D(handle, mip, x, y, z, width, height, depth, memory);
+}
+
 static void ImageReleaseCallback(void* ptr, void* userData)
 {
 	BX_UNUSED(ptr);

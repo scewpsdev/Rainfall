@@ -658,16 +658,12 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 		{
 			nanosUntilNextFrame = (int)((timeStep - timeAccumulator) * 1000000000);
 		}
-
-		lastFrame = now;
 	}
 	else
 	{
 		int64_t maxDelta = 1000000000 / 10;
 		delta = min(now - lastFrame, maxDelta);
 		nextFrame = true;
-
-		lastFrame = now;
 	}
 
 	bool exit = false;
@@ -701,7 +697,7 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 		bgfx::frame();
 
 		int64_t afterFrame = Application_GetTimestamp();
-		msCounter += (afterFrame - currentFrame) / 1e6f;
+		msCounter += (afterFrame - now) / 1e6f;
 
 		frameCounter++;
 	}
@@ -709,6 +705,8 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 	{
 		Application_SleepForNanos(nanosUntilNextFrame);
 	}
+
+	lastFrame = now;
 
 	return !exit;
 }

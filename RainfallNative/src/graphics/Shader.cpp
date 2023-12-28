@@ -11,7 +11,7 @@ bgfx::UniformHandle Shader::getUniform(const char* name, bgfx::UniformType::Enum
 	if (it == uniforms.end())
 	{
 		bgfx::UniformHandle uniform = bgfx::createUniform(name, type, num);
-		uniforms.insert(tinystl::make_pair(hash(name), uniform));
+		uniforms.insert(std::make_pair(hash(name), uniform));
 		return uniform;
 	}
 	return it->second;

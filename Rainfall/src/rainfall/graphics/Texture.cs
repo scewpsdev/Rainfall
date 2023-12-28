@@ -200,5 +200,6 @@ namespace Rainfall
 
 		public int width { get => info.width; }
 		public int height { get => info.height; }
+		public int depth { get => info.depth; }
 	}
 }

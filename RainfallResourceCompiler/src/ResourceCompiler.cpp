@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 
 #include <vector>
 #include <map>
@@ -32,6 +33,8 @@ static std::vector<std::future<void>> resourceFutures;
 
 static std::map<std::string, int64_t> assetTable;
 static std::mutex assetTableMutex;
+
+static std::vector<std::pair<fs::path, int64_t>> changedDependencies;
 
 
 static void TryLoadAssetTable(const char* assetTableFile)
@@ -246,29 +249,35 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 	}
 }
 
-static void ProcessFile(fs::path file, const std::string& outputDirectory, fs::path rootDirectory)
+std::vector<std::string> getShaderDependencies(fs::path file)
 {
-	std::string extension = file.extension().string();
-	std::string filepathStr = file.string();
-	std::string outdir = outputDirectory + file.parent_path().string().substr(rootDirectory.string().size());
-	std::string outpath = outdir + "\\" + file.filename().string() + ".bin";
+	std::vector<std::string> dependencies;
 
-	bool fileOutdated = true;
-
-	auto it = assetTable.find(file.string());
-	if (it != assetTable.end())
+	std::ifstream stream(file);
+	std::string line;
+	while (std::getline(stream, line))
 	{
-		int64_t lastWriteTime = fs::last_write_time(file).time_since_epoch().count();
-		int64_t tableTime = it->second;
-		if (lastWriteTime == tableTime)
+		if (line.substr(0, 9) == "#include ")
 		{
-			if (fs::exists(outpath))
+			size_t start = line.find_first_of('"') + 1;
+			size_t end = line.find_last_of('"');
+			std::string header = line.substr(start, end - start);
+			for (size_t i = 0; i < header.length(); i++)
 			{
-				fileOutdated = false;
+				if (header[i] == '/')
+					header[i] = '\\';
 			}
+			std::string fullHeaderPath = file.parent_path().string() + "\\" + header;
+			//printf("%s\n", fullHeaderPath.c_str());
+			dependencies.push_back(fullHeaderPath);
 		}
 	}
 
+	return dependencies;
+}
+
+static bool FileHasChanged(fs::path file, std::string& outpath, std::string& extension, std::map<std::string, int64_t>& assetTable)
+{
 	if (extension == ".shader")
 	{
 		std::string name = file.stem().string();
@@ -277,9 +286,65 @@ static void ProcessFile(fs::path file, const std::string& outputDirectory, fs::p
 				strncmp(&name[name.size() - 2], "fs", 2) == 0))
 			;
 		else
-			fileOutdated = false;
+		{
+			return false;
+		}
+
+		if (!fs::exists(file))
+			printf("error cant find shader %s\n", file.string().c_str());
+
+		std::vector<std::string> shaderDependencies = getShaderDependencies(file);
+
+		bool recompile = false;
+		for (size_t i = 0; i < shaderDependencies.size(); i++)
+		{
+			fs::path dependencyFile = shaderDependencies[i];
+
+			if (!fs::exists(dependencyFile))
+				printf("error cant find dependency %s of shader %s\n", dependencyFile.string().c_str(), file.string().c_str());
+
+			int64_t lastWriteTime = fs::last_write_time(dependencyFile).time_since_epoch().count();
+
+			bool dependencyChanged = false;
+			if (assetTable.find(dependencyFile.string()) == assetTable.end())
+				dependencyChanged = true;
+			else if (lastWriteTime > assetTable[dependencyFile.string()])
+				dependencyChanged = true;
+
+			if (dependencyChanged)
+			{
+				changedDependencies.push_back(std::make_pair(dependencyFile, lastWriteTime));
+				recompile = true;
+			}
+		}
+
+		if (recompile)
+			return true;
 	}
 
+	auto it = assetTable.find(file.string());
+	if (it == assetTable.end())
+		return true;
+
+	int64_t lastWriteTime = fs::last_write_time(file).time_since_epoch().count();
+	int64_t tableTime = it->second;
+	if (lastWriteTime != tableTime)
+		return true;
+
+	if (!fs::exists(outpath))
+		return true;
+
+	return false;
+}
+
+static void ProcessFile(fs::path file, const std::string& outputDirectory, fs::path rootDirectory)
+{
+	std::string extension = file.extension().string();
+	std::string filepathStr = file.string();
+	std::string outdir = outputDirectory + file.parent_path().string().substr(rootDirectory.string().size());
+	std::string outpath = outdir + "\\" + file.filename().string() + ".bin";
+
+	bool fileOutdated = FileHasChanged(file, outpath, extension, assetTable);
 	if (fileOutdated)
 	{
 		assetsCompiled++;
@@ -331,6 +396,13 @@ int main(int argc, char* argv[])
 		}
 
 		ProcessDirectory(rootDirectory, outputDirectory, rootDirectory, formats);
+
+		for (size_t i = 0; i < changedDependencies.size(); i++)
+		{
+			fs::path dependencyFile = changedDependencies[i].first;
+			int64_t lastWriteTime = changedDependencies[i].second;
+			assetTable[dependencyFile.string()] = lastWriteTime;
+		}
 
 		resourceFutures.resize(resourcesToCompile.size());
 		for (size_t i = 0; i < resourcesToCompile.size(); i++)

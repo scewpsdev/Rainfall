@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 internal class DungeonGame : Game
 {
 	const int VERSION_MAJOR = 0;
-	const int VERSION_MINOR = 1;
-	const int VERSION_PATCH = 4;
+	const int VERSION_MINOR = 4;
+	const int VERSION_PATCH = 5;
 	const char VERSION_SUFFIX = 'a';
 
 

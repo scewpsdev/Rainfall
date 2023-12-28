@@ -205,6 +205,14 @@ namespace Rainfall
 			return Native.Graphics.Graphics_CreateInstanceBuffer(count, stride, out buffer) != 0;
 		}
 
+		public Texture createTexture(int width, int height, TextureFormat format, VideoMemory memory, ulong flags = 0)
+		{
+			ushort handle = Native.Graphics.Graphics_CreateTextureImmutable(width, height, format, flags, memory.memoryHandle, out TextureInfo info);
+			if (handle != ushort.MaxValue)
+				return new Texture(handle, info);
+			return null;
+		}
+
 		public Texture createTexture(int width, int height, TextureFormat format, ulong flags = 0)
 		{
 			ushort handle = Native.Graphics.Graphics_CreateTextureMutable(width, height, format, flags, out TextureInfo info);
@@ -280,12 +288,67 @@ namespace Rainfall
 		}
 		*/
 
-		public Texture createTexture(int width, int height, TextureFormat format, VideoMemory memory, ulong flags = 0)
+		public Texture createTexture(int width, int height, int depth, TextureFormat format, VideoMemory memory, ulong flags = 0)
 		{
-			ushort handle = Native.Graphics.Graphics_CreateTextureImmutable(width, height, format, flags, memory.memoryHandle, out TextureInfo info);
+			ushort handle = Native.Graphics.Graphics_CreateTexture3DImmutable(width, height, depth, format, flags, memory.memoryHandle, out TextureInfo info);
 			if (handle != ushort.MaxValue)
 				return new Texture(handle, info);
 			return null;
+		}
+
+		public Texture createTexture(int width, int height, int depth, bool hasMips, TextureFormat format, ulong flags = 0)
+		{
+			ushort handle = Native.Graphics.Graphics_CreateTexture3DMutable(width, height, depth, (byte)(hasMips ? 1 : 0), format, flags, out TextureInfo info);
+			if (handle != ushort.MaxValue)
+				return new Texture(handle, info);
+			return null;
+		}
+
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, VideoMemory memory)
+		{
+			Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memory.memoryHandle);
+		}
+
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<float> data)
+		{
+			unsafe
+			{
+				Debug.Assert(data.Length >= width * height * depth);
+				Debug.Assert(texture.info.format == TextureFormat.R32F);
+				fixed (void* dataPtr = data)
+				{
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
+				}
+			}
+		}
+
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<uint> data)
+		{
+			unsafe
+			{
+				Debug.Assert(data.Length >= width * height * depth);
+				Debug.Assert(texture.info.format == TextureFormat.RGBA8 || texture.info.format == TextureFormat.BGRA8);
+				fixed (void* dataPtr = data)
+				{
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
+				}
+			}
+		}
+
+		public void setTextureData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, Span<Vector4> data)
+		{
+			unsafe
+			{
+				Debug.Assert(data.Length >= width * height * depth);
+				Debug.Assert(texture.info.format == TextureFormat.RGBA32F);
+				fixed (void* dataPtr = data)
+				{
+					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, out IntPtr memoryHandle);
+					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
+				}
+			}
 		}
 
 		public Cubemap createCubemap(int size, TextureFormat format, ulong flags = 0)

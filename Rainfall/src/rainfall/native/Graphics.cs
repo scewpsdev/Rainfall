@@ -83,6 +83,15 @@ namespace Rainfall
 			internal static extern ushort Graphics_CreateTextureFromMemory(IntPtr memoryHandle, ulong flags, out TextureInfo info);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateTexture3DImmutable(int width, int height, int depth, TextureFormat format, ulong flags, IntPtr memory, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateTexture3DMutable(int width, int height, int depth, byte hasMips, TextureFormat format, ulong flags, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetTexture3DData(ushort texture, int mip, int x, int y, int z, int width, int height, int depth, IntPtr memory);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern ushort Graphics_CreateCubemap(int size, TextureFormat format, ulong flags, out TextureInfo info);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

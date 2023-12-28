@@ -30,25 +30,9 @@ static const char* platforms[] =
 	"osx",         //!< Metal
 	nullptr,       //!< NVN
 	"android",     //!< OpenGL ES 2.0+
-	"linux",       //!< OpenGL 2.1+
-	"linux",       //!< Vulkan
+	"windows",       //!< OpenGL 2.1+
+	"windows",       //!< Vulkan
 	nullptr,       //!< WebGPU
-};
-
-static const char* profiles[] =
-{
-	nullptr,     //!< No rendering.
-	nullptr,     //!< AGC
-	"s_3_0",     //!< Direct3D 9.0
-	"s_4_0",     //!< Direct3D 11.0
-	"s_5_0",     //!< Direct3D 12.0
-	nullptr,     //!< GNM
-	"osx",       //!< Metal
-	nullptr,     //!< NVN
-	"android",   //!< OpenGL ES 2.0+
-	"linux",     //!< OpenGL 2.1+
-	"linux",     //!< Vulkan
-	nullptr,     //!< WebGPU
 };
 
 
@@ -69,6 +53,14 @@ static const char* GetShaderProfile(bgfx::RendererType::Enum renderer, int shade
 		default: return nullptr;
 		}
 	case bgfx::RendererType::Direct3D11:
+		switch (shaderType)
+		{
+		case 0: return "vs_5_0";
+		case 1: return "ps_5_0";
+		case 2: return "cs_5_0";
+		default: return nullptr;
+		}
+	case bgfx::RendererType::Direct3D12:
 		switch (shaderType)
 		{
 		case 0: return "vs_5_0";
@@ -107,6 +99,18 @@ static const char* GetShaderOpt(bgfx::RendererType::Enum renderer, int shaderTyp
 		case 2: return "1";
 		default: return nullptr;
 		}
+	case bgfx::RendererType::Direct3D12:
+		switch (shaderType)
+		{
+		case 0: return "3";
+		case 1: return "3";
+		case 2: return "1";
+		default: return nullptr;
+		}
+	case bgfx::RendererType::OpenGL:
+		return "3";
+	case bgfx::RendererType::Vulkan:
+		return "3";
 	default:
 		return nullptr;
 	}

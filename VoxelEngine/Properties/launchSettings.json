@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VoxelEngine": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
