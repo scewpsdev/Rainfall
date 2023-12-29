@@ -247,6 +247,10 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 		assetTable[file.string()] = fs::last_write_time(file).time_since_epoch().count();
 		assetTableMutex.unlock();
 	}
+	else
+	{
+		printf("Failed to compile resource %s\n", (const char*)file.c_str());
+	}
 }
 
 std::vector<std::string> getShaderDependencies(fs::path file)

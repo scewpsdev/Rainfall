@@ -7,16 +7,14 @@ $input v_camera, v_view, v_size
 
 SAMPLER3D(u_voxels, 0);
 
-uniform vec4 u_textureOffset;
-uniform vec4 u_textureDim;
-
 
 void main()
 {
 	vec3 view = normalize(v_view);
 	
 	vec3 position, color, normal;
-	bool hit = RayTraceVoxelGrid(v_camera, view, v_size, u_voxels, (ivec3)(u_textureOffset.xyz + 0.5), (ivec3)(u_textureDim.xyz + 0.5), position, color, normal);
+	int numSteps;
+	bool hit = RayTraceVoxelGrid(v_camera, view, v_size, u_voxels, position, color, normal, numSteps);
 	
 	vec3 toLight = normalize(vec3(-1, 2, -1));
 	float ndotl = dot(normal, toLight) * 0.5 + 0.5;
@@ -26,6 +24,6 @@ void main()
 	if (!hit)
 		discard;
 	
-	gl_FragColor = vec4(result, 1.0);
-	//gl_FragColor = vec4(1.0 - exp(-depth), 0, 1.0 - exp(-depth), 1);
+	//gl_FragColor = vec4(vec3_splat(numSteps / 64.0), 1.0);
+	gl_FragColor = vec4(hit ? result : color, 1.0);
 }

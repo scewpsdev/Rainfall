@@ -33,18 +33,19 @@ internal class Program : Game
 		Renderer.Init(graphics);
 
 		camera = new FreeCamera();
-		camera.position = new Vector3(0.0f, 0, 1.2f);
-		camera.rotation = Quaternion.LookAt(camera.position, new Vector3(0, 2, 0));
+		camera.position = new Vector3(10, 2.5f, 20);
+		//camera.rotation = Quaternion.LookAt(camera.position, new Vector3(0, 2, 0));
 
-		chunks = new Chunk[8];
+		chunks = new Chunk[9];
 		for (int i = 0; i < chunks.Length; i++)
 		{
-			chunks[i] = new Chunk(64, graphics);
-			int x = i % 2 - 1;
-			int y = i / 2 % 2 - 1;
-			int z = i / 4 % 2 - 1;
+			chunks[i] = new Chunk(256, graphics);
+			int x = i % 3;
+			int y = 0;
+			int z = i / 3;
 			chunks[i].position = new Vector3i(x, y, z);
 			generateTestChunk(chunks[i]);
+			Console.WriteLine("Chunk #" + i + " generated");
 		}
 
 		Input.mouseLocked = true;
@@ -52,21 +53,40 @@ internal class Program : Game
 
 	void generateTestChunk(Chunk chunk)
 	{
+		Simplex simplex = new Simplex(0, 3);
 		for (int z = 0; z < chunk.resolution; z++)
 		{
-			for (int y = 0; y < chunk.resolution; y++)
+			for (int x = 0; x < chunk.resolution; x++)
 			{
-				for (int x = 0; x < chunk.resolution; x++)
+				int globalX = chunk.position.x * chunk.resolution + x;
+				int globalZ = chunk.position.z * chunk.resolution + z;
+				float scale = 1.0f / chunk.resolution * Chunk.CHUNK_SIZE * 0.02f;
+				float heightmap = simplex.sample2f(globalX * scale, globalZ * scale);
+				int height = (int)(64 + 32 * heightmap);
+
+				for (int y = 0; y < height; y++)
 				{
+					float lh = simplex.sample2f(globalX * scale - 0.01f, globalZ * scale);
+					float rh = simplex.sample2f(globalX * scale + 0.01f, globalZ * scale);
+					float th = simplex.sample2f(globalX * scale, globalZ * scale - 0.01f);
+					float bh = simplex.sample2f(globalX * scale, globalZ * scale + 0.01f);
+					float dx = (lh - rh) * 32;
+					float dz = (th - bh) * 32;
+					Vector3 normal = new Vector3(dx, 0.02f, dz).normalized;
+					chunk.setVoxel(x, y, z, normal);
+
+					/*
 					Vector3 p = new Vector3(x, y, z) + 0.5f;
 					Vector3 center = new Vector3(chunk.resolution / 2);
 					Vector3 toPoint = p - center;
 					int radius = chunk.resolution / 4;
 					if (toPoint.lengthSquared < radius * radius)
 						chunk.setVoxel(x, y, z, toPoint.normalized);
+					*/
 				}
 			}
 		}
+		/*
 		for (int z = 0; z < chunk.resolution; z++)
 		{
 			for (int x = 0; x < chunk.resolution; x++)
@@ -89,6 +109,7 @@ internal class Program : Game
 				}
 			}
 		}
+		*/
 		/*
 		for (int z = 4; z < 12; z++)
 		{

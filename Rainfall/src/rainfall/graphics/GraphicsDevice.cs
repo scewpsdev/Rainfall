@@ -680,6 +680,11 @@ namespace Rainfall
 			Native.Graphics.Graphics_Blit(currentPass, dst.handle, src.handle);
 		}
 
+		public void blit(Texture dst, int dstMip, int dstX, int dstY, int dstZ, Texture src, int srcMip, int srcX, int srcY, int srcZ, int width, int height, int depth)
+		{
+			Native.Graphics.Graphics_BlitEx(currentPass, dst.handle, dstMip, dstX, dstY, dstZ, src.handle, srcMip, srcX, srcY, srcZ, width, height, depth);
+		}
+
 		public void completeFrame()
 		{
 			Native.Graphics.Graphics_CompleteFrame();

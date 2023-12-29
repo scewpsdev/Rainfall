@@ -109,6 +109,8 @@ static const char* GetShaderOpt(bgfx::RendererType::Enum renderer, int shaderTyp
 		}
 	case bgfx::RendererType::OpenGL:
 		return "3";
+	case bgfx::RendererType::Metal:
+		return "3";
 	case bgfx::RendererType::Vulkan:
 		return "3";
 	default:
@@ -129,7 +131,7 @@ bool CompileShader(const char* path, const char* out, const char* type)
 		"shaderc",
 		"-f", path,
 		"-o", out,
-		"-i", "../Mesa/src/shaders/",
+		//"-i", "../Mesa/src/shaders/",
 		"--platform", platform,
 		"--profile", profile,
 		"--type", type,

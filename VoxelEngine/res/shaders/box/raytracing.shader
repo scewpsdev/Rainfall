@@ -47,13 +47,13 @@ void decodeVoxelData(vec2 voxel, out int value, out vec3 normal, out int materia
 	material = int(voxel.g * 255 + 0.5);
 }
 
-bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, ivec3 textureOffset, ivec3 textureDim, out vec3 out_position, out vec3 out_color, out vec3 out_normal)
+bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
 {
 	vec3 currentNormal;
 	
 	float tmin, tmax;
 	bool intersects = BoxIntersection(camera, dir, vec3_splat(0), size, tmin, tmax, currentNormal);
-	
+
 	vec3 p = camera + max(tmin + 0.0001, 0.0) * dir;
 	
 	ivec3 resolution = textureSize(voxels, 0);
@@ -69,11 +69,11 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, ivec3
 	vec3 tDelta = step / dir;
 	float t = 0.0;
 	
-	int maxMip = 5;
+	int maxMip = log2(textureSize(voxels, 0).x) - 1;
 	int mip = maxMip;
 	int mipScale = pow(2, mip);
 	
-	int maxSteps = 3 * 64;
+	int maxSteps = 256;
 	for (int i = 0; i < maxSteps; i++)
 	{
 		vec3 samplePoint = (ip / mipScale * mipScale + 0.5 * mipScale) / resolution;
@@ -88,7 +88,8 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, ivec3
 		{
 			out_position = p + t / multiplier * dir;
 			out_color = vec3(1, 0, 1);
-			out_normal = normal;
+			out_normal = currentNormal;
+			out_numSteps = i + 1;
 			return true;
 		}
 		else if (value == 1)
@@ -98,11 +99,6 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, ivec3
 		}
 		else
 		{
-			if (mip == maxMip)
-			{
-				return false;
-			}
-			
 			vec3 tMax = intBound(p / mipScale, dir) * mipScale;
 			bool sx = tMax.x < tMax.y && tMax.x < tMax.z;
 			bool sy = !sx && tMax.y < tMax.z;
@@ -127,10 +123,14 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, ivec3
 			//tMax += tDelta * mask;
 			
 			if (ip.x < lower.x || ip.x >= upper.x || ip.y < lower.y || ip.y >= upper.y || ip.z < lower.z || ip.z >= upper.z)
+			{
+				out_color = vec3(0, 1, 0);
 				return false;
+			}
 		}
 	}
 	
+	out_color = vec3(0, 1, 1);
 	return false;
 }
 

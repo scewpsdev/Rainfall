@@ -200,6 +200,9 @@ namespace Rainfall
 			internal static extern void Graphics_Blit(int pass, ushort dst, ushort src);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_BlitEx(int pass, ushort dst, int dstMip, int dstX, int dstY, int dstZ, ushort src, int srcMip, int srcX, int srcY, int srcZ, int width, int height, int depth);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_CompleteFrame();
 		}
 	}

@@ -88,8 +88,6 @@ public static class Renderer
 			Vector3 localCameraPosition = transform.inverted * camera.position;
 			graphics.setUniform(boxShader, "u_cameraPosition", new Vector4(localCameraPosition, 0.0f));
 			graphics.setUniform(boxShader, "u_boxSize", new Vector4(draw.size, 0.0f));
-			graphics.setUniform(boxShader, "u_textureOffset", new Vector4((Vector3)draw.offset, draw.mip));
-			graphics.setUniform(boxShader, "u_textureDim", new Vector4((Vector3)draw.dim, 0.0f));
 
 			graphics.setTexture(boxShader, "u_voxels", 0, draw.texture);
 

@@ -521,6 +521,11 @@ RFAPI void Graphics_Blit(int pass, uint16_t dst, uint16_t src)
 	bgfx::blit((bgfx::ViewId)pass, bgfx::TextureHandle{ dst }, 0, 0, bgfx::TextureHandle{ src }, 0, 0);
 }
 
+RFAPI void Graphics_BlitEx(int pass, uint16_t dst, int dstMip, int dstX, int dstY, int dstZ, uint16_t src, int srcMip, int srcX, int srcY, int srcZ, int width, int height, int depth)
+{
+	bgfx::blit((bgfx::ViewId)pass, bgfx::TextureHandle{ dst }, dstMip, dstX, dstY, dstZ, bgfx::TextureHandle{ src }, srcMip, srcX, srcY, srcZ, width, height, depth);
+}
+
 RFAPI void Graphics_CompleteFrame()
 {
 	bgfx::frame();

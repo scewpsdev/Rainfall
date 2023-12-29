@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 public class Chunk
 {
+	public const float CHUNK_SIZE = 16.0f;
+
+
 	public readonly int resolution;
 	public Vector3i position;
 
@@ -125,6 +128,6 @@ public class Chunk
 
 	public void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawCube((Vector3)position, new Vector3(1), texture, Vector3i.Zero, new Vector3i(texture.width, texture.height, texture.depth), 0);
+		Renderer.DrawCube(position * CHUNK_SIZE, new Vector3(CHUNK_SIZE), texture, Vector3i.Zero, new Vector3i(texture.width, texture.height, texture.depth), 0);
 	}
 }
