@@ -52,7 +52,7 @@ public static class Renderer
 			graphics.createVideoMemory(stackalloc short[] { 0, 1, 2, 2, 3, 0, 0, 3, 7, 7, 4, 0, 3, 2, 6, 6, 7, 3, 2, 1, 5, 5, 6, 2, 1, 0, 4, 4, 5, 1, 4, 7, 6, 6, 5, 4 })
 		);
 
-		boxShader = Resource.GetShader("res/shaders/box/box.vs.shader", "res/shaders/box/box.fs.shader");
+		boxShader = Resource.GetShader("res/shaders/chunk/chunk.vs.shader", "res/shaders/chunk/chunk.fs.shader");
 	}
 
 	public static void DrawCube(Vector3 position, Vector3 size, Texture texture, Vector3i offset, Vector3i dim, int mip)

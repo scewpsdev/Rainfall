@@ -18,14 +18,18 @@ public class Chunk
 	ushort[] voxelData;
 	List<ushort[]> mips = new List<ushort[]>();
 
+	Shader mipmapShader;
+
 	bool hasChanged = true;
 
 
 	public Chunk(int resolution, GraphicsDevice graphics)
 	{
 		this.resolution = resolution;
-		texture = graphics.createTexture(resolution, resolution, resolution, true, TextureFormat.RG8, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
+		texture = graphics.createTexture(resolution, resolution, resolution, true, TextureFormat.RG8, (ulong)TextureFlags.ComputeWrite | (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
 		voxelData = new ushort[resolution * resolution * resolution];
+
+		mipmapShader = Resource.GetShader("res/shaders/chunk/mipmap.cs.shader");
 	}
 
 	public bool update(GraphicsDevice graphics)
@@ -68,6 +72,15 @@ public class Chunk
 		ushort[] lastMip = voxelData;
 		for (int mip = 1; mip <= maxMip; mip++)
 		{
+			graphics.setComputeTexture(0, texture, mip - 1, ComputeAccess.Read);
+			graphics.setComputeTexture(1, texture, mip, ComputeAccess.Write);
+
+			int numBatches = (mipRes + 8 - 1) / 8;
+			graphics.computeDispatch(mip - 1, mipmapShader, numBatches, numBatches, numBatches);
+
+			mipRes /= 2;
+
+			continue;
 			ushort[] mipData = new ushort[mipRes * mipRes * mipRes];
 			for (int z = 0; z < mipRes; z++)
 			{

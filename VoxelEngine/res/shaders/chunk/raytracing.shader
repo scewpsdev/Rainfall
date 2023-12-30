@@ -1,4 +1,4 @@
-
+#include "voxel_format.shader"
 
 
 vec3 intBound(vec3 s, vec3 ds)
@@ -31,20 +31,6 @@ bool BoxIntersection(vec3 origin, vec3 dir, vec3 offset, vec3 size, out float tm
 	tmax = min(min(mx.x, mx.y), mx.z);
 	
 	return tmin < tmax && tmax > 0;
-}
-
-void decodeVoxelData(vec2 voxel, out int value, out vec3 normal, out int material)
-{
-	int valuenormal = int(voxel.r * 255 + 0.5);
-	
-	value = valuenormal & 0x03;
-	
-	int nx = (valuenormal & 0xC0) >> 6;
-	int ny = (valuenormal & 0x30) >> 4;
-	int nz = (valuenormal & 0x0C) >> 2;
-	normal = normalize(vec3(nx + 1, ny + 1, nz + 1)); // TODO optimize normalization
-	
-	material = int(voxel.g * 255 + 0.5);
 }
 
 bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
@@ -84,11 +70,11 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out v
 		int material;
 		decodeVoxelData(voxelData, value, normal, material);
 		
-		if (value == 2)
+		if (value == 2 || mip == 2)
 		{
 			out_position = p + t / multiplier * dir;
 			out_color = vec3(1, 0, 1);
-			out_normal = currentNormal;
+			out_normal = normal;
 			out_numSteps = i + 1;
 			return true;
 		}

@@ -14,6 +14,9 @@ namespace Rainfall.Native
 		internal static extern unsafe IntPtr Resource_CreateShader(byte* vertexPath, byte* fragmentPath);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe IntPtr Resource_CreateShaderCompute(byte* computePath);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe IntPtr Resource_ReadImageFromFile(byte* path, out TextureInfo info);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

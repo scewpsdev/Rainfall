@@ -195,16 +195,15 @@ RFAPI uint16_t Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutEle
 	return handle.idx;
 }
 
-RFAPI bgfx::TransientVertexBuffer Graphics_CreateTransientVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount)
+RFAPI bool Graphics_CreateTransientVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, bgfx::TransientVertexBuffer* buffer)
 {
 	bgfx::VertexLayout layout = CreateVertexLayout(layoutElements, layoutElementsCount);
 	if (bgfx::getAvailTransientVertexBuffer(vertexCount, layout) == vertexCount)
 	{
-		bgfx::TransientVertexBuffer buffer;
-		bgfx::allocTransientVertexBuffer(&buffer, vertexCount, layout);
-		return buffer;
+		bgfx::allocTransientVertexBuffer(buffer, vertexCount, layout);
+		return true;
 	}
-	return {};
+	return false;
 }
 
 RFAPI uint16_t Graphics_CreateIndexBuffer(const bgfx::Memory* memory, uint16_t flags)
@@ -323,6 +322,24 @@ RFAPI Shader* Graphics_CreateShader(const bgfx::Memory* vertexMemory, const bgfx
 	return shader;
 }
 
+RFAPI Shader* Graphics_CreateShaderCompute(const bgfx::Memory* computeMemory)
+{
+	const bgfx::Caps* caps = bgfx::getCaps();
+	if (!(caps->supported & BGFX_CAPS_COMPUTE))
+	{
+		Console_Error("Compute shaders not supported!");
+		return nullptr;
+	}
+
+	bgfx::ShaderHandle compute = bgfx::createShader(computeMemory);
+	bgfx::ProgramHandle program = bgfx::createProgram(compute, true);
+
+	Shader* shader = BX_NEW(Application_GetAllocator(), Shader);
+	shader->program = program;
+
+	return shader;
+}
+
 RFAPI uint16_t Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx::UniformType::Enum type, int num)
 {
 	bgfx::UniformHandle handle = shader->getUniform(name, type, num);
@@ -432,6 +449,11 @@ RFAPI void Graphics_SetInstanceBufferN(const bgfx::InstanceDataBuffer* buffer, i
 	bgfx::setInstanceDataBuffer(buffer, offset, count);
 }
 
+RFAPI void Graphics_SetComputeBuffer(int stage, uint16_t handle, bgfx::Access::Enum access)
+{
+	bgfx::setBuffer(stage, bgfx::VertexBufferHandle{ handle }, access);
+}
+
 RFAPI void Graphics_SetUniform(uint16_t handle, const void* value, int num)
 {
 	bgfx::setUniform(bgfx::UniformHandle{ handle }, value, num);
@@ -440,6 +462,11 @@ RFAPI void Graphics_SetUniform(uint16_t handle, const void* value, int num)
 RFAPI void Graphics_SetTexture(uint16_t sampler, int unit, uint16_t texture, uint32_t flags)
 {
 	bgfx::setTexture(unit, bgfx::UniformHandle{ sampler }, bgfx::TextureHandle{ texture }, flags);
+}
+
+RFAPI void Graphics_SetComputeTexture(int stage, uint16_t texture, int mip, bgfx::Access::Enum access)
+{
+	bgfx::setImage(stage, bgfx::TextureHandle{ texture }, mip, access);
 }
 
 RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int height, bool hasRGB, bool hasDepth, uint32_t rgba, float depth)
@@ -514,6 +541,11 @@ RFAPI void Graphics_GetDebugTextSize(int* outWidth, int* outHeight)
 {
 	*outWidth = bgfx::getStats()->textWidth;
 	*outHeight = bgfx::getStats()->textHeight;
+}
+
+RFAPI void Graphics_ComputeDispatch(int pass, Shader* shader, int numX, int numY, int numZ)
+{
+	bgfx::dispatch((bgfx::ViewId)pass, shader->program, numX, numY, numZ, BGFX_DISCARD_ALL);
 }
 
 RFAPI void Graphics_Blit(int pass, uint16_t dst, uint16_t src)

@@ -172,8 +172,9 @@ namespace Rainfall
 			{
 				fixed (VertexElement* layoutPtr = layout)
 				{
-					Native.TransientVertexBufferData data = Native.Graphics.Graphics_CreateTransientVertexBuffer(layoutPtr, layout.Length, vertexCount);
-					return new TransientVertexBuffer(data);
+					if (Native.Graphics.Graphics_CreateTransientVertexBuffer(layoutPtr, layout.Length, vertexCount, out Native.TransientVertexBufferData buffer) != 0)
+						return new TransientVertexBuffer(buffer);
+					return null;
 				}
 			}
 		}
@@ -484,6 +485,11 @@ namespace Rainfall
 			Native.Graphics.Graphics_SetInstanceBufferN(ref buffer, offset, count);
 		}
 
+		public void setComputeBuffer(int stage, VertexBuffer buffer, ComputeAccess access)
+		{
+			Native.Graphics.Graphics_SetComputeBuffer(stage, buffer.handle, access);
+		}
+
 		/*
 		public void setUniform<T>(ushort handle, T value, int num = 1)
 		{
@@ -606,6 +612,11 @@ namespace Rainfall
 			Native.Graphics.Graphics_SetTexture(shader.getUniform(name, UniformType.Sampler), unit, texture.handle, flags);
 		}
 
+		public void setComputeTexture(int stage, Texture texture, int mip, ComputeAccess access)
+		{
+			Native.Graphics.Graphics_SetComputeTexture(stage, texture.handle, mip, access);
+		}
+
 		public void setPass(int pass)
 		{
 			currentPass = pass;
@@ -673,6 +684,11 @@ namespace Rainfall
 		public unsafe void drawText(int x, int y, float z, float scale, string text, int length, Font font, uint color, SpriteBatch batch)
 		{
 			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, length, font.handle, color, batch.handle);
+		}
+
+		public void computeDispatch(int pass, Shader shader, int numX, int numY, int numZ)
+		{
+			Native.Graphics.Graphics_ComputeDispatch(pass, shader.handle, numX, numY, numZ);
 		}
 
 		public void blit(Texture dst, Texture src)

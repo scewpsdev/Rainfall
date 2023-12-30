@@ -117,6 +117,7 @@ static bool keepRunning;
 
 uint32_t width, height;
 uint32_t reset;
+uint32_t debug;
 
 int fpsCap;
 int vsync;
@@ -721,7 +722,12 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	init.resolution.reset = reset;
 	bgfx::init(init);
 
-	bgfx::setDebug(BGFX_DEBUG_TEXT);
+#ifdef _DEBUG
+	debug = BGFX_DEBUG_TEXT;
+#else
+	debug = BGFX_DEBUG_NONE;
+#endif
+	bgfx::setDebug(debug);
 
 	reset = BGFX_RESET_NONE;
 
@@ -1009,12 +1015,55 @@ RFAPI int Application_GetNumAllocations()
 	return allocator ? allocator->getNumAllocations() : 0;
 }
 
-RFAPI void Application_SetDebugStatsOverlayEnabled(bool enabled)
+RFAPI void Application_SetDebugTextEnabled(bool enabled)
 {
 	if (enabled)
-		bgfx::setDebug(BGFX_DEBUG_TEXT | BGFX_DEBUG_STATS);
+		debug |= BGFX_DEBUG_TEXT;
 	else
-		bgfx::setDebug(BGFX_DEBUG_TEXT);
+	{
+		debug |= BGFX_DEBUG_TEXT;
+		debug ^= BGFX_DEBUG_TEXT;
+	}
+	bgfx::setDebug(debug);
+}
+
+RFAPI bool Application_IsDebugTextEnabled()
+{
+	return debug & BGFX_DEBUG_TEXT;
+}
+
+RFAPI void Application_SetDebugStatsEnabled(bool enabled)
+{
+	if (enabled)
+		debug |= BGFX_DEBUG_STATS;
+	else
+	{
+		debug |= BGFX_DEBUG_STATS;
+		debug ^= BGFX_DEBUG_STATS;
+	}
+	bgfx::setDebug(debug);
+}
+
+RFAPI bool Application_IsDebugStatsEnabled()
+{
+	return debug & BGFX_DEBUG_STATS;
+}
+
+RFAPI void Application_SetDebugWireframeEnabled(bool enabled)
+{
+	if (enabled)
+		debug |= BGFX_DEBUG_WIREFRAME;
+	else
+	{
+		debug |= BGFX_DEBUG_WIREFRAME;
+		debug ^= BGFX_DEBUG_WIREFRAME;
+	}
+	bgfx::setDebug(debug);
+}
+
+RFAPI bool Application_IsDebugWireframeEnabled()
+{
+	return debug & BGFX_DEBUG_WIREFRAME;
 }
 
 RFAPI void Application_SetMouseLock(bool locked)

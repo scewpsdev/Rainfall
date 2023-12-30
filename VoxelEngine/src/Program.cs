@@ -33,7 +33,7 @@ internal class Program : Game
 		Renderer.Init(graphics);
 
 		camera = new FreeCamera();
-		camera.position = new Vector3(10, 2.5f, 20);
+		camera.position = new Vector3(10, 7, 20);
 		//camera.rotation = Quaternion.LookAt(camera.position, new Vector3(0, 2, 0));
 
 		chunks = new Chunk[9];
@@ -47,6 +47,8 @@ internal class Program : Game
 			generateTestChunk(chunks[i]);
 			Console.WriteLine("Chunk #" + i + " generated");
 		}
+
+		//graphics.completeFrame();
 
 		Input.mouseLocked = true;
 	}
@@ -70,70 +72,13 @@ internal class Program : Game
 					float rh = simplex.sample2f(globalX * scale + 0.01f, globalZ * scale);
 					float th = simplex.sample2f(globalX * scale, globalZ * scale - 0.01f);
 					float bh = simplex.sample2f(globalX * scale, globalZ * scale + 0.01f);
-					float dx = (lh - rh) * 32;
-					float dz = (th - bh) * 32;
+					float dx = (lh - rh);
+					float dz = (th - bh);
 					Vector3 normal = new Vector3(dx, 0.02f, dz).normalized;
 					chunk.setVoxel(x, y, z, normal);
-
-					/*
-					Vector3 p = new Vector3(x, y, z) + 0.5f;
-					Vector3 center = new Vector3(chunk.resolution / 2);
-					Vector3 toPoint = p - center;
-					int radius = chunk.resolution / 4;
-					if (toPoint.lengthSquared < radius * radius)
-						chunk.setVoxel(x, y, z, toPoint.normalized);
-					*/
 				}
 			}
 		}
-		/*
-		for (int z = 0; z < chunk.resolution; z++)
-		{
-			for (int x = 0; x < chunk.resolution; x++)
-			{
-				for (int y = 0; y < chunk.resolution / 8; y++)
-				{
-					Vector3 normal = Vector3.Zero;
-					if (y == chunk.resolution / 8 - 1)
-						normal += Vector3.Up;
-					if (x == 0)
-						normal += Vector3.Left;
-					else if (x == chunk.resolution - 1)
-						normal += Vector3.Right;
-					if (z == 0)
-						normal += Vector3.Forward;
-					else if (z == chunk.resolution - 1)
-						normal += Vector3.Back;
-					normal = normal.normalized;
-					chunk.setVoxel(x, y, z, normal);
-				}
-			}
-		}
-		*/
-		/*
-		for (int z = 4; z < 12; z++)
-		{
-			for (int x = 4; x < 12; x++)
-			{
-				for (int y = 2; y < 12; y++)
-				{
-					Vector3 normal = Vector3.Zero;
-					if (x == 4)
-						normal += Vector3.Left;
-					else if (x == 11)
-						normal += Vector3.Right;
-					if (z == 4)
-						normal += Vector3.Forward;
-					else if (z == 11)
-						normal += Vector3.Back;
-					if (y == 11)
-						normal += Vector3.Up;
-					normal = normal.normalized;
-					voxelData[x + y * 16 + z * 16 * 16] = new Vector4(normal, 1.0f);
-				}
-			}
-		}
-		*/
 		chunk.update(graphics);
 	}
 
@@ -149,9 +94,13 @@ internal class Program : Game
 
 	public override void update()
 	{
+		if (Input.IsKeyPressed(KeyCode.F9))
+		{
+			Debug.debugWireframeEnabled = !Debug.debugWireframeEnabled;
+		}
 		if (Input.IsKeyPressed(KeyCode.F10))
 		{
-			Debug.debugStatsOverlayEnabled = !Debug.debugStatsOverlayEnabled;
+			Debug.debugStatsEnabled = !Debug.debugStatsEnabled;
 		}
 		if (Input.IsKeyPressed(KeyCode.F11))
 		{

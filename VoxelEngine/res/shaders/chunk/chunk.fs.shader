@@ -17,7 +17,7 @@ void main()
 	bool hit = RayTraceVoxelGrid(v_camera, view, v_size, u_voxels, position, color, normal, numSteps);
 	
 	vec3 toLight = normalize(vec3(-1, 2, -1));
-	float ndotl = dot(normal, toLight) * 0.5 + 0.5;
+	float ndotl = dot(normal, toLight) * 0.4 + 0.6;
 	vec3 diffuse = ndotl * color;
 	vec3 result = diffuse;
 	

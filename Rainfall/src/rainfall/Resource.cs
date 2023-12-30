@@ -47,6 +47,24 @@ namespace Rainfall
 			}
 		}
 
+		internal static Shader CreateShader(string computePath)
+		{
+			Span<byte> computePtr = stackalloc byte[256];
+			StringUtils.WriteString(computePtr, computePath);
+			StringUtils.AppendString(computePtr, ".bin");
+
+			unsafe
+			{
+				fixed (byte* computePtrData = computePtr)
+				{
+					IntPtr handle = Native.Resource.Resource_CreateShaderCompute(computePtrData);
+					if (handle != IntPtr.Zero)
+						return new Shader(handle);
+					return null;
+				}
+			}
+		}
+
 		internal static Texture CreateTexture(string path, ulong flags)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
@@ -168,10 +186,20 @@ namespace Rainfall
 
 		public static Shader GetShader(string vertexPath, string fragmentPath)
 		{
-			if (shaders.ContainsKey(vertexPath + "|" + fragmentPath))
-				return shaders[vertexPath + "|" + fragmentPath];
+			string combinedPath = vertexPath + "|" + fragmentPath;
+			if (shaders.ContainsKey(combinedPath))
+				return shaders[combinedPath];
 			Shader shader = CreateShader(vertexPath, fragmentPath);
-			shaders.Add(vertexPath + "|" + fragmentPath, shader);
+			shaders.Add(combinedPath, shader);
+			return shader;
+		}
+
+		public static Shader GetShader(string computePath)
+		{
+			if (shaders.ContainsKey(computePath))
+				return shaders[computePath];
+			Shader shader = CreateShader(computePath);
+			shaders.Add(computePath, shader);
 			return shader;
 		}
 

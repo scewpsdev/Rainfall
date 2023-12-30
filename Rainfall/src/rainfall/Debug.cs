@@ -9,9 +9,6 @@ namespace Rainfall
 {
 	public static class Debug
 	{
-		static bool debugStatsOverlay = false;
-
-
 		public static void Assert(bool condition)
 		{
 			System.Diagnostics.Debug.Assert(condition);
@@ -45,14 +42,22 @@ namespace Rainfall
 			Native.Graphics.Graphics_DrawDebugText(x, y, 0xF, text);
 		}
 
-		public static bool debugStatsOverlayEnabled
+		public static bool debugTextEnabled
 		{
-			get { return debugStatsOverlay; }
-			set
-			{
-				Native.Application.Application_SetDebugStatsOverlayEnabled(value);
-				debugStatsOverlay = value;
-			}
+			get => Native.Application.Application_IsDebugTextEnabled() != 0;
+			set { Native.Application.Application_SetDebugStatsEnabled((byte)(value ? 1 : 0)); }
+		}
+
+		public static bool debugStatsEnabled
+		{
+			get => Native.Application.Application_IsDebugStatsEnabled() != 0;
+			set { Native.Application.Application_SetDebugStatsEnabled((byte)(value ? 1 : 0)); }
+		}
+
+		public static bool debugWireframeEnabled
+		{
+			get => Native.Application.Application_IsDebugWireframeEnabled() != 0;
+			set { Native.Application.Application_SetDebugWireframeEnabled((byte)(value ? 1 : 0)); }
 		}
 
 		public static Vector2i debugTextSize

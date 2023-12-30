@@ -86,5 +86,15 @@ namespace Rainfall
 		{
 			this.data = data;
 		}
+
+		public IntPtr dataPtr
+		{
+			get => data.data;
+		}
+
+		public int size
+		{
+			get => (int)data.size;
+		}
 	}
 }

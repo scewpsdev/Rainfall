@@ -55,6 +55,17 @@ RFAPI Shader* Resource_CreateShader(const char* vertexPath, const char* fragment
 	return nullptr;
 }
 
+RFAPI Shader* Resource_CreateShaderCompute(const char* computePath)
+{
+	const bgfx::Memory* computeMemory = ReadFileBinary(Application_GetFileReader(), computePath);
+
+	if (!computeMemory)
+		Console_Error("Failed to read compute shader '%s'", computePath);
+
+	if (computeMemory)
+		return Graphics_CreateShaderCompute(computeMemory);
+}
+
 RFAPI bimg::ImageContainer* Resource_ReadImageFromFile(const char* path, bgfx::TextureInfo* info)
 {
 	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))

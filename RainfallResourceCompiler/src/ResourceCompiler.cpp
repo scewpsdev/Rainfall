@@ -144,6 +144,8 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "vertex");
 			else if (strncmp(&name[name.size() - 2], "fs", 2) == 0)
 				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "fragment") && success;
+			else if (strncmp(&name[name.size() - 2], "cs", 2) == 0)
+				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "compute") && success;
 		}
 	}
 	else if (extension == ".png")
@@ -287,7 +289,8 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 		std::string name = file.stem().string();
 		if (name.size() > 3 && name[name.size() - 3] == '.' &&
 			(strncmp(&name[name.size() - 2], "vs", 2) == 0 ||
-				strncmp(&name[name.size() - 2], "fs", 2) == 0))
+				strncmp(&name[name.size() - 2], "fs", 2) == 0 ||
+				strncmp(&name[name.size() - 2], "cs", 2) == 0))
 			;
 		else
 		{

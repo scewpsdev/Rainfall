@@ -69,7 +69,22 @@ namespace Rainfall.Native
 		internal static extern long Application_GetTimestamp();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Application_SetDebugStatsOverlayEnabled(bool enabled);
+		internal static extern void Application_SetDebugTextEnabled(byte enabled);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern byte Application_IsDebugTextEnabled();
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Application_SetDebugStatsEnabled(byte enabled);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern byte Application_IsDebugStatsEnabled();
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Application_SetDebugWireframeEnabled(byte enabled);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern byte Application_IsDebugWireframeEnabled();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Application_SetMouseLock(bool locked);

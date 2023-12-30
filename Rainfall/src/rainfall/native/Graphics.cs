@@ -18,6 +18,15 @@ namespace Rainfall
 		Index32 = 0x1000,
 	}
 
+	public enum ComputeAccess
+	{
+		Read,      //!< Read
+		Write,     //!< Write
+		ReadWrite, //!< Read and write
+
+		Count
+	}
+
 	namespace Native
 	{
 		[StructLayout(LayoutKind.Sequential)]
@@ -60,7 +69,7 @@ namespace Rainfall
 			internal static extern unsafe ushort Graphics_CreateDynamicVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, BufferFlags flags);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern unsafe TransientVertexBufferData Graphics_CreateTransientVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount);
+			internal static extern unsafe byte Graphics_CreateTransientVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, out TransientVertexBufferData buffer);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern ushort Graphics_CreateIndexBuffer(IntPtr memoryHandle, BufferFlags flags);
@@ -152,10 +161,16 @@ namespace Rainfall
 			internal static extern void Graphics_SetInstanceBufferN(ref InstanceBufferData buffer, int offset, int count);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetComputeBuffer(int stage, ushort handle, ComputeAccess access);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe void Graphics_SetUniform(ushort handle, void* value, int num);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetTexture(ushort sampler, int unit, ushort texture, uint flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetComputeTexture(int stage, ushort texture, int mip, ComputeAccess access);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetRenderTarget(int pass, ushort renderTarget, int width, int height, byte hasRGB, byte hasDepth, uint rgba, float depth);
@@ -195,6 +210,9 @@ namespace Rainfall
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_GetDebugTextSize(out int width, out int height);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_ComputeDispatch(int pass, IntPtr shader, int numX, int numY, int numZ);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_Blit(int pass, ushort dst, ushort src);
