@@ -255,10 +255,8 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 	}
 }
 
-std::vector<std::string> getShaderDependencies(fs::path file)
+void getShaderDependencies(fs::path file, std::vector<std::string>& dependencies)
 {
-	std::vector<std::string> dependencies;
-
 	std::ifstream stream(file);
 	std::string line;
 	while (std::getline(stream, line))
@@ -276,10 +274,10 @@ std::vector<std::string> getShaderDependencies(fs::path file)
 			std::string fullHeaderPath = file.parent_path().string() + "\\" + header;
 			//printf("%s\n", fullHeaderPath.c_str());
 			dependencies.push_back(fullHeaderPath);
+
+			getShaderDependencies(fullHeaderPath, dependencies);
 		}
 	}
-
-	return dependencies;
 }
 
 static bool FileHasChanged(fs::path file, std::string& outpath, std::string& extension, std::map<std::string, int64_t>& assetTable)
@@ -300,7 +298,8 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 		if (!fs::exists(file))
 			printf("error cant find shader %s\n", file.string().c_str());
 
-		std::vector<std::string> shaderDependencies = getShaderDependencies(file);
+		std::vector<std::string> shaderDependencies;
+		getShaderDependencies(file, shaderDependencies);
 
 		bool recompile = false;
 		for (size_t i = 0; i < shaderDependencies.size(); i++)

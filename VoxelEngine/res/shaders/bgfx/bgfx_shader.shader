@@ -257,11 +257,25 @@ ivec4 bgfxTexture3D(BgfxISampler3D _sampler, vec3 _coord)
 	return _sampler.m_texture.Load(ivec4(_coord * size, 0) );
 }
 
+ivec4 bgfxTexture3DLod(BgfxISampler3D _sampler, vec3 _coord, float _level)
+{
+	uvec3 size;
+	_sampler.m_texture.GetDimensions(size.x, size.y, size.z);
+	return _sampler.m_texture.Load(ivec4(_coord * size, _level) );
+}
+
 uvec4 bgfxTexture3D(BgfxUSampler3D _sampler, vec3 _coord)
 {
 	uvec3 size;
 	_sampler.m_texture.GetDimensions(size.x, size.y, size.z);
 	return _sampler.m_texture.Load(ivec4(_coord * size, 0) );
+}
+
+uvec4 bgfxTexture3DLod(BgfxUSampler3D _sampler, vec3 _coord, float _level)
+{
+	uvec3 size;
+	_sampler.m_texture.GetDimensions(size.x, size.y, size.z);
+	return _sampler.m_texture.Load(ivec4(_coord * size, _level) );
 }
 
 vec4 bgfxTextureCube(BgfxSamplerCube _sampler, vec3 _coord)
@@ -406,6 +420,20 @@ vec4 bgfxTexelFetch(BgfxSampler3D _sampler, ivec3 _coord, int _lod)
 }
 
 vec3 bgfxTextureSize(BgfxSampler3D _sampler, int _lod)
+{
+	vec3 result;
+	_sampler.m_texture.GetDimensions(result.x, result.y, result.z);
+	return result;
+}
+
+vec3 bgfxTextureSize(BgfxISampler3D _sampler, int _lod)
+{
+	vec3 result;
+	_sampler.m_texture.GetDimensions(result.x, result.y, result.z);
+	return result;
+}
+
+vec3 bgfxTextureSize(BgfxUSampler3D _sampler, int _lod)
 {
 	vec3 result;
 	_sampler.m_texture.GetDimensions(result.x, result.y, result.z);

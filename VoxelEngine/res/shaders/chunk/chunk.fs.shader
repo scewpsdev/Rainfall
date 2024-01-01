@@ -6,6 +6,7 @@ $input v_camera, v_view, v_size
 
 
 SAMPLER3D(u_voxels, 0);
+SAMPLER3D(u_normals, 1);
 
 
 void main()
@@ -14,7 +15,7 @@ void main()
 	
 	vec3 position, color, normal;
 	int numSteps;
-	bool hit = RayTraceVoxelGrid(v_camera, view, v_size, u_voxels, position, color, normal, numSteps);
+	bool hit = RayTraceVoxelGrid(v_camera, view, v_size, u_voxels, u_normals, position, color, normal, numSteps);
 	
 	vec3 toLight = normalize(vec3(-1, 2, -1));
 	float ndotl = dot(normal, toLight) * 0.4 + 0.6;

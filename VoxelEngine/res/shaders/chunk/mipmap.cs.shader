@@ -17,6 +17,22 @@ void main()
 	
 	ivec3 samplePoint = gl_GlobalInvocationID;
 
+	int value0 = int(imageLoad(u_src, samplePoint * 2 + ivec3(0, 0, 0)).r * 255 + 0.5);
+	int value1 = int(imageLoad(u_src, samplePoint * 2 + ivec3(1, 0, 0)).r * 255 + 0.5);
+	int value2 = int(imageLoad(u_src, samplePoint * 2 + ivec3(0, 1, 0)).r * 255 + 0.5);
+	int value3 = int(imageLoad(u_src, samplePoint * 2 + ivec3(1, 1, 0)).r * 255 + 0.5);
+	int value4 = int(imageLoad(u_src, samplePoint * 2 + ivec3(0, 0, 1)).r * 255 + 0.5);
+	int value5 = int(imageLoad(u_src, samplePoint * 2 + ivec3(1, 0, 1)).r * 255 + 0.5);
+	int value6 = int(imageLoad(u_src, samplePoint * 2 + ivec3(0, 1, 1)).r * 255 + 0.5);
+	int value7 = int(imageLoad(u_src, samplePoint * 2 + ivec3(1, 1, 1)).r * 255 + 0.5);
+
+	bool empty = value0 == 0 && value1 == 0 && value2 == 0 && value3 == 0 && value4 == 0 && value5 == 0 && value6 == 0 && value7 == 0;
+	bool leaf = value0 == 2 && value1 == 2 && value2 == 2 && value3 == 2 && value4 == 2 && value5 == 2 && value6 == 2 && value7 == 2;
+	int value = empty ? 0 : leaf ? 2 : 1;
+
+	imageStore(u_dst, samplePoint, vec4(value / 255.0, 0.0, 0.0, 0.0));
+
+	/*
 	int value0; vec3 normal0; int material0; decodeVoxelData(imageLoad(u_src, samplePoint * 2 + ivec3(0, 0, 0)).rg, value0, normal0, material0);
 	int value1; vec3 normal1; int material1; decodeVoxelData(imageLoad(u_src, samplePoint * 2 + ivec3(1, 0, 0)).rg, value1, normal1, material1);
 	int value2; vec3 normal2; int material2; decodeVoxelData(imageLoad(u_src, samplePoint * 2 + ivec3(0, 1, 0)).rg, value2, normal2, material2);
@@ -45,5 +61,6 @@ void main()
 	);
 	vec2 result = encodeVoxelData(value, normal, 0);
 
-	imageStore(u_dst, samplePoint, vec4(result, 0.0, 0.0));
+	imageStore(u_dst, samplePoint, vec4(value, 0.0, 0.0, 0.0));
+	*/
 }

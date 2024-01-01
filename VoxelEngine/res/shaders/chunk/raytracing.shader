@@ -33,27 +33,26 @@ bool BoxIntersection(vec3 origin, vec3 dir, vec3 offset, vec3 size, out float tm
 	return tmin < tmax && tmax > 0;
 }
 
-bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
+bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, sampler3D normals, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
 {
 	vec3 currentNormal;
 	
 	float tmin, tmax;
 	bool intersects = BoxIntersection(camera, dir, vec3_splat(0), size, tmin, tmax, currentNormal);
 
-	vec3 p = camera + max(tmin + 0.0001, 0.0) * dir;
+	//vec3 p = camera + max(tmin + 0.0001, 0.0) * dir;
+	float t = max(tmin + 0.0001, 0.0);
 	
 	ivec3 resolution = textureSize(voxels, 0);
-	vec3 multiplier = 1.0 / size * resolution;
+	float multiplier = 1.0 / size.x * resolution.x;
 	
-	p *= multiplier;
+	//p *= multiplier;
 	
-	ivec3 ip = ivec3(p);
-	ivec3 lower = vec3(0, 0, 0);
-	ivec3 upper = resolution;
+	ivec3 ip = ivec3((camera + t * dir) * multiplier);
 	ivec3 step = ivec3(sign(dir));
 	//vec3 tMax = intBound(p, dir);
 	vec3 tDelta = step / dir;
-	float t = 0.0;
+	//float t = 0.0;
 	
 	int maxMip = log2(textureSize(voxels, 0).x) - 1;
 	int mip = maxMip;
@@ -63,16 +62,21 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out v
 	for (int i = 0; i < maxSteps; i++)
 	{
 		vec3 samplePoint = (ip / mipScale * mipScale + 0.5 * mipScale) / resolution;
-		vec2 voxelData = texture3DLod(voxels, samplePoint, mip).xy;
+		int value = (int)(texture3DLod(voxels, samplePoint, mip).x * 255 + 0.5);
 		
-		int value;
-		vec3 normal;
-		int material;
-		decodeVoxelData(voxelData, value, normal, material);
+		//int value;
+		//vec3 normal;
+		//int material;
+		//decodeVoxelData(voxelData, value, normal, material);
+
+		float lodRange = 10;
+		int lod = int(log2(ceil(t / lodRange)));
 		
-		if (value == 2 || mip == 2)
+		if (value == 2 || value == 1 && mip == lod)
 		{
-			out_position = p + t / multiplier * dir;
+			vec3 normal = normalize(texture3DLod(normals, (ip + 0.5) / resolution, 0).xyz * 2 - 1);
+			
+			out_position = camera + t * dir; // + t / multiplier * dir;
 			out_color = vec3(1, 0, 1);
 			out_normal = normal;
 			out_numSteps = i + 1;
@@ -85,17 +89,22 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out v
 		}
 		else
 		{
+			vec3 p = (camera + t * dir) * multiplier;
 			vec3 tMax = intBound(p / mipScale, dir) * mipScale;
 			bool sx = tMax.x < tMax.y && tMax.x < tMax.z;
 			bool sy = !sx && tMax.y < tMax.z;
 			bool sz = !sx && !sy;
-			float t = sx ? tMax.x : sy ? tMax.y : tMax.z;
+			float localt = sx ? tMax.x : sy ? tMax.y : tMax.z;
 			ivec3 mask = ivec3(sx, sy, sz);
 			currentNormal = -mask * step;
 			
-			p += t * dir + 0.0001 * dir;
+			t += (localt + 0.0001) / multiplier;
+			//p = (camera + t * dir) * multiplier;
+			//p += t * dir + 0.0001 * dir;
 			ivec3 lastip = ip;
+			p = (camera + t * dir) * multiplier;
 			ip = ivec3(p);
+			//ip += mask * step * mipScale;
 			
 			if (ip.x / mipScale / 2 != lastip.x / mipScale / 2 ||
 				ip.y / mipScale / 2 != lastip.y / mipScale / 2 ||
@@ -108,7 +117,7 @@ bool RayTraceVoxelGrid(vec3 camera, vec3 dir, vec3 size, sampler3D voxels, out v
 			//ip += step * mask;
 			//tMax += tDelta * mask;
 			
-			if (ip.x < lower.x || ip.x >= upper.x || ip.y < lower.y || ip.y >= upper.y || ip.z < lower.z || ip.z >= upper.z)
+			if (ip.x < 0 || ip.x >= resolution.x || ip.y < 0 || ip.y >= resolution.y || ip.z < 0 || ip.z >= resolution.z)
 			{
 				out_color = vec3(0, 1, 0);
 				return false;

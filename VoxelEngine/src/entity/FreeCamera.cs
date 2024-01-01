@@ -12,8 +12,6 @@ public class FreeCamera : Camera
 	const float SENSITIVITY = 0.0015f;
 
 
-	float pitch, yaw;
-
 	public override void update()
 	{
 		base.update();
@@ -25,8 +23,6 @@ public class FreeCamera : Camera
 		yaw += yawDelta;
 
 		pitch = MathHelper.Clamp(pitch, MathF.PI * -0.5f, MathF.PI * 0.5f);
-
-		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw) * Quaternion.FromAxisAngle(Vector3.Right, pitch);
 
 
 		Vector3 velocity = Vector3.Zero;
@@ -46,7 +42,9 @@ public class FreeCamera : Camera
 
 		if (velocity.lengthSquared > 0)
 		{
-			velocity = Quaternion.FromAxisAngle(Vector3.Up, yaw) * velocity.normalized * SPEED;
+			float speedMultiplier = Input.IsKeyDown(KeyCode.LeftShift) ? 3 : 1;
+
+			velocity = Quaternion.FromAxisAngle(Vector3.Up, yaw) * velocity.normalized * SPEED * speedMultiplier;
 			Vector3 displacement = velocity * Time.deltaTime;
 			position += displacement;
 		}

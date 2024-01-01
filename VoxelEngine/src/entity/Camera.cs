@@ -12,6 +12,8 @@ public class Camera : Entity
 	public float far = 200.0f;
 
 
+	public float pitch, yaw;
+
 	public override void update()
 	{
 		Audio.UpdateListener(position, rotation);
@@ -24,6 +26,7 @@ public class Camera : Entity
 
 	public Matrix getViewMatrix()
 	{
+		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw) * Quaternion.FromAxisAngle(Vector3.Right, pitch);
 		Matrix model = Matrix.CreateTranslation(position) * Matrix.CreateRotation(rotation);
 		return model.inverted;
 	}

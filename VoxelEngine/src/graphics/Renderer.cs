@@ -13,9 +13,7 @@ public static class Renderer
 		internal Vector3 position;
 		internal Vector3 size;
 		internal Texture texture;
-		internal Vector3i offset;
-		internal Vector3i dim;
-		internal int mip;
+		internal Texture normals;
 	}
 
 
@@ -25,7 +23,7 @@ public static class Renderer
 
 	static VertexBuffer boxVertexBuffer;
 	static IndexBuffer boxIndexBuffer;
-	static Shader boxShader;
+	static Shader chunkShader;
 
 	static List<CubeDraw> cubeDraws = new List<CubeDraw>();
 
@@ -52,12 +50,12 @@ public static class Renderer
 			graphics.createVideoMemory(stackalloc short[] { 0, 1, 2, 2, 3, 0, 0, 3, 7, 7, 4, 0, 3, 2, 6, 6, 7, 3, 2, 1, 5, 5, 6, 2, 1, 0, 4, 4, 5, 1, 4, 7, 6, 6, 5, 4 })
 		);
 
-		boxShader = Resource.GetShader("res/shaders/chunk/chunk.vs.shader", "res/shaders/chunk/chunk.fs.shader");
+		chunkShader = Resource.GetShader("res/shaders/chunk/chunk.vs.shader", "res/shaders/chunk/chunk.fs.shader");
 	}
 
-	public static void DrawCube(Vector3 position, Vector3 size, Texture texture, Vector3i offset, Vector3i dim, int mip)
+	public static void DrawChunk(Vector3 position, Vector3 size, Texture texture, Texture normals)
 	{
-		cubeDraws.Add(new CubeDraw() { position = position, size = size, texture = texture, offset = offset, dim = dim, mip = mip });
+		cubeDraws.Add(new CubeDraw() { position = position, size = size, texture = texture, normals = normals });
 	}
 
 	public static void Begin()
@@ -86,15 +84,16 @@ public static class Renderer
 			graphics.setTransform(transform);
 
 			Vector3 localCameraPosition = transform.inverted * camera.position;
-			graphics.setUniform(boxShader, "u_cameraPosition", new Vector4(localCameraPosition, 0.0f));
-			graphics.setUniform(boxShader, "u_boxSize", new Vector4(draw.size, 0.0f));
+			graphics.setUniform(chunkShader, "u_cameraPosition", new Vector4(localCameraPosition, 0.0f));
+			graphics.setUniform(chunkShader, "u_boxSize", new Vector4(draw.size, 0.0f));
 
-			graphics.setTexture(boxShader, "u_voxels", 0, draw.texture);
+			graphics.setTexture(chunkShader, "u_voxels", 0, draw.texture);
+			graphics.setTexture(chunkShader, "u_normals", 1, draw.normals);
 
 			graphics.setVertexBuffer(boxVertexBuffer);
 			graphics.setIndexBuffer(boxIndexBuffer);
 
-			graphics.draw(boxShader);
+			graphics.draw(chunkShader);
 		}
 
 		cubeDraws.Clear();

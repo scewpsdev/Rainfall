@@ -33,22 +33,20 @@ internal class Program : Game
 		Renderer.Init(graphics);
 
 		camera = new FreeCamera();
-		camera.position = new Vector3(10, 7, 20);
-		//camera.rotation = Quaternion.LookAt(camera.position, new Vector3(0, 2, 0));
+		camera.position = new Vector3(10, 10, 10);
+		camera.yaw = MathF.PI * -0.75f;
 
-		chunks = new Chunk[9];
+		chunks = new Chunk[25];
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			chunks[i] = new Chunk(256, graphics);
-			int x = i % 3;
+			int x = i % 5;
 			int y = 0;
-			int z = i / 3;
+			int z = i / 5;
 			chunks[i].position = new Vector3i(x, y, z);
 			generateTestChunk(chunks[i]);
 			Console.WriteLine("Chunk #" + i + " generated");
 		}
-
-		//graphics.completeFrame();
 
 		Input.mouseLocked = true;
 	}
@@ -66,16 +64,19 @@ internal class Program : Game
 				float heightmap = simplex.sample2f(globalX * scale, globalZ * scale);
 				int height = (int)(64 + 32 * heightmap);
 
-				for (int y = 0; y < height; y++)
+				float lh = simplex.sample2f(globalX * scale - 0.01f, globalZ * scale);
+				float rh = simplex.sample2f(globalX * scale + 0.01f, globalZ * scale);
+				float th = simplex.sample2f(globalX * scale, globalZ * scale - 0.01f);
+				float bh = simplex.sample2f(globalX * scale, globalZ * scale + 0.01f);
+				float dx = (lh - rh);
+				float dz = (th - bh);
+				Vector3 normal = new Vector3(dx, 0.02f, dz).normalized;
+
+				for (int y = 0; y < chunk.resolution; y++)
 				{
-					float lh = simplex.sample2f(globalX * scale - 0.01f, globalZ * scale);
-					float rh = simplex.sample2f(globalX * scale + 0.01f, globalZ * scale);
-					float th = simplex.sample2f(globalX * scale, globalZ * scale - 0.01f);
-					float bh = simplex.sample2f(globalX * scale, globalZ * scale + 0.01f);
-					float dx = (lh - rh);
-					float dz = (th - bh);
-					Vector3 normal = new Vector3(dx, 0.02f, dz).normalized;
-					chunk.setVoxel(x, y, z, normal);
+					if (y < height)
+						chunk.setVoxel(x, y, z, true);
+					chunk.setNormal(x, y, z, normal);
 				}
 			}
 		}

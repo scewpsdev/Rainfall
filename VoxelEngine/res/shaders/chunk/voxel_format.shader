@@ -1,5 +1,18 @@
 
 
+
+vec3 decodeNormal(vec2 value)
+{
+	int r = (int)(value.r * 255 + 0.5);
+	int g = (int)(value.g * 255 + 0.5);
+	return vec3(((r & 0x7C) >> 2) / 32.0, 0, 0);
+	int ivalue = (g << 8) | r;
+	float x = ((ivalue & 0x7C00) >> 10 - 16) / 15.0;
+	float y = ((ivalue & 0x3E0) >> 5 - 16) / 15.0;
+	float z = ((ivalue & 0x1F) - 16) / 15.0;
+	return normalize(vec3(x, y, z));
+}
+
 void decodeVoxelData(vec2 voxel, out int value, out vec3 normal, out int material)
 {
 	int valuenormal = int(voxel.r * 255 + 0.5);
