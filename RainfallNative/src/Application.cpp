@@ -712,8 +712,34 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 	return !exit;
 }
 
+static const char* rendererTypeNames[] = {
+		"Noop",         //!< No rendering.
+		"Agc",          //!< AGC
+		"Direct3D9",    //!< Direct3D 9.0
+		"Direct3D11",   //!< Direct3D 11.0
+		"Direct3D12",   //!< Direct3D 12.0
+		"Gnm",          //!< GNM
+		"Metal",        //!< Metal
+		"Nvn",          //!< NVN
+		"OpenGLES",     //!< OpenGL ES 2.0+
+		"OpenGL",       //!< OpenGL 2.1+
+		"Vulkan",       //!< Vulkan
+		"WebGPU",       //!< WebGPU
+};
+
 static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callbacks)
 {
+	bgfx::RendererType::Enum rendererTypes[8];
+	int numRendererTypes = bgfx::getSupportedRenderers(8, rendererTypes);
+	printf("Available renderer types: ");
+	for (int i = 0; i < numRendererTypes; i++)
+	{
+		printf("%s", rendererTypeNames[rendererTypes[i]]);
+		if (i < numRendererTypes - 1)
+			printf(", ");
+	}
+	printf("\n");
+
 	bgfx::Init init;
 	init.type = bgfx::RendererType::Direct3D11;
 	init.vendorId = BGFX_PCI_ID_NONE;
@@ -721,6 +747,8 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	init.resolution.height = height;
 	init.resolution.reset = reset;
 	bgfx::init(init);
+
+	printf("BGFX %d initialized with renderer %s\n", BGFX_API_VERSION, rendererTypeNames[init.type]);
 
 #ifdef _DEBUG
 	debug = BGFX_DEBUG_TEXT;

@@ -88,6 +88,6 @@ public class Chunk
 
 	public void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawChunk(position * CHUNK_SIZE, new Vector3(CHUNK_SIZE), octree, normals);
+		//Renderer.DrawChunk(position * CHUNK_SIZE, new Vector3(CHUNK_SIZE), octree, normals);
 	}
 }

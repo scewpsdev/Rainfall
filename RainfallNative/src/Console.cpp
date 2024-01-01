@@ -12,6 +12,15 @@ void Console_SetErrorCallback(void(*callback)(const char* msg))
 	errorCallback = callback;
 }
 
+void Console_Log(const char* format, ...)
+{
+	va_list args;
+	va_start(args, &format);
+	vfprintf(stdout, format, args);
+	fprintf(stdout, "\n");
+	va_end(args);
+}
+
 void Console_Error(const char* format, ...)
 {
 	/*

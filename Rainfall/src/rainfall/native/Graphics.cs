@@ -57,16 +57,29 @@ namespace Rainfall
 
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void* Graphics_AllocateNativeMemory(int size);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern unsafe void Graphics_FreeNativeMemory(void* ptr);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern IntPtr Graphics_AllocateVideoMemory(int size, out IntPtr memoryHandle);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe void Graphics_CreateVideoMemoryRef(int size, void* data, MemoryReleaseCallback_t releaseCallback, out IntPtr memoryHandle);
 
+
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe ushort Graphics_CreateVertexBuffer(IntPtr memoryHandle, VertexElement* layoutElements, int layoutElementsCount, BufferFlags flags);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyVertexBuffer(ushort buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe ushort Graphics_CreateDynamicVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyDynamicVertexBuffer(ushort buffer);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe byte Graphics_CreateTransientVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, out TransientVertexBufferData buffer);
@@ -75,7 +88,13 @@ namespace Rainfall
 			internal static extern ushort Graphics_CreateIndexBuffer(IntPtr memoryHandle, BufferFlags flags);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyIndexBuffer(ushort buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern ushort Graphics_CreateDynamicIndexBuffer(int indexCount, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyDynamicIndexBuffer(ushort buffer);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern TransientIndexBufferData Graphics_CreateTransientIndexBuffer(int indexCount, bool index32);
@@ -108,6 +127,9 @@ namespace Rainfall
 			internal static extern ushort Graphics_CreateCubemap(int size, TextureFormat format, ulong flags, out TextureInfo info);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyTexture(ushort texture);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern IntPtr Graphics_CreateShader(IntPtr vertexMemory, IntPtr fragmentMemory);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -117,7 +139,13 @@ namespace Rainfall
 			internal static extern ushort Graphics_ShaderGetUniform(IntPtr shader, [MarshalAs(UnmanagedType.LPStr)] string name, UniformType type, int num);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyShader(IntPtr shader);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern ushort Graphics_CreateRenderTarget(int numAttachments, ref RenderTargetAttachment attachmentInfo, ref TextureInfo textureInfos, [MarshalAs(UnmanagedType.LPArray)] ushort[] textures);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_DestroyRenderTarget(ushort renderTarget);
 
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

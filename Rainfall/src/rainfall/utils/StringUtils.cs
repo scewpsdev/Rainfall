@@ -80,7 +80,7 @@ public static class StringUtils
 		return WriteDigit(dst, StringLength(dst), digit);
 	}
 
-	public static int WriteInteger(Span<byte> dst, int length, int number)
+	public static int WriteInteger(Span<byte> dst, int length, int number, int digits = 0)
 	{
 		if (number == 0)
 		{
@@ -96,7 +96,7 @@ public static class StringUtils
 
 		Span<byte> buffer = stackalloc byte[50];
 		int i = 0;
-		while (number != 0)
+		while (number != 0 || i < digits)
 		{
 			buffer[i++] = (byte)('0' + number % 10);
 			number = number / 10;
@@ -124,12 +124,14 @@ public static class StringUtils
 	public static int WriteFloat(Span<byte> dst, int length, float f, int decimalPoints = 6)
 	{
 		int fi = (int)f;
+		if (fi == 0 && f < 0.0f)
+			length = WriteCharacter(dst, length, '-');
 		length = WriteInteger(dst, length, fi);
 		length = WriteCharacter(dst, length, '.');
 
 		float fpart = MathF.Abs(f - fi);
 		int fparti = (int)(fpart * MathHelper.IPow(10, decimalPoints));
-		length = WriteInteger(dst, length, fparti);
+		length = WriteInteger(dst, length, fparti, decimalPoints);
 
 		return length;
 	}

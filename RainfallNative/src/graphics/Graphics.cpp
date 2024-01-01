@@ -168,6 +168,16 @@ static bgfx::VertexLayout CreateVertexLayout(const VertexElement* layoutElements
 	return layout;
 }
 
+RFAPI void* Graphics_AllocateNativeMemory(int size)
+{
+	return BX_ALLOC(Application_GetAllocator(), size);
+}
+
+RFAPI void Graphics_FreeNativeMemory(void* ptr)
+{
+	BX_FREE(Application_GetAllocator(), ptr);
+}
+
 RFAPI const void* Graphics_AllocateVideoMemory(int size, const bgfx::Memory** outDataPtr)
 {
 	const bgfx::Memory* memory = bgfx::alloc(size);
@@ -188,11 +198,21 @@ RFAPI uint16_t Graphics_CreateVertexBuffer(const bgfx::Memory* memory, const Ver
 	return handle.idx;
 }
 
+RFAPI void Graphics_DestroyVertexBuffer(uint16_t buffer)
+{
+	bgfx::destroy(bgfx::VertexBufferHandle{ buffer });
+}
+
 RFAPI uint16_t Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags)
 {
 	bgfx::VertexLayout layout = CreateVertexLayout(layoutElements, layoutElementsCount);
 	bgfx::DynamicVertexBufferHandle handle = bgfx::createDynamicVertexBuffer(vertexCount, layout, flags);
 	return handle.idx;
+}
+
+RFAPI void Graphics_DestroyDynamicVertexBuffer(uint16_t buffer)
+{
+	bgfx::destroy(bgfx::DynamicVertexBufferHandle{ buffer });
 }
 
 RFAPI bool Graphics_CreateTransientVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, bgfx::TransientVertexBuffer* buffer)
@@ -212,10 +232,20 @@ RFAPI uint16_t Graphics_CreateIndexBuffer(const bgfx::Memory* memory, uint16_t f
 	return handle.idx;
 }
 
+RFAPI void Graphics_DestroyIndexBuffer(uint16_t buffer)
+{
+	bgfx::destroy(bgfx::IndexBufferHandle{ buffer });
+}
+
 RFAPI uint16_t Graphics_CreateDynamicIndexBuffer(int indexCount, uint16_t flags)
 {
 	bgfx::DynamicIndexBufferHandle handle = bgfx::createDynamicIndexBuffer(indexCount, flags);
 	return handle.idx;
+}
+
+RFAPI void Graphics_DestroyDynamicIndexBuffer(uint16_t buffer)
+{
+	bgfx::destroy(bgfx::DynamicIndexBufferHandle{ buffer });
 }
 
 RFAPI bgfx::TransientIndexBuffer Graphics_CreateTransientIndexBuffer(int indexCount, bool index32)
@@ -310,6 +340,11 @@ RFAPI uint16_t Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format
 	return handle.idx;
 }
 
+RFAPI void Graphics_DestroyTexture(uint16_t texture)
+{
+	bgfx::destroy(bgfx::TextureHandle{ texture });
+}
+
 RFAPI Shader* Graphics_CreateShader(const bgfx::Memory* vertexMemory, const bgfx::Memory* fragmentMemory)
 {
 	bgfx::ShaderHandle vertex = bgfx::createShader(vertexMemory);
@@ -346,6 +381,11 @@ RFAPI uint16_t Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx:
 	return handle.idx;
 }
 
+RFAPI void Graphics_DestroyShader(Shader* shader)
+{
+	bgfx::destroy(shader->program);
+}
+
 RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTargetAttachment* attachmentInfo, bgfx::TextureInfo* textureInfos, uint16_t* textures)
 {
 	bgfx::Attachment attachments[8] = {};
@@ -374,6 +414,11 @@ RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTarge
 	}
 
 	return handle.idx;
+}
+
+RFAPI void Graphics_DestroyRenderTarget(uint16_t renderTarget)
+{
+	bgfx::destroy(bgfx::FrameBufferHandle{ renderTarget });
 }
 
 

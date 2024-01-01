@@ -47,6 +47,16 @@ namespace Rainfall
 		internal int currentPass = 0;
 
 
+		public unsafe void* allocNativeMemory(int size)
+		{
+			return Native.Graphics.Graphics_AllocateNativeMemory(size);
+		}
+
+		public unsafe void freeNativeMemory(void* ptr)
+		{
+			Native.Graphics.Graphics_FreeNativeMemory(ptr);
+		}
+
 		public VideoMemory createVideoMemory(int size)
 		{
 			IntPtr dataPtr = Native.Graphics.Graphics_AllocateVideoMemory(size, out IntPtr memoryHandle);
@@ -142,6 +152,12 @@ namespace Rainfall
 			}
 		}
 
+		public unsafe VideoMemory createVideoMemoryReference(void* data, int length)
+		{
+			Native.Graphics.Graphics_CreateVideoMemoryRef(length, data, null, out IntPtr memoryHandle);
+			return new VideoMemory(memoryHandle, (IntPtr)data, length);
+		}
+
 		public VertexBuffer createVertexBuffer(VideoMemory memory, Span<VertexElement> layout, BufferFlags flags = BufferFlags.None)
 		{
 			unsafe
@@ -154,6 +170,11 @@ namespace Rainfall
 			}
 		}
 
+		public void destroyVertexBuffer(VertexBuffer buffer)
+		{
+			Native.Graphics.Graphics_DestroyVertexBuffer(buffer.handle);
+		}
+
 		public DynamicVertexBuffer createDynamicVertexBuffer(Span<VertexElement> layout, int vertexCount, BufferFlags flags = BufferFlags.None)
 		{
 			unsafe
@@ -164,6 +185,11 @@ namespace Rainfall
 					return new DynamicVertexBuffer(handle);
 				}
 			}
+		}
+
+		public void destroyDynamicVertexBuffer(DynamicVertexBuffer buffer)
+		{
+			Native.Graphics.Graphics_DestroyDynamicVertexBuffer(buffer.handle);
 		}
 
 		public TransientVertexBuffer createTransientVertexBuffer(Span<VertexElement> layout, int vertexCount)
@@ -185,12 +211,22 @@ namespace Rainfall
 			return new IndexBuffer(handle);
 		}
 
+		public void destroyIndexBuffer(IndexBuffer buffer)
+		{
+			Native.Graphics.Graphics_DestroyIndexBuffer(buffer.handle);
+		}
+
 		public DynamicIndexBuffer createDynamicIndexBuffer(int indexCount, BufferFlags flags = BufferFlags.None)
 		{
 			ushort handle = Native.Graphics.Graphics_CreateDynamicIndexBuffer(indexCount, flags);
 			if (handle != ushort.MaxValue)
 				return new DynamicIndexBuffer(handle);
 			return null;
+		}
+
+		public void destroyDynamicIndexBuffer(DynamicIndexBuffer buffer)
+		{
+			Native.Graphics.Graphics_DestroyDynamicIndexBuffer(buffer.handle);
 		}
 
 		public TransientIndexBuffer createTransientIndexBuffer(int indexCount, bool index32)
@@ -379,12 +415,22 @@ namespace Rainfall
 			}
 		}
 
+		public void destroyTexture(Texture texture)
+		{
+			Native.Graphics.Graphics_DestroyTexture(texture.handle);
+		}
+
 		public Cubemap createCubemap(int size, TextureFormat format, ulong flags = 0)
 		{
 			ushort handle = Native.Graphics.Graphics_CreateCubemap(size, format, flags, out TextureInfo info);
 			if (handle != ushort.MaxValue)
 				return new Cubemap(handle, info);
 			return null;
+		}
+
+		public void destroyCubemap(Cubemap cubemap)
+		{
+			Native.Graphics.Graphics_DestroyTexture(cubemap.handle);
 		}
 
 		public RenderTarget createRenderTarget(RenderTargetAttachment[] attachments)
@@ -406,6 +452,11 @@ namespace Rainfall
 			}
 
 			return new RenderTarget(handle, attachments, textures, hasRGB, hasDepth);
+		}
+
+		public void destroyRenderTarget(RenderTarget renderTarget)
+		{
+			Native.Graphics.Graphics_DestroyRenderTarget(renderTarget.handle);
 		}
 
 
@@ -620,6 +671,11 @@ namespace Rainfall
 		public void setPass(int pass)
 		{
 			currentPass = pass;
+		}
+
+		public void nextPass()
+		{
+			currentPass++;
 		}
 
 		public void setRenderTarget(RenderTarget renderTarget, uint rgba = 0x0, float depth = 1.0f)

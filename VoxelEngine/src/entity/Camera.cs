@@ -9,7 +9,7 @@ public class Camera : Entity
 {
 	public float fov = 90.0f;
 	public float near = 0.01f;
-	public float far = 200.0f;
+	public float far = 500.0f;
 
 
 	public float pitch, yaw;

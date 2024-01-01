@@ -21,7 +21,7 @@ internal class Program : Game
 
 	Camera camera;
 
-	Chunk[] chunks;
+	World world;
 
 	float msAcc = 0.0f;
 	int fpsAcc = 0;
@@ -33,58 +33,19 @@ internal class Program : Game
 		Renderer.Init(graphics);
 
 		camera = new FreeCamera();
-		camera.position = new Vector3(10, 10, 10);
+		camera.position = new Vector3(10, 25, 10);
 		camera.yaw = MathF.PI * -0.75f;
+		camera.pitch = MathF.PI * -0.25f;
 
-		chunks = new Chunk[25];
-		for (int i = 0; i < chunks.Length; i++)
-		{
-			chunks[i] = new Chunk(256, graphics);
-			int x = i % 5;
-			int y = 0;
-			int z = i / 5;
-			chunks[i].position = new Vector3i(x, y, z);
-			generateTestChunk(chunks[i]);
-			Console.WriteLine("Chunk #" + i + " generated");
-		}
+		world = new World(graphics);
 
 		Input.mouseLocked = true;
 	}
 
-	void generateTestChunk(Chunk chunk)
-	{
-		Simplex simplex = new Simplex(0, 3);
-		for (int z = 0; z < chunk.resolution; z++)
-		{
-			for (int x = 0; x < chunk.resolution; x++)
-			{
-				int globalX = chunk.position.x * chunk.resolution + x;
-				int globalZ = chunk.position.z * chunk.resolution + z;
-				float scale = 1.0f / chunk.resolution * Chunk.CHUNK_SIZE * 0.02f;
-				float heightmap = simplex.sample2f(globalX * scale, globalZ * scale);
-				int height = (int)(64 + 32 * heightmap);
-
-				float lh = simplex.sample2f(globalX * scale - 0.01f, globalZ * scale);
-				float rh = simplex.sample2f(globalX * scale + 0.01f, globalZ * scale);
-				float th = simplex.sample2f(globalX * scale, globalZ * scale - 0.01f);
-				float bh = simplex.sample2f(globalX * scale, globalZ * scale + 0.01f);
-				float dx = (lh - rh);
-				float dz = (th - bh);
-				Vector3 normal = new Vector3(dx, 0.02f, dz).normalized;
-
-				for (int y = 0; y < chunk.resolution; y++)
-				{
-					if (y < height)
-						chunk.setVoxel(x, y, z, true);
-					chunk.setNormal(x, y, z, normal);
-				}
-			}
-		}
-		chunk.update(graphics);
-	}
-
 	public override void destroy()
 	{
+		world.destroy(graphics);
+
 		if (totalFrames > 0)
 		{
 			Console.WriteLine("Final Benchmark:");
@@ -118,8 +79,7 @@ internal class Program : Game
 		Renderer.SetCamera(camera);
 
 		// draw
-		for (int i = 0; i < chunks.Length; i++)
-			chunks[i].draw(graphics);
+		world.draw(graphics);
 		drawDebugStats();
 
 		Renderer.End();
@@ -193,6 +153,20 @@ internal class Program : Game
 
 		StringUtils.WriteInteger(str, Time.numAllocations);
 		StringUtils.AppendString(str, " allocations");
+		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+
+		line++;
+
+		StringUtils.WriteString(str, "x=");
+		StringUtils.AppendFloat(str, camera.position.x);
+		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+
+		StringUtils.WriteString(str, "y=");
+		StringUtils.AppendFloat(str, camera.position.y);
+		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+
+		StringUtils.WriteString(str, "z=");
+		StringUtils.AppendFloat(str, camera.position.z);
 		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
 	}
 

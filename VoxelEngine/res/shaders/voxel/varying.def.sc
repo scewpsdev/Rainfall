@@ -1,7 +1,7 @@
-vec3 v_camera    : TEXCOORD0 = vec3(0.0, 0.0, 0.0);
-vec3 v_view      : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
-vec3 v_size      : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
-vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 1.0);
+vec3 v_position  : TEXCOORD0 = vec3(0.0, 0.0, 0.0);
+vec3 v_size      : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
+vec3 v_camera    : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
+vec3 v_view      : NORMAL    = vec3(0.0, 0.0, 0.0);
 vec3 v_tangent   : TANGENT   = vec3(1.0, 0.0, 0.0);
 vec3 v_bitangent : BINORMAL  = vec3(0.0, 1.0, 0.0);
 vec4 v_color0    : COLOR     = vec4(0.8, 0.8, 0.8, 1.0);

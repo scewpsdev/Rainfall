@@ -8,24 +8,17 @@ using System.Threading.Tasks;
 
 public static class Renderer
 {
-	struct CubeDraw
-	{
-		internal Vector3 position;
-		internal Vector3 size;
-		internal Texture texture;
-		internal Texture normals;
-	}
-
-
 	static GraphicsDevice graphics;
 	static Camera camera;
 	static Matrix projection, view;
 
 	static VertexBuffer boxVertexBuffer;
 	static IndexBuffer boxIndexBuffer;
-	static Shader chunkShader;
 
-	static List<CubeDraw> cubeDraws = new List<CubeDraw>();
+	static Texture brickgrid;
+	static Texture brickgridLod;
+	static Vector3 brickgridPosition;
+	static Shader voxelShader;
 
 
 	public static void Init(GraphicsDevice graphics)
@@ -50,12 +43,14 @@ public static class Renderer
 			graphics.createVideoMemory(stackalloc short[] { 0, 1, 2, 2, 3, 0, 0, 3, 7, 7, 4, 0, 3, 2, 6, 6, 7, 3, 2, 1, 5, 5, 6, 2, 1, 0, 4, 4, 5, 1, 4, 7, 6, 6, 5, 4 })
 		);
 
-		chunkShader = Resource.GetShader("res/shaders/chunk/chunk.vs.shader", "res/shaders/chunk/chunk.fs.shader");
+		voxelShader = Resource.GetShader("res/shaders/voxel/brickgrid.vs.shader", "res/shaders/voxel/brickgrid.fs.shader");
 	}
 
-	public static void DrawChunk(Vector3 position, Vector3 size, Texture texture, Texture normals)
+	public static void DrawVoxels(Texture brickgrid, Texture brickgridLod, Vector3 position)
 	{
-		cubeDraws.Add(new CubeDraw() { position = position, size = size, texture = texture, normals = normals });
+		Renderer.brickgrid = brickgrid;
+		Renderer.brickgridLod = brickgridLod;
+		Renderer.brickgridPosition = position;
 	}
 
 	public static void Begin()
@@ -69,33 +64,31 @@ public static class Renderer
 		view = camera.getViewMatrix();
 	}
 
-	public static void End()
+	static void GeometryPass()
 	{
 		graphics.resetState();
 
 		graphics.setViewTransform(projection, view);
 
-		foreach (CubeDraw draw in cubeDraws)
-		{
-			Matrix transform = Matrix.CreateTranslation(draw.position);
+		graphics.setCullState(CullState.CounterClockWise);
 
-			graphics.setCullState(CullState.CounterClockWise);
+		graphics.setUniform(voxelShader, "u_cameraPosition", new Vector4(camera.position, 0));
+		graphics.setUniform(voxelShader, "u_gridPosition", new Vector4(brickgridPosition, 0));
+		graphics.setUniform(voxelShader, "u_gridSize", new Vector4(256, 256, 256, 0));
 
-			graphics.setTransform(transform);
+		graphics.setTexture(voxelShader, "s_brickgrid", 0, brickgrid);
+		graphics.setTexture(voxelShader, "s_brickgridLod", 1, brickgridLod);
 
-			Vector3 localCameraPosition = transform.inverted * camera.position;
-			graphics.setUniform(chunkShader, "u_cameraPosition", new Vector4(localCameraPosition, 0.0f));
-			graphics.setUniform(chunkShader, "u_boxSize", new Vector4(draw.size, 0.0f));
+		graphics.setVertexBuffer(boxVertexBuffer);
+		graphics.setIndexBuffer(boxIndexBuffer);
 
-			graphics.setTexture(chunkShader, "u_voxels", 0, draw.texture);
-			graphics.setTexture(chunkShader, "u_normals", 1, draw.normals);
+		graphics.draw(voxelShader);
+	}
 
-			graphics.setVertexBuffer(boxVertexBuffer);
-			graphics.setIndexBuffer(boxIndexBuffer);
+	public static void End()
+	{
+		graphics.setPass(0);
 
-			graphics.draw(chunkShader);
-		}
-
-		cubeDraws.Clear();
+		GeometryPass();
 	}
 }
