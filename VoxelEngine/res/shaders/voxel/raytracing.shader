@@ -1,4 +1,4 @@
-
+#include "../bgfx/bgfx_compute.shader"
 
 
 vec3 intBound(vec3 s, vec3 ds)
@@ -33,11 +33,11 @@ bool BoxIntersection(vec3 origin, vec3 dir, vec3 offset, vec3 size, out float tm
 	return tmin < tmax && tmax > 0;
 }
 
-bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 size, BgfxUSampler3D brickgrid, BgfxUSampler3D brickgridLod, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
+bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSampler3D brickgrid, BgfxUSampler3D brickgridLod, BgfxUSampler3D brickgridLod2, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
 {
 	float tmin, tmax;
 	vec3 faceNormal;
-	bool intersects = BoxIntersection(camera, dir, vec3_splat(0), size, tmin, tmax, faceNormal);
+	bool intersects = BoxIntersection(camera, dir, position, size, tmin, tmax, faceNormal);
 
 	vec3 start = camera + max(tmin + 0.0001, 0.0) * dir;
 	
@@ -49,9 +49,9 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 size, BgfxUSampler3D brickgrid, 
 	vec3 tDelta = step / dir;
 	float t = 0.0;
 	
-	int maxMip = 2;
-	int mip = maxMip;
-	int mipScale = pow(4, mip);
+	uint maxMip = 2;
+	uint mip = maxMip;
+	uint mipScale = pow(4, mip);
 	
 	int maxSteps = 256 * 3;
 	for (int i = 0; i < maxSteps; i++)
@@ -61,23 +61,22 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 size, BgfxUSampler3D brickgrid, 
 		
 		if (mip >= 1)
 		{
-			uint value = texture3DLod(brickgridLod, samplePoint, (mip - 1) * 2).r;
+			uint value = 0;
+			if (mip == 1)
+				value = uint(texture3DLod(brickgridLod, samplePoint, 0).r * 255 + 0.5);
+			else if (mip == 2)
+				value = uint(texture3DLod(brickgridLod2, samplePoint, 0).r * 255 + 0.5);
+
 			if (value != 0)
 			{
 				mip--;
 				mipScale /= 4;
 				hit = true;
-
-				out_position = start + t / multiplier * dir;
-				out_color = vec3(1, 0, 1);
-				out_normal = faceNormal;
-				out_numSteps = i + 1;
-				return true;
 			}
 		}
 		else
 		{
-			uvec4 value = texture3DLod(brickgrid, samplePoint, 0);
+			uvec4 value = uvec4(texture3DLod(brickgrid, samplePoint, 0) * 255 + 0.5);
 			
 			if (value.w != 0)
 			{
@@ -109,9 +108,10 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 size, BgfxUSampler3D brickgrid, 
 			
 			t += localt + 0.0001;
 			ivec3 lastip = ip;
-			p = start * multiplier + t * dir;
+			p += (localt + 0.0001) * dir;
 			ip = ivec3(floor(p));
 			
+			/*
 			if (ip.x / mipScale / 4 != lastip.x / mipScale / 4 ||
 				ip.y / mipScale / 4 != lastip.y / mipScale / 4 ||
 				ip.z / mipScale / 4 != lastip.z / mipScale / 4)
@@ -122,6 +122,7 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 size, BgfxUSampler3D brickgrid, 
 					mipScale *= 4;
 				}
 			}
+			*/
 			
 			if (ip.x < 0 || ip.x >= resolution.x || ip.y < 0 || ip.y >= resolution.y || ip.z < 0 || ip.z >= resolution.z)
 			{

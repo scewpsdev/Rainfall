@@ -78,7 +78,7 @@ public class Chunk
 			graphics.setComputeTexture(1, octree, mip, ComputeAccess.Write);
 
 			int numBatches = (mipRes + 8 - 1) / 8;
-			graphics.computeDispatch(mip - 1, mipmapShader, numBatches, numBatches, numBatches);
+			//graphics.computeDispatch(mip - 1, mipmapShader, numBatches, numBatches, numBatches);
 
 			mipRes /= 2;
 		}

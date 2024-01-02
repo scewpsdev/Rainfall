@@ -106,6 +106,9 @@ namespace Rainfall
 			internal static extern ushort Graphics_CreateTextureMutable(int width, int height, TextureFormat format, ulong flags, out TextureInfo info);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateTextureMutableR(BackbufferRatio ratio, byte hasMips, TextureFormat format, ulong flags, out TextureInfo info);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetTextureData(ushort texture, int x, int y, int width, int height, IntPtr memory);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

@@ -75,17 +75,21 @@ internal class DungeonGame : Game
 
 	public override void update()
 	{
+		if (Input.IsKeyPressed(KeyCode.F8))
+		{
+			GraphicsManager.cinematicMode = !GraphicsManager.cinematicMode;
+		}
+		if (Input.IsKeyPressed(KeyCode.F9))
+		{
+			Debug.debugWireframeEnabled = !Debug.debugWireframeEnabled;
+		}
 		if (Input.IsKeyPressed(KeyCode.F10))
 		{
-			Debug.debugStatsOverlayEnabled = !Debug.debugStatsOverlayEnabled;
+			Debug.debugStatsEnabled = !Debug.debugStatsEnabled;
 		}
 		if (Input.IsKeyPressed(KeyCode.F11))
 		{
 			Display.ToggleFullscreen();
-		}
-		if (Input.IsKeyPressed(KeyCode.F9))
-		{
-			GraphicsManager.cinematicMode = !GraphicsManager.cinematicMode;
 		}
 
 		if (Input.IsKeyPressed(KeyCode.KeyP))

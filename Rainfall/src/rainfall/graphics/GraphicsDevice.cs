@@ -258,6 +258,14 @@ namespace Rainfall
 			return null;
 		}
 
+		public Texture createTexture(BackbufferRatio ratio, bool hasMips, TextureFormat format, ulong flags = 0)
+		{
+			ushort handle = Native.Graphics.Graphics_CreateTextureMutableR(ratio, (byte)(hasMips ? 1 : 0), format, flags, out TextureInfo info);
+			if (handle != ushort.MaxValue)
+				return new Texture(handle, info);
+			return null;
+		}
+
 		public void setTextureData(Texture texture, int x, int y, int width, int height, VideoMemory memory)
 		{
 			Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memory.memoryHandle);
@@ -742,9 +750,9 @@ namespace Rainfall
 			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, length, font.handle, color, batch.handle);
 		}
 
-		public void computeDispatch(int pass, Shader shader, int numX, int numY, int numZ)
+		public void computeDispatch(Shader shader, int numX, int numY, int numZ)
 		{
-			Native.Graphics.Graphics_ComputeDispatch(pass, shader.handle, numX, numY, numZ);
+			Native.Graphics.Graphics_ComputeDispatch(currentPass, shader.handle, numX, numY, numZ);
 		}
 
 		public void blit(Texture dst, Texture src)

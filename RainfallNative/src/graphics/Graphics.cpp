@@ -276,6 +276,13 @@ RFAPI uint16_t Graphics_CreateTextureMutable(int width, int height, bgfx::Textur
 	return handle.idx;
 }
 
+RFAPI uint16_t Graphics_CreateTextureMutableR(bgfx::BackbufferRatio::Enum ratio, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+{
+	bgfx::TextureHandle handle = bgfx::createTexture2D(ratio, hasMips, 1, format, flags);
+	bgfx::calcTextureSize(*info, info->width, info->height, info->depth, false, hasMips, 1, format);
+	return handle.idx;
+}
+
 RFAPI void Graphics_SetTextureData(uint16_t texture, int x, int y, int width, int height, const bgfx::Memory* memory)
 {
 	bgfx::TextureHandle handle = { texture };

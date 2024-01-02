@@ -16,6 +16,8 @@ public class World
 
 	Texture brickgridLod;
 	unsafe byte* brickgridLodData1;
+
+	Texture brickgridLod2;
 	unsafe byte* brickgridLodData2;
 
 
@@ -26,8 +28,10 @@ public class World
 			brickgrid = graphics.createTexture(BRICKGRID_RES, BRICKGRID_RES, BRICKGRID_RES, false, TextureFormat.RGBA8U, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
 			brickgridData = (uint*)graphics.allocNativeMemory(BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES * sizeof(uint));
 
-			brickgridLod = graphics.createTexture(BRICKGRID_RES / 4, BRICKGRID_RES / 4, BRICKGRID_RES / 4, true, TextureFormat.R8U, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
+			brickgridLod = graphics.createTexture(BRICKGRID_RES / 4, BRICKGRID_RES / 4, BRICKGRID_RES / 4, false, TextureFormat.R8U, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
 			brickgridLodData1 = (byte*)graphics.allocNativeMemory(BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 4 / 4 / 4 * sizeof(byte));
+
+			brickgridLod2 = graphics.createTexture(BRICKGRID_RES / 16, BRICKGRID_RES / 16, BRICKGRID_RES / 16, false, TextureFormat.R8U, (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
 			brickgridLodData2 = (byte*)graphics.allocNativeMemory(BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 16 / 16 / 16 * sizeof(byte));
 
 			generateBrickgrid(graphics);
@@ -122,7 +126,7 @@ public class World
 					}
 				}
 			}
-			graphics.setTextureData(brickgridLod, 2, 0, 0, 0, BRICKGRID_RES / 16, BRICKGRID_RES / 16, BRICKGRID_RES / 16, graphics.createVideoMemory(brickgridLodData2, BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 16 / 16 / 16));
+			graphics.setTextureData(brickgridLod2, 0, 0, 0, 0, BRICKGRID_RES / 16, BRICKGRID_RES / 16, BRICKGRID_RES / 16, graphics.createVideoMemory(brickgridLodData2, BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 16 / 16 / 16));
 		}
 	}
 
@@ -145,6 +149,6 @@ public class World
 
 	public void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawVoxels(brickgrid, brickgridLod, Vector3.Zero);
+		Renderer.DrawVoxels(brickgrid, brickgridLod, brickgridLod2, Vector3.Zero);
 	}
 }
