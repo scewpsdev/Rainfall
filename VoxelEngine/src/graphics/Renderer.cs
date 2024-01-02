@@ -16,14 +16,14 @@ public static class Renderer
 	static Shader screenShader;
 	static VertexBuffer quad;
 
-	static VertexBuffer boxVertexBuffer;
-	static IndexBuffer boxIndexBuffer;
-
 	static Texture brickgrid;
 	static Texture brickgridLod;
 	static Texture brickgridLod2;
 	static Vector3 brickgridPosition;
 	static Shader voxelShader;
+
+	static VertexBuffer boxVertexBuffer;
+	static IndexBuffer boxIndexBuffer;
 
 
 	public static void Init(GraphicsDevice graphics)
@@ -33,6 +33,8 @@ public static class Renderer
 		screen = graphics.createTexture(BackbufferRatio.Equal, false, TextureFormat.RGBA8, (ulong)TextureFlags.ComputeWrite | (uint)SamplerFlags.Clamp | (uint)SamplerFlags.Point);
 		screenShader = Resource.GetShader("res/shaders/screen/screen.vs.shader", "res/shaders/screen/screen.fs.shader");
 		quad = graphics.createVertexBuffer(graphics.createVideoMemory(stackalloc float[] { -3, -1, 1, -1, 1, 3 }), stackalloc VertexElement[] { new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector2, false) });
+
+		voxelShader = Resource.GetShader("res/shaders/voxel/brickgrid.cs.shader");
 
 		boxVertexBuffer = graphics.createVertexBuffer(
 			graphics.createVideoMemory(stackalloc Vector3[] {
@@ -47,12 +49,9 @@ public static class Renderer
 		}), stackalloc VertexElement[] {
 			new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector3, false)
 		});
-
 		boxIndexBuffer = graphics.createIndexBuffer(
 			graphics.createVideoMemory(stackalloc short[] { 0, 1, 2, 2, 3, 0, 0, 3, 7, 7, 4, 0, 3, 2, 6, 6, 7, 3, 2, 1, 5, 5, 6, 2, 1, 0, 4, 4, 5, 1, 4, 7, 6, 6, 5, 4 })
 		);
-
-		voxelShader = Resource.GetShader("res/shaders/voxel/brickgrid.cs.shader");
 	}
 
 	public static void DrawVoxels(Texture brickgrid, Texture brickgridLod, Texture brickgridLod2, Vector3 position)
@@ -77,6 +76,7 @@ public static class Renderer
 	static void RaytracingPass()
 	{
 		graphics.resetState();
+		graphics.setPass(1);
 
 		graphics.setComputeTexture(0, screen, 0, ComputeAccess.Write);
 
@@ -100,7 +100,7 @@ public static class Renderer
 	static void DisplayPass()
 	{
 		graphics.resetState();
-		graphics.setPass(1);
+		graphics.setPass(2);
 
 		graphics.setRenderTarget(null);
 

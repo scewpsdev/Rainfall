@@ -38,8 +38,10 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 	float tmin, tmax;
 	vec3 faceNormal;
 	bool intersects = BoxIntersection(camera, dir, position, size, tmin, tmax, faceNormal);
+	if (!intersects) return false;
 
-	vec3 start = camera + max(tmin + 0.0001, 0.0) * dir;
+	float fragDistance = max(tmin + 0.0001, 0.0);
+	vec3 start = camera + fragDistance * dir;
 	
 	ivec3 resolution = textureSize(brickgrid, 0);
 	float multiplier = 1.0 / size.x * resolution.x;

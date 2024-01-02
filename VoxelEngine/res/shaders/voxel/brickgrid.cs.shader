@@ -19,10 +19,9 @@ USAMPLER3D(s_brickgridLod, 2);
 USAMPLER3D(s_brickgridLod2, 3);
 
 
-vec3 createRay(ivec2 pixel, mat4 projInv, mat4 viewInv)
+vec3 createRay(vec2 uv, mat4 projInv, mat4 viewInv)
 {
-	ivec2 resolution = imageSize(s_screen);
-	vec2 nds = ((pixel + 0.5) / resolution * 2 - 1) * vec2(1, -1);
+	vec2 nds = (uv * 2 - 1) * vec2(1, -1);
 	vec3 pointNds = vec3(nds, 1);
 	vec4 pointNdsh = vec4(pointNds, 1);
 	vec4 dirEye = mul(projInv, pointNdsh);
@@ -35,7 +34,9 @@ NUM_THREADS(32, 32, 1)
 void main()
 {
 	ivec2 pixel = gl_GlobalInvocationID.xy;
-	vec3 view = createRay(pixel, u_projInv, u_viewInv);
+	ivec2 resolution = imageSize(s_screen);
+	vec2 uv = (pixel + 0.5) / resolution;
+	vec3 view = createRay(uv, u_projInv, u_viewInv);
 
 	vec3 offset = u_gridPosition.xyz;
 	vec3 size = u_gridSize.xyz;
@@ -58,6 +59,6 @@ void main()
 	}
 	else
 	{
-		imageStore(s_screen, pixel, vec4(0, 0, 0, 1.0));
+		imageStore(s_screen, pixel, vec4(0.1, 0.1, 0.1, 1.0));
 	}
 }
