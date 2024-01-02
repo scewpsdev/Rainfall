@@ -65,9 +65,9 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 		{
 			uint value = 0;
 			if (mip == 1)
-				value = uint(texture3DLod(brickgridLod, samplePoint, 0).r * 255 + 0.5);
+				value = texture3DLod(brickgridLod, samplePoint, 0).r;
 			else if (mip == 2)
-				value = uint(texture3DLod(brickgridLod2, samplePoint, 0).r * 255 + 0.5);
+				value = texture3DLod(brickgridLod2, samplePoint, 0).r;
 
 			if (value != 0)
 			{
@@ -78,12 +78,12 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 		}
 		else
 		{
-			uvec4 value = uvec4(texture3DLod(brickgrid, samplePoint, 0) * 255 + 0.5);
+			uvec4 value = texture3DLod(brickgrid, samplePoint, 0);
 			
 			if (value.w != 0)
 			{
 				out_position = start + t / multiplier * dir;
-				out_color = vec3(1, 0, 1);
+				out_color = value.rgb / 255.0;
 				out_normal = faceNormal;
 				out_numSteps = i + 1;
 				return true;

@@ -1002,6 +1002,8 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 		}
 	}
 
+	glfwHideWindow(window);
+
 	eventQueue.postExitEvent();
 	gameThread.shutdown();
 
