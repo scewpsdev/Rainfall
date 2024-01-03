@@ -17,6 +17,7 @@ IMAGE2D_WR(s_screen, rgba8, 0);
 USAMPLER3D(s_brickgrid, 1);
 USAMPLER3D(s_brickgridLod, 2);
 USAMPLER3D(s_brickgridLod2, 3);
+USAMPLER3D(s_brickgridLod3, 4);
 
 
 vec3 createRay(vec2 uv, mat4 projInv, mat4 viewInv)
@@ -44,7 +45,7 @@ void main()
 
 	vec3 position, color, normal;
 	int numSteps;
-	bool hit = TraceBrickgrid(camera, view, offset, size, s_brickgrid, s_brickgridLod, s_brickgridLod2, position, color, normal, numSteps);
+	bool hit = TraceBrickgrid(camera, view, offset, size, s_brickgrid, s_brickgridLod, s_brickgridLod2, s_brickgridLod3, position, color, normal, numSteps);
 
 	if (hit)
 	{

@@ -33,7 +33,7 @@ bool BoxIntersection(vec3 origin, vec3 dir, vec3 offset, vec3 size, out float tm
 	return tmin < tmax && tmax > 0;
 }
 
-bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSampler3D brickgrid, BgfxUSampler3D brickgridLod, BgfxUSampler3D brickgridLod2, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
+bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSampler3D brickgrid, BgfxUSampler3D brickgridLod, BgfxUSampler3D brickgridLod2, BgfxUSampler3D brickgridLod3, out vec3 out_position, out vec3 out_color, out vec3 out_normal, out int out_numSteps)
 {
 	float tmin, tmax;
 	vec3 faceNormal;
@@ -51,7 +51,7 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 	vec3 tDelta = step / dir;
 	float t = 0.0;
 	
-	uint maxMip = 2;
+	uint maxMip = 3;
 	uint mip = maxMip;
 	uint mipScale = pow(4, mip);
 	
@@ -68,6 +68,8 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 				value = texture3DLod(brickgridLod, samplePoint, 0).r;
 			else if (mip == 2)
 				value = texture3DLod(brickgridLod2, samplePoint, 0).r;
+			else if (mip == 3)
+				value = texture3DLod(brickgridLod3, samplePoint, 0).r;
 
 			if (value != 0)
 			{

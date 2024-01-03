@@ -19,6 +19,7 @@ public static class Renderer
 	static Texture brickgrid;
 	static Texture brickgridLod;
 	static Texture brickgridLod2;
+	static Texture brickgridLod3;
 	static Vector3 brickgridPosition;
 	static Shader voxelShader;
 
@@ -54,11 +55,12 @@ public static class Renderer
 		);
 	}
 
-	public static void DrawVoxels(Texture brickgrid, Texture brickgridLod, Texture brickgridLod2, Vector3 position)
+	public static void DrawVoxels(Texture brickgrid, Texture brickgridLod, Texture brickgridLod2, Texture brickgridLod3, Vector3 position)
 	{
 		Renderer.brickgrid = brickgrid;
 		Renderer.brickgridLod = brickgridLod;
 		Renderer.brickgridLod2 = brickgridLod2;
+		Renderer.brickgridLod3 = brickgridLod3;
 		Renderer.brickgridPosition = position;
 	}
 
@@ -90,6 +92,7 @@ public static class Renderer
 		graphics.setTexture(voxelShader, "s_brickgrid", 1, brickgrid);
 		graphics.setTexture(voxelShader, "s_brickgridLod", 2, brickgridLod);
 		graphics.setTexture(voxelShader, "s_brickgridLod2", 3, brickgridLod2);
+		graphics.setTexture(voxelShader, "s_brickgridLod3", 4, brickgridLod3);
 
 		int threadGroupSize = 32;
 		int numX = (Display.viewportSize.x + threadGroupSize - 1) / threadGroupSize;
