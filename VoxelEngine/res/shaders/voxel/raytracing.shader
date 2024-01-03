@@ -104,13 +104,12 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 			bool sx = tMax.x < tMax.y && tMax.x < tMax.z;
 			bool sy = !sx && tMax.y < tMax.z;
 			bool sz = !sx && !sy;
-			float localt = sx ? tMax.x : sy ? tMax.y : tMax.z;
+			t += sx ? tMax.x : sy ? tMax.y : tMax.z;
+			t += 0.0001;
 			ivec3 mask = ivec3(sx, sy, sz);
 			faceNormal = -mask * step;
 			
-			t += localt + 0.0001;
-			ivec3 lastip = ip;
-			p += (localt + 0.0001) * dir;
+			p = start * multiplier + t * dir;
 			ip = ivec3(floor(p));
 			
 			/*
