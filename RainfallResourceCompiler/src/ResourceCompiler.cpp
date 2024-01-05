@@ -390,6 +390,13 @@ int main(int argc, char* argv[])
 		fs::path rootDirectory = argv[1];
 		std::string outputDirectory = argv[2];
 
+		if (!fs::exists(rootDirectory))
+		{
+			std::string rootDirStr = rootDirectory.string();
+			fprintf(stderr, "Resource directory '%s' does not exist\n", rootDirStr.c_str());
+			return -1;
+		}
+
 		std::string assetTableFile = outputDirectory + std::string("\\asset_table");
 
 		std::vector<std::string> formats;

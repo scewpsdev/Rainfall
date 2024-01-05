@@ -63,7 +63,14 @@ namespace Rainfall
 		public static Vector2i operator *(Vector2i a, int b) => new Vector2i(a.x * b, a.y * b);
 		public static Vector2i operator /(Vector2i a, int b) => new Vector2i(a.x / b, a.y / b);
 
+		public static Vector2 operator +(Vector2i a, float b) => new Vector2(a.x + b, a.y + b);
+		public static Vector2 operator -(Vector2i a, float b) => new Vector2(a.x - b, a.y - b);
+		public static Vector2 operator *(Vector2i a, float b) => new Vector2(a.x * b, a.y * b);
+		public static Vector2 operator /(Vector2i a, float b) => new Vector2(a.x / b, a.y / b);
+
 		public static bool operator ==(Vector2i a, Vector2i b) => a.x == b.x && a.y == b.y;
 		public static bool operator !=(Vector2i a, Vector2i b) => a.x != b.x || a.y != b.y;
+
+		public static explicit operator Vector2(Vector2i v) => new Vector2(v.x, v.y);
 	}
 }

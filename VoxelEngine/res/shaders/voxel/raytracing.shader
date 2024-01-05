@@ -51,9 +51,9 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 	vec3 tDelta = step / dir;
 	float t = 0.0;
 	
-	uint maxMip = 3;
+	uint maxMip = 4;
 	uint mip = maxMip;
-	uint mipScale = pow(4, mip);
+	uint mipScale = pow(2, mip);
 	
 	int maxSteps = 256 * 3;
 	for (int i = 0; i < maxSteps; i++)
@@ -65,16 +65,40 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 		{
 			uint value = 0;
 			if (mip == 1)
-				value = texture3DLod(brickgridLod, samplePoint, 0).r;
+			{
+				uint bitmask = texture3DLod(brickgridLod, samplePoint, 0).r;
+				uint idx = (ip.x / 2 % 2) + (ip.y / 2 % 2 * 2) + (ip.z / 2 % 2 * 2 * 2);
+				value = bitmask & (1 << idx);
+			}
 			else if (mip == 2)
-				value = texture3DLod(brickgridLod2, samplePoint, 0).r;
+			{
+				value = texture3DLod(brickgridLod, samplePoint, 0).r; 
+			}
 			else if (mip == 3)
+			{
+				uint bitmask = texture3DLod(brickgridLod2, samplePoint, 0).r;
+				uint idx = (ip.x / 8 % 2) + (ip.y / 8 % 2 * 2) + (ip.z / 8 % 2 * 2 * 2);
+				value = bitmask & (1 << idx);
+			}
+			else if (mip == 4)
+			{
+				value = texture3DLod(brickgridLod2, samplePoint, 0).r;
+			}
+			else if (mip == 5)
+			{
+				uint bitmask = texture3DLod(brickgridLod3, samplePoint, 0).r;
+				uint idx = (ip.x / 32 % 2) + (ip.y / 32 % 2 * 2) + (ip.z / 32 % 2 * 2 * 2);
+				value = bitmask & (1 << idx);
+			}
+			else if (mip == 6)
+			{
 				value = texture3DLod(brickgridLod3, samplePoint, 0).r;
+			}
 
 			if (value != 0)
 			{
 				mip--;
-				mipScale /= 4;
+				mipScale /= 2;
 				hit = true;
 			}
 		}
@@ -111,18 +135,19 @@ bool TraceBrickgrid(vec3 camera, vec3 dir, vec3 position, vec3 size, BgfxUSample
 			ivec3 mask = ivec3(sx, sy, sz);
 			faceNormal = -mask * step;
 			
-			p = start * multiplier + t * dir;
+			p = start * multiplier + (t + 0.0001) * dir;
+			ivec3 lastip = ip;
 			ip = ivec3(floor(p));
 			
 			/*
-			if (ip.x / mipScale / 4 != lastip.x / mipScale / 4 ||
-				ip.y / mipScale / 4 != lastip.y / mipScale / 4 ||
-				ip.z / mipScale / 4 != lastip.z / mipScale / 4)
+			if (ip.x / mipScale / 2 != lastip.x / mipScale / 2 ||
+				ip.y / mipScale / 2 != lastip.y / mipScale / 2 ||
+				ip.z / mipScale / 2 != lastip.z / mipScale / 2)
 			{
 				if (mip < maxMip)
 				{
 					mip++;
-					mipScale *= 4;
+					mipScale *= 2;
 				}
 			}
 			*/

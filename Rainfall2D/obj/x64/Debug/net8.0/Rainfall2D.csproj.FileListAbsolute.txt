@@ -1,0 +1,16 @@
+D:\Dev\Rainfall\Rainfall2D\bin\x64\Debug\net8.0\Rainfall2D.deps.json
+D:\Dev\Rainfall\Rainfall2D\bin\x64\Debug\net8.0\Rainfall2D.dll
+D:\Dev\Rainfall\Rainfall2D\bin\x64\Debug\net8.0\Rainfall2D.pdb
+D:\Dev\Rainfall\Rainfall2D\bin\x64\Debug\net8.0\Rainfall.dll
+D:\Dev\Rainfall\Rainfall2D\bin\x64\Debug\net8.0\Rainfall.pdb
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.csproj.AssemblyReference.cache
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.GeneratedMSBuildEditorConfig.editorconfig
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.AssemblyInfoInputs.cache
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.AssemblyInfo.cs
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.csproj.CoreCompileInputs.cache
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.sourcelink.json
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.csproj.CopyComplete
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.dll
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\refint\Rainfall2D.dll
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\Rainfall2D.pdb
+D:\Dev\Rainfall\Rainfall2D\obj\x64\Debug\net8.0\ref\Rainfall2D.dll

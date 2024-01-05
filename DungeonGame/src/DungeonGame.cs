@@ -46,8 +46,7 @@ internal class DungeonGame : Game
 
 		level = new Level();
 
-		int floor = 0;
-		int seed = 123456 * (floor + 1);
+		int seed = int.Parse(File.ReadAllText("seed.txt"));
 		LevelGenerator levelGenerator = new LevelGenerator(seed, level);
 		levelGenerator.generateLevel();
 

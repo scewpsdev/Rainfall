@@ -21,6 +21,16 @@
 #include <stb_vorbis.h>
 
 
+struct ImageData
+{
+	void* data;
+	uint32_t size;
+
+	bimg::TextureFormat::Enum format;
+	uint32_t width, height;
+};
+
+
 const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path)
 {
 	if (bx::open(reader, path))
@@ -64,6 +74,8 @@ RFAPI Shader* Resource_CreateShaderCompute(const char* computePath)
 
 	if (computeMemory)
 		return Graphics_CreateShaderCompute(computeMemory);
+
+	return nullptr;
 }
 
 RFAPI bimg::ImageContainer* Resource_ReadImageFromFile(const char* path, bgfx::TextureInfo* info)
@@ -101,6 +113,23 @@ RFAPI uint16_t Resource_CreateTexture2DFromFile(const char* path, uint64_t flags
 
 	Console_Error("Failed to read texture '%s'", path);
 	return bgfx::kInvalidHandle;
+}
+
+RFAPI bool Resource_ReadImageData(const char* path, ImageData* imageData)
+{
+	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))
+	{
+		if (bimg::ImageContainer* image = bimg::imageParse(Application_GetAllocator(), memory->data, memory->size))
+		{
+			imageData->data = image->m_data;
+			imageData->size = image->m_size;
+			imageData->format = image->m_format;
+			imageData->width = image->m_width;
+			imageData->height = image->m_height;
+			return true;
+		}
+	}
+	return false;
 }
 
 RFAPI uint16_t Resource_CreateCubemapFromFile(const char* path, int64_t flags, bgfx::TextureInfo* info)

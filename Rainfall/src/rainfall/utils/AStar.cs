@@ -226,11 +226,13 @@ public static class AStar
 			if (current.position == destination)
 			{
 				List<Vector2i> path = new List<Vector2i>();
+				path.Add(current.position);
 				while (current.parent != null)
 				{
 					path.Add(current.parent.position);
 					current = (ANode2)current.parent;
 				}
+				path.Reverse();
 				return path;
 			}
 

@@ -33,7 +33,7 @@ internal class Program : Game
 		Renderer.Init(graphics);
 
 		camera = new FreeCamera();
-		camera.position = new Vector3(10, 25, 10);
+		camera.position = new Vector3(128, 25, 128);
 		camera.yaw = MathF.PI * -0.75f;
 		camera.pitch = MathF.PI * -0.15f;
 

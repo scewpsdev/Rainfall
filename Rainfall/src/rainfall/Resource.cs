@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace Rainfall
 {
+	public unsafe struct ImageData
+	{
+		public uint* data;
+		public int size;
+
+		public TextureFormat format;
+		public int width, height;
+	}
+
 	public static class Resource
 	{
 		static Dictionary<string, string> texts = new Dictionary<string, string>();
@@ -231,6 +240,11 @@ namespace Rainfall
 			Texture texture = CreateTexture(path, flags);
 			textures.Add(path, texture);
 			return texture;
+		}
+
+		public static Texture GetTexture(string path, bool linear)
+		{
+			return GetTexture(path, linear ? 0 : (uint)SamplerFlags.Point);
 		}
 
 		/*

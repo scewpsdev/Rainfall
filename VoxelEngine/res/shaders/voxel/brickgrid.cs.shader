@@ -52,8 +52,13 @@ void main()
 		vec3 toLight = normalize(vec3(-1, 2, -1));
 		vec3 lightColor = vec3(1, 1, 1);
 
+		vec3 shadowPosition, shadowColor, shadowNormal;
+		int numShadowSteps;
+		bool shadowRay = TraceBrickgrid(position + 0.01 * toLight, toLight, offset, size, s_brickgrid, s_brickgridLod, s_brickgridLod2, s_brickgridLod3, shadowPosition, shadowColor, shadowNormal, numShadowSteps);
+		float shadow = !shadowRay ? 1.0 : 0.5;
+
 		float ndotl = max(dot(normal, toLight), 0.0);
-		vec3 diffuse = ndotl * color * lightColor;
+		vec3 diffuse = ndotl * shadow * color * lightColor;
 		vec3 final = diffuse;
 
 		imageStore(s_screen, pixel, vec4(final, 1.0));

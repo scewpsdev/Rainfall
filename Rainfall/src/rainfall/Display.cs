@@ -9,7 +9,8 @@ namespace Rainfall
 {
 	public static class Display
 	{
-		static int width, height;
+		public static int width { get; private set; }
+		public static int height { get; private set; }
 		static bool visible;
 		static bool maximized;
 		static bool _fullscreen;

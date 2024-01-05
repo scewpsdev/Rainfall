@@ -80,33 +80,119 @@ public class World
 	{
 		unsafe
 		{
+			// LODS 1 and 2
 			for (int z = 0; z < BRICKGRID_RES / 4; z++)
 			{
 				for (int y = 0; y < BRICKGRID_RES / 4; y++)
 				{
 					for (int x = 0; x < BRICKGRID_RES / 4; x++)
 					{
-						bool hasValidBrickmapPointer = false;
-						for (int zz = 0; zz < 4; zz++)
+						byte value = 0;
+						for (int zz = 0; zz < 2; zz++)
 						{
-							for (int yy = 0; yy < 4; yy++)
+							for (int yy = 0; yy < 2; yy++)
 							{
-								for (int xx = 0; xx < 4; xx++)
+								for (int xx = 0; xx < 2; xx++)
 								{
-									int idx = (x * 4 + xx) + (y * 4 + yy) * BRICKGRID_RES + (z * 4 + zz) * BRICKGRID_RES * BRICKGRID_RES;
-									byte flags = (byte)((brickgridData[idx] & 0xFF000000) >> 24);
-									if (flags != 0)
-										hasValidBrickmapPointer = true;
+									byte bit = 0;
+									for (int zzz = 0; zzz < 2; zzz++)
+									{
+										for (int yyy = 0; yyy < 2; yyy++)
+										{
+											for (int xxx = 0; xxx < 2; xxx++)
+											{
+												int idx = (x * 4 + xx * 2 + zzz) + (y * 4 + yy * 2 + yyy) * BRICKGRID_RES + (z * 4 + zz * 2 + zzz) * BRICKGRID_RES * BRICKGRID_RES;
+												byte flags = (byte)((brickgridData[idx] & 0xFF000000) >> 24);
+												bit |= (byte)(flags != 0 ? 1 : 0);
+											}
+										}
+									}
+									byte mask = (byte)(bit << (xx + yy * 2 + zz * 2 * 2));
+									value |= mask;
 								}
 							}
 						}
-						byte value = (byte)(hasValidBrickmapPointer ? 1 : 0);
 						brickgridLodData1[x + y * BRICKGRID_RES / 4 + z * BRICKGRID_RES / 4 * BRICKGRID_RES / 4] = value;
 					}
 				}
 			}
 			graphics.setTextureData(brickgridLod, 0, 0, 0, 0, BRICKGRID_RES / 4, BRICKGRID_RES / 4, BRICKGRID_RES / 4, graphics.createVideoMemory(brickgridLodData1, BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 4 / 4 / 4));
 
+			for (int z = 0; z < BRICKGRID_RES / 16; z++)
+			{
+				for (int y = 0; y < BRICKGRID_RES / 16; y++)
+				{
+					for (int x = 0; x < BRICKGRID_RES / 16; x++)
+					{
+						byte value = 0;
+						for (int zz = 0; zz < 2; zz++)
+						{
+							for (int yy = 0; yy < 2; yy++)
+							{
+								for (int xx = 0; xx < 2; xx++)
+								{
+									byte bit = 0;
+									for (int zzz = 0; zzz < 2; zzz++)
+									{
+										for (int yyy = 0; yyy < 2; yyy++)
+										{
+											for (int xxx = 0; xxx < 2; xxx++)
+											{
+												int idx = (x * 4 + xx * 2 + zzz) + (y * 4 + yy * 2 + yyy) * BRICKGRID_RES / 4 + (z * 4 + zz * 2 + zzz) * BRICKGRID_RES / 4 * BRICKGRID_RES / 4;
+												byte flags = brickgridLodData1[idx];
+												bit |= (byte)(flags != 0 ? 1 : 0);
+											}
+										}
+									}
+									byte mask = (byte)(bit << (xx + yy * 2 + zz * 2 * 2));
+									value |= mask;
+								}
+							}
+						}
+						brickgridLodData2[x + y * BRICKGRID_RES / 16 + z * BRICKGRID_RES / 16 * BRICKGRID_RES / 16] = value;
+					}
+				}
+			}
+			graphics.setTextureData(brickgridLod2, 0, 0, 0, 0, BRICKGRID_RES / 16, BRICKGRID_RES / 16, BRICKGRID_RES / 16, graphics.createVideoMemory(brickgridLodData2, BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 16 / 16 / 16));
+
+			for (int z = 0; z < BRICKGRID_RES / 64; z++)
+			{
+				for (int y = 0; y < BRICKGRID_RES / 64; y++)
+				{
+					for (int x = 0; x < BRICKGRID_RES / 64; x++)
+					{
+						byte value = 0;
+						for (int zz = 0; zz < 2; zz++)
+						{
+							for (int yy = 0; yy < 2; yy++)
+							{
+								for (int xx = 0; xx < 2; xx++)
+								{
+									byte bit = 0;
+									for (int zzz = 0; zzz < 2; zzz++)
+									{
+										for (int yyy = 0; yyy < 2; yyy++)
+										{
+											for (int xxx = 0; xxx < 2; xxx++)
+											{
+												int idx = (x * 4 + xx * 2 + zzz) + (y * 4 + yy * 2 + yyy) * BRICKGRID_RES / 16 + (z * 4 + zz * 2 + zzz) * BRICKGRID_RES / 16 * BRICKGRID_RES / 16;
+												byte flags = brickgridLodData2[idx];
+												bit |= (byte)(flags != 0 ? 1 : 0);
+											}
+										}
+									}
+									byte mask = (byte)(bit << (xx + yy * 2 + zz * 2 * 2));
+									value |= mask;
+								}
+							}
+						}
+						brickgridLodData3[x + y * BRICKGRID_RES / 64 + z * BRICKGRID_RES / 64 * BRICKGRID_RES / 64] = value;
+					}
+				}
+			}
+			graphics.setTextureData(brickgridLod3, 0, 0, 0, 0, BRICKGRID_RES / 64, BRICKGRID_RES / 64, BRICKGRID_RES / 64, graphics.createVideoMemory(brickgridLodData3, BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 64 / 64 / 64));
+
+			/*
 			for (int z = 0; z < BRICKGRID_RES / 16; z++)
 			{
 				for (int y = 0; y < BRICKGRID_RES / 16; y++)
@@ -160,6 +246,7 @@ public class World
 				}
 			}
 			graphics.setTextureData(brickgridLod3, 0, 0, 0, 0, BRICKGRID_RES / 64, BRICKGRID_RES / 64, BRICKGRID_RES / 64, graphics.createVideoMemory(brickgridLodData3, BRICKGRID_RES * BRICKGRID_RES * BRICKGRID_RES / 64 / 64 / 64));
+			*/
 		}
 	}
 

@@ -18,7 +18,7 @@ internal class ExitGate : Entity, Activatable, Interactable
 
 	AudioSource audioMechanism;
 	AudioSource audioBars;
-	Sound sfxRun, sfxStop;
+	Sound sfxRun, sfxStop, sfxFall;
 
 	bool open = false;
 	bool openedOnce = false;
@@ -36,6 +36,7 @@ internal class ExitGate : Entity, Activatable, Interactable
 
 		sfxRun = Resource.GetSound("res/entity/object/exit/sfx/run.ogg");
 		sfxStop = Resource.GetSound("res/entity/object/exit/sfx/stop.ogg");
+		sfxFall = Resource.GetSound("res/entity/object/exit/sfx/fall.ogg");
 	}
 
 	public override void init()
@@ -86,6 +87,8 @@ internal class ExitGate : Entity, Activatable, Interactable
 				targetHeight = 0.0f;
 				openTimer = 0.0f;
 				lever.reset();
+
+				audioBars.playSound(sfxFall);
 			}
 		}
 
@@ -102,15 +105,15 @@ internal class ExitGate : Entity, Activatable, Interactable
 		}
 		else if (barsHeight > targetHeight)
 		{
-			barsVerticalSpeed += 0.5f * -10 * Time.deltaTime;
+			barsVerticalSpeed += 0.5f * -1.8f * Time.deltaTime;
 			barsHeight += barsVerticalSpeed * Time.deltaTime;
-			barsVerticalSpeed += 0.5f * -10 * Time.deltaTime;
+			barsVerticalSpeed += 0.5f * -1.8f * Time.deltaTime;
 
 			if (barsHeight <= targetHeight)
 			{
 				barsHeight = targetHeight;
 				barsVerticalSpeed = 0.0f;
-				audioBars.playSound(sfxStop);
+				//audioBars.playSound(sfxStop);
 			}
 		}
 

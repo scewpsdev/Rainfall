@@ -81,6 +81,9 @@
     <None Update="res\wfc.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="seed.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 	<PropertyGroup>
@@ -131,7 +134,7 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="xcopy /y &quot;..\RainfallNative\bin\$(Platform)\$(Configuration)\RainfallNative.dll&quot; &quot;$(OutDir)&quot;" />
+	  <Exec Command="xcopy /y &quot;..\RainfallNative\bin\x64\$(Configuration)\RainfallNative.dll&quot; &quot;$(OutDir)&quot;" />
 	</Target>
 
 	<ItemGroup>
