@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Rainfall
 {
-	struct SpriteAnimation
+	public class SpriteAnimation
 	{
-		internal string name;
-		internal Vector2i start;
-		internal Vector2i delta;
-		internal int length;
-		internal int fps;
-		internal bool looping;
+		public string name;
+		public Vector2i start;
+		public Vector2i delta;
+		public int length;
+		public int fps;
+		public bool looping;
 	}
 
 	public class SpriteAnimator
@@ -39,7 +39,7 @@ namespace Rainfall
 			}
 		}
 
-		SpriteAnimation? getAnimation(string name)
+		public SpriteAnimation getAnimation(string name)
 		{
 			foreach (SpriteAnimation animation in animations)
 			{
@@ -53,17 +53,17 @@ namespace Rainfall
 		{
 			if (currentAnimation != null)
 			{
-				SpriteAnimation? current = getAnimation(currentAnimation);
+				SpriteAnimation current = getAnimation(currentAnimation);
 				if (current != null)
 				{
 					long now = Time.currentTime;
 					float timer = (now - startTime) / 1e9f;
-					int frameIdx = (int)(timer * current.Value.fps);
-					if (current.Value.looping)
-						frameIdx %= current.Value.length;
+					int frameIdx = (int)(timer * current.fps);
+					if (current.looping)
+						frameIdx %= current.length;
 					else
-						frameIdx = Math.Min(frameIdx, current.Value.length - 1);
-					sprite.position = current.Value.start + current.Value.delta * frameIdx;
+						frameIdx = Math.Min(frameIdx, current.length - 1);
+					sprite.position = current.start + current.delta * frameIdx;
 				}
 			}
 		}

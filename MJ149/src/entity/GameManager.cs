@@ -27,6 +27,7 @@ public class GameManager
 	// Stats
 	public float timeSurvived = 0.0f;
 	public int enemiesKilled = 0;
+	public int hitsTaken = 0;
 	public int bulletsFired = 0;
 	public int pointsEarned = 0;
 	public int pointsSpent = 0;
@@ -51,6 +52,7 @@ public class GameManager
 
 		timeSurvived = 0.0f;
 		enemiesKilled = 0;
+		hitsTaken = 0;
 		bulletsFired = 0;
 		pointsEarned = 0;
 		pointsSpent = 0;
@@ -144,7 +146,7 @@ public class GameManager
 
 	void drawGameOverScreen()
 	{
-		Renderer.DrawUISprite(Display.width / 8, Display.height / 8, Display.width / 8 * 6, Display.height / 8 * 6, null, 0xFF111111);
+		Renderer.DrawUISprite(Display.width / 8, Display.height / 8, Display.width / 8 * 6, Display.height / 8 * 6, null, false, 0xFF111111);
 
 		{
 			string text = "Ya ded son";
@@ -173,6 +175,9 @@ public class GameManager
 
 		drawLeftInfo("Enemies killed: ", 0xFFFFFFFF);
 		drawRightInfo(enemiesKilled.ToString(), 0xFFAAAAAA);
+
+		drawLeftInfo("Hits taken: ", 0xFFFFFFFF);
+		drawRightInfo(hitsTaken.ToString(), 0xFFAAAAAA);
 
 		drawLeftInfo("Bullets fired: ", 0xFFFFFFFF);
 		drawRightInfo(bulletsFired.ToString(), 0xFFAAAAAA);

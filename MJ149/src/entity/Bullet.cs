@@ -12,6 +12,10 @@ public class Bullet : Entity
 	const float MAX_LIFETIME = 5.0f;
 
 
+	SpriteSheet sheet;
+	Sprite sprite;
+	SpriteAnimator animator;
+
 	public readonly Entity shooter;
 	int damage;
 
@@ -27,9 +31,16 @@ public class Bullet : Entity
 		base.position = position;
 		this.direction = direction;
 
-		size = new Vector2(0.1f);
+		size = new Vector2(1.0f);
 
-		collider = new FloatRect(-0.5f * size.x, -0.5f * size.y, size.x, size.y);
+		sheet = new SpriteSheet(Resource.GetTexture("res/sprites/glyphs.png", false), 8, 8);
+		sprite = new Sprite(sheet, 0, 0);
+		animator = new SpriteAnimator();
+
+		animator.addAnimation("default", Random.Shared.Next() % 16, 0, 1, 0, 16, 8, true);
+		animator.setAnimation("default");
+
+		collider = new FloatRect(-0.25f * size.x, 0.0f, 0.5f * size.x, 0.5f * size.y);
 
 		birthTime = Time.currentTime;
 	}
@@ -56,7 +67,7 @@ public class Bullet : Entity
 		{
 			foreach (Entity hitEntity in hitEntities)
 			{
-				if (hitEntity != this && hitEntity != shooter)
+				if (hitEntity != this && hitEntity != shooter && hitEntity is Enemy)
 				{
 					onEnemyHit(hitEntity);
 					removed = true;
@@ -71,11 +82,13 @@ public class Bullet : Entity
 		}
 
 		position += delta;
+
+		animator.update(sprite);
 	}
 
 	void onWallHit()
 	{
-		// particles
+		level.addEntity(new ParticleEffect(MathHelper.RandomInt(5, 15), 0xFFAAAAFF, position + 0.25f * direction, -direction));
 		// sound effect
 	}
 
@@ -95,6 +108,6 @@ public class Bullet : Entity
 
 	public override void draw()
 	{
-		Renderer.DrawSprite(position.x - 0.5f * size.x, position.y - 0.5f * size.y, size.x, size.y, null, 0xFFFFFF77);
+		Renderer.DrawSprite(position.x - 0.5f * size.x, position.y - 0.5f * size.y, 1, size.x, size.y, 0, sprite, false, 0xFFAAAAFF);
 	}
 }

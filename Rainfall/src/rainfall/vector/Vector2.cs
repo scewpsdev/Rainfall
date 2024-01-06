@@ -153,6 +153,8 @@ namespace Rainfall
 		public static Vector2 operator *(Vector2 a, Vector2i b) { return new Vector2(a.x * b.x, a.y * b.y); }
 		public static Vector2 operator /(Vector2 a, Vector2i b) { return new Vector2(a.x / b.x, a.y / b.y); }
 
+		public static Vector2 operator -(Vector2 v) { return new Vector2(-v.x, -v.y); }
+
 		public static explicit operator Vector2i(Vector2 v) => new Vector2i((int)v.x, (int)v.y);
 	}
 }

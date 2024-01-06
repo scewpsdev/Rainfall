@@ -19,6 +19,15 @@ public class Player : Entity
 	Sprite sprite;
 	SpriteAnimator animator;
 
+	SpriteSheet bookSheet;
+	Sprite bookSprite;
+
+	Texture gui;
+
+	Texture shadow;
+	bool direction = true;
+	bool running = false;
+
 	long lastShootTime;
 	long lastHitTime;
 
@@ -38,16 +47,24 @@ public class Player : Entity
 		this.position = position;
 		this.camera = camera;
 
-		size = new Vector2(1, 2);
+		size = new Vector2(2, 2);
 		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
 		hitbox = new FloatRect(-0.5f, 0, 1, 2);
 
-		spriteSheet = new SpriteSheet(Resource.GetTexture("res/sprites/player.png", (uint)SamplerFlags.Point), 16, 16);
+		spriteSheet = new SpriteSheet(Resource.GetTexture("res/sprites/player.png", false), 16, 16);
 		sprite = new Sprite(spriteSheet, 0, 0);
 
+		bookSheet = new SpriteSheet(Resource.GetTexture("res/sprites/book.png", false), 24, 24);
+		bookSprite = new Sprite(bookSheet, 0, 0);
+
+		gui = Resource.GetTexture("res/sprites/ui.png", false);
+
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 1, 0, 8, 8, true);
+		animator.addAnimation("idle", 0, 0, 1, 0, 4, 6, true);
+		animator.addAnimation("run", 4, 0, 1, 0, 8, 10, true);
 		animator.setAnimation("idle");
+
+		shadow = Resource.GetTexture("res/sprites/shadow.png", false);
 
 		reset();
 	}
@@ -75,12 +92,13 @@ public class Player : Entity
 		if (health == 0)
 			onDeath();
 
+		Gaem.instance.manager.hitsTaken++;
+
 		lastHitTime = Time.currentTime;
 	}
 
 	void onDeath()
 	{
-
 	}
 
 	void updateMovement()
@@ -102,6 +120,7 @@ public class Player : Entity
 		{
 			velocity += ((Vector2)input).normalized * speed;
 		}
+		running = input.x != 0 || input.y != 0;
 
 		Vector2 delta = velocity * Time.deltaTime;
 
@@ -163,8 +182,8 @@ public class Player : Entity
 	void shoot()
 	{
 		Vector2 target = camera.pixelToPosition(Input.cursorPosition);
-		Vector2 shootOrigin = position + new Vector2(0.0f, 0.5f);
-		Vector2 direction = (target - shootOrigin).normalized;
+		Vector2 direction = (target - position).normalized;
+		Vector2 shootOrigin = position + direction * 0.5f;
 		level.addEntity(new Bullet(this, damage, shootOrigin, direction));
 		Gaem.instance.manager.bulletsFired++;
 	}
@@ -188,6 +207,13 @@ public class Player : Entity
 
 	void updateAnimations()
 	{
+		if (running)
+		{
+			animator.getAnimation("run").fps = (int)speed * 2;
+			animator.setAnimation("run");
+		}
+		else
+			animator.setAnimation("idle");
 		animator.update(sprite);
 	}
 
@@ -204,24 +230,30 @@ public class Player : Entity
 
 	public override void draw()
 	{
-		Renderer.DrawSprite(position.x - 0.5f * size.x, position.y, size.x, size.y, null, 0xFF7777FF);
+		Vector2 cursorWorldPos = camera.pixelToPosition(Input.cursorPosition);
+		Vector2 cursorDirection = (cursorWorldPos - position).normalized;
+		float cursorRotation = MathF.Atan2(cursorDirection.y, cursorDirection.x) - MathF.PI * 0.5f;
+		direction = cursorDirection.x > 0;
+
+		Renderer.DrawVerticalSprite(position.x - 0.5f * size.x, position.y, size.x, size.y, sprite, !direction, 0xFFFFFFFF);
+		Renderer.DrawSprite(position.x - 1.5f, position.y - 1.5f, 0.75f, 3, 3, cursorRotation, bookSprite, false);
+		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, 0.01f, 1, 1, shadow, 0, 0, 8, 8, 0xFFFFFFFF);
 
 		// Health
 		{
 			for (int i = 0; i < maxHealth; i++)
 			{
-				uint color = i < health ? 0xFFFF3333 : 0xFF551111;
-				Renderer.DrawUISprite(20 + i * 24, 20, 16, 16, null, color);
+				Renderer.DrawUISprite(20 + i * 54, 20, 9 * 6, 9 * 6, gui, i < health ? 0 : 9, 0, 9, 9);
 			}
 		}
 
 		// Currency
 		{
-			int width = 150;
-			int height = 40;
-			Renderer.DrawUISprite(20, 50, width, height, null, 0xFFAAAAAA);
-			Renderer.DrawUISprite(20, 50, width, height, null, 0xFF222222);
-			Renderer.DrawUIText(20 + 4, 50 + 4, points.ToString(), 0xFFFFFFFF);
+			int width = 240;
+			int height = 54;
+			Renderer.DrawUISprite(20, 100, width, height, null, false, 0xFFAAAAAA);
+			Renderer.DrawUISprite(26, 106, width - 12, height - 12, null, false, 0xFF222222);
+			Renderer.DrawUIText(26 + 6, 106 + 6, points.ToString(), 0xFFFFFFFF);
 		}
 
 		// Interaction

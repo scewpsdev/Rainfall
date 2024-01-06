@@ -43,7 +43,7 @@ public class Camera : Entity
 
 	public Matrix getProjectionMatrix()
 	{
-		return Matrix.CreateOrthographic(width, height, 1.0f, -1.0f);
+		return Matrix.CreateOrthographic(width, height, -10.0f, 10.0f);
 	}
 
 	public Matrix getViewMatrix()

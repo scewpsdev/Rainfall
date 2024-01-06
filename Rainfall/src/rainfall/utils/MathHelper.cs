@@ -140,6 +140,16 @@ namespace Rainfall
 			return f * MathF.Abs(f);
 		}
 
+		public static Vector2 RandomVector2(float min, float max, Random random)
+		{
+			return new Vector2(RandomFloat(min, max, random), RandomFloat(min, max, random));
+		}
+
+		public static Vector2 RandomVector2(float min, float max)
+		{
+			return RandomVector2(min, max, Random.Shared);
+		}
+
 		public static Vector3 RandomVector3(float min, float max, Random random)
 		{
 			return new Vector3(RandomFloat(min, max, random), RandomFloat(min, max, random), RandomFloat(min, max, random));

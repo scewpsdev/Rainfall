@@ -83,7 +83,15 @@ public class Door : Entity, Interactable
 	{
 		if (locked)
 		{
-			Renderer.DrawSprite(position.x, position.y, width, height, null, 0xFF222222);
+			for (int y = 0; y < height; y++)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					Renderer.DrawSprite(position.x + x, position.y + y, 1, 1, 1, Gaem.instance.level.tileset, 9 * 8, 0, 8, 8);
+					if (y == 0)
+						Renderer.DrawVerticalSprite(position.x + x, position.y + y, 0, 1, 1, Gaem.instance.level.tileset, 9 * 8, 1 * 8, 8, 8);
+				}
+			}
 		}
 	}
 }

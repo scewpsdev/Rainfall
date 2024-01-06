@@ -16,9 +16,9 @@ internal class Gaem : Game
 
 	public GameManager manager;
 
-	Level level;
+	public Level level;
 	Camera camera;
-	Player player;
+	public Player player;
 
 
 	public override void init()
@@ -72,7 +72,7 @@ internal class Gaem : Game
 
 		int x0 = (int)MathF.Floor(camera.left);
 		int x1 = (int)MathF.Floor(camera.right);
-		int y0 = (int)MathF.Floor(camera.bottom);
+		int y0 = (int)MathF.Floor(camera.bottom) - 3;
 		int y1 = (int)MathF.Floor(camera.top);
 		level.draw(x0, x1, y0, y1);
 

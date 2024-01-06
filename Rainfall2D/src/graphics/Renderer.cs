@@ -10,9 +10,11 @@ public static class Renderer
 {
 	struct SpriteDraw
 	{
-		public Vector2 position;
+		public Vector3 position;
 		public Vector2 size;
-		public Sprite sprite;
+		public float rotation;
+		public Texture texture;
+		public FloatRect rect;
 		public Vector4 color;
 	}
 
@@ -20,7 +22,8 @@ public static class Renderer
 	{
 		public Vector2i position;
 		public Vector2i size;
-		public Sprite sprite;
+		public Texture texture;
+		public FloatRect rect;
 		public uint color;
 	}
 
@@ -37,6 +40,7 @@ public static class Renderer
 	static SpriteBatch spriteBatch;
 	static Shader spriteShader;
 	static List<SpriteDraw> draws = new List<SpriteDraw>();
+	static List<SpriteDraw> verticalDraws = new List<SpriteDraw>();
 
 	static SpriteBatch uiBatch;
 	static Shader uiShader;
@@ -67,14 +71,87 @@ public static class Renderer
 		font = Resource.GetTexture("res/sprites/font.png", false);
 	}
 
-	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
 	{
-		draws.Add(new SpriteDraw { position = new Vector2(x, y), size = new Vector2(width, height), sprite = sprite, color = MathHelper.ARGBToVector(color) });
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+			if (flipped)
+			{
+				float tmp = u0;
+				u0 = u1;
+				u1 = tmp;
+			}
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
-	public static void DrawUISprite(int x, int y, int width, int height, Sprite sprite, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
 	{
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), sprite = sprite, color = color });
+		DrawSprite(x, y, 0.0f, width, height, 0.0f, sprite, flipped, color);
+	}
+
+	public static void DrawSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawVerticalSprite(float x, float y, float width, float height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+			if (flipped)
+			{
+				float tmp = u0;
+				u0 = u1;
+				u1 = tmp;
+			}
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, 0), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawUISprite(int x, int y, int width, int height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+			if (flipped)
+			{
+				float tmp = u0;
+				u0 = u1;
+				u1 = tmp;
+			}
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+	}
+
+	public static void DrawUISprite(int x, int y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color });
 	}
 
 	public static void DrawUIText(int x, int y, string text, uint color = 0xFFFFFFFF)
@@ -100,20 +177,28 @@ public static class Renderer
 
 		graphics.setViewTransform(projection, view);
 
-		spriteBatch.begin(draws.Count);
+		spriteBatch.begin(draws.Count + verticalDraws.Count);
 		for (int i = 0; i < draws.Count; i++)
 		{
 			SpriteDraw draw = draws[i];
-			Texture texture = draw.sprite?.spriteSheet.texture;
-			float u0 = draw.sprite != null ? draw.sprite.uv0.x : 0.0f;
-			float v0 = draw.sprite != null ? draw.sprite.uv0.y : 0.0f;
-			float u1 = draw.sprite != null ? draw.sprite.uv1.x : 0.0f;
-			float v1 = draw.sprite != null ? draw.sprite.uv1.y : 0.0f;
+			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
 			spriteBatch.draw(
-				draw.position.x, draw.position.y, 0.0f,
+				draw.position.x, draw.position.y, draw.position.z,
+				draw.size.x, draw.size.y,
+				draw.rotation,
+				draw.texture, uint.MaxValue,
+				u0, v0, u1, v1,
+				draw.color);
+		}
+		for (int i = 0; i < verticalDraws.Count; i++)
+		{
+			SpriteDraw draw = verticalDraws[i];
+			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+			spriteBatch.drawVertical(
+				draw.position.x, draw.position.y, draw.position.z,
 				draw.size.x, draw.size.y,
 				0.0f,
-				texture, uint.MaxValue,
+				draw.texture, uint.MaxValue,
 				u0, v0, u1, v1,
 				draw.color);
 		}
@@ -140,11 +225,11 @@ public static class Renderer
 		for (int i = 0; i < uiDraws.Count; i++)
 		{
 			UIDraw draw = uiDraws[i];
-			Texture texture = draw.sprite?.spriteSheet.texture;
-			float u0 = draw.sprite != null ? draw.sprite.uv0.x : 0.0f;
-			float v0 = draw.sprite != null ? draw.sprite.uv0.y : 0.0f;
-			float u1 = draw.sprite != null ? draw.sprite.uv1.x : 0.0f;
-			float v1 = draw.sprite != null ? draw.sprite.uv1.y : 0.0f;
+			Texture texture = draw.texture;
+			float u0 = draw.rect.min.x;
+			float v0 = draw.rect.min.y;
+			float u1 = draw.rect.max.x;
+			float v1 = draw.rect.max.y;
 			uiBatch.draw(
 				draw.position.x, Display.height - draw.position.y - draw.size.y, 0.0f,
 				draw.size.x, draw.size.y,
@@ -212,6 +297,7 @@ public static class Renderer
 		UIPass();
 
 		draws.Clear();
+		verticalDraws.Clear();
 		uiDraws.Clear();
 		textDraws.Clear();
 	}

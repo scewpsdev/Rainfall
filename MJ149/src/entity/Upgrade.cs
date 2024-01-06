@@ -85,6 +85,6 @@ public class Upgrade : Entity, Interactable
 
 	public override void draw()
 	{
-		Renderer.DrawSprite(position.x - 0.25f, position.y - 0.25f, 0.5f, 0.5f, null, 0xff6abe30);
+		Renderer.DrawSprite(position.x - 0.25f, position.y - 0.25f, 0.5f, 0.5f, null, false, 0xff6abe30);
 	}
 }

@@ -65,20 +65,17 @@ public class Enemy : Entity, Toucheable
 
 	void onDeath(Entity from)
 	{
-		if (from is Player)
+		if (from is Bullet)
+			from = ((Bullet)from).shooter;
+
+		int numXP = MathHelper.RandomInt(5, 15);
+		for (int i = 0; i < numXP; i++)
 		{
-			Player player = from as Player;
-			player.points += 100;
-			Gaem.instance.manager.pointsEarned += 100;
-			Gaem.instance.manager.enemiesKilled++;
+			Vector2 offset = MathHelper.RandomVector2(-0.5f, 0.5f);
+			level.addEntity(new XPOrb(position + offset, from));
 		}
-		else if (from is Bullet)
-		{
-			Player player = (Player)((Bullet)from).shooter;
-			player.points += 100;
-			Gaem.instance.manager.pointsEarned += 100;
-			Gaem.instance.manager.enemiesKilled++;
-		}
+
+		Gaem.instance.manager.enemiesKilled++;
 		Gaem.instance.manager.enemiesRemaining--;
 	}
 
@@ -183,6 +180,6 @@ public class Enemy : Entity, Toucheable
 
 	public override void draw()
 	{
-		Renderer.DrawSprite(position.x - 0.5f * size.x, position.y, size.x, size.y, null, 0xFFFF7777);
+		Renderer.DrawVerticalSprite(position.x - 0.5f * size.x, position.y, size.x, size.y, null, false, 0xFFFF7777);
 	}
 }

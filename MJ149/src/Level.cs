@@ -17,6 +17,8 @@ public class Level
 
 	public readonly List<Entity> entities = new List<Entity>();
 
+	public Texture tileset;
+
 
 	public Level(string path)
 	{
@@ -70,6 +72,10 @@ public class Level
 							levelData[(xx + (height - y - 1) * width) * 4 + 2] = 0;
 							levelData[(xx + (height - y - 1) * width) * 4 + 3] = 0;
 						}
+						else
+						{
+							break;
+						}
 					}
 					for (int yy = y + 1; yy < height; yy++)
 					{
@@ -85,6 +91,10 @@ public class Level
 							levelData[(x + (height - yy - 1) * width) * 4 + 1] = 0;
 							levelData[(x + (height - yy - 1) * width) * 4 + 2] = 0;
 							levelData[(x + (height - yy - 1) * width) * 4 + 3] = 0;
+						}
+						else
+						{
+							break;
 						}
 					}
 					addEntity(new Door(500, x, y, doorWidth, doorHeight));
@@ -104,6 +114,8 @@ public class Level
 				}
 			}
 		}
+
+		tileset = Resource.GetTexture("res/sprites/tiles.png", false);
 	}
 
 	public void addEntity(Entity entity)
@@ -151,14 +163,46 @@ public class Level
 
 	public void draw(int x0, int x1, int y0, int y1)
 	{
+		Vector2i playerTile = (Vector2i)Gaem.instance.player.position;
 		for (int y = y0; y <= y1; y++)
 		{
 			for (int x = x0; x <= x1; x++)
 			{
 				uint tile = getTile(x, y);
+				int tileHash = Math.Abs((int)Hash.hash(new Vector2i(x, y)));
 				if (tile != 0)
 				{
-					Renderer.DrawSprite(x, y, 1, 1, null, tile);
+					int wallHeight = 2;
+					uint bottomtile = getTile(x, y - 1);
+					uint toptile = getTile(x, y + 1);
+					uint lefttile = getTile(x - 1, y);
+					uint righttile = getTile(x + 1, y);
+					if (bottomtile == 0)
+					{
+						int idx = tileHash % 5;
+						for (int i = 0; i < wallHeight; i++)
+						{
+							Renderer.DrawVerticalSprite(x, y, i, 1.001f, 1.001f, tileset, (4 + idx) * 8, 0, 8, 8);
+						}
+					}
+
+					// Top tile
+					{
+						bool hidesPlayer = x - 1 <= playerTile.x && x + 1 >= playerTile.x && y <= playerTile.y && y + wallHeight >= playerTile.y;
+
+						if (!hidesPlayer)
+						{
+							int ceilingU = lefttile == 0 ? 4 : righttile == 0 ? 6 : 5;
+							int ceilingV = bottomtile == 0 ? 3 : toptile == 0 ? 1 : 2;
+							Renderer.DrawSprite(x, y, wallHeight, 1.001f, 1.001f, tileset, ceilingU * 8, ceilingV * 8, 8, 8);
+						}
+					}
+				}
+				else
+				{
+					// floor tile
+					int idx = Math.Max(tileHash % 16 - 12, 0);
+					Renderer.DrawSprite(x, y, 0.0f, 1.001f, 1.001f, tileset, idx * 8, 0, 8, 8);
 				}
 			}
 		}
