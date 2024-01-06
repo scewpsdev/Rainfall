@@ -15,10 +15,9 @@ TODO:
 [X] fix A*
 [X] currency
 [X] unlockable doors
-[ ] wave system
-[ ] player death
-[ ] upgrades (damage, firerate, health, regen)
-[ ] elevation
+[X] wave system
+[X] player death
+[X] upgrades (damage, firerate, health, regen)
 [ ] art
 [ ] sound effects
 [ ] lighting
@@ -27,3 +26,11 @@ TODO:
 [ ] more weapons
 [ ] main menu
 [ ] normal maps
+
+Polish:
+[X] fix enemies getting stuck
+[X] smooth enemy movement
+[X] prefer spawns close to the player
+[ ] upgrade drops
+[ ] wave indicator
+[ ] only spawn from points the player cant see

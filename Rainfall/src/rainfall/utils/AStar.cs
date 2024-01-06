@@ -58,6 +58,12 @@ class Heap<T>
 		currentItemCount = 0;
 	}
 
+	public void reset()
+	{
+		Array.Fill(items, null);
+		currentItemCount = 0;
+	}
+
 	void swap(ANode<T> a, ANode<T> b)
 	{
 		items[a.heapIndex] = b;
@@ -143,11 +149,11 @@ class Heap<T>
 
 internal class AGrid
 {
-	public int width, height;
-	public ANode2[] nodes;
+	internal int width, height;
+	internal ANode2[] nodes;
 
 
-	public AGrid(int width, int height)
+	internal AGrid(int width, int height)
 	{
 		this.width = width;
 		this.height = height;
@@ -164,19 +170,48 @@ internal class AGrid
 		}
 	}
 
-	public ANode2 getNode(int x, int y)
+	public void reset()
+	{
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				nodes[x + y * width].gcost = 0;
+				nodes[x + y * width].hcost = 0;
+				nodes[x + y * width].parent = null;
+				nodes[x + y * width].heapIndex = 0;
+			}
+		}
+	}
+
+	internal ANode2 getNode(int x, int y)
 	{
 		return nodes[x + y * width];
 	}
 
-	public ANode2 getNode(Vector2i pos)
+	internal ANode2 getNode(Vector2i pos)
 	{
 		return getNode(pos.x, pos.y);
 	}
 }
 
-public static class AStar
+public class AStar
 {
+	AGrid grid;
+	Heap<Vector2i> openList;
+	bool[] walkable;
+	int[] costs;
+
+
+	public AStar(int width, int height, bool[] walkable, int[] costs = null)
+	{
+		grid = new AGrid(width, height);
+		openList = new Heap<Vector2i>(width * height);
+		this.walkable = walkable;
+		this.costs = costs;
+	}
+
+
 	static int ManhattanDistance(Vector2i a, Vector2i b)
 	{
 		return Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
@@ -205,18 +240,18 @@ public static class AStar
 		}
 	}
 
-	public static List<Vector2i> Run(Vector2i start, Vector2i destination, int width, int height, bool[] walkable, int[] costs = null)
+	public bool run(Vector2i start, Vector2i destination, List<Vector2i> path)
 	{
-		AGrid grid = new AGrid(width, height);
+		grid.reset();
+		openList.reset();
 
-		Heap<Vector2i> openList = new Heap<Vector2i>(width * height);
 		HashSet<ANode2> closedList = new HashSet<ANode2>();
 
 		ANode2 current = grid.getNode(start);
 		openList.add(current);
 
-		var isWalkable = (Vector2i position) => walkable[position.x + position.y * width];
-		var getWalkCost = (Vector2i position) => costs != null ? costs[position.x + position.y * width] : 1;
+		var isWalkable = (Vector2i position) => walkable[position.x + position.y * grid.width];
+		var getWalkCost = (Vector2i position) => costs != null ? costs[position.x + position.y * grid.width] : 1;
 
 		while (openList.count > 0)
 		{
@@ -225,27 +260,30 @@ public static class AStar
 
 			if (current.position == destination)
 			{
-				List<Vector2i> path = new List<Vector2i>();
-				path.Add(current.position);
-				while (current.parent != null)
+				if (path != null)
 				{
-					path.Add(current.parent.position);
-					current = (ANode2)current.parent;
+					path.Clear();
+					path.Add(current.position);
+					while (current.parent != null)
+					{
+						path.Add(current.parent.position);
+						current = (ANode2)current.parent;
+					}
+					path.Reverse();
 				}
-				path.Reverse();
-				return path;
+				return true;
 			}
 
 			if (current.position.x > 0 && isWalkable(current.position + Vector2i.Left))
 				ProcessNode(current.position + Vector2i.Left, current.gcost + getWalkCost(current.position + Vector2i.Left), destination, current, openList, closedList, grid);
-			if (current.position.x < width - 1 && isWalkable(current.position + Vector2i.Right))
+			if (current.position.x < grid.width - 1 && isWalkable(current.position + Vector2i.Right))
 				ProcessNode(current.position + Vector2i.Right, current.gcost + getWalkCost(current.position + Vector2i.Right), destination, current, openList, closedList, grid);
 			if (current.position.y > 0 && isWalkable(current.position + Vector2i.Down))
 				ProcessNode(current.position + Vector2i.Down, current.gcost + getWalkCost(current.position + Vector2i.Down), destination, current, openList, closedList, grid);
-			if (current.position.y < height - 1 && isWalkable(current.position + Vector2i.Up))
+			if (current.position.y < grid.height - 1 && isWalkable(current.position + Vector2i.Up))
 				ProcessNode(current.position + Vector2i.Up, current.gcost + getWalkCost(current.position + Vector2i.Up), destination, current, openList, closedList, grid);
 		}
 
-		return null;
+		return false;
 	}
 }

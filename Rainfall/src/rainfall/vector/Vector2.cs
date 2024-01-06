@@ -94,6 +94,16 @@ namespace Rainfall
 			return new Vector2(MathF.Abs(v.x), MathF.Abs(v.y));
 		}
 
+		public static Vector2 Floor(Vector2 v)
+		{
+			return new Vector2(MathF.Floor(v.x), MathF.Floor(v.y));
+		}
+
+		public static Vector2 Fract(Vector2 v)
+		{
+			return new Vector2(v.x - (int)v.x, v.y - (int)v.y);
+		}
+
 		public static Vector2 Min(Vector2 a, Vector2 b)
 		{
 			return new Vector2(MathF.Min(a.x, b.x), MathF.Min(a.y, b.y));
@@ -102,6 +112,11 @@ namespace Rainfall
 		public static Vector2 Max(Vector2 a, Vector2 b)
 		{
 			return new Vector2(MathF.Max(a.x, b.x), MathF.Max(a.y, b.y));
+		}
+
+		public static Vector2i Sign(Vector2 v)
+		{
+			return new Vector2i(Math.Sign(v.x), Math.Sign(v.y));
 		}
 
 		public static Vector2 Rotate(Vector2 v, float angle)
@@ -125,6 +140,8 @@ namespace Rainfall
 
 		public static Vector2 operator +(Vector2 a, float b) { return new Vector2(a.x + b, a.y + b); }
 		public static Vector2 operator -(Vector2 a, float b) { return new Vector2(a.x - b, a.y - b); }
+		public static Vector2 operator +(float a, Vector2 b) { return new Vector2(a + b.x, a + b.y); }
+		public static Vector2 operator -(float a, Vector2 b) { return new Vector2(a - b.x, a - b.y); }
 
 		public static Vector2 operator +(Vector2i a, Vector2 b) { return new Vector2(a.x + b.x, a.y + b.y); }
 		public static Vector2 operator -(Vector2i a, Vector2 b) { return new Vector2(a.x - b.x, a.y - b.y); }

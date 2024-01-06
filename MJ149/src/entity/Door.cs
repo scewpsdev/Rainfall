@@ -8,21 +8,39 @@ using System.Threading.Tasks;
 
 public class Door : Entity, Interactable
 {
+	int x, y;
 	int width, height;
-	int cost;
 
+	int cost;
 	bool locked = true;
 
 
 	public Door(int cost, int x, int y, int width, int height)
 	{
 		this.cost = cost;
-		position = new Vector2(x, y);
+		this.x = x;
+		this.y = y;
 		this.width = width;
 		this.height = height;
+		position = new Vector2(x, y);
 
 		collider = new FloatRect(0, 0, width, height);
+		hitbox = new FloatRect(0, 0, width, height);
 		staticCollider = true;
+	}
+
+	public override void reset()
+	{
+		locked = true;
+		colliderEnabled = true;
+
+		for (int yy = y; yy < y + height; yy++)
+		{
+			for (int xx = x; xx < x + width; xx++)
+			{
+				level.setWalkable(xx, yy, false);
+			}
+		}
 	}
 
 	public bool canInteract(Entity entity)
@@ -30,9 +48,12 @@ public class Door : Entity, Interactable
 		return locked;
 	}
 
-	public string getInteractionPrompt(Entity entity)
+	public void getInteractionPrompt(Entity entity, out string text, out uint color)
 	{
-		return "Open [" + cost + "]";
+		Player player = entity as Player;
+
+		text = "[E] Open: " + cost;
+		color = player.points >= cost ? 0xFFFFFFFF : 0xFFFF7777;
 	}
 
 	public void interact(Entity entity)
@@ -43,8 +64,17 @@ public class Door : Entity, Interactable
 			if (player.points >= cost)
 			{
 				player.points -= cost;
+				Gaem.instance.manager.pointsSpent += cost;
 				locked = false;
-				staticCollider = false;
+				colliderEnabled = false;
+
+				for (int yy = y; yy < y + height; yy++)
+				{
+					for (int xx = x; xx < x + width; xx++)
+					{
+						level.setWalkable(xx, yy, true);
+					}
+				}
 			}
 		}
 	}

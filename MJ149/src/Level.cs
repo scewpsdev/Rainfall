@@ -10,11 +10,10 @@ public class Level
 {
 	public readonly int width, height;
 	uint[] tiles;
+	public readonly AStar astar;
 	public readonly bool[] walkable;
 
 	public readonly Vector2 spawnPoint;
-
-	Sprite background;
 
 	public readonly List<Entity> entities = new List<Entity>();
 
@@ -27,6 +26,8 @@ public class Level
 		tiles = new uint[width * height];
 		walkable = new bool[width * height];
 		Array.Fill(walkable, true);
+		astar = new AStar(width, height, walkable, null);
+
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
@@ -44,7 +45,12 @@ public class Level
 				}
 				else if (tile == 0xffac3232)
 				{
-					addEntity(new EnemySpawner(new Vector2(x + 0.5f, y + 0.5f)));
+					Gaem.instance.manager.addSpawnPoint(x, y);
+				}
+				else if (tile == 0xff6abe30)
+				{
+					UpgradeType upgradeType = (UpgradeType)(Random.Shared.Next() % (int)UpgradeType.Count);
+					addEntity(new Upgrade(upgradeType, 1000, x + 0.5f, y + 0.5f));
 				}
 				else if (tile == 0xFF000000)
 				{
@@ -81,7 +87,15 @@ public class Level
 							levelData[(x + (height - yy - 1) * width) * 4 + 3] = 0;
 						}
 					}
-					addEntity(new Door(100, x, y, doorWidth, doorHeight));
+					addEntity(new Door(500, x, y, doorWidth, doorHeight));
+
+					for (int yy = y; yy < y + doorHeight; yy++)
+					{
+						for (int xx = x; xx < x + doorWidth; xx++)
+						{
+							setWalkable(xx, yy, false);
+						}
+					}
 				}
 				else if (tile != 0)
 				{
@@ -90,8 +104,6 @@ public class Level
 				}
 			}
 		}
-
-		background = new Sprite(Resource.GetTexture(path, false));
 	}
 
 	public void addEntity(Entity entity)
@@ -117,6 +129,13 @@ public class Level
 		return tiles[x + y * width];
 	}
 
+	public void setWalkable(int x, int y, bool isWalkable)
+	{
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return;
+		walkable[x + y * width] = isWalkable;
+	}
+
 	public void update()
 	{
 		for (int i = 0; i < entities.Count; i++)
@@ -132,8 +151,6 @@ public class Level
 
 	public void draw(int x0, int x1, int y0, int y1)
 	{
-		//Renderer.DrawSprite(0, 0, width, height, background);
-
 		for (int y = y0; y <= y1; y++)
 		{
 			for (int x = x0; x <= x1; x++)

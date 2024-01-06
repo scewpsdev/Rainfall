@@ -2,7 +2,7 @@
 using System.Net.Security;
 using System.Reflection;
 
-internal class Program : Game
+internal class Gaem : Game
 {
 	const int VERSION_MAJOR = 0;
 	const int VERSION_MINOR = 1;
@@ -10,13 +10,16 @@ internal class Program : Game
 	const char VERSION_SUFFIX = 'a';
 
 
-	public static new Program instance { get => (Program)Game.instance; }
-	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(Program))?.GetName().Name;
+	public static new Gaem instance { get => (Gaem)Game.instance; }
+	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(Gaem))?.GetName().Name;
 
+
+	public GameManager manager;
 
 	Level level;
 	Camera camera;
 	Player player;
+
 
 	public override void init()
 	{
@@ -24,10 +27,17 @@ internal class Program : Game
 
 		Renderer.Init(graphics);
 
+		manager = new GameManager();
+
 		level = new Level("res/levels/level1.png");
+		manager.level = level;
 
 		level.addEntity(camera = new Camera(16, 16 / Display.aspectRatio));
 		level.addEntity(player = new Player(level.spawnPoint, camera));
+
+		manager.player = player;
+
+		manager.resetGameState();
 
 		Input.mouseLocked = false;
 	}
@@ -51,6 +61,7 @@ internal class Program : Game
 			Display.ToggleFullscreen();
 		}
 
+		manager.update();
 		level.update();
 	}
 
@@ -64,6 +75,8 @@ internal class Program : Game
 		int y0 = (int)MathF.Floor(camera.bottom);
 		int y1 = (int)MathF.Floor(camera.top);
 		level.draw(x0, x1, y0, y1);
+
+		manager.draw();
 
 		Renderer.End();
 
@@ -174,7 +187,7 @@ internal class Program : Game
 		launchParams.fpsCap = 60;
 		//launchParams.vsync = 1;
 
-		Game game = new Program();
+		Game game = new Gaem();
 		game.run(launchParams);
 	}
 }

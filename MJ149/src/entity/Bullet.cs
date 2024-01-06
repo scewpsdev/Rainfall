@@ -8,26 +8,35 @@ using System.Threading.Tasks;
 
 public class Bullet : Entity
 {
-	const float SPEED = 15;
+	const float SPEED = 25;
 	const float MAX_LIFETIME = 5.0f;
 
 
 	public readonly Entity shooter;
+	int damage;
+
 	Vector2 direction;
-	float size = 0.1f;
 
 	long birthTime;
 
 
-	public Bullet(Entity shooter, Vector2 position, Vector2 direction)
+	public Bullet(Entity shooter, int damage, Vector2 position, Vector2 direction)
 	{
 		this.shooter = shooter;
+		this.damage = damage;
 		base.position = position;
 		this.direction = direction;
 
-		collider = new FloatRect(-0.5f * size, -0.5f * size, size, size);
+		size = new Vector2(0.1f);
+
+		collider = new FloatRect(-0.5f * size.x, -0.5f * size.y, size.x, size.y);
 
 		birthTime = Time.currentTime;
+	}
+
+	public override void reset()
+	{
+		removed = true;
 	}
 
 	public override void update()
@@ -80,12 +89,12 @@ public class Bullet : Entity
 		}
 		else if (entity is Enemy)
 		{
-			((Enemy)entity).hit(this);
+			((Enemy)entity).hit(damage, this);
 		}
 	}
 
 	public override void draw()
 	{
-		Renderer.DrawSprite(position.x - 0.5f * size, position.y - 0.5f * size, size, size, null, 0xFFFFFF77);
+		Renderer.DrawSprite(position.x - 0.5f * size.x, position.y - 0.5f * size.y, size.x, size.y, null, 0xFFFFFF77);
 	}
 }

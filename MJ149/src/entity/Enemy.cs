@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Enemy : Entity
+public class Enemy : Entity, Toucheable
 {
 	const int AI_TICKS = 10;
 
@@ -16,8 +16,9 @@ public class Enemy : Entity
 
 	Entity target;
 	Vector2 targetPosition;
+	List<Vector2i> currentPath = new List<Vector2i>();
 
-	public int health = 5;
+	public int health = 10;
 
 	long lastAITick = 0;
 	long lastShootTime = 0;
@@ -26,20 +27,37 @@ public class Enemy : Entity
 	public Enemy(Vector2 position)
 	{
 		this.position = position;
-		collider = new FloatRect(-0.5f, -0.5f, 1, 1);
+		size = new Vector2(2, 2);
+		collider = new FloatRect(-0.4f, -0.4f, 0.8f, 0.8f);
+		hitbox = new FloatRect(-1, 0, 2, 2);
 
-		speed = 5;
+		speed = 4;
+	}
+
+	public override void reset()
+	{
+		removed = true;
 	}
 
 	public override void destroy()
 	{
 	}
 
-	public void hit(Entity from)
+	public void touch(Entity entity)
 	{
-		health--;
-		if (health == 0)
+		if (entity is Player)
 		{
+			Player player = entity as Player;
+			player.hit(this);
+		}
+	}
+
+	public void hit(int damage, Entity from)
+	{
+		health -= damage;
+		if (health <= 0)
+		{
+			health = 0;
 			onDeath(from);
 			removed = true;
 		}
@@ -49,12 +67,19 @@ public class Enemy : Entity
 	{
 		if (from is Player)
 		{
-			((Player)from).points += 100;
+			Player player = from as Player;
+			player.points += 100;
+			Gaem.instance.manager.pointsEarned += 100;
+			Gaem.instance.manager.enemiesKilled++;
 		}
 		else if (from is Bullet)
 		{
-			((Player)((Bullet)from).shooter).points += 100;
+			Player player = (Player)((Bullet)from).shooter;
+			player.points += 100;
+			Gaem.instance.manager.pointsEarned += 100;
+			Gaem.instance.manager.enemiesKilled++;
 		}
+		Gaem.instance.manager.enemiesRemaining--;
 	}
 
 	void updateAI()
@@ -67,12 +92,17 @@ public class Enemy : Entity
 		{
 			Vector2i currentTile = (Vector2i)position;
 			Vector2i targetTile = (Vector2i)target.position;
-			List<Vector2i> path = AStar.Run(currentTile, targetTile, level.width, level.height, level.walkable);
-			if (path != null && path.Count > 1)
+
+			if (currentTile != targetTile)
 			{
-				Vector2i nextTile = path[1];
-				Vector2 nextTileCenter = nextTile + 0.5f;
-				targetPosition = nextTileCenter;
+				if (!CollisionDetection.Linecast(currentTile + 0.5f, targetTile + 0.5f, level))
+					targetPosition = targetTile + 0.5f;
+				else if (level.astar.run(currentTile, targetTile, currentPath) && currentPath.Count > 1)
+				{
+					Vector2i nextTile = currentPath[1];
+					Vector2 nextTileCenter = nextTile + 0.5f;
+					targetPosition = nextTileCenter;
+				}
 			}
 		}
 	}
@@ -83,28 +113,11 @@ public class Enemy : Entity
 
 		if (target != null)
 		{
-			Vector2i input = Vector2i.Zero;
-			if (targetPosition.x - position.x > 0.01f)
-				input.x++;
-			if (targetPosition.x - position.x < -0.01f)
-				input.x--;
-			if (targetPosition.y - position.y > 0.01f)
-				input.y++;
-			if (targetPosition.y - position.y < -0.01f)
-				input.y--;
+			Vector2 input = targetPosition - position;
 
-			//if (Input.IsKeyDown(KeyCode.KeyA))
-			//	input.x--;
-			//if (Input.IsKeyDown(KeyCode.KeyD))
-			//	input.x++;
-			//if (Input.IsKeyDown(KeyCode.KeyS))
-			//	input.y--;
-			//if (Input.IsKeyDown(KeyCode.KeyW))
-			//	input.y++;
-
-			if (input.x != 0 || input.y != 0)
+			if (input.lengthSquared > 0.0f)
 			{
-				velocity += ((Vector2)input).normalized * speed;
+				velocity += input.normalized * speed;
 			}
 		}
 
@@ -147,7 +160,7 @@ public class Enemy : Entity
 		Vector2 target = targetPosition;
 		Vector2 shootOrigin = position;
 		Vector2 direction = (target - shootOrigin).normalized;
-		level.addEntity(new Bullet(this, shootOrigin, direction));
+		level.addEntity(new Bullet(this, 1, shootOrigin, direction));
 	}
 
 	void updateAnimations()
@@ -170,6 +183,6 @@ public class Enemy : Entity
 
 	public override void draw()
 	{
-		Renderer.DrawSprite(position.x - 1, position.y - 1, 2, 2, null, 0xFFFF7777);
+		Renderer.DrawSprite(position.x - 0.5f * size.x, position.y, size.x, size.y, null, 0xFFFF7777);
 	}
 }
