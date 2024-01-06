@@ -21,11 +21,9 @@ TODO:
 [ ] art
 [ ] sound effects
 [ ] lighting
-[ ] bloom
 [ ] more enemies
 [ ] more weapons
 [ ] main menu
-[ ] normal maps
 
 Polish:
 [X] fix enemies getting stuck
@@ -33,4 +31,7 @@ Polish:
 [X] prefer spawns close to the player
 [ ] upgrade drops
 [ ] wave indicator
+[ ] improve performance
 [ ] only spawn from points the player cant see
+[ ] bloom
+[ ] normal maps
