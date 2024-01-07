@@ -30,7 +30,7 @@ Polish:
 [X] smooth enemy movement
 [X] prefer spawns close to the player
 [ ] blink when taking damage
-[ ] player shadow
+[X] player shadow
 [ ] upgrade drops
 [ ] wave indicator
 [ ] improve performance
