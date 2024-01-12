@@ -119,6 +119,14 @@ namespace Rainfall
 			return new Vector2i(Math.Sign(v.x), Math.Sign(v.y));
 		}
 
+		public static Vector2 Lerp(Vector2 a, Vector2 b, float t)
+		{
+			return new Vector2(
+				(1.0f - t) * a.x + t * b.x,
+				(1.0f - t) * a.y + t * b.y
+			);
+		}
+
 		public static Vector2 Rotate(Vector2 v, float angle)
 		{
 			float s = MathF.Sin(angle);

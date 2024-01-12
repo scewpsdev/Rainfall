@@ -67,5 +67,44 @@ namespace Rainfall
 				}
 			}
 		}
+
+		public int currentFrame
+		{
+			get
+			{
+				if (currentAnimation != null)
+				{
+					SpriteAnimation current = getAnimation(currentAnimation);
+					long now = Time.currentTime;
+					float timer = (now - startTime) / 1e9f;
+					int frameIdx = (int)(timer * current.fps);
+					if (current.looping)
+						frameIdx %= current.length;
+					else
+						frameIdx = Math.Min(frameIdx, current.length - 1);
+					return frameIdx;
+				}
+				return -1;
+			}
+		}
+
+		public bool finished
+		{
+			get
+			{
+				if (currentAnimation != null)
+				{
+					SpriteAnimation current = getAnimation(currentAnimation);
+					long now = Time.currentTime;
+					float timer = (now - startTime) / 1e9f;
+					int frameIdx = (int)(timer * current.fps);
+					if (current.looping)
+						return false;
+					else
+						return frameIdx >= current.length;
+				}
+				return false;
+			}
+		}
 	}
 }

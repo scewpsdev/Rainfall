@@ -8,6 +8,18 @@ using System.Threading.Tasks;
 
 public static class Renderer
 {
+	struct ChunkDraw
+	{
+		internal Vector3 position;
+		internal Vector3 size;
+		internal Texture octree;
+	}
+
+
+	const int PASS_GEOMETRY = 0;
+	const int PASS_DISPLAY = 1;
+
+
 	static GraphicsDevice graphics;
 	static Camera camera;
 	static Matrix projection, view;
@@ -25,6 +37,9 @@ public static class Renderer
 
 	static VertexBuffer boxVertexBuffer;
 	static IndexBuffer boxIndexBuffer;
+	static Shader chunkShader;
+
+	static List<ChunkDraw> chunkDraws = new List<ChunkDraw>();
 
 
 	public static void Init(GraphicsDevice graphics)
@@ -36,6 +51,7 @@ public static class Renderer
 		quad = graphics.createVertexBuffer(graphics.createVideoMemory(stackalloc float[] { -3, -1, 1, -1, 1, 3 }), stackalloc VertexElement[] { new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector2, false) });
 
 		voxelShader = Resource.GetShader("res/shaders/voxel/brickgrid.cs.shader");
+		chunkShader = Resource.GetShader("res/shaders/voxel/chunk.vs.shader", "res/shaders/voxel/chunk.fs.shader");
 
 		boxVertexBuffer = graphics.createVertexBuffer(
 			graphics.createVideoMemory(stackalloc Vector3[] {
@@ -53,6 +69,11 @@ public static class Renderer
 		boxIndexBuffer = graphics.createIndexBuffer(
 			graphics.createVideoMemory(stackalloc short[] { 0, 1, 2, 2, 3, 0, 0, 3, 7, 7, 4, 0, 3, 2, 6, 6, 7, 3, 2, 1, 5, 5, 6, 2, 1, 0, 4, 4, 5, 1, 4, 7, 6, 6, 5, 4 })
 		);
+	}
+
+	public static void DrawChunk(Vector3 position, Vector3 size, Texture octree)
+	{
+		chunkDraws.Add(new ChunkDraw { position = position, size = size, octree = octree });
 	}
 
 	public static void DrawVoxels(Texture brickgrid, Texture brickgridLod, Texture brickgridLod2, Texture brickgridLod3, Vector3 position)
@@ -73,6 +94,52 @@ public static class Renderer
 		Renderer.camera = camera;
 		projection = camera.getProjectionMatrix();
 		view = camera.getViewMatrix();
+	}
+
+	static void GeometryPass()
+	{
+		graphics.resetState();
+		graphics.setPass(0);
+		graphics.setRenderTarget(null);
+
+		graphics.setViewTransform(projection, view);
+
+		foreach (ChunkDraw draw in chunkDraws)
+		{
+			graphics.setCullState(CullState.CounterClockWise);
+			graphics.setBlendState(BlendState.Default);
+
+			graphics.setVertexBuffer(boxVertexBuffer);
+			graphics.setIndexBuffer(boxIndexBuffer);
+
+			graphics.setTexture(chunkShader, "s_octree", 0, draw.octree);
+
+			graphics.setUniform(chunkShader, "u_boxPosition", draw.position);
+			graphics.setUniform(chunkShader, "u_boxSize", draw.size);
+			graphics.setUniform(chunkShader, "u_cameraPosition", camera.position - draw.position);
+
+			graphics.draw(chunkShader);
+		}
+	}
+
+	static void GeometryPass2()
+	{
+		graphics.resetState();
+		graphics.setPass(0);
+		graphics.setRenderTarget(null);
+
+		foreach (ChunkDraw draw in chunkDraws)
+		{
+			graphics.setCullState(CullState.ClockWise);
+			graphics.setVertexBuffer(quad);
+			graphics.setUniform(screenShader, "iResolution", new Vector4((Vector2)Display.viewportSize, Time.currentTime / 1e9f, 0));
+			graphics.setTexture(screenShader, "s_octree", 0, draw.octree);
+			graphics.setUniform(screenShader, "u_boxPosition", draw.position);
+			graphics.setUniform(screenShader, "u_boxSize", draw.size);
+			graphics.setUniform(screenShader, "u_cameraPosition", camera.position - draw.position);
+
+			graphics.draw(screenShader);
+		}
 	}
 
 	static void RaytracingPass()
@@ -120,7 +187,10 @@ public static class Renderer
 	{
 		graphics.setPass(0);
 
-		RaytracingPass();
-		DisplayPass();
+		GeometryPass2();
+		//RaytracingPass();
+		//DisplayPass();
+
+		chunkDraws.Clear();
 	}
 }

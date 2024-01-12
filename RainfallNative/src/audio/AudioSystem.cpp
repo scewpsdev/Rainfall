@@ -110,6 +110,7 @@ namespace AudioSystem
 		alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, AL_TRUE);
 
 		ReverbEffect preset = EFX_REVERB_PRESET_GENERIC;
+		preset.flLateReverbGain = 1.2589f * 0.4f;
 		reverbEffect = CreateReverbEffect(&preset);
 
 		CheckOpenALError();

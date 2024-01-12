@@ -614,3 +614,9 @@ RFAPI void Graphics_CompleteFrame()
 {
 	bgfx::frame();
 }
+
+RFAPI void Graphics_GetRenderStats(bgfx::Stats* renderStats)
+{
+	const bgfx::Stats* stats = bgfx::getStats();
+	*renderStats = *stats;
+}

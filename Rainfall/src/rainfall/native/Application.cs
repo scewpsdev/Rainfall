@@ -69,6 +69,9 @@ namespace Rainfall.Native
 		internal static extern long Application_GetTimestamp();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern long Application_Terminate();
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Application_SetDebugTextEnabled(byte enabled);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

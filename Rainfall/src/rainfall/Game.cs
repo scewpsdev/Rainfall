@@ -155,6 +155,11 @@ namespace Rainfall
 			Native.Application.Application_Run(launchParams, callbacks);
 		}
 
+		public void terminate()
+		{
+			Native.Application.Application_Terminate();
+		}
+
 		public abstract void init();
 		public abstract void destroy();
 		public abstract void update();

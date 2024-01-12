@@ -27,6 +27,69 @@ namespace Rainfall
 		Count
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct RenderStats
+	{
+		public long cpuTimeFrame;               //!< CPU time between two `bgfx::frame` calls.
+		public long cpuTimeBegin;               //!< Render thread CPU submit begin time.
+		public long cpuTimeEnd;                 //!< Render thread CPU submit end time.
+		public long cpuTimerFreq;               //!< CPU timer frequency. Timestamps-per-second
+
+		public long gpuTimeBegin;               //!< GPU frame begin time.
+		public long gpuTimeEnd;                 //!< GPU frame end time.
+		public long gpuTimerFreq;               //!< GPU timer frequency.
+
+		long waitRender;                 //!< Time spent waiting for render backend thread to finish issuing
+											//!  draw commands to underlying graphics API.
+		long waitSubmit;                 //!< Time spent waiting for submit thread to advance to next frame.
+
+		public uint numDraw;                   //!< Number of draw calls submitted.
+		public uint numCompute;                //!< Number of compute calls submitted.
+		public uint numBlit;                   //!< Number of blit calls submitted.
+		public uint maxGpuLatency;             //!< GPU driver latency.
+
+		ushort numDynamicIndexBuffers;    //!< Number of used dynamic index buffers.
+		ushort numDynamicVertexBuffers;   //!< Number of used dynamic vertex buffers.
+		ushort numFrameBuffers;           //!< Number of used frame buffers.
+		ushort numIndexBuffers;           //!< Number of used index buffers.
+		ushort numOcclusionQueries;       //!< Number of used occlusion queries.
+		ushort numPrograms;               //!< Number of used programs.
+		ushort numShaders;                //!< Number of used shaders.
+		ushort numTextures;               //!< Number of used textures.
+		ushort numUniforms;               //!< Number of used uniforms.
+		ushort numVertexBuffers;          //!< Number of used vertex buffers.
+		ushort numVertexLayouts;          //!< Number of used vertex layouts.
+
+		public long textureMemoryUsed;          //!< Estimate of texture memory used.
+		public long rtMemoryUsed;               //!< Estimate of render target memory used.
+		public int transientVbUsed;            //!< Amount of transient vertex buffer used.
+		public int transientIbUsed;            //!< Amount of transient index buffer used.
+
+		fixed uint numPrims[5]; //!< Number of primitives rendered.
+
+		public long gpuMemoryMax;               //!< Maximum available GPU memory for application.
+		public long gpuMemoryUsed;              //!< Amount of GPU memory used by the application.
+
+		ushort width;                     //!< Backbuffer width in pixels.
+		ushort height;                    //!< Backbuffer height in pixels.
+		ushort textWidth;                 //!< Debug text width in characters.
+		ushort textHeight;                //!< Debug text height in characters.
+
+		ushort numViews;                //!< Number of view stats.
+		IntPtr viewStats;               //!< Array of View stats.
+
+		byte numEncoders;          //!< Number of encoders used during frame.
+		IntPtr encoderStats;         //!< Array of encoder stats.
+
+		public float cpuTime { get => (cpuTimeEnd - cpuTimeBegin) / (float)cpuTimerFreq; }
+		public float gpuTime { get => (gpuTimeEnd - gpuTimeBegin) / (float)gpuTimerFreq; }
+		public int numTriangles { get => (int)numPrims[0]; }
+		public int numTriangles1 { get => (int)numPrims[1]; }
+		public int numTriangles2 { get => (int)numPrims[2]; }
+		public int numTriangles3 { get => (int)numPrims[3]; }
+		public int numTriangles4 { get => (int)numPrims[4]; }
+	}
+
 	namespace Native
 	{
 		[StructLayout(LayoutKind.Sequential)]
@@ -253,6 +316,9 @@ namespace Rainfall
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_CompleteFrame();
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_GetRenderStats(out RenderStats renderStats);
 		}
 	}
 }

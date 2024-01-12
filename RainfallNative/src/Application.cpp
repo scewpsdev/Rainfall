@@ -443,6 +443,8 @@ static void MouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 static void WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
+	if (width == 0 || height == 0)
+		return;
 	eventQueue.postSizeEvent(width, height);
 }
 
@@ -534,6 +536,10 @@ RFAPI void Application_SleepForNanos(int nanos)
 	std::this_thread::sleep_for(std::chrono::nanoseconds(nanos));
 }
 
+RFAPI void Application_Terminate()
+{
+	eventQueue.postExitEvent();
+}
 
 static const Event* PollEvent()
 {
@@ -812,7 +818,6 @@ static int GameThreadEntry(bx::Thread* thread, void* userData)
 	GameThreadData* gameThreadData = (GameThreadData*)userData;
 	int result = EXIT_SUCCESS;
 
-	keepRunning = true;
 	while (keepRunning)
 	{
 		result = RunApp(gameThreadData->params, gameThreadData->callbacks);
@@ -880,6 +885,8 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 
 	// TODO init gamepads
 
+	keepRunning = true;
+
 	GameThreadData gameThreadData = { params, callbacks };
 	gameThread.init(GameThreadEntry, &gameThreadData);
 
@@ -887,9 +894,15 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	glfwGetCursorPos(window, &xpos, &ypos);
 	CursorPosCallback(window, xpos, ypos);
 
-	while (!glfwWindowShouldClose(window))
+	bool running = true;
+	while (running)
 	{
 		glfwWaitEventsTimeout(0.016);
+
+		if (!keepRunning)
+			running = false;
+		if (glfwWindowShouldClose(window))
+			running = false;
 
 		// TODO update gamepads
 
@@ -964,6 +977,8 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 						glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 
 						isFullscreen = true;
+
+						glfwFocusWindow(window);
 					}
 				}
 			}

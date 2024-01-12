@@ -467,6 +467,11 @@ namespace Rainfall
 			Native.Graphics.Graphics_DestroyRenderTarget(renderTarget.handle);
 		}
 
+		public void destroyShader(Shader shader)
+		{
+			Native.Graphics.Graphics_DestroyShader(shader.handle);
+		}
+
 
 		public void resetState()
 		{
@@ -575,6 +580,15 @@ namespace Rainfall
 			}
 		}
 
+		public void setUniform(ushort handle, Vector3 v)
+		{
+			unsafe
+			{
+				Vector4 v4 = new Vector4(v, 0.0f);
+				Native.Graphics.Graphics_SetUniform(handle, &v4, 1);
+			}
+		}
+
 		public void setUniform(ushort handle, Span<Vector4> v)
 		{
 			unsafe
@@ -612,6 +626,11 @@ namespace Rainfall
 		}
 
 		public void setUniform(Shader shader, string name, Vector4 v)
+		{
+			setUniform(shader.getUniform(name, UniformType.Vector4), v);
+		}
+
+		public void setUniform(Shader shader, string name, Vector3 v)
 		{
 			setUniform(shader.getUniform(name, UniformType.Vector4), v);
 		}
@@ -768,6 +787,11 @@ namespace Rainfall
 		public void completeFrame()
 		{
 			Native.Graphics.Graphics_CompleteFrame();
+		}
+
+		public void getRenderStats(out RenderStats stats)
+		{
+			Native.Graphics.Graphics_GetRenderStats(out stats);
 		}
 	}
 }

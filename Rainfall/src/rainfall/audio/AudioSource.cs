@@ -11,7 +11,7 @@ namespace Rainfall
 	{
 		internal uint handle;
 
-		Sound currentSound = null;
+		public Sound currentSound { get; private set; } = null;
 		long lastPlayed = 0;
 
 
@@ -41,14 +41,16 @@ namespace Rainfall
 			lastPlayed = Time.currentTime;
 		}
 
-		public void playSoundOrganic(Span<Sound> sound, float gain = 1.0f, float pitch = 1.0f)
+		public void playSoundOrganic(Span<Sound> sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
 		{
-			playSoundOrganic(sound[Random.Shared.Next() % sound.Length], gain, pitch);
+			playSoundOrganic(sound[Random.Shared.Next() % sound.Length], gain, pitch, gainVariation, pitchVariation);
 		}
 
 		public void stop()
 		{
 			Native.Audio.Audio_SourceStop(handle);
+			currentSound = null;
+			lastPlayed = 0;
 		}
 
 		public void pause()
@@ -86,9 +88,14 @@ namespace Rainfall
 			set { Native.Audio.Audio_SourceSetAmbientMode(handle, value); }
 		}
 
+		public float timePlaying
+		{
+			get => (Time.currentTime - lastPlayed) / 1e9f;
+		}
+
 		public bool isPlaying
 		{
-			get { return (Time.currentTime - lastPlayed) / 1e9f < currentSound.duration; }
+			get { return currentSound != null && (Time.currentTime - lastPlayed) / 1e9f < currentSound.duration; }
 		}
 	}
 }

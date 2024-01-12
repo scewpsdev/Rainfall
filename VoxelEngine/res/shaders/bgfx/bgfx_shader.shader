@@ -419,6 +419,16 @@ vec4 bgfxTexelFetch(BgfxSampler3D _sampler, ivec3 _coord, int _lod)
 	return _sampler.m_texture.Load(ivec4(_coord, _lod) );
 }
 
+ivec4 bgfxTexelFetch(BgfxISampler3D _sampler, ivec3 _coord, int _lod)
+{
+	return _sampler.m_texture.Load(ivec4(_coord, _lod) );
+}
+
+uvec4 bgfxTexelFetch(BgfxUSampler3D _sampler, ivec3 _coord, int _lod)
+{
+	return _sampler.m_texture.Load(ivec4(_coord, _lod) );
+}
+
 vec3 bgfxTextureSize(BgfxSampler3D _sampler, int _lod)
 {
 	vec3 result;

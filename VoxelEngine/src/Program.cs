@@ -21,11 +21,18 @@ internal class Program : Game
 
 	Camera camera;
 
-	World world;
+	//World world;
+	Chunk chunk;
 
 	float msAcc = 0.0f;
 	int fpsAcc = 0;
 	int totalFrames = 0;
+
+	float cpuTimeAcc = 0.0f;
+	float gpuTimeAcc = 0.0f;
+	float cpuTime, gpuTime;
+	int numFrames = 0;
+	long lastSecond = 0;
 
 
 	public override void init()
@@ -33,18 +40,32 @@ internal class Program : Game
 		Renderer.Init(graphics);
 
 		camera = new FreeCamera();
-		camera.position = new Vector3(128, 25, 128);
-		camera.yaw = MathF.PI * -0.75f;
-		camera.pitch = MathF.PI * -0.15f;
+		camera.position = new Vector3(8, 20, 8);
+		camera.yaw = MathF.PI * -0.5f;
+		camera.pitch = MathF.PI * -0.5f;
 
-		world = new World(graphics);
+		//world = new World(graphics);
+		chunk = new Chunk(256, graphics);
+		for (int z = 0; z < chunk.resolution; z++)
+		{
+			for (int y = 0; y < chunk.resolution; y++)
+			{
+				for (int x = 0; x < chunk.resolution; x++)
+				{
+					chunk.setVoxel(x, y, z, Random.Shared.Next() % 256 == 0);
+					//chunk.setVoxel(x, y, z, y < chunk.resolution / 2);
+				}
+			}
+		}
+		chunk.update(graphics);
 
 		Input.mouseLocked = true;
 	}
 
 	public override void destroy()
 	{
-		world.destroy(graphics);
+		//world.destroy(graphics);
+		chunk.destroy(graphics);
 
 		if (totalFrames > 0)
 		{
@@ -79,7 +100,16 @@ internal class Program : Game
 		Renderer.SetCamera(camera);
 
 		// draw
-		world.draw(graphics);
+		//world.draw(graphics);
+		chunk.draw(new Vector3i(0, 0, 0));
+		//chunk.draw(new Vector3i(0, 0, 1));
+		//chunk.draw(new Vector3i(0, 1, 0));
+		//chunk.draw(new Vector3i(0, 1, 1));
+		//chunk.draw(new Vector3i(1, 0, 0));
+		//chunk.draw(new Vector3i(1, 0, 1));
+		//chunk.draw(new Vector3i(1, 1, 0));
+		//chunk.draw(new Vector3i(1, 1, 1));
+
 		drawDebugStats();
 
 		Renderer.End();
@@ -89,6 +119,15 @@ internal class Program : Game
 			fpsAcc += Time.fps;
 			msAcc += Time.ms;
 			totalFrames++;
+		}
+		if (Time.currentTime - lastSecond >= 1e9)
+		{
+			cpuTime = cpuTimeAcc / numFrames;
+			gpuTime = gpuTimeAcc / numFrames;
+			cpuTimeAcc = 0;
+			gpuTimeAcc = 0;
+			numFrames = 0;
+			lastSecond = Time.currentTime;
 		}
 	}
 
@@ -103,71 +142,117 @@ internal class Program : Game
 		str[13] = '0' + VERSION_MINOR;
 		str[15] = '0' + VERSION_PATCH;
 		str[16] = (byte)VERSION_SUFFIX;
-		Debug.DrawDebugText(Debug.debugTextSize.x - 20, line++, 0xB, str);
+		Debug.DrawDebugText(0, line++, 0xB, str);
 
 		line++;
 
 		StringUtils.WriteInteger(str, Time.fps);
 		StringUtils.AppendString(str, " fps");
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteFloat(str, Time.ms, 2);
 		StringUtils.AppendString(str, " ms");
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		Debug.DrawDebugText(0, line++, str);
 
 		long mem = Time.memory;
-		if (mem >= 1 << 20)
-		{
-			StringUtils.WriteFloat(str, mem / (float)(1 << 20), 2);
-			StringUtils.AppendString(str, " MB");
-		}
-		else if (mem >= 1 << 10)
-		{
-			StringUtils.WriteFloat(str, mem / (float)(1 << 10), 2);
-			StringUtils.AppendString(str, " KB");
-		}
-		else
-		{
-			StringUtils.WriteFloat(str, mem, 2);
-			StringUtils.AppendString(str, " By");
-		}
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		str[0] = 0;
+		WriteMemoryString(str, mem);
+		Debug.DrawDebugText(0, line++, str);
 
 		long nativeMem = Time.nativeMemory;
-		if (nativeMem >= 1 << 20)
-		{
-			StringUtils.WriteFloat(str, nativeMem / (float)(1 << 20), 2);
-			StringUtils.AppendString(str, " MB");
-		}
-		else if (nativeMem >= 1 << 10)
-		{
-			StringUtils.WriteFloat(str, nativeMem / (float)(1 << 10), 2);
-			StringUtils.AppendString(str, " KB");
-		}
-		else
-		{
-			StringUtils.WriteFloat(str, nativeMem, 2);
-			StringUtils.AppendString(str, " By");
-		}
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		str[0] = 0;
+		WriteMemoryString(str, nativeMem);
+		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteInteger(str, Time.numAllocations);
 		StringUtils.AppendString(str, " allocations");
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		Debug.DrawDebugText(0, line++, str);
+
+		line++;
+
+		graphics.getRenderStats(out RenderStats renderStats);
+		cpuTimeAcc += renderStats.cpuTime;
+		gpuTimeAcc += renderStats.gpuTime;
+		numFrames++;
+
+		StringUtils.WriteString(str, "CPU time: ");
+		StringUtils.AppendFloat(str, cpuTime * 1000);
+		StringUtils.AppendString(str, "ms");
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "GPU time: ");
+		StringUtils.AppendFloat(str, gpuTime * 1000);
+		StringUtils.AppendString(str, "ms");
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "GPU latency: ");
+		StringUtils.AppendInteger(str, (int)renderStats.maxGpuLatency);
+		StringUtils.AppendString(str, "ms");
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "GPU Memory: ");
+		WriteMemoryString(str, renderStats.gpuMemoryUsed);
+		StringUtils.AppendString(str, "/");
+		WriteMemoryString(str, renderStats.gpuMemoryMax);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Texture Memory: ");
+		WriteMemoryString(str, renderStats.textureMemoryUsed);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "RT Memory: ");
+		WriteMemoryString(str, renderStats.rtMemoryUsed);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Draw calls: ");
+		StringUtils.AppendInteger(str, (int)renderStats.numDraw);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Computes: ");
+		StringUtils.AppendInteger(str, (int)renderStats.numCompute);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Blits: ");
+		StringUtils.AppendInteger(str, (int)renderStats.numBlit);
+		Debug.DrawDebugText(0, line++, str);
 
 		line++;
 
 		StringUtils.WriteString(str, "x=");
 		StringUtils.AppendFloat(str, camera.position.x);
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "y=");
 		StringUtils.AppendFloat(str, camera.position.y);
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "z=");
 		StringUtils.AppendFloat(str, camera.position.z);
-		Debug.DrawDebugText(Debug.debugTextSize.x - 16, line++, str);
+		Debug.DrawDebugText(0, line++, str);
+	}
+
+	static void WriteMemoryString(Span<byte> str, long mem)
+	{
+		if (mem >= 1 << 30)
+		{
+			StringUtils.AppendFloat(str, mem / (float)(1 << 30), 2);
+			StringUtils.AppendString(str, "GB");
+		}
+		else if (mem >= 1 << 20)
+		{
+			StringUtils.AppendFloat(str, mem / (float)(1 << 20), 2);
+			StringUtils.AppendString(str, "MB");
+		}
+		else if (mem >= 1 << 10)
+		{
+			StringUtils.AppendFloat(str, mem / (float)(1 << 10), 2);
+			StringUtils.AppendString(str, "KB");
+		}
+		else
+		{
+			StringUtils.AppendFloat(str, mem, 2);
+			StringUtils.AppendString(str, "By");
+		}
 	}
 
 	public static void Main(string[] args)
