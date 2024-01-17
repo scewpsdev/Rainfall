@@ -26,9 +26,9 @@ internal class DemoScene : Room
 		testModel = Resource.GetModel("res/level/ModularDungeon.gltf");
 	}
 
-	public override void spawn(Level level, Random random)
+	public override void spawn(Level level, LevelGenerator generator, Random random)
 	{
-		base.spawn(level, random);
+		base.spawn(level, generator, random);
 
 
 		addEntity(new Dummy(), new Vector3(0.0f, 0.0f, 8.0f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));

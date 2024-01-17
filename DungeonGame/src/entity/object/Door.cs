@@ -31,7 +31,15 @@ public abstract class Door : Entity, Interactable
 		doorBody = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		frameBody = new RigidBody(this, RigidBodyType.Static);
 
-		audio = Audio.CreateSource(position + new Vector3(0.0f, 1.0f, 0.0f));
+		audio = new AudioSource(position + new Vector3(0.0f, 1.0f, 0.0f));
+	}
+
+	public override void destroy()
+	{
+		doorBody.destroy();
+		frameBody.destroy();
+
+		audio.destroy();
 	}
 
 	public void open()

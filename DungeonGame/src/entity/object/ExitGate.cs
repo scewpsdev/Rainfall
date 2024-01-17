@@ -47,8 +47,14 @@ internal class ExitGate : Entity, Activatable, Interactable
 		exitBody = new RigidBody(this, RigidBodyType.Static, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		exitBody.addBoxCollider(new Vector3(1.0f, 1.5f, 0.1f), new Vector3(0.0f, 1.5f, -1.9f), Quaternion.Identity);
 
-		audioMechanism = Audio.CreateSource(position + new Vector3(0.0f, 5.0f, 0.0f) + rotation.forward);
-		audioBars = Audio.CreateSource(position + rotation.forward);
+		audioMechanism = new AudioSource(position + new Vector3(0.0f, 5.0f, 0.0f) + rotation.forward);
+		audioBars = new AudioSource(position + rotation.forward);
+	}
+
+	public override void destroy()
+	{
+		audioMechanism.destroy();
+		audioBars.destroy();
 	}
 
 	public void activate(Entity from)
@@ -60,6 +66,7 @@ internal class ExitGate : Entity, Activatable, Interactable
 		lever = from as Lever;
 
 		audioMechanism.playSound(sfxRun);
+		audioMechanism.isLooping = true;
 	}
 
 	public bool canInteract(Entity by)

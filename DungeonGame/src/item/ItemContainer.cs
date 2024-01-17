@@ -66,7 +66,7 @@ public class ItemContainer
 		return true;
 	}
 
-	public ItemSlot addItem(Item item, int amount = 1)
+	public virtual ItemSlot addItem(Item item, int amount = 1)
 	{
 		//List<ItemSlot> items = getItemListForCategory(item.category);
 		if (item.stackable)

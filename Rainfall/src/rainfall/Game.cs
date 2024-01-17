@@ -47,14 +47,12 @@ namespace Rainfall
 		static void Game_Init()
 		{
 			Display.Init(instance.launchParams);
-			Audio.Init();
 			instance.init();
 		}
 
 		static void Game_Destroy()
 		{
 			instance.destroy();
-			Audio.Shutdown();
 		}
 
 		static void Game_Update()

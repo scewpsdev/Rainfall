@@ -47,7 +47,7 @@ public class ParticleEffect : Entity
 
 		if (sound != null)
 		{
-			audio = Audio.CreateSource(new Vector3(position, 0.0f));
+			audio = new AudioSource(new Vector3(position, 0.0f));
 			audio.playSoundOrganic(sound, 0.5f, 1, 0.2f, 0.5f);
 		}
 
@@ -57,7 +57,7 @@ public class ParticleEffect : Entity
 	public override void destroy()
 	{
 		if (audio != null)
-			Audio.DestroySource(audio);
+			audio.destroy();
 	}
 
 	public override void update()

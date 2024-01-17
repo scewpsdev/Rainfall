@@ -38,7 +38,13 @@ internal class SecretWall : Entity, Interactable
 		doorBody.addBoxCollider(new Vector3(1.5f, 1.5f, 0.5f), new Vector3(0.0f, 1.5f, 0.0f), Quaternion.Identity, 0.0f);
 		doorBody.setTransform(position, rotation);
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
+	}
+
+	public override void destroy()
+	{
+		doorBody.destroy();
+		audio.destroy();
 	}
 
 	public void open()

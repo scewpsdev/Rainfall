@@ -34,7 +34,13 @@ internal class PressurePlate : Entity
 		body = new RigidBody(this, RigidBodyType.Kinematic);
 		body.addBoxTrigger(new Vector3(1.0f), Vector3.Zero, Quaternion.Identity);
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
+	}
+
+	public override void destroy()
+	{
+		body.destroy();
+		audio.destroy();
 	}
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)

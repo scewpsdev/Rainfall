@@ -42,9 +42,9 @@ public class Torch : Entity
 		collider = new FloatRect(-0.5f, -0.5f, 1, 1);
 		staticCollider = true;
 
-		audio = Audio.CreateSource(new Vector3(position, 1.0f));
+		audio = new AudioSource(new Vector3(position, 1.0f));
 		sfxBurn = Resource.GetSound("res/sounds/fire.ogg");
-		audio.playSound(sfxBurn, 1.0f);
+		audio.playSound(sfxBurn, 0.1f);
 		audio.isLooping = true;
 	}
 

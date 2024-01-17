@@ -131,7 +131,7 @@ public class Creature : Entity, Hittable
 
 	public override void init()
 	{
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
 
 		movementBody = new RigidBody(this, RigidBodyType.Dynamic, (uint)PhysicsFilterGroup.CreatureMovementBody, (uint)PhysicsFilterMask.CreatureMovementBody);
 		movementBody.lockRotationAxis(true, true, true);
@@ -150,7 +150,7 @@ public class Creature : Entity, Hittable
 
 	public override void destroy()
 	{
-		Audio.DestroySource(audio);
+		audio.destroy();
 
 		movementBody?.destroy();
 

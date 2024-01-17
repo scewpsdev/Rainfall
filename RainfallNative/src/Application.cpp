@@ -4,6 +4,8 @@
 #include "Input.h"
 #include "Console.h"
 
+#include "audio/Audio.h"
+
 #include <bx/bx.h>
 #include <bx/thread.h>
 #include <bx/allocator.h>
@@ -180,7 +182,7 @@ struct MemoryAllocator : bx::DefaultAllocator
 				}
 				else
 				{
-					Console_Error("Freeing unrecognized pointer %x", _ptr);
+					Console_Error("Freeing unrecognized pointer %x, f: %f, %d, %c", _ptr, *(float*)_ptr, *(int*)_ptr, *(char*)_ptr);
 				}
 				mutex.unlock();
 			}
@@ -701,6 +703,8 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 
 		callbacks.draw();
 
+		Audio_Update();
+
 		bgfx::frame();
 
 		int64_t afterFrame = Application_GetTimestamp();
@@ -735,17 +739,6 @@ static const char* rendererTypeNames[] = {
 
 static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callbacks)
 {
-	bgfx::RendererType::Enum rendererTypes[8];
-	int numRendererTypes = bgfx::getSupportedRenderers(8, rendererTypes);
-	printf("Available renderer types: ");
-	for (int i = 0; i < numRendererTypes; i++)
-	{
-		printf("%s", rendererTypeNames[rendererTypes[i]]);
-		if (i < numRendererTypes - 1)
-			printf(", ");
-	}
-	printf("\n");
-
 	bgfx::Init init;
 	init.type = bgfx::RendererType::Direct3D11;
 	init.vendorId = BGFX_PCI_ID_NONE;
@@ -754,6 +747,8 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	init.resolution.reset = reset;
 	bgfx::init(init);
 
+	bgfx::RendererType::Enum rendererTypes[8];
+	int numRendererTypes = bgfx::getSupportedRenderers(8, rendererTypes);
 	printf("BGFX %d initialized with renderer %s\n", BGFX_API_VERSION, rendererTypeNames[init.type]);
 
 #ifdef _DEBUG
@@ -776,6 +771,7 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 
 	//Resource::Init(params.compileShaders);
 	//Time::Init();
+	Audio_Init();
 
 	//layerStack.pushLayer(Memory_Alloc<SceneLayer>());
 	//layerStack.pushLayer(Memory_Alloc<ImGuiLayer>());
@@ -799,6 +795,8 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	//int result = app->shutdown();
 	//layerStack.shutdown();
 	callbacks.destroy();
+
+	Audio_Shutdown();
 
 	bgfx::shutdown();
 

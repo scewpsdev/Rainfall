@@ -137,7 +137,7 @@ public class RoomType
 	{
 	}
 
-	public virtual void onSpawn(Room room, Level level, Random random)
+	public virtual void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 	}
 
@@ -359,7 +359,7 @@ public class StartingRoom : RoomType
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(-1, 0, 7), new Vector3i(-1, 0, 0)));
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		Model model = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell.gltf");
 		level.levelMeshes.Add(new LevelMesh(model, room.transform));
@@ -372,19 +372,14 @@ public class StartingRoom : RoomType
 			Quaternion rotation = room.transform.rotation * Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
 
 			// Starting equipment chest
-			Chest chest = new Chest(new Item[]
-			{
-				Item.Get("shortsword"),
-				Item.Get("longsword"),
-				Item.Get("longbow"),
-				Item.Get("arrow"),
-				Item.Get("torch"),
-				Item.Get("wooden_round_shield"),
-				Item.Get("leather_chestplate"),
-				Item.Get("flask"),
-				Item.Get("firebomb"),
-			},
-			new int[] { 1, 1, 1, 20, 1, 1, 1, 2, 10 });
+			Chest chest = new Chest();
+			chest.addItem(Item.Get("shortsword"));
+			chest.addItem(Item.Get("torch"));
+			chest.addItem(Item.Get("leather_chestplate"));
+			chest.addItem(Item.Get("wooden_round_shield"));
+			//chest.addItem(Item.Get("longsword"));
+			//chest.addItem(Item.Get("flask"), 2);
+			//chest.addItem(Item.Get("firebomb"), 10);
 			room.addEntity(chest, position, rotation);
 
 			level.spawnPoint = room.transform * Matrix.CreateTranslation(2.5f, 0.0f, 12.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
@@ -469,7 +464,7 @@ public class FinalRoom : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 15), new Vector3i(0, 0, 1)));
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		Matrix gateTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0.0f, 2);
 		ExitGate gate = new ExitGate();
@@ -500,7 +495,7 @@ public class MainRoom : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(1, 9, 20), Vector3i.Back));
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		Model model = Resource.GetModel("res/level/room/pillar_foundation/pillar_foundation.gltf");
 		Matrix transform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0, size.z * 0.5f);
@@ -510,7 +505,17 @@ public class MainRoom : RoomType
 		{
 			Vector3 position = room.transform * new Vector3(18.5f, 16, 1);
 			Quaternion rotation = room.transform.rotation;
-			level.addEntity(new Chest(), position, rotation);
+			Chest chest = new Chest();
+			chest.addItem(Item.Get("longsword"));
+			chest.addItem(Item.Get("longbow"));
+			chest.addItem(Item.Get("arrow"), 20);
+			room.addEntity(chest, position, rotation);
+		}
+
+		Debug.Assert(room.doorways[2].connectedDoorway != null);
+		if (!generator.isDoorwayConnectedToRoom(room.doorways[2].connectedDoorway, room))
+		{
+			room.addEntity(new ResizableLadder(14), room.transform * new Vector3(0.5f, 9, 3.5f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f));
 		}
 
 		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
@@ -563,7 +568,7 @@ public class PotRoom : RoomType
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
 		//interior.initialize(room, level, random);
@@ -704,6 +709,14 @@ public class LibraryRoom : RoomType
 			amounts.Add(1);
 		}
 
+		float firebombChance = 0.1f;
+		if (random.NextSingle() < firebombChance)
+		{
+			items.Add(Item.Get("firebomb"));
+			int amount = MathHelper.RandomInt(1, 3, random);
+			amounts.Add(amount);
+		}
+
 		float arrowChance = 0.08f;
 		if (random.NextSingle() < arrowChance)
 		{
@@ -723,7 +736,7 @@ public class LibraryRoom : RoomType
 		room.addEntity(new Chest(items.ToArray(), amounts.ToArray()), position, rotation);
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
 		//interior.initialize(room, level, random);
@@ -855,7 +868,7 @@ public class FountainRoom : RoomType
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
 		//interior.initialize(room, level, random);
@@ -903,7 +916,7 @@ public class PillarRoom : RoomType
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
 
-	public override void onSpawn(Room room, Level level, Random random)
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
 		//interior.initialize(room, level, random);

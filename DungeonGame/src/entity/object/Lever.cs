@@ -42,9 +42,15 @@ internal class Lever : Entity, Interactable
 		body = new RigidBody(this, RigidBodyType.Static, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		body.addBoxCollider(new Vector3(0.15f, 0.25f, 0.075f), new Vector3(0.0f, 0.0f, 0.075f), Quaternion.Identity);
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
 
 		angle = MathF.PI * -0.25f;
+	}
+
+	public override void destroy()
+	{
+		body.destroy();
+		audio.destroy();
 	}
 
 	public bool canInteract(Entity by)

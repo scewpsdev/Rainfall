@@ -24,22 +24,24 @@ namespace Rainfall
 			Native.Audio.Audio_Shutdown();
 		}
 
-		public static AudioSource CreateSource(Vector3 position)
-		{
-			uint handle = Native.Audio.Audio_CreateSource(position);
-			if (handle != 0)
-				return new AudioSource(handle);
-			return null;
-		}
-
-		public static void DestroySource(AudioSource source)
-		{
-			Native.Audio.Audio_DestroySource(source.handle);
-		}
-
 		public static void UpdateListener(Vector3 position, Quaternion rotation)
 		{
 			Native.Audio.Audio_ListenerUpdateTransform(position, rotation.forward, rotation.up);
+		}
+
+		public static uint PlayBackground(Sound sound, float gain = 1.0f, float pitch = 1.0f)
+		{
+			return Native.Audio.Audio_PlayBackground(sound.handle, gain, pitch, 0);
+		}
+
+		public static uint PlayBackgroundLooping(Sound sound, float gain = 1.0f, float pitch = 1.0f)
+		{
+			return Native.Audio.Audio_PlayBackground(sound.handle, gain, pitch, 1);
+		}
+
+		public static void SetSourceGain(uint source, float gain)
+		{
+			Native.Audio.Audio_SourceSetGain(source, gain);
 		}
 
 		public static void SetEffect(AudioEffect effect)

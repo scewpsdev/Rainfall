@@ -63,7 +63,7 @@ public class Enemy : Entity, Toucheable
 		animator.addAnimation("death", 13, 0, 1, 0, 7, 12, false);
 		animator.setAnimation("idle");
 
-		audio = Audio.CreateSource(new Vector3(position, 0.0f));
+		audio = new AudioSource(new Vector3(position, 0.0f));
 
 		sfxStep = [
 			Resource.GetSound("res/sounds/step1.ogg"),
@@ -85,7 +85,7 @@ public class Enemy : Entity, Toucheable
 
 	public override void destroy()
 	{
-		Audio.DestroySource(audio);
+		audio.destroy();
 	}
 
 	public void touch(Entity entity)

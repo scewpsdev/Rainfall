@@ -222,8 +222,8 @@ public class Player : Entity
 		//kinematicBody.addCapsuleTrigger(PLAYER_RADIUS - 0.2f, PLAYER_HEIGHT_STANDING, new Vector3(0.0f, 0.5f * PLAYER_HEIGHT_STANDING, 0.0f), Quaternion.Identity);
 		kinematicBody.addCapsuleCollider(PLAYER_RADIUS - 0.15f, PLAYER_HEIGHT_STANDING, new Vector3(0.0f, 0.5f * PLAYER_HEIGHT_STANDING, 0.0f), Quaternion.Identity, (uint)PhysicsFilterGroup.PlayerControllerKinematicBody, (uint)PhysicsFilterMask.PlayerControllerKinematicBody);
 
-		audioMovement = Audio.CreateSource(position);
-		audioAction = Audio.CreateSource(position);
+		audioMovement = new AudioSource(position);
+		audioAction = new AudioSource(position);
 
 		setCursorLocked(true);
 
@@ -279,6 +279,12 @@ public class Player : Entity
 		//giveItem(Item.Get("flask"), 3);
 
 		//giveItem(Item.Get("leather_chestplate"));
+	}
+
+	public override void destroy()
+	{
+		audioMovement.destroy();
+		audioAction.destroy();
 	}
 
 	public void hit(int damage, Entity from)

@@ -9,25 +9,33 @@ namespace Rainfall
 {
 	public class AudioSource
 	{
-		internal uint handle;
+		uint source;
+		Vector3 position;
 
 		public Sound currentSound { get; private set; } = null;
 		long lastPlayed = 0;
 
 
-		internal AudioSource(uint handle)
+		public AudioSource(Vector3 position)
 		{
-			this.handle = handle;
+			this.position = position;
+		}
+
+		public void destroy()
+		{
+
 		}
 
 		public void updateTransform(Vector3 position)
 		{
-			Native.Audio.Audio_SourceUpdateTransform(handle, position);
+			this.position = position;
+			if (source != 0)
+				Native.Audio.Audio_SourceSetPosition(source, position);
 		}
 
 		public void playSound(Sound sound, float gain = 1.0f, float pitch = 1.0f)
 		{
-			Native.Audio.Audio_SourcePlaySound(handle, sound.handle, gain, pitch);
+			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gain, pitch);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
@@ -36,7 +44,7 @@ namespace Rainfall
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
-			Native.Audio.Audio_SourcePlaySound(handle, sound.handle, gainFactor * gain, pitchFactor * pitch);
+			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
@@ -48,44 +56,39 @@ namespace Rainfall
 
 		public void stop()
 		{
-			Native.Audio.Audio_SourceStop(handle);
+			Native.Audio.Audio_SourceStop(source);
 			currentSound = null;
 			lastPlayed = 0;
 		}
 
 		public void pause()
 		{
-			Native.Audio.Audio_SourcePause(handle);
+			Native.Audio.Audio_SourcePause(source);
 		}
 
 		public void resume()
 		{
-			Native.Audio.Audio_SourceResume(handle);
+			Native.Audio.Audio_SourceResume(source);
 		}
 
 		public void rewind()
 		{
-			Native.Audio.Audio_SourceRewind(handle);
+			Native.Audio.Audio_SourceRewind(source);
 		}
 
 		public float gain
 		{
-			set { Native.Audio.Audio_SourceSetGain(handle, value); }
+			set { Native.Audio.Audio_SourceSetGain(source, value); }
 		}
 
 		public float pitch
 		{
-			set { Native.Audio.Audio_SourceSetPitch(handle, value); }
+			set { Native.Audio.Audio_SourceSetPitch(source, value); }
 		}
 
 		public bool isLooping
 		{
-			set { Native.Audio.Audio_SourceSetLooping(handle, value); }
-		}
-
-		public bool isAmbient
-		{
-			set { Native.Audio.Audio_SourceSetAmbientMode(handle, value); }
+			set { Native.Audio.Audio_SourceSetLooping(source, (byte)(value ? 1 : 0)); }
 		}
 
 		public float timePlaying

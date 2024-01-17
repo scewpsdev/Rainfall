@@ -53,6 +53,6 @@ namespace Rainfall.Native
 		internal static extern int Resource_FontMeasureText(IntPtr font, [MarshalAs(UnmanagedType.LPStr)] string text, int length);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe IntPtr Resource_CreateSoundFromFile(byte* path);
+		internal static extern unsafe IntPtr Resource_CreateSoundFromFile(byte* path, out float duration);
 	}
 }

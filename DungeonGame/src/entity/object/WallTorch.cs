@@ -100,7 +100,13 @@ internal class WallTorch : Entity, Interactable
 		body = new RigidBody(this, RigidBodyType.Static, (uint)(PhysicsFilterGroup.Default | PhysicsFilterGroup.Interactable));
 		body.addCapsuleCollider(0.1f, 0.6f, new Vector3(0.0f, 0.1f, 0.1f), Quaternion.FromAxisAngle(Vector3.Right, MathHelper.ToRadians(19.0f)));
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
+	}
+
+	public override void destroy()
+	{
+		body.destroy();
+		audio.destroy();
 	}
 
 	public override void update()

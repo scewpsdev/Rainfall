@@ -59,6 +59,11 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 	{
 	}
 
+	public void addItem(Item item, int amount = 1)
+	{
+		container.addItem(item, amount);
+	}
+
 	public override void init()
 	{
 		chestBody = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
@@ -73,7 +78,15 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 		lidBody.addBoxCollider(new Vector3(0.5f, 0.05f, 0.3f), new Vector3(0.0f, 0.55f, 0.0f), Quaternion.Identity, 0.0f);
 		lidBody.setTransform(position, rotation);
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
+	}
+
+	public override void destroy()
+	{
+		chestBody.destroy();
+		lidBody.destroy();
+
+		audio.destroy();
 	}
 
 	public void open(Player player)

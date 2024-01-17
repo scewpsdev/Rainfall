@@ -79,7 +79,7 @@ public class Player : Entity
 
 		shadow = Resource.GetTexture("res/sprites/shadow.png", true);
 
-		audio = Audio.CreateSource(new Vector3(position, 0.0f));
+		audio = new AudioSource(new Vector3(position, 0.0f));
 
 		sfxStep = [
 			Resource.GetSound("res/sounds/step1.ogg"),
@@ -125,7 +125,7 @@ public class Player : Entity
 
 	public override void destroy()
 	{
-		Audio.DestroySource(audio);
+		audio.destroy();
 	}
 
 	public void hit(Entity from)
@@ -183,8 +183,8 @@ public class Player : Entity
 			if (shootBegin == 0)
 			{
 				shootBegin = Time.currentTime;
-				if (!audio.isPlaying)
-					audio.playSoundOrganic(sfxMumble, 0.4f, 1.0f, 1.0f, 0.1f);
+				//if (!audio.isPlaying)
+				//audio.playSoundOrganic(sfxMumble, 0.4f, 1.0f, 1.0f, 0.1f);
 			}
 			if (shootBegin != 0 && (Time.currentTime - shootBegin) / 1e9f >= 1.0f / fireRate)
 			{
@@ -273,8 +273,8 @@ public class Player : Entity
 			{
 				if (lastStep != animator.currentFrame)
 				{
-					if (!audio.isPlaying)
-						audio.playSoundOrganic(sfxStep, 3);
+					//if (!audio.isPlaying)
+					audio.playSoundOrganic(sfxStep, 3);
 					lastStep = animator.currentFrame;
 				}
 			}
@@ -299,7 +299,7 @@ public class Player : Entity
 		if (pointsCollected > 0)
 		{
 			pointsCollected = Math.Min(pointsCollected, 50);
-			if (audio.timePlaying > 0.1f && audio.currentSound == sfxDing || !audio.isPlaying)
+			if (audio.timePlaying > 0.1f && audio.currentSound == sfxDing || audio.currentSound != sfxDing)
 			{
 				//audio.stop();
 				audio.playSoundOrganic(sfxDing, 0.5f, 1.0f, 0.2f, 0.2f);

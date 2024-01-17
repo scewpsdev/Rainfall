@@ -30,7 +30,7 @@ internal class Fountain : Entity, Interactable
 		body = new RigidBody(this, RigidBodyType.Static, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		body.addCapsuleCollider(1, 1.5f + 2 * 1, new Vector3(0, 0.75f, 0), Quaternion.Identity);
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
 		Sound sound = Resource.GetSound("res/entity/object/fountain/sfx/fountain.ogg");
 		audio.playSound(sound, DEFAULT_GAIN);
 
@@ -44,6 +44,12 @@ internal class Fountain : Entity, Interactable
 		particles.particleSize = 0.02f;
 		particles.gravity = 0.0f;
 		particles.initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
+	}
+
+	public override void destroy()
+	{
+		body.destroy();
+		audio.destroy();
 	}
 
 	public bool canInteract(Entity by)

@@ -227,7 +227,7 @@ public class Room
 		amounts = amountList.ToArray();
 	}
 
-	public virtual void spawn(Level level, Random random)
+	public virtual void spawn(Level level, LevelGenerator generator, Random random)
 	{
 		for (int i = 0; i < doorways.Count; i++)
 		{
@@ -269,7 +269,7 @@ public class Room
 		}
 		*/
 
-		type.onSpawn(this, level, random);
+		type.onSpawn(this, level, generator, random);
 	}
 
 	public void addEntity(Entity entity, Vector3 position, Quaternion rotation)

@@ -57,8 +57,14 @@ internal class Elevator : Entity, Activatable
 
 		body.addBoxTrigger(new Vector3(1.0f), Vector3.Zero, Quaternion.Identity);
 
-		audio = Audio.CreateSource(position);
-		effectAudio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
+		effectAudio = new AudioSource(position);
+	}
+
+	public override void destroy()
+	{
+		audio.destroy();
+		effectAudio.destroy();
 	}
 
 	void onStart()

@@ -33,8 +33,6 @@ internal class Gaem : Game
 	Camera camera;
 	public Player player;
 
-	AudioSource ambientAudio;
-	AudioSource menuAudio;
 	Sound sfxSelect;
 
 
@@ -49,10 +47,6 @@ internal class Gaem : Game
 
 		state = GameState.Menu;
 
-		ambientAudio = Audio.CreateSource(Vector3.Zero);
-		ambientAudio.isAmbient = true;
-		ambientAudio.isLooping = true;
-
 		initMenu();
 	}
 
@@ -62,8 +56,6 @@ internal class Gaem : Game
 		button0 = Resource.GetTexture("res/sprites/button0.png", false);
 		button1 = Resource.GetTexture("res/sprites/button1.png", false);
 
-		menuAudio = Audio.CreateSource(Vector3.Zero);
-		menuAudio.isAmbient = true;
 		sfxSelect = Resource.GetSound("res/sounds/select.ogg");
 	}
 
@@ -81,8 +73,7 @@ internal class Gaem : Game
 
 		CollisionDetection.Init(level);
 
-		ambientAudio.stop();
-		ambientAudio.playSound(Resource.GetSound("res/sounds/ambience.ogg"), 1.0f, 0.2f);
+		Audio.PlayBackgroundLooping(Resource.GetSound("res/sounds/ambience.ogg"), 1.0f, 0.2f);
 		//Audio.SetEffect(AudioEffect.Reverb);
 
 		manager.resetGameState();
@@ -121,12 +112,12 @@ internal class Gaem : Game
 			if (Input.IsKeyPressed(KeyCode.Down) || Input.IsKeyPressed(KeyCode.KeyS))
 			{
 				selectedButton = Math.Min(selectedButton + 1, 1);
-				menuAudio.playSound(sfxSelect);
+				Audio.PlayBackground(sfxSelect);
 			}
 			else if (Input.IsKeyPressed(KeyCode.Up) || Input.IsKeyPressed(KeyCode.KeyW))
 			{
 				selectedButton = Math.Max(selectedButton - 1, 0);
-				menuAudio.playSound(sfxSelect);
+				Audio.PlayBackground(sfxSelect);
 			}
 
 			if (Input.IsKeyPressed(KeyCode.KeyE) || Input.IsKeyPressed(KeyCode.Return))
@@ -165,7 +156,7 @@ internal class Gaem : Game
 				if (selectedButton != 0)
 				{
 					selectedButton = 0;
-					menuAudio.playSound(sfxSelect);
+					Audio.PlayBackground(sfxSelect);
 				}
 				if (Input.IsMouseButtonPressed(MouseButton.Left))
 				{
@@ -180,7 +171,7 @@ internal class Gaem : Game
 				if (selectedButton != 1)
 				{
 					selectedButton = 1;
-					menuAudio.playSound(sfxSelect);
+					Audio.PlayBackground(sfxSelect);
 				}
 				if (Input.IsMouseButtonPressed(MouseButton.Left))
 					terminate();

@@ -176,9 +176,9 @@ namespace Rainfall
 			{
 				fixed (byte* pathPtrData = pathPtr)
 				{
-					IntPtr handle = Native.Resource.Resource_CreateSoundFromFile(pathPtrData);
+					IntPtr handle = Native.Resource.Resource_CreateSoundFromFile(pathPtrData, out float duration);
 					if (handle != IntPtr.Zero)
-						return new Sound(handle);
+						return new Sound(handle, duration);
 					return null;
 				}
 			}

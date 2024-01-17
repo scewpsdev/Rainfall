@@ -36,7 +36,13 @@ public class ItemEntity
 
 		particles = new ParticleSystem(256);
 		hitbox = new RigidBody(player, RigidBodyType.Kinematic);
-		audio = Audio.CreateSource(player.position);
+		audio = new AudioSource(player.position);
+	}
+
+	public void destroy()
+	{
+		hitbox.destroy();
+		audio.destroy();
 	}
 
 	public void setItem(Item item)

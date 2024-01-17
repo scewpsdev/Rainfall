@@ -61,14 +61,13 @@ public class ItemPickup : Entity, Interactable
 			particles.copyData(item.particles);
 		}
 
-		audio = Audio.CreateSource(position);
+		audio = new AudioSource(position);
 	}
 
 	public override void destroy()
 	{
-		base.destroy();
-
 		body.destroy();
+		audio.destroy();
 	}
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)

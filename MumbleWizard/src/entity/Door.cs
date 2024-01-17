@@ -29,7 +29,7 @@ public class Door : Entity, Interactable
 		hitbox = new FloatRect(0, 0, width, height);
 		staticCollider = true;
 
-		audio = Audio.CreateSource(new Vector3(position, 1.0f));
+		audio = new AudioSource(new Vector3(position, 1.0f));
 		sfxOpen = Resource.GetSound("res/sounds/open.ogg");
 	}
 
@@ -49,7 +49,7 @@ public class Door : Entity, Interactable
 
 	public override void destroy()
 	{
-		Audio.DestroySource(audio);
+		audio.destroy();
 	}
 
 	public bool canInteract(Entity entity)

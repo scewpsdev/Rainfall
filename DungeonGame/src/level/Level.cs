@@ -31,21 +31,18 @@ public class Level
 
 	public RigidBody body;
 
-	AudioSource audio;
 	Sound ambientSound;
 
 
 	public Level()
 	{
 		body = new RigidBody(null, RigidBodyType.Static);
-		audio = Audio.CreateSource(Vector3.Zero);
 	}
-
+	
 	public void init()
 	{
 		ambientSound = Resource.GetSound("res/level/sounds/dungeon.ogg");
-		audio.isAmbient = true;
-		audio.playSound(ambientSound, 0.05f);
+		AudioManager.SetAmbientSound(ambientSound, 0.05f);
 
 		Audio.SetEffect(AudioEffect.Reverb);
 

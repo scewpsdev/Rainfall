@@ -176,6 +176,30 @@ public class Inventory : ItemContainer
 	}
 	*/
 
+	public override ItemSlot addItem(Item item, int amount = 1)
+	{
+		if (item.category == ItemCategory.Weapon && rightHand[0].item == null && rightHand[1].item == null)
+			return addHandItem(0, 0, item, amount);
+		else if (item.category == ItemCategory.Utility && leftHand[0].item == null && leftHand[1].item == null)
+			return addHandItem(1, 0, item, amount);
+		else if (item.category == ItemCategory.Shield && leftHand[0].item == null && leftHand[1].item == null)
+			return addHandItem(1, 0, item, amount);
+		else if (item.category == ItemCategory.Armor && item.armorType == ArmorType.Torso && armor[1].item == null)
+			return addArmorItem(1, item, amount);
+		else if (item.category == ItemCategory.Consumable)
+		{
+			bool hotbarEmpty = true;
+			for (int i = 0; i < hotbar.Length; i++)
+			{
+				if (hotbar[i].item != null)
+					hotbarEmpty = false;
+			}
+			if (hotbarEmpty)
+				return addHotbarItem(0, item, amount);
+		}
+		return base.addItem(item, amount);
+	}
+
 	public ItemSlot addHandItem(int handID, int idx, Item item, int amount)
 	{
 		ItemSlot slot = (handID == 0 ? rightHand : leftHand)[idx];
@@ -228,6 +252,14 @@ public class Inventory : ItemContainer
 			}
 		}
 		return null;
+	}
+
+	public ItemSlot addArmorItem(int idx, Item item, int amount)
+	{
+		ItemSlot slot = armor[idx];
+		slot.setItem(item);
+		slot.stackSize = amount;
+		return slot;
 	}
 
 	/*

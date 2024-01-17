@@ -33,7 +33,7 @@ internal class FracturedObject : Entity
 
 		if (sfxBreak != null)
 		{
-			audio = Audio.CreateSource(position);
+			audio = new AudioSource(position);
 			audio.playSoundOrganic(sfxBreak);
 			AIManager.NotifySound(position, 6.0f);
 		}
@@ -41,7 +41,7 @@ internal class FracturedObject : Entity
 
 	public override void destroy()
 	{
-		Audio.DestroySource(audio);
+		audio.destroy();
 		for (int i = 0; i < model.meshCount; i++)
 			bodies[i].destroy();
 	}

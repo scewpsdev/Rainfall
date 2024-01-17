@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rainfall;
 
-internal class LevelGenerator
+public class LevelGenerator
 {
 	public const float TILE_SIZE = 1.0f;
 
@@ -171,12 +171,15 @@ internal class LevelGenerator
 
 	int checkRoomForDoorway(Room room, Doorway doorway2, Doorway lastDoorway, List<Room> checkedRooms)
 	{
-		foreach (Doorway doorway in room.doorways)
+		if (lastDoorway != null)
 		{
-			if (doorway == doorway2)
-				return 1;
+			foreach (Doorway doorway in room.doorways)
+			{
+				if (doorway == doorway2)
+					return 1;
+			}
+			checkedRooms.Add(room);
 		}
-		checkedRooms.Add(room);
 
 		int shortestFound = int.MaxValue;
 		foreach (Doorway doorway in room.doorways)
@@ -209,6 +212,53 @@ internal class LevelGenerator
 
 		//Debug.Assert(false);
 		return -1;
+	}
+
+	int checkDoorwayForRoom(Doorway doorway2, Room room, Room lastRoom, List<Room> checkedRooms)
+	{
+		if (lastRoom != null)
+		{
+			if (doorway2.room == room)
+				return 1;
+			checkedRooms.Add(doorway2.room);
+		}
+
+		int shortestFound = int.MaxValue;
+		foreach (Doorway doorway in doorway2.room.doorways)
+		{
+			if (doorway != doorway2 && doorway.connectedDoorway != null)
+			{
+				if (!checkedRooms.Contains(doorway.connectedDoorway.room))
+				{
+					int found = checkDoorwayForRoom(doorway.connectedDoorway, room, doorway2.room, checkedRooms);
+					if (found > 0)
+					{
+						if (found < shortestFound)
+							shortestFound = found;
+					}
+				}
+			}
+		}
+		if (shortestFound != int.MaxValue)
+			return shortestFound + 1;
+
+		return 0;
+	}
+
+	int getNumDoorsBetween(Doorway doorway, Room room)
+	{
+		List<Room> checkedRooms = new List<Room>();
+		int chainLength = checkDoorwayForRoom(doorway, room, null, checkedRooms);
+		if (chainLength != 0)
+			return chainLength;
+
+		//Debug.Assert(false);
+		return -1;
+	}
+
+	public bool isDoorwayConnectedToRoom(Doorway doorway, Room room)
+	{
+		return getNumDoorsBetween(doorway, room) != -1;
 	}
 
 	void connectDoorways(Doorway doorway1, Doorway doorway2)
@@ -359,7 +409,7 @@ internal class LevelGenerator
 		}
 	}
 
-	void collectRoomConnections(Room room, List<Room> rooms)
+	void collectRoomConnections(Room room, List<Room> rooms, Doorway lastDoorway)
 	{
 		foreach (Doorway doorway in room.doorways)
 		{
@@ -369,7 +419,7 @@ internal class LevelGenerator
 				if (!rooms.Contains(connectedRoom))
 				{
 					rooms.Add(connectedRoom);
-					collectRoomConnections(connectedRoom, rooms);
+					collectRoomConnections(connectedRoom, rooms, doorway.connectedDoorway);
 				}
 			}
 		}
@@ -379,7 +429,7 @@ internal class LevelGenerator
 	{
 		List<Room> connectedRooms = new List<Room>();
 		connectedRooms.Add(room);
-		collectRoomConnections(room, connectedRooms);
+		collectRoomConnections(room, connectedRooms, null);
 
 		List<Doorway> emptyDoorways = new List<Doorway>();
 		foreach (Room connectedRoom in connectedRooms)
@@ -420,6 +470,31 @@ internal class LevelGenerator
 			Doorway doorway2 = doorwayPairs[0].Item2;
 			connectDoorways(doorway1, doorway2);
 		}
+	}
+
+	void connectDoorwayToRandomRoom(Doorway doorway)
+	{
+		List<Doorway> doorways = new List<Doorway>();
+		foreach (Room room in rooms)
+			doorways.AddRange(getEmptyDoorwaysConnectedToRoom(room));
+
+		List<Tuple<Doorway, Doorway>> doorwayPairs = new List<Tuple<Doorway, Doorway>>();
+		for (int i = 0; i < doorways.Count; i++)
+		{
+			if (doorways[i] != doorway)
+				doorwayPairs.Add(new Tuple<Doorway, Doorway>(doorways[i], doorway));
+		}
+
+		doorwayPairs.Sort((Tuple<Doorway, Doorway> pair1, Tuple<Doorway, Doorway> pair2) =>
+		{
+			int distance1 = manhattanDistance(pair1.Item1.globalPosition, pair1.Item2.globalPosition);
+			int distance2 = manhattanDistance(pair2.Item1.globalPosition, pair2.Item2.globalPosition);
+			return distance1 > distance2 ? 1 : distance1 < distance2 ? -1 : 0;
+		});
+
+		Doorway doorway1 = doorwayPairs[0].Item1;
+		Doorway doorway2 = doorwayPairs[0].Item2;
+		connectDoorways(doorway1, doorway2);
 	}
 
 	void removeEmptyCorridors()
@@ -680,7 +755,7 @@ internal class LevelGenerator
 
 		foreach (Room room in rooms)
 		{
-			room.spawn(level, random);
+			room.spawn(level, this, random);
 		}
 
 		level.levelMeshes.Add(new LevelMesh(wallBatch.createModel(), Matrix.Identity));
@@ -865,9 +940,14 @@ internal class LevelGenerator
 		//placeFinalRoom();
 		interconnectRooms(2);
 		propagateRooms(SectorType.Corridor);
+		removeEmptyCorridors();
 		connectRoomsIfNot(startingRoom, mainRoom);
 		connectRoomsIfNot(finalRoom, mainRoom);
-		removeEmptyCorridors();
+		foreach (Doorway doorway in mainRoom.doorways)
+		{
+			if (doorway.connectedDoorway == null)
+				connectDoorwayToRandomRoom(doorway);
+		}
 
 		createDoorways();
 		createSecretWalls();

@@ -30,8 +30,9 @@ public static class CollisionDetection
 			Vector2i chunk = tile / 4;
 			if (chunk.x < 0 || chunk.y < 0 || chunk.x >= level.width / 4 || chunk.y >= level.height / 4)
 			{
-				Console.WriteLine(chunk);
-				Debug.Assert(false);
+				Console.WriteLine(entity + ", " + chunk);
+				chunk.x = MathHelper.Clamp(chunk.x, 0, level.width / 4 - 1);
+				chunk.y = MathHelper.Clamp(chunk.y, 0, level.height / 4 - 1);
 			}
 			grid[chunk.x + chunk.y * level.width / 4].Add(entity);
 		}

@@ -10,15 +10,16 @@
 #include "graphics/Graphics.h"
 #include "graphics/Font.h"
 
-#include "audio/Sound.h"
-
 #include <stdio.h>
 #include <string.h>
 
 #include <bx/file.h>
 #include <bimg/decode.h>
 #include <stb_truetype.h>
-#include <stb_vorbis.h>
+//#include <stb_vorbis.h>
+
+#include <soloud.h>
+#include <soloud_wav.h>
 
 
 struct ImageData
@@ -205,8 +206,9 @@ RFAPI int Resource_FontMeasureText(Font* font, const char* text, int length)
 	return font->measureText(text, length);
 }
 
-RFAPI Sound* Resource_CreateSoundFromFile(const char* path)
+RFAPI SoLoud::Wav* Resource_CreateSoundFromFile(const char* path, float* outFloat)
 {
+	/*
 	int error = 0;
 	stb_vorbis* vorbis = stb_vorbis_open_filename(path, &error, NULL);
 	if (error)
@@ -227,4 +229,16 @@ RFAPI Sound* Resource_CreateSoundFromFile(const char* path)
 	stb_vorbis_get_samples_short_interleaved(vorbis, info.channels, buffer, samples * info.channels);
 
 	return BX_NEW(Application_GetAllocator(), Sound)(buffer, size, info.channels, sampleRate, bps);
+	*/
+
+	SoLoud::Wav* wav = new SoLoud::Wav();
+	if (wav->load(path))
+	{
+		Console_Error("Failed to read sound file '%s'", path);
+		return nullptr;
+	}
+
+	*outFloat = (float)wav->getLength();
+
+	return wav;
 }

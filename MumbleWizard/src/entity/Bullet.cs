@@ -51,7 +51,7 @@ public class Bullet : Entity
 
 		collider = new FloatRect(-0.25f * size.x, 0.0f, 0.5f * size.x, 0.5f * size.y);
 
-		audio = Audio.CreateSource(new Vector3(position, 0.0f));
+		audio = new AudioSource(new Vector3(position, 0.0f));
 
 		sfxShoot = [
 			Resource.GetSound("res/sounds/shoot1.ogg"),
@@ -80,7 +80,7 @@ public class Bullet : Entity
 
 	public override void destroy()
 	{
-		Audio.DestroySource(audio);
+		audio.destroy();
 	}
 
 	public override void update()

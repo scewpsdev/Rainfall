@@ -10,15 +10,13 @@ namespace Rainfall
 	{
 		internal IntPtr handle;
 
+		public readonly float duration;
 
-		internal Sound(IntPtr handle)
+
+		internal Sound(IntPtr handle, float duration)
 		{
 			this.handle = handle;
-		}
-
-		public float duration
-		{
-			get { return Native.Audio.Audio_SoundGetDuration(handle); }
+			this.duration = duration;
 		}
 	}
 }
