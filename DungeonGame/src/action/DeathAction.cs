@@ -25,6 +25,9 @@ internal class DeathAction : Action
 
 		handItemModels[0] = null;
 		handItemModels[1] = null;
+
+		iframesStartTime = 0.0f;
+		iframesEndTime = 100;
 	}
 
 	public override void update(Player player)

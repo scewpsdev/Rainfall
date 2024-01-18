@@ -749,7 +749,7 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 
 	bgfx::RendererType::Enum rendererTypes[8];
 	int numRendererTypes = bgfx::getSupportedRenderers(8, rendererTypes);
-	printf("BGFX %d initialized with renderer %s\n", BGFX_API_VERSION, rendererTypeNames[init.type]);
+	printf("BGFX %d, renderer: %s\n", BGFX_API_VERSION, rendererTypeNames[init.type]);
 
 #ifdef _DEBUG
 	debug = BGFX_DEBUG_TEXT;
@@ -835,6 +835,7 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 		Console_Error("Failed to initialize GLFW");
 		return EXIT_FAILURE;
 	}
+	printf("GLFW %s\n", glfwGetVersionString());
 
 	glfwSetJoystickCallback(JoystickCallback);
 

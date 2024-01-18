@@ -58,7 +58,7 @@ internal class Gaem : Game
 
 		sfxSelect = Resource.GetSound("res/sounds/select.ogg");
 	}
-
+	
 	void initGameplay()
 	{
 		manager = new GameManager();
@@ -72,9 +72,9 @@ internal class Gaem : Game
 		manager.player = player;
 
 		CollisionDetection.Init(level);
-
+		
 		Audio.PlayBackgroundLooping(Resource.GetSound("res/sounds/ambience.ogg"), 1.0f, 0.2f);
-		//Audio.SetEffect(AudioEffect.Reverb);
+		Audio.SetEffect(AudioEffect.Reverb);
 
 		manager.resetGameState();
 	}

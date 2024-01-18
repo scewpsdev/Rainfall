@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 public static class CollisionDetection
 {
 	static List<Entity>[] grid;
-
+	
 
 	public static void Init(Level level)
 	{
@@ -30,7 +30,7 @@ public static class CollisionDetection
 			Vector2i chunk = tile / 4;
 			if (chunk.x < 0 || chunk.y < 0 || chunk.x >= level.width / 4 || chunk.y >= level.height / 4)
 			{
-				Console.WriteLine(entity + ", " + chunk);
+				//Console.WriteLine(entity + ", " + chunk);
 				chunk.x = MathHelper.Clamp(chunk.x, 0, level.width / 4 - 1);
 				chunk.y = MathHelper.Clamp(chunk.y, 0, level.height / 4 - 1);
 			}

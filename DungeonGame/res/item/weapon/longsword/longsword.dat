@@ -72,9 +72,9 @@ attacks: [
 		type = heavy
 		index = 0
 		animName = attack_heavy1
-		damageFramesStart = 9
-		damageFramesEnd = 17
-		followUpCancelFrame = 29
+		damageFramesStart = 15
+		damageFramesEnd = 23
+		followUpCancelFrame = 35
 		staminaCost = 5.5
 		damageMultiplier = 1.5
 	},
@@ -82,8 +82,8 @@ attacks: [
 		type = heavy
 		index = 1
 		animName = attack_heavy2
-		damageFramesStart = 9
-		damageFramesEnd = 17
+		damageFramesStart = 15
+		damageFramesEnd = 23
 		//followUpCancelFrame = 25
 		staminaCost = 5.5
 		damageMultiplier = 1.5

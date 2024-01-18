@@ -8,7 +8,8 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0
+				0,
+				1
 			]
 		}
 	],
@@ -16,21 +17,25 @@
 		{
 			"mesh":0,
 			"name":"Plane.001"
+		},
+		{
+			"mesh":1,
+			"name":"Plane.002"
 		}
 	],
 	"materials":[
 		{
 			"name":"Material.001",
-			"normalTexture":{
-				"index":0
-			},
 			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
+				"baseColorFactor":[
+					0.17410537600517273,
+					0.17410537600517273,
+					0.17410537600517273,
+					1
+				],
 				"metallicFactor":0,
 				"metallicRoughnessTexture":{
-					"index":2
+					"index":0
 				}
 			}
 		}
@@ -49,33 +54,29 @@
 					"material":0
 				}
 			]
+		},
+		{
+			"name":"Plane.002",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":4,
+						"NORMAL":5,
+						"TEXCOORD_0":6
+					},
+					"indices":7,
+					"material":0
+				}
+			]
 		}
 	],
 	"textures":[
 		{
 			"sampler":0,
 			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
 		}
 	],
 	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"bricks_normal.png",
-			"uri":"../../texture/materials/bricks/bricks_normal.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"bricks_diffuse.png",
-			"uri":"../../texture/materials/bricks/bricks_diffuse.png"
-		},
 		{
 			"mimeType":"image/png",
 			"name":"bricks_roughness.png",
@@ -116,6 +117,40 @@
 			"componentType":5123,
 			"count":6,
 			"type":"SCALAR"
+		},
+		{
+			"bufferView":4,
+			"componentType":5126,
+			"count":98,
+			"max":[
+				0.5,
+				0.959828794002533,
+				-0.4813569188117981
+			],
+			"min":[
+				-0.5,
+				0.04026591777801514,
+				-0.5001983046531677
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":5,
+			"componentType":5126,
+			"count":98,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":6,
+			"componentType":5126,
+			"count":98,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":7,
+			"componentType":5123,
+			"count":150,
+			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
@@ -142,6 +177,30 @@
 			"byteLength":12,
 			"byteOffset":128,
 			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":1176,
+			"byteOffset":140,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1176,
+			"byteOffset":1316,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":784,
+			"byteOffset":2492,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":300,
+			"byteOffset":3276,
+			"target":34963
 		}
 	],
 	"samplers":[
@@ -152,7 +211,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":140,
+			"byteLength":3576,
 			"uri":"wall.bin"
 		}
 	]

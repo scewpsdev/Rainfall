@@ -26,12 +26,15 @@
 				"index":0
 			},
 			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
+				"baseColorFactor":[
+					0.12020237743854523,
+					0.06561601161956787,
+					0.0395481139421463,
+					1
+				],
 				"metallicFactor":0,
 				"metallicRoughnessTexture":{
-					"index":2
+					"index":1
 				}
 			}
 		}
@@ -60,10 +63,6 @@
 		{
 			"sampler":0,
 			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
 		}
 	],
 	"images":[
@@ -71,11 +70,6 @@
 			"mimeType":"image/png",
 			"name":"dirt_normal.png",
 			"uri":"../../texture/materials/dirt/dirt_normal.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"dirt_diffuse.png",
-			"uri":"../../texture/materials/dirt/dirt_diffuse.png"
 		},
 		{
 			"mimeType":"image/png",

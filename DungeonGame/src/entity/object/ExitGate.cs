@@ -80,6 +80,7 @@ internal class ExitGate : Entity, Activatable, Interactable
 		{
 			Player player = by as Player;
 			player.hasWon = true;
+			open = false;
 		}
 	}
 

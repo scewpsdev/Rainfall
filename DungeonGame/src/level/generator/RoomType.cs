@@ -508,7 +508,7 @@ public class MainRoom : RoomType
 			Chest chest = new Chest();
 			chest.addItem(Item.Get("longsword"));
 			chest.addItem(Item.Get("longbow"));
-			chest.addItem(Item.Get("arrow"), 20);
+			chest.addItem(Item.Get("arrow"), 8);
 			room.addEntity(chest, position, rotation);
 		}
 
@@ -654,6 +654,13 @@ public class LibraryRoom : RoomType
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(width, 0, MathHelper.RandomInt(1, height - 2, random)), new Vector3i(1, 0, 0)));
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, MathHelper.RandomInt(1, height - 2, random)), new Vector3i(-1, 0, 0)));
 
+		int numEnemies = MathHelper.RandomInt(0, 3, random);
+		for (int i = 0; i < numEnemies; i++)
+		{
+			Vector3i position = new Vector3i(MathHelper.RandomInt(1, width - 2, random), 0, MathHelper.RandomInt(1, height - 2, random));
+			type.enemySpawns.Add(new EnemySpawnInfo(position));
+		}
+
 		return type;
 	}
 
@@ -680,19 +687,20 @@ public class LibraryRoom : RoomType
 		if (random.NextSingle() < arrowChance)
 		{
 			items.Add(Item.Get("arrow"));
-			int amount = MathHelper.RandomInt(7, 15, random);
+			int amount = MathHelper.RandomInt(1, 4, random);
 			amounts.Add(amount);
 		}
 
 		float goldChance = 0.25f;
-		if (random.NextSingle() < goldChance || items.Count == 0)
+		if (random.NextSingle() < goldChance)
 		{
 			items.Add(Item.Get("gold"));
 			int amount = MathHelper.RandomInt(3, 10, random);
 			amounts.Add(amount);
 		}
 
-		room.addEntity(new BookShelf(items.ToArray(), amounts.ToArray(), random), position, rotation);
+		if (items.Count > 0)
+			room.addEntity(new BookShelf(items.ToArray(), amounts.ToArray(), random), position, rotation);
 	}
 
 	void placeChest(Room room, Vector3 position, Vector3i direction, Random random)
@@ -721,7 +729,7 @@ public class LibraryRoom : RoomType
 		if (random.NextSingle() < arrowChance)
 		{
 			items.Add(Item.Get("arrow"));
-			int amount = MathHelper.RandomInt(7, 15, random);
+			int amount = MathHelper.RandomInt(1, 4, random);
 			amounts.Add(amount);
 		}
 

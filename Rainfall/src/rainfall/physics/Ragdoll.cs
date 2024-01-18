@@ -158,13 +158,13 @@ namespace Rainfall
 
 						if (node.name.Contains("Leg") && node.name.Contains("Lower"))
 						{
-							Rainfall.Native.Physics.Physics_RagdollLinkSetSwingLimit(link, 0.1f, 0.18f * 3);
-							Rainfall.Native.Physics.Physics_RagdollLinkSetTwistLimit(link, -0.1f, 0.1f);
+							Native.Physics.Physics_RagdollLinkSetSwingLimit(link, 0.1f, 0.18f * 3);
+							Native.Physics.Physics_RagdollLinkSetTwistLimit(link, -0.1f, 0.1f);
 						}
 						if (node.name.Contains("Shoulder"))
 						{
-							Rainfall.Native.Physics.Physics_RagdollLinkSetSwingLimit(link, 0.01f, 0.01f);
-							Rainfall.Native.Physics.Physics_RagdollLinkSetTwistLimit(link, -0.01f, 0.01f);
+							Native.Physics.Physics_RagdollLinkSetSwingLimit(link, 0.01f, 0.01f);
+							Native.Physics.Physics_RagdollLinkSetTwistLimit(link, -0.01f, 0.01f);
 						}
 
 						boneLinks.Add(link);
@@ -175,7 +175,7 @@ namespace Rainfall
 					{
 						for (int i = 0; i < node.children.Length; i++)
 						{
-							processNode(node.children[i], globalTransform, link != IntPtr.Zero ? link : parentLink);
+							processNode(node.children[i], globalTransformInDefaultPose, link != IntPtr.Zero ? link : parentLink);
 						}
 					}
 				}

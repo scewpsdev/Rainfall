@@ -31,17 +31,15 @@
 	"materials":[
 		{
 			"name":"Material.001",
-			"normalTexture":{
-				"index":0
-			},
 			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
+				"baseColorFactor":[
+					0.3219267427921295,
+					0.26776567101478577,
+					0.21631206572055817,
+					1
+				],
 				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":2
-				}
+				"roughnessFactor":0.75
 			}
 		}
 	],
@@ -89,37 +87,6 @@
 			]
 		}
 	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"bricks_normal.png",
-			"uri":"../../../texture/materials/bricks/bricks_normal.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"bricks_diffuse.png",
-			"uri":"../../../texture/materials/bricks/bricks_diffuse.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"bricks_roughness.png",
-			"uri":"../../../texture/materials/bricks/bricks_roughness.png"
-		}
-	],
 	"accessors":[
 		{
 			"bufferView":0,
@@ -160,14 +127,14 @@
 			"componentType":5126,
 			"count":16,
 			"max":[
-				1080.151123046875,
-				44.42107009887695,
-				1080.151123046875
+				2160.30224609375,
+				52.07429504394531,
+				2160.30224609375
 			],
 			"min":[
-				-1080.151123046875,
-				31.139240264892578,
-				-1080.151123046875
+				-2160.30224609375,
+				25.510635375976562,
+				-2160.30224609375
 			],
 			"type":"VEC3"
 		},
@@ -192,7 +159,7 @@
 		{
 			"bufferView":8,
 			"componentType":5126,
-			"count":606,
+			"count":660,
 			"max":[
 				10.001165390014648,
 				38.443538665771484,
@@ -208,19 +175,19 @@
 		{
 			"bufferView":9,
 			"componentType":5126,
-			"count":606,
+			"count":660,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":10,
 			"componentType":5126,
-			"count":606,
+			"count":660,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":11,
 			"componentType":5123,
-			"count":1128,
+			"count":1224,
 			"type":"SCALAR"
 		}
 	],
@@ -275,38 +242,32 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":7272,
+			"byteLength":7920,
 			"byteOffset":1916,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":7272,
-			"byteOffset":9188,
+			"byteLength":7920,
+			"byteOffset":9836,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4848,
-			"byteOffset":16460,
+			"byteLength":5280,
+			"byteOffset":17756,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2256,
-			"byteOffset":21308,
+			"byteLength":2448,
+			"byteOffset":23036,
 			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9729,
-			"minFilter":9987
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":23564,
+			"byteLength":25484,
 			"uri":"pillar_foundation.bin"
 		}
 	]

@@ -331,6 +331,40 @@ public class Inventory : ItemContainer
 		return hasItemEquipped(item, out _);
 	}
 
+	public bool hasItemInHand(Item item, out ItemSlot slot)
+	{
+		for (int i = 0; i < rightHand.Length; i++)
+		{
+			if (rightHand[i].item == item)
+			{
+				slot = rightHand[i];
+				return true;
+			}
+		}
+		for (int i = 0; i < leftHand.Length; i++)
+		{
+			if (leftHand[i].item == item)
+			{
+				slot = leftHand[i];
+				return true;
+			}
+		}
+		slot = null;
+		return false;
+	}
+
+	public bool hasItemInOffhand(Item item)
+	{
+		if (hasItemInHand(item, out ItemSlot slot))
+		{
+			if (!hasItemEquipped(item))
+				return true;
+			else if (twoHandedWeapon != -1 && getSelectedHandSlot(twoHandedWeapon) != slot)
+				return true;
+		}
+		return false;
+	}
+
 	public ItemSlot findItemOfType(ItemCategory category)
 	{
 		for (int i = 0; i < items.Length; i++)

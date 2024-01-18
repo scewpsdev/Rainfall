@@ -448,90 +448,93 @@ public class Player : Entity
 			}
 		}
 
-		if (InputManager.IsPressed("Jump"))
+		if (currentAction == null || currentAction.movementSpeedMultiplier > 0.0f)
 		{
-			lastJumpInput = Time.currentTime;
-		}
-
-		if (InputManager.IsPressed("Dodge"))
-			lastDodgePressedInput = Time.currentTime;
-		if (InputManager.IsReleased("Dodge"))
-		{
-			if ((Time.currentTime - lastDodgePressedInput) / 1e9f < DODGE_RELEASE_WINDOW)
+			if (InputManager.IsPressed("Jump"))
 			{
-				Vector3 dir = fsu;
-				if (dir.lengthSquared == 0.0f)
-					dir = new Vector3(0.0f, 0.0f, -1.0f);
-				queueAction(new DodgeAction(dir));
-
-				isDucked = false;
-				inDuckTimer = -1;
+				lastJumpInput = Time.currentTime;
 			}
-		}
 
-		if (InputManager.IsPressed("Crouch"))
-		{
-			if (inDuckTimer == -1.0f)
+			if (InputManager.IsPressed("Dodge"))
+				lastDodgePressedInput = Time.currentTime;
+			if (InputManager.IsReleased("Dodge"))
 			{
-				inDuckTimer = 0.0f;
-			}
-			else
-			{
-				if (isDucked)
+				if ((Time.currentTime - lastDodgePressedInput) / 1e9f < DODGE_RELEASE_WINDOW)
 				{
-					Span<HitData> hits = stackalloc HitData[16];
-					int numHits = Physics.SweepSphere(PLAYER_RADIUS, position + new Vector3(0.0f, PLAYER_HEIGHT_DUCKED - PLAYER_RADIUS, 0.0f), Vector3.Up, PLAYER_HEIGHT_STANDING - PLAYER_HEIGHT_DUCKED, hits, QueryFilterFlags.Static);
+					Vector3 dir = fsu;
+					if (dir.lengthSquared == 0.0f)
+						dir = new Vector3(0.0f, 0.0f, -1.0f);
+					queueAction(new DodgeAction(dir));
 
-					bool headBlocked = false;
-					for (int i = 0; i < numHits; i++)
+					isDucked = false;
+					inDuckTimer = -1;
+				}
+			}
+
+			if (InputManager.IsPressed("Crouch"))
+			{
+				if (inDuckTimer == -1.0f)
+				{
+					inDuckTimer = 0.0f;
+				}
+				else
+				{
+					if (isDucked)
 					{
-						if (!hits[i].isTrigger)
+						Span<HitData> hits = stackalloc HitData[16];
+						int numHits = Physics.SweepSphere(PLAYER_RADIUS, position + new Vector3(0.0f, PLAYER_HEIGHT_DUCKED - PLAYER_RADIUS, 0.0f), Vector3.Up, PLAYER_HEIGHT_STANDING - PLAYER_HEIGHT_DUCKED, hits, QueryFilterFlags.Static);
+
+						bool headBlocked = false;
+						for (int i = 0; i < numHits; i++)
 						{
-							headBlocked = true;
-							break;
+							if (!hits[i].isTrigger)
+							{
+								headBlocked = true;
+								break;
+							}
+						}
+
+						if (!headBlocked)
+						{
+							isDucked = false;
+							inDuckTimer = -1.0f;
 						}
 					}
 
-					if (!headBlocked)
+					if (!isDucked)
 					{
-						isDucked = false;
 						inDuckTimer = -1.0f;
 					}
 				}
-
-				if (!isDucked)
+			}
+			if (inDuckTimer >= 0.0f)
+			{
+				inDuckTimer += Time.deltaTime;
+				if (!isGrounded || inDuckTimer >= DUCK_TRANSITION_DURATION)
 				{
-					inDuckTimer = -1.0f;
+					isDucked = true;
 				}
-			}
-		}
-		if (inDuckTimer >= 0.0f)
-		{
-			inDuckTimer += Time.deltaTime;
-			if (!isGrounded || inDuckTimer >= DUCK_TRANSITION_DURATION)
-			{
-				isDucked = true;
-			}
 
-			if (InputManager.IsDown("Walk") || InputManager.IsDown("Sprint"))
-			{
-				isDucked = false;
-				inDuckTimer = -1;
-			}
-		}
-		else
-		{
-			if (fsu.lengthSquared > 0.0f && InputManager.IsDown("Walk"))
-			{
-				walkMode = WalkMode.Walk;
-			}
-			else if (fsu.lengthSquared > 0.0f && InputManager.IsDown("Sprint") && stats.canSprint)
-			{
-				walkMode = WalkMode.Sprint;
+				if (InputManager.IsDown("Walk") || InputManager.IsDown("Sprint"))
+				{
+					isDucked = false;
+					inDuckTimer = -1;
+				}
 			}
 			else
 			{
-				walkMode = WalkMode.Normal;
+				if (fsu.lengthSquared > 0.0f && InputManager.IsDown("Walk"))
+				{
+					walkMode = WalkMode.Walk;
+				}
+				else if (fsu.lengthSquared > 0.0f && InputManager.IsDown("Sprint") && stats.canSprint)
+				{
+					walkMode = WalkMode.Sprint;
+				}
+				else
+				{
+					walkMode = WalkMode.Normal;
+				}
 			}
 		}
 
@@ -1940,7 +1943,11 @@ public class Player : Entity
 		if (inventory.getSelectedHandSlot(handID) == slot && slot.item != null)
 		{
 			if (slot.item.moveset.getAnimationData("draw") != null)
+			{
+				if (currentAction is WeaponDrawAction)
+					cancelAction();
 				queueAction(new WeaponDrawAction(slot.item, handID));
+			}
 			else
 				audioAction.playSoundOrganic(slot.item.sfxDraw);
 		}
@@ -2121,7 +2128,10 @@ public class Player : Entity
 		Renderer.DrawModel(viewmodel, transform, moveAnimator);
 
 		// Camera light
-		Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.03f);
+		if (inventory.hasItemInOffhand(Item.Get("torch")))
+			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 1.0f);
+		else
+			Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.06f);
 
 		handEntities[0].draw(graphics);
 		handEntities[1].draw(graphics);

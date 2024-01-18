@@ -28,7 +28,7 @@ public class Camera : Entity
 		width = unitsX;
 		height = unitsY;
 
-		Audio.UpdateListener(new Vector3(position, 2.0f), Quaternion.Identity);
+		Audio.UpdateListener(new Vector3(position, 1.0f), Quaternion.Identity);
 	}
 
 	public float left { get => position.x - 0.5f * width; }

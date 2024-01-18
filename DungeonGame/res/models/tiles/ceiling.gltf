@@ -26,12 +26,15 @@
 				"index":0
 			},
 			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
+				"baseColorFactor":[
+					0.07592770457267761,
+					0.07592770457267761,
+					0.07592770457267761,
+					1
+				],
 				"metallicFactor":0,
 				"metallicRoughnessTexture":{
-					"index":2
+					"index":1
 				}
 			}
 		}
@@ -60,10 +63,6 @@
 		{
 			"sampler":0,
 			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
 		}
 	],
 	"images":[
@@ -71,11 +70,6 @@
 			"mimeType":"image/png",
 			"name":"stone_ceiling_normal.png",
 			"uri":"../../texture/materials/stone_ceiling/stone_ceiling_normal.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"stone_ceiling_diffuse.png",
-			"uri":"../../texture/materials/stone_ceiling/stone_ceiling_diffuse.png"
 		},
 		{
 			"mimeType":"image/png",
