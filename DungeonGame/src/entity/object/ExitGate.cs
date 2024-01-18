@@ -44,8 +44,8 @@ internal class ExitGate : Entity, Activatable, Interactable
 		barsBody = new RigidBody(this, RigidBodyType.Kinematic);
 		barsBody.addBoxCollider(new Vector3(1.0f, 1.5f, 0.1f), new Vector3(0.0f, 1.5f, -0.1f), Quaternion.Identity);
 
-		exitBody = new RigidBody(this, RigidBodyType.Static, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
-		exitBody.addBoxCollider(new Vector3(1.0f, 1.5f, 0.1f), new Vector3(0.0f, 1.5f, -1.9f), Quaternion.Identity);
+		//exitBody = new RigidBody(this, RigidBodyType.Static, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
+		//exitBody.addBoxCollider(new Vector3(1.0f, 1.5f, 0.1f), new Vector3(0.0f, 1.5f, -1.9f), Quaternion.Identity);
 
 		audioMechanism = new AudioSource(position + new Vector3(0.0f, 5.0f, 0.0f) + rotation.forward);
 		audioBars = new AudioSource(position + rotation.forward);
@@ -79,8 +79,13 @@ internal class ExitGate : Entity, Activatable, Interactable
 		if (by is Player)
 		{
 			Player player = by as Player;
-			player.hasWon = true;
+			//player.hasWon = true;
 			open = false;
+			targetHeight = 0.0f;
+			openTimer = 0.0f;
+			lever.reset();
+
+			audioBars.playSound(sfxFall);
 		}
 	}
 

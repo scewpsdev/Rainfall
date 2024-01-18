@@ -58,9 +58,13 @@ internal class Pot : Entity, Hittable
 		if (fracturedModel != null)
 			DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, sfxBreak), position, rotation);
 
-		float dropChance = 0.1f;
-		if (Random.Shared.NextSingle() < dropChance)
+		float flaskDropChance = 0.05f;
+		if (Random.Shared.NextSingle() < flaskDropChance)
 			DungeonGame.instance.level.addEntity(new ItemPickup(Item.Get("flask")), position, Quaternion.Identity);
+
+		float firebombDropChance = 0.05f;
+		if (Random.Shared.NextSingle() < firebombDropChance)
+			DungeonGame.instance.level.addEntity(new ItemPickup(Item.Get("firebomb")), position, Quaternion.Identity);
 	}
 
 	public override void update()

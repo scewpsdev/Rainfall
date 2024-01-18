@@ -450,30 +450,42 @@ public class StartingRoom : RoomType
 
 public class FinalRoom : RoomType
 {
+	Vector3i preRoomSize = new Vector3i(9, 5, 9);
+	Vector3i bossRoomSize = new Vector3i(31, 12, 31);
+
+
 	public FinalRoom()
 		: base()
 	{
 		sectorType = SectorType.Room;
-		size = new Vector3i(15, 9, 15);
 		id = 2;
 
-		initMask(true);
-		fillMask(0, 0, 0, size.x, size.y, 2, false);
-		fillMask(size.x / 2 - 1, 0, 0, 3, 3, 2, true);
+		size = new Vector3i(bossRoomSize.x, bossRoomSize.y, bossRoomSize.z + 2 + preRoomSize.z);
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 15), new Vector3i(0, 0, 1)));
+		initMask(false);
+		fillMask(0, 0, 0, bossRoomSize.x, bossRoomSize.y, bossRoomSize.z, true);
+		fillMask(bossRoomSize.x / 2 - 1, 0, bossRoomSize.z, 3, 3, 2, true);
+		fillMask(bossRoomSize.x / 2 - preRoomSize.x / 2, 0, bossRoomSize.z + 2, preRoomSize.x, preRoomSize.y, preRoomSize.z, true);
+		//fillMask(0, 0, 0, size.x, size.y, 2, false);
+		//fillMask(size.x / 2 - 1, 0, 0, 3, 3, 2, true);
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(size.x / 2, 0, size.z), new Vector3i(0, 0, 1)));
 	}
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
-		Matrix gateTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0.0f, 2);
+		Matrix gateTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0.0f, bossRoomSize.z + 2);
 		ExitGate gate = new ExitGate();
 
-		Matrix leverTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f + 2.0f, 1.5f, 2);
+		Matrix leverTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f + 2.0f, 1.5f, bossRoomSize.z + 2);
 		Lever lever = new Lever(gate);
+
+		Matrix doorTransform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0.0f, bossRoomSize.z);
+		DoubleDoor door = new DoubleDoor(gate);
 
 		room.addEntity(gate, gateTransform.translation, gateTransform.rotation);
 		room.addEntity(lever, leverTransform.translation, leverTransform.rotation);
+		room.addEntity(door, doorTransform.translation, doorTransform.rotation);
 	}
 }
 
