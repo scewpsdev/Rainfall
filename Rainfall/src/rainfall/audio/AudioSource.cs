@@ -33,25 +33,25 @@ namespace Rainfall
 				Native.Audio.Audio_SourceSetPosition(source, position);
 		}
 
-		public void playSound(Sound sound, float gain = 1.0f, float pitch = 1.0f)
+		public void playSound(Sound sound, float gain = 1.0f, float pitch = 1.0f, float rolloff = 0.2f)
 		{
-			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gain, pitch);
+			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gain, pitch, rolloff);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
 
-		public void playSoundOrganic(Sound sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
+		public void playSoundOrganic(Sound sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 0.2f)
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
-			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch);
+			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
 
-		public void playSoundOrganic(Span<Sound> sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
+		public void playSoundOrganic(Span<Sound> sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 0.2f)
 		{
-			playSoundOrganic(sound[Random.Shared.Next() % sound.Length], gain, pitch, gainVariation, pitchVariation);
+			playSoundOrganic(sound[Random.Shared.Next() % sound.Length], gain, pitch, gainVariation, pitchVariation, rolloff);
 		}
 
 		public void stop()

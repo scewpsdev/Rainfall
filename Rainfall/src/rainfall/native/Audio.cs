@@ -23,7 +23,7 @@ namespace Rainfall.Native
 		internal static extern uint Audio_PlayBackground(IntPtr sound, float gain, float pitch, byte looping);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern uint Audio_SourcePlay(IntPtr sound, Vector3 position, float gain, float pitch);
+		internal static extern uint Audio_SourcePlay(IntPtr sound, Vector3 position, float gain, float pitch, float rolloff);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceStop(uint source);

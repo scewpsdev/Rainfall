@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MJ149": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

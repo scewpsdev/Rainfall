@@ -13,7 +13,7 @@ using namespace SoLoud;
 
 static Soloud soloud;
 static Bus reverbBus;
-static handle reverbSource;
+static handle reverbBusSource;
 
 static FreeverbFilter reverb;
 
@@ -51,18 +51,22 @@ RFAPI uint32_t Audio_PlayBackground(AudioSource* sound, float gain, float pitch,
 	return source;
 }
 
-RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, const Vector3& position, float gain, float pitch)
+RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, const Vector3& position, float gain, float pitch, float rolloff)
 {
 	handle source = soloud.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, gain, true);
 	soloud.setRelativePlaySpeed(source, pitch);
-	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, 0.2f);
-	//soloud.set3dSourceMinMaxDistance(source, 1.0f, 50);
+	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
+	soloud.set3dSourceMinMaxDistance(source, 1, 50);
 	soloud.setPause(source, false);
 
-	handle reverbSource = reverbBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, gain, true);
-	soloud.setRelativePlaySpeed(reverbSource, pitch);
-	soloud.set3dSourceAttenuation(reverbSource, SoLoud::AudioSource::INVERSE_DISTANCE, 0.2f);
-	soloud.setPause(reverbSource, false);
+	if (reverbBusSource != 0)
+	{
+		handle reverbSource = reverbBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, gain, true);
+		soloud.setRelativePlaySpeed(reverbSource, pitch);
+		soloud.set3dSourceAttenuation(reverbSource, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
+		soloud.set3dSourceMinMaxDistance(reverbSource, 1, 50);
+		soloud.setPause(reverbSource, false);
+	}
 
 	return source;
 }
@@ -109,11 +113,11 @@ RFAPI void Audio_SourceSetLooping(uint32_t source, bool looping)
 
 RFAPI void Audio_SetEffectNone()
 {
-	soloud.stop(reverbSource);
-	reverbSource = 0;
+	soloud.stop(reverbBusSource);
+	reverbBusSource = 0;
 }
 
 RFAPI void Audio_SetEffectReverb()
 {
-	reverbSource = soloud.play(reverbBus);
+	reverbBusSource = soloud.play(reverbBus);
 }
