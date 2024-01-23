@@ -17,7 +17,7 @@ icon = "homing_orbs_icon.png"
 
 description: "many smol blue marbols"
 
-baseDamage = 30
+baseDamage = 20
 
 spellManaCost = 6
 

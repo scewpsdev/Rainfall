@@ -62,6 +62,10 @@ internal class Pot : Entity, Hittable
 		if (Random.Shared.NextSingle() < flaskDropChance)
 			DungeonGame.instance.level.addEntity(new ItemPickup(Item.Get("flask")), position, Quaternion.Identity);
 
+		float manaFlaskDropChance = 0.05f;
+		if (Random.Shared.NextSingle() < manaFlaskDropChance)
+			DungeonGame.instance.level.addEntity(new ItemPickup(Item.Get("mana_flask")), position, Quaternion.Identity);
+
 		float firebombDropChance = 0.05f;
 		if (Random.Shared.NextSingle() < firebombDropChance)
 			DungeonGame.instance.level.addEntity(new ItemPickup(Item.Get("firebomb")), position, Quaternion.Identity);

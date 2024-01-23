@@ -42,11 +42,16 @@ RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3&
 	soloud.set3dListenerParameters(position.x, position.y, position.z, forward.x, forward.y, forward.z, up.x, up.y, up.z);
 }
 
-RFAPI uint32_t Audio_PlayBackground(AudioSource* sound, float gain, float pitch, bool looping)
+RFAPI uint32_t Audio_PlayBackground(AudioSource* sound, float gain, float pitch, bool looping, float fadein)
 {
 	handle source = soloud.playBackground(*sound, gain, true);
 	soloud.setRelativePlaySpeed(source, pitch);
 	soloud.setLooping(source, looping);
+	if (fadein > 0)
+	{
+		soloud.setVolume(source, 0.0f);
+		soloud.fadeVolume(source, gain, fadein);
+	}
 	soloud.setPause(source, false);
 	return source;
 }
@@ -89,6 +94,12 @@ RFAPI void Audio_SourceResume(uint32_t source)
 RFAPI void Audio_SourceRewind(uint32_t source)
 {
 	soloud.seek(source, 0.0);
+}
+
+RFAPI void Audio_SourceFadeout(uint32_t source, float time)
+{
+	soloud.fadeVolume(source, 0.0f, time);
+	soloud.scheduleStop(source, time);
 }
 
 RFAPI void Audio_SourceSetPosition(uint32_t source, const Vector3& position)

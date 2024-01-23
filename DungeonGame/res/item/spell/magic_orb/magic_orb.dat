@@ -17,7 +17,7 @@ icon = "magic_orb_icon.png"
 
 description: "big blue marbol"
 
-baseDamage = 80
+baseDamage = 30
 
 spellManaCost = 15
 

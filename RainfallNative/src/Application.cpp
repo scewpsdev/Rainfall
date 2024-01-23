@@ -850,10 +850,20 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 		window = glfwCreateWindow(videoMode->width, videoMode->height, params.title, monitor, nullptr);
 		width = videoMode->width;
 		height = videoMode->height;
+		windowX = 100;
+		windowY = 100;
+		windowWidth = params.width;
+		windowHeight = params.height;
+		isFullscreen = true;
 	}
 	else
 	{
 		window = glfwCreateWindow(params.width, params.height, params.title, nullptr, nullptr);
+		width = params.width;
+		height = params.height;
+		glfwGetWindowPos(window, &windowX, &windowY);
+		glfwGetWindowSize(window, &windowWidth, &windowHeight);
+		isFullscreen = false;
 	}
 
 	if (!window)
@@ -862,12 +872,6 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 		glfwTerminate();
 		return EXIT_FAILURE;
 	}
-
-	glfwGetWindowPos(window, &windowX, &windowY);
-	glfwGetWindowSize(window, &windowWidth, &windowHeight);
-	width = windowWidth;
-	height = windowHeight;
-	isFullscreen = params.fullscreen;
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetCharCallback(window, CharCallback);

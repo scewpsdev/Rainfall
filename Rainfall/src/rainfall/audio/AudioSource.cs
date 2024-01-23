@@ -23,7 +23,6 @@ namespace Rainfall
 
 		public void destroy()
 		{
-
 		}
 
 		public void updateTransform(Vector3 position)

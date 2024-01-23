@@ -13,7 +13,7 @@ public class Creature : Entity, Hittable
 	{
 		public int maxHealth = 100;
 		public int damage = 20;
-		public float headshotDmgMultiplier = 2.0f;
+		public float headshotDmgMultiplier = 1.5f;
 
 		public int health = 100;
 

@@ -316,12 +316,12 @@ public class HUD
 				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, playerY + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
 				uint color = 0xFF000000;
 				if (x == playerPos.x && z == playerPos.z)
-					color = 0xFFFF4444;
+					color = 0xFFFF0000;
 				else if (tile != 0)
 				{
 					if (tile / 100 == 0xFF)
 					{
-						color = 0xFF777777;
+						color = 0xFF444444;
 					}
 					else
 					{
@@ -329,9 +329,9 @@ public class HUD
 						if (type != null)
 						{
 							if (type.sectorType == SectorType.Room)
-								color = 0xFF333333;
+								color = 0xFF111111;
 							else
-								color = 0xFF777777;
+								color = 0xFF444444;
 						}
 						else
 						{

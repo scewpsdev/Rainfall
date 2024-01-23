@@ -14,6 +14,7 @@ public class InventoryUI
 
 	bool inventoryOpen = false;
 	ItemContainerEntity openContainer = null;
+	int currentUIScale = 2;
 
 	Item grabbedItem = null;
 	int grabbedItemStackSize = 0;
@@ -60,6 +61,7 @@ public class InventoryUI
 
 	public void update()
 	{
+		currentUIScale = Display.height / 450;
 	}
 
 	/*
@@ -277,7 +279,7 @@ public class InventoryUI
 		grabbedItemStackSize = amount;
 		//grabbedItemOffset = new Vector2i((gridX - topLeftSlot.gridX) * 64 + (Input.cursorPosition.x - x), (gridY - topLeftSlot.gridY) * 64 + (Input.cursorPosition.y - y));
 		if (item != null)
-			grabbedItemOffset = item.inventorySize * 64 / 2;
+			grabbedItemOffset = item.inventorySize * 32 * currentUIScale / 2;
 		else
 			grabbedItemOffset = Vector2i.Zero;
 	}
@@ -447,13 +449,15 @@ public class InventoryUI
 		{
 			if (grabbedItem != null)
 			{
+				int slotSize = 32 * currentUIScale;
+
 				Vector2i cursorPosition = Input.cursorPosition;
 				int xx = cursorPosition.x - grabbedItemOffset.x;
 				int yy = cursorPosition.y - grabbedItemOffset.y;
-				int iconSize = Math.Max(grabbedItem.inventorySize.x, grabbedItem.inventorySize.y) * 64;
+				int iconSize = Math.Max(grabbedItem.inventorySize.x, grabbedItem.inventorySize.y) * slotSize;
 
-				int xoffset = (grabbedItem.inventorySize.x * 64) / 2 - iconSize / 2;
-				int yoffset = (grabbedItem.inventorySize.y * 64) / 2 - iconSize / 2;
+				int xoffset = (grabbedItem.inventorySize.x * slotSize) / 2 - iconSize / 2;
+				int yoffset = (grabbedItem.inventorySize.y * slotSize) / 2 - iconSize / 2;
 
 				Renderer.DrawUITexture(xx + xoffset, yy + yoffset, iconSize, iconSize, grabbedItem.icon);
 				if (grabbedItem.stackable && grabbedItemStackSize > 1)
@@ -482,44 +486,44 @@ public class InventoryUI
 				hoveredItem = hoveredSlot.container.getItemAtPos(hoveredSlot.gridX, hoveredSlot.gridY);
 			if (hoveredItem != null && hoveredItem.item != null)
 			{
-				int padding = 3;
+				int padding = 2 * currentUIScale;
 				int tooltipX = Input.cursorPosition.x;
 				int tooltipY = Input.cursorPosition.y;
-				int tooltipWidth = 400;
+				int tooltipWidth = 200 * currentUIScale;
 				int tooltipHeight = tooltipCurrentContentHeight + 2 * 2 + 2 * padding + 2 * 10;
 
-				int yscroll = 2 + padding + 10;
+				int yscroll = 2 + padding + 5 * currentUIScale;
 
 				Renderer.DrawUIRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 0xFFAAAAAA);
 				Renderer.DrawUIRect(tooltipX + 1, tooltipY + 1, tooltipWidth - 2, tooltipHeight - 2, 0xFF000000);
 				Renderer.DrawUIRect(tooltipX + 2, tooltipY + 2, tooltipWidth - 4, tooltipHeight - 4, 0xFF222222);
 
 				Texture icon = hoveredItem.item.icon;
-				int iconSize = 128;
+				int iconSize = 64 * currentUIScale;
 				Renderer.DrawUITexture(tooltipX + tooltipWidth / 2 - iconSize / 2, tooltipY + yscroll, iconSize, iconSize, icon);
-				yscroll += iconSize + 10;
+				yscroll += iconSize + 5 * currentUIScale;
 
 				string nameStr = hoveredItem.item.displayName;
 				int nameStrWidth = tooltipFontBig.measureText(nameStr);
 				Renderer.DrawText(tooltipX + tooltipWidth / 2 - nameStrWidth / 2, tooltipY + yscroll, 1.0f, nameStr, tooltipFontBig, 0xFFAAAAAA);
-				yscroll += (int)tooltipFontBig.size + 4;
+				yscroll += (int)tooltipFontBig.size + 2 * currentUIScale;
 
 				string categoryStr = hoveredItem.item.typeSpecifier;
 				int categoryStrWidth = tooltipFontMedium.measureText(categoryStr);
 				Renderer.DrawText(tooltipX + tooltipWidth / 2 - categoryStrWidth / 2, tooltipY + yscroll, 1.0f, categoryStr, tooltipFontMedium, 0xFF777777);
-				yscroll += (int)tooltipFontMedium.size + 4;
+				yscroll += (int)tooltipFontMedium.size + 2 * currentUIScale;
 
 				if (hoveredItem.item.twoHanded)
 				{
 					string twoHandedStr = "Two-handed";
 					int twoHandedStrWidth = tooltipFontMedium.measureText(twoHandedStr);
 					Renderer.DrawText(tooltipX + tooltipWidth / 2 - twoHandedStrWidth / 2, tooltipY + yscroll, 1.0f, twoHandedStr, tooltipFontMedium, 0xFF777777);
-					yscroll += (int)tooltipFontMedium.size + 4;
+					yscroll += (int)tooltipFontMedium.size + 2 * currentUIScale;
 				}
 
-				yscroll += 20;
+				yscroll += 10 * currentUIScale;
 
-				int lineHeight = (int)tooltipFontMedium.size + 10;
+				int lineHeight = (int)tooltipFontMedium.size + 5 * currentUIScale;
 
 				var drawTooltipInfo = (string value) =>
 				{
@@ -560,6 +564,7 @@ public class InventoryUI
 
 					drawTooltipInfo("Stability");
 					drawTooltipInfoRight((10 - hoveredItem.item.shieldHitStaminaCost).ToString());
+					yscroll += lineHeight;
 
 					drawTooltipInfo("Parry");
 					drawTooltipInfoRight(hoveredItem.item.parryFramesCount.ToString());
@@ -572,17 +577,15 @@ public class InventoryUI
 					yscroll += lineHeight;
 				}
 
-				tooltipCurrentContentHeight = yscroll - 10;
+				tooltipCurrentContentHeight = yscroll - 5 * currentUIScale;
 			}
 		}
 	}
 
-	void drawItemContainer(int x, int y, ItemContainer container, ItemContainer lootDst)
+	void drawItemContainer(int x, int y, int slotSize, ItemContainer container, ItemContainer lootDst)
 	{
 		// Items
 		{
-			int slotSize = 64;
-
 			for (int i = container.width - 1; i >= 0; i--)
 			{
 				for (int j = container.height - 1; j >= 0; j--)
@@ -640,9 +643,9 @@ public class InventoryUI
 
 		// Armor slots
 		{
-			int slotSize = 64;
-			int topPadding = 40;
-			int padding = 24;
+			int slotSize = 32 * currentUIScale;
+			int topPadding = 20 * currentUIScale;
+			int padding = 12 * currentUIScale;
 
 			drawItemSlotArray(x + width / 2 - slotSize / 2, y + topPadding, slotSize, slotSize, 0, slotSize + padding, player.inventory.armor);
 
@@ -671,10 +674,13 @@ public class InventoryUI
 
 		// Left weapon slots
 		{
-			int slotSize = 128;
-			int padding = 4;
+			int slotSize = 64 * currentUIScale;
+			int padding = 2 * currentUIScale;
 
-			drawItemSlotArray(x + width / 2 - 52 - padding - slotSize, y + 84, slotSize, slotSize, -(slotSize + padding), 0, player.inventory.leftHand);
+			int xx = x + width / 2 - 26 * currentUIScale - padding - slotSize;
+			int yy = y + 42 * currentUIScale;
+
+			drawItemSlotArray(xx, yy, slotSize, slotSize, -(slotSize + padding), 0, player.inventory.leftHand);
 
 			/*
 			for (int i = 0; i < player.inventory.leftHand.Length; i++)
@@ -700,10 +706,13 @@ public class InventoryUI
 		}
 		// Right weapon slots
 		{
-			int slotSize = 128;
-			int padding = 4;
+			int slotSize = 64 * currentUIScale;
+			int padding = 2 * currentUIScale;
 
-			drawItemSlotArray(x + width / 2 + 52 + padding, y + 84, slotSize, slotSize, slotSize + padding, 0, player.inventory.rightHand);
+			int xx = x + width / 2 + 26 * currentUIScale + padding;
+			int yy = y + 42 * currentUIScale;
+
+			drawItemSlotArray(xx, yy, slotSize, slotSize, slotSize + padding, 0, player.inventory.rightHand);
 
 			/*
 			for (int i = 0; i < player.inventory.rightHand.Length; i++)
@@ -730,11 +739,13 @@ public class InventoryUI
 
 		// Hotbar items
 		{
-			int slotSize = 64;
-			int padding = 4;
+			int slotSize = 32 * currentUIScale;
+			int padding = 2 * currentUIScale;
 			int totalWidth = padding + player.inventory.hotbar.Length * (slotSize + padding);
+			int xx = x + width / 2 - totalWidth / 2 + padding;
+			int yy = y + 196 * currentUIScale;
 
-			drawItemSlotArray(x + width / 2 - totalWidth / 2 + padding, y + 392, slotSize, slotSize, slotSize + padding, 0, player.inventory.hotbar);
+			drawItemSlotArray(xx, yy, slotSize, slotSize, slotSize + padding, 0, player.inventory.hotbar);
 
 			/*
 			for (int i = 0; i < player.inventory.hotbar.Length; i++)
@@ -747,12 +758,12 @@ public class InventoryUI
 		}
 
 		{
-			int slotSize = 64;
+			int slotSize = 32 * currentUIScale;
 			int totalWidth = player.inventory.width * slotSize;
 			int totalHeight = player.inventory.height * slotSize;
 			int left = width / 2 - totalWidth / 2;
-			int top = height - totalHeight - 40;
-			drawItemContainer(x + left, y + top, player.inventory, null);
+			int top = height - totalHeight - 20 * currentUIScale;
+			drawItemContainer(x + left, y + top, slotSize, player.inventory, null);
 		}
 
 		Renderer.PopUILayer();
@@ -780,7 +791,10 @@ public class InventoryUI
 	{
 		Renderer.PushUILayer();
 
-		drawItemContainer(x + 40, y + 40, openContainer.getContainer(), player.inventory);
+		int xx = x + 20 * currentUIScale;
+		int yy = y + 20 * currentUIScale;
+		int slotSize = 32 * currentUIScale;
+		drawItemContainer(xx, yy, slotSize, openContainer.getContainer(), player.inventory);
 
 		Renderer.PopUILayer();
 	}
@@ -791,10 +805,10 @@ public class InventoryUI
 		{
 			hoveredSlot = null;
 
-			int width = 720;
-			int height = 920;
-			int x = Display.viewportSize.x / 2 - width / 2;
-			int y = 50;
+			int width = 360 * currentUIScale;
+			int height = 460 * currentUIScale;
+			int x = Display.width / 2 - width / 2;
+			int y = Display.height / 2 - height / 2;
 
 			Renderer.DrawUIRect(x, y, width, height, 0xff111111);
 			drawInventory(x, y, width, height);
@@ -821,12 +835,12 @@ public class InventoryUI
 		{
 			hoveredSlot = null;
 
-			int inventoryWidth = 720;
-			int chestPaneWidth = 720;
-			int x = Display.viewportSize.x / 2 - inventoryWidth;
-			int y = 50;
+			int inventoryWidth = 360 * currentUIScale;
+			int chestPaneWidth = 360 * currentUIScale;
+			int height = 460 * currentUIScale;
+			int x = Display.width / 2 - inventoryWidth;
+			int y = Display.height / 2 - height / 2;
 			int width = inventoryWidth + chestPaneWidth;
-			int height = 920;
 
 			Renderer.DrawUIRect(x, y, width, height, 0xff111111);
 

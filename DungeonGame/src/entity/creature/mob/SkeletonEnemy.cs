@@ -41,12 +41,12 @@ internal class SkeletonEnemy : Creature
 		hitParticles.numFrames = 1;
 		hitParticles.randomRotation = true;
 
-		stats.maxHealth = 200;
-		stats.health = 200;
+		stats.maxHealth = 120;
+		stats.health = 120;
 
 		walkSpeed = 3.0f;
 
-		name = "Jerry";
+		//name = "Jerry";
 
 		hitboxData.Add("Hip", new BoneHitbox(0.1f));
 		hitboxData.Add("Spine", new BoneHitbox(0.1f));
@@ -67,7 +67,7 @@ internal class SkeletonEnemy : Creature
 
 		ai = new EnemyAI(this);
 
-		itemDrops.Add(new ItemDrop(Item.Get("flask").id, 1, 0.25f));
+		itemDrops.Add(new ItemDrop(Item.Get("flask").id, 1, 0.1f));
 
 		hitSound = new Sound[] {
 			Resource.GetSound("res/entity/creature/skeleton/sfx/hit.ogg")

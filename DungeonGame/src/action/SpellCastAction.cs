@@ -46,15 +46,20 @@ internal class SpellCastAction : Action
 			if (elapsedTime > spell.spellProjectiles[i].castTime && !casted[i] && player.stats.mana >= spell.spellManaCost)
 			{
 				Vector3 castDirection = player.lookDirection;
-				Vector3 castPosition = player.lookOrigin + castDirection * 2;
+				Vector3 castPosition = player.lookOrigin;
+
+				Vector3 offset = (player.getWeaponTransform(handID) * Matrix.CreateTranslation(new Vector3(0, -0.4f, 0))).translation - castPosition;
 
 				Entity projectile = null;
 				if (spell.spellProjectiles[i].type == SpellProjectileType.Arrow)
-					projectile = new MagicArrow(castDirection, player, spell.baseDamage);
+					projectile = new MagicArrow(castDirection, offset, player, spell.baseDamage);
 				if (spell.spellProjectiles[i].type == SpellProjectileType.Orb)
+				{
 					projectile = new MagicOrb(castDirection, player, spell.baseDamage);
+					castPosition += player.lookDirection * 0.5f;
+				}
 				if (spell.spellProjectiles[i].type == SpellProjectileType.Homing)
-					projectile = new HomingOrb(player, spell.baseDamage);
+					projectile = new HomingOrb(offset, player, spell.baseDamage);
 
 				DungeonGame.instance.level.addEntity(projectile, castPosition, Quaternion.Identity);
 

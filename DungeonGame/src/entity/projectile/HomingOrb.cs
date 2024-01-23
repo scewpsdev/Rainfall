@@ -6,68 +6,36 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class HomingOrb : Entity
+internal class HomingOrb : Projectile
 {
-	const float SPEED = 6.0f;
+	const float SPEED = 4.0f;
 
 
 	Player player;
-	int damage;
-
-	Model model;
-	RigidBody body;
-
-	Vector3 velocity;
-
-	bool hit = false;
-
-	List<Entity> hitEntities = new List<Entity>();
 
 
-	public HomingOrb(Player player, int damage)
+	public HomingOrb(Vector3 offset, Player player, int damage)
+		: base(player.lookDirection * SPEED, offset, player)
 	{
 		this.player = player;
-		this.damage = damage;
 
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
 		unsafe
 		{
 			model.sceneDataHandle->materials[0].emissiveStrength = 200;
 		}
-
-		velocity = player.lookDirection * SPEED;
+		this.damage = damage;
 	}
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Kinematic);
+		body = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Weapon, (uint)PhysicsFilterMask.Weapon);
 		body.addSphereTrigger(0.05f, Vector3.Zero);
 	}
 
-	public override void destroy()
+	protected override void onProjectileHit(Entity entity)
 	{
-		body.destroy();
-	}
-
-	public override void onContact(RigidBody body, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
-	{
-		if (hit)
-			return;
-
-		if (body.entity is not Player && !hitEntities.Contains(body.entity))
-		{
-			if (body.entity is Creature)
-			{
-				Creature creature = body.entity as Creature;
-				creature.hit(damage, player);
-			}
-
-			hitEntities.Add((Entity)body.entity);
-
-			remove();
-
-			hit = true;
-		}
+		DungeonGame.instance.level.addEntity(new MagicExplosionEffect(-velocity.normalized), position, rotation);
 	}
 
 	public override void update()
@@ -79,14 +47,12 @@ internal class HomingOrb : Entity
 		Vector3 projectedPosition = player.lookOrigin + Vector3.Dot(position - player.lookOrigin, player.lookDirection) / Vector3.Dot(player.lookDirection, player.lookDirection) * player.lookDirection;
 		velocity += (projectedPosition - position) * 8.0f * Time.deltaTime;
 
-		position += velocity * Time.deltaTime;
-
-		body.setTransform(position, Quaternion.Identity);
+		base.update();
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawModel(model, getModelMatrix());
-		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f));
+		base.draw(graphics);
+		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 2);
 	}
 }

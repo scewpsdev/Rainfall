@@ -273,7 +273,10 @@ public class Player : Entity
 		//giveItem(Item.Get("longbow"), 1);
 		//giveItem(Item.Get("firebomb"), 10);
 
-		//giveItem(Item.Get("shortsword"), 1);
+		//giveItem(Item.Get("oak_staff"), 1);
+		//giveItem(Item.Get("magic_orb"), 1);
+		//giveItem(Item.Get("magic_arrow"), 1);
+		//giveItem(Item.Get("homing_orbs"), 1);
 		//giveItem(Item.Get("torch"), 1);
 		//giveItem(Item.Get("longbow"));
 		//giveItem(Item.Get("arrow"), 50);
@@ -2132,9 +2135,9 @@ public class Player : Entity
 
 		// Camera light
 		if (inventory.hasItemInOffhand(Item.Get("torch")))
-			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 1.0f);
+			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 2.0f);
 		else
-			Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.06f);
+			Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
 
 		handEntities[0].draw(graphics);
 		handEntities[1].draw(graphics);

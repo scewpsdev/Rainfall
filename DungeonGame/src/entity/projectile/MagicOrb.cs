@@ -6,86 +6,40 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class MagicOrb : Entity
+internal class MagicOrb : Projectile
 {
-	const float SPEED = 4.0f;
-	const int NUM_PIERCES = 3;
+	const float SPEED = 1.2f;
 
-
-	Entity caster;
-	int damage;
-
-	Model model;
-	RigidBody body;
-
-	Vector3 velocity;
-
-	int remainingPierces = NUM_PIERCES;
 
 	List<Entity> hitEntities = new List<Entity>();
 
 
 	public MagicOrb(Vector3 direction, Entity caster, int damage)
+		: base(direction * SPEED, Vector3.Zero, caster)
 	{
-		this.caster = caster;
-		this.damage = damage;
-
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
 		unsafe
 		{
 			model.sceneDataHandle->materials[0].emissiveStrength = 200;
 		}
-
-		velocity = direction * SPEED;
+		this.damage = damage;
+		piercing = true;
 	}
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Kinematic);
+		body = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Weapon, (uint)PhysicsFilterMask.Weapon);
 		body.addSphereTrigger(0.25f, Vector3.Zero);
 	}
 
-	public override void destroy()
+	protected override void onProjectileHit(Entity entity)
 	{
-		body.destroy();
-	}
-
-	public override void onContact(RigidBody body, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
-	{
-		if (remainingPierces == 0)
-			return;
-
-		if (body.entity is not Player && !hitEntities.Contains(body.entity))
-		{
-			if (body.entity is Creature)
-			{
-				Creature creature = body.entity as Creature;
-				creature.hit(damage, caster);
-
-				remainingPierces--;
-			}
-			else
-			{
-				remainingPierces = 0;
-			}
-
-			hitEntities.Add((Entity)body.entity);
-
-			if (remainingPierces == 0)
-				remove();
-		}
-	}
-
-	public override void update()
-	{
-		position += velocity * Time.deltaTime;
-
-		body.setTransform(position, Quaternion.Identity);
+		DungeonGame.instance.level.addEntity(new MagicExplosionEffect(-velocity.normalized), position, rotation);
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
 		Renderer.DrawModel(model, getModelMatrix() * Matrix.CreateScale(2.5f));
-		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 2);
+		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 20);
 	}
 }

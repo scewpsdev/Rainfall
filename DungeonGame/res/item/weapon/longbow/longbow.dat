@@ -28,7 +28,7 @@ description: "it go pew pew"
 weaponType = bow
 twoHanded: 1
 
-baseDamage: 120
+baseDamage: 80
 
 sfxShoot = "longbow_shoot.ogg"
 sfxBowDraw = "longbow_arrow_draw.ogg"

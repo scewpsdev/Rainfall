@@ -44,8 +44,6 @@ internal class DungeonGame : Game
 
 		Item.LoadContent();
 
-		Display.fullscreen = true;
-
 		//RoomType.Init();
 
 		gameManager = new GameManager();
@@ -315,12 +313,17 @@ internal class DungeonGame : Game
 #endif
 
 		LaunchParams launchParams = new LaunchParams(args);
+#if DEBUG
+		launchParams.width = 1200;
+		launchParams.height = 600;
+#else
 		launchParams.width = 1600;
 		launchParams.height = 900;
-		launchParams.maximized = true;
-		//launchParams.fullscreen = false;
+		//launchParams.maximized = false;
+		launchParams.fullscreen = true;
 		launchParams.fpsCap = 60;
 		//launchParams.vsync = false;
+#endif
 
 		Game game = new DungeonGame();
 		game.run(launchParams);

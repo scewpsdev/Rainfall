@@ -6,76 +6,36 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class MagicArrow : Entity
+public class MagicArrow : Projectile
 {
-	const float SPEED = 24.0f;
+	const float SPEED = 15.0f;
 
 
-	Entity caster;
-	int damage;
-
-	Model model;
-	RigidBody body;
-
-	Vector3 velocity;
-
-	bool hit = false;
-
-
-	public MagicArrow(Vector3 direction, Entity caster, int damage)
+	public MagicArrow(Vector3 direction, Vector3 offset, Entity caster, int damage)
+		: base(direction * SPEED, offset, caster)
 	{
-		this.caster = caster;
-		this.damage = damage;
-
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
 		unsafe
 		{
 			model.sceneDataHandle->materials[0].emissiveStrength = 200;
 		}
-
-		velocity = direction * SPEED;
+		this.damage = damage;
 	}
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Kinematic);
+		body = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Weapon, (uint)PhysicsFilterMask.Weapon);
 		body.addSphereTrigger(0.1f, Vector3.Zero);
 	}
 
-	public override void destroy()
+	protected override void onProjectileHit(Entity entity)
 	{
-		body.destroy();
-	}
-
-	public override void onContact(RigidBody body, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
-	{
-		if (hit)
-			return;
-
-		if (body.entity is not Player)
-		{
-			if (body.entity is Creature)
-			{
-				Creature creature = body.entity as Creature;
-				creature.hit(damage, caster);
-
-				remove();
-
-				hit = true;
-			}
-		}
-	}
-
-	public override void update()
-	{
-		position += velocity * Time.deltaTime;
-
-		body.setTransform(position, Quaternion.Identity);
+		DungeonGame.instance.level.addEntity(new MagicExplosionEffect(-velocity.normalized), position, rotation);
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawModel(model, getModelMatrix());
-		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 2);
+		base.draw(graphics);
+		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 8);
 	}
 }

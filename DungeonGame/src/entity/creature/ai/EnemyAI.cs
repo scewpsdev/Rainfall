@@ -26,7 +26,7 @@ public class EnemyAI : AI
 		this.detectionRange = 8.0f;
 		this.detectionAngle = MathHelper.ToRadians(100.0f);
 		this.stoppingDistance = 2.0f;
-		minimumAttackDistance = 1.5f;
+		minimumAttackDistance = 1.0f;
 	}
 
 	public override void onSoundHeard(Vector3 from)
@@ -42,12 +42,14 @@ public class EnemyAI : AI
 	{
 		if (from == creature)
 			Debug.Assert(false);
+		if (from is Projectile)
+			from = ((Projectile)from).shooter;
 		currentTarget = from;
 	}
 
 	bool canSeeEntity(Entity entity)
 	{
-		Vector3 targetCenter = entity.position + Vector3.Up * 1.6f;
+		Vector3 targetCenter = entity.position + Vector3.Up * 1.2f;
 		Vector3 creatureCenter = creature.position + Vector3.Up * 1.6f;
 		Vector3 delta = targetCenter - creatureCenter;
 		float distance = delta.length;
