@@ -46,7 +46,7 @@ internal class WallTorch : Entity, Interactable
 		//fireParticles.frameWidth = 32;
 		//fireParticles.frameHeight = 32;
 		//fireParticles.numFrames = 12;
-		fireParticles.emissionRate = 120.0f;
+		fireParticles.emissionRate = 0;
 		fireParticles.lifetime = 0.5f;
 		fireParticles.spawnOffset = ORIGIN;
 		fireParticles.spawnRadius = 0.02f;
@@ -63,7 +63,7 @@ internal class WallTorch : Entity, Interactable
 		fireParticles.colorAnim = new Gradient<Vector4>(new Vector4(GLIM_COLOR, 1.0f), new Vector4(FIRE_COLOR * 3, 1.0f));
 
 		glimParticles = new ParticleSystem(64);
-		glimParticles.emissionRate = 10;
+		glimParticles.emissionRate = 0;
 		glimParticles.lifetime = 8;
 		glimParticles.spawnOffset = ORIGIN;
 		glimParticles.spawnRadius = 0.06f;
@@ -76,7 +76,7 @@ internal class WallTorch : Entity, Interactable
 		glimParticles.randomRotation = true;
 
 		sparkParticles = new ParticleSystem(64);
-		sparkParticles.emissionRate = 0.3f;
+		sparkParticles.emissionRate = 0;
 		sparkParticles.lifetime = 3;
 		sparkParticles.spawnOffset = ORIGIN;
 		sparkParticles.particleSize = 0.02f;
@@ -115,21 +115,25 @@ internal class WallTorch : Entity, Interactable
 
 		Matrix transform = getModelMatrix();
 
+		fireParticles.transform = transform;
+		fireParticles.update();
+
+		smokeParticles.transform = transform;
+		smokeParticles.update();
+
+		glimParticles.transform = transform;
+		glimParticles.update();
+
+		sparkParticles.transform = transform;
+		sparkParticles.update();
+
 		if (state == TorchState.Burning || state == TorchState.Glimming)
 		{
-			glimParticles.transform = transform;
-			glimParticles.update();
 
-			sparkParticles.transform = transform;
-			sparkParticles.update();
 
 			if (state == TorchState.Burning)
 			{
-				fireParticles.transform = transform;
-				fireParticles.update();
 
-				smokeParticles.transform = transform;
-				smokeParticles.update();
 			}
 		}
 	}
@@ -144,15 +148,38 @@ internal class WallTorch : Entity, Interactable
 		{
 			Renderer.DrawSubModel(model, 0, transform);
 
+			fireParticles.draw(graphics);
+			smokeParticles.draw(graphics);
+
+			glimParticles.draw(graphics);
+			sparkParticles.draw(graphics);
+
+			if (state == TorchState.Burning)
+			{
+				fireParticles.emissionRate = 120;
+				glimParticles.emissionRate = 10;
+				sparkParticles.emissionRate = 0.3f;
+			}
+			else if (state == TorchState.Glimming)
+			{
+				fireParticles.emissionRate = 0;
+				glimParticles.emissionRate = 10;
+				sparkParticles.emissionRate = 0.3f;
+			}
+			else if (state == TorchState.Off)
+			{
+				fireParticles.emissionRate = 0;
+				glimParticles.emissionRate = 0;
+				sparkParticles.emissionRate = 0;
+			}
+
 			if (state == TorchState.Burning || state == TorchState.Glimming)
 			{
-				glimParticles.draw(graphics);
-				sparkParticles.draw(graphics);
+
 
 				if (state == TorchState.Burning)
 				{
-					fireParticles.draw(graphics);
-					smokeParticles.draw(graphics);
+
 				}
 
 				Vector3 lightPosition = transform * new Vector3(0.0f, 0.3f, 0.25f);
@@ -184,9 +211,9 @@ internal class WallTorch : Entity, Interactable
 			}
 			else if (state == TorchState.Burning)
 			{
-				player.giveItem(Item.Get("torch"), 1);
+				//player.giveItem(Item.Get("torch"), 1);
 				//fireParticles = null;
-				state = TorchState.Looted;
+				state = TorchState.Off;
 				// TODO grab sound
 			}
 			else if (state == TorchState.Looted)

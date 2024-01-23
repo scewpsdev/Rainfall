@@ -377,6 +377,7 @@ public class StartingRoom : RoomType
 			chest.addItem(Item.Get("torch"));
 			chest.addItem(Item.Get("leather_chestplate"));
 			chest.addItem(Item.Get("wooden_round_shield"));
+			chest.addItem(Item.Get("flask"));
 			//chest.addItem(Item.Get("longsword"));
 			//chest.addItem(Item.Get("flask"), 2);
 			//chest.addItem(Item.Get("firebomb"), 10);
@@ -486,6 +487,21 @@ public class FinalRoom : RoomType
 		room.addEntity(gate, gateTransform.translation, gateTransform.rotation);
 		room.addEntity(lever, leverTransform.translation, leverTransform.rotation);
 		room.addEntity(door, doorTransform.translation, doorTransform.rotation);
+
+		Creature boss = new Jerry();
+		room.addEntity(boss, room.transform.translation + 0.5f * bossRoomSize, Quaternion.Identity);
+		room.addEntity(new BossRegion(new Vector3(bossRoomSize.x, bossRoomSize.y, bossRoomSize.z - 1), boss), room.transform.translation, Quaternion.Identity);
+
+		for (int z = -1; z < 2; z++)
+		{
+			for (int x = -1; x < 2; x++)
+			{
+				Vector3 position = room.transform.translation + new Vector3(bossRoomSize.x * 0.5f + x * 10, bossRoomSize.y * 0.75f, bossRoomSize.z * 0.5f + z * 10);
+				room.addEntity(new LightObject(new Vector3(1.0f, 0.5f, 0.2f) * 4), position, Quaternion.Identity);
+			}
+		}
+
+		//level.spawnPoint = room.transform * Matrix.CreateTranslation(2.5f, 0.0f, 12.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 	}
 }
 
@@ -521,6 +537,11 @@ public class MainRoom : RoomType
 			chest.addItem(Item.Get("longsword"));
 			chest.addItem(Item.Get("longbow"));
 			chest.addItem(Item.Get("arrow"), 8);
+			chest.addItem(Item.Get("oak_staff"));
+			chest.addItem(Item.Get("magic_arrow"));
+			chest.addItem(Item.Get("homing_orbs"));
+			chest.addItem(Item.Get("magic_orb"));
+			chest.addItem(Item.Get("map"));
 			room.addEntity(chest, position, rotation);
 		}
 
@@ -594,13 +615,19 @@ public class PotRoom : RoomType
 				{
 					if (!isInFrontOfDoorway(room.gridPosition + new Vector3i(x, 0, z), room))
 					{
-						bool spawnPot = random.Next() % 10 == 0;
-						if (spawnPot)
+						int i = random.Next() % 10;
+						if (i == 0)
 						{
 							int potType = random.Next() % 3;
 							Vector3 position = room.gridPosition + new Vector3(x + 0.5f + MathHelper.RandomFloat(-0.3f, 0.3f, random), 0.0f, z + 0.5f + MathHelper.RandomFloat(-0.3f, 0.3f, random));
 							Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, random.NextSingle() * MathF.PI * 2);
 							level.addEntity(new Pot(potType), position, rotation);
+						}
+						else if (i == 1)
+						{
+							Vector3 position = room.gridPosition + new Vector3(x + 0.5f + MathHelper.RandomFloat(-0.3f, 0.3f, random), 0.0f, z + 0.5f + MathHelper.RandomFloat(-0.3f, 0.3f, random));
+							Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, random.NextSingle() * MathF.PI * 2);
+							level.addEntity(new Crate(), position, rotation);
 						}
 					}
 				}
@@ -694,6 +721,12 @@ public class LibraryRoom : RoomType
 			items.Add(Item.Get("flask"));
 			amounts.Add(1);
 		}
+		float manaFlaskChance = 0.1f;
+		if (random.NextSingle() < manaFlaskChance)
+		{
+			items.Add(Item.Get("mana_flask"));
+			amounts.Add(1);
+		}
 
 		float arrowChance = 0.08f;
 		if (random.NextSingle() < arrowChance)
@@ -726,6 +759,12 @@ public class LibraryRoom : RoomType
 		if (random.NextSingle() < flaskChance)
 		{
 			items.Add(Item.Get("flask"));
+			amounts.Add(1);
+		}
+		float manaFlaskChance = 0.1f;
+		if (random.NextSingle() < manaFlaskChance)
+		{
+			items.Add(Item.Get("mana_flask"));
 			amounts.Add(1);
 		}
 

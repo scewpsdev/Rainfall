@@ -67,8 +67,8 @@ internal class DemoScene : Room
 		addEntity(new LadderRegion(new Vector3(0.5f, 2.4f, 0.2f), new Vector3(0.0f, 0.0f, -0.2f)), new Vector3(-10, 40, -53), Quaternion.LookAt(Vector3.Right));
 		addEntity(new LadderRegion(new Vector3(0.5f, 5.4f, 0.2f), new Vector3(0.0f, 0.0f, -0.2f)), new Vector3(-10, 24, -50), Quaternion.LookAt(Vector3.Left));
 
-		addEntity(new ReverbZone(new Vector3(9.0f, 9.5f, 9.0f)), new Vector3(0, 25.5f, -58), Quaternion.Identity);
-		addEntity(new ReverbZone(new Vector3(9.5f, 18.0f, 9.5f)), new Vector3(0, -20.7f, 47), Quaternion.Identity);
+		addEntity(new ReverbZone(new Vector3(9.0f, 9.5f, 9.0f) * 2, true), new Vector3(0, 25.5f, -58) - new Vector3(9.0f, 9.5f, 9.0f), Quaternion.Identity);
+		addEntity(new ReverbZone(new Vector3(9.5f, 18.0f, 9.5f) * 2, true), new Vector3(0, -20.7f, 47) - new Vector3(9.5f, 18.0f, 9.5f), Quaternion.Identity);
 
 		//doorways.Add(new Doorway(room, new Vector3(0.0f, -7.5f, -35.0f), Quaternion.Identity));
 

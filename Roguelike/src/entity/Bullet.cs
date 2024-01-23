@@ -93,7 +93,7 @@ public class Bullet : Entity
 		{
 			onWallHit();
 			numRicochets++;
-			if (numRicochets > Gaem.instance.player.ricochet)
+			if (numRicochets > Roguelike.instance.player.ricochet)
 				removed = true;
 			else
 			{
@@ -125,7 +125,7 @@ public class Bullet : Entity
 			}
 		}
 
-		if (penetratedEntities.Count > Gaem.instance.player.penetration)
+		if (penetratedEntities.Count > Roguelike.instance.player.penetration)
 			removed = true;
 
 		if ((Time.currentTime - birthTime) / 1e9f >= MAX_LIFETIME)

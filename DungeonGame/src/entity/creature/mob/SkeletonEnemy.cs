@@ -46,7 +46,7 @@ internal class SkeletonEnemy : Creature
 
 		walkSpeed = 3.0f;
 
-		//nameTag = "Jerry";
+		name = "Jerry";
 
 		hitboxData.Add("Hip", new BoneHitbox(0.1f));
 		hitboxData.Add("Spine", new BoneHitbox(0.1f));

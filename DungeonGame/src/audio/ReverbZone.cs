@@ -9,18 +9,21 @@ using System.Threading.Tasks;
 internal class ReverbZone : Entity
 {
 	Vector3 halfExtents;
+	bool value;
+
 	RigidBody body;
 
 
-	public ReverbZone(Vector3 halfExtents)
+	public ReverbZone(Vector3 size, bool value)
 	{
-		this.halfExtents = halfExtents;
+		halfExtents = 0.5f * size;
+		this.value = value;
 	}
 
 	public override void init()
 	{
 		body = new RigidBody(this, RigidBodyType.Static);
-		body.addBoxTrigger(halfExtents);
+		body.addBoxTrigger(halfExtents, halfExtents, Quaternion.Identity);
 	}
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
@@ -29,11 +32,11 @@ internal class ReverbZone : Entity
 		{
 			if (contactType == ContactType.Found)
 			{
-				AudioManager.SetReverb(true);
+				AudioManager.SetReverb(value);
 			}
 			else if (contactType == ContactType.Lost)
 			{
-				AudioManager.SetReverb(false);
+				AudioManager.SetReverb(!value);
 			}
 		}
 	}

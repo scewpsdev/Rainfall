@@ -76,7 +76,7 @@ public class Upgrade : Entity, Interactable
 			if (player.points >= cost)
 			{
 				player.points -= cost;
-				Gaem.instance.manager.pointsSpent += cost;
+				Roguelike.instance.manager.pointsSpent += cost;
 
 				if (type == UpgradeType.Health)
 				{

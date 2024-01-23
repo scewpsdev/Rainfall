@@ -61,7 +61,7 @@ public class Door : Entity, Interactable
 	{
 		Player player = entity as Player;
 
-		int cost = Gaem.instance.manager.doorCost;
+		int cost = 1; // Roguelike.instance.manager.doorCost;
 		text = "[E] Open: " + cost;
 		color = player.points >= cost ? 0xFFFFFFFF : 0xFFFF7777;
 	}
@@ -71,12 +71,12 @@ public class Door : Entity, Interactable
 		if (entity is Player)
 		{
 			Player player = entity as Player;
-			int cost = Gaem.instance.manager.doorCost;
+			int cost = 1; // Roguelike.instance.manager.doorCost;
 			if (player.points >= cost)
 			{
 				player.points -= cost;
-				Gaem.instance.manager.pointsSpent += cost;
-				Gaem.instance.manager.doorCost += Gaem.instance.manager.doorCost / 2;
+				Roguelike.instance.manager.pointsSpent += cost;
+				//Roguelike.instance.manager.doorCost += Roguelike.instance.manager.doorCost / 2;
 				locked = false;
 				colliderEnabled = false;
 
@@ -101,9 +101,9 @@ public class Door : Entity, Interactable
 			{
 				for (int x = 0; x < width; x++)
 				{
-					Renderer.DrawSprite(position.x + x, position.y + y, 1, 1, 1, Gaem.instance.level.tileset, 9 * 8, 0, 8, 8);
+					Renderer.DrawSprite(position.x + x, position.y + y, 1, 1, 1, Roguelike.instance.level.tileset, 9 * 8, 0, 8, 8);
 					if (y == 0)
-						Renderer.DrawVerticalSprite(position.x + x, position.y + y, 0, 1, 1, Gaem.instance.level.tileset, 9 * 8, 1 * 8, 8, 8);
+						Renderer.DrawVerticalSprite(position.x + x, position.y + y, 0, 1, 1, Roguelike.instance.level.tileset, 9 * 8, 1 * 8, 8, 8);
 				}
 			}
 		}

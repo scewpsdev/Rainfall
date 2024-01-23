@@ -159,7 +159,8 @@ public class Player : Entity
 
 	public Interactable interactableInFocus = null;
 
-	public bool hasWon = false;
+	public long wonTime = long.MaxValue;
+	public bool hasWon { get => Time.currentTime > wonTime; }
 
 
 	/* INVENTORY VARIABLES */
@@ -1074,10 +1075,10 @@ public class Player : Entity
 							if (handID == 0 && InputManager.IsPressed("Action0") ||
 								handID == 1 && InputManager.IsPressed("Action1"))
 							{
-								SpellSlot spell = inventory.getSpellSlot(handItemSlot);
-								if (spell != null && spell.numCharges > 0)
+								ItemSlot spell = inventory.getSpellSlot(handItemSlot);
+								if (spell != null /*&& spell.numCharges > 0*/)
 								{
-									queueAction(new SpellCastAction(handItem, spell.spell.item, handID));
+									queueAction(new SpellCastAction(handItem, spell.item, handID));
 								}
 							}
 						}
@@ -1172,6 +1173,8 @@ public class Player : Entity
 								queueAction(new ConsumableUseAction(handItemSlot, handID, followUp));
 							}
 						}
+						break;
+					case ItemCategory.Artifact:
 						break;
 					default:
 						Debug.Assert(false);
@@ -2012,7 +2015,7 @@ public class Player : Entity
 			slot = inventory.addItem(item, amount);
 		}
 
-		if (firstOfType)
+		if (false) //if (firstOfType)
 		{
 			ItemSlot newSlot = null;
 			if (item.category == ItemCategory.Weapon)

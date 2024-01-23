@@ -15,19 +15,16 @@
     <Compile Remove="builds\**" />
     <Compile Remove="Properties\**" />
     <Compile Remove="screenshots\**" />
-    <Compile Remove="src\graphics\**" />
     <Compile Remove="src\input\**" />
     <Compile Remove="src\level\generator_\**" />
     <EmbeddedResource Remove="builds\**" />
     <EmbeddedResource Remove="Properties\**" />
     <EmbeddedResource Remove="screenshots\**" />
-    <EmbeddedResource Remove="src\graphics\**" />
     <EmbeddedResource Remove="src\input\**" />
     <EmbeddedResource Remove="src\level\generator_\**" />
     <None Remove="builds\**" />
     <None Remove="Properties\**" />
     <None Remove="screenshots\**" />
-    <None Remove="src\graphics\**" />
     <None Remove="src\input\**" />
     <None Remove="src\level\generator_\**" />
   </ItemGroup>
@@ -129,6 +126,7 @@
 	  <Compile Remove="src\entity\Camera.cs" />
 	  <Compile Remove="src\entity\Entity.cs" />
 	  <Compile Remove="src\entity\ParticleSystem.cs" />
+	  <Compile Remove="src\GraphicsManager.cs" />
 	  <Compile Remove="src\level\testmaps\HubArea.cs" />
 	  <Compile Remove="src\level\Terrain.cs" />
 	</ItemGroup>
@@ -143,14 +141,6 @@
 
 	<ItemGroup>
 	  <FrameworkAssemblies Remove="src\input\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PrivateSdkAssemblies Remove="src\graphics\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <FrameworkAssemblies Remove="src\graphics\**" />
 	</ItemGroup>
 
 	<ItemGroup>

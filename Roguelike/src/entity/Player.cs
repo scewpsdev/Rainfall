@@ -40,6 +40,8 @@ public class Player : Entity
 	long shootBegin;
 	long lastHitTime;
 
+	public Item rightItem, leftItem;
+
 	public float speed;
 	public int maxHealth;
 	public int health;
@@ -59,6 +61,8 @@ public class Player : Entity
 	{
 		this.position = position;
 		this.camera = camera;
+
+		camera.position = position + new Vector2(0.0f, 16.0f);
 
 		size = new Vector2(2, 2);
 		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
@@ -112,7 +116,7 @@ public class Player : Entity
 
 		speed = 5;
 		maxHealth = 3;
-		health = 3;
+		health = 2;
 		fireRate = 2;
 		damage = 3;
 		knockback = 5;
@@ -139,7 +143,7 @@ public class Player : Entity
 
 		audio.playSoundOrganic(sfxHit, 2);
 
-		Gaem.instance.manager.hitsTaken++;
+		Roguelike.instance.manager.hitsTaken++;
 
 		lastHitTime = Time.currentTime;
 	}
@@ -242,7 +246,7 @@ public class Player : Entity
 		Vector2 direction = (target - position).normalized;
 		Vector2 shootOrigin = position + direction * 0.5f;
 		level.addEntity(new Bullet(this, damage, shootOrigin, direction));
-		Gaem.instance.manager.bulletsFired++;
+		Roguelike.instance.manager.bulletsFired++;
 	}
 
 	void updateCamera()
@@ -312,18 +316,20 @@ public class Player : Entity
 	{
 		Vector2 cursorWorldPos = camera.pixelToPosition(Input.cursorPosition);
 		Vector2 cursorDirection = (cursorWorldPos - position).normalized;
-		float cursorRotation = MathF.Atan2(cursorDirection.y, cursorDirection.x) - MathF.PI * 0.5f;
+		float cursorRotation = MathF.Atan2(cursorDirection.y, cursorDirection.x);
 		direction = cursorDirection.x > 0;
 
 		Renderer.DrawVerticalSprite(position.x - 0.5f * size.x, position.y, size.x, size.y, sprite, !direction, 0xFFFFFFFF);
-		Renderer.DrawSprite(position.x - 1.5f, position.y - 1.5f, 0.75f, 3, 3, cursorRotation, bookSprite, false);
 		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, 0.01f, 1, 1, shadow, 0, 0, 8, 8, 0xFFFFFFFF);
+
+		if (rightItem != null)
+			Renderer.DrawSprite(position.x - 1.5f, position.y - 1.5f, 0.75f, 3, 3, cursorRotation, rightItem.sprite, false);
 
 		if (shootBegin != 0)
 		{
 			float progress = (Time.currentTime - shootBegin) / 1e9f * fireRate;
-			Renderer.DrawVerticalSprite(position.x - 0.5f, position.y, 2.5f, 1.0f, 0.125f, null, false, 0xFF111111);
-			Renderer.DrawVerticalSprite(position.x - 0.5f, position.y - 0.0001f, 2.5f, progress, 0.125f, null, false, 0xFF9999FF);
+			Renderer.DrawVerticalSprite(position.x - 0.5f, position.y, 2.5f, 1.0f, 0.125f, null, false, 0xFF333333);
+			Renderer.DrawVerticalSprite(position.x - 0.5f, position.y - 0.0001f, 2.5f, progress, 0.125f, null, false, 0xFF7777FF);
 		}
 
 		Renderer.DrawLight(position + new Vector2(0.0f, 0.5f), new Vector3(1.0f, 0.9f, 0.7f) * 4, 12.0f);
@@ -342,12 +348,12 @@ public class Player : Entity
 			int height = 54;
 			Renderer.DrawUISprite(20, 100, width, height, null, false, 0xFFAAAAAA);
 			Renderer.DrawUISprite(26, 106, width - 12, height - 12, null, false, 0xFF222222);
-			Renderer.DrawUIText(26 + 6, 106 + 6, points.ToString(), 0xFFFFFFFF);
+			Renderer.DrawUIText(26 + 6, 106, points.ToString(), 3, 0xFFFFFFFF);
 		}
 
 		// Wave
 		{
-			Renderer.DrawUIText(26 + 6, 156 + 6, "Wave " + Gaem.instance.manager.wave.ToString(), 0xFFFFFFFF);
+			//Renderer.DrawUIText(26 + 6, 156 + 6, "Wave " + Roguelike.instance.manager.wave.ToString(), 0xFFFFFFFF);
 		}
 
 		// Interaction
@@ -355,8 +361,8 @@ public class Player : Entity
 			if (interactableInFocus != null)
 			{
 				interactableInFocus.getInteractionPrompt(this, out string prompt, out uint color);
-				int width = prompt.Length * 32;
-				Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height - 100, prompt, color);
+				int width = Renderer.MeasureUIText(prompt, prompt.Length, 2);
+				Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height - 100, prompt, 2, color);
 			}
 		}
 	}

@@ -24,7 +24,7 @@ internal class Bob : Creature
 		stats.maxHealth = 100;
 		stats.health = 100;
 
-		nameTag = "Bob";
+		name = "Bob";
 
 		//ragdollColliders.Add("Hand.L", Vector3.Zero);
 		//ragdollColliders.Add("Hand.R", Vector3.Zero);

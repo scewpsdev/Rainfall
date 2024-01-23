@@ -172,6 +172,8 @@ public class Item
 	public float consumableUseTime = 0.0f;
 	public int consumableHealAmount = 0;
 	public float consumableHealDuration = 0.0f;
+	public int consumableManaRechargeAmount = 0;
+	public float consumableManaRechargeDuration = 0.0f;
 	public float consumableFollowUpTime = 1000.0f;
 	public float consumableFollowUpStart = 0.0f;
 
@@ -680,6 +682,9 @@ public class Item
 			file.getInteger("consumableHealAmount", out item.consumableHealAmount);
 			file.getNumber("consumableHealDuration", out item.consumableHealDuration);
 
+			file.getInteger("consumableManaRechargeAmount", out item.consumableManaRechargeAmount);
+			file.getNumber("consumableManaRechargeDuration", out item.consumableManaRechargeDuration);
+
 			if (file.getNumber("consumableFollowUpTime", out float consumableFollowUpTime))
 				item.consumableFollowUpTime = consumableFollowUpTime;
 			if (file.getNumber("consumableFollowUpStart", out float consumableFollowUpStart))
@@ -771,6 +776,7 @@ public class Item
 		Load("utility", "torch");
 
 		Load("consumable", "flask");
+		Load("consumable", "mana_flask");
 		Load("consumable", "firebomb");
 
 		Load("armor", "leather_chestplate");
@@ -783,6 +789,7 @@ public class Item
 		Load("spell", "magic_orb");
 
 		Load("artifact", "key_cell");
+		Load("artifact", "map");
 	}
 
 	public static Item Get(int id)

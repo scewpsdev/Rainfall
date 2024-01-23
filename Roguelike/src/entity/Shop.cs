@@ -29,7 +29,7 @@ public class Shop : Entity, Interactable
 		collider = new FloatRect(-4, 0, 8, 4);
 		hitbox = new FloatRect(-4, 0, 8, 4);
 
-		Gaem.instance.manager.addShop(this);
+		Roguelike.instance.manager.addShop(this);
 	}
 
 	public void refill()
@@ -46,7 +46,7 @@ public class Shop : Entity, Interactable
 					break;
 				type = (UpgradeType)(Random.Shared.Next() % (int)UpgradeType.Count);
 			}
-			int cost = Gaem.instance.manager.upgradeCost;
+			int cost = Roguelike.instance.manager.upgradeCost;
 			upgrades[i] = new Upgrade(type, cost, x - 2 + i * 2, y - 0.01f);
 			level.addEntity(upgrades[i]);
 		}
@@ -79,7 +79,7 @@ public class Shop : Entity, Interactable
 	{
 		Player player = entity as Player;
 
-		int cost = Gaem.instance.manager.upgradeCost / 4 * 3;
+		int cost = Roguelike.instance.manager.upgradeCost / 4 * 3;
 		text = "[E] Refill " + cost;
 		color = player.points >= cost ? 0xFF5555FF : 0xFFFF7777;
 	}
@@ -90,11 +90,11 @@ public class Shop : Entity, Interactable
 		{
 			Player player = entity as Player;
 
-			int cost = Gaem.instance.manager.upgradeCost / 4 * 3;
+			int cost = Roguelike.instance.manager.upgradeCost / 4 * 3;
 			if (player.points >= cost)
 			{
 				player.points -= cost;
-				Gaem.instance.manager.pointsSpent += cost;
+				Roguelike.instance.manager.pointsSpent += cost;
 				refill();
 
 				player.audio.playSoundOrganic(player.sfxPowerup);
@@ -108,8 +108,8 @@ public class Shop : Entity, Interactable
 		{
 			if (upgrades[i] != null && upgrades[i].consumed)
 			{
-				Gaem.instance.manager.upgradeCost += Gaem.instance.manager.upgradeCost / 4;
-				Gaem.instance.manager.clearShops();
+				Roguelike.instance.manager.upgradeCost += Roguelike.instance.manager.upgradeCost / 4;
+				Roguelike.instance.manager.clearShops();
 				break;
 			}
 		}

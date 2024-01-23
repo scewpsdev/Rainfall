@@ -31,6 +31,10 @@ internal class MagicOrb : Entity
 		this.damage = damage;
 
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
+		unsafe
+		{
+			model.sceneDataHandle->materials[0].emissiveStrength = 200;
+		}
 
 		velocity = direction * SPEED;
 	}
@@ -38,7 +42,7 @@ internal class MagicOrb : Entity
 	public override void init()
 	{
 		body = new RigidBody(this, RigidBodyType.Kinematic);
-		body.addSphereTrigger(0.1f, Vector3.Zero);
+		body.addSphereTrigger(0.25f, Vector3.Zero);
 	}
 
 	public override void destroy()
@@ -46,7 +50,7 @@ internal class MagicOrb : Entity
 		body.destroy();
 	}
 
-	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
+	public override void onContact(RigidBody body, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
 	{
 		if (remainingPierces == 0)
 			return;
@@ -81,6 +85,7 @@ internal class MagicOrb : Entity
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawModel(model, getModelMatrix());
+		Renderer.DrawModel(model, getModelMatrix() * Matrix.CreateScale(2.5f));
+		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 2);
 	}
 }

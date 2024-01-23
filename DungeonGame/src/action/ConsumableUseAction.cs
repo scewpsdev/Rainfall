@@ -63,6 +63,10 @@ internal class ConsumableUseAction : Action
 			{
 				player.stats.addEffect(new HealEffect(item.consumableHealAmount, item.consumableHealDuration));
 			}
+			if (item.consumableManaRechargeAmount > 0)
+			{
+				player.stats.addEffect(new ManaRechargeEffect(item.consumableManaRechargeAmount, item.consumableManaRechargeDuration));
+			}
 
 			player.inventory.removeItem(slot);
 

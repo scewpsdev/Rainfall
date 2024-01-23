@@ -1,0 +1,33 @@
+id: 2002
+name: mana_flask
+displayName: "Mana Flask"
+category: consumable
+
+model: "mana_flask.gltf"
+colliders: [
+	{
+		type: sphere
+		radius: 0.08
+		offset: [0, -0.162, 0]
+	},
+	{
+		type: capsule
+		radius: 0.01
+		height: 0.2
+		offset: [0, -0.037, 0]
+	}
+]
+
+moveset: "mana_flask_moveset.gltf"
+
+icon: "mana_flask_icon.png"
+
+description: "Mmh. Actimel."
+
+consumableUseTime = 19
+consumableManaRechargeAmount = 60
+consumableManaRechargeDuration = 1.0
+//consumableFollowUpTime = 2.1
+//consumableFollowUpStart = 1.0
+
+sfxUse = "use.ogg"

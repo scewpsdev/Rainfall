@@ -28,6 +28,10 @@ internal class MagicArrow : Entity
 		this.damage = damage;
 
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
+		unsafe
+		{
+			model.sceneDataHandle->materials[0].emissiveStrength = 200;
+		}
 
 		velocity = direction * SPEED;
 	}
@@ -43,7 +47,7 @@ internal class MagicArrow : Entity
 		body.destroy();
 	}
 
-	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
+	public override void onContact(RigidBody body, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
 	{
 		if (hit)
 			return;
@@ -54,11 +58,11 @@ internal class MagicArrow : Entity
 			{
 				Creature creature = body.entity as Creature;
 				creature.hit(damage, caster);
+
+				remove();
+
+				hit = true;
 			}
-
-			remove();
-
-			hit = true;
 		}
 	}
 
@@ -72,5 +76,6 @@ internal class MagicArrow : Entity
 	public override void draw(GraphicsDevice graphics)
 	{
 		Renderer.DrawModel(model, getModelMatrix());
+		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 2);
 	}
 }

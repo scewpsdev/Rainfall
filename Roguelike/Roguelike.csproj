@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rainfall2D\Rainfall2D.csproj" />
+    <ProjectReference Include="..\RainfallNative\RainfallNative.vcxproj" />
   </ItemGroup>
 
   <PropertyGroup>

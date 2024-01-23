@@ -83,7 +83,7 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, c
 		float height = (quad.y1 - quad.y0) * textScale;
 
 		float xx = x + advance + leftSideBearing * scale;
-		float yy = (float)(bgfx::getStats()->height - (y + (ascent + quad.y1) * textScale) - 1);
+		float yy = (float)(bgfx::getStats()->height - y - (ascent + quad.y1 * textScale) - 1);
 
 		uint8_t r = (color & 0xFF0000) >> 16;
 		uint8_t g = (color & 0xFF00) >> 8;

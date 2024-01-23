@@ -46,7 +46,7 @@ public class XPOrb : Entity, Toucheable
 			{
 				Player player = entity as Player;
 				player.points += amount;
-				Gaem.instance.manager.pointsEarned += amount;
+				Roguelike.instance.manager.pointsEarned += amount;
 
 				player.pointsCollected++;
 			}

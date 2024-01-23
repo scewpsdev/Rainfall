@@ -17,17 +17,9 @@ public class GameManager
 
 	public Player player;
 
-	public int wave = 0;
-	int enemiesToSpawn = 0;
-	public int enemiesRemaining;
-	float spawnRate;
-	public int doorCost;
 	public int upgradeCost;
 	public int enemyHealth;
 	public int enemySpeed;
-
-	float waveBeginningTimer = 0.0f;
-	long lastSpawnTime = 0;
 
 	// Stats
 	public float timeSurvived = 0.0f;
@@ -47,17 +39,9 @@ public class GameManager
 
 		player.position = level.spawnPoint;
 
-		wave = 0;
-		enemiesToSpawn = 0;
-		enemiesRemaining = 0;
-		spawnRate = 0.3f;
-		doorCost = 400;
 		upgradeCost = 800;
 		enemyHealth = 10;
 		enemySpeed = 4;
-
-		waveBeginningTimer = 0.0f;
-		lastSpawnTime = 0;
 
 		timeSurvived = 0.0f;
 		enemiesKilled = 0;
@@ -104,43 +88,6 @@ public class GameManager
 		}
 
 		timeSurvived += Time.deltaTime;
-
-		if (enemiesToSpawn == 0 && enemiesRemaining == 0)
-		{
-			wave++;
-			enemiesToSpawn = 2 + wave * 4;
-			spawnRate *= 1.25f;
-			if (wave % 5 == 0 && wave > 0)
-			{
-				enemyHealth += 2;
-			}
-			else if (wave % 10 == 0 && wave > 0)
-			{
-				enemySpeed++;
-			}
-
-			refillShops();
-
-			waveBeginningTimer = 0.0f;
-		}
-		if (waveBeginningTimer < WAVE_BEGINNING_DELAY)
-		{
-			waveBeginningTimer += Time.deltaTime;
-		}
-		else
-		{
-			if (enemiesToSpawn > 0)
-			{
-				if ((Time.currentTime - lastSpawnTime) / 1e9f > 1.0f / spawnRate)
-				{
-					Vector2i spawnPoint = getSpawnPoint();
-					level.addEntity(new Enemy(spawnPoint + 0.5f));
-					enemiesToSpawn--;
-					enemiesRemaining++;
-					lastSpawnTime = Time.currentTime;
-				}
-			}
-		}
 	}
 
 	Vector2i getSpawnPoint()
@@ -170,13 +117,6 @@ public class GameManager
 
 	public void draw()
 	{
-		if (waveBeginningTimer < WAVE_BEGINNING_DELAY)
-		{
-			string text = "Wave " + wave;
-			int width = text.Length * 32;
-			int height = 32;
-			Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height / 3 - height / 2, text);
-		}
 		if (player.health == 0)
 			drawGameOverScreen();
 	}
@@ -189,7 +129,7 @@ public class GameManager
 			string text = "Ya ded son";
 			int width = text.Length * 32;
 			int height = 32;
-			Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height / 4 - height / 2, text, 0xFFAAAAAA);
+			Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height / 4 - height / 2, text, 2, 0xFFAAAAAA);
 		}
 
 		int leftBound = Display.width / 8 + 50;
@@ -198,12 +138,12 @@ public class GameManager
 
 		var drawLeftInfo = (string text, uint color) =>
 		{
-			Renderer.DrawUIText(leftBound, yscroll, text, color);
+			Renderer.DrawUIText(leftBound, yscroll, text, 2, color);
 		};
 		var drawRightInfo = (string text, uint color) =>
 		{
 			int width = text.Length * 32;
-			Renderer.DrawUIText(rightBound - width, yscroll, text, color);
+			Renderer.DrawUIText(rightBound - width, yscroll, text, 2, color);
 			yscroll += 48;
 		};
 
@@ -229,7 +169,7 @@ public class GameManager
 			string text = "[E] Quick Restart";
 			int width = text.Length * 32;
 			int height = 32;
-			Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height / 16 * 13 - height / 2, text, 0xFFAAAAAA);
+			Renderer.DrawUIText(Display.width / 2 - width / 2, Display.height / 16 * 13 - height / 2, text, 2, 0xFFAAAAAA);
 		}
 	}
 }

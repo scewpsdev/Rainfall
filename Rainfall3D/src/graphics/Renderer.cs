@@ -199,6 +199,10 @@ public static class Renderer
 	static int currentUILayer = 0;
 	static int uiDepthCounter = 0;
 
+	static FontData baskervilleFont;
+	public static Font promptFont, xpFont, notificationFont, stackSizeFont;
+	public static Font victoryFont;
+
 	public static Camera camera;
 	public static Matrix projection, view, pv;
 
@@ -506,6 +510,13 @@ public static class Renderer
 		tonemappingShader = Resource.GetShader("res/shaders/tonemapping/tonemapping.vs.shader", "res/shaders/tonemapping/tonemapping.fs.shader");
 		uiTextureShader = Resource.GetShader("res/shaders/ui/ui.vs.shader", "res/shaders/ui/ui.fs.shader");
 		textShader = Resource.GetShader("res/shaders/text/text.vs.shader", "res/shaders/text/text.fs.shader");
+
+		baskervilleFont = Resource.GetFontData("res/fonts/libre-baskerville.regular.ttf");
+		promptFont = baskervilleFont.createFont(28.0f, true);
+		xpFont = baskervilleFont.createFont(20.0f, true);
+		notificationFont = baskervilleFont.createFont(18.0f, true);
+		stackSizeFont = baskervilleFont.createFont(20.0f, true);
+		victoryFont = baskervilleFont.createFont(80, true);
 
 		particleBatch = new SpriteBatch(graphics);
 		uiTextureBatch = new SpriteBatch(graphics);

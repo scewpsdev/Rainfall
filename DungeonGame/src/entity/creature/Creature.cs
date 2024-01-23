@@ -72,9 +72,9 @@ public class Creature : Entity, Hittable
 
 	protected ParticleSystem hitParticles;
 
-	protected string nameTag = null;
+	public string name = "???";
 
-	protected AI ai = null;
+	protected EnemyAI ai = null;
 	long lastAIUpdate = 0;
 
 	protected List<ItemDrop> itemDrops = new List<ItemDrop>();
@@ -99,7 +99,7 @@ public class Creature : Entity, Hittable
 	Item[] handItem = new Item[2];
 	MobItemEntity[] weaponEntities = new MobItemEntity[2];
 
-	long lastDamagedTime = 0;
+	long lastDamagedTime = (long)-1e10;
 	Font healthbarTextFont;
 	byte[] healthbarText = new byte[32];
 
@@ -546,14 +546,14 @@ public class Creature : Entity, Hittable
 				}
 			}
 
-			if (nameTag != null)
+			if (false)//if (name != null)
 			{
 				Vector3 nameTagPosition = position + new Vector3(0.0f, 1.8f, 0.0f);
 				Vector2i screenPosition = MathHelper.WorldToScreenSpace(nameTagPosition, viewProjection, Display.viewportSize);
 
-				int width = healthbarTextFont.measureText(nameTag);
+				int width = healthbarTextFont.measureText(name);
 
-				Renderer.DrawText(screenPosition.x - width / 2, screenPosition.y - 40, 1.0f, nameTag, healthbarTextFont, 0xff999999);
+				Renderer.DrawText(screenPosition.x - width / 2, screenPosition.y - 40, 1.0f, name, healthbarTextFont, 0xff999999);
 			}
 
 			if (hitParticles != null)

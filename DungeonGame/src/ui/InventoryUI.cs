@@ -804,7 +804,7 @@ public class InventoryUI
 			drawTooltip();
 			Renderer.PopUILayer();
 
-			if (Input.IsKeyPressed(KeyCode.KeyQ) || Input.IsKeyPressed(KeyCode.Esc) || Input.IsKeyPressed(KeyCode.Tab))
+			if (InputManager.IsPressed("UIBack") || InputManager.IsPressed("UIClose") || InputManager.IsPressed("OpenInventory"))
 			{
 				inventoryOpen = false;
 				equipmentTabSelectScreenOpen = false;
@@ -838,7 +838,7 @@ public class InventoryUI
 			drawTooltip();
 			Renderer.PopUILayer();
 
-			if (Input.IsKeyPressed(KeyCode.KeyQ) || Input.IsKeyPressed(KeyCode.Esc) || Input.IsKeyPressed(KeyCode.Tab))
+			if (InputManager.IsPressed("UIBack") || InputManager.IsPressed("UIClose") || InputManager.IsPressed("OpenInventory"))
 			{
 				inventoryOpen = false;
 				openContainer.onClose();
@@ -854,7 +854,7 @@ public class InventoryUI
 		}
 		else
 		{
-			if (Input.IsKeyPressed(KeyCode.Tab))
+			if (InputManager.IsPressed("OpenInventory"))
 			{
 				inventoryOpen = true;
 				player.setCursorLocked(false);

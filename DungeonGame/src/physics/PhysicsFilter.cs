@@ -19,6 +19,7 @@ public enum PhysicsFilterGroup : uint
 	PlayerControllerKinematicBody = 1 << 16,
 	CreatureHitbox = 1 << 17,
 	Interactable = 1 << 18,
+	EventTriggers = 1 << 19,
 }
 
 public enum PhysicsFilterMask : uint

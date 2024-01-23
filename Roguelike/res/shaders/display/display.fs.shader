@@ -30,7 +30,7 @@ void main()
 {
 	vec3 final = texture2D(s_frame, v_texcoord0).rgb;
 
-	final = linearToSRGB(final);
+	//final = linearToSRGB(final);
 	final = Dither(final, v_texcoord0);
 
 	gl_FragColor = vec4(final, 1.0);

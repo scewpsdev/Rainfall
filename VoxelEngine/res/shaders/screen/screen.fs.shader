@@ -6,6 +6,9 @@ $input v_texcoord0
 
 SAMPLER3D(s_octree, 0);
 
+uniform vec4 u_cameraPosition;
+uniform vec3
+
 uniform vec4 iResolution;
 #define iTime iResolution.z
 

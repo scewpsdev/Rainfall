@@ -54,6 +54,28 @@ internal class HealEffect : StatEffect
 	}
 }
 
+internal class ManaRechargeEffect : StatEffect
+{
+	int amount;
+
+	public ManaRechargeEffect(int amount, float duration)
+		: base(duration)
+	{
+		this.amount = amount;
+	}
+
+	public override void update(PlayerStats stats)
+	{
+		base.update(stats);
+
+		if (!finished)
+		{
+			float amountPerFrame = amount / duration * Time.deltaTime;
+			stats.rechargeMana(amountPerFrame);
+		}
+	}
+}
+
 public class PlayerStats
 {
 	const float STAMINA_REGEN_RATE = 8.0f;
@@ -72,8 +94,8 @@ public class PlayerStats
 	public float stamina = 20.0f;
 	float staminaPenaltyTimer = -1.0f;
 
-	public int maxMana = 50;
-	public int mana = 50;
+	public int maxMana = 200;
+	public int mana = 200;
 
 	public int xp = 0;
 
@@ -122,6 +144,12 @@ public class PlayerStats
 	public void consumeMana(int amount)
 	{
 		mana = Math.Max(mana - amount, 0);
+	}
+
+	public void rechargeMana(float amount)
+	{
+		int amounti = (int)(amount + 0.01f);
+		mana = Math.Clamp(mana + amounti, 0, maxMana);
 	}
 
 	public void awardXP(int amount)

@@ -40,6 +40,7 @@ internal class SpellCastAction : Action
 
 	public override void update(Player player)
 	{
+		base.update(player);
 		for (int i = 0; i < casted.Length; i++)
 		{
 			if (elapsedTime > spell.spellProjectiles[i].castTime && !casted[i] && player.stats.mana >= spell.spellManaCost)

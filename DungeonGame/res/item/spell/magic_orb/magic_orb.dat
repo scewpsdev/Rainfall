@@ -3,18 +3,11 @@ name = magic_orb
 displayName = "Magic Orb"
 category = spell
 
-//model = "../spell.gltf"
+model = "../spell.gltf"
 colliders = [
 	{
-		type: sphere
-		radius: 0.08
-		offset: [0, -0.162, 0]
-	},
-	{
-		type: capsule
-		radius: 0.01
-		height: 0.2
-		offset: [0, -0.037, 0]
+		type: box
+		size: [0.2, 0.06, 0.06]
 	}
 ]
 

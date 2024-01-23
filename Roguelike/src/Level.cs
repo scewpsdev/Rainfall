@@ -47,7 +47,7 @@ public class Level
 				}
 				else if (tile == 0xffac3232)
 				{
-					Gaem.instance.manager.addSpawnPoint(x, y);
+					Roguelike.instance.manager.addSpawnPoint(x, y);
 				}
 				else if (tile == 0xff6abe30)
 				{
@@ -181,7 +181,7 @@ public class Level
 
 	public void draw(int x0, int x1, int y0, int y1)
 	{
-		Vector2i playerTile = (Vector2i)Gaem.instance.player.position;
+		Vector2i playerTile = (Vector2i)Roguelike.instance.player.position;
 		for (int y = y0; y <= y1; y++)
 		{
 			for (int x = x0; x <= x1; x++)

@@ -38,7 +38,7 @@ namespace Rainfall.Native
 		internal static extern IntPtr Resource_CreateModelFromSceneData(IntPtr scene);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Resource_ModelGetSceneData(IntPtr model);
+		internal static extern unsafe SceneData* Resource_ModelGetSceneData(IntPtr model);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe IntPtr Resource_CreateFontDataFromFile(byte* path);

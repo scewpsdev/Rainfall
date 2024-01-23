@@ -23,8 +23,9 @@ SAMPLER2D(s_texture14, 14);
 SAMPLER2D(s_texture15, 15);
 
 
-vec4 SampleTextureByID(int id, vec2 texcoord)
+vec4 SampleTextureByID(float fid, vec2 texcoord)
 {
+	int id = int(fid + 0.5);
 	switch (id)
 	{
 	case 0: return texture2D(s_texture0, texcoord);
@@ -50,28 +51,10 @@ vec4 SampleTextureByID(int id, vec2 texcoord)
 void main()
 {
 	float textureID = v_texcoord0.z;
-	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SampleTextureByID(int(textureID + 0.5), v_texcoord0.xy), textureID > -0.5 ? 1.0 : 0.0);
-	textureColor.rgb *= v_color0.rgb;
-	
+	float font = SampleTextureByID(textureID, v_texcoord0.xy);
+	vec4 textureColor = vec4(1.0, 1.0, 1.0, font);
 	if (textureColor.a < 0.1)
 		discard;
-	
-	vec3 normal = normalize(v_normal);
-	
-	float roughness = 0.5;
-	vec3 emissive = vec3(0.0, 0.0, 0.0);
-	float emissionStrength = 0.0;
-	float metallic = 0.0;
-	
-	emissive = textureColor.rgb;
-	emissionStrength = max(v_color0.a - 1.0, 0.0);
 
-	gl_FragColor = vec4(textureColor.rgb, 1.0);
-
-	/*
-	gl_FragData[0] = vec4(v_position, 1);
-    gl_FragData[1] = vec4(normal * 0.5 + 0.5, emissionStrength);
-    gl_FragData[2] = vec4(textureColor.rgb, roughness);
-    gl_FragData[3] = vec4(emissive, metallic);
-	*/
+	gl_FragColor = textureColor * v_color0;
 }

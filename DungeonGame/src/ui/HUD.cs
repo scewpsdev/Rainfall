@@ -21,10 +21,6 @@ public class HUD
 	Player player;
 	GraphicsDevice graphics;
 
-	FontData fontData;
-	Font promptFont, xpFont, notificationFont, stackSizeFont;
-	Font victoryFont;
-
 	Texture crosshair;
 	Texture crosshairHand;
 
@@ -42,13 +38,6 @@ public class HUD
 	{
 		this.player = player;
 		this.graphics = graphics;
-
-		fontData = Resource.GetFontData("res/fonts/libre-baskerville.regular.ttf");
-		promptFont = fontData.createFont(28.0f, true);
-		xpFont = fontData.createFont(20.0f, true);
-		notificationFont = fontData.createFont(18.0f, true);
-		stackSizeFont = fontData.createFont(20.0f, true);
-		victoryFont = fontData.createFont(40, true);
 
 		crosshair = Resource.GetTexture("res/texture/ui/crosshair.png");
 		crosshairHand = Resource.GetTexture("res/texture/ui/crosshair_hand.png");
@@ -126,7 +115,7 @@ public class HUD
 	{
 		int x = 40;
 		int y = 80;
-		int width = player.stats.maxMana * 2;
+		int width = player.stats.maxMana;
 		int height = 10;
 		int padding = 2;
 
@@ -148,7 +137,7 @@ public class HUD
 			if (item.stackable)
 			{
 				string stackSizeText = stackSize.ToString();
-				Renderer.DrawText(x + width - stackSizeFont.measureText(stackSizeText) - 8, y + height - (int)stackSizeFont.size, 1.0f, stackSizeText, stackSizeFont, 0xffaaaaaa);
+				Renderer.DrawText(x + width - Renderer.stackSizeFont.measureText(stackSizeText) - 8, y + height - (int)Renderer.stackSizeFont.size, 1.0f, stackSizeText, Renderer.stackSizeFont, 0xffaaaaaa);
 			}
 		}
 	}
@@ -167,26 +156,36 @@ public class HUD
 			Renderer.DrawUITexture(x, y, width, height, icon);
 		*/
 
-		if (item != null && item.category == ItemCategory.Weapon && item.weaponType == WeaponType.Bow)
+		if (item != null)
 		{
-			int numArrows = player.inventory.totalArrowCount;
-
-			int yy = Display.viewportSize.y - 25 - height - 25 - height;
-			renderItemSlot(x, yy, width, height, numArrows > 0 ? Item.Get("arrow") : null, numArrows);
-
-
-			/*
-			Renderer.DrawUIRect(x, yy, width, height, 0xff111111);
-
-			if (numArrows > 0)
+			if (item.category == ItemCategory.Weapon && item.weaponType == WeaponType.Bow)
 			{
-				Texture arrowIcon = player.inventory.arrows[0].item.icon;
-				Renderer.DrawUITexture(x, yy, width, height, arrowIcon);
+				int numArrows = player.inventory.totalArrowCount;
 
-				string stackSizeText = numArrows.ToString();
-				Renderer.DrawText(x + width - stackSizeFont.measureText(stackSizeText) - 8, yy + height - (int)stackSizeFont.size, 1.0f, stackSizeText, stackSizeFont, 0xffaaaaaa);
+				int yy = Display.viewportSize.y - 25 - height - 25 - height;
+				renderItemSlot(x, yy, width, height, numArrows > 0 ? Item.Get("arrow") : null, numArrows);
+
+
+				/*
+				Renderer.DrawUIRect(x, yy, width, height, 0xff111111);
+
+				if (numArrows > 0)
+				{
+					Texture arrowIcon = player.inventory.arrows[0].item.icon;
+					Renderer.DrawUITexture(x, yy, width, height, arrowIcon);
+
+					string stackSizeText = numArrows.ToString();
+					Renderer.DrawText(x + width - stackSizeFont.measureText(stackSizeText) - 8, yy + height - (int)stackSizeFont.size, 1.0f, stackSizeText, stackSizeFont, 0xffaaaaaa);
+				}
+				*/
 			}
-			*/
+			else if (item.category == ItemCategory.Weapon && item.weaponType == WeaponType.Staff)
+			{
+				ItemSlot spellItem = player.inventory.getSpellSlot(null);
+
+				int yy = Display.viewportSize.y - 25 - height - 25 - height;
+				renderItemSlot(x, yy, width, height, spellItem?.item, 1);
+			}
 		}
 	}
 
@@ -250,7 +249,7 @@ public class HUD
 		Renderer.DrawUIRect(x, y, width, height, 0xff222222);
 
 		string text = player.stats.xp.ToString();
-		Renderer.DrawText(x + width - xpFont.measureText(text) - 3 * padding, y + (int)((height - xpFont.size) / 2.0f), 1.0f, text, xpFont, 0xffcccccc);
+		Renderer.DrawText(x + width - Renderer.xpFont.measureText(text) - 3 * padding, y + (int)((height - Renderer.xpFont.size) / 2.0f), 1.0f, text, Renderer.xpFont, 0xffcccccc);
 	}
 
 	void renderCollectedItems()
@@ -289,10 +288,10 @@ public class HUD
 				Renderer.DrawUITexture(x + padding, y + padding, iconSize, iconSize, item.icon);
 
 				if (notif.amount > 1 || notif.item.stackable)
-					Renderer.DrawText(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)stackSizeFont.size, 1.0f, notif.amount.ToString(), stackSizeFont, 0xffaaaaaa);
+					Renderer.DrawText(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)Renderer.stackSizeFont.size, 1.0f, notif.amount.ToString(), Renderer.stackSizeFont, 0xffaaaaaa);
 
-				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, notificationFont, 0xffaaaaaa);
-				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)notificationFont.size, 1.0f, item.typeSpecifier, notificationFont, 0xff777777);
+				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, Renderer.notificationFont, 0xffaaaaaa);
+				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)Renderer.notificationFont.size, 1.0f, item.typeSpecifier, Renderer.notificationFont, 0xff777777);
 			}
 		}
 	}
@@ -317,12 +316,12 @@ public class HUD
 				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, playerY + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
 				uint color = 0xFF000000;
 				if (x == playerPos.x && z == playerPos.z)
-					color = 0xFF77FFFF;
+					color = 0xFFFF4444;
 				else if (tile != 0)
 				{
 					if (tile / 100 == 0xFF)
 					{
-						color = 0xFF444444;
+						color = 0xFF777777;
 					}
 					else
 					{
@@ -330,7 +329,7 @@ public class HUD
 						if (type != null)
 						{
 							if (type.sectorType == SectorType.Room)
-								color = 0xFFFF0000;
+								color = 0xFF333333;
 							else
 								color = 0xFF777777;
 						}
@@ -361,7 +360,7 @@ public class HUD
 		graphics.setTextureData(minimap, 0, 0, minimap.width, minimap.height, minimapPixels);
 
 		int scale = 2;
-		int xx = Display.viewportSize.x - minimap.width * scale - 150;
+		int xx = Display.viewportSize.x - minimap.width * scale - 40;
 		int yy = 50;
 		Renderer.DrawUITexture(xx, yy, minimap.width * scale, minimap.height * scale, minimap);
 	}
@@ -378,14 +377,8 @@ public class HUD
 			renderEquipment();
 			//renderXP();
 			renderCollectedItems();
-			renderMinimap();
-
-			if (player.hasWon)
-			{
-				//string text = "V I C T O R Y";
-				//int width = victoryFont.measureText(text);
-				//Renderer.DrawText(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - 10, 1.0f, text, victoryFont, 0xFFCCAA66);
-			}
+			if (DungeonGame.instance.gameManager.mapUnlocked)
+				renderMinimap();
 		}
 
 		float timeSinceHit = (Time.currentTime - lastHit) / 1e9f;

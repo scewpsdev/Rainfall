@@ -170,21 +170,21 @@ namespace Rainfall
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	internal unsafe struct SceneData
+	public unsafe struct SceneData
 	{
-		internal int numMeshes;
-		internal int numMaterials;
-		internal int numSkeletons;
-		internal int numAnimations;
-		internal int numNodes;
-		internal int numLights;
+		public int numMeshes;
+		public int numMaterials;
+		public int numSkeletons;
+		public int numAnimations;
+		public int numNodes;
+		public int numLights;
 
-		internal MeshData* meshes;
-		internal MaterialData* materials;
+		public MeshData* meshes;
+		public MaterialData* materials;
 		internal SkeletonData* skeletons;
-		internal AnimationData* animations;
+		public AnimationData* animations;
 		internal NodeData* nodes;
-		internal IntPtr lights;
+		public IntPtr lights;
 	}
 
 	public class Model
@@ -214,9 +214,9 @@ namespace Rainfall
 			}
 		}
 
-		public IntPtr sceneDataHandle
+		public unsafe SceneData* sceneDataHandle
 		{
-			get { return Native.Resource.Resource_ModelGetSceneData(handle); }
+			get => Native.Resource.Resource_ModelGetSceneData(handle);
 		}
 
 		public MeshData? getMeshData(int index)
@@ -314,17 +314,23 @@ namespace Rainfall
 
 		public override bool Equals(object obj)
 		{
-			if (obj is Model)
+			unsafe
 			{
-				Model model = obj as Model;
-				return model.sceneDataHandle == sceneDataHandle;
+				if (obj is Model)
+				{
+					Model model = obj as Model;
+					return model.sceneDataHandle == sceneDataHandle;
+				}
+				return false;
 			}
-			return false;
 		}
 
 		public override int GetHashCode()
 		{
-			return sceneDataHandle.GetHashCode();
+			unsafe
+			{
+				return ((IntPtr)sceneDataHandle).GetHashCode();
+			}
 		}
 
 		[DllImport(Native.Native.DllName)]

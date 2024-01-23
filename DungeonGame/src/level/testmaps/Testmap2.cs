@@ -41,7 +41,7 @@ internal class Testmap2 : Room
 		addEntity(new WallTorch(), new Vector3(-3.6f, -35, 55.5f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
 		addEntity(new WallTorch(), new Vector3(3.6f, -35, 55.5f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
 
-		addEntity(new ReverbZone(new Vector3(9.5f, 18.0f, 9.5f)), new Vector3(0, -20.7f, 47), Quaternion.Identity);
+		addEntity(new ReverbZone(new Vector3(9.5f, 18.0f, 9.5f) * 2, true), new Vector3(0, -20.7f, 47) - new Vector3(9.5f, 18.0f, 9.5f), Quaternion.Identity);
 
 
 		Elevator elevator;

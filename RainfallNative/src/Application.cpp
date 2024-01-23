@@ -782,7 +782,7 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	//bgfx::frame();
 
 	messageQueue.push(BX_NEW(Application_GetAllocator(), Message)(MessageType::WindowShow));
-	eventQueue.postSizeEvent(width, height);
+	//eventQueue.postSizeEvent(width, height);
 
 	lastFrame = Application_GetTimestamp();
 	lastSecond = Application_GetTimestamp();

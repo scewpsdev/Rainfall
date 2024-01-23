@@ -74,8 +74,8 @@ public class Enemy : Entity, Toucheable
 			Resource.GetSound("res/sounds/hit2.ogg"),
 		];
 
-		speed = Gaem.instance.manager.enemySpeed;
-		health = Gaem.instance.manager.enemyHealth;
+		speed = Roguelike.instance.manager.enemySpeed;
+		health = Roguelike.instance.manager.enemyHealth;
 	}
 
 	public override void reset()
@@ -136,7 +136,7 @@ public class Enemy : Entity, Toucheable
 
 		if (from != null)
 		{
-			int numXP = (Gaem.instance.player.luck + MathHelper.RandomInt(-Gaem.instance.player.luck / 2, Gaem.instance.player.luck / 2)) * 10;
+			int numXP = (Roguelike.instance.player.luck + MathHelper.RandomInt(-Roguelike.instance.player.luck / 2, Roguelike.instance.player.luck / 2)) * 10;
 			while (numXP > 0)
 			{
 				Vector2 offset = MathHelper.RandomVector2(-0.5f, 0.5f);
@@ -145,16 +145,14 @@ public class Enemy : Entity, Toucheable
 				numXP -= amount;
 			}
 
-			float dropChance = 0.0001f * Gaem.instance.player.luck;
+			float dropChance = 0.0001f * Roguelike.instance.player.luck;
 			if (Random.Shared.NextSingle() < dropChance)
 			{
-				DropType type = (DropType)(Random.Shared.Next() % (int)DropType.Count);
-				level.addEntity(new Drop(type, position));
+				level.addEntity(new HealthDrop(position));
 			}
 		}
 
-		Gaem.instance.manager.enemiesKilled++;
-		Gaem.instance.manager.enemiesRemaining--;
+		Roguelike.instance.manager.enemiesKilled++;
 
 		colliderEnabled = false;
 		deathTime = Time.currentTime;
@@ -230,7 +228,7 @@ public class Enemy : Entity, Toucheable
 		}
 
 		Vector2i tilePos = (Vector2i)position;
-		if (Gaem.instance.level.getTile(tilePos.x, tilePos.y) != 0)
+		if (Roguelike.instance.level.getTile(tilePos.x, tilePos.y) != 0)
 			hit(10000, null);
 
 		/*

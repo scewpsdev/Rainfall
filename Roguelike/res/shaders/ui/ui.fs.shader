@@ -23,8 +23,9 @@ SAMPLER2D(s_texture14, 14);
 SAMPLER2D(s_texture15, 15);
 
 
-vec4 SampleTextureByID(int id, vec2 texcoord)
+vec4 SampleTextureByID(float fid, vec2 texcoord)
 {
+	int id = int(fid + 0.5);
 	switch (id)
 	{
 	case 0: return texture2D(s_texture0, texcoord);
@@ -50,7 +51,7 @@ vec4 SampleTextureByID(int id, vec2 texcoord)
 void main()
 {
 	float textureID = v_texcoord0.z;
-	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SampleTextureByID(int(textureID + 0.5), v_texcoord0.xy), textureID > -0.5 ? 1.0 : 0.0);
+	vec4 textureColor = linearToSRGB(mix(vec4(1.0, 1.0, 1.0, 1.0), SampleTextureByID(textureID, v_texcoord0.xy), textureID > -0.5 ? 1.0 : 0.0));
 	textureColor.rgb *= v_color0.rgb;
 	
 	if (textureColor.a < 0.1)

@@ -441,8 +441,10 @@ public class Inventory : ItemContainer
 		return slot.item != null ? slot.item : null;
 	}
 
-	public SpellSlot getSpellSlot(ItemSlot staff)
+	public ItemSlot getSpellSlot(ItemSlot staff)
 	{
+		return findItemOfType(ItemCategory.Spell);
+		/*
 		if (spellSlots.ContainsKey(staff))
 		{
 			SpellSet spellSet = spellSlots[staff];
@@ -450,6 +452,7 @@ public class Inventory : ItemContainer
 			return spellSlot;
 		}
 		return null;
+		*/
 	}
 
 	public void consumeArrow()

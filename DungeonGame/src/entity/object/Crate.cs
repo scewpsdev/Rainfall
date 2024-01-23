@@ -11,15 +11,22 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	Model model, fracturedModel;
 	RigidBody body;
 
+	Sound[] sfxBreak;
+
 	public ItemContainer container;
 
 
-	public Crate(Item[] items, int[] amounts)
+	public Crate()
 	{
 		model = Resource.GetModel("res/entity/object/crate/crate.gltf");
 		fracturedModel = Resource.GetModel("res/entity/object/crate/crate_fractured.gltf");
 
 		container = new ItemContainer(5, 5);
+	}
+
+	public Crate(Item[] items, int[] amounts)
+		: base()
+	{
 		for (int i = 0; i < items.Length; i++)
 			container.addItem(items[i], amounts[i]);
 	}
@@ -28,6 +35,11 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	{
 		body = new RigidBody(this, RigidBodyType.Dynamic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		body.addBoxCollider(new Vector3(0.5f), Vector3.Zero, Quaternion.Identity);
+
+		sfxBreak = new Sound[]
+		{
+			Resource.GetSound("res/entity/object/crate/sfx/break1.ogg"),
+		};
 	}
 
 	public override void destroy()
@@ -62,7 +74,7 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	public void hit(int damage, Entity from, Vector3 hitPosition, Vector3 force, int linkID)
 	{
 		remove();
-		DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, null), position, rotation);
+		DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, sfxBreak), position, rotation);
 		foreach (ItemSlot slot in container.items)
 		{
 			if (slot.item != null)

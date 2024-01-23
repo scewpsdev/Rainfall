@@ -127,5 +127,7 @@ void main()
 			s_directionalLightShadowMap, u_directionalLightFarPlane[0], u_directionalLightToLightSpace);
     }
 
+	vec3 final = lightS + emissive * emissionStrength;
+
 	gl_FragColor = vec4(lightS, 1.0);
 }

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class EnemyAI : AI
+public class EnemyAI : AI
 {
 	Entity currentTarget = null;
 
@@ -47,8 +47,8 @@ internal class EnemyAI : AI
 
 	bool canSeeEntity(Entity entity)
 	{
-		Vector3 targetCenter = entity.position + Vector3.Up;
-		Vector3 creatureCenter = creature.position + Vector3.Up;
+		Vector3 targetCenter = entity.position + Vector3.Up * 1.6f;
+		Vector3 creatureCenter = creature.position + Vector3.Up * 1.6f;
 		Vector3 delta = targetCenter - creatureCenter;
 		float distance = delta.length;
 		//HitData? hit = Physics.Raycast(creatureCenter, delta / distance, distance, (uint)PhysicsFilterGroup.PlayerControllerKinematicBody | (uint)PhysicsFilterGroup.PlayerController, QueryFilterFlags.Default);
@@ -56,7 +56,7 @@ internal class EnemyAI : AI
 		//	Console.WriteLine(hit.Value.body.entity);
 
 		bool visible = true;
-		Span<HitData> hits = stackalloc HitData[16];
+		Span<HitData> hits = stackalloc HitData[32];
 		int numHits = Physics.Raycast(creatureCenter, delta / distance, distance, hits, QueryFilterFlags.Default);
 		for (int i = 0; i < numHits; i++)
 		{
@@ -75,7 +75,7 @@ internal class EnemyAI : AI
 
 	void seekTarget()
 	{
-		Span<HitData> hits = stackalloc HitData[16];
+		Span<HitData> hits = stackalloc HitData[32];
 		int numHits = Physics.OverlapSphere(detectionRange, creature.position, hits, QueryFilterFlags.Dynamic);
 		for (int i = 0; i < numHits; i++)
 		{

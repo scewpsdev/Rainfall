@@ -27,11 +27,12 @@ void main()
 		light += lighting;
 	}
 
-	light += 0.01;
+	//light += 0.01;
 	//light = linearToSRGB(light) * 0.9 + 0.1;
+	//light = linearToSRGB(light);
 	
-	vec3 color = texture2D(s_frame, v_texcoord0.xy).rgb;
-	vec3 final = SRGBToLinear(color) * light;
+	//vec3 color = texture2D(s_frame, v_texcoord0.xy).rgb;
+	//vec3 final = color * light;
 
-	gl_FragColor = vec4(final, 1.0);
+	gl_FragColor = vec4(light, 1.0);
 }

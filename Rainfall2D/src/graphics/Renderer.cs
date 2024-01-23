@@ -6,6 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+enum RenderPass
+{
+	Geometry,
+	Lighting,
+	Bloom,
+	Composite = Bloom + 11,
+
+	Count
+}
+
 public static class Renderer
 {
 	struct SpriteDraw
@@ -32,6 +42,7 @@ public static class Renderer
 		public Vector2i position;
 		public string text;
 		public uint color;
+		public int size;
 	}
 
 	struct LightDraw
@@ -47,14 +58,12 @@ public static class Renderer
 	static GraphicsDevice graphics;
 
 	static RenderTarget gbuffer;
-	static RenderTarget postProcessing;
+	static RenderTarget lighting;
 	static RenderTarget[] bloomDownsampleChain;
 	static RenderTarget[] bloomUpsampleChain;
-	static RenderTarget compositeRenderTarget;
 	static Shader bloomDownsampleShader;
 	static Shader bloomUpsampleShader;
 	static Shader compositeShader;
-	static Shader displayShader;
 
 	static VertexBuffer quad;
 	static Shader lightingShader;
@@ -73,7 +82,8 @@ public static class Renderer
 	static Shader textShader;
 	static List<TextDraw> textDraws = new List<TextDraw>();
 
-	static Texture font;
+	static FontData fontData;
+	static Font font;
 
 	static Matrix projection, view;
 	static float left, right, bottom, top;
@@ -88,10 +98,9 @@ public static class Renderer
 			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
 			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
-
-		postProcessing = graphics.createRenderTarget(new RenderTargetAttachment[]
+		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp| (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 
 		bloomDownsampleChain = new RenderTarget[BLOOM_CHAIN_LENGTH];
@@ -116,15 +125,9 @@ public static class Renderer
 			}
 		}
 
-		compositeRenderTarget = graphics.createRenderTarget(new RenderTargetAttachment[]
-		{
-			new RenderTargetAttachment(320, (int)(320 / Display.aspectRatio), TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp | (uint)SamplerFlags.Point)
-		});
-
 		bloomDownsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vs.shader", "res/shaders/bloom/bloom_downsample.fs.shader");
 		bloomUpsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vs.shader", "res/shaders/bloom/bloom_upsample.fs.shader");
 		compositeShader = Resource.GetShader("res/shaders/composite/composite.vs.shader", "res/shaders/composite/composite.fs.shader");
-		displayShader = Resource.GetShader("res/shaders/display/display.vs.shader", "res/shaders/display/display.fs.shader");
 
 		quad = graphics.createVertexBuffer(graphics.createVideoMemory(new float[] { -3, -1, 1, -1, 1, 3 }), new VertexElement[]
 		{
@@ -142,17 +145,12 @@ public static class Renderer
 		textBatch = new SpriteBatch(graphics);
 		textShader = Resource.GetShader("res/shaders/text/text.vs.shader", "res/shaders/text/text.fs.shader");
 
-		font = Resource.GetTexture("res/sprites/font.png", false);
+		fontData = Resource.GetFontData("res/fonts/dpcomic.ttf");
+		font = fontData.createFont(14, false);
 	}
 
 	public static void Resize(int width, int height)
 	{
-		graphics.destroyRenderTarget(compositeRenderTarget);
-
-		compositeRenderTarget = graphics.createRenderTarget(new RenderTargetAttachment[]
-		{
-			new RenderTargetAttachment(320, (int)(320 / Display.aspectRatio), TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp | (uint)SamplerFlags.Point)
-		});
 	}
 
 	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
@@ -253,9 +251,14 @@ public static class Renderer
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color });
 	}
 
-	public static void DrawUIText(int x, int y, string text, uint color = 0xFFFFFFFF)
+	public static void DrawUIText(int x, int y, string text, int size, uint color = 0xFFFFFFFF)
 	{
-		textDraws.Add(new TextDraw { position = new Vector2i(x, y), text = text, color = color });
+		textDraws.Add(new TextDraw { position = new Vector2i(x, y), text = text, size = size, color = color });
+	}
+
+	public static int MeasureUIText(string text, int length, int scale)
+	{
+		return font.measureText(text, length) * scale;
 	}
 
 	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)
@@ -275,7 +278,7 @@ public static class Renderer
 	static void GeometryPass()
 	{
 		graphics.resetState();
-		graphics.setPass(0);
+		graphics.setPass((int)RenderPass.Geometry);
 		graphics.setRenderTarget(gbuffer);
 
 		graphics.setViewTransform(projection, view);
@@ -319,7 +322,7 @@ public static class Renderer
 	static void LightingPass()
 	{
 		graphics.resetState();
-		graphics.setPass(1);
+		graphics.setPass((int)RenderPass.Lighting);
 
 		lightDraws.Sort((LightDraw a, LightDraw b) =>
 		{
@@ -333,7 +336,7 @@ public static class Renderer
 		{
 			int offset = it * 16;
 
-			graphics.setRenderTarget(postProcessing);
+			graphics.setRenderTarget(lighting);
 			graphics.setBlendState(BlendState.Additive);
 
 			graphics.setVertexBuffer(quad);
@@ -362,7 +365,7 @@ public static class Renderer
 	static void BloomDownsample(int idx, Texture texture, RenderTarget target)
 	{
 		graphics.resetState();
-		graphics.setPass(2 + idx);
+		graphics.setPass((int)RenderPass.Bloom + idx);
 
 		graphics.setRenderTarget(target);
 
@@ -375,7 +378,7 @@ public static class Renderer
 	static void BloomUpsample(int idx, Texture texture0, Texture texture1, RenderTarget target)
 	{
 		graphics.resetState();
-		graphics.setPass(2 + 6 + idx);
+		graphics.setPass((int)RenderPass.Bloom + 6 + idx);
 
 		graphics.setRenderTarget(target);
 
@@ -386,30 +389,9 @@ public static class Renderer
 		graphics.draw(bloomUpsampleShader);
 	}
 
-	static void Composite()
+	static void PostProcessingPass()
 	{
-		graphics.resetState();
-		graphics.setPass(2 + 12 + 1);
-
-		graphics.setRenderTarget(compositeRenderTarget);
-
-		graphics.setDepthTest(DepthTest.None);
-		graphics.setCullState(CullState.ClockWise);
-
-		graphics.setTexture(compositeShader.getUniform("s_hdrBuffer", UniformType.Sampler), 0, postProcessing.getAttachmentTexture(0));
-		graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 1, bloomUpsampleChain[0].getAttachmentTexture(0));
-
-		Vector3 vignetteColor = new Vector3(0.0f);
-		float vignetteFalloff = 0.37f; // default value: 0.37f
-		graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
-
-		graphics.setVertexBuffer(quad);
-		graphics.draw(compositeShader);
-	}
-
-	static void CompositePass()
-	{
-		BloomDownsample(0, postProcessing.getAttachmentTexture(0), bloomDownsampleChain[0]);
+		BloomDownsample(0, gbuffer.getAttachmentTexture(0), bloomDownsampleChain[0]);
 		BloomDownsample(1, bloomDownsampleChain[0].getAttachmentTexture(0), bloomDownsampleChain[1]);
 		BloomDownsample(2, bloomDownsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[2]);
 		BloomDownsample(3, bloomDownsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[3]);
@@ -421,26 +403,34 @@ public static class Renderer
 		BloomUpsample(2, bloomUpsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[2].getAttachmentTexture(0), bloomUpsampleChain[2]);
 		BloomUpsample(3, bloomUpsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[1].getAttachmentTexture(0), bloomUpsampleChain[1]);
 		BloomUpsample(4, bloomUpsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[0].getAttachmentTexture(0), bloomUpsampleChain[0]);
-
-		Composite();
 	}
 
-	static void DisplayPass()
+	static void CompositePass()
 	{
 		graphics.resetState();
-		graphics.setPass(16);
+		graphics.setPass((int)RenderPass.Composite);
+
 		graphics.setRenderTarget(null);
 
-		graphics.setVertexBuffer(quad);
-		graphics.setTexture(displayShader, "s_frame", 0, compositeRenderTarget.getAttachmentTexture(0));
+		graphics.setDepthTest(DepthTest.None);
+		graphics.setCullState(CullState.ClockWise);
 
-		graphics.draw(displayShader);
+		graphics.setTexture(compositeShader.getUniform("s_albedo", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
+		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 1, lighting.getAttachmentTexture(0));
+		graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 2, bloomUpsampleChain[0].getAttachmentTexture(0));
+
+		Vector3 vignetteColor = new Vector3(0.0f);
+		float vignetteFalloff = 0.37f; // default value: 0.37f
+		graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
+
+		graphics.setVertexBuffer(quad);
+		graphics.draw(compositeShader);
 	}
 
 	static void UIPass()
 	{
 		graphics.resetState();
-		graphics.setPass(17);
+		graphics.setPass((int)RenderPass.Composite);
 		graphics.setRenderTarget(null);
 
 		graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.width, 0, Display.height, 1.0f, -1.0f), Matrix.Identity);
@@ -477,23 +467,12 @@ public static class Renderer
 		for (int i = 0; i < textDraws.Count; i++)
 		{
 			TextDraw draw = textDraws[i];
-			Texture texture = font;
-			for (int j = 0; j < draw.text.Length; j++)
-			{
-				char c = draw.text[j];
-				int idx = c - '!';
-				float u0 = idx * 8 / (float)font.width;
-				float v0 = 0.0f;
-				float u1 = (idx + 1) * 8 / (float)font.width;
-				float v1 = 1.0f;
-				textBatch.draw(
-					draw.position.x + j * 8 * 4, Display.height - draw.position.y - 8 * 4, 0.0f,
-					8 * 4, 8 * 4,
-					0.0f,
-					texture, uint.MaxValue,
-					u0, v0, u1, v1,
-					MathHelper.ARGBToVector(draw.color));
-			}
+			graphics.drawText(
+				draw.position.x, draw.position.y, 0.0f,
+				draw.size,
+				draw.text, draw.text.Length,
+				font, draw.color,
+				textBatch);
 		}
 		textBatch.end();
 
@@ -519,8 +498,8 @@ public static class Renderer
 	{
 		GeometryPass();
 		LightingPass();
+		PostProcessingPass();
 		CompositePass();
-		DisplayPass();
 		UIPass();
 
 		draws.Clear();
