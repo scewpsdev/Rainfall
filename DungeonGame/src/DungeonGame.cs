@@ -219,13 +219,11 @@ internal class DungeonGame : Game
 		StringUtils.AppendString(str, "ms");
 		Debug.DrawDebugText(0, line++, str);
 
-		/*
 		StringUtils.WriteString(str, "GPU Memory: ");
 		WriteMemoryString(str, renderStats.gpuMemoryUsed);
 		StringUtils.AppendString(str, "/");
 		WriteMemoryString(str, renderStats.gpuMemoryMax);
 		Debug.DrawDebugText(0, line++, str);
-		*/
 
 		StringUtils.WriteString(str, "Texture Memory: ");
 		WriteMemoryString(str, renderStats.textureMemoryUsed);

@@ -178,24 +178,29 @@ public class Inventory : ItemContainer
 
 	public override ItemSlot addItem(Item item, int amount = 1)
 	{
-		if (item.category == ItemCategory.Weapon && rightHand[0].item == null && rightHand[1].item == null)
+		if (item.category == ItemCategory.Weapon && rightHand[0].item == null)
 			return addHandItem(0, 0, item, amount);
-		else if (item.category == ItemCategory.Utility && leftHand[0].item == null && leftHand[1].item == null)
+		else if (item.category == ItemCategory.Weapon && rightHand[1].item == null)
+			return addHandItem(0, 1, item, amount);
+		else if (item.category == ItemCategory.Utility && leftHand[0].item == null)
 			return addHandItem(1, 0, item, amount);
-		else if (item.category == ItemCategory.Shield && leftHand[0].item == null && leftHand[1].item == null)
+		else if (item.category == ItemCategory.Utility && leftHand[1].item == null)
+			return addHandItem(1, 1, item, amount);
+		else if (item.category == ItemCategory.Shield && leftHand[0].item == null)
 			return addHandItem(1, 0, item, amount);
+		else if (item.category == ItemCategory.Shield && leftHand[1].item == null)
+			return addHandItem(1, 1, item, amount);
 		else if (item.category == ItemCategory.Armor && item.armorType == ArmorType.Torso && armor[1].item == null)
 			return addArmorItem(1, item, amount);
 		else if (item.category == ItemCategory.Consumable)
 		{
-			bool hotbarEmpty = true;
 			for (int i = 0; i < hotbar.Length; i++)
 			{
-				if (hotbar[i].item != null)
-					hotbarEmpty = false;
+				if (hotbar[i].item == null)
+				{
+					return addHotbarItem(i, item, amount);
+				}
 			}
-			if (hotbarEmpty)
-				return addHotbarItem(0, item, amount);
 		}
 		return base.addItem(item, amount);
 	}
@@ -361,6 +366,16 @@ public class Inventory : ItemContainer
 				return true;
 			else if (twoHandedWeapon != -1 && getSelectedHandSlot(twoHandedWeapon) != slot)
 				return true;
+			else
+			{
+				Item leftItem = getSelectedHandItem(1);
+				if (leftItem != null && leftItem != item && leftItem.twoHanded)
+					return true;
+
+				Item rightItem = getSelectedHandItem(0);
+				if (rightItem != null && rightItem != item && rightItem.twoHanded)
+					return true;
+			}
 		}
 		return false;
 	}

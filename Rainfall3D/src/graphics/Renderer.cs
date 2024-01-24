@@ -965,6 +965,13 @@ public static class Renderer
 		graphics.setPass((int)RenderPass.Geometry);
 		graphics.setRenderTarget(gbuffer);
 
+		models.Sort((ModelDrawCommand a, ModelDrawCommand b) =>
+		{
+			float d1 = (a.transform.translation - camera.position).lengthSquared;
+			float d2 = (b.transform.translation - camera.position).lengthSquared;
+			return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
+		});
+
 		RenderModels();
 		RenderModelsInstanced();
 		//RenderTerrains();

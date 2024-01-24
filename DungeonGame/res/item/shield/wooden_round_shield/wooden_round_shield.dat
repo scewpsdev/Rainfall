@@ -35,5 +35,5 @@ sfxBlock = "block.ogg"
 sfxParry = "../../parry.ogg"
 sfxGuardBreak = "../../guard_break.ogg"
 
-parryFramesDelay = 9
+parryFramesDelay = 6
 parryFramesCount = 5

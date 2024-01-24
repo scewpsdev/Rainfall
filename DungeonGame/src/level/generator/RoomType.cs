@@ -541,6 +541,7 @@ public class MainRoom : RoomType
 			chest.addItem(Item.Get("magic_arrow"));
 			chest.addItem(Item.Get("homing_orbs"));
 			chest.addItem(Item.Get("magic_orb"));
+			chest.addItem(Item.Get("mana_flask"));
 			chest.addItem(Item.Get("map"));
 			room.addEntity(chest, position, rotation);
 		}
@@ -717,20 +718,20 @@ public class LibraryRoom : RoomType
 		List<Item> items = new List<Item>();
 		List<int> amounts = new List<int>();
 
-		float flaskChance = 0.1f;
+		float flaskChance = 0.12f;
 		if (random.NextSingle() < flaskChance)
 		{
 			items.Add(Item.Get("flask"));
 			amounts.Add(1);
 		}
-		float manaFlaskChance = 0.1f;
+		float manaFlaskChance = 0.12f;
 		if (random.NextSingle() < manaFlaskChance)
 		{
 			items.Add(Item.Get("mana_flask"));
 			amounts.Add(1);
 		}
 
-		float arrowChance = 0.08f;
+		float arrowChance = 0.12f;
 		if (random.NextSingle() < arrowChance)
 		{
 			items.Add(Item.Get("arrow"));
@@ -738,7 +739,7 @@ public class LibraryRoom : RoomType
 			amounts.Add(amount);
 		}
 
-		float goldChance = 0.25f;
+		float goldChance = 0.1f;
 		if (random.NextSingle() < goldChance)
 		{
 			items.Add(Item.Get("gold"));

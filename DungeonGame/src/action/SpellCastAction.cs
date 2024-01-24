@@ -36,6 +36,8 @@ internal class SpellCastAction : Action
 			animationName[handID] = "spell_cast";
 			animationSet[handID] = spell.moveset;
 		}
+
+		movementSpeedMultiplier = 0.5f;
 	}
 
 	public override void update(Player player)
