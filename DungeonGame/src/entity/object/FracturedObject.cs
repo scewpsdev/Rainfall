@@ -13,12 +13,14 @@ internal class FracturedObject : Entity
 
 	AudioSource audio;
 	Sound[] sfxBreak;
+	float sfxBreakGain;
 
 
-	public FracturedObject(Model model, Sound[] sfxBreak)
+	public FracturedObject(Model model, Sound[] sfxBreak, float sfxBreakGain = 1.0f)
 	{
 		this.model = model;
 		this.sfxBreak = sfxBreak;
+		this.sfxBreakGain = sfxBreakGain;
 	}
 
 	public override void init()
@@ -34,7 +36,7 @@ internal class FracturedObject : Entity
 		if (sfxBreak != null)
 		{
 			audio = new AudioSource(position);
-			audio.playSoundOrganic(sfxBreak);
+			audio.playSoundOrganic(sfxBreak, sfxBreakGain);
 			AIManager.NotifySound(position, 6.0f);
 		}
 	}

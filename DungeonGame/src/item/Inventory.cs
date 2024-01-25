@@ -410,6 +410,36 @@ public class Inventory : ItemContainer
 		return null;
 	}
 
+	public ItemSlot findItem(Item item)
+	{
+		for (int i = 0; i < items.Length; i++)
+		{
+			if (items[i].item == item)
+				return items[i];
+		}
+		for (int i = 0; i < rightHand.Length; i++)
+		{
+			if (rightHand[i].item == item)
+				return rightHand[i];
+		}
+		for (int i = 0; i < leftHand.Length; i++)
+		{
+			if (leftHand[i].item == item)
+				return leftHand[i];
+		}
+		for (int i = 0; i < armor.Length; i++)
+		{
+			if (armor[i].item == item)
+				return armor[i];
+		}
+		for (int i = 0; i < hotbar.Length; i++)
+		{
+			if (hotbar[i].item == item)
+				return hotbar[i];
+		}
+		return null;
+	}
+
 	/*
 	public bool selectQuickSlotItem(ItemSlot slot)
 	{

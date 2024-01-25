@@ -75,7 +75,7 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	{
 		remove();
 		if (fracturedModel != null)
-			DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, sfxBreak), position, rotation);
+			DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, sfxBreak, 0.3f), position, rotation);
 
 		foreach (ItemSlot slot in container.items)
 		{

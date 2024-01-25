@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 public class GameManager
 {
+	public Level level;
 	public Player player;
 	Creature currentBoss;
 
 	public bool mapUnlocked = false;
+	public HashSet<int> exploredRooms = new HashSet<int>();
 
 
 	public GameManager()
@@ -44,7 +46,10 @@ public class GameManager
 			}
 		}
 
-		mapUnlocked = player.inventory.hasItemEquipped(Item.Get("map"));
+		if (player.inventory.findItem(Item.Get("map")) != null)
+			mapUnlocked = true;
+		int currentRoomID = level.getRoomIDAtPos(player.position);
+		exploredRooms.Add(currentRoomID);
 	}
 
 	public void draw()

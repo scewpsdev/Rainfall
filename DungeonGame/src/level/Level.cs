@@ -23,6 +23,7 @@ public class Level
 	//public int[] heightmap;
 	public TileMap tilemap;
 	public List<Room> rooms;
+	public Dictionary<int, int> roomIDMap;
 	public Matrix spawnPoint;
 
 	public List<LevelMesh> levelMeshes = new List<LevelMesh>();
@@ -38,7 +39,7 @@ public class Level
 	{
 		body = new RigidBody(null, RigidBodyType.Static);
 	}
-	
+
 	public void init()
 	{
 		ambientSound = Resource.GetSound("res/level/sounds/dungeon.ogg");
@@ -58,6 +59,11 @@ public class Level
 		return 0;
 	}
 	*/
+
+	public int getRoomIDAtPos(Vector3 position)
+	{
+		return tilemap.getTile((Vector3i)position);
+	}
 
 	public void addEntity(Entity entity)
 	{

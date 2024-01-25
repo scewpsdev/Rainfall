@@ -35,7 +35,7 @@ internal class BlockingHitAction : Action
 
 		mirrorAnimation = handID == 1;
 
-		movementSpeedMultiplier = 0.2f;
+		movementSpeedMultiplier = 0.4f;
 
 		staminaCost = item.shieldHitStaminaCost;
 		staminaCostTime = 0.0f;

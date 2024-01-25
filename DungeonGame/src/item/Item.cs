@@ -267,6 +267,11 @@ public class Item
 		return getAttack(type, index).Value;
 	}
 
+	public bool hasPrimaryAction
+	{
+		get => category == ItemCategory.Weapon || category == ItemCategory.Shield || category == ItemCategory.Consumable;
+	}
+
 
 	static Dictionary<int, Item> items = new Dictionary<int, Item>();
 	static Dictionary<string, Item> nameMap = new Dictionary<string, Item>();

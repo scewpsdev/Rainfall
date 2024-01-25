@@ -720,7 +720,8 @@ public class Player : Entity
 		{
 			Debug.Assert(currentLadder != null);
 
-			if ((Time.currentTime - lastJumpInput) / 1e9f <= JUMP_BUFFER_TIME)
+			//if ((Time.currentTime - lastJumpInput) / 1e9f <= JUMP_BUFFER_TIME)
+			if (InputManager.IsPressed("Dodge"))
 			{
 				if (stats.canJump)
 				{
@@ -955,13 +956,14 @@ public class Player : Entity
 
 	void updateWeaponActions()
 	{
+		if (currentAction == null)
 		{
-			if (InputManager.IsPressed("SwitchWeaponRight") && InputManager.IsDown("ActionModifier"))
+			if (InputManager.IsPressed("SwitchWeaponRight"))
 			{
 				inventory.rightHandSlotIdx = (inventory.rightHandSlotIdx + 1) % inventory.rightHand.Length;
 				onHandItemUpdate(inventory.getSelectedHandSlot(0), 0);
 			}
-			if (InputManager.IsPressed("SwitchWeaponLeft") && InputManager.IsDown("ActionModifier"))
+			if (InputManager.IsPressed("SwitchWeaponLeft"))
 			{
 				inventory.leftHandSlotIdx = (inventory.leftHandSlotIdx + 1) % inventory.leftHand.Length;
 				onHandItemUpdate(inventory.getSelectedHandSlot(1), 1);
@@ -1017,11 +1019,11 @@ public class Player : Entity
 							}
 
 							if (currentAction == null && (
-								handID == 0 && InputManager.IsDown("Action1") && isTwoHanded(0) ||
-								handID == 1 && InputManager.IsDown("Action0") && isTwoHanded(1)
+								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) == null || !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
+								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) == null || !inventory.getSelectedHandItem(0).hasPrimaryAction)
 							))
 							{
-								queueAction(new ShieldStanceAction(handItem, handID, true));
+								queueAction(new ShieldStanceAction(handItem, handID, isTwoHanded(handID)));
 
 								/*
 								if (InputManager.IsDown("ActionModifier"))
@@ -1086,6 +1088,7 @@ public class Player : Entity
 							}
 						}
 
+						/*
 						if (handID == 0 && handItem != null && !handItem.twoHanded || handID == 1 && otherItem != null && !otherItem.twoHanded && handItem == null)
 						{
 							if (InputManager.IsPressed("WieldTwoHanded"))
@@ -1100,6 +1103,7 @@ public class Player : Entity
 								}
 							}
 						}
+						*/
 
 						break;
 					case ItemCategory.Shield:
@@ -1264,7 +1268,7 @@ public class Player : Entity
 	void updateQuickSlots()
 	{
 		{
-			if (InputManager.IsPressed("SwitchHotbarItem") && InputManager.IsDown("ActionModifier"))
+			if (InputManager.IsPressed("SwitchHotbarItem"))
 			{
 				int nextSlotWithItem = -1;
 				for (int i = 1; i < inventory.hotbar.Length; i++)
@@ -1946,16 +1950,27 @@ public class Player : Entity
 		updateMovesetLayer(inventory.getSelectedHandItem(0), 0);
 		updateMovesetLayer(inventory.getSelectedHandItem(1), 1);
 
-		if (inventory.getSelectedHandSlot(handID) == slot && slot.item != null)
+		if (inventory.getSelectedHandSlot(handID) == slot)
 		{
-			if (slot.item.moveset.getAnimationData("draw") != null)
+			if (slot.item != null)
+			{
+				if (slot.item.moveset.getAnimationData("draw") != null)
+				{
+					if (currentAction is WeaponDrawAction)
+						cancelAction();
+					queueAction(new WeaponDrawAction(slot.item, handID));
+				}
+				else
+				{
+					audioAction.playSoundOrganic(slot.item.sfxDraw);
+				}
+			}
+			else
 			{
 				if (currentAction is WeaponDrawAction)
 					cancelAction();
-				queueAction(new WeaponDrawAction(slot.item, handID));
+				queueAction(new WeaponDrawAction(null, handID));
 			}
-			else
-				audioAction.playSoundOrganic(slot.item.sfxDraw);
 		}
 	}
 

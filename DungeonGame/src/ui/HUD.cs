@@ -162,8 +162,11 @@ public class HUD
 			{
 				int numArrows = player.inventory.totalArrowCount;
 
-				int yy = Display.viewportSize.y - 25 - height - 25 - height;
-				renderItemSlot(x, yy, width, height, numArrows > 0 ? Item.Get("arrow") : null, numArrows);
+				int ww = 64;
+				int hh = 64;
+
+				int yy = Display.viewportSize.y - 25 - height - 25 - hh;
+				renderItemSlot(x, yy, ww, hh, numArrows > 0 ? Item.Get("arrow") : null, numArrows);
 
 
 				/*
@@ -183,8 +186,11 @@ public class HUD
 			{
 				ItemSlot spellItem = player.inventory.getSpellSlot(null);
 
-				int yy = Display.viewportSize.y - 25 - height - 25 - height;
-				renderItemSlot(x, yy, width, height, spellItem?.item, 1);
+				int ww = 64;
+				int hh = 64;
+
+				int yy = Display.viewportSize.y - 25 - height - 25 - hh;
+				renderItemSlot(x, yy, ww, hh, spellItem?.item, 1);
 			}
 		}
 	}
@@ -193,9 +199,9 @@ public class HUD
 	{
 		// Left item
 		{
-			int width = 64;
-			int height = 64;
-			int x = 40;
+			int width = 96;
+			int height = 96;
+			int x = Display.width - 40 - width - 10 - width;
 			int y = Display.viewportSize.y - 40 - height;
 
 			renderHandItem(x, y, width, height, 1);
@@ -203,9 +209,9 @@ public class HUD
 
 		// Right item
 		{
-			int width = 64;
-			int height = 64;
-			int x = 40 + width + 10;
+			int width = 96;
+			int height = 96;
+			int x = Display.width - 40 - width;
 			int y = Display.viewportSize.y - 40 - height;
 
 			renderHandItem(x, y, width, height, 0);
@@ -215,7 +221,7 @@ public class HUD
 		{
 			int width = 64;
 			int height = 64;
-			int x = 40 + width + 10 + width + 40;
+			int x = 40;
 			int y = Display.viewportSize.y - 40 - height;
 
 			Item item = player.inventory.getCurrentQuickSlotItem();
@@ -314,12 +320,14 @@ public class HUD
 			for (int x = 0; x < level.tilemap.mapSize.x; x++)
 			{
 				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, playerY + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
+				bool roomExplored = DungeonGame.instance.gameManager.exploredRooms.Contains(tile);
 				uint color = 0xFF000000;
+
 				if (x == playerPos.x && z == playerPos.z)
 					color = 0xFFFF0000;
-				else if (tile != 0)
+				else if (tile != 0 && roomExplored)
 				{
-					if (tile / 100 == 0xFF)
+					if (tile / 100 == 0xFF) // if astar corridor
 					{
 						color = 0xFF444444;
 					}
@@ -339,20 +347,25 @@ public class HUD
 						}
 					}
 				}
+
 				minimapPixels[x + z * level.tilemap.mapSize.x] = color;
 			}
 		}
 		foreach (Room room in level.rooms)
 		{
-			foreach (Doorway doorway in room.doorways)
+			bool roomExplored = DungeonGame.instance.gameManager.exploredRooms.Contains(room.id);
+			if (roomExplored)
 			{
-				int x = doorway.globalPosition.x - level.tilemap.mapPosition.x;
-				int z = doorway.globalPosition.z - level.tilemap.mapPosition.z;
-				int y = doorway.globalPosition.y - level.tilemap.mapPosition.y;
-				if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z && y > playerY - 3 && y < playerY + 3)
+				foreach (Doorway doorway in room.doorways)
 				{
-					uint color = 0xFF00FF00;
-					minimapPixels[x + z * level.tilemap.mapSize.x] = color;
+					int x = doorway.globalPosition.x - level.tilemap.mapPosition.x;
+					int z = doorway.globalPosition.z - level.tilemap.mapPosition.z;
+					int y = doorway.globalPosition.y - level.tilemap.mapPosition.y;
+					if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z && y > playerY - 3 && y < playerY + 3)
+					{
+						uint color = 0xFF00FF00;
+						minimapPixels[x + z * level.tilemap.mapSize.x] = color;
+					}
 				}
 			}
 		}

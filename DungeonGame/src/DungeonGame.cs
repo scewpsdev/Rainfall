@@ -61,6 +61,7 @@ internal class DungeonGame : Game
 		level.addEntity(player = new Player(camera, graphics), level.spawnPoint);
 		player.resetPoint = level.spawnPoint;
 
+		gameManager.level = level;
 		gameManager.player = player;
 		//level.addEntity(player = new Player(camera), new Vector3(0, -37, 54), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
 		//player.queueAction(new SpawnAction());

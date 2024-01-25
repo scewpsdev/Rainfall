@@ -630,7 +630,26 @@ public class PotRoom : RoomType
 						{
 							Vector3 position = room.gridPosition + new Vector3(x + 0.5f + MathHelper.RandomFloat(-0.3f, 0.3f, random), 0.0f, z + 0.5f + MathHelper.RandomFloat(-0.3f, 0.3f, random));
 							Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, random.NextSingle() * MathF.PI * 2);
-							level.addEntity(new Crate(), position, rotation);
+
+							Crate crate = new Crate();
+
+							float flaskDropChance = 0.05f;
+							if (Random.Shared.NextSingle() < flaskDropChance)
+								crate.container.addItem(Item.Get("flask"));
+
+							float manaFlaskDropChance = 0.05f;
+							if (Random.Shared.NextSingle() < manaFlaskDropChance)
+								crate.container.addItem(Item.Get("mana_flask"));
+
+							float firebombDropChance = 0.05f;
+							if (Random.Shared.NextSingle() < firebombDropChance)
+								crate.container.addItem(Item.Get("firebomb"));
+
+							float arrowChance = 0.05f;
+							if (Random.Shared.NextSingle() < arrowChance)
+								crate.container.addItem(Item.Get("arrow"), MathHelper.RandomInt(3, 7));
+
+							level.addEntity(crate, position, rotation);
 						}
 					}
 				}

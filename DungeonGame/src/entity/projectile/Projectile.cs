@@ -145,13 +145,13 @@ public class Projectile : Entity
 					if (creature.isAlive)
 					{
 						creature.hit(damage, this, hitPosition, force, hitTargetLinkID != -1 ? hitTargetLinkID : 0);
-						if (!piercing)
-							remove();
 					}
 					else
 					{
 						hitTarget.addForce(force);
 					}
+					if (!piercing)
+						remove();
 				}
 				else if (hitTarget.entity is Hittable)
 				{

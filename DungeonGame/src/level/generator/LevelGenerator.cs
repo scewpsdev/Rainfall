@@ -688,6 +688,9 @@ public class LevelGenerator
 	void spawnRooms()
 	{
 		level.rooms = rooms;
+		level.roomIDMap = new Dictionary<int, int>();
+		for (int i = 0; i < rooms.Count; i++)
+			level.roomIDMap.Add(rooms[i].id, i);
 
 		ModelBatch wallBatch = new ModelBatch();
 		ModelBatch floorBatch = new ModelBatch();
