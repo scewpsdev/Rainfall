@@ -95,5 +95,5 @@ attacks: [
 
 shieldDamageAbsorption = 60
 shieldHitStaminaCost = 4
-parryFramesDelay = 5
+parryFramesDelay = 3
 parryFramesCount = 4

@@ -130,3 +130,27 @@ float CalculateDirectionalShadow(vec3 position, float distance, sampler2DShadow 
 	return result;
 	*/
 }
+
+float CalculatePointShadow(vec3 position, vec3 lightPosition, samplerCube shadowMap)
+{
+	vec3 dir = position - lightPosition;
+	vec3 ad = abs(dir);
+	float fragmentDistance = max(ad.x, max(ad.y, ad.z));
+	float closestDepth = textureCube(shadowMap, dir).r;
+
+	float near = 0.1;
+	float far = 30.0;
+	float closestDistance = 2.0 * near * far / (far + near - closestDepth * (far - near));
+
+	float bias = 0.05;
+	return fragmentDistance - bias < closestDistance ? 1.0 : 0.0;
+
+	/*
+	vec3 dir = position - lightPosition;
+	float closestDepth = textureCube(shadowMap, dir).r;
+	float closestDistance = depthToDistance(closestDepth, 0.1, 30.0);
+	float fragmentDistance = length(dir);
+	float bias = 0.05;
+	return fragmentDistance > closestDistance ? 1.0 : 0.0;
+	*/
+}

@@ -33,6 +33,7 @@ internal class ExitGate : Entity, Activatable, Interactable
 	public ExitGate()
 	{
 		model = Resource.GetModel("res/entity/object/exit/exit.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
 
 		sfxRun = Resource.GetSound("res/entity/object/exit/sfx/run.ogg");
 		sfxStop = Resource.GetSound("res/entity/object/exit/sfx/stop.ogg");

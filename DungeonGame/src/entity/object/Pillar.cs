@@ -16,6 +16,7 @@ internal class Pillar : Entity
 	public Pillar()
 	{
 		model = Resource.GetModel("res/entity/object/pillar/pillar.gltf");
+		model.configureLODs(LOD.DISTANCE_BIG);
 	}
 
 	public override void init()

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,10 @@ public class ResizableLadder : LadderRegion
 		this.height = height;
 
 		top = Resource.GetModel("res/entity/object/ladder/ladder_top.gltf");
+		top.configureLODs(LOD.DISTANCE_MEDIUM);
+
 		middle = Resource.GetModel("res/entity/object/ladder/ladder_middle.gltf");
+		middle.configureLODs(LOD.DISTANCE_MEDIUM);
 	}
 
 	public override void draw(GraphicsDevice graphics)

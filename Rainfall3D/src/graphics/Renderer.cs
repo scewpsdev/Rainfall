@@ -17,7 +17,8 @@ public static class Renderer
 		Shadow0,
 		Shadow1,
 		Shadow2,
-		ReflectionProbe,
+		PointShadow,
+		ReflectionProbe = PointShadow + MAX_POINT_SHADOWS * 6,
 		AmbientOcclusion = ReflectionProbe + MAX_REFLECTION_PROBES * 6,
 		AmbientOcclusionBlur,
 		Deferred,
@@ -138,6 +139,7 @@ public static class Renderer
 
 	const int BLOOM_CHAIN_LENGTH = 6;
 	const int MAX_REFLECTION_PROBES = 4;
+	const int MAX_POINT_SHADOWS = 8;
 
 	const int TERRAIN_RES = 128;
 	const float TERRAIN_SIZE = 128.0f;
@@ -178,8 +180,9 @@ public static class Renderer
 	static Shader foliageShader;
 	static Shader ssaoShader;
 	static Shader ssaoBlurShader;
-	static Shader deferredPointShader, deferredDirectionalShader, deferredEnvironmentShader;
-	static Shader deferredPointSimpleShader, deferredEnvironmentSimpleShader;
+	static Shader deferredPointShader, deferredPointShadowShader, deferredPointSimpleShader;
+	static Shader deferredDirectionalShader;
+	static Shader deferredEnvironmentShader, deferredEnvironmentSimpleShader;
 	static Shader skyShader;
 	static Shader waterShader;
 	static Shader particleShader;
@@ -239,7 +242,8 @@ public static class Renderer
 	static List<SkyDrawCommand> skies = new List<SkyDrawCommand>();
 	static List<WaterDrawCommand> waterTiles = new List<WaterDrawCommand>();
 	static List<LightDrawCommand> lights = new List<LightDrawCommand>();
-	static List<DirectionalLightDrawCommand> directionalLights = new List<DirectionalLightDrawCommand>();
+	static List<PointLight> pointLights = new List<PointLight>();
+	static List<DirectionalLight> directionalLights = new List<DirectionalLight>();
 	static List<ReflectionProbeDrawCommand> reflectionProbes = new List<ReflectionProbeDrawCommand>();
 	static List<ParticleSystemDrawCommand> particleSystems = new List<ParticleSystemDrawCommand>();
 	static List<ParticleSystemDrawCommand> particleSystemsAdditive = new List<ParticleSystemDrawCommand>();
@@ -494,9 +498,10 @@ public static class Renderer
 		ssaoShader = Resource.GetShader("res/shaders/ssao/ssao.vs.shader", "res/shaders/ssao/ssao.fs.shader");
 		ssaoBlurShader = Resource.GetShader("res/shaders/ssao/ssao_blur.vs.shader", "res/shaders/ssao/ssao_blur.fs.shader");
 		deferredPointShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point.fs.shader");
+		deferredPointShadowShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_shadow.fs.shader");
+		deferredPointSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_simple.fs.shader");
 		deferredDirectionalShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_directional.fs.shader");
 		deferredEnvironmentShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment.fs.shader");
-		deferredPointSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_simple.fs.shader");
 		deferredEnvironmentSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment_simple.fs.shader");
 		skyShader = Resource.GetShader("res/shaders/sky/sky.vs.shader", "res/shaders/sky/sky.fs.shader");
 		waterShader = Resource.GetShader("res/shaders/water/water.vs.shader", "res/shaders/water/water.fs.shader");
@@ -568,9 +573,14 @@ public static class Renderer
 		lights.Add(new LightDrawCommand { position = position, color = color });
 	}
 
+	public static void DrawPointLight(PointLight light)
+	{
+		pointLights.Add(light);
+	}
+
 	public static void DrawDirectionalLight(DirectionalLight light)
 	{
-		directionalLights.Add(new DirectionalLightDrawCommand { light = light });
+		directionalLights.Add(light);
 	}
 
 	public static void DrawReflectionProbe(ReflectionProbe reflectionProbe)
@@ -671,6 +681,18 @@ public static class Renderer
 		Renderer.pv = projection * view;
 	}
 
+	static Matrix GetNodeTransform(Node node)
+	{
+		Matrix transform = node.transform;
+		Node parent = node.parent;
+		while (parent != null)
+		{
+			transform = parent.transform * transform;
+			parent = parent.parent;
+		}
+		return transform;
+	}
+
 	static void GetFrustumPlanes(Matrix matrix, Span<Vector4> planes)
 	{
 		// Left clipping plane
@@ -735,16 +757,11 @@ public static class Renderer
 		return true;
 	}
 
-	static Matrix GetNodeTransform(Node node)
+	static bool IsInRange(Vector3 p, float radius, Matrix meshTransform, float maxDistance)
 	{
-		Matrix transform = node.transform;
-		Node parent = node.parent;
-		while (parent != null)
-		{
-			transform = parent.transform * transform;
-			parent = parent.parent;
-		}
-		return transform;
+		Vector3 d = p + meshTransform.translation - camera.position;
+		float distanceSq = Vector3.Dot(d, d);
+		return distanceSq < maxDistance * maxDistance;
 	}
 
 	static void SubmitMesh(Model model, int meshID, Animator animator, Shader shader, Shader animShader, Matrix transform, Matrix pv)
@@ -755,20 +772,26 @@ public static class Renderer
 			meshTransform *= GetNodeTransform(model.skeleton.getNode(meshData.nodeID));
 		bool isAnimated = meshData.hasSkeleton && animator != null && animShader != null;
 
-		if (IntersectsFrustum(new Vector3(meshData.boundingSphere.xcenter, meshData.boundingSphere.ycenter, meshData.boundingSphere.zcenter), meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, pv))
+		if (IntersectsFrustum(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, pv))
 		{
-			if (isAnimated)
-				graphics.drawSubModelAnimated(model, meshID, animShader, animator, meshTransform);
-			else
-				graphics.drawSubModel(model, meshID, shader, meshTransform);
+			if (IsInRange(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, model.maxDistance))
+			{
+				if (isAnimated)
+					graphics.drawSubModelAnimated(model, meshID, animShader, animator, meshTransform);
+				else
+					graphics.drawSubModel(model, meshID, shader, meshTransform);
 
-			meshRenderCounter++;
+				meshRenderCounter++;
+			}
+			else
+			{
+				graphics.resetState(); // reset state so we can submit new draw call data
+				meshCulledCounter++;
+			}
 		}
 		else
 		{
-			// reset state so we can submit new draw call data
-			graphics.resetState();
-
+			graphics.resetState(); // reset state so we can submit new draw call data
 			meshCulledCounter++;
 		}
 	}
@@ -979,15 +1002,15 @@ public static class Renderer
 		//RenderGrass();
 	}
 
-	static void ShadowPass()
+	static void UpdateDirectionalShadows()
 	{
 		if (directionalLights.Count > 0)
 		{
-			if (!directionalLights[0].light.shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
+			if (!directionalLights[0].shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
 				return;
-			directionalLights[0].light.shadowMap.needsUpdate = false;
+			directionalLights[0].shadowMap.needsUpdate = false;
 
-			ShadowMap shadowMap = directionalLights[0].light.shadowMap;
+			DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
 
 			shadowMap.calculateCascadeTransforms(camera.position, camera.rotation, camera.fov, Display.aspectRatio);
 
@@ -1035,6 +1058,52 @@ public static class Renderer
 		}
 	}
 
+	static void UpdatePointShadows()
+	{
+		for (int h = 0; h < pointLights.Count; h++)
+		{
+			if (!pointLights[h].shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
+				return;
+			pointLights[h].shadowMap.needsUpdate = false;
+
+			PointShadowMap shadowMap = pointLights[h].shadowMap;
+
+			for (int i = 0; i < shadowMap.renderTargets.Length; i++)
+			{
+				graphics.resetState();
+				graphics.setPass((int)RenderPass.PointShadow + h * 6 + i);
+
+				graphics.setRenderTarget(shadowMap.renderTargets[i]);
+
+				Matrix shadowMapProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, 0.1f, 30.0f);
+				Matrix shadowMapView = cubemapFaceRotations[i] * Matrix.CreateTranslation(-pointLights[h].position);
+				Matrix reflectionProbePV = shadowMapProjection * shadowMapView;
+				graphics.setViewTransform(shadowMapProjection, shadowMapView);
+
+				for (int j = 0; j < models.Count; j++)
+				{
+					Model model = models[j].model;
+					Animator animator = models[j].animator;
+					Matrix transform = models[j].transform;
+					//graphics.drawModel(model, modelDepthShader, modelAnimDepthShader, animator, transform);
+
+					for (int k = 0; k < models[j].model.meshCount; k++)
+					{
+						graphics.setCullState(CullState.None);
+
+						SubmitMesh(model, k, animator, modelDepthShader, modelAnimDepthShader, transform, reflectionProbePV);
+					}
+				}
+			}
+		}
+	}
+
+	static void ShadowPass()
+	{
+		UpdateDirectionalShadows();
+		UpdatePointShadows();
+	}
+
 	static void ReflectionProbePass()
 	{
 		Span<Vector4> lightPositionBuffer = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
@@ -1072,12 +1141,12 @@ public static class Renderer
 
 							if (directionalLights.Count > 0)
 							{
-								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].light.direction, 0.0f));
-								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].light.color, 0.0f));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].direction, 0.0f));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].color, 0.0f));
 
-								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
 
-								ShadowMap shadowMap = directionalLights[0].light.shadowMap;
+								DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
 								int lastCascade = shadowMap.renderTargets.Length - 1;
 								RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
 								Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
@@ -1089,7 +1158,7 @@ public static class Renderer
 								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
 								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
 
-								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
 
 								graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, emptyShadowTexture);
 								graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
@@ -1228,6 +1297,42 @@ public static class Renderer
 
 			graphics.draw(shader);
 		}
+
+		if (pointLights.Count > 0)
+		{
+			shader = deferredPointShadowShader;
+
+			graphics.resetState();
+
+			graphics.setBlendState(BlendState.Additive);
+			graphics.setDepthTest(DepthTest.None);
+			graphics.setCullState(CullState.ClockWise);
+
+			graphics.setVertexBuffer(quad);
+
+			graphics.setTexture(shader.getUniform("s_gbuffer0", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
+			graphics.setTexture(shader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
+			graphics.setTexture(shader.getUniform("s_gbuffer2", UniformType.Sampler), 2, gbuffer.getAttachmentTexture(2));
+			graphics.setTexture(shader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
+
+			graphics.setTexture(shader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
+
+			graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, 0.0f));
+
+			int numRemainingLights = Math.Min(pointLights.Count, 8);
+			for (int j = 0; j < numRemainingLights; j++)
+			{
+				lightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
+				lightColorBuffer[j] = new Vector4(pointLights[j].color, 0.0f);
+
+				graphics.setTexture(shader, "s_lightShadowMap" + j, 5 + j, pointLights[j].shadowMap.cubemap);
+			}
+
+			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, 8), lightPositionBuffer);
+			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, 8), lightColorBuffer);
+
+			graphics.draw(shader);
+		}
 	}
 
 	static void RenderDirectionalLights()
@@ -1255,12 +1360,12 @@ public static class Renderer
 
 			graphics.setUniform(deferredDirectionalShader, "u_cameraPosition", new Vector4(camera.position, (Time.currentTime / 5 % 1000000000) / 1e9f));
 
-			graphics.setUniform(deferredDirectionalShader, "u_directionalLightDirection", new Vector4(directionalLights[i].light.direction, 0.0f));
-			graphics.setUniform(deferredDirectionalShader, "u_directionalLightColor", new Vector4(directionalLights[i].light.color, 0.0f));
+			graphics.setUniform(deferredDirectionalShader, "u_directionalLightDirection", new Vector4(directionalLights[i].direction, 0.0f));
+			graphics.setUniform(deferredDirectionalShader, "u_directionalLightColor", new Vector4(directionalLights[i].color, 0.0f));
 
-			graphics.setUniform(deferredDirectionalShader, "u_directionalLightCascadeFarPlanes", new Vector4(ShadowMap.FAR_PLANES[0], ShadowMap.FAR_PLANES[1], ShadowMap.FAR_PLANES[2], 0.0f));
+			graphics.setUniform(deferredDirectionalShader, "u_directionalLightCascadeFarPlanes", new Vector4(DirectionalShadowMap.FAR_PLANES[0], DirectionalShadowMap.FAR_PLANES[1], DirectionalShadowMap.FAR_PLANES[2], 0.0f));
 
-			ShadowMap shadowMap = directionalLights[i].light.shadowMap;
+			DirectionalShadowMap shadowMap = directionalLights[i].shadowMap;
 			for (int j = 0; j < shadowMap.renderTargets.Length; j++)
 			{
 				RenderTarget renderTarget = shadowMap.renderTargets[j];
@@ -1678,12 +1783,12 @@ public static class Renderer
 
 		if (directionalLights.Count > 0)
 		{
-			graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].light.direction, 0.0f));
-			graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].light.color, 0.0f));
+			graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].direction, 0.0f));
+			graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].color, 0.0f));
 
-			graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+			graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
 
-			ShadowMap shadowMap = directionalLights[0].light.shadowMap;
+			DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
 			int lastCascade = shadowMap.renderTargets.Length - 1;
 			RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
 			Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
@@ -1695,7 +1800,7 @@ public static class Renderer
 			graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
 			graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
 
-			graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(ShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
+			graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
 
 			graphics.setTexture(waterShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 0, emptyShadowTexture);
 			graphics.setUniform(waterShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
@@ -1956,12 +2061,22 @@ public static class Renderer
 		return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
 	}
 
+	static int PointLightDistanceComparator(PointLight light1, PointLight light2)
+	{
+		Vector3 delta1 = light1.position - camera.position;
+		Vector3 delta2 = light2.position - camera.position;
+		float d1 = Vector3.Dot(delta1, delta1);
+		float d2 = Vector3.Dot(delta2, delta2);
+		return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
+	}
+
 	public static void End()
 	{
 		meshRenderCounter = 0;
 		meshCulledCounter = 0;
 
 		lights.Sort(LightDistanceComparator);
+		pointLights.Sort(PointLightDistanceComparator);
 
 		GeometryPass();
 		ShadowPass();
@@ -1982,6 +2097,7 @@ public static class Renderer
 		skies.Clear();
 		waterTiles.Clear();
 		lights.Clear();
+		pointLights.Clear();
 		directionalLights.Clear();
 		reflectionProbes.Clear();
 		particleSystems.Clear();

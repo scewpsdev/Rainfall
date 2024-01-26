@@ -43,6 +43,8 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 		//this.amounts = amounts;
 
 		model = Resource.GetModel("res/entity/object/chest/chest.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
+
 		animator = new Animator(model);
 		lidNode = model.skeleton.getNode("Chest_Lid");
 

@@ -31,6 +31,9 @@ public class WoodenDoor : Door
 		}
 		frame = Resource.GetModel("res/entity/object/door/door_frame.gltf");
 
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		frame.configureLODs(LOD.DISTANCE_MEDIUM);
+
 		doorHingeOffset = 0.75f;
 
 		sfxOpen = Resource.GetSound("res/entity/object/door/sfx/open.ogg");

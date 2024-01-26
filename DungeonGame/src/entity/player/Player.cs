@@ -1107,21 +1107,18 @@ public class Player : Entity
 
 						break;
 					case ItemCategory.Shield:
-						if (currentAction == null && (
+						if (InputManager.IsDown("ActionModifier") &&
+								(handID == 0 && InputManager.IsPressed("Action0") ||
+								handID == 1 && InputManager.IsPressed("Action1")))
+						{
+							queueAction(new ParryAction(handItem, handID, false));
+						}
+						else if (currentAction == null && (
 							handID == 0 && InputManager.IsDown("Action0") ||
 							handID == 1 && InputManager.IsDown("Action1")
 						))
 						{
-							if (InputManager.IsDown("ActionModifier") &&
-								(handID == 0 && InputManager.IsPressed("Action0") ||
-								handID == 1 && InputManager.IsPressed("Action1")))
-							{
-								queueAction(new ParryAction(handItem, handID, false));
-							}
-							else
-							{
-								queueAction(new ShieldStanceAction(handItem, handID, false));
-							}
+							queueAction(new ShieldStanceAction(handItem, handID, false));
 						}
 						if (currentAction != null)
 						{
@@ -2149,10 +2146,10 @@ public class Player : Entity
 		Renderer.DrawModel(viewmodel, transform, moveAnimator);
 
 		// Camera light
-		if (inventory.hasItemInOffhand(Item.Get("torch")))
-			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 2.0f);
-		else
-			Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
+		//if (!inventory.hasItemEquipped(Item.Get("torch")))
+			//Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
+		//else
+		//	Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
 
 		handEntities[0].draw(graphics);
 		handEntities[1].draw(graphics);

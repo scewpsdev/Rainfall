@@ -42,6 +42,8 @@ namespace Rainfall
 	{
 		public float xcenter, ycenter, zcenter;
 		public float radius;
+
+		public Vector3 center { get => new Vector3(xcenter, ycenter, zcenter); }
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -219,6 +221,16 @@ namespace Rainfall
 			get => Native.Resource.Resource_ModelGetSceneData(handle);
 		}
 
+		public void configureLODs(float maxDistance)
+		{
+			Model_ConfigureLODs(handle, maxDistance);
+		}
+
+		public float maxDistance
+		{
+			get => Model_GetMaxDistance(handle);
+		}
+
 		public MeshData? getMeshData(int index)
 		{
 			unsafe
@@ -333,7 +345,13 @@ namespace Rainfall
 			}
 		}
 
-		[DllImport(Native.Native.DllName)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		static extern unsafe IntPtr Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern void Model_ConfigureLODs(IntPtr model, float maxDistance);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern float Model_GetMaxDistance(IntPtr model);
 	}
 }

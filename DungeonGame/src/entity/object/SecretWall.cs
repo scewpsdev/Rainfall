@@ -27,6 +27,7 @@ internal class SecretWall : Entity, Interactable
 	public SecretWall()
 	{
 		model = Resource.GetModel("res/entity/object/secret_wall/secret_wall.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
 
 		sfxOpen = Resource.GetSound("res/entity/object/secret_wall/sfx/open.ogg");
 		sfxClose = Resource.GetSound("res/entity/object/secret_wall/sfx/close.ogg");

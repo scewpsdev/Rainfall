@@ -140,14 +140,14 @@ RFAPI AnimationState* Animation_CreateAnimationState(Model* model)
 {
 	AnimationState* state = BX_NEW(Application_GetAllocator(), AnimationState);
 
-	state->numSkeletons = model->scene->numMeshes;
+	state->numSkeletons = model->lod0->numMeshes;
 	state->skeletons = new SkeletonState * [state->numSkeletons];
 
-	for (int i = 0; i < model->scene->numMeshes; i++)
+	for (int i = 0; i < model->lod0->numMeshes; i++)
 	{
-		if (model->scene->meshes[i].skeletonID != -1)
+		if (model->lod0->meshes[i].skeletonID != -1)
 		{
-			SkeletonData& skeletonData = model->scene->skeletons[model->scene->meshes[i].skeletonID];
+			SkeletonData& skeletonData = model->lod0->skeletons[model->lod0->meshes[i].skeletonID];
 			state->skeletons[i] = BX_NEW(Application_GetAllocator(), SkeletonState);
 			state->skeletons[i]->numBones = skeletonData.boneCount;
 			state->skeletons[i]->boneTransforms = new Matrix[skeletonData.boneCount];
@@ -172,8 +172,8 @@ RFAPI void Animation_UpdateAnimationState(AnimationState* state, Model* model, c
 	{
 		if (SkeletonState* skeleton = state->skeletons[i])
 		{
-			int skeletonID = model->scene->meshes[i].skeletonID;
-			const SkeletonData& skeletonData = model->scene->skeletons[skeletonID];
+			int skeletonID = model->lod0->meshes[i].skeletonID;
+			const SkeletonData& skeletonData = model->lod0->skeletons[skeletonID];
 			for (int j = 0; j < skeleton->numBones; j++)
 			{
 				if (const NodeData* node = skeletonData.bones[j].node)

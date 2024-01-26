@@ -198,6 +198,14 @@ internal class DungeonGame : Game
 		StringUtils.AppendString(str, " allocations");
 		Debug.DrawDebugText(0, line++, str);
 
+		StringUtils.WriteString(str, "Meshes: ");
+		StringUtils.AppendInteger(str, Renderer.meshRenderCounter);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Culled: ");
+		StringUtils.AppendInteger(str, Renderer.meshCulledCounter);
+		Debug.DrawDebugText(0, line++, str);
+
 		line++;
 
 		graphics.getRenderStats(out RenderStats renderStats);
@@ -320,8 +328,6 @@ internal class DungeonGame : Game
 		launchParams.height = 900;
 		//launchParams.maximized = false;
 		launchParams.fullscreen = true;
-		launchParams.fpsCap = 60;
-		//launchParams.vsync = false;
 #endif
 
 		Game game = new DungeonGame();

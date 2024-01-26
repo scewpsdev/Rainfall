@@ -14,7 +14,7 @@ public class DirectionalLight
 	public Vector3 direction;
 	public Vector3 color;
 
-	public ShadowMap shadowMap;
+	public DirectionalShadowMap shadowMap;
 
 
 	public DirectionalLight(Vector3 direction, Vector3 color, GraphicsDevice graphics)
@@ -22,6 +22,6 @@ public class DirectionalLight
 		this.direction = direction;
 		this.color = color;
 
-		shadowMap = new ShadowMap(SHADOW_MAP_RESOLUTION, this, graphics);
+		shadowMap = new DirectionalShadowMap(SHADOW_MAP_RESOLUTION, this, graphics);
 	}
 }

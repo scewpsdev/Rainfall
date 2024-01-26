@@ -26,7 +26,7 @@ std::map<uint32_t, bgfx::TextureHandle> loadedTextures;
 
 
 Model::Model(SceneData* scene)
-	: scene(scene)
+	: lod0(scene)
 {
 }
 
@@ -104,7 +104,7 @@ static void SubmitMesh(SceneData* scene, int id, bgfx::ViewId view, Shader* shad
 
 void Model::drawMesh(int id, bgfx::ViewId view, Shader* shader, const Matrix& transform)
 {
-	SubmitMesh(scene, id, view, shader, transform);
+	SubmitMesh(lod0, id, view, shader, transform);
 }
 
 void Model::drawMeshAnimated(int id, bgfx::ViewId view, Shader* shader, AnimationState* animationState, const Matrix& transform)
@@ -112,12 +112,12 @@ void Model::drawMeshAnimated(int id, bgfx::ViewId view, Shader* shader, Animatio
 	SkeletonState* skeleton = animationState->skeletons[id];
 	bgfx::setUniform(shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
-	SubmitMesh(scene, id, view, shader, transform);
+	SubmitMesh(lod0, id, view, shader, transform);
 }
 
 void Model::draw(bgfx::ViewId view, Shader* staticShader, Shader* animatedShader, AnimationState* animationState, const Matrix& transform)
 {
-	for (int i = 0; i < scene->numMeshes; i++)
+	for (int i = 0; i < lod0->numMeshes; i++)
 	{
 		bool isAnimated = animationState && animationState->skeletons[i] && animatedShader;
 
@@ -130,10 +130,10 @@ void Model::draw(bgfx::ViewId view, Shader* staticShader, Shader* animatedShader
 
 AnimationData* Model::getAnimation(const char* name) const
 {
-	for (int i = 0; i < scene->numAnimations; i++)
+	for (int i = 0; i < lod0->numAnimations; i++)
 	{
-		if (strcmp(scene->animations[i].name, name) == 0)
-			return &scene->animations[i];
+		if (strcmp(lod0->animations[i].name, name) == 0)
+			return &lod0->animations[i];
 	}
 	return nullptr;
 }
@@ -460,4 +460,14 @@ RFAPI Model* Model_Create(int numVertices, PositionNormalTangent* vertices, Vect
 
 	Model* model = BX_NEW(Application_GetAllocator(), Model)(sceneData);
 	return model;
+}
+
+RFAPI void Model_ConfigureLODs(Model* model, float maxDistance)
+{
+	model->maxDistance = maxDistance;
+}
+
+RFAPI float Model_GetMaxDistance(Model* model)
+{
+	return model->maxDistance;
 }

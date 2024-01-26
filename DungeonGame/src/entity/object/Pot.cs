@@ -31,6 +31,9 @@ internal class Pot : Entity, Hittable
 			model = Resource.GetModel("res/entity/object/pot/pot_vase.gltf");
 			fracturedModel = Resource.GetModel("res/entity/object/pot/pot_vase_fractured.gltf");
 		}
+
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		fracturedModel.configureLODs(LOD.DISTANCE_SMALL);
 	}
 
 	public override void init()

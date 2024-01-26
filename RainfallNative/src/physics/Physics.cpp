@@ -686,8 +686,8 @@ namespace Physics
 
 	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, Model* model, int meshIdx, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		MeshData& mesh = model->scene->meshes[meshIdx];
-		Matrix meshTransform = transform * GetNodeTransform(model->scene->meshes[meshIdx].node);
+		MeshData& mesh = model->lod0->meshes[meshIdx];
+		Matrix meshTransform = transform * GetNodeTransform(model->lod0->meshes[meshIdx].node);
 		if (physx::PxTriangleMesh* pxMesh = Physics_CreateMeshCollider(mesh.positionsNormalsTangents, mesh.vertexCount, mesh.indexData, mesh.indexCount))
 		{
 			Vector3 position = meshTransform.translation();
@@ -699,7 +699,7 @@ namespace Physics
 
 	RFAPI void Physics_RigidBodyAddMeshColliders(RigidBody* body, Model* model, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		for (int i = 0; i < model->scene->numMeshes; i++)
+		for (int i = 0; i < model->lod0->numMeshes; i++)
 		{
 			Physics_RigidBodyAddMeshCollider(body, model, i, transform, filterGroup, filterMask, staticFriction, dynamicFriction, restitution);
 		}
@@ -740,8 +740,8 @@ namespace Physics
 
 	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, Model* model, int meshIdx, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		MeshData& mesh = model->scene->meshes[meshIdx];
-		Matrix meshTransform = transform * GetNodeTransform(model->scene->meshes[meshIdx].node);
+		MeshData& mesh = model->lod0->meshes[meshIdx];
+		Matrix meshTransform = transform * GetNodeTransform(model->lod0->meshes[meshIdx].node);
 		if (physx::PxConvexMesh* pxMesh = Physics_CreateConvexMeshCollider(mesh.positionsNormalsTangents, mesh.vertexCount, mesh.indexData, mesh.indexCount))
 		{
 			Vector3 position = meshTransform.translation();

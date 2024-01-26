@@ -25,6 +25,7 @@ internal class PressurePlate : Entity
 		this.activatable = activatable;
 
 		model = Resource.GetModel("res/entity/object/pressure_plate/pressure_plate.gltf");
+		model.configureLODs(LOD.DISTANCE_SMALL);
 
 		sfxButton = Resource.GetSound("res/entity/object/elevator/sfx/button.ogg");
 	}

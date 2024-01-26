@@ -23,6 +23,8 @@ public class DoubleDoor : Entity, Interactable
 		this.activatable = activatable;
 
 		model = Resource.GetModel("res/entity/object/door/double_door.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
+
 		animator = new Animator(model);
 
 		defaultState = new AnimationState(model, "default", true);

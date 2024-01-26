@@ -19,7 +19,10 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	public Crate()
 	{
 		model = Resource.GetModel("res/entity/object/crate/crate.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
+
 		fracturedModel = Resource.GetModel("res/entity/object/crate/crate_fractured.gltf");
+		fracturedModel.configureLODs(LOD.DISTANCE_SMALL);
 
 		container = new ItemContainer(5, 5);
 	}

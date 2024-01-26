@@ -29,6 +29,7 @@ internal class WallTorch : Entity, Interactable
 	AudioSource audio;
 	Sound igniteSound;
 
+	PointLight light;
 	Simplex flickerNoise;
 
 	public TorchState state;
@@ -39,6 +40,7 @@ internal class WallTorch : Entity, Interactable
 		this.state = state;
 
 		model = Resource.GetModel("res/entity/object/wall_torch/wall_torch.gltf");
+		model.configureLODs(LOD.DISTANCE_SMALL);
 
 		fireParticles = new ParticleSystem(250);
 		//fireParticles.textureAtlas = Resource.GetTexture("res/texture/particle/torch_flame.png");
@@ -100,6 +102,8 @@ internal class WallTorch : Entity, Interactable
 		body = new RigidBody(this, RigidBodyType.Static, (uint)(PhysicsFilterGroup.Default | PhysicsFilterGroup.Interactable));
 		body.addCapsuleCollider(0.1f, 0.6f, new Vector3(0.0f, 0.1f, 0.1f), Quaternion.FromAxisAngle(Vector3.Right, MathHelper.ToRadians(19.0f)));
 
+		light = new PointLight(position, Vector3.One, Renderer.graphics);
+
 		audio = new AudioSource(position);
 	}
 
@@ -107,6 +111,41 @@ internal class WallTorch : Entity, Interactable
 	{
 		body.destroy();
 		audio.destroy();
+	}
+
+	public bool canInteract(Entity by)
+	{
+		return state != TorchState.Looted || (by is Player && ((Player)by).inventory.hasItemEquipped(Item.Get("torch")));
+	}
+
+	public void interact(Entity by)
+	{
+		if (by is Player)
+		{
+			Player player = by as Player;
+
+			if (state == TorchState.Off || state == TorchState.Glimming)
+			{
+				state = TorchState.Burning;
+				audio.playSound(igniteSound);
+				//light.updateShadowMap();
+			}
+			else if (state == TorchState.Burning)
+			{
+				//player.giveItem(Item.Get("torch"), 1);
+				//fireParticles = null;
+				state = TorchState.Off;
+				// TODO grab sound
+			}
+			else if (state == TorchState.Looted)
+			{
+				Debug.Assert(player.inventory.hasItemEquipped(Item.Get("torch"), out ItemSlot torchSlot));
+				player.inventory.removeItem(torchSlot);
+				state = TorchState.Burning;
+				audio.playSound(igniteSound);
+				// TODO place sound
+			}
+		}
 	}
 
 	public override void update()
@@ -126,6 +165,17 @@ internal class WallTorch : Entity, Interactable
 
 		sparkParticles.transform = transform;
 		sparkParticles.update();
+
+
+		Vector3 lightPosition = transform * new Vector3(0.0f, 0.3f, 0.25f);
+		Vector3 lightColor = state == TorchState.Burning ? FIRE_COLOR * 8.0f : GLIM_COLOR * 1.5f;
+
+		float lightFlicker = 1.0f + 0.5f * flickerNoise.sample1f(Time.currentTime / 1e9f);
+		lightColor *= lightFlicker;
+
+		light.position = lightPosition;
+		light.color = lightColor;
+
 
 		if (state == TorchState.Burning || state == TorchState.Glimming)
 		{
@@ -182,47 +232,8 @@ internal class WallTorch : Entity, Interactable
 
 				}
 
-				Vector3 lightPosition = transform * new Vector3(0.0f, 0.3f, 0.25f);
-				Vector3 lightColor = state == TorchState.Burning ? FIRE_COLOR * 8.0f : GLIM_COLOR * 1.5f;
-
-				float lightFlicker = 1.0f + 0.5f * flickerNoise.sample1f(Time.currentTime / 1e9f);
-				lightColor *= lightFlicker;
-
-				Renderer.DrawLight(lightPosition, lightColor);
-			}
-		}
-	}
-
-	public bool canInteract(Entity by)
-	{
-		return state != TorchState.Looted || (by is Player && ((Player)by).inventory.hasItemEquipped(Item.Get("torch")));
-	}
-
-	public void interact(Entity by)
-	{
-		if (by is Player)
-		{
-			Player player = by as Player;
-
-			if (state == TorchState.Off || state == TorchState.Glimming)
-			{
-				state = TorchState.Burning;
-				audio.playSound(igniteSound);
-			}
-			else if (state == TorchState.Burning)
-			{
-				//player.giveItem(Item.Get("torch"), 1);
-				//fireParticles = null;
-				state = TorchState.Off;
-				// TODO grab sound
-			}
-			else if (state == TorchState.Looted)
-			{
-				Debug.Assert(player.inventory.hasItemEquipped(Item.Get("torch"), out ItemSlot torchSlot));
-				player.inventory.removeItem(torchSlot);
-				state = TorchState.Burning;
-				audio.playSound(igniteSound);
-				// TODO place sound
+				Renderer.DrawPointLight(light);
+				//Renderer.DrawLight(lightPosition, lightColor);
 			}
 		}
 	}

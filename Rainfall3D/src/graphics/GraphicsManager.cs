@@ -39,12 +39,12 @@ public static class GraphicsManager
 		{
 			bool found = true;
 
-			if (setting.name == "VSync")
+			if (setting.name == "vSync")
 			{
 				Debug.Assert(setting.value.type == DatValueType.Number);
 				settings.vsync = setting.value.integer;
 			}
-			else if (setting.name == "FpsCap")
+			else if (setting.name == "fpsCap")
 			{
 				Debug.Assert(setting.value.type == DatValueType.Number);
 				settings.fpsCap = setting.value.integer;

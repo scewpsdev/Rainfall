@@ -15,6 +15,7 @@ internal class Tree : Entity
 	public Tree()
 	{
 		model = Resource.GetModel("res/entity/decoration/tree/tree.gltf");
+		model.configureLODs(LOD.DISTANCE_BIG);
 	}
 
 	public override void init()

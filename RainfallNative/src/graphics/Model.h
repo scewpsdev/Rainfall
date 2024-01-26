@@ -10,9 +10,10 @@
 #include <bgfx/bgfx.h>
 
 
-struct Model
+struct Model : SceneData
 {
-	SceneData* scene;
+	SceneData* lod0;
+	float maxDistance = FLT_MAX;
 
 
 	Model(SceneData* scene);
@@ -28,3 +29,4 @@ struct Model
 void InitializeScene(SceneData& scene, const char* scenePath, uint64_t textureFlags);
 
 RFAPI Model* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
+RFAPI void Model_ConfigureLODs(Model* model, float maxDistance);

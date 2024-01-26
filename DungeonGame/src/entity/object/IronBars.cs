@@ -15,6 +15,7 @@ internal class IronBars : Entity
 	public IronBars()
 	{
 		model = Resource.GetModel("res/entity/object/iron_bars/iron_bars.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
 	}
 
 	public void activate()

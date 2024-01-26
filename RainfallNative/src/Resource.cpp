@@ -170,7 +170,7 @@ RFAPI Model* Resource_CreateModelFromSceneData(SceneData* scene)
 
 RFAPI SceneData* Resource_ModelGetSceneData(Model* model)
 {
-	return model->scene;
+	return model->lod0;
 }
 
 RFAPI FontData* Resource_CreateFontDataFromFile(const char* path)

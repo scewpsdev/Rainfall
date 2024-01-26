@@ -424,7 +424,10 @@ public class Item
 		);
 
 		if (file.getStringContent("model", out string modelFile))
+		{
 			item.model = Resource.GetModel(directory + "/" + modelFile);
+			item.model.configureLODs(LOD.DISTANCE_SMALL);
+		}
 		if (file.getStringContent("moveset", out string movesetFile))
 			item.moveset = Resource.GetModel(directory + "/" + movesetFile);
 		if (file.getStringContent("icon", out string iconFile))

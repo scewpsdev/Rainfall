@@ -33,6 +33,7 @@ internal class Lever : Entity, Interactable
 		this.activatable = activatable;
 
 		model = Resource.GetModel("res/entity/object/lever/lever.gltf");
+		model.configureLODs(LOD.DISTANCE_SMALL);
 
 		sfxPull = Resource.GetSound("res/entity/object/lever/sfx/pull.ogg");
 	}

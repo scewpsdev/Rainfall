@@ -23,6 +23,7 @@ internal class Fountain : Entity, Interactable
 	public Fountain()
 	{
 		model = Resource.GetModel("res/entity/object/fountain/fountain.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
 	}
 
 	public override void init()

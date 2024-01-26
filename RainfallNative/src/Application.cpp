@@ -900,7 +900,7 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	bool running = true;
 	while (running)
 	{
-		glfwWaitEventsTimeout(0.016);
+		glfwWaitEventsTimeout(params.fpsCap ? 1.0 / params.fpsCap : 0.001);
 
 		if (!keepRunning)
 			running = false;

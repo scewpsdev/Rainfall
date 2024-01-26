@@ -23,6 +23,7 @@ internal class BookShelf : Entity
 		this.random = random;
 
 		model = Resource.GetModel("res/entity/object/shelf/shelf.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
 	}
 
 	public override void init()
