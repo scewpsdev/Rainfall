@@ -1027,6 +1027,9 @@ public static class Renderer
 				for (int j = 0; j < models.Count; j++)
 				{
 					Model model = models[j].model;
+					if (!model.renderShadow)
+						continue;
+
 					Animator animator = models[j].animator;
 					Matrix transform = models[j].transform;
 					//graphics.drawModel(model, modelDepthShader, modelAnimDepthShader, animator, transform);
@@ -1083,6 +1086,9 @@ public static class Renderer
 				for (int j = 0; j < models.Count; j++)
 				{
 					Model model = models[j].model;
+					if (!model.renderShadow)
+						continue;
+
 					Animator animator = models[j].animator;
 					Matrix transform = models[j].transform;
 					//graphics.drawModel(model, modelDepthShader, modelAnimDepthShader, animator, transform);
@@ -1298,6 +1304,8 @@ public static class Renderer
 			graphics.draw(shader);
 		}
 
+		Span<Vector4> pointLightPositionBuffer = stackalloc Vector4[8];
+		Span<Vector4> pointLightColorBuffer = stackalloc Vector4[8];
 		if (pointLights.Count > 0)
 		{
 			shader = deferredPointShadowShader;
@@ -1322,14 +1330,14 @@ public static class Renderer
 			int numRemainingLights = Math.Min(pointLights.Count, 8);
 			for (int j = 0; j < numRemainingLights; j++)
 			{
-				lightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
-				lightColorBuffer[j] = new Vector4(pointLights[j].color, 0.0f);
+				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
+				pointLightColorBuffer[j] = new Vector4(pointLights[j].color, 0.0f);
 
 				graphics.setTexture(shader, "s_lightShadowMap" + j, 5 + j, pointLights[j].shadowMap.cubemap);
 			}
 
-			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, 8), lightPositionBuffer);
-			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, 8), lightColorBuffer);
+			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, 8), pointLightPositionBuffer);
+			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, 8), pointLightColorBuffer);
 
 			graphics.draw(shader);
 		}
@@ -1575,6 +1583,9 @@ public static class Renderer
 
 
 		{
+			Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
+			Span<Vector4> pointLightColors = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
+
 			graphics.resetState();
 
 			particleSystems.Sort(ParticleSystemDepthComparator);
@@ -1640,6 +1651,16 @@ public static class Renderer
 				graphics.setInstanceBuffer(particleInstanceBuffer, 0, numParticles);
 				graphics.setVertexBuffer(particleVertexBuffer);
 				graphics.setIndexBuffer(particleIndexBuffer);
+
+				for (int j = 0; j < Math.Min(lights.Count, MAX_LIGHTS_PER_PASS); j++)
+				{
+					pointLightPositions[j] = new Vector4(lights[j].position, 1.0f);
+					pointLightColors[j] = new Vector4(lights[j].color, 1.0f);
+				}
+				graphics.setUniform(particleShader.getUniform("u_pointLight_position", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightPositions);
+				graphics.setUniform(particleShader.getUniform("u_pointLight_color", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightColors);
+				graphics.setUniform(particleShader, "u_lightInfo", new Vector4(lights.Count + 0.5f, 0.0f, 0.0f, 0.0f));
+
 
 				graphics.draw(particleShader);
 			}

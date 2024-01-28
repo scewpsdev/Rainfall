@@ -35,7 +35,6 @@ public class Doorway
 		Matrix doorwayGlobalTransform = room.transform * transform;
 		globalPosition = (Vector3i)Vector3.Floor(doorwayGlobalTransform.translation);
 		globalDirection = (Vector3i)Vector3.Round(doorwayGlobalTransform.rotation.forward);
-
 	}
 }
 

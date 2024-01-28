@@ -11,6 +11,9 @@ internal class SkeletonEnemy : Creature
 	public SkeletonEnemy()
 	{
 		model = Resource.GetModel("res/entity/creature/skeleton/skeleton.gltf");
+		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.renderShadow = false;
+
 		rootNode = model.skeleton.getNode("Root");
 		rightWeaponNode = model.skeleton.getNode("handHold.R");
 		leftWeaponNode = model.skeleton.getNode("handHold.L");

@@ -68,6 +68,7 @@ void main()
 
 	gl_FragColor = vec4(lightS, 1.0);
 	//gl_FragColor = vec4(vec3_splat(textureCube(s_lightShadowMap0, -view).r), 1.0);
+	//gl_FragColor = vec4(vec3_splat(textureCubeLod(s_lightShadowMap0, position - u_lightPosition[0].xyz, 0).r), 1.0);
 
 	if (positionW.a < 0.5)
 		discard;

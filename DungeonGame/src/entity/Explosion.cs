@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 internal class Explosion : Entity
 {
 	const float RANGE = 2.5f;
-	const int DAMAGE = 100;
+	const int DAMAGE = 70;
 	const float EXPLOSION_FORCE = 15.0f;
 
 
@@ -33,7 +33,7 @@ internal class Explosion : Entity
 
 	public override void init()
 	{
-		fireParticles = new ParticleSystem(64);
+		fireParticles = new ParticleSystem(128);
 		fireParticles.transform = getModelMatrix();
 		fireParticles.emissionRate = 128.0f;
 		fireParticles.lifetime = 0.6f;
@@ -42,7 +42,7 @@ internal class Explosion : Entity
 		fireParticles.spawnShape = ParticleSpawnShape.Sphere;
 		fireParticles.spawnRadius = 0.5f;
 		fireParticles.particleSize = 1.0f;
-		fireParticles.textureAtlas = Resource.GetTexture("res/texture/particle/explosion.png");
+		//fireParticles.textureAtlas = Resource.GetTexture("res/texture/particle/explosion.png");
 		//fireParticles.atlasColumns = 1;
 		//fireParticles.frameWidth = 256;
 		//fireParticles.frameHeight = 0;
@@ -53,8 +53,8 @@ internal class Explosion : Entity
 		fireParticles.rotationSpeed = 1.0f;
 		fireParticles.randomVelocity = true;
 
-		fireParticles.particleSizeAnim = new Gradient<float>(1.0f);
-		fireParticles.particleSizeAnim.setValue(1.0f, 0.0f);
+		fireParticles.particleSizeAnim = new Gradient<float>(0.4f, 0.01f);
+		fireParticles.spriteTint = new Vector4(MathHelper.SRGBToLinear(0.965f, 0.604f * 0.8f, 0.329f * 0.8f), 1.0f);
 
 		//fireParticles.emitParticle(Vector3.Zero, 64);
 
@@ -62,18 +62,16 @@ internal class Explosion : Entity
 		dustParticles = new ParticleSystem(32);
 		dustParticles.transform = getModelMatrix();
 		dustParticles.emissionRate = 0.0f;
-		dustParticles.lifetime = 0.5f;
+		dustParticles.lifetime = 1.5f;
 		dustParticles.particleSize = 0.05f;
 		dustParticles.rotationSpeed = 3.0f;
 		dustParticles.randomRotation = true;
 		dustParticles.randomRotationSpeed = true;
-
-		fireParticles.particleSizeAnim = new Gradient<float>(1.0f);
-		fireParticles.particleSizeAnim.setValue(1.0f, 0.0f);
+		dustParticles.spriteTint = new Vector4(0.01f, 0.01f, 0.01f, 1.0f);
 
 		for (int i = 0; i < 12; i++)
 		{
-			dustParticles.emitParticle(Vector3.Zero, new Vector3(MathHelper.RandomFloat(-1.0f, 1.0f), 1.0f, MathHelper.RandomFloat(-1.0f, 1.0f)).normalized * 5.0f);
+			dustParticles.emitParticle(Vector3.Zero, new Vector3(MathHelper.RandomFloat(-1.0f, 1.0f), MathHelper.RandomFloat(-1.0f, 1.0f), MathHelper.RandomFloat(-1.0f, 1.0f)).normalized * 2.5f);
 		}
 
 

@@ -133,24 +133,33 @@ float CalculateDirectionalShadow(vec3 position, float distance, sampler2DShadow 
 
 float CalculatePointShadow(vec3 position, vec3 lightPosition, samplerCube shadowMap)
 {
+	const float SHADOW_MAP_EPSILON = 0.001;
+	const int NUM_SAMPLES = 16;
+	
 	vec3 dir = position - lightPosition;
 	vec3 ad = abs(dir);
 	float fragmentDistance = max(ad.x, max(ad.y, ad.z));
-	float closestDepth = textureCube(shadowMap, dir).r;
+	float fragmentDepth = distanceToDepth(fragmentDistance, 0.1, 30.0);
 
-	float near = 0.1;
-	float far = 30.0;
-	float closestDistance = 2.0 * near * far / (far + near - closestDepth * (far - near));
-
-	float bias = 0.05;
-	return fragmentDistance - bias < closestDistance ? 1.0 : 0.0;
+	float closestDepth = textureCubeLod(shadowMap, dir, 0).r;
+	return fragmentDepth - SHADOW_MAP_EPSILON < closestDepth ? 1.0 : 0.0;
 
 	/*
-	vec3 dir = position - lightPosition;
-	float closestDepth = textureCube(shadowMap, dir).r;
-	float closestDistance = depthToDistance(closestDepth, 0.1, 30.0);
-	float fragmentDistance = length(dir);
-	float bias = 0.05;
-	return fragmentDistance > closestDistance ? 1.0 : 0.0;
+	dir = normalize(dir);
+	vec3 right = vec3(dir.y, dir.z, dir.x);
+	vec3 forward = vec3(dir.z, dir.x, dir.y);
+
+	float result = 0.0;
+	for (int i = 0; i < NUM_SAMPLES; i++)
+	{
+		vec2 sampleStride = 0.02;
+		vec2 sampleOffset = StratifiedPoisson(i) * sampleStride;
+		vec3 sampleVector = dir + sampleOffset.x * right + sampleOffset.y * forward;
+		float closestDepth = textureCubeLod(shadowMap, sampleVector, 0).r;
+		result += fragmentDepth - SHADOW_MAP_EPSILON < closestDepth ? 1.0 : 0.0;
+	}
+	result /= NUM_SAMPLES;
+
+	return result;
 	*/
 }

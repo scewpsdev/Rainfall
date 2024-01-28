@@ -48,7 +48,7 @@ public class Level
 		Audio.SetEffect(AudioEffect.Reverb);
 
 		Renderer.fogColor = new Vector3(1.0f, 1.0f, 1.5f);
-		Renderer.fogIntensity = 0.002f;
+		Renderer.fogIntensity = 0.0001f;
 	}
 
 	/*

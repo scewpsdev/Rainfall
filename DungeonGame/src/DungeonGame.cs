@@ -88,6 +88,12 @@ internal class DungeonGame : Game
 		{
 			GraphicsManager.cinematicMode = !GraphicsManager.cinematicMode;
 		}
+		if (Input.IsKeyPressed(KeyCode.F11))
+		{
+			Display.ToggleFullscreen();
+		}
+
+#if DEBUG
 		if (Input.IsKeyPressed(KeyCode.F9))
 		{
 			Debug.debugWireframeEnabled = !Debug.debugWireframeEnabled;
@@ -96,10 +102,7 @@ internal class DungeonGame : Game
 		{
 			Debug.debugStatsEnabled = !Debug.debugStatsEnabled;
 		}
-		if (Input.IsKeyPressed(KeyCode.F11))
-		{
-			Display.ToggleFullscreen();
-		}
+#endif
 
 		if (Input.IsKeyPressed(KeyCode.KeyP))
 		{
@@ -294,10 +297,14 @@ internal class DungeonGame : Game
 			StringUtils.AppendFloat(str, mem / (float)(1 << 10), 2);
 			StringUtils.AppendString(str, "KB");
 		}
+		else if (mem >= 0)
+		{
+			StringUtils.AppendInteger(str, mem);
+			StringUtils.AppendString(str, "By");
+		}
 		else
 		{
-			StringUtils.AppendFloat(str, mem, 2);
-			StringUtils.AppendString(str, "By");
+			StringUtils.AppendString(str, "0By");
 		}
 	}
 
@@ -321,8 +328,8 @@ internal class DungeonGame : Game
 
 		LaunchParams launchParams = new LaunchParams(args);
 #if DEBUG
-		launchParams.width = 1200;
-		launchParams.height = 600;
+		launchParams.width = 1050;
+		launchParams.height = 500;
 #else
 		launchParams.width = 1600;
 		launchParams.height = 900;

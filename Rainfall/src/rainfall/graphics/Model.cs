@@ -195,6 +195,8 @@ namespace Rainfall
 
 		public readonly Skeleton skeleton;
 
+		public bool renderShadow = true;
+
 
 		internal Model(IntPtr handle)
 		{

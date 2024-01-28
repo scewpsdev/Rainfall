@@ -9,14 +9,14 @@ float remap(float f, float min, float max, float newMin, float newMax)
 
 float depthToDistance(float depth, float near, float far)
 {
-	return 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
+	return 2.0 * near * far / (far + near - depth * (far - near));
 }
 
 float distanceToDepth(float distance, float near, float far)
 {
 	float a = -(far + near) / (far - near);
 	float b = -2.0 * far * near / (far - near);
-	return 0.5 * (-a * distance + b) / distance + 0.5;
+	return (-a * distance + b) / distance;
 }
 
 vec3 SRGBToLinear(vec3 color)

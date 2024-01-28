@@ -67,7 +67,7 @@ public class Action
 	public float animationSpeed = 1.0f;
 
 	public bool[] overrideHandModels = new bool[2];
-	public Model[] handItemModels = new Model[2];
+	public Item[] handItemModels = new Item[2];
 	public bool[] flipHandModels = new bool[2];
 	public string[] handItemAnimations = new string[2];
 

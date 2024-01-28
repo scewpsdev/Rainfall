@@ -33,7 +33,9 @@ internal class Pot : Entity, Hittable
 		}
 
 		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.renderShadow = false;
 		fracturedModel.configureLODs(LOD.DISTANCE_SMALL);
+		fracturedModel.renderShadow = false;
 	}
 
 	public override void init()

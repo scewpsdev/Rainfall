@@ -80,7 +80,7 @@ public static class StringUtils
 		return WriteDigit(dst, StringLength(dst), digit);
 	}
 
-	public static int WriteInteger(Span<byte> dst, int length, int number, int digits = 0)
+	public static int WriteInteger(Span<byte> dst, int length, long number, int digits = 0)
 	{
 		if (number == 0)
 		{
@@ -111,19 +111,19 @@ public static class StringUtils
 		return length;
 	}
 
-	public static int WriteInteger(Span<byte> dst, int number)
+	public static int WriteInteger(Span<byte> dst, long number)
 	{
 		return WriteInteger(dst, 0, number);
 	}
 
-	public static int AppendInteger(Span<byte> dst, int number)
+	public static int AppendInteger(Span<byte> dst, long number)
 	{
 		return WriteInteger(dst, StringLength(dst), number);
 	}
 
 	public static int WriteFloat(Span<byte> dst, int length, float f, int decimalPoints = 6)
 	{
-		int fi = (int)f;
+		long fi = (long)f;
 		if (fi == 0 && f < 0.0f)
 			length = WriteCharacter(dst, length, '-');
 		length = WriteInteger(dst, length, fi);

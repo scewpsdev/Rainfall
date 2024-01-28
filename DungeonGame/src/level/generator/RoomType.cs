@@ -492,12 +492,12 @@ public class FinalRoom : RoomType
 		room.addEntity(boss, room.transform.translation + 0.5f * bossRoomSize, Quaternion.Identity);
 		room.addEntity(new BossRegion(new Vector3(bossRoomSize.x, bossRoomSize.y, bossRoomSize.z - 1), boss), room.transform.translation, Quaternion.Identity);
 
-		for (int z = -1; z < 2; z++)
+		for (int z = 0; z < 2; z++)
 		{
-			for (int x = -1; x < 2; x++)
+			for (int x = 0; x < 2; x++)
 			{
-				Vector3 position = room.transform.translation + new Vector3(bossRoomSize.x * 0.5f + x * 10, bossRoomSize.y * 0.75f, bossRoomSize.z * 0.5f + z * 10);
-				room.addEntity(new LightObject(new Vector3(1.0f, 0.5f, 0.2f) * 4), position, Quaternion.Identity);
+				Vector3 position = room.transform.translation + new Vector3(bossRoomSize.x * 0.5f * x + bossRoomSize.x * 0.25f, bossRoomSize.y * 0.75f, bossRoomSize.z * 0.5f * z + bossRoomSize.z * 0.25f);
+				room.addEntity(new LightObject(new Vector3(1.0f, 0.5f, 0.2f) * 200), position, Quaternion.Identity);
 			}
 		}
 
@@ -668,20 +668,20 @@ public class PotRoom : RoomType
 
 		foreach (Doorway doorway in room.doorways)
 		{
-			if (doorway.spawnDoor && !doorway.secret)
+			if (!doorway.secret)
 			{
 				// Wall torches
 
 				Matrix globalTransform = room.transform * doorway.transform;
 
-				bool spawnLeftTorch = random.Next() % 3 == 1;
+				bool spawnLeftTorch = random.Next() % 2 == 1;
 				if (spawnLeftTorch)
 				{
 					Matrix torchTransform = globalTransform * Matrix.CreateTranslation(-2.0f, 1.8f, 0.5f);
 					room.addEntity(new WallTorch(), torchTransform.translation, torchTransform.rotation);
 				}
 
-				bool spawnRightTorch = random.Next() % 3 == 1;
+				bool spawnRightTorch = random.Next() % 2 == 1;
 				if (spawnRightTorch)
 				{
 					Matrix torchTransform = globalTransform * Matrix.CreateTranslation(2.0f, 1.8f, 0.5f);
@@ -916,6 +916,32 @@ public class LibraryRoom : RoomType
 				}
 			}
 		}
+		
+		/*
+		foreach (Doorway doorway in room.doorways)
+		{
+			if (!doorway.secret)
+			{
+				// Wall torches
+
+				Matrix globalTransform = room.transform * doorway.transform;
+
+				bool spawnLeftTorch = random.Next() % 2 == 1;
+				if (spawnLeftTorch)
+				{
+					Matrix torchTransform = globalTransform * Matrix.CreateTranslation(-2.0f, 1.8f, 0.5f);
+					room.addEntity(new WallTorch(), torchTransform.translation, torchTransform.rotation);
+				}
+
+				bool spawnRightTorch = random.Next() % 2 == 1;
+				if (spawnRightTorch)
+				{
+					Matrix torchTransform = globalTransform * Matrix.CreateTranslation(2.0f, 1.8f, 0.5f);
+					room.addEntity(new WallTorch(), torchTransform.translation, torchTransform.rotation);
+				}
+			}
+		}
+		*/
 	}
 }
 

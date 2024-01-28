@@ -65,7 +65,7 @@ public class Player : Entity
 
 	const float CAMERA_HEIGHT_STANDING = 1.6f;
 	const float CAMERA_HEIGHT_DUCKED = 1.0f;
-	public const float DEFAULT_VIEWMODEL_SCALE = 1.0f;
+	public const float DEFAULT_VIEWMODEL_SCALE = 0.25f;
 
 	const float STEP_FREQUENCY = 0.8f;
 	const float FALL_IMPACT_MIN_SPEED = -3.0f;
@@ -229,6 +229,8 @@ public class Player : Entity
 		setCursorLocked(true);
 
 		viewmodel = Resource.GetModel("res/entity/player/viewmodel.gltf");
+		viewmodel.renderShadow = false;
+
 		rootNode = viewmodel.skeleton.getNode("Root");
 		spine03Node = viewmodel.skeleton.getNode("spine_03");
 		neckNode = viewmodel.skeleton.getNode("neck_01");
@@ -278,8 +280,8 @@ public class Player : Entity
 		//giveItem(Item.Get("magic_arrow"), 1);
 		//giveItem(Item.Get("homing_orbs"), 1);
 		//giveItem(Item.Get("torch"), 1);
-		//giveItem(Item.Get("longbow"));
-		//giveItem(Item.Get("arrow"), 50);
+		giveItem(Item.Get("longbow"));
+		giveItem(Item.Get("arrow"), 50);
 		//giveItem(Item.Get("flask"), 3);
 
 		//giveItem(Item.Get("leather_chestplate"));
@@ -1564,9 +1566,9 @@ public class Player : Entity
 			animator1.setStateIfNot(movementState1);
 			moveAnimator.setStateIfNot(movementState2);
 
-			animator0.setTimer(movementAnimationTimerLooping);
-			animator1.setTimer(movementAnimationTimerLooping);
-			moveAnimator.setTimer(movementAnimationTimerLooping);
+			if (movementState0 != idleState[0]) animator0.setTimer(movementAnimationTimerLooping);
+			if (movementState1 != idleState[1]) animator1.setTimer(movementAnimationTimerLooping);
+			if (movementState2 != idleState[2]) moveAnimator.setTimer(movementAnimationTimerLooping);
 		}
 
 
@@ -1659,23 +1661,41 @@ public class Player : Entity
 			moveAnimator.setNodeLocalTransform(neckNode, newNeckTransform);
 		}
 		{
+			Item rightItem = getHandItem(0);
+			float pitchFactor = rightItem != null ? rightItem.pitchFactor : 1.0f;
+
+			Matrix viewmodelTransform_ = neckTransform
+			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, 0.0f)
+			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
+			* Matrix.CreateRotation(Vector3.Right, -(-pitch * 0.5f + pitch * pitchFactor) + viewmodelSwayPitch)
+			* neckTransform.inverted;
+
 			Matrix spineNodeTransform = moveAnimator.getNodeLocalTransform(clavicleRNode);
 			//Vector3 spineNodePosition = spineNodeTransform.translation;
 			//Quaternion spineNodeRotation = spineNodeTransform.rotation;
 			//spineNodePosition += viewmodelOffset;
 			//spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			//spineNodeTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
-			spineNodeTransform = viewmodelTransform * spineNodeTransform;
+			spineNodeTransform = viewmodelTransform_ * spineNodeTransform;
 			moveAnimator.setNodeLocalTransform(clavicleRNode, spineNodeTransform);
 		}
 		{
+			Item leftItem = getHandItem(1);
+			float pitchFactor = leftItem != null ? leftItem.pitchFactor : 1.0f;
+
+			Matrix viewmodelTransform_ = neckTransform
+			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, 0.0f)
+			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
+			* Matrix.CreateRotation(Vector3.Right, -(-pitch * 0.5f + pitch * pitchFactor) + viewmodelSwayPitch)
+			* neckTransform.inverted;
+
 			Matrix spineNodeTransform = moveAnimator.getNodeLocalTransform(clavicleLNode);
 			//Vector3 spineNodePosition = spineNodeTransform.translation;
 			//Quaternion spineNodeRotation = spineNodeTransform.rotation;
 			//spineNodePosition += viewmodelOffset;
 			//spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			//spineNodeTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
-			spineNodeTransform = viewmodelTransform * spineNodeTransform;
+			spineNodeTransform = viewmodelTransform_ * spineNodeTransform;
 			moveAnimator.setNodeLocalTransform(clavicleLNode, spineNodeTransform);
 		}
 		{
@@ -1774,6 +1794,47 @@ public class Player : Entity
 			* Matrix.CreateRotation(Quaternion.FromAxisAngle(Vector3.Up, MathF.PI))
 			* moveAnimator.getNodeTransform(itemNode, 0);
 		return transform;
+	}
+
+	Item getHandItem(int handID)
+	{
+		if (currentAction != null)
+		{
+			if (currentAction.overrideHandModels[handID])
+				return currentAction.handItemModels[handID];
+		}
+
+		Item item = inventory.getSelectedHandItem(handID);
+		Item otherItem = inventory.getSelectedHandItem(handID ^ 1);
+
+		if (item != null)
+		{
+			if ((otherItem == null || !isTwoHanded(handID ^ 1)) || isTwoHanded(handID) && otherItem != null && isTwoHanded(handID ^ 1) && handID == 0)
+			{
+				return item;
+			}
+			else if (!isTwoHanded(handID) && otherItem != null && isTwoHanded(handID ^ 1) || isTwoHanded(handID) && otherItem != null && isTwoHanded(handID ^ 1) && handID == 1)
+			{
+				return otherItem;
+			}
+			else
+			{
+				Debug.Assert(!isTwoHanded(handID) && (otherItem == null || !isTwoHanded(handID ^ 1)));
+
+				return item;
+			}
+		}
+		else
+		{
+			if (otherItem != null && isTwoHanded(handID ^ 1))
+			{
+				return otherItem;
+			}
+			else
+			{
+				return null;
+			}
+		}
 	}
 
 	bool isTwoHanded(int handID)
@@ -2146,10 +2207,11 @@ public class Player : Entity
 		Renderer.DrawModel(viewmodel, transform, moveAnimator);
 
 		// Camera light
-		//if (!inventory.hasItemEquipped(Item.Get("torch")))
-			//Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
-		//else
-		//	Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
+		if (inventory.hasItemInOffhand(Item.Get("torch")))
+			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 2.0f);
+		//Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
+		else
+			Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
 
 		handEntities[0].draw(graphics);
 		handEntities[1].draw(graphics);

@@ -27,7 +27,7 @@ internal class ConsumableUseAction : Action
 		mirrorAnimation = handID == 1;
 
 		overrideHandModels[handID] = true;
-		handItemModels[handID] = item.model;
+		handItemModels[handID] = item;
 
 		followUpCancelTime = item.consumableFollowUpTime;
 

@@ -39,7 +39,7 @@ internal class Firebomb : Entity
 	public override void init()
 	{
 		body = new RigidBody(this, RigidBodyType.Kinematic);
-		body.addBoxTrigger(new Vector3(0.02f, 0.02f, 0.8f), new Vector3(0.0f, 0.0f, 0.0f), Quaternion.Identity);
+		body.addSphereTrigger(0.35f, Vector3.Zero);
 	}
 
 	public override void destroy()

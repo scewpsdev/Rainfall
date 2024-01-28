@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 internal class HomingOrb : Projectile
 {
-	const float SPEED = 4.0f;
+	const float SPEED = 7.0f;
 
 
 	Player player;
@@ -19,7 +19,7 @@ internal class HomingOrb : Projectile
 	{
 		this.player = player;
 
-		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
+		model = Resource.GetModel("res/entity/projectile/magic_orb_small/magic_orb_small.gltf");
 		unsafe
 		{
 			model.sceneDataHandle->materials[0].emissiveStrength = 200;
@@ -45,7 +45,7 @@ internal class HomingOrb : Projectile
 		velocity = Vector3.Lerp(velocity, newVelocity, 1.0f * Time.deltaTime);
 
 		Vector3 projectedPosition = player.lookOrigin + Vector3.Dot(position - player.lookOrigin, player.lookDirection) / Vector3.Dot(player.lookDirection, player.lookDirection) * player.lookDirection;
-		velocity += (projectedPosition - position) * 8.0f * Time.deltaTime;
+		velocity += (projectedPosition - position).normalized * 8.0f * Time.deltaTime;
 
 		base.update();
 	}
@@ -53,6 +53,6 @@ internal class HomingOrb : Projectile
 	public override void draw(GraphicsDevice graphics)
 	{
 		base.draw(graphics);
-		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 2);
+		Renderer.DrawLight(position, new Vector3(0.229f, 0.26f, 1.0f) * 5);
 	}
 }

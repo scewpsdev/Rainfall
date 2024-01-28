@@ -12,7 +12,7 @@ internal class BowDrawAction : Action
 		: base(ActionType.BowDraw)
 	{
 		overrideHandModels[handID ^ 1] = true;
-		handItemModels[handID ^ 1] = Item.Get("arrow").model;
+		handItemModels[handID ^ 1] = Item.Get("arrow");
 		flipHandModels[handID ^ 1] = true;
 
 		handItemAnimations[handID] = "draw";

@@ -151,6 +151,7 @@ public class Item
 	public Model model;
 	public Texture icon;
 	public Model moveset;
+	public float pitchFactor = 1.0f;
 
 	public List<ItemLight> lights = new List<ItemLight>();
 	public List<Collider> colliders = new List<Collider>();
@@ -427,11 +428,15 @@ public class Item
 		{
 			item.model = Resource.GetModel(directory + "/" + modelFile);
 			item.model.configureLODs(LOD.DISTANCE_SMALL);
+			item.model.renderShadow = false;
 		}
 		if (file.getStringContent("moveset", out string movesetFile))
 			item.moveset = Resource.GetModel(directory + "/" + movesetFile);
 		if (file.getStringContent("icon", out string iconFile))
 			item.icon = Resource.GetTexture(directory + "/" + iconFile);
+
+		if (file.getNumber("pitchFactor", out float pitchFactor))
+			item.pitchFactor = pitchFactor;
 
 
 		if (file.getVector2("inventorySize", out Vector2 inventorySize))

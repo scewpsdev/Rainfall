@@ -219,7 +219,7 @@ public class ItemEntity
 	{
 		if (player.currentAction != null && player.currentAction.overrideHandModels[handID])
 		{
-			currentModel = player.currentAction.handItemModels[handID];
+			currentModel = player.currentAction.handItemModels[handID]?.model;
 			flipTransform = player.currentAction.flipHandModels[handID];
 		}
 		else
