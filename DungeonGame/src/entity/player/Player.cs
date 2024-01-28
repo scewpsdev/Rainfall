@@ -229,7 +229,7 @@ public class Player : Entity
 		setCursorLocked(true);
 
 		viewmodel = Resource.GetModel("res/entity/player/viewmodel.gltf");
-		viewmodel.renderShadow = false;
+		viewmodel.isStatic = false;
 
 		rootNode = viewmodel.skeleton.getNode("Root");
 		spine03Node = viewmodel.skeleton.getNode("spine_03");
@@ -280,8 +280,8 @@ public class Player : Entity
 		//giveItem(Item.Get("magic_arrow"), 1);
 		//giveItem(Item.Get("homing_orbs"), 1);
 		//giveItem(Item.Get("torch"), 1);
-		giveItem(Item.Get("longbow"));
-		giveItem(Item.Get("arrow"), 50);
+		//giveItem(Item.Get("longbow"));
+		//giveItem(Item.Get("arrow"), 50);
 		//giveItem(Item.Get("flask"), 3);
 
 		//giveItem(Item.Get("leather_chestplate"));

@@ -195,7 +195,7 @@ namespace Rainfall
 
 		public readonly Skeleton skeleton;
 
-		public bool renderShadow = true;
+		public bool isStatic = true;
 
 
 		internal Model(IntPtr handle)

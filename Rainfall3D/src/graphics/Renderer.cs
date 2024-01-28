@@ -1027,7 +1027,7 @@ public static class Renderer
 				for (int j = 0; j < models.Count; j++)
 				{
 					Model model = models[j].model;
-					if (!model.renderShadow)
+					if (!model.isStatic)
 						continue;
 
 					Animator animator = models[j].animator;
@@ -1086,7 +1086,7 @@ public static class Renderer
 				for (int j = 0; j < models.Count; j++)
 				{
 					Model model = models[j].model;
-					if (!model.renderShadow)
+					if (!model.isStatic)
 						continue;
 
 					Animator animator = models[j].animator;
@@ -1141,6 +1141,9 @@ public static class Renderer
 					// TODO frustum culling
 					for (int k = 0; k < models.Count; k++)
 					{
+						if (!models[k].model.isStatic)
+							continue;
+
 						for (int l = 0; l < models[k].model.meshCount; l++)
 						{
 							graphics.setCullState(CullState.CounterClockWise);

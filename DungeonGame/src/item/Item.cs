@@ -428,7 +428,7 @@ public class Item
 		{
 			item.model = Resource.GetModel(directory + "/" + modelFile);
 			item.model.configureLODs(LOD.DISTANCE_SMALL);
-			item.model.renderShadow = false;
+			item.model.isStatic = false;
 		}
 		if (file.getStringContent("moveset", out string movesetFile))
 			item.moveset = Resource.GetModel(directory + "/" + movesetFile);
