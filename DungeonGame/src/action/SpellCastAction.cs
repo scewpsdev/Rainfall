@@ -37,6 +37,8 @@ internal class SpellCastAction : Action
 			animationSet[handID] = spell.moveset;
 		}
 
+		mirrorAnimation = handID == 1;
+
 		movementSpeedMultiplier = 0.5f;
 	}
 

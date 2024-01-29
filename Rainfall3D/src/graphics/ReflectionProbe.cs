@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 public class ReflectionProbe
 {
-	public readonly Vector3 position;
-	public readonly Vector3 size;
-	public readonly Vector3 origin;
+	public Vector3 position;
+	public Vector3 size;
+	public Vector3 origin;
 
 	internal Cubemap cubemap;
 	internal Cubemap cubemapDepth;
@@ -36,5 +36,10 @@ public class ReflectionProbe
 				new RenderTargetAttachment(cubemapDepth, i, false)
 			});
 		}
+	}
+
+	public void updateReflections()
+	{
+		needsUpdate = true;
 	}
 }

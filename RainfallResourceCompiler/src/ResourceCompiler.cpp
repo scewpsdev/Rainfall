@@ -174,7 +174,7 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 				normal = true;
 				mipmaps = true;
 			}
-			else if (name.find("occlusionroughnessmetallic") != std::string::npos)
+			else if (name.find("roughnessmetallic") != std::string::npos)
 			{
 				format = "BC3";
 				linear = true;

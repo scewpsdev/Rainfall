@@ -73,6 +73,8 @@ public class ItemEntity
 				}
 			}
 
+			hitbox.addSphereTrigger(0.2f, Vector3.Zero);
+
 			animator = new Animator(item.model);
 			animator.setState(new AnimationState(item.model, "default"));
 		}

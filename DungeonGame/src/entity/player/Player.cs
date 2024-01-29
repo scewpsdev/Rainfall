@@ -1021,8 +1021,8 @@ public class Player : Entity
 							}
 
 							if (currentAction == null && (
-								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) == null || !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
-								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) == null || !inventory.getSelectedHandItem(0).hasPrimaryAction)
+								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) != null && !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
+								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) != null && !inventory.getSelectedHandItem(0).hasPrimaryAction)
 							))
 							{
 								queueAction(new ShieldStanceAction(handItem, handID, isTwoHanded(handID)));

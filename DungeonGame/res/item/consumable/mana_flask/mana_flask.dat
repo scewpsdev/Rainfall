@@ -25,7 +25,7 @@ icon: "mana_flask_icon.png"
 description: "Mmh. Actimel."
 
 consumableUseTime = 19
-consumableManaRechargeAmount = 60
+consumableManaRechargeAmount = 120
 consumableManaRechargeDuration = 1.0
 //consumableFollowUpTime = 2.1
 //consumableFollowUpStart = 1.0

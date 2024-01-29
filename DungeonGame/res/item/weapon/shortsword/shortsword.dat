@@ -47,18 +47,18 @@ attacks: [
 		type: light
 		index: 0
 		animName: attack_light1
-		damageFramesStart: 5
-		damageFramesEnd: 9
-		followUpCancelFrame: 14
+		damageFramesStart: 8
+		damageFramesEnd: 15
+		followUpCancelFrame: 21
 		staminaCost: 3.5
 	},
 	{
 		type: light
 		index: 1
 		animName: attack_light2
-		damageFramesStart: 5
-		damageFramesEnd: 9
-		followUpCancelFrame: 14
+		damageFramesStart: 8
+		damageFramesEnd: 15
+		followUpCancelFrame: 21
 		staminaCost: 3.5
 	},
 	{
@@ -66,8 +66,8 @@ attacks: [
 		index = 0
 		animName = attack_heavy1
 		damageFramesStart = 13
-		damageFramesEnd = 18
-		followUpCancelFrame = 25
+		damageFramesEnd = 21
+		followUpCancelFrame = 28
 		staminaCost = 5.5
 		damageMultiplier = 1.5
 	},

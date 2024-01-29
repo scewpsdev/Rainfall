@@ -916,7 +916,7 @@ public class LibraryRoom : RoomType
 				}
 			}
 		}
-		
+
 		/*
 		foreach (Doorway doorway in room.doorways)
 		{

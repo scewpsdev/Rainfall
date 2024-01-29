@@ -71,7 +71,6 @@ void main()
 	vec3 final = ambient + emissive;
 
 	gl_FragColor = vec4(final, 1.0);
-	//gl_FragColor = vec4(0.0, roughness, metallic, 1.0);
 
 	if (positionW.a < 0.5)
 		discard;
