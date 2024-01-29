@@ -371,6 +371,7 @@ public class StartingRoom : RoomType
 			Vector3 position = room.transform * new Vector3(1, 0, 1.5f);
 			Quaternion rotation = room.transform.rotation * Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f);
 
+			/*
 			// Starting equipment chest
 			Chest chest = new Chest();
 			chest.addItem(Item.Get("shortsword"));
@@ -382,6 +383,7 @@ public class StartingRoom : RoomType
 			//chest.addItem(Item.Get("flask"), 2);
 			//chest.addItem(Item.Get("firebomb"), 10);
 			room.addEntity(chest, position, rotation);
+			*/
 
 			level.spawnPoint = room.transform * Matrix.CreateTranslation(2.5f, 0.0f, 12.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 		}
@@ -411,6 +413,9 @@ public class StartingRoom : RoomType
 
 			Matrix keyTransform = room.transform * Matrix.CreateTranslation(0.65f, 0.0f, 13.2f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.6f) * Matrix.CreateRotation(Vector3.Right, MathF.PI * -0.5f);
 			room.addEntity(new ItemPickup(Item.Get("key_cell")), keyTransform);
+
+			Matrix brokenSwordTransform = room.transform * Matrix.CreateTranslation(0.65f, 0.0f, 11.8f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.6f) * Matrix.CreateRotation(Vector3.Right, MathF.PI * -0.5f);
+			room.addEntity(new ItemPickup(Item.Get("broken_sword")), brokenSwordTransform);
 		}
 		{
 			Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
@@ -534,15 +539,16 @@ public class MainRoom : RoomType
 			Vector3 position = room.transform * new Vector3(18.5f, 16, 1);
 			Quaternion rotation = room.transform.rotation;
 			Chest chest = new Chest();
+			generator.itemContainers.Add(chest.container);
 			//chest.addItem(Item.Get("longsword"));
-			chest.addItem(Item.Get("longbow"));
-			chest.addItem(Item.Get("arrow"), 8);
-			chest.addItem(Item.Get("oak_staff"));
-			chest.addItem(Item.Get("magic_arrow"));
-			chest.addItem(Item.Get("homing_orbs"));
-			chest.addItem(Item.Get("magic_orb"));
-			chest.addItem(Item.Get("mana_flask"));
-			chest.addItem(Item.Get("map"));
+			//chest.addItem(Item.Get("longbow"));
+			//chest.addItem(Item.Get("arrow"), 8);
+			//chest.addItem(Item.Get("oak_staff"));
+			//chest.addItem(Item.Get("magic_arrow"));
+			//chest.addItem(Item.Get("homing_orbs"));
+			//chest.addItem(Item.Get("magic_orb"));
+			//chest.addItem(Item.Get("mana_flask"));
+			//chest.addItem(Item.Get("map"));
 			room.addEntity(chest, position, rotation);
 		}
 
@@ -632,7 +638,9 @@ public class PotRoom : RoomType
 							Quaternion rotation = Quaternion.FromAxisAngle(Vector3.Up, random.NextSingle() * MathF.PI * 2);
 
 							Crate crate = new Crate();
+							generator.itemContainers.Add(crate.container);
 
+							/*
 							float flaskDropChance = 0.05f;
 							if (random.NextSingle() < flaskDropChance)
 								crate.container.addItem(Item.Get("flask"));
@@ -648,6 +656,7 @@ public class PotRoom : RoomType
 							float arrowChance = 0.05f;
 							if (random.NextSingle() < arrowChance)
 								crate.container.addItem(Item.Get("arrow"), MathHelper.RandomInt(3, 7));
+							*/
 
 							level.addEntity(crate, position, rotation);
 						}
@@ -770,10 +779,11 @@ public class LibraryRoom : RoomType
 			room.addEntity(new BookShelf(items.ToArray(), amounts.ToArray(), random), position, rotation);
 	}
 
-	void placeChest(Room room, Vector3 position, Vector3i direction, Random random)
+	void placeChest(Room room, Vector3 position, Vector3i direction, LevelGenerator generator, Random random)
 	{
 		Quaternion rotation = Quaternion.LookAt((Vector3)direction);
 
+		/*
 		List<Item> items = new List<Item>();
 		List<int> amounts = new List<int>();
 
@@ -815,6 +825,11 @@ public class LibraryRoom : RoomType
 		}
 
 		room.addEntity(new Chest(items.ToArray(), amounts.ToArray()), position, rotation);
+		*/
+
+		Chest chest = new Chest();
+		generator.itemContainers.Add(chest.container);
+		room.addEntity(chest, position, rotation);
 	}
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
@@ -841,7 +856,7 @@ public class LibraryRoom : RoomType
 						bool spawnChest = random.Next() % 10 == 0;
 						if (spawnChest)
 						{
-							placeChest(room, position, Vector3i.Left, random);
+							placeChest(room, position, Vector3i.Left, generator, random);
 						}
 					}
 				}
@@ -863,7 +878,7 @@ public class LibraryRoom : RoomType
 						bool spawnChest = random.Next() % 10 == 0;
 						if (spawnChest)
 						{
-							placeChest(room, position, Vector3i.Right, random);
+							placeChest(room, position, Vector3i.Right, generator, random);
 						}
 					}
 				}
@@ -888,7 +903,7 @@ public class LibraryRoom : RoomType
 						bool spawnChest = random.Next() % 10 == 0;
 						if (spawnChest)
 						{
-							placeChest(room, position, Vector3i.Forward, random);
+							placeChest(room, position, Vector3i.Forward, generator, random);
 						}
 					}
 				}
@@ -910,7 +925,7 @@ public class LibraryRoom : RoomType
 						bool spawnChest = random.Next() % 10 == 0;
 						if (spawnChest)
 						{
-							placeChest(room, position, Vector3i.Back, random);
+							placeChest(room, position, Vector3i.Back, generator, random);
 						}
 					}
 				}

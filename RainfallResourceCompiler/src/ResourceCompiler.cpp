@@ -213,7 +213,7 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 			else
 			{
 				format = "BGRA8";
-				//linear = true;
+				linear = true;
 			}
 
 			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), format.c_str(), linear, normal, mipmaps);

@@ -304,6 +304,12 @@ public class HUD
 
 	void renderMinimap()
 	{
+		const uint BACKGROUND_COLOR = 0xFFD3B48B;
+		const uint PLAYER_COLOR = 0xFFFF0000;
+		const uint ROOM_COLOR = 0xFF685A49;
+		const uint CORRIDOR_COLOR = 0xFF685A49;
+		const uint CORRIDOR_ASTAR_COLOR = 0xFF685A49;
+
 		Level level = DungeonGame.instance.level;
 
 		if (minimap == null)
@@ -321,15 +327,15 @@ public class HUD
 			{
 				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, playerY + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
 				bool roomExplored = DungeonGame.instance.gameManager.exploredRooms.Contains(tile);
-				uint color = 0xFF000000;
+				uint color = BACKGROUND_COLOR;
 
 				if (x == playerPos.x && z == playerPos.z)
-					color = 0xFFFF0000;
+					color = PLAYER_COLOR;
 				else if (tile != 0 && roomExplored)
 				{
 					if (tile / 100 == 0xFF) // if astar corridor
 					{
-						color = 0xFF444444;
+						color = CORRIDOR_ASTAR_COLOR;
 					}
 					else
 					{
@@ -337,9 +343,9 @@ public class HUD
 						if (type != null)
 						{
 							if (type.sectorType == SectorType.Room)
-								color = 0xFF111111;
+								color = ROOM_COLOR;
 							else
-								color = 0xFF444444;
+								color = CORRIDOR_COLOR;
 						}
 						else
 						{
@@ -372,10 +378,36 @@ public class HUD
 
 		graphics.setTextureData(minimap, 0, 0, minimap.width, minimap.height, minimapPixels);
 
-		int scale = 2;
-		int xx = Display.viewportSize.x - minimap.width * scale - 40;
+		int width = 64;
+		int height = 64;
+		int scale = 3;
+		int xx = Display.viewportSize.x - width * scale - 50;
 		int yy = 50;
-		Renderer.DrawUITexture(xx, yy, minimap.width * scale, minimap.height * scale, minimap);
+		int u0 = playerPos.x - width / 2;
+		int u1 = playerPos.x + width / 2;
+		int v0 = playerPos.z - height / 2;
+		int v1 = playerPos.z + height / 2;
+		if (u0 < 0)
+		{
+			u1 -= u0;
+			u0 = 0;
+		}
+		else if (u1 > minimap.width)
+		{
+			u0 -= u1 - minimap.width;
+			u1 = minimap.width;
+		}
+		if (v0 < 0)
+		{
+			v1 -= v0;
+			v0 = 0;
+		}
+		else if (v1 > minimap.height)
+		{
+			v0 -= v1 - minimap.height;
+			v1 = minimap.height;
+		}
+		Renderer.DrawUITexture(xx, yy, width * scale, height * scale, minimap, u0, v0, u1, v1, 0xFFFFFFFF);
 	}
 
 	public void draw(GraphicsDevice graphics)

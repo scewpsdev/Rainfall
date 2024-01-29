@@ -273,9 +273,15 @@ public class Item
 		get => category == ItemCategory.Weapon || category == ItemCategory.Shield || category == ItemCategory.Consumable;
 	}
 
+	public bool hasSecondaryAction
+	{
+		get => category == ItemCategory.Weapon;
+	}
+
 
 	static Dictionary<int, Item> items = new Dictionary<int, Item>();
 	static Dictionary<string, Item> nameMap = new Dictionary<string, Item>();
+	static Dictionary<ItemCategory, List<Item>> categoryMap = new Dictionary<ItemCategory, List<Item>>();
 
 
 	static Vector3 ParseVector3(DatValue value)
@@ -768,6 +774,10 @@ public class Item
 		Debug.Assert(!items.ContainsKey(item.id) && !nameMap.ContainsKey(item.name));
 		items.Add(item.id, item);
 		nameMap.Add(item.name, item);
+
+		if (!categoryMap.ContainsKey(item.category))
+			categoryMap.Add(item.category, new List<Item>());
+		categoryMap[item.category].Add(item);
 	}
 
 	public static void LoadContent()
@@ -779,6 +789,7 @@ public class Item
 		Load("weapon", "shortsword");
 		//Load("weapon", "dagger");
 		Load("weapon", "axe");
+		Load("weapon", "broken_sword");
 
 		Load("weapon", "longbow");
 
@@ -816,6 +827,16 @@ public class Item
 	{
 		if (nameMap.ContainsKey(name))
 			return nameMap[name];
+		return null;
+	}
+
+	public static Item GetItemByCategory(ItemCategory category, Random random)
+	{
+		if (categoryMap.ContainsKey(category))
+		{
+			List<Item> items = categoryMap[category];
+			return items[random.Next() % items.Count];
+		}
 		return null;
 	}
 }

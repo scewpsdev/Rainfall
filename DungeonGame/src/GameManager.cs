@@ -46,8 +46,7 @@ public class GameManager
 			}
 		}
 
-		if (player.inventory.findItem(Item.Get("map")) != null)
-			mapUnlocked = true;
+		mapUnlocked = player.inventory.findItem(Item.Get("map")) != null;
 		int currentRoomID = level.getRoomIDAtPos(player.position);
 		exploredRooms.Add(currentRoomID);
 	}

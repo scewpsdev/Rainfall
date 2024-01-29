@@ -70,7 +70,7 @@ internal class SkeletonEnemy : Creature
 
 		ai = new EnemyAI(this);
 
-		itemDrops.Add(new ItemDrop(Item.Get("flask").id, 1, 0.1f));
+		//itemDrops.Add(new ItemDrop(Item.Get("flask").id, 1, 0.1f));
 
 		hitSound = new Sound[] {
 			Resource.GetSound("res/entity/creature/skeleton/sfx/hit.ogg")

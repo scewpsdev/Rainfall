@@ -13,7 +13,7 @@ internal class DodgeAction : Action
 	const float DODGE_DISTANCE = 2.0f;
 	const float MAX_DODGE_SPEED = 2 * DODGE_DISTANCE / DODGE_DURATION - Player.MAX_GROUND_SPEED;
 
-	const float STAMINA_COST = 5.5f;
+	const float STAMINA_COST = 3.0f;
 
 
 	public DodgeAction(Vector3 fsu)

@@ -86,16 +86,16 @@ public class PlayerStats
 	const float SPRINT_STAMINA_COST = 4.0f;
 
 
-	public int maxHealth = 150;
-	public int health = 50;
+	public int maxHealth = 80;
+	public int health = 80;
 	float bufferedHealth = 0.0f;
 
-	public float maxStamina = 20.0f;
-	public float stamina = 20.0f;
+	public float maxStamina = 12.0f;
+	public float stamina = 12.0f;
 	float staminaPenaltyTimer = -1.0f;
 
-	public int maxMana = 200;
-	public int mana = 200;
+	public int maxMana = 80;
+	public int mana = 80;
 
 	public int xp = 0;
 
@@ -139,6 +139,8 @@ public class PlayerStats
 	public void consumeStamina(float amount)
 	{
 		stamina = Math.Max(stamina - amount, STAMINA_DRAIN_MIN_VALUE);
+		//if (stamina <= 0.0f)
+		//	player.audioAction.playSoundOrganic(player.sfxExhaust, 0.5f, 1.0f, 0.2f, 0.1f);
 	}
 
 	public void consumeMana(int amount)

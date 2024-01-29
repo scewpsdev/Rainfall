@@ -85,6 +85,7 @@ public class Player : Entity
 	public AudioSource audioMovement, audioAction;
 	Sound[] sfxStep;
 	Sound sfxJump, sfxLand;
+	public Sound sfxExhaust;
 
 	ParticleSystem hitParticles;
 	Sound sfxHit;
@@ -207,6 +208,7 @@ public class Player : Entity
 		*/
 		sfxJump = Resource.GetSound("res/entity/player/sfx/step_jump.ogg");
 		sfxLand = Resource.GetSound("res/entity/player/sfx/step_land.ogg");
+		sfxExhaust = Resource.GetSound("res/entity/player/sfx/exhaust.ogg");
 
 		hitParticles = new ParticleSystem(1000);
 		hitParticles.emissionRate = 0.0f;
@@ -266,6 +268,8 @@ public class Player : Entity
 		handEntities[1] = new ItemEntity(this, 1);
 
 		yaw = rotation.eulers.y;
+
+		giveItem(Item.Get("map"), 1);
 
 		//onItemPickup(Item.Get("axe"), 1);
 		//onItemPickup(Item.Get("shortsword"), 1);
@@ -1021,8 +1025,8 @@ public class Player : Entity
 							}
 
 							if (currentAction == null && (
-								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) != null && !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
-								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) != null && !inventory.getSelectedHandItem(0).hasPrimaryAction)
+								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) == null || !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
+								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) == null || !inventory.getSelectedHandItem(0).hasPrimaryAction)
 							))
 							{
 								queueAction(new ShieldStanceAction(handItem, handID, isTwoHanded(handID)));
@@ -1246,8 +1250,8 @@ public class Player : Entity
 				}
 				else
 				{
-					if (handID == 0 && InputManager.IsPressed("Action0") ||
-						handID == 1 && InputManager.IsPressed("Action1"))
+					if (handID == 0 && InputManager.IsPressed("Action0") && (inventory.getSelectedHandItem(1) != null && !inventory.getSelectedHandItem(1).hasSecondaryAction) ||
+						handID == 1 && InputManager.IsPressed("Action1") && (inventory.getSelectedHandItem(0) != null && !inventory.getSelectedHandItem(0).hasSecondaryAction))
 					{
 						AttackType attackType = AttackType.Light;
 						if (InputManager.IsDown("ActionModifier") && fistItem.getNumAttacksForType(AttackType.Heavy) > 0)
@@ -2209,9 +2213,9 @@ public class Player : Entity
 		// Camera light
 		if (inventory.hasItemInOffhand(Item.Get("torch")))
 			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 2.0f);
-		//Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
 		else
-			Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
+			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
+		//Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
 
 		handEntities[0].draw(graphics);
 		handEntities[1].draw(graphics);

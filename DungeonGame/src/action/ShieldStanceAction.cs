@@ -53,6 +53,7 @@ internal class ShieldStanceAction : Action
 
 	public bool isBlocking
 	{
-		get => elapsedTime >= animationTransitionDuration;
+		//get => elapsedTime >= animationTransitionDuration;
+		get => true;
 	}
 }

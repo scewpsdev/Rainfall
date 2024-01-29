@@ -1,0 +1,99 @@
+id: 7
+name: broken_sword
+displayName: "Broken Sword"
+category: weapon
+
+model: "broken_sword.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.06, 0.8, 0.01]
+		offset = [0.0, 0.3, 0.0]
+	},
+	{
+		type: box
+		size = [0.16, 0.02, 0.02]
+		offset = [0.0, 0.06, 0.0]
+	}
+]
+hitbox = {
+	type = box
+	size = [0.06, 0.8, 0.01]
+	offset = [0.0, 0.3, 0.0]
+}
+
+moveset: "broken_sword_moveset.gltf"
+
+icon: "broken_sword_icon.png"
+
+description: "sword but trash"
+
+weaponType: melee
+twoHanded: 0
+
+baseDamage: 20
+range: 1.5
+
+sfxHit = "hit.ogg"
+sfxSwing = "swing.ogg"
+sfxSwingHeavy = "swing_heavy.ogg"
+//sfxDraw = "draw.ogg"
+sfxDrop = "drop.ogg"
+sfxBlock = "block.ogg"
+sfxParry = "parry.ogg"
+
+attacks: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 8
+		damageFramesEnd: 15
+		followUpCancelFrame: 21
+		staminaCost: 3.5
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 8
+		damageFramesEnd: 15
+		followUpCancelFrame: 21
+		staminaCost: 3.5
+	},
+	{
+		type = heavy
+		index = 0
+		animName = attack_heavy1
+		damageFramesStart = 13
+		damageFramesEnd = 21
+		followUpCancelFrame = 28
+		staminaCost = 5.5
+		damageMultiplier = 1.5
+	},
+	{
+		type = heavy
+		index = 1
+		animName = attack_heavy2
+		damageFramesStart = 13
+		damageFramesEnd = 18
+		followUpCancelFrame = 25
+		staminaCost = 5.5
+		damageMultiplier = 1.5
+	},
+	{
+		type = riposte
+		index = 0
+		animName = attack_riposte
+		damageFramesStart = 9
+		damageFramesEnd = 17
+		followUpCancelFrame = 24
+		staminaCost = 3.5
+		damageMultiplier = 1.5
+	}
+]
+
+damageAbsorption = 70
+shieldHitStaminaCost = 4
+parryFramesDelay = 3
+parryFramesCount = 4

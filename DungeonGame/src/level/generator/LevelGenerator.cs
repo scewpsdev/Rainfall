@@ -16,7 +16,7 @@ public class LevelGenerator
 	Level level;
 	TileMap tilemap;
 
-	int maxRooms = 25;
+	int maxRooms = 32;
 
 	Random random;
 
@@ -24,6 +24,8 @@ public class LevelGenerator
 	Room startingRoom, finalRoom, mainRoom;
 
 	Model floor, wall, ceiling;
+
+	public List<ItemContainer> itemContainers = new List<ItemContainer>();
 
 
 	public LevelGenerator(int seed, Level level)
@@ -919,6 +921,98 @@ public class LevelGenerator
 		}
 	}
 
+	void placeLoot()
+	{
+		List<Item> loot = new List<Item>();
+		List<int> amounts = new List<int>();
+
+		int numFlasks = MathHelper.RandomInt(1, 4, random);
+		for (int i = 0; i < numFlasks; i++)
+		{
+			loot.Add(Item.Get("flask"));
+			amounts.Add(1);
+		}
+
+		int numManaFlasks = MathHelper.RandomInt(1, 3, random);
+		for (int i = 0; i < numManaFlasks; i++)
+		{
+			loot.Add(Item.Get("mana_flask"));
+			amounts.Add(1);
+		}
+
+		int numCoins = MathHelper.RandomInt(8, 15, random);
+		for (int i = 0; i < numCoins; i++)
+		{
+			int amount = MathHelper.RandomInt(3, 10, random);
+			loot.Add(Item.Get("gold"));
+			amounts.Add(amount);
+		}
+
+		int numArrows = MathHelper.RandomInt(5, 9, random);
+		for (int i = 0; i < numArrows; i++)
+		{
+			int amount = MathHelper.RandomInt(1, 7, random);
+			loot.Add(Item.Get("arrow"));
+			amounts.Add(amount);
+		}
+
+		int numFirebombs = MathHelper.RandomInt(0, 2, random);
+		for (int i = 0; i < numFirebombs; i++)
+		{
+			int amount = MathHelper.RandomInt(1, 2, random);
+			loot.Add(Item.Get("firebomb"));
+			amounts.Add(amount);
+		}
+
+		int numWeapons = MathHelper.RandomInt(1, 3, random);
+		for (int i = 0; i < numWeapons; i++)
+		{
+			Item weapon = Item.GetItemByCategory(ItemCategory.Weapon, random);
+			loot.Add(weapon);
+			amounts.Add(1);
+		}
+
+		int numShields = MathHelper.RandomInt(0, 2, random);
+		for (int i = 0; i < numShields; i++)
+		{
+			Item shield = Item.GetItemByCategory(ItemCategory.Shield, random);
+			loot.Add(shield);
+			amounts.Add(1);
+		}
+
+		int numSpells = MathHelper.RandomInt(1, 3, random);
+		for (int i = 0; i < numSpells; i++)
+		{
+			Item spell = Item.GetItemByCategory(ItemCategory.Spell, random);
+			loot.Add(spell);
+			amounts.Add(1);
+		}
+
+		int numArmor = MathHelper.RandomInt(1, 5, random);
+		for (int i = 0; i < numArmor; i++)
+		{
+			Item armor = Item.GetItemByCategory(ItemCategory.Armor, random);
+			loot.Add(armor);
+			amounts.Add(1);
+		}
+
+
+		for (int i = 0; i < loot.Count; i++)
+		{
+			Item item = loot[i];
+			int amount = amounts[i];
+			ItemContainer container = itemContainers[random.Next() % itemContainers.Count];
+			ItemSlot slot = container.addItem(item, amount);
+			// TODO add to random slot in container
+			if (slot != null)
+			{
+				loot.RemoveAt(i);
+				amounts.RemoveAt(i);
+				i--;
+			}
+		}
+	}
+
 	public void generateLevel()
 	{
 		Console.WriteLine("Generating level");
@@ -960,6 +1054,8 @@ public class LevelGenerator
 		level.init();
 		spawnRooms();
 		placeLadders();
+
+		placeLoot();
 
 		for (int i = 0; i < 24; i++)
 		{
