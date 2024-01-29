@@ -71,8 +71,8 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"longsword_roughness",
-			"uri":"textures/longsword_roughness.png"
+			"name":"longsword_occlusionRoughnessMetallic",
+			"uri":"textures/longsword_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[

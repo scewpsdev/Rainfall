@@ -634,19 +634,19 @@ public class PotRoom : RoomType
 							Crate crate = new Crate();
 
 							float flaskDropChance = 0.05f;
-							if (Random.Shared.NextSingle() < flaskDropChance)
+							if (random.NextSingle() < flaskDropChance)
 								crate.container.addItem(Item.Get("flask"));
 
 							float manaFlaskDropChance = 0.05f;
-							if (Random.Shared.NextSingle() < manaFlaskDropChance)
+							if (random.NextSingle() < manaFlaskDropChance)
 								crate.container.addItem(Item.Get("mana_flask"));
 
 							float firebombDropChance = 0.05f;
-							if (Random.Shared.NextSingle() < firebombDropChance)
+							if (random.NextSingle() < firebombDropChance)
 								crate.container.addItem(Item.Get("firebomb"));
 
 							float arrowChance = 0.05f;
-							if (Random.Shared.NextSingle() < arrowChance)
+							if (random.NextSingle() < arrowChance)
 								crate.container.addItem(Item.Get("arrow"), MathHelper.RandomInt(3, 7));
 
 							level.addEntity(crate, position, rotation);

@@ -196,7 +196,7 @@ public class Inventory : ItemContainer
 		{
 			for (int i = 0; i < hotbar.Length; i++)
 			{
-				if (hotbar[i].item == null)
+				if (hotbar[i].item == null || hotbar[i].item == item && item.stackable)
 				{
 					return addHotbarItem(i, item, amount);
 				}
@@ -229,9 +229,18 @@ public class Inventory : ItemContainer
 	public ItemSlot addHotbarItem(int idx, Item item, int amount)
 	{
 		ItemSlot slot = hotbar[idx];
-		slot.setItem(item);
-		slot.stackSize = amount;
-		return slot;
+		if (slot.item == null)
+		{
+			slot.setItem(item);
+			slot.stackSize = amount;
+			return slot;
+		}
+		else if (slot.item == item && item.stackable)
+		{
+			slot.stackSize += amount;
+			return slot;
+		}
+		return null;
 	}
 
 	public ItemSlot addHotbarItem(Item item, int amount)
