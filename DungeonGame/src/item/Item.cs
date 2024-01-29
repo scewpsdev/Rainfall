@@ -451,7 +451,7 @@ public class Item
 			item.inventorySize =
 				item.category == ItemCategory.Weapon ? new Vector2i(1, 3) :
 				item.category == ItemCategory.Shield ? new Vector2i(2, 3) :
-				item.category == ItemCategory.Armor ? new Vector2i(2, 3) :
+				item.category == ItemCategory.Armor ? new Vector2i(2, 2) :
 				new Vector2i(1, 1);
 
 		DatField lights = file.getField("lights");

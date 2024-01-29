@@ -488,7 +488,7 @@ public class Creature : Entity, Hittable
 
 	public void queueAction(MobAction action)
 	{
-		if (actionQueue.Count < MAX_ACTION_QUEUE_SIZE)
+		if (actionQueue.Count < MAX_ACTION_QUEUE_SIZE && isAlive)
 		{
 			actionQueue.Add(action);
 		}

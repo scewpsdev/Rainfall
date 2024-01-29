@@ -4,8 +4,21 @@ displayName: "Leather Chestplate"
 category: armor
 armorType = torso
 
-//model: "quemick.gltf"
+model: "leather_chestplate.gltf"
 //moveset: "quemick_moveset.gltf"
+
+colliders: [
+	{
+		type = box
+		size = [0.3, 0.6, 0.2]
+		offset = [0.0, 0.0, 0.0]
+	},
+	{
+		type: box
+		size = [0.5, 0.2, 0.2]
+		offset = [0.0, 0.2, 0.0]
+	}
+]
 
 icon: "leather_chestplate_icon.png"
 
