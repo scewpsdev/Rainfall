@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 internal class DodgeAction : Action
 {
-	const float DODGE_DURATION = 0.3f;
+	const float DODGE_DURATION = 0.4f;
 	const float DODGE_DISTANCE = 2.0f;
 	const float MAX_DODGE_SPEED = 2 * DODGE_DISTANCE / DODGE_DURATION - Player.MAX_GROUND_SPEED;
 
@@ -38,6 +38,9 @@ internal class DodgeAction : Action
 		base.update(player);
 
 		maxSpeed = MathHelper.Lerp(MAX_DODGE_SPEED, Player.MAX_GROUND_SPEED, elapsedTime / duration);
+
+		float targetFOV = MathHelper.Remap(maxSpeed, Player.MAX_GROUND_SPEED, MAX_DODGE_SPEED, 90.0f, 110.0f);
+		player.camera.fov = MathHelper.Lerp(player.camera.fov, targetFOV, 20 * Time.deltaTime);
 
 		if (player.isGrounded)
 			iframesEndTime = DODGE_DURATION;

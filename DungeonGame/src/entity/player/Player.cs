@@ -125,7 +125,7 @@ public class Player : Entity
 	Vector2 viewmodelWalkAnim = Vector2.Zero;
 	float viewmodelVerticalSpeedAnim = 0.0f;
 	float viewmodelLookSwayAnim = 0.0f;
-	float cameraSwayY = 0.0f;
+	float cameraSwayX = 0.0f, cameraSwayY = 0.0f;
 
 	List<Action> actionQueue = new List<Action>();
 	Action lastAction = null;
@@ -758,7 +758,7 @@ public class Player : Entity
 
 
 				distanceWalked += MathF.Abs(velocity.y) * Time.deltaTime;
-				int stepsWalked = (int)(distanceWalked * STEP_FREQUENCY + 0.5f);
+				int stepsWalked = (int)(distanceWalked * STEP_FREQUENCY);
 				if (stepsWalked > lastStep)
 				{
 					audioMovement.playSoundOrganic(currentLadder.sfxStep);
@@ -1607,6 +1607,7 @@ public class Player : Entity
 			viewmodelSwayY = 0.0f;
 			viewmodelSwayPitch = 0.0f;
 			viewmodelSwayYaw = 0.0f;
+			cameraSwayX = 0.0f;
 			cameraSwayY = 0.0f;
 
 			// Walk animation
@@ -1638,6 +1639,14 @@ public class Player : Entity
 			float landCameraBob = (1.0f - MathF.Pow(0.5f, timeSinceLanding * 2.0f)) * 4.0f * MathF.Pow(0.1f, timeSinceLanding * 2.0f);
 			landCameraBob = MathF.Max(landCameraBob, 0.0f);
 			cameraSwayY -= landCameraBob;
+
+			// Run bob
+			float bobFrequency = STEP_FREQUENCY * MathF.PI;
+			float runBobX = MathF.Sin(distanceWalked * bobFrequency);
+			float runBobY = (-MathF.Abs(MathF.Cos(distanceWalked * bobFrequency)) + 0.5f) * 0.5f;
+			float bobAmplitude = (1.0f - MathF.Exp(-movementSpeed)) * 0.1f;
+			cameraSwayX += runBobX * bobAmplitude;
+			cameraSwayY += runBobY * bobAmplitude;
 
 			// Look sway
 			float swayYawDst = -0.5f * InputManager.lookVector.x;
@@ -1707,7 +1716,7 @@ public class Player : Entity
 			Matrix spineNodeGlobalTransform = moveAnimator.getNodeTransform(spine03Node, 0);
 			Vector3 spineNodePosition = spineNodeTransform.translation;
 			Quaternion spineNodeRotation = spineNodeTransform.rotation;
-			spineNodePosition += spineNodeGlobalTransform.rotation.conjugated * new Vector3(0.0f, cameraSwayY + (cameraHeight - CAMERA_HEIGHT_STANDING), 0.0f);
+			spineNodePosition += spineNodeGlobalTransform.rotation.conjugated * new Vector3(cameraSwayX, cameraSwayY + (cameraHeight - CAMERA_HEIGHT_STANDING), 0.0f);
 			spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			spineNodeTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
 			moveAnimator.setNodeLocalTransform(spine03Node, spineNodeTransform);
@@ -1719,7 +1728,14 @@ public class Player : Entity
 
 	void updateCamera()
 	{
-		if (isGrounded)
+		if (currentAction != null && currentAction.type == ActionType.Dodge)
+		{
+			float progress = currentAction.elapsedTime / currentAction.duration;
+			progress = 1.0f - MathF.Pow(1.0f - progress, 2.0f);
+			float sway = 1.0f - MathF.Sin(progress * MathF.PI);
+			cameraHeight = MathHelper.Lerp(CAMERA_HEIGHT_DUCKED, CAMERA_HEIGHT_STANDING, sway);
+		}
+		else if (isGrounded)
 		{
 			if (inDuckTimer >= 0.0f)
 			{

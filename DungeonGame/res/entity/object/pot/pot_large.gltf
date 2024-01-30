@@ -20,7 +20,6 @@
 	],
 	"materials":[
 		{
-			"doubleSided":true,
 			"name":"Material",
 			"normalTexture":{
 				"index":0
@@ -87,7 +86,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":625,
+			"count":1186,
 			"max":[
 				0.3504732847213745,
 				0.7795836329460144,
@@ -103,45 +102,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":625,
+			"count":1186,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":625,
+			"count":1186,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":3060,
+			"count":6900,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":7500,
+			"byteLength":14232,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":7500,
-			"byteOffset":7500,
+			"byteLength":14232,
+			"byteOffset":14232,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5000,
-			"byteOffset":15000,
+			"byteLength":9488,
+			"byteOffset":28464,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6120,
-			"byteOffset":20000,
+			"byteLength":13800,
+			"byteOffset":37952,
 			"target":34963
 		}
 	],
@@ -153,7 +152,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":26120,
+			"byteLength":51752,
 			"uri":"pot_large.bin"
 		}
 	]
