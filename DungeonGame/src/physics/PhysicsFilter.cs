@@ -32,6 +32,6 @@ public enum PhysicsFilterMask : uint
 	Ragdoll = All ^ PhysicsFilterGroup.PlayerController | PhysicsFilterGroup.PlayerControllerKinematicBody,
 	Weapon = All ^ PhysicsFilterGroup.CreatureMovementBody | PhysicsFilterGroup.CreatureHitbox,
 
-	PlayerControllerKinematicBody = PhysicsFilterGroup.Ragdoll,
+	PlayerControllerKinematicBody = PhysicsFilterGroup.Ragdoll | PhysicsFilterGroup.Default,
 	CreatureHitbox = PhysicsFilterGroup.Weapon,
 }

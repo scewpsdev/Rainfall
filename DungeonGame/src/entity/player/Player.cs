@@ -221,9 +221,9 @@ public class Player : Entity
 	public override void init()
 	{
 		controller = new CharacterController(this, PLAYER_RADIUS, Vector3.Zero, PLAYER_HEIGHT_STANDING, STEP_HEIGHT, (uint)PhysicsFilterGroup.PlayerController, (uint)PhysicsFilterMask.PlayerController, new PlayerCollisionCallback(this));
-		kinematicBody = new RigidBody(this, RigidBodyType.Kinematic);
+		kinematicBody = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.PlayerControllerKinematicBody, (uint)PhysicsFilterMask.PlayerControllerKinematicBody);
 		//kinematicBody.addCapsuleTrigger(PLAYER_RADIUS - 0.2f, PLAYER_HEIGHT_STANDING, new Vector3(0.0f, 0.5f * PLAYER_HEIGHT_STANDING, 0.0f), Quaternion.Identity);
-		kinematicBody.addCapsuleCollider(PLAYER_RADIUS - 0.15f, PLAYER_HEIGHT_STANDING, new Vector3(0.0f, 0.5f * PLAYER_HEIGHT_STANDING, 0.0f), Quaternion.Identity, (uint)PhysicsFilterGroup.PlayerControllerKinematicBody, (uint)PhysicsFilterMask.PlayerControllerKinematicBody);
+		kinematicBody.addCapsuleCollider(PLAYER_RADIUS + 0.2f, PLAYER_HEIGHT_STANDING, new Vector3(0.0f, 0.5f * PLAYER_HEIGHT_STANDING, 0.0f), Quaternion.Identity, (uint)PhysicsFilterGroup.PlayerControllerKinematicBody, (uint)PhysicsFilterMask.PlayerControllerKinematicBody);
 
 		audioMovement = new AudioSource(position);
 		audioAction = new AudioSource(position);
@@ -1733,7 +1733,7 @@ public class Player : Entity
 			float progress = currentAction.elapsedTime / currentAction.duration;
 			progress = 1.0f - MathF.Pow(1.0f - progress, 2.0f);
 			float sway = 1.0f - MathF.Sin(progress * MathF.PI);
-			cameraHeight = MathHelper.Lerp(CAMERA_HEIGHT_DUCKED, CAMERA_HEIGHT_STANDING, sway);
+			cameraHeight = MathHelper.Lerp(CAMERA_HEIGHT_STANDING - 0.2f, CAMERA_HEIGHT_STANDING, sway);
 		}
 		else if (isGrounded)
 		{

@@ -37,7 +37,7 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Dynamic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
+		body = new RigidBody(this, RigidBodyType.Dynamic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable, (uint)PhysicsFilterMask.All | (uint)PhysicsFilterMask.PlayerControllerKinematicBody);
 		body.addBoxCollider(new Vector3(0.5f), Vector3.Zero, Quaternion.Identity);
 
 		sfxBreak = new Sound[]

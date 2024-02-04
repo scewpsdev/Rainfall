@@ -86,12 +86,12 @@ public class PlayerStats
 	const float SPRINT_STAMINA_COST = 4.0f;
 
 
-	public int maxHealth = 80;
-	public int health = 80;
+	public int maxHealth = 500; //80;
+	public int health = 500; //80;
 	float bufferedHealth = 0.0f;
 
-	public float maxStamina = 12.0f;
-	public float stamina = 12.0f;
+	public float maxStamina = 100; //12.0f;
+	public float stamina = 100; //12.0f;
 	float staminaPenaltyTimer = -1.0f;
 
 	public int maxMana = 80;
