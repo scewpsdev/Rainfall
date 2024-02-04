@@ -185,6 +185,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;$(ProjectDir)lib\include\soloud;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -205,6 +206,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;$(ProjectDir)lib\include\soloud;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -226,6 +228,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;$(ProjectDir)lib\include\soloud;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

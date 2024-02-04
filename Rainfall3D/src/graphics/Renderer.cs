@@ -170,6 +170,9 @@ public static class Renderer
 
 	static RenderTarget compositeRenderTarget;
 
+	static Cubemap pointShadowCubemap;
+	static RenderTarget[] pointShadowRenderTargets = new RenderTarget[6];
+
 	static Shader modelShader;
 	static Shader modelDepthShader;
 	static Shader modelSimpleShader;
@@ -478,6 +481,15 @@ public static class Renderer
 		{
 			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
 		});
+
+		pointShadowCubemap = graphics.createCubemap(256, TextureFormat.D16F, (ulong)TextureFlags.RenderTarget);
+		for (int i = 0; i < 6; i++)
+		{
+			pointShadowRenderTargets[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
+			{
+				new RenderTargetAttachment(pointShadowCubemap, i, false)
+			});
+		}
 
 		cubemapFaceRotations[0] = Matrix.CreateScale(-1.0f, 1.0f, 1.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 		cubemapFaceRotations[1] = Matrix.CreateScale(-1.0f, 1.0f, 1.0f) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
@@ -1063,20 +1075,21 @@ public static class Renderer
 
 	static void UpdatePointShadows()
 	{
-		for (int h = 0; h < pointLights.Count; h++)
+		int numUpdatedPointShadows = 0;
+		for (int h = 0; h < pointLights.Count && numUpdatedPointShadows < MAX_POINT_SHADOWS; h++)
 		{
 			if (!pointLights[h].shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
-				return;
+				continue;
 			pointLights[h].shadowMap.needsUpdate = false;
 
 			PointShadowMap shadowMap = pointLights[h].shadowMap;
 
-			for (int i = 0; i < shadowMap.renderTargets.Length; i++)
+			for (int i = 0; i < pointShadowRenderTargets.Length; i++)
 			{
 				graphics.resetState();
-				graphics.setPass((int)RenderPass.PointShadow + h * 6 + i);
+				graphics.setPass((int)RenderPass.PointShadow + numUpdatedPointShadows * 6 + i);
 
-				graphics.setRenderTarget(shadowMap.renderTargets[i]);
+				graphics.setRenderTarget(pointShadowRenderTargets[i]);
 
 				Matrix shadowMapProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, 0.1f, 30.0f);
 				Matrix shadowMapView = cubemapFaceRotations[i] * Matrix.CreateTranslation(-pointLights[h].position);
@@ -1100,7 +1113,11 @@ public static class Renderer
 						SubmitMesh(model, k, animator, modelDepthShader, modelAnimDepthShader, transform, reflectionProbePV);
 					}
 				}
+
+				graphics.blit()
 			}
+
+			numUpdatedPointShadows++;
 		}
 	}
 
@@ -1307,8 +1324,8 @@ public static class Renderer
 			graphics.draw(shader);
 		}
 
-		Span<Vector4> pointLightPositionBuffer = stackalloc Vector4[8];
-		Span<Vector4> pointLightColorBuffer = stackalloc Vector4[8];
+		Span<Vector4> pointLightPositionBuffer = stackalloc Vector4[MAX_POINT_SHADOWS];
+		Span<Vector4> pointLightColorBuffer = stackalloc Vector4[MAX_POINT_SHADOWS];
 		if (pointLights.Count > 0)
 		{
 			shader = deferredPointShadowShader;
@@ -1330,7 +1347,7 @@ public static class Renderer
 
 			graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, 0.0f));
 
-			int numRemainingLights = Math.Min(pointLights.Count, 8);
+			int numRemainingLights = Math.Min(pointLights.Count, MAX_POINT_SHADOWS);
 			for (int j = 0; j < numRemainingLights; j++)
 			{
 				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
@@ -1339,8 +1356,8 @@ public static class Renderer
 				graphics.setTexture(shader, "s_lightShadowMap" + j, 5 + j, pointLights[j].shadowMap.cubemap);
 			}
 
-			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, 8), pointLightPositionBuffer);
-			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, 8), pointLightColorBuffer);
+			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_POINT_SHADOWS), pointLightPositionBuffer);
+			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, MAX_POINT_SHADOWS), pointLightColorBuffer);
 
 			graphics.draw(shader);
 		}

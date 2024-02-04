@@ -45,6 +45,7 @@ static const char* GetShaderProfile(bgfx::RendererType::Enum renderer, int shade
 {
 	switch (renderer)
 	{
+		/*
 	case bgfx::RendererType::Direct3D9:
 		switch (shaderType)
 		{
@@ -52,22 +53,10 @@ static const char* GetShaderProfile(bgfx::RendererType::Enum renderer, int shade
 		case 1: return "ps_3_0";
 		default: return nullptr;
 		}
+		*/
 	case bgfx::RendererType::Direct3D11:
-		switch (shaderType)
-		{
-		case 0: return "vs_5_0";
-		case 1: return "ps_5_0";
-		case 2: return "cs_5_0";
-		default: return nullptr;
-		}
 	case bgfx::RendererType::Direct3D12:
-		switch (shaderType)
-		{
-		case 0: return "vs_5_0";
-		case 1: return "ps_5_0";
-		case 2: return "cs_5_0";
-		default: return nullptr;
-		}
+		return "s_5_0";
 	case bgfx::RendererType::OpenGL:
 		switch (shaderType)
 		{
@@ -76,6 +65,8 @@ static const char* GetShaderProfile(bgfx::RendererType::Enum renderer, int shade
 		case 2: return "430";
 		default: return nullptr;
 		}
+	case bgfx::RendererType::OpenGLES:
+		return "320_es";
 	case bgfx::RendererType::Metal:
 		return "metal";
 	case bgfx::RendererType::Vulkan:
@@ -89,8 +80,8 @@ static const char* GetShaderOpt(bgfx::RendererType::Enum renderer, int shaderTyp
 {
 	switch (renderer)
 	{
-	case bgfx::RendererType::Direct3D9:
-		return "3";
+	//case bgfx::RendererType::Direct3D9:
+	//	return "3";
 	case bgfx::RendererType::Direct3D11:
 		switch (shaderType)
 		{

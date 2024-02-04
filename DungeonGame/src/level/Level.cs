@@ -15,6 +15,12 @@ public struct LevelMesh
 		this.model = model;
 		this.transform = transform;
 	}
+
+	public LevelMesh(Model model, Room room)
+	{
+		this.model = model;
+		transform = room.transform;
+	}
 }
 
 public class Level

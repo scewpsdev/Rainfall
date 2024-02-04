@@ -484,9 +484,8 @@ static void* GetNativeWindowHandle(GLFWwindow* _window)
 #	endif // BX_PLATFORM_
 }
 
-static void SetBGFXWindow(GLFWwindow* window)
+static void SetBGFXWindow(GLFWwindow* window, bgfx::PlatformData& pd)
 {
-	bgfx::PlatformData pd;
 #	if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
 # 		if ENTRY_CONFIG_USE_WAYLAND
 	pd.ndt = glfwGetWaylandDisplay();
@@ -502,7 +501,6 @@ static void SetBGFXWindow(GLFWwindow* window)
 	pd.context = NULL;
 	pd.backBuffer = NULL;
 	pd.backBufferDS = NULL;
-	bgfx::setPlatformData(pd);
 }
 
 static void DestroyWindow(GLFWwindow* _window)
@@ -623,7 +621,7 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 			break;
 		}
 
-		BX_FREE(Application_GetAllocator(), (void*)ev);
+		bx::free(Application_GetAllocator(), (void*)ev);
 	}
 
 	if (needsReset)
@@ -745,7 +743,18 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	init.resolution.width = width;
 	init.resolution.height = height;
 	init.resolution.reset = reset;
-	bgfx::init(init);
+	SetBGFXWindow(window, init.platformData);
+
+#if _DEBUG
+	init.debug = true;
+	init.profile = true;
+#endif
+
+	if (!bgfx::init(init))
+	{
+		Console_Error("Failed to initialize BGFX");
+		return 1;
+	}
 
 	bgfx::RendererType::Enum rendererTypes[8];
 	int numRendererTypes = bgfx::getSupportedRenderers(8, rendererTypes);
@@ -883,7 +892,6 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 
 	InitKeyTranslation();
 
-	SetBGFXWindow(window);
 	eventQueue.postSizeEvent(width, height);
 
 	// TODO init gamepads
@@ -1016,7 +1024,7 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 			break;
 			}
 
-			BX_FREE(Application_GetAllocator(), msg);
+			bx::free(Application_GetAllocator(), msg);
 		}
 	}
 

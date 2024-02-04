@@ -1644,7 +1644,7 @@ public class Player : Entity
 			float bobFrequency = STEP_FREQUENCY * MathF.PI;
 			float runBobX = MathF.Sin(distanceWalked * bobFrequency);
 			float runBobY = (-MathF.Abs(MathF.Cos(distanceWalked * bobFrequency)) + 0.5f) * 0.5f;
-			float bobAmplitude = (1.0f - MathF.Exp(-movementSpeed)) * 0.1f;
+			float bobAmplitude = (1.0f - MathF.Exp(-movementSpeed)) * 0.05f;
 			cameraSwayX += runBobX * bobAmplitude;
 			cameraSwayY += runBobY * bobAmplitude;
 
@@ -1728,6 +1728,7 @@ public class Player : Entity
 
 	void updateCamera()
 	{
+		/*
 		if (currentAction != null && currentAction.type == ActionType.Dodge)
 		{
 			float progress = currentAction.elapsedTime / currentAction.duration;
@@ -1735,7 +1736,9 @@ public class Player : Entity
 			float sway = 1.0f - MathF.Sin(progress * MathF.PI);
 			cameraHeight = MathHelper.Lerp(CAMERA_HEIGHT_STANDING - 0.2f, CAMERA_HEIGHT_STANDING, sway);
 		}
-		else if (isGrounded)
+		else 
+		*/
+		if (isGrounded)
 		{
 			if (inDuckTimer >= 0.0f)
 			{

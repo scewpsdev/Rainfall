@@ -48,7 +48,7 @@ public class RoomType
 	public int id;
 	public Model model;
 	public Model collider;
-	public SectorType sectorType;
+	public SectorType sectorType = SectorType.Room;
 	public Vector3i size;
 	public bool[] mask;
 
@@ -128,7 +128,7 @@ public class RoomType
 		return null;
 	}
 
-	public virtual SectorType getNextSectorType(Doorway doorway)
+	public virtual SectorType getNextSectorType(Doorway doorway, Random random)
 	{
 		return sectorType == SectorType.Room ? SectorType.Corridor : SectorType.Room;
 	}
@@ -189,10 +189,13 @@ public class RoomType
 		StartingRoom = new StartingRoom();
 		FinalRoom = new FinalRoom();
 		MainRoom = new MainRoom();
+
 		AddRoomType(new PotRoom());
 		AddRoomType(new LibraryRoom());
 		AddRoomType(new FountainRoom());
 		AddRoomType(new PillarRoom());
+		AddRoomType(new StorageRoom());
+
 		AddRoomType(new StraightCorridor());
 		AddRoomType(new LCorridor());
 		AddRoomType(new TJunction());
@@ -605,7 +608,7 @@ public class PotRoom : RoomType
 		return type;
 	}
 
-	public override SectorType getNextSectorType(Doorway doorway)
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
 	{
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
@@ -734,7 +737,7 @@ public class LibraryRoom : RoomType
 		return type;
 	}
 
-	public override SectorType getNextSectorType(Doorway doorway)
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
 	{
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
@@ -985,7 +988,7 @@ public class FountainRoom : RoomType
 		return type;
 	}
 
-	public override SectorType getNextSectorType(Doorway doorway)
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
 	{
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
@@ -1033,7 +1036,7 @@ public class PillarRoom : RoomType
 		return type;
 	}
 
-	public override SectorType getNextSectorType(Doorway doorway)
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
 	{
 		return size.x < 8 && size.z < 8 ? SectorType.Room : SectorType.Corridor;
 	}
@@ -1060,6 +1063,34 @@ public class PillarRoom : RoomType
 				level.addEntity(new Pillar(), position, Quaternion.Identity);
 			}
 		}
+	}
+}
+
+public class StorageRoom : RoomType
+{
+	public StorageRoom()
+		: base()
+	{
+		size = new Vector3i(7, 4, 11);
+		id = 4;
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 6), Vector3i.Left));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 6), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(3, 0, -1), Vector3i.Forward));
+	}
+
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
+	{
+		return random.Next() % 2 == 0 ? SectorType.Room : SectorType.Corridor;
+	}
+
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
+	{
+		Model model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
+		level.levelMeshes.Add(new LevelMesh(model, room));
 	}
 }
 

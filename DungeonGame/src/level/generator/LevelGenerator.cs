@@ -68,7 +68,7 @@ public class LevelGenerator
 		{
 			if (rooms.Count >= maxRooms)
 				break;
-			SectorType nextSectorType = openDoorway.room.type.getNextSectorType(openDoorway);
+			SectorType nextSectorType = openDoorway.room.type.getNextSectorType(openDoorway, random);
 			RoomType connectedType = RoomType.GetRandom(nextSectorType, random);
 			Matrix transform = openDoorway.room.transform * openDoorway.transform * Matrix.CreateRotation(Vector3.Up, MathF.PI);
 			int entranceDoorwayIdx = random.Next() % connectedType.doorwayInfo.Count; // connectedType.getEntranceDoorwayIdx(openDoorway.room.type.sectorType, random);
@@ -1022,13 +1022,9 @@ public class LevelGenerator
 		tilemap = new TileMap();
 		level.tilemap = tilemap;
 
-		//rooms.Add(createStartingRoom());
-
-		//tilemap.resize(-10, 0, -10, 10, 10, 10);
-
 		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.CreateTranslation(0, 0, 30));
 		finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(-8, 0, -64 - 31));
-		mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
+		//mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
 
 		while (rooms.Count < maxRooms)
 		{
@@ -1038,6 +1034,7 @@ public class LevelGenerator
 		interconnectRooms(2);
 		propagateRooms(SectorType.Corridor);
 		removeEmptyCorridors();
+		/*
 		connectRoomsIfNot(startingRoom, mainRoom);
 		connectRoomsIfNot(finalRoom, mainRoom);
 		foreach (Doorway doorway in mainRoom.doorways)
@@ -1045,6 +1042,7 @@ public class LevelGenerator
 			if (doorway.connectedDoorway == null)
 				connectDoorwayToRandomRoom(doorway);
 		}
+		*/
 
 		createDoorways();
 		createSecretWalls();
@@ -1056,14 +1054,5 @@ public class LevelGenerator
 		placeLadders();
 
 		placeLoot();
-
-		for (int i = 0; i < 24; i++)
-		{
-			//level.addEntity(new TestFire(), level.spawnPoint + new Vector3(MathHelper.RandomFloat(-8.0f, 8.0f), 1.0f, MathHelper.RandomFloat(-8.0f, 8.0f)), Quaternion.Identity);
-		}
-
-		// decorate rooms & place loot
-
-		// spawn enemies
 	}
 }

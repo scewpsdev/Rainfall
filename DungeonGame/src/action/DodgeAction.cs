@@ -39,7 +39,7 @@ internal class DodgeAction : Action
 
 		maxSpeed = MathHelper.Lerp(MAX_DODGE_SPEED, Player.MAX_GROUND_SPEED, elapsedTime / duration);
 
-		float targetFOV = MathHelper.Remap(maxSpeed, Player.MAX_GROUND_SPEED, MAX_DODGE_SPEED, 90.0f, 110.0f);
+		float targetFOV = MathHelper.Remap(maxSpeed, Player.MAX_GROUND_SPEED, MAX_DODGE_SPEED, 90.0f, 96.0f);
 		player.camera.fov = MathHelper.Lerp(player.camera.fov, targetFOV, 20 * Time.deltaTime);
 
 		if (player.isGrounded)
