@@ -15,6 +15,7 @@ internal class Fountain : Entity, Interactable
 	RigidBody body;
 	AudioSource audio;
 	ParticleSystem particles;
+	PointLight light;
 
 	bool consumed = false;
 	float currentGain = DEFAULT_GAIN;
@@ -45,6 +46,8 @@ internal class Fountain : Entity, Interactable
 		particles.particleSize = 0.02f;
 		particles.gravity = 0.0f;
 		particles.initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
+
+		light = new PointLight(position + new Vector3(0.0f, 0.1f, 0.0f), Vector3.One, Renderer.graphics);
 	}
 
 	public override void destroy()
@@ -81,9 +84,12 @@ internal class Fountain : Entity, Interactable
 	{
 		Renderer.DrawModel(model, getModelMatrix());
 
-		float lightIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 1.0f), -1.0f, 1.0f, 1.0f, 3.0f);
-		Renderer.DrawLight(position + new Vector3(0.0f, 0.1f, 0.0f), new Vector3(0.4f, 0.4f, 1.0f) * lightIntensity);
-
 		particles.draw(graphics);
+
+		float lightIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 1.0f), -1.0f, 1.0f, 1.0f, 3.0f);
+		light.color = new Vector3(0.4f, 0.4f, 1.0f) * lightIntensity;
+		Renderer.DrawPointLight(light);
+
+		//Renderer.DrawLight(light.position, light.color);
 	}
 }

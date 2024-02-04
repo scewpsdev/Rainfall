@@ -116,5 +116,5 @@ const Event* EventQueue::poll()
 
 void EventQueue::release(const Event* _event) const
 {
-	BX_DELETE(Application_GetAllocator(), const_cast<Event*>(_event));
+	bx::free(Application_GetAllocator(), const_cast<Event*>(_event));
 }

@@ -158,7 +158,7 @@ RFAPI SceneData* Resource_CreateSceneDataFromFile(const char* path, uint64_t tex
 	}
 
 	Console_Error("Failed to read model '%s'", path);
-	BX_FREE(Application_GetAllocator(), scene);
+	bx::free(Application_GetAllocator(), scene);
 	return nullptr;
 }
 

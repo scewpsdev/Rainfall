@@ -72,12 +72,12 @@ struct List
 
 	void reserve(int newCapacity)
 	{
-		T* newBuffer = (T*)BX_ALLOC(Application_GetAllocator(), newCapacity * sizeof(T));
+		T* newBuffer = (T*)bx::alloc(Application_GetAllocator(), newCapacity * sizeof(T));
 		if (this->buffer)
 		{
 			int numCopiedElements = __min(newCapacity, this->size);
 			memcpy(newBuffer, this->buffer, numCopiedElements * sizeof(T));
-			BX_FREE(Application_GetAllocator(), this->buffer);
+			bx::free(Application_GetAllocator(), this->buffer);
 		}
 		this->buffer = newBuffer;
 		this->capacity = newCapacity;

@@ -170,12 +170,12 @@ static bgfx::VertexLayout CreateVertexLayout(const VertexElement* layoutElements
 
 RFAPI void* Graphics_AllocateNativeMemory(int size)
 {
-	return BX_ALLOC(Application_GetAllocator(), size);
+	return bx::alloc(Application_GetAllocator(), size);
 }
 
 RFAPI void Graphics_FreeNativeMemory(void* ptr)
 {
-	BX_FREE(Application_GetAllocator(), ptr);
+	bx::free(Application_GetAllocator(), ptr);
 }
 
 RFAPI const void* Graphics_AllocateVideoMemory(int size, const bgfx::Memory** outDataPtr)
