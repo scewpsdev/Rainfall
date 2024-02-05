@@ -1068,6 +1068,9 @@ public class PillarRoom : RoomType
 
 public class StorageRoom : RoomType
 {
+	Model model;
+
+
 	public StorageRoom()
 		: base()
 	{
@@ -1077,9 +1080,11 @@ public class StorageRoom : RoomType
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 6), Vector3i.Left));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 6), Vector3i.Right));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(3, 0, -1), Vector3i.Forward));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 1, 1), Vector3i.Left));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 9), Vector3i.Right));
+
+		model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
 	}
 
 	public override SectorType getNextSectorType(Doorway doorway, Random random)
@@ -1089,8 +1094,10 @@ public class StorageRoom : RoomType
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
-		Model model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
 		level.levelMeshes.Add(new LevelMesh(model, room));
+		level.body.addMeshColliders(model, room.transform);
+
+		room.addEntity(new LightObject(new Vector3(1.0f, 0.510f, 0.271f) * 10), room.transform * new Vector3(3.5f, 3, 5.5f), Quaternion.Identity);
 	}
 }
 

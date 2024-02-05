@@ -17,6 +17,11 @@ public class LightObject : Entity
 		this.color = color;
 	}
 
+	public LightObject(float r, float g, float b)
+	{
+		this.color = new Vector3(r, g, b);
+	}
+
 	public override void init()
 	{
 		light = new PointLight(position, color, Renderer.graphics);

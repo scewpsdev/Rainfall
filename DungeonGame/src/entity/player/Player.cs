@@ -63,7 +63,7 @@ public class Player : Entity
 	const float PLAYER_HEIGHT_DUCKED = 0.92f;
 	public const float STEP_HEIGHT = 0.25f;
 
-	const float CAMERA_HEIGHT_STANDING = 1.6f;
+	const float CAMERA_HEIGHT_STANDING = 1.5f;
 	const float CAMERA_HEIGHT_DUCKED = 1.0f;
 	public const float DEFAULT_VIEWMODEL_SCALE = 0.25f;
 

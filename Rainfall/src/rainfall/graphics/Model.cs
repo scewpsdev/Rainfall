@@ -171,6 +171,30 @@ namespace Rainfall
 		IntPtr channels;
 	}
 
+	public enum LightType
+	{
+		Undefined,
+		Directional,
+		Point,
+		Spot,
+		Ambient,
+		Area,
+	};
+
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct LightData
+	{
+		public fixed byte name[32];
+
+		public LightType type;
+		public float x, y, z;
+		public float xdir, ydir, zdir;
+		public Vector3 color;
+
+		public Vector3 position { get => new Vector3(x, y, z); }
+		public Vector3 direction { get => new Vector3(xdir, ydir, zdir); }
+	}
+
 	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct SceneData
 	{
@@ -186,7 +210,7 @@ namespace Rainfall
 		internal SkeletonData* skeletons;
 		public AnimationData* animations;
 		internal NodeData* nodes;
-		public IntPtr lights;
+		public LightData* lights;
 	}
 
 	public class Model
@@ -323,6 +347,26 @@ namespace Rainfall
 					}
 					return null;
 				}
+			}
+		}
+
+		public int lightCount
+		{
+			get
+			{
+				unsafe
+				{
+					SceneData* scene = sceneDataHandle;
+					return scene->numLights;
+				}
+			}
+		}
+
+		public LightData getLight(int idx)
+		{
+			unsafe
+			{
+				return sceneDataHandle->lights[idx];
 			}
 		}
 

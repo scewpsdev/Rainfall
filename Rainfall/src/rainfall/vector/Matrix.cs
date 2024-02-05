@@ -468,7 +468,7 @@ namespace Rainfall
 			matrix.m11 = y;
 			matrix.m22 = (far + near) / -l;
 			matrix.m23 = -1.0f;
-			matrix.m32 = -2.0f * near * far / l;
+			matrix.m32 = -1.0f * near * far / l;
 			matrix.m33 = 0.0f;
 
 			return matrix;

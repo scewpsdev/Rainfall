@@ -131,15 +131,15 @@ float CalculateDirectionalShadow(vec3 position, float distance, sampler2DShadow 
 	*/
 }
 
-float CalculatePointShadow(vec3 position, vec3 lightPosition, samplerCube shadowMap)
+float CalculatePointShadow(vec3 position, vec3 lightPosition, samplerCube shadowMap, float near)
 {
-	const float SHADOW_MAP_EPSILON = 0.001;
+	const float SHADOW_MAP_EPSILON = 0.00005;
 	const int NUM_SAMPLES = 16;
 	
 	vec3 dir = position - lightPosition;
 	vec3 ad = abs(dir);
 	float fragmentDistance = max(ad.x, max(ad.y, ad.z));
-	float fragmentDepth = distanceToDepth(fragmentDistance, 0.1, 30.0);
+	float fragmentDepth = distanceToDepth(fragmentDistance, near, 30.0);
 
 	float closestDepth = textureCubeLod(shadowMap, dir, 0).r;
 	return fragmentDepth - SHADOW_MAP_EPSILON < closestDepth ? 1.0 : 0.0;

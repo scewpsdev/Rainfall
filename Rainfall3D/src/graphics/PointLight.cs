@@ -17,12 +17,12 @@ public class PointLight
 	public PointShadowMap shadowMap;
 
 
-	public PointLight(Vector3 position, Vector3 color, GraphicsDevice graphics)
+	public PointLight(Vector3 position, Vector3 color, GraphicsDevice graphics, float nearPlane = 0.1f)
 	{
 		this.position = position;
 		this.color = color;
 
-		shadowMap = new PointShadowMap(RESOLUTION, graphics);
+		shadowMap = new PointShadowMap(RESOLUTION, nearPlane, graphics);
 	}
 
 	public void updateShadowMap()

@@ -508,7 +508,7 @@ static void ProcessLight(LightData& light, aiLight* ailight)
 	light.xdir = ailight->mDirection.x;
 	light.ydir = ailight->mDirection.y;
 	light.zdir = ailight->mDirection.z;
-	light.color = AiColorToUInt(ailight->mColorDiffuse);
+	light.color = Vector3{ ailight->mColorDiffuse.r, ailight->mColorDiffuse.g, ailight->mColorDiffuse.b };
 }
 
 static void ProcessLights(SceneData& scene, const aiScene* aiscene)

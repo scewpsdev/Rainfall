@@ -19,6 +19,7 @@ internal class Fountain : Entity, Interactable
 
 	bool consumed = false;
 	float currentGain = DEFAULT_GAIN;
+	float currentLightIntensity = 0.0f;
 
 
 	public Fountain()
@@ -47,7 +48,7 @@ internal class Fountain : Entity, Interactable
 		particles.gravity = 0.0f;
 		particles.initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
 
-		light = new PointLight(position + new Vector3(0.0f, 0.1f, 0.0f), Vector3.One, Renderer.graphics);
+		light = new PointLight(position + new Vector3(0.0f, 0.5f, 0.0f), Vector3.One, Renderer.graphics, 0.45f);
 	}
 
 	public override void destroy()
@@ -78,6 +79,13 @@ internal class Fountain : Entity, Interactable
 		audio.gain = currentGain;
 
 		particles.update();
+
+		//light.position = position + new Vector3(0.0f, 0.5f, 0.0f);
+		float dstIntensity = consumed ? 0.1f : 5.0f;
+		currentLightIntensity = MathHelper.Lerp(currentLightIntensity, dstIntensity, 1.0f * Time.deltaTime);
+
+		float lightIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 1.0f), -1.0f, 1.0f, 1.0f, 3.0f) * currentLightIntensity;
+		light.color = new Vector3(0.4f, 0.4f, 1.0f) * lightIntensity;
 	}
 
 	public override void draw(GraphicsDevice graphics)
@@ -86,8 +94,6 @@ internal class Fountain : Entity, Interactable
 
 		particles.draw(graphics);
 
-		float lightIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 1.0f), -1.0f, 1.0f, 1.0f, 3.0f);
-		light.color = new Vector3(0.4f, 0.4f, 1.0f) * lightIntensity;
 		Renderer.DrawPointLight(light);
 
 		//Renderer.DrawLight(light.position, light.color);

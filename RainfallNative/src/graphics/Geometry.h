@@ -193,7 +193,7 @@ struct LightData
 	LightType type;
 	float x, y, z;
 	float xdir, ydir, zdir;
-	uint32_t color;
+	Vector3 color;
 };
 
 struct SceneData

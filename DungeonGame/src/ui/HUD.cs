@@ -304,7 +304,7 @@ public class HUD
 
 	void renderMinimap()
 	{
-		const uint BACKGROUND_COLOR = 0xFFD3B48B;
+		const uint BACKGROUND_COLOR = 0xFF000000; // 0xFFD3B48B;
 		const uint PLAYER_COLOR = 0xFFFF0000;
 		const uint ROOM_COLOR = 0xFF685A49;
 		const uint CORRIDOR_COLOR = 0xFF685A49;
@@ -318,7 +318,7 @@ public class HUD
 			minimapPixels = new uint[minimap.width * minimap.height];
 		}
 
-		int playerY = (int)MathF.Floor(player.position.y - level.tilemap.mapPosition.y + 0.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
+		int playerY = (int)MathF.Floor(player.position.y - level.tilemap.mapPosition.y + 1.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
 
 		level.tilemap.getRelativeTilePosition(player.position / LevelGenerator.TILE_SIZE, out Vector3i playerPos);
 		for (int z = 0; z < level.tilemap.mapSize.z; z++)
