@@ -378,9 +378,9 @@ public class HUD
 
 		graphics.setTextureData(minimap, 0, 0, minimap.width, minimap.height, minimapPixels);
 
-		int width = 64;
-		int height = 64;
-		int scale = 3;
+		int width = 96;
+		int height = 96;
+		int scale = 2;
 		int xx = Display.viewportSize.x - width * scale - 50;
 		int yy = 50;
 		int u0 = playerPos.x - width / 2;

@@ -195,6 +195,7 @@ public class RoomType
 		AddRoomType(new FountainRoom());
 		AddRoomType(new PillarRoom());
 		AddRoomType(new StorageRoom());
+		AddRoomType(new StudyAlcove());
 
 		AddRoomType(new StraightCorridor());
 		AddRoomType(new LCorridor());
@@ -1068,23 +1069,20 @@ public class PillarRoom : RoomType
 
 public class StorageRoom : RoomType
 {
-	Model model;
-
-
 	public StorageRoom()
-		: base()
 	{
-		size = new Vector3i(7, 4, 11);
+		size = new Vector3i(8, 5, 11);
 		id = 4;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 1, 1), Vector3i.Left));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 9), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right));
 
 		model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
+		collider = Resource.GetModel("res/level/room/level1/storage_room/storage_room_collider.gltf");
 	}
 
 	public override SectorType getNextSectorType(Doorway doorway, Random random)
@@ -1095,9 +1093,42 @@ public class StorageRoom : RoomType
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
 		level.levelMeshes.Add(new LevelMesh(model, room));
-		level.body.addMeshColliders(model, room.transform);
+		level.body.addMeshColliders(collider, room.transform);
 
-		room.addEntity(new LightObject(new Vector3(1.0f, 0.510f, 0.271f) * 10), room.transform * new Vector3(3.5f, 3, 5.5f), Quaternion.Identity);
+		room.addEntity(new LightObject(new Vector3(1.0f, 0.510f, 0.271f) * 4), room.transform * new Vector3(3.5f, 3, 5.5f), Quaternion.Identity);
+		room.addEntity(new LightObject(new Vector3(1.0f, 0.510f, 0.271f) * 4), room.transform * new Vector3(1.39074f, 3.16975f, 1.20128f), Quaternion.Identity);
+	}
+}
+
+public class StudyAlcove : RoomType
+{
+	public StudyAlcove()
+	{
+		size = new Vector3i(5, 3, 7);
+		id = 5;
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(5, 0, 2), Vector3i.Right));
+
+		model = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove.gltf");
+		collider = model;
+	}
+
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
+	{
+		return SectorType.Room;
+	}
+
+	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
+	{
+		level.levelMeshes.Add(new LevelMesh(model, room));
+		level.body.addMeshColliders(collider, room.transform);
+
+		room.addEntity(new LightObject(new Vector3(1.0f, 0.707586f, 0.48509f) * 2.5f), room.transform * new Vector3(2, 2.4f, 3.6f), Quaternion.Identity);
+		room.addEntity(new LightObject(new Vector3(0.768808f, 0.890239f, 1) * 4), room.transform * new Vector3(0.4f, 2.6f, 3.6f), Quaternion.Identity);
 	}
 }
 

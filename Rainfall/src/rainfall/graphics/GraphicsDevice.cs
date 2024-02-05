@@ -279,7 +279,9 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA8 || texture.info.format == TextureFormat.BGRA8);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr copyPtr = Native.Graphics.Graphics_AllocateVideoMemory(sizeof(uint) * data.Length, out IntPtr memoryHandle);
+					Unsafe.CopyBlock((void*)copyPtr, dataPtr, (uint)(sizeof(uint) * data.Length));
+					//Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, null, out IntPtr memoryHandle);
 					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
 				}
 			}
