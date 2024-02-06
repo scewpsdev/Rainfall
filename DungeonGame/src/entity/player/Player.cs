@@ -63,8 +63,8 @@ public class Player : Entity
 	const float PLAYER_HEIGHT_DUCKED = 0.92f;
 	public const float STEP_HEIGHT = 0.25f;
 
-	const float CAMERA_HEIGHT_STANDING = 1.5f;
-	const float CAMERA_HEIGHT_DUCKED = 1.0f;
+	public const float CAMERA_HEIGHT_STANDING = 1.5f;
+	public const float CAMERA_HEIGHT_DUCKED = 1.0f;
 	public const float DEFAULT_VIEWMODEL_SCALE = 0.25f;
 
 	const float STEP_FREQUENCY = 0.8f;
@@ -1728,17 +1728,11 @@ public class Player : Entity
 
 	void updateCamera()
 	{
-		/*
 		if (currentAction != null && currentAction.type == ActionType.Dodge)
 		{
-			float progress = currentAction.elapsedTime / currentAction.duration;
-			progress = 1.0f - MathF.Pow(1.0f - progress, 2.0f);
-			float sway = 1.0f - MathF.Sin(progress * MathF.PI);
-			cameraHeight = MathHelper.Lerp(CAMERA_HEIGHT_STANDING - 0.2f, CAMERA_HEIGHT_STANDING, sway);
+			cameraHeight = ((DodgeAction)currentAction).getCameraHeight();
 		}
-		else 
-		*/
-		if (isGrounded)
+		else if (isGrounded)
 		{
 			if (inDuckTimer >= 0.0f)
 			{

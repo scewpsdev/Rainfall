@@ -1023,7 +1023,7 @@ public class LevelGenerator
 		level.tilemap = tilemap;
 
 		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.CreateTranslation(0, 0, 30));
-		finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(-8, 0, -64 - 31));
+		finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(0, 0, -64 - 15));
 		//mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
 
 		while (rooms.Count < maxRooms)

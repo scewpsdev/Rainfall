@@ -8,18 +8,29 @@ using System.Threading.Tasks.Dataflow;
 public struct LevelMesh
 {
 	public Model model;
+	public int meshID;
 	public Matrix transform;
 
-	public LevelMesh(Model model, Matrix transform)
+	public LevelMesh(Model model, int meshID, Matrix transform)
 	{
 		this.model = model;
+		this.meshID = meshID;
 		this.transform = transform;
 	}
 
-	public LevelMesh(Model model, Room room)
+	public LevelMesh(Model model, Matrix transform)
+		: this(model, -1, transform)
 	{
-		this.model = model;
-		transform = room.transform;
+	}
+
+	public LevelMesh(Model model, int meshID, Room room)
+		: this(model, meshID, room.transform)
+	{
+	}
+
+	public LevelMesh(Model model, Room room)
+		: this(model, -1, room.transform)
+	{
 	}
 }
 
@@ -136,7 +147,12 @@ public class Level
 		foreach (LevelMesh mesh in levelMeshes)
 		{
 			if (mesh.model != null)
-				Renderer.DrawModel(mesh.model, mesh.transform);
+			{
+				if (mesh.meshID != -1)
+					Renderer.DrawSubModel(mesh.model, mesh.meshID, mesh.transform);
+				else
+					Renderer.DrawModel(mesh.model, mesh.transform);
+			}
 		}
 
 		for (int i = 0; i < entities.Count; i++)

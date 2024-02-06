@@ -48,7 +48,7 @@ internal class Fountain : Entity, Interactable
 		particles.gravity = 0.0f;
 		particles.initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
 
-		light = new PointLight(position + new Vector3(0.0f, 0.5f, 0.0f), Vector3.One, Renderer.graphics, 0.45f);
+		light = new PointLight(position + new Vector3(0.0f, 1.0f, 0.0f), Vector3.One, Renderer.graphics, 0.45f);
 	}
 
 	public override void destroy()

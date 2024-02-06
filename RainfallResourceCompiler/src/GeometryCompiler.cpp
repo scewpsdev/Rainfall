@@ -553,7 +553,7 @@ bool CompileGeometry(const char* path, const char* out)
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
 		//| aiProcess_OptimizeGraph
-		| aiProcess_RemoveRedundantMaterials
+		//| aiProcess_RemoveRedundantMaterials
 		;
 
 	Assimp::Importer importer;

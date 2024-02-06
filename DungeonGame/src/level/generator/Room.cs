@@ -18,18 +18,20 @@ public class Doorway
 	public Matrix transform;
 	public Vector3i globalPosition, globalDirection;
 	public float spawnChance;
+	public int doorwayCoverID;
 
 	public bool spawnDoor = false;
 	public bool secret = false;
 
 
-	public Doorway(int id, Room room, Vector3i position, Vector3i direction, float spawnChance)
+	public Doorway(int id, Room room, Vector3i position, Vector3i direction, float spawnChance, int doorwayCoverID = -1)
 	{
 		this.id = id;
 		this.room = room;
 		this.position = position;
 		this.direction = direction;
 		this.spawnChance = spawnChance;
+		this.doorwayCoverID = doorwayCoverID;
 
 		transform = Matrix.CreateTranslation((position * 1.0f + new Vector3(0.5f, 0.0f, 0.5f))) * Matrix.CreateRotation(Quaternion.LookAt(direction * 1.0f));
 		Matrix doorwayGlobalTransform = room.transform * transform;
@@ -93,6 +95,7 @@ public class Room
 		gridPosition = new Vector3i(x0, y0, z0);
 		gridSize = new Vector3i(w, h, d);
 
+		/*
 		if (type.model != null)
 		{
 			for (int i = 0; i < type.model.skeleton.rootNode.children.Length; i++)
@@ -101,7 +104,7 @@ public class Room
 				if (node.name.StartsWith("_tag_node_0"))
 				{
 					Matrix doorwayTransform = node.transform * Matrix.CreateRotation(Vector3.Right, MathF.PI * 0.5f);
-					//doorways.Add(new Doorway(int.Parse(node.name.Substring("_tag_node_0".Length)), this, doorwayTransform.translation, doorwayTransform.rotation));
+					doorways.Add(new Doorway(int.Parse(node.name.Substring("_tag_node_0".Length)), this, doorwayTransform.translation, doorwayTransform.rotation));
 				}
 			}
 		}
@@ -110,6 +113,7 @@ public class Room
 		{
 			return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 		});
+		*/
 	}
 
 	public void placeDoorways(TileMap tilemap)
@@ -119,7 +123,8 @@ public class Room
 			Vector3i position = type.doorwayInfo[i].position;
 			Vector3i direction = type.doorwayInfo[i].direction;
 			float spawnChance = type.doorwayInfo[i].spawnChance;
-			Doorway doorway = new Doorway(i, this, position, direction, spawnChance);
+			int doorwayCoverID = type.model != null && type.doorwayInfo[i].coverModel != null ? (type.model.getMeshIndex(type.doorwayInfo[i].coverModel)) : -1;
+			Doorway doorway = new Doorway(i, this, position, direction, spawnChance, doorwayCoverID);
 			doorways.Add(doorway);
 		}
 	}
@@ -279,10 +284,25 @@ public class Room
 		level.addEntity(entity);
 	}
 
+	public void addEntity(Entity entity, Vector3 position)
+	{
+		addEntity(entity, position, Quaternion.Identity);
+	}
+
 	public void addEntity(Entity entity, Matrix transform)
 	{
 		transform.decompose(out Vector3 position, out Quaternion rotation, out Vector3 _);
 		addEntity(entity, position, rotation);
+	}
+
+	public Doorway getDoorwayByID(int id)
+	{
+		for (int i = Math.Min(id, doorways.Count - 1); i >= 0; i--)
+		{
+			if (doorways[i].id == id)
+				return doorways[i];
+		}
+		return null;
 	}
 
 	public void update()

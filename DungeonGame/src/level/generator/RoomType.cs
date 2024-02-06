@@ -20,16 +20,14 @@ public struct DoorwayInfo
 	public Vector3i direction;
 	public float spawnChance;
 
-	public DoorwayInfo(Vector3i position, Vector3i direction, float spawnChance)
+	public string coverModel;
+
+	public DoorwayInfo(Vector3i position, Vector3i direction, float spawnChance = 0.5f, string coverModel = null)
 	{
 		this.position = position;
 		this.direction = direction;
 		this.spawnChance = spawnChance;
-	}
-
-	public DoorwayInfo(Vector3i position, Vector3i direction)
-		: this(position, direction, 0.5f)
-	{
+		this.coverModel = coverModel;
 	}
 }
 
@@ -139,6 +137,35 @@ public class RoomType
 
 	public virtual void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
+		if (model != null)
+		{
+			for (int i = 0; i < model.meshCount; i++)
+			{
+				bool isDoorwayCover = false;
+				Doorway doorway = null;
+				for (int j = 0; j < room.doorways.Count; j++)
+				{
+					if (room.doorways[j].doorwayCoverID == i)
+					{
+						isDoorwayCover = true;
+						doorway = room.doorways[j];
+						break;
+					}
+				}
+				if (isDoorwayCover)
+				{
+					if (doorway.connectedDoorway == null)
+					{
+						level.levelMeshes.Add(new LevelMesh(model, i, room));
+					}
+				}
+				else
+				{
+					level.levelMeshes.Add(new LevelMesh(model, i, room));
+					level.body.addMeshCollider(model, i, room.transform);
+				}
+			}
+		}
 	}
 
 	public Matrix getDoorwayTransform(int idx)
@@ -187,7 +214,7 @@ public class RoomType
 	{
 		//StartingRoom = CreateRoomType(1, "room1", SectorType.Room);// new RoomType() { name = "room1", model = Resource.GetModel("res/level/room/room1/room1.gltf"), sectorType = SectorType.Room };
 		StartingRoom = new StartingRoom();
-		FinalRoom = new FinalRoom();
+		FinalRoom = new BossRoom();
 		MainRoom = new MainRoom();
 
 		AddRoomType(new PotRoom());
@@ -361,15 +388,14 @@ public class StartingRoom : RoomType
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(7, 0, 15), new Vector3i(0, 0, 1)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(15, 0, 7), new Vector3i(1, 0, 0)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(-1, 0, 7), new Vector3i(-1, 0, 0)));
+
+		model = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell.gltf");
+		collider = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell_collider.gltf");
 	}
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
-		Model model = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell.gltf");
-		level.levelMeshes.Add(new LevelMesh(model, room.transform));
-
-		Model collider = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell_collider.gltf");
-		level.body.addMeshColliders(collider, room.transform);
+		base.onSpawn(room, level, generator, random);
 
 		{
 			Vector3 position = room.transform * new Vector3(1, 0, 1.5f);
@@ -458,13 +484,13 @@ public class StartingRoom : RoomType
 	}
 }
 
-public class FinalRoom : RoomType
+public class BossRoom : RoomType
 {
 	Vector3i preRoomSize = new Vector3i(9, 5, 9);
-	Vector3i bossRoomSize = new Vector3i(31, 12, 31);
+	Vector3i bossRoomSize = new Vector3i(15, 7, 15);
 
 
-	public FinalRoom()
+	public BossRoom()
 		: base()
 	{
 		sectorType = SectorType.Room;
@@ -506,7 +532,7 @@ public class FinalRoom : RoomType
 			for (int x = 0; x < 2; x++)
 			{
 				Vector3 position = room.transform.translation + new Vector3(bossRoomSize.x * 0.5f * x + bossRoomSize.x * 0.25f, bossRoomSize.y * 0.75f, bossRoomSize.z * 0.5f * z + bossRoomSize.z * 0.25f);
-				room.addEntity(new LightObject(new Vector3(1.0f, 0.5f, 0.2f) * 200), position, Quaternion.Identity);
+				room.addEntity(new LightObject(new Vector3(1.0f, 0.5f, 0.2f) * 30), position, Quaternion.Identity);
 			}
 		}
 
@@ -530,14 +556,18 @@ public class MainRoom : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 0, 9), Vector3i.Right));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 16, 14), Vector3i.Right));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(1, 9, 20), Vector3i.Back));
+
+		model = Resource.GetModel("res/level/room/pillar_foundation/pillar_foundation.gltf");
+		collider = model;
 	}
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
-		Model model = Resource.GetModel("res/level/room/pillar_foundation/pillar_foundation.gltf");
-		Matrix transform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0, size.z * 0.5f);
-		level.levelMeshes.Add(new LevelMesh(model, transform));
-		level.body.addMeshCollider(model, model.getMeshIndex("Stairs"), transform);
+		base.onSpawn(room, level, generator, random);
+
+		//Matrix transform = room.transform * Matrix.CreateTranslation(size.x * 0.5f, 0, size.z * 0.5f);
+		//level.levelMeshes.Add(new LevelMesh(model, transform));
+		//level.body.addMeshCollider(model, model.getMeshIndex("Stairs"), transform);
 
 		{
 			Vector3 position = room.transform * new Vector3(18.5f, 16, 1);
@@ -567,7 +597,7 @@ public class MainRoom : RoomType
 
 		GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
 
-		ReflectionProbe reflection = new ReflectionProbe(64, transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), transform.translation + new Vector3(0, 1, 0), Renderer.graphics);
+		ReflectionProbe reflection = new ReflectionProbe(64, room.transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), room.transform.translation + new Vector3(10, 1, 10), Renderer.graphics);
 		level.reflections.Add(reflection);
 
 		room.addEntity(new ReverbZone(new Vector3(20, 50, 20), false, Resource.GetSound("res/level/hub/ambience.ogg")), room.transform);
@@ -1077,9 +1107,9 @@ public class StorageRoom : RoomType
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left, 0.5f, "DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left, 0.5f, "DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right, 0.5f, "DoorwayCover2"));
 
 		model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
 		collider = Resource.GetModel("res/level/room/level1/storage_room/storage_room_collider.gltf");
@@ -1092,8 +1122,18 @@ public class StorageRoom : RoomType
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
-		level.levelMeshes.Add(new LevelMesh(model, room));
-		level.body.addMeshColliders(collider, room.transform);
+		base.onSpawn(room, level, generator, random);
+
+		if (room.getDoorwayByID(0) == null)
+		{
+			float secretChance = 0.5f;
+			if (random.NextSingle() < secretChance)
+			{
+				Vector3 position = room.transform * new Vector3(1.5f, 4.5f, 2.75f);
+				Item item = Item.Get("flask"); // replace with food?
+				room.addEntity(new ItemPickup(item), position);
+			}
+		}
 
 		room.addEntity(new LightObject(new Vector3(1.0f, 0.510f, 0.271f) * 4), room.transform * new Vector3(3.5f, 3, 5.5f), Quaternion.Identity);
 		room.addEntity(new LightObject(new Vector3(1.0f, 0.510f, 0.271f) * 4), room.transform * new Vector3(1.39074f, 3.16975f, 1.20128f), Quaternion.Identity);
