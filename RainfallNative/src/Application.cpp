@@ -701,7 +701,7 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 
 		callbacks.draw();
 
-		Audio_Update();
+		//Audio_Update();
 
 		bgfx::frame();
 
@@ -780,7 +780,7 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 
 	//Resource::Init(params.compileShaders);
 	//Time::Init();
-	Audio_Init();
+	//Audio_Init();
 
 	//layerStack.pushLayer(Memory_Alloc<SceneLayer>());
 	//layerStack.pushLayer(Memory_Alloc<ImGuiLayer>());
@@ -805,7 +805,7 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	//layerStack.shutdown();
 	callbacks.destroy();
 
-	Audio_Shutdown();
+	//Audio_Shutdown();
 
 	bgfx::shutdown();
 

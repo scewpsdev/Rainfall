@@ -21,7 +21,6 @@ internal class DungeonGame : Game
 	public Level level { get; private set; }
 
 	Camera camera;
-	Player player;
 
 	public GameManager gameManager;
 	GameState gameState;
@@ -40,11 +39,10 @@ internal class DungeonGame : Game
 
 		Renderer.Init(graphics);
 		Physics.Init();
+		Audio.Init();
 		AudioManager.Init();
 
 		Item.LoadContent();
-
-		//RoomType.Init();
 
 		gameManager = new GameManager();
 		gameState = new GameState();
@@ -53,32 +51,17 @@ internal class DungeonGame : Game
 
 		level = new Level();
 
-		int seed = int.Parse(File.ReadAllText("seed.txt"));
-		LevelGenerator levelGenerator = new LevelGenerator(seed, level);
-		levelGenerator.generateLevel();
-
-		level.addEntity(camera = new Camera());
-		level.addEntity(player = new Player(camera, graphics), level.spawnPoint);
-		player.resetPoint = level.spawnPoint;
+		camera = new Camera();
 
 		gameManager.level = level;
-		gameManager.player = player;
-		//level.addEntity(player = new Player(camera), new Vector3(0, -37, 54), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
-		//player.queueAction(new SpawnAction());
+		gameManager.camera = camera;
 
-		//level.addEntity(new Bob(), new Vector3(-2.0f, 0.0f, 0.0f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
-		//level.addEntity(new Bob(), new Vector3(0.0f, 0.0f, 0.0f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
-		//level.addEntity(new Bob(), new Vector3(2.0f, 0.0f, 0.0f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
-
-		//level.addEntity(new SkeletonEnemy(), new Vector3(-2.0f, 0.0f, 15.0f), Quaternion.Identity);
-		//level.addEntity(new SkeletonEnemy(), new Vector3(0.0f, 0.0f, 15.0f), Quaternion.Identity);
-		//level.addEntity(new SkeletonEnemy(), new Vector3(2.0f, 0.0f, 15.0f), Quaternion.Identity);
-
-		//AudioManager.SetReverb(true);
+		gameManager.resetGameState();
 	}
 
 	public override void destroy()
 	{
+		Audio.Shutdown();
 		Physics.Shutdown();
 	}
 
@@ -106,10 +89,7 @@ internal class DungeonGame : Game
 
 		if (Input.IsKeyPressed(KeyCode.KeyP))
 		{
-			//player.setPosition(new Vector3(0.0f, 1.0f, 0.0f));
-			player.setPosition(player.resetPoint.translation);
-			player.setRotation(player.resetPoint.rotation);
-			player.pitch = 0.0f;
+			gameManager.resetGameState();
 		}
 		/*
 		if (player.position.y < -100.0f)
@@ -146,6 +126,8 @@ internal class DungeonGame : Game
 #endif
 
 		Renderer.End();
+
+		Audio.Update();
 
 
 		if (Time.currentTime - lastSecond >= 1e9)
@@ -209,9 +191,13 @@ internal class DungeonGame : Game
 		StringUtils.AppendInteger(str, Renderer.meshCulledCounter);
 		Debug.DrawDebugText(0, line++, str);
 
+		StringUtils.WriteString(str, "Physics bodies: ");
+		StringUtils.AppendInteger(str, RigidBody.numBodies);
+		Debug.DrawDebugText(0, line++, str);
+
 		line++;
 
-		graphics.getRenderStats(out RenderStats renderStats);
+		RenderStats renderStats = graphics.getRenderStats();
 		cpuTimeAcc += renderStats.cpuTime;
 		gpuTimeAcc += renderStats.gpuTime;
 		numFrames++;
@@ -245,6 +231,14 @@ internal class DungeonGame : Game
 		WriteMemoryString(str, renderStats.rtMemoryUsed);
 		Debug.DrawDebugText(0, line++, str);
 
+		StringUtils.WriteString(str, "Textures: ");
+		StringUtils.AppendInteger(str, renderStats.numTextures);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Render Targets: ");
+		StringUtils.AppendInteger(str, renderStats.numRenderTargets);
+		Debug.DrawDebugText(0, line++, str);
+
 		StringUtils.WriteString(str, "Draw calls: ");
 		StringUtils.AppendInteger(str, (int)renderStats.numDraw);
 		Debug.DrawDebugText(0, line++, str);
@@ -260,23 +254,23 @@ internal class DungeonGame : Game
 		line++;
 
 		StringUtils.WriteString(str, "grounded=");
-		StringUtils.AppendBool(str, player.isGrounded);
+		StringUtils.AppendBool(str, gameManager.player.isGrounded);
 		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "speed=");
-		StringUtils.AppendInteger(str, (int)(player.velocity.xz.length * 100));
+		StringUtils.AppendInteger(str, (int)(gameManager.player.velocity.xz.length * 100));
 		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "x=");
-		StringUtils.AppendInteger(str, (int)(player.position.x * 100));
+		StringUtils.AppendInteger(str, (int)(gameManager.player.position.x * 100));
 		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "y=");
-		StringUtils.AppendInteger(str, (int)(player.position.y * 100));
+		StringUtils.AppendInteger(str, (int)(gameManager.player.position.y * 100));
 		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "z=");
-		StringUtils.AppendInteger(str, (int)(player.position.z * 100));
+		StringUtils.AppendInteger(str, (int)(gameManager.player.position.z * 100));
 		Debug.DrawDebugText(0, line++, str);
 	}
 

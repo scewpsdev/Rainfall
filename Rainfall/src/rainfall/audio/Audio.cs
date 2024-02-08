@@ -25,6 +25,11 @@ namespace Rainfall
 			Native.Audio.Audio_Shutdown();
 		}
 
+		public static void Update()
+		{
+			Native.Audio.Audio_Update();
+		}
+
 		public static void UpdateListener(Vector3 position, Quaternion rotation)
 		{
 			Native.Audio.Audio_ListenerUpdateTransform(position, rotation.forward, rotation.up);

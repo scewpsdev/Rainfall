@@ -54,9 +54,10 @@ namespace Rainfall
 		uint* vertexColors;
 		IntPtr boneWeights;
 
+		public void* vertices { get => positionsNormalsTangents; }
 		public int vertexCount { get; internal set; }
 
-		int* indexData;
+		public int* indices { get; internal set; }
 		public int indexCount { get; internal set; }
 
 		internal int materialID;
@@ -66,7 +67,7 @@ namespace Rainfall
 		public BoundingSphere boundingSphere;
 
 
-		NodeData* node;
+		public NodeData* node;
 
 		UInt16 vertexNormalTangentBuffer;
 		UInt16 texcoordBuffer;
@@ -88,7 +89,7 @@ namespace Rainfall
 
 		public int getIndex(int index)
 		{
-			return indexData[index];
+			return indices[index];
 		}
 
 		public ushort vertexBufferID
@@ -137,11 +138,11 @@ namespace Rainfall
 	};
 
 	[StructLayout(LayoutKind.Sequential)]
-	internal unsafe struct NodeData
+	public unsafe struct NodeData
 	{
-		internal int id;
+		public int id { get; internal set; }
 		internal fixed byte name[32];
-		internal Matrix transform;
+		public Matrix transform { get; internal set; }
 
 		internal int numChildren;
 		internal int* children;
@@ -150,7 +151,7 @@ namespace Rainfall
 		internal int* meshes;
 
 
-		internal NodeData* parent;
+		public NodeData* parent { get; internal set; }
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -240,6 +241,12 @@ namespace Rainfall
 				}
 				skeleton = null;
 			}
+		}
+
+		public void destroy()
+		{
+			Model_Destroy(handle);
+			handle = IntPtr.Zero;
 		}
 
 		public unsafe SceneData* sceneDataHandle
@@ -393,6 +400,9 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		static extern unsafe IntPtr Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern void Model_Destroy(IntPtr model);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		static extern void Model_ConfigureLODs(IntPtr model, float maxDistance);

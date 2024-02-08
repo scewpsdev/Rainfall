@@ -41,10 +41,12 @@ internal class DeathAction : Action
 
 	public override void onFinished(Player player)
 	{
-		player.setPosition(player.resetPoint.translation);
-		player.setRotation(player.resetPoint.rotation);
-		player.queueAction(new SpawnAction());
+		//player.setPosition(player.resetPoint.translation);
+		//player.setRotation(player.resetPoint.rotation);
+		//player.queueAction(new SpawnAction());
 
 		player.hud.fadeout = 0.0f;
+
+		DungeonGame.instance.gameManager.onDeath();
 	}
 }

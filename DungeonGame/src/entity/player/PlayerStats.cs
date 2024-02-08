@@ -86,18 +86,18 @@ public class PlayerStats
 	const float SPRINT_STAMINA_COST = 4.0f;
 
 
-	public int maxHealth = 500; //80;
-	public int health = 500; //80;
-	float bufferedHealth = 0.0f;
+	public int maxHealth;
+	public int health;
+	float bufferedHealth;
 
-	public float maxStamina = 100; //12.0f;
-	public float stamina = 100; //12.0f;
-	float staminaPenaltyTimer = -1.0f;
+	public float maxStamina;
+	public float stamina;
+	float staminaPenaltyTimer;
 
-	public int maxMana = 80;
-	public int mana = 80;
+	public int maxMana;
+	public int mana;
 
-	public int xp = 0;
+	public int xp;
 
 	Player player;
 
@@ -107,6 +107,22 @@ public class PlayerStats
 	public PlayerStats(Player player)
 	{
 		this.player = player;
+	}
+
+	public void reset()
+	{
+		maxHealth = 500; //80;
+		health = 500; //80;
+		bufferedHealth = 0.0f;
+
+		maxStamina = 100; //12.0f;
+		stamina = 100; //12.0f;
+		staminaPenaltyTimer = -1.0f;
+
+		maxMana = 80;
+		mana = 80;
+
+		xp = 0;
 	}
 
 	public void addEffect(StatEffect effect)

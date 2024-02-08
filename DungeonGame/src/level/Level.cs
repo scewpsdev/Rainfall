@@ -39,8 +39,8 @@ public class Level
 	//public uint[] tiles;
 	//public int[] heightmap;
 	public TileMap tilemap;
-	public List<Room> rooms;
-	public Dictionary<int, int> roomIDMap;
+	public List<Room> rooms = new List<Room>();
+	public Dictionary<int, int> roomIDMap = new Dictionary<int, int>();
 	public Matrix spawnPoint;
 
 	public List<LevelMesh> levelMeshes = new List<LevelMesh>();
@@ -54,12 +54,34 @@ public class Level
 
 	public Level()
 	{
+		tilemap = new TileMap();
+
 		body = new RigidBody(null, RigidBodyType.Static);
+
+		ambientSound = Resource.GetSound("res/level/sounds/dungeon.ogg");
+	}
+
+	public void reset()
+	{
+		tilemap.reset();
+		rooms.Clear();
+		roomIDMap.Clear();
+		spawnPoint = Matrix.Identity;
+
+		levelMeshes.Clear();
+		reflections.Clear();
+
+		foreach (Entity entity in entities)
+		{
+			entity.destroy();
+		}
+		entities.Clear();
+
+		body.clearColliders();
 	}
 
 	public void init()
 	{
-		ambientSound = Resource.GetSound("res/level/sounds/dungeon.ogg");
 		AudioManager.SetAmbientSound(ambientSound, 0.05f);
 
 		Audio.SetEffect(AudioEffect.Reverb);
@@ -67,15 +89,6 @@ public class Level
 		Renderer.fogColor = new Vector3(1.0f, 1.0f, 1.5f);
 		Renderer.fogIntensity = 0.0001f;
 	}
-
-	/*
-	uint getTile(int x, int z)
-	{
-		if (x >= 0 && x < width && z >= 0 && z < height)
-			return tiles[x + z * width];
-		return 0;
-	}
-	*/
 
 	public int getRoomIDAtPos(Vector3 position)
 	{

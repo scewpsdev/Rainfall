@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Linq;
 using Rainfall;
 
 
@@ -21,6 +22,7 @@ namespace Rainfall
 	public class RigidBody
 	{
 		internal static Dictionary<IntPtr, RigidBody> bodies = new Dictionary<IntPtr, RigidBody>();
+		public static int numBodies { get => bodies.Count; }
 
 
 		public readonly PhysicsEntity entity;
@@ -66,6 +68,7 @@ namespace Rainfall
 
 		public void destroy()
 		{
+			bodies.Remove(body);
 			Native.Physics.Physics_DestroyRigidBody(body);
 			body = IntPtr.Zero;
 		}
@@ -95,14 +98,22 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterGroup, filterMask, friction, friction, restitution);
 		}
 
-		public void addMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
+		public void addMeshCollider(MeshCollider mesh, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddMeshCollider(body, model.handle, meshIdx, transform, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddMeshCollider(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask, friction, friction, restitution);
+		}
+
+		public MeshCollider addMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
+		{
+			MeshCollider mesh = Physics.CreateMeshCollider(model, meshIdx);
+			addMeshCollider(mesh, transform, friction, restitution);
+			return mesh;
 		}
 
 		public void addMeshColliders(Model model, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddMeshColliders(body, model.handle, transform, filterGroup, filterMask, friction, friction, restitution);
+			for (int i = 0; i < model.meshCount; i++)
+				addMeshCollider(model, i, transform, friction, restitution);
 		}
 
 		public void addConvexMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)

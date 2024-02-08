@@ -30,8 +30,8 @@ internal class Checkpoint : Entity
 			Player player = otherController.entity as Player;
 			if (contactType == ContactType.Found || contactType == ContactType.Lost)
 			{
-				player.resetPoint = Matrix.CreateTranslation(player.position) * Matrix.CreateRotation(player.rotation);
-				Console.WriteLine("checkpoint " + player.resetPoint.translation);
+				//player.resetPoint = Matrix.CreateTranslation(player.position) * Matrix.CreateRotation(player.rotation);
+				//Console.WriteLine("checkpoint " + player.resetPoint.translation);
 			}
 		}
 	}

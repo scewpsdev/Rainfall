@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Rainfall
 {
@@ -83,9 +84,37 @@ namespace Rainfall
 			Native.Physics.Physics_Update();
 		}
 
-		public static IntPtr CreateMeshCollider(Vector3[] vertices, int[] indices)
+		static Matrix GetNodeTransform(Model model, int idx)
 		{
-			return Native.Physics.Physics_CreateMeshCollider(vertices, vertices.Length, indices, indices.Length);
+			unsafe
+			{
+				MeshData mesh = model.sceneDataHandle->meshes[idx];
+				NodeData* node = mesh.node;
+				Matrix transform = node->transform;
+				NodeData* parent = node->parent;
+				while (parent != null)
+				{
+					transform = parent->transform * transform;
+					parent = parent->parent;
+				}
+				return transform;
+			}
+		}
+
+		public static MeshCollider CreateMeshCollider(Model model, int meshIdx)
+		{
+			unsafe
+			{
+				MeshData mesh = model.sceneDataHandle->meshes[meshIdx];
+				IntPtr handle = Native.Physics.Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, mesh.indices, mesh.indexCount);
+				Matrix transform = GetNodeTransform(model, meshIdx);
+				return new MeshCollider(handle, transform);
+			}
+		}
+
+		public static void DestroyMeshCollider(MeshCollider mesh)
+		{
+			Native.Physics.Physics_DestroyMeshCollider(mesh.handle);
 		}
 
 		public static IntPtr CreateHeightField(int width, int height, HeightFieldSample[] data)

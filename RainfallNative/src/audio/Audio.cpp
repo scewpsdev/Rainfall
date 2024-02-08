@@ -18,7 +18,7 @@ static handle reverbBusSource;
 static FreeverbFilter reverb;
 
 
-void Audio_Init()
+RFAPI void Audio_Init()
 {
 	soloud.init();
 	printf("Audio Backend: %s\n", soloud.getBackendString());
@@ -27,12 +27,12 @@ void Audio_Init()
 	reverbBus.setFilter(1, &reverb);
 }
 
-void Audio_Shutdown()
+RFAPI void Audio_Shutdown()
 {
 	soloud.deinit();
 }
 
-void Audio_Update()
+RFAPI void Audio_Update()
 {
 	soloud.update3dAudio();
 }

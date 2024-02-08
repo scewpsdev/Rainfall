@@ -29,6 +29,11 @@ internal class MobItemEntity
 		hitbox = new RigidBody(creature, RigidBodyType.Kinematic);
 	}
 
+	public void destroy()
+	{
+		hitbox.destroy();
+	}
+
 	public void setItem(Item item)
 	{
 		this.item = item;

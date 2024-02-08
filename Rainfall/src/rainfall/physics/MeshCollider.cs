@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Rainfall
+{
+	public class MeshCollider
+	{
+		internal IntPtr handle;
+		public Matrix transform { get; internal set; }
+
+
+		internal MeshCollider(IntPtr handle, Matrix transform)
+		{
+			this.handle = handle;
+			this.transform = transform;
+		}
+
+		public void destroy()
+		{
+			Native.Physics.Physics_DestroyMeshCollider(handle);
+		}
+	}
+}

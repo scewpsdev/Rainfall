@@ -24,6 +24,7 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 
 		fracturedModel = Resource.GetModel("res/entity/object/crate/crate_fractured.gltf");
 		fracturedModel.configureLODs(LOD.DISTANCE_SMALL);
+		fracturedModel.isStatic = false;
 
 		container = new ItemContainer(5, 5);
 	}

@@ -242,6 +242,8 @@ namespace Rainfall
 			return Native.Graphics.Graphics_CreateInstanceBuffer(count, stride, out buffer) != 0;
 		}
 
+		public static List<Cubemap> textures = new List<Cubemap>();
+
 		public Texture createTexture(int width, int height, TextureFormat format, VideoMemory memory, ulong flags = 0)
 		{
 			ushort handle = Native.Graphics.Graphics_CreateTextureImmutable(width, height, format, flags, memory.memoryHandle, out TextureInfo info);
@@ -434,13 +436,20 @@ namespace Rainfall
 		{
 			ushort handle = Native.Graphics.Graphics_CreateCubemap(size, format, flags, out TextureInfo info);
 			if (handle != ushort.MaxValue)
-				return new Cubemap(handle, info);
+			{
+				Cubemap c = new Cubemap(handle, info);
+				textures.Add(c);
+				return c;
+			}
 			return null;
 		}
 
 		public void destroyCubemap(Cubemap cubemap)
 		{
 			Native.Graphics.Graphics_DestroyTexture(cubemap.handle);
+
+			if (textures.Contains(cubemap))
+				textures.Remove(cubemap);
 		}
 
 		public RenderTarget createRenderTarget(RenderTargetAttachment[] attachments)
@@ -451,17 +460,22 @@ namespace Rainfall
 			Texture[] textures = new Texture[numAttachments];
 			ushort handle = Native.Graphics.Graphics_CreateRenderTarget(numAttachments, ref attachments[0], ref textureInfos[0], textureIDs);
 
-			bool hasRGB = false, hasDepth = false;
-			for (int i = 0; i < numAttachments; i++)
+			if (handle != ushort.MaxValue)
 			{
-				textures[i] = new Texture(textureIDs[i], textureInfos[i]);
-				if (attachments[i].format >= TextureFormat.D16F && attachments[i].format <= TextureFormat.D0S8)
-					hasDepth = true;
-				else
-					hasRGB = true;
+				bool hasRGB = false, hasDepth = false;
+				for (int i = 0; i < numAttachments; i++)
+				{
+					textures[i] = new Texture(textureIDs[i], textureInfos[i]);
+					if (attachments[i].format >= TextureFormat.D16F && attachments[i].format <= TextureFormat.D0S8)
+						hasDepth = true;
+					else
+						hasRGB = true;
+				}
+
+				return new RenderTarget(handle, attachments, textures, hasRGB, hasDepth);
 			}
 
-			return new RenderTarget(handle, attachments, textures, hasRGB, hasDepth);
+			return null;
 		}
 
 		public void destroyRenderTarget(RenderTarget renderTarget)
@@ -791,9 +805,11 @@ namespace Rainfall
 			Native.Graphics.Graphics_CompleteFrame();
 		}
 
-		public void getRenderStats(out RenderStats stats)
+		public RenderStats getRenderStats()
 		{
+			RenderStats stats;
 			Native.Graphics.Graphics_GetRenderStats(out stats);
+			return stats;
 		}
 	}
 }

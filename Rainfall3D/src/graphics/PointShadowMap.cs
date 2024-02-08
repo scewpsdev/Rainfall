@@ -29,4 +29,14 @@ public class PointShadowMap
 			});
 		}
 	}
+
+	public void destroy(GraphicsDevice graphics)
+	{
+		graphics.destroyCubemap(cubemap);
+
+		for (int i = 0; i < renderTargets.Length; i++)
+		{
+			graphics.destroyRenderTarget(renderTargets[i]);
+		}
+	}
 }

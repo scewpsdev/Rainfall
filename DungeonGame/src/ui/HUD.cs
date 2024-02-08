@@ -43,6 +43,17 @@ public class HUD
 		crosshairHand = Resource.GetTexture("res/texture/ui/crosshair_hand.png");
 	}
 
+	public void init(Level level)
+	{
+		minimap = graphics.createTexture(level.tilemap.mapSize.x, level.tilemap.mapSize.z, TextureFormat.BGRA8, (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp);
+		minimapPixels = new uint[minimap.width * minimap.height];
+	}
+
+	public void destroy()
+	{
+		graphics.destroyTexture(minimap);
+	}
+
 	public void onHit()
 	{
 		lastHit = Time.currentTime;
@@ -312,12 +323,6 @@ public class HUD
 
 		Level level = DungeonGame.instance.level;
 
-		if (minimap == null)
-		{
-			minimap = graphics.createTexture(level.tilemap.mapSize.x, level.tilemap.mapSize.z, TextureFormat.BGRA8, (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp);
-			minimapPixels = new uint[minimap.width * minimap.height];
-		}
-
 		int playerY = (int)MathF.Floor(player.position.y - level.tilemap.mapPosition.y + 1.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
 
 		level.tilemap.getRelativeTilePosition(player.position / LevelGenerator.TILE_SIZE, out Vector3i playerPos);
@@ -430,6 +435,6 @@ public class HUD
 		float vignetteHitEffect = MathF.Exp(-timeSinceHit * 6.0f);
 		Renderer.vignetteColor = Vector3.Lerp(Vector3.Zero, new Vector3(1.0f, 0.0f, 0.0f), vignetteHitEffect);
 
-		Renderer.vignetteFalloff = MathHelper.Lerp(50.0f, 0.37f, fadeout);
+		Renderer.vignetteFalloff = MathHelper.Lerp(50.0f, 0.37f, MathF.Pow(fadeout, 0.5f));
 	}
 }

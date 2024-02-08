@@ -110,6 +110,7 @@ internal class WallTorch : Entity, Interactable
 	public override void destroy()
 	{
 		body.destroy();
+		light.destroy(Renderer.graphics);
 		audio.destroy();
 	}
 

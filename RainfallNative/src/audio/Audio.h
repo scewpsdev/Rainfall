@@ -1,6 +1,6 @@
 #pragma once
 
 
-void Audio_Init();
-void Audio_Shutdown();
-void Audio_Update();
+RFAPI void Audio_Init();
+RFAPI void Audio_Shutdown();
+RFAPI void Audio_Update();
