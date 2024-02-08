@@ -208,6 +208,7 @@ public static class Renderer
 	static FontData baskervilleFont;
 	public static Font promptFont, xpFont, notificationFont, stackSizeFont;
 	public static Font victoryFont;
+	public static Font uiFontMedium;
 
 	public static Camera camera;
 	public static Matrix projection, view, pv;
@@ -536,6 +537,7 @@ public static class Renderer
 		notificationFont = baskervilleFont.createFont(18.0f, true);
 		stackSizeFont = baskervilleFont.createFont(20.0f, true);
 		victoryFont = baskervilleFont.createFont(80, true);
+		uiFontMedium = baskervilleFont.createFont(20, true);
 
 		particleBatch = new SpriteBatch(graphics);
 		uiTextureBatch = new SpriteBatch(graphics);

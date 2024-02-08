@@ -582,6 +582,11 @@ namespace Physics
 		return mesh;
 	}
 
+	RFAPI void Physics_DestroyMeshCollider(PxTriangleMesh* mesh)
+	{
+		mesh->release();
+	}
+
 	RFAPI PxHeightField* Physics_CreateHeightField(int width, int height, PxHeightFieldSample* data)
 	{
 		PxHeightFieldDesc desc;
@@ -684,25 +689,12 @@ namespace Physics
 		return transform;
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, Model* model, int meshIdx, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, physx::PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		MeshData& mesh = model->lod0->meshes[meshIdx];
-		Matrix meshTransform = transform * GetNodeTransform(model->lod0->meshes[meshIdx].node);
-		if (physx::PxTriangleMesh* pxMesh = Physics_CreateMeshCollider(mesh.positionsNormalsTangents, mesh.vertexCount, mesh.indexData, mesh.indexCount))
-		{
-			Vector3 position = meshTransform.translation();
-			Quaternion rotation = meshTransform.rotation();
-			Vector3 scale = meshTransform.scale();
-			AddCollider(body->actor, PxTriangleMeshGeometry(pxMesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
-		}
-	}
-
-	RFAPI void Physics_RigidBodyAddMeshColliders(RigidBody* body, Model* model, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
-	{
-		for (int i = 0; i < model->lod0->numMeshes; i++)
-		{
-			Physics_RigidBodyAddMeshCollider(body, model, i, transform, filterGroup, filterMask, staticFriction, dynamicFriction, restitution);
-		}
+		Vector3 position = transform.translation();
+		Quaternion rotation = transform.rotation();
+		Vector3 scale = transform.scale();
+		AddCollider(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
 	RFAPI PxConvexMesh* Physics_CreateConvexMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
@@ -779,15 +771,14 @@ namespace Physics
 	RFAPI void Physics_RigidBodyClearColliders(RigidBody* body)
 	{
 		uint32_t numShapes = body->actor->getNbShapes();
-		if (numShapes > 16)
-			Console_Error("Too many shapes! n=%d", numShapes);
-		PxShape* shapeBuffer[16];
+		PxShape** shapeBuffer = (PxShape**)BX_ALLOC(Application_GetAllocator(), numShapes * sizeof(PxShape));
 		body->actor->getShapes(shapeBuffer, numShapes);
 		for (uint32_t i = 0; i < body->actor->getNbShapes(); i++)
 		{
 			body->actor->detachShape(*shapeBuffer[i]);
 			shapeBuffer[i]->release();
 		}
+		BX_FREE(Application_GetAllocator(), shapeBuffer);
 	}
 
 	RFAPI void Physics_RigidBodySetTransform(RigidBody* body, const Vector3& position, const Quaternion& rotation)

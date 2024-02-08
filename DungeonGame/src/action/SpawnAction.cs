@@ -33,7 +33,7 @@ internal class SpawnAction : Action
 	{
 		base.onStarted(player);
 
-		player.stats.health = player.stats.maxHealth;
+		//player.stats.health = player.stats.maxHealth;
 	}
 
 	public override void onFinished(Player player)

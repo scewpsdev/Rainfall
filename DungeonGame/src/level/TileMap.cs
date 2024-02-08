@@ -27,6 +27,11 @@ public class TileMap
 
 	public TileMap()
 	{
+		reset();
+	}
+
+	public void reset()
+	{
 		mapPosition = Vector3i.Zero;
 		mapSize = Vector3i.Zero;
 		grid = null;

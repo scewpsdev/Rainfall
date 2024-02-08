@@ -17,6 +17,9 @@ namespace Rainfall.Native
 		internal static extern void Audio_Shutdown();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_Update();
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_ListenerUpdateTransform(Vector3 position, Vector3 forward, Vector3 up);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

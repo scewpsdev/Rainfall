@@ -16,27 +16,45 @@ public class LevelGenerator
 	Level level;
 	TileMap tilemap;
 
-	int maxRooms = 32;
+	int maxRooms = 3;
 
 	Random random;
 
 	List<Room> rooms = new List<Room>();
 	Room startingRoom, finalRoom, mainRoom;
 
-	Model floor, wall, ceiling;
+	Model floorModels, wallModels, ceilingModels;
 
 	public List<ItemContainer> itemContainers = new List<ItemContainer>();
 
+	Model floor, wall, ceiling;
 
-	public LevelGenerator(int seed, Level level)
+
+	public LevelGenerator()
 	{
-		this.level = level;
-
-		random = new Random(seed);
-
 		floor = Resource.GetModel("res/models/tiles/floor.gltf");
 		wall = Resource.GetModel("res/models/tiles/wall.gltf");
 		ceiling = Resource.GetModel("res/models/tiles/ceiling.gltf");
+	}
+
+	public void reset(int seed, Level level)
+	{
+		this.level = level;
+		this.tilemap = level.tilemap;
+
+		random = new Random(seed);
+
+		rooms.Clear();
+		startingRoom = finalRoom = mainRoom = null;
+
+		floorModels?.destroy();
+		floorModels = null;
+		wallModels?.destroy();
+		wallModels = null;
+		ceilingModels?.destroy();
+		ceilingModels = null;
+
+		itemContainers.Clear();
 	}
 
 	void propagateRooms(SectorType type)
@@ -689,8 +707,7 @@ public class LevelGenerator
 
 	void spawnRooms()
 	{
-		level.rooms = rooms;
-		level.roomIDMap = new Dictionary<int, int>();
+		level.rooms.AddRange(rooms);
 		for (int i = 0; i < rooms.Count; i++)
 			level.roomIDMap.Add(rooms[i].id, i);
 
@@ -763,9 +780,9 @@ public class LevelGenerator
 			room.spawn(level, this, random);
 		}
 
-		level.levelMeshes.Add(new LevelMesh(wallBatch.createModel(), Matrix.Identity));
-		level.levelMeshes.Add(new LevelMesh(floorBatch.createModel(), Matrix.Identity));
-		level.levelMeshes.Add(new LevelMesh(ceilingBatch.createModel(), Matrix.Identity));
+		level.levelMeshes.Add(new LevelMesh(wallModels = wallBatch.createModel(), Matrix.Identity));
+		level.levelMeshes.Add(new LevelMesh(floorModels = floorBatch.createModel(), Matrix.Identity));
+		level.levelMeshes.Add(new LevelMesh(ceilingModels = ceilingBatch.createModel(), Matrix.Identity));
 	}
 
 	void placeLadders()
@@ -968,6 +985,8 @@ public class LevelGenerator
 		for (int i = 0; i < numWeapons; i++)
 		{
 			Item weapon = Item.GetItemByCategory(ItemCategory.Weapon, random);
+			if (weapon.name == "default")
+				continue;
 			loot.Add(weapon);
 			amounts.Add(1);
 		}
@@ -997,18 +1016,21 @@ public class LevelGenerator
 		}
 
 
-		for (int i = 0; i < loot.Count; i++)
+		if (itemContainers.Count > 0)
 		{
-			Item item = loot[i];
-			int amount = amounts[i];
-			ItemContainer container = itemContainers[random.Next() % itemContainers.Count];
-			ItemSlot slot = container.addItem(item, amount);
-			// TODO add to random slot in container
-			if (slot != null)
+			for (int i = 0; i < loot.Count; i++)
 			{
-				loot.RemoveAt(i);
-				amounts.RemoveAt(i);
-				i--;
+				Item item = loot[i];
+				int amount = amounts[i];
+				ItemContainer container = itemContainers[random.Next() % itemContainers.Count];
+				ItemSlot slot = container.addItem(item, amount);
+				// TODO add to random slot in container
+				if (slot != null)
+				{
+					loot.RemoveAt(i);
+					amounts.RemoveAt(i);
+					i--;
+				}
 			}
 		}
 	}
@@ -1017,20 +1039,17 @@ public class LevelGenerator
 	{
 		Console.WriteLine("Generating level");
 
-		RoomType.Init();
-
 		tilemap = new TileMap();
 		level.tilemap = tilemap;
 
 		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.CreateTranslation(0, 0, 30));
-		finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(0, 0, -64 - 15));
+		//finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(0, 0, -64 - 15));
 		//mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
 
 		while (rooms.Count < maxRooms)
 		{
 			propagateRooms(SectorType.None);
 		}
-		//placeFinalRoom();
 		interconnectRooms(2);
 		propagateRooms(SectorType.Corridor);
 		removeEmptyCorridors();

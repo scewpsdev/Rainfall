@@ -17,6 +17,8 @@ namespace Rainfall
 
 		MaterialData material;
 
+		Model model;
+
 
 		public ModelBatch(int numVertices = 0, int numIndices = 0)
 		{
@@ -27,6 +29,11 @@ namespace Rainfall
 			}
 			if (numIndices != 0)
 				indices.Capacity = numIndices;
+		}
+
+		public void destroy()
+		{
+			model.destroy();
 		}
 
 		public void addModel(Model model, Matrix transform, int atlasIndex, Vector2i atlasSize)
@@ -66,7 +73,7 @@ namespace Rainfall
 		{
 			if (vertices.Count > 0)
 			{
-				Model model = new Model(vertices.Count, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(uvs), indices.Count, CollectionsMarshal.AsSpan(indices), material);
+				model = new Model(vertices.Count, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(uvs), indices.Count, CollectionsMarshal.AsSpan(indices), material);
 				vertices = null;
 				uvs = null;
 				indices = null;

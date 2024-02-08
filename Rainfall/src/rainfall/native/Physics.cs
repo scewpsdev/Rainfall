@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using static Rainfall.Native.Physics;
+using System.Runtime.CompilerServices;
 
 namespace Rainfall.Native
 {
@@ -34,7 +35,10 @@ namespace Rainfall.Native
 		internal static extern void Physics_DestroyRigidBody(IntPtr body);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_CreateMeshCollider(Vector3[] vertices, int numVertices, int[] indices, int numIndices);
+		internal static extern unsafe IntPtr Physics_CreateMeshCollider(void* vertices, int numVertices, int* indices, int numIndices);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyMeshCollider(IntPtr mesh);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Physics_CreateHeightField(int width, int height, ref HeightFieldSample data);
@@ -52,10 +56,7 @@ namespace Rainfall.Native
 		internal static extern void Physics_RigidBodyAddCapsuleCollider(IntPtr body, float radius, float height, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddMeshCollider(IntPtr body, IntPtr model, int meshIdx, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
-
-		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddMeshColliders(IntPtr body, IntPtr model, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern void Physics_RigidBodyAddMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyAddConvexMeshCollider(IntPtr body, IntPtr model, int meshIdx, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);

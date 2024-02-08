@@ -40,7 +40,7 @@ namespace Rainfall
 		public long gpuTimerFreq;               //!< GPU timer frequency.
 
 		long waitRender;                 //!< Time spent waiting for render backend thread to finish issuing
-											//!  draw commands to underlying graphics API.
+										 //!  draw commands to underlying graphics API.
 		long waitSubmit;                 //!< Time spent waiting for submit thread to advance to next frame.
 
 		public uint numDraw;                   //!< Number of draw calls submitted.
@@ -48,17 +48,17 @@ namespace Rainfall
 		public uint numBlit;                   //!< Number of blit calls submitted.
 		public uint maxGpuLatency;             //!< GPU driver latency.
 
-		ushort numDynamicIndexBuffers;    //!< Number of used dynamic index buffers.
-		ushort numDynamicVertexBuffers;   //!< Number of used dynamic vertex buffers.
-		ushort numFrameBuffers;           //!< Number of used frame buffers.
-		ushort numIndexBuffers;           //!< Number of used index buffers.
-		ushort numOcclusionQueries;       //!< Number of used occlusion queries.
-		ushort numPrograms;               //!< Number of used programs.
-		ushort numShaders;                //!< Number of used shaders.
-		ushort numTextures;               //!< Number of used textures.
-		ushort numUniforms;               //!< Number of used uniforms.
-		ushort numVertexBuffers;          //!< Number of used vertex buffers.
-		ushort numVertexLayouts;          //!< Number of used vertex layouts.
+		ushort _numDynamicIndexBuffers;    //!< Number of used dynamic index buffers.
+		ushort _numDynamicVertexBuffers;   //!< Number of used dynamic vertex buffers.
+		ushort _numFrameBuffers;           //!< Number of used frame buffers.
+		ushort _numIndexBuffers;           //!< Number of used index buffers.
+		ushort _numOcclusionQueries;       //!< Number of used occlusion queries.
+		ushort _numPrograms;               //!< Number of used programs.
+		ushort _numShaders;                //!< Number of used shaders.
+		ushort _numTextures;               //!< Number of used textures.
+		ushort _numUniforms;               //!< Number of used uniforms.
+		ushort _numVertexBuffers;          //!< Number of used vertex buffers.
+		ushort _numVertexLayouts;          //!< Number of used vertex layouts.
 
 		public long textureMemoryUsed;          //!< Estimate of texture memory used.
 		public long rtMemoryUsed;               //!< Estimate of render target memory used.
@@ -83,11 +83,10 @@ namespace Rainfall
 
 		public float cpuTime { get => (cpuTimeEnd - cpuTimeBegin) / (float)cpuTimerFreq; }
 		public float gpuTime { get => (gpuTimeEnd - gpuTimeBegin) / (float)gpuTimerFreq; }
+		public int numRenderTargets { get => _numFrameBuffers; }
+		public int numShaders { get => _numPrograms; }
+		public int numTextures { get => _numTextures; }
 		public int numTriangles { get => (int)numPrims[0]; }
-		public int numTriangles1 { get => (int)numPrims[1]; }
-		public int numTriangles2 { get => (int)numPrims[2]; }
-		public int numTriangles3 { get => (int)numPrims[3]; }
-		public int numTriangles4 { get => (int)numPrims[4]; }
 	}
 
 	namespace Native

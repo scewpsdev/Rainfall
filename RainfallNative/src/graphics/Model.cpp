@@ -347,7 +347,7 @@ void InitializeScene(SceneData& scene, const char* scenePath, uint64_t textureFl
 template<typename T>
 T* CopyData(T* data, int length)
 {
-	T* mem = new T[length];
+	T* mem = (T*)BX_ALLOC(Application_GetAllocator(), length * sizeof(T));
 	memcpy(mem, data, length * sizeof(T));
 	return mem;
 }
@@ -460,6 +460,28 @@ RFAPI Model* Model_Create(int numVertices, PositionNormalTangent* vertices, Vect
 
 	Model* model = BX_NEW(Application_GetAllocator(), Model)(sceneData);
 	return model;
+}
+
+RFAPI void Model_Destroy(Model* model)
+{
+	SceneData* sceneData = model->lod0;
+
+	if (sceneData->meshes)
+		BX_FREE(Application_GetAllocator(), sceneData->meshes);
+	if (sceneData->materials)
+		BX_FREE(Application_GetAllocator(), sceneData->materials);
+	if (sceneData->skeletons)
+		BX_FREE(Application_GetAllocator(), sceneData->skeletons);
+	if (sceneData->animations)
+		BX_FREE(Application_GetAllocator(), sceneData->animations);
+	if (sceneData->nodes)
+		BX_FREE(Application_GetAllocator(), sceneData->nodes);
+	if (sceneData->lights)
+		BX_FREE(Application_GetAllocator(), sceneData->lights);
+
+	BX_FREE(Application_GetAllocator(), sceneData);
+
+	BX_FREE(Application_GetAllocator(), model);
 }
 
 RFAPI void Model_ConfigureLODs(Model* model, float maxDistance)

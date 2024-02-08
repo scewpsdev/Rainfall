@@ -18,11 +18,11 @@ internal class SkeletonEnemy : Creature
 		rightWeaponNode = model.skeleton.getNode("handHold.R");
 		leftWeaponNode = model.skeleton.getNode("handHold.L");
 		animator = new Animator(model);
-		idleState = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "idle", true) }, 0.2f);
-		runState = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "run", true) }, 0.2f);
-		deadState = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "death", false) }, 0.2f);
-		actionState1 = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "default", false) }, 0.2f);
-		actionState2 = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "default", false) }, 0.2f);
+		idleState = new AnimationState(model, "idle", true, 0.2f);
+		runState = new AnimationState(model, "run", true, 0.2f);
+		deadState = new AnimationState(model, "death", false, 0.2f);
+		actionState1 = new AnimationState(model, "default", false, 0.2f);
+		actionState2 = new AnimationState(model, "default", false, 0.2f);
 
 		animator.setState(idleState);
 
@@ -75,9 +75,6 @@ internal class SkeletonEnemy : Creature
 		hitSound = new Sound[] {
 			Resource.GetSound("res/entity/creature/skeleton/sfx/hit.ogg")
 		};
-
-
-		setItem(0, Item.Get("shortsword"));
 	}
 
 	public override void init()
@@ -85,5 +82,7 @@ internal class SkeletonEnemy : Creature
 		base.init();
 
 		movementBody.addCapsuleCollider(0.3f, 2.0f, new Vector3(0.0f, 1.0f, 0.0f), Quaternion.Identity, 0.0f);
+
+		setItem(0, Item.Get("shortsword"));
 	}
 }

@@ -25,6 +25,11 @@ public class PointLight
 		shadowMap = new PointShadowMap(RESOLUTION, nearPlane, graphics);
 	}
 
+	public void destroy(GraphicsDevice graphics)
+	{
+		shadowMap.destroy(graphics);
+	}
+
 	public void updateShadowMap()
 	{
 		shadowMap.needsUpdate = true;

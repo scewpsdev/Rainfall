@@ -12,7 +12,9 @@
 				1,
 				2,
 				3,
-				4
+				4,
+				5,
+				6
 			]
 		}
 	],
@@ -56,6 +58,20 @@
 				0,
 				1,
 				0
+			]
+		},
+		{
+			"mesh":5,
+			"name":"DoorwayCover0"
+		},
+		{
+			"mesh":6,
+			"name":"DoorwayCover1",
+			"rotation":[
+				0,
+				-0.7071068286895752,
+				0,
+				0.7071068286895752
 			]
 		}
 	],
@@ -188,6 +204,34 @@
 					},
 					"indices":23,
 					"material":2
+				}
+			]
+		},
+		{
+			"name":"Cube.001",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":24,
+						"NORMAL":25,
+						"TEXCOORD_0":26
+					},
+					"indices":27,
+					"material":0
+				}
+			]
+		},
+		{
+			"name":"Cube.002",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":28,
+						"NORMAL":29,
+						"TEXCOORD_0":30
+					},
+					"indices":27,
+					"material":0
 				}
 			]
 		}
@@ -396,6 +440,68 @@
 			"componentType":5123,
 			"count":120,
 			"type":"SCALAR"
+		},
+		{
+			"bufferView":24,
+			"componentType":5126,
+			"count":4,
+			"max":[
+				5,
+				3,
+				4
+			],
+			"min":[
+				5,
+				0,
+				1
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":25,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":26,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":27,
+			"componentType":5123,
+			"count":6,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":28,
+			"componentType":5126,
+			"count":4,
+			"max":[
+				6.999999523162842,
+				3,
+				-1
+			],
+			"min":[
+				6.999999523162842,
+				0,
+				-4
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":29,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":30,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC2"
 		}
 	],
 	"bufferViews":[
@@ -542,11 +648,53 @@
 			"byteLength":240,
 			"byteOffset":24800,
 			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":25040,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":25088,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":32,
+			"byteOffset":25136,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":25168,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":25180,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":25228,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":32,
+			"byteOffset":25276,
+			"target":34962
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":25040,
+			"byteLength":25308,
 			"uri":"study_alcove.bin"
 		}
 	]

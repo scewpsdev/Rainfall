@@ -96,8 +96,6 @@ public class Player : Entity
 	public bool noclip = false;
 	public LadderRegion currentLadder = null;
 
-	public Matrix resetPoint;
-
 	public bool isDucked = false;
 	public float inDuckTimer = -1.0f;
 	public WalkMode walkMode = WalkMode.Normal;
@@ -248,16 +246,16 @@ public class Player : Entity
 
 		for (int i = 0; i < 3; i++)
 		{
-			idleState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "idle", true) }, 0.5f);
-			runState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "run", true) }, 0.2f) { animationSpeed = 1.6f };
-			sprintState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "sprint", true) }, 1.0f) { animationSpeed = 1.6f };
-			duckedState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "ducked", true) }, 0.2f);
-			duckedWalkState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "ducked_walk", true) }, 0.2f) { animationSpeed = 1.6f };
+			idleState[i] = new AnimationState(viewmodel, "idle", true, 0.5f);
+			runState[i] = new AnimationState(viewmodel, "run", true, 0.2f) { animationSpeed = 1.6f };
+			sprintState[i] = new AnimationState(viewmodel, "sprint", true, 1.0f) { animationSpeed = 1.6f };
+			duckedState[i] = new AnimationState(viewmodel, "ducked", true, 0.2f);
+			duckedWalkState[i] = new AnimationState(viewmodel, "ducked_walk", true, 0.2f) { animationSpeed = 1.6f };
 			fallDuckedState[i] = new AnimationState(viewmodel, "idle", true) { transitionFromDuration = 0.0f };
-			jumpState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "jump", false) }, 0.1f);
-			fallState[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "fall", false) }, 0.2f);
-			actionState1[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "default", false) }, 0.2f);
-			actionState2[i] = new AnimationState(viewmodel, new AnimationLayer[] { new AnimationLayer(viewmodel, "default", false) }, 0.2f);
+			jumpState[i] = new AnimationState(viewmodel, "jump", false, 0.1f);
+			fallState[i] = new AnimationState(viewmodel, "fall", false, 0.2f);
+			actionState1[i] = new AnimationState(viewmodel, "default", false, 0.2f);
+			actionState2[i] = new AnimationState(viewmodel, "default", false, 0.2f);
 		}
 
 		animator0.setState(idleState[0]);
@@ -268,6 +266,8 @@ public class Player : Entity
 		handEntities[1] = new ItemEntity(this, 1);
 
 		yaw = rotation.eulers.y;
+
+		hud.init(DungeonGame.instance.level);
 
 		giveItem(Item.Get("map"), 1);
 
@@ -293,8 +293,16 @@ public class Player : Entity
 
 	public override void destroy()
 	{
+		controller.destroy();
+		kinematicBody.destroy();
+
 		audioMovement.destroy();
 		audioAction.destroy();
+
+		handEntities[0].destroy();
+		handEntities[1].destroy();
+
+		hud.destroy();
 	}
 
 	public void hit(int damage, Entity from)
@@ -1625,6 +1633,11 @@ public class Player : Entity
 			viewmodelVerticalSpeedAnim = MathHelper.Lerp(viewmodelVerticalSpeedAnim, verticalSpeedAnimDst * 0.02f, 5.0f * Time.deltaTime);
 			viewmodelSwayPitch += viewmodelVerticalSpeedAnim;
 
+			if (currentAction != null && currentAction.type == ActionType.Dodge)
+			{
+				viewmodelSwayPitch += ((DodgeAction)currentAction).getViewmodelHeight();
+			}
+
 			// Jump bob animation
 			float timeSinceJump = (Time.currentTime - lastJumpedTime) / 1e9f * 2.0f;
 			float jumpBob = (1.0f - MathF.Pow(0.5f, timeSinceJump)) * 1.0f * MathF.Pow(0.1f, timeSinceJump);
@@ -1645,8 +1658,8 @@ public class Player : Entity
 			float runBobX = MathF.Sin(distanceWalked * bobFrequency);
 			float runBobY = (-MathF.Abs(MathF.Cos(distanceWalked * bobFrequency)) + 0.5f) * 0.5f;
 			float bobAmplitude = (1.0f - MathF.Exp(-movementSpeed)) * 0.05f;
-			cameraSwayX += runBobX * bobAmplitude;
-			cameraSwayY += runBobY * bobAmplitude;
+			//cameraSwayX += runBobX * bobAmplitude;
+			//cameraSwayY += runBobY * bobAmplitude;
 
 			// Look sway
 			float swayYawDst = -0.5f * InputManager.lookVector.x;

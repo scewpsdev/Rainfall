@@ -110,9 +110,6 @@ public class Creature : Entity, Hittable
 	{
 		stats = new CreatureStats();
 
-		weaponEntities[0] = new MobItemEntity(this, 0);
-		weaponEntities[1] = new MobItemEntity(this, 1);
-
 		healthbarTextFont = Resource.GetFontData("res/fonts/libre-baskerville.regular.ttf").createFont(20.0f, true);
 
 		ragdollImpactSounds = new Sound[] {
@@ -145,6 +142,9 @@ public class Creature : Entity, Hittable
 		if (headNode != null && hitboxesNodeMap.ContainsKey(headNode))
 			headColliderID = hitboxesNodeMap[headNode];
 
+		weaponEntities[0] = new MobItemEntity(this, 0);
+		weaponEntities[1] = new MobItemEntity(this, 1);
+
 		yaw = rotation.eulers.y;
 	}
 
@@ -158,6 +158,9 @@ public class Creature : Entity, Hittable
 			body.destroy();
 
 		ragdoll?.destroy();
+
+		weaponEntities[0].destroy();
+		weaponEntities[1].destroy();
 
 		ai?.destroy();
 	}

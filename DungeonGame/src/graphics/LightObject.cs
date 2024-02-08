@@ -27,6 +27,11 @@ public class LightObject : Entity
 		light = new PointLight(position, color, Renderer.graphics);
 	}
 
+	public override void destroy()
+	{
+		light.destroy(Renderer.graphics);
+	}
+
 	public override void draw(GraphicsDevice graphics)
 	{
 		Renderer.DrawPointLight(light);

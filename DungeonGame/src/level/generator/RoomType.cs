@@ -22,7 +22,7 @@ public struct DoorwayInfo
 
 	public string coverModel;
 
-	public DoorwayInfo(Vector3i position, Vector3i direction, float spawnChance = 0.5f, string coverModel = null)
+	public DoorwayInfo(Vector3i position, Vector3i direction, string coverModel = null, float spawnChance = 0.5f)
 	{
 		this.position = position;
 		this.direction = direction;
@@ -49,6 +49,8 @@ public class RoomType
 	public SectorType sectorType = SectorType.Room;
 	public Vector3i size;
 	public bool[] mask;
+
+	MeshCollider[] meshColliders;
 
 	public bool allowSecretDoorConnections = true;
 	public bool generateWallMeshes = true;
@@ -139,6 +141,11 @@ public class RoomType
 	{
 		if (model != null)
 		{
+			if (meshColliders == null)
+			{
+				meshColliders = new MeshCollider[model.meshCount];
+			}
+
 			for (int i = 0; i < model.meshCount; i++)
 			{
 				bool isDoorwayCover = false;
@@ -162,7 +169,10 @@ public class RoomType
 				else
 				{
 					level.levelMeshes.Add(new LevelMesh(model, i, room));
-					level.body.addMeshCollider(model, i, room.transform);
+
+					if (meshColliders[i] == null)
+						meshColliders[i] = Physics.CreateMeshCollider(model, i);
+					level.body.addMeshCollider(meshColliders[i], room.transform);
 				}
 			}
 		}
@@ -1107,9 +1117,9 @@ public class StorageRoom : RoomType
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left, 0.5f, "DoorwayCover0"));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left, 0.5f, "DoorwayCover1"));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right, 0.5f, "DoorwayCover2"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left, "DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left, "DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right, "DoorwayCover2"));
 
 		model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
 		collider = Resource.GetModel("res/level/room/level1/storage_room/storage_room_collider.gltf");
@@ -1150,8 +1160,8 @@ public class StudyAlcove : RoomType
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(5, 0, 2), Vector3i.Right));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(5, 0, 2), Vector3i.Right, "DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back, "DoorwayCover1"));
 
 		model = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove.gltf");
 		collider = model;
@@ -1164,8 +1174,12 @@ public class StudyAlcove : RoomType
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
+		base.onSpawn(room, level, generator, random);
+
+		/*
 		level.levelMeshes.Add(new LevelMesh(model, room));
 		level.body.addMeshColliders(collider, room.transform);
+		*/
 
 		room.addEntity(new LightObject(new Vector3(1.0f, 0.707586f, 0.48509f) * 2.5f), room.transform * new Vector3(2, 2.4f, 3.6f), Quaternion.Identity);
 		room.addEntity(new LightObject(new Vector3(0.768808f, 0.890239f, 1) * 4), room.transform * new Vector3(0.4f, 2.6f, 3.6f), Quaternion.Identity);
