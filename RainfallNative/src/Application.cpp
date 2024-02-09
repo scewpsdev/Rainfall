@@ -159,47 +159,48 @@ struct MemoryAllocator : bx::DefaultAllocator
 
 
 	virtual void* realloc(
-		void* _ptr
-		, size_t _size
-		, size_t _align
-		, const char* _file
-		, uint32_t _line
+		void* ptr
+		, size_t size
+		, size_t align
+		, const char* file
+		, uint32_t line
 	) override
 	{
-		void* result = bx::DefaultAllocator::realloc(_ptr, _size, _align, _file, _line);
+		void* result = bx::DefaultAllocator::realloc(ptr, size, align, file, line);
+		memset(result, 0, size);
 
-#ifndef _DISTRIBUTION
-		if (0 == _size)
+#ifndef _RELEASE
+		if (size == 0)
 		{
-			if (NULL != _ptr)
+			if (ptr)
 			{
 				mutex.lock();
-				auto it = allocations.find(_ptr);
+				auto it = allocations.find(ptr);
 				if (it != allocations.end())
 				{
-					numBytes -= allocations.at(_ptr);
-					allocations.erase(_ptr);
+					numBytes -= allocations.at(ptr);
+					allocations.erase(ptr);
 				}
 				else
 				{
-					Console_Error("Freeing unrecognized pointer %x, f: %f, %d, %c", _ptr, *(float*)_ptr, *(int*)_ptr, *(char*)_ptr);
+					Console_Error("Freeing unrecognized pointer %x, f: %f, %d, %c", ptr, *(float*)ptr, *(int*)ptr, *(char*)ptr);
 				}
 				mutex.unlock();
 			}
 		}
-		else if (NULL == _ptr)
+		else if (!ptr)
 		{
 			mutex.lock();
-			allocations.emplace(result, _size);
-			numBytes += _size;
+			allocations.emplace(result, size);
+			numBytes += size;
 			mutex.unlock();
 		}
 		else
 		{
 			mutex.lock();
-			int64_t& s = allocations.at(_ptr);
-			numBytes += _size - s;
-			s = _size;
+			int64_t& s = allocations.at(ptr);
+			numBytes += size - s;
+			s = size;
 			mutex.unlock();
 		}
 #endif

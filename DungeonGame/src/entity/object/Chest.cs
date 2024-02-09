@@ -43,7 +43,7 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 		//this.amounts = amounts;
 
 		model = Resource.GetModel("res/entity/object/chest/chest.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		animator = new Animator(model);
 		lidNode = model.skeleton.getNode("Chest_Lid");
@@ -59,11 +59,6 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 	public Chest(params Item[] items)
 		: this(items, null)
 	{
-	}
-
-	public void addItem(Item item, int amount = 1)
-	{
-		container.addItem(item, amount);
 	}
 
 	public override void init()
@@ -85,10 +80,18 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 
 	public override void destroy()
 	{
+		model.destroy();
+		animator.destroy();
+
 		chestBody.destroy();
 		lidBody.destroy();
 
 		audio.destroy();
+	}
+
+	public void addItem(Item item, int amount = 1)
+	{
+		container.addItem(item, amount);
 	}
 
 	public void open(Player player)

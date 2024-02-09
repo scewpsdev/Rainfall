@@ -11,7 +11,7 @@ internal class SkeletonEnemy : Creature
 	public SkeletonEnemy()
 	{
 		model = Resource.GetModel("res/entity/creature/skeleton/skeleton.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 		model.isStatic = false;
 
 		rootNode = model.skeleton.getNode("Root");

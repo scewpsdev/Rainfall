@@ -20,12 +20,20 @@ public class GameManager
 
 	bool gameOver = false;
 
+	Font bossNameFont;
+	Font victoryFont;
+	Font mediumFont;
+
 
 	public GameManager()
 	{
 		RoomType.Init();
 
 		levelGenerator = new LevelGenerator();
+
+		bossNameFont = FontManager.GetFont("baskerville", 28, true);
+		victoryFont = FontManager.GetFont("baskerville", 80, true);
+		mediumFont = FontManager.GetFont("baskerville", 20, true);
 	}
 
 	public void resetGameState()
@@ -35,7 +43,7 @@ public class GameManager
 		player = new Player(camera, Renderer.graphics);
 		player.stats.reset();
 
-		int seed = (int)(Time.currentTime / 1000000);
+		int seed = (int)(Time.timestamp / 1000000);
 		if (File.Exists("seed.txt"))
 		{
 			string seedStr = File.ReadAllText("seed.txt");
@@ -48,6 +56,8 @@ public class GameManager
 
 		level.addEntity(player.camera);
 		level.addEntity(player, level.spawnPoint);
+
+		player.queueAction(new SpawnAction());
 	}
 
 	public void initiateBoss(Creature boss)
@@ -94,6 +104,7 @@ public class GameManager
 		{
 			if (InputManager.IsPressed("UIConfirm"))
 			{
+				gameOver = false;
 				resetGameState();
 			}
 		}
@@ -107,7 +118,7 @@ public class GameManager
 			int height = 16;
 			Renderer.DrawUIRect(Display.width / 2 - width / 2 - 2, Display.height - 128 - 2, width + 4, height + 4, 0xFF111111);
 			Renderer.DrawUIRect(Display.width / 2 - width / 2, Display.height - 128, (int)(width * currentBoss.stats.health / (float)currentBoss.stats.maxHealth), height, 0xFFFF1111);
-			Renderer.DrawText(Display.width / 2 - width / 2, Display.height - 128 - (int)Renderer.promptFont.size - 8, 1, currentBoss.name, Renderer.promptFont, 0xFFAAAAAA);
+			Renderer.DrawText(Display.width / 2 - width / 2, Display.height - 128 - (int)bossNameFont.size - 8, 1, currentBoss.name, bossNameFont, 0xFFAAAAAA);
 		}
 		if (player.hasWon)
 		{
@@ -117,8 +128,8 @@ public class GameManager
 			{
 				string text = "V I C T O R Y";
 				uint color = (uint)(((byte)(intensity * 255) << 24) | 0xCCAA66);
-				int width = Renderer.victoryFont.measureText(text);
-				Renderer.DrawText(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - (int)Renderer.victoryFont.size / 2, 1.0f, text, Renderer.victoryFont, color);
+				int width = victoryFont.measureText(text);
+				Renderer.DrawText(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - (int)victoryFont.size / 2, 1.0f, text, victoryFont, color);
 			}
 		}
 		if (gameOver)
@@ -133,9 +144,9 @@ public class GameManager
 
 		{
 			string text = "Ya ded son";
-			int width = text.Length * 32;
-			int height = 32;
-			Renderer.DrawText(Display.width / 2 - width / 2, Display.height / 4 - height / 2, 1, text, Renderer.uiFontMedium, 0xFFAAAAAA);
+			int width = mediumFont.measureText(text);
+			int height = (int)mediumFont.size;
+			Renderer.DrawText(Display.width / 2 - width / 2, Display.height / 4 - height / 2, 1, text, mediumFont, 0xFFAAAAAA);
 		}
 
 		int leftBound = Display.width / 8 + 50;
@@ -144,12 +155,12 @@ public class GameManager
 
 		var drawLeftInfo = (string text, uint color) =>
 		{
-			Renderer.DrawText(leftBound, yscroll, 1, text, Renderer.uiFontMedium, color);
+			Renderer.DrawText(leftBound, yscroll, 1, text, mediumFont, color);
 		};
 		var drawRightInfo = (string text, uint color) =>
 		{
 			int width = text.Length * 32;
-			Renderer.DrawText(rightBound - width, yscroll, 1, text, Renderer.uiFontMedium, color);
+			Renderer.DrawText(rightBound - width, yscroll, 1, text, mediumFont, color);
 			yscroll += 48;
 		};
 
@@ -175,9 +186,9 @@ public class GameManager
 
 		{
 			string text = "[E] Quick Restart";
-			int width = text.Length * 32;
-			int height = 32;
-			Renderer.DrawText(Display.width / 2 - width / 2, Display.height / 16 * 13 - height / 2, 1, text, Renderer.uiFontMedium, 0xFFAAAAAA);
+			int width = mediumFont.measureText(text);
+			int height = (int)mediumFont.size;
+			Renderer.DrawText(Display.width / 2 - width / 2, Display.height / 16 * 13 - height / 2, 1, text, mediumFont, 0xFFAAAAAA);
 		}
 	}
 }

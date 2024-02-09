@@ -205,10 +205,10 @@ public static class Renderer
 	static int currentUILayer = 0;
 	static int uiDepthCounter = 0;
 
-	static FontData baskervilleFont;
-	public static Font promptFont, xpFont, notificationFont, stackSizeFont;
-	public static Font victoryFont;
-	public static Font uiFontMedium;
+	//static FontData baskervilleFont;
+	//public static Font promptFont, xpFont, notificationFont, stackSizeFont;
+	//public static Font victoryFont;
+	//public static Font uiFontMedium;
 
 	public static Camera camera;
 	public static Matrix projection, view, pv;
@@ -531,13 +531,12 @@ public static class Renderer
 		uiTextureShader = Resource.GetShader("res/shaders/ui/ui.vs.shader", "res/shaders/ui/ui.fs.shader");
 		textShader = Resource.GetShader("res/shaders/text/text.vs.shader", "res/shaders/text/text.fs.shader");
 
-		baskervilleFont = Resource.GetFontData("res/fonts/libre-baskerville.regular.ttf");
-		promptFont = baskervilleFont.createFont(28.0f, true);
-		xpFont = baskervilleFont.createFont(20.0f, true);
-		notificationFont = baskervilleFont.createFont(18.0f, true);
-		stackSizeFont = baskervilleFont.createFont(20.0f, true);
-		victoryFont = baskervilleFont.createFont(80, true);
-		uiFontMedium = baskervilleFont.createFont(20, true);
+		//promptFont = FontManager.GetFont("baskerville", 28.0f, true);
+		//xpFont = FontManager.GetFont("baskerville", 20.0f, true);
+		//notificationFont = FontManager.GetFont("baskerville", 18.0f, true);
+		//stackSizeFont = FontManager.GetFont("baskerville", 20.0f, true);
+		//victoryFont = FontManager.GetFont("baskerville", 80, true);
+		//uiFontMedium = FontManager.GetFont("baskerville", 20, true);
 
 		particleBatch = new SpriteBatch(graphics);
 		uiTextureBatch = new SpriteBatch(graphics);
@@ -793,9 +792,9 @@ public static class Renderer
 			if (IsInRange(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, model.maxDistance))
 			{
 				if (isAnimated)
-					graphics.drawSubModelAnimated(model, meshID, animShader, animator, meshTransform);
+					model.drawMeshAnimated(graphics, meshID, animShader, animator, meshTransform);
 				else
-					graphics.drawSubModel(model, meshID, shader, meshTransform);
+					model.drawMesh(graphics, meshID, shader, meshTransform);
 
 				meshRenderCounter++;
 			}
@@ -886,7 +885,7 @@ public static class Renderer
 
 					graphics.setInstanceBuffer(instances, 0, numDrawnModels);
 
-					graphics.drawSubModel(model, j, meshInstancedShader, Matrix.Identity);
+					model.drawMesh(graphics, j, meshInstancedShader, Matrix.Identity);
 					meshRenderCounter += numDrawnModels;
 					meshCulledCounter += drawList.Count - numDrawnModels;
 				}
@@ -954,7 +953,7 @@ public static class Renderer
 			Model model = foliage[i].model;
 			int meshID = foliage[i].meshID;
 			Matrix transform = foliage[i].transform;
-			graphics.drawSubModel(model, meshID, foliageShader, transform);
+			model.drawMesh(graphics, meshID, foliageShader, transform);
 		}
 	}
 
@@ -1071,7 +1070,7 @@ public static class Renderer
 
 					graphics.setUniform(foliageShader.getUniform("u_animationData", UniformType.Vector4), new Vector4(Time.currentTime / 1e9f, 0.0f, 0.0f, 0.0f));
 
-					graphics.drawSubModel(model, meshID, foliageShader, transform);
+					model.drawMesh(graphics, meshID, foliageShader, transform);
 				}
 			}
 		}
@@ -2158,7 +2157,7 @@ public static class Renderer
 
 		foreach (var drawList in modelsInstanced.Values)
 			drawList.Clear();
-		//modelsInstanced.Clear();
+		modelsInstanced.Clear();
 
 		uiDepthCounter = 0;
 	}

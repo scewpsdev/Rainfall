@@ -58,7 +58,7 @@ public class Player : Entity
 	const float DUCK_SPEED_MULTIPLIER = 0.5f;
 	const float DUCK_TRANSITION_DURATION = 0.12f;
 
-	public const float PLAYER_RADIUS = 0.35f;
+	public const float PLAYER_RADIUS = 0.42f;
 	const float PLAYER_HEIGHT_STANDING = 1.75f;
 	const float PLAYER_HEIGHT_DUCKED = 0.92f;
 	public const float STEP_HEIGHT = 0.25f;
@@ -186,6 +186,40 @@ public class Player : Entity
 		hud = new HUD(this, graphics);
 		inventoryUI = new InventoryUI(this);
 
+		viewmodel = Resource.GetModel("res/entity/player/viewmodel.gltf");
+		viewmodel.isStatic = false;
+
+		rootNode = viewmodel.skeleton.getNode("Root");
+		spine03Node = viewmodel.skeleton.getNode("spine_03");
+		neckNode = viewmodel.skeleton.getNode("neck_01");
+		clavicleRNode = viewmodel.skeleton.getNode("clavicle_r");
+		clavicleLNode = viewmodel.skeleton.getNode("clavicle_l");
+		cameraAnchorNode = viewmodel.skeleton.getNode("camera_anchor");
+		rightItemNode = viewmodel.skeleton.getNode("weapon_r");
+		leftItemNode = viewmodel.skeleton.getNode("weapon_l");
+
+		moveAnimator = new Animator(viewmodel);
+		animator0 = new Animator(viewmodel);
+		animator1 = new Animator(viewmodel);
+
+		for (int i = 0; i < 3; i++)
+		{
+			idleState[i] = new AnimationState(viewmodel, "idle", true, 0.5f);
+			runState[i] = new AnimationState(viewmodel, "run", true, 0.2f) { animationSpeed = 1.6f };
+			sprintState[i] = new AnimationState(viewmodel, "sprint", true, 1.0f) { animationSpeed = 1.6f };
+			duckedState[i] = new AnimationState(viewmodel, "ducked", true, 0.2f);
+			duckedWalkState[i] = new AnimationState(viewmodel, "ducked_walk", true, 0.2f) { animationSpeed = 1.6f };
+			fallDuckedState[i] = new AnimationState(viewmodel, "idle", true) { transitionFromDuration = 0.0f };
+			jumpState[i] = new AnimationState(viewmodel, "jump", false, 0.1f);
+			fallState[i] = new AnimationState(viewmodel, "fall", false, 0.2f);
+			actionState1[i] = new AnimationState(viewmodel, "default", false, 0.2f);
+			actionState2[i] = new AnimationState(viewmodel, "default", false, 0.2f);
+		}
+
+		animator0.setState(idleState[0]);
+		animator1.setState(idleState[1]);
+		moveAnimator.setState(idleState[2]);
+
 		sfxStep = new Sound[]
 		{
 			Resource.GetSound("res/entity/player/sfx/step_stone.ogg")
@@ -228,40 +262,6 @@ public class Player : Entity
 
 		setCursorLocked(true);
 
-		viewmodel = Resource.GetModel("res/entity/player/viewmodel.gltf");
-		viewmodel.isStatic = false;
-
-		rootNode = viewmodel.skeleton.getNode("Root");
-		spine03Node = viewmodel.skeleton.getNode("spine_03");
-		neckNode = viewmodel.skeleton.getNode("neck_01");
-		clavicleRNode = viewmodel.skeleton.getNode("clavicle_r");
-		clavicleLNode = viewmodel.skeleton.getNode("clavicle_l");
-		cameraAnchorNode = viewmodel.skeleton.getNode("camera_anchor");
-		rightItemNode = viewmodel.skeleton.getNode("weapon_r");
-		leftItemNode = viewmodel.skeleton.getNode("weapon_l");
-
-		moveAnimator = new Animator(viewmodel);
-		animator0 = new Animator(viewmodel);
-		animator1 = new Animator(viewmodel);
-
-		for (int i = 0; i < 3; i++)
-		{
-			idleState[i] = new AnimationState(viewmodel, "idle", true, 0.5f);
-			runState[i] = new AnimationState(viewmodel, "run", true, 0.2f) { animationSpeed = 1.6f };
-			sprintState[i] = new AnimationState(viewmodel, "sprint", true, 1.0f) { animationSpeed = 1.6f };
-			duckedState[i] = new AnimationState(viewmodel, "ducked", true, 0.2f);
-			duckedWalkState[i] = new AnimationState(viewmodel, "ducked_walk", true, 0.2f) { animationSpeed = 1.6f };
-			fallDuckedState[i] = new AnimationState(viewmodel, "idle", true) { transitionFromDuration = 0.0f };
-			jumpState[i] = new AnimationState(viewmodel, "jump", false, 0.1f);
-			fallState[i] = new AnimationState(viewmodel, "fall", false, 0.2f);
-			actionState1[i] = new AnimationState(viewmodel, "default", false, 0.2f);
-			actionState2[i] = new AnimationState(viewmodel, "default", false, 0.2f);
-		}
-
-		animator0.setState(idleState[0]);
-		animator1.setState(idleState[1]);
-		moveAnimator.setState(idleState[2]);
-
 		handEntities[0] = new ItemEntity(this, 0);
 		handEntities[1] = new ItemEntity(this, 1);
 
@@ -293,6 +293,11 @@ public class Player : Entity
 
 	public override void destroy()
 	{
+		viewmodel.destroy();
+		animator0.destroy();
+		animator1.destroy();
+		moveAnimator.destroy();
+
 		controller.destroy();
 		kinematicBody.destroy();
 

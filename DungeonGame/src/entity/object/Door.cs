@@ -36,6 +36,9 @@ public abstract class Door : Entity, Interactable
 
 	public override void destroy()
 	{
+		model?.destroy();
+		frame?.destroy();
+
 		doorBody.destroy();
 		frameBody.destroy();
 

@@ -587,6 +587,44 @@ namespace Physics
 		mesh->release();
 	}
 
+	RFAPI PxConvexMesh* Physics_CreateConvexMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
+	{
+		Vector3* vertexPositions = (Vector3*)bx::alloc(Application_GetAllocator(), numVertices * sizeof(Vector3));
+		for (int i = 0; i < numVertices; i++)
+			vertexPositions[i] = vertices[i].position;
+
+		PxConvexMeshDesc meshDesc;
+		meshDesc.points.count = numVertices;
+		meshDesc.points.stride = sizeof(Vector3);
+		meshDesc.points.data = vertexPositions;
+
+		meshDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::ePLANE_SHIFTING | PxConvexFlag::eFAST_INERTIA_COMPUTATION | PxConvexFlag::eSHIFT_VERTICES;
+
+		bool valid = meshDesc.isValid();
+
+		PxDefaultMemoryOutputStream writeBuffer;
+		PxConvexMeshCookingResult::Enum result;
+		bool status = PxCookConvexMesh(cookingParams, meshDesc, writeBuffer, &result);
+		if (!status)
+		{
+			printf("Failed to cook convex mesh\n");
+			bx::free(Application_GetAllocator(), vertexPositions);
+			return nullptr;
+		}
+
+		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		PxConvexMesh* mesh = physics->createConvexMesh(readBuffer);
+
+		bx::free(Application_GetAllocator(), vertexPositions);
+
+		return mesh;
+	}
+
+	RFAPI void Physics_DestroyConvexMeshCollider(PxConvexMesh* mesh)
+	{
+		mesh->release();
+	}
+
 	RFAPI PxHeightField* Physics_CreateHeightField(int width, int height, PxHeightFieldSample* data)
 	{
 		PxHeightFieldDesc desc;
@@ -637,6 +675,8 @@ namespace Physics
 
 		if (isDynamic)
 			PxRigidBodyExt::updateMassAndInertia(*(PxRigidBody*)actor, density, (PxVec3*)&centerOfMass);
+
+		material->release();
 	}
 
 	static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
@@ -689,7 +729,7 @@ namespace Physics
 		return transform;
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, physx::PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
@@ -697,50 +737,12 @@ namespace Physics
 		AddCollider(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI PxConvexMesh* Physics_CreateConvexMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
+	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, PxConvexMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		Vector3* vertexPositions = (Vector3*)bx::alloc(Application_GetAllocator(), numVertices * sizeof(Vector3));
-		for (int i = 0; i < numVertices; i++)
-			vertexPositions[i] = vertices[i].position;
-
-		PxConvexMeshDesc meshDesc;
-		meshDesc.points.count = numVertices;
-		meshDesc.points.stride = sizeof(Vector3);
-		meshDesc.points.data = vertexPositions;
-
-		meshDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::ePLANE_SHIFTING | PxConvexFlag::eFAST_INERTIA_COMPUTATION | PxConvexFlag::eSHIFT_VERTICES;
-
-		bool valid = meshDesc.isValid();
-
-		PxDefaultMemoryOutputStream writeBuffer;
-		PxConvexMeshCookingResult::Enum result;
-		bool status = PxCookConvexMesh(cookingParams, meshDesc, writeBuffer, &result);
-		if (!status)
-		{
-			printf("Failed to cook convex mesh\n");
-			bx::free(Application_GetAllocator(), vertexPositions);
-			return nullptr;
-		}
-
-		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		PxConvexMesh* mesh = physics->createConvexMesh(readBuffer);
-
-		bx::free(Application_GetAllocator(), vertexPositions);
-
-		return mesh;
-	}
-
-	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, Model* model, int meshIdx, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
-	{
-		MeshData& mesh = model->lod0->meshes[meshIdx];
-		Matrix meshTransform = transform * GetNodeTransform(model->lod0->meshes[meshIdx].node);
-		if (physx::PxConvexMesh* pxMesh = Physics_CreateConvexMeshCollider(mesh.positionsNormalsTangents, mesh.vertexCount, mesh.indexData, mesh.indexCount))
-		{
-			Vector3 position = meshTransform.translation();
-			Quaternion rotation = meshTransform.rotation();
-			Vector3 scale = meshTransform.scale();
-			AddCollider(body->actor, PxConvexMeshGeometry(pxMesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
-		}
+		Vector3 position = transform.translation();
+		Quaternion rotation = transform.rotation();
+		Vector3 scale = transform.scale();
+		AddCollider(body->actor, PxConvexMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
 	RFAPI void Physics_RigidBodyAddHeightFieldCollider(RigidBody* body, PxHeightField* heightField, const Vector3& scale, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)

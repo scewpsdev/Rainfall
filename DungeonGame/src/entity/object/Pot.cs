@@ -32,9 +32,9 @@ internal class Pot : Entity, Hittable
 			fracturedModel = Resource.GetModel("res/entity/object/pot/pot_vase_fractured.gltf");
 		}
 
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 		model.isStatic = false;
-		fracturedModel.configureLODs(LOD.DISTANCE_SMALL);
+		model.maxDistance = (LOD.DISTANCE_SMALL);
 		fracturedModel.isStatic = false;
 	}
 
@@ -54,6 +54,8 @@ internal class Pot : Entity, Hittable
 
 	public override void destroy()
 	{
+		model.destroy();
+		fracturedModel.destroy();
 		body.destroy();
 	}
 

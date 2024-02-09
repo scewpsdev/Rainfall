@@ -40,7 +40,7 @@ internal class WallTorch : Entity, Interactable
 		this.state = state;
 
 		model = Resource.GetModel("res/entity/object/wall_torch/wall_torch.gltf");
-		model.configureLODs(LOD.DISTANCE_SMALL);
+		model.maxDistance = (LOD.DISTANCE_SMALL);
 
 		fireParticles = new ParticleSystem(250);
 		//fireParticles.textureAtlas = Resource.GetTexture("res/texture/particle/torch_flame.png");
@@ -109,6 +109,7 @@ internal class WallTorch : Entity, Interactable
 
 	public override void destroy()
 	{
+		model.destroy();
 		body.destroy();
 		light.destroy(Renderer.graphics);
 		audio.destroy();
@@ -151,8 +152,6 @@ internal class WallTorch : Entity, Interactable
 
 	public override void update()
 	{
-		base.update();
-
 		Matrix transform = getModelMatrix();
 
 		fireParticles.transform = transform;

@@ -13,7 +13,7 @@ public class IronDoor : Door
 		this.requiredKey = requiredKey;
 
 		model = Resource.GetModel("res/entity/object/door_iron/door_iron.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		sfxOpen = Resource.GetSound("res/entity/object/door_iron/sfx/unlock.ogg");
 		sfxClose = Resource.GetSound("res/entity/object/door_iron/sfx/close.ogg");

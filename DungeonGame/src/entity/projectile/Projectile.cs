@@ -48,8 +48,8 @@ public class Projectile : Entity
 
 	public override void destroy()
 	{
-		if (body != null)
-			body.destroy();
+		model?.destroy();
+		body?.destroy();
 	}
 
 	int getLinkIDFromShape(RigidBody body)

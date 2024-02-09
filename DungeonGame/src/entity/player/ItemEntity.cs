@@ -50,6 +50,11 @@ public class ItemEntity
 		this.item = item;
 
 		hitbox.clearColliders();
+		if (animator != null)
+		{
+			animator.destroy();
+			animator = null;
+		}
 
 		if (item != null)
 		{

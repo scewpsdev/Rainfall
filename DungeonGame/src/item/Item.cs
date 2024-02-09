@@ -433,7 +433,7 @@ public class Item
 		if (file.getStringContent("model", out string modelFile))
 		{
 			item.model = Resource.GetModel(directory + "/" + modelFile);
-			item.model.configureLODs(LOD.DISTANCE_SMALL);
+			item.model.maxDistance = (LOD.DISTANCE_SMALL);
 			item.model.isStatic = false;
 		}
 		if (file.getStringContent("moveset", out string movesetFile))

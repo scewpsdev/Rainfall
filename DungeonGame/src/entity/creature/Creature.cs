@@ -110,7 +110,7 @@ public class Creature : Entity, Hittable
 	{
 		stats = new CreatureStats();
 
-		healthbarTextFont = Resource.GetFontData("res/fonts/libre-baskerville.regular.ttf").createFont(20.0f, true);
+		healthbarTextFont = FontManager.GetFont("baskerville", 20.0f, true);
 
 		ragdollImpactSounds = new Sound[] {
 			Resource.GetSound("res/entity/creature/sfx/impact1.ogg"),
@@ -150,6 +150,9 @@ public class Creature : Entity, Hittable
 
 	public override void destroy()
 	{
+		model?.destroy();
+		animator?.destroy();
+
 		audio.destroy();
 
 		movementBody?.destroy();

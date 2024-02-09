@@ -47,7 +47,7 @@ namespace Rainfall
 		{
 			unsafe
 			{
-				Matrix inverseBindPose = ((SceneData*)model.sceneDataHandle)->skeletons[skeletonID].inverseBindPose;
+				Matrix inverseBindPose = model.scene->skeletons[skeletonID].inverseBindPose;
 				Matrix transform = getNodeLocalTransform(node);
 				while (node.parent != null)
 				{

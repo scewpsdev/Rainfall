@@ -14,14 +14,12 @@ internal class MagicOrb : Projectile
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public MagicOrb(Vector3 direction, Entity caster, int damage)
+	public unsafe MagicOrb(Vector3 direction, Entity caster, int damage)
 		: base(direction * SPEED, Vector3.Zero, caster)
 	{
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
-		unsafe
-		{
-			model.sceneDataHandle->materials[0].emissiveStrength = 200;
-		}
+		model.scene->materials[0].emissiveStrength = 200;
+
 		this.damage = damage;
 		piercing = true;
 	}

@@ -242,8 +242,6 @@ namespace Rainfall
 			return Native.Graphics.Graphics_CreateInstanceBuffer(count, stride, out buffer) != 0;
 		}
 
-		public static List<Cubemap> textures = new List<Cubemap>();
-
 		public Texture createTexture(int width, int height, TextureFormat format, VideoMemory memory, ulong flags = 0)
 		{
 			ushort handle = Native.Graphics.Graphics_CreateTextureImmutable(width, height, format, flags, memory.memoryHandle, out TextureInfo info);
@@ -436,20 +434,13 @@ namespace Rainfall
 		{
 			ushort handle = Native.Graphics.Graphics_CreateCubemap(size, format, flags, out TextureInfo info);
 			if (handle != ushort.MaxValue)
-			{
-				Cubemap c = new Cubemap(handle, info);
-				textures.Add(c);
-				return c;
-			}
+				return new Cubemap(handle, info);
 			return null;
 		}
 
 		public void destroyCubemap(Cubemap cubemap)
 		{
 			Native.Graphics.Graphics_DestroyTexture(cubemap.handle);
-
-			if (textures.Contains(cubemap))
-				textures.Remove(cubemap);
 		}
 
 		public RenderTarget createRenderTarget(RenderTargetAttachment[] attachments)
@@ -749,21 +740,6 @@ namespace Rainfall
 		public void draw(Shader shader)
 		{
 			Native.Graphics.Graphics_Draw(currentPass, shader.handle);
-		}
-
-		public void drawSubModel(Model model, int meshID, Shader shader, Matrix transform)
-		{
-			Native.Graphics.Graphics_DrawMesh(currentPass, model.handle, meshID, shader.handle, ref transform);
-		}
-
-		public void drawSubModelAnimated(Model model, int meshID, Shader shader, Animator animator, Matrix transform)
-		{
-			Native.Graphics.Graphics_DrawMeshAnimated(currentPass, model.handle, meshID, shader.handle, animator.handle, ref transform);
-		}
-
-		public void drawModel(Model model, Shader shader, Shader animatedShader, Animator animator, Matrix transform)
-		{
-			Native.Graphics.Graphics_DrawModel(currentPass, model.handle, shader.handle, animatedShader != null ? animatedShader.handle : IntPtr.Zero, animator != null ? animator.handle : IntPtr.Zero, ref transform);
 		}
 
 		public unsafe void drawText(int x, int y, float z, float scale, byte* text, int length, Font font, uint color, SpriteBatch batch)

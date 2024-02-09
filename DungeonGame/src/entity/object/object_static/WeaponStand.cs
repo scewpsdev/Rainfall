@@ -22,7 +22,7 @@ internal class WeaponStand : Entity
 		this.items = items;
 
 		model = Resource.GetModel("res/entity/object/weapon_stand/weapon_stand.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		weaponOffsets[0] = Matrix.CreateTranslation(-0.28f, 1.137f, -0.1788f) * Matrix.CreateRotation(Vector3.Right, MathHelper.ToRadians(-18)) * Matrix.CreateRotation(Vector3.UnitZ, MathF.PI);
 		weaponOffsets[1] = Matrix.CreateTranslation(0.0f, 1.137f, -0.1788f) * Matrix.CreateRotation(Vector3.Right, MathHelper.ToRadians(-18)) * Matrix.CreateRotation(Vector3.UnitZ, MathF.PI);
@@ -43,6 +43,12 @@ internal class WeaponStand : Entity
 				DungeonGame.instance.level.addEntity(weapons[i], weaponTransform.translation, weaponTransform.rotation);
 			}
 		}
+	}
+
+	public override void destroy()
+	{
+		model.destroy();
+		body.destroy();
 	}
 
 	public override void draw(GraphicsDevice graphics)

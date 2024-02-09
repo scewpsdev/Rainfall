@@ -23,14 +23,17 @@ public class DoubleDoor : Entity, Interactable
 		this.activatable = activatable;
 
 		model = Resource.GetModel("res/entity/object/door/double_door.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		animator = new Animator(model);
 
 		defaultState = new AnimationState(model, "default", true);
 		openState = new AnimationState(model, "open");
 		animator.setState(defaultState);
+	}
 
+	public override void init()
+	{
 		bodyLeft = new RigidBody(this, RigidBodyType.Kinematic, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		bodyLeft.addBoxCollider(new Vector3(0.75f, 1.5f, 0.1f), new Vector3(0.75f, 1.5f, 0.0f), Quaternion.Identity);
 
@@ -39,6 +42,15 @@ public class DoubleDoor : Entity, Interactable
 
 		//exitBody = new RigidBody(this, RigidBodyType.Static, (uint)PhysicsFilterGroup.Default | (uint)PhysicsFilterGroup.Interactable);
 		//exitBody.addBoxCollider(new Vector3(1.0f, 1.5f, 0.1f), new Vector3(0.0f, 1.5f, -1.9f), Quaternion.Identity);
+	}
+
+	public override void destroy()
+	{
+		model.destroy();
+		animator.destroy();
+
+		bodyLeft.destroy();
+		bodyRight.destroy();
 	}
 
 	public bool canInteract(Entity by)

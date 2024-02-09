@@ -136,21 +136,21 @@ static Matrix GetNodeTransform(NodeData* node)
 	return transform;
 }
 
-RFAPI AnimationState* Animation_CreateAnimationState(Model* model)
+RFAPI AnimationState* Animation_CreateAnimationState(SceneData* scene)
 {
 	AnimationState* state = BX_NEW(Application_GetAllocator(), AnimationState);
 
-	state->numSkeletons = model->lod0->numMeshes;
-	state->skeletons = new SkeletonState * [state->numSkeletons];
+	state->numSkeletons = scene->numMeshes;
+	state->skeletons = (SkeletonState**)BX_ALLOC(Application_GetAllocator(), sizeof(SkeletonState*) * state->numSkeletons);
 
-	for (int i = 0; i < model->lod0->numMeshes; i++)
+	for (int i = 0; i < scene->numMeshes; i++)
 	{
-		if (model->lod0->meshes[i].skeletonID != -1)
+		if (scene->meshes[i].skeletonID != -1)
 		{
-			SkeletonData& skeletonData = model->lod0->skeletons[model->lod0->meshes[i].skeletonID];
+			SkeletonData& skeletonData = scene->skeletons[scene->meshes[i].skeletonID];
 			state->skeletons[i] = BX_NEW(Application_GetAllocator(), SkeletonState);
 			state->skeletons[i]->numBones = skeletonData.boneCount;
-			state->skeletons[i]->boneTransforms = new Matrix[skeletonData.boneCount];
+			state->skeletons[i]->boneTransforms = (Matrix*)BX_ALLOC(Application_GetAllocator(), sizeof(Matrix) * skeletonData.boneCount);
 			for (int j = 0; j < skeletonData.boneCount; j++)
 			{
 				Matrix nodeTransform = GetNodeTransform(skeletonData.bones[j].node);
@@ -166,14 +166,29 @@ RFAPI AnimationState* Animation_CreateAnimationState(Model* model)
 	return state;
 }
 
-RFAPI void Animation_UpdateAnimationState(AnimationState* state, Model* model, const Matrix* nodeAnimationTransforms, int numNodes)
+RFAPI void Animation_DestroyAnimationState(AnimationState* state)
+{
+	for (int i = 0; i < state->numSkeletons; i++)
+	{
+		if (state->skeletons[i])
+		{
+			BX_FREE(Application_GetAllocator(), state->skeletons[i]->boneTransforms);
+			BX_FREE(Application_GetAllocator(), state->skeletons[i]);
+		}
+	}
+
+	BX_FREE(Application_GetAllocator(), state->skeletons);
+	BX_FREE(Application_GetAllocator(), state);
+}
+
+RFAPI void Animation_UpdateAnimationState(AnimationState* state, SceneData* scene, const Matrix* nodeAnimationTransforms, int numNodes)
 {
 	for (int i = 0; i < state->numSkeletons; i++)
 	{
 		if (SkeletonState* skeleton = state->skeletons[i])
 		{
-			int skeletonID = model->lod0->meshes[i].skeletonID;
-			const SkeletonData& skeletonData = model->lod0->skeletons[skeletonID];
+			int skeletonID = scene->meshes[i].skeletonID;
+			const SkeletonData& skeletonData = scene->skeletons[skeletonID];
 			for (int j = 0; j < skeleton->numBones; j++)
 			{
 				if (const NodeData* node = skeletonData.bones[j].node)

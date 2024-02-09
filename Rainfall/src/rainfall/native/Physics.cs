@@ -41,6 +41,12 @@ namespace Rainfall.Native
 		internal static extern void Physics_DestroyMeshCollider(IntPtr mesh);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe IntPtr Physics_CreateConvexMeshCollider(void* vertices, int numVertices, int* indices, int numIndices);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyConvexMeshCollider(IntPtr mesh);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Physics_CreateHeightField(int width, int height, ref HeightFieldSample data);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -59,7 +65,7 @@ namespace Rainfall.Native
 		internal static extern void Physics_RigidBodyAddMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddConvexMeshCollider(IntPtr body, IntPtr model, int meshIdx, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern unsafe void Physics_RigidBodyAddConvexMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyAddHeightFieldCollider(IntPtr body, IntPtr heightField, Vector3 scale, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);

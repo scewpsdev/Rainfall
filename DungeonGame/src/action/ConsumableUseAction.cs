@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,7 +57,13 @@ internal class ConsumableUseAction : Action
 		{
 			if (item.consumableThrowable)
 			{
-				DungeonGame.instance.level.addEntity(new Firebomb(item, player, player.lookDirection, player.getWeaponTransform(handID).translation - player.lookOrigin), player.lookOrigin, player.lookRotation);
+				if (item.name == "firebomb")
+					DungeonGame.instance.level.addEntity(new Firebomb(player, player.lookDirection, player.getWeaponTransform(handID).translation - player.lookOrigin), player.lookOrigin, player.lookRotation);
+				else
+				{
+					// TODO
+					Debug.Assert(false);
+				}
 				overrideHandModels[handID] = false;
 			}
 			if (item.consumableHealAmount > 0)

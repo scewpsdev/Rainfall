@@ -15,7 +15,7 @@ internal class IronBars : Entity
 	public IronBars()
 	{
 		model = Resource.GetModel("res/entity/object/iron_bars/iron_bars.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 	}
 
 	public void activate()
@@ -27,6 +27,12 @@ internal class IronBars : Entity
 	{
 		body = new RigidBody(this, RigidBodyType.Kinematic);
 		body.addBoxCollider(new Vector3(4.0f, 1.0f, 0.5f), new Vector3(0.0f, 1.0f, 0.0f), Quaternion.Identity);
+	}
+
+	public override void destroy()
+	{
+		model.destroy();
+		body.destroy();
 	}
 
 	public override void update()

@@ -25,12 +25,7 @@
 std::map<uint32_t, bgfx::TextureHandle> loadedTextures;
 
 
-Model::Model(SceneData* scene)
-	: lod0(scene)
-{
-}
-
-static void SubmitMesh(SceneData* scene, int id, bgfx::ViewId view, Shader* shader, const Matrix& transform)
+static void SubmitMesh(bgfx::ViewId view, SceneData* scene, int id, Shader* shader, const Matrix& transform)
 {
 	MeshData& mesh = scene->meshes[id];
 
@@ -56,42 +51,46 @@ static void SubmitMesh(SceneData* scene, int id, bgfx::ViewId view, Shader* shad
 	bgfx::setUniform(shader->getUniform("u_attributeInfo", bgfx::UniformType::Vec4), &attributeInfo);
 
 
-	MaterialData& material = scene->materials[mesh.materialID];
+	Vector4 materialInfo = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+	Vector4 materialInfo2 = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
+	Vector4 materialInfo3 = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+	Vector4 materialInfo4 = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	if (material.diffuse)
-		bgfx::setTexture(0, shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material.diffuse->handle, UINT32_MAX);
-	if (material.normal)
-		bgfx::setTexture(1, shader->getUniform("s_normal", bgfx::UniformType::Sampler), material.normal->handle, UINT32_MAX);
-	if (material.roughness)
-		bgfx::setTexture(2, shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material.roughness->handle, UINT32_MAX);
-	if (material.metallic)
-		bgfx::setTexture(3, shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material.metallic->handle, UINT32_MAX);
-	if (material.emissive)
-		bgfx::setTexture(4, shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material.emissive->handle, UINT32_MAX);
+	if (mesh.materialID != -1)
+	{
+		MaterialData& material = scene->materials[mesh.materialID];
 
-	Vector4 materialInfo;
-	materialInfo[0] = material.diffuse ? 1.0f : 0.0f;
-	materialInfo[1] = material.normal ? 1.0f : 0.0f;
-	materialInfo[2] = material.roughness ? 1.0f : 0.0f;
-	materialInfo[3] = material.metallic ? 1.0f : 0.0f;
+		materialInfo[0] = material.diffuse ? 1.0f : 0.0f;
+		materialInfo[1] = material.normal ? 1.0f : 0.0f;
+		materialInfo[2] = material.roughness ? 1.0f : 0.0f;
+		materialInfo[3] = material.metallic ? 1.0f : 0.0f;
 
-	Vector4 materialInfo2;
-	materialInfo2[0] = ((material.color & 0x000000FF) >> 0) / 255.0f;
-	materialInfo2[1] = ((material.color & 0x0000FF00) >> 8) / 255.0f;
-	materialInfo2[2] = ((material.color & 0x00FF0000) >> 16) / 255.0f;
-	materialInfo2[3] = material.emissive ? 1.0f : 0.0f;
+		materialInfo2[0] = ((material.color & 0x000000FF) >> 0) / 255.0f;
+		materialInfo2[1] = ((material.color & 0x0000FF00) >> 8) / 255.0f;
+		materialInfo2[2] = ((material.color & 0x00FF0000) >> 16) / 255.0f;
+		materialInfo2[3] = material.emissive ? 1.0f : 0.0f;
 
-	Vector4 materialInfo3;
-	materialInfo3[0] = material.metallicFactor;
-	materialInfo3[1] = material.roughnessFactor;
-	materialInfo3[2] = 0.0f;
-	materialInfo3[3] = 0.0f;
+		materialInfo3[0] = material.metallicFactor;
+		materialInfo3[1] = material.roughnessFactor;
+		materialInfo3[2] = 0.0f;
+		materialInfo3[3] = 0.0f;
 
-	Vector4 materialInfo4;
-	materialInfo4[0] = material.emissiveColor.x;
-	materialInfo4[1] = material.emissiveColor.y;
-	materialInfo4[2] = material.emissiveColor.z;
-	materialInfo4[3] = material.emissiveStrength;
+		materialInfo4[0] = material.emissiveColor.x;
+		materialInfo4[1] = material.emissiveColor.y;
+		materialInfo4[2] = material.emissiveColor.z;
+		materialInfo4[3] = material.emissiveStrength;
+
+		if (material.diffuse)
+			bgfx::setTexture(0, shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material.diffuse->handle, UINT32_MAX);
+		if (material.normal)
+			bgfx::setTexture(1, shader->getUniform("s_normal", bgfx::UniformType::Sampler), material.normal->handle, UINT32_MAX);
+		if (material.roughness)
+			bgfx::setTexture(2, shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material.roughness->handle, UINT32_MAX);
+		if (material.metallic)
+			bgfx::setTexture(3, shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material.metallic->handle, UINT32_MAX);
+		if (material.emissive)
+			bgfx::setTexture(4, shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material.emissive->handle, UINT32_MAX);
+	}
 
 	bgfx::setUniform(shader->getUniform("u_materialInfo", bgfx::UniformType::Vec4), &materialInfo);
 	bgfx::setUniform(shader->getUniform("u_materialInfo2", bgfx::UniformType::Vec4), &materialInfo2);
@@ -102,38 +101,39 @@ static void SubmitMesh(SceneData* scene, int id, bgfx::ViewId view, Shader* shad
 	bgfx::submit(view, shader->program, 0, BGFX_DISCARD_ALL);
 }
 
-void Model::drawMesh(int id, bgfx::ViewId view, Shader* shader, const Matrix& transform)
+RFAPI void Model_DrawMesh(int pass, SceneData* scene, int meshID, Shader* shader, const Matrix& transform)
 {
-	SubmitMesh(lod0, id, view, shader, transform);
+	SubmitMesh((bgfx::ViewId)pass, scene, meshID, shader, transform);
 }
 
-void Model::drawMeshAnimated(int id, bgfx::ViewId view, Shader* shader, AnimationState* animationState, const Matrix& transform)
+RFAPI void Model_DrawMeshAnimated(int pass, SceneData* scene, int meshID, Shader* shader, AnimationState* animationState, const Matrix& transform)
 {
-	SkeletonState* skeleton = animationState->skeletons[id];
+	SkeletonState* skeleton = animationState->skeletons[meshID];
 	bgfx::setUniform(shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
-	SubmitMesh(lod0, id, view, shader, transform);
+	SubmitMesh((bgfx::ViewId)pass, scene, meshID, shader, transform);
 }
 
-void Model::draw(bgfx::ViewId view, Shader* staticShader, Shader* animatedShader, AnimationState* animationState, const Matrix& transform)
+RFAPI void Model_Draw(int pass, SceneData* scene, Shader* shader, Shader* animatedShader, AnimationState* animationState, const Matrix& transform)
 {
-	for (int i = 0; i < lod0->numMeshes; i++)
+	for (int i = 0; i < scene->numMeshes; i++)
 	{
 		bool isAnimated = animationState && animationState->skeletons[i] && animatedShader;
 
 		if (isAnimated)
-			drawMeshAnimated(i, view, animatedShader, animationState, transform);
+			Model_DrawMeshAnimated(pass, scene, i, animatedShader, animationState, transform);
 		else
-			drawMesh(i, view, staticShader, transform);
+			Model_DrawMesh(pass, scene, i, shader, transform);
 	}
 }
 
-AnimationData* Model::getAnimation(const char* name) const
+
+AnimationData* Model_GetAnimation(SceneData* scene, const char* name)
 {
-	for (int i = 0; i < lod0->numAnimations; i++)
+	for (int i = 0; i < scene->numAnimations; i++)
 	{
-		if (strcmp(lod0->animations[i].name, name) == 0)
-			return &lod0->animations[i];
+		if (strcmp(scene->animations[i].name, name) == 0)
+			return &scene->animations[i];
 	}
 	return nullptr;
 }
@@ -149,7 +149,7 @@ static void InitializeNode(NodeData& node, SceneData& scene)
 
 static void OnMemoryRelease(void* ptr, void* userData)
 {
-	delete[] ptr;
+	//BX_FREE(Application_GetAllocator(), ptr);
 }
 
 static Matrix GetGlobalTransform(NodeData& node)
@@ -168,33 +168,49 @@ static void InitializeMesh(MeshData& mesh, SceneData& scene)
 
 	if (mesh.positionsNormalsTangents)
 	{
-		bgfx::VertexLayout layout;
-		layout.begin()
-			.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::Tangent, 3, bgfx::AttribType::Float)
-			.end();
-		const bgfx::Memory* memory = bgfx::makeRef(mesh.positionsNormalsTangents, mesh.vertexCount * sizeof(PositionNormalTangent));
+		static bgfx::VertexLayout layout;
+		if (layout.m_hash == 0)
+		{
+			layout.begin()
+				.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+				.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
+				.add(bgfx::Attrib::Tangent, 3, bgfx::AttribType::Float)
+				.end();
+		}
+
+		const bgfx::Memory* memory = bgfx::makeRef(mesh.positionsNormalsTangents, mesh.vertexCount * sizeof(PositionNormalTangent), OnMemoryRelease);
 		mesh.vertexNormalTangentBuffer = bgfx::createVertexBuffer(memory, layout);
 	}
 	if (mesh.texcoords)
 	{
-		bgfx::VertexLayout layout;
-		layout.begin().add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float).end();
+		static bgfx::VertexLayout layout;
+		if (layout.m_hash == 0)
+		{
+			layout.begin().add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float).end();
+		}
+
 		const bgfx::Memory* memory = bgfx::makeRef(mesh.texcoords, mesh.vertexCount * sizeof(Vector2), OnMemoryRelease);
 		mesh.texcoordBuffer = bgfx::createVertexBuffer(memory, layout);
 	}
 	if (mesh.vertexColors)
 	{
-		bgfx::VertexLayout layout;
-		layout.begin().add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true).end();
+		static bgfx::VertexLayout layout;
+		if (layout.m_hash == 0)
+		{
+			layout.begin().add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true).end();
+		}
+
 		const bgfx::Memory* memory = bgfx::makeRef(mesh.vertexColors, mesh.vertexCount * sizeof(uint32_t), OnMemoryRelease);
 		mesh.vertexColorBuffer = bgfx::createVertexBuffer(memory, layout);
 	}
 	if (mesh.boneWeights)
 	{
-		bgfx::VertexLayout layout;
-		layout.begin().add(bgfx::Attrib::Weight, 4, bgfx::AttribType::Float).add(bgfx::Attrib::Indices, 4, bgfx::AttribType::Float).end();
+		static bgfx::VertexLayout layout;
+		if (layout.m_hash == 0)
+		{
+			layout.begin().add(bgfx::Attrib::Weight, 4, bgfx::AttribType::Float).add(bgfx::Attrib::Indices, 4, bgfx::AttribType::Float).end();
+		}
+
 		const bgfx::Memory* memory = bgfx::makeRef(mesh.boneWeights, mesh.vertexCount * sizeof(BoneWeights), OnMemoryRelease);
 		mesh.boneWeightBuffer = bgfx::createVertexBuffer(memory, layout);
 	}
@@ -408,7 +424,7 @@ static Sphere CalculateBoundingSphere(int numVertices, PositionNormalTangent* ve
 	return boundingSphere;
 }
 
-RFAPI Model* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material)
+RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material)
 {
 	vertices = CopyData(vertices, numVertices);
 	uvs = CopyData(uvs, numVertices);
@@ -428,19 +444,14 @@ RFAPI Model* Model_Create(int numVertices, PositionNormalTangent* vertices, Vect
 	meshData->skeletonID = -1;
 	meshData->boundingBox = CalculateBoundingBox(numVertices, vertices);
 	meshData->boundingSphere = CalculateBoundingSphere(numVertices, vertices, meshData->boundingBox);
+	meshData->vertexNormalTangentBuffer = BGFX_INVALID_HANDLE;
+	meshData->texcoordBuffer = BGFX_INVALID_HANDLE;
+	meshData->vertexColorBuffer = BGFX_INVALID_HANDLE;
+	meshData->boneWeightBuffer = BGFX_INVALID_HANDLE;
+	meshData->indexBuffer = BGFX_INVALID_HANDLE;
 
 	MaterialData* materialData = BX_NEW(Application_GetAllocator(), MaterialData)();
 	*materialData = *material;
-	/*materialData->color = 0xFFFFFFFF;
-	materialData->metallicFactor = 0.0f;
-	materialData->roughnessFactor = 1.0f;
-	materialData->emissiveColor = Vector3(0.0f);
-	materialData->emissiveStrength = 0.0f;
-	materialData->diffuse = diffuse;
-	materialData->normal = normal;
-	materialData->roughness = roughness;
-	materialData->metallic = metallic;
-	materialData->emissive = emissive;*/
 
 	sceneData->numMeshes = 1;
 	sceneData->numMaterials = 1;
@@ -458,16 +469,30 @@ RFAPI Model* Model_Create(int numVertices, PositionNormalTangent* vertices, Vect
 
 	InitializeScene(*sceneData, nullptr, 0); // textureFlags == 0 since textures will not be reinitialized here
 
-	Model* model = BX_NEW(Application_GetAllocator(), Model)(sceneData);
-	return model;
+	return sceneData;
 }
 
-RFAPI void Model_Destroy(Model* model)
+RFAPI void Model_Destroy(SceneData* scene)
 {
-	SceneData* sceneData = model->lod0;
+	SceneData* sceneData = scene;
 
 	if (sceneData->meshes)
+	{
+		for (int i = 0; i < sceneData->numMeshes; i++)
+		{
+			if (sceneData->meshes[i].positionsNormalsTangents)
+				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].positionsNormalsTangents);
+			if (sceneData->meshes[i].texcoords)
+				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].texcoords);
+			if (sceneData->meshes[i].vertexColors)
+				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].vertexColors);
+			if (sceneData->meshes[i].boneWeights)
+				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].boneWeights);
+			if (sceneData->meshes[i].indexData)
+				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].indexData);
+		}
 		BX_FREE(Application_GetAllocator(), sceneData->meshes);
+	}
 	if (sceneData->materials)
 		BX_FREE(Application_GetAllocator(), sceneData->materials);
 	if (sceneData->skeletons)
@@ -480,16 +505,4 @@ RFAPI void Model_Destroy(Model* model)
 		BX_FREE(Application_GetAllocator(), sceneData->lights);
 
 	BX_FREE(Application_GetAllocator(), sceneData);
-
-	BX_FREE(Application_GetAllocator(), model);
-}
-
-RFAPI void Model_ConfigureLODs(Model* model, float maxDistance)
-{
-	model->maxDistance = maxDistance;
-}
-
-RFAPI float Model_GetMaxDistance(Model* model)
-{
-	return model->maxDistance;
 }
