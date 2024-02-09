@@ -47,8 +47,6 @@ internal class DungeonGame : Game
 		gameManager = new GameManager();
 		gameState = new GameState();
 
-		//level.addEntity(new StartingRoom(graphics));
-
 		level = new Level();
 
 		camera = new Camera();

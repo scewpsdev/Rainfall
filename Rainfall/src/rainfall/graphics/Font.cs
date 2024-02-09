@@ -19,7 +19,7 @@ namespace Rainfall
 		public Font createFont(float size, bool antialiased)
 		{
 			IntPtr fontHandle = Native.Resource.Resource_CreateFontFromData(handle, size, (byte)(antialiased ? 1 : 0));
-			return new Font(fontHandle, this, size);
+			return new Font(fontHandle, this, size, antialiased);
 		}
 	}
 
@@ -29,13 +29,15 @@ namespace Rainfall
 		internal FontData data;
 
 		public float size { get; private set; }
+		public bool antialiased { get; private set; }
 
 
-		internal Font(IntPtr handle, FontData data, float size)
+		internal Font(IntPtr handle, FontData data, float size, bool antialiased)
 		{
 			this.handle = handle;
 			this.data = data;
 			this.size = size;
+			this.antialiased = antialiased;
 		}
 
 		public int measureText(Span<byte> text, int length)
