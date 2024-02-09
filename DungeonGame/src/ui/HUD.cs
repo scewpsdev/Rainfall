@@ -27,6 +27,8 @@ public class HUD
 	Texture minimap;
 	uint[] minimapPixels;
 
+	Font stackSizeFont, xpFont, notificationFont;
+
 	long lastHit = 0;
 
 	public float fadeout = 1.0f;
@@ -41,6 +43,10 @@ public class HUD
 
 		crosshair = Resource.GetTexture("res/texture/ui/crosshair.png");
 		crosshairHand = Resource.GetTexture("res/texture/ui/crosshair_hand.png");
+
+		stackSizeFont = FontManager.GetFont("baskerville", 20.0f, true);
+		xpFont = FontManager.GetFont("baskerville", 20.0f, true);
+		notificationFont = FontManager.GetFont("baskerville", 18.0f, true);
 	}
 
 	public void init(Level level)
@@ -148,7 +154,7 @@ public class HUD
 			if (item.stackable)
 			{
 				string stackSizeText = stackSize.ToString();
-				Renderer.DrawText(x + width - Renderer.stackSizeFont.measureText(stackSizeText) - 8, y + height - (int)Renderer.stackSizeFont.size, 1.0f, stackSizeText, Renderer.stackSizeFont, 0xffaaaaaa);
+				Renderer.DrawText(x + width - stackSizeFont.measureText(stackSizeText) - 8, y + height - (int)stackSizeFont.size, 1.0f, stackSizeText, stackSizeFont, 0xffaaaaaa);
 			}
 		}
 	}
@@ -266,7 +272,7 @@ public class HUD
 		Renderer.DrawUIRect(x, y, width, height, 0xff222222);
 
 		string text = player.stats.xp.ToString();
-		Renderer.DrawText(x + width - Renderer.xpFont.measureText(text) - 3 * padding, y + (int)((height - Renderer.xpFont.size) / 2.0f), 1.0f, text, Renderer.xpFont, 0xffcccccc);
+		Renderer.DrawText(x + width - xpFont.measureText(text) - 3 * padding, y + (int)((height - xpFont.size) / 2.0f), 1.0f, text, xpFont, 0xffcccccc);
 	}
 
 	void renderCollectedItems()
@@ -305,10 +311,10 @@ public class HUD
 				Renderer.DrawUITexture(x + padding, y + padding, iconSize, iconSize, item.icon);
 
 				if (notif.amount > 1 || notif.item.stackable)
-					Renderer.DrawText(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)Renderer.stackSizeFont.size, 1.0f, notif.amount.ToString(), Renderer.stackSizeFont, 0xffaaaaaa);
+					Renderer.DrawText(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)stackSizeFont.size, 1.0f, notif.amount.ToString(), stackSizeFont, 0xffaaaaaa);
 
-				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, Renderer.notificationFont, 0xffaaaaaa);
-				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)Renderer.notificationFont.size, 1.0f, item.typeSpecifier, Renderer.notificationFont, 0xff777777);
+				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, notificationFont, 0xffaaaaaa);
+				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)notificationFont.size, 1.0f, item.typeSpecifier, notificationFont, 0xff777777);
 			}
 		}
 	}

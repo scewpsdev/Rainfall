@@ -43,9 +43,10 @@ internal class FracturedObject : Entity
 
 	public override void destroy()
 	{
-		audio.destroy();
+		model.destroy();
 		for (int i = 0; i < model.meshCount; i++)
 			bodies[i].destroy();
+		audio.destroy();
 	}
 
 	public override void update()

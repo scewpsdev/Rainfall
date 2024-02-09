@@ -564,21 +564,6 @@ RFAPI void Graphics_Draw(int pass, Shader* shader)
 	bgfx::submit((bgfx::ViewId)pass, shader->program, 0, BGFX_DISCARD_ALL);
 }
 
-RFAPI void Graphics_DrawMesh(int pass, Model* model, int meshID, Shader* shader, const Matrix& transform)
-{
-	model->drawMesh(meshID, (bgfx::ViewId)pass, shader, transform);
-}
-
-RFAPI void Graphics_DrawMeshAnimated(int pass, Model* model, int meshID, Shader* shader, AnimationState* animationState, const Matrix& transform)
-{
-	model->drawMeshAnimated(meshID, (bgfx::ViewId)pass, shader, animationState, transform);
-}
-
-RFAPI void Graphics_DrawModel(int pass, Model* model, Shader* shader, Shader* animatedShader, AnimationState* animationState, const Matrix& transform)
-{
-	model->draw((bgfx::ViewId)pass, shader, animatedShader, animationState, transform);
-}
-
 RFAPI void Graphics_DrawText(int pass, int x, int y, float z, float scale, const char* text, int length, Font* font, uint32_t color, SpriteBatch* batch)
 {
 	font->drawText((bgfx::ViewId)pass, x, y, z, scale, text, length, color, batch);

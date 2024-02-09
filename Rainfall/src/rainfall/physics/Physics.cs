@@ -84,37 +84,34 @@ namespace Rainfall
 			Native.Physics.Physics_Update();
 		}
 
-		static Matrix GetNodeTransform(Model model, int idx)
+		static unsafe Matrix GetNodeTransform(Model model, int idx)
 		{
-			unsafe
+			MeshData mesh = model.scene->meshes[idx];
+			NodeData* node = mesh.node;
+			Matrix transform = node->transform;
+			NodeData* parent = node->parent;
+			while (parent != null)
 			{
-				MeshData mesh = model.sceneDataHandle->meshes[idx];
-				NodeData* node = mesh.node;
-				Matrix transform = node->transform;
-				NodeData* parent = node->parent;
-				while (parent != null)
-				{
-					transform = parent->transform * transform;
-					parent = parent->parent;
-				}
-				return transform;
+				transform = parent->transform * transform;
+				parent = parent->parent;
 			}
+			return transform;
 		}
 
-		public static MeshCollider CreateMeshCollider(Model model, int meshIdx)
+		public static unsafe MeshCollider CreateMeshCollider(Model model, int meshIdx)
 		{
-			unsafe
-			{
-				MeshData mesh = model.sceneDataHandle->meshes[meshIdx];
-				IntPtr handle = Native.Physics.Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, mesh.indices, mesh.indexCount);
-				Matrix transform = GetNodeTransform(model, meshIdx);
-				return new MeshCollider(handle, transform);
-			}
+			MeshData mesh = model.scene->meshes[meshIdx];
+			IntPtr handle = Native.Physics.Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, mesh.indices, mesh.indexCount);
+			Matrix transform = GetNodeTransform(model, meshIdx);
+			return new MeshCollider(handle, transform);
 		}
 
-		public static void DestroyMeshCollider(MeshCollider mesh)
+		public static unsafe ConvexMeshCollider CreateConvexMeshCollider(Model model, int meshIdx)
 		{
-			Native.Physics.Physics_DestroyMeshCollider(mesh.handle);
+			MeshData mesh = model.scene->meshes[meshIdx];
+			IntPtr handle = Native.Physics.Physics_CreateConvexMeshCollider(mesh.vertices, mesh.vertexCount, mesh.indices, mesh.indexCount);
+			Matrix transform = GetNodeTransform(model, meshIdx);
+			return new ConvexMeshCollider(handle, transform);
 		}
 
 		public static IntPtr CreateHeightField(int width, int height, HeightFieldSample[] data)

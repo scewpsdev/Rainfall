@@ -140,14 +140,6 @@ namespace Rainfall
 			}
 		}
 
-		internal static Model CreateModel(IntPtr scene)
-		{
-			IntPtr handle = Native.Resource.Resource_CreateModelFromSceneData(scene);
-			if (handle != IntPtr.Zero)
-				return new Model(handle);
-			return null;
-		}
-
 		internal static FontData CreateFontData(string path)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
@@ -267,12 +259,12 @@ namespace Rainfall
 			return cubemap;
 		}
 
-		public static Model GetModel(string path, ulong textureFlags = 0)
+		public static unsafe Model GetModel(string path, ulong textureFlags = 0)
 		{
 			if (scenes.ContainsKey(path))
 			{
 				IntPtr scene = scenes[path];
-				return CreateModel(scene);
+				return new Model((SceneData*)scene);
 			}
 			else
 			{
@@ -280,7 +272,7 @@ namespace Rainfall
 				if (scene != IntPtr.Zero)
 				{
 					scenes.Add(path, scene);
-					return CreateModel(scene);
+					return new Model((SceneData*)scene);
 				}
 				return null;
 			}

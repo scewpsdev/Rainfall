@@ -23,7 +23,7 @@ internal class BookShelf : Entity
 		this.random = random;
 
 		model = Resource.GetModel("res/entity/object/shelf/shelf.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = LOD.DISTANCE_MEDIUM;
 	}
 
 	public override void init()
@@ -47,6 +47,12 @@ internal class BookShelf : Entity
 				* Matrix.CreateRotation(Vector3.Up, random.NextSingle() * MathF.PI * 2);
 			DungeonGame.instance.level.addEntity(pickup, itemTransform.translation, itemTransform.rotation);
 		}
+	}
+
+	public override void destroy()
+	{
+		model.destroy();
+		body.destroy();
 	}
 
 	public override void draw(GraphicsDevice graphics)

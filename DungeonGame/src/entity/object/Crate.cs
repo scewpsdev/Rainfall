@@ -19,11 +19,11 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	public Crate()
 	{
 		model = Resource.GetModel("res/entity/object/crate/crate.gltf");
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 		model.isStatic = false;
 
 		fracturedModel = Resource.GetModel("res/entity/object/crate/crate_fractured.gltf");
-		fracturedModel.configureLODs(LOD.DISTANCE_SMALL);
+		model.maxDistance = (LOD.DISTANCE_SMALL);
 		fracturedModel.isStatic = false;
 
 		container = new ItemContainer(5, 5);
@@ -49,6 +49,8 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 
 	public override void destroy()
 	{
+		model.destroy();
+		fracturedModel.destroy();
 		body.destroy();
 	}
 

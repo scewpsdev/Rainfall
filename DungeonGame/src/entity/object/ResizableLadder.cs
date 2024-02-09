@@ -20,10 +20,18 @@ public class ResizableLadder : LadderRegion
 		this.height = height;
 
 		top = Resource.GetModel("res/entity/object/ladder/ladder_top.gltf");
-		top.configureLODs(LOD.DISTANCE_MEDIUM);
+		top.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		middle = Resource.GetModel("res/entity/object/ladder/ladder_middle.gltf");
-		middle.configureLODs(LOD.DISTANCE_MEDIUM);
+		middle.maxDistance = (LOD.DISTANCE_MEDIUM);
+	}
+
+	public override void destroy()
+	{
+		base.destroy();
+
+		top.destroy();
+		middle.destroy();
 	}
 
 	public override void draw(GraphicsDevice graphics)

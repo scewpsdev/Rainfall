@@ -52,7 +52,7 @@ static void ReadMesh(FileReaderI* reader, MeshData& mesh, Error* err)
 
 	if (hasPositions || hasNormals || hasTangents)
 	{
-		mesh.positionsNormalsTangents = new PositionNormalTangent[mesh.vertexCount];
+		mesh.positionsNormalsTangents = (PositionNormalTangent*)BX_ALLOC(Application_GetAllocator(), sizeof(PositionNormalTangent) * mesh.vertexCount);
 		memset(mesh.positionsNormalsTangents, 0, mesh.vertexCount * sizeof(PositionNormalTangent));
 
 		if (hasPositions)
@@ -79,22 +79,22 @@ static void ReadMesh(FileReaderI* reader, MeshData& mesh, Error* err)
 	}
 	if (hasTexCoords)
 	{
-		mesh.texcoords = new Vector2[mesh.vertexCount];
+		mesh.texcoords = (Vector2*)BX_ALLOC(Application_GetAllocator(), sizeof(Vector2) * mesh.vertexCount);
 		read(reader, mesh.texcoords, mesh.vertexCount * sizeof(Vector2), err);
 	}
 	if (hasVertexColors)
 	{
-		mesh.vertexColors = new uint32_t[mesh.vertexCount];
+		mesh.vertexColors = (uint32_t*)BX_ALLOC(Application_GetAllocator(), sizeof(uint32_t) * mesh.vertexCount);
 		read(reader, mesh.vertexColors, mesh.vertexCount * sizeof(uint32_t), err);
 	}
 	if (hasBones)
 	{
-		mesh.boneWeights = new BoneWeights[mesh.vertexCount];
+		mesh.boneWeights = (BoneWeights*)BX_ALLOC(Application_GetAllocator(), sizeof(BoneWeights) * mesh.vertexCount);
 		read(reader, mesh.boneWeights, mesh.vertexCount * sizeof(BoneWeights), err);
 	}
 
 	read(reader, mesh.indexCount, err);
-	mesh.indexData = new int[mesh.indexCount];
+	mesh.indexData = (int*)BX_ALLOC(Application_GetAllocator(), sizeof(int) * mesh.indexCount);
 	read(reader, mesh.indexData, mesh.indexCount * sizeof(int), err);
 
 	read(reader, mesh.materialID, err);
@@ -102,6 +102,13 @@ static void ReadMesh(FileReaderI* reader, MeshData& mesh, Error* err)
 
 	ReadAABB(reader, mesh.boundingBox, err);
 	ReadSphere(reader, mesh.boundingSphere, err);
+
+
+	mesh.vertexNormalTangentBuffer = BGFX_INVALID_HANDLE;
+	mesh.texcoordBuffer = BGFX_INVALID_HANDLE;
+	mesh.vertexColorBuffer = BGFX_INVALID_HANDLE;
+	mesh.boneWeightBuffer = BGFX_INVALID_HANDLE;
+	mesh.indexBuffer = BGFX_INVALID_HANDLE;
 }
 
 static void ReadMeshes(FileReaderI* reader, SceneData& scene, Error* err)
@@ -136,6 +143,8 @@ static void ReadTexture(FileReaderI* reader, TextureData& texture, Error* err)
 			read(reader, texture.data, texture.width * texture.height * sizeof(uint32_t), err);
 		}
 	}
+
+	texture.handle = BGFX_INVALID_HANDLE;
 }
 
 static void ReadMaterial(FileReaderI* reader, MaterialData& material, Error* err)
@@ -166,27 +175,27 @@ static void ReadMaterial(FileReaderI* reader, MaterialData& material, Error* err
 
 	if (hasDiffuse)
 	{
-		material.diffuse = new TextureData();
+		material.diffuse = BX_NEW(Application_GetAllocator(), TextureData);
 		ReadTexture(reader, *material.diffuse, err);
 	}
 	if (hasNormal)
 	{
-		material.normal = new TextureData();
+		material.normal = BX_NEW(Application_GetAllocator(), TextureData);
 		ReadTexture(reader, *material.normal, err);
 	}
 	if (hasRoughness)
 	{
-		material.roughness = new TextureData();
+		material.roughness = BX_NEW(Application_GetAllocator(), TextureData);
 		ReadTexture(reader, *material.roughness, err);
 	}
 	if (hasMetallic)
 	{
-		material.metallic = new TextureData();
+		material.metallic = BX_NEW(Application_GetAllocator(), TextureData);
 		ReadTexture(reader, *material.metallic, err);
 	}
 	if (hasEmissive)
 	{
-		material.emissive = new TextureData();
+		material.emissive = BX_NEW(Application_GetAllocator(), TextureData);
 		ReadTexture(reader, *material.emissive, err);
 	}
 }
@@ -202,7 +211,7 @@ static void ReadMaterials(FileReaderI* reader, SceneData& scene, Error* err)
 static void ReadSkeleton(FileReaderI* reader, SkeletonData& skeleton, Error* err)
 {
 	read(reader, skeleton.boneCount, err);
-	skeleton.bones = new BoneData[skeleton.boneCount];
+	skeleton.bones = (BoneData*)BX_ALLOC(Application_GetAllocator(), sizeof(BoneData) * skeleton.boneCount);
 	for (int i = 0; i < skeleton.boneCount; i++)
 	{
 		BoneData& bone = skeleton.bones[i];
@@ -210,6 +219,8 @@ static void ReadSkeleton(FileReaderI* reader, SkeletonData& skeleton, Error* err
 		read(reader, bone.offsetMatrix, err);
 		read(reader, bone.nodeID, err);
 	}
+
+	skeleton.inverseBindPose = Matrix::Identity;
 }
 
 static void ReadSkeletons(FileReaderI* reader, SceneData& scene, Error* err)
@@ -231,10 +242,10 @@ static void ReadAnimation(FileReaderI* reader, AnimationData& animation, Error* 
 	read(reader, animation.numScales, err);
 	read(reader, animation.numChannels, err);
 
-	animation.positionKeyframes = new PositionKeyframe[animation.numPositions];
-	animation.rotationKeyframes = new RotationKeyframe[animation.numRotations];
-	animation.scaleKeyframes = new ScaleKeyframe[animation.numScales];
-	animation.channels = new AnimationChannel[animation.numChannels];
+	animation.positionKeyframes = (PositionKeyframe*)BX_ALLOC(Application_GetAllocator(), sizeof(PositionKeyframe) * animation.numPositions);
+	animation.rotationKeyframes = (RotationKeyframe*)BX_ALLOC(Application_GetAllocator(), sizeof(RotationKeyframe) * animation.numRotations);
+	animation.scaleKeyframes = (ScaleKeyframe*)BX_ALLOC(Application_GetAllocator(), sizeof(ScaleKeyframe) * animation.numScales);
+	animation.channels = (AnimationChannel*)BX_ALLOC(Application_GetAllocator(), sizeof(AnimationChannel) * animation.numChannels);
 
 	read(reader, animation.positionKeyframes, animation.numPositions * sizeof(PositionKeyframe), err);
 	read(reader, animation.rotationKeyframes, animation.numRotations * sizeof(RotationKeyframe), err);
@@ -269,11 +280,13 @@ static void ReadNode(FileReaderI* reader, NodeData& node, Error* err)
 	read(reader, node.numChildren, err);
 	read(reader, node.numMeshes, err);
 
-	node.children = new int[node.numChildren];
-	node.meshes = new int[node.numMeshes];
+	node.children = (int*)BX_ALLOC(Application_GetAllocator(), sizeof(int) * node.numChildren);
+	node.meshes = (int*)BX_ALLOC(Application_GetAllocator(), sizeof(int) * node.numMeshes);
 
 	read(reader, node.children, node.numChildren * sizeof(int), err);
 	read(reader, node.meshes, node.numMeshes * sizeof(int), err);
+
+	node.parent = nullptr;
 }
 
 static void ReadNodes(FileReaderI* reader, SceneData& scene, Error* err)
@@ -319,18 +332,12 @@ bool ReadSceneData(FileReaderI* reader, const char* path, SceneData& scene)
 		read(reader, scene.numNodes, &err);
 		read(reader, scene.numLights, &err);
 
-		if (scene.numMeshes)
-			scene.meshes = new MeshData[scene.numMeshes];
-		if (scene.numMaterials)
-			scene.materials = new MaterialData[scene.numMaterials];
-		if (scene.numSkeletons)
-			scene.skeletons = new SkeletonData[scene.numSkeletons];
-		if (scene.numAnimations)
-			scene.animations = new AnimationData[scene.numAnimations];
-		if (scene.numNodes)
-			scene.nodes = new NodeData[scene.numNodes];
-		if (scene.numLights)
-			scene.lights = new LightData[scene.numLights];
+		if (scene.numMeshes > 0) scene.meshes = (MeshData*)BX_ALLOC(Application_GetAllocator(), sizeof(MeshData) * scene.numMeshes);
+		if (scene.numMaterials > 0) scene.materials = (MaterialData*)BX_ALLOC(Application_GetAllocator(), sizeof(MaterialData) * scene.numMaterials);
+		if (scene.numSkeletons > 0) scene.skeletons = (SkeletonData*)BX_ALLOC(Application_GetAllocator(), sizeof(SkeletonData) * scene.numSkeletons);
+		if (scene.numAnimations > 0) scene.animations = (AnimationData*)BX_ALLOC(Application_GetAllocator(), sizeof(AnimationData) * scene.numAnimations);
+		if (scene.numNodes > 0) scene.nodes = (NodeData*)BX_ALLOC(Application_GetAllocator(), sizeof(NodeData) * scene.numNodes);
+		if (scene.numLights > 0) scene.lights = (LightData*)BX_ALLOC(Application_GetAllocator(), sizeof(LightData) * scene.numLights);
 
 		ReadMeshes(reader, scene, &err);
 		ReadMaterials(reader, scene, &err);

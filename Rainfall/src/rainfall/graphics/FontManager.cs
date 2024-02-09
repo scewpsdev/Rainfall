@@ -16,7 +16,7 @@ namespace Rainfall
 		{
 			if (!fontDatas.ContainsKey(name))
 			{
-				FontData fontData = Resource.GetFontData(name);
+				FontData fontData = Resource.GetFontData(path);
 				fontDatas.Add(name, fontData);
 				fonts.Add(fontData, new List<Font>());
 			}

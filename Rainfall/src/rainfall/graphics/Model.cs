@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using static System.Formats.Asn1.AsnWriter;
 using System.Runtime.CompilerServices;
+using Rainfall.Native;
 
 namespace Rainfall
 {
@@ -216,165 +217,114 @@ namespace Rainfall
 
 	public class Model
 	{
-		internal IntPtr handle;
+		public unsafe SceneData* scene { get; private set; }
+		bool ownsScene = false;
+		public float maxDistance = float.MaxValue;
 
 		public readonly Skeleton skeleton;
 
 		public bool isStatic = true;
 
 
-		internal Model(IntPtr handle)
+		unsafe internal Model(SceneData* scene)
 		{
-			this.handle = handle;
-			skeleton = new Skeleton(handle);
+			this.scene = scene;
+			skeleton = new Skeleton(scene);
 		}
 
-		public Model(int numVertices, Span<PositionNormalTangent> vertices, Span<Vector2> uvs, int numIndices, Span<int> indices, MaterialData material)
+		public unsafe Model(int numVertices, Span<PositionNormalTangent> vertices, Span<Vector2> uvs, int numIndices, Span<int> indices, MaterialData material)
 		{
-			unsafe
+			fixed (PositionNormalTangent* verticesPtr = vertices)
+			fixed (Vector2* uvsPtr = uvs)
+			fixed (int* indicesPtr = indices)
 			{
-				fixed (PositionNormalTangent* verticesPtr = vertices)
-				fixed (Vector2* uvsPtr = uvs)
-				fixed (int* indicesPtr = indices)
-				{
-					handle = Model_Create(numVertices, verticesPtr, uvsPtr, numIndices, indicesPtr, &material);
-				}
-				skeleton = null;
+				scene = Model_Create(numVertices, verticesPtr, uvsPtr, numIndices, indicesPtr, &material);
 			}
+			skeleton = null;
+			ownsScene = true;
 		}
 
-		public void destroy()
+		public unsafe void destroy()
 		{
-			Model_Destroy(handle);
-			handle = IntPtr.Zero;
+			if (ownsScene)
+				Model_Destroy(scene);
+			scene = null;
 		}
 
-		public unsafe SceneData* sceneDataHandle
+		public unsafe void drawMesh(GraphicsDevice graphics, int meshID, Shader shader, Matrix transform)
 		{
-			get => Native.Resource.Resource_ModelGetSceneData(handle);
+			Model_DrawMesh(graphics.currentPass, scene, meshID, shader.handle, ref transform);
 		}
 
-		public void configureLODs(float maxDistance)
+		public unsafe void drawMeshAnimated(GraphicsDevice graphics, int meshID, Shader shader, Animator animator, Matrix transform)
 		{
-			Model_ConfigureLODs(handle, maxDistance);
+			Model_DrawMeshAnimated(graphics.currentPass, scene, meshID, shader.handle, animator.handle, ref transform);
 		}
 
-		public float maxDistance
+		public unsafe void draw(GraphicsDevice graphics, Shader shader, Shader animatedShader, Animator animator, Matrix transform)
 		{
-			get => Model_GetMaxDistance(handle);
+			Model_Draw(graphics.currentPass, scene, shader.handle, animatedShader != null ? animatedShader.handle : IntPtr.Zero, animator != null ? animator.handle : IntPtr.Zero, ref transform);
 		}
 
-		public MeshData? getMeshData(int index)
+		public unsafe MeshData? getMeshData(int index)
 		{
-			unsafe
-			{
-				SceneData* scene = (SceneData*)sceneDataHandle;
-				if (index < scene->numMeshes)
-					return scene->meshes[index];
-				return null;
-			}
+			if (index < scene->numMeshes)
+				return scene->meshes[index];
+			return null;
 		}
 
 		public unsafe MaterialData? getMaterialData(int meshIndex)
 		{
-			SceneData* scene = (SceneData*)sceneDataHandle;
 			if (meshIndex < scene->numMeshes)
 				return scene->materials[scene->meshes[meshIndex].materialID];
 			return null;
 		}
 
-		public AnimationData? getAnimationData(string name)
+		public unsafe AnimationData? getAnimationData(string name)
 		{
-			unsafe
+			for (int i = 0; i < scene->numAnimations; i++)
 			{
-				SceneData* scene = (SceneData*)sceneDataHandle;
-				for (int i = 0; i < scene->numAnimations; i++)
-				{
-					if (StringUtils.CompareStrings(name, scene->animations[i].name))
-						return scene->animations[i];
-				}
-				return null;
+				if (StringUtils.CompareStrings(name, scene->animations[i].name))
+					return scene->animations[i];
 			}
+			return null;
 		}
 
-		public int getMeshIndex(string name)
+		public unsafe int getMeshIndex(string name)
 		{
-			unsafe
+			for (int i = 0; i < scene->numMeshes; i++)
 			{
-				SceneData* scene = (SceneData*)sceneDataHandle;
-				for (int i = 0; i < scene->numMeshes; i++)
-				{
-					int nodeID = scene->meshes[i].nodeID;
-					NodeData* node = &scene->nodes[nodeID];
-					if (StringUtils.CompareStrings(name, node->name))
-						return i;
-				}
-				return -1;
+				int nodeID = scene->meshes[i].nodeID;
+				NodeData* node = &scene->nodes[nodeID];
+				if (StringUtils.CompareStrings(name, node->name))
+					return i;
 			}
+			return -1;
 		}
 
-		public int meshCount
+		public unsafe int meshCount
 		{
-			get
-			{
-				unsafe
-				{
-					SceneData* scene = (SceneData*)sceneDataHandle;
-					return scene->numMeshes;
-				}
-			}
+			get => scene->numMeshes;
 		}
 
-		public BoundingBox? boundingBox
+		public unsafe BoundingBox? boundingBox
 		{
-			get
-			{
-				unsafe
-				{
-					SceneData* scene = (SceneData*)sceneDataHandle;
-					if (scene->numMeshes > 0)
-					{
-						return scene->meshes[0].boundingBox;
-					}
-					return null;
-				}
-			}
+			get => scene->numMeshes > 0 ? scene->meshes[0].boundingBox : null;
 		}
 
-		public BoundingSphere? boundingSphere
+		public unsafe BoundingSphere? boundingSphere
 		{
-			get
-			{
-				unsafe
-				{
-					SceneData* scene = (SceneData*)sceneDataHandle;
-					if (scene->numMeshes > 0)
-					{
-						return scene->meshes[0].boundingSphere;
-					}
-					return null;
-				}
-			}
+			get => scene->numMeshes > 0 ? scene->meshes[0].boundingSphere : null;
 		}
 
-		public int lightCount
+		public unsafe int lightCount
 		{
-			get
-			{
-				unsafe
-				{
-					SceneData* scene = sceneDataHandle;
-					return scene->numLights;
-				}
-			}
+			get => scene->numLights;
 		}
 
-		public LightData getLight(int idx)
+		public unsafe LightData getLight(int idx)
 		{
-			unsafe
-			{
-				return sceneDataHandle->lights[idx];
-			}
+			return scene->lights[idx];
 		}
 
 		public override bool Equals(object obj)
@@ -384,7 +334,7 @@ namespace Rainfall
 				if (obj is Model)
 				{
 					Model model = obj as Model;
-					return model.sceneDataHandle == sceneDataHandle;
+					return model.scene == scene;
 				}
 				return false;
 			}
@@ -394,20 +344,23 @@ namespace Rainfall
 		{
 			unsafe
 			{
-				return ((IntPtr)sceneDataHandle).GetHashCode();
+				return ((IntPtr)scene).GetHashCode();
 			}
 		}
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern unsafe IntPtr Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
+		static extern unsafe SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern void Model_Destroy(IntPtr model);
+		static extern unsafe void Model_Destroy(SceneData* scene);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern void Model_ConfigureLODs(IntPtr model, float maxDistance);
+		static extern unsafe void Model_DrawMesh(int pass, SceneData* scene, int meshID, IntPtr shader, ref Matrix transform);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern float Model_GetMaxDistance(IntPtr model);
+		static extern unsafe void Model_DrawMeshAnimated(int pass, SceneData* scene, int meshID, IntPtr shader, IntPtr animationState, ref Matrix transform);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern unsafe void Model_Draw(int pass, SceneData* scene, IntPtr shader, IntPtr animatedShader, IntPtr animationState, ref Matrix transform);
 	}
 }

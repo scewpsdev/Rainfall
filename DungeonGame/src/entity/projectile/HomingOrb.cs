@@ -14,16 +14,14 @@ internal class HomingOrb : Projectile
 	Player player;
 
 
-	public HomingOrb(Vector3 offset, Player player, int damage)
+	public unsafe HomingOrb(Vector3 offset, Player player, int damage)
 		: base(player.lookDirection * SPEED, offset, player)
 	{
 		this.player = player;
 
 		model = Resource.GetModel("res/entity/projectile/magic_orb_small/magic_orb_small.gltf");
-		unsafe
-		{
-			model.sceneDataHandle->materials[0].emissiveStrength = 200;
-		}
+		model.scene->materials[0].emissiveStrength = 200;
+
 		this.damage = damage;
 	}
 

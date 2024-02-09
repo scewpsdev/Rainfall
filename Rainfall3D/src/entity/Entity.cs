@@ -12,7 +12,6 @@ public class Entity : PhysicsEntity
 	public Vector3 scale = Vector3.One;
 
 	public bool removed { get; private set; } = false;
-
 	public List<Action> removeCallbacks = new List<Action>();
 
 

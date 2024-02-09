@@ -52,13 +52,10 @@ public class InventoryUI
 		leftHand = Resource.GetTexture("res/texture/ui/hand_left.png");
 		rightHand = Resource.GetTexture("res/texture/ui/hand_right.png");
 
-		FontManager.LoadFont("baskerville", "res/fonts/libre-baskerville.regular.ttf");
-
-		FontData fontData = Resource.GetFontData();
-		mediumFont = fontData.createFont(24, true);
-		stackSizeFont = fontData.createFont(20, true);
-		tooltipFontBig = fontData.createFont(24, true);
-		tooltipFontMedium = fontData.createFont(18, true);
+		mediumFont = FontManager.GetFont("baskerville", 24, true);
+		stackSizeFont = FontManager.GetFont("baskerville", 20, true);
+		tooltipFontBig = FontManager.GetFont("baskerville", 24, true);
+		tooltipFontMedium = FontManager.GetFont("baskerville", 18, true);
 	}
 
 	public void update()

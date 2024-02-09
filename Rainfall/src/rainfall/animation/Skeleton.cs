@@ -28,7 +28,7 @@ namespace Rainfall
 
 	public class Skeleton
 	{
-		IntPtr model;
+		unsafe SceneData* scene;
 
 		public readonly Node[] nodes;
 		internal Dictionary<uint, int> nameMap = new Dictionary<uint, int>();
@@ -36,13 +36,11 @@ namespace Rainfall
 		public readonly Node rootNode;
 
 
-		internal Skeleton(IntPtr model)
+		internal unsafe Skeleton(SceneData* scene)
 		{
 			unsafe
 			{
-				this.model = model;
-
-				SceneData* scene = (SceneData*)Native.Resource.Resource_ModelGetSceneData(model);
+				this.scene = scene;
 				nodes = new Node[scene->numNodes];
 				for (int i = 0; i < scene->numNodes; i++)
 				{
@@ -92,15 +90,9 @@ namespace Rainfall
 			return null;
 		}
 
-		public Matrix inverseBindPose
+		public unsafe Matrix inverseBindPose
 		{
-			get
-			{
-				unsafe
-				{
-					return ((SceneData*)Native.Resource.Resource_ModelGetSceneData(model))->skeletons[0].inverseBindPose;
-				}
-			}
+			get => scene->skeletons[0].inverseBindPose;
 		}
 	}
 }

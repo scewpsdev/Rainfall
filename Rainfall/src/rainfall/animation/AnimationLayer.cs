@@ -41,26 +41,23 @@ namespace Rainfall
 			this.animationData = animationData;
 		}
 
-		public void update(float timer)
+		public unsafe void update(float timer)
 		{
-			unsafe
+			timer += timerOffset;
+
+			SceneData* scene = animationData.scene;
+			AnimationData* animation = getAnimationByName(scene, animationName);
+			if (animation != null)
 			{
-				timer += timerOffset;
-
-				SceneData* scene = (SceneData*)animationData.sceneDataHandle;
-				AnimationData* animation = getAnimationByName(scene, animationName);
-				if (animation != null)
+				if (looping)
+					timer %= animation->duration;
+				else
 				{
-					if (looping)
-						timer %= animation->duration;
-					else
-					{
-						float startTime = 0.0f / 24.0f;
-						timer = Math.Clamp(timer, startTime, animation->duration);
-					}
-
-					animateNode(animationData.skeleton.rootNode, animation, timer);
+					float startTime = 0.0f / 24.0f;
+					timer = Math.Clamp(timer, startTime, animation->duration);
 				}
+
+				animateNode(animationData.skeleton.rootNode, animation, timer);
 			}
 		}
 
@@ -165,17 +162,9 @@ namespace Rainfall
 			return animationData.skeleton.nameMap.ContainsKey(nameHash);
 		}
 
-		public float duration
+		public unsafe float duration
 		{
-			get
-			{
-				unsafe
-				{
-					SceneData* scene = (SceneData*)animationData.sceneDataHandle;
-					AnimationData* animation = getAnimationByName(scene, animationName);
-					return animation->duration;
-				}
-			}
+			get => getAnimationByName(animationData.scene, animationName)->duration;
 		}
 	}
 }

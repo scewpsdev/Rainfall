@@ -656,6 +656,8 @@ public class PotRoom : RoomType
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
+		base.onSpawn(room, level, generator, random);
+
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
 		//interior.initialize(room, level, random);
 

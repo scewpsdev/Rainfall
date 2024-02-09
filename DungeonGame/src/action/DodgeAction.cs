@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 internal class DodgeAction : Action
 {
 	const float DODGE_DURATION = 0.7f;
-	const float MAX_DODGE_SPEED = 10.0f;
-	const float MIN_DODGE_SPEED = 2.0f;
+	const float MAX_DODGE_SPEED = 9.0f;
+	const float MIN_DODGE_SPEED = 1.0f;
 	const float DODGE_DISTANCE = (MAX_DODGE_SPEED + MIN_DODGE_SPEED) * 0.5f * DODGE_DURATION; //2.0f;
 																							  //const float MIN_DODGE_SPEED = 2 * DODGE_DISTANCE / DODGE_DURATION - Player.MAX_GROUND_SPEED;
 

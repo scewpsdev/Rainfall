@@ -43,15 +43,15 @@ namespace Rainfall
 		public readonly List<AnimationTransition> transitions = new List<AnimationTransition>();
 
 
-		public Animator(Model model)
+		public unsafe Animator(Model model)
 		{
 			this.model = model;
 
-			handle = Native.Animation.Animation_CreateAnimationState(model.handle);
+			handle = Native.Animation.Animation_CreateAnimationState(model.scene);
 
 			unsafe
 			{
-				int numNodes = ((SceneData*)model.sceneDataHandle)->numNodes;
+				int numNodes = model.scene->numNodes;
 				nodeLocalTransforms = new Matrix[numNodes];
 				nodeGlobalTransforms = new Matrix[numNodes];
 				Array.Fill(nodeLocalTransforms, Matrix.Identity);
@@ -60,6 +60,11 @@ namespace Rainfall
 				lastNodeGlobalTransforms = new Matrix[numNodes];
 				Array.Fill(lastNodeGlobalTransforms, Matrix.Identity);
 			}
+		}
+
+		public void destroy()
+		{
+			Native.Animation.Animation_DestroyAnimationState(handle);
 		}
 
 		float getTransitionDuration(AnimationState from, AnimationState to)
@@ -157,14 +162,14 @@ namespace Rainfall
 			}
 		}
 
-		public void applyAnimation()
+		public unsafe void applyAnimation()
 		{
 			Array.Copy(nodeGlobalTransforms, lastNodeGlobalTransforms, nodeGlobalTransforms.Length);
 			lastAnimUpdateTime = currentUpdateTime;
 			currentUpdateTime = Time.currentTime;
 
 			applyNodeAnimation(model.skeleton.rootNode, Matrix.Identity, nodeLocalTransforms);
-			Native.Animation.Animation_UpdateAnimationState(handle, model.handle, nodeGlobalTransforms, nodeGlobalTransforms.Length);
+			Native.Animation.Animation_UpdateAnimationState(handle, model.scene, nodeGlobalTransforms, nodeGlobalTransforms.Length);
 		}
 
 		public void setState(AnimationState state)
@@ -206,19 +211,16 @@ namespace Rainfall
 			nodeLocalTransforms[node.id] = transform;
 		}
 
-		public Matrix getNodeTransform(Node node, int skeletonID)
+		public unsafe Matrix getNodeTransform(Node node, int skeletonID)
 		{
-			unsafe
+			Matrix inverseBindPose = model.scene->skeletons[skeletonID].inverseBindPose;
+			Matrix transform = getNodeLocalTransform(node);
+			while (node.parent != null)
 			{
-				Matrix inverseBindPose = ((SceneData*)model.sceneDataHandle)->skeletons[skeletonID].inverseBindPose;
-				Matrix transform = getNodeLocalTransform(node);
-				while (node.parent != null)
-				{
-					transform = getNodeLocalTransform(node.parent) * transform;
-					node = node.parent;
-				}
-				return inverseBindPose * transform;
+				transform = getNodeLocalTransform(node.parent) * transform;
+				node = node.parent;
 			}
+			return inverseBindPose * transform;
 		}
 
 		public void copyPose(Animator from)

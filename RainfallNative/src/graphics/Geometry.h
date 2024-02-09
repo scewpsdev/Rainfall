@@ -36,10 +36,10 @@ struct Sphere
 
 struct MeshData
 {
-	PositionNormalTangent* positionsNormalsTangents = nullptr;
-	Vector2* texcoords = nullptr;
-	uint32_t* vertexColors = nullptr;
-	BoneWeights* boneWeights = nullptr;
+	PositionNormalTangent* positionsNormalsTangents;
+	Vector2* texcoords;
+	uint32_t* vertexColors;
+	BoneWeights* boneWeights;
 
 	int vertexCount;
 
@@ -55,12 +55,12 @@ struct MeshData
 
 	struct NodeData* node = nullptr;
 
-	bgfx::VertexBufferHandle vertexNormalTangentBuffer = BGFX_INVALID_HANDLE;
-	bgfx::VertexBufferHandle texcoordBuffer = BGFX_INVALID_HANDLE;
-	bgfx::VertexBufferHandle vertexColorBuffer = BGFX_INVALID_HANDLE;
-	bgfx::VertexBufferHandle boneWeightBuffer = BGFX_INVALID_HANDLE;
+	bgfx::VertexBufferHandle vertexNormalTangentBuffer;
+	bgfx::VertexBufferHandle texcoordBuffer;
+	bgfx::VertexBufferHandle vertexColorBuffer;
+	bgfx::VertexBufferHandle boneWeightBuffer;
 
-	bgfx::IndexBufferHandle indexBuffer = BGFX_INVALID_HANDLE;
+	bgfx::IndexBufferHandle indexBuffer;
 };
 
 struct TextureData
@@ -69,6 +69,7 @@ struct TextureData
 	bool isEmbedded;
 	int width, height;
 	uint32_t* data;
+
 
 	bgfx::TextureHandle handle;
 };
@@ -96,7 +97,7 @@ struct BoneData
 	int nodeID;
 
 
-	struct NodeData* node = nullptr;
+	struct NodeData* node;
 };
 
 struct SkeletonData
@@ -106,7 +107,7 @@ struct SkeletonData
 	//float(*boneTransforms)[16];
 	//char** boneNames;
 
-	Matrix inverseBindPose = Matrix::Identity;
+	Matrix inverseBindPose;
 };
 
 struct PositionKeyframe
@@ -136,11 +137,11 @@ struct AnimationChannel
 	int scalesOffset, scalesCount;
 
 
-	PositionKeyframe* positions = nullptr;
-	RotationKeyframe* rotations = nullptr;
-	ScaleKeyframe* scales = nullptr;
+	PositionKeyframe* positions;
+	RotationKeyframe* rotations;
+	ScaleKeyframe* scales;
 
-	struct NodeData* node = nullptr;
+	struct NodeData* node;
 };
 
 struct AnimationData
@@ -173,7 +174,7 @@ struct NodeData
 	int* meshes;
 
 
-	NodeData* parent = nullptr;
+	NodeData* parent;
 };
 
 enum class LightType

@@ -16,15 +16,15 @@ internal class DungeonGame : Game
 
 
 	public static new DungeonGame instance { get => (DungeonGame)Game.instance; }
-
+	
 
 	public Level level { get; private set; }
-
+	
 	Camera camera;
 
 	public GameManager gameManager;
 	GameState gameState;
-
+	
 	float cpuTimeAcc = 0.0f;
 	float gpuTimeAcc = 0.0f;
 	float cpuTime, gpuTime;
@@ -43,6 +43,8 @@ internal class DungeonGame : Game
 		AudioManager.Init();
 
 		Item.LoadContent();
+
+		FontManager.LoadFont("baskerville", "res/fonts/libre-baskerville.regular.ttf");
 
 		gameManager = new GameManager();
 		gameState = new GameState();
@@ -237,8 +239,16 @@ internal class DungeonGame : Game
 		StringUtils.AppendInteger(str, renderStats.numRenderTargets);
 		Debug.DrawDebugText(0, line++, str);
 
+		StringUtils.WriteString(str, "Shaders: ");
+		StringUtils.AppendInteger(str, renderStats.numShaders);
+		Debug.DrawDebugText(0, line++, str);
+
 		StringUtils.WriteString(str, "Draw calls: ");
 		StringUtils.AppendInteger(str, (int)renderStats.numDraw);
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Triangles: ");
+		StringUtils.AppendInteger(str, renderStats.numTriangles);
 		Debug.DrawDebugText(0, line++, str);
 
 		StringUtils.WriteString(str, "Computes: ");

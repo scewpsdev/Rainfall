@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class Firebomb : Entity
+internal class Throwable : Entity
 {
 	const float SPEED = 16.0f;
 	const float GRAVITY = -10.0f;
@@ -14,18 +14,19 @@ internal class Firebomb : Entity
 
 	Item item;
 
-	Entity shooter;
 	Model model;
 	RigidBody body;
 
-	Vector3 velocity;
+	protected Entity shooter { get; private set; }
+
+	protected Vector3 velocity;
 	Vector3 currentOffset;
 
 	bool hit = false;
 	Entity hitTarget;
 
 
-	public Firebomb(Item item, Entity shooter, Vector3 direction, Vector3 offset)
+	public Throwable(Item item, Entity shooter, Vector3 direction, Vector3 offset)
 	{
 		this.item = item;
 		this.shooter = shooter;
@@ -44,6 +45,7 @@ internal class Firebomb : Entity
 
 	public override void destroy()
 	{
+		model?.destroy();
 		body.destroy();
 	}
 
@@ -62,6 +64,10 @@ internal class Firebomb : Entity
 		}
 	}
 
+	public virtual void onEntityHit(Entity entity)
+	{
+	}
+
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
 	{
 		if (contactType != ContactType.Found)
@@ -72,7 +78,7 @@ internal class Firebomb : Entity
 			hit = true;
 			hitTarget = other.entity as Entity;
 
-			DungeonGame.instance.level.addEntity(new Explosion(shooter), position - 0.1f * velocity.normalized, rotation);
+			onEntityHit(hitTarget);
 
 			currentOffset = Vector3.Zero;
 

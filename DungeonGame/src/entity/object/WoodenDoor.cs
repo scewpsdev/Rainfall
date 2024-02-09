@@ -31,8 +31,8 @@ public class WoodenDoor : Door
 		}
 		frame = Resource.GetModel("res/entity/object/door/door_frame.gltf");
 
-		model.configureLODs(LOD.DISTANCE_MEDIUM);
-		frame.configureLODs(LOD.DISTANCE_MEDIUM);
+		model.maxDistance =(LOD.DISTANCE_MEDIUM);
+		frame.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		doorHingeOffset = 0.75f;
 

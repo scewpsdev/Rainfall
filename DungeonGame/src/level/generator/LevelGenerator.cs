@@ -16,7 +16,7 @@ public class LevelGenerator
 	Level level;
 	TileMap tilemap;
 
-	int maxRooms = 3;
+	int maxRooms = 12;
 
 	Random random;
 
@@ -779,7 +779,7 @@ public class LevelGenerator
 		{
 			room.spawn(level, this, random);
 		}
-
+		
 		level.levelMeshes.Add(new LevelMesh(wallModels = wallBatch.createModel(), Matrix.Identity));
 		level.levelMeshes.Add(new LevelMesh(floorModels = floorBatch.createModel(), Matrix.Identity));
 		level.levelMeshes.Add(new LevelMesh(ceilingModels = ceilingBatch.createModel(), Matrix.Identity));
@@ -1052,7 +1052,7 @@ public class LevelGenerator
 		}
 		interconnectRooms(2);
 		propagateRooms(SectorType.Corridor);
-		removeEmptyCorridors();
+		//removeEmptyCorridors();
 		/*
 		connectRoomsIfNot(startingRoom, mainRoom);
 		connectRoomsIfNot(finalRoom, mainRoom);
@@ -1070,8 +1070,8 @@ public class LevelGenerator
 
 		level.init();
 		spawnRooms();
-		placeLadders();
+		//placeLadders();
 
-		placeLoot();
+		//placeLoot();
 	}
 }

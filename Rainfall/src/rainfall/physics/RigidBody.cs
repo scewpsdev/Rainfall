@@ -116,9 +116,22 @@ namespace Rainfall
 				addMeshCollider(model, i, transform, friction, restitution);
 		}
 
-		public void addConvexMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
+		public void addConvexMeshCollider(ConvexMeshCollider mesh, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddConvexMeshCollider(body, model.handle, meshIdx, transform, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddConvexMeshCollider(body, mesh.handle, transform, filterGroup, filterMask, friction, friction, restitution);
+		}
+
+		public ConvexMeshCollider addConvexMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
+		{
+			ConvexMeshCollider mesh = Physics.CreateConvexMeshCollider(model, meshIdx);
+			addConvexMeshCollider(mesh, transform, friction, restitution);
+			return mesh;
+		}
+
+		public void addConvexMeshColliders(Model model, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
+		{
+			for (int i = 0; i < model.meshCount; i++)
+				addConvexMeshCollider(model, i, transform, friction, restitution);
 		}
 
 		public void addHeightFieldCollider(IntPtr heightField, Vector3 scale, Matrix transform, float friction = 0.5f, float restitution = 0.1f)

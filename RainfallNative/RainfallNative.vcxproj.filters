@@ -87,15 +87,6 @@
     <ClCompile Include="src\audio\soloud\audiosource\wav\stb_vorbis.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\audio\soloud\backend\openal\soloud_openal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\soloud\backend\openal\soloud_openal_dll.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\soloud\backend\wasapi\soloud_wasapi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\audio\soloud\backend\winmm\soloud_winmm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -254,6 +245,9 @@
     <ClInclude Include="src\utils\List.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\audio\Audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\audio\soloud\audiosource\wav\dr_flac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -264,9 +258,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\audio\soloud\audiosource\wav\stb_vorbis.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\Audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

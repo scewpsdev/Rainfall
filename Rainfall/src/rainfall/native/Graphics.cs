@@ -281,15 +281,6 @@ namespace Rainfall
 			internal static extern void Graphics_Draw(int pass, IntPtr shader);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern void Graphics_DrawMesh(int pass, IntPtr model, int meshID, IntPtr shader, ref Matrix transform);
-
-			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern void Graphics_DrawMeshAnimated(int pass, IntPtr model, int meshID, IntPtr shader, IntPtr animationState, ref Matrix transform);
-
-			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern void Graphics_DrawModel(int pass, IntPtr model, IntPtr shader, IntPtr animatedShader, IntPtr animationState, ref Matrix transform);
-
-			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, byte* text, int length, IntPtr font, uint color, IntPtr batch);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

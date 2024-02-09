@@ -162,17 +162,6 @@ RFAPI SceneData* Resource_CreateSceneDataFromFile(const char* path, uint64_t tex
 	return nullptr;
 }
 
-RFAPI Model* Resource_CreateModelFromSceneData(SceneData* scene)
-{
-	Model* model = BX_NEW(Application_GetAllocator(), Model)(scene);
-	return model;
-}
-
-RFAPI SceneData* Resource_ModelGetSceneData(Model* model)
-{
-	return model->lod0;
-}
-
 RFAPI FontData* Resource_CreateFontDataFromFile(const char* path)
 {
 	//printf("Reading font '%s'\n", path);
@@ -231,7 +220,7 @@ RFAPI SoLoud::Wav* Resource_CreateSoundFromFile(const char* path, float* outFloa
 	return BX_NEW(Application_GetAllocator(), Sound)(buffer, size, info.channels, sampleRate, bps);
 	*/
 
-	SoLoud::Wav* wav = new SoLoud::Wav();
+	SoLoud::Wav* wav = BX_NEW(Application_GetAllocator(), SoLoud::Wav);
 	if (wav->load(path))
 	{
 		Console_Error("Failed to read sound file '%s'", path);

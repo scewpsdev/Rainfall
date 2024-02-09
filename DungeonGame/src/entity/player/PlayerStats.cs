@@ -111,12 +111,12 @@ public class PlayerStats
 
 	public void reset()
 	{
-		maxHealth = 500; //80;
-		health = 500; //80;
+		maxHealth = 80;
+		health = 80;
 		bufferedHealth = 0.0f;
 
-		maxStamina = 100; //12.0f;
-		stamina = 100; //12.0f;
+		maxStamina = 12.0f;
+		stamina = 12.0f;
 		staminaPenaltyTimer = -1.0f;
 
 		maxMana = 80;

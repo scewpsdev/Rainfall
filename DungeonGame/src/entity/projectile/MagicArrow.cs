@@ -11,14 +11,12 @@ public class MagicArrow : Projectile
 	const float SPEED = 15.0f;
 
 
-	public MagicArrow(Vector3 direction, Vector3 offset, Entity caster, int damage)
+	public unsafe MagicArrow(Vector3 direction, Vector3 offset, Entity caster, int damage)
 		: base(direction * SPEED, offset, caster)
 	{
 		model = Resource.GetModel("res/entity/projectile/magic_orb/magic_orb.gltf");
-		unsafe
-		{
-			model.sceneDataHandle->materials[0].emissiveStrength = 200;
-		}
+		model.scene->materials[0].emissiveStrength = 200;
+
 		this.damage = damage;
 	}
 
