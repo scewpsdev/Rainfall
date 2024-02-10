@@ -3,8 +3,16 @@
 #include "Event.h"
 #include "Input.h"
 #include "Console.h"
+#include "Hash.h"
 
 #include "audio/Audio.h"
+
+#include <chrono>
+#include <mutex>
+#include <unordered_map>
+#include <map>
+#include <algorithm>
+#include <iterator>
 
 #include <bx/bx.h>
 #include <bx/thread.h>
@@ -36,10 +44,6 @@
 #include <GLFW/glfw3native.h>
 
 #include <bgfx/platform.h>
-
-#include <chrono>
-#include <unordered_map>
-#include <mutex>
 
 
 struct LaunchParams
@@ -141,11 +145,41 @@ EventQueue eventQueue;
 static KeyCode keyTranslation[GLFW_KEY_LAST + 1];
 
 
+template<typename A, typename B>
+std::pair<B, A> flip_pair(const std::pair<A, B>& p)
+{
+	return std::pair<B, A>(p.second, p.first);
+}
+
+template<typename A, typename B>
+std::multimap<B, A> flip_map(const std::map<A, B>& src, std::multimap<B, A>& dst)
+{
+	std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
+		flip_pair<A, B>);
+	return dst;
+}
+
+#if _DEBUG
+#define TRACK_ALLOCATIONS 0
+#define TRACK_ALLOCATION_FILES 0
+#define PRINT_ALLOCATIONS 0
+#else
+#define TRACK_ALLOCATIONS 0
+#define TRACK_ALLOCATION_FILES 0
+#define PRINT_ALLOCATIONS 0
+#endif
+
 struct MemoryAllocator : bx::DefaultAllocator
 {
-#ifndef _DISTRIBUTION
+#if TRACK_ALLOCATIONS
+public:
 	std::unordered_map<void*, int64_t> allocations;
 	int64_t numBytes = 0;
+
+#if TRACK_ALLOCATION_FILES
+	std::map<const char*, int64_t> fileMap;
+	std::multimap<int64_t, const char*> fileMapSorted;
+#endif
 
 	std::mutex mutex;
 
@@ -166,10 +200,16 @@ struct MemoryAllocator : bx::DefaultAllocator
 		, uint32_t line
 	) override
 	{
+		if (!file || line == 0)
+			__debugbreak();
+#if PRINT_ALLOCATIONS
+		fprintf(stderr, "%s:%d\n", file, line);
+#endif
+
 		void* result = bx::DefaultAllocator::realloc(ptr, size, align, file, line);
 		memset(result, 0, size);
 
-#ifndef _RELEASE
+#if TRACK_ALLOCATIONS
 		if (size == 0)
 		{
 			if (ptr)
@@ -180,6 +220,9 @@ struct MemoryAllocator : bx::DefaultAllocator
 				{
 					numBytes -= allocations.at(ptr);
 					allocations.erase(ptr);
+#if TRACK_ALLOCATION_FILES
+					fileMap[file] -= size;
+#endif
 				}
 				else
 				{
@@ -193,6 +236,9 @@ struct MemoryAllocator : bx::DefaultAllocator
 			mutex.lock();
 			allocations.emplace(result, size);
 			numBytes += size;
+#if TRACK_ALLOCATION_FILES
+			fileMap[file] += size;
+#endif
 			mutex.unlock();
 		}
 		else
@@ -200,15 +246,22 @@ struct MemoryAllocator : bx::DefaultAllocator
 			mutex.lock();
 			int64_t& s = allocations.at(ptr);
 			numBytes += size - s;
+#if TRACK_ALLOCATION_FILES
+			fileMap[file] += size - s;
+#endif
 			s = size;
 			mutex.unlock();
 		}
+
+#if TRACK_ALLOCATION_FILES
+		fileMapSorted.clear();
+		flip_map(fileMap, fileMapSorted);
+#endif
 #endif
 
 		return result;
 	}
 };
-
 
 bx::AllocatorI* Application_GetAllocator()
 {
@@ -225,6 +278,23 @@ bx::FileReaderI* Application_GetFileReader()
 	static bx::FileReader fileReader;
 	return &fileReader;
 }
+
+RFAPI void Application_GetTopAllocators(int num, char* files, int64_t* sizes)
+{
+#if TRACK_ALLOCATION_FILES
+	MemoryAllocator* allocator = (MemoryAllocator*)Application_GetAllocator();
+	auto it = allocator->fileMapSorted.end();
+	for (int i = 0; i < num; i++)
+	{
+		it--;
+		int64_t size = it->first;
+		const char* file = it->second;
+		strcpy(&files[i * 128], file);
+		sizes[i] = size;
+	}
+#endif
+}
+
 
 static void InitKeyTranslation()
 {
@@ -622,7 +692,7 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 			break;
 		}
 
-		bx::free(Application_GetAllocator(), (void*)ev);
+		BX_FREE(Application_GetAllocator(), (void*)ev);
 	}
 
 	if (needsReset)
@@ -1025,7 +1095,7 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 			break;
 			}
 
-			bx::free(Application_GetAllocator(), msg);
+			BX_FREE(Application_GetAllocator(), msg);
 		}
 	}
 

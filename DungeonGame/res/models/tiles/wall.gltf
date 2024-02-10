@@ -34,9 +34,7 @@
 					1
 				],
 				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":0
-				}
+				"roughnessFactor":0.7272726893424988
 			}
 		}
 	],
@@ -68,19 +66,6 @@
 					"material":0
 				}
 			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"bricks_roughness.png",
-			"uri":"../../texture/materials/bricks/bricks_roughness.png"
 		}
 	],
 	"accessors":[
@@ -201,12 +186,6 @@
 			"byteLength":300,
 			"byteOffset":3276,
 			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9729,
-			"minFilter":9987
 		}
 	],
 	"buffers":[

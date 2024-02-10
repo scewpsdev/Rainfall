@@ -48,7 +48,7 @@ public class GameManager
 		{
 			string seedStr = File.ReadAllText("seed.txt");
 			if (seedStr.Length > 0)
-				seed = int.Parse(seedStr);
+				seed = (int)Hash.hash(seedStr);
 		}
 
 		levelGenerator.reset(seed, level);

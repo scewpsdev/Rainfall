@@ -16,15 +16,15 @@ internal class DungeonGame : Game
 
 
 	public static new DungeonGame instance { get => (DungeonGame)Game.instance; }
-	
+
 
 	public Level level { get; private set; }
-	
+
 	Camera camera;
 
 	public GameManager gameManager;
 	GameState gameState;
-	
+
 	float cpuTimeAcc = 0.0f;
 	float gpuTimeAcc = 0.0f;
 	float cpuTime, gpuTime;
@@ -145,7 +145,7 @@ internal class DungeonGame : Game
 	{
 		int line = 0;
 
-		Span<byte> str = stackalloc byte[64];
+		Span<byte> str = stackalloc byte[128];
 
 		StringUtils.WriteString(str, "Test Build 0.0.0a");
 		str[11] = '0' + VERSION_MAJOR;
@@ -280,6 +280,27 @@ internal class DungeonGame : Game
 		StringUtils.WriteString(str, "z=");
 		StringUtils.AppendInteger(str, (int)(gameManager.player.position.z * 100));
 		Debug.DrawDebugText(0, line++, str);
+
+		line++;
+		line++;
+		line++;
+
+		/*
+		const int numAllocators = 10;
+		byte[] allocatorFiles = new byte[numAllocators * 128];
+		long[] allocatorSizes = new long[numAllocators];
+		Time.GetTopAllocators(numAllocators, allocatorFiles, allocatorSizes);
+		
+		for (int i = 0; i < numAllocators; i++)
+		{
+			Span<byte> file = MemoryExtensions.AsSpan(allocatorFiles, i * 128, 128);
+			long size = allocatorSizes[i];
+			StringUtils.WriteString(str, file, StringUtils.StringLength(file));
+			StringUtils.AppendString(str, ": ");
+			WriteMemoryString(str, size);
+			Debug.DrawDebugText(0, line++, str);
+		}
+		*/
 	}
 
 	static void WriteMemoryString(Span<byte> str, long mem)
@@ -330,8 +351,8 @@ internal class DungeonGame : Game
 
 		LaunchParams launchParams = new LaunchParams(args);
 #if DEBUG
-		launchParams.width = 1050;
-		launchParams.height = 500;
+		launchParams.width = 1600;
+		launchParams.height = 900;
 #else
 		launchParams.width = 1600;
 		launchParams.height = 900;

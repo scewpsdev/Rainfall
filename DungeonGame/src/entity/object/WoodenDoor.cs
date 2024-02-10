@@ -30,6 +30,7 @@ public class WoodenDoor : Door
 			model = Resource.GetModel("res/entity/object/door/door_windowed.gltf");
 		}
 		frame = Resource.GetModel("res/entity/object/door/door_frame.gltf");
+		frame.isStatic = true;
 
 		model.maxDistance =(LOD.DISTANCE_MEDIUM);
 		frame.maxDistance = (LOD.DISTANCE_MEDIUM);

@@ -487,7 +487,7 @@ public class Player : Entity
 					Vector3 dir = fsu;
 					if (dir.lengthSquared == 0.0f)
 						dir = new Vector3(0.0f, 0.0f, -1.0f);
-					queueAction(new DodgeAction(dir));
+					queueAction(new DodgeAction(dir, yaw));
 
 					isDucked = false;
 					inDuckTimer = -1;

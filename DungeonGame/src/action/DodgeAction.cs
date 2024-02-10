@@ -11,22 +11,27 @@ using System.Threading.Tasks;
 internal class DodgeAction : Action
 {
 	const float DODGE_DURATION = 0.7f;
-	const float MAX_DODGE_SPEED = 9.0f;
-	const float MIN_DODGE_SPEED = 1.0f;
+	const float MAX_DODGE_SPEED = 10.0f;
+	const float MIN_DODGE_SPEED = 0.1f;
 	const float DODGE_DISTANCE = (MAX_DODGE_SPEED + MIN_DODGE_SPEED) * 0.5f * DODGE_DURATION; //2.0f;
 																							  //const float MIN_DODGE_SPEED = 2 * DODGE_DISTANCE / DODGE_DURATION - Player.MAX_GROUND_SPEED;
 
 	const float STAMINA_COST = 3.0f;
 
 
-	public DodgeAction(Vector3 fsu)
+	Vector3 direction;
+
+	public DodgeAction(Vector3 fsu, float yaw)
 		: base(ActionType.Dodge)
 	{
+		direction = Quaternion.FromAxisAngle(Vector3.Up, yaw) * (fsu * new Vector3(1, 1, -1));
+		Console.WriteLine(direction);
+
 		movementSpeedMultiplier = 1.0f;
 		lockMovement = true;
 		duration = DODGE_DURATION;
 
-		movementInput = fsu;
+		//movementInput = fsu;
 		maxSpeed = MIN_DODGE_SPEED;
 
 		iframesStartTime = 0.0f;
@@ -96,7 +101,9 @@ internal class DodgeAction : Action
 		base.update(player);
 
 		//maxSpeed = MathHelper.Lerp(MAX_DODGE_SPEED, Player.MAX_GROUND_SPEED, elapsedTime / duration);
-		maxSpeed = MathHelper.Lerp(MAX_DODGE_SPEED, MIN_DODGE_SPEED, elapsedTime / duration);
+		maxSpeed = Math.Clamp(MathHelper.Lerp(MAX_DODGE_SPEED, MIN_DODGE_SPEED, elapsedTime / duration), MIN_DODGE_SPEED, MAX_DODGE_SPEED);
+
+		movementInput = (Quaternion.FromAxisAngle(Vector3.Up, player.yaw).conjugated * direction) * new Vector3(1, 1, -1);
 
 		float progress = elapsedTime / duration;
 		float fovFunc = 1 - MathF.Pow(progress * 2 - 1, 2);

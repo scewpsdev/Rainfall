@@ -17,10 +17,10 @@
 Font::Font(FontData* data, float size, bool antialiased, int atlasWidth, int atlasHeight, int charOffset)
 	: data(data), size(size), atlasWidth(atlasWidth), atlasHeight(atlasHeight), charOffset(charOffset)
 {
-	pixels = (uint8_t*)bx::alloc(Application_GetAllocator(), atlasWidth * atlasHeight);
+	pixels = (uint8_t*)BX_ALLOC(Application_GetAllocator(), atlasWidth * atlasHeight);
 
 	int numChars = 255 - charOffset;
-	characters = (CharacterData*)bx::alloc(Application_GetAllocator(), sizeof(CharacterData) * numChars);
+	characters = (CharacterData*)BX_ALLOC(Application_GetAllocator(), sizeof(CharacterData) * numChars);
 	stbtt_BakeFontBitmap(data->bytes, 0, size, pixels, atlasWidth, atlasHeight, charOffset, numChars, characters);
 
 	texture = bgfx::createTexture2D(atlasWidth, atlasHeight, false, 1, bgfx::TextureFormat::R8, antialiased ? 0 : BGFX_SAMPLER_POINT, bgfx::makeRef(pixels, atlasWidth * atlasHeight));
