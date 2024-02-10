@@ -589,7 +589,7 @@ namespace Physics
 
 	RFAPI PxConvexMesh* Physics_CreateConvexMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
 	{
-		Vector3* vertexPositions = (Vector3*)bx::alloc(Application_GetAllocator(), numVertices * sizeof(Vector3));
+		Vector3* vertexPositions = (Vector3*)BX_ALLOC(Application_GetAllocator(), numVertices * sizeof(Vector3));
 		for (int i = 0; i < numVertices; i++)
 			vertexPositions[i] = vertices[i].position;
 
@@ -608,14 +608,14 @@ namespace Physics
 		if (!status)
 		{
 			printf("Failed to cook convex mesh\n");
-			bx::free(Application_GetAllocator(), vertexPositions);
+			BX_FREE(Application_GetAllocator(), vertexPositions);
 			return nullptr;
 		}
 
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 		PxConvexMesh* mesh = physics->createConvexMesh(readBuffer);
 
-		bx::free(Application_GetAllocator(), vertexPositions);
+		BX_FREE(Application_GetAllocator(), vertexPositions);
 
 		return mesh;
 	}
@@ -1171,7 +1171,7 @@ namespace Physics
 		//queryFilterData.data.word0 = 1;
 		//queryFilterData.data.word1 = filterMask;
 
-		PxRaycastHit* hitData = (PxRaycastHit*)bx::alloc(Application_GetAllocator(), sizeof(PxRaycastHit) * maxHits);
+		PxRaycastHit* hitData = (PxRaycastHit*)BX_ALLOC(Application_GetAllocator(), sizeof(PxRaycastHit) * maxHits);
 		PxRaycastBuffer hitBuffer(hitData, maxHits);
 
 		if (scene->raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
@@ -1189,12 +1189,12 @@ namespace Physics
 
 			if (!hitData)
 			{
-				bx::free(Application_GetAllocator(), hitData);
+				BX_FREE(Application_GetAllocator(), hitData);
 				return 1;
 			}
 		}
 
-		bx::free(Application_GetAllocator(), hitData);
+		BX_FREE(Application_GetAllocator(), hitData);
 
 		return hitBuffer.getNbTouches();
 	}
@@ -1209,7 +1209,8 @@ namespace Physics
 		//queryFilterData.data.word0 = 1;
 		//queryFilterData.data.word1 = filterMask;
 
-		PxSweepHit* hitData = (PxSweepHit*)bx::alloc(Application_GetAllocator(), sizeof(PxSweepHit) * maxHits);
+		static PxSweepHit hitData[256];
+		//PxSweepHit* hitData = (PxSweepHit*)BX_ALLOC(Application_GetAllocator(), sizeof(PxSweepHit) * maxHits);
 		PxSweepBuffer hitBuffer(hitData, maxHits);
 
 		if (scene->sweep(geometry, PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
@@ -1227,12 +1228,12 @@ namespace Physics
 
 			if (!hitData)
 			{
-				bx::free(Application_GetAllocator(), hitData);
+				//BX_FREE(Application_GetAllocator(), hitData);
 				return 1;
 			}
 		}
 
-		bx::free(Application_GetAllocator(), hitData);
+		//BX_FREE(Application_GetAllocator(), hitData);
 
 		return hitBuffer.getNbTouches();
 	}
@@ -1258,7 +1259,8 @@ namespace Physics
 		//queryFilterData.data.word0 = 1;
 		//queryFilterData.data.word1 = filterMask;
 
-		PxOverlapHit* hitData = (PxOverlapHit*)bx::alloc(Application_GetAllocator(), sizeof(PxOverlapHit) * maxHits);
+		static PxOverlapHit hitData[256];
+		//PxOverlapHit* hitData = (PxOverlapHit*)BX_ALLOC(Application_GetAllocator(), sizeof(PxOverlapHit) * maxHits);
 		PxOverlapBuffer hitBuffer(hitData, maxHits);
 
 		if (geometry.getType() == PxGeometryType::eCAPSULE)
@@ -1276,12 +1278,12 @@ namespace Physics
 
 			if (!hitData)
 			{
-				bx::free(Application_GetAllocator(), hitData);
+				//BX_FREE(Application_GetAllocator(), hitData);
 				return 1;
 			}
 		}
 
-		bx::free(Application_GetAllocator(), hitData);
+		//BX_FREE(Application_GetAllocator(), hitData);
 
 		return hitBuffer.getNbTouches();
 	}

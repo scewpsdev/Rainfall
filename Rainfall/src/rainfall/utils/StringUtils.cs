@@ -43,6 +43,21 @@ public static class StringUtils
 		return WriteCharacter(dst, StringLength(dst), c);
 	}
 
+	public static int WriteString(Span<byte> dst, int length, Span<byte> str, int strLen)
+	{
+		for (int i = 0; i < strLen; i++)
+		{
+			dst[length++] = str[i];
+		}
+		dst[length] = 0;
+		return length;
+	}
+
+	public static int WriteString(Span<byte> dst, Span<byte> str, int strLen)
+	{
+		return WriteString(dst, 0, str, strLen);
+	}
+
 	public static int WriteString(Span<byte> dst, int length, string str)
 	{
 		for (int i = 0; i < str.Length; i++)

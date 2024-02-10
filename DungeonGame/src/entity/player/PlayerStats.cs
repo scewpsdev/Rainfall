@@ -83,7 +83,7 @@ public class PlayerStats
 	const float STAMINA_DRAIN_MIN_VALUE = -5.0f;
 	const float SHIELD_BLOCK_STAMINA_REGEN_PENALTY = 0.2f;
 
-	const float SPRINT_STAMINA_COST = 4.0f;
+	const float SPRINT_STAMINA_COST = 2.5f;
 
 
 	public int maxHealth;

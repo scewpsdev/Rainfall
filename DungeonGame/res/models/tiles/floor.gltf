@@ -22,9 +22,6 @@
 		{
 			"doubleSided":true,
 			"name":"Material.001",
-			"normalTexture":{
-				"index":0
-			},
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
 					0.12020237743854523,
@@ -33,9 +30,7 @@
 					1
 				],
 				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":1
-				}
+				"roughnessFactor":0.9200000166893005
 			}
 		}
 	],
@@ -53,28 +48,6 @@
 					"material":0
 				}
 			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"dirt_normal.png",
-			"uri":"../../texture/materials/dirt/dirt_normal.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"dirt_roughness.png",
-			"uri":"../../texture/materials/dirt/dirt_roughness.png"
 		}
 	],
 	"accessors":[
@@ -137,12 +110,6 @@
 			"byteLength":12,
 			"byteOffset":128,
 			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9729,
-			"minFilter":9987
 		}
 	],
 	"buffers":[

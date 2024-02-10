@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,6 +47,16 @@ namespace Rainfall
 		public static int numAllocations
 		{
 			get { return Native.Application.Application_GetNumAllocations(); }
+		}
+
+		public static void GetTopAllocators(int num, Span<byte> files, Span<long> sizes)
+		{
+			unsafe
+			{
+				fixed (byte* filesPtr = files)
+				fixed (long* sizesPtr = sizes)
+					Native.Application.Application_GetTopAllocators(num, filesPtr, sizesPtr);
+			}
 		}
 	}
 }

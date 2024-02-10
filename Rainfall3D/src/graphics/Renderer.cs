@@ -133,6 +133,16 @@ public static class Renderer
 		internal uint color;
 	}
 
+	class ModelComparer : IComparer<Model>
+	{
+		public unsafe int Compare(Model x, Model y)
+		{
+			int xh = x.scene->GetHashCode();
+			int yh = y.scene->GetHashCode();
+			return xh < yh ? 1 : xh > yh ? -1 : 1;
+		}
+	}
+
 
 	const int SSAO_KERNEL_SIZE = 64;
 	const int MAX_LIGHTS_PER_PASS = 16;
@@ -240,7 +250,7 @@ public static class Renderer
 	static IndexBuffer waterTileIndexBuffer;
 
 	static List<ModelDrawCommand> models = new List<ModelDrawCommand>();
-	static Dictionary<Model, List<ModelDrawCommand>> modelsInstanced = new Dictionary<Model, List<ModelDrawCommand>>();
+	static SortedList<Model, ModelDrawCommand> modelsInstanced = new SortedList<Model, ModelDrawCommand>(new ModelComparer());
 	static List<TerrainDrawCommand> terrains = new List<TerrainDrawCommand>();
 	static List<LeaveDrawCommand> foliage = new List<LeaveDrawCommand>();
 	static List<SkyDrawCommand> skies = new List<SkyDrawCommand>();
@@ -555,22 +565,28 @@ public static class Renderer
 
 	public static void DrawModelStaticInstanced(Model model, Matrix transform)
 	{
+		modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
+		/*
 		if (!modelsInstanced.TryGetValue(model, out List<ModelDrawCommand> drawList))
 		{
 			drawList = new List<ModelDrawCommand>();
 			modelsInstanced.Add(model, drawList);
 		}
 		drawList.Add(new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
+		*/
 	}
 
 	public static void DrawSubModelStaticInstanced(Model model, int meshID, Matrix transform)
 	{
+		modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
+		/*
 		if (!modelsInstanced.TryGetValue(model, out List<ModelDrawCommand> drawList))
 		{
 			drawList = new List<ModelDrawCommand>();
 			modelsInstanced.Add(model, drawList);
 		}
 		drawList.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
+		*/
 	}
 
 	public static void DrawTerrain(Texture heightmap, Texture normalmap, Texture splatMap, Matrix transform, Texture diffuse0, Texture diffuse1, Texture diffuse2, Texture diffuse3)
@@ -842,54 +858,67 @@ public static class Renderer
 		}
 	}
 
+	static int CountInstances(SortedList<Model, ModelDrawCommand> draws, int offset)
+	{
+		Model firstModel = draws.GetKeyAtIndex(offset);
+		for (int i = offset; i < draws.Count; i++)
+		{
+			if (draws.GetKeyAtIndex(i) != firstModel)
+				return i - offset;
+		}
+		return draws.Count - offset;
+	}
+
 	static void RenderModelsInstanced()
 	{
 		graphics.resetState();
 		graphics.setViewTransform(projection, view);
 
-		foreach (Model model in modelsInstanced.Keys)
+		for (int i = 0; i < modelsInstanced.Count; i++)
 		{
-			List<ModelDrawCommand> drawList = modelsInstanced[model];
-			if (drawList.Count > 0)
+			ModelDrawCommand draw = modelsInstanced.GetValueAtIndex(i);
+			Model model = draw.model;
+
+			int instanceCount = CountInstances(modelsInstanced, i);
+			for (int j = 0; j < model.meshCount; j++)
 			{
-				for (int j = 0; j < model.meshCount; j++)
+				// TODO remove duplicate allocation
+				graphics.createInstanceBuffer(instanceCount, 16 * sizeof(float), out InstanceBufferData instances);
+
+				int numDrawnInstances = 0;
+				for (int k = 0; k < instanceCount; k++)
 				{
-					// TODO remove duplicate allocation
-					graphics.createInstanceBuffer(drawList.Count, 16 * sizeof(float), out InstanceBufferData instances);
+					draw = modelsInstanced.GetValueAtIndex(i + k);
+					if (draw.meshID != -1 && draw.meshID != j)
+						continue;
 
-					int numDrawnModels = 0;
-					for (int i = 0; i < drawList.Count; i++)
+					BoundingSphere boundingSphere = model.boundingSphere.Value;
+					if (numDrawnInstances < instanceTransformBuffer.Length)
 					{
-						if (drawList[i].meshID != -1 && drawList[i].meshID != j)
-							continue;
-
-						BoundingSphere boundingSphere = model.boundingSphere.Value;
-						if (numDrawnModels < instanceTransformBuffer.Length)
-						{
-							Matrix transform = drawList[i].transform;
-							// TODO fix model duplication glitch with frustum culling
-							//if (IntersectsFrustum(new Vector3(boundingSphere.xcenter, boundingSphere.ycenter, boundingSphere.zcenter), boundingSphere.radius, transform, pv))
-							instanceTransformBuffer[numDrawnModels++] = transform;
-						}
-						else
-						{
-							Console.WriteLine("Overflowing instance transform buffer of size " + instanceTransformBuffer.Length);
-							break;
-						}
+						Matrix transform = draw.transform;
+						// TODO fix model duplication glitch with frustum culling
+						//if (IntersectsFrustum(new Vector3(boundingSphere.xcenter, boundingSphere.ycenter, boundingSphere.zcenter), boundingSphere.radius, transform, pv))
+						instanceTransformBuffer[numDrawnInstances++] = transform;
 					}
-
-					instances.write(instanceTransformBuffer);
-
-
-					graphics.setCullState(CullState.ClockWise);
-
-					graphics.setInstanceBuffer(instances, 0, numDrawnModels);
-
-					model.drawMesh(graphics, j, meshInstancedShader, Matrix.Identity);
-					meshRenderCounter += numDrawnModels;
-					meshCulledCounter += drawList.Count - numDrawnModels;
+					else
+					{
+						Console.WriteLine("Overflowing instance transform buffer of size " + instanceTransformBuffer.Length);
+						break;
+					}
 				}
+
+				instances.write(instanceTransformBuffer);
+
+
+				graphics.setCullState(CullState.ClockWise);
+
+				graphics.setInstanceBuffer(instances, 0, numDrawnInstances);
+
+				model.drawMesh(graphics, j, meshInstancedShader, Matrix.Identity);
+				meshRenderCounter += numDrawnInstances;
+				meshCulledCounter += instanceCount - numDrawnInstances;
 			}
+			i += instanceCount - 1;
 		}
 	}
 
@@ -2141,6 +2170,7 @@ public static class Renderer
 		UIPass();
 
 		models.Clear();
+		modelsInstanced.Clear();
 		terrains.Clear();
 		foliage.Clear();
 		skies.Clear();
@@ -2154,10 +2184,6 @@ public static class Renderer
 		grassPatches.Clear();
 		uiTextures.Clear();
 		texts.Clear();
-
-		foreach (var drawList in modelsInstanced.Values)
-			drawList.Clear();
-		modelsInstanced.Clear();
 
 		uiDepthCounter = 0;
 	}

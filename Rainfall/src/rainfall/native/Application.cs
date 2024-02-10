@@ -45,6 +45,9 @@ namespace Rainfall.Native
 	internal static class Application
 	{
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe void Application_GetTopAllocators(int num, byte* files, long* sizes);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Application_Run(LaunchParams launchParams, ApplicationCallbacks callbacks);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
