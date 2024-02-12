@@ -82,9 +82,8 @@ public class Level
 
 	public void init()
 	{
-		//AudioManager.SetAmbientSound(ambientSound, 0.05f);
-
-		//Audio.SetEffect(AudioEffect.Reverb);
+		AudioManager.SetAmbientSound(ambientSound, 0.05f);
+		Audio.SetEffect(AudioEffect.Reverb);
 
 		Renderer.fogColor = new Vector3(1.0f, 1.0f, 1.5f);
 		Renderer.fogIntensity = 0.0001f;

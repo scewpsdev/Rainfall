@@ -302,6 +302,11 @@ namespace Rainfall
 			return -1;
 		}
 
+		public unsafe byte* getMeshName(int index)
+		{
+			return scene->meshes[index].node->name;
+		}
+
 		public unsafe int meshCount
 		{
 			get => scene->numMeshes;
@@ -340,12 +345,9 @@ namespace Rainfall
 			}
 		}
 
-		public override int GetHashCode()
+		public override unsafe int GetHashCode()
 		{
-			unsafe
-			{
-				return ((IntPtr)scene).GetHashCode();
-			}
+			return ((IntPtr)scene).GetHashCode();
 		}
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]

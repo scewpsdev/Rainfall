@@ -141,22 +141,20 @@ public class RoomType
 	{
 		if (model != null)
 		{
-			if (meshColliders == null)
-			{
-				meshColliders = new MeshCollider[model.meshCount];
-			}
-
 			for (int i = 0; i < model.meshCount; i++)
 			{
 				bool isDoorwayCover = false;
 				Doorway doorway = null;
 				for (int j = 0; j < room.doorways.Count; j++)
 				{
-					if (room.doorways[j].doorwayCoverID == i)
+					unsafe
 					{
-						isDoorwayCover = true;
-						doorway = room.doorways[j];
-						break;
+						if (room.doorways[j].doorwayCover != null && StringUtils.CompareStrings(room.doorways[j].doorwayCover, model.getMeshName(i)))
+						{
+							isDoorwayCover = true;
+							doorway = room.doorways[j];
+							break;
+						}
 					}
 				}
 				if (isDoorwayCover)
@@ -169,9 +167,34 @@ public class RoomType
 				else
 				{
 					level.levelMeshes.Add(new LevelMesh(model, i, room));
+				}
+			}
+		}
+		if (collider != null)
+		{
+			if (meshColliders == null)
+			{
+				meshColliders = new MeshCollider[collider.meshCount];
+			}
 
+			for (int i = 0; i < collider.meshCount; i++)
+			{
+				bool isDoorwayCover = false;
+				for (int j = 0; j < room.doorways.Count; j++)
+				{
+					unsafe
+					{
+						if (room.doorways[j].doorwayCover != null && StringUtils.CompareStrings(room.doorways[j].doorwayCover, collider.getMeshName(i)))
+						{
+							isDoorwayCover = true;
+							break;
+						}
+					}
+				}
+				if (!isDoorwayCover)
+				{
 					if (meshColliders[i] == null)
-						meshColliders[i] = Physics.CreateMeshCollider(model, i);
+						meshColliders[i] = Physics.CreateMeshCollider(collider, i);
 					level.body.addMeshCollider(meshColliders[i], room.transform);
 				}
 			}
@@ -1166,7 +1189,7 @@ public class StudyAlcove : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back, "DoorwayCover1"));
 
 		model = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove.gltf");
-		collider = model;
+		collider = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove_collider.gltf");
 	}
 
 	public override SectorType getNextSectorType(Doorway doorway, Random random)

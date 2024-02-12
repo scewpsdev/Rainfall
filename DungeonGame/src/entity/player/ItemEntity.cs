@@ -134,7 +134,7 @@ public class ItemEntity
 			//Entity otherEntity = hit.body.entity as Entity;
 			//if (otherEntity == null)
 			{
-				if ((Time.currentTime - lastSparkEffectTime) / 1e9f > 0.02f)
+				if ((Time.currentTime - lastSparkEffectTime) / 1e9f > 0.016f)
 				{
 					Vector3 direction = hit.normal; // ((player.position - hit.position) * new Vector3(1.0f, 0.0f, 1.0f)).normalized;
 					DungeonGame.instance.level.addEntity(new SparkEffect(direction), hit.position, Quaternion.Identity);

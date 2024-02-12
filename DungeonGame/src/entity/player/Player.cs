@@ -2087,15 +2087,9 @@ public class Player : Entity
 
 	public void giveItem(Item item, int amount = 1, Item[] equippedSpells = null)
 	{
-		ItemSlot slot;
-		bool firstOfType = inventory.findItemOfType(item.category) == null;
-
 		if (item.category == ItemCategory.Weapon)
 		{
-			//if (handEntities[0].item != null)
-			//	dropItem(0);
-			//ItemSlot slot = inventory.addHandItem(0, 0, item, 1);
-			slot = inventory.addItem(item, amount);
+			ItemSlot slot = inventory.addItem(item, amount);
 			if (equippedSpells != null)
 			{
 				ItemSlot[] spellSlots = new ItemSlot[equippedSpells.Length];
@@ -2109,42 +2103,20 @@ public class Player : Entity
 		}
 		else if (item.category == ItemCategory.Shield || item.category == ItemCategory.Utility)
 		{
-			//if (handEntities[1].item != null)
-			//	dropItem(1);
-			//inventory.addHandItem(1, 0, item, amount);
-			slot = inventory.addItem(item, amount);
+			inventory.addItem(item, amount);
 		}
 		else if (item.category == ItemCategory.Consumable)
 		{
-			//inventory.addHotbarItem(0, item, amount);
-			slot = inventory.addHotbarItem(item, amount);
+			ItemSlot slot = inventory.addHotbarItem(item, amount);
 			if (slot == null)
 				slot = inventory.addItem(item, amount);
 		}
 		else
 		{
-			slot = inventory.addItem(item, amount);
-		}
-
-		if (false) //if (firstOfType)
-		{
-			ItemSlot newSlot = null;
-			if (item.category == ItemCategory.Weapon)
-				newSlot = inventory.addHandItem(0, item, amount);
-			else if (item.category == ItemCategory.Shield)
-				newSlot = inventory.addHandItem(1, item, amount);
-			else if (item.category == ItemCategory.Utility)
-				newSlot = inventory.addHandItem(1, item, amount);
-			else if (item.category == ItemCategory.Consumable)
-				newSlot = inventory.addHotbarItem(item, amount);
-
-			if (newSlot != null)
-				inventory.removeItem(slot, amount);
+			inventory.addItem(item, amount);
 		}
 
 		hud.onItemCollected(item, amount, Time.currentTime);
-
-		//queueAction(new PickUpAction());
 	}
 
 	public void queueAction(Action action)

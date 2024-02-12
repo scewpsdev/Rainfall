@@ -552,7 +552,8 @@ public class Creature : Entity, Hittable
 				}
 			}
 
-			if (false)//if (name != null)
+			bool renderTag = false;
+			if (renderTag)
 			{
 				Vector3 nameTagPosition = position + new Vector3(0.0f, 1.8f, 0.0f);
 				Vector2i screenPosition = MathHelper.WorldToScreenSpace(nameTagPosition, viewProjection, Display.viewportSize);

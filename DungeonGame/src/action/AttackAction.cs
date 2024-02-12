@@ -74,7 +74,7 @@ internal class AttackAction : Action
 		}
 		else if (entity is not Hittable)
 		{
-			//Console.WriteLine(hit.distance + ", " + hit.body.entity);
+			/*
 			if (hit.distance < 0.1f)
 				lastObjectHitTime = Time.currentTime;
 			return;
@@ -84,8 +84,6 @@ internal class AttackAction : Action
 			Vector3 start = player.handEntities[handID].transform.translation;
 			float range = player.handEntities[handID].item.hitboxRange * 3;
 			int numHits = Physics.Raycast(start, direction, range, hits, QueryFilterFlags.Static);
-			Console.WriteLine(numHits);
-			//Debug.Assert(numHits <= 1);
 			if (numHits > 0)
 			{
 				float shortestDistance = 1000.0f;
@@ -94,12 +92,11 @@ internal class AttackAction : Action
 					float distance = hits[i].distance;
 					if (distance != 0 && distance < shortestDistance)
 						shortestDistance = distance;
-					Console.WriteLine(hits[i].body.entity + ", " + distance);
-					//Console.WriteLine(distance + ", " + player.handEntities[handID].item.hitboxRange);
 				}
 				if (shortestDistance < 0.0f)
 					lastObjectHitTime = Time.currentTime;
 			}
+			*/
 		}
 	}
 

@@ -18,20 +18,20 @@ public class Doorway
 	public Matrix transform;
 	public Vector3i globalPosition, globalDirection;
 	public float spawnChance;
-	public int doorwayCoverID;
+	public string doorwayCover;
 
 	public bool spawnDoor = false;
 	public bool secret = false;
 
 
-	public Doorway(int id, Room room, Vector3i position, Vector3i direction, float spawnChance, int doorwayCoverID = -1)
+	public Doorway(int id, Room room, Vector3i position, Vector3i direction, float spawnChance, string doorwayCover = null)
 	{
 		this.id = id;
 		this.room = room;
 		this.position = position;
 		this.direction = direction;
 		this.spawnChance = spawnChance;
-		this.doorwayCoverID = doorwayCoverID;
+		this.doorwayCover = doorwayCover;
 
 		transform = Matrix.CreateTranslation((position * 1.0f + new Vector3(0.5f, 0.0f, 0.5f))) * Matrix.CreateRotation(Quaternion.LookAt(direction * 1.0f));
 		Matrix doorwayGlobalTransform = room.transform * transform;
@@ -123,8 +123,7 @@ public class Room
 			Vector3i position = type.doorwayInfo[i].position;
 			Vector3i direction = type.doorwayInfo[i].direction;
 			float spawnChance = type.doorwayInfo[i].spawnChance;
-			int doorwayCoverID = type.model != null && type.doorwayInfo[i].coverModel != null ? (type.model.getMeshIndex(type.doorwayInfo[i].coverModel)) : -1;
-			Doorway doorway = new Doorway(i, this, position, direction, spawnChance, doorwayCoverID);
+			Doorway doorway = new Doorway(i, this, position, direction, spawnChance, type.doorwayInfo[i].coverModel);
 			doorways.Add(doorway);
 		}
 	}

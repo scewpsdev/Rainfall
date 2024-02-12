@@ -181,9 +181,9 @@ public class TileMap
 
 	Vector3i globalToLocal(Vector3i position, Matrix roomTransform)
 	{
-		Vector3 tileCenter = position + new Vector3(0.5f, 0.0f, 0.5f);
+		Vector3 tileCenter = position + new Vector3(0.5f, 0.5f, 0.5f);
 		Vector4 local = roomTransform.inverted * new Vector4(tileCenter, 1.0f);
-		return (Vector3i)local.xyz;
+		return (Vector3i)Vector3.Floor(local.xyz);
 	}
 
 	public void placeRoom(Room room)

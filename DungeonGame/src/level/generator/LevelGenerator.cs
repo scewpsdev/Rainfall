@@ -412,7 +412,7 @@ public class LevelGenerator
 			return distance1 > distance2 ? 1 : distance1 < distance2 ? -1 : 0;
 		});
 
-		tilemap.resize(tilemap.mapPosition.x - 3, tilemap.mapPosition.y, tilemap.mapPosition.z - 3, tilemap.mapPosition.x + tilemap.mapSize.x + 3, tilemap.mapPosition.y + tilemap.mapSize.y - 3, tilemap.mapPosition.z + tilemap.mapSize.z + 3);
+		tilemap.resize(tilemap.mapPosition.x - 3, tilemap.mapPosition.y - 3, tilemap.mapPosition.z - 3, tilemap.mapPosition.x + tilemap.mapSize.x + 3, tilemap.mapPosition.y + tilemap.mapSize.y + 3, tilemap.mapPosition.z + tilemap.mapSize.z + 3);
 
 		for (int i = 0; i < Math.Min(count, openDoorwayPairs.Count); i++)
 		{
@@ -1052,7 +1052,7 @@ public class LevelGenerator
 		}
 		interconnectRooms(2);
 		propagateRooms(SectorType.Corridor);
-		//removeEmptyCorridors();
+		removeEmptyCorridors();
 		/*
 		connectRoomsIfNot(startingRoom, mainRoom);
 		connectRoomsIfNot(finalRoom, mainRoom);
@@ -1070,8 +1070,8 @@ public class LevelGenerator
 
 		level.init();
 		spawnRooms();
-		//placeLadders();
+		placeLadders();
 
-		//placeLoot();
+		placeLoot();
 	}
 }

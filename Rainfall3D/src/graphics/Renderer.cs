@@ -79,11 +79,6 @@ public static class Renderer
 		internal Vector3 color;
 	}
 
-	struct DirectionalLightDrawCommand
-	{
-		internal DirectionalLight light;
-	}
-
 	struct ReflectionProbeDrawCommand
 	{
 		internal ReflectionProbe reflectionProbe;
@@ -137,8 +132,8 @@ public static class Renderer
 	{
 		public unsafe int Compare(Model x, Model y)
 		{
-			int xh = x.scene->GetHashCode();
-			int yh = y.scene->GetHashCode();
+			int xh = x.GetHashCode();
+			int yh = y.GetHashCode();
 			return xh < yh ? 1 : xh > yh ? -1 : 1;
 		}
 	}
@@ -882,7 +877,6 @@ public static class Renderer
 			int instanceCount = CountInstances(modelsInstanced, i);
 			for (int j = 0; j < model.meshCount; j++)
 			{
-				// TODO remove duplicate allocation
 				graphics.createInstanceBuffer(instanceCount, 16 * sizeof(float), out InstanceBufferData instances);
 
 				int numDrawnInstances = 0;
@@ -1183,9 +1177,6 @@ public static class Renderer
 				{
 					graphics.setUniform(modelSimpleShader, "u_cameraPosition", new Vector4(reflectionProbes[i].origin, 0.0f));
 
-					// TODO optimize meshes in resource compiler
-
-					// TODO frustum culling
 					for (int k = 0; k < models.Count; k++)
 					{
 						if (!models[k].model.isStatic)
@@ -1238,8 +1229,7 @@ public static class Renderer
 
 				for (int k = 0; k < skies.Count; k++)
 				{
-					// TODO cull
-					graphics.setCullState(CullState.None);
+					graphics.setCullState(CullState.ClockWise);
 
 					graphics.setVertexBuffer(skydome);
 					graphics.setIndexBuffer(skydomeIdx);
@@ -1357,6 +1347,7 @@ public static class Renderer
 		Span<Vector4> pointLightPositionBuffer = stackalloc Vector4[MAX_POINT_SHADOWS];
 		Span<Vector4> pointLightColorBuffer = stackalloc Vector4[MAX_POINT_SHADOWS];
 		Span<float> pointLightShadowNears = stackalloc float[MAX_POINT_SHADOWS];
+		Span<byte> uniformName = stackalloc byte[32];
 		if (pointLights.Count > 0)
 		{
 			shader = deferredPointShadowShader;
@@ -1385,7 +1376,9 @@ public static class Renderer
 				pointLightColorBuffer[j] = new Vector4(pointLights[j].color, 0.0f);
 				pointLightShadowNears[j] = pointLights[j].shadowMap.nearPlane;
 
-				graphics.setTexture(shader, "s_lightShadowMap" + j, 5 + j, pointLights[j].shadowMap.cubemap);
+				StringUtils.WriteString(uniformName, "s_lightShadowMap");
+				StringUtils.AppendInteger(uniformName, j);
+				graphics.setTexture(shader, uniformName, 5 + j, pointLights[j].shadowMap.cubemap);
 			}
 
 			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_POINT_SHADOWS), pointLightPositionBuffer);
@@ -1393,7 +1386,9 @@ public static class Renderer
 
 			for (int i = 0; i < MAX_POINT_SHADOWS / 4; i++)
 			{
-				graphics.setUniform(shader, "u_lightShadowMapNear" + i, new Vector4(pointLightShadowNears[i * 4 + 0], pointLightShadowNears[i * 4 + 1], pointLightShadowNears[i * 4 + 2], pointLightShadowNears[i * 4 + 3]));
+				StringUtils.WriteString(uniformName, "u_lightShadowMapNear");
+				StringUtils.AppendInteger(uniformName, i);
+				graphics.setUniform(shader, uniformName, new Vector4(pointLightShadowNears[i * 4 + 0], pointLightShadowNears[i * 4 + 1], pointLightShadowNears[i * 4 + 2], pointLightShadowNears[i * 4 + 3]));
 			}
 
 			graphics.draw(shader);
