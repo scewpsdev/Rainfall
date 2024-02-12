@@ -21,9 +21,9 @@ internal class SparkEffect : Entity
 		particles.emissionRate = 0.0f;
 
 		particles.additive = true;
-		particles.textureAtlas = Resource.GetTexture("res/texture/particle/spark.png");
-		particles.particleSize = 0.05f;
-		particles.spriteTint = new Vector4(10.0f);
+		//particles.textureAtlas = Resource.GetTexture("res/texture/particle/spark.png");
+		particles.particleSize = 0.025f;
+		particles.spriteTint = new Vector4(new Vector3(1.0f, 0.2f, 0.1f) * 5, 1.0f);
 
 		particles.randomRotation = true;
 		particles.randomRotationSpeed = true;

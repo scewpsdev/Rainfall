@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 public static class AudioManager
 {
-	static bool reverb = false;
-	static float ambientSoundGainDst = 0.0f;
-	static float ambientSoundGain = 0.0f;
-
 	static uint ambientSource;
 	public static Sound currentAmbientSound { get; private set; }
 	public static float currentAmbientGain { get; private set; }
@@ -50,6 +46,5 @@ public static class AudioManager
 		{
 			Audio.SetEffect(AudioEffect.None);
 		}
-		AudioManager.reverb = reverb;
 	}
 }

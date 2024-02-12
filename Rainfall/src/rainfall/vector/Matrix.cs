@@ -311,10 +311,27 @@ namespace Rainfall
 
 		public static Quaternion operator *(Matrix a, Quaternion b)
 		{
-			// TODO optimize
 			Matrix bMat = CreateRotation(b);
 			Matrix result = a * bMat;
-			return result.rotation;
+
+			float sx = MathF.Sqrt(result.m00 * result.m00 + result.m01 * result.m01 + result.m02 * result.m02);
+			float sy = MathF.Sqrt(result.m10 * result.m10 + result.m11 * result.m11 + result.m12 * result.m12);
+			float sz = MathF.Sqrt(result.m20 * result.m20 + result.m21 * result.m21 + result.m22 * result.m22);
+
+			float c00 = result.m00 / sx;
+			float c11 = result.m11 / sy;
+			float c22 = result.m22 / sz;
+
+			float qw = MathF.Sqrt(MathF.Max(0.0f, 1.0f + c00 + c11 + c22)) / 2.0f;
+			float qx = MathF.Sqrt(MathF.Max(0.0f, 1.0f + c00 - c11 - c22)) / 2.0f;
+			float qy = MathF.Sqrt(MathF.Max(0.0f, 1.0f - c00 + c11 - c22)) / 2.0f;
+			float qz = MathF.Sqrt(MathF.Max(0.0f, 1.0f - c00 - c11 + c22)) / 2.0f;
+
+			qx = MathF.CopySign(qx, result.m12 - result.m21);
+			qy = MathF.CopySign(qy, result.m20 - result.m02);
+			qz = MathF.CopySign(qz, result.m01 - result.m10);
+
+			return new Quaternion(qx, qy, qz, qw).normalized;
 		}
 
 		public static Matrix CreateTranslation(float x, float y, float z, float w)

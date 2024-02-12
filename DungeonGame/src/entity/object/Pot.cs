@@ -55,7 +55,6 @@ internal class Pot : Entity, Hittable
 	public override void destroy()
 	{
 		model.destroy();
-		fracturedModel.destroy();
 		body.destroy();
 	}
 

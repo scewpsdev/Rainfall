@@ -351,8 +351,8 @@ internal class DungeonGame : Game
 
 		LaunchParams launchParams = new LaunchParams(args);
 #if DEBUG
-		launchParams.width = 1600;
-		launchParams.height = 900;
+		launchParams.width = 880;
+		launchParams.height = 470;
 #else
 		launchParams.width = 1600;
 		launchParams.height = 900;

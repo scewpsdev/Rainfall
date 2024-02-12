@@ -50,7 +50,6 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	public override void destroy()
 	{
 		model.destroy();
-		fracturedModel.destroy();
 		body.destroy();
 	}
 

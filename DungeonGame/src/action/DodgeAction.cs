@@ -45,7 +45,7 @@ internal class DodgeAction : Action
 	{
 		float floorHitPoint = 0.7f;
 		float xx = (x + (1 - floorHitPoint)) * 2 % 2 - 1;
-		float y = 1 - MathF.Pow(xx, 2);
+		float y = 1 - MathF.Pow(xx, 4);
 		return y;
 	}
 
@@ -79,7 +79,7 @@ internal class DodgeAction : Action
 	{
 		float progress = elapsedTime / duration;
 		float y = heightFunc(progress) / heightFunc(0.0f);
-		return MathHelper.Lerp(0.5f * MathF.PI * 0.5f, 0.0f, y);
+		return MathHelper.Lerp(MathF.PI * 1.0f, 0.0f, y);
 		/*
 		if (progress < floorHitPoint)
 		{

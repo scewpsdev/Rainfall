@@ -31,7 +31,6 @@ namespace Rainfall
 
 		public AnimationLayer(Model animationData, string animationName, bool looping, bool[] mask = null)
 		{
-			// TODO array might have incorrect size when reusing animation states
 			nodeAnimationLocalTransforms = new Matrix[animationData.skeleton.nodes.Length];
 			Array.Fill(nodeAnimationLocalTransforms, Matrix.Identity);
 
