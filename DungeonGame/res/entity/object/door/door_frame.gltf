@@ -21,17 +21,13 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.11128408461809158,
-					0.11128408461809158,
-					0.11128408461809158,
-					1
-				],
-				"metallicFactor":0,
-				"metallicRoughnessTexture":{
+				"baseColorTexture":{
 					"index":0
+				},
+				"metallicRoughnessTexture":{
+					"index":1
 				}
 			}
 		}
@@ -56,42 +52,51 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
 		}
 	],
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"door_frame_roughness.png.002",
-			"uri":"textures/door_frame_roughness.png"
+			"name":"materials_diffuse.png",
+			"uri":"../../../texture/materials/materials_diffuse.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"materials_occlusionRoughnessMetallic.png",
+			"uri":"../../../texture/materials/materials_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":500,
+			"count":512,
 			"max":[
 				1.4999998807907104,
 				2.999999761581421,
-				0.5986285209655762
+				0.480879545211792
 			],
 			"min":[
 				-1.4999998807907104,
-				-0.00508474837988615,
-				-0.5986285209655762
+				-0.0050847530364990234,
+				-0.4769260883331299
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":500,
+			"count":512,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":500,
+			"count":512,
 			"type":"VEC2"
 		},
 		{
@@ -104,38 +109,38 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6000,
+			"byteLength":6144,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6000,
-			"byteOffset":6000,
+			"byteLength":6144,
+			"byteOffset":6144,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4000,
-			"byteOffset":12000,
+			"byteLength":4096,
+			"byteOffset":12288,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":1728,
-			"byteOffset":16000,
+			"byteOffset":16384,
 			"target":34963
 		}
 	],
 	"samplers":[
 		{
-			"magFilter":9729,
-			"minFilter":9987
+			"magFilter":9728,
+			"minFilter":9984
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":17728,
+			"byteLength":18112,
 			"uri":"door_frame.bin"
 		}
 	]

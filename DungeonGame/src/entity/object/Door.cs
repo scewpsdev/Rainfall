@@ -134,8 +134,8 @@ public abstract class Door : Entity, Interactable
 		Matrix transform = getModelMatrix();
 		Matrix lidTransform = transform * Matrix.CreateTranslation(doorHingeOffset, 0.0f, 0.0f) * Matrix.CreateRotation(Vector3.Up, doorAngle) * Matrix.CreateTranslation(-doorHingeOffset, 0.0f, 0.0f);
 
-		Renderer.DrawModelStaticInstanced(model, lidTransform);
+		Renderer.DrawModel(model, lidTransform);
 		if (frame != null)
-			Renderer.DrawModelStaticInstanced(frame, transform);
+			Renderer.DrawModel(frame, transform);
 	}
 }

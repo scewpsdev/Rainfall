@@ -37,7 +37,7 @@ void main()
 
     //float lod = max(log2(textureSize(s_diffuse, 0).x) - 6, 0);
 
-	vec4 albedo = mix(DEFAULT_ALBEDO, texture2D(s_diffuse, v_texcoord0), hasTexCoords * hasDiffuse) * vec4(linearToSRGB(color), 1.0);
+	vec4 albedo = mix(DEFAULT_ALBEDO, linearToSRGB(texture2D(s_diffuse, v_texcoord0)), hasTexCoords * hasDiffuse) * vec4(linearToSRGB(color), 1.0);
 	float roughness = mix(roughnessFactor, texture2D(s_roughness, v_texcoord0).g, hasTexCoords * hasRoughness);
 	float metallic = mix(metallicFactor, texture2D(s_metallic, v_texcoord0).b, hasTexCoords * hasMetallic);
 	vec3 emissive = mix(emissionColor, texture2D(s_emissive, v_texcoord0).rgb, hasTexCoords * hasEmissive);

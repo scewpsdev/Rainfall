@@ -192,7 +192,7 @@ internal class WallTorch : Entity, Interactable
 	{
 		Matrix transform = getModelMatrix();
 
-		Renderer.DrawSubModelStaticInstanced(model, 1, transform);
+		Renderer.DrawSubModel(model, 1, transform);
 
 		if (state != TorchState.Looted)
 		{

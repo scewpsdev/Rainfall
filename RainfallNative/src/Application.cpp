@@ -200,9 +200,9 @@ public:
 		, uint32_t line
 	) override
 	{
+#if PRINT_ALLOCATIONS
 		if (!file || line == 0)
 			__debugbreak();
-#if PRINT_ALLOCATIONS
 		fprintf(stderr, "%s:%d\n", file, line);
 #endif
 

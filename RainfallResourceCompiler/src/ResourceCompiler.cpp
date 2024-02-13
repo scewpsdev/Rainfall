@@ -164,7 +164,7 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 			if (name.find("basecolor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
 			{
 				format = "BC3";
-				linear = true;
+				//linear = true;
 				mipmaps = true;
 			}
 			else if (name.find("normal") != std::string::npos)

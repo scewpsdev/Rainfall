@@ -44,6 +44,8 @@ internal class DungeonGame : Game
 
 		Item.LoadContent();
 
+		Debug.debugTextEnabled = true;
+
 		FontManager.LoadFont("baskerville", "res/fonts/libre-baskerville.regular.ttf");
 
 		gameManager = new GameManager();
@@ -120,10 +122,8 @@ internal class DungeonGame : Game
 
 		gameManager.draw();
 
-#if !DISTRIBUTION
 		if (!GraphicsManager.cinematicMode)
 			drawDebugStats();
-#endif
 
 		Renderer.End();
 
@@ -351,8 +351,8 @@ internal class DungeonGame : Game
 
 		LaunchParams launchParams = new LaunchParams(args);
 #if DEBUG
-		launchParams.width = 880;
-		launchParams.height = 470;
+		launchParams.width = 1600;
+		launchParams.height = 900;
 #else
 		launchParams.width = 1600;
 		launchParams.height = 900;

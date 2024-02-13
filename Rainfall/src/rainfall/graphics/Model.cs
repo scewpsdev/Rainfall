@@ -211,7 +211,7 @@ namespace Rainfall
 		public MaterialData* materials;
 		internal SkeletonData* skeletons;
 		public AnimationData* animations;
-		internal NodeData* nodes;
+		public NodeData* nodes;
 		public LightData* lights;
 	}
 

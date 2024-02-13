@@ -265,6 +265,7 @@ public static class Renderer
 
 	public static bool simplifiedLighting = false;
 	public static bool ambientOcclusionEnabled = true;
+	public static bool bloomEnabled = true;
 
 
 	public static void Init(GraphicsDevice graphics)
@@ -558,7 +559,7 @@ public static class Renderer
 		models.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform });
 	}
 
-	public static void DrawModelStaticInstanced(Model model, Matrix transform)
+	public static void DrawModelStaticInstanced_(Model model, Matrix transform)
 	{
 		modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
 		/*
@@ -571,7 +572,7 @@ public static class Renderer
 		*/
 	}
 
-	public static void DrawSubModelStaticInstanced(Model model, int meshID, Matrix transform)
+	public static void DrawSubModelStaticInstanced_(Model model, int meshID, Matrix transform)
 	{
 		modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
 		/*
@@ -764,7 +765,7 @@ public static class Renderer
 		}
 	}
 
-	static bool IntersectsFrustum(Vector3 p, float radius, Matrix transform, Matrix pv)
+	static bool IsInFrustum(Vector3 p, float radius, Matrix transform, Matrix pv)
 	{
 		Span<Vector4> planes = stackalloc Vector4[16];
 		GetFrustumPlanes(pv, planes);
@@ -783,6 +784,12 @@ public static class Renderer
 		return true;
 	}
 
+	static bool IsOccluded()
+	{
+		// TODO occlusion culling
+		return false;
+	}
+
 	static bool IsInRange(Vector3 p, float radius, Matrix meshTransform, float maxDistance)
 	{
 		Vector3 d = p + meshTransform.translation - camera.position;
@@ -798,16 +805,24 @@ public static class Renderer
 			meshTransform *= GetNodeTransform(model.skeleton.getNode(meshData.nodeID));
 		bool isAnimated = meshData.hasSkeleton && animator != null && animShader != null;
 
-		if (IntersectsFrustum(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, pv))
+		if (IsInFrustum(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, pv))
 		{
-			if (IsInRange(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, model.maxDistance))
+			if (!IsOccluded())
 			{
-				if (isAnimated)
-					model.drawMeshAnimated(graphics, meshID, animShader, animator, meshTransform);
-				else
-					model.drawMesh(graphics, meshID, shader, meshTransform);
+				if (IsInRange(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, model.maxDistance))
+				{
+					if (isAnimated)
+						model.drawMeshAnimated(graphics, meshID, animShader, animator, meshTransform);
+					else
+						model.drawMesh(graphics, meshID, shader, meshTransform);
 
-				meshRenderCounter++;
+					meshRenderCounter++;
+				}
+				else
+				{
+					graphics.resetState(); // reset state so we can submit new draw call data
+					meshCulledCounter++;
+				}
 			}
 			else
 			{
@@ -1902,7 +1917,7 @@ public static class Renderer
 				{
 					MeshData mesh = waterTiles[i].model.getMeshData(j).Value;
 					Matrix transform = Matrix.CreateTranslation(waterTiles[i].position) * GetNodeTransform(waterTiles[i].model.skeleton.getNode(mesh.nodeID));
-					if (IntersectsFrustum(new Vector3(mesh.boundingSphere.xcenter, mesh.boundingSphere.ycenter, mesh.boundingSphere.zcenter), mesh.boundingSphere.radius, transform, pv))
+					if (IsInFrustum(new Vector3(mesh.boundingSphere.xcenter, mesh.boundingSphere.ycenter, mesh.boundingSphere.zcenter), mesh.boundingSphere.radius, transform, pv))
 					{
 						SubmitWaterMesh(mesh.vertexBufferID, mesh.indexBufferID, transform);
 
@@ -1983,31 +1998,9 @@ public static class Renderer
 		graphics.draw(bloomUpsampleShader);
 	}
 
-	static void Composite()
+	static Texture Bloom(Texture input)
 	{
-		graphics.resetState();
-		graphics.setPass((int)RenderPass.Composite);
-
-		graphics.setRenderTarget(compositeRenderTarget);
-
-		graphics.setDepthTest(DepthTest.None);
-		graphics.setCullState(CullState.ClockWise);
-
-		graphics.setTexture(compositeShader.getUniform("s_hdrBuffer", UniformType.Sampler), 0, postProcessing.getAttachmentTexture(0));
-		graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 1, bloomUpsampleChain[0].getAttachmentTexture(0));
-
-		graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
-
-		graphics.setVertexBuffer(quad);
-		graphics.draw(compositeShader);
-	}
-
-	static void PostProcessing()
-	{
-		DistanceFog();
-
-
-		BloomDownsample(0, postProcessing.getAttachmentTexture(0), bloomDownsampleChain[0]);
+		BloomDownsample(0, input, bloomDownsampleChain[0]);
 		BloomDownsample(1, bloomDownsampleChain[0].getAttachmentTexture(0), bloomDownsampleChain[1]);
 		BloomDownsample(2, bloomDownsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[2]);
 		BloomDownsample(3, bloomDownsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[3]);
@@ -2020,8 +2013,38 @@ public static class Renderer
 		BloomUpsample(3, bloomUpsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[1].getAttachmentTexture(0), bloomUpsampleChain[1]);
 		BloomUpsample(4, bloomUpsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[0].getAttachmentTexture(0), bloomUpsampleChain[0]);
 
+		return bloomUpsampleChain[0].getAttachmentTexture(0);
+	}
 
-		Composite();
+	static void Composite(Texture bloom)
+	{
+		graphics.resetState();
+		graphics.setPass((int)RenderPass.Composite);
+
+		graphics.setRenderTarget(compositeRenderTarget);
+
+		graphics.setDepthTest(DepthTest.None);
+		graphics.setCullState(CullState.ClockWise);
+
+		graphics.setTexture(compositeShader.getUniform("s_hdrBuffer", UniformType.Sampler), 0, postProcessing.getAttachmentTexture(0));
+		if (bloom != null)
+			graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 1, bloom);
+
+		graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
+
+		graphics.setVertexBuffer(quad);
+		graphics.draw(compositeShader);
+	}
+
+	static void PostProcessing()
+	{
+		DistanceFog();
+
+		Texture bloom = null;
+		if (bloomEnabled)
+			bloom = Bloom(postProcessing.getAttachmentTexture(0));
+
+		Composite(bloom);
 	}
 
 	static void TonemappingPass()

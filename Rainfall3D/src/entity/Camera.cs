@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 public class Camera : Entity
 {
 	public float fov = 90.0f;
-	public float near = 0.0025f;
-	public float far = 200.0f;
+	public float near = 0.1f;
+	public float far = 100.0f;
 
 
 	public override void update()

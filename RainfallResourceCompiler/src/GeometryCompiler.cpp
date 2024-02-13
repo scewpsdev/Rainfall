@@ -552,15 +552,15 @@ bool CompileGeometry(const char* path, const char* out)
 		| aiProcess_ImproveCacheLocality
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
-		//| aiProcess_OptimizeGraph
+		| aiProcess_OptimizeGraph
 		//| aiProcess_RemoveRedundantMaterials
 		;
 
 	Assimp::Importer importer;
-	importer.SetPropertyString(AI_CONFIG_PP_OG_EXCLUDE_LIST,
-		"_tag_node_00 _tag_node_01 _tag_node_02 _tag_node_03 _tag_node_04 _tag_node_05 _tag_node_06 _tag_node_07 _tag_node_08 _tag_node_09"
-		"_tag_node_10 _tag_node_11 _tag_node_12 _tag_node_13 _tag_node_14 _tag_node_15 _tag_node_16 _tag_node_17 _tag_node_18 _tag_node_19"
-	);
+	//importer.SetPropertyString(AI_CONFIG_PP_OG_EXCLUDE_LIST,
+	//	"_tag_node_00 _tag_node_01 _tag_node_02 _tag_node_03 _tag_node_04 _tag_node_05 _tag_node_06 _tag_node_07 _tag_node_08 _tag_node_09 "
+	//	"_tag_node_10 _tag_node_11 _tag_node_12 _tag_node_13 _tag_node_14 _tag_node_15 _tag_node_16 _tag_node_17 _tag_node_18 _tag_node_19 "
+	//);
 
 	if (const aiScene* aiscene = importer.ReadFile(path, flags))
 	{

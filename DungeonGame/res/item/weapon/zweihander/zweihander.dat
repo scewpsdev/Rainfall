@@ -16,6 +16,11 @@ colliders: [
 		offset = [0.0, 0.08, 0.0]
 	}
 ]
+hitbox = {
+	type = box
+	size = [0.1, 2.0, 0.02]
+	offset = [0.0, 0.7, 0.0]
+}
 
 moveset: "zweihander_moveset.gltf"
 

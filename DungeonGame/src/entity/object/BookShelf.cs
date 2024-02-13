@@ -57,6 +57,6 @@ internal class BookShelf : Entity
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawModelStaticInstanced(model, getModelMatrix());
+		Renderer.DrawModel(model, getModelMatrix());
 	}
 }
