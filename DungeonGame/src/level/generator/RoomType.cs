@@ -256,6 +256,7 @@ public class RoomType
 		AddRoomType(new PillarRoom());
 		AddRoomType(new StorageRoom());
 		AddRoomType(new StudyAlcove());
+		AddRoomType(new Prison());
 
 		AddRoomType(new StraightCorridor());
 		AddRoomType(new LCorridor());
@@ -1142,9 +1143,9 @@ public class StorageRoom : RoomType
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left, "DoorwayCover0"));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left, "DoorwayCover1"));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right, "DoorwayCover2"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 2, 1), Vector3i.Left, "___DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left, "___DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right, "___DoorwayCover2"));
 
 		model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
 		collider = Resource.GetModel("res/level/room/level1/storage_room/storage_room_collider.gltf");
@@ -1185,8 +1186,8 @@ public class StudyAlcove : RoomType
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
 
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(5, 0, 2), Vector3i.Right, "DoorwayCover0"));
-		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back, "DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(5, 0, 2), Vector3i.Right, "___DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back, "___DoorwayCover1"));
 
 		model = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove.gltf");
 		collider = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove_collider.gltf");
@@ -1201,13 +1202,32 @@ public class StudyAlcove : RoomType
 	{
 		base.onSpawn(room, level, generator, random);
 
-		/*
-		level.levelMeshes.Add(new LevelMesh(model, room));
-		level.body.addMeshColliders(collider, room.transform);
-		*/
-
 		room.addEntity(new LightObject(new Vector3(1.0f, 0.707586f, 0.48509f) * 2.5f), room.transform * new Vector3(2, 2.4f, 3.6f), Quaternion.Identity);
 		room.addEntity(new LightObject(new Vector3(0.768808f, 0.890239f, 1) * 4), room.transform * new Vector3(0.4f, 2.6f, 3.6f), Quaternion.Identity);
+	}
+}
+
+public class Prison : RoomType
+{
+	public Prison()
+	{
+		size = new Vector3i(15, 4, 17);
+		id = 6;
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, -1), Vector3i.Forward, "___DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 17), Vector3i.Back, "___DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(15, 0, 2), Vector3i.Right, "___DoorwayCover2"));
+
+		model = Resource.GetModel("res/level/room/level1/prison/prison.gltf");
+		collider = Resource.GetModel("res/level/room/level1/prison/prison_collider.gltf");
+	}
+
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
+	{
+		return SectorType.Corridor;
 	}
 }
 

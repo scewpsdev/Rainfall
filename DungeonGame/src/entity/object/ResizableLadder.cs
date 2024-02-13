@@ -41,6 +41,6 @@ public class ResizableLadder : LadderRegion
 		{
 			Renderer.DrawModel(middle, transform * Matrix.CreateTranslation(0, i, 0));
 		}
-		Renderer.DrawModelStaticInstanced(top, transform * Matrix.CreateTranslation(0, height - 1, 0));
+		Renderer.DrawModel(top, transform * Matrix.CreateTranslation(0, height - 1, 0));
 	}
 }

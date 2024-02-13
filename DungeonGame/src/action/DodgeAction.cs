@@ -25,7 +25,6 @@ internal class DodgeAction : Action
 		: base(ActionType.Dodge)
 	{
 		direction = Quaternion.FromAxisAngle(Vector3.Up, yaw) * (fsu * new Vector3(1, 1, -1));
-		Console.WriteLine(direction);
 
 		movementSpeedMultiplier = 1.0f;
 		lockMovement = true;

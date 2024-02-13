@@ -80,8 +80,8 @@ public class Crate : Entity, Interactable, ItemContainerEntity, Hittable
 	public void hit(int damage, Entity from, Vector3 hitPosition, Vector3 force, int linkID)
 	{
 		remove();
-		if (fracturedModel != null)
-			DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, sfxBreak, 0.3f), position, rotation);
+		//if (fracturedModel != null)
+		//	DungeonGame.instance.level.addEntity(new FracturedObject(fracturedModel, sfxBreak, 0.3f), position, rotation);
 
 		foreach (ItemSlot slot in container.items)
 		{

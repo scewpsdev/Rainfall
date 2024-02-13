@@ -12,6 +12,7 @@ public class GraphicsSettings
 	public int fpsCap = 0;
 	public bool potato = false;
 	public bool ambientOcclusion = true;
+	public bool bloom = true;
 }
 
 public static class GraphicsManager
@@ -59,6 +60,11 @@ public static class GraphicsManager
 				Debug.Assert(setting.value.type == DatValueType.Number);
 				settings.ambientOcclusion = setting.value.integer != 0;
 			}
+			else if (setting.name == "bloom")
+			{
+				Debug.Assert(setting.value.type == DatValueType.Number);
+				settings.bloom = setting.value.integer != 0;
+			}
 			else
 			{
 				found = false;
@@ -77,6 +83,7 @@ public static class GraphicsManager
 		Display.fpsCap = settings.fpsCap;
 		Renderer.simplifiedLighting = settings.potato;
 		Renderer.ambientOcclusionEnabled = settings.ambientOcclusion;
+		Renderer.bloomEnabled = settings.bloom;
 	}
 
 	public static void Draw()

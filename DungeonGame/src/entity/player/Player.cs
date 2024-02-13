@@ -65,7 +65,7 @@ public class Player : Entity
 
 	public const float CAMERA_HEIGHT_STANDING = 1.5f;
 	public const float CAMERA_HEIGHT_DUCKED = 1.0f;
-	public const float DEFAULT_VIEWMODEL_SCALE = 0.25f;
+	public const float DEFAULT_VIEWMODEL_SCALE = 1.0f;
 
 	const float STEP_FREQUENCY = 0.8f;
 	const float FALL_IMPACT_MIN_SPEED = -3.0f;
@@ -480,7 +480,7 @@ public class Player : Entity
 
 			if (InputManager.IsPressed("Dodge"))
 				lastDodgePressedInput = Time.currentTime;
-			if (InputManager.IsReleased("Dodge"))
+			if (InputManager.IsReleased("Dodge") && isGrounded)
 			{
 				if ((Time.currentTime - lastDodgePressedInput) / 1e9f < DODGE_RELEASE_WINDOW)
 				{

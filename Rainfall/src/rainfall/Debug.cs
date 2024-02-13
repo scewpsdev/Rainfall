@@ -45,7 +45,7 @@ namespace Rainfall
 		public static bool debugTextEnabled
 		{
 			get => Native.Application.Application_IsDebugTextEnabled() != 0;
-			set { Native.Application.Application_SetDebugStatsEnabled((byte)(value ? 1 : 0)); }
+			set { Native.Application.Application_SetDebugTextEnabled((byte)(value ? 1 : 0)); }
 		}
 
 		public static bool debugStatsEnabled
