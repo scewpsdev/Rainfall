@@ -591,7 +591,7 @@ public class MainRoom : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 16, 14), Vector3i.Right));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(1, 9, 20), Vector3i.Back));
 
-		model = Resource.GetModel("res/level/room/pillar_foundation/pillar_foundation.gltf");
+		model = Resource.GetModel("res/level/room/level1/pillar_foundation/pillar_foundation.gltf");
 		collider = model;
 	}
 
@@ -626,12 +626,13 @@ public class MainRoom : RoomType
 			room.addEntity(new ResizableLadder(14), room.transform * new Vector3(0.5f, 9, 3.5f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f));
 		}
 
-		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/pillar_foundation/spiaggia_di_mondello_1k.hdr");
+		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/level1/pillar_foundation/spiaggia_di_mondello_1k.hdr");
 		GraphicsManager.skyboxIntensity = 5.0f;
+		//GraphicsManager.environmentMap = Resource.GetCubemap("res/level/room/level1/pillar_foundation/spiaggia_di_mondello_1k.hdr");
 
-		GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
+		//GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
 
-		ReflectionProbe reflection = new ReflectionProbe(64, room.transform.translation + new Vector3(0, 25, 0), new Vector3(20.1f, 50.1f, 20.1f), room.transform.translation + new Vector3(10, 1, 10), Renderer.graphics);
+		ReflectionProbe reflection = new ReflectionProbe(64, room.transform.translation + new Vector3(10, 25, 10), new Vector3(20.1f, 50.1f, 20.1f), room.transform.translation + new Vector3(10, 1, 10), Renderer.graphics);
 		level.reflections.Add(reflection);
 
 		room.addEntity(new ReverbZone(new Vector3(20, 50, 20), false, Resource.GetSound("res/level/hub/ambience.ogg")), room.transform);

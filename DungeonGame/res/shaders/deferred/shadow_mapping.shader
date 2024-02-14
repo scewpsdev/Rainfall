@@ -133,7 +133,7 @@ float CalculateDirectionalShadow(vec3 position, float distance, sampler2DShadow 
 
 float CalculatePointShadow(vec3 position, vec3 lightPosition, samplerCube shadowMap, float near)
 {
-	const float SHADOW_MAP_EPSILON = 0.00005;
+	const float SHADOW_MAP_EPSILON = 0.0005;
 	const int NUM_SAMPLES = 16;
 	
 	vec3 dir = position - lightPosition;

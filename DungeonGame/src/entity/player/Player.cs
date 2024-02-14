@@ -1293,7 +1293,10 @@ public class Player : Entity
 				{
 					int idx = (inventory.quickSlotIdx + i) % inventory.hotbar.Length;
 					if (inventory.hotbar[idx].item != null)
+					{
 						nextSlotWithItem = idx;
+						break;
+					}
 				}
 				if (nextSlotWithItem != -1)
 					inventory.quickSlotIdx = nextSlotWithItem;

@@ -36,7 +36,10 @@ namespace Rainfall
 			model.destroy();
 		}
 
-		public void setMaterial
+		public void setMaterial(Material material)
+		{
+			this.material = material.data;
+		}
 
 		public int addVertex(Vector3 position, Vector3 normal, Vector3 tangent, Vector2 uv)
 		{

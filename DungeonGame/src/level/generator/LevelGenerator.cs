@@ -24,6 +24,7 @@ public class LevelGenerator
 	Room startingRoom, finalRoom, mainRoom;
 
 	Model levelGeometry;
+	Material levelMaterial;
 
 	public List<ItemContainer> itemContainers = new List<ItemContainer>();
 
@@ -35,6 +36,8 @@ public class LevelGenerator
 		floor = Resource.GetModel("res/models/tiles/floor.gltf");
 		wall = Resource.GetModel("res/models/tiles/wall.gltf");
 		ceiling = Resource.GetModel("res/models/tiles/ceiling.gltf");
+
+		levelMaterial = new Material(0xFFFFFFFF);
 	}
 
 	public void reset(int seed, Level level)
@@ -774,7 +777,7 @@ public class LevelGenerator
 			level.roomIDMap.Add(rooms[i].id, i);
 
 		ModelBatch batch = new ModelBatch();
-		batch.setMaterial();
+		batch.setMaterial(levelMaterial);
 
 		for (int z = tilemap.mapPosition.z; z < tilemap.mapPosition.z + tilemap.mapSize.z; z++)
 		{
@@ -847,7 +850,8 @@ public class LevelGenerator
 			room.spawn(level, this, random);
 		}
 
-		level.levelMeshes.Add(new LevelMesh(levelGeometry = batch.createModel(), Matrix.Identity));
+		levelGeometry = batch.createModel();
+		level.levelMeshes.Add(new LevelMesh(levelGeometry, Matrix.Identity));
 	}
 
 	void placeLadders()
@@ -1109,7 +1113,7 @@ public class LevelGenerator
 
 		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.CreateTranslation(0, 0, 30));
 		//finalRoom = placeRoom(RoomType.FinalRoom, Matrix.CreateTranslation(0, 0, -64 - 15));
-		//mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
+		mainRoom = placeRoom(RoomType.MainRoom, Matrix.CreateTranslation(-20, 0, -40));
 
 		while (rooms.Count < maxRooms)
 		{
@@ -1118,15 +1122,13 @@ public class LevelGenerator
 		interconnectRooms(2);
 		propagateRooms(SectorType.Corridor);
 		removeEmptyCorridors();
-		/*
 		connectRoomsIfNot(startingRoom, mainRoom);
-		connectRoomsIfNot(finalRoom, mainRoom);
+		//connectRoomsIfNot(finalRoom, mainRoom);
 		foreach (Doorway doorway in mainRoom.doorways)
 		{
 			if (doorway.connectedDoorway == null)
 				connectDoorwayToRandomRoom(doorway);
 		}
-		*/
 
 		createDoorways();
 		createSecretWalls();
