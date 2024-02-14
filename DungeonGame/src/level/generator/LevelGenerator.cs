@@ -23,7 +23,7 @@ public class LevelGenerator
 	List<Room> rooms = new List<Room>();
 	Room startingRoom, finalRoom, mainRoom;
 
-	Model floorModels, wallModels, ceilingModels;
+	Model levelGeometry;
 
 	public List<ItemContainer> itemContainers = new List<ItemContainer>();
 
@@ -47,12 +47,8 @@ public class LevelGenerator
 		rooms.Clear();
 		startingRoom = finalRoom = mainRoom = null;
 
-		floorModels?.destroy();
-		floorModels = null;
-		wallModels?.destroy();
-		wallModels = null;
-		ceilingModels?.destroy();
-		ceilingModels = null;
+		levelGeometry?.destroy();
+		levelGeometry = null;
 
 		itemContainers.Clear();
 	}
@@ -705,15 +701,80 @@ public class LevelGenerator
 
 	static int mod(int x, int m) => (x % m + m) % m;
 
+	void generateFloorMesh(int x, int y, int z, ModelBatch batch)
+	{
+		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Up, Vector3.Right, new Vector2(x, z));
+		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(x, z + 1));
+		int i2 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(x + 1, z + 1));
+		int i3 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Up, Vector3.Right, new Vector2(x + 1, z));
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateCeilingMesh(int x, int y, int z, ModelBatch batch)
+	{
+		int i0 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(x, z + 1));
+		int i1 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(x, z));
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(x + 1, z));
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(x + 1, z + 1));
+
+		batch.addTriangle(i0, i3, i2);
+		batch.addTriangle(i2, i1, i0);
+	}
+
+	void generateWallMeshNorth(int x, int y, int z, ModelBatch batch)
+	{
+		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Back, Vector3.Right, new Vector2(x, z + 1));
+		int i1 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Back, Vector3.Right, new Vector2(x + 1, z + 1));
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(x + 1, z));
+		int i3 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(x, z));
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateWallMeshSouth(int x, int y, int z, ModelBatch batch)
+	{
+		int i0 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x, z + 1));
+		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x + 1, z + 1));
+		int i2 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x + 1, z));
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x, z));
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateWallMeshWest(int x, int y, int z, ModelBatch batch)
+	{
+		int i0 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Right, Vector3.Forward, new Vector2(x, z + 1));
+		int i1 = batch.addVertex(new Vector3(x, y, z), Vector3.Right, Vector3.Forward, new Vector2(x + 1, z + 1));
+		int i2 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Right, Vector3.Forward, new Vector2(x + 1, z));
+		int i3 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Right, Vector3.Forward, new Vector2(x, z));
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateWallMeshEast(int x, int y, int z, ModelBatch batch)
+	{
+		int i0 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Left, Vector3.Back, new Vector2(x, z + 1));
+		int i1 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Left, Vector3.Back, new Vector2(x + 1, z + 1));
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Left, Vector3.Back, new Vector2(x + 1, z));
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Left, Vector3.Back, new Vector2(x, z));
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
 	void spawnRooms()
 	{
 		level.rooms.AddRange(rooms);
 		for (int i = 0; i < rooms.Count; i++)
 			level.roomIDMap.Add(rooms[i].id, i);
 
-		ModelBatch wallBatch = new ModelBatch();
-		ModelBatch floorBatch = new ModelBatch();
-		ModelBatch ceilingBatch = new ModelBatch();
+		ModelBatch batch = new ModelBatch();
+		batch.setMaterial();
 
 		for (int z = tilemap.mapPosition.z; z < tilemap.mapPosition.z + tilemap.mapSize.z; z++)
 		{
@@ -732,7 +793,8 @@ public class LevelGenerator
 					if (tilemap.isWall(p + Vector3i.Down))
 					{
 						if (room == null || room.type.generateWallMeshes)
-							floorBatch.addModel(floor, tileTransform, mod(x, 3) + mod(z, 3) * 3, new Vector2i(3));
+							generateFloorMesh(x, y, z, batch);
+						//batch.addModel(floor, tileTransform, mod(x, 3) + mod(z, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(
 							new Vector3(0.5f),
 							tileTransform.translation + new Vector3(0, -0.5f, 0),
@@ -741,7 +803,8 @@ public class LevelGenerator
 					if (tilemap.isWall(p + Vector3i.Up))
 					{
 						if (room == null || room.type.generateWallMeshes)
-							ceilingBatch.addModel(ceiling, Matrix.CreateTranslation(0, 1, 0) * tileTransform, mod(-x, 3) + mod(z, 3) * 3, new Vector2i(3));
+							generateCeilingMesh(x, y, z, batch);
+						//ceilingBatch.addModel(ceiling, Matrix.CreateTranslation(0, 1, 0) * tileTransform, mod(-x, 3) + mod(z, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(
 							new Vector3(0.5f),
 							tileTransform.translation + new Vector3(0, 1.5f, 0),
@@ -750,25 +813,29 @@ public class LevelGenerator
 					if (tilemap.isWall(p + Vector3i.Forward))
 					{
 						if (room == null || room.type.generateWallMeshes)
-							wallBatch.addModel(wall, tileTransform, mod(x + z - 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
+							generateWallMeshNorth(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform, mod(x + z - 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, -1.0f), Quaternion.Identity);
 					}
 					if (tilemap.isWall(p + Vector3i.Back))
 					{
 						if (room == null || room.type.generateWallMeshes)
-							wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI), mod(-x + z + 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
+							generateWallMeshSouth(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI), mod(-x + z + 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, 1.0f), Quaternion.Identity);
 					}
 					if (tilemap.isWall(p + Vector3i.Left))
 					{
 						if (room == null || room.type.generateWallMeshes)
-							wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f), mod(x - 1 - z, 3) + mod(-y, 3) * 3, new Vector2i(3));
+							generateWallMeshWest(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f), mod(x - 1 - z, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(-1.0f, 0.5f, 0.0f), Quaternion.Identity);
 					}
 					if (tilemap.isWall(p + Vector3i.Right))
 					{
 						if (room == null || room.type.generateWallMeshes)
-							wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f), mod(x + 1 + z, 3) + mod(-y, 3) * 3, new Vector2i(3));
+							generateWallMeshEast(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f), mod(x + 1 + z, 3) + mod(-y, 3) * 3, new Vector2i(3));
 						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(1.0f, 0.5f, 0.0f), Quaternion.Identity);
 					}
 				}
@@ -779,10 +846,8 @@ public class LevelGenerator
 		{
 			room.spawn(level, this, random);
 		}
-		
-		level.levelMeshes.Add(new LevelMesh(wallModels = wallBatch.createModel(), Matrix.Identity));
-		level.levelMeshes.Add(new LevelMesh(floorModels = floorBatch.createModel(), Matrix.Identity));
-		level.levelMeshes.Add(new LevelMesh(ceilingModels = ceilingBatch.createModel(), Matrix.Identity));
+
+		level.levelMeshes.Add(new LevelMesh(levelGeometry = batch.createModel(), Matrix.Identity));
 	}
 
 	void placeLadders()

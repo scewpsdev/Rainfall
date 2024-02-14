@@ -208,7 +208,7 @@ internal class WallTorch : Entity, Interactable
 			{
 				fireParticles.emissionRate = 120;
 				glimParticles.emissionRate = 10;
-				sparkParticles.emissionRate = 0.3f;
+				sparkParticles.emissionRate = 1.0f;
 			}
 			else if (state == TorchState.Glimming)
 			{

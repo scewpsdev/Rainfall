@@ -742,23 +742,35 @@ namespace Rainfall
 			Native.Graphics.Graphics_Draw(currentPass, shader.handle);
 		}
 
+		public unsafe void drawText(int x, int y, float z, float scale, byte* text, int offset, int count, Font font, uint color, SpriteBatch batch)
+		{
+			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, offset, count, font.handle, color, batch.handle);
+		}
+
 		public unsafe void drawText(int x, int y, float z, float scale, byte* text, int length, Font font, uint color, SpriteBatch batch)
 		{
-			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, length, font.handle, color, batch.handle);
+			drawText(x, y, z, scale, text, 0, length, font, color, batch);
+		}
+
+		public unsafe void drawText(int x, int y, float z, float scale, Span<byte> text, int offset, int count, Font font, uint color, SpriteBatch batch)
+		{
+			fixed (byte* textPtr = text)
+				Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, textPtr, offset, count, font.handle, color, batch.handle);
 		}
 
 		public void drawText(int x, int y, float z, float scale, Span<byte> text, int length, Font font, uint color, SpriteBatch batch)
 		{
-			unsafe
-			{
-				fixed (byte* textPtr = text)
-					Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, textPtr, length, font.handle, color, batch.handle);
-			}
+			drawText(x, y, z, scale, text, 0, length, font, color, batch);
 		}
 
-		public unsafe void drawText(int x, int y, float z, float scale, string text, int length, Font font, uint color, SpriteBatch batch)
+		public void drawText(int x, int y, float z, float scale, string text, int offset, int count, Font font, uint color, SpriteBatch batch)
 		{
-			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, length, font.handle, color, batch.handle);
+			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, offset, count, font.handle, color, batch.handle);
+		}
+
+		public void drawText(int x, int y, float z, float scale, string text, Font font, uint color, SpriteBatch batch)
+		{
+			drawText(x, y, z, scale, text, 0, text.Length, font, color, batch);
 		}
 
 		public void computeDispatch(Shader shader, int numX, int numY, int numZ)

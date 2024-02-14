@@ -123,6 +123,7 @@ public static class Renderer
 		internal float scale;
 		internal byte* text;
 		internal string str;
+		internal int offset;
 		internal int length;
 		internal Font font;
 		internal uint color;
@@ -687,6 +688,55 @@ public static class Renderer
 	public static void DrawText(int x, int y, float scale, string text, Font font, uint color)
 	{
 		DrawText(x, y, scale, text, text.Length, font, color);
+	}
+
+	public static int DrawTextWrapped(int x, int y, float scale, int maxWidth, float lineSpacing, string text, Font font, uint color)
+	{
+		int getWordLength(string str, int length, int offset)
+		{
+			for (int i = offset; i < length; i++)
+			{
+				if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\0')
+					return i - offset;
+			}
+			return length - offset;
+		}
+
+		int length = text.Length;
+		int xscroll = 0;
+		int line = 0;
+		int lineStart = 0;
+		for (int j = 0; j < length;)
+		{
+			int nextWordLength = getWordLength(text, length, j);
+			int nextWordWidth = font.measureText(text, j, nextWordLength);
+			bool wraps = xscroll + nextWordWidth > maxWidth;
+			if (wraps)
+			{
+				// draw line
+				int lineLength = j - lineStart;
+				texts.Add(new TextDrawCommand { x = x, y = y + (int)(line * lineSpacing * font.size * scale), layer = currentUILayer * 1000 + uiDepthCounter, scale = scale, str = text, offset = lineStart, length = lineLength, font = font, color = color });
+
+				xscroll = 0;
+				line++;
+				lineStart = j;
+			}
+			if (j + nextWordLength >= length)
+			{
+				// draw last line
+				int lineLength = j + nextWordLength - lineStart;
+				texts.Add(new TextDrawCommand { x = x, y = y + (int)(line * lineSpacing * font.size * scale), layer = currentUILayer * 1000 + uiDepthCounter, scale = scale, str = text, offset = lineStart, length = lineLength, font = font, color = color });
+			}
+
+			int nextWordWidthWithSpace = j + nextWordLength < length ? font.measureText(text, j, nextWordLength + 1) : nextWordWidth;
+			xscroll += nextWordWidthWithSpace;
+
+			j += nextWordLength + 1;
+		}
+
+		uiDepthCounter++;
+
+		return line + 1;
 	}
 
 	public static void SetEnvironmentMap(Cubemap environmentMap, float intensity)
@@ -2111,15 +2161,16 @@ public static class Renderer
 
 		for (int i = 0; i < texts.Count; i++)
 		{
-			int x = texts[i].x;
-			int y = texts[i].y;
-			float z = texts[i].layer * 0.0001f;
-			float scale = texts[i].scale;
-
 			unsafe
 			{
+				int x = texts[i].x;
+				int y = texts[i].y;
+				float z = texts[i].layer * 0.0001f;
+				float scale = texts[i].scale;
+
 				byte* text = texts[i].text;
 				string str = texts[i].str;
+				int offset = texts[i].offset;
 				int length = texts[i].length;
 
 				Font font = texts[i].font;
@@ -2127,11 +2178,11 @@ public static class Renderer
 
 				if (text != null)
 				{
-					graphics.drawText(x, y, z, scale, text, length, font, color, textBatch);
+					graphics.drawText(x, y, z, scale, text, offset, length, font, color, textBatch);
 				}
 				else if (str != null)
 				{
-					graphics.drawText(x, y, z, scale, str, length, font, color, textBatch);
+					graphics.drawText(x, y, z, scale, str, offset, length, font, color, textBatch);
 				}
 			}
 		}

@@ -143,6 +143,7 @@ public class Item
 	public int id;
 	public string name;
 	public string displayName;
+	public string description;
 	public ItemCategory category;
 	public bool stackable;
 	public Vector2i inventorySize = new Vector2i(1);
@@ -429,6 +430,8 @@ public class Item
 			displayName,
 			ParseCategory(categoryName)
 		);
+
+		file.getStringContent("description", out item.description);
 
 		if (file.getStringContent("model", out string modelFile))
 		{
@@ -787,9 +790,10 @@ public class Item
 		Load("weapon", "zweihander");
 		Load("weapon", "longsword");
 		Load("weapon", "shortsword");
-		//Load("weapon", "dagger");
+		Load("weapon", "dagger");
 		Load("weapon", "axe");
 		Load("weapon", "broken_sword");
+		Load("weapon", "debug_weapon");
 
 		Load("weapon", "longbow");
 

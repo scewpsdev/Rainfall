@@ -479,7 +479,7 @@ public class StartingRoom : RoomType
 			room.addEntity(new ItemPickup(Item.Get("key_cell")), keyTransform);
 
 			Matrix brokenSwordTransform = room.transform * Matrix.CreateTranslation(0.65f, 0.0f, 11.8f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.6f) * Matrix.CreateRotation(Vector3.Right, MathF.PI * -0.5f);
-			room.addEntity(new ItemPickup(Item.Get("broken_sword")), brokenSwordTransform);
+			room.addEntity(new ItemPickup(Item.Get("debug_weapon")), brokenSwordTransform);
 		}
 		{
 			Matrix doorTransform = room.transform * Matrix.CreateTranslation(9.5f, 0.0f, 12.5f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);

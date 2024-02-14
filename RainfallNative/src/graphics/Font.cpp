@@ -26,7 +26,7 @@ Font::Font(FontData* data, float size, bool antialiased, int atlasWidth, int atl
 	texture = bgfx::createTexture2D(atlasWidth, atlasHeight, false, 1, bgfx::TextureFormat::R8, antialiased ? 0 : BGFX_SAMPLER_POINT, bgfx::makeRef(pixels, atlasWidth * atlasHeight));
 }
 
-int Font::measureText(const char* text, int length)
+int Font::measureText(const char* text, int offset, int count)
 {
 	float textScale = 1.0f;
 	float scale = stbtt_ScaleForPixelHeight(data->info, size * textScale);
@@ -36,13 +36,13 @@ int Font::measureText(const char* text, int length)
 	ascent = (int)roundf(ascent * scale);
 
 	float advance = 0;
-	for (int i = 0; i < length; i++)
+	for (int i = offset; i < offset + count; i++)
 	{
 		int advanceWidth, leftSideBearing;
 		stbtt_GetCodepointHMetrics(this->data->info, text[i], &advanceWidth, &leftSideBearing);
 
 		int kerning = stbtt_GetCodepointKernAdvance(this->data->info, text[i], text[i + 1]);
-		if (i == length - 1)
+		if (i == offset + count - 1)
 			kerning = 0;
 		advance += roundf((advanceWidth - kerning + leftSideBearing) * scale);
 	}
@@ -50,7 +50,7 @@ int Font::measureText(const char* text, int length)
 	return (int)advance;
 }
 
-void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, const char* text, int length, uint32_t color, SpriteBatch* batch)
+void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, const char* text, int offset, int count, uint32_t color, SpriteBatch* batch)
 {
 	float scale = stbtt_ScaleForPixelHeight(this->data->info, this->size * textScale);
 
@@ -59,7 +59,7 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, c
 	ascent = (int)roundf(ascent * scale);
 
 	float advance = 0;
-	for (int i = 0; i < length; i++)
+	for (int i = offset; i < offset + count; i++)
 	{
 		if (text[i] == '\n')
 		{
