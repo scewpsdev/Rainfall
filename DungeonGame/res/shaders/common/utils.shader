@@ -16,7 +16,7 @@ float distanceToDepth(float distance, float near, float far)
 {
 	float a = -(far + near) / (far - near);
 	float b = -2.0 * far * near / (far - near);
-	return 0.5 * (-a * distance + b) / distance + 0.5;
+	return (-a * distance + b) / distance;
 }
 
 vec3 SRGBToLinear(vec3 color)

@@ -280,6 +280,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Event.cpp" />
     <ClCompile Include="src\graphics\Animation.cpp" />
+    <ClCompile Include="src\graphics\Material.cpp" />
     <ClCompile Include="src\physics\Cloth.cpp" />
     <ClCompile Include="src\graphics\Font.cpp" />
     <ClCompile Include="src\graphics\Graphics.cpp" />

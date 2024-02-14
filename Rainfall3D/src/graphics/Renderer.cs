@@ -298,7 +298,7 @@ public static class Renderer
 		);
 
 		skydome = graphics.createVertexBuffer(
-			graphics.createVideoMemory(stackalloc float[] { -100.0f, -100.0f, 100.0f, 100.0f, -100.0f, 100.0f, 0.0f, -100.0f, -100.0f, 0.0f, 100.0f, 0.0f }),
+			graphics.createVideoMemory(stackalloc float[] { -10, -10, 10, 10, -10, 10, 0, -10, -10, 0, 10, 0f }),
 			stackalloc VertexElement[] { new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector3, false) }
 		);
 
@@ -1232,9 +1232,9 @@ public static class Renderer
 				graphics.resetState();
 				graphics.setPass((int)RenderPass.ReflectionProbe + i * 6 + j);
 
-				graphics.setRenderTarget(reflectionProbes[i].reflectionProbe.renderTargets[j], 0x00ffffff);
+				graphics.setRenderTarget(reflectionProbes[i].reflectionProbe.renderTargets[j], 0xff00ffff);
 
-				Matrix reflectionProbeProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, 0.1f, 1000.0f);
+				Matrix reflectionProbeProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, 0.1f, 100.0f);
 				Matrix reflectionProbeView = cubemapFaceRotations[j] * Matrix.CreateTranslation(-reflectionProbes[i].origin);
 				Matrix reflectionProbePV = reflectionProbeProjection * reflectionProbeView;
 				graphics.setViewTransform(reflectionProbeProjection, reflectionProbeView);
@@ -1294,12 +1294,14 @@ public static class Renderer
 
 				for (int k = 0; k < skies.Count; k++)
 				{
-					graphics.setCullState(CullState.ClockWise);
+					graphics.setCullState(CullState.None);
 
 					graphics.setVertexBuffer(skydome);
 					graphics.setIndexBuffer(skydomeIdx);
 
 					graphics.setTransform(skies[k].transform);
+
+					graphics.setViewTransform(reflectionProbeProjection, reflectionProbeView);
 
 					Vector4 skyData = new Vector4(skies[k].intensity, 0.0f, 0.0f, 0.0f);
 					graphics.setUniform(skyShader.getUniform("u_skyData", UniformType.Vector4), skyData);

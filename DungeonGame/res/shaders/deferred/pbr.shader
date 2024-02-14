@@ -303,7 +303,6 @@ vec4 SampleCubemapParallax(vec3 position, vec3 direction, float lod, samplerCube
 	vec3 boxToIntersection = intersection - cubemapOrigin;
 
 	return textureCubeLod(cubemap, boxToIntersection, lod);
-	//return textureCubeLod(cubemap, direction, lod);
 }
 
 vec3 SampleEnvironmentIrradiance(vec3 position, vec3 normal,

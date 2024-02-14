@@ -15,5 +15,5 @@ void main()
 
 	float skyIntensity = u_skyData[0];
 	gl_FragColor = textureCube(s_skyTexture, direction) * skyIntensity;
-	gl_FragDepth = 0.9999999;
+	gl_FragDepth = 0.999999;
 }

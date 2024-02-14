@@ -177,6 +177,9 @@
     <ClCompile Include="src\audio\soloud\filter\soloud_waveshaperfilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Event.h">

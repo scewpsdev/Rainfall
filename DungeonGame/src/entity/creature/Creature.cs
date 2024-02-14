@@ -253,7 +253,10 @@ public class Creature : Entity, Hittable
 		}
 
 		if (hitSound != null)
+		{
 			audio.playSoundOrganic(hitSound);
+			AIManager.NotifySound(position, 4.0f);
+		}
 
 		if (hitParticles != null && from != null)
 		{

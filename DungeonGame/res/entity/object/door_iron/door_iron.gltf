@@ -28,8 +28,7 @@
 				},
 				"metallicRoughnessTexture":{
 					"index":1
-				},
-				"roughnessFactor":0.5
+				}
 			}
 		}
 	],
@@ -67,8 +66,8 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"door_iron_metallic",
-			"uri":"textures/door_iron_metallic.png"
+			"name":"door_iron_occlusionRoughnessMetallic",
+			"uri":"textures/door_iron_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[

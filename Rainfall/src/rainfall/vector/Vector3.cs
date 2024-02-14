@@ -30,6 +30,10 @@ namespace Rainfall
 		public float x, y, z;
 
 
+		public Vector3()
+		{
+		}
+
 		public Vector3(float f)
 		{
 			this.x = f;

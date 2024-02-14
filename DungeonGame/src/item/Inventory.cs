@@ -194,12 +194,18 @@ public class Inventory : ItemContainer
 			return addArmorItem(1, item, amount);
 		else if (item.category == ItemCategory.Consumable)
 		{
+			if (item.stackable)
+			{
+				for (int i = 0; i < hotbar.Length; i++)
+				{
+					if (hotbar[i].item == item)
+						return addHotbarItem(i, item, amount);
+				}
+			}
 			for (int i = 0; i < hotbar.Length; i++)
 			{
-				if (hotbar[i].item == null || hotbar[i].item == item && item.stackable)
-				{
+				if (hotbar[i].item == null)
 					return addHotbarItem(i, item, amount);
-				}
 			}
 		}
 		return base.addItem(item, amount);

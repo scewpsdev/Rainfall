@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Rainfall
+{
+	public class Material
+	{
+		public readonly MaterialData data;
+
+		public Material(uint color = 0xFFFFFFFF, float metallicFactor = 0.0f, float roughnessFactor = 1.0f, Vector3 emissiveColor = default, float emissiveStrength = 0.0f, Texture diffuse = null, Texture normal = null, Texture roughness = null, Texture metallic = null, Texture emissive = null)
+		{
+			data = Material_Create(color, metallicFactor, roughnessFactor, emissiveColor, emissiveStrength,
+				diffuse != null ? diffuse.handle : ushort.MaxValue,
+				normal != null ? normal.handle : ushort.MaxValue,
+				roughness != null ? roughness.handle : ushort.MaxValue,
+				metallic != null ? metallic.handle : ushort.MaxValue,
+				emissive != null ? emissive.handle : ushort.MaxValue);
+		}
+
+		public unsafe void destroy()
+		{
+			fixed (MaterialData* dataPtr = &data)
+			{
+				Material_Destroy(dataPtr);
+			}
+		}
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern MaterialData Material_Create(uint color, float metallicFactor, float roughnessFactor, Vector3 emissiveColor, float emissiveStrength, ushort diffuse, ushort normal, ushort roughness, ushort metallic, ushort emissive);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern unsafe MaterialData Material_Destroy(MaterialData* data);
+	}
+}
