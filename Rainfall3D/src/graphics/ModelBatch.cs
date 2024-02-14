@@ -36,6 +36,30 @@ namespace Rainfall
 			model.destroy();
 		}
 
+		public void setMaterial
+
+		public int addVertex(Vector3 position, Vector3 normal, Vector3 tangent, Vector2 uv)
+		{
+			int index = vertices.Count;
+
+			PositionNormalTangent vertex;
+			vertex.position = position;
+			vertex.normal = normal;
+			vertex.tangent = tangent;
+			vertices.Add(vertex);
+
+			uvs.Add(uv);
+
+			return index;
+		}
+
+		public void addTriangle(int i0, int i1, int i2)
+		{
+			indices.Add(i0);
+			indices.Add(i1);
+			indices.Add(i2);
+		}
+
 		public void addModel(Model model, Matrix transform, int atlasIndex, Vector2i atlasSize)
 		{
 			material = model.getMaterialData(0).Value;

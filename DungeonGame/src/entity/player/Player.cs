@@ -484,6 +484,7 @@ public class Player : Entity
 			{
 				if ((Time.currentTime - lastDodgePressedInput) / 1e9f < DODGE_RELEASE_WINDOW)
 				{
+					/*
 					Vector3 dir = fsu;
 					if (dir.lengthSquared == 0.0f)
 						dir = new Vector3(0.0f, 0.0f, -1.0f);
@@ -491,6 +492,7 @@ public class Player : Entity
 
 					isDucked = false;
 					inDuckTimer = -1;
+					*/
 				}
 			}
 

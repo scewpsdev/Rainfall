@@ -88,6 +88,11 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyAddBoxCollider(body, halfExtents, position, rotation, filterGroup, filterMask, friction, friction, restitution);
 		}
 
+		public void addBoxCollider(Vector3 position, Vector3 size)
+		{
+			addBoxCollider(size * 0.5f, position + 0.5f * size, Quaternion.Identity);
+		}
+
 		public void addCapsuleCollider(float radius, float height, Vector3 position, Quaternion rotation, float friction = 0.0f, float restitution = 0.1f)
 		{
 			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterGroup, filterMask, friction, friction, restitution);

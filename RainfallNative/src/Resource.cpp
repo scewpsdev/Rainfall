@@ -190,9 +190,9 @@ RFAPI Font* Resource_CreateFontFromData(FontData* data, float size, bool antiali
 	return font;
 }
 
-RFAPI int Resource_FontMeasureText(Font* font, const char* text, int length)
+RFAPI int Resource_FontMeasureText(Font* font, const char* text, int offset, int count)
 {
-	return font->measureText(text, length);
+	return font->measureText(text, offset, count);
 }
 
 RFAPI SoLoud::Wav* Resource_CreateSoundFromFile(const char* path, float* outFloat)

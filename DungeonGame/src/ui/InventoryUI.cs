@@ -524,16 +524,22 @@ public class InventoryUI
 
 				int lineHeight = (int)tooltipFontMedium.size + 5 * currentUIScale;
 
-				var drawTooltipInfo = (string value) =>
+				if (hoveredItem.item.description != null)
+				{
+					int descriptionLines = Renderer.DrawTextWrapped(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, tooltipWidth - 14 - 2 * padding, 1.5f, hoveredItem.item.description, tooltipFontMedium, 0xFF777777);
+					yscroll += descriptionLines * lineHeight;
+					yscroll += 10 * currentUIScale;
+				}
+
+				void drawTooltipInfo(string value)
 				{
 					Renderer.DrawText(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
-				};
-
-				var drawTooltipInfoRight = (string value) =>
+				}
+				void drawTooltipInfoRight(string value)
 				{
 					int valueStrWidth = tooltipFontMedium.measureText(value);
 					Renderer.DrawText(tooltipX + tooltipWidth - 2 - 5 - padding - valueStrWidth, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
-				};
+				}
 
 				if (hoveredItem.item.category == ItemCategory.Weapon)
 				{

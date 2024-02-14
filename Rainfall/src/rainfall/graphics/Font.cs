@@ -40,28 +40,38 @@ namespace Rainfall
 			this.antialiased = antialiased;
 		}
 
-		public int measureText(Span<byte> text, int length)
+		public int measureText(Span<byte> text, int offset, int length)
 		{
 			unsafe
 			{
 				fixed (byte* textPtr = text)
-					return Native.Resource.Resource_FontMeasureText(handle, textPtr, length);
+					return Native.Resource.Resource_FontMeasureText(handle, textPtr, offset, length);
 			}
+		}
+
+		public int measureText(Span<byte> text, int length)
+		{
+			return measureText(text, 0, length);
 		}
 
 		public int measureText(Span<byte> text)
 		{
-			return measureText(text, text.Length);
+			return measureText(text, 0, text.Length);
+		}
+
+		public int measureText(string text, int offset, int length)
+		{
+			return Native.Resource.Resource_FontMeasureText(handle, text, offset, length);
 		}
 
 		public int measureText(string text, int length)
 		{
-			return Native.Resource.Resource_FontMeasureText(handle, text, length);
+			return measureText(text, 0, length);
 		}
 
 		public int measureText(string text)
 		{
-			return measureText(text, text.Length);
+			return measureText(text, 0, text.Length);
 		}
 	}
 }

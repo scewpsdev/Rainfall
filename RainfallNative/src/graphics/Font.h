@@ -41,7 +41,7 @@ struct Font
 
 	Font(FontData* data, float size, bool antialiased, int atlasWidth = DEFAULT_FONT_ATLAS_WIDTH, int atlasHeight = DEFAULT_FONT_ATLAS_HEIGHT, int charOffset = ' ');
 
-	int measureText(const char* str, int length);
+	int measureText(const char* str, int offset, int count);
 
-	void drawText(bgfx::ViewId view, int x, int y, float z, float textScale, const char* text, int length, uint32_t color, SpriteBatch* batch);
+	void drawText(bgfx::ViewId view, int x, int y, float z, float textScale, const char* text, int offset, int count, uint32_t color, SpriteBatch* batch);
 };
