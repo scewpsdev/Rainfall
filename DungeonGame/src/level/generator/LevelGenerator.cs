@@ -37,7 +37,12 @@ public class LevelGenerator
 		wall = Resource.GetModel("res/models/tiles/wall.gltf");
 		ceiling = Resource.GetModel("res/models/tiles/ceiling.gltf");
 
-		levelMaterial = new Material(0xFFFFFFFF);
+		levelMaterial = new Material(0xFFFFFFFF, 0.0f, 1.0f, Vector3.Zero, 0.0f,
+			Resource.GetTexture("res/level/room/level1/level1_diffuse.png", false),
+			null,
+			Resource.GetTexture("res/level/room/level1/level1_occlusionRoughnessMetallic.png", false),
+			Resource.GetTexture("res/level/room/level1/level1_occlusionRoughnessMetallic.png", false),
+			null);
 	}
 
 	public void reset(int seed, Level level)
@@ -706,10 +711,13 @@ public class LevelGenerator
 
 	void generateFloorMesh(int x, int y, int z, ModelBatch batch)
 	{
-		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Up, Vector3.Right, new Vector2(x, z));
-		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(x, z + 1));
-		int i2 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(x + 1, z + 1));
-		int i3 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Up, Vector3.Right, new Vector2(x + 1, z));
+		Vector2i atlasPos = new Vector2i(0, 0);
+		Vector2i atlasSize = new(8, 8);
+
+		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
 
 		batch.addTriangle(i0, i1, i2);
 		batch.addTriangle(i2, i3, i0);
@@ -717,10 +725,13 @@ public class LevelGenerator
 
 	void generateCeilingMesh(int x, int y, int z, ModelBatch batch)
 	{
-		int i0 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(x, z + 1));
-		int i1 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(x, z));
-		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(x + 1, z));
-		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(x + 1, z + 1));
+		Vector2i atlasPos = new Vector2i(1, 1);
+		Vector2i atlasSize = new(8, 8);
+
+		int i0 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
 
 		batch.addTriangle(i0, i3, i2);
 		batch.addTriangle(i2, i1, i0);
@@ -728,10 +739,13 @@ public class LevelGenerator
 
 	void generateWallMeshNorth(int x, int y, int z, ModelBatch batch)
 	{
-		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Back, Vector3.Right, new Vector2(x, z + 1));
-		int i1 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Back, Vector3.Right, new Vector2(x + 1, z + 1));
-		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(x + 1, z));
-		int i3 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(x, z));
+		Vector2i atlasPos = new Vector2i(0, 1);
+		Vector2i atlasSize = new(8, 8);
+
+		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
 
 		batch.addTriangle(i0, i1, i2);
 		batch.addTriangle(i2, i3, i0);
@@ -739,10 +753,13 @@ public class LevelGenerator
 
 	void generateWallMeshSouth(int x, int y, int z, ModelBatch batch)
 	{
-		int i0 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x, z + 1));
-		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x + 1, z + 1));
-		int i2 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x + 1, z));
-		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(x, z));
+		Vector2i atlasPos = new Vector2i(0, 1);
+		Vector2i atlasSize = new(8, 8);
+
+		int i0 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
 
 		batch.addTriangle(i0, i1, i2);
 		batch.addTriangle(i2, i3, i0);
@@ -750,10 +767,13 @@ public class LevelGenerator
 
 	void generateWallMeshWest(int x, int y, int z, ModelBatch batch)
 	{
-		int i0 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Right, Vector3.Forward, new Vector2(x, z + 1));
-		int i1 = batch.addVertex(new Vector3(x, y, z), Vector3.Right, Vector3.Forward, new Vector2(x + 1, z + 1));
-		int i2 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Right, Vector3.Forward, new Vector2(x + 1, z));
-		int i3 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Right, Vector3.Forward, new Vector2(x, z));
+		Vector2i atlasPos = new Vector2i(0, 1);
+		Vector2i atlasSize = new(8, 8);
+
+		int i0 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y, z), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
 
 		batch.addTriangle(i0, i1, i2);
 		batch.addTriangle(i2, i3, i0);
@@ -761,10 +781,13 @@ public class LevelGenerator
 
 	void generateWallMeshEast(int x, int y, int z, ModelBatch batch)
 	{
-		int i0 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Left, Vector3.Back, new Vector2(x, z + 1));
-		int i1 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Left, Vector3.Back, new Vector2(x + 1, z + 1));
-		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Left, Vector3.Back, new Vector2(x + 1, z));
-		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Left, Vector3.Back, new Vector2(x, z));
+		Vector2i atlasPos = new Vector2i(0, 1);
+		Vector2i atlasSize = new(8, 8);
+
+		int i0 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
 
 		batch.addTriangle(i0, i1, i2);
 		batch.addTriangle(i2, i3, i0);
