@@ -118,7 +118,7 @@ public class Player : Entity
 	public float pitch = 0.0f, yaw = 0.0f;
 	public float viewmodelScale = DEFAULT_VIEWMODEL_SCALE;
 
-	float viewmodelSwayX = 0.0f, viewmodelSwayY = 0.0f;
+	float viewmodelSwayX = 0.0f, viewmodelSwayY = 0.0f, viewmodelSwayZ = 0.0f;
 	float viewmodelSwayPitch = 0.0f, viewmodelSwayYaw = 0.0f;
 	Vector2 viewmodelWalkAnim = Vector2.Zero;
 	float viewmodelVerticalSpeedAnim = 0.0f;
@@ -1623,6 +1623,7 @@ public class Player : Entity
 		{
 			viewmodelSwayX = 0.0f;
 			viewmodelSwayY = 0.0f;
+			//viewmodelSwayZ = 0.0f;
 			viewmodelSwayPitch = 0.0f;
 			viewmodelSwayYaw = 0.0f;
 			cameraSwayX = 0.0f;
@@ -1676,7 +1677,11 @@ public class Player : Entity
 			viewmodelLookSwayAnim = MathHelper.Lerp(viewmodelLookSwayAnim, swayYawDst, 5.0f * Time.deltaTime);
 			viewmodelSwayYaw += viewmodelLookSwayAnim;
 
+			// Sprint sway
+			float zDst = movementSpeed > 1.25f ? 0.1f : 0.0f;
+			viewmodelSwayZ = MathHelper.Lerp(viewmodelSwayZ, zDst, 3 * Time.deltaTime);
 
+			// Sprint FOV
 			float fastFOV = MathF.Min(MathHelper.ToDegrees(MathF.Atan2(1 + (movementSpeed - 1) * 0.5f, 1.0f) * 2), 100);
 			float cameraTargetFOV = movementSpeed > 1.25f ? fastFOV : 90;
 			camera.fov = MathHelper.Lerp(camera.fov, cameraTargetFOV, 3 * Time.deltaTime);
@@ -1684,11 +1689,6 @@ public class Player : Entity
 
 
 		Matrix neckTransform = moveAnimator.getNodeLocalTransform(neckNode);
-		Matrix viewmodelTransform = neckTransform
-			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, 0.0f)
-			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
-			* Matrix.CreateRotation(Vector3.Right, -pitch * 0.5f + viewmodelSwayPitch)
-			* neckTransform.inverted;
 		{
 			Vector3 spineNodePosition = neckTransform.translation;
 			Quaternion spineNodeRotation = neckTransform.rotation;
@@ -1701,7 +1701,7 @@ public class Player : Entity
 			float pitchFactor = rightItem != null ? rightItem.pitchFactor : 1.0f;
 
 			Matrix viewmodelTransform_ = neckTransform
-			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, 0.0f)
+			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, -viewmodelSwayZ)
 			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
 			* Matrix.CreateRotation(Vector3.Right, -(-pitch * 0.5f + pitch * pitchFactor) + viewmodelSwayPitch)
 			* neckTransform.inverted;
@@ -1720,7 +1720,7 @@ public class Player : Entity
 			float pitchFactor = leftItem != null ? leftItem.pitchFactor : 1.0f;
 
 			Matrix viewmodelTransform_ = neckTransform
-			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, 0.0f)
+			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, -viewmodelSwayZ)
 			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
 			* Matrix.CreateRotation(Vector3.Right, -(-pitch * 0.5f + pitch * pitchFactor) + viewmodelSwayPitch)
 			* neckTransform.inverted;
