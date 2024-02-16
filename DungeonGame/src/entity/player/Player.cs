@@ -1684,7 +1684,7 @@ public class Player : Entity
 			// Sprint FOV
 			float fastFOV = MathF.Min(MathHelper.ToDegrees(MathF.Atan2(1 + (movementSpeed - 1) * 0.5f, 1.0f) * 2), 100);
 			float cameraTargetFOV = movementSpeed > 1.25f ? fastFOV : 90;
-			camera.fov = MathHelper.Lerp(camera.fov, cameraTargetFOV, 3 * Time.deltaTime);
+			//camera.fov = MathHelper.Lerp(camera.fov, cameraTargetFOV, 3 * Time.deltaTime);
 		}
 
 
