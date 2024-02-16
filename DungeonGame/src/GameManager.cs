@@ -57,7 +57,7 @@ public class GameManager
 		level.addEntity(player.camera);
 		level.addEntity(player, level.spawnPoint);
 
-		player.queueAction(new SpawnAction());
+		//player.queueAction(new SpawnAction());
 	}
 
 	public void initiateBoss(Creature boss)
