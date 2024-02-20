@@ -98,6 +98,12 @@ namespace Rainfall
 			return null;
 		}
 
+		public bool getField(string name, out DatField field)
+		{
+			field = getField(name);
+			return field != null;
+		}
+
 		public bool getNumber(string name, out double number)
 		{
 			DatField field = getField(name);
@@ -165,6 +171,51 @@ namespace Rainfall
 			return false;
 		}
 
+		public bool getVector2(string name, out Vector2 v)
+		{
+			DatField field = getField(name);
+			if (field != null && field.value.type == DatValueType.Array)
+			{
+				DatArray arr = field.array;
+				Debug.Assert(arr.values.Count == 2);
+				v = new Vector2((float)arr.values[0].number, (float)arr.values[1].number);
+
+				return true;
+			}
+			v = Vector2.Zero;
+			return false;
+		}
+
+		public bool getVector3(string name, out Vector3 v)
+		{
+			DatField field = getField(name);
+			if (field != null && field.value.type == DatValueType.Array)
+			{
+				DatArray arr = field.array;
+				Debug.Assert(arr.values.Count == 3);
+				v = new Vector3((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number);
+
+				return true;
+			}
+			v = Vector3.Zero;
+			return false;
+		}
+
+		public bool getVector4(string name, out Vector4 v)
+		{
+			DatField field = getField(name);
+			if (field != null && field.value.type == DatValueType.Array)
+			{
+				DatArray arr = field.array;
+				Debug.Assert(arr.values.Count == 4);
+				v = new Vector4((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number, (float)arr.values[3].number);
+
+				return true;
+			}
+			v = Vector4.Zero;
+			return false;
+		}
+
 		public bool getInteger(string name, out int i)
 		{
 			DatField field = getField(name);
@@ -174,6 +225,17 @@ namespace Rainfall
 				return true;
 			}
 			i = 0;
+			return false;
+		}
+
+		public bool getBoolean(string name, out bool b)
+		{
+			if (getInteger(name, out int i))
+			{
+				b = i != 0;
+				return true;
+			}
+			b = false;
 			return false;
 		}
 
@@ -517,155 +579,67 @@ namespace Rainfall
 
 		public bool getField(string name, out DatField field)
 		{
-			field = getField(name);
-			return field != null;
+			return root.getField(name, out field);
 		}
 
 		public bool getNumber(string name, out double number)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Number)
-			{
-				number = field.number;
-				return true;
-			}
-			number = 0.0;
-			return false;
+			return root.getNumber(name, out number);
 		}
 
 		public bool getNumber(string name, out float number)
 		{
-			bool result = getNumber(name, out double d);
-			number = (float)d;
-			return result;
+			return root.getNumber(name, out number);
 		}
 
 		public bool getString(string name, out string str)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.String)
-			{
-				str = field.str;
-				return true;
-			}
-			str = null;
-			return false;
+			return root.getString(name, out str);
 		}
 
 		public bool getIdentifier(string name, out string identifier)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Identifier)
-			{
-				identifier = field.identifier;
-				return true;
-			}
-			identifier = null;
-			return false;
+			return root.getIdentifier(name, out identifier);
 		}
 
 		public bool getObject(string name, out DatObject obj)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Object)
-			{
-				obj = field.obj;
-				return true;
-			}
-			obj = null;
-			return false;
+			return root.getObject(name, out obj);
 		}
 
 		public bool getObject(string name, out DatArray arr)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Array)
-			{
-				arr = field.array;
-				return true;
-			}
-			arr = null;
-			return false;
+			return root.getObject(name, out arr);
 		}
 
 		public bool getVector2(string name, out Vector2 v)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Array)
-			{
-				DatArray arr = field.array;
-				Debug.Assert(arr.values.Count == 2);
-				v = new Vector2((float)arr.values[0].number, (float)arr.values[1].number);
-
-				return true;
-			}
-			v = Vector2.Zero;
-			return false;
+			return root.getVector2(name, out v);
 		}
 
 		public bool getVector3(string name, out Vector3 v)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Array)
-			{
-				DatArray arr = field.array;
-				Debug.Assert(arr.values.Count == 3);
-				v = new Vector3((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number);
-
-				return true;
-			}
-			v = Vector3.Zero;
-			return false;
+			return root.getVector3(name, out v);
 		}
 
 		public bool getVector4(string name, out Vector4 v)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Array)
-			{
-				DatArray arr = field.array;
-				Debug.Assert(arr.values.Count == 4);
-				v = new Vector4((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number, (float)arr.values[3].number);
-
-				return true;
-			}
-			v = Vector4.Zero;
-			return false;
+			return root.getVector4(name, out v);
 		}
 
 		public bool getInteger(string name, out int i)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.Number)
-			{
-				i = field.integer;
-				return true;
-			}
-			i = 0;
-			return false;
+			return root.getInteger(name, out i);
 		}
 
 		public bool getBoolean(string name, out bool b)
 		{
-			if (getInteger(name, out int i))
-			{
-				b = i != 0;
-				return true;
-			}
-			b = false;
-			return false;
+			return root.getBoolean(name, out b);
 		}
 
 		public bool getStringContent(string name, out string str)
 		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.String)
-			{
-				str = field.stringContent;
-				return true;
-			}
-			str = null;
-			return false;
+			return root.getStringContent(name, out str);
 		}
 	}
 }

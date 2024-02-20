@@ -23,16 +23,16 @@ public class WoodenDoor : Door
 
 		if (type == DoorType.Normal)
 		{
-			model = Resource.GetModel("res/entity/object/door/door.gltf");
+			model = Resource.GetModel("res/entity/object/door/door.gltf", false);
 		}
 		else
 		{
-			model = Resource.GetModel("res/entity/object/door/door_windowed.gltf");
+			model = Resource.GetModel("res/entity/object/door/door_windowed.gltf", false);
 		}
-		frame = Resource.GetModel("res/entity/object/door/door_frame.gltf");
+		frame = Resource.GetModel("res/entity/object/door/door_frame.gltf", false);
 		frame.isStatic = true;
 
-		model.maxDistance =(LOD.DISTANCE_MEDIUM);
+		model.maxDistance = (LOD.DISTANCE_MEDIUM);
 		frame.maxDistance = (LOD.DISTANCE_MEDIUM);
 
 		doorHingeOffset = 0.75f;
@@ -47,11 +47,11 @@ public class WoodenDoor : Door
 
 		frameBody.addBoxCollider(new Vector3(0.4f, 1.5f, 0.2f), new Vector3(-1.1f, 1.5f, 0.0f), Quaternion.Identity);
 		frameBody.addBoxCollider(new Vector3(0.4f, 1.5f, 0.2f), new Vector3(1.1f, 1.5f, 0.0f), Quaternion.Identity);
-		frameBody.addBoxCollider(new Vector3(0.7f, 0.35f, 0.2f), new Vector3(0.0f, 2.65f, 0.0f), Quaternion.Identity);
+		//frameBody.addBoxCollider(new Vector3(0.7f, 0.35f, 0.2f), new Vector3(0.0f, 2.65f, 0.0f), Quaternion.Identity);
 
 		if (type == DoorType.Normal)
 		{
-			doorBody.addBoxCollider(new Vector3(0.7f, 1.15f, 0.1f), new Vector3(-doorHingeOffset, 1.15f, 0.0f), Quaternion.Identity, 0.0f);
+			doorBody.addBoxCollider(new Vector3(0.7f, 1.5f, 0.1f), new Vector3(-doorHingeOffset, 1.5f, 0.0f), Quaternion.Identity, 0.0f);
 			doorBody.setTransform(position, rotation);
 		}
 		else if (type == DoorType.Windowed)

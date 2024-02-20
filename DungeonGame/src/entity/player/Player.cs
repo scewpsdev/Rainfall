@@ -35,7 +35,7 @@ public class Player : Entity
 	}
 
 
-	public const float MAX_GROUND_SPEED = 2.8f;
+	public const float MAX_GROUND_SPEED = 3.6f; //2.8f;
 	const float MAX_AIR_SPEED = 0.3f;
 	const float LADDER_SPEED = 1.5f;
 	const float ACCELERATION = 10.0f;
@@ -58,7 +58,7 @@ public class Player : Entity
 	const float DUCK_SPEED_MULTIPLIER = 0.5f;
 	const float DUCK_TRANSITION_DURATION = 0.12f;
 
-	public const float PLAYER_RADIUS = 0.42f;
+	public const float PLAYER_RADIUS = 0.35f;
 	const float PLAYER_HEIGHT_STANDING = 1.75f;
 	const float PLAYER_HEIGHT_DUCKED = 0.92f;
 	public const float STEP_HEIGHT = 0.25f;
@@ -67,7 +67,7 @@ public class Player : Entity
 	public const float CAMERA_HEIGHT_DUCKED = 1.0f;
 	public const float DEFAULT_VIEWMODEL_SCALE = 1.0f;
 
-	const float STEP_FREQUENCY = 0.8f;
+	const float STEP_FREQUENCY = 0.6f;
 	const float FALL_IMPACT_MIN_SPEED = -3.0f;
 	const float FALL_DMG_THRESHHOLD = -8.0f;
 
@@ -134,17 +134,17 @@ public class Player : Entity
 	public Model viewmodel { get; private set; }
 	Animator moveAnimator;
 	Animator animator0, animator1;
-	Node rootNode, spine03Node, neckNode, clavicleRNode, clavicleLNode, cameraAnchorNode;
+	Node rootNode, /*spine03Node, neckNode, */clavicleRNode, clavicleLNode/*, cameraAnchorNode*/;
 	Node rightItemNode, leftItemNode;
 	AnimationState[]
 		idleState = new AnimationState[3],
 		runState = new AnimationState[3],
 		sprintState = new AnimationState[3],
-		duckedState = new AnimationState[3],
-		duckedWalkState = new AnimationState[3],
-		fallDuckedState = new AnimationState[3],
-		jumpState = new AnimationState[3],
-		fallState = new AnimationState[3],
+		//duckedState = new AnimationState[3],
+		//duckedWalkState = new AnimationState[3],
+		//fallDuckedState = new AnimationState[3],
+		//jumpState = new AnimationState[3],
+		//fallState = new AnimationState[3],
 		actionState1 = new AnimationState[3],
 		actionState2 = new AnimationState[3];
 	AnimationState[] currentActionState;
@@ -189,12 +189,12 @@ public class Player : Entity
 		viewmodel = Resource.GetModel("res/entity/player/viewmodel.gltf");
 		viewmodel.isStatic = false;
 
-		rootNode = viewmodel.skeleton.getNode("Root");
-		spine03Node = viewmodel.skeleton.getNode("spine_03");
-		neckNode = viewmodel.skeleton.getNode("neck_01");
+		rootNode = viewmodel.skeleton.getNode("root");
+		//spine03Node = viewmodel.skeleton.getNode("spine_03");
+		//neckNode = viewmodel.skeleton.getNode("neck_01");
 		clavicleRNode = viewmodel.skeleton.getNode("clavicle_r");
 		clavicleLNode = viewmodel.skeleton.getNode("clavicle_l");
-		cameraAnchorNode = viewmodel.skeleton.getNode("camera_anchor");
+		//cameraAnchorNode = viewmodel.skeleton.getNode("camera_anchor");
 		rightItemNode = viewmodel.skeleton.getNode("weapon_r");
 		leftItemNode = viewmodel.skeleton.getNode("weapon_l");
 
@@ -205,13 +205,8 @@ public class Player : Entity
 		for (int i = 0; i < 3; i++)
 		{
 			idleState[i] = new AnimationState(viewmodel, "idle", true, 0.5f);
-			runState[i] = new AnimationState(viewmodel, "run", true, 0.2f) { animationSpeed = 1.6f };
-			sprintState[i] = new AnimationState(viewmodel, "sprint", true, 1.0f) { animationSpeed = 1.6f };
-			duckedState[i] = new AnimationState(viewmodel, "ducked", true, 0.2f);
-			duckedWalkState[i] = new AnimationState(viewmodel, "ducked_walk", true, 0.2f) { animationSpeed = 1.6f };
-			fallDuckedState[i] = new AnimationState(viewmodel, "idle", true) { transitionFromDuration = 0.0f };
-			jumpState[i] = new AnimationState(viewmodel, "jump", false, 0.1f);
-			fallState[i] = new AnimationState(viewmodel, "fall", false, 0.2f);
+			runState[i] = new AnimationState(viewmodel, "idle", true, 0.2f);
+			sprintState[i] = new AnimationState(viewmodel, "sprint", true, 1.0f);
 			actionState1[i] = new AnimationState(viewmodel, "default", false, 0.2f);
 			actionState2[i] = new AnimationState(viewmodel, "default", false, 0.2f);
 		}
@@ -269,7 +264,8 @@ public class Player : Entity
 
 		hud.init(DungeonGame.instance.level);
 
-		giveItem(Item.Get("map"), 1);
+		giveItem(Item.Get("map"));
+		giveItem(Item.Get("fireball"));
 
 		//onItemPickup(Item.Get("axe"), 1);
 		//onItemPickup(Item.Get("shortsword"), 1);
@@ -348,7 +344,7 @@ public class Player : Entity
 				}
 
 				if (shield.sfxParry != null)
-					handEntities[handID].audio.playSound(shield.sfxParry);
+					handEntities[handID].audio.playSound(shield.sfxParry, 0.5f);
 			}
 			damage = 0;
 		}
@@ -385,7 +381,7 @@ public class Player : Entity
 				queueAction(new BlockingHitAction(shield, handID, isTwoHanded(handID)));
 
 				if (shield.sfxBlock != null)
-					handEntities[handID].audio.playSoundOrganic(shield.sfxBlock, 1, 1, 0.1f, 0.1f);
+					handEntities[handID].audio.playSoundOrganic(shield.sfxBlock, 0.5f, 1, 0.1f, 0.1f);
 
 				if (from is Creature && shield.category == ItemCategory.Shield) // Dont stagger if blocking with weapon
 				{
@@ -1040,8 +1036,8 @@ public class Player : Entity
 							}
 
 							if (currentAction == null && (
-								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) == null || !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
-								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) == null || !inventory.getSelectedHandItem(0).hasPrimaryAction)
+								handID == 0 && InputManager.IsDown("Action1") && (inventory.getSelectedHandItem(1) == null || isTwoHanded(0) || !inventory.getSelectedHandItem(1).hasPrimaryAction) ||
+								handID == 1 && InputManager.IsDown("Action0") && (inventory.getSelectedHandItem(0) == null || isTwoHanded(1) || !inventory.getSelectedHandItem(0).hasPrimaryAction)
 							))
 							{
 								queueAction(new ShieldStanceAction(handItem, handID, isTwoHanded(handID)));
@@ -1104,7 +1100,7 @@ public class Player : Entity
 								ItemSlot spell = inventory.getSpellSlot(handItemSlot);
 								if (spell != null /*&& spell.numCharges > 0*/)
 								{
-									queueAction(new SpellCastAction(handItem, spell.item, handID));
+									queueAction(new SpellCastAction(spell.item, handID));
 								}
 							}
 						}
@@ -1197,6 +1193,13 @@ public class Player : Entity
 								bool followUp = currentAction != null && currentAction.type == ActionType.ConsumableUse && ((ConsumableUseAction)currentAction).item == handItemSlot.item;
 								queueAction(new ConsumableUseAction(handItemSlot, handID, followUp));
 							}
+						}
+						break;
+					case ItemCategory.Spell:
+						if (handID == 0 && InputManager.IsPressed("Action0") ||
+							handID == 1 && InputManager.IsPressed("Action1"))
+						{
+							queueAction(new SpellCastAction(handItem, handID));
 						}
 						break;
 					case ItemCategory.Artifact:
@@ -1376,6 +1379,8 @@ public class Player : Entity
 						if (inventory.getSelectedHandSlot(1) != null)
 						{
 							dropItem(1);
+							if (currentAction is WeaponDrawAction)
+								cancelAction();
 							queueAction(new ItemThrowAction(1));
 						}
 					}
@@ -1384,6 +1389,8 @@ public class Player : Entity
 						if (inventory.getSelectedHandSlot(0) != null)
 						{
 							dropItem(0);
+							if (currentAction is WeaponDrawAction)
+								cancelAction();
 							queueAction(new ItemThrowAction(0));
 						}
 					}
@@ -1601,6 +1608,7 @@ public class Player : Entity
 
 		for (int i = 0; i < viewmodel.skeleton.nodes.Length; i++)
 		{
+			/*
 			bool isArmBone = StringUtils.StartsWith(viewmodel.skeleton.nodes[i].name, "clavicle") ||
 				StringUtils.StartsWith(viewmodel.skeleton.nodes[i].name, "upperarm") ||
 				StringUtils.StartsWith(viewmodel.skeleton.nodes[i].name, "lowerarm") ||
@@ -1611,11 +1619,12 @@ public class Player : Entity
 				StringUtils.StartsWith(viewmodel.skeleton.nodes[i].name, "ring") ||
 				StringUtils.StartsWith(viewmodel.skeleton.nodes[i].name, "pinky") ||
 				StringUtils.StartsWith(viewmodel.skeleton.nodes[i].name, "weapon");
+			*/
 
-			if (isArmBone && StringUtils.EndsWith(viewmodel.skeleton.nodes[i].name, "_r"))
-				moveAnimator.nodeLocalTransforms[i] = animator0.nodeLocalTransforms[i];
-			if (isArmBone && StringUtils.EndsWith(viewmodel.skeleton.nodes[i].name, "_l"))
-				moveAnimator.nodeLocalTransforms[i] = animator1.nodeLocalTransforms[i];
+			//if (StringUtils.EndsWith(viewmodel.skeleton.nodes[i].name, "_r"))
+			//	moveAnimator.nodeLocalTransforms[i] = animator0.nodeLocalTransforms[i];
+			if (StringUtils.EndsWith(viewmodel.skeleton.nodes[i].name, "_l"))
+				animator0.nodeLocalTransforms[i] = animator1.nodeLocalTransforms[i];
 		}
 
 
@@ -1630,13 +1639,13 @@ public class Player : Entity
 			cameraSwayY = 0.0f;
 
 			// Walk animation
-			/*
+			///*
 			viewmodelWalkAnim.x = 0.03f * MathF.Sin(distanceWalked * STEP_FREQUENCY * MathF.PI);
 			viewmodelWalkAnim.y = 0.015f * -MathF.Abs(MathF.Cos(distanceWalked * STEP_FREQUENCY * MathF.PI));
-			viewmodelWalkAnim *= currentSpeed;
+			//viewmodelWalkAnim *= 1 - MathHelper.Smoothstep(1.0f, 1.5f, movementSpeed);
 			viewmodelSwayYaw += viewmodelWalkAnim.x;
 			viewmodelSwayY += viewmodelWalkAnim.y;
-			*/
+			//*/
 
 			// Vertical speed animation
 			float verticalSpeedAnimDst = velocity.y;
@@ -1688,53 +1697,66 @@ public class Player : Entity
 		}
 
 
-		Matrix neckTransform = moveAnimator.getNodeLocalTransform(neckNode);
+		//Matrix neckTransform = moveAnimator.getNodeLocalTransform(neckNode);
 		{
+			/*
 			Vector3 spineNodePosition = neckTransform.translation;
 			Quaternion spineNodeRotation = neckTransform.rotation;
 			spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			Matrix newNeckTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
 			moveAnimator.setNodeLocalTransform(neckNode, newNeckTransform);
+			*/
 		}
 		{
 			Item rightItem = getHandItem(0);
 			float pitchFactor = rightItem != null ? rightItem.pitchFactor : 1.0f;
 
+			/*
 			Matrix viewmodelTransform_ = neckTransform
 			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, -viewmodelSwayZ)
 			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
-			* Matrix.CreateRotation(Vector3.Right, -(-pitch * 0.5f + pitch * pitchFactor) + viewmodelSwayPitch)
+			* Matrix.CreateRotation(Vector3.Right, -pitch * pitchFactor + viewmodelSwayPitch)
 			* neckTransform.inverted;
+			* */
 
-			Matrix spineNodeTransform = moveAnimator.getNodeLocalTransform(clavicleRNode);
+			Matrix viewmodelTransform = Matrix.CreateRotation(Vector3.Right, pitch * (pitchFactor - 1));
+
+			Matrix spineNodeTransform = animator0.getNodeLocalTransform(clavicleRNode);
 			//Vector3 spineNodePosition = spineNodeTransform.translation;
 			//Quaternion spineNodeRotation = spineNodeTransform.rotation;
 			//spineNodePosition += viewmodelOffset;
 			//spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			//spineNodeTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
-			spineNodeTransform = viewmodelTransform_ * spineNodeTransform;
-			moveAnimator.setNodeLocalTransform(clavicleRNode, spineNodeTransform);
+
+			spineNodeTransform = viewmodelTransform * spineNodeTransform;
+			animator0.setNodeLocalTransform(clavicleRNode, spineNodeTransform);
 		}
 		{
 			Item leftItem = getHandItem(1);
 			float pitchFactor = leftItem != null ? leftItem.pitchFactor : 1.0f;
 
+			/*
 			Matrix viewmodelTransform_ = neckTransform
 			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, -viewmodelSwayZ)
 			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
-			* Matrix.CreateRotation(Vector3.Right, -(-pitch * 0.5f + pitch * pitchFactor) + viewmodelSwayPitch)
+			* Matrix.CreateRotation(Vector3.Right, -pitch * pitchFactor + viewmodelSwayPitch)
 			* neckTransform.inverted;
+			* */
 
-			Matrix spineNodeTransform = moveAnimator.getNodeLocalTransform(clavicleLNode);
+			Matrix viewmodelTransform = Matrix.CreateRotation(Vector3.Right, pitch * (pitchFactor - 1));
+
+			Matrix spineNodeTransform = animator0.getNodeLocalTransform(clavicleLNode);
 			//Vector3 spineNodePosition = spineNodeTransform.translation;
 			//Quaternion spineNodeRotation = spineNodeTransform.rotation;
 			//spineNodePosition += viewmodelOffset;
 			//spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			//spineNodeTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
-			spineNodeTransform = viewmodelTransform_ * spineNodeTransform;
-			moveAnimator.setNodeLocalTransform(clavicleLNode, spineNodeTransform);
+
+			spineNodeTransform = viewmodelTransform * spineNodeTransform;
+			animator0.setNodeLocalTransform(clavicleLNode, spineNodeTransform);
 		}
 		{
+			/*
 			Matrix spineNodeTransform = moveAnimator.getNodeLocalTransform(spine03Node);
 			Matrix spineNodeGlobalTransform = moveAnimator.getNodeTransform(spine03Node, 0);
 			Vector3 spineNodePosition = spineNodeTransform.translation;
@@ -1743,10 +1765,24 @@ public class Player : Entity
 			spineNodeRotation = Quaternion.FromAxisAngle(Vector3.UnitX, -pitch * 0.5f) * spineNodeRotation;
 			spineNodeTransform = Matrix.CreateTranslation(spineNodePosition) * Matrix.CreateRotation(spineNodeRotation);
 			moveAnimator.setNodeLocalTransform(spine03Node, spineNodeTransform);
+			*/
+		}
+		{
+			Matrix rootNodeTransform = animator0.getNodeLocalTransform(rootNode);
+
+			rootNodeTransform = Matrix.CreateTranslation(camera.position - position)
+			* Matrix.CreateRotation(Vector3.Up, viewmodelSwayYaw)
+			* Matrix.CreateRotation(Vector3.Right, pitch + viewmodelSwayPitch)
+			* Matrix.CreateTranslation(viewmodelSwayX, viewmodelSwayY, -viewmodelSwayZ)
+			//* Matrix.CreateTranslation(0, -0.05f, 0.1f)
+			* Matrix.CreateRotation(Quaternion.FromAxisAngle(Vector3.Up, MathF.PI))
+			* rootNodeTransform;
+
+			animator0.setNodeLocalTransform(rootNode, rootNodeTransform);
 		}
 
 
-		moveAnimator.applyAnimation();
+		animator0.applyAnimation();
 	}
 
 	void updateCamera()
@@ -1789,10 +1825,10 @@ public class Player : Entity
 		{
 			bool animateCameraRotation = currentAction != null ? currentAction.animateCameraRotation : false;
 
-			Matrix cameraAnchorTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI) * moveAnimator.getNodeTransform(cameraAnchorNode, 0) * Matrix.CreateRotation(Vector3.Up, MathF.PI) * Matrix.CreateRotation(Vector3.Right, MathHelper.PiOver2);
-			Matrix cameraTransform = Matrix.CreateTranslation(position) * Matrix.CreateRotation(Vector3.Up, yaw) * cameraAnchorTransform;
-			camera.position = cameraTransform.translation; // + new Vector3(0.0f, cameraHeight, 0.0f);
-			camera.rotation = animateCameraRotation ? cameraTransform.rotation : Quaternion.FromAxisAngle(Vector3.UnitY, yaw) * Quaternion.FromAxisAngle(Vector3.UnitX, pitch);
+			//Matrix cameraAnchorTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI) * moveAnimator.getNodeTransform(cameraAnchorNode, 0) * Matrix.CreateRotation(Vector3.Up, MathF.PI) * Matrix.CreateRotation(Vector3.Right, MathHelper.PiOver2);
+			//Matrix cameraTransform = Matrix.CreateTranslation(position) * Matrix.CreateRotation(Vector3.Up, yaw) * cameraAnchorTransform;
+			camera.rotation = /*animateCameraRotation ? cameraTransform.rotation : */ Quaternion.FromAxisAngle(Vector3.UnitY, yaw) * Quaternion.FromAxisAngle(Vector3.UnitX, pitch);
+			camera.position = position + new Vector3(0.0f, cameraHeight, 0.0f) + new Vector3(0.0f, cameraSwayY, 0.0f); //cameraTransform.translation; // + new Vector3(0.0f, cameraHeight, 0.0f);
 		}
 
 		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw);
@@ -1809,8 +1845,8 @@ public class Player : Entity
 		updateMovement(fsu);
 		updatePhysics();
 		updateActions();
-		updateAnimations();
 		updateCamera();
+		updateAnimations();
 
 		Matrix scaleTowardsCamera = Matrix.CreateTranslation(camera.position) * Matrix.CreateScale(viewmodelScale) * Matrix.CreateTranslation(-camera.position);
 		handEntities[0].setTransform(getWeaponTransform(0), scaleTowardsCamera);
@@ -1831,8 +1867,8 @@ public class Player : Entity
 	{
 		Node itemNode = handID == 0 ? rightItemNode : leftItemNode;
 		Matrix transform = getModelMatrix()
-			* Matrix.CreateRotation(Quaternion.FromAxisAngle(Vector3.Up, MathF.PI))
-			* moveAnimator.getNodeTransform(itemNode, 0);
+			//* Matrix.CreateRotation(Quaternion.FromAxisAngle(Vector3.Up, MathF.PI))
+			* animator0.getNodeTransform(itemNode, 0);
 		return transform;
 	}
 
@@ -1893,22 +1929,22 @@ public class Player : Entity
 				idleState[handID].layers[0].animationData = item.moveset;
 				runState[handID].layers[0].animationData = item.moveset;
 				sprintState[handID].layers[0].animationData = item.moveset;
-				duckedState[handID].layers[0].animationData = item.moveset;
-				duckedWalkState[handID].layers[0].animationData = item.moveset;
-				jumpState[handID].layers[0].animationData = item.moveset;
-				fallState[handID].layers[0].animationData = item.moveset;
+				//duckedState[handID].layers[0].animationData = item.moveset;
+				//duckedWalkState[handID].layers[0].animationData = item.moveset;
+				//jumpState[handID].layers[0].animationData = item.moveset;
+				//fallState[handID].layers[0].animationData = item.moveset;
 
 				idleState[handID].layers[0].mirrored = handID == 1;
 				runState[handID].layers[0].mirrored = handID == 1;
 				sprintState[handID].layers[0].mirrored = handID == 1;
-				duckedState[handID].layers[0].mirrored = handID == 1;
-				duckedWalkState[handID].layers[0].mirrored = handID == 1;
-				jumpState[handID].layers[0].mirrored = handID == 1;
-				fallState[handID].layers[0].mirrored = handID == 1;
+				//duckedState[handID].layers[0].mirrored = handID == 1;
+				//duckedWalkState[handID].layers[0].mirrored = handID == 1;
+				//jumpState[handID].layers[0].mirrored = handID == 1;
+				//fallState[handID].layers[0].mirrored = handID == 1;
 
 				runState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 				sprintState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
-				duckedWalkState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				//duckedWalkState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(item);
 			}
@@ -1917,22 +1953,22 @@ public class Player : Entity
 				idleState[handID].layers[0].animationData = otherItem.moveset;
 				runState[handID].layers[0].animationData = otherItem.moveset;
 				sprintState[handID].layers[0].animationData = otherItem.moveset;
-				duckedState[handID].layers[0].animationData = otherItem.moveset;
-				duckedWalkState[handID].layers[0].animationData = otherItem.moveset;
-				jumpState[handID].layers[0].animationData = otherItem.moveset;
-				fallState[handID].layers[0].animationData = otherItem.moveset;
+				//duckedState[handID].layers[0].animationData = otherItem.moveset;
+				//duckedWalkState[handID].layers[0].animationData = otherItem.moveset;
+				//jumpState[handID].layers[0].animationData = otherItem.moveset;
+				//fallState[handID].layers[0].animationData = otherItem.moveset;
 
 				idleState[handID].layers[0].mirrored = handID != 1;
 				runState[handID].layers[0].mirrored = handID != 1;
 				sprintState[handID].layers[0].mirrored = handID != 1;
-				duckedState[handID].layers[0].mirrored = handID != 1;
-				duckedWalkState[handID].layers[0].mirrored = handID != 1;
-				jumpState[handID].layers[0].mirrored = handID != 1;
-				fallState[handID].layers[0].mirrored = handID != 1;
+				//duckedState[handID].layers[0].mirrored = handID != 1;
+				//duckedWalkState[handID].layers[0].mirrored = handID != 1;
+				//jumpState[handID].layers[0].mirrored = handID != 1;
+				//fallState[handID].layers[0].mirrored = handID != 1;
 
 				runState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
 				sprintState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
-				duckedWalkState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				//duckedWalkState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(null);
 			}
@@ -1943,22 +1979,22 @@ public class Player : Entity
 				idleState[handID].layers[0].animationData = item.moveset;
 				runState[handID].layers[0].animationData = item.moveset;
 				sprintState[handID].layers[0].animationData = item.moveset;
-				duckedState[handID].layers[0].animationData = item.moveset;
-				duckedWalkState[handID].layers[0].animationData = item.moveset;
-				jumpState[handID].layers[0].animationData = item.moveset;
-				fallState[handID].layers[0].animationData = item.moveset;
+				//duckedState[handID].layers[0].animationData = item.moveset;
+				//duckedWalkState[handID].layers[0].animationData = item.moveset;
+				//jumpState[handID].layers[0].animationData = item.moveset;
+				//fallState[handID].layers[0].animationData = item.moveset;
 
 				idleState[handID].layers[0].mirrored = handID == 1;
 				runState[handID].layers[0].mirrored = handID == 1;
 				sprintState[handID].layers[0].mirrored = handID == 1;
-				duckedState[handID].layers[0].mirrored = handID == 1;
-				duckedWalkState[handID].layers[0].mirrored = handID == 1;
-				jumpState[handID].layers[0].mirrored = handID == 1;
-				fallState[handID].layers[0].mirrored = handID == 1;
+				//duckedState[handID].layers[0].mirrored = handID == 1;
+				//duckedWalkState[handID].layers[0].mirrored = handID == 1;
+				//jumpState[handID].layers[0].mirrored = handID == 1;
+				//fallState[handID].layers[0].mirrored = handID == 1;
 
 				runState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 				sprintState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
-				duckedWalkState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				//duckedWalkState[handID].layers[0].timerOffset = handID == 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(item);
 			}
@@ -1970,21 +2006,22 @@ public class Player : Entity
 				idleState[handID].layers[0].animationData = otherItem.moveset;
 				runState[handID].layers[0].animationData = otherItem.moveset;
 				sprintState[handID].layers[0].animationData = otherItem.moveset;
-				duckedState[handID].layers[0].animationData = otherItem.moveset;
-				duckedWalkState[handID].layers[0].animationData = otherItem.moveset;
-				jumpState[handID].layers[0].animationData = otherItem.moveset;
-				fallState[handID].layers[0].animationData = otherItem.moveset;
+				//duckedState[handID].layers[0].animationData = otherItem.moveset;
+				//duckedWalkState[handID].layers[0].animationData = otherItem.moveset;
+				//jumpState[handID].layers[0].animationData = otherItem.moveset;
+				//fallState[handID].layers[0].animationData = otherItem.moveset;
 
 				idleState[handID].layers[0].mirrored = handID != 1;
 				runState[handID].layers[0].mirrored = handID != 1;
 				sprintState[handID].layers[0].mirrored = handID != 1;
-				duckedState[handID].layers[0].mirrored = handID != 1;
-				duckedWalkState[handID].layers[0].mirrored = handID != 1;
-				jumpState[handID].layers[0].mirrored = handID != 1;
-				fallState[handID].layers[0].mirrored = handID != 1;
+				//duckedState[handID].layers[0].mirrored = handID != 1;
+				//duckedWalkState[handID].layers[0].mirrored = handID != 1;
+				//jumpState[handID].layers[0].mirrored = handID != 1;
+				//fallState[handID].layers[0].mirrored = handID != 1;
 
 				runState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
-				duckedWalkState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				sprintState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
+				//duckedWalkState[handID].layers[0].timerOffset = handID != 1 ? 21 / 24.0f * 0.5f : 0.0f;
 
 				handEntities[handID].setItem(null);
 			}
@@ -1993,29 +2030,29 @@ public class Player : Entity
 				idleState[handID].layers[0].animationData = viewmodel;
 				runState[handID].layers[0].animationData = viewmodel;
 				sprintState[handID].layers[0].animationData = viewmodel;
-				duckedState[handID].layers[0].animationData = viewmodel;
-				duckedWalkState[handID].layers[0].animationData = viewmodel;
-				jumpState[handID].layers[0].animationData = viewmodel;
-				fallState[handID].layers[0].animationData = viewmodel;
+				//duckedState[handID].layers[0].animationData = viewmodel;
+				//duckedWalkState[handID].layers[0].animationData = viewmodel;
+				//jumpState[handID].layers[0].animationData = viewmodel;
+				//fallState[handID].layers[0].animationData = viewmodel;
 
 				idleState[handID].layers[0].mirrored = false;
 				runState[handID].layers[0].mirrored = false;
 				sprintState[handID].layers[0].mirrored = false;
-				duckedState[handID].layers[0].mirrored = false;
-				duckedWalkState[handID].layers[0].mirrored = false;
-				jumpState[handID].layers[0].mirrored = false;
-				fallState[handID].layers[0].mirrored = false;
+				//duckedState[handID].layers[0].mirrored = false;
+				//duckedWalkState[handID].layers[0].mirrored = false;
+				//jumpState[handID].layers[0].mirrored = false;
+				//fallState[handID].layers[0].mirrored = false;
 
 				runState[handID].layers[0].timerOffset = 0.0f;
 				sprintState[handID].layers[0].timerOffset = 0.0f;
-				duckedWalkState[handID].layers[0].timerOffset = 0.0f;
+				//duckedWalkState[handID].layers[0].timerOffset = 0.0f;
 
 				handEntities[handID].setItem(null);
 			}
 		}
 
 		bool hasSprintAnim = sprintState[handID].layers[0].animationData.getAnimationData("sprint") != null;
-		sprintState[handID].layers[0].animationName = hasSprintAnim ? "sprint" : "run";
+		sprintState[handID].layers[0].animationName = hasSprintAnim ? "sprint" : "idle";
 	}
 
 	public void throwItem(Item item, int amount)
@@ -2214,15 +2251,15 @@ public class Player : Entity
 		*/
 
 
-		Matrix scaleTowardsCamera = Matrix.CreateTranslation(camera.position) * Matrix.CreateScale(viewmodelScale) * Matrix.CreateTranslation(-camera.position);
-		Matrix transform = scaleTowardsCamera * getModelMatrix() * Matrix.CreateRotation(Quaternion.FromAxisAngle(Vector3.Up, MathF.PI));
-		Renderer.DrawModel(viewmodel, transform, moveAnimator);
+		//Matrix scaleTowardsCamera = Matrix.CreateTranslation(camera.position) * Matrix.CreateScale(viewmodelScale) * Matrix.CreateTranslation(-camera.position);
+		Matrix transform = getModelMatrix();
+		Renderer.DrawModel(viewmodel, transform, animator0);
 
 		// Camera light
 		if (inventory.hasItemInOffhand(Item.Get("torch")))
 			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 2.0f);
-		else
-			Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
+		//else
+		//	Renderer.DrawLight(camera.position, new Vector3(2.7738395f, 0.9894696f, 0.25998735f) * 0.2f + 1.0f);
 		//Renderer.DrawLight(camera.position, new Vector3(1.0f) * 0.2f);
 
 		handEntities[0].draw(graphics);

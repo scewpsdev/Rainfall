@@ -43,6 +43,7 @@ internal class DungeonGame : Game
 		AudioManager.Init();
 
 		Item.LoadContent();
+		Tile.Init();
 
 		Debug.debugTextEnabled = true;
 
@@ -119,16 +120,18 @@ internal class DungeonGame : Game
 		GraphicsManager.Draw();
 
 		level.draw(graphics);
-
 		gameManager.draw();
+
+		Renderer.End();
 
 		if (!GraphicsManager.cinematicMode)
 			drawDebugStats();
 
-		Renderer.End();
+		ImGui.ShowDemoWindow();
+		ImGui.ShowUserGuide();
 
 		Audio.Update();
-
+		
 
 		if (Time.currentTime - lastSecond >= 1e9)
 		{

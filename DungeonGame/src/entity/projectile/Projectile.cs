@@ -19,6 +19,8 @@ public class Projectile : Entity
 	protected Model model;
 	protected RigidBody body;
 
+	protected ParticleSystem particles = null;
+
 	protected Vector3 velocity;
 	Vector3 currentOffset;
 
@@ -93,7 +95,7 @@ public class Projectile : Entity
 						hit = true;
 						hitTarget = other;
 						hitHandled = false;
-						hitPosition = position + rotation.forward * 1.6f;
+						hitPosition = position - velocity.normalized * 0.02f; // + rotation.forward * 1.6f;
 						hitTargetLinkID = getLinkIDFromShape(other);
 						if (hitTarget.entity is Creature)
 							hitTargetCreature = hitTarget.entity as Creature;
@@ -121,6 +123,12 @@ public class Projectile : Entity
 
 	public override void update()
 	{
+		if (particles != null)
+		{
+			particles.transform = getModelMatrix(currentOffset);
+			particles.update();
+		}
+
 		if (!hit || piercing)
 		{
 			velocity.y += 0.5f * gravity * Time.deltaTime;
@@ -129,7 +137,7 @@ public class Projectile : Entity
 			rotation = Quaternion.LookAt(velocity);
 			body.setTransform(position, rotation);
 
-			currentOffset = Vector3.Lerp(currentOffset, Vector3.Zero, 10.0f * Time.deltaTime);
+			currentOffset = Vector3.Lerp(currentOffset, Vector3.Zero, 3.0f * Time.deltaTime);
 
 			velocity.y += 0.5f * gravity * Time.deltaTime;
 		}
@@ -227,6 +235,10 @@ public class Projectile : Entity
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawModel(model, getModelMatrix(currentOffset));
+		if (model != null)
+			Renderer.DrawModel(model, getModelMatrix(currentOffset));
+
+		if (particles != null)
+			particles.draw(graphics);
 	}
 }

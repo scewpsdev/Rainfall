@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 public class ItemEntity
 {
 	public Item item;
-	public ParticleSystem particles;
+	public List<ParticleSystem> particles;
 	public RigidBody hitbox;
 	public AudioSource audio;
 
@@ -34,7 +34,7 @@ public class ItemEntity
 		this.player = player;
 		this.handID = handID;
 
-		particles = new ParticleSystem(256);
+		particles = new List<ParticleSystem>();
 		hitbox = new RigidBody(player, RigidBodyType.Kinematic);
 		audio = new AudioSource(player.position);
 	}
@@ -56,12 +56,15 @@ public class ItemEntity
 			animator = null;
 		}
 
+		particles.Clear();
+
 		if (item != null)
 		{
-			particles.emissionRate = 0.0f;
-			if (item.particles != null)
+			foreach (ParticleSystem itemParticles in item.particleSystems)
 			{
-				particles.copyData(item.particles);
+				ParticleSystem particleSystem = new ParticleSystem(256);
+				particleSystem.copyData(itemParticles);
+				particles.Add(particleSystem);
 			}
 
 			foreach (Collider collider in item.colliders)
@@ -85,8 +88,6 @@ public class ItemEntity
 		}
 		else
 		{
-			particles.emissionRate = 0.0f;
-
 			animator = null;
 		}
 	}
@@ -151,6 +152,7 @@ public class ItemEntity
 		Span<HitData> hits = stackalloc HitData[32];
 		int numHits = 0;
 
+		/*
 		if (item.hitboxRange != 0)
 		{
 			if (item.hitbox.type == ColliderType.Box)
@@ -172,25 +174,37 @@ public class ItemEntity
 		{
 			Debug.Assert(false);
 		}
+		*/
 
-		/*
-		if (collider.type == ColliderType.Box)
+		if (item.hitboxRange != 0)
 		{
-			numHits = Physics.SweepBox(collider.size * 0.5f, lastPosition, shapeTransform.rotation, delta / distance, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
-		}
-		else if (collider.type == ColliderType.Sphere)
-		{
-			numHits = Physics.SweepSphere(collider.radius, lastPosition, delta / distance, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
-		}
-		else if (collider.type == ColliderType.Capsule)
-		{
-			numHits = Physics.SweepCapsule(collider.radius, collider.size.y, lastPosition, shapeTransform.rotation, delta / distance, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			Vector3 lastPosition = lastTransform.translation;
+			Vector3 delta = transform.translation - lastPosition;
+			float distance = delta.length;
+			Vector3 direction = delta.lengthSquared > 0 ? delta / distance : Vector3.UnitX;
+			Quaternion rotation = transform.rotation;
+
+			if (item.hitbox.type == ColliderType.Box)
+			{
+				numHits = Physics.SweepBox(item.hitbox.size * 0.5f, lastPosition, rotation, direction, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			}
+			else if (item.hitbox.type == ColliderType.Sphere)
+			{
+				numHits = Physics.SweepSphere(item.hitbox.radius, lastPosition, direction, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			}
+			else if (item.hitbox.type == ColliderType.Capsule)
+			{
+				numHits = Physics.SweepCapsule(item.hitbox.radius, item.hitbox.size.y, lastPosition, rotation, direction, distance, hits, QueryFilterFlags.Default | QueryFilterFlags.NoBlock);
+			}
+			else
+			{
+				Debug.Assert(false);
+			}
 		}
 		else
 		{
 			Debug.Assert(false);
 		}
-		*/
 
 		float shortestDistance = 1000.0f;
 		HitData hit = new HitData();
@@ -270,7 +284,10 @@ public class ItemEntity
 			//currentModel.applyAnimation(animator.nodeLocalTransforms);
 		}
 
-		particles.update();
+		foreach (ParticleSystem particleSystem in particles)
+		{
+			particleSystem.update();
+		}
 	}
 
 	public void setTransform(Matrix transform, Matrix renderScale)
@@ -284,7 +301,12 @@ public class ItemEntity
 		}
 		this.transform = transform;
 		this.renderScale = renderScale;
-		particles.transform = renderScale * transform;
+
+		foreach (ParticleSystem particleSystem in particles)
+		{
+			particleSystem.transform = renderScale * transform;
+		}
+
 		hitbox.setTransform(transform.translation, transform.rotation);
 		audio.updateTransform(transform.translation + player.rotation.forward * 2); // adding forward vector to make it easier on the ears
 	}
@@ -293,7 +315,8 @@ public class ItemEntity
 	{
 		if (currentModel != null)
 		{
-			Renderer.DrawModel(currentModel, renderScale * transform, animator);
+			if (item.renderModel)
+				Renderer.DrawModel(currentModel, renderScale * transform, animator);
 
 			if (item != null && currentModel == item.model)
 			{
@@ -303,7 +326,10 @@ public class ItemEntity
 					Renderer.DrawLight(lightTransform.translation, light.color);
 				}
 
-				particles.draw(graphics);
+				foreach (ParticleSystem particleSystem in particles)
+				{
+					particleSystem.draw(graphics);
+				}
 			}
 		}
 	}

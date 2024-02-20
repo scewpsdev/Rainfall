@@ -16,7 +16,6 @@ public class GameManager
 	LevelGenerator levelGenerator;
 
 	public bool mapUnlocked = false;
-	public HashSet<int> exploredRooms = new HashSet<int>();
 
 	bool gameOver = false;
 
@@ -97,8 +96,6 @@ public class GameManager
 		}
 
 		mapUnlocked = player.inventory.findItem(Item.Get("map")) != null;
-		int currentRoomID = level.getRoomIDAtPos(player.position);
-		exploredRooms.Add(currentRoomID);
 
 		if (gameOver)
 		{
@@ -116,9 +113,9 @@ public class GameManager
 		{
 			int width = Display.width / 8 * 7;
 			int height = 16;
-			Renderer.DrawUIRect(Display.width / 2 - width / 2 - 2, Display.height - 128 - 2, width + 4, height + 4, 0xFF111111);
-			Renderer.DrawUIRect(Display.width / 2 - width / 2, Display.height - 128, (int)(width * currentBoss.stats.health / (float)currentBoss.stats.maxHealth), height, 0xFFFF1111);
-			Renderer.DrawText(Display.width / 2 - width / 2, Display.height - 128 - (int)bossNameFont.size - 8, 1, currentBoss.name, bossNameFont, 0xFFAAAAAA);
+			GUI.Rect(Display.width / 2 - width / 2 - 2, Display.height - 128 - 2, width + 4, height + 4, 0xFF111111);
+			GUI.Rect(Display.width / 2 - width / 2, Display.height - 128, (int)(width * currentBoss.stats.health / (float)currentBoss.stats.maxHealth), height, 0xFFFF1111);
+			GUI.Text(Display.width / 2 - width / 2, Display.height - 128 - (int)bossNameFont.size - 8, 1, currentBoss.name, bossNameFont, 0xFFAAAAAA);
 		}
 		if (player.hasWon)
 		{
@@ -129,7 +126,7 @@ public class GameManager
 				string text = "V I C T O R Y";
 				uint color = (uint)(((byte)(intensity * 255) << 24) | 0xCCAA66);
 				int width = victoryFont.measureText(text);
-				Renderer.DrawText(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - (int)victoryFont.size / 2, 1.0f, text, victoryFont, color);
+				GUI.Text(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - (int)victoryFont.size / 2, 1.0f, text, victoryFont, color);
 			}
 		}
 		if (gameOver)
@@ -140,13 +137,13 @@ public class GameManager
 
 	void drawGameOverScreen()
 	{
-		Renderer.DrawUIRect(Display.width / 8, Display.height / 8, Display.width / 8 * 6, Display.height / 8 * 6, 0xFF111111);
+		GUI.Rect(Display.width / 8, Display.height / 8, Display.width / 8 * 6, Display.height / 8 * 6, 0xFF111111);
 
 		{
 			string text = "Ya ded son";
 			int width = mediumFont.measureText(text);
 			int height = (int)mediumFont.size;
-			Renderer.DrawText(Display.width / 2 - width / 2, Display.height / 4 - height / 2, 1, text, mediumFont, 0xFFAAAAAA);
+			GUI.Text(Display.width / 2 - width / 2, Display.height / 4 - height / 2, 1, text, mediumFont, 0xFFAAAAAA);
 		}
 
 		int leftBound = Display.width / 8 + 50;
@@ -155,12 +152,12 @@ public class GameManager
 
 		var drawLeftInfo = (string text, uint color) =>
 		{
-			Renderer.DrawText(leftBound, yscroll, 1, text, mediumFont, color);
+			GUI.Text(leftBound, yscroll, 1, text, mediumFont, color);
 		};
 		var drawRightInfo = (string text, uint color) =>
 		{
 			int width = text.Length * 32;
-			Renderer.DrawText(rightBound - width, yscroll, 1, text, mediumFont, color);
+			GUI.Text(rightBound - width, yscroll, 1, text, mediumFont, color);
 			yscroll += 48;
 		};
 
@@ -188,7 +185,7 @@ public class GameManager
 			string text = "[E] Quick Restart";
 			int width = mediumFont.measureText(text);
 			int height = (int)mediumFont.size;
-			Renderer.DrawText(Display.width / 2 - width / 2, Display.height / 16 * 13 - height / 2, 1, text, mediumFont, 0xFFAAAAAA);
+			GUI.Text(Display.width / 2 - width / 2, Display.height / 16 * 13 - height / 2, 1, text, mediumFont, 0xFFAAAAAA);
 		}
 	}
 }

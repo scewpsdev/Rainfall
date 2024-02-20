@@ -62,41 +62,41 @@
 		{
 			"mimeType":"image/png",
 			"name":"broken_sword_diffuse",
-			"uri":"textures/broken_sword_diffuse.png"
+			"uri":"../broken_sword/textures/broken_sword_diffuse.png"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"broken_sword_occlusionRoughnessMetallic",
-			"uri":"textures/broken_sword_occlusionRoughnessMetallic.png"
+			"uri":"../broken_sword/textures/broken_sword_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":525,
+			"count":558,
 			"max":[
-				0.09755958616733551,
-				0.4822354316711426,
-				0.016321292147040367
+				0.09664565324783325,
+				0.3670976459980011,
+				0.012716619297862053
 			],
 			"min":[
-				-0.09875714033842087,
-				-0.1673317551612854,
-				-0.017116328701376915
+				-0.09783198684453964,
+				-0.10240817815065384,
+				-0.012725155800580978
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":525,
+			"count":558,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":525,
+			"count":558,
 			"type":"VEC2"
 		},
 		{
@@ -109,26 +109,26 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6300,
+			"byteLength":6696,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6300,
-			"byteOffset":6300,
+			"byteLength":6696,
+			"byteOffset":6696,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4200,
-			"byteOffset":12600,
+			"byteLength":4464,
+			"byteOffset":13392,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":3936,
-			"byteOffset":16800,
+			"byteOffset":17856,
 			"target":34963
 		}
 	],
@@ -140,7 +140,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":20736,
+			"byteLength":21792,
 			"uri":"broken_sword.bin"
 		}
 	]

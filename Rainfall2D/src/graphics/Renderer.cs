@@ -470,7 +470,7 @@ public static class Renderer
 			graphics.drawText(
 				draw.position.x, draw.position.y, 0.0f,
 				draw.size,
-				draw.text, draw.text.Length,
+				draw.text, 0, draw.text.Length,
 				font, draw.color,
 				textBatch);
 		}

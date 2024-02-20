@@ -19,6 +19,7 @@ public enum ItemCategory
 	Collectible,
 	Spell,
 	Artifact,
+	Key,
 }
 
 public enum WeaponType
@@ -129,6 +130,7 @@ public enum SpellProjectileType
 	Arrow,
 	Orb,
 	Homing,
+	Fireball,
 }
 
 public struct SpellProjectile
@@ -136,6 +138,7 @@ public struct SpellProjectile
 	public SpellProjectileType type;
 	public float castTime;
 	public Vector3 offset;
+	public Sound sfx;
 }
 
 public class Item
@@ -152,9 +155,11 @@ public class Item
 	public Model model;
 	public Texture icon;
 	public Model moveset;
+	public bool renderModel = true;
 	public float pitchFactor = 1.0f;
 
 	public List<ItemLight> lights = new List<ItemLight>();
+	public List<ParticleSystem> particleSystems = new List<ParticleSystem>();
 	public List<Collider> colliders = new List<Collider>();
 	public Vector3 colliderCenterOfMass = Vector3.Zero;
 
@@ -168,7 +173,7 @@ public class Item
 	//public Vector3 hitboxPosition = Vector3.Zero;
 	//public Quaternion hitboxRotation = Quaternion.Identity;
 
-	public ParticleSystem particles = null;
+	//public ParticleSystem particles = null;
 
 	public bool consumableThrowable = false;
 	public float consumableUseTime = 0.0f;
@@ -207,6 +212,8 @@ public class Item
 	public Sound sfxDrop;
 	public Sound sfxShoot;
 	public Sound sfxBowDraw;
+	public Sound sfxCast;
+	public float sfxCastTime;
 
 
 	public Item(int id, string name, string displayName, ItemCategory category)
@@ -444,6 +451,8 @@ public class Item
 		if (file.getStringContent("icon", out string iconFile))
 			item.icon = Resource.GetTexture(directory + "/" + iconFile);
 
+		if (file.getBoolean("renderModel", out bool renderModel))
+			item.renderModel = renderModel;
 		if (file.getNumber("pitchFactor", out float pitchFactor))
 			item.pitchFactor = pitchFactor;
 
@@ -497,6 +506,77 @@ public class Item
 			}
 		}
 
+		DatField particleSystems = file.getField("particleSystems");
+		if (particleSystems != null)
+		{
+			foreach (DatValue particleSystem in particleSystems.array.values)
+			{
+				ParticleSystem particles = new ParticleSystem(0);
+
+				if (particleSystem.obj.getNumber("emissionRate", out float emissionRate))
+					particles.emissionRate = emissionRate;
+				if (particleSystem.obj.getNumber("lifetime", out float lifetime))
+					particles.lifetime = lifetime;
+				if (particleSystem.obj.getField("size", out DatField size))
+				{
+					if (size.value.type == DatValueType.Number)
+						particleSystem.obj.getNumber("size", out particles.particleSize);
+					else if (size.value.type == DatValueType.Array)
+					{
+						particleSystem.obj.getObject("size", out DatArray arr);
+						Debug.Assert(arr.values.Count > 0);
+						Debug.Assert(arr.values[0].type == DatValueType.Number);
+						float value0 = (float)arr.values[0].number;
+						particles.particleSizeAnim = new Gradient<float>(value0);
+						for (int i = 1; i < arr.values.Count; i++)
+						{
+							Debug.Assert(arr.values[i].type == DatValueType.Number);
+							float value = (float)arr.values[i].number;
+							particles.particleSizeAnim.setValue(i / (float)(arr.values.Count - 1), value);
+						}
+					}
+					else
+					{
+						Debug.Assert(false);
+					}
+				}
+				if (particleSystem.obj.getVector3("spawnOffset", out Vector3 spawnOffset))
+					particles.spawnOffset = spawnOffset;
+				if (particleSystem.obj.getNumber("spawnRadius", out float spawnRadius))
+					particles.spawnRadius = spawnRadius;
+				if (particleSystem.obj.getIdentifier("spawnShape", out string spawnShape))
+					particles.spawnShape = ParseParticleSpawnShape(spawnShape);
+				if (particleSystem.obj.getIdentifier("followMode", out string followMode))
+					particles.follow = ParseParticleFollow(followMode);
+				if (particleSystem.obj.getNumber("gravity", out float gravity))
+					particles.gravity = gravity;
+				if (particleSystem.obj.getVector3("initialVelocity", out Vector3 initialVelocity))
+					particles.initialVelocity = initialVelocity;
+
+				if (particleSystem.obj.getStringContent("texture", out string particleTextureStr))
+					particles.textureAtlas = Resource.GetTexture(particleTextureStr);
+				if (particleSystem.obj.getInteger("frameSize", out int particleFrameSize))
+				{
+					particles.frameWidth = particleFrameSize;
+					particles.frameHeight = particleFrameSize;
+				}
+				if (particleSystem.obj.getInteger("frameCount", out int numFrames))
+					particles.numFrames = numFrames;
+
+				if (particleSystem.obj.getVector3("tint", out Vector3 tint))
+					particles.spriteTint = new Vector4(tint, 1.0f);
+				if (particleSystem.obj.getInteger("linearFiltering", out int linearFiltering))
+					particles.linearFiltering = linearFiltering != 0;
+				if (particleSystem.obj.getInteger("additive", out int additive))
+					particles.additive = additive != 0;
+
+				particleSystem.obj.getBoolean("randomRotation", out particles.randomRotation);
+				particleSystem.obj.getBoolean("randomLifetime", out particles.randomLifetime);
+
+				item.particleSystems.Add(particles);
+			}
+		}
+
 		if (file.getObject("colliders", out DatArray colliders))
 		{
 			foreach (DatValue colliderNode in colliders.values)
@@ -543,70 +623,6 @@ public class Item
 
 		if (file.getStringContent("sfxBowDraw", out string sfxBowDrawPath))
 			item.sfxBowDraw = Resource.GetSound(directory + "/sfx/" + sfxBowDrawPath);
-
-
-		// Particles
-		if (file.getField("particleEmissionRate") != null)
-		{
-			item.particles = new ParticleSystem(0);
-
-			if (file.getNumber("particleEmissionRate", out float emissionRate))
-				item.particles.emissionRate = emissionRate;
-			if (file.getNumber("particleLifetime", out float lifetime))
-				item.particles.lifetime = lifetime;
-			if (file.getField("particleSize", out DatField size))
-			{
-				if (size.value.type == DatValueType.Number)
-					file.getNumber("particleSize", out item.particles.particleSize);
-				else if (size.value.type == DatValueType.Array)
-				{
-					file.getObject("particleSize", out DatArray arr);
-					Debug.Assert(arr.values.Count > 0);
-					Debug.Assert(arr.values[0].type == DatValueType.Number);
-					float value0 = (float)arr.values[0].number;
-					item.particles.particleSizeAnim = new Gradient<float>(value0);
-					for (int i = 1; i < arr.values.Count; i++)
-					{
-						Debug.Assert(arr.values[i].type == DatValueType.Number);
-						float value = (float)arr.values[i].number;
-						item.particles.particleSizeAnim.setValue(i / (float)(arr.values.Count - 1), value);
-					}
-				}
-				else
-				{
-					Debug.Assert(false);
-				}
-			}
-			if (file.getVector3("particleSpawnOffset", out Vector3 spawnOffset))
-				item.particles.spawnOffset = spawnOffset;
-			if (file.getNumber("particleSpawnRadius", out float spawnRadius))
-				item.particles.spawnRadius = spawnRadius;
-			if (file.getIdentifier("particleSpawnShape", out string spawnShape))
-				item.particles.spawnShape = ParseParticleSpawnShape(spawnShape);
-			if (file.getIdentifier("particleFollowMode", out string followMode))
-				item.particles.follow = ParseParticleFollow(followMode);
-			if (file.getNumber("particleGravity", out float gravity))
-				item.particles.gravity = gravity;
-			if (file.getVector3("particleInitialVelocity", out Vector3 initialVelocity))
-				item.particles.initialVelocity = initialVelocity;
-
-			if (file.getStringContent("particleTexture", out string particleTextureStr))
-				item.particles.textureAtlas = Resource.GetTexture(particleTextureStr);
-			if (file.getInteger("particleFrameSize", out int particleFrameSize))
-			{
-				item.particles.frameWidth = particleFrameSize;
-				item.particles.frameHeight = particleFrameSize;
-			}
-			if (file.getInteger("particleFrameCount", out int numFrames))
-				item.particles.numFrames = numFrames;
-
-			if (file.getVector3("particleTint", out Vector3 tint))
-				item.particles.spriteTint = new Vector4(tint, 1.0f);
-			if (file.getInteger("particleLinearFiltering", out int linearFiltering))
-				item.particles.linearFiltering = linearFiltering != 0;
-			if (file.getInteger("particleAdditive", out int additive))
-				item.particles.additive = additive != 0;
-		}
 
 
 		// Weapons
@@ -717,6 +733,10 @@ public class Item
 		{
 			file.getInteger("spellManaCost", out item.spellManaCost);
 
+			if (file.getStringContent("sfxCast", out string sfxCastPath))
+				item.sfxCast = Resource.GetSound(directory + "/sfx/" + sfxCastPath);
+			file.getNumber("sfxCastTime", out item.sfxCastTime);
+
 			DatField projectiles = file.getField("spellProjectiles");
 			if (projectiles != null)
 			{
@@ -729,9 +749,14 @@ public class Item
 					DatValue projectile = projectiles.array.values[i];
 					Debug.Assert(projectile.type == DatValueType.Object);
 
-					projectile.obj.getNumber("castTime", out spellProjectiles[i].castTime);
 					projectile.obj.getIdentifier("type", out string projectileType);
 					spellProjectiles[i].type = ParseSpellProjectileType(projectileType);
+
+					projectile.obj.getNumber("castTime", out spellProjectiles[i].castTime);
+					if (projectile.obj.getInteger("castFrame", out int castFrame))
+						spellProjectiles[i].castTime = castFrame / 24.0f;
+					if (projectile.obj.getStringContent("sfx", out string sfxPath))
+						spellProjectiles[i].sfx = Resource.GetSound(directory + "/sfx/" + sfxPath);
 				}
 
 				item.spellProjectiles = spellProjectiles;
@@ -815,9 +840,12 @@ public class Item
 		Load("spell", "magic_arrow");
 		Load("spell", "homing_orbs");
 		Load("spell", "magic_orb");
+		Load("spell", "fireball");
 
 		Load("artifact", "key_cell");
 		Load("artifact", "map");
+
+		Load("key", "iron_key");
 	}
 
 	public static Item Get(int id)

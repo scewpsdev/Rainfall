@@ -19,6 +19,8 @@ internal class Explosion : Entity
 	ParticleSystem fireParticles;
 	ParticleSystem dustParticles;
 
+	Sound sfxHit;
+
 	List<Entity> hitEntities = new List<Entity>();
 
 	float timer = 0.0f;
@@ -29,6 +31,8 @@ internal class Explosion : Entity
 	public Explosion(Entity shooter)
 	{
 		this.shooter = shooter;
+
+		sfxHit = Resource.GetSound("res/item/sfx/ignite.ogg");
 	}
 
 	public override void init()
@@ -115,6 +119,7 @@ internal class Explosion : Entity
 			}
 		}
 
+		Audio.PlayOrganic(sfxHit, position, 1.0f, 0.5f);
 		AIManager.NotifySound(position, 5.0f);
 	}
 

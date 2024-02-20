@@ -61,13 +61,13 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"materials_diffuse.png",
-			"uri":"../../../texture/materials/materials_diffuse.png"
+			"name":"door_diffuse.png",
+			"uri":"textures/door_diffuse.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"materials_occlusionRoughnessMetallic.png",
-			"uri":"../../../texture/materials/materials_occlusionRoughnessMetallic.png"
+			"name":"door_occlusionRoughnessMetallic.png",
+			"uri":"textures/door_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[

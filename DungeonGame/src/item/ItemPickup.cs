@@ -55,10 +55,10 @@ public class ItemPickup : Entity, Interactable
 			}
 		}
 
-		if (item.particles != null)
+		if (item.particleSystems.Count > 0)
 		{
 			particles = new ParticleSystem(64);
-			particles.copyData(item.particles);
+			particles.copyData(item.particleSystems[0]);
 		}
 
 		audio = new AudioSource(position);

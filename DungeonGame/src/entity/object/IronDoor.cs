@@ -17,7 +17,6 @@ public class IronDoor : Door
 
 		sfxOpen = Resource.GetSound("res/entity/object/door_iron/sfx/unlock.ogg");
 		sfxClose = Resource.GetSound("res/entity/object/door_iron/sfx/close.ogg");
-		sfxLocked = Resource.GetSound("res/entity/object/door_iron/sfx/locked.ogg");
 	}
 
 	public override void init()

@@ -25,6 +25,7 @@ public struct Particle
 	public Vector3 velocity;
 	public float rotationVelocity;
 	public float size;
+	public float lifetime;
 	//public int u0, v0, u1, v1;
 	public float animationFrame;
 	public Vector4 color;
@@ -84,11 +85,12 @@ public class ParticleSystem
 	public float randomVelocityMultiplier = 1.0f;
 	public bool randomRotation = false;
 	public bool randomRotationSpeed = false;
+	public bool randomLifetime = false;
 
 	Particle[] particles = null;
 	List<int> particleIndices;
 	//public int numParticles { get; private set; }
-	int maxParticles = 0;
+	public readonly int maxParticles = 0;
 
 	long lastEmitted;
 
@@ -139,6 +141,7 @@ public class ParticleSystem
 		randomVelocityMultiplier = from.randomVelocityMultiplier;
 		randomRotation = from.randomRotation;
 		randomRotationSpeed = from.randomRotationSpeed;
+		randomLifetime = from.randomLifetime;
 	}
 
 	int getNewParticle()
@@ -217,6 +220,7 @@ public class ParticleSystem
 				particle.velocity = velocity;
 				particle.rotationVelocity = rotationVelocity;
 				particle.size = particleSize;
+				particle.lifetime = lifetime + (randomLifetime ? MathHelper.RandomFloat(-0.5f, 0.5f, random) * lifetime : 0.0f);
 				particle.animationFrame = 0;
 				particle.color = spriteTint;
 				particle.birthTime = Time.currentTime;
@@ -262,7 +266,7 @@ public class ParticleSystem
 
 				particle.rotation += particle.rotationVelocity * Time.deltaTime;
 
-				float progress = particleTimer / lifetime;
+				float progress = particleTimer / particle.lifetime;
 
 				if (particleSizeAnim != null)
 					particle.size = particleSizeAnim.getValue(progress);
@@ -278,11 +282,11 @@ public class ParticleSystem
 						atlasColumns = textureAtlas.width / frameWidth;
 						atlasRows = textureAtlas.height / frameHeight;
 					}
-					float animationFrame = particleTimer / lifetime * numFrames / (atlasColumns * atlasRows);
+					float animationFrame = particleTimer / particle.lifetime * numFrames / (atlasColumns * atlasRows);
 					particle.animationFrame = animationFrame;
 				}
 
-				if ((now - particle.birthTime) / 1e9f >= lifetime)
+				if ((now - particle.birthTime) / 1e9f >= particle.lifetime)
 				{
 					//if (particle.id == numParticles - 1)
 					//	numParticles--;

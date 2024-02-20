@@ -10,7 +10,7 @@ using Rainfall;
 
 public class LevelGenerator
 {
-	public const float TILE_SIZE = 1.0f;
+	//public const float TILE_SIZE = 1.0f;
 
 
 	Level level;
@@ -18,31 +18,20 @@ public class LevelGenerator
 
 	int maxRooms = 12;
 
+	int seed;
 	Random random;
 
 	List<Room> rooms = new List<Room>();
 	Room startingRoom, finalRoom, mainRoom;
 
-	Model levelGeometry;
-	Material levelMaterial;
-
 	public List<ItemContainer> itemContainers = new List<ItemContainer>();
 
-	Model floor, wall, ceiling;
+	List<Item> usedKeyTypes = new List<Item>();
 
 
 	public LevelGenerator()
 	{
-		floor = Resource.GetModel("res/models/tiles/floor.gltf");
-		wall = Resource.GetModel("res/models/tiles/wall.gltf");
-		ceiling = Resource.GetModel("res/models/tiles/ceiling.gltf");
-
-		levelMaterial = new Material(0xFFFFFFFF, 0.0f, 1.0f, Vector3.Zero, 0.0f,
-			Resource.GetTexture("res/level/room/level1/level1_diffuse.png", false),
-			null,
-			Resource.GetTexture("res/level/room/level1/level1_occlusionRoughnessMetallic.png", false),
-			Resource.GetTexture("res/level/room/level1/level1_occlusionRoughnessMetallic.png", false),
-			null);
+		tilemap = new TileMap();
 	}
 
 	public void reset(int seed, Level level)
@@ -50,15 +39,15 @@ public class LevelGenerator
 		this.level = level;
 		this.tilemap = level.tilemap;
 
+		this.seed = seed;
 		random = new Random(seed);
 
 		rooms.Clear();
 		startingRoom = finalRoom = mainRoom = null;
 
-		levelGeometry?.destroy();
-		levelGeometry = null;
-
 		itemContainers.Clear();
+
+		usedKeyTypes.Clear();
 	}
 
 	void propagateRooms(SectorType type)
@@ -166,7 +155,7 @@ public class LevelGenerator
 
 	Room findRoomAtPosition(Vector3i position)
 	{
-		int roomID = tilemap.getTile(position);
+		int roomID = tilemap.getRoomID(position);
 		Room room = getRoomByID(roomID);
 		return room;
 	}
@@ -238,7 +227,7 @@ public class LevelGenerator
 		return -1;
 	}
 
-	int checkDoorwayForRoom(Doorway doorway2, Room room, Room lastRoom, List<Room> checkedRooms)
+	int checkDoorwayForRoom(Doorway doorway2, Room room, Room lastRoom, List<Room> checkedRooms, bool lockedDoorsBlocking)
 	{
 		if (lastRoom != null)
 		{
@@ -250,11 +239,11 @@ public class LevelGenerator
 		int shortestFound = int.MaxValue;
 		foreach (Doorway doorway in doorway2.room.doorways)
 		{
-			if (doorway != doorway2 && doorway.connectedDoorway != null)
+			if (doorway != doorway2 && doorway.connectedDoorway != null && (doorway.lockedSide == 0 && doorway.requiredKey == null || !lockedDoorsBlocking))
 			{
 				if (!checkedRooms.Contains(doorway.connectedDoorway.room))
 				{
-					int found = checkDoorwayForRoom(doorway.connectedDoorway, room, doorway2.room, checkedRooms);
+					int found = checkDoorwayForRoom(doorway.connectedDoorway, room, doorway2.room, checkedRooms, lockedDoorsBlocking);
 					if (found > 0)
 					{
 						if (found < shortestFound)
@@ -269,10 +258,10 @@ public class LevelGenerator
 		return 0;
 	}
 
-	int getNumDoorsBetween(Doorway doorway, Room room)
+	int getNumDoorsBetween(Doorway doorway, Room room, bool lockedDoorsBlocking = false)
 	{
 		List<Room> checkedRooms = new List<Room>();
-		int chainLength = checkDoorwayForRoom(doorway, room, null, checkedRooms);
+		int chainLength = checkDoorwayForRoom(doorway, room, null, checkedRooms, lockedDoorsBlocking);
 		if (chainLength != 0)
 			return chainLength;
 
@@ -280,9 +269,9 @@ public class LevelGenerator
 		return -1;
 	}
 
-	public bool isDoorwayConnectedToRoom(Doorway doorway, Room room)
+	public bool isDoorwayConnectedToRoom(Doorway doorway, Room room, bool lockedDoorsBlocking = false)
 	{
-		return getNumDoorsBetween(doorway, room) != -1;
+		return getNumDoorsBetween(doorway, room, lockedDoorsBlocking) != -1;
 	}
 
 	void connectDoorways(Doorway doorway1, Doorway doorway2)
@@ -291,27 +280,33 @@ public class LevelGenerator
 		Array.Fill(walkable, true);
 		foreach (Room room in rooms)
 		{
-			if (room.type.sectorType == SectorType.Room)
+			for (int z = room.gridPosition.z - 2; z < room.gridPosition.z + room.gridSize.z + 2; z++)
 			{
-				for (int z = room.gridPosition.z - 2; z < room.gridPosition.z + room.gridSize.z + 2; z++)
+				for (int x = room.gridPosition.x - 2; x < room.gridPosition.x + room.gridSize.x + 2; x++)
 				{
-					for (int x = room.gridPosition.x - 2; x < room.gridPosition.x + room.gridSize.x + 2; x++)
+					for (int y = room.gridPosition.y - 2; y < room.gridPosition.y + room.gridSize.y + 2; y++)
 					{
-						for (int y = room.gridPosition.y - 2; y < room.gridPosition.y + room.gridSize.y + 2; y++)
+						Vector3i p = new Vector3i(x, y, z);
+
+						bool isInsideRoom = p >= room.gridPosition && p < room.gridPosition + room.gridSize;
+
+						bool isDoorway = false;
+						foreach (Doorway doorway in room.doorways)
 						{
-							Vector3i p = new Vector3i(x, y, z);
-							bool isInsideRoom = p >= room.gridPosition && p < room.gridPosition + room.gridSize;
+							if (p == doorway.globalPosition ||
+								p == doorway.globalPosition + doorway.globalDirection)
+							//p == doorway.globalPosition + new Vector3i(doorway.globalDirection.z, 0, doorway.globalDirection.x) ||
+							//p == doorway.globalPosition - new Vector3i(doorway.globalDirection.z, 0, doorway.globalDirection.x))
+							{
+								isDoorway = true;
+								break;
+							}
+						}
+
+						if (room.type.sectorType == SectorType.Room)
+						{
 							if (!isInsideRoom)
 							{
-								bool isDoorway = false;
-								foreach (Doorway doorway in room.doorways)
-								{
-									if (p == doorway.globalPosition || p == doorway.globalPosition + doorway.globalDirection)
-									{
-										isDoorway = true;
-										break;
-									}
-								}
 								if (!isDoorway)
 								{
 									int xx = x - tilemap.mapPosition.x;
@@ -321,6 +316,20 @@ public class LevelGenerator
 								}
 							}
 						}
+					}
+				}
+			}
+
+			foreach (Doorway doorway in room.doorways)
+			{
+				for (int z = doorway.globalPosition.z - 1; z <= doorway.globalPosition.z + 1; z++)
+				{
+					for (int x = doorway.globalPosition.x - 1; x <= doorway.globalPosition.x + 1; x++)
+					{
+						int xx = x - tilemap.mapPosition.x;
+						int yy = doorway.globalPosition.y - 1 - tilemap.mapPosition.y;
+						int zz = z - tilemap.mapPosition.z;
+						walkable[xx + yy * tilemap.mapSize.x + zz * tilemap.mapSize.x * tilemap.mapSize.y] = false;
 					}
 				}
 			}
@@ -335,15 +344,15 @@ public class LevelGenerator
 		}
 
 		int[] costs = new int[tilemap.mapSize.x * tilemap.mapSize.y * tilemap.mapSize.z];
-		Array.Fill(costs, 2);
+		Array.Fill(costs, 1);
 		for (int z = 0; z < tilemap.mapSize.z; z++)
 		{
 			for (int y = 0; y < tilemap.mapSize.y; y++)
 			{
 				for (int x = 0; x < tilemap.mapSize.x; x++)
 				{
-					if (tilemap.getTile(tilemap.mapPosition + new Vector3i(x, y, z)) != 0)
-						costs[x + y * tilemap.mapSize.x + z * tilemap.mapSize.x * tilemap.mapSize.y] = 1;
+					if (tilemap.getRoomID(tilemap.mapPosition + new Vector3i(x, y, z)) != 0)
+						costs[x + y * tilemap.mapSize.x + z * tilemap.mapSize.x * tilemap.mapSize.y] = 2;
 				}
 			}
 		}
@@ -577,6 +586,135 @@ public class LevelGenerator
 		tilemap.setFlag(doorway.globalPosition + new Vector3i(0, 2, 0), TileMap.FLAG_DOORWAY, true);
 		tilemap.setFlag(doorway.globalPosition + new Vector3i(doorway.globalDirection.z, 2, doorway.globalDirection.x), TileMap.FLAG_DOORWAY, true);
 		tilemap.setFlag(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z, 2, -doorway.globalDirection.x), TileMap.FLAG_DOORWAY, true);
+
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(0, -1, 0)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(0, -1, 0), Tile.dirt.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z, -1, doorway.globalDirection.x)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z, -1, doorway.globalDirection.x), Tile.dirt.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z, -1, doorway.globalDirection.x)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z, -1, doorway.globalDirection.x), Tile.dirt.id);
+
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(0, 3, 0)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(0, 3, 0), Tile.cobblestone.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z, 3, doorway.globalDirection.x)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z, 3, doorway.globalDirection.x), Tile.cobblestone.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z, 3, doorway.globalDirection.x)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z, 3, doorway.globalDirection.x), Tile.cobblestone.id);
+
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z * 2, 0, doorway.globalDirection.x * 2)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z * 2, 0, doorway.globalDirection.x * 2), Tile.bricks.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z * 2, 1, doorway.globalDirection.x * 2)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z * 2, 1, doorway.globalDirection.x * 2), Tile.bricks.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z * 2, 2, doorway.globalDirection.x * 2)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(doorway.globalDirection.z * 2, 2, doorway.globalDirection.x * 2), Tile.bricks.id);
+
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z * 2, 0, doorway.globalDirection.x * 2)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z * 2, 0, doorway.globalDirection.x * 2), Tile.bricks.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z * 2, 1, doorway.globalDirection.x * 2)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z * 2, 1, doorway.globalDirection.x * 2), Tile.bricks.id);
+		if (tilemap.getTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z * 2, 2, doorway.globalDirection.x * 2)) == 0)
+			tilemap.setTile(doorway.globalPosition + new Vector3i(-doorway.globalDirection.z * 2, 2, doorway.globalDirection.x * 2), Tile.bricks.id);
+	}
+
+	Item getRandomKey()
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			Item key = Item.GetItemByCategory(ItemCategory.Key, random);
+			if (!usedKeyTypes.Contains(key))
+			{
+				usedKeyTypes.Add(key);
+				return key;
+			}
+		}
+		return null;
+	}
+
+	void lockCertainDoors()
+	{
+		void getAccessibleRooms(Room room, Doorway blockedDoorway, List<Room> accessibleRooms)
+		{
+			foreach (Doorway doorway in room.doorways)
+			{
+				if (doorway.connectedDoorway != null)
+				{
+					Room connectedRoom = doorway.connectedDoorway.room;
+					if (!accessibleRooms.Contains(connectedRoom))
+					{
+						accessibleRooms.Add(connectedRoom);
+						getAccessibleRooms(connectedRoom, blockedDoorway, accessibleRooms);
+					}
+				}
+			}
+		}
+
+		foreach (Room room in rooms)
+		{
+			foreach (Doorway doorway in room.doorways)
+			{
+				if (doorway.connectedDoorway != null)
+				{
+					float lockedChance = 0.25f;
+					if (random.NextSingle() < lockedChance)
+					{
+						doorway.lockedSide = 69420;
+						bool alternativePathAvail = getNumDoorsBetween(doorway, doorway.connectedDoorway.room, true) != -1;
+						doorway.lockedSide = 0;
+
+						if (alternativePathAvail)
+							doorway.lockedSide = random.Next() % 2 * 2 - 1;
+						else
+						{
+							Item key = getRandomKey();
+							doorway.requiredKey = key;
+
+							if (key != null)
+							{
+								// Place required key in one of the accessible rooms
+								List<Room> accessibleRooms = new List<Room>();
+								accessibleRooms.Add(room);
+								getAccessibleRooms(room, doorway, accessibleRooms);
+								MathHelper.ShuffleList(accessibleRooms);
+
+								bool keyPlaced = false;
+								for (int i = 0; i < accessibleRooms.Count; i++)
+								{
+									Room accessibleRoom = accessibleRooms[i];
+									List<Entity> accessibleRoomEntities = new List<Entity>();
+									accessibleRoomEntities.AddRange(accessibleRoom.entities);
+									MathHelper.ShuffleList(accessibleRoomEntities);
+									foreach (Entity entity in accessibleRoomEntities)
+									{
+										if (entity is Creature)
+										{
+											Creature creature = entity as Creature;
+											creature.itemDrops.Add(new Creature.ItemDrop(key.id, 1, 1.0f));
+											keyPlaced = true;
+											break;
+										}
+										else if (entity is ItemContainerEntity)
+										{
+											ItemContainerEntity container = entity as ItemContainerEntity;
+											ItemSlot slot = container.getContainer().addItem(key);
+											if (slot != null)
+											{
+												keyPlaced = true;
+												break;
+											}
+										}
+									}
+									if (keyPlaced)
+										break;
+								}
+
+								if (!keyPlaced)
+									doorway.requiredKey = null;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void closeEmptyDoorways()
@@ -694,8 +832,8 @@ public class LevelGenerator
 						doorway.room.type.sectorType == SectorType.Corridor && doorway.connectedDoorway.room.type.id == 0xFF;
 					bool shouldSpawnDoor = doorway.room.type.id < doorway.connectedDoorway.room.type.id ||
 						doorway.room.type.id == doorway.connectedDoorway.room.type.id && Hash.hash(doorway.room.gridPosition) < Hash.hash(doorway.connectedDoorway.room.gridPosition);
-					bool randomFactor = random.NextSingle() < doorway.spawnChance;
-					shouldSpawnDoor = shouldSpawnDoor && !corridorConnectedToAStar && randomFactor;
+					if (doorway.lockedSide == 0 && doorway.requiredKey == null)
+						shouldSpawnDoor = shouldSpawnDoor && !corridorConnectedToAStar && random.NextSingle() < doorway.spawnChance;
 					doorway.spawnDoor = shouldSpawnDoor;
 
 					if (!corridorConnectedToAStar)
@@ -709,90 +847,6 @@ public class LevelGenerator
 
 	static int mod(int x, int m) => (x % m + m) % m;
 
-	void generateFloorMesh(int x, int y, int z, ModelBatch batch)
-	{
-		Vector2i atlasPos = new Vector2i(0, 0);
-		Vector2i atlasSize = new(8, 8);
-
-		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
-		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
-		int i2 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
-		int i3 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
-
-		batch.addTriangle(i0, i1, i2);
-		batch.addTriangle(i2, i3, i0);
-	}
-
-	void generateCeilingMesh(int x, int y, int z, ModelBatch batch)
-	{
-		Vector2i atlasPos = new Vector2i(1, 1);
-		Vector2i atlasSize = new(8, 8);
-
-		int i0 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
-		int i1 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
-		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
-		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
-
-		batch.addTriangle(i0, i3, i2);
-		batch.addTriangle(i2, i1, i0);
-	}
-
-	void generateWallMeshNorth(int x, int y, int z, ModelBatch batch)
-	{
-		Vector2i atlasPos = new Vector2i(0, 1);
-		Vector2i atlasSize = new(8, 8);
-
-		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
-		int i1 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
-		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
-		int i3 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
-
-		batch.addTriangle(i0, i1, i2);
-		batch.addTriangle(i2, i3, i0);
-	}
-
-	void generateWallMeshSouth(int x, int y, int z, ModelBatch batch)
-	{
-		Vector2i atlasPos = new Vector2i(0, 1);
-		Vector2i atlasSize = new(8, 8);
-
-		int i0 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
-		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
-		int i2 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
-		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
-
-		batch.addTriangle(i0, i1, i2);
-		batch.addTriangle(i2, i3, i0);
-	}
-
-	void generateWallMeshWest(int x, int y, int z, ModelBatch batch)
-	{
-		Vector2i atlasPos = new Vector2i(0, 1);
-		Vector2i atlasSize = new(8, 8);
-
-		int i0 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
-		int i1 = batch.addVertex(new Vector3(x, y, z), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
-		int i2 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
-		int i3 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
-
-		batch.addTriangle(i0, i1, i2);
-		batch.addTriangle(i2, i3, i0);
-	}
-
-	void generateWallMeshEast(int x, int y, int z, ModelBatch batch)
-	{
-		Vector2i atlasPos = new Vector2i(0, 1);
-		Vector2i atlasSize = new(8, 8);
-
-		int i0 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
-		int i1 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
-		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
-		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
-
-		batch.addTriangle(i0, i1, i2);
-		batch.addTriangle(i2, i3, i0);
-	}
-
 	void spawnRooms()
 	{
 		level.rooms.AddRange(rooms);
@@ -800,86 +854,18 @@ public class LevelGenerator
 			level.roomIDMap.Add(rooms[i].id, i);
 
 		ModelBatch batch = new ModelBatch();
-		batch.setMaterial(levelMaterial);
-
-		for (int z = tilemap.mapPosition.z; z < tilemap.mapPosition.z + tilemap.mapSize.z; z++)
-		{
-			for (int x = tilemap.mapPosition.x; x < tilemap.mapPosition.x + tilemap.mapSize.x; x++)
-			{
-				for (int y = tilemap.mapPosition.y; y < tilemap.mapPosition.y + tilemap.mapSize.y; y++)
-				{
-					if (tilemap.isWall(x, y, z))
-						continue;
-
-					Vector3i p = new Vector3i(x, y, z);
-					Matrix tileTransform = Matrix.CreateTranslation(new Vector3(x + 0.5f, y, z + 0.5f));
-
-					Room room = findRoomAtPosition(p);
-
-					if (tilemap.isWall(p + Vector3i.Down))
-					{
-						if (room == null || room.type.generateWallMeshes)
-							generateFloorMesh(x, y, z, batch);
-						//batch.addModel(floor, tileTransform, mod(x, 3) + mod(z, 3) * 3, new Vector2i(3));
-						level.body.addBoxCollider(
-							new Vector3(0.5f),
-							tileTransform.translation + new Vector3(0, -0.5f, 0),
-							Quaternion.Identity);
-					}
-					if (tilemap.isWall(p + Vector3i.Up))
-					{
-						if (room == null || room.type.generateWallMeshes)
-							generateCeilingMesh(x, y, z, batch);
-						//ceilingBatch.addModel(ceiling, Matrix.CreateTranslation(0, 1, 0) * tileTransform, mod(-x, 3) + mod(z, 3) * 3, new Vector2i(3));
-						level.body.addBoxCollider(
-							new Vector3(0.5f),
-							tileTransform.translation + new Vector3(0, 1.5f, 0),
-							Quaternion.Identity);
-					}
-					if (tilemap.isWall(p + Vector3i.Forward))
-					{
-						if (room == null || room.type.generateWallMeshes)
-							generateWallMeshNorth(x, y, z, batch);
-						//wallBatch.addModel(wall, tileTransform, mod(x + z - 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
-						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, -1.0f), Quaternion.Identity);
-					}
-					if (tilemap.isWall(p + Vector3i.Back))
-					{
-						if (room == null || room.type.generateWallMeshes)
-							generateWallMeshSouth(x, y, z, batch);
-						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI), mod(-x + z + 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
-						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, 1.0f), Quaternion.Identity);
-					}
-					if (tilemap.isWall(p + Vector3i.Left))
-					{
-						if (room == null || room.type.generateWallMeshes)
-							generateWallMeshWest(x, y, z, batch);
-						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f), mod(x - 1 - z, 3) + mod(-y, 3) * 3, new Vector2i(3));
-						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(-1.0f, 0.5f, 0.0f), Quaternion.Identity);
-					}
-					if (tilemap.isWall(p + Vector3i.Right))
-					{
-						if (room == null || room.type.generateWallMeshes)
-							generateWallMeshEast(x, y, z, batch);
-						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f), mod(x + 1 + z, 3) + mod(-y, 3) * 3, new Vector2i(3));
-						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(1.0f, 0.5f, 0.0f), Quaternion.Identity);
-					}
-				}
-			}
-		}
+		tilemap.updateMesh(batch, level);
+		level.mesh = batch.createModel();
 
 		foreach (Room room in rooms)
 		{
 			room.spawn(level, this, random);
 		}
-
-		levelGeometry = batch.createModel();
-		level.levelMeshes.Add(new LevelMesh(levelGeometry, Matrix.Identity));
 	}
 
-	void placeLadders()
+	void placeStairsAndLadders()
 	{
-		var getCeilingHeight = (Vector3i p) =>
+		int getCeilingHeight(Vector3i p)
 		{
 			for (int y = p.y; y < tilemap.mapPosition.y + tilemap.mapSize.y; y++)
 			{
@@ -888,7 +874,7 @@ public class LevelGenerator
 			}
 			return -1;
 		};
-		var getElevation = (Vector3i p, int maxHeight) =>
+		int getElevation(Vector3i p, int maxHeight)
 		{
 			bool hasMetAir = false;
 			for (int y = p.y + maxHeight - 1; y >= p.y; y--)
@@ -905,7 +891,7 @@ public class LevelGenerator
 			}
 			return -1;
 		};
-		var isBelowAStarPath = (Vector3i p, int maxHeight) =>
+		bool isBelowAStarPath(Vector3i p, int maxHeight)
 		{
 			for (int y = p.y; y < p.y + maxHeight; y++)
 			{
@@ -928,11 +914,25 @@ public class LevelGenerator
 					Vector3i forward = p + Vector3i.Forward;
 					Vector3i back = p + Vector3i.Back;
 
+					//if (x == -19 && z == -12 && y == 0)
+					//	Debug.Assert(false);
+					//if (x == -19 && z == -11 && y == 0)
+					//	Debug.Assert(false);
+
 					bool isCorridorFloor = tilemap.getFlag(p, TileMap.FLAG_STRUCTURE) && tilemap.getFlag(down, TileMap.FLAG_CORRIDOR_WALL);
 					if (isCorridorFloor)
 					{
 						int ceilingHeight = getCeilingHeight(p);
 						bool isAStarFloor = isBelowAStarPath(p, ceilingHeight);
+						if (tilemap.isWall(left) && !tilemap.isWall(right) && isBelowAStarPath(right, ceilingHeight) && isBelowAStarPath(right + Vector3i.Up, ceilingHeight) && !tilemap.isWall(right + Vector3i.Right) && !tilemap.isWall(right + Vector3i.Forward) && !tilemap.isWall(right + Vector3i.Back))
+							isAStarFloor = true;
+						if (tilemap.isWall(right) && !tilemap.isWall(left) && isBelowAStarPath(left, ceilingHeight) && isBelowAStarPath(left + Vector3i.Up, ceilingHeight) && !tilemap.isWall(left + Vector3i.Left) && !tilemap.isWall(left + Vector3i.Forward) && !tilemap.isWall(left + Vector3i.Back))
+							isAStarFloor = true;
+						if (tilemap.isWall(forward) && !tilemap.isWall(back) && isBelowAStarPath(back, ceilingHeight) && isBelowAStarPath(back + Vector3i.Up, ceilingHeight) && !tilemap.isWall(back + Vector3i.Back) && !tilemap.isWall(back + Vector3i.Left) && !tilemap.isWall(back + Vector3i.Right))
+							isAStarFloor = true;
+						if (tilemap.isWall(back) && !tilemap.isWall(forward) && isBelowAStarPath(forward, ceilingHeight) && isBelowAStarPath(forward + Vector3i.Up, ceilingHeight) && !tilemap.isWall(forward + Vector3i.Forward) && !tilemap.isWall(forward + Vector3i.Left) && !tilemap.isWall(forward + Vector3i.Right))
+							isAStarFloor = true;
+
 						if (isAStarFloor)
 						{
 							Debug.Assert(ceilingHeight != -1);
@@ -1022,6 +1022,7 @@ public class LevelGenerator
 							if (ladder != null)
 							{
 								level.addEntity(ladder, position, rotation);
+								tilemap.setFlag(p, TileMap.FLAG_LADDER, true);
 							}
 						}
 					}
@@ -1129,9 +1130,8 @@ public class LevelGenerator
 
 	public void generateLevel()
 	{
-		Console.WriteLine("Generating level");
+		Console.WriteLine("Generating level on seed " + seed);
 
-		tilemap = new TileMap();
 		level.tilemap = tilemap;
 
 		startingRoom = placeRoom(RoomType.StartingRoom, Matrix.CreateTranslation(0, 0, 30));
@@ -1153,6 +1153,8 @@ public class LevelGenerator
 				connectDoorwayToRandomRoom(doorway);
 		}
 
+		lockCertainDoors();
+
 		createDoorways();
 		createSecretWalls();
 		closeEmptyDoorways();
@@ -1160,7 +1162,7 @@ public class LevelGenerator
 
 		level.init();
 		spawnRooms();
-		placeLadders();
+		placeStairsAndLadders();
 
 		placeLoot();
 	}

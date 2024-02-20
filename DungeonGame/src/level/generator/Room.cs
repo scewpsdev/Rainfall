@@ -22,6 +22,8 @@ public class Doorway
 
 	public bool spawnDoor = false;
 	public bool secret = false;
+	public int lockedSide = 0;
+	public Item requiredKey = null;
 
 
 	public Doorway(int id, Room room, Vector3i position, Vector3i direction, float spawnChance, string doorwayCover = null)
@@ -178,6 +180,13 @@ public class Room
 		//gridSize = new Vector2i(w, d);
 	}
 
+	public Vector3i globalToLocal(Vector3i position)
+	{
+		Vector3 tileCenter = position + new Vector3(0.5f, 0.0f, 0.5f);
+		Vector4 local = transform.inverted * new Vector4(tileCenter, 1.0f);
+		return (Vector3i)Vector3.Floor(local.xyz);
+	}
+
 	bool isDoorway(int x, int y, int z)
 	{
 		foreach (Doorway doorway in doorways)
@@ -188,14 +197,14 @@ public class Room
 		return false;
 	}
 
-	bool getMask(int x, int y, int z)
+	uint getTile(int x, int y, int z)
 	{
 		if (x >= 0 && x < type.size.x && y >= 0 && y < type.size.y && z >= 0 && z < type.size.z)
-			if (type.mask != null)
-				return type.mask[x + y * type.size.x + z * type.size.x * type.size.y];
-			else
-				return true;
-		return false;
+		{
+			if (type.tiles != null)
+				return type.tiles[x + y * type.size.x + z * type.size.x * type.size.y];
+		}
+		return 0;
 	}
 
 	void getRandomLootSelection(out Item[] items, out int[] amounts, Random random)
@@ -245,7 +254,10 @@ public class Room
 				else
 				{
 					DoorType doorType = (DoorType)(random.Next() % 2);
-					addEntity(new WoodenDoor(doorType), globalTransform.translation, globalTransform.rotation);
+					Door door = new WoodenDoor(doorType);
+					door.requiredKey = doorway.requiredKey;
+					door.lockedSide = doorway.lockedSide;
+					addEntity(door, globalTransform.translation, globalTransform.rotation);
 				}
 			}
 		}

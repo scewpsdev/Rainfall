@@ -43,6 +43,7 @@ public class Level
 	public Dictionary<int, int> roomIDMap = new Dictionary<int, int>();
 	public Matrix spawnPoint;
 
+	public Model mesh;
 	public List<LevelMesh> levelMeshes = new List<LevelMesh>();
 	public List<ReflectionProbe> reflections = new List<ReflectionProbe>();
 	List<Entity> entities = new List<Entity>();
@@ -68,6 +69,7 @@ public class Level
 		roomIDMap.Clear();
 		spawnPoint = Matrix.Identity;
 
+		mesh = null;
 		levelMeshes.Clear();
 		reflections.Clear();
 
@@ -91,7 +93,14 @@ public class Level
 
 	public int getRoomIDAtPos(Vector3 position)
 	{
-		return tilemap.getTile((Vector3i)position);
+		return tilemap.getRoomID((Vector3i)position);
+	}
+
+	public Room getRoomByID(int id)
+	{
+		if (roomIDMap.ContainsKey(id))
+			return rooms[roomIDMap[id]];
+		return null;
 	}
 
 	public void addEntity(Entity entity)
@@ -156,6 +165,7 @@ public class Level
 		//GraphicsManager.environmentMap = Resource.GetCubemap("res/texture/cubemap/dungeon_cubemap.png");
 		//GraphicsManager.environmentMapIntensity = 50;
 
+		Renderer.DrawModel(mesh, Matrix.Identity);
 		foreach (LevelMesh mesh in levelMeshes)
 		{
 			if (mesh.model != null)

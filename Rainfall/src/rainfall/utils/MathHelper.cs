@@ -68,6 +68,12 @@ namespace Rainfall
 			return Math.Max(Math.Min(i, max), min);
 		}
 
+		public static float Smoothstep(float edge0, float edge1, float x)
+		{
+			float t = Clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+			return t * t * (3.0f - 2.0f * t);
+		}
+
 		public static Vector4 ARGBToVector(uint argb)
 		{
 			byte r = (byte)((argb & 0xFF0000) >> 16);
