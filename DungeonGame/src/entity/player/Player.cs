@@ -204,7 +204,7 @@ public class Player : Entity
 
 		for (int i = 0; i < 3; i++)
 		{
-			idleState[i] = new AnimationState(viewmodel, "idle", true, 0.5f);
+			idleState[i] = new AnimationState(viewmodel, "idle", true, 0.6f);
 			runState[i] = new AnimationState(viewmodel, "idle", true, 0.2f);
 			sprintState[i] = new AnimationState(viewmodel, "sprint", true, 1.0f);
 			actionState1[i] = new AnimationState(viewmodel, "default", false, 0.2f);

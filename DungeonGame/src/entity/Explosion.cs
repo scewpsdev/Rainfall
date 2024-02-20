@@ -32,7 +32,7 @@ internal class Explosion : Entity
 	{
 		this.shooter = shooter;
 
-		sfxHit = Resource.GetSound("res/item/sfx/ignite.ogg");
+		sfxHit = Resource.GetSound("res/sfx/ignite.ogg");
 	}
 
 	public override void init()
