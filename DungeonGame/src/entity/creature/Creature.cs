@@ -31,7 +31,7 @@ public class Creature : Entity, Hittable
 		Dead,
 	}
 
-	protected struct ItemDrop
+	public struct ItemDrop
 	{
 		public int itemID;
 		public int amount;
@@ -77,7 +77,7 @@ public class Creature : Entity, Hittable
 	protected EnemyAI ai = null;
 	long lastAIUpdate = 0;
 
-	protected List<ItemDrop> itemDrops = new List<ItemDrop>();
+	public List<ItemDrop> itemDrops = new List<ItemDrop>();
 
 	public CreatureState state = CreatureState.Idle;
 	public CreatureStats stats;
@@ -547,11 +547,11 @@ public class Creature : Entity, Hittable
 					int width = 160;
 					int height = 5;
 
-					Renderer.DrawUIRect(screenPosition.x - width / 2, screenPosition.y, width, height, 0xff231507);
-					Renderer.DrawUIRect(screenPosition.x - width / 2, screenPosition.y, width * stats.health / stats.maxHealth, height, 0xffcc3726);
+					GUI.Rect(screenPosition.x - width / 2, screenPosition.y, width, height, 0xff231507);
+					GUI.Rect(screenPosition.x - width / 2, screenPosition.y, width * stats.health / stats.maxHealth, height, 0xffcc3726);
 
 					StringUtils.WriteInteger(healthbarText, stats.health);
-					Renderer.DrawText(screenPosition.x - width / 2, screenPosition.y - 20, 1.0f, healthbarText, healthbarTextFont, 0xffffffff);
+					GUI.Text(screenPosition.x - width / 2, screenPosition.y - 20, 1.0f, healthbarText, healthbarTextFont, 0xffffffff);
 				}
 			}
 
@@ -563,7 +563,7 @@ public class Creature : Entity, Hittable
 
 				int width = healthbarTextFont.measureText(name);
 
-				Renderer.DrawText(screenPosition.x - width / 2, screenPosition.y - 40, 1.0f, name, healthbarTextFont, 0xff999999);
+				GUI.Text(screenPosition.x - width / 2, screenPosition.y - 40, 1.0f, name, healthbarTextFont, 0xff999999);
 			}
 
 			if (hitParticles != null)

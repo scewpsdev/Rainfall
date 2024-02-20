@@ -34,7 +34,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.003",
+			"name":"Cube.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -61,20 +61,20 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"materials_diffuse.png",
-			"uri":"../../../texture/materials/materials_diffuse.png"
+			"name":"door_diffuse.png",
+			"uri":"textures/door_diffuse.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"materials_occlusionRoughnessMetallic.png",
-			"uri":"../../../texture/materials/materials_occlusionRoughnessMetallic.png"
+			"name":"door_occlusionRoughnessMetallic.png",
+			"uri":"textures/door_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":512,
+			"count":520,
 			"max":[
 				1.4999998807907104,
 				2.999999761581421,
@@ -90,13 +90,13 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":512,
+			"count":520,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":512,
+			"count":520,
 			"type":"VEC2"
 		},
 		{
@@ -109,26 +109,26 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6144,
+			"byteLength":6240,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6144,
-			"byteOffset":6144,
+			"byteLength":6240,
+			"byteOffset":6240,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4096,
-			"byteOffset":12288,
+			"byteLength":4160,
+			"byteOffset":12480,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":1728,
-			"byteOffset":16384,
+			"byteOffset":16640,
 			"target":34963
 		}
 	],
@@ -140,7 +140,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":18112,
+			"byteLength":18368,
 			"uri":"door_frame.bin"
 		}
 	]

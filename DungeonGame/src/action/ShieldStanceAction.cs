@@ -33,10 +33,10 @@ internal class ShieldStanceAction : Action
 
 		if (item.category == ItemCategory.Weapon)
 		{
-			animationTransitionDuration = item.parryFramesDelay / 24.0f;
+			animationTransitionDuration = 0.2f; // item.parryFramesDelay / 24.0f;
 
-			parryFramesStartTime = item.parryFramesDelay / 24.0f;
-			parryFramesEndTime = item.parryFramesDelay / 24.0f + item.parryFramesCount / 24.0f;
+			parryFramesStartTime = 0.0f; // item.parryFramesDelay / 24.0f;
+			parryFramesEndTime = item.parryFramesCount / 24.0f; // item.parryFramesDelay / 24.0f + item.parryFramesCount / 24.0f;
 		}
 		else if (item.category == ItemCategory.Shield)
 		{

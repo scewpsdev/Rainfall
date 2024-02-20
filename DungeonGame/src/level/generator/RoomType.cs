@@ -43,12 +43,12 @@ public struct EnemySpawnInfo
 
 public class RoomType
 {
-	public int id;
+	public int id { get; private set; }
 	public Model model;
 	public Model collider;
 	public SectorType sectorType = SectorType.Room;
 	public Vector3i size;
-	public bool[] mask;
+	public uint[] tiles;
 
 	MeshCollider[] meshColliders;
 
@@ -66,18 +66,18 @@ public class RoomType
 	{
 	}
 
-	protected void initMask(bool defaultValue)
+	public void initTiles(uint value)
 	{
-		mask = new bool[size.x * size.y * size.z];
-		Array.Fill(mask, defaultValue);
+		tiles = new uint[size.x * size.y * size.z];
+		Array.Fill(tiles, value);
 	}
 
-	protected void setMask(int x, int y, int z, bool value)
+	public void setTile(int x, int y, int z, uint value)
 	{
-		mask[x + y * size.x + z * size.x * size.y] = value;
+		tiles[x + y * size.x + z * size.x * size.y] = value;
 	}
 
-	protected void fillMask(int x, int y, int z, int width, int height, int depth, bool value)
+	public void fillTiles(int x, int y, int z, int width, int height, int depth, uint value)
 	{
 		for (int zz = z; zz < z + depth; zz++)
 		{
@@ -85,26 +85,26 @@ public class RoomType
 			{
 				for (int xx = x; xx < x + width; xx++)
 				{
-					setMask(xx, yy, zz, value);
+					setTile(xx, yy, zz, value);
 				}
 			}
 		}
 	}
 
-	public bool getMask(int x, int y, int z)
+	public uint getTile(int x, int y, int z)
 	{
 		if (x >= 0 && x < size.x && y >= 0 && y < size.y && z >= 0 && z < size.z)
 		{
-			if (mask != null)
-				return mask[x + y * size.x + z * size.x * size.y];
-			return true;
+			if (tiles != null)
+				return tiles[x + y * size.x + z * size.x * size.y];
+			return 0;
 		}
-		return false;
+		return 0;
 	}
 
-	public bool getMask(Vector3i p)
+	public uint getTile(Vector3i p)
 	{
-		return getMask(p.x, p.y, p.z);
+		return getTile(p.x, p.y, p.z);
 	}
 
 	protected T copy<T>(T type) where T : RoomType
@@ -114,7 +114,7 @@ public class RoomType
 		type.collider = collider;
 		type.sectorType = sectorType;
 		type.size = size;
-		type.mask = mask != null ? mask.Clone() as bool[] : null;
+		type.tiles = tiles != null ? tiles.Clone() as uint[] : null;
 		type.doorwayInfo = new List<DoorwayInfo>(doorwayInfo.Count);
 		type.doorwayInfo.AddRange(doorwayInfo);
 		type.isTemplate = false;
@@ -139,6 +139,7 @@ public class RoomType
 
 	public virtual void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
 	{
+		Debug.Assert(room.type.size.x != 0 && room.type.size.y != 0 && room.type.size.z != 0);
 		if (model != null)
 		{
 			for (int i = 0; i < model.meshCount; i++)
@@ -261,6 +262,11 @@ public class RoomType
 		AddRoomType(new StraightCorridor());
 		AddRoomType(new LCorridor());
 		AddRoomType(new TJunction());
+		AddRoomType(new DiagonalCorridor());
+		AddRoomType(new ZCorridor());
+		AddRoomType(new Crossroads());
+		AddRoomType(new Staircase());
+		AddRoomType(new CircularJunction());
 
 		//LoadRoomType("corridor1", SectorType.Corridor);
 		//LoadRoomType("corridor2", SectorType.Corridor);
@@ -343,8 +349,8 @@ public class RoomType
 
 		Vector3i size = max - min + 1;
 
-		bool[] mask = new bool[size.x * size.y * size.z];
-		Array.Fill(mask, false);
+		uint[] tiles = new uint[size.x * size.y * size.z];
+		Array.Fill(tiles, Tile.bricks.id);
 		foreach (Vector3i p in path)
 		{
 			Vector3i local = p - min;
@@ -357,7 +363,7 @@ public class RoomType
 						if (!tilemap.getFlag(min + new Vector3i(x, y, z), TileMap.FLAG_ROOM_WALL) &&
 							!tilemap.getFlag(min + new Vector3i(x, y, z), TileMap.FLAG_STRUCTURE))
 						{
-							mask[x + y * size.x + z * size.x * size.y] = true;
+							tiles[x + y * size.x + z * size.x * size.y] = 0;
 						}
 					}
 				}
@@ -376,13 +382,13 @@ public class RoomType
 		type.collider = null;
 		type.sectorType = SectorType.Corridor;
 		type.size = size;
-		type.mask = mask;
+		type.tiles = tiles;
 		type.doorwayInfo = doorwayPositions;
 		type.isTemplate = false;
 		type.originalTemplate = null;
 		type.path = path;
 
-		transform = Matrix.CreateTranslation(min * LevelGenerator.TILE_SIZE);
+		transform = Matrix.CreateTranslation((Vector3)min);
 
 		return type;
 	}
@@ -413,7 +419,6 @@ public class StartingRoom : RoomType
 	{
 		sectorType = SectorType.Room;
 		size = new Vector3i(21, 4, 21);
-		id = 1;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
@@ -423,8 +428,8 @@ public class StartingRoom : RoomType
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(15, 0, 7), new Vector3i(1, 0, 0)));
 		//doorwayPositions.Add(new DoorwayTransform(new Vector3i(-1, 0, 7), new Vector3i(-1, 0, 0)));
 
-		model = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell.gltf");
-		collider = Resource.GetModel("res/level/room/dungeon_cell/dungeon_cell_collider.gltf");
+		model = Resource.GetModel("res/level/level1/dungeon_cell/dungeon_cell.gltf");
+		collider = Resource.GetModel("res/level/level1/dungeon_cell/dungeon_cell_collider.gltf");
 	}
 
 	public override void onSpawn(Room room, Level level, LevelGenerator generator, Random random)
@@ -528,14 +533,13 @@ public class BossRoom : RoomType
 		: base()
 	{
 		sectorType = SectorType.Room;
-		id = 2;
 
 		size = new Vector3i(bossRoomSize.x, bossRoomSize.y, bossRoomSize.z + 2 + preRoomSize.z);
 
-		initMask(false);
-		fillMask(0, 0, 0, bossRoomSize.x, bossRoomSize.y, bossRoomSize.z, true);
-		fillMask(bossRoomSize.x / 2 - 1, 0, bossRoomSize.z, 3, 3, 2, true);
-		fillMask(bossRoomSize.x / 2 - preRoomSize.x / 2, 0, bossRoomSize.z + 2, preRoomSize.x, preRoomSize.y, preRoomSize.z, true);
+		initTiles(Tile.bricks.id);
+		fillTiles(0, 0, 0, bossRoomSize.x, bossRoomSize.y, bossRoomSize.z, 0);
+		fillTiles(bossRoomSize.x / 2 - 1, 0, bossRoomSize.z, 3, 3, 2, 0);
+		fillTiles(bossRoomSize.x / 2 - preRoomSize.x / 2, 0, bossRoomSize.z + 2, preRoomSize.x, preRoomSize.y, preRoomSize.z, 0);
 		//fillMask(0, 0, 0, size.x, size.y, 2, false);
 		//fillMask(size.x / 2 - 1, 0, 0, 3, 3, 2, true);
 
@@ -581,7 +585,6 @@ public class MainRoom : RoomType
 	{
 		sectorType = SectorType.Room;
 		size = new Vector3i(20, 50, 20);
-		id = 3;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
@@ -591,7 +594,7 @@ public class MainRoom : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 16, 14), Vector3i.Right));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(1, 9, 20), Vector3i.Back));
 
-		model = Resource.GetModel("res/level/room/level1/pillar_foundation/pillar_foundation.gltf");
+		model = Resource.GetModel("res/level/level1/pillar_foundation/pillar_foundation.gltf");
 		collider = model;
 	}
 
@@ -621,21 +624,21 @@ public class MainRoom : RoomType
 		}
 
 		Debug.Assert(room.doorways[2].connectedDoorway != null);
-		if (!generator.isDoorwayConnectedToRoom(room.doorways[2].connectedDoorway, room))
+		//if (!generator.isDoorwayConnectedToRoom(room.doorways[2].connectedDoorway, room, true))
 		{
 			room.addEntity(new ResizableLadder(14), room.transform * new Vector3(0.5f, 9, 3.5f), Quaternion.FromAxisAngle(Vector3.Up, MathF.PI * 0.5f));
 		}
 
-		GraphicsManager.skybox = Resource.GetCubemap("res/level/room/level1/pillar_foundation/spiaggia_di_mondello_1k.hdr");
+		GraphicsManager.skybox = Resource.GetCubemap("res/level/level1/pillar_foundation/spiaggia_di_mondello_1k.hdr");
 		GraphicsManager.skyboxIntensity = 5.0f;
-		//GraphicsManager.environmentMap = Resource.GetCubemap("res/level/room/level1/pillar_foundation/spiaggia_di_mondello_1k.hdr");
+		//GraphicsManager.environmentMap = Resource.GetCubemap("res/level/level1/pillar_foundation/spiaggia_di_mondello_1k.hdr");
 
 		//GraphicsManager.sun = new DirectionalLight(new Vector3(-1, -1, -1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 10.0f, Renderer.graphics);
 
 		ReflectionProbe reflection = new ReflectionProbe(64, room.transform.translation + new Vector3(10, 25, 10), new Vector3(20.1f, 50.1f, 20.1f), room.transform.translation + new Vector3(10, 1, 10), Renderer.graphics);
 		level.reflections.Add(reflection);
 
-		room.addEntity(new ReverbZone(new Vector3(20, 50, 20), false, Resource.GetSound("res/level/hub/ambience.ogg")), room.transform);
+		room.addEntity(new ReverbZone(new Vector3(20, 50, 20), true, Resource.GetSound("res/level/hub/ambience.ogg")), room.transform);
 
 		//level.spawnPoint = room.transform * Matrix.CreateTranslation(2.5f, 0.0f, 12.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 	}
@@ -1066,7 +1069,7 @@ public class FountainRoom : RoomType
 		//RoomInterior interior = RoomInterior.GetFitting(room, random);
 		//interior.initialize(room, level, random);
 
-		Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f) * LevelGenerator.TILE_SIZE;
+		Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f);
 		level.addEntity(new Fountain(), roomCenter, Quaternion.Identity);
 	}
 }
@@ -1121,7 +1124,7 @@ public class PillarRoom : RoomType
 		{
 			for (int x = 0; x < numPillarsX; x++)
 			{
-				Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f) * LevelGenerator.TILE_SIZE;
+				Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f);
 				Vector3 position = roomCenter
 					+ new Vector3(
 					(x - 0.5f * (numPillarsX - 1)) * gap,
@@ -1139,7 +1142,6 @@ public class StorageRoom : RoomType
 	public StorageRoom()
 	{
 		size = new Vector3i(8, 5, 11);
-		id = 4;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
@@ -1148,8 +1150,8 @@ public class StorageRoom : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left, "___DoorwayCover1"));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(8, 0, 9), Vector3i.Right, "___DoorwayCover2"));
 
-		model = Resource.GetModel("res/level/room/level1/storage_room/storage_room.gltf");
-		collider = Resource.GetModel("res/level/room/level1/storage_room/storage_room_collider.gltf");
+		model = Resource.GetModel("res/level/level1/storage_room/storage_room.gltf");
+		collider = Resource.GetModel("res/level/level1/storage_room/storage_room_collider.gltf");
 	}
 
 	public override SectorType getNextSectorType(Doorway doorway, Random random)
@@ -1182,7 +1184,6 @@ public class StudyAlcove : RoomType
 	public StudyAlcove()
 	{
 		size = new Vector3i(5, 3, 7);
-		id = 5;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
@@ -1190,8 +1191,8 @@ public class StudyAlcove : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(5, 0, 2), Vector3i.Right, "___DoorwayCover0"));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(2, 0, 7), Vector3i.Back, "___DoorwayCover1"));
 
-		model = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove.gltf");
-		collider = Resource.GetModel("res/level/room/level1/study_alcove/study_alcove_collider.gltf");
+		model = Resource.GetModel("res/level/level1/study_alcove/study_alcove.gltf");
+		collider = Resource.GetModel("res/level/level1/study_alcove/study_alcove_collider.gltf");
 	}
 
 	public override SectorType getNextSectorType(Doorway doorway, Random random)
@@ -1213,7 +1214,6 @@ public class Prison : RoomType
 	public Prison()
 	{
 		size = new Vector3i(15, 4, 17);
-		id = 6;
 
 		allowSecretDoorConnections = false;
 		generateWallMeshes = false;
@@ -1222,8 +1222,8 @@ public class Prison : RoomType
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(7, 0, 17), Vector3i.Back, "___DoorwayCover1"));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(15, 0, 2), Vector3i.Right, "___DoorwayCover2"));
 
-		model = Resource.GetModel("res/level/room/level1/prison/prison.gltf");
-		collider = Resource.GetModel("res/level/room/level1/prison/prison_collider.gltf");
+		model = Resource.GetModel("res/level/level1/prison/prison.gltf");
+		collider = Resource.GetModel("res/level/level1/prison/prison_collider.gltf");
 	}
 
 	public override SectorType getNextSectorType(Doorway doorway, Random random)
@@ -1269,25 +1269,13 @@ public class LCorridor : RoomType
 		int corridorWidth = 3;
 		int ceilingHeight = 4;
 		type.size = new Vector3i(corridorLengthX, ceilingHeight, corridorLengthZ);
-		type.mask = new bool[corridorLengthX * ceilingHeight * corridorLengthZ];
-		for (int x = 0; x < corridorLengthX; x++)
-		{
-			for (int z = 0; z < corridorWidth; z++)
-			{
-				for (int y = 0; y < ceilingHeight; y++)
-					type.mask[x + y * type.size.x + z * type.size.x * type.size.y] = true;
-			}
-		}
-		for (int x = corridorLengthX - corridorWidth; x < corridorLengthX; x++)
-		{
-			for (int z = corridorWidth; z < corridorLengthZ; z++)
-			{
-				for (int y = 0; y < ceilingHeight; y++)
-					type.mask[x + y * type.size.x + z * type.size.x * type.size.y] = true;
-			}
-		}
+		type.initTiles(Tile.bricks.id);
+		type.fillTiles(0, 0, 0, corridorLengthX, ceilingHeight, corridorWidth, 0);
+		type.fillTiles(corridorLengthX - corridorWidth, 0, corridorWidth, corridorWidth, ceilingHeight, corridorLengthZ - corridorWidth, 0);
+
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(corridorLengthX - 2, 0, corridorLengthZ), new Vector3i(0, 0, 1)));
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 1), new Vector3i(-1, 0, 0)));
+
 		return type;
 	}
 }
@@ -1311,28 +1299,151 @@ public class TJunction : RoomType
 		int ceilingHeight = 4;
 
 		type.size = new Vector3i(width, ceilingHeight, height);
-		type.mask = new bool[width * ceilingHeight * height];
-		for (int x = 0; x < width; x++)
-		{
-			for (int z = 0; z < corridorWidth; z++)
-			{
-				for (int y = 0; y < ceilingHeight; y++)
-					type.mask[x + y * type.size.x + z * type.size.x * type.size.y] = true;
-			}
-		}
-		for (int x = width / 2 - corridorWidth / 2; x < width / 2 - corridorWidth / 2 + corridorWidth; x++)
-		{
-			for (int z = corridorWidth; z < height; z++)
-			{
-				for (int y = 0; y < ceilingHeight; y++)
-					type.mask[x + y * type.size.x + z * type.size.x * type.size.y] = true;
-			}
-		}
+		type.initTiles(Tile.bricks.id);
+		type.fillTiles(0, 0, 0, width, ceilingHeight, corridorWidth, 0);
+		type.fillTiles(width / 2 - corridorWidth / 2, 0, corridorWidth, corridorWidth, ceilingHeight, height - corridorWidth, 0);
 
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(width / 2, 0, height), new Vector3i(0, 0, 1)));
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, corridorWidth / 2), new Vector3i(-1, 0, 0)));
 		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(width, 0, corridorWidth / 2), new Vector3i(1, 0, 0)));
 
 		return type;
+	}
+}
+
+public class DiagonalCorridor : RoomType
+{
+	public DiagonalCorridor()
+	{
+		size = new Vector3i(12, 3, 12);
+		sectorType = SectorType.Corridor;
+
+		initTiles(0);
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int x = 0; x < size.x; x++)
+			{
+				int d = x + z;
+				fillTiles(x, 0, z, 1, size.y, 1, d >= 8 && d <= 14 ? 0 : Tile.bricks.id);
+			}
+		}
+
+		//model = Resource.GetModel("res/level/level1/corridor_diagonal/corridor_diagonal.gltf");
+		//collider = model;
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(1, 0, 12), Vector3i.Back, "___DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(12, 0, 1), Vector3i.Right, "___DoorwayCover1"));
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
+	}
+
+	public override SectorType getNextSectorType(Doorway doorway, Random random)
+	{
+		return random.Next() % 4 == 0 ? SectorType.Room : SectorType.Corridor;
+	}
+}
+
+public class ZCorridor : RoomType
+{
+	public ZCorridor()
+	{
+		sectorType = SectorType.Corridor;
+		isTemplate = true;
+	}
+
+	public override RoomType createTemplateInstance(Random random)
+	{
+		RoomType type = copy(new ZCorridor());
+		int corridorLengthX = MathHelper.RandomInt(4, 16, random);
+		int corridorLengthZ = MathHelper.RandomInt(5, 20, random);
+		int startX = MathHelper.RandomInt(1, corridorLengthX - 2, random);
+		int endX = MathHelper.RandomInt(1, corridorLengthX - 2, random);
+		int crossZ = MathHelper.RandomInt(2, corridorLengthZ - 3, random);
+		int corridorWidth = 3;
+		int ceilingHeight = 4;
+		type.size = new Vector3i(corridorLengthX, ceilingHeight, corridorLengthZ);
+		type.initTiles(Tile.bricks.id);
+		type.fillTiles(startX - 1, 0, 0, corridorWidth, ceilingHeight, crossZ + 1, 0);
+		type.fillTiles(endX - 1, 0, crossZ - 1, corridorWidth, ceilingHeight, corridorLengthZ - crossZ + 1, 0);
+		type.fillTiles(Math.Min(startX, endX) - 1, 0, crossZ - 1, Math.Abs(endX - startX) + 2, ceilingHeight, 3, 0);
+
+		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(startX, 0, -1), Vector3i.Forward));
+		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(endX, 0, corridorLengthZ), Vector3i.Back));
+
+		return type;
+	}
+}
+
+public class Crossroads : RoomType
+{
+	public Crossroads()
+	{
+		sectorType = SectorType.Corridor;
+		isTemplate = true;
+	}
+
+	public override RoomType createTemplateInstance(Random random)
+	{
+		RoomType type = copy(new Crossroads());
+		int width = MathHelper.RandomInt(5, 20, random);
+		int depth = MathHelper.RandomInt(5, 20, random);
+		int vertX = MathHelper.RandomInt(2, width - 3, random);
+		int horizZ = MathHelper.RandomInt(2, depth - 3, random);
+		int corridorWidth = 3;
+		int ceilingHeight = 4;
+		type.size = new Vector3i(width, ceilingHeight, depth);
+		type.initTiles(Tile.bricks.id);
+		type.fillTiles(vertX - 1, 0, 0, corridorWidth, ceilingHeight, depth, 0);
+		type.fillTiles(0, 0, horizZ - 1, width, ceilingHeight, corridorWidth, 0);
+		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, horizZ), Vector3i.Left));
+		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(width, 0, horizZ), Vector3i.Right));
+		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(vertX, 0, -1), Vector3i.Forward));
+		type.doorwayInfo.Add(new DoorwayInfo(new Vector3i(vertX, 0, depth), Vector3i.Back));
+		return type;
+	}
+}
+
+public class Staircase : RoomType
+{
+	public Staircase()
+	{
+		size = new Vector3i(20, 14, 20);
+		sectorType = SectorType.Corridor;
+
+		model = Resource.GetModel("res/level/level1/staircase/staircase.gltf");
+		collider = model;
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(10, 0, 20), Vector3i.Back, "___DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(10, 0, -1), Vector3i.Forward, "___DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(10, 10, -1), Vector3i.Forward, "___DoorwayCover2"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 10, 3), Vector3i.Right, "___DoorwayCover3"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 6, 10), Vector3i.Left, "___DoorwayCover4"));
+
+		allowSecretDoorConnections = false;
+		generateWallMeshes = false;
+	}
+}
+
+public class CircularJunction : RoomType
+{
+	public CircularJunction()
+	{
+		size = new Vector3i(13, 4, 13);
+		sectorType = SectorType.Corridor;
+
+		//model = Resource.GetModel("res/level/level1/circular_junction/circular_junction.gltf");
+		//collider = model;
+
+		//allowSecretDoorConnections = false;
+		//generateWallMeshes = false;
+
+		initTiles(0);
+		fillTiles(4, 0, 4, 5, 4, 5, Tile.bricks.id);
+
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(6, 0, 13), Vector3i.Back, "___DoorwayCover0"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(13, 0, 6), Vector3i.Right, "___DoorwayCover1"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(6, 0, -1), Vector3i.Forward, "___DoorwayCover2"));
+		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 6), Vector3i.Left, "___DoorwayCover3"));
 	}
 }

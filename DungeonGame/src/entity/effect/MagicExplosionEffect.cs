@@ -45,7 +45,7 @@ internal class MagicExplosionEffect : Entity
 		//particles.numFrames = 1;
 		//particles.emissionRate = 0.0f;
 
-		sfxHit = Resource.GetSound("res/item/spell/spell_hit.ogg");
+		sfxHit = Resource.GetSound("res/sfx/splash.ogg");
 
 		birthTime = Time.currentTime;
 	}

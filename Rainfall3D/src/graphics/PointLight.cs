@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class PointLight
 {
-	const int RESOLUTION = 256;
+	const int RESOLUTION = 512;
 
 
 	public Vector3 position;

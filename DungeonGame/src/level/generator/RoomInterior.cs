@@ -182,7 +182,7 @@ public class FountainRoom_ : RoomInterior
 
 	public override void initialize(Room room, Level level, Random random)
 	{
-		Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f) * LevelGenerator.TILE_SIZE;
+		Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f);
 		level.addEntity(new Fountain(), roomCenter, Quaternion.Identity);
 	}
 }
@@ -210,7 +210,7 @@ public class PillarRoom_ : RoomInterior
 		{
 			for (int x = 0; x < numPillarsX; x++)
 			{
-				Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f) * LevelGenerator.TILE_SIZE;
+				Vector3 roomCenter = (room.gridPosition + room.gridSize * new Vector3i(1, 0, 1) * 0.5f);
 				Vector3 position = roomCenter
 					+ new Vector3(
 					(x - 0.5f * (numPillarsX - 1)) * gap,

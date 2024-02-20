@@ -8,23 +8,21 @@ using System.Threading.Tasks;
 
 internal class SpellCastAction : Action
 {
-	Item staff;
 	Item spell;
 	int handID;
 
 	bool[] casted;
 
 
-	public SpellCastAction(Item staff, Item spell, int handID)
+	public SpellCastAction(Item spell, int handID)
 		: base(ActionType.SpellCast)
 	{
-		this.staff = staff;
 		this.spell = spell;
 		this.handID = handID;
 
 		casted = new bool[spell.spellProjectiles.Length];
 
-		if (staff.twoHanded)
+		if (spell.twoHanded)
 		{
 			animationName[0] = "spell_cast";
 			animationName[1] = "spell_cast";
@@ -40,6 +38,9 @@ internal class SpellCastAction : Action
 		mirrorAnimation = handID == 1;
 
 		movementSpeedMultiplier = 0.5f;
+
+		if (spell.sfxCast != null)
+			addSoundEffect(spell.sfxCast, handID, spell.sfxCastTime, true);
 	}
 
 	public override void update(Player player)
@@ -51,8 +52,8 @@ internal class SpellCastAction : Action
 			{
 				Vector3 castDirection = player.lookDirection;
 				Vector3 castPosition = player.lookOrigin;
-
-				Vector3 offset = (player.getWeaponTransform(handID) * Matrix.CreateTranslation(new Vector3(0, -0.4f, 0))).translation - castPosition;
+				Vector3 handPosition = player.getWeaponTransform(handID).translation;
+				Vector3 offset = handPosition - castPosition;
 
 				Entity projectile = null;
 				if (spell.spellProjectiles[i].type == SpellProjectileType.Arrow)
@@ -64,10 +65,15 @@ internal class SpellCastAction : Action
 				}
 				if (spell.spellProjectiles[i].type == SpellProjectileType.Homing)
 					projectile = new HomingOrb(offset, player, spell.baseDamage);
+				if (spell.spellProjectiles[i].type == SpellProjectileType.Fireball)
+					projectile = new Fireball(castDirection, offset, player, spell.baseDamage);
 
 				DungeonGame.instance.level.addEntity(projectile, castPosition, Quaternion.Identity);
 
 				player.stats.consumeMana(spell.spellManaCost);
+
+				if (spell.spellProjectiles[i].sfx != null)
+					Audio.Play(spell.spellProjectiles[i].sfx, handPosition);
 
 				casted[i] = true;
 			}

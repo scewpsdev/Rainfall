@@ -92,7 +92,7 @@ internal class WallTorch : Entity, Interactable
 		smokeParticles = new ParticleSystem(32);
 		smokeParticles.emissionRate = 0;
 
-		igniteSound = Resource.GetSound("res/item/utility/torch/sfx/ignite.ogg");
+		igniteSound = Resource.GetSound("res/sfx/ignite.ogg");
 
 		flickerNoise = new Simplex((uint)Time.currentTime, 3);
 	}

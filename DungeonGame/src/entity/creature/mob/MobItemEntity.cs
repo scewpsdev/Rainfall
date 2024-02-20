@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 internal class MobItemEntity
 {
 	public Item item;
-	public ParticleSystem particles;
+	public List<ParticleSystem> particles;
 	public RigidBody hitbox;
 
 	Creature creature;
@@ -25,7 +25,7 @@ internal class MobItemEntity
 		this.creature = creature;
 		this.handID = handID;
 
-		particles = new ParticleSystem(250);
+		particles = new List<ParticleSystem>();
 		hitbox = new RigidBody(creature, RigidBodyType.Kinematic);
 	}
 
@@ -38,17 +38,17 @@ internal class MobItemEntity
 	{
 		this.item = item;
 
-		if (item != null && item.particles != null)
-		{
-			particles.copyData(item.particles);
-		}
-		else
-		{
-			particles.emissionRate = 0.0f;
-		}
+		particles.Clear();
 
 		if (item != null)
 		{
+			foreach (ParticleSystem itemParticles in item.particleSystems)
+			{
+				ParticleSystem particleSystem = new ParticleSystem(itemParticles.maxParticles);
+				particleSystem.copyData(itemParticles);
+				particles.Add(particleSystem);
+			}
+
 			foreach (Collider collider in item.colliders)
 			{
 				if (collider.type == ColliderType.Box)
@@ -150,7 +150,10 @@ internal class MobItemEntity
 			}
 		}
 
-		particles.update();
+		foreach (ParticleSystem particleSystem in particles)
+		{
+			particleSystem.update();
+		}
 	}
 
 	public void setTransform(Matrix transform)
@@ -158,7 +161,12 @@ internal class MobItemEntity
 		//position = transform.translation;
 		//rotation = transform.rotation;
 		this.transform = transform;
-		particles.transform = transform;
+
+		foreach (ParticleSystem particleSystem in particles)
+		{
+			particleSystem.transform = transform;
+		}
+
 		hitbox.setTransform(transform.translation, transform.rotation);
 	}
 
@@ -174,7 +182,10 @@ internal class MobItemEntity
 				Renderer.DrawLight(lightTransform.translation, light.color);
 			}
 
-			particles.draw(graphics);
+			foreach (ParticleSystem particleSystem in particles)
+			{
+				particleSystem.draw(graphics);
+			}
 		}
 	}
 }

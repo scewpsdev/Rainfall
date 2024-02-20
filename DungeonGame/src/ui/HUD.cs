@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -18,6 +19,9 @@ struct ItemCollectedNotification
 
 public class HUD
 {
+	const float MESSAGE_SHOW_DURATION = 3.0f;
+
+
 	Player player;
 	GraphicsDevice graphics;
 
@@ -27,13 +31,18 @@ public class HUD
 	Texture minimap;
 	uint[] minimapPixels;
 
-	Font stackSizeFont, xpFont, notificationFont;
+	Font stackSizeFont, xpFont, notificationFont, crosshairMessageFont;
 
 	long lastHit = 0;
+
+	string currentMessage = null;
+	long showMessageTime = 0;
 
 	public float fadeout = 1.0f;
 
 	List<ItemCollectedNotification> collectedItems = new List<ItemCollectedNotification>();
+
+	HashSet<int> exploredRooms = new HashSet<int>();
 
 
 	public HUD(Player player, GraphicsDevice graphics)
@@ -47,12 +56,15 @@ public class HUD
 		stackSizeFont = FontManager.GetFont("baskerville", 20.0f, true);
 		xpFont = FontManager.GetFont("baskerville", 20.0f, true);
 		notificationFont = FontManager.GetFont("baskerville", 18.0f, true);
+		crosshairMessageFont = FontManager.GetFont("baskerville", 17, true);
 	}
 
 	public void init(Level level)
 	{
 		minimap = graphics.createTexture(level.tilemap.mapSize.x, level.tilemap.mapSize.z, TextureFormat.BGRA8, (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp);
 		minimapPixels = new uint[minimap.width * minimap.height];
+		Array.Fill(minimapPixels, 0xFF000000);
+		graphics.setTextureData(minimap, 0, 0, minimap.width, minimap.height, minimapPixels);
 	}
 
 	public void destroy()
@@ -82,19 +94,31 @@ public class HUD
 		collectedItems.Add(new ItemCollectedNotification() { item = item, amount = amount, timeCollected = timeCollected });
 	}
 
+	public void showMessage(string msg)
+	{
+		showMessageTime = Time.currentTime;
+		currentMessage = msg;
+	}
+
 	void renderCrosshair()
 	{
 		if (player.interactableInFocus != null)
 		{
 			int width = crosshairHand.info.width / 2;
 			int height = crosshairHand.info.height / 2;
-			Renderer.DrawUITexture(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - height / 2, width, height, crosshairHand);
+			GUI.Texture(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - height / 2, width, height, crosshairHand);
 		}
 		else
 		{
 			int width = crosshair.info.width;
 			int height = crosshair.info.height;
-			Renderer.DrawUITexture(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - height / 2, width, height, crosshair);
+			GUI.Texture(Display.viewportSize.x / 2 - width / 2, Display.viewportSize.y / 2 - height / 2, width, height, crosshair);
+		}
+
+		if ((Time.currentTime - showMessageTime) / 1e9f < MESSAGE_SHOW_DURATION && currentMessage != null)
+		{
+			int width = crosshairMessageFont.measureText(currentMessage);
+			GUI.Text(Display.width / 2 - width / 2, Display.height / 2 + 35, 1.0f, currentMessage, crosshairMessageFont, 0xFF888888);
 		}
 	}
 
@@ -106,11 +130,11 @@ public class HUD
 		int height = 10;
 		int padding = 2;
 
-		Renderer.DrawUIRect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
+		GUI.Rect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
 		//Renderer.DrawUIRect(x - padding / 2, y - padding / 2, width + padding, height + padding, 0xff222222);
 
-		Renderer.DrawUIRect(x, y, width, height, 0xff331111);
-		Renderer.DrawUIRect(x, y, (int)((float)player.stats.health / player.stats.maxHealth * width), height, 0xffcc3333);
+		GUI.Rect(x, y, width, height, 0xff331111);
+		GUI.Rect(x, y, (int)((float)player.stats.health / player.stats.maxHealth * width), height, 0xffcc3333);
 	}
 
 	void renderStaminaBar()
@@ -121,11 +145,11 @@ public class HUD
 		int height = 8;
 		int padding = 2;
 
-		Renderer.DrawUIRect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
+		GUI.Rect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
 		//Renderer.DrawUIRect(x - padding / 2, y - padding / 2, width + padding, height + padding, 0xff222222);
 
-		Renderer.DrawUIRect(x, y, width, height, 0xff1c241d);
-		Renderer.DrawUIRect(x, y, (int)(player.stats.stamina / player.stats.maxStamina * width), height, 0xff478749);
+		GUI.Rect(x, y, width, height, 0xff1c241d);
+		GUI.Rect(x, y, (int)(player.stats.stamina / player.stats.maxStamina * width), height, 0xff478749);
 	}
 
 	void renderManaBar()
@@ -136,25 +160,25 @@ public class HUD
 		int height = 10;
 		int padding = 2;
 
-		Renderer.DrawUIRect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
+		GUI.Rect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
 		//Renderer.DrawUIRect(x - padding / 2, y - padding / 2, width + padding, height + padding, 0xff222222);
 
-		Renderer.DrawUIRect(x, y, width, height, 0xff1C1D24);
-		Renderer.DrawUIRect(x, y, (int)((float)player.stats.mana / player.stats.maxMana * width), height, 0xff7780f7);
+		GUI.Rect(x, y, width, height, 0xff1C1D24);
+		GUI.Rect(x, y, (int)((float)player.stats.mana / player.stats.maxMana * width), height, 0xff7780f7);
 	}
 
 	void renderItemSlot(int x, int y, int width, int height, Item item, int stackSize)
 	{
-		Renderer.DrawUIRect(x, y, width, height, 0xff111111);
+		GUI.Rect(x, y, width, height, 0xff111111);
 
 		if (item != null)
 		{
-			Renderer.DrawUITexture(x, y, width, height, item.icon);
+			GUI.Texture(x, y, width, height, item.icon);
 
 			if (item.stackable)
 			{
 				string stackSizeText = stackSize.ToString();
-				Renderer.DrawText(x + width - stackSizeFont.measureText(stackSizeText) - 8, y + height - (int)stackSizeFont.size, 1.0f, stackSizeText, stackSizeFont, 0xffaaaaaa);
+				GUI.Text(x + width - stackSizeFont.measureText(stackSizeText) - 8, y + height - (int)stackSizeFont.size, 1.0f, stackSizeText, stackSizeFont, 0xffaaaaaa);
 			}
 		}
 	}
@@ -268,11 +292,11 @@ public class HUD
 		int height = 28;
 		int padding = 2;
 
-		Renderer.DrawUIRect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xff888888);
-		Renderer.DrawUIRect(x, y, width, height, 0xff222222);
+		GUI.Rect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xff888888);
+		GUI.Rect(x, y, width, height, 0xff222222);
 
 		string text = player.stats.xp.ToString();
-		Renderer.DrawText(x + width - xpFont.measureText(text) - 3 * padding, y + (int)((height - xpFont.size) / 2.0f), 1.0f, text, xpFont, 0xffcccccc);
+		GUI.Text(x + width - xpFont.measureText(text) - 3 * padding, y + (int)((height - xpFont.size) / 2.0f), 1.0f, text, xpFont, 0xffcccccc);
 	}
 
 	void renderCollectedItems()
@@ -306,61 +330,109 @@ public class HUD
 			int x = 10;
 			int y = Display.viewportSize.y - 160 + (-collectedItems.Count + i) * (height + windowSpacing);
 
-			Renderer.DrawUIRect(x, y, width, height, 0xff111111);
+			GUI.Rect(x, y, width, height, 0xff111111);
 			{
-				Renderer.DrawUITexture(x + padding, y + padding, iconSize, iconSize, item.icon);
+				GUI.Texture(x + padding, y + padding, iconSize, iconSize, item.icon);
 
 				if (notif.amount > 1 || notif.item.stackable)
-					Renderer.DrawText(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)stackSizeFont.size, 1.0f, notif.amount.ToString(), stackSizeFont, 0xffaaaaaa);
+					GUI.Text(x + padding + iconSize - padding * 3, y + padding + iconSize - (int)stackSizeFont.size, 1.0f, notif.amount.ToString(), stackSizeFont, 0xffaaaaaa);
 
-				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, notificationFont, 0xffaaaaaa);
-				Renderer.DrawText(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)notificationFont.size, 1.0f, item.typeSpecifier, notificationFont, 0xff777777);
+				GUI.Text(x + padding + iconSize + padding * 5, y + padding * 2, 1.0f, item.displayName, notificationFont, 0xffaaaaaa);
+				GUI.Text(x + padding + iconSize + padding * 5, y + padding + iconSize - padding - (int)notificationFont.size, 1.0f, item.typeSpecifier, notificationFont, 0xff777777);
 			}
 		}
 	}
 
-	void renderMinimap()
+	void updateMinimap()
 	{
-		const uint BACKGROUND_COLOR = 0xFF000000; // 0xFFD3B48B;
-		const uint PLAYER_COLOR = 0xFFFF0000;
 		const uint ROOM_COLOR = 0xFF685A49;
-		const uint CORRIDOR_COLOR = 0xFF685A49;
-		const uint CORRIDOR_ASTAR_COLOR = 0xFF685A49;
 
 		Level level = DungeonGame.instance.level;
 
-		int playerY = (int)MathF.Floor(player.position.y - level.tilemap.mapPosition.y + 1.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
+		int tile = level.tilemap.getRoomID((Vector3i)Vector3.Floor(player.position));
+		if (tile != 0)
+		{
+			bool roomExplored = exploredRooms.Contains(tile);
+			if (!roomExplored)
+			{
+				Room room = level.getRoomByID(tile);
+				for (int z = room.gridPosition.z; z < room.gridPosition.z + room.gridSize.z; z++)
+				{
+					for (int x = room.gridPosition.x; x < room.gridPosition.x + room.gridSize.x; x++)
+					{
+						for (int y = room.gridPosition.y; y < room.gridPosition.y + room.gridSize.y; y++)
+						{
+							Vector3i local = room.globalToLocal(new Vector3i(x, y, z));
+							if (room.type.getTile(local) == 0)
+							{
+								int xx = x - level.tilemap.mapPosition.x;
+								int zz = z - level.tilemap.mapPosition.z;
+								minimapPixels[xx + zz * level.tilemap.mapSize.x] = ROOM_COLOR;
+								break;
+							}
+						}
+					}
+				}
 
-		level.tilemap.getRelativeTilePosition(player.position / LevelGenerator.TILE_SIZE, out Vector3i playerPos);
+				foreach (Doorway doorway in room.doorways)
+				{
+					int x = doorway.globalPosition.x - level.tilemap.mapPosition.x;
+					int z = doorway.globalPosition.z - level.tilemap.mapPosition.z;
+					int y = doorway.globalPosition.y - level.tilemap.mapPosition.y;
+					if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z)
+					{
+						uint color = 0xFF00FF00;
+						minimapPixels[x + z * level.tilemap.mapSize.x] = color;
+					}
+				}
+
+				graphics.setTextureData(minimap, 0, 0, minimap.width, minimap.height, minimapPixels);
+			}
+		}
+
+		/*
+		//int playerY = (int)MathF.Floor(player.position.y - level.tilemap.mapPosition.y + 1.5f);// MathHelper.Clamp(playerPos.y, 0, level.tilemap.mapSize.y);
+
 		for (int z = 0; z < level.tilemap.mapSize.z; z++)
 		{
 			for (int x = 0; x < level.tilemap.mapSize.x; x++)
 			{
-				int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, playerY + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
-				bool roomExplored = DungeonGame.instance.gameManager.exploredRooms.Contains(tile);
 				uint color = BACKGROUND_COLOR;
 
-				if (x == playerPos.x && z == playerPos.z)
-					color = PLAYER_COLOR;
-				else if (tile != 0 && roomExplored)
+				for (int y = 0; y < level.tilemap.mapSize.y; y++)
 				{
-					if (tile / 100 == 0xFF) // if astar corridor
+					int tile = level.tilemap.getTile(x + level.tilemap.mapPosition.x, y + level.tilemap.mapPosition.y, z + level.tilemap.mapPosition.z);
+					bool roomExplored = DungeonGame.instance.gameManager.exploredRooms.Contains(tile);
+
+					if (x == playerPos.x && z == playerPos.z)
+						color = PLAYER_COLOR;
+					else if (tile != 0 && roomExplored)
 					{
-						color = CORRIDOR_ASTAR_COLOR;
-					}
-					else
-					{
-						RoomType type = RoomType.Get(tile / 100);
-						if (type != null)
+						if (y >= playerPos.y - 2 && y <= playerPos.y + 10)
 						{
-							if (type.sectorType == SectorType.Room)
-								color = ROOM_COLOR;
+							if (tile / 100 == 0xFF) // if astar corridor
+							{
+								color = CORRIDOR_ASTAR_COLOR;
+							}
 							else
-								color = CORRIDOR_COLOR;
+							{
+								RoomType type = RoomType.Get(tile / 100);
+								if (type != null)
+								{
+									if (type.sectorType == SectorType.Room)
+										color = ROOM_COLOR;
+									else
+										color = CORRIDOR_COLOR;
+								}
+								else
+								{
+									Debug.Assert(false);
+								}
+							}
 						}
 						else
 						{
-							Debug.Assert(false);
+							color = ROOM_DIFFERENT_LEVEL_COLOR;
 						}
 					}
 				}
@@ -378,7 +450,7 @@ public class HUD
 					int x = doorway.globalPosition.x - level.tilemap.mapPosition.x;
 					int z = doorway.globalPosition.z - level.tilemap.mapPosition.z;
 					int y = doorway.globalPosition.y - level.tilemap.mapPosition.y;
-					if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z && y > playerY - 3 && y < playerY + 3)
+					if (x >= 0 && x < level.tilemap.mapSize.x && z >= 0 && z < level.tilemap.mapSize.z)
 					{
 						uint color = 0xFF00FF00;
 						minimapPixels[x + z * level.tilemap.mapSize.x] = color;
@@ -388,6 +460,13 @@ public class HUD
 		}
 
 		graphics.setTextureData(minimap, 0, 0, minimap.width, minimap.height, minimapPixels);
+		*/
+	}
+
+	void renderMinimap()
+	{
+		DungeonGame.instance.level.tilemap.getRelativeTilePosition(player.position, out Vector3i playerPos);
+		updateMinimap();
 
 		int width = 96;
 		int height = 96;
@@ -418,7 +497,12 @@ public class HUD
 			v0 -= v1 - minimap.height;
 			v1 = minimap.height;
 		}
-		Renderer.DrawUITexture(xx, yy, width * scale, height * scale, minimap, u0, v0, u1, v1, 0xFFFFFFFF);
+		GUI.Texture(xx, yy, width * scale, height * scale, minimap, u0, v0, u1, v1, 0xFFFFFFFF);
+
+		// player position
+		int localPlayerX = playerPos.x - u0;
+		int localPlayerY = playerPos.z - v0;
+		GUI.Rect(xx + (localPlayerX - 1) * scale, yy + (localPlayerY - 1) * scale, 3 * scale, 3 * scale, 0xFF440000);
 	}
 
 	public void draw(GraphicsDevice graphics)

@@ -19,7 +19,8 @@ public abstract class Door : Entity, Interactable
 	AudioSource audio;
 	protected Sound sfxOpen, sfxClose, sfxLocked;
 
-	protected Item requiredKey;
+	public Item requiredKey = null;
+	public int lockedSide = 0;
 
 	bool isOpen = false;
 	float doorAngle;
@@ -32,6 +33,8 @@ public abstract class Door : Entity, Interactable
 		frameBody = new RigidBody(this, RigidBodyType.Static);
 
 		audio = new AudioSource(position + new Vector3(0.0f, 1.0f, 0.0f));
+
+		sfxLocked = Resource.GetSound("res/entity/object/door_iron/sfx/locked.ogg");
 	}
 
 	public override void destroy()
@@ -78,16 +81,29 @@ public abstract class Door : Entity, Interactable
 					if (player.inventory.findSlot(requiredKey) == null)
 						canOpen = false;
 				}
+				else if (lockedSide != 0)
+				{
+					Vector3 toPlayer = player.position - position;
+					int playerDirection = Math.Sign(Vector3.Dot(rotation.forward, toPlayer));
+					if (lockedSide != playerDirection)
+						canOpen = false;
+				}
 
 				if (canOpen)
 				{
 					open();
 					float direction = MathF.Sign(Vector3.Dot(by.position - position, rotation.forward));
 					doorTargetAngle = direction * MathF.PI * 0.5f;
+					if (lockedSide != 0)
+						lockedSide = 0;
 				}
 				else
 				{
-					audio.playSoundOrganic(sfxLocked, 0.5f);
+					audio.playSoundOrganic(sfxLocked, 2.0f);
+					if (lockedSide != 0)
+						player.hud.showMessage("Does not open from this side");
+					else if (requiredKey != null)
+						player.hud.showMessage("Locked");
 				}
 			}
 			else

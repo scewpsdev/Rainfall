@@ -119,7 +119,7 @@ public class InventoryUI
 			int slotY = y + padding;
 			int handIconSize = 80;
 
-			Renderer.DrawUITexture(x + 2 * padding, slotY + (slotSize - handIconSize) / 2, handIconSize, handIconSize, icon);
+			GUI.Texture(x + 2 * padding, slotY + (slotSize - handIconSize) / 2, handIconSize, handIconSize, icon);
 
 			for (int i = 0; i < slots.Length; i++)
 			{
@@ -148,10 +148,10 @@ public class InventoryUI
 					}
 				}
 
-				Renderer.DrawUIRect(slotX, slotY, slotSize, slotSize, selected ? 0xff444444 : 0xff222222);
+				GUI.Rect(slotX, slotY, slotSize, slotSize, selected ? 0xff444444 : 0xff222222);
 				if (slots[i] != null)
 				{
-					Renderer.DrawUITexture(slotX, slotY, slotSize, slotSize, slots[i].item.icon);
+					GUI.Texture(slotX, slotY, slotSize, slotSize, slots[i].item.icon);
 				}
 
 				totalSlotIndex++;
@@ -190,13 +190,13 @@ public class InventoryUI
 	{
 		int iconSize = 80;
 
-		Renderer.DrawUIRect(x, y, width, height, selected ? 0xff444444 : 0xff222222);
-		Renderer.DrawUITexture(x, y, iconSize, iconSize, slot.item.icon);
+		GUI.Rect(x, y, width, height, selected ? 0xff444444 : 0xff222222);
+		GUI.Texture(x, y, iconSize, iconSize, slot.item.icon);
 
-		Renderer.DrawText(x + iconSize + 24, y + height / 2 - (int)mediumFont.size / 2, 1.0f, slot.item.displayName, mediumFont, 0xffcccccc);
+		GUI.Text(x + iconSize + 24, y + height / 2 - (int)mediumFont.size / 2, 1.0f, slot.item.displayName, mediumFont, 0xffcccccc);
 
 		if (slot.item.stackable)
-			Renderer.DrawText(x + width - iconSize - 24 - 8, y + height / 2 - (int)mediumFont.size / 2, 1.0f, slot.stackSize.ToString(), mediumFont, 0xffcccccc);
+			GUI.Text(x + width - iconSize - 24 - 8, y + height / 2 - (int)mediumFont.size / 2, 1.0f, slot.stackSize.ToString(), mediumFont, 0xffcccccc);
 
 		int rightHandSlot = isEquippedRightHand(slot);
 		int leftHandSlot = isEquippedLeftHand(slot);
@@ -204,9 +204,9 @@ public class InventoryUI
 		Debug.Assert(!(rightHandSlot != -1 && leftHandSlot != -1));
 
 		if (rightHandSlot != -1)
-			Renderer.DrawUITexture(x + width - iconSize - 8, y, iconSize, iconSize, rightHand);
+			GUI.Texture(x + width - iconSize - 8, y, iconSize, iconSize, rightHand);
 		else if (leftHandSlot != -1)
-			Renderer.DrawUITexture(x + width - iconSize - 8, y, iconSize, iconSize, leftHand);
+			GUI.Texture(x + width - iconSize - 8, y, iconSize, iconSize, leftHand);
 	}
 
 	ItemSlot drawEquipmentTabItemSelectScreen(int x, int y)
@@ -372,7 +372,7 @@ public class InventoryUI
 		}
 
 		uint background = isHighlighted ? 0xFF666666 : 0xFF333333;
-		Renderer.DrawUIRect(x + 1, y + 1, width - 2, height - 2, background);
+		GUI.Rect(x + 1, y + 1, width - 2, height - 2, background);
 		if (slot.item != null)
 		{
 			int iconSize = Math.Max(slot.item.inventorySize.x, slot.item.inventorySize.y);
@@ -380,12 +380,12 @@ public class InventoryUI
 			int iconHeight = iconSize * height;
 			int xoffset = (slot.item.inventorySize.x * width) / 2 - iconWidth / 2;
 			int yoffset = (slot.item.inventorySize.y * height) / 2 - iconHeight / 2;
-			Renderer.DrawUITexture(x + xoffset, y + yoffset, iconWidth, iconHeight, slot.item.icon);
+			GUI.Texture(x + xoffset, y + yoffset, iconWidth, iconHeight, slot.item.icon);
 			if (slot.item.stackable && slot.stackSize > 1)
 			{
 				string stackSizeStr = slot.stackSize.ToString();
 				int stackSizeWidth = stackSizeFont.measureText(stackSizeStr);
-				Renderer.DrawText(x + iconWidth - stackSizeWidth, y + iconHeight - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
+				GUI.Text(x + iconWidth - stackSizeWidth, y + iconHeight - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
 			}
 		}
 	}
@@ -429,15 +429,15 @@ public class InventoryUI
 		}
 
 		uint background = isHovered ? 0xFF666666 : 0xFF333333;
-		Renderer.DrawUIRect(x, y, width, height, background);
+		GUI.Rect(x, y, width, height, background);
 		if (slot.item != null)
 		{
-			Renderer.DrawUITexture(x, y, width, height, slot.item.icon);
+			GUI.Texture(x, y, width, height, slot.item.icon);
 			if (slot.item.stackable && slot.stackSize > 1)
 			{
 				string stackSizeStr = slot.stackSize.ToString();
 				int stackSizeWidth = stackSizeFont.measureText(stackSizeStr);
-				Renderer.DrawText(x + width - stackSizeWidth, y + height - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
+				GUI.Text(x + width - stackSizeWidth, y + height - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
 			}
 		}
 	}
@@ -458,12 +458,12 @@ public class InventoryUI
 				int xoffset = (grabbedItem.inventorySize.x * slotSize) / 2 - iconSize / 2;
 				int yoffset = (grabbedItem.inventorySize.y * slotSize) / 2 - iconSize / 2;
 
-				Renderer.DrawUITexture(xx + xoffset, yy + yoffset, iconSize, iconSize, grabbedItem.icon);
+				GUI.Texture(xx + xoffset, yy + yoffset, iconSize, iconSize, grabbedItem.icon);
 				if (grabbedItem.stackable && grabbedItemStackSize > 1)
 				{
 					string stackSizeStr = grabbedItemStackSize.ToString();
 					int stackSizeWidth = stackSizeFont.measureText(stackSizeStr);
-					Renderer.DrawText(xx + xoffset + iconSize - stackSizeWidth, yy + yoffset + iconSize - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
+					GUI.Text(xx + xoffset + iconSize - stackSizeWidth, yy + yoffset + iconSize - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
 				}
 
 				if (Input.IsMouseButtonPressed(MouseButton.Left) &&
@@ -493,30 +493,30 @@ public class InventoryUI
 
 				int yscroll = 2 + padding + 5 * currentUIScale;
 
-				Renderer.DrawUIRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 0xFFAAAAAA);
-				Renderer.DrawUIRect(tooltipX + 1, tooltipY + 1, tooltipWidth - 2, tooltipHeight - 2, 0xFF000000);
-				Renderer.DrawUIRect(tooltipX + 2, tooltipY + 2, tooltipWidth - 4, tooltipHeight - 4, 0xFF222222);
+				GUI.Rect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 0xFFAAAAAA);
+				GUI.Rect(tooltipX + 1, tooltipY + 1, tooltipWidth - 2, tooltipHeight - 2, 0xFF000000);
+				GUI.Rect(tooltipX + 2, tooltipY + 2, tooltipWidth - 4, tooltipHeight - 4, 0xFF222222);
 
 				Texture icon = hoveredItem.item.icon;
 				int iconSize = 64 * currentUIScale;
-				Renderer.DrawUITexture(tooltipX + tooltipWidth / 2 - iconSize / 2, tooltipY + yscroll, iconSize, iconSize, icon);
+				GUI.Texture(tooltipX + tooltipWidth / 2 - iconSize / 2, tooltipY + yscroll, iconSize, iconSize, icon);
 				yscroll += iconSize + 5 * currentUIScale;
 
 				string nameStr = hoveredItem.item.displayName;
 				int nameStrWidth = tooltipFontBig.measureText(nameStr);
-				Renderer.DrawText(tooltipX + tooltipWidth / 2 - nameStrWidth / 2, tooltipY + yscroll, 1.0f, nameStr, tooltipFontBig, 0xFFAAAAAA);
+				GUI.Text(tooltipX + tooltipWidth / 2 - nameStrWidth / 2, tooltipY + yscroll, 1.0f, nameStr, tooltipFontBig, 0xFFAAAAAA);
 				yscroll += (int)tooltipFontBig.size + 2 * currentUIScale;
 
 				string categoryStr = hoveredItem.item.typeSpecifier;
 				int categoryStrWidth = tooltipFontMedium.measureText(categoryStr);
-				Renderer.DrawText(tooltipX + tooltipWidth / 2 - categoryStrWidth / 2, tooltipY + yscroll, 1.0f, categoryStr, tooltipFontMedium, 0xFF777777);
+				GUI.Text(tooltipX + tooltipWidth / 2 - categoryStrWidth / 2, tooltipY + yscroll, 1.0f, categoryStr, tooltipFontMedium, 0xFF777777);
 				yscroll += (int)tooltipFontMedium.size + 2 * currentUIScale;
 
 				if (hoveredItem.item.twoHanded)
 				{
 					string twoHandedStr = "Two-handed";
 					int twoHandedStrWidth = tooltipFontMedium.measureText(twoHandedStr);
-					Renderer.DrawText(tooltipX + tooltipWidth / 2 - twoHandedStrWidth / 2, tooltipY + yscroll, 1.0f, twoHandedStr, tooltipFontMedium, 0xFF777777);
+					GUI.Text(tooltipX + tooltipWidth / 2 - twoHandedStrWidth / 2, tooltipY + yscroll, 1.0f, twoHandedStr, tooltipFontMedium, 0xFF777777);
 					yscroll += (int)tooltipFontMedium.size + 2 * currentUIScale;
 				}
 
@@ -526,19 +526,19 @@ public class InventoryUI
 
 				if (hoveredItem.item.description != null)
 				{
-					int descriptionLines = Renderer.DrawTextWrapped(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, tooltipWidth - 14 - 2 * padding, 1.5f, hoveredItem.item.description, tooltipFontMedium, 0xFF777777);
+					int descriptionLines = GUI.TextWrapped(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, tooltipWidth - 14 - 2 * padding, 1.5f, hoveredItem.item.description, tooltipFontMedium, 0xFF777777);
 					yscroll += descriptionLines * lineHeight;
 					yscroll += 10 * currentUIScale;
 				}
 
 				void drawTooltipInfo(string value)
 				{
-					Renderer.DrawText(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
+					GUI.Text(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
 				}
 				void drawTooltipInfoRight(string value)
 				{
 					int valueStrWidth = tooltipFontMedium.measureText(value);
-					Renderer.DrawText(tooltipX + tooltipWidth - 2 - 5 - padding - valueStrWidth, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
+					GUI.Text(tooltipX + tooltipWidth - 2 - 5 - padding - valueStrWidth, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
 				}
 
 				if (hoveredItem.item.category == ItemCategory.Weapon)
@@ -644,7 +644,7 @@ public class InventoryUI
 
 	void drawInventory(int x, int y, int width, int height)
 	{
-		Renderer.PushUILayer();
+		GUI.PushLayer();
 
 		// Armor slots
 		{
@@ -771,7 +771,7 @@ public class InventoryUI
 			drawItemContainer(x + left, y + top, slotSize, player.inventory, null);
 		}
 
-		Renderer.PopUILayer();
+		GUI.PopLayer();
 
 		/*
 		int tabIconSize = 64;
@@ -784,7 +784,7 @@ public class InventoryUI
 				int iconX = x + padding;
 				int iconY = y + padding;
 
-				Renderer.DrawUITexture(iconX, iconY, tabIconSize, tabIconSize, equipmentTabIcon);
+				GUI.Texture(iconX, iconY, tabIconSize, tabIconSize, equipmentTabIcon);
 			}
 		}
 		*/
@@ -794,14 +794,14 @@ public class InventoryUI
 
 	void drawChest(int x, int y, int width, int height)
 	{
-		Renderer.PushUILayer();
+		GUI.PushLayer();
 
 		int xx = x + 20 * currentUIScale;
 		int yy = y + 20 * currentUIScale;
 		int slotSize = 32 * currentUIScale;
 		drawItemContainer(xx, yy, slotSize, openContainer.getContainer(), player.inventory);
 
-		Renderer.PopUILayer();
+		GUI.PopLayer();
 	}
 
 	public void draw(GraphicsDevice graphics)
@@ -815,13 +815,13 @@ public class InventoryUI
 			int x = Display.width / 2 - width / 2;
 			int y = Display.height / 2 - height / 2;
 
-			Renderer.DrawUIRect(x, y, width, height, 0xff111111);
+			GUI.Rect(x, y, width, height, 0xff111111);
 			drawInventory(x, y, width, height);
 
-			Renderer.PushUILayer();
+			GUI.PushLayer();
 			drawGrabbedItem(x, y, width, height);
 			drawTooltip();
-			Renderer.PopUILayer();
+			GUI.PopLayer();
 
 			if (InputManager.IsPressed("UIBack") || InputManager.IsPressed("UIClose") || InputManager.IsPressed("OpenInventory"))
 			{
@@ -847,15 +847,15 @@ public class InventoryUI
 			int y = Display.height / 2 - height / 2;
 			int width = inventoryWidth + chestPaneWidth;
 
-			Renderer.DrawUIRect(x, y, width, height, 0xff111111);
+			GUI.Rect(x, y, width, height, 0xff111111);
 
 			drawInventory(x, y, inventoryWidth, height);
 			drawChest(x + inventoryWidth, y, chestPaneWidth, height);
 
-			Renderer.PushUILayer();
+			GUI.PushLayer();
 			drawGrabbedItem(x, y, width, height);
 			drawTooltip();
-			Renderer.PopUILayer();
+			GUI.PopLayer();
 
 			if (InputManager.IsPressed("UIBack") || InputManager.IsPressed("UIClose") || InputManager.IsPressed("OpenInventory"))
 			{

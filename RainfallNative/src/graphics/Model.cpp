@@ -246,24 +246,24 @@ static void InitializeTexture(TextureData& texture, const char* scenePath, uint6
 		}
 		else
 		{
-			char compiledPath[256] = "";
+			char fullPath[256];
 			//sprintf(compiledPath, "%s/%s.bin", scenePath, texture.path);
 			if (const char* folder = strrchr(scenePath, '/'))
 			{
 				int pathLength = (int)(folder - scenePath);
-				sprintf(compiledPath, "%.*s/%s.bin", pathLength, scenePath, texture.path);
+				sprintf(fullPath, "%.*s/%s", pathLength, scenePath, texture.path);
 			}
 			else if (const char* folder = strrchr(scenePath, '\\'))
 			{
 				int pathLength = (int)(folder - scenePath);
-				sprintf(compiledPath, "%.*s\\%s.bin", pathLength, scenePath, texture.path);
+				sprintf(fullPath, "%.*s/%s", pathLength, scenePath, texture.path);
 			}
 			else
 			{
-				sprintf(compiledPath, "%s.bin", texture.path);
+				sprintf(fullPath, "%s.bin", texture.path);
 			}
 
-			uint32_t pathHash = hash(compiledPath);
+			uint32_t pathHash = hash(fullPath);
 			auto it = loadedTextures.find(pathHash);
 			if (it != loadedTextures.end())
 			{
@@ -271,6 +271,10 @@ static void InitializeTexture(TextureData& texture, const char* scenePath, uint6
 			}
 			else
 			{
+				char compiledPath[256];
+				strcpy(compiledPath, fullPath);
+				strcat(compiledPath, ".bin");
+
 				if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), compiledPath))
 				{
 					texture.handle = bgfx::createTexture(memory, flags);
@@ -278,7 +282,7 @@ static void InitializeTexture(TextureData& texture, const char* scenePath, uint6
 				}
 				else
 				{
-					Console_Error("Failed to read model texture file '%s'", texture.path);
+					Console_Error("Failed to read model texture file '%s'", fullPath);
 					texture.handle = BGFX_INVALID_HANDLE;
 				}
 			}

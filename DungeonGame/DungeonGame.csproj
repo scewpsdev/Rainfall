@@ -8,7 +8,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Configurations>Debug;Release;Distribution</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -87,14 +87,6 @@
 		<PublishAot>true</PublishAot>
 		<RootNamespace />
 		<RunPostBuildEvent>Always</RunPostBuildEvent>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Distribution|AnyCPU'">
-	  <Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Distribution|x64'">
-	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -7,6 +7,8 @@
 
 #include "audio/Audio.h"
 
+#include "utils/ImGuiLayer.h"
+
 #include <chrono>
 #include <mutex>
 #include <unordered_map>
@@ -127,6 +129,7 @@ uint32_t debug;
 
 int fpsCap;
 int vsync;
+bool mouseLocked = false;
 
 int64_t appStartTime = 0;
 int64_t currentFrame = 0;
@@ -591,7 +594,7 @@ static void DestroyWindow(GLFWwindow* _window)
 	glfwDestroyWindow(_window);
 }
 
-RFAPI uint64_t Application_GetTimestamp()
+RFAPI int64_t Application_GetTimestamp()
 {
 	int64_t t = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	return t - appStartTime;
@@ -626,6 +629,9 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 
 	while (const Event* ev = PollEvent())
 	{
+		if (ImGuiLayerProcessEvent(ev)) // if the event was already handled by ImGui, skip it
+			continue;
+
 		switch (ev->type)
 		{
 		case EventType::Axis:
@@ -770,7 +776,11 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 
 		bgfx::dbgTextClear();
 
+		ImGuiLayerBeginFrame();
+
 		callbacks.draw();
+
+		ImGuiLayerEndFrame();
 
 		//Audio_Update();
 
@@ -849,17 +859,9 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 
 	Console_SetErrorCallback(callbacks.onInternalErrorEvent);
 
-	//Resource::Init(params.compileShaders);
-	//Time::Init();
-	//Audio_Init();
+	ImGuiLayerInit();
 
-	//layerStack.pushLayer(Memory_Alloc<SceneLayer>());
-	//layerStack.pushLayer(Memory_Alloc<ImGuiLayer>());
-
-	//layerStack.init();
-	//app->init();
 	callbacks.init();
-	//bgfx::frame();
 
 	messageQueue.push(BX_NEW(Application_GetAllocator(), Message)(MessageType::WindowShow));
 	//eventQueue.postSizeEvent(width, height);
@@ -872,16 +874,13 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 		//
 	}
 
-	//int result = app->shutdown();
-	//layerStack.shutdown();
 	callbacks.destroy();
 
-	//Audio_Shutdown();
+	ImGuiLayerDestroy();
 
 	bgfx::shutdown();
 
 	return 0;
-	//return result;
 }
 
 struct GameThreadData
@@ -1091,6 +1090,8 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 				else
 					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+				mouseLocked = msg->value;
 			}
 			break;
 			}
@@ -1269,6 +1270,11 @@ RFAPI void Application_SetFpsCap(int fpsCap)
 	Message* msg = BX_NEW(Application_GetAllocator(), Message)(MessageType::WindowSetFpsCap);
 	msg->value = fpsCap;
 	messageQueue.push(msg);
+}
+
+RFAPI bool Application_IsMouseLocked()
+{
+	return mouseLocked;
 }
 
 RFAPI void Application_GetMonitorSize(int* outWidth, int* outHeight)

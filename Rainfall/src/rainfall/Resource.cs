@@ -278,6 +278,11 @@ namespace Rainfall
 			}
 		}
 
+		public static Model GetModel(string path, bool linearTextures)
+		{
+			return GetModel(path, linearTextures ? 0 : (uint)SamplerFlags.Point);
+		}
+
 		public static FontData GetFontData(string path)
 		{
 			if (fonts.ContainsKey(path))

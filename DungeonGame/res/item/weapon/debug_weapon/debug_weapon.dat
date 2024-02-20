@@ -22,7 +22,7 @@ hitbox = {
 	offset = [0.0, 0.3, 0.0]
 }
 
-moveset: "broken_sword_moveset.gltf"
+moveset: "../straightsword_moveset.gltf"
 
 icon: "broken_sword_icon.png"
 

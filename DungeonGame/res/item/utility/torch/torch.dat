@@ -29,6 +29,22 @@ lights: [
 	}
 ]
 
+particleSystems = [
+	{
+		emissionRate = 120.0
+		lifetime = 0.5
+		spawnOffset = [0, 0.22, 0]
+		spawnRadius = 0.05
+		spawnShape = sphere
+		size = [0.1, 0.02]
+		initialVelocity = [0, 0, 0]
+		gravity = 2.0
+		followMode = follow
+		additive = 1
+		tint = [2.7738395,0.9894696,0.25998735]
+	}
+]
+
 moveset: "torch_moveset.gltf"
 
 icon: "torch_icon.png"
@@ -39,20 +55,4 @@ hitboxRadius = 0.05
 hitboxRange = 0.5
 hitboxPosition = [0.0, 0.25, 0.0]
 
-//particleTexture = "res/texture/particle/torch_flame.png"
-//particleLinearFiltering = 1
-//particleFrameSize = 32
-//particleFrameCount = 12
-particleEmissionRate = 120.0
-particleLifetime = 0.5
-particleSpawnOffset = [0, 0.22, 0]
-particleSpawnRadius = 0.05
-particleSpawnShape = sphere
-particleSize = [0.1, 0.02]
-particleInitialVelocity = [0, 0, 0]
-particleGravity = 2.0
-particleFollowMode = follow
-particleAdditive = 1
-particleTint = [2.7738395,0.9894696,0.25998735]
-
-sfxDraw = "ignite.ogg"
+sfxDraw = "../../../../sfx/ignite.ogg"

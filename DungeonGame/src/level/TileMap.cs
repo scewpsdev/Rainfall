@@ -8,25 +8,38 @@ using System.Threading.Tasks;
 
 public class TileMap
 {
-	public const int FLAG_ROOM = 1 << 1;
-	public const int FLAG_DOORWAY = 1 << 2;
-	public const int FLAG_CORRIDOR = 1 << 3;
-	public const int FLAG_STRUCTURE = FLAG_ROOM | FLAG_DOORWAY | FLAG_CORRIDOR;
+	public const ushort FLAG_ROOM = 1 << 1;
+	public const ushort FLAG_DOORWAY = 1 << 2;
+	public const ushort FLAG_CORRIDOR = 1 << 3;
+	public const ushort FLAG_STRUCTURE = FLAG_ROOM | FLAG_DOORWAY | FLAG_CORRIDOR;
 
-	public const int FLAG_ROOM_WALL = 1 << 4;
-	public const int FLAG_CORRIDOR_WALL = 1 << 5;
-	public const int FLAG_WALL = FLAG_ROOM_WALL | FLAG_CORRIDOR_WALL;
+	public const ushort FLAG_ROOM_WALL = 1 << 4;
+	public const ushort FLAG_CORRIDOR_WALL = 1 << 5;
+	public const ushort FLAG_WALL = FLAG_ROOM_WALL | FLAG_CORRIDOR_WALL;
 
-	public const int FLAG_ASTAR_PATH = 1 << 6;
+	public const ushort FLAG_ASTAR_PATH = 1 << 6;
+
+	public const ushort FLAG_LADDER = 1 << 7;
 
 
 	public Vector3i mapPosition;
 	public Vector3i mapSize;
-	int[] grid;
+	ulong[] grid;
+
+	Material levelMaterial;
+	Vector2i atlasSize;
 
 
 	public TileMap()
 	{
+		levelMaterial = new Material(0xFFFFFFFF, 0.0f, 1.0f, Vector3.Zero, 0.0f,
+			Resource.GetTexture("res/level/level1/level1_diffuse.png", false),
+			null,
+			Resource.GetTexture("res/level/level1/level1_occlusionRoughnessMetallic.png", false),
+			Resource.GetTexture("res/level/level1/level1_occlusionRoughnessMetallic.png", false),
+			null);
+		atlasSize = new Vector2i(8, 8);
+
 		reset();
 	}
 
@@ -45,7 +58,7 @@ public class TileMap
 		int newWidth = x1 - x0 + 1;
 		int newHeight = y1 - y0 + 1;
 		int newDepth = z1 - z0 + 1;
-		int[] newGrid = new int[newWidth * newHeight * newDepth];
+		ulong[] newGrid = new ulong[newWidth * newHeight * newDepth];
 
 		int copyX = Math.Max(newX, mapPosition.x);
 		int copyY = Math.Max(newY, mapPosition.y);
@@ -57,7 +70,7 @@ public class TileMap
 		int copyHeight = copyY1 - copyY + 1;
 		int copyDepth = copyZ1 - copyZ + 1;
 
-		Array.Fill(newGrid, 0);
+		Array.Fill(newGrid, 0u);
 		for (int z = copyZ; z < copyZ + copyDepth; z++)
 		{
 			for (int x = copyX; x < copyX + copyWidth; x++)
@@ -80,70 +93,95 @@ public class TileMap
 			resize(Math.Min(x0, mapPosition.x), Math.Min(y0, mapPosition.y), Math.Min(z0, mapPosition.z), Math.Max(x1, mapPosition.x + mapSize.x - 1), Math.Max(y1, mapPosition.y + mapSize.y - 1), Math.Max(z1, mapPosition.z + mapSize.z - 1));
 	}
 
-	public void setTile(int x, int y, int z, int tile)
+	public void setRoomID(int x, int y, int z, ushort roomID)
 	{
 		makeSpaceFor(x, y, z, x, y, z);
 
-		int flags = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & unchecked((int)0xFFFF0000);
-		grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = flags | tile;
+		ulong data = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & unchecked(0x0000FFFFFFFFFFFF);
+		grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = data | ((ulong)roomID << 48);
 	}
 
-	public void setTile(Vector3i position, int tile)
+	public void setRoomID(Vector3i position, ushort roomID)
+	{
+		setRoomID(position.x, position.y, position.z, roomID);
+	}
+
+	public ushort getRoomID(int x, int y, int z)
+	{
+		if (x >= mapPosition.x && x < mapPosition.x + mapSize.x && y >= mapPosition.y && y < mapPosition.y + mapSize.y && z >= mapPosition.z && z < mapPosition.z + mapSize.z)
+			return (ushort)((grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & 0xFFFF000000000000) >> 48);
+		return 0;
+	}
+
+	public ushort getRoomID(Vector3i position)
+	{
+		return getRoomID(position.x, position.y, position.z);
+	}
+
+	public void setTile(int x, int y, int z, uint tile)
+	{
+		makeSpaceFor(x, y, z, x, y, z);
+
+		ulong data = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & unchecked(0xFFFFFFFF00000000);
+		grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = data | tile;
+	}
+
+	public void setTile(Vector3i position, uint tile)
 	{
 		setTile(position.x, position.y, position.z, tile);
 	}
 
-	public int getTile(int x, int y, int z)
+	public uint getTile(int x, int y, int z)
 	{
 		if (x >= mapPosition.x && x < mapPosition.x + mapSize.x && y >= mapPosition.y && y < mapPosition.y + mapSize.y && z >= mapPosition.z && z < mapPosition.z + mapSize.z)
-			return grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & 0x0000FFFF;
+			return (uint)(grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & 0xFFFFFFFF);
 		return 0;
 	}
 
-	public int getTile(Vector3i position)
+	public uint getTile(Vector3i position)
 	{
 		return getTile(position.x, position.y, position.z);
 	}
 
-	public void setFlag(int x, int y, int z, int flag, bool set)
+	public void setFlag(int x, int y, int z, ushort flag, bool set)
 	{
 		makeSpaceFor(x, y, z, x, y, z);
 
-		int data = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z];
-		flag <<= 16;
+		ulong data = grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z];
+		ulong lflag = (ulong)flag << 32;
 		if (set)
-			data |= flag;
+			data |= lflag;
 		else
-			data = (data | flag) ^ flag;
+			data = (data | lflag) ^ lflag;
 		grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = data;
 	}
 
-	public void setFlag(Vector3i position, int flag, bool set)
+	public void setFlag(Vector3i position, ushort flag, bool set)
 	{
 		setFlag(position.x, position.y, position.z, flag, set);
 	}
 
-	public bool getFlag(int x, int y, int z, int flag)
+	public bool getFlag(int x, int y, int z, ushort flag)
 	{
-		flag <<= 16;
+		ulong lflag = (ulong)flag << 32;
 		if (x >= mapPosition.x && x < mapPosition.x + mapSize.x && y >= mapPosition.y && y < mapPosition.y + mapSize.y && z >= mapPosition.z && z < mapPosition.z + mapSize.z)
-			return (grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & flag) != 0;
+			return (grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & lflag) != 0;
 		return false;
 	}
 
-	public bool getFlag(Vector3i position, int flag)
+	public bool getFlag(Vector3i position, ushort flag)
 	{
 		return getFlag(position.x, position.y, position.z, flag);
 	}
 
-	public int getFlags(int x, int y, int z)
+	public ushort getFlags(int x, int y, int z)
 	{
 		if (x >= mapPosition.x && x < mapPosition.x + mapSize.x && y >= mapPosition.y && y < mapPosition.y + mapSize.y && z >= mapPosition.z && z < mapPosition.z + mapSize.z)
-			return grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] >> 16;
+			return (ushort)((grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] & 0x0000FFFF00000000) >> 32);
 		return 0;
 	}
 
-	public int getFlags(Vector3i position)
+	public ushort getFlags(Vector3i position)
 	{
 		return getFlags(position.x, position.y, position.z);
 	}
@@ -156,6 +194,168 @@ public class TileMap
 	public bool isWall(Vector3i position)
 	{
 		return isWall(position.x, position.y, position.z);
+	}
+
+	void generateFloorMesh(int x, int y, int z, ModelBatch batch)
+	{
+		Tile tile = Tile.Get(getTile(x, y - 1, z));
+		Vector2i atlasPos = tile.atlasPositionTop != Vector2i.Zero ? tile.atlasPositionTop : tile.atlasPosition;
+
+		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Up, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateCeilingMesh(int x, int y, int z, ModelBatch batch)
+	{
+		Tile tile = Tile.Get(getTile(x, y + 1, z));
+		Vector2i atlasPos = tile.atlasPositionBottom != Vector2i.Zero ? tile.atlasPositionBottom : tile.atlasPosition;
+
+		int i0 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Down, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+
+		batch.addTriangle(i0, i3, i2);
+		batch.addTriangle(i2, i1, i0);
+	}
+
+	void generateWallMeshNorth(int x, int y, int z, ModelBatch batch)
+	{
+		Tile tile = Tile.Get(getTile(x, y, z - 1));
+		Vector2i atlasPos = tile.atlasPosition;
+
+		int i0 = batch.addVertex(new Vector3(x, y, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Back, Vector3.Right, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateWallMeshSouth(int x, int y, int z, ModelBatch batch)
+	{
+		Tile tile = Tile.Get(getTile(x, y, z + 1));
+		Vector2i atlasPos = tile.atlasPosition;
+
+		int i0 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Forward, Vector3.Left, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateWallMeshWest(int x, int y, int z, ModelBatch batch)
+	{
+		Tile tile = Tile.Get(getTile(x - 1, y, z));
+		Vector2i atlasPos = tile.atlasPosition;
+
+		int i0 = batch.addVertex(new Vector3(x, y, z + 1), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x, y, z), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x, y + 1, z), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x, y + 1, z + 1), Vector3.Right, Vector3.Forward, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	void generateWallMeshEast(int x, int y, int z, ModelBatch batch)
+	{
+		Tile tile = Tile.Get(getTile(x + 1, y, z));
+		Vector2i atlasPos = tile.atlasPosition;
+
+		int i0 = batch.addVertex(new Vector3(x + 1, y, z), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x, atlasPos.y + 1) / atlasSize);
+		int i1 = batch.addVertex(new Vector3(x + 1, y, z + 1), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x + 1, atlasPos.y + 1) / atlasSize);
+		int i2 = batch.addVertex(new Vector3(x + 1, y + 1, z + 1), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x + 1, atlasPos.y) / atlasSize);
+		int i3 = batch.addVertex(new Vector3(x + 1, y + 1, z), Vector3.Left, Vector3.Back, new Vector2(atlasPos.x, atlasPos.y) / atlasSize);
+
+		batch.addTriangle(i0, i1, i2);
+		batch.addTriangle(i2, i3, i0);
+	}
+
+	public void updateMesh(ModelBatch batch, Level level)
+	{
+		batch.setMaterial(levelMaterial);
+
+		for (int z = mapPosition.z; z < mapPosition.z + mapSize.z; z++)
+		{
+			for (int x = mapPosition.x; x < mapPosition.x + mapSize.x; x++)
+			{
+				for (int y = mapPosition.y; y < mapPosition.y + mapSize.y; y++)
+				{
+					uint left = getRoomID(x - 1, y, z);
+					uint right = getRoomID(x + 1, y, z);
+					uint bottom = getRoomID(x, y - 1, z);
+					uint top = getRoomID(x, y + 1, z);
+					uint front = getRoomID(x, y, z - 1);
+					uint back = getRoomID(x, y, z + 1);
+
+					if (isWall(x, y, z))
+						continue;
+
+					Vector3i p = new Vector3i(x, y, z);
+					Matrix tileTransform = Matrix.CreateTranslation(new Vector3(x + 0.5f, y, z + 0.5f));
+
+					//Room room = findRoomAtPosition(p);
+
+					if (isWall(p + Vector3i.Down))
+					{
+						//if (room == null || room.type.generateWallMeshes)
+						generateFloorMesh(x, y, z, batch);
+						//batch.addModel(floor, tileTransform, mod(x, 3) + mod(z, 3) * 3, new Vector2i(3));
+						level.body.addBoxCollider(
+							new Vector3(0.5f),
+							tileTransform.translation + new Vector3(0, -0.5f, 0),
+							Quaternion.Identity);
+					}
+					if (isWall(p + Vector3i.Up))
+					{
+						//if (room == null || room.type.generateWallMeshes)
+						generateCeilingMesh(x, y, z, batch);
+						//ceilingBatch.addModel(ceiling, Matrix.CreateTranslation(0, 1, 0) * tileTransform, mod(-x, 3) + mod(z, 3) * 3, new Vector2i(3));
+						level.body.addBoxCollider(
+							new Vector3(0.5f),
+							tileTransform.translation + new Vector3(0, 1.5f, 0),
+							Quaternion.Identity);
+					}
+					if (isWall(p + Vector3i.Forward))
+					{
+						//if (room == null || room.type.generateWallMeshes)
+						generateWallMeshNorth(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform, mod(x + z - 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, -1.0f), Quaternion.Identity);
+					}
+					if (isWall(p + Vector3i.Back))
+					{
+						//if (room == null || room.type.generateWallMeshes)
+						generateWallMeshSouth(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI), mod(-x + z + 1, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(0.0f, 0.5f, 1.0f), Quaternion.Identity);
+					}
+					if (isWall(p + Vector3i.Left))
+					{
+						//if (room == null || room.type.generateWallMeshes)
+						generateWallMeshWest(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f), mod(x - 1 - z, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(-1.0f, 0.5f, 0.0f), Quaternion.Identity);
+					}
+					if (isWall(p + Vector3i.Right))
+					{
+						//if (room == null || room.type.generateWallMeshes)
+						generateWallMeshEast(x, y, z, batch);
+						//wallBatch.addModel(wall, tileTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI * -0.5f), mod(x + 1 + z, 3) + mod(-y, 3) * 3, new Vector2i(3));
+						level.body.addBoxCollider(new Vector3(0.5f), tileTransform.translation + new Vector3(1.0f, 0.5f, 0.0f), Quaternion.Identity);
+					}
+				}
+			}
+		}
 	}
 
 	BoundingBox transformBoundingBox(BoundingBox boundingBox, Matrix transform)
@@ -209,15 +409,17 @@ public class TileMap
 					if (z >= z0 && z <= z1 && x >= x0 && x <= x1 && y >= y0 && y <= y1)
 					{
 						insideRoom = true;
-						if (room.type.mask != null)
+						if (room.type.tiles != null)
 						{
-							if (!room.type.mask[localPos.x + localPos.y * room.type.size.x + localPos.z * room.type.size.x * room.type.size.y])
+							if (room.type.tiles[localPos.x + localPos.y * room.type.size.x + localPos.z * room.type.size.x * room.type.size.y] != 0)
 								insideRoom = false;
 						}
 					}
 					if (insideRoom)
 					{
-						grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = room.id;
+						//grid[(x - mapPosition.x) + (z - mapPosition.z) * mapSize.x + (y - mapPosition.y) * mapSize.x * mapSize.z] = (ushort)room.id;
+						setRoomID(x, y, z, (ushort)room.id);
+						Debug.Assert(room.id >= 0 && room.id <= ushort.MaxValue);
 
 						if (room.type.sectorType == SectorType.Room)
 							setFlag(x, y, z, FLAG_ROOM, true);
@@ -229,14 +431,33 @@ public class TileMap
 					}
 					else
 					{
-						if (room.type.getMask(localPos + Vector3i.Left) ||
-							room.type.getMask(localPos + Vector3i.Right) ||
-							room.type.getMask(localPos + Vector3i.Down) ||
-							room.type.getMask(localPos + Vector3i.Up) ||
-							room.type.getMask(localPos + Vector3i.Forward) ||
-							room.type.getMask(localPos + Vector3i.Back))
+						if (room.type.getTile(localPos + Vector3i.Left) == 0 ||
+							room.type.getTile(localPos + Vector3i.Right) == 0 ||
+							room.type.getTile(localPos + Vector3i.Down) == 0 ||
+							room.type.getTile(localPos + Vector3i.Up) == 0 ||
+							room.type.getTile(localPos + Vector3i.Forward) == 0 ||
+							room.type.getTile(localPos + Vector3i.Back) == 0)
 						{
 							setFlag(x, y, z, room.type.sectorType == SectorType.Room ? FLAG_ROOM_WALL : FLAG_CORRIDOR_WALL, true);
+
+							// Wall
+							if (room.type.getTile(localPos + Vector3i.Left) == 0 ||
+								room.type.getTile(localPos + Vector3i.Right) == 0 ||
+								room.type.getTile(localPos + Vector3i.Forward) == 0 ||
+								room.type.getTile(localPos + Vector3i.Back) == 0)
+							{
+								setTile(x, y, z, Tile.bricks.id);
+							}
+							// Floor
+							else if (room.type.getTile(localPos + Vector3i.Up) == 0)
+							{
+								setTile(x, y, z, Tile.dirt.id);
+							}
+							// Ceiling
+							else if (room.type.getTile(localPos + Vector3i.Down) == 0)
+							{
+								setTile(x, y, z, Tile.cobblestone.id);
+							}
 						}
 					}
 				}
@@ -265,9 +486,9 @@ public class TileMap
 					if (z >= z0 && z <= z1 && x >= x0 && x <= x1 && y >= y0 && y <= y1)
 					{
 						insideRoom = true;
-						if (room.type.mask != null)
+						if (room.type.tiles != null)
 						{
-							if (!room.type.mask[localPos.x + localPos.y * room.type.size.x + localPos.z * room.type.size.x * room.type.size.y])
+							if (room.type.tiles[localPos.x + localPos.y * room.type.size.x + localPos.z * room.type.size.x * room.type.size.y] != 0)
 								insideRoom = false;
 						}
 					}
@@ -283,12 +504,12 @@ public class TileMap
 					}
 					else
 					{
-						if (room.type.getMask(localPos + Vector3i.Left) ||
-							room.type.getMask(localPos + Vector3i.Right) ||
-							room.type.getMask(localPos + Vector3i.Down) ||
-							room.type.getMask(localPos + Vector3i.Up) ||
-							room.type.getMask(localPos + Vector3i.Forward) ||
-							room.type.getMask(localPos + Vector3i.Back))
+						if (room.type.getTile(localPos + Vector3i.Left) == 0 ||
+							room.type.getTile(localPos + Vector3i.Right) == 0 ||
+							room.type.getTile(localPos + Vector3i.Down) == 0 ||
+							room.type.getTile(localPos + Vector3i.Up) == 0 ||
+							room.type.getTile(localPos + Vector3i.Forward) == 0 ||
+							room.type.getTile(localPos + Vector3i.Back) == 0)
 						{
 							setFlag(x, y, z, FLAG_WALL, false);
 							setFlag(x, y, z, FLAG_CORRIDOR_WALL, false);
@@ -315,21 +536,21 @@ public class TileMap
 		{
 			for (int x = x0; x <= x1; x++)
 			{
-				if (roomType.mask != null)
+				if (roomType.tiles != null)
 				{
 					Vector3i localPos = globalToLocal(new Vector3i(x, y0, z), transform);
-					if (!roomType.mask[localPos.x + localPos.y * roomType.size.x + localPos.z * roomType.size.x * roomType.size.y])
+					if (roomType.tiles[localPos.x + localPos.y * roomType.size.x + localPos.z * roomType.size.x * roomType.size.y] != 0)
 						continue;
 				}
 				for (int y = y0; y <= y1; y++)
 				{
-					int tile = getTile(x, y, z);
-					int left = getTile(x - 1, y, z);
-					int right = getTile(x + 1, y, z);
-					int down = getTile(x, y - 1, z);
-					int up = getTile(x, y + 1, z);
-					int forward = getTile(x, y, z - 1);
-					int back = getTile(x, y, z + 1);
+					int tile = getRoomID(x, y, z);
+					int left = getRoomID(x - 1, y, z);
+					int right = getRoomID(x + 1, y, z);
+					int down = getRoomID(x, y - 1, z);
+					int up = getRoomID(x, y + 1, z);
+					int forward = getRoomID(x, y, z - 1);
+					int back = getRoomID(x, y, z + 1);
 					if (tile != 0 || left != 0 || right != 0 || down != 0 || up != 0 || forward != 0 || back != 0)
 						return true;
 				}
