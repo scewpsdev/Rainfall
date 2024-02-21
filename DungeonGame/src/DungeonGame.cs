@@ -27,7 +27,8 @@ internal class DungeonGame : Game
 
 	float cpuTimeAcc = 0.0f;
 	float gpuTimeAcc = 0.0f;
-	float cpuTime, gpuTime;
+	float physicsTimeAcc = 0.0f;
+	float cpuTime, gpuTime, physicsTime;
 	int numFrames = 0;
 	long lastSecond = 0;
 
@@ -137,8 +138,10 @@ internal class DungeonGame : Game
 		{
 			cpuTime = cpuTimeAcc / numFrames;
 			gpuTime = gpuTimeAcc / numFrames;
+			physicsTime = physicsTimeAcc / numFrames;
 			cpuTimeAcc = 0;
 			gpuTimeAcc = 0;
+			physicsTimeAcc = 0;
 			numFrames = 0;
 			lastSecond = Time.currentTime;
 		}
@@ -203,6 +206,7 @@ internal class DungeonGame : Game
 		RenderStats renderStats = graphics.getRenderStats();
 		cpuTimeAcc += renderStats.cpuTime;
 		gpuTimeAcc += renderStats.gpuTime;
+		physicsTimeAcc += Time.physicsDelta;
 		numFrames++;
 
 		StringUtils.WriteString(str, "CPU time: ");
@@ -212,6 +216,11 @@ internal class DungeonGame : Game
 
 		StringUtils.WriteString(str, "GPU time: ");
 		StringUtils.AppendFloat(str, gpuTime * 1000);
+		StringUtils.AppendString(str, "ms");
+		Debug.DrawDebugText(0, line++, str);
+
+		StringUtils.WriteString(str, "Physics time: ");
+		StringUtils.AppendFloat(str, physicsTime * 1000);
 		StringUtils.AppendString(str, "ms");
 		Debug.DrawDebugText(0, line++, str);
 

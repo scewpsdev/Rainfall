@@ -312,6 +312,7 @@ namespace Physics
 
 	static int64_t lastFrameTime;
 	static float timeAccumulator;
+	static int64_t simulationDelta;
 
 	static std::vector<RigidBody*> rigidBodies;
 	static std::vector<CharacterController*> controllers;
@@ -385,6 +386,8 @@ namespace Physics
 		int64_t delta = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 		timeAccumulator += delta / 1e9f;
+
+		int64_t beforeUpdate = Application_GetTimestamp();
 
 		int numSteps = 0;
 		int maxStepsPerFrame = 10;
@@ -481,6 +484,15 @@ namespace Physics
 				//body->setTransform(position, rotation, body->userPtr);
 			}
 		}
+
+		int64_t afterUpdate = Application_GetTimestamp();
+		if (numSteps > 0)
+			simulationDelta = (afterUpdate - beforeUpdate) / numSteps;
+	}
+
+	RFAPI int64_t Physics_GetSimulationDelta()
+	{
+		return simulationDelta;
 	}
 
 	static PxRigidActor* CreateRigidBody(const Vector3& position, const Quaternion& rotation, RigidBodyType type)
