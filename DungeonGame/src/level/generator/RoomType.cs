@@ -584,10 +584,10 @@ public class MainRoom : RoomType
 		: base()
 	{
 		sectorType = SectorType.Room;
-		size = new Vector3i(20, 50, 20);
+		size = new Vector3i(20, 80, 20);
 
-		allowSecretDoorConnections = false;
-		generateWallMeshes = false;
+		//allowSecretDoorConnections = false;
+		//generateWallMeshes = false;
 
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(-1, 0, 9), Vector3i.Left));
 		doorwayInfo.Add(new DoorwayInfo(new Vector3i(20, 0, 9), Vector3i.Right));

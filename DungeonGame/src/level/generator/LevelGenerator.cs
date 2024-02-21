@@ -1147,11 +1147,13 @@ public class LevelGenerator
 		removeEmptyCorridors();
 		connectRoomsIfNot(startingRoom, mainRoom);
 		//connectRoomsIfNot(finalRoom, mainRoom);
+		/*
 		foreach (Doorway doorway in mainRoom.doorways)
 		{
 			if (doorway.connectedDoorway == null)
 				connectDoorwayToRandomRoom(doorway);
 		}
+		*/
 
 		lockCertainDoors();
 
