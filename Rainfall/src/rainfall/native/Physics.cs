@@ -29,6 +29,9 @@ namespace Rainfall.Native
 		internal static extern void Physics_Update();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern long Physics_GetSimulationDelta();
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Physics_CreateRigidBody(RigidBodyType type, float density, Vector3 centerOfMass, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
