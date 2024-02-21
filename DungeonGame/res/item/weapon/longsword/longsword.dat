@@ -23,7 +23,7 @@ hitbox = {
 	offset = [0.0, 0.5, 0.0]
 }
 
-moveset: "longsword_moveset.gltf"
+moveset: "../longsword_moveset.gltf"
 
 icon: "longsword_icon.png"
 
@@ -56,7 +56,7 @@ attacks: [
 		damageFramesEnd: 17
 		followUpCancelFrame: 23
 		sfxFrame: 13
-		staminaCost: 4.5
+		staminaCost: 3.5
 	},
 	{
 		type: light
@@ -66,7 +66,7 @@ attacks: [
 		damageFramesEnd: 17
 		followUpCancelFrame: 23
 		sfxFrame: 13
-		staminaCost: 4.5
+		staminaCost: 3.5
 	},
 	{
 		type = heavy
@@ -86,6 +86,16 @@ attacks: [
 		damageFramesEnd = 23
 		//followUpCancelFrame = 25
 		staminaCost = 5.5
+		damageMultiplier = 1.5
+	},
+	{
+		type = riposte
+		index = 0
+		animName = attack_riposte
+		damageFramesStart = 7
+		damageFramesEnd = 17
+		followUpCancelFrame = 24
+		staminaCost = 3.5
 		damageMultiplier = 1.5
 	}
 ]

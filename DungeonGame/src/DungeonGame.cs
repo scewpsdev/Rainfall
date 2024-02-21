@@ -127,11 +127,11 @@ internal class DungeonGame : Game
 		if (!GraphicsManager.cinematicMode)
 			drawDebugStats();
 
-		ImGui.ShowDemoWindow();
-		ImGui.ShowUserGuide();
+		//ImGui.ShowDemoWindow();
+		//ImGui.ShowUserGuide();
 
 		Audio.Update();
-		
+
 
 		if (Time.currentTime - lastSecond >= 1e9)
 		{
