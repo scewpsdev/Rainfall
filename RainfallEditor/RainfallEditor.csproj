@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /y &quot;..\RainfallNative\bin\x64\$(Configuration)\RainfallNative.dll&quot; &quot;$(OutDir)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RainfallNative\RainfallNative.vcxproj" />
+    <ProjectReference Include="..\RainfallResourceCompiler\RainfallResourceCompiler.vcxproj" />
+    <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
+  </ItemGroup>
+
+</Project>

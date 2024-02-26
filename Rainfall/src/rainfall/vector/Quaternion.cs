@@ -72,32 +72,30 @@ namespace Rainfall
 		{
 			get
 			{
-				float heading, attitude, bank;
-
-				float test = x * y + z * w;
-				if (test > 0.499)
+				float ry, rx, rz;
+				float test = x * w + y * z;
+				if (test > 0.499f)
 				{ // singularity at north pole
-					heading = 2 * MathF.Atan2(x, w);
-					attitude = MathF.PI / 2;
-					bank = 0;
-					return new Vector3(attitude, heading, bank);
+					ry = 2 * MathF.Atan2(y, w);
+					rx = MathF.PI / 2;
+					rz = 0;
+					return new Vector3(rx, ry, rz);
 				}
 				if (test < -0.499)
 				{ // singularity at south pole
-					heading = -2 * MathF.Atan2(x, w);
-					attitude = -MathF.PI / 2;
-					bank = 0;
-					return new Vector3(attitude, heading, bank);
+					ry = -2 * MathF.Atan2(y, w);
+					rx = -MathF.PI / 2;
+					rz = 0;
+					return new Vector3(rx, ry, rz);
 				}
-
 				float sqx = x * x;
 				float sqy = y * y;
 				float sqz = z * z;
-
-				heading = MathF.Atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz);
-				attitude = MathF.Asin(2 * test);
-				bank = MathF.Atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
-				return new Vector3(attitude, heading, bank);
+				ry = MathF.Atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqx);
+				//rx = MathF.Atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
+				rx = MathF.Asin(2 * test);
+				rz = MathF.Atan2(2 * z * w - 2 * x * y, 1 - 2 * sqz - 2 * sqx);
+				return new Vector3(rx, ry, rz);
 			}
 		}
 

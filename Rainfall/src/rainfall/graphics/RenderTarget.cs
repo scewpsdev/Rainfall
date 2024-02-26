@@ -44,7 +44,7 @@ namespace Rainfall
 			this._generateMipmaps = generateMipmaps ? (byte)1 : (byte)0;
 		}
 
-		public RenderTargetAttachment(int width, int height, TextureFormat format = TextureFormat.RGBA8, ulong flags = 0)
+		public RenderTargetAttachment(int width, int height, TextureFormat format = TextureFormat.RGBA8, ulong flags = 0, bool generateMipmaps = false)
 		{
 			this.width = width;
 			this.height = height;
@@ -52,7 +52,7 @@ namespace Rainfall
 			this.format = format;
 			this.flags = flags;
 			this._texture = ushort.MaxValue;
-			this._generateMipmaps = 0;
+			this._generateMipmaps = generateMipmaps ? (byte)1 : (byte)0;
 		}
 
 		public RenderTargetAttachment(Texture texture, bool generateMipmaps = false)

@@ -1286,7 +1286,8 @@ public static class Renderer
 		Span<byte> uniformName = stackalloc byte[32];
 		if (pointLights.Count > 0)
 		{
-			shader = deferredPointShadowShader;
+			// TODO simplify shadow shader
+			shader = simplifiedLighting ? deferredPointSimpleShader : deferredPointShadowShader;
 
 			graphics.resetState();
 

@@ -60,15 +60,21 @@ static void SubmitMesh(bgfx::ViewId view, SceneData* scene, int id, Shader* shad
 	{
 		MaterialData& material = scene->materials[mesh.materialID];
 
-		materialInfo[0] = material.diffuse ? 1.0f : 0.0f;
-		materialInfo[1] = material.normal ? 1.0f : 0.0f;
-		materialInfo[2] = material.roughness ? 1.0f : 0.0f;
-		materialInfo[3] = material.metallic ? 1.0f : 0.0f;
+		bool hasDiffuse = material.diffuse && material.diffuse->handle.idx != bgfx::kInvalidHandle;
+		bool hasNormal = material.normal && material.normal->handle.idx != bgfx::kInvalidHandle;
+		bool hasRoughness = material.roughness && material.roughness->handle.idx != bgfx::kInvalidHandle;
+		bool hasMetallic = material.metallic && material.metallic->handle.idx != bgfx::kInvalidHandle;
+		bool hasEmissive = material.emissive && material.emissive->handle.idx != bgfx::kInvalidHandle;
+
+		materialInfo[0] = hasDiffuse ? 1.0f : 0.0f;
+		materialInfo[1] = hasNormal ? 1.0f : 0.0f;
+		materialInfo[2] = hasRoughness ? 1.0f : 0.0f;
+		materialInfo[3] = hasMetallic ? 1.0f : 0.0f;
 
 		materialInfo2[0] = ((material.color & 0x000000FF) >> 0) / 255.0f;
 		materialInfo2[1] = ((material.color & 0x0000FF00) >> 8) / 255.0f;
 		materialInfo2[2] = ((material.color & 0x00FF0000) >> 16) / 255.0f;
-		materialInfo2[3] = material.emissive ? 1.0f : 0.0f;
+		materialInfo2[3] = hasEmissive ? 1.0f : 0.0f;
 
 		materialInfo3[0] = material.metallicFactor;
 		materialInfo3[1] = material.roughnessFactor;
@@ -80,15 +86,15 @@ static void SubmitMesh(bgfx::ViewId view, SceneData* scene, int id, Shader* shad
 		materialInfo4[2] = material.emissiveColor.z;
 		materialInfo4[3] = material.emissiveStrength;
 
-		if (material.diffuse)
+		if (hasDiffuse)
 			bgfx::setTexture(0, shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material.diffuse->handle, UINT32_MAX);
-		if (material.normal)
+		if (hasNormal)
 			bgfx::setTexture(1, shader->getUniform("s_normal", bgfx::UniformType::Sampler), material.normal->handle, UINT32_MAX);
-		if (material.roughness)
+		if (hasRoughness)
 			bgfx::setTexture(2, shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material.roughness->handle, UINT32_MAX);
-		if (material.metallic)
+		if (hasMetallic)
 			bgfx::setTexture(3, shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material.metallic->handle, UINT32_MAX);
-		if (material.emissive)
+		if (hasEmissive)
 			bgfx::setTexture(4, shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material.emissive->handle, UINT32_MAX);
 	}
 

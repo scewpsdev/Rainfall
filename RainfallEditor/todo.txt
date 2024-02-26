@@ -1,0 +1,16 @@
+[X] viewport
+[X] menubar
+[X] tabs
+[X] node panel
+[ ] properties panel
+	[ ] model
+	[ ] collider
+	[ ] lights
+	[ ] particles
+[ ] gizmos
+[ ] orthographic view
+[ ] debug colliders & bounding volumes
+[ ] ragdolls
+[ ] particle systems
+[ ] terrains
+[ ] terrain tools

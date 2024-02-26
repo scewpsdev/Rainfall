@@ -401,6 +401,12 @@ RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTarge
 		bgfx::TextureHandle texture = attachmentInfo[i].texture;
 		if (texture.idx == bgfx::kInvalidHandle)
 		{
+			if (!bgfx::isTextureValid(0, false, 1, attachmentInfo[i].format, attachmentInfo[i].flags))
+			{
+				Console_Error("Invalid framebuffer attachment #%i format", i);
+				return bgfx::kInvalidHandle;
+			}
+
 			if (attachmentInfo[i].ratio < bgfx::BackbufferRatio::Count)
 				texture = bgfx::createTexture2D(attachmentInfo[i].ratio, false, 1, attachmentInfo[i].format, attachmentInfo[i].flags);
 			else

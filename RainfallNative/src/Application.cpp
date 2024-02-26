@@ -938,10 +938,10 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	else
 	{
 		window = glfwCreateWindow(params.width, params.height, params.title, nullptr, nullptr);
-		width = params.width;
-		height = params.height;
 		glfwGetWindowPos(window, &windowX, &windowY);
 		glfwGetWindowSize(window, &windowWidth, &windowHeight);
+		width = windowWidth;
+		height = windowHeight;
 		isFullscreen = false;
 	}
 
