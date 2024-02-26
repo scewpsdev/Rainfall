@@ -209,11 +209,14 @@
     <ClCompile Include="src\imguizmo\ImGradient.cpp" />
     <ClCompile Include="src\imguizmo\ImGuizmo.cpp" />
     <ClCompile Include="src\imguizmo\ImSequencer.cpp" />
+    <ClCompile Include="src\imgui\cimgui.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\nfd\nfd_common.c" />
+    <ClCompile Include="src\nfd\nfd_win.cpp" />
     <ClCompile Include="src\physics\Cloth.cpp" />
     <ClCompile Include="src\graphics\Font.cpp" />
     <ClCompile Include="src\graphics\Graphics.cpp" />
@@ -226,13 +229,13 @@
     <ClCompile Include="src\physics\Physics.cpp" />
     <ClCompile Include="src\Resource.cpp" />
     <ClCompile Include="src\utils\ImGuiLayer.cpp" />
-    <ClCompile Include="src\utils\ImGuiWrapper.cpp" />
     <ClCompile Include="src\vector\Math.cpp" />
     <ClCompile Include="src\vector\Matrix.cpp" />
     <ClCompile Include="src\vector\Quaternion.cpp" />
     <ClCompile Include="src\vector\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\imgui\cimgui.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\audio\Audio.h" />
     <ClInclude Include="src\audio\soloud\audiosource\wav\dr_flac.h" />
@@ -254,6 +257,10 @@
     <ClInclude Include="src\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\nfd\common.h" />
+    <ClInclude Include="src\nfd\nfd.h" />
+    <ClInclude Include="src\nfd\nfd_common.h" />
+    <ClInclude Include="src\nfd\simple_exec.h" />
     <ClInclude Include="src\physics\Cloth.h" />
     <ClInclude Include="src\graphics\Font.h" />
     <ClInclude Include="src\graphics\Geometry.h" />

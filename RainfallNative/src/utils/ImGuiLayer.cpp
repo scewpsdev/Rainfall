@@ -94,6 +94,16 @@ static void setupStyle(bool _dark)
 	style.WindowBorderSize = 0.0f;
 }
 
+static void* ImGuiAlloc(size_t sz, void* user_data)
+{
+	return BX_ALLOC(Application_GetAllocator(), sz);
+}
+
+static void ImGuiFree(void* ptr, void* user_data)
+{
+	return BX_FREE(Application_GetAllocator(), ptr);
+}
+
 void ImGuiLayerInit()
 {
 	m_viewId = 255;
@@ -101,6 +111,7 @@ void ImGuiLayerInit()
 	m_last = Application_GetTimestamp();
 
 	m_imgui = ImGui::CreateContext();
+	ImGui::SetAllocatorFunctions(ImGuiAlloc, ImGuiFree);
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -129,6 +140,21 @@ void ImGuiLayerInit()
 	io.KeyMap[ImGuiKey_LeftShift] = (int)KeyCode::LeftShift;
 	io.KeyMap[ImGuiKey_LeftAlt] = (int)KeyCode::LeftAlt;
 	io.KeyMap[ImGuiKey_LeftSuper] = (int)KeyCode::LeftMeta;
+	io.KeyMap[ImGuiKey_RightCtrl] = (int)KeyCode::RightCtrl;
+	io.KeyMap[ImGuiKey_RightShift] = (int)KeyCode::RightShift;
+	io.KeyMap[ImGuiKey_RightAlt] = (int)KeyCode::RightAlt;
+	io.KeyMap[ImGuiKey_RightSuper] = (int)KeyCode::RightMeta;
+	io.KeyMap[ImGuiKey_Menu] = (int)KeyCode::Menu;
+	io.KeyMap[ImGuiKey_0] = (int)KeyCode::Key0;
+	io.KeyMap[ImGuiKey_1] = (int)KeyCode::Key1;
+	io.KeyMap[ImGuiKey_2] = (int)KeyCode::Key2;
+	io.KeyMap[ImGuiKey_3] = (int)KeyCode::Key3;
+	io.KeyMap[ImGuiKey_4] = (int)KeyCode::Key4;
+	io.KeyMap[ImGuiKey_5] = (int)KeyCode::Key5;
+	io.KeyMap[ImGuiKey_6] = (int)KeyCode::Key6;
+	io.KeyMap[ImGuiKey_7] = (int)KeyCode::Key7;
+	io.KeyMap[ImGuiKey_8] = (int)KeyCode::Key8;
+	io.KeyMap[ImGuiKey_9] = (int)KeyCode::Key9;
 	io.KeyMap[ImGuiKey_A] = (int)KeyCode::KeyA;
 	io.KeyMap[ImGuiKey_B] = (int)KeyCode::KeyB;
 	io.KeyMap[ImGuiKey_C] = (int)KeyCode::KeyC;
@@ -167,6 +193,39 @@ void ImGuiLayerInit()
 	io.KeyMap[ImGuiKey_F10] = (int)KeyCode::F10;
 	io.KeyMap[ImGuiKey_F11] = (int)KeyCode::F11;
 	io.KeyMap[ImGuiKey_F12] = (int)KeyCode::F12;
+	io.KeyMap[ImGuiKey_Apostrophe] = (int)KeyCode::Apostrophe;        // '
+	io.KeyMap[ImGuiKey_Comma] = (int)KeyCode::Comma;             // ,
+	io.KeyMap[ImGuiKey_Minus] = (int)KeyCode::Minus;             // -
+	io.KeyMap[ImGuiKey_Period] = (int)KeyCode::Period;            // .
+	io.KeyMap[ImGuiKey_Slash] = (int)KeyCode::Slash;             // /
+	io.KeyMap[ImGuiKey_Semicolon] = (int)KeyCode::Semicolon;         // ;
+	io.KeyMap[ImGuiKey_Equal] = (int)KeyCode::Equal;             // =
+	io.KeyMap[ImGuiKey_LeftBracket] = (int)KeyCode::LeftBracket;       // [
+	io.KeyMap[ImGuiKey_Backslash] = (int)KeyCode::Backslash;         // \ (this text inhibit multiline comment caused by backslash)
+	io.KeyMap[ImGuiKey_RightBracket] = (int)KeyCode::RightBracket;      // ]
+	io.KeyMap[ImGuiKey_GraveAccent] = (int)KeyCode::GraveAccent;       // `
+	io.KeyMap[ImGuiKey_CapsLock] = (int)KeyCode::CapsLock;
+	io.KeyMap[ImGuiKey_ScrollLock] = (int)KeyCode::ScrollLock;
+	io.KeyMap[ImGuiKey_NumLock] = (int)KeyCode::NumLock;
+	io.KeyMap[ImGuiKey_PrintScreen] = (int)KeyCode::Print;
+	io.KeyMap[ImGuiKey_Pause] = (int)KeyCode::Pause;
+	io.KeyMap[ImGuiKey_Keypad0] = (int)KeyCode::NumPad0;
+	io.KeyMap[ImGuiKey_Keypad1] = (int)KeyCode::NumPad1;
+	io.KeyMap[ImGuiKey_Keypad2] = (int)KeyCode::NumPad2;
+	io.KeyMap[ImGuiKey_Keypad3] = (int)KeyCode::NumPad3;
+	io.KeyMap[ImGuiKey_Keypad4] = (int)KeyCode::NumPad4;
+	io.KeyMap[ImGuiKey_Keypad5] = (int)KeyCode::NumPad5;
+	io.KeyMap[ImGuiKey_Keypad6] = (int)KeyCode::NumPad6;
+	io.KeyMap[ImGuiKey_Keypad7] = (int)KeyCode::NumPad7;
+	io.KeyMap[ImGuiKey_Keypad8] = (int)KeyCode::NumPad8;
+	io.KeyMap[ImGuiKey_Keypad9] = (int)KeyCode::NumPad9;
+	io.KeyMap[ImGuiKey_KeypadDecimal] = (int)KeyCode::NumPadDecimal;
+	io.KeyMap[ImGuiKey_KeypadDivide] = (int)KeyCode::NumPadDivide;
+	io.KeyMap[ImGuiKey_KeypadMultiply] = (int)KeyCode::NumPadMultiply;
+	io.KeyMap[ImGuiKey_KeypadSubtract] = (int)KeyCode::NumPadSubtract;
+	io.KeyMap[ImGuiKey_KeypadAdd] = (int)KeyCode::NumPadAdd;
+	io.KeyMap[ImGuiKey_KeypadEnter] = (int)KeyCode::NumPadEnter;
+	io.KeyMap[ImGuiKey_KeypadEqual] = (int)KeyCode::NumPadEqual;
 
 	io.ConfigFlags |= 0
 		| ImGuiConfigFlags_NavEnableGamepad
@@ -181,6 +240,7 @@ void ImGuiLayerInit()
 	io.NavInputs[ImGuiNavInput_DpadRight] = (int)KeyCode::GamepadRight;
 	io.NavInputs[ImGuiNavInput_DpadUp] = (int)KeyCode::GamepadUp;
 	io.NavInputs[ImGuiNavInput_DpadDown] = (int)KeyCode::GamepadDown;
+	io.NavInputs[ImGuiNavInput_FocusNext];
 	//		io.NavInputs[ImGuiNavInput_LStickLeft]  = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_LStickRight] = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_LStickUp]    = (int)entry::Key::;
@@ -189,6 +249,9 @@ void ImGuiLayerInit()
 	//		io.NavInputs[ImGuiNavInput_FocusNext]   = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_TweakSlow]   = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_TweakFast]   = (int)entry::Key::;
+
+	m_imgui->ConfigNavWindowingKeyNext = ImGuiMod_Ctrl | ImGuiMod_Alt | ImGuiKey_Tab;
+	m_imgui->ConfigNavWindowingKeyPrev = ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiMod_Alt | ImGuiKey_Tab;
 
 	bgfx::RendererType::Enum type = bgfx::getRendererType();
 	m_program = bgfx::createProgram(
@@ -423,7 +486,129 @@ void ImGuiLayerEndFrame()
 	ImGuiLayerDraw(ImGui::GetDrawData());
 }
 
-static int TranslateMouseButton(MouseButton button)
+RFAPI int ImGui_TranslateKey(KeyCode key)
+{
+	static int keys[(int)KeyCode::Count] = {
+		ImGuiKey_None,
+		ImGuiKey_Escape,
+		ImGuiKey_Enter,
+		ImGuiKey_Tab,
+		ImGuiKey_Space,
+		ImGuiKey_Backspace,
+		ImGuiKey_UpArrow,
+		ImGuiKey_DownArrow,
+		ImGuiKey_LeftArrow,
+		ImGuiKey_RightArrow,
+		ImGuiKey_Insert,
+		ImGuiKey_Delete,
+		ImGuiKey_Home,
+		ImGuiKey_End,
+		ImGuiKey_PageUp,
+		ImGuiKey_PageDown,
+		ImGuiKey_PrintScreen,
+		ImGuiKey_Pause,
+		ImGuiKey_KeypadAdd,
+		ImGuiKey_Minus,
+		ImGuiKey_Equal,
+		ImGuiKey_CapsLock,
+		ImGuiKey_ScrollLock,
+		ImGuiKey_NumLock,
+		ImGuiKey_KeypadMultiply,
+		ImGuiKey_LeftBracket,
+		ImGuiKey_RightBracket,
+		ImGuiKey_Semicolon,
+		ImGuiKey_None, // Quotation marks
+		ImGuiKey_Comma,
+		ImGuiKey_Period,
+		ImGuiKey_Slash,
+		ImGuiKey_Backslash,
+		ImGuiKey_None, // Tilde
+		ImGuiKey_Apostrophe,
+		ImGuiKey_GraveAccent,
+		ImGuiKey_F1,
+		ImGuiKey_F2,
+		ImGuiKey_F3,
+		ImGuiKey_F4,
+		ImGuiKey_F5,
+		ImGuiKey_F6,
+		ImGuiKey_F7,
+		ImGuiKey_F8,
+		ImGuiKey_F9,
+		ImGuiKey_F10,
+		ImGuiKey_F11,
+		ImGuiKey_F12,
+		ImGuiKey_0,
+		ImGuiKey_1,
+		ImGuiKey_2,
+		ImGuiKey_3,
+		ImGuiKey_4,
+		ImGuiKey_5,
+		ImGuiKey_6,
+		ImGuiKey_7,
+		ImGuiKey_8,
+		ImGuiKey_9,
+		ImGuiKey_A,
+		ImGuiKey_B,
+		ImGuiKey_C,
+		ImGuiKey_D,
+		ImGuiKey_E,
+		ImGuiKey_F,
+		ImGuiKey_G,
+		ImGuiKey_H,
+		ImGuiKey_I,
+		ImGuiKey_J,
+		ImGuiKey_K,
+		ImGuiKey_L,
+		ImGuiKey_M,
+		ImGuiKey_N,
+		ImGuiKey_O,
+		ImGuiKey_P,
+		ImGuiKey_Q,
+		ImGuiKey_R,
+		ImGuiKey_S,
+		ImGuiKey_T,
+		ImGuiKey_U,
+		ImGuiKey_V,
+		ImGuiKey_W,
+		ImGuiKey_X,
+		ImGuiKey_Y,
+		ImGuiKey_Z,
+
+		ImGuiKey_None, // World1
+		ImGuiKey_None, // World2
+
+		ImGuiKey_Keypad0,
+		ImGuiKey_Keypad1,
+		ImGuiKey_Keypad2,
+		ImGuiKey_Keypad3,
+		ImGuiKey_Keypad4,
+		ImGuiKey_Keypad5,
+		ImGuiKey_Keypad6,
+		ImGuiKey_Keypad7,
+		ImGuiKey_Keypad8,
+		ImGuiKey_Keypad9,
+		ImGuiKey_KeypadDecimal,
+		ImGuiKey_KeypadDivide,
+		ImGuiKey_KeypadMultiply,
+		ImGuiKey_KeypadSubtract,
+		ImGuiKey_KeypadAdd,
+		ImGuiKey_KeypadEnter,
+		ImGuiKey_KeypadEqual,
+		ImGuiKey_LeftShift,
+		ImGuiKey_LeftCtrl,
+		ImGuiKey_LeftAlt,
+		ImGuiKey_LeftSuper,
+		ImGuiKey_RightShift,
+		ImGuiKey_RightCtrl,
+		ImGuiKey_RightAlt,
+		ImGuiKey_RightSuper,
+		ImGuiKey_Menu,
+	};
+
+	return keys[(int)key];
+}
+
+RFAPI int ImGui_TranslateMouseButton(MouseButton button)
 {
 	static int buttons[(int)MouseButton::Count] = {
 		0,
@@ -474,7 +659,7 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 		}
 		else
 		{
-			io.MouseDown[TranslateMouseButton(mouseEvent->button)] = mouseEvent->down;
+			io.MouseDown[ImGui_TranslateMouseButton(mouseEvent->button)] = mouseEvent->down;
 
 			if (mouseEvent->down && imguiHovered)
 				return true;
@@ -520,4 +705,63 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 	default:
 		return false;
 	}
+}
+
+RFAPI float ImGui_GetMouseScroll()
+{
+	static float mouseScroll = 0;
+	if (ImGui::GetIO().MouseWheel)
+		mouseScroll = ImGui::GetIO().MouseWheel;
+	return mouseScroll;
+}
+
+RFAPI bool ImGui_Tab(const char* label, ImVec2 size_arg, ImGuiButtonFlags flags)
+{
+	using namespace ImGui;
+
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+	ImVec2 pos = window->DC.CursorPos;
+	if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+		pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+	ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+	const ImRect bb(pos, pos + size);
+	ItemSize(size, style.FramePadding.y);
+	if (!ItemAdd(bb, id))
+		return false;
+
+	bool hovered, held;
+	bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
+
+	// Render
+	const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	RenderNavHighlight(bb, id);
+	RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+
+	window->DrawList->AddRectFilled(bb.Min, bb.Max, col, style.FrameRounding);
+	const float border_size = g.Style.FrameBorderSize;
+	if (true && border_size > 0.0f)
+	{
+		window->DrawList->AddRect(bb.Min + ImVec2(1, 1), bb.Max + ImVec2(1, 1), GetColorU32(ImGuiCol_BorderShadow), style.FrameRounding, 0, border_size);
+		window->DrawList->AddRect(bb.Min, bb.Max, GetColorU32(ImGuiCol_Border), style.FrameRounding, 0, border_size);
+	}
+
+	if (g.LogEnabled)
+		LogSetNextTextDecoration("[", "]");
+	RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+
+	// Automatically close popups
+	//if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
+	//    CloseCurrentPopup();
+
+	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+	return pressed;
 }

@@ -282,6 +282,9 @@ void getShaderDependencies(fs::path file, std::vector<std::string>& dependencies
 
 static bool FileHasChanged(fs::path file, std::string& outpath, std::string& extension, std::map<std::string, int64_t>& assetTable)
 {
+	if (assetTable.size() == 0)
+		return true;
+
 	if (extension == ".shader")
 	{
 		std::string name = file.stem().string();
@@ -373,11 +376,18 @@ static void ProcessDirectory(fs::path directory, const std::string& outputDirect
 		}
 		else
 		{
-			if (entry.path().has_extension())
+			if (formats.size() > 0)
 			{
-				std::string extension = entry.path().extension().string().substr(1);
-				if (std::find(formats.begin(), formats.end(), extension) != formats.end())
-					ProcessFile(entry, outputDirectory, rootDirectory);
+				if (entry.path().has_extension())
+				{
+					std::string extension = entry.path().extension().string().substr(1);
+					if (std::find(formats.begin(), formats.end(), extension) != formats.end())
+						ProcessFile(entry, outputDirectory, rootDirectory);
+				}
+			}
+			else
+			{
+				ProcessFile(entry, outputDirectory, rootDirectory);
 			}
 		}
 	}
@@ -387,61 +397,87 @@ int main(int argc, char* argv[])
 {
 	if (argc >= 3)
 	{
-		fs::path rootDirectory = argv[1];
-		std::string outputDirectory = argv[2];
-
-		if (!fs::exists(rootDirectory))
-		{
-			std::string rootDirStr = rootDirectory.string();
-			fprintf(stderr, "Resource directory '%s' does not exist\n", rootDirStr.c_str());
-			return -1;
-		}
-
-		std::string assetTableFile = outputDirectory + std::string("\\asset_table");
-
+		fs::path rootDirectory;
+		std::string outputDirectory;
 		std::vector<std::string> formats;
+		bool singleFile = false;
 
-		TryLoadAssetTable(assetTableFile.c_str());
-
-		for (int i = 3; i < argc; i++)
+		int argIndex = 0;
+		for (int i = 1; i < argc; i++)
 		{
-			formats.push_back(argv[i]);
-		}
-
-		ProcessDirectory(rootDirectory, outputDirectory, rootDirectory, formats);
-
-		for (size_t i = 0; i < changedDependencies.size(); i++)
-		{
-			fs::path dependencyFile = changedDependencies[i].first;
-			int64_t lastWriteTime = changedDependencies[i].second;
-			assetTable[dependencyFile.string()] = lastWriteTime;
-		}
-
-		resourceFutures.resize(resourcesToCompile.size());
-		for (size_t i = 0; i < resourcesToCompile.size(); i++)
-		{
-			ResourceTask task = resourcesToCompile[i];
-			resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath);
-			//CompileFile(task.path, task.outpath);
-		}
-
-		bool allResourcesCompiled = false;
-		while (!allResourcesCompiled)
-		{
-			allResourcesCompiled = true;
-			for (size_t i = 0; i < resourceFutures.size(); i++)
+			const char* arg = argv[i];
+			if (arg[0] == '-')
 			{
-				if (!resourceFutures[i]._Is_ready())
+				if (strcmp(arg, "-f") == 0)
+					singleFile = true;
+			}
+			else
+			{
+				if (argIndex == 0)
+					rootDirectory = argv[i];
+				else if (argIndex == 1)
+					outputDirectory = argv[i];
+				else if (argIndex >= 2)
 				{
-					allResourcesCompiled = false;
-					break;
+					formats.push_back(argv[i]);
 				}
+				argIndex++;
 			}
 		}
 
-		printf("%d assets compiled, %d up to date.\n", assetsCompiled, assetsUpToDate);
 
-		WriteAssetTable(assetTableFile.c_str());
+		if (singleFile)
+		{
+			CompileFile(rootDirectory, outputDirectory + ".bin");
+		}
+		else
+		{
+			if (!fs::exists(rootDirectory))
+			{
+				std::string rootDirStr = rootDirectory.string();
+				fprintf(stderr, "Resource directory '%s' does not exist\n", rootDirStr.c_str());
+				return -1;
+			}
+
+			std::string assetTableFile = outputDirectory + std::string("\\asset_table");
+
+			TryLoadAssetTable(assetTableFile.c_str());
+
+			ProcessDirectory(rootDirectory, outputDirectory, rootDirectory, formats);
+
+			for (size_t i = 0; i < changedDependencies.size(); i++)
+			{
+				fs::path dependencyFile = changedDependencies[i].first;
+				int64_t lastWriteTime = changedDependencies[i].second;
+				assetTable[dependencyFile.string()] = lastWriteTime;
+			}
+
+			resourceFutures.resize(resourcesToCompile.size());
+			for (size_t i = 0; i < resourcesToCompile.size(); i++)
+			{
+				ResourceTask task = resourcesToCompile[i];
+				resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath);
+				//CompileFile(task.path, task.outpath);
+			}
+
+			bool allResourcesCompiled = false;
+			while (!allResourcesCompiled)
+			{
+				allResourcesCompiled = true;
+				for (size_t i = 0; i < resourceFutures.size(); i++)
+				{
+					if (!resourceFutures[i]._Is_ready())
+					{
+						allResourcesCompiled = false;
+						break;
+					}
+				}
+			}
+
+			printf("%d assets compiled, %d up to date.\n", assetsCompiled, assetsUpToDate);
+
+			WriteAssetTable(assetTableFile.c_str());
+		}
 
 		return 0;
 	}

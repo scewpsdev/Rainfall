@@ -365,6 +365,7 @@ internal class DungeonGame : Game
 #if DEBUG
 		launchParams.width = 1600;
 		launchParams.height = 900;
+		launchParams.maximized = true;
 #else
 		launchParams.width = 1600;
 		launchParams.height = 900;

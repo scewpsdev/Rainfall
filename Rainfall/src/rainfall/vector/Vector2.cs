@@ -79,6 +79,18 @@ namespace Rainfall
 			get { return MathF.Atan2(y, x); }
 		}
 
+		public override bool Equals(object obj)
+		{
+			if (obj is Vector2)
+				return this == (Vector2)obj;
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
+
 		public override string ToString()
 		{
 			return x + "," + y;
@@ -162,6 +174,9 @@ namespace Rainfall
 		public static Vector2 operator /(Vector2 a, Vector2i b) { return new Vector2(a.x / b.x, a.y / b.y); }
 
 		public static Vector2 operator -(Vector2 v) { return new Vector2(-v.x, -v.y); }
+
+		public static bool operator ==(Vector2 a, Vector2 b) { return a.x == b.x && a.y == b.y; }
+		public static bool operator !=(Vector2 a, Vector2 b) { return a.x != b.x || a.y != b.y; }
 
 		public static explicit operator Vector2i(Vector2 v) => new Vector2i((int)v.x, (int)v.y);
 	}

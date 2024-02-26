@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RainfallEditor": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

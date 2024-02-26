@@ -53,6 +53,18 @@ namespace Rainfall
 			return a + (b - a) * t;
 		}
 
+		public static bool CompareAngles(float a, float b, float epsilon = float.Epsilon)
+		{
+			a = (a + MathF.PI * 2.0f) % (MathF.PI * 2.0f);
+			b = (b + MathF.PI * 2.0f) % (MathF.PI * 2.0f);
+			if (a - b > MathF.PI)
+				a -= MathF.PI * 2.0f;
+			else if (b - a > MathF.PI)
+				b -= MathF.PI * 2.0f;
+
+			return MathF.Abs(a - b) < epsilon;
+		}
+
 		public static float Remap(float f, float min, float max, float newMin, float newMax)
 		{
 			return (f - min) / (max - min) * (newMax - newMin) + newMin;

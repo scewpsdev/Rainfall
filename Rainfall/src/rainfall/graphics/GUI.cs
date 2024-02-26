@@ -158,12 +158,12 @@ namespace Rainfall
 			return line + 1;
 		}
 
-		public static void Draw(int pass)
+		public static void Draw(int pass, RenderTarget target = null)
 		{
 			graphics.resetState();
 			graphics.setPass(pass);
 
-			graphics.setRenderTarget(null);
+			graphics.setRenderTarget(target);
 
 
 			uiTextureBatch.begin(uiTextures.Count);
