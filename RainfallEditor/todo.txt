@@ -16,6 +16,5 @@
 [X] mesh colliders
 [ ] custom data
 [ ] ragdolls
-[ ] particle systems
-[ ] terrains
+[ ] particle effect tools
 [ ] terrain tools
