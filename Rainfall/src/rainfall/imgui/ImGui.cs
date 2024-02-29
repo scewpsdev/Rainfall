@@ -293,7 +293,7 @@ namespace Rainfall
 		public static extern bool BeginChild_ID(uint id, Vector2 size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginCombo")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool BeginCombo(string label, string preview_value, ImGuiComboFlags flags);
+		public static extern bool BeginCombo(string label, string preview_value, ImGuiComboFlags flags = 0);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginDisabled")]
 		public static extern void BeginDisabled(bool disabled);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginDragDropSource")]
@@ -321,7 +321,7 @@ namespace Rainfall
 		public static extern bool BeginMenuBar();
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginPopup")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool BeginPopup(string str_id, ImGuiWindowFlags flags);
+		public static extern bool BeginPopup(string str_id, ImGuiWindowFlags flags = 0);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginPopupContextItem")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool BeginPopupContextItem(string str_id = null, ImGuiPopupFlags popup_flags = ImGuiPopupFlags.MouseButtonDefault);
@@ -333,7 +333,7 @@ namespace Rainfall
 		public static extern bool BeginPopupContextWindow(string str_id = null, ImGuiPopupFlags popup_flags = ImGuiPopupFlags.MouseButtonDefault);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginPopupModal")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool BeginPopupModal(string name, string p_open, ImGuiWindowFlags flags);
+		public static extern bool BeginPopupModal(string name, byte* p_open = null, ImGuiWindowFlags flags = 0);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igBeginTabBar")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool BeginTabBar(string str_id, ImGuiTabBarFlags flags = 0);
@@ -385,16 +385,16 @@ namespace Rainfall
 		public static extern void ColorConvertRGBtoHSV(float r, float g, float b, float* out_h, float* out_s, float* out_v);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void ColorConvertU32ToFloat4(Vector4* pOut, uint @in);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igColorEdit3")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool ColorEdit3(string label, Vector3* col, ImGuiColorEditFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool ColorEdit3(string label, Vector3* col, ImGuiColorEditFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igColorEdit4")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool ColorEdit4(string label, Vector4* col, ImGuiColorEditFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igColorPicker3")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool ColorPicker3(string label, Vector3* col, ImGuiColorEditFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igColorPicker4")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool ColorPicker4(string label, Vector4* col, ImGuiColorEditFlags flags, float* ref_col);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igColumns")]
@@ -404,7 +404,7 @@ namespace Rainfall
 		public static extern bool Combo_Str_arr(string label, int* current_item, byte** items, int items_count, int popup_max_height_in_items);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igCombo_Str")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool Combo_Str(string label, int* current_item, string items_separated_by_zeros, int popup_max_height_in_items);
+		public static extern bool Combo_Str(string label, int* current_item, string items_separated_by_zeros, int popup_max_height_in_items = -1);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igCreateContext")]
 		public static extern IntPtr CreateContext(ImFontAtlas* shared_font_atlas);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDebugCheckVersionAndDataLayout")]
@@ -424,19 +424,19 @@ namespace Rainfall
 		public static extern uint DockSpaceOverViewport(ImGuiViewport* viewport, ImGuiDockNodeFlags flags, ImGuiWindowClass* window_class);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDragFloat")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool DragFloat(string label, float* v, float v_speed, float v_min, float v_max, string format, ImGuiSliderFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool DragFloat(string label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, string format = "%.3f", ImGuiSliderFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDragFloat2")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool DragFloat2(string label, Vector2* v, float v_speed, float v_min, float v_max, string format, ImGuiSliderFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool DragFloat2(string label, Vector2* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, string format = "%.3f", ImGuiSliderFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDragFloat3")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool DragFloat3(string label, Vector3* v, float v_speed, float v_min, float v_max, string format, ImGuiSliderFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool DragFloat3(string label, Vector3* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, string format = "%.3f", ImGuiSliderFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDragFloat4")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool DragFloat4(string label, Vector4* v, float v_speed, float v_min, float v_max, string format, ImGuiSliderFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool DragFloat4(string label, Vector4* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, string format = "%.3f", ImGuiSliderFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDragFloatRange2")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool DragFloatRange2(string label, float* v_current_min, float* v_current_max, float v_speed, float v_min, float v_max, string format, string format_max, ImGuiSliderFlags flags);
+		public static extern bool DragFloatRange2(string label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, string format = "%.3f", string format_max = null, ImGuiSliderFlags flags = 0);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igDragInt")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool DragInt(string label, int* v, float v_speed, int v_min, int v_max, string format, ImGuiSliderFlags flags);
@@ -694,26 +694,26 @@ namespace Rainfall
 		public static extern bool InputDouble(string label, double* v, double step, double step_fast, string format, ImGuiInputTextFlags flags);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputFloat")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool InputFloat(string label, float* v, float step, float step_fast, string format, ImGuiInputTextFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool InputFloat(string label, float* v, float step = 0.0f, float step_fast = 0.0f, string format = "%.3f", ImGuiInputTextFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputFloat2")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool InputFloat2(string label, Vector2* v, string format, ImGuiInputTextFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputFloat3")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool InputFloat3(string label, Vector3* v, string format, ImGuiInputTextFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool InputFloat3(string label, Vector3* v, string format = "%.3f", ImGuiInputTextFlags flags = 0);
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputFloat4")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool InputFloat4(string label, Vector4* v, string format, ImGuiInputTextFlags flags);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputInt")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool InputInt(string label, int* v, int step, int step_fast, ImGuiInputTextFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputInt2")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool InputInt2(string label, int* v, ImGuiInputTextFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputInt3")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool InputInt3(string label, int* v, ImGuiInputTextFlags flags);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputInt4")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool InputInt4(string label, int* v, ImGuiInputTextFlags flags);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igInputScalar")]
@@ -896,7 +896,7 @@ namespace Rainfall
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igNextColumn")]
 		public static extern void NextColumn();
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igOpenPopup_Str")]
-		public static extern void OpenPopup_Str(string str_id, ImGuiPopupFlags popup_flags);
+		public static extern void OpenPopup_Str(string str_id, ImGuiPopupFlags popup_flags = 0);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igOpenPopup_ID")]
 		public static extern void OpenPopup_ID(uint id, ImGuiPopupFlags popup_flags);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igOpenPopupOnItemClick")]
@@ -973,10 +973,10 @@ namespace Rainfall
 		public static extern string SaveIniSettingsToMemory(uint* out_ini_size);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igSelectable_Bool")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool Selectable_Bool(string label, bool selected, ImGuiSelectableFlags flags, Vector2 size);
+		public static extern bool Selectable_Bool(string label, bool selected = false, ImGuiSelectableFlags flags = 0, Vector2 size = default);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igSelectable_BoolPtr")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool Selectable_BoolPtr(string label, string p_selected, ImGuiSelectableFlags flags, Vector2 size);
+		public static extern bool Selectable_BoolPtr(string label, bool* p_selected, ImGuiSelectableFlags flags, Vector2 size);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igSeparator")]
 		public static extern void Separator();
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igSeparatorText")]

@@ -3,13 +3,18 @@
 [X] tabs
 [X] node panel
 [ ] properties panel
-	[ ] model
-	[ ] collider
-	[ ] lights
+	[X] model
+	[X] collider
+	[X] lights
 	[ ] particles
-[ ] gizmos
-[ ] orthographic view
-[ ] debug colliders & bounding volumes
+[X] gizmos
+[X] undo/redo
+[X] orthographic view
+[X] debug colliders & bounding volumes
+[X] collider rotation
+[X] removing model, colliders, lights
+[X] mesh colliders
+[ ] custom data
 [ ] ragdolls
 [ ] particle systems
 [ ] terrains

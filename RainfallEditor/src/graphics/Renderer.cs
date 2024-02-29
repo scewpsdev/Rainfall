@@ -80,6 +80,13 @@ public static class Renderer
 		internal bool additive;
 	}
 
+	struct DebugLineDrawCommand
+	{
+		internal Vector3 vertex0;
+		internal Vector3 vertex1;
+		internal Vector4 color;
+	}
+
 	class ModelComparer : IComparer<Model>
 	{
 		public unsafe int Compare(Model x, Model y)
@@ -120,9 +127,6 @@ public static class Renderer
 
 	static RenderTarget finalTarget;
 
-	//static Cubemap pointShadowCubemap;
-	//static RenderTarget[] pointShadowRenderTargets = new RenderTarget[6];
-
 	static Shader modelShader;
 	static Shader modelDepthShader;
 	static Shader modelSimpleShader;
@@ -140,6 +144,7 @@ public static class Renderer
 	static Shader waterShader;
 	static Shader particleShader;
 	static Shader particleAdditiveShader;
+	static Shader lineShader;
 	static Shader grassShader;
 	static Shader fogShader;
 	static Shader bloomDownsampleShader;
@@ -149,10 +154,7 @@ public static class Renderer
 
 	static SpriteBatch particleBatch;
 
-	//static FontData baskervilleFont;
-	//public static Font promptFont, xpFont, notificationFont, stackSizeFont;
-	//public static Font victoryFont;
-	//public static Font uiFontMedium;
+	static LineRenderer debugLineRenderer;
 
 	public static Camera camera;
 	public static Matrix projection, view, pv;
@@ -186,6 +188,7 @@ public static class Renderer
 	static List<ReflectionProbeDrawCommand> reflectionProbes = new List<ReflectionProbeDrawCommand>();
 	static List<ParticleSystemDrawCommand> particleSystems = new List<ParticleSystemDrawCommand>();
 	static List<ParticleSystemDrawCommand> particleSystemsAdditive = new List<ParticleSystemDrawCommand>();
+	static List<DebugLineDrawCommand> debugLines = new List<DebugLineDrawCommand>();
 
 	public static int meshRenderCounter = 0;
 	public static int meshCulledCounter = 0;
@@ -218,109 +221,11 @@ public static class Renderer
 		particleIndexBuffer = graphics.createIndexBuffer(graphics.createVideoMemory(stackalloc short[] { 0, 1, 2, 2, 3, 0 }));
 
 
-		{
-			Span<VertexElement> vertexElements = stackalloc VertexElement[] { new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector3, false) };
-
-			int currentRes = TERRAIN_RES;
-			for (int lod = 0; lod < 4; lod++)
-			{
-				Vector3[] positions = new Vector3[(currentRes + 1) * (currentRes + 1)];
-				for (int z = 0; z < currentRes + 1; z++)
-				{
-					for (int x = 0; x < currentRes + 1; x++)
-					{
-						positions[x + z * (currentRes + 1)] = new Vector3(
-							x / (float)(currentRes),
-							0.0f,
-							z / (float)(currentRes)
-						);
-					}
-				}
-				terrainMeshes[lod] = graphics.createVertexBuffer(
-					graphics.createVideoMemory(positions),
-					vertexElements
-				);
-
-				int[] indices = new int[currentRes * currentRes * 6];
-				for (int z = 0; z < currentRes; z++)
-				{
-					for (int x = 0; x < currentRes; x++)
-					{
-						int i = x + z * currentRes;
-
-						int i00 = x + z * (currentRes + 1);
-						int i01 = x + (z + 1) * (currentRes + 1);
-						int i11 = x + 1 + (z + 1) * (currentRes + 1);
-						int i10 = x + 1 + z * (currentRes + 1);
-
-						indices[i * 6 + 0] = i00;
-						indices[i * 6 + 1] = i01;
-						indices[i * 6 + 2] = i11;
-						indices[i * 6 + 3] = i11;
-						indices[i * 6 + 4] = i10;
-						indices[i * 6 + 5] = i00;
-					}
-				}
-				terrainMeshesIndices[lod] = graphics.createIndexBuffer(graphics.createVideoMemory(indices), BufferFlags.Index32);
-
-				currentRes /= 2;
-			}
-		}
-
-		const int waterTileSubsections = 1024;
-		const int waterTileVertexCount = waterTileSubsections + 1;
-		Vector3[] waterTileVertices = new Vector3[waterTileVertexCount * waterTileVertexCount];
-		int[] waterTileIndices = new int[waterTileSubsections * waterTileSubsections * 6];
-		for (int z = 0; z < waterTileVertexCount; z++)
-		{
-			for (int x = 0; x < waterTileVertexCount; x++)
-			{
-				int i = x + z * waterTileVertexCount;
-
-				Vector3 vertex;
-				vertex.x = x / (float)(waterTileVertexCount - 1);
-				vertex.y = 0.0f;
-				vertex.z = z / (float)(waterTileVertexCount - 1);
-
-				waterTileVertices[i] = vertex;
-			}
-		}
-		for (int z = 0; z < waterTileSubsections; z++)
-		{
-			for (int x = 0; x < waterTileSubsections; x++)
-			{
-				int i = x + z * waterTileSubsections;
-
-				int i00 = x + z * waterTileVertexCount;
-				int i01 = x + (z + 1) * waterTileVertexCount;
-				int i11 = x + 1 + (z + 1) * waterTileVertexCount;
-				int i10 = x + 1 + z * waterTileVertexCount;
-
-				waterTileIndices[i * 6 + 0] = i00;
-				waterTileIndices[i * 6 + 1] = i01;
-				waterTileIndices[i * 6 + 2] = i11;
-				waterTileIndices[i * 6 + 3] = i11;
-				waterTileIndices[i * 6 + 4] = i10;
-				waterTileIndices[i * 6 + 5] = i00;
-			}
-		}
-
-
 		finalTarget = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
 			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.BGRA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
 		});
 
-		/*
-		pointShadowCubemap = graphics.createCubemap(256, TextureFormat.D16F, (ulong)TextureFlags.RenderTarget);
-		for (int i = 0; i < 6; i++)
-		{
-			pointShadowRenderTargets[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
-			{
-				new RenderTargetAttachment(pointShadowCubemap, i, false)
-			});
-		}
-		*/
 
 		cubemapFaceRotations[0] = Matrix.CreateScale(-1.0f, 1.0f, 1.0f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
 		cubemapFaceRotations[1] = Matrix.CreateScale(-1.0f, 1.0f, 1.0f) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
@@ -350,6 +255,7 @@ public static class Renderer
 		waterShader = Resource.GetShader("res/shaders/water/water.vs.shader", "res/shaders/water/water.fs.shader");
 		particleShader = Resource.GetShader("res/shaders/particle/particle.vs.shader", "res/shaders/particle/particle.fs.shader");
 		particleAdditiveShader = Resource.GetShader("res/shaders/particle/particle_additive.vs.shader", "res/shaders/particle/particle_additive.fs.shader");
+		lineShader = Resource.GetShader("res/shaders/line/line.vs.shader", "res/shaders/line/line.fs.shader");
 		grassShader = Resource.GetShader("res/shaders/grass/grass.vs.shader", "res/shaders/grass/grass.fs.shader");
 		fogShader = Resource.GetShader("res/shaders/fog/fog.vs.shader", "res/shaders/fog/fog.fs.shader");
 		bloomDownsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vs.shader", "res/shaders/bloom/bloom_downsample.fs.shader");
@@ -365,6 +271,8 @@ public static class Renderer
 		//uiFontMedium = FontManager.GetFont("baskerville", 20, true);
 
 		particleBatch = new SpriteBatch(graphics);
+
+		debugLineRenderer = new LineRenderer();
 
 		GUI.Init(graphics);
 	}
@@ -404,30 +312,107 @@ public static class Renderer
 		models.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform });
 	}
 
-	public static void DrawModelStaticInstanced_(Model model, Matrix transform)
+	public static void DrawDebugLine(Vector3 vertex0, Vector3 vertex1, Vector4 color)
 	{
-		modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
-		/*
-		if (!modelsInstanced.TryGetValue(model, out List<ModelDrawCommand> drawList))
-		{
-			drawList = new List<ModelDrawCommand>();
-			modelsInstanced.Add(model, drawList);
-		}
-		drawList.Add(new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
-		*/
+		debugLines.Add(new DebugLineDrawCommand { vertex0 = vertex0, vertex1 = vertex1, color = color });
 	}
 
-	public static void DrawSubModelStaticInstanced_(Model model, int meshID, Matrix transform)
+	public static void DrawDebugBox(Vector3 size, Matrix transform, Vector4 color)
 	{
-		modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
-		/*
-		if (!modelsInstanced.TryGetValue(model, out List<ModelDrawCommand> drawList))
+		Vector3 vertex0 = transform * (0.5f * new Vector3(-size.x, -size.y, -size.z));
+		Vector3 vertex1 = transform * (0.5f * new Vector3(size.x, -size.y, -size.z));
+		Vector3 vertex2 = transform * (0.5f * new Vector3(size.x, -size.y, size.z));
+		Vector3 vertex3 = transform * (0.5f * new Vector3(-size.x, -size.y, size.z));
+		Vector3 vertex4 = transform * (0.5f * new Vector3(-size.x, size.y, -size.z));
+		Vector3 vertex5 = transform * (0.5f * new Vector3(size.x, size.y, -size.z));
+		Vector3 vertex6 = transform * (0.5f * new Vector3(size.x, size.y, size.z));
+		Vector3 vertex7 = transform * (0.5f * new Vector3(-size.x, size.y, size.z));
+
+		DrawDebugLine(vertex0, vertex1, color);
+		DrawDebugLine(vertex1, vertex2, color);
+		DrawDebugLine(vertex2, vertex3, color);
+		DrawDebugLine(vertex3, vertex0, color);
+
+		DrawDebugLine(vertex4, vertex5, color);
+		DrawDebugLine(vertex5, vertex6, color);
+		DrawDebugLine(vertex6, vertex7, color);
+		DrawDebugLine(vertex7, vertex4, color);
+
+		DrawDebugLine(vertex0, vertex4, color);
+		DrawDebugLine(vertex1, vertex5, color);
+		DrawDebugLine(vertex2, vertex6, color);
+		DrawDebugLine(vertex3, vertex7, color);
+	}
+
+	public static void DrawDebugSphere(float radius, Matrix transform, Vector4 color)
+	{
+		int segmentCount = 32;
+		for (int j = 0; j < 3; j++)
 		{
-			drawList = new List<ModelDrawCommand>();
-			modelsInstanced.Add(model, drawList);
+			Quaternion ringRot = j == 0 ? Quaternion.Identity : j == 1 ? Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI * 0.5f) : Quaternion.FromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f);
+
+			for (int k = 0; k < segmentCount; k++)
+			{
+				Vector3 vertex0 = transform * (ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+				Vector3 vertex1 = transform * (ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+				DrawDebugLine(vertex0, vertex1, color);
+			}
 		}
-		drawList.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
-		*/
+	}
+
+	public static void DrawDebugCapsule(float radius, float height, Matrix transform, Vector4 color)
+	{
+		int segmentCount = 32;
+
+		// top ring
+		for (int k = 0; k < segmentCount; k++)
+		{
+			Vector3 vertex0 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+			DrawDebugLine(vertex0, vertex1, color);
+		}
+
+		// bottom ring
+		for (int k = 0; k < segmentCount; k++)
+		{
+			Vector3 vertex0 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+			DrawDebugLine(vertex0, vertex1, color);
+		}
+
+		// vertical ring 1
+		for (int k = 0; k < segmentCount; k++)
+		{
+			Quaternion ringRot = Quaternion.FromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f);
+
+			Vector3 vertex0 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex1 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+			DrawDebugLine(vertex0, vertex1, color);
+		}
+
+		// vertical ring 2
+		for (int k = 0; k < segmentCount; k++)
+		{
+			Quaternion ringRot = Quaternion.FromAxisAngle(Vector3.UnitY, MathF.PI * 0.5f) * Quaternion.FromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f);
+
+			Vector3 vertex0 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex1 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+			DrawDebugLine(vertex0, vertex1, color);
+		}
+
+		// vertical lines
+		for (int k = 0; k < 4; k++)
+		{
+			Vector3 vertex0 = transform * (new Vector3(0.0f, -height * 0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / 4.0f * MathF.PI * 2) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / 4.0f * MathF.PI * 2) * new Vector3(0.0f, 0.0f, radius));
+
+			DrawDebugLine(vertex0, vertex1, color);
+		}
 	}
 
 	public static void DrawLight(Vector3 position, Vector3 color)
@@ -1183,71 +1168,6 @@ public static class Renderer
 
 	static void RenderParticles()
 	{
-		/*
-		{
-			graphics.resetState();
-			//particleSystems.Sort(systemDepthComparator);
-
-			int totalParticleCount = 0;
-			foreach (ParticleSystemDrawCommand draw in particleSystems)
-				totalParticleCount += draw.numParticles;
-
-			particleBatch.begin(totalParticleCount);
-			foreach (ParticleSystemDrawCommand draw in particleSystems)
-			{
-				float scale = draw.transform.scale.x;
-				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
-
-				for (int i = 0; i < draw.numParticles; i++)
-				{
-					Particle particle = draw.particles[i];
-					if (particle.id != -1)
-					{
-						Vector3 position = particle.position;
-						float size = scale * particle.size;
-
-						if (draw.followMode == ParticleFollowMode.Follow)
-							position = globalSpawnPos + particle.position * scale;
-
-						float u0 = draw.textureAtlas != null ? particle.u0 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v0 = draw.textureAtlas != null ? particle.v0 / (float)draw.textureAtlas.info.height : 0.0f;
-						float u1 = draw.textureAtlas != null ? particle.u1 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v1 = draw.textureAtlas != null ? particle.v1 / (float)draw.textureAtlas.info.height : 0.0f;
-						particleBatch.drawBillboard(position.x, position.y, position.z,
-							size, size,
-							particle.rotation,
-							draw.textureAtlas, uint.MaxValue,
-							u0, v0, u1, v1,
-							particle.color);
-					}
-				}
-			}
-			particleBatch.end();
-
-
-			Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-			Span<Vector4> pointLightColors = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-
-			for (int i = 0; i < particleBatch.getNumDrawCalls(); i++)
-			{
-				graphics.setBlendState(BlendState.Alpha);
-				graphics.setViewTransform(projection, view);
-
-				for (int j = 0; j < Math.Min(lights.Count, MAX_LIGHTS_PER_PASS); j++)
-				{
-					pointLightPositions[j] = new Vector4(lights[j].position, 1.0f);
-					pointLightColors[j] = new Vector4(lights[j].color, 1.0f);
-				}
-				graphics.setUniform(particleShader.getUniform("u_pointLight_position", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightPositions);
-				graphics.setUniform(particleShader.getUniform("u_pointLight_color", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightColors);
-				graphics.setUniform(particleShader, "u_lightInfo", new Vector4(lights.Count + 0.5f, 0.0f, 0.0f, 0.0f));
-
-				particleBatch.submitDrawCall(i, particleShader);
-			}
-		}
-		*/
-
-
 		{
 			Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
 			Span<Vector4> pointLightColors = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
@@ -1402,103 +1322,20 @@ public static class Renderer
 				graphics.draw(particleAdditiveShader);
 			}
 		}
-
-
-
-		/*
-		{
-			graphics.resetState();
-			//particleSystemsAdditive.Sort(systemDepthComparator);
-
-			int totalParticleCount = 0;
-			foreach (ParticleSystemDrawCommand draw in particleSystemsAdditive)
-				totalParticleCount += draw.numParticles;
-
-			particleBatch.begin(totalParticleCount);
-			foreach (ParticleSystemDrawCommand draw in particleSystemsAdditive)
-			{
-				float scale = draw.transform.scale.x;
-				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
-
-				for (int i = 0; i < draw.numParticles; i++)
-				{
-					Particle particle = draw.particles[i];
-					if (particle.id != -1)
-					{
-						Vector3 position = particle.position;
-						float size = scale * particle.size;
-
-						if (draw.followMode == ParticleFollowMode.Follow)
-							position = globalSpawnPos + particle.position * scale;
-
-						float u0 = draw.textureAtlas != null ? particle.u0 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v0 = draw.textureAtlas != null ? particle.v0 / (float)draw.textureAtlas.info.height : 0.0f;
-						float u1 = draw.textureAtlas != null ? particle.u1 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v1 = draw.textureAtlas != null ? particle.v1 / (float)draw.textureAtlas.info.height : 0.0f;
-						particleBatch.drawBillboard(position.x, position.y, position.z,
-							size, size,
-							particle.rotation,
-							draw.textureAtlas, uint.MaxValue,
-							u0, v0, u1, v1,
-							particle.color);
-					}
-				}
-			}
-			particleBatch.end();
-
-			for (int i = 0; i < particleBatch.getNumDrawCalls(); i++)
-			{
-				graphics.setBlendState(BlendState.Additive);
-				graphics.setViewTransform(projection, view);
-
-				particleBatch.submitDrawCall(i, particleAdditiveShader);
-			}
-		}
-		*/
 	}
 
-	static void SubmitWaterMesh(ushort vertexBuffer, ushort indexBuffer, Matrix transform)
+	static void RenderDebugLines()
 	{
-		graphics.setVertexBuffer(vertexBuffer);
-		graphics.setIndexBuffer(indexBuffer);
+		graphics.resetState();
 
-		graphics.setTransform(transform);
+		graphics.setViewTransform(projection, view);
 
-		graphics.setUniform(waterShader.getUniform("u_time", UniformType.Vector4), new Vector4(Time.currentTime / 1e9f, 0.0f, 0.0f, 0.0f));
-
-		graphics.setUniform(waterShader.getUniform("u_cameraPosition", UniformType.Vector4), new Vector4(camera.position, Time.currentTime / 1e9f));
-
-		if (directionalLights.Count > 0)
+		debugLineRenderer.begin(debugLines.Count);
+		for (int i = 0; i < debugLines.Count; i++)
 		{
-			graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].direction, 0.0f));
-			graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].color, 0.0f));
-
-			graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-			DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
-			int lastCascade = shadowMap.renderTargets.Length - 1;
-			RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
-			Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
-			graphics.setTexture(waterShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, renderTarget.getAttachmentTexture(0));
-			graphics.setUniform(waterShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), toLightSpace);
+			debugLineRenderer.draw(debugLines[i].vertex0, debugLines[i].vertex1, debugLines[i].color);
 		}
-		else
-		{
-			graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
-			graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
-
-			graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-			graphics.setTexture(waterShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 0, emptyShadowTexture);
-			graphics.setUniform(waterShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
-		}
-
-		if (environmentMap != null)
-			graphics.setTexture(waterShader.getUniform("s_environmentMap", UniformType.Sampler), 1, environmentMap);
-		else
-			graphics.setTexture(waterShader.getUniform("s_environmentMap", UniformType.Sampler), 1, emptyCubemap);
-
-		graphics.draw(waterShader);
+		debugLineRenderer.end((int)RenderPass.Forward, lineShader, graphics);
 	}
 
 	static void ForwardPass()
@@ -1509,6 +1346,7 @@ public static class Renderer
 
 		//RenderSky();
 		//RenderParticles();
+		RenderDebugLines();
 	}
 
 	static void TonemappingPass()
@@ -1574,6 +1412,7 @@ public static class Renderer
 		reflectionProbes.Clear();
 		particleSystems.Clear();
 		particleSystemsAdditive.Clear();
+		debugLines.Clear();
 
 		return finalTarget.getAttachmentTexture(0);
 	}

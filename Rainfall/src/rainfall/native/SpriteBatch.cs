@@ -13,6 +13,9 @@ namespace Rainfall.Native
 		internal static extern IntPtr SpriteBatch_Create();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void SpriteBatch_Destroy(IntPtr handle);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void SpriteBatch_Begin(IntPtr batch, int numDrawCommands);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

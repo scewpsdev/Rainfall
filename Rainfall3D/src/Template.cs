@@ -6,26 +6,20 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection.Emit;
 using System.Reflection;
 
-internal class DungeonGame : Game
+internal class Program : Game
 {
 	const int VERSION_MAJOR = 0;
-	const int VERSION_MINOR = 4;
-	const int VERSION_PATCH = 5;
+	const int VERSION_MINOR = 1;
+	const int VERSION_PATCH = 1;
 	const char VERSION_SUFFIX = 'a';
 
 
-	public static new DungeonGame instance { get => (DungeonGame)Game.instance; }
+	public static new Program instance { get => (Program)Game.instance; }
 	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(Program))?.GetName().Name;
 
-
-	public Level level { get; private set; }
-
-	Camera camera;
-
-	public GameManager gameManager;
-	GameState gameState;
 
 	float cpuTimeAcc = 0.0f;
 	float gpuTimeAcc = 0.0f;
@@ -47,24 +41,7 @@ internal class DungeonGame : Game
 		Audio.Init();
 		AudioManager.Init();
 
-		Item.LoadContent();
-		Tile.Init();
-
 		Debug.debugTextEnabled = true;
-
-		FontManager.LoadFont("baskerville", "res/fonts/libre-baskerville.regular.ttf");
-
-		gameManager = new GameManager();
-		gameState = new GameState();
-
-		level = new Level();
-
-		camera = new Camera();
-
-		gameManager.level = level;
-		gameManager.camera = camera;
-
-		gameManager.resetGameState();
 	}
 
 	public override void destroy()
@@ -95,23 +72,7 @@ internal class DungeonGame : Game
 		}
 #endif
 
-		if (Input.IsKeyPressed(KeyCode.KeyP))
-		{
-			gameManager.resetGameState();
-		}
-		/*
-		if (player.position.y < -100.0f)
-		{
-			player.velocity.y = 0.0f;
-			player.setPosition(player.resetPoint);
-			player.setRotation(0.0f);
-			player.pitch = 0.0f;
-		}
-		*/
-
-		gameManager.update();
-
-		level.update();
+		// update
 
 		Physics.Update();
 		AudioManager.Update();
@@ -120,20 +81,15 @@ internal class DungeonGame : Game
 	public override void draw()
 	{
 		Renderer.Begin();
-		Renderer.SetCamera(camera);
 
 		GraphicsManager.Draw();
 
-		level.draw(graphics);
-		gameManager.draw();
+		// draw
 
 		Renderer.End();
 
 		if (!GraphicsManager.cinematicMode)
 			drawDebugStats();
-
-		//ImGui.ShowDemoWindow();
-		//ImGui.ShowUserGuide();
 
 		Audio.Update();
 
@@ -274,49 +230,6 @@ internal class DungeonGame : Game
 		StringUtils.WriteString(str, "Blits: ");
 		StringUtils.AppendInteger(str, (int)renderStats.numBlit);
 		Debug.DrawDebugText(0, line++, str);
-
-		line++;
-
-		StringUtils.WriteString(str, "grounded=");
-		StringUtils.AppendBool(str, gameManager.player.isGrounded);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "speed=");
-		StringUtils.AppendInteger(str, (int)(gameManager.player.velocity.xz.length * 100));
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "x=");
-		StringUtils.AppendInteger(str, (int)(gameManager.player.position.x * 100));
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "y=");
-		StringUtils.AppendInteger(str, (int)(gameManager.player.position.y * 100));
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "z=");
-		StringUtils.AppendInteger(str, (int)(gameManager.player.position.z * 100));
-		Debug.DrawDebugText(0, line++, str);
-
-		line++;
-		line++;
-		line++;
-
-		/*
-		const int numAllocators = 10;
-		byte[] allocatorFiles = new byte[numAllocators * 128];
-		long[] allocatorSizes = new long[numAllocators];
-		Time.GetTopAllocators(numAllocators, allocatorFiles, allocatorSizes);
-		
-		for (int i = 0; i < numAllocators; i++)
-		{
-			Span<byte> file = MemoryExtensions.AsSpan(allocatorFiles, i * 128, 128);
-			long size = allocatorSizes[i];
-			StringUtils.WriteString(str, file, StringUtils.StringLength(file));
-			StringUtils.AppendString(str, ": ");
-			WriteMemoryString(str, size);
-			Debug.DrawDebugText(0, line++, str);
-		}
-		*/
 	}
 
 	static void WriteMemoryString(Span<byte> str, long mem)
@@ -351,14 +264,14 @@ internal class DungeonGame : Game
 	{
 #if DEBUG
 		string outDir = "bin\\x64\\Debug";
-		string projectDir = "D:\\Dev\\Rainfall\\DungeonGame";
-		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + outDir;
+		string projectDir = "D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME;
+		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\bin\\x64\\Debug";
 		//string projectDir = "C:\\Users\\faris\\Documents\\Dev\\Rainfall";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + projectDir + "\\" + outDir + "\\net7.0\\res gltf fbx png hdr ogg dat shader ttf";
+		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + projectDir + "\\" + outDir + "\\net8.0\\res gltf fbx png hdr ogg dat shader ttf";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();
@@ -377,7 +290,7 @@ internal class DungeonGame : Game
 		launchParams.fullscreen = true;
 #endif
 
-		Game game = new DungeonGame();
+		Game game = new Program();
 		game.run(launchParams);
 	}
 }

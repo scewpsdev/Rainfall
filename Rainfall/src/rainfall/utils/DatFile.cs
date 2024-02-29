@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Rainfall
 {
@@ -82,11 +83,84 @@ namespace Rainfall
 		public DatArray array { get => value.array; }
 		public int integer { get => value.integer; }
 		public string stringContent { get => value.stringContent; }
+
+
+		public DatField(string name, DatValue value)
+		{
+			this.name = name;
+			this.value = value;
+		}
 	}
 
 	public class DatObject
 	{
 		public List<DatField> fields = new List<DatField>();
+
+
+		public void addField(DatField field)
+		{
+			fields.Add(field);
+		}
+
+		public void addNumber(string name, double number)
+		{
+			fields.Add(new DatField(name, new DatValue(number)));
+		}
+
+		public void addNumber(string name, float number)
+		{
+			fields.Add(new DatField(name, new DatValue(number)));
+		}
+
+		public void addString(string name, string str)
+		{
+			fields.Add(new DatField(name, new DatValue(str, DatValueType.String)));
+		}
+
+		public void addIdentifier(string name, string identifier)
+		{
+			fields.Add(new DatField(name, new DatValue(identifier, DatValueType.Identifier)));
+		}
+
+		public void addObject(string name, DatObject obj)
+		{
+			fields.Add(new DatField(name, new DatValue(obj)));
+		}
+
+		public void addArray(string name, DatArray arr)
+		{
+			fields.Add(new DatField(name, new DatValue(arr)));
+		}
+
+		public void addVector2(string name, Vector2 v)
+		{
+			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y)))));
+		}
+
+		public void addVector3(string name, Vector3 v)
+		{
+			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y), new DatValue(v.z)))));
+		}
+
+		public void addVector4(string name, Vector4 v)
+		{
+			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y), new DatValue(v.z), new DatValue(v.w)))));
+		}
+
+		public void addQuaternion(string name, Quaternion q)
+		{
+			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(q.x), new DatValue(q.y), new DatValue(q.z), new DatValue(q.w)))));
+		}
+
+		public void addInteger(string name, int i)
+		{
+			fields.Add(new DatField(name, new DatValue(i)));
+		}
+
+		public void addBoolean(string name, bool b)
+		{
+			fields.Add(new DatField(name, new DatValue(b ? 1 : 0)));
+		}
 
 		public DatField getField(string name)
 		{
@@ -159,7 +233,7 @@ namespace Rainfall
 			return false;
 		}
 
-		public bool getObject(string name, out DatArray arr)
+		public bool getArray(string name, out DatArray arr)
 		{
 			DatField field = getField(name);
 			if (field != null && field.value.type == DatValueType.Array)
@@ -216,6 +290,21 @@ namespace Rainfall
 			return false;
 		}
 
+		public bool getQuaternion(string name, out Quaternion q)
+		{
+			DatField field = getField(name);
+			if (field != null && field.value.type == DatValueType.Array)
+			{
+				DatArray arr = field.array;
+				Debug.Assert(arr.values.Count == 4);
+				q = new Quaternion((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number, (float)arr.values[3].number);
+
+				return true;
+			}
+			q = Quaternion.Identity;
+			return false;
+		}
+
 		public bool getInteger(string name, out int i)
 		{
 			DatField field = getField(name);
@@ -255,6 +344,77 @@ namespace Rainfall
 	public class DatArray
 	{
 		public List<DatValue> values = new List<DatValue>();
+
+
+		public DatArray(params DatValue[] values)
+		{
+			this.values.AddRange(values);
+		}
+
+		public int size
+		{
+			get => values.Count;
+		}
+
+		public DatValue this[int index]
+		{
+			get => values[index];
+		}
+
+		public void addNumber(double number)
+		{
+			values.Add(new DatValue(number));
+		}
+
+		public void addNumber(float number)
+		{
+			values.Add(new DatValue(number));
+		}
+
+		public void addString(string str)
+		{
+			values.Add(new DatValue(str, DatValueType.String));
+		}
+
+		public void addIdentifier(string identifier)
+		{
+			values.Add(new DatValue(identifier, DatValueType.Identifier));
+		}
+
+		public void addObject(DatObject obj)
+		{
+			values.Add(new DatValue(obj));
+		}
+
+		public void addArray(DatArray arr)
+		{
+			values.Add(new DatValue(arr));
+		}
+
+		public void addVector2(Vector2 v)
+		{
+			values.Add(new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y))));
+		}
+
+		public void addVector3(Vector3 v)
+		{
+			values.Add(new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y), new DatValue(v.z))));
+		}
+
+		public void addVector4(Vector4 v)
+		{
+			values.Add(new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y), new DatValue(v.z), new DatValue(v.w))));
+		}
+
+		public void addInteger(int i)
+		{
+			values.Add(new DatValue(i));
+		}
+
+		public void addBoolean(bool b)
+		{
+			values.Add(new DatValue(b ? 1 : 0));
+		}
 	}
 
 	public class DatFile
@@ -294,16 +454,159 @@ namespace Rainfall
 		ParserState state;
 
 
+		public DatFile()
+		{
+			root = new DatObject();
+		}
+
+		public void addField(DatField field)
+		{
+			root.addField(field);
+		}
+
+		public void addNumber(string name, double number)
+		{
+			root.addNumber(name, number);
+		}
+
+		public void addNumber(string name, float number)
+		{
+			root.addNumber(name, number);
+		}
+
+		public void addString(string name, string str)
+		{
+			root.addString(name, str);
+		}
+
+		public void addIdentifier(string name, string identifier)
+		{
+			root.addIdentifier(name, identifier);
+		}
+
+		public void addObject(string name, DatObject obj)
+		{
+			root.addObject(name, obj);
+		}
+
+		public void addArray(string name, DatArray arr)
+		{
+			root.addArray(name, arr);
+		}
+
+		public void addVector2(string name, Vector2 v)
+		{
+			root.addVector2(name, v);
+		}
+
+		public void addVector3(string name, Vector3 v)
+		{
+			root.addVector3(name, v);
+		}
+
+		public void addVector4(string name, Vector4 v)
+		{
+			root.addVector4(name, v);
+		}
+
+		public void addInteger(string name, int i)
+		{
+			root.addInteger(name, i);
+		}
+
+		public void addBoolean(string name, bool b)
+		{
+			root.addBoolean(name, b);
+		}
+
+		void serializeObject(DatObject obj, StreamWriter writer)
+		{
+			writer.Write("{\n");
+			serializeObjectContent(obj, writer);
+			writer.Write("\n}");
+		}
+
+		void serializeArray(DatArray arr, StreamWriter writer)
+		{
+			writer.Write("[ ");
+			for (int i = 0; i < arr.values.Count; i++)
+			{
+				DatValue value = arr.values[i];
+				serializeValue(value, writer);
+				if (i < arr.values.Count - 1)
+					writer.Write(", ");
+			}
+			writer.Write(" ]");
+		}
+
+		void serializeValue(DatValue value, StreamWriter writer)
+		{
+			switch (value.type)
+			{
+				case DatValueType.Number:
+					writer.Write(value.number);
+					break;
+				case DatValueType.String:
+					writer.Write("\"" + value.str + "\"");
+					break;
+				case DatValueType.Identifier:
+					writer.Write(value.identifier);
+					break;
+				case DatValueType.Object:
+					serializeObject(value.obj, writer);
+					break;
+				case DatValueType.Array:
+					serializeArray(value.array, writer);
+					break;
+			}
+		}
+
+		void serializeField(DatField field, StreamWriter writer)
+		{
+			writer.Write(field.name + " = ");
+			serializeValue(field.value, writer);
+		}
+
+		void serializeObjectContent(DatObject obj, StreamWriter writer)
+		{
+			for (int i = 0; i < obj.fields.Count; i++)
+			{
+				DatField field = obj.fields[i];
+				serializeField(field, writer);
+				if (i < obj.fields.Count - 1)
+					writer.Write("\n");
+			}
+		}
+
+		public void serialize(Stream stream)
+		{
+			StreamWriter writer = new StreamWriter(stream);
+			serializeObjectContent(root, writer);
+			writer.Close();
+		}
+
 		public DatFile(string src, string path)
 		{
 			this.path = path;
 			this.root = new DatObject();
 
 			state = new ParserState() { content = src, idx = 0 };
-			readObjectContent(root);
+			deserialize(root);
 		}
 
-		void readObjectContent(DatObject obj)
+		public DatFile(Stream stream)
+		{
+			this.root = new DatObject();
+
+			StreamReader reader = new StreamReader(stream);
+			string src = reader.ReadToEnd();
+			reader.Close();
+
+			state = new ParserState() { content = src, idx = 0 };
+			deserialize(root);
+		}
+
+		void deserialize(DatObject obj)
 		{
 			bool hasNext = true;
 			while (hasNext)
@@ -313,8 +616,7 @@ namespace Rainfall
 				if (!isAlpha(state.peek()))
 					break;
 
-				DatField field = new DatField();
-				field.name = readIdentifier();
+				string name = readIdentifier();
 
 				skipWhitespace();
 
@@ -322,8 +624,9 @@ namespace Rainfall
 				Debug.Assert(column == ':' || column == '=');
 
 				skipWhitespace();
-				field.value = readValue();
+				DatValue value = readValue();
 
+				DatField field = new DatField(name, value);
 				obj.fields.Add(field);
 
 				skipWhitespaceNewlineComments();
@@ -474,7 +777,7 @@ namespace Rainfall
 			state.advance(); // {
 
 			skipWhitespaceNewlineComments();
-			readObjectContent(obj);
+			deserialize(obj);
 			skipWhitespaceNewlineComments();
 
 			Debug.Assert(state.peek() == '}');
@@ -490,7 +793,7 @@ namespace Rainfall
 			state.advance(); // [
 			skipWhitespaceNewlineComments();
 
-			bool hasNext = true;
+			bool hasNext = state.peek() != ']';
 			while (hasNext)
 			{
 				skipWhitespaceNewlineComments();
@@ -607,9 +910,9 @@ namespace Rainfall
 			return root.getObject(name, out obj);
 		}
 
-		public bool getObject(string name, out DatArray arr)
+		public bool getArray(string name, out DatArray arr)
 		{
-			return root.getObject(name, out arr);
+			return root.getArray(name, out arr);
 		}
 
 		public bool getVector2(string name, out Vector2 v)

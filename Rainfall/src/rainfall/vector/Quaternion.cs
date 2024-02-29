@@ -222,6 +222,11 @@ namespace Rainfall
 			return new Quaternion(x, y, z, w);
 		}
 
+		public static Quaternion FromEulerAngles(Vector3 eulers)
+		{
+			return FromAxisAngle(Vector3.UnitY, eulers.y) * FromAxisAngle(Vector3.UnitX, eulers.x) * FromAxisAngle(Vector3.UnitZ, eulers.z);
+		}
+
 		public static Quaternion LookAt(Vector3 eye, Vector3 at, Vector3 up)
 		{
 			/*

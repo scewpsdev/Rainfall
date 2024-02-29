@@ -111,6 +111,17 @@ enum class CullState
 	Count
 };
 
+enum class PrimitiveType
+{
+	Triangle,
+	TriangleStrip,
+	Lines,
+	LineStrip,
+	Points,
+
+	Count
+};
+
 
 static int vertexAttributeTypeCounts[(int)VertexAttributeType::Count] = { 4, 1, 1, 2, 3, 4 };
 static bgfx::AttribType::Enum vertexAttributeTypesBgfx[(int)VertexAttributeType::Count] = {
@@ -144,6 +155,14 @@ static uint64_t cullStateValues[(int)CullState::Count] = {
 	0,
 	BGFX_STATE_CULL_CW,
 	BGFX_STATE_CULL_CCW,
+};
+
+static uint64_t primitiveTypeValues[(int)PrimitiveType::Count] = {
+	0,
+	BGFX_STATE_PT_TRISTRIP,
+	BGFX_STATE_PT_LINES,
+	BGFX_STATE_PT_LINESTRIP,
+	BGFX_STATE_PT_POINTS,
 };
 
 
@@ -464,6 +483,13 @@ RFAPI void Graphics_SetCullState(CullState cullState)
 {
 	state &= 0xffffffffffffffff ^ BGFX_STATE_CULL_MASK;
 	state |= cullStateValues[(int)cullState];
+	bgfx::setState(state);
+}
+
+RFAPI void Graphics_SetPrimitiveType(PrimitiveType primitiveType)
+{
+	state &= 0xffffffffffffffff ^ BGFX_STATE_PT_MASK;
+	state |= primitiveTypeValues[(int)primitiveType];
 	bgfx::setState(state);
 }
 

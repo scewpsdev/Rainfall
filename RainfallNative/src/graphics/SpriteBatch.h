@@ -50,6 +50,7 @@ struct SpriteBatch
 
 
 	SpriteBatch();
+	~SpriteBatch();
 
 	void begin(int numDrawCommands);
 	void end();

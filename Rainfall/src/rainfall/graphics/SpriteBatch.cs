@@ -21,6 +21,11 @@ namespace Rainfall
 			handle = Native.SpriteBatch.SpriteBatch_Create();
 		}
 
+		public void destroy()
+		{
+			Native.SpriteBatch.SpriteBatch_Destroy(handle);
+		}
+
 		public void begin(int numDrawCommands)
 		{
 			Native.SpriteBatch.SpriteBatch_Begin(handle, numDrawCommands);

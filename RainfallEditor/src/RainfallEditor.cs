@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class RainfallEditor : Game
+public unsafe class RainfallEditor : Game
 {
 	public static new RainfallEditor instance { get => (RainfallEditor)Game.instance; }
 
@@ -40,19 +40,38 @@ public class RainfallEditor : Game
 		Physics.Shutdown();
 	}
 
-	public void newTab()
+	public EditorInstance getTab(string path)
+	{
+		foreach (EditorInstance tab in tabs)
+		{
+			if (tab.path == path)
+				return tab;
+		}
+		return null;
+	}
+
+	public EditorInstance newTab()
 	{
 		EditorInstance instance = new EditorInstance();
 		tabs.Add(instance);
-		EditorUI.nextSelectedTab = currentTab;
+		currentTab = instance;
+		EditorUI.nextSelectedTab = instance;
+		return instance;
 	}
 
 	public void closeTab(EditorInstance instance)
 	{
-		instance.destroy();
-		tabs.Remove(instance);
-		if (tabs.Count == 0)
-			currentTab = null;
+		if (instance.unsavedChanges)
+		{
+			EditorUI.unsavedChangesPopup = instance;
+		}
+		else
+		{
+			instance.destroy();
+			tabs.Remove(instance);
+			if (tabs.Count == 0)
+				currentTab = null;
+		}
 	}
 
 	public EditorInstance getNextTab(EditorInstance tab)
@@ -67,6 +86,79 @@ public class RainfallEditor : Game
 		int idx = tabs.IndexOf(tab);
 		int nextIdx = (idx - 1 + tabs.Count) % tabs.Count;
 		return tabs[nextIdx];
+	}
+
+	public void open()
+	{
+		string defaultPath = null;
+		if (currentTab != null)
+			defaultPath = currentTab.path;
+
+		byte* outPath;
+		NFDResult result = NFD.NFD_OpenDialog("rfs", defaultPath, &outPath);
+		if (result == NFDResult.NFD_OKAY)
+		{
+			string path = new string((sbyte*)outPath);
+			EditorInstance alreadyOpenTab = getTab(path);
+			if (alreadyOpenTab != null)
+				closeTab(alreadyOpenTab);
+			else if (currentTab != null && currentTab.path == null && !currentTab.unsavedChanges)
+				closeTab(currentTab);
+
+			EditorInstance instance = newTab();
+			instance.path = path;
+			SceneFormat.ReadScene(instance, instance.path);
+			NFD.NFDi_Free(outPath);
+		}
+	}
+
+	public void saveAs(EditorInstance tab)
+	{
+		byte* savePath;
+		NFDResult result = NFD.NFD_SaveDialog("rfs", null, &savePath);
+		if (result == NFDResult.NFD_OKAY)
+		{
+			tab.path = new string((sbyte*)savePath);
+			SceneFormat.WriteScene(tab, tab.path);
+			tab.notifySave();
+			NFD.NFDi_Free(savePath);
+		}
+	}
+
+	public void saveAs()
+	{
+		if (currentTab != null)
+			saveAs(currentTab);
+	}
+
+	public void save(EditorInstance tab)
+	{
+		if (tab.path == null)
+		{
+			saveAs(tab);
+		}
+		else
+		{
+			SceneFormat.WriteScene(tab, tab.path);
+			tab.notifySave();
+		}
+	}
+
+	public void save()
+	{
+		if (currentTab != null && currentTab.unsavedChanges)
+			save(currentTab);
+	}
+
+	public void saveAll()
+	{
+		foreach (EditorInstance tab in tabs)
+		{
+			if (tab.unsavedChanges)
+			{
+				save(tab);
+			}
+		}
 	}
 
 	public string compileAsset(string path)
@@ -117,6 +209,8 @@ public class RainfallEditor : Game
 		currentTab?.draw(graphics);
 
 		EditorUI.Draw(this);
+
+		//drawDebugStats();
 
 		Audio.Update();
 
