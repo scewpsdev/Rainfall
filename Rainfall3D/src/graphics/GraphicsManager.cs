@@ -35,46 +35,49 @@ public static class GraphicsManager
 	{
 		settings = new GraphicsSettings();
 
-		DatFile settingsFile = new DatFile(File.ReadAllText(GRAPHICS_SETTINGS_FILE), GRAPHICS_SETTINGS_FILE);
-		foreach (DatField setting in settingsFile.root.fields)
+		if (File.Exists(GRAPHICS_SETTINGS_FILE))
 		{
-			bool found = true;
+			DatFile settingsFile = new DatFile(File.ReadAllText(GRAPHICS_SETTINGS_FILE), GRAPHICS_SETTINGS_FILE);
+			foreach (DatField setting in settingsFile.root.fields)
+			{
+				bool found = true;
 
-			if (setting.name == "vSync")
-			{
-				Debug.Assert(setting.value.type == DatValueType.Number);
-				settings.vsync = setting.value.integer;
-			}
-			else if (setting.name == "fpsCap")
-			{
-				Debug.Assert(setting.value.type == DatValueType.Number);
-				settings.fpsCap = setting.value.integer;
-			}
-			else if (setting.name == "potato")
-			{
-				Debug.Assert(setting.value.type == DatValueType.Number);
-				settings.potato = setting.value.integer != 0;
-			}
-			else if (setting.name == "ambientOcclusion")
-			{
-				Debug.Assert(setting.value.type == DatValueType.Number);
-				settings.ambientOcclusion = setting.value.integer != 0;
-			}
-			else if (setting.name == "bloom")
-			{
-				Debug.Assert(setting.value.type == DatValueType.Number);
-				settings.bloom = setting.value.integer != 0;
-			}
-			else
-			{
-				found = false;
+				if (setting.name == "vSync")
+				{
+					Debug.Assert(setting.value.type == DatValueType.Number);
+					settings.vsync = setting.value.integer;
+				}
+				else if (setting.name == "fpsCap")
+				{
+					Debug.Assert(setting.value.type == DatValueType.Number);
+					settings.fpsCap = setting.value.integer;
+				}
+				else if (setting.name == "potato")
+				{
+					Debug.Assert(setting.value.type == DatValueType.Number);
+					settings.potato = setting.value.integer != 0;
+				}
+				else if (setting.name == "ambientOcclusion")
+				{
+					Debug.Assert(setting.value.type == DatValueType.Number);
+					settings.ambientOcclusion = setting.value.integer != 0;
+				}
+				else if (setting.name == "bloom")
+				{
+					Debug.Assert(setting.value.type == DatValueType.Number);
+					settings.bloom = setting.value.integer != 0;
+				}
+				else
+				{
+					found = false;
+				}
+
+				if (found)
+					Console.WriteLine("Loaded graphics setting " + setting.name);
 			}
 
-			if (found)
-				Console.WriteLine("Loaded graphics setting " + setting.name);
+			ApplyGraphicsSettings();
 		}
-
-		ApplyGraphicsSettings();
 	}
 
 	static void ApplyGraphicsSettings()

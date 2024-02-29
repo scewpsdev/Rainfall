@@ -36,6 +36,9 @@ namespace Rainfall
 			this.y1 = y1;
 			this.z1 = z1;
 		}
+
+		public Vector3 size { get => new Vector3(x1 - x0, y1 - y0, z1 - z0); }
+		public Vector3 offset { get => new Vector3(x0 + x1, y0 + y1, z0 + z1) * 0.5f; }
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

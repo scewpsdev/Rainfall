@@ -221,4 +221,12 @@ public static class StringUtils
 		}
 		return true;
 	}
+
+	public static string GetFilenameFromPath(string path)
+	{
+		int slash = path.LastIndexOfAny(new char[] { '/', '\\' });
+		if (slash != -1)
+			return path.Substring(slash + 1);
+		return path;
+	}
 }

@@ -55,7 +55,7 @@ void main()
     vec3 view = toCamera / distance;
 
     //vec3 ambient = RenderEnvironmentMap(normal, view, albedo, roughness, metallic, ao, s_environmentMap, u_environmentMapIntensities[0]);
-    float brightness = dot(normal, normalize(vec3(0.2, 1.0, 0.2))) * 0.5 + 0.5;
+    float brightness = (dot(normal, normalize(vec3(0.2, 1.0, 0.2))) * 0.5 + 0.5) * 0.05;
     vec3 ambient = brightness * albedo;
 	
     gl_FragColor = vec4(ambient, 1.0);

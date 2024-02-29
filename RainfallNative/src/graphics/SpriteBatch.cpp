@@ -47,6 +47,14 @@ SpriteBatch::SpriteBatch()
 	}
 }
 
+SpriteBatch::~SpriteBatch()
+{
+	for (int i = 0; i < MAX_SPRITE_TEXTURES; i++)
+	{
+		bgfx::destroy(s_textures[i]);
+	}
+}
+
 void SpriteBatch::begin(int numDrawCommands)
 {
 	textures.clear();
@@ -247,6 +255,11 @@ void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, flo
 RFAPI SpriteBatch* SpriteBatch_Create()
 {
 	return BX_NEW(Application_GetAllocator(), SpriteBatch);
+}
+
+RFAPI void SpriteBatch_Destroy(SpriteBatch* batch)
+{
+	BX_DELETE(Application_GetAllocator(), batch);
 }
 
 RFAPI void SpriteBatch_Begin(SpriteBatch* batch, int numDrawCommands)

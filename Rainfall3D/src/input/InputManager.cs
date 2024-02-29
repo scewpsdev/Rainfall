@@ -59,45 +59,40 @@ public static class InputManager
 			buttons.Add(button.ToString(), button);
 		}
 
-		DatFile bindingsFile = new DatFile(File.ReadAllText(INPUT_BINDINGS_FILE), INPUT_BINDINGS_FILE);
-		foreach (DatField binding in bindingsFile.root.fields)
+		if (File.Exists(INPUT_BINDINGS_FILE))
 		{
-			MouseButton button = MouseButton.None;
-			KeyCode key = KeyCode.None;
-			int scrollDelta = 0;
+			DatFile bindingsFile = new DatFile(File.ReadAllText(INPUT_BINDINGS_FILE), INPUT_BINDINGS_FILE);
+			foreach (DatField binding in bindingsFile.root.fields)
+			{
+				MouseButton button = MouseButton.None;
+				KeyCode key = KeyCode.None;
+				int scrollDelta = 0;
 
-			if (binding.value.type == DatValueType.Identifier)
-			{
-				string valueStr = binding.value.identifier;
-				TryGetButton(valueStr, ref button);
-				TryGetKey(valueStr, ref key);
-				TryGetScroll(valueStr, ref scrollDelta);
-			}
-			else if (binding.value.type == DatValueType.Array)
-			{
-				foreach (DatValue value in binding.value.array.values)
+				if (binding.value.type == DatValueType.Identifier)
 				{
-					string valueStr = value.identifier;
+					string valueStr = binding.value.identifier;
 					TryGetButton(valueStr, ref button);
 					TryGetKey(valueStr, ref key);
 					TryGetScroll(valueStr, ref scrollDelta);
 				}
-			}
+				else if (binding.value.type == DatValueType.Array)
+				{
+					foreach (DatValue value in binding.value.array.values)
+					{
+						string valueStr = value.identifier;
+						TryGetButton(valueStr, ref button);
+						TryGetKey(valueStr, ref key);
+						TryGetScroll(valueStr, ref scrollDelta);
+					}
+				}
 
-			if (button != MouseButton.None || key != KeyCode.None || scrollDelta != 0)
-			{
-				bindings.Add(binding.name, new InputBinding() { button = button, key = key, scrollDelta = scrollDelta });
-				Console.WriteLine("Registered binding " + binding.name);
+				if (button != MouseButton.None || key != KeyCode.None || scrollDelta != 0)
+				{
+					bindings.Add(binding.name, new InputBinding() { button = button, key = key, scrollDelta = scrollDelta });
+					Console.WriteLine("Registered binding " + binding.name);
+				}
 			}
 		}
-
-		/*
-		AddBinding("Action0", MouseButton.Left, KeyCode.KeyU);
-		AddBinding("Action1", MouseButton.Right, KeyCode.KeyO);
-		AddBinding("Use", KeyCode.KeyF);
-		AddBinding("Interact", KeyCode.KeyE);
-		AddBinding("Jump", KeyCode.Space);
-		*/
 	}
 
 	static void TryGetKey(string value, ref KeyCode key)

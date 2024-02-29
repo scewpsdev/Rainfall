@@ -39,6 +39,17 @@ namespace Rainfall
 		Count
 	}
 
+	public enum PrimitiveType
+	{
+		Triangle,
+		TriangleStrip,
+		Lines,
+		LineStrip,
+		Points,
+
+		Count
+	}
+
 	public class GraphicsDevice
 	{
 		const ushort INVALID_HANDLE = 0xffff;
@@ -498,6 +509,11 @@ namespace Rainfall
 		public void setCullState(CullState cullState)
 		{
 			Native.Graphics.Graphics_SetCullState(cullState);
+		}
+
+		public void setPrimitiveType(PrimitiveType primitiveType)
+		{
+			Native.Graphics.Graphics_SetPrimitiveType(primitiveType);
 		}
 
 		public void setVertexBuffer(ushort handle)

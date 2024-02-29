@@ -203,6 +203,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Event.cpp" />
     <ClCompile Include="src\graphics\Animation.cpp" />
+    <ClCompile Include="src\graphics\LineRenderer.cpp" />
     <ClCompile Include="src\graphics\Material.cpp" />
     <ClCompile Include="src\imguizmo\GraphEditor.cpp" />
     <ClCompile Include="src\imguizmo\ImCurveEdit.cpp" />
@@ -235,6 +236,7 @@
     <ClCompile Include="src\vector\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\graphics\LineRenderer.h" />
     <ClInclude Include="src\imgui\cimgui.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\audio\Audio.h" />

@@ -226,6 +226,9 @@ namespace Rainfall
 			internal static extern void Graphics_SetCullState(CullState cullState);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetPrimitiveType(PrimitiveType primitiveType);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetVertexBuffer(ushort handle);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

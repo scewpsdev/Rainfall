@@ -14,6 +14,7 @@ public static unsafe partial class EditorUI
 	public static Vector2 currentViewportSize { get; private set; }
 
 	public static EditorInstance nextSelectedTab = null;
+	public static EditorInstance unsavedChangesPopup = null;
 
 	static GuizmoManipulateOperation currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
 
@@ -26,11 +27,58 @@ public static unsafe partial class EditorUI
 			{
 				if (ImGui.MenuItem("New", "Ctrl+N"))
 					editor.newTab();
+				if (ImGui.MenuItem("Open", "Ctrl+O"))
+					editor.open();
+				if (ImGui.MenuItem("Save", "Ctrl+S"))
+					editor.save();
+				if (ImGui.MenuItem("Save As", "Ctrl+Shift+S"))
+					editor.saveAs();
+				if (ImGui.MenuItem("Save All", "Ctrl+Shift+Alt+S"))
+					editor.saveAll();
+
+				ImGui.EndMenu();
+			}
+			if (ImGui.BeginMenu("Edit"))
+			{
+				if (ImGui.MenuItem("Undo", "Ctrl+Z", false, editor.currentTab != null && editor.currentTab.undoStack.Count > 0))
+					editor.currentTab?.undo();
+				if (ImGui.MenuItem("Redo", "Ctrl+Y", false, editor.currentTab != null && editor.currentTab.redoStack.Count > 0))
+					editor.currentTab?.redo();
+				if (ImGui.MenuItem("Add Entity", "Shift+A", false, editor.currentTab != null && editor.currentTab.redoStack.Count > 0))
+					editor.currentTab?.newEntity();
+
 				ImGui.EndMenu();
 			}
 
-			if (ImGui.IsKeyPressed(KeyCode.KeyN) && ImGui.IsKeyDown(KeyCode.LeftCtrl))
+			if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyN))
 				editor.newTab();
+			if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyO))
+				editor.open();
+			if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyS))
+			{
+				if (ImGui.IsKeyDown(KeyCode.LeftShift))
+				{
+					if (ImGui.IsKeyDown(KeyCode.LeftAlt))
+						editor.saveAll();
+					else
+						editor.saveAs();
+				}
+				else
+				{
+					editor.save();
+				}
+			}
+
+			if (editor.currentTab != null)
+			{
+				if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyY))
+					editor.currentTab.undo();
+				if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyZ))
+					editor.currentTab.redo();
+				if (ImGui.IsKeyDown(KeyCode.LeftShift) && ImGui.IsKeyPressed(KeyCode.KeyA))
+					editor.currentTab.newEntity();
+			}
+
 			ImGui.EndMainMenuBar();
 		}
 	}
@@ -63,8 +111,11 @@ public static unsafe partial class EditorUI
 						flags |= ImGuiTabItemFlags.SetSelected;
 						nextSelectedTab = null;
 					}
-					// TODO unsaved document flag
-					if (ImGui.BeginTabItem("Untitled##tab" + i, &isOpen, flags))
+					if (tab.unsavedChanges)
+						flags |= ImGuiTabItemFlags.UnsavedDocument;
+
+					string label = tab.path != null ? tab.filename : "Untitled";
+					if (ImGui.BeginTabItem(label + "##tab" + i, &isOpen, flags))
 					{
 						editor.currentTab = tab;
 
@@ -93,7 +144,6 @@ public static unsafe partial class EditorUI
 
 				foreach (EditorInstance tab in closedTabs)
 				{
-					// TODO check for unsaved changes
 					editor.closeTab(tab);
 				}
 
@@ -125,10 +175,10 @@ public static unsafe partial class EditorUI
 			Matrix projection = instance.camera.getProjectionMatrix((int)windowSize.x, (int)windowSize.y);
 			Matrix view = instance.camera.getViewMatrix();
 
-			ImGuizmo.DrawGrid(view, projection, Matrix.Identity, 10);
+			//ImGuizmo.DrawGrid(view, projection, Matrix.Identity, 10);
 			ImGuizmo.ViewManipulate(ref view, instance.camera.distance, topLeft + new Vector2(windowSize.x - 200, 0), new Vector2(200), 0x00000000);
 
-			if (instance.selectedNode != null)
+			if (instance.selectedEntity != 0)
 			{
 				if (ImGui.IsKeyPressed(KeyCode.KeyT))
 					currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
@@ -148,10 +198,11 @@ public static unsafe partial class EditorUI
 						snap = new Vector3(1.5f);
 				}
 
-				Matrix matrix = instance.selectedNode.getModelMatrix();
+				Entity selectedEntity = instance.getSelectedEntity();
+				Matrix matrix = selectedEntity.getModelMatrix();
 				if (ImGuizmo.Manipulate(view, projection, currentManipulateOperation, GuizmoManipulateMode.LOCAL, ref matrix, null, snap))
 				{
-					matrix.decompose(out instance.selectedNode.position, out instance.selectedNode.rotation, out instance.selectedNode.scale);
+					matrix.decompose(out selectedEntity.position, out selectedEntity.rotation, out selectedEntity.scale);
 				}
 			}
 		}
@@ -173,11 +224,35 @@ public static unsafe partial class EditorUI
 			// Clear background since imgui cant do it themselves
 			ImGui.SetNextWindowPos(new Vector2(0.0f, ImGui.GetFrameHeight() * 2));
 			ImGui.SetNextWindowSize(Display.viewportSize - ImGui.GetCursorPos());
-			if (ImGui.Begin("background_clear", null, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
-			{
-
-			}
+			ImGui.Begin("background_clear", null, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 			ImGui.End();
+		}
+		if (unsavedChangesPopup != null)
+		{
+			byte open = 1;
+			ImGui.OpenPopup_Str("popup_unsaved");
+			if (ImGui.BeginPopupModal("popup_unsaved", &open, ImGuiWindowFlags.NoResize))
+			{
+				if (unsavedChangesPopup.path != null)
+					ImGui.TextUnformatted("Save changes to \"" + unsavedChangesPopup.filename + "\"?");
+				else
+					ImGui.TextUnformatted("Save changes to \"Untitled\"?");
+				if (ImGui.Button("Yes"))
+				{
+					editor.save(unsavedChangesPopup);
+
+					editor.closeTab(unsavedChangesPopup);
+					unsavedChangesPopup = null;
+				}
+				ImGui.SameLine();
+				if (ImGui.Button("No"))
+				{
+					unsavedChangesPopup.notifySave();
+					editor.closeTab(unsavedChangesPopup);
+					unsavedChangesPopup = null;
+				}
+				ImGui.EndPopup();
+			}
 		}
 	}
 }
