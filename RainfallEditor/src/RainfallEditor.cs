@@ -17,6 +17,8 @@ public unsafe class RainfallEditor : Game
 	public List<EditorInstance> tabs = new List<EditorInstance>();
 	public EditorInstance currentTab = null;
 
+	bool windowClosed = false;
+
 	float cpuTimeAcc = 0.0f;
 	float gpuTimeAcc = 0.0f;
 	float physicsTimeAcc = 0.0f;
@@ -44,6 +46,21 @@ public unsafe class RainfallEditor : Game
 		Physics.Shutdown();
 	}
 
+	protected override bool onExitEvent(bool windowExit)
+	{
+		for (int i = 0; i < tabs.Count; i++)
+		{
+			if (tabs[i].unsavedChanges)
+				EditorUI.unsavedChangesPopup.Add(tabs[i]);
+		}
+		if (EditorUI.unsavedChangesPopup.Count > 0)
+		{
+			windowClosed = true;
+			return false;
+		}
+		return true;
+	}
+
 	public EditorInstance getTab(string path)
 	{
 		foreach (EditorInstance tab in tabs)
@@ -67,7 +84,7 @@ public unsafe class RainfallEditor : Game
 	{
 		if (instance.unsavedChanges)
 		{
-			EditorUI.unsavedChangesPopup = instance;
+			EditorUI.unsavedChangesPopup.Add(instance);
 		}
 		else
 		{
@@ -203,6 +220,9 @@ public unsafe class RainfallEditor : Game
 
 	public override void update()
 	{
+		if (windowClosed && EditorUI.unsavedChangesPopup.Count == 0)
+			terminate();
+
 		currentTab?.update();
 
 		Physics.Update();

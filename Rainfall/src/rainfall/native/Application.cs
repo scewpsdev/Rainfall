@@ -22,6 +22,7 @@ namespace Rainfall.Native
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnMouseMoveEvent_t(int x, int y, int z);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnViewportSizeEvent_t(int width, int height);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnDropFileEvent_t([MarshalAs(UnmanagedType.LPStr)] string filepath);
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate byte OnExitEvent_t(byte windowExit);
 
 
 	internal struct ApplicationCallbacks
@@ -40,6 +41,7 @@ namespace Rainfall.Native
 		internal OnMouseMoveEvent_t onMouseMoveEvent;
 		internal OnViewportSizeEvent_t onViewportSizeEvent;
 		internal OnDropFileEvent_t onDropFileEvent;
+		internal OnExitEvent_t onExitEvent;
 	}
 
 	internal static class Application

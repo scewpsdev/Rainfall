@@ -76,6 +76,7 @@ struct ApplicationCallbacks
 	void (*onMouseMoveEvent)(int x, int y, int z);
 	void (*onViewportSizeEvent)(int width, int height);
 	void (*onDropFileEvent)(const char* filepath);
+	bool (*onExitEvent)(bool windowExit);
 };
 
 enum class MessageType
@@ -980,10 +981,14 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	{
 		glfwWaitEventsTimeout(params.fpsCap ? 1.0 / params.fpsCap : 0.001);
 
-		if (!keepRunning)
-			running = false;
-		if (glfwWindowShouldClose(window))
-			running = false;
+		bool windowExit = glfwWindowShouldClose(window);
+		if (!keepRunning || windowExit)
+		{
+			if (callbacks.onExitEvent(windowExit))
+				running = false;
+			else
+				glfwSetWindowShouldClose(window, GLFW_FALSE);
+		}
 
 		// TODO update gamepads
 

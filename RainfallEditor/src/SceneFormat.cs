@@ -47,6 +47,59 @@ public static class SceneFormat
 		}
 		obj.addArray("lights", lights);
 
+		DatArray particles = new DatArray();
+		for (int i = 0; i < entity.particles.Count; i++)
+		{
+			ParticleSystem particleData = entity.particles[i];
+
+			DatObject particle = new DatObject();
+
+			particle.addString("name", particleData.name);
+
+			particle.addNumber("lifetime", particleData.lifetime);
+			particle.addNumber("size", particleData.size);
+
+			particle.addNumber("emissionRate", particleData.emissionRate);
+			particle.addIdentifier("spawnShape", particleData.spawnShape.ToString());
+			particle.addVector3("spawnOffset", particleData.spawnOffset);
+			if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere)
+				particle.addNumber("spawnRadius", particleData.spawnRadius);
+			if (particleData.spawnShape == ParticleSpawnShape.Line)
+				particle.addVector3("lineEnd", particleData.lineEnd);
+			particle.addBoolean("randomStartRotation", particleData.randomStartRotation);
+
+			particle.addBoolean("follow", particleData.follow);
+			particle.addNumber("gravity", particleData.gravity);
+			particle.addVector3("startVelocity", particleData.startVelocity);
+			particle.addNumber("rotationSpeed", particleData.rotationSpeed);
+
+			if (particleData.textureAtlasPath != null)
+			{
+				particle.addString("textureAtlas", particleData.textureAtlasPath);
+				particle.addVector2("atlasSize", (Vector2)particleData.atlasSize);
+				particle.addNumber("numFrames", particleData.numFrames);
+				particle.addBoolean("linearFiltering", particleData.linearFiltering);
+			}
+
+			particle.addVector4("color", particleData.color);
+			particle.addBoolean("additive", particleData.additive);
+
+			particle.addNumber("randomVelocity", particleData.randomVelocity);
+			particle.addNumber("randomRotationSpeed", particleData.randomRotationSpeed);
+			particle.addNumber("randomLifetime", particleData.randomLifetime);
+
+			if (particleData.sizeAnim != null)
+				particle.addVector2("sizeAnim", new Vector2(particleData.sizeAnim.getValue(0), particleData.sizeAnim.getValue(1)));
+			if (particleData.colorAnim != null)
+			{
+				particle.addVector4("colorAnimStart", particleData.colorAnim.getValue(0));
+				particle.addVector4("colorAnimEnd", particleData.colorAnim.getValue(1));
+			}
+
+			particles.addObject(particle);
+		}
+		obj.addArray("particles", particles);
+
 		return obj;
 	}
 
@@ -130,6 +183,63 @@ public static class SceneFormat
 				if (lights[i].obj.getVector3("offset", out Vector3 offset))
 					light.offset = offset;
 				entity.lights.Add(light);
+			}
+		}
+
+		if (obj.getArray("particles", out DatArray particles))
+		{
+			for (int i = 0; i < particles.size; i++)
+			{
+				DatObject particle = particles[i].obj;
+				ParticleSystem particleData = new ParticleSystem(1000);
+
+				particle.getStringContent("name", out particleData.name);
+
+				particle.getNumber("lifetime", out particleData.lifetime);
+				particle.getNumber("size", out particleData.size);
+
+				particle.getNumber("emissionRate", out particleData.emissionRate);
+				if (particle.getIdentifier("spawnShape", out string spawnShape))
+					particleData.spawnShape = Utils.ParseEnum<ParticleSpawnShape>(spawnShape);
+				particle.getVector3("spawnOffset", out particleData.spawnOffset);
+				if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere)
+					particle.getNumber("spawnRadius", out particleData.spawnRadius);
+				if (particleData.spawnShape == ParticleSpawnShape.Line)
+					particle.getVector3("lineEnd", out particleData.lineEnd);
+				particle.getBoolean("randomStartRotation", out particleData.randomStartRotation);
+
+				particle.getBoolean("follow", out particleData.follow);
+				particle.getNumber("gravity", out particleData.gravity);
+				particle.getVector3("startVelocity", out particleData.startVelocity);
+				particle.getNumber("rotationSpeed", out particleData.rotationSpeed);
+
+				if (particle.getString("textureAtlas", out string textureAtlasPath))
+				{
+					particleData.textureAtlasPath = textureAtlasPath;
+					particleData.reload();
+
+					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
+						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
+					particle.getNumber("numFrames", out particleData.numFrames);
+					particle.getBoolean("linearFiltering", out particleData.linearFiltering);
+				}
+
+				particle.getVector4("color", out particleData.color);
+				particle.getBoolean("additive", out particleData.additive);
+
+				particle.getNumber("randomVelocity", out particleData.randomVelocity);
+				particle.getNumber("randomRotationSpeed", out particleData.randomRotationSpeed);
+				particle.getNumber("randomLifetime", out particleData.randomLifetime);
+
+				if (particle.getVector2("sizeAnim", out Vector2 sizeAnim))
+					particleData.sizeAnim = new Gradient<float>(sizeAnim.x, sizeAnim.y);
+				if (particle.getVector4("colorAnimStart", out Vector4 colorAnimStart))
+				{
+					particle.getVector4("colorAnimEnd", out Vector4 colorAnimEnd);
+					particleData.colorAnim = new Gradient<Vector4>(colorAnimStart, colorAnimEnd);
+				}
+
+				entity.particles.Add(particleData);
 			}
 		}
 

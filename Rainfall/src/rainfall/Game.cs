@@ -118,6 +118,11 @@ namespace Rainfall
 			instance.onDropFileEvent(filepath);
 		}
 
+		static byte Game_OnExitEvent(byte windowExit)
+		{
+			return (byte)(instance.onExitEvent(windowExit != 0) ? 1 : 0);
+		}
+
 
 		LaunchParams launchParams;
 
@@ -149,6 +154,7 @@ namespace Rainfall
 			callbacks.onMouseMoveEvent = Game_OnMouseMoveEvent;
 			callbacks.onViewportSizeEvent = Game_OnViewportSizeEvent;
 			callbacks.onDropFileEvent = Game_OnDropFileEvent;
+			callbacks.onExitEvent = Game_OnExitEvent;
 
 			Native.Application.Application_Run(launchParams, callbacks);
 		}
@@ -193,6 +199,11 @@ namespace Rainfall
 
 		protected virtual void onDropFileEvent([MarshalAs(UnmanagedType.LPStr)] string filepath)
 		{
+		}
+
+		protected virtual bool onExitEvent(bool windowExit)
+		{
+			return true;
 		}
 	}
 }

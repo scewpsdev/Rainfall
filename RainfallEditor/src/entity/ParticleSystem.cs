@@ -58,18 +58,18 @@ public class ParticleSystem
 	public string name = null;
 
 	public float lifetime = 1.0f;
-	public float particleSize = 0.1f;
+	public float size = 0.1f;
 
 	public float emissionRate = 5.0f;
 	public ParticleSpawnShape spawnShape = ParticleSpawnShape.Point;
 	public Vector3 spawnOffset = Vector3.Zero;
 	public float spawnRadius = 1.0f;
 	public Vector3 lineEnd = new Vector3(1.0f, 0.0f, 0.0f);
+	public bool randomStartRotation = false;
 
 	public bool follow = false;
 	public float gravity = 0.0f;
-	public Vector3 initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
-	public Vector3 constantVelocity = Vector3.Zero;
+	public Vector3 startVelocity = new Vector3(0.0f, 1.0f, 0.0f);
 	public float rotationSpeed = 0.0f;
 
 	public string textureAtlasPath = null;
@@ -78,15 +78,14 @@ public class ParticleSystem
 	public int numFrames = 1;
 	public bool linearFiltering = false;
 
-	public Vector4 spriteTint = Vector4.One;
+	public Vector4 color = Vector4.One;
 	public bool additive = false;
 
 	public float randomVelocity = 0.0f;
 	public float randomRotationSpeed = 0.0f;
 	public float randomLifetime = 0.0f;
-	public bool randomStartRotation = false;
 
-	public Gradient<float> particleSizeAnim = null;
+	public Gradient<float> sizeAnim = null;
 	public Gradient<Vector4> colorAnim = null;
 
 	Particle[] particles = null;
@@ -118,20 +117,19 @@ public class ParticleSystem
 		name = from.name;
 		emissionRate = from.emissionRate;
 		lifetime = from.lifetime;
-		particleSize = from.particleSize;
+		size = from.size;
 		spawnOffset = from.spawnOffset;
 		spawnShape = from.spawnShape;
 		follow = from.follow;
 		gravity = from.gravity;
-		initialVelocity = from.initialVelocity;
-		constantVelocity = from.constantVelocity;
+		startVelocity = from.startVelocity;
 		rotationSpeed = from.rotationSpeed;
 		textureAtlasPath = from.textureAtlasPath;
 		textureAtlas = from.textureAtlas;
 		atlasSize = from.atlasSize;
 		numFrames = from.numFrames;
 		linearFiltering = from.linearFiltering;
-		spriteTint = from.spriteTint;
+		color = from.color;
 		additive = from.additive;
 		spawnRadius = from.spawnRadius;
 		lineEnd = from.lineEnd;
@@ -139,7 +137,7 @@ public class ParticleSystem
 		randomRotationSpeed = from.randomRotationSpeed;
 		randomStartRotation = from.randomStartRotation;
 		randomLifetime = from.randomLifetime;
-		particleSizeAnim = from.particleSizeAnim != null ? new Gradient<float>(from.particleSizeAnim) : null;
+		sizeAnim = from.sizeAnim != null ? new Gradient<float>(from.sizeAnim) : null;
 		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
 	}
 
@@ -149,7 +147,7 @@ public class ParticleSystem
 			   EqualityComparer<Matrix>.Default.Equals(transform, system.transform) &&
 			   name == system.name &&
 			   lifetime == system.lifetime &&
-			   particleSize == system.particleSize &&
+			   size == system.size &&
 			   emissionRate == system.emissionRate &&
 			   spawnShape == system.spawnShape &&
 			   EqualityComparer<Vector3>.Default.Equals(spawnOffset, system.spawnOffset) &&
@@ -157,21 +155,20 @@ public class ParticleSystem
 			   EqualityComparer<Vector3>.Default.Equals(lineEnd, system.lineEnd) &&
 			   follow == system.follow &&
 			   gravity == system.gravity &&
-			   EqualityComparer<Vector3>.Default.Equals(initialVelocity, system.initialVelocity) &&
-			   EqualityComparer<Vector3>.Default.Equals(constantVelocity, system.constantVelocity) &&
+			   EqualityComparer<Vector3>.Default.Equals(startVelocity, system.startVelocity) &&
 			   rotationSpeed == system.rotationSpeed &&
 			   textureAtlasPath == system.textureAtlasPath &&
 			   EqualityComparer<Texture>.Default.Equals(textureAtlas, system.textureAtlas) &&
 			   atlasSize == system.atlasSize &&
 			   numFrames == system.numFrames &&
 			   linearFiltering == system.linearFiltering &&
-			   EqualityComparer<Vector4>.Default.Equals(spriteTint, system.spriteTint) &&
+			   EqualityComparer<Vector4>.Default.Equals(color, system.color) &&
 			   additive == system.additive &&
 			   randomVelocity == system.randomVelocity &&
 			   randomRotationSpeed == system.randomRotationSpeed &&
 			   randomStartRotation == system.randomStartRotation &&
 			   randomLifetime == system.randomLifetime &&
-			   EqualityComparer<Gradient<float>>.Default.Equals(particleSizeAnim, system.particleSizeAnim) &&
+			   EqualityComparer<Gradient<float>>.Default.Equals(sizeAnim, system.sizeAnim) &&
 			   EqualityComparer<Gradient<Vector4>>.Default.Equals(colorAnim, system.colorAnim);
 	}
 
@@ -255,7 +252,7 @@ public class ParticleSystem
 				position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
 			}
 
-			Vector3 velocity = initialVelocity + particleVelocity;
+			Vector3 velocity = startVelocity + particleVelocity;
 			if (randomVelocity > 0)
 				velocity += MathHelper.RandomVector3(random) * randomVelocity;
 			float rotationVelocity = 0.0f;
@@ -270,10 +267,10 @@ public class ParticleSystem
 				particle.rotation = rotation;
 				particle.velocity = velocity;
 				particle.rotationVelocity = rotationVelocity;
-				particle.size = particleSize;
+				particle.size = size;
 				particle.lifetime = lifetime * (1 + MathHelper.RandomFloat(-randomLifetime, randomLifetime, random));
 				particle.animationFrame = 0;
-				particle.color = spriteTint;
+				particle.color = color;
 				particle.birthTime = Time.currentTime;
 			}
 		}
@@ -312,15 +309,15 @@ public class ParticleSystem
 				float particleTimer = (now - particle.birthTime) / 1e9f;
 
 				particle.velocity.y += 0.5f * gravity * Time.deltaTime;
-				particle.position += (particle.velocity + constantVelocity) * Time.deltaTime;
+				particle.position += particle.velocity * Time.deltaTime;
 				particle.velocity.y += 0.5f * gravity * Time.deltaTime;
 
 				particle.rotation += particle.rotationVelocity * Time.deltaTime;
 
 				float progress = particleTimer / particle.lifetime;
 
-				if (particleSizeAnim != null)
-					particle.size = particleSizeAnim.getValue(progress);
+				if (sizeAnim != null)
+					particle.size = sizeAnim.getValue(progress);
 
 				if (colorAnim != null)
 					particle.color = colorAnim.getValue(progress);

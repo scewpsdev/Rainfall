@@ -197,6 +197,13 @@ namespace Rainfall
 			return result;
 		}
 
+		public bool getNumber(string name, out int number)
+		{
+			bool result = getNumber(name, out double d);
+			number = (int)Math.Round(d);
+			return result;
+		}
+
 		public bool getString(string name, out string str)
 		{
 			DatField field = getField(name);

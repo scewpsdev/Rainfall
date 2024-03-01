@@ -761,7 +761,7 @@ namespace Rainfall
 		public static extern bool IsItemActive();
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igIsItemClicked")]
 		[return: MarshalAs(UnmanagedType.I1)]
-		public static extern bool IsItemClicked(ImGuiMouseButton mouse_button);
+		public static extern bool IsItemClicked(ImGuiMouseButton mouse_button = 0);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igIsItemDeactivated")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool IsItemDeactivated();
