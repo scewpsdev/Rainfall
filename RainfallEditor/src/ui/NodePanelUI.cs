@@ -53,7 +53,7 @@ public static partial class EditorUI
 				if (renaming)
 				{
 					Vector2 cursorPos = ImGui.GetCursorPos();
-					if (ImGui.TreeNodeEx("##entity_" + i, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Selected | ImGuiTreeNodeFlags.AllowOverlap))
+					if (ImGui.TreeNodeEx("##entity_" + i, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Selected | ImGuiTreeNodeFlags.AllowOverlap | ImGuiTreeNodeFlags.SpanAvailWidth))
 					{
 						if (ImGui.IsItemHovered())
 							anyNodeHovered = true;

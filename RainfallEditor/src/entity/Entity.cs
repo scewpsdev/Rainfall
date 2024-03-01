@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -137,7 +138,7 @@ public struct LightData
 	public static bool operator !=(LightData a, LightData b) => !(a == b);
 }
 
-public class Entity : PhysicsEntity
+public class Entity
 {
 	static uint idHash = (uint)Time.timestamp;
 
@@ -159,8 +160,8 @@ public class Entity : PhysicsEntity
 	public Model model = null;
 
 	public List<ColliderData> colliders = new List<ColliderData>();
-
 	public List<LightData> lights = new List<LightData>();
+	public List<ParticleSystem> particles = new List<ParticleSystem>();
 
 
 	public Entity(string name)
@@ -194,7 +195,7 @@ public class Entity : PhysicsEntity
 	{
 	}
 
-	public void draw()
+	public void draw(GraphicsDevice graphics)
 	{
 		Matrix transform = getModelMatrix();
 
@@ -235,30 +236,34 @@ public class Entity : PhysicsEntity
 				}
 			}
 		}
+
+		for (int i = 0; i < particles.Count; i++)
+		{
+			particles[i].transform = transform;
+			particles[i].update();
+			particles[i].draw(graphics);
+		}
 	}
 
-	public void setPosition(Vector3 position)
+	ParticleSystem getParticlesByName(string name)
 	{
-		this.position = position;
+		foreach (ParticleSystem particle in particles)
+		{
+			if (particle.name == name)
+				return particle;
+		}
+		return null;
 	}
 
-	public Vector3 getPosition()
+	public string newParticleName()
 	{
-		return position;
-	}
-
-	public void setRotation(Quaternion rotation)
-	{
-		this.rotation = rotation;
-	}
-
-	public Quaternion getRotation()
-	{
-		return rotation;
-	}
-
-	public virtual void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
-	{
+		int idx = 0;
+		string name = "Particles";
+		while (getParticlesByName(name) != null)
+		{
+			name = "Particles" + ++idx;
+		}
+		return name;
 	}
 
 	public Matrix getModelMatrix(Vector3 offset)

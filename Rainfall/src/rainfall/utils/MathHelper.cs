@@ -168,6 +168,16 @@ namespace Rainfall
 			return RandomVector2(min, max, Random.Shared);
 		}
 
+		public static Vector3 RandomVector3(Random random)
+		{
+			return RandomVector3(-1, 1, random).normalized;
+		}
+
+		public static Vector3 RandomVector3()
+		{
+			return RandomVector3(Random.Shared);
+		}
+
 		public static Vector3 RandomVector3(float min, float max, Random random)
 		{
 			return new Vector3(RandomFloat(min, max, random), RandomFloat(min, max, random), RandomFloat(min, max, random));

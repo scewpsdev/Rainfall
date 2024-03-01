@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
+
 public enum ParticleSpawnShape
 {
 	None = 0,
@@ -55,12 +56,16 @@ public class ParticleSystem
 
 	public Matrix transform = Matrix.Identity;
 
-	public float emissionRate = 0.0f;
 	public float lifetime = 1.0f;
 	public float particleSize = 0.1f;
-	public Gradient<float> particleSizeAnim = null;
-	public Vector3 spawnOffset = Vector3.Zero;
+
+	public float emissionRate = 0.0f;
 	public ParticleSpawnShape spawnShape = ParticleSpawnShape.Point;
+	public Vector3 spawnOffset = Vector3.Zero;
+	public float spawnRadius = 1.0f;
+	public Vector3 spawnPoint1 = new Vector3(0.0f, 0.0f, 0.0f);
+	public Vector3 spawnPoint2 = new Vector3(1.0f, 0.0f, 0.0f);
+
 	public bool follow = false;
 	public float gravity = -10.0f;
 	public Vector3 initialVelocity = Vector3.Zero;
@@ -74,18 +79,16 @@ public class ParticleSystem
 	public bool linearFiltering = false;
 
 	public Vector4 spriteTint = Vector4.One;
-	public Gradient<Vector4> colorAnim = null;
 	public bool additive = false;
-
-	public float spawnRadius = 1.0f;
-	public Vector3 point1 = new Vector3(0.0f, 0.0f, 0.0f);
-	public Vector3 point2 = new Vector3(1.0f, 0.0f, 0.0f);
 
 	public bool randomVelocity = false;
 	public float randomVelocityMultiplier = 1.0f;
 	public bool randomRotation = false;
 	public bool randomRotationSpeed = false;
 	public bool randomLifetime = false;
+
+	public Gradient<float> particleSizeAnim = null;
+	public Gradient<Vector4> colorAnim = null;
 
 	Particle[] particles = null;
 	List<int> particleIndices;
@@ -135,8 +138,8 @@ public class ParticleSystem
 		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
 		additive = from.additive;
 		spawnRadius = from.spawnRadius;
-		point1 = from.point1;
-		point2 = from.point2;
+		spawnPoint1 = from.spawnPoint1;
+		spawnPoint2 = from.spawnPoint2;
 		randomVelocity = from.randomVelocity;
 		randomVelocityMultiplier = from.randomVelocityMultiplier;
 		randomRotation = from.randomRotation;
@@ -192,7 +195,7 @@ public class ParticleSystem
 					break;
 				case ParticleSpawnShape.Line:
 					float t = (float)random.NextDouble();
-					position = Vector3.Lerp(point1, point2, t);
+					position = Vector3.Lerp(spawnPoint1, spawnPoint2, t);
 					break;
 				default:
 					Debug.Assert(false);

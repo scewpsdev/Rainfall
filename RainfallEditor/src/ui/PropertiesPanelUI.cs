@@ -8,14 +8,61 @@ using System.Threading.Tasks;
 
 public static partial class EditorUI
 {
+	const int SPACING_X = 180;
+	const int ITEM_WIDTH = 180;
+	const int RIGHT_PADDING = 35;
+
 	static uint lastSelectedEntity = 0;
 	static byte[] renameBuffer = new byte[256];
 
 
+	static unsafe bool FileSelect(string label, string id, ref string path, string filterList)
+	{
+		bool changed = false;
+
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+
+		ImGui.SetNextItemAllowOverlap();
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - 60);
+		ImGui.InputText("##input_" + id, path != null ? StringUtils.GetFilenameFromPath(path) : "", ImGuiInputTextFlags.ReadOnly | ImGuiInputTextFlags.AutoSelectAll);
+		ImGui.SameLine();
+		if (path != null)
+		{
+			float cursorX = ImGui.GetCursorPosX();
+			ImGui.SetCursorPosX(cursorX - 28);
+			if (ImGui.SmallButton("X##remove_" + id))
+			{
+				path = null;
+				changed = true;
+			}
+			ImGui.SameLine();
+			ImGui.SetCursorPosX(cursorX);
+		}
+
+		if (ImGui.Button("Browse##" + id))
+		{
+			byte* outPath = null;
+			NFDResult result = NFD.NFD_OpenDialog(filterList, null, &outPath);
+			if (result == NFDResult.NFD_OKAY)
+			{
+				path = new string((sbyte*)outPath);
+				NFD.NFDi_Free(outPath);
+				changed = true;
+			}
+		}
+
+		return changed;
+	}
+
 	static unsafe void Transform(Entity entity, EditorInstance instance)
 	{
 		ImGui.TextUnformatted("Position");
-		ImGui.SameLine();
+		ImGui.SameLine(SPACING_X);
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 		Vector3 newPosition = entity.position;
 		if (ImGui.DragFloat3("##transform_position", &newPosition, 0.02f))
 		{
@@ -23,7 +70,8 @@ public static partial class EditorUI
 			instance.notifyEdit();
 		}
 		ImGui.TextUnformatted("Rotation");
-		ImGui.SameLine();
+		ImGui.SameLine(SPACING_X);
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 		Vector3 newEulers = entity.rotation.eulers / MathF.PI * 180;
 		if (ImGui.DragFloat3("##transform_eulers", &newEulers, 1.0f))
 		{
@@ -31,7 +79,8 @@ public static partial class EditorUI
 			instance.notifyEdit();
 		}
 		ImGui.TextUnformatted("Scale");
-		ImGui.SameLine();
+		ImGui.SameLine(SPACING_X);
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 		Vector3 newScale = entity.scale;
 		if (ImGui.DragFloat3("##transform_scale", &newScale, 0.02f))
 		{
@@ -42,36 +91,12 @@ public static partial class EditorUI
 
 	static unsafe void Model(Entity entity, EditorInstance instance)
 	{
-		// Model
-		if (ImGui.TreeNodeEx("Model", ImGuiTreeNodeFlags.DefaultOpen))
+		if (ImGui.TreeNodeEx("Model", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			ImGui.SetNextItemAllowOverlap();
-			ImGui.InputText("##entity_model", entity.modelPath != null ? StringUtils.GetFilenameFromPath(entity.modelPath) : "", ImGuiInputTextFlags.ReadOnly | ImGuiInputTextFlags.AutoSelectAll);
-			ImGui.SameLine();
-			if (entity.modelPath != null)
+			if (FileSelect(null, "model", ref entity.modelPath, "gltf"))
 			{
-				float cursorX = ImGui.GetCursorPosX();
-				ImGui.SetCursorPosX(cursorX - 28);
-				if (ImGui.SmallButton("X##model_remove"))
-				{
-					entity.modelPath = null;
-					entity.reload();
-					instance.notifyEdit();
-				}
-				ImGui.SameLine();
-				ImGui.SetCursorPosX(cursorX);
-			}
-			if (ImGui.Button("Browse"))
-			{
-				byte* outPath = null;
-				NFDResult result = NFD.NFD_OpenDialog("gltf", null, &outPath);
-				if (result == NFDResult.NFD_OKAY)
-				{
-					entity.modelPath = new string((sbyte*)outPath);
-					entity.reload();
-					NFD.NFDi_Free(outPath);
-					instance.notifyEdit();
-				}
+				entity.reload();
+				instance.notifyEdit();
 			}
 
 			ImGui.TreePop();
@@ -80,8 +105,7 @@ public static partial class EditorUI
 
 	static unsafe void Colliders(Entity entity, EditorInstance instance)
 	{
-		// Collider
-		if (ImGui.TreeNodeEx("Collider", ImGuiTreeNodeFlags.DefaultOpen))
+		if (ImGui.TreeNodeEx("Collider", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
 			for (int i = 0; i < entity.colliders.Count; i++)
 			{
@@ -89,7 +113,10 @@ public static partial class EditorUI
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
-				if (ImGui.BeginCombo("Type##collider_type" + i, collider.type.ToString(), ImGuiComboFlags.HeightSmall))
+				ImGui.TextUnformatted("Collider Type");
+				ImGui.SameLine(SPACING_X);
+				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+				if (ImGui.BeginCombo("##collider_type" + i, collider.type.ToString(), ImGuiComboFlags.HeightSmall))
 				{
 					if (ImGui.Selectable_Bool("Box"))
 						collider.type = ColliderType.Box;
@@ -104,72 +131,67 @@ public static partial class EditorUI
 
 				if (collider.type == ColliderType.Box)
 				{
+					ImGui.TextUnformatted("Size");
+					ImGui.SameLine(SPACING_X);
+					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					Vector3 newSize = collider.size;
-					if (ImGui.DragFloat3("Size##collider_size" + i, &newSize, 0.02f))
+					if (ImGui.DragFloat3("##collider_size" + i, &newSize, 0.02f))
 						collider.size = newSize;
 				}
 				else if (collider.type == ColliderType.Sphere)
 				{
+					ImGui.TextUnformatted("Radius");
+					ImGui.SameLine(SPACING_X);
+					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					float newRadius = collider.radius;
-					if (ImGui.DragFloat("Radius##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
+					if (ImGui.DragFloat("##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
 						collider.radius = newRadius;
 				}
 				else if (collider.type == ColliderType.Capsule)
 				{
+					ImGui.TextUnformatted("Radius");
+					ImGui.SameLine(SPACING_X);
+					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					float newRadius = collider.radius;
-					if (ImGui.DragFloat("Radius##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
+					if (ImGui.DragFloat("##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
 						collider.radius = newRadius;
 
+					ImGui.TextUnformatted("Height");
+					ImGui.SameLine(SPACING_X);
+					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					float newHeight = collider.height;
-					if (ImGui.DragFloat("Height##collider_height" + i, &newHeight, 0.02f, 2 * collider.radius, 1000))
+					if (ImGui.DragFloat("##collider_height" + i, &newHeight, 0.02f, 2 * collider.radius, 1000))
 						collider.height = newHeight;
 				}
 				else if (collider.type == ColliderType.Mesh)
 				{
-					ImGui.SetNextItemAllowOverlap();
-					ImGui.InputText("##collider_mesh", collider.meshColliderPath != null ? StringUtils.GetFilenameFromPath(collider.meshColliderPath) : "", ImGuiInputTextFlags.ReadOnly | ImGuiInputTextFlags.AutoSelectAll);
-					ImGui.SameLine();
-					if (collider.meshColliderPath != null)
+					if (FileSelect(null, "mesh_collider" + i, ref collider.meshColliderPath, "gltf"))
 					{
-						float cursorX = ImGui.GetCursorPosX();
-						ImGui.SetCursorPosX(cursorX - 28);
-						if (ImGui.SmallButton("X##collider_mesh_remove"))
-						{
-							collider.meshColliderPath = null;
-							collider.reload();
-							instance.notifyEdit();
-						}
-						ImGui.SameLine();
-						ImGui.SetCursorPosX(cursorX);
-					}
-					if (ImGui.Button("Browse"))
-					{
-						byte* outPath = null;
-						NFDResult result = NFD.NFD_OpenDialog("gltf", null, &outPath);
-						if (result == NFDResult.NFD_OKAY)
-						{
-							collider.meshColliderPath = new string((sbyte*)outPath);
-							collider.reload();
-							NFD.NFDi_Free(outPath);
-							instance.notifyEdit();
-						}
+						collider.reload();
+						instance.notifyEdit();
 					}
 				}
 
+				ImGui.TextUnformatted("Offset");
+				ImGui.SameLine(SPACING_X);
+				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				Vector3 newOffset = collider.offset;
-				if (ImGui.DragFloat3("Offset##collider_offset" + i, &newOffset, 0.02f))
+				if (ImGui.DragFloat3("##collider_offset" + i, &newOffset, 0.02f))
 					collider.offset = newOffset;
 
 				if (collider.type != ColliderType.Sphere)
 				{
+					ImGui.TextUnformatted("Rotation");
+					ImGui.SameLine(SPACING_X);
+					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					Vector3 newEulers = collider.eulers * 180 / MathF.PI;
-					if (ImGui.DragFloat3("Rotation##collider_rotation" + i, &newEulers, 1.0f))
+					if (ImGui.DragFloat3("##collider_rotation" + i, &newEulers, 1.0f))
 						collider.eulers = newEulers / 180 * MathF.PI;
 				}
 
 				// X Button
 				Vector2 cursorPos = ImGui.GetCursorPos();
-				ImGui.SetCursorPos(new Vector2(320, topRight.y));
+				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##collider_remove" + i))
 				{
 					entity.colliders.RemoveAt(i--);
@@ -185,7 +207,9 @@ public static partial class EditorUI
 					instance.notifyEdit();
 				}
 
+				ImGui.Spacing();
 				ImGui.Separator();
+				ImGui.Spacing();
 			}
 
 			if (ImGui.Button("Add Collider"))
@@ -201,8 +225,7 @@ public static partial class EditorUI
 
 	static unsafe void Lights(Entity entity, EditorInstance instance)
 	{
-		// Lights
-		if (ImGui.TreeNodeEx("Lights", ImGuiTreeNodeFlags.DefaultOpen))
+		if (ImGui.TreeNodeEx("Lights", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
 			for (int i = 0; i < entity.lights.Count; i++)
 			{
@@ -210,21 +233,30 @@ public static partial class EditorUI
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
+				ImGui.TextUnformatted("Color");
+				ImGui.SameLine(SPACING_X);
+				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				Vector3 newColor = light.color;
-				if (ImGui.ColorEdit3("Color", &newColor))
+				if (ImGui.ColorEdit3("##light_color" + i, &newColor, ImGuiColorEditFlags.NoInputs))
 					light.color = newColor;
 
+				ImGui.TextUnformatted("Intensity");
+				ImGui.SameLine(SPACING_X);
+				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				float newIntensity = light.intensity;
-				if (ImGui.DragFloat("Intensity", &newIntensity, 0.02f))
+				if (ImGui.DragFloat("##light_intensity", &newIntensity, 0.02f))
 					light.intensity = newIntensity;
 
+				ImGui.TextUnformatted("Offset");
+				ImGui.SameLine(SPACING_X);
+				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				Vector3 newOffset = light.offset;
-				if (ImGui.DragFloat3("Offset", &newOffset, 0.02f))
+				if (ImGui.DragFloat3("##light_intensity", &newOffset, 0.02f))
 					light.offset = newOffset;
 
 				// X Button
 				Vector2 cursorPos = ImGui.GetCursorPos();
-				ImGui.SetCursorPos(new Vector2(320, topRight.y));
+				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##light_remove" + i))
 				{
 					entity.lights.RemoveAt(i--);
@@ -240,8 +272,9 @@ public static partial class EditorUI
 					instance.notifyEdit();
 				}
 
-
+				ImGui.Spacing();
 				ImGui.Separator();
+				ImGui.Spacing();
 			}
 
 			if (ImGui.Button("Add Light"))
@@ -273,8 +306,8 @@ public static partial class EditorUI
 
 				// Name
 				ImGui.TextUnformatted("Name");
-				ImGui.SameLine();
-				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x);
+				ImGui.SameLine(SPACING_X);
+				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				fixed (byte* renameBufferPtr = renameBuffer)
 				{
 					if (ImGui.InputText("##entity_name", renameBufferPtr, (ulong)renameBuffer.Length, ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.EnterReturnsTrue))
@@ -297,6 +330,10 @@ public static partial class EditorUI
 				ImGui.Separator();
 
 				Lights(selectedEntity, instance);
+
+				ImGui.Separator();
+
+				Particles(selectedEntity, instance);
 			}
 			else
 			{

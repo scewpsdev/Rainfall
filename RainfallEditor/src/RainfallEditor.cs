@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 public unsafe class RainfallEditor : Game
 {
 	public static new RainfallEditor instance { get => (RainfallEditor)Game.instance; }
+	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(RainfallEditor))?.GetName().Name;
 
 
 	public List<EditorInstance> tabs = new List<EditorInstance>();
@@ -25,6 +27,8 @@ public unsafe class RainfallEditor : Game
 
 	public override void init()
 	{
+		Display.windowTitle = ASSEMBLY_NAME;
+
 		Renderer.Init(graphics);
 		Physics.Init();
 		Audio.Init();

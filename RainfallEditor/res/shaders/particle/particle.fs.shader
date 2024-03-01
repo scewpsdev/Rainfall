@@ -57,10 +57,10 @@ void main()
 	float blend = fract(frameIdx);
 	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), mix(frameColor, nextFrameColor, blend), u_atlasSize.z);
 	vec4 albedo = textureColor * v_color0;
-	if (albedo.a < 0.1)
+	if (albedo.a < 0.001)
 		discard;
 
 	vec3 final = CalculatePointLights(v_position, albedo.rgb);
 
-	gl_FragColor = vec4(final, albedo.a);
+	gl_FragColor = vec4(albedo.rgb, albedo.a);
 }

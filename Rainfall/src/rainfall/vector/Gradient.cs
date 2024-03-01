@@ -60,6 +60,17 @@ namespace Rainfall
 
 		public void setValue(float position, T value)
 		{
+			for (int i = 0; i < values.Count; i++)
+			{
+				if (values[i].position == position)
+				{
+					var newValue = values[i];
+					newValue.value = value;
+					values[i] = newValue;
+					return;
+				}
+			}
+
 			int index = getValueIndex(position);
 			values.Insert(index, new VectorGradientValue<T> { value = value, position = position });
 		}
@@ -85,6 +96,17 @@ namespace Rainfall
 			}
 
 			return values[values.Count - 1].value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is Gradient<T> gradient &&
+				   EqualityComparer<List<VectorGradientValue<T>>>.Default.Equals(values, gradient.values);
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
 		}
 	}
 }
