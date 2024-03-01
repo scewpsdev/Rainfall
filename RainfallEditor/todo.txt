@@ -18,6 +18,7 @@
 [ ] particle renaming
 [ ] particle velocity input
 [ ] air resistance
+[ ] particle bursts
 [ ] custom data
 [ ] ragdolls
 [ ] particle effect tools
