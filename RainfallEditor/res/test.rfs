@@ -1,19 +1,10 @@
 entities = [ {
 name = "Entity"
-id = "3444752154"
-position = [ 0, 0, 0 ]
+id = "1589474421"
+position = [ -0.06216628849506378, 0, 0 ]
 rotation = [ 0, 0, 0, 1 ]
 scale = [ 1, 1, 1 ]
-model = "D:\Dev\Rainfall\RainfallEditor\res\models\sphere.gltf"
-colliders = [ {
-type = Sphere
-size = [ 2, 2, 2 ]
-offset = [ 0, 0, 0 ]
+colliders = [  ]
+lights = [  ]
 } ]
-lights = [ {
-color = [ 1, 0.19691121578216553, 0.19691121578216553 ]
-intensity = 10
-offset = [ 0.6000000238418579, 1.840000033378601, 0.5 ]
-} ]
-} ]
-selected = "3444752154"
+selected = "1589474421"

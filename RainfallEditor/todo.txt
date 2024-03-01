@@ -6,7 +6,7 @@
 	[X] model
 	[X] collider
 	[X] lights
-	[ ] particles
+	[X] particles
 [X] gizmos
 [X] undo/redo
 [X] orthographic view
@@ -14,6 +14,10 @@
 [X] collider rotation
 [X] removing model, colliders, lights
 [X] mesh colliders
+[ ] serialize particles
+[ ] particle renaming
+[ ] particle velocity input
+[ ] air resistance
 [ ] custom data
 [ ] ragdolls
 [ ] particle effect tools

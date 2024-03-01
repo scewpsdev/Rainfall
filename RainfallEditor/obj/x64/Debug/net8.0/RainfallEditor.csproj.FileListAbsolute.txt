@@ -16,4 +16,4 @@ D:\Dev\Rainfall\RainfallEditor\obj\x64\Debug\net8.0\refint\RainfallEditor.dll
 D:\Dev\Rainfall\RainfallEditor\obj\x64\Debug\net8.0\RainfallEditor.pdb
 D:\Dev\Rainfall\RainfallEditor\obj\x64\Debug\net8.0\RainfallEditor.genruntimeconfig.cache
 D:\Dev\Rainfall\RainfallEditor\obj\x64\Debug\net8.0\ref\RainfallEditor.dll
-D:\Dev\Rainfall\RainfallEditor\obj\x64\Debug\net8.0\Rainfall.B152E5E1.Up2Date
+D:\Dev\Rainfall\RainfallEditor\obj\x64\Debug\net8.0\RainfallEditor.csproj.CopyComplete

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
+
 public enum ParticleSpawnShape
 {
 	None = 0,
@@ -26,7 +27,6 @@ public struct Particle
 	public float rotationVelocity;
 	public float size;
 	public float lifetime;
-	//public int u0, v0, u1, v1;
 	public float animationFrame;
 	public Vector4 color;
 
@@ -55,41 +55,42 @@ public class ParticleSystem
 
 	public Matrix transform = Matrix.Identity;
 
-	public float emissionRate = 0.0f;
+	public string name = null;
+
 	public float lifetime = 1.0f;
 	public float particleSize = 0.1f;
-	public Gradient<float> particleSizeAnim = null;
-	public Vector3 spawnOffset = Vector3.Zero;
+
+	public float emissionRate = 5.0f;
 	public ParticleSpawnShape spawnShape = ParticleSpawnShape.Point;
+	public Vector3 spawnOffset = Vector3.Zero;
+	public float spawnRadius = 1.0f;
+	public Vector3 lineEnd = new Vector3(1.0f, 0.0f, 0.0f);
+
 	public bool follow = false;
-	public float gravity = -10.0f;
-	public Vector3 initialVelocity = Vector3.Zero;
+	public float gravity = 0.0f;
+	public Vector3 initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
 	public Vector3 constantVelocity = Vector3.Zero;
 	public float rotationSpeed = 0.0f;
 
+	public string textureAtlasPath = null;
 	public Texture textureAtlas = null;
-	//public int atlasColumns = 1;
-	public int frameWidth = 0, frameHeight = 0;
+	public Vector2i atlasSize = new Vector2i(1);
 	public int numFrames = 1;
 	public bool linearFiltering = false;
 
 	public Vector4 spriteTint = Vector4.One;
-	public Gradient<Vector4> colorAnim = null;
 	public bool additive = false;
 
-	public float spawnRadius = 1.0f;
-	public Vector3 point1 = new Vector3(0.0f, 0.0f, 0.0f);
-	public Vector3 point2 = new Vector3(1.0f, 0.0f, 0.0f);
+	public float randomVelocity = 0.0f;
+	public float randomRotationSpeed = 0.0f;
+	public float randomLifetime = 0.0f;
+	public bool randomStartRotation = false;
 
-	public bool randomVelocity = false;
-	public float randomVelocityMultiplier = 1.0f;
-	public bool randomRotation = false;
-	public bool randomRotationSpeed = false;
-	public bool randomLifetime = false;
+	public Gradient<float> particleSizeAnim = null;
+	public Gradient<Vector4> colorAnim = null;
 
 	Particle[] particles = null;
 	List<int> particleIndices;
-	//public int numParticles { get; private set; }
 	public readonly int maxParticles = 0;
 
 	long lastEmitted;
@@ -104,7 +105,6 @@ public class ParticleSystem
 		this.maxParticles = maxParticles;
 		particles = new Particle[maxParticles];
 		particleIndices = new List<int>(maxParticles);
-		//Array.Fill(particles, new Particle { active= -1 });
 
 		random = new Random();
 
@@ -115,10 +115,10 @@ public class ParticleSystem
 
 	public void copyData(ParticleSystem from)
 	{
+		name = from.name;
 		emissionRate = from.emissionRate;
 		lifetime = from.lifetime;
 		particleSize = from.particleSize;
-		particleSizeAnim = from.particleSizeAnim != null ? new Gradient<float>(from.particleSizeAnim) : null;
 		spawnOffset = from.spawnOffset;
 		spawnShape = from.spawnShape;
 		follow = from.follow;
@@ -126,22 +126,71 @@ public class ParticleSystem
 		initialVelocity = from.initialVelocity;
 		constantVelocity = from.constantVelocity;
 		rotationSpeed = from.rotationSpeed;
+		textureAtlasPath = from.textureAtlasPath;
 		textureAtlas = from.textureAtlas;
-		frameWidth = from.frameWidth;
-		frameHeight = from.frameHeight;
+		atlasSize = from.atlasSize;
 		numFrames = from.numFrames;
 		linearFiltering = from.linearFiltering;
 		spriteTint = from.spriteTint;
-		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
 		additive = from.additive;
 		spawnRadius = from.spawnRadius;
-		point1 = from.point1;
-		point2 = from.point2;
+		lineEnd = from.lineEnd;
 		randomVelocity = from.randomVelocity;
-		randomVelocityMultiplier = from.randomVelocityMultiplier;
-		randomRotation = from.randomRotation;
 		randomRotationSpeed = from.randomRotationSpeed;
+		randomStartRotation = from.randomStartRotation;
 		randomLifetime = from.randomLifetime;
+		particleSizeAnim = from.particleSizeAnim != null ? new Gradient<float>(from.particleSizeAnim) : null;
+		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
+	}
+
+	public override bool Equals(object obj)
+	{
+		return obj is ParticleSystem system &&
+			   EqualityComparer<Matrix>.Default.Equals(transform, system.transform) &&
+			   name == system.name &&
+			   lifetime == system.lifetime &&
+			   particleSize == system.particleSize &&
+			   emissionRate == system.emissionRate &&
+			   spawnShape == system.spawnShape &&
+			   EqualityComparer<Vector3>.Default.Equals(spawnOffset, system.spawnOffset) &&
+			   spawnRadius == system.spawnRadius &&
+			   EqualityComparer<Vector3>.Default.Equals(lineEnd, system.lineEnd) &&
+			   follow == system.follow &&
+			   gravity == system.gravity &&
+			   EqualityComparer<Vector3>.Default.Equals(initialVelocity, system.initialVelocity) &&
+			   EqualityComparer<Vector3>.Default.Equals(constantVelocity, system.constantVelocity) &&
+			   rotationSpeed == system.rotationSpeed &&
+			   textureAtlasPath == system.textureAtlasPath &&
+			   EqualityComparer<Texture>.Default.Equals(textureAtlas, system.textureAtlas) &&
+			   atlasSize == system.atlasSize &&
+			   numFrames == system.numFrames &&
+			   linearFiltering == system.linearFiltering &&
+			   EqualityComparer<Vector4>.Default.Equals(spriteTint, system.spriteTint) &&
+			   additive == system.additive &&
+			   randomVelocity == system.randomVelocity &&
+			   randomRotationSpeed == system.randomRotationSpeed &&
+			   randomStartRotation == system.randomStartRotation &&
+			   randomLifetime == system.randomLifetime &&
+			   EqualityComparer<Gradient<float>>.Default.Equals(particleSizeAnim, system.particleSizeAnim) &&
+			   EqualityComparer<Gradient<Vector4>>.Default.Equals(colorAnim, system.colorAnim);
+	}
+
+	public override int GetHashCode()
+	{
+		return base.GetHashCode();
+	}
+
+	public void reload()
+	{
+		if (textureAtlasPath != null)
+		{
+			string compiledPath = RainfallEditor.instance.compileAsset(textureAtlasPath);
+			textureAtlas = Resource.GetTexture(compiledPath);
+		}
+		else
+		{
+			textureAtlas = null;
+		}
 	}
 
 	int getNewParticle()
@@ -166,7 +215,7 @@ public class ParticleSystem
 		for (int i = 0; i < num; i++)
 		{
 			Vector3 position = Vector3.Zero;
-			float rotation = randomRotation ? Random.Shared.NextSingle() * MathF.PI * 2.0f : 0.0f;
+			float rotation = randomStartRotation ? Random.Shared.NextSingle() * MathF.PI * 2.0f : 0.0f;
 
 			switch (spawnShape)
 			{
@@ -192,7 +241,7 @@ public class ParticleSystem
 					break;
 				case ParticleSpawnShape.Line:
 					float t = (float)random.NextDouble();
-					position = Vector3.Lerp(point1, point2, t);
+					position = Vector3.Lerp(Vector3.Zero, lineEnd, t);
 					break;
 				default:
 					Debug.Assert(false);
@@ -207,9 +256,11 @@ public class ParticleSystem
 			}
 
 			Vector3 velocity = initialVelocity + particleVelocity;
-			if (randomVelocity)
-				velocity += MathHelper.RandomVector3(-1.0f, 1.0f) * randomVelocityMultiplier;
-			float rotationVelocity = rotationSpeed * (randomRotationSpeed ? (Random.Shared.NextSingle() * 2.0f - 1.0f) : 1.0f);
+			if (randomVelocity > 0)
+				velocity += MathHelper.RandomVector3(random) * randomVelocity;
+			float rotationVelocity = 0.0f;
+			if (randomRotationSpeed > 0)
+				rotationVelocity += MathHelper.RandomFloat(-1, 1, random) * randomRotationSpeed;
 
 			int particleID = getNewParticle();
 			if (particleID != -1)
@@ -220,7 +271,7 @@ public class ParticleSystem
 				particle.velocity = velocity;
 				particle.rotationVelocity = rotationVelocity;
 				particle.size = particleSize;
-				particle.lifetime = lifetime + (randomLifetime ? MathHelper.RandomFloat(-0.5f, 0.5f, random) * lifetime : 0.0f);
+				particle.lifetime = lifetime * (1 + MathHelper.RandomFloat(-randomLifetime, randomLifetime, random));
 				particle.animationFrame = 0;
 				particle.color = spriteTint;
 				particle.birthTime = Time.currentTime;
@@ -276,22 +327,13 @@ public class ParticleSystem
 
 				if (textureAtlas != null && numFrames > 0)
 				{
-					int atlasColumns = 1, atlasRows = 1;
-					if (frameWidth != 0 && frameHeight != 0)
-					{
-						atlasColumns = textureAtlas.width / frameWidth;
-						atlasRows = textureAtlas.height / frameHeight;
-					}
-					float animationFrame = particleTimer / particle.lifetime * numFrames / (atlasColumns * atlasRows);
+					float animationFrame = particleTimer / particle.lifetime * numFrames / (atlasSize.x * atlasSize.y);
 					particle.animationFrame = animationFrame;
 				}
 
 				if ((now - particle.birthTime) / 1e9f >= particle.lifetime)
 				{
-					//if (particle.id == numParticles - 1)
-					//	numParticles--;
 					particle.active = false;
-					//i--;
 				}
 				else
 				{
@@ -299,79 +341,16 @@ public class ParticleSystem
 					if (index < 0)
 						index = ~index;
 					particleIndices.Insert(index, i);
-
-					/*
-					float d1 = Vector3.Dot(particle.position, cameraAxis);
-					for (int j = 0; j < particleIndices.Count + 1; j++)
-					{
-						if (j == particleIndices.Count)
-						{
-							particleIndices.Add(i);
-							break;
-						}
-					
-						ref Particle particle2 = ref particles[particleIndices[j]];
-						float d2 = Vector3.Dot(particle2.position, cameraAxis);
-
-						if (d1 > d2)
-						{
-							particleIndices.Insert(j, i);
-							break;
-						}
-					}
-					*/
 				}
 			}
-			else
-			{
-				//Debug.Assert(false);
-				//if (i == numParticles - 1)
-				//	numParticles--;
-			}
 		}
-
-		/*
-		Vector3 cameraAxis = Vector3.Forward;
-		if (Renderer.camera != null)
-			cameraAxis = Renderer.camera.rotation.forward;
-
-		Array.Sort(particles, (particle1, particle2) =>
-		{
-			if (!particle1.active && !particle2.active)
-				return 0;
-			if (!particle1.active)
-				return 1;
-			if (!particle2.active)
-				return -1;
-
-			float d1 = Vector3.Dot(particle1.position, cameraAxis);
-			float d2 = Vector3.Dot(particle2.position, cameraAxis);
-
-			return d1 < d2 ? 1 : d1 > d2 ? -1 : 0;
-		});
-
-		for (int i = 0; i < particles.Length; i++)
-		{
-			if (!particles[i].active)
-			{
-				numParticles = i;
-				break;
-			}
-		}
-		*/
 	}
 
 	public void draw(GraphicsDevice graphics)
 	{
 		if (particleIndices.Count > 0)
 		{
-			int atlasColumns = 1, atlasRows = 1;
-			if (frameWidth != 0 && frameHeight != 0 && textureAtlas != null)
-			{
-				atlasColumns = textureAtlas.width / frameWidth;
-				atlasRows = textureAtlas.height / frameHeight;
-			}
-			Renderer.DrawParticleSystem(particles, particleIndices, transform, spawnOffset, follow, textureAtlas, new Vector2i(atlasColumns, atlasRows), linearFiltering, additive);
+			Renderer.DrawParticleSystem(particles, particleIndices, transform, spawnOffset, follow, textureAtlas, atlasSize, linearFiltering, additive);
 		}
 	}
 

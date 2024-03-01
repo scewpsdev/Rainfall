@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public static unsafe partial class EditorUI
 {
 	const int NODE_PANEL_WIDTH = 350;
-	const int PROPERTIES_PANEL_WIDTH = 350;
+	const int PROPERTIES_PANEL_WIDTH = 400;
 
 	public static Vector2 currentViewportSize { get; private set; }
 

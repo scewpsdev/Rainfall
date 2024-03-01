@@ -1345,7 +1345,7 @@ public static class Renderer
 
 
 		//RenderSky();
-		//RenderParticles();
+		RenderParticles();
 		RenderDebugLines();
 	}
 

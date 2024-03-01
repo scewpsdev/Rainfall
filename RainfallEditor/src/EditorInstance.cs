@@ -177,7 +177,7 @@ public class EditorInstance
 
 		foreach (Entity entity in entities)
 		{
-			entity.draw();
+			entity.draw(graphics);
 		}
 
 		frame = Renderer.End();

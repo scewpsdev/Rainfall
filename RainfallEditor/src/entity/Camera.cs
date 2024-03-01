@@ -32,12 +32,16 @@ public class Camera
 
 	public void updateControls()
 	{
+		Vector2 mousePos = ImGui.GetMousePos();
+		Vector2 mouseDelta = mousePos - lastMousePos;
+		lastMousePos = mousePos;
+
+		float scroll = ImGui.GetMouseScroll();
+		float scrollDelta = scroll - lastScroll;
+		lastScroll = scroll;
+
 		if (ImGui.IsWindowHovered())
 		{
-			Vector2 mousePos = ImGui.GetMousePos();
-			Vector2 mouseDelta = mousePos - lastMousePos;
-			lastMousePos = mousePos;
-
 			if (ImGui.IsMouseButtonDown(MouseButton.Left))
 			{
 				if (ImGui.IsKeyDown(KeyCode.LeftAlt))
@@ -99,9 +103,6 @@ public class Camera
 				}
 			}
 
-			float scroll = ImGui.GetMouseScroll();
-			float scrollDelta = scroll - lastScroll;
-			lastScroll = scroll;
 			distance *= (1 + -scrollDelta * 0.2f);
 
 			Matrix transform = Matrix.CreateTranslation(target) * Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateTranslation(0.0f, 0.0f, distance);
