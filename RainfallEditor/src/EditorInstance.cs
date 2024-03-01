@@ -14,6 +14,7 @@ public class EditorInstance
 
 	public readonly Stack<byte[]> undoStack = new Stack<byte[]>();
 	public readonly Stack<byte[]> redoStack = new Stack<byte[]>();
+	static bool pushUndo = false;
 
 	public List<Entity> entities = new List<Entity>();
 	public Camera camera;
@@ -47,9 +48,7 @@ public class EditorInstance
 	public void notifyEdit()
 	{
 		unsavedChanges = true;
-
-		undoStack.Push(SceneFormat.SerializeScene(this));
-		redoStack.Clear();
+		pushUndo = true;
 	}
 
 	public void notifySave()
@@ -148,6 +147,13 @@ public class EditorInstance
 
 	public void update()
 	{
+		if (pushUndo)
+		{
+			undoStack.Push(SceneFormat.SerializeScene(this));
+			redoStack.Clear();
+			pushUndo = false;
+		}
+
 		camera.update();
 
 		foreach (Entity entity in entities)

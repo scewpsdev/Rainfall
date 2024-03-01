@@ -131,6 +131,11 @@ namespace Rainfall
 			return new Vector2i(Math.Sign(v.x), Math.Sign(v.y));
 		}
 
+		public static Vector2 Round(Vector2 v)
+		{
+			return new Vector2(MathF.Round(v.x), MathF.Round(v.y));
+		}
+
 		public static Vector2 Lerp(Vector2 a, Vector2 b, float t)
 		{
 			return new Vector2(

@@ -14,8 +14,8 @@
 [X] collider rotation
 [X] removing model, colliders, lights
 [X] mesh colliders
-[ ] serialize particles
-[ ] particle renaming
+[X] serialize particles
+[X] particle renaming
 [ ] particle velocity input
 [ ] air resistance
 [ ] particle bursts

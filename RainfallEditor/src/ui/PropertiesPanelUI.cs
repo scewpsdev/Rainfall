@@ -60,15 +60,19 @@ public static partial class EditorUI
 
 	static unsafe void Transform(Entity entity, EditorInstance instance)
 	{
+		DragFloat3(instance, "Position", "transform_position", ref entity.position, 0.02f);
+		DragFloat3Rotation(instance, "Rotation", "transform_rotation", ref entity.rotation, 1.0f);
+		DragFloat3(instance, "Scale", "transform_scale", ref entity.scale, 0.02f);
+
+		/*
 		ImGui.TextUnformatted("Position");
 		ImGui.SameLine(SPACING_X);
 		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 		Vector3 newPosition = entity.position;
 		if (ImGui.DragFloat3("##transform_position", &newPosition, 0.02f))
-		{
 			entity.position = newPosition;
+		if (ImGui.IsItemDeactivatedAfterEdit())
 			instance.notifyEdit();
-		}
 		ImGui.TextUnformatted("Rotation");
 		ImGui.SameLine(SPACING_X);
 		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
@@ -87,6 +91,7 @@ public static partial class EditorUI
 			entity.scale = newScale;
 			instance.notifyEdit();
 		}
+		*/
 	}
 
 	static unsafe void Model(Entity entity, EditorInstance instance)
@@ -127,28 +132,50 @@ public static partial class EditorUI
 					if (ImGui.Selectable_Bool("Mesh"))
 						collider.type = ColliderType.Mesh;
 					ImGui.EndCombo();
+
+					if (collider.type != entity.colliders[i].type)
+						instance.notifyEdit();
 				}
 
 				if (collider.type == ColliderType.Box)
 				{
+					DragFloat3(instance, "Size", "collider_size" + i, ref collider.size, 0.02f);
+
+					/*
 					ImGui.TextUnformatted("Size");
 					ImGui.SameLine(SPACING_X);
 					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					Vector3 newSize = collider.size;
 					if (ImGui.DragFloat3("##collider_size" + i, &newSize, 0.02f))
 						collider.size = newSize;
+					*/
 				}
 				else if (collider.type == ColliderType.Sphere)
 				{
+					float newRadius = collider.radius;
+					if (DragFloat(instance, "Radius", "collider_radius" + i, ref newRadius, 0.02f, 0, 1000))
+						collider.radius = newRadius;
+
+					/*
 					ImGui.TextUnformatted("Radius");
 					ImGui.SameLine(SPACING_X);
 					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					float newRadius = collider.radius;
 					if (ImGui.DragFloat("##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
 						collider.radius = newRadius;
+					*/
 				}
 				else if (collider.type == ColliderType.Capsule)
 				{
+					float newRadius = collider.radius;
+					if (DragFloat(instance, "Radius", "collider_radius" + i, ref newRadius, 0.02f, 0, 1000))
+						collider.radius = newRadius;
+
+					float newHeight = collider.height;
+					if (DragFloat(instance, "Height", "collider_height" + i, ref newHeight, 0.02f, 2 * collider.radius, 1000))
+						collider.height = newHeight;
+
+					/*
 					ImGui.TextUnformatted("Radius");
 					ImGui.SameLine(SPACING_X);
 					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
@@ -162,6 +189,7 @@ public static partial class EditorUI
 					float newHeight = collider.height;
 					if (ImGui.DragFloat("##collider_height" + i, &newHeight, 0.02f, 2 * collider.radius, 1000))
 						collider.height = newHeight;
+					*/
 				}
 				else if (collider.type == ColliderType.Mesh)
 				{
@@ -172,21 +200,29 @@ public static partial class EditorUI
 					}
 				}
 
+				DragFloat3(instance, "Offset", "collider_offset" + i, ref collider.offset, 0.02f);
+
+				/*
 				ImGui.TextUnformatted("Offset");
 				ImGui.SameLine(SPACING_X);
 				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				Vector3 newOffset = collider.offset;
 				if (ImGui.DragFloat3("##collider_offset" + i, &newOffset, 0.02f))
 					collider.offset = newOffset;
+				*/
 
 				if (collider.type != ColliderType.Sphere)
 				{
+					DragFloat3Eulers(instance, "Rotation", "collider_rotation" + i, ref collider.eulers);
+
+					/*
 					ImGui.TextUnformatted("Rotation");
 					ImGui.SameLine(SPACING_X);
 					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 					Vector3 newEulers = collider.eulers * 180 / MathF.PI;
 					if (ImGui.DragFloat3("##collider_rotation" + i, &newEulers, 1.0f))
 						collider.eulers = newEulers / 180 * MathF.PI;
+					*/
 				}
 
 				// X Button
@@ -201,11 +237,7 @@ public static partial class EditorUI
 				}
 				ImGui.SetCursorPos(cursorPos);
 
-				if (entity.colliders[i] != collider)
-				{
-					entity.colliders[i] = collider;
-					instance.notifyEdit();
-				}
+				entity.colliders[i] = collider;
 
 				ImGui.Spacing();
 				ImGui.Separator();
@@ -233,26 +265,38 @@ public static partial class EditorUI
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
+				ColorEdit3(instance, "Color", "light_color" + i, ref light.color);
+
+				/*
 				ImGui.TextUnformatted("Color");
 				ImGui.SameLine(SPACING_X);
 				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				Vector3 newColor = light.color;
 				if (ImGui.ColorEdit3("##light_color" + i, &newColor, ImGuiColorEditFlags.NoInputs))
 					light.color = newColor;
+				*/
 
+				DragFloat(instance, "Intensity", "light_intensity" + i, ref light.intensity, 0.02f, 0, 10000);
+
+				/*
 				ImGui.TextUnformatted("Intensity");
 				ImGui.SameLine(SPACING_X);
 				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				float newIntensity = light.intensity;
 				if (ImGui.DragFloat("##light_intensity", &newIntensity, 0.02f))
 					light.intensity = newIntensity;
+				*/
 
+				DragFloat3(instance, "Offset", "light_offset" + i, ref light.offset, 0.02f);
+
+				/*
 				ImGui.TextUnformatted("Offset");
 				ImGui.SameLine(SPACING_X);
 				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 				Vector3 newOffset = light.offset;
-				if (ImGui.DragFloat3("##light_intensity", &newOffset, 0.02f))
+				if (ImGui.DragFloat3("##light_offset", &newOffset, 0.02f))
 					light.offset = newOffset;
+				*/
 
 				// X Button
 				Vector2 cursorPos = ImGui.GetCursorPos();
@@ -266,11 +310,7 @@ public static partial class EditorUI
 				}
 				ImGui.SetCursorPos(cursorPos);
 
-				if (entity.lights[i] != light)
-				{
-					entity.lights[i] = light;
-					instance.notifyEdit();
-				}
+				entity.lights[i] = light;
 
 				ImGui.Spacing();
 				ImGui.Separator();

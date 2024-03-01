@@ -14,10 +14,219 @@ public static unsafe partial class EditorUI
 	public static Vector2 currentViewportSize { get; private set; }
 
 	public static EditorInstance nextSelectedTab = null;
-	public static EditorInstance unsavedChangesPopup = null;
+	public static List<EditorInstance> unsavedChangesPopup = new List<EditorInstance>();
 
 	static GuizmoManipulateOperation currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
 
+
+	public static unsafe bool DragFloat(EditorInstance instance, string label, string sid, ref float f, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		float newValue = f;
+		bool changed = ImGui.DragFloat("##" + sid, &newValue, v_speed, v_min, v_max, "%.3f", flags);
+		if (changed)
+			f = newValue;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool DragAngle(EditorInstance instance, string label, string sid, ref float f, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		float newValue = f * 180 / MathF.PI;
+		bool changed = ImGui.DragFloat("##" + sid, &newValue, v_speed, v_min, v_max, "%.3f", flags);
+		if (changed)
+			f = newValue / 180 * MathF.PI;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool DragFloat3(EditorInstance instance, string label, string sid, ref Vector3 v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		Vector3 newValue = v;
+		bool changed = ImGui.DragFloat3("##" + sid, &newValue, v_speed, v_min, v_max, "%.3f", flags);
+		if (changed)
+			v = newValue;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool DragFloat3Rotation(EditorInstance instance, string label, string sid, ref Quaternion q, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		Vector3 newValue = q.eulers * 180 / MathF.PI;
+		bool changed = ImGui.DragFloat3("##" + sid, &newValue, v_speed, v_min, v_max, "%.3f", flags);
+		if (changed)
+			q = Quaternion.FromEulerAngles(newValue / 180 * MathF.PI);
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool DragFloat3Eulers(EditorInstance instance, string label, string sid, ref Vector3 v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		Vector3 newValue = v * 180 / MathF.PI;
+		bool changed = ImGui.DragFloat3("##" + sid, &newValue, v_speed, v_min, v_max, "%.3f", flags);
+		if (changed)
+			v = newValue / 180 * MathF.PI;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool DragInt(EditorInstance instance, string label, string sid, ref int i, float v_speed = 1.0f, int v_min = 0, int v_max = 0, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		int newValue = i;
+		bool changed = ImGui.DragInt("##" + sid, &newValue, v_speed, v_min, v_max, "%d", flags);
+		if (changed)
+			i = newValue;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool DragInt2(EditorInstance instance, string label, string sid, ref Vector2i v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, ImGuiSliderFlags flags = 0)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		Vector2i newValue = v;
+		bool changed = ImGui.DragInt2("##" + sid, &newValue, v_speed, v_min, v_max, "%d", flags);
+		if (changed)
+			v = newValue;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool ColorEdit3(EditorInstance instance, string label, string sid, ref Vector3 v, bool hdr = false)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		Vector3 newValue = v;
+		bool changed = ImGui.ColorEdit3("##" + sid, &newValue, ImGuiColorEditFlags.NoInputs | (hdr ? ImGuiColorEditFlags.HDR : 0));
+		if (changed)
+			v = newValue;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe bool ColorEdit4(EditorInstance instance, string label, string sid, ref Vector4 v, bool hdr = false)
+	{
+		if (label != null)
+		{
+			ImGui.TextUnformatted(label);
+			ImGui.SameLine(SPACING_X);
+		}
+		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
+		Vector4 newValue = v;
+		bool changed = ImGui.ColorEdit4("##" + sid, &newValue, ImGuiColorEditFlags.NoInputs | (hdr ? ImGuiColorEditFlags.HDR : 0));
+		if (changed)
+			v = newValue;
+		if (ImGui.IsItemDeactivatedAfterEdit())
+			instance.notifyEdit();
+		return changed;
+	}
+
+	public static unsafe void Combo<T>(EditorInstance instance, string label, string sid, ref T v, ImGuiComboFlags flags = 0) where T : struct, Enum
+	{
+		ImGui.TextUnformatted(label);
+		ImGui.SameLine(SPACING_X);
+		ImGui.SetNextItemWidth(ITEM_WIDTH);
+		if (ImGui.BeginCombo("##" + sid, v.ToString(), flags))
+		{
+			T newValue = v;
+
+			foreach (T t in Enum.GetValues<T>())
+			{
+				if (ImGui.Selectable_Bool(t.ToString()))
+					newValue = t;
+			}
+
+			if (!newValue.Equals(v))
+			{
+				v = newValue;
+				instance.notifyEdit();
+			}
+
+			ImGui.EndCombo();
+		}
+	}
+
+	public static unsafe bool Checkbox(EditorInstance instance, string label, string sid, ref bool v)
+	{
+		ImGui.TextUnformatted(label);
+		ImGui.SameLine(SPACING_X);
+		ImGui.SetNextItemWidth(ITEM_WIDTH);
+		byte newValue = (byte)(v ? 1 : 0);
+		if (ImGui.Checkbox("##" + label, &newValue))
+		{
+			v = newValue != 0;
+			instance.notifyEdit();
+			return true;
+		}
+		return false;
+	}
+
+	public static unsafe bool TreeNodeOptional(EditorInstance instance, string label, string sid, ref bool enabled)
+	{
+		ImGui.SetNextItemAllowOverlap();
+		bool openSettings = ImGui.TreeNodeEx(label + "##" + sid + "_settings");
+		ImGui.SameLine(SPACING_X);
+		byte newEnabled = (byte)(enabled ? 1 : 0);
+		ImGui.PushStyleVar_Vec2(ImGuiStyleVar.FramePadding, Vector2.Zero);
+		if (ImGui.Checkbox("##" + sid, &newEnabled))
+		{
+			enabled = newEnabled != 0;
+			instance.notifyEdit();
+		}
+		ImGui.PopStyleVar();
+		return openSettings;
+	}
 
 	static unsafe void MenuBar(RainfallEditor editor)
 	{
@@ -227,29 +436,29 @@ public static unsafe partial class EditorUI
 			ImGui.Begin("background_clear", null, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 			ImGui.End();
 		}
-		if (unsavedChangesPopup != null)
+		if (unsavedChangesPopup.Count > 0)
 		{
 			byte open = 1;
 			ImGui.OpenPopup_Str("popup_unsaved");
 			if (ImGui.BeginPopupModal("popup_unsaved", &open, ImGuiWindowFlags.NoResize))
 			{
-				if (unsavedChangesPopup.path != null)
-					ImGui.TextUnformatted("Save changes to \"" + unsavedChangesPopup.filename + "\"?");
+				if (unsavedChangesPopup[0].path != null)
+					ImGui.TextUnformatted("Save changes to \"" + unsavedChangesPopup[0].filename + "\"?");
 				else
 					ImGui.TextUnformatted("Save changes to \"Untitled\"?");
 				if (ImGui.Button("Yes"))
 				{
-					editor.save(unsavedChangesPopup);
+					editor.save(unsavedChangesPopup[0]);
 
-					editor.closeTab(unsavedChangesPopup);
-					unsavedChangesPopup = null;
+					editor.closeTab(unsavedChangesPopup[0]);
+					unsavedChangesPopup.RemoveAt(0);
 				}
 				ImGui.SameLine();
 				if (ImGui.Button("No"))
 				{
-					unsavedChangesPopup.notifySave();
-					editor.closeTab(unsavedChangesPopup);
-					unsavedChangesPopup = null;
+					unsavedChangesPopup[0].notifySave();
+					editor.closeTab(unsavedChangesPopup[0]);
+					unsavedChangesPopup.RemoveAt(0);
 				}
 				ImGui.EndPopup();
 			}
