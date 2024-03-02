@@ -37,7 +37,7 @@ public unsafe class RainfallEditor : Game
 
 		Debug.debugTextEnabled = true;
 
-		newTab();
+		newTab(null);
 	}
 
 	public override void destroy()
@@ -71,9 +71,9 @@ public unsafe class RainfallEditor : Game
 		return null;
 	}
 
-	public EditorInstance newTab()
+	public EditorInstance newTab(string path = null)
 	{
-		EditorInstance instance = new EditorInstance();
+		EditorInstance instance = new EditorInstance(path);
 		tabs.Add(instance);
 		currentTab = instance;
 		EditorUI.nextSelectedTab = instance;
@@ -126,9 +126,7 @@ public unsafe class RainfallEditor : Game
 			else if (currentTab != null && currentTab.path == null && !currentTab.unsavedChanges)
 				closeTab(currentTab);
 
-			EditorInstance instance = newTab();
-			instance.path = path;
-			SceneFormat.ReadScene(instance, instance.path);
+			newTab(path);
 			NFD.NFDi_Free(outPath);
 		}
 	}

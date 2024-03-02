@@ -58,6 +58,7 @@ public static class SceneFormat
 
 			particle.addNumber("lifetime", particleData.lifetime);
 			particle.addNumber("size", particleData.size);
+			particle.addBoolean("follow", particleData.follow);
 
 			particle.addNumber("emissionRate", particleData.emissionRate);
 			particle.addIdentifier("spawnShape", particleData.spawnShape.ToString());
@@ -68,10 +69,13 @@ public static class SceneFormat
 				particle.addVector3("lineEnd", particleData.lineEnd);
 			particle.addBoolean("randomStartRotation", particleData.randomStartRotation);
 
-			particle.addBoolean("follow", particleData.follow);
 			particle.addNumber("gravity", particleData.gravity);
+			particle.addNumber("drag", particleData.drag);
 			particle.addVector3("startVelocity", particleData.startVelocity);
+			particle.addNumber("radialVelocity", particleData.radialVelocity);
 			particle.addNumber("rotationSpeed", particleData.rotationSpeed);
+			particle.addBoolean("applyEntityVelocity", particleData.applyEntityVelocity);
+			particle.addBoolean("applyCentrifugalForce", particleData.applyCentrifugalForce);
 
 			if (particleData.textureAtlasPath != null)
 			{
@@ -87,6 +91,7 @@ public static class SceneFormat
 			particle.addNumber("randomVelocity", particleData.randomVelocity);
 			particle.addNumber("randomRotationSpeed", particleData.randomRotationSpeed);
 			particle.addNumber("randomLifetime", particleData.randomLifetime);
+			particle.addNumber("velocityNoise", particleData.velocityNoise);
 
 			if (particleData.sizeAnim != null)
 				particle.addVector2("sizeAnim", new Vector2(particleData.sizeAnim.getValue(0), particleData.sizeAnim.getValue(1)));
@@ -106,6 +111,13 @@ public static class SceneFormat
 	public static void SerializeScene(EditorInstance instance, Stream stream)
 	{
 		DatFile file = new DatFile();
+
+		/*
+		file.addVector3("camera_target", instance.camera.target);
+		file.addNumber("camera_distance", instance.camera.distance);
+		file.addNumber("camera_pitch", instance.camera.pitch);
+		file.addNumber("camera_yaw", instance.camera.yaw);
+		*/
 
 		DatArray arr = new DatArray();
 		for (int i = 0; i < instance.entities.Count; i++)
@@ -197,6 +209,7 @@ public static class SceneFormat
 
 				particle.getNumber("lifetime", out particleData.lifetime);
 				particle.getNumber("size", out particleData.size);
+				particle.getBoolean("follow", out particleData.follow);
 
 				particle.getNumber("emissionRate", out particleData.emissionRate);
 				if (particle.getIdentifier("spawnShape", out string spawnShape))
@@ -208,10 +221,13 @@ public static class SceneFormat
 					particle.getVector3("lineEnd", out particleData.lineEnd);
 				particle.getBoolean("randomStartRotation", out particleData.randomStartRotation);
 
-				particle.getBoolean("follow", out particleData.follow);
 				particle.getNumber("gravity", out particleData.gravity);
+				particle.getNumber("drag", out particleData.drag);
 				particle.getVector3("startVelocity", out particleData.startVelocity);
+				particle.getNumber("radialVelocity", out particleData.radialVelocity);
 				particle.getNumber("rotationSpeed", out particleData.rotationSpeed);
+				particle.getBoolean("applyEntityVelocity", out particleData.applyEntityVelocity);
+				particle.getBoolean("applyCentrifugalForce", out particleData.applyCentrifugalForce);
 
 				if (particle.getString("textureAtlas", out string textureAtlasPath))
 				{
@@ -220,7 +236,7 @@ public static class SceneFormat
 
 					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
 						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
-					particle.getNumber("numFrames", out particleData.numFrames);
+					particle.getInteger("numFrames", out particleData.numFrames);
 					particle.getBoolean("linearFiltering", out particleData.linearFiltering);
 				}
 
@@ -253,6 +269,17 @@ public static class SceneFormat
 		instance.reset();
 
 		DatFile file = new DatFile(stream);
+
+		/*
+		if (file.getVector3("camera_target", out Vector3 cameraTarget))
+			instance.camera.target = cameraTarget;
+		if (file.getNumber("camera_distance", out float cameraDistance))
+			instance.camera.distance = cameraDistance;
+		if (file.getNumber("camera_pitch", out float cameraPitch))
+			instance.camera.pitch = cameraPitch;
+		if (file.getNumber("camera_yaw", out float cameraYaw))
+			instance.camera.yaw = cameraYaw;
+		*/
 
 		if (file.getArray("entities", out DatArray arr))
 		{

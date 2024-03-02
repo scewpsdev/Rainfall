@@ -17,6 +17,7 @@ public static unsafe partial class EditorUI
 	public static List<EditorInstance> unsavedChangesPopup = new List<EditorInstance>();
 
 	static GuizmoManipulateOperation currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
+	static bool manipulateEdited = false;
 
 
 	public static unsafe bool DragFloat(EditorInstance instance, string label, string sid, ref float f, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, ImGuiSliderFlags flags = 0)
@@ -379,39 +380,58 @@ public static unsafe partial class EditorUI
 			ImGuizmo.SetOrthographic(false);
 			ImGuizmo.SetDrawlist();
 
-			instance.camera.updateControls();
+			instance.camera.updateControls(instance);
 
 			Matrix projection = instance.camera.getProjectionMatrix((int)windowSize.x, (int)windowSize.y);
 			Matrix view = instance.camera.getViewMatrix();
 
 			//ImGuizmo.DrawGrid(view, projection, Matrix.Identity, 10);
-			ImGuizmo.ViewManipulate(ref view, instance.camera.distance, topLeft + new Vector2(windowSize.x - 200, 0), new Vector2(200), 0x00000000);
+			Matrix newView = view;
+			ImGuizmo.ViewManipulate(ref newView, instance.camera.distance, topLeft + new Vector2(windowSize.x - 200, 0), new Vector2(200), 0x00000000);
+			if (newView != view)
+			{
+				view = newView;
+				instance.notifyEdit();
+			}
 
 			if (instance.selectedEntity != 0)
 			{
-				if (ImGui.IsKeyPressed(KeyCode.KeyT))
-					currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
-				if (ImGui.IsKeyPressed(KeyCode.KeyR))
-					currentManipulateOperation = GuizmoManipulateOperation.ROTATE;
-				if (ImGui.IsKeyPressed(KeyCode.KeyS))
-					currentManipulateOperation = GuizmoManipulateOperation.SCALE;
-
-				Vector3? snap = null;
-				if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+				if (ImGui.IsWindowHovered())
 				{
-					if (currentManipulateOperation == GuizmoManipulateOperation.TRANSLATE)
-						snap = new Vector3(0.5f);
-					else if (currentManipulateOperation == GuizmoManipulateOperation.ROTATE)
-						snap = new Vector3(15, 0.0f, 0.0f);
-					else if (currentManipulateOperation == GuizmoManipulateOperation.SCALE)
-						snap = new Vector3(1.5f);
-				}
+					if (!ImGui.IsAnyItemActive() && !ImGui.IsKeyDown(KeyCode.LeftCtrl) && !ImGui.IsKeyDown(KeyCode.LeftShift) && !ImGui.IsKeyDown(KeyCode.LeftAlt))
+					{
+						if (ImGui.IsKeyPressed(KeyCode.KeyT))
+							currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
+						if (ImGui.IsKeyPressed(KeyCode.KeyR))
+							currentManipulateOperation = GuizmoManipulateOperation.ROTATE;
+						if (ImGui.IsKeyPressed(KeyCode.KeyS))
+							currentManipulateOperation = GuizmoManipulateOperation.SCALE;
+					}
 
-				Entity selectedEntity = instance.getSelectedEntity();
-				Matrix matrix = selectedEntity.getModelMatrix();
-				if (ImGuizmo.Manipulate(view, projection, currentManipulateOperation, GuizmoManipulateMode.LOCAL, ref matrix, null, snap))
-				{
-					matrix.decompose(out selectedEntity.position, out selectedEntity.rotation, out selectedEntity.scale);
+					Vector3? snap = null;
+					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+					{
+						if (currentManipulateOperation == GuizmoManipulateOperation.TRANSLATE)
+							snap = new Vector3(0.5f);
+						else if (currentManipulateOperation == GuizmoManipulateOperation.ROTATE)
+							snap = new Vector3(15, 0.0f, 0.0f);
+						else if (currentManipulateOperation == GuizmoManipulateOperation.SCALE)
+							snap = new Vector3(1.5f);
+					}
+
+					Entity selectedEntity = instance.getSelectedEntity();
+					Matrix matrix = selectedEntity.getModelMatrix();
+					if (ImGuizmo.Manipulate(view, projection, currentManipulateOperation, GuizmoManipulateMode.LOCAL, ref matrix, null, snap))
+					{
+						matrix.decompose(out selectedEntity.position, out selectedEntity.rotation, out selectedEntity.scale);
+						manipulateEdited = true;
+					}
+					if (ImGui.IsMouseButtonReleased(MouseButton.Left) && manipulateEdited)
+					{
+						// deactivated after edit
+						instance.notifyEdit();
+						manipulateEdited = false;
+					}
 				}
 			}
 		}

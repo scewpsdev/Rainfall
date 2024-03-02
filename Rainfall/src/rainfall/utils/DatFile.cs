@@ -61,7 +61,7 @@ namespace Rainfall
 
 		public int integer
 		{
-			get => (int)number;
+			get => (int)Math.Round(number);
 		}
 
 		public string stringContent
@@ -194,13 +194,6 @@ namespace Rainfall
 		{
 			bool result = getNumber(name, out double d);
 			number = (float)d;
-			return result;
-		}
-
-		public bool getNumber(string name, out int number)
-		{
-			bool result = getNumber(name, out double d);
-			number = (int)Math.Round(d);
 			return result;
 		}
 
@@ -671,7 +664,7 @@ namespace Rainfall
 				while (true)
 				{
 					char c = state.peek(i);
-					if (isDigit(c) || c == '.' || c == '-' && i == 0)
+					if (isDigit(c) || c == '.' || c == '-' || c == 'E')
 					{
 						i++;
 					}

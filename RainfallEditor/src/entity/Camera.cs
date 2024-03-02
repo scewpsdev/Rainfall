@@ -15,12 +15,14 @@ public class Camera
 	const float MOUSE_SENSITIVITY = 0.004f;
 
 
-	public Vector3 position = Vector3.Zero;
-	public Quaternion rotation = Quaternion.Identity;
+	Vector3 _position = Vector3.Zero;
+	Quaternion _rotation = Quaternion.Identity;
+	public Vector3 position { get => _position; }
+	public Quaternion rotation { get => _rotation; }
 
 	public bool orthographic = false;
 
-	Vector3 target = Vector3.Zero;
+	public Vector3 target = Vector3.Zero;
 	public float distance = 5.0f;
 	public float pitch = 0.0f, yaw = 0.0f;
 
@@ -30,7 +32,7 @@ public class Camera
 	Vector2 rotationTarget = new Vector2(-1);
 
 
-	public void updateControls()
+	public void updateControls(EditorInstance instance)
 	{
 		Vector2 mousePos = ImGui.GetMousePos();
 		Vector2 mouseDelta = mousePos - lastMousePos;
@@ -48,8 +50,8 @@ public class Camera
 				{
 					if (ImGui.IsKeyDown(KeyCode.LeftShift))
 					{
-						Vector3 right = rotation.right;
-						Vector3 down = rotation.down;
+						Vector3 right = _rotation.right;
+						Vector3 down = _rotation.down;
 						float multiplier = 2 * distance * MathF.Tan(0.5f * MathHelper.ToRadians(FOV));
 						target -= right * mouseDelta.x / Display.height * multiplier;
 						target -= down * mouseDelta.y / Display.height * multiplier;
@@ -65,30 +67,38 @@ public class Camera
 					}
 				}
 			}
+			else if (ImGui.IsMouseButtonReleased(MouseButton.Left))
+			{
+				//if (ImGui.IsKeyDown(KeyCode.LeftAlt) || ImGui.IsKeyDown(KeyCode.LeftShift))
+				//	instance.notifyEdit();
+			}
 
-			if (ImGui.IsKeyPressed(KeyCode.NumPad1) || ImGui.IsKeyPressed(KeyCode.Key1))
+			if (!ImGui.IsAnyItemActive())
 			{
-				if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
-					rotationTarget = new Vector2(0, MathF.PI);
-				else
-					rotationTarget = new Vector2(0, 0);
-				orthographic = true;
-			}
-			if (ImGui.IsKeyPressed(KeyCode.NumPad3) || ImGui.IsKeyPressed(KeyCode.Key3))
-			{
-				if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
-					rotationTarget = new Vector2(0, -MathF.PI * 0.5f);
-				else
-					rotationTarget = new Vector2(0, MathF.PI * 0.5f);
-				orthographic = true;
-			}
-			if (ImGui.IsKeyPressed(KeyCode.NumPad7) || ImGui.IsKeyPressed(KeyCode.Key7))
-			{
-				if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
-					rotationTarget = new Vector2(MathF.PI * 0.5f, MathF.PI);
-				else
-					rotationTarget = new Vector2(-MathF.PI * 0.5f, 0);
-				orthographic = true;
+				if (ImGui.IsKeyPressed(KeyCode.NumPad1) || ImGui.IsKeyPressed(KeyCode.Key1))
+				{
+					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+						rotationTarget = new Vector2(0, MathF.PI);
+					else
+						rotationTarget = new Vector2(0, 0);
+					orthographic = true;
+				}
+				if (ImGui.IsKeyPressed(KeyCode.NumPad3) || ImGui.IsKeyPressed(KeyCode.Key3))
+				{
+					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+						rotationTarget = new Vector2(0, -MathF.PI * 0.5f);
+					else
+						rotationTarget = new Vector2(0, MathF.PI * 0.5f);
+					orthographic = true;
+				}
+				if (ImGui.IsKeyPressed(KeyCode.NumPad7) || ImGui.IsKeyPressed(KeyCode.Key7))
+				{
+					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+						rotationTarget = new Vector2(MathF.PI * 0.5f, MathF.PI);
+					else
+						rotationTarget = new Vector2(-MathF.PI * 0.5f, 0);
+					orthographic = true;
+				}
 			}
 
 			if (rotationTarget.x != -1)
@@ -100,19 +110,25 @@ public class Camera
 					pitch = rotationTarget.x;
 					yaw = rotationTarget.y;
 					rotationTarget = new Vector2(-1);
+
+					//instance.notifyEdit();
 				}
 			}
 
-			distance *= (1 + -scrollDelta * 0.2f);
+			if (scrollDelta != 0)
+			{
+				distance *= (1 + -scrollDelta * 0.2f);
+				//instance.notifyEdit();
+			}
 
 			Matrix transform = Matrix.CreateTranslation(target) * Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateTranslation(0.0f, 0.0f, distance);
-			transform.decompose(out position, out rotation, out _);
+			transform.decompose(out _position, out _rotation, out _);
 		}
 	}
 
 	public void update()
 	{
-		Audio.UpdateListener(position, rotation);
+		Audio.UpdateListener(_position, _rotation);
 	}
 
 	public void updateView(Matrix view)
@@ -139,7 +155,7 @@ public class Camera
 
 	public Matrix getViewMatrix()
 	{
-		Matrix model = Matrix.CreateTranslation(position) * Matrix.CreateRotation(rotation);
+		Matrix model = Matrix.CreateTranslation(_position) * Matrix.CreateRotation(_rotation);
 		return model.inverted;
 	}
 }

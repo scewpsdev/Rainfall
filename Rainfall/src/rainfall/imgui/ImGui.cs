@@ -832,6 +832,10 @@ namespace Rainfall
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igIsMouseReleased_Nil")]
 		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool IsMouseReleased_Nil(ImGuiMouseButton button);
+		public static bool IsMouseButtonReleased(MouseButton button)
+		{
+			return IsMouseReleased_Nil((ImGuiMouseButton)ImGui_TranslateMouseButton(button));
+		}
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ImGui_GetMouseScroll")]
 		public static extern float GetMouseScroll();
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igIsPopupOpen_Str")]

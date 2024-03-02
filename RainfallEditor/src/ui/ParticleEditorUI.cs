@@ -64,6 +64,15 @@ public partial class EditorUI
 						particles.size = particleSize;
 					*/
 
+					Checkbox(instance, "Follow", "particle_follow" + i, ref particles.follow);
+
+					//ImGui.TextUnformatted("Follow");
+					//ImGui.SameLine(SPACING_X);
+					//ImGui.SetNextItemWidth(ITEM_WIDTH);
+					//byte follow = (byte)(particles.follow ? 1 : 0);
+					//if (ImGui.Checkbox("##follow" + i, &follow))
+					//	particles.follow = follow != 0;
+
 					ImGui.Spacing();
 					ImGui.Spacing();
 					ImGui.Spacing();
@@ -161,15 +170,6 @@ public partial class EditorUI
 					ImGui.Spacing();
 					ImGui.Spacing();
 
-					Checkbox(instance, "Follow", "particle_follow" + i, ref particles.follow);
-
-					//ImGui.TextUnformatted("Follow");
-					//ImGui.SameLine(SPACING_X);
-					//ImGui.SetNextItemWidth(ITEM_WIDTH);
-					//byte follow = (byte)(particles.follow ? 1 : 0);
-					//if (ImGui.Checkbox("##follow" + i, &follow))
-					//	particles.follow = follow != 0;
-
 					DragFloat(instance, "Gravity", "particle_gravity" + i, ref particles.gravity, 0.02f);
 
 					//ImGui.TextUnformatted("Gravity");
@@ -178,6 +178,8 @@ public partial class EditorUI
 					//float gravity = particles.gravity;
 					//if (ImGui.DragFloat("##gravity" + i, &gravity, 0.02f))
 					//	particles.gravity = gravity;
+
+					DragFloat(instance, "Drag", "particle_drag" + i, ref particles.drag, 0.0001f, 0, 1);
 
 					DragFloat3(instance, "Start velocity", "particle_start_velocity" + i, ref particles.startVelocity, 0.02f);
 
@@ -188,6 +190,8 @@ public partial class EditorUI
 					//if (ImGui.DragFloat3("##start_velocity" + i, &startVelocity, 0.02f))
 					//	particles.startVelocity = startVelocity;
 
+					DragFloat(instance, "Radial velocity", "particle_radial_velocity" + i, ref particles.radialVelocity, 0.02f);
+
 					DragFloat(instance, "Rotation Speed", "particle_rotation_speed" + i, ref particles.rotationSpeed, 0.02f);
 
 					//ImGui.TextUnformatted("Rotation Speed");
@@ -196,6 +200,9 @@ public partial class EditorUI
 					//float rotationSpeed = particles.rotationSpeed;
 					//if (ImGui.DragFloat("##rotation_speed" + i, &rotationSpeed, 0.02f))
 					//	particles.rotationSpeed = rotationSpeed;
+
+					Checkbox(instance, "Apply Entity Velocity", "particle_apply_entity_velocity" + i, ref particles.applyEntityVelocity);
+					Checkbox(instance, "Apply Centrifugal Force", "particle_apply_centrifugal_force" + i, ref particles.applyCentrifugalForce);
 
 					ImGui.Spacing();
 					ImGui.Spacing();
@@ -282,6 +289,8 @@ public partial class EditorUI
 					//	particles.randomRotationSpeed = randomRotationSpeed / 180 * MathF.PI;
 
 					DragFloat(instance, "Randomize Lifetime", "particle_random_lifetime" + i, ref particles.randomLifetime, 0.002f, 0, 1);
+
+					DragFloat(instance, "Velocity Noise", "particle_velocity_noise" + i, ref particles.velocityNoise, 0.002f, 0, 10);
 
 					//ImGui.TextUnformatted("Randomize Lifetime");
 					//ImGui.SameLine(SPACING_X);
