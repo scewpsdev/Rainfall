@@ -10,8 +10,6 @@ using System.Threading.Tasks.Dataflow;
 
 public enum ParticleSpawnShape
 {
-	None = 0,
-
 	Point,
 	Circle,
 	Sphere,
@@ -53,12 +51,15 @@ public class ParticleSystem
 	}
 
 
-	public Matrix transform = Matrix.Identity;
+	Matrix transform = Matrix.Identity;
+	Vector3 entityVelocity = Vector3.Zero;
+	Quaternion entityRotationVelocity = Quaternion.Identity;
 
 	public string name = null;
 
 	public float lifetime = 1.0f;
 	public float size = 0.1f;
+	public bool follow = false;
 
 	public float emissionRate = 5.0f;
 	public ParticleSpawnShape spawnShape = ParticleSpawnShape.Point;
@@ -67,10 +68,13 @@ public class ParticleSystem
 	public Vector3 lineEnd = new Vector3(1.0f, 0.0f, 0.0f);
 	public bool randomStartRotation = false;
 
-	public bool follow = false;
 	public float gravity = 0.0f;
+	public float drag = 0.0f;
 	public Vector3 startVelocity = new Vector3(0.0f, 1.0f, 0.0f);
+	public float radialVelocity = 0.0f;
 	public float rotationSpeed = 0.0f;
+	public bool applyEntityVelocity = false;
+	public bool applyCentrifugalForce = false;
 
 	public string textureAtlasPath = null;
 	public Texture textureAtlas = null;
@@ -84,6 +88,7 @@ public class ParticleSystem
 	public float randomVelocity = 0.0f;
 	public float randomRotationSpeed = 0.0f;
 	public float randomLifetime = 0.0f;
+	public float velocityNoise = 0.0f;
 
 	public Gradient<float> sizeAnim = null;
 	public Gradient<Vector4> colorAnim = null;
@@ -95,6 +100,7 @@ public class ParticleSystem
 	long lastEmitted;
 
 	Random random;
+	Simplex simplex;
 
 	ParticleComparator particleComparator;
 
@@ -106,6 +112,7 @@ public class ParticleSystem
 		particleIndices = new List<int>(maxParticles);
 
 		random = new Random();
+		simplex = new Simplex(0);
 
 		particleComparator = new ParticleComparator();
 
@@ -115,66 +122,39 @@ public class ParticleSystem
 	public void copyData(ParticleSystem from)
 	{
 		name = from.name;
-		emissionRate = from.emissionRate;
+
 		lifetime = from.lifetime;
 		size = from.size;
-		spawnOffset = from.spawnOffset;
-		spawnShape = from.spawnShape;
 		follow = from.follow;
+
+		emissionRate = from.emissionRate;
+		spawnShape = from.spawnShape;
+		spawnOffset = from.spawnOffset;
+		spawnRadius = from.spawnRadius;
+		lineEnd = from.lineEnd;
+		randomStartRotation = from.randomStartRotation;
+
 		gravity = from.gravity;
+		drag = from.drag;
 		startVelocity = from.startVelocity;
 		rotationSpeed = from.rotationSpeed;
+		applyEntityVelocity = from.applyEntityVelocity;
+
 		textureAtlasPath = from.textureAtlasPath;
 		textureAtlas = from.textureAtlas;
 		atlasSize = from.atlasSize;
 		numFrames = from.numFrames;
 		linearFiltering = from.linearFiltering;
+
 		color = from.color;
 		additive = from.additive;
-		spawnRadius = from.spawnRadius;
-		lineEnd = from.lineEnd;
+
 		randomVelocity = from.randomVelocity;
 		randomRotationSpeed = from.randomRotationSpeed;
-		randomStartRotation = from.randomStartRotation;
 		randomLifetime = from.randomLifetime;
+
 		sizeAnim = from.sizeAnim != null ? new Gradient<float>(from.sizeAnim) : null;
 		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
-	}
-
-	public override bool Equals(object obj)
-	{
-		return obj is ParticleSystem system &&
-			   EqualityComparer<Matrix>.Default.Equals(transform, system.transform) &&
-			   name == system.name &&
-			   lifetime == system.lifetime &&
-			   size == system.size &&
-			   emissionRate == system.emissionRate &&
-			   spawnShape == system.spawnShape &&
-			   EqualityComparer<Vector3>.Default.Equals(spawnOffset, system.spawnOffset) &&
-			   spawnRadius == system.spawnRadius &&
-			   EqualityComparer<Vector3>.Default.Equals(lineEnd, system.lineEnd) &&
-			   follow == system.follow &&
-			   gravity == system.gravity &&
-			   EqualityComparer<Vector3>.Default.Equals(startVelocity, system.startVelocity) &&
-			   rotationSpeed == system.rotationSpeed &&
-			   textureAtlasPath == system.textureAtlasPath &&
-			   EqualityComparer<Texture>.Default.Equals(textureAtlas, system.textureAtlas) &&
-			   atlasSize == system.atlasSize &&
-			   numFrames == system.numFrames &&
-			   linearFiltering == system.linearFiltering &&
-			   EqualityComparer<Vector4>.Default.Equals(color, system.color) &&
-			   additive == system.additive &&
-			   randomVelocity == system.randomVelocity &&
-			   randomRotationSpeed == system.randomRotationSpeed &&
-			   randomStartRotation == system.randomStartRotation &&
-			   randomLifetime == system.randomLifetime &&
-			   EqualityComparer<Gradient<float>>.Default.Equals(sizeAnim, system.sizeAnim) &&
-			   EqualityComparer<Gradient<Vector4>>.Default.Equals(colorAnim, system.colorAnim);
-	}
-
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
 	}
 
 	public void reload()
@@ -207,22 +187,22 @@ public class ParticleSystem
 		return -1;
 	}
 
-	public void emitParticle(Vector3 particleOffset, Vector3 particleVelocity, int num = 1)
+	public void emitParticle(Vector3 particleVelocity, int num = 1)
 	{
 		for (int i = 0; i < num; i++)
 		{
-			Vector3 position = Vector3.Zero;
-			float rotation = randomStartRotation ? Random.Shared.NextSingle() * MathF.PI * 2.0f : 0.0f;
+			Vector3 localPosition = Vector3.Zero;
+			float rotation = randomStartRotation ? random.NextSingle() * MathF.PI * 2.0f : 0.0f;
 
 			switch (spawnShape)
 			{
 				case ParticleSpawnShape.Point:
-					position = Vector3.Zero;
+					localPosition = Vector3.Zero;
 					break;
 				case ParticleSpawnShape.Circle:
 					float r = spawnRadius * MathF.Sqrt((float)random.NextDouble());
 					float theta = (float)random.NextDouble() * 2.0f * MathF.PI;
-					position = new Vector3(r * MathF.Cos(theta), 0.0f, r * MathF.Sin(theta));
+					localPosition = new Vector3(r * MathF.Cos(theta), 0.0f, r * MathF.Sin(theta));
 					break;
 				case ParticleSpawnShape.Sphere:
 					float d = 2.0f;
@@ -234,27 +214,44 @@ public class ParticleSystem
 						z = (float)random.NextDouble() * 2.0f - 1.0f;
 						d = x * x + y * y + z * z;
 					}
-					position = new Vector3(x, y, z) * spawnRadius;
+					localPosition = new Vector3(x, y, z) * spawnRadius;
 					break;
 				case ParticleSpawnShape.Line:
 					float t = (float)random.NextDouble();
-					position = Vector3.Lerp(Vector3.Zero, lineEnd, t);
+					localPosition = Vector3.Lerp(Vector3.Zero, lineEnd, t);
 					break;
 				default:
 					Debug.Assert(false);
 					break;
 			}
 
-			position += particleOffset;
+			//position += particleOffset;
+			Vector3 position = localPosition;
 
 			if (!follow)
-			{
 				position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
-			}
 
 			Vector3 velocity = startVelocity + particleVelocity;
+			if (applyEntityVelocity)
+				velocity += entityVelocity;
+			if (applyCentrifugalForce)
+			{
+				float rotationAngle = entityRotationVelocity.angle;
+				if (rotationAngle > 0)
+				{
+					Vector3 rotationAxis = entityRotationVelocity.axis;
+					float angularVelocity = rotationAngle / Time.deltaTime; // to be exact, angular velocity would be w = angle / 2pi / t. but we would multiply by 2pi anyways for calculating the linear velocity (v = w * 2pi * r)
+					Vector3 fromCenter = position - transform.translation;
+					Vector3 projectedCenter = transform.translation + rotationAxis * Vector3.Dot(rotationAxis, fromCenter);
+					Vector3 fromRotationAxis = position - projectedCenter;
+					Vector3 centrifugalVelocity = angularVelocity * fromRotationAxis; // w * 2pi * r
+					velocity += centrifugalVelocity;
+				}
+			}
 			if (randomVelocity > 0)
 				velocity += MathHelper.RandomVector3(random) * randomVelocity;
+			if (radialVelocity > 0)
+				velocity += (transform * new Vector4(localPosition, 0.0f)).xyz.normalized * radialVelocity;
 			float rotationVelocity = 0.0f;
 			if (randomRotationSpeed > 0)
 				rotationVelocity += MathHelper.RandomFloat(-1, 1, random) * randomRotationSpeed;
@@ -276,19 +273,26 @@ public class ParticleSystem
 		}
 	}
 
-	public void emitParticle(Vector3 particleVelocity, int num = 1)
+	Vector3 sampleVelocityNoise(float t)
 	{
-		emitParticle(Vector3.Zero, particleVelocity, num);
+		return new Vector3(simplex.sample1f(t),
+			simplex.sample1f(t + 100),
+			simplex.sample1f(t + 200)).normalized;
 	}
 
-	public void update()
+	public void update(Matrix transform)
 	{
+		entityVelocity = (transform.translation - this.transform.translation) / Time.deltaTime;
+		entityRotationVelocity = transform.rotation * this.transform.rotation.conjugated;
+		this.transform = transform;
+
+
 		long now = Time.currentTime;
 		if (emissionRate > 0.0f)
 		{
 			if (now - lastEmitted > 1e9 / emissionRate)
 			{
-				emitParticle(Vector3.Zero, Vector3.Zero, 1);
+				emitParticle(Vector3.Zero, 1);
 				lastEmitted = now;
 			}
 		}
@@ -309,7 +313,10 @@ public class ParticleSystem
 				float particleTimer = (now - particle.birthTime) / 1e9f;
 
 				particle.velocity.y += 0.5f * gravity * Time.deltaTime;
+				particle.velocity += drag * particle.velocity.lengthSquared * -particle.velocity.normalized / 2;
 				particle.position += particle.velocity * Time.deltaTime;
+				if (velocityNoise > 0)
+					particle.position += velocityNoise * sampleVelocityNoise((Time.currentTime + Hash.hash(i)) / 1e9f) * Time.deltaTime;
 				particle.velocity.y += 0.5f * gravity * Time.deltaTime;
 
 				particle.rotation += particle.rotationVelocity * Time.deltaTime;

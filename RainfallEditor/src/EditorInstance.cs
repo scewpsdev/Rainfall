@@ -14,7 +14,7 @@ public class EditorInstance
 
 	public readonly Stack<byte[]> undoStack = new Stack<byte[]>();
 	public readonly Stack<byte[]> redoStack = new Stack<byte[]>();
-	static bool pushUndo = false;
+	static bool pushStateToUndoStack = false;
 
 	public List<Entity> entities = new List<Entity>();
 	public Camera camera;
@@ -25,11 +25,17 @@ public class EditorInstance
 	public Texture frame;
 
 
-	public EditorInstance()
+	public EditorInstance(string path)
 	{
 		camera = new Camera();
 		camera.pitch = -0.2f * MathF.PI;
 		camera.yaw = MathF.PI * 0.25f;
+
+		if (path != null)
+		{
+			this.path = path;
+			SceneFormat.ReadScene(this, path);
+		}
 
 		undoStack.Push(SceneFormat.SerializeScene(this));
 	}
@@ -48,7 +54,7 @@ public class EditorInstance
 	public void notifyEdit()
 	{
 		unsavedChanges = true;
-		pushUndo = true;
+		pushStateToUndoStack = true;
 	}
 
 	public void notifySave()
@@ -62,6 +68,7 @@ public class EditorInstance
 		{
 			redoStack.Push(undoStack.Pop());
 			SceneFormat.DeserializeScene(this, undoStack.Peek());
+			unsavedChanges = true;
 		}
 	}
 
@@ -71,6 +78,7 @@ public class EditorInstance
 		{
 			undoStack.Push(redoStack.Pop());
 			SceneFormat.DeserializeScene(this, undoStack.Peek());
+			unsavedChanges = true;
 		}
 	}
 
@@ -147,11 +155,11 @@ public class EditorInstance
 
 	public void update()
 	{
-		if (pushUndo)
+		if (pushStateToUndoStack)
 		{
 			undoStack.Push(SceneFormat.SerializeScene(this));
 			redoStack.Clear();
-			pushUndo = false;
+			pushStateToUndoStack = false;
 		}
 
 		camera.update();

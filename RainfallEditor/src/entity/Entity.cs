@@ -193,6 +193,11 @@ public class Entity
 
 	public void update()
 	{
+		Matrix transform = getModelMatrix();
+		for (int i = 0; i < particles.Count; i++)
+		{
+			particles[i].update(transform);
+		}
 	}
 
 	public void draw(GraphicsDevice graphics)
@@ -239,8 +244,6 @@ public class Entity
 
 		for (int i = 0; i < particles.Count; i++)
 		{
-			particles[i].transform = transform;
-			particles[i].update();
 			particles[i].draw(graphics);
 		}
 	}

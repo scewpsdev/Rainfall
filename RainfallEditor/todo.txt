@@ -2,7 +2,7 @@
 [X] menubar
 [X] tabs
 [X] node panel
-[ ] properties panel
+[X] properties panel
 	[X] model
 	[X] collider
 	[X] lights
@@ -16,8 +16,10 @@
 [X] mesh colliders
 [X] serialize particles
 [X] particle renaming
-[ ] particle velocity input
-[ ] air resistance
+[X] particle velocity input
+[X] centrifugal force
+[X] air resistance
+[X] velocity noise
 [ ] particle bursts
 [ ] custom data
 [ ] ragdolls
