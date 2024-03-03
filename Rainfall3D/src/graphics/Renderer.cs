@@ -166,7 +166,7 @@ public static class Renderer
 	static Shader foliageShader;
 	static Shader ssaoShader;
 	static Shader ssaoBlurShader;
-	static Shader deferredPointShader, deferredPointShadowShader, deferredPointSimpleShader;
+	static Shader deferredPointShader, deferredPointShadowShader, deferredPointSimpleShader, deferredPointShadowSimpleShader;
 	static Shader deferredDirectionalShader;
 	static Shader deferredEnvironmentShader, deferredEnvironmentSimpleShader;
 	static Shader skyShader;
@@ -491,6 +491,7 @@ public static class Renderer
 		deferredPointShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point.fs.shader");
 		deferredPointShadowShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_shadow.fs.shader");
 		deferredPointSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_simple.fs.shader");
+		deferredPointShadowSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_shadow_simple.fs.shader");
 		deferredDirectionalShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_directional.fs.shader");
 		deferredEnvironmentShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment.fs.shader");
 		deferredEnvironmentSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment_simple.fs.shader");
@@ -1286,8 +1287,7 @@ public static class Renderer
 		Span<byte> uniformName = stackalloc byte[32];
 		if (pointLights.Count > 0)
 		{
-			// TODO simplify shadow shader
-			shader = simplifiedLighting ? deferredPointSimpleShader : deferredPointShadowShader;
+			shader = simplifiedLighting ? deferredPointShadowSimpleShader : deferredPointShadowShader;
 
 			graphics.resetState();
 
