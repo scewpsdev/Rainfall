@@ -67,12 +67,12 @@ public static class SceneFormat
 				particle.addNumber("spawnRadius", particleData.spawnRadius);
 			if (particleData.spawnShape == ParticleSpawnShape.Line)
 				particle.addVector3("lineEnd", particleData.lineEnd);
-			particle.addBoolean("randomStartRotation", particleData.randomStartRotation);
 
 			particle.addNumber("gravity", particleData.gravity);
 			particle.addNumber("drag", particleData.drag);
 			particle.addVector3("startVelocity", particleData.startVelocity);
 			particle.addNumber("radialVelocity", particleData.radialVelocity);
+			particle.addNumber("startRotation", particleData.startRotation);
 			particle.addNumber("rotationSpeed", particleData.rotationSpeed);
 			particle.addBoolean("applyEntityVelocity", particleData.applyEntityVelocity);
 			particle.addBoolean("applyCentrifugalForce", particleData.applyCentrifugalForce);
@@ -89,6 +89,7 @@ public static class SceneFormat
 			particle.addBoolean("additive", particleData.additive);
 
 			particle.addNumber("randomVelocity", particleData.randomVelocity);
+			particle.addNumber("randomRotation", particleData.randomRotation);
 			particle.addNumber("randomRotationSpeed", particleData.randomRotationSpeed);
 			particle.addNumber("randomLifetime", particleData.randomLifetime);
 			particle.addNumber("velocityNoise", particleData.velocityNoise);
@@ -99,6 +100,24 @@ public static class SceneFormat
 			{
 				particle.addVector4("colorAnimStart", particleData.colorAnim.getValue(0));
 				particle.addVector4("colorAnimEnd", particleData.colorAnim.getValue(1));
+			}
+
+			if (particleData.bursts != null)
+			{
+				DatArray bursts = new DatArray();
+
+				for (int j = 0; j < particleData.bursts.Count; j++)
+				{
+					DatObject burst = new DatObject();
+
+					burst.addNumber("time", particleData.bursts[j].time);
+					burst.addInteger("count", particleData.bursts[j].count);
+					burst.addNumber("duration", particleData.bursts[j].duration);
+
+					bursts.addObject(burst);
+				}
+
+				particle.addArray("bursts", bursts);
 			}
 
 			particles.addObject(particle);
@@ -219,12 +238,12 @@ public static class SceneFormat
 					particle.getNumber("spawnRadius", out particleData.spawnRadius);
 				if (particleData.spawnShape == ParticleSpawnShape.Line)
 					particle.getVector3("lineEnd", out particleData.lineEnd);
-				particle.getBoolean("randomStartRotation", out particleData.randomStartRotation);
 
 				particle.getNumber("gravity", out particleData.gravity);
 				particle.getNumber("drag", out particleData.drag);
 				particle.getVector3("startVelocity", out particleData.startVelocity);
 				particle.getNumber("radialVelocity", out particleData.radialVelocity);
+				particle.getNumber("startRotation", out particleData.startRotation);
 				particle.getNumber("rotationSpeed", out particleData.rotationSpeed);
 				particle.getBoolean("applyEntityVelocity", out particleData.applyEntityVelocity);
 				particle.getBoolean("applyCentrifugalForce", out particleData.applyCentrifugalForce);
@@ -244,8 +263,10 @@ public static class SceneFormat
 				particle.getBoolean("additive", out particleData.additive);
 
 				particle.getNumber("randomVelocity", out particleData.randomVelocity);
+				particle.getNumber("randomRotation", out particleData.randomRotation);
 				particle.getNumber("randomRotationSpeed", out particleData.randomRotationSpeed);
 				particle.getNumber("randomLifetime", out particleData.randomLifetime);
+				particle.getNumber("velocityNoise", out particleData.velocityNoise);
 
 				if (particle.getVector2("sizeAnim", out Vector2 sizeAnim))
 					particleData.sizeAnim = new Gradient<float>(sizeAnim.x, sizeAnim.y);
@@ -253,6 +274,21 @@ public static class SceneFormat
 				{
 					particle.getVector4("colorAnimEnd", out Vector4 colorAnimEnd);
 					particleData.colorAnim = new Gradient<Vector4>(colorAnimStart, colorAnimEnd);
+				}
+
+				if (particle.getArray("bursts", out DatArray bursts))
+				{
+					particleData.bursts = new List<ParticleBurst>();
+					for (int j = 0; j < bursts.size; j++)
+					{
+						DatObject burst = bursts[j].obj;
+
+						burst.getNumber("time", out float time);
+						burst.getInteger("count", out int count);
+						burst.getNumber("duration", out float duration);
+
+						particleData.bursts.Add(new ParticleBurst(time, count, duration));
+					}
 				}
 
 				entity.particles.Add(particleData);

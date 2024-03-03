@@ -28,7 +28,7 @@ public partial class EditorUI
 				ImGui.PushStyleVar_Vec2(ImGuiStyleVar.FramePadding, new Vector2(0.0f));
 				fixed (byte* newNamePtr = renamingParticlesBuffer)
 				{
-					if (ImGui.InputText("##entity_rename", newNamePtr, (ulong)renamingParticlesBuffer.Length, ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.EnterReturnsTrue))
+					if (ImGui.InputText("##particle_rename" + i, newNamePtr, (ulong)renamingParticlesBuffer.Length, ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.EnterReturnsTrue))
 					{
 						particles.name = new string((sbyte*)newNamePtr);
 						instance.notifyEdit();
@@ -155,17 +155,6 @@ public partial class EditorUI
 						*/
 					}
 
-					Checkbox(instance, "Random Rotation", "particle_random_start_rotation" + i, ref particles.randomStartRotation);
-
-					/*
-					ImGui.TextUnformatted("Random Rotation");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ITEM_WIDTH);
-					byte randomStartRotation = (byte)(particles.randomStartRotation ? 1 : 0);
-					if (ImGui.Checkbox("##random_start_rotation" + i, &randomStartRotation))
-						particles.randomStartRotation = randomStartRotation != 0;
-					*/
-
 					ImGui.Spacing();
 					ImGui.Spacing();
 					ImGui.Spacing();
@@ -181,7 +170,7 @@ public partial class EditorUI
 
 					DragFloat(instance, "Drag", "particle_drag" + i, ref particles.drag, 0.0001f, 0, 1);
 
-					DragFloat3(instance, "Start velocity", "particle_start_velocity" + i, ref particles.startVelocity, 0.02f);
+					DragFloat3(instance, "Start Velocity", "particle_start_velocity" + i, ref particles.startVelocity, 0.02f);
 
 					//ImGui.TextUnformatted("Start Velocity");
 					//ImGui.SameLine(SPACING_X);
@@ -190,7 +179,9 @@ public partial class EditorUI
 					//if (ImGui.DragFloat3("##start_velocity" + i, &startVelocity, 0.02f))
 					//	particles.startVelocity = startVelocity;
 
-					DragFloat(instance, "Radial velocity", "particle_radial_velocity" + i, ref particles.radialVelocity, 0.02f);
+					DragFloat(instance, "Radial Velocity", "particle_radial_velocity" + i, ref particles.radialVelocity, 0.02f);
+
+					DragAngle(instance, "Start Rotation", "particle_start_rotation" + i, ref particles.startRotation, 1, 0, 360);
 
 					DragFloat(instance, "Rotation Speed", "particle_rotation_speed" + i, ref particles.rotationSpeed, 0.02f);
 
@@ -279,7 +270,9 @@ public partial class EditorUI
 					//if (ImGui.DragFloat("##random_velocity" + i, &randomVelocity, 0.001f, 0, 100))
 					//	particles.randomVelocity = randomVelocity;
 
-					DragAngle(instance, "Randomize Rotation", "particle_random_rotation" + i, ref particles.randomRotationSpeed, 1.0f, 0, 10000);
+					DragFloat(instance, "Randomize Rotation", "particle_random_rotation" + i, ref particles.randomRotation, 0.002f, 0, 10);
+
+					DragAngle(instance, "Randomize Rotation Speed", "particle_random_rotation_speed" + i, ref particles.randomRotationSpeed, 1.0f, 0, 10000);
 
 					//ImGui.TextUnformatted("Randomize Rotation");
 					//ImGui.SameLine(SPACING_X);
@@ -402,6 +395,38 @@ public partial class EditorUI
 
 					//	ImGui.TreePop();
 					//}
+
+					bool burstsEnabled = particles.bursts != null;
+					bool burstsOpen = TreeNodeOptional(instance, "Bursts", "particle_bursts" + i, ref burstsEnabled);
+					if (burstsEnabled != (particles.bursts != null))
+						particles.bursts = burstsEnabled ? new List<ParticleBurst>() : null;
+					if (burstsOpen)
+					{
+						if (particles.bursts != null)
+						{
+							for (int j = 0; j < particles.bursts.Count; j++)
+							{
+								ParticleBurst burst = particles.bursts[j];
+
+								DragFloat(instance, "Time", "particle_bursts" + i + "_time" + j, ref burst.time, 0.01f, 0, 100);
+								DragInt(instance, "Count", "particle_bursts" + i + "_count" + j, ref burst.count, 0.2f, 0, 1000);
+								DragFloat(instance, "Duration", "particle_bursts" + i + "_duration" + j, ref burst.duration, 0.002f, 0, 100);
+
+								particles.bursts[j] = burst;
+
+								ImGui.Separator();
+							}
+
+							if (ImGui.Button("Add Burst##particle_bursts" + i + "_add"))
+							{
+								ParticleBurst burst = new ParticleBurst(0.0f, 5, 0);
+								particles.bursts.Add(burst);
+								instance.notifyEdit();
+							}
+						}
+
+						ImGui.TreePop();
+					}
 
 					ImGui.TreePop();
 				}

@@ -20,8 +20,8 @@
 [X] centrifugal force
 [X] air resistance
 [X] velocity noise
-[ ] particle bursts
+[X] particle bursts
+[ ] character hitboxes
+[ ] particle effect timeline
 [ ] custom data
-[ ] ragdolls
-[ ] particle effect tools
 [ ] terrain tools

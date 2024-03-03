@@ -651,7 +651,8 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 		if (mouseEvent->move)
 		{
 			io.MousePos = ImVec2((float)mouseEvent->x, (float)mouseEvent->y);
-			io.MouseWheel = (float)mouseEvent->z;
+			io.MouseWheel = (float)(mouseEvent->z - m_lastScroll);
+			m_lastScroll = mouseEvent->z;
 
 			if (imguiHovered)
 				return true;
@@ -709,12 +710,10 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 
 RFAPI float ImGui_GetMouseScroll()
 {
-	static float mouseScroll = 0;
-	if (ImGui::GetIO().MouseWheel)
-		mouseScroll = ImGui::GetIO().MouseWheel;
-	return mouseScroll;
+	return ImGui::GetIO().MouseWheel;
 }
 
+/*
 RFAPI bool ImGui_Tab(const char* label, ImVec2 size_arg, ImGuiButtonFlags flags)
 {
 	using namespace ImGui;
@@ -765,3 +764,4 @@ RFAPI bool ImGui_Tab(const char* label, ImVec2 size_arg, ImGuiButtonFlags flags)
 	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
 	return pressed;
 }
+*/

@@ -137,7 +137,7 @@ public static class Renderer
 	static Shader foliageShader;
 	static Shader ssaoShader;
 	static Shader ssaoBlurShader;
-	static Shader deferredPointShader, deferredPointShadowShader, deferredPointSimpleShader;
+	static Shader deferredPointShader, deferredPointShadowShader;
 	static Shader deferredDirectionalShader;
 	static Shader deferredEnvironmentShader, deferredEnvironmentSimpleShader;
 	static Shader skyShader;
@@ -245,9 +245,8 @@ public static class Renderer
 		foliageShader = Resource.GetShader("res/shaders/foliage/foliage.vs.shader", "res/shaders/foliage/foliage.fs.shader");
 		ssaoShader = Resource.GetShader("res/shaders/ssao/ssao.vs.shader", "res/shaders/ssao/ssao.fs.shader");
 		ssaoBlurShader = Resource.GetShader("res/shaders/ssao/ssao_blur.vs.shader", "res/shaders/ssao/ssao_blur.fs.shader");
-		deferredPointShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point.fs.shader");
-		deferredPointShadowShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_shadow.fs.shader");
-		deferredPointSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_simple.fs.shader");
+		deferredPointShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_simple.fs.shader");
+		deferredPointShadowShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_point_shadow_simple.fs.shader");
 		deferredDirectionalShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_directional.fs.shader");
 		deferredEnvironmentShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment.fs.shader");
 		deferredEnvironmentSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment_simple.fs.shader");
@@ -1051,7 +1050,7 @@ public static class Renderer
 		Span<byte> reflectionProbeOriginUniform = stackalloc byte[32];
 
 
-		Shader shader = deferredEnvironmentShader;
+		Shader shader = deferredEnvironmentSimpleShader;
 
 		graphics.resetState();
 

@@ -31,6 +31,24 @@ public struct Particle
 	public long birthTime;
 }
 
+public struct ParticleBurst
+{
+	public float time;
+	public int count;
+	public float duration;
+
+	public int emitted;
+
+	public ParticleBurst(float time, int count, float duration)
+	{
+		this.time = time;
+		this.count = count;
+		this.duration = duration;
+
+		emitted = 0;
+	}
+}
+
 public class ParticleSystem
 {
 	class ParticleComparator : IComparer<int>
@@ -66,12 +84,12 @@ public class ParticleSystem
 	public Vector3 spawnOffset = Vector3.Zero;
 	public float spawnRadius = 1.0f;
 	public Vector3 lineEnd = new Vector3(1.0f, 0.0f, 0.0f);
-	public bool randomStartRotation = false;
 
 	public float gravity = 0.0f;
 	public float drag = 0.0f;
 	public Vector3 startVelocity = new Vector3(0.0f, 1.0f, 0.0f);
 	public float radialVelocity = 0.0f;
+	public float startRotation = 0.0f;
 	public float rotationSpeed = 0.0f;
 	public bool applyEntityVelocity = false;
 	public bool applyCentrifugalForce = false;
@@ -86,6 +104,7 @@ public class ParticleSystem
 	public bool additive = false;
 
 	public float randomVelocity = 0.0f;
+	public float randomRotation = 0.0f;
 	public float randomRotationSpeed = 0.0f;
 	public float randomLifetime = 0.0f;
 	public float velocityNoise = 0.0f;
@@ -93,11 +112,13 @@ public class ParticleSystem
 	public Gradient<float> sizeAnim = null;
 	public Gradient<Vector4> colorAnim = null;
 
+	public List<ParticleBurst> bursts = null;
+
 	Particle[] particles = null;
 	List<int> particleIndices;
 	public readonly int maxParticles = 0;
 
-	long lastEmitted;
+	long systemStarted, lastEmitted;
 
 	Random random;
 	Simplex simplex;
@@ -116,7 +137,7 @@ public class ParticleSystem
 
 		particleComparator = new ParticleComparator();
 
-		lastEmitted = Time.currentTime;
+		restartEffect();
 	}
 
 	public void copyData(ParticleSystem from)
@@ -132,11 +153,11 @@ public class ParticleSystem
 		spawnOffset = from.spawnOffset;
 		spawnRadius = from.spawnRadius;
 		lineEnd = from.lineEnd;
-		randomStartRotation = from.randomStartRotation;
 
 		gravity = from.gravity;
 		drag = from.drag;
 		startVelocity = from.startVelocity;
+		startRotation = from.startRotation;
 		rotationSpeed = from.rotationSpeed;
 		applyEntityVelocity = from.applyEntityVelocity;
 
@@ -150,11 +171,28 @@ public class ParticleSystem
 		additive = from.additive;
 
 		randomVelocity = from.randomVelocity;
+		randomRotation = from.randomRotation;
 		randomRotationSpeed = from.randomRotationSpeed;
 		randomLifetime = from.randomLifetime;
 
 		sizeAnim = from.sizeAnim != null ? new Gradient<float>(from.sizeAnim) : null;
 		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
+	}
+
+	public void restartEffect()
+	{
+		systemStarted = Time.currentTime;
+		lastEmitted = Time.currentTime;
+
+		if (bursts != null)
+		{
+			for (int i = 0; i < bursts.Count; i++)
+			{
+				ParticleBurst burst = bursts[i];
+				burst.emitted = 0;
+				bursts[i] = burst;
+			}
+		}
 	}
 
 	public void reload()
@@ -182,7 +220,6 @@ public class ParticleSystem
 					return i;
 				}
 			}
-			Debug.Assert(false);
 		}
 		return -1;
 	}
@@ -191,81 +228,88 @@ public class ParticleSystem
 	{
 		for (int i = 0; i < num; i++)
 		{
-			Vector3 localPosition = Vector3.Zero;
-			float rotation = randomStartRotation ? random.NextSingle() * MathF.PI * 2.0f : 0.0f;
-
-			switch (spawnShape)
-			{
-				case ParticleSpawnShape.Point:
-					localPosition = Vector3.Zero;
-					break;
-				case ParticleSpawnShape.Circle:
-					float r = spawnRadius * MathF.Sqrt((float)random.NextDouble());
-					float theta = (float)random.NextDouble() * 2.0f * MathF.PI;
-					localPosition = new Vector3(r * MathF.Cos(theta), 0.0f, r * MathF.Sin(theta));
-					break;
-				case ParticleSpawnShape.Sphere:
-					float d = 2.0f;
-					float x = 0.0f, y = 0.0f, z = 0.0f;
-					for (int j = 0; j < 8 && d > 1.0f; j++)
-					{
-						x = (float)random.NextDouble() * 2.0f - 1.0f;
-						y = (float)random.NextDouble() * 2.0f - 1.0f;
-						z = (float)random.NextDouble() * 2.0f - 1.0f;
-						d = x * x + y * y + z * z;
-					}
-					localPosition = new Vector3(x, y, z) * spawnRadius;
-					break;
-				case ParticleSpawnShape.Line:
-					float t = (float)random.NextDouble();
-					localPosition = Vector3.Lerp(Vector3.Zero, lineEnd, t);
-					break;
-				default:
-					Debug.Assert(false);
-					break;
-			}
-
-			//position += particleOffset;
-			Vector3 position = localPosition;
-
-			if (!follow)
-				position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
-
-			Vector3 velocity = startVelocity + particleVelocity;
-			if (applyEntityVelocity)
-				velocity += entityVelocity;
-			if (applyCentrifugalForce)
-			{
-				float rotationAngle = entityRotationVelocity.angle;
-				if (rotationAngle > 0)
-				{
-					Vector3 rotationAxis = entityRotationVelocity.axis;
-					float angularVelocity = rotationAngle / Time.deltaTime; // to be exact, angular velocity would be w = angle / 2pi / t. but we would multiply by 2pi anyways for calculating the linear velocity (v = w * 2pi * r)
-					Vector3 fromCenter = position - transform.translation;
-					Vector3 projectedCenter = transform.translation + rotationAxis * Vector3.Dot(rotationAxis, fromCenter);
-					Vector3 fromRotationAxis = position - projectedCenter;
-					Vector3 centrifugalVelocity = angularVelocity * fromRotationAxis; // w * 2pi * r
-					velocity += centrifugalVelocity;
-				}
-			}
-			if (randomVelocity > 0)
-				velocity += MathHelper.RandomVector3(random) * randomVelocity;
-			if (radialVelocity > 0)
-				velocity += (transform * new Vector4(localPosition, 0.0f)).xyz.normalized * radialVelocity;
-			float rotationVelocity = 0.0f;
-			if (randomRotationSpeed > 0)
-				rotationVelocity += MathHelper.RandomFloat(-1, 1, random) * randomRotationSpeed;
-
 			int particleID = getNewParticle();
 			if (particleID != -1)
 			{
+				Vector3 localPosition = Vector3.Zero;
+				float rotation = startRotation;
+				if (randomRotation > 0)
+					rotation += MathHelper.RandomFloat(-MathF.PI, MathF.PI, random) * randomRotation;
+
+				switch (spawnShape)
+				{
+					case ParticleSpawnShape.Point:
+						localPosition = Vector3.Zero;
+						break;
+					case ParticleSpawnShape.Circle:
+						float r = spawnRadius * MathF.Sqrt((float)random.NextDouble());
+						float theta = (float)random.NextDouble() * 2.0f * MathF.PI;
+						localPosition = new Vector3(r * MathF.Cos(theta), 0.0f, r * MathF.Sin(theta));
+						break;
+					case ParticleSpawnShape.Sphere:
+						float d = 2.0f;
+						float x = 0.0f, y = 0.0f, z = 0.0f;
+						for (int j = 0; j < 8 && d > 1.0f; j++)
+						{
+							x = (float)random.NextDouble() * 2.0f - 1.0f;
+							y = (float)random.NextDouble() * 2.0f - 1.0f;
+							z = (float)random.NextDouble() * 2.0f - 1.0f;
+							d = x * x + y * y + z * z;
+						}
+						localPosition = new Vector3(x, y, z) * spawnRadius;
+						break;
+					case ParticleSpawnShape.Line:
+						float t = (float)random.NextDouble();
+						localPosition = Vector3.Lerp(Vector3.Zero, lineEnd, t);
+						break;
+					default:
+						Debug.Assert(false);
+						break;
+				}
+
+				//position += particleOffset;
+				Vector3 position = localPosition;
+
+				if (!follow)
+					position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
+
+				Vector3 velocity = startVelocity + particleVelocity;
+				if (applyEntityVelocity)
+					velocity += entityVelocity;
+				if (applyCentrifugalForce)
+				{
+					float rotationAngle = entityRotationVelocity.angle;
+					if (rotationAngle > 0)
+					{
+						Vector3 rotationAxis = entityRotationVelocity.axis;
+						float angularVelocity = rotationAngle / Time.deltaTime; // to be exact, angular velocity would be w = angle / 2pi / t. but we would multiply by 2pi anyways for calculating the linear velocity (v = w * 2pi * r)
+						Vector3 fromCenter = position - transform.translation;
+						Vector3 projectedCenter = transform.translation + rotationAxis * Vector3.Dot(rotationAxis, fromCenter);
+						Vector3 fromRotationAxis = position - projectedCenter;
+						Vector3 centrifugalVelocity = angularVelocity * fromRotationAxis; // w * 2pi * r
+						velocity += centrifugalVelocity;
+					}
+				}
+				if (randomVelocity > 0)
+					velocity += MathHelper.RandomVector3(random) * randomVelocity;
+				if (radialVelocity > 0)
+					velocity += (transform * new Vector4(localPosition, 0.0f)).xyz.normalized * radialVelocity;
+
+				float rotationVelocity = 0.0f;
+				if (randomRotationSpeed > 0)
+					rotationVelocity += MathHelper.RandomFloat(-1, 1, random) * randomRotationSpeed;
+
+				float particleLifetime = lifetime;
+				if (randomLifetime > 0)
+					particleLifetime *= 1 + MathHelper.RandomFloat(-randomLifetime, randomLifetime, random);
+
 				ref Particle particle = ref particles[particleID];
 				particle.position = position;
 				particle.rotation = rotation;
 				particle.velocity = velocity;
 				particle.rotationVelocity = rotationVelocity;
 				particle.size = size;
-				particle.lifetime = lifetime * (1 + MathHelper.RandomFloat(-randomLifetime, randomLifetime, random));
+				particle.lifetime = particleLifetime;
 				particle.animationFrame = 0;
 				particle.color = color;
 				particle.birthTime = Time.currentTime;
@@ -292,8 +336,28 @@ public class ParticleSystem
 		{
 			if (now - lastEmitted > 1e9 / emissionRate)
 			{
-				emitParticle(Vector3.Zero, 1);
+				int numParticles = (int)MathF.Floor((now - lastEmitted) / 1e9f * emissionRate);
+				emitParticle(Vector3.Zero, numParticles);
 				lastEmitted = now;
+			}
+		}
+		if (bursts != null)
+		{
+			float elapsed = (Time.currentTime - systemStarted) / 1e9f;
+			for (int i = 0; i < bursts.Count; i++)
+			{
+				ParticleBurst burst = bursts[i];
+				if (elapsed > burst.time && burst.emitted < burst.count)
+				{
+					int shouldEmitted = burst.duration > 0 ? (int)(MathF.Min((elapsed - burst.time) / burst.duration, 1.0f) * burst.count) : burst.count;
+					int delta = shouldEmitted - burst.emitted;
+					if (delta > 0)
+					{
+						emitParticle(Vector3.Zero, delta);
+						burst.emitted = shouldEmitted;
+					}
+				}
+				bursts[i] = burst;
 			}
 		}
 
