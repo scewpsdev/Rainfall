@@ -83,7 +83,7 @@ public static partial class EditorUI
 				}
 				else
 				{
-					if (ImGui.TreeNodeEx(entity.name + "##entity_" + i, ImGuiTreeNodeFlags.Leaf | (selected ? ImGuiTreeNodeFlags.Selected : 0)))
+					if (ImGui.TreeNodeEx(entity.name + "##entity_" + i, ImGuiTreeNodeFlags.Leaf | (selected ? ImGuiTreeNodeFlags.Selected : 0) | ImGuiTreeNodeFlags.SpanAvailWidth))
 					{
 						if (ImGui.IsItemHovered())
 							anyNodeHovered = true;
@@ -99,6 +99,7 @@ public static partial class EditorUI
 							if (ImGui.MenuItem("Rename"))
 							{
 								renamingEntity = entity.id;
+								StringUtils.WriteString(renamingEntityBuffer, instance.getEntity(renamingEntity).name);
 							}
 							if (ImGui.MenuItem("Remove"))
 							{

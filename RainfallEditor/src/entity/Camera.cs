@@ -27,7 +27,6 @@ public class Camera
 	public float pitch = 0.0f, yaw = 0.0f;
 
 	Vector2 lastMousePos;
-	float lastScroll;
 
 	Vector2 rotationTarget = new Vector2(-1);
 
@@ -37,10 +36,6 @@ public class Camera
 		Vector2 mousePos = ImGui.GetMousePos();
 		Vector2 mouseDelta = mousePos - lastMousePos;
 		lastMousePos = mousePos;
-
-		float scroll = ImGui.GetMouseScroll();
-		float scrollDelta = scroll - lastScroll;
-		lastScroll = scroll;
 
 		if (ImGui.IsWindowHovered())
 		{
@@ -115,9 +110,10 @@ public class Camera
 				}
 			}
 
-			if (scrollDelta != 0)
+			float scroll = ImGui.GetMouseScroll();
+			if (scroll != 0)
 			{
-				distance *= (1 + -scrollDelta * 0.2f);
+				distance *= (1 + -scroll * 0.2f);
 				//instance.notifyEdit();
 			}
 

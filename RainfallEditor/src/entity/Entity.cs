@@ -196,6 +196,21 @@ public class Entity
 		Matrix transform = getModelMatrix();
 		for (int i = 0; i < particles.Count; i++)
 		{
+			if (particles[i].bursts != null && particles[i].bursts.Count > 0 && particles[i].numParticles == 0)
+			{
+				bool allBurstsEmitted = true;
+				for (int j = 0; j < particles[i].bursts.Count; j++)
+				{
+					if (particles[i].bursts[j].emitted < particles[i].bursts[j].count)
+					{
+						allBurstsEmitted = false;
+						break;
+					}
+				}
+				if (allBurstsEmitted)
+					particles[i].restartEffect();
+			}
+
 			particles[i].update(transform);
 		}
 	}
@@ -219,24 +234,25 @@ public class Entity
 			for (int i = 0; i < colliders.Count; i++)
 			{
 				ColliderData collider = colliders[i];
+
 				if (collider.type == ColliderType.Box)
 				{
-					Renderer.DrawDebugBox(collider.size, transform * Matrix.CreateScale(1.01f) * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+					Renderer.DrawDebugBox(collider.size, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 				}
 				else if (collider.type == ColliderType.Sphere)
 				{
-					Renderer.DrawDebugSphere(collider.radius, transform * Matrix.CreateScale(1.01f) * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+					Renderer.DrawDebugSphere(collider.radius, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 				}
 				else if (collider.type == ColliderType.Capsule)
 				{
-					Renderer.DrawDebugCapsule(collider.radius, collider.height, transform * Matrix.CreateScale(1.01f) * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+					Renderer.DrawDebugCapsule(collider.radius, collider.height, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 				}
 				else if (collider.type == ColliderType.Mesh)
 				{
 					if (collider.meshCollider != null)
 					{
-						Renderer.DrawDebugBox(collider.meshCollider.boundingBox.Value.size, transform * Matrix.CreateScale(1.01f) * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.offset + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
-						Renderer.DrawDebugSphere(collider.meshCollider.boundingSphere.Value.radius, transform * Matrix.CreateScale(1.01f) * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.offset + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+						Renderer.DrawDebugBox(collider.meshCollider.boundingBox.Value.size, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.offset + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+						Renderer.DrawDebugSphere(collider.meshCollider.boundingSphere.Value.radius, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.offset + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 					}
 				}
 			}
