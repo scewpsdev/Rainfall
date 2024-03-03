@@ -523,7 +523,7 @@ public class Item
 						particleSystem.obj.getNumber("size", out particles.particleSize);
 					else if (size.value.type == DatValueType.Array)
 					{
-						particleSystem.obj.getObject("size", out DatArray arr);
+						particleSystem.obj.getArray("size", out DatArray arr);
 						Debug.Assert(arr.values.Count > 0);
 						Debug.Assert(arr.values[0].type == DatValueType.Number);
 						float value0 = (float)arr.values[0].number;
@@ -577,7 +577,7 @@ public class Item
 			}
 		}
 
-		if (file.getObject("colliders", out DatArray colliders))
+		if (file.getArray("colliders", out DatArray colliders))
 		{
 			foreach (DatValue colliderNode in colliders.values)
 			{

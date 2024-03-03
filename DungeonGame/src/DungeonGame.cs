@@ -17,7 +17,7 @@ internal class DungeonGame : Game
 
 
 	public static new DungeonGame instance { get => (DungeonGame)Game.instance; }
-	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(Program))?.GetName().Name;
+	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(DungeonGame))?.GetName().Name;
 
 
 	public Level level { get; private set; }
