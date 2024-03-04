@@ -116,10 +116,10 @@ public class Camera
 				distance *= (1 + -scroll * 0.2f);
 				//instance.notifyEdit();
 			}
-
-			Matrix transform = Matrix.CreateTranslation(target) * Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateTranslation(0.0f, 0.0f, distance);
-			transform.decompose(out _position, out _rotation, out _);
 		}
+
+		Matrix transform = Matrix.CreateTranslation(target) * Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateTranslation(0.0f, 0.0f, distance);
+		transform.decompose(out _position, out _rotation, out _);
 	}
 
 	public void update()
