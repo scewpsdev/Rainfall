@@ -28,12 +28,6 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Dev\\Rainfall\\RainfallNative\\RainfallNative.vcxproj": {
-                "projectPath": "D:\\Dev\\Rainfall\\RainfallNative\\RainfallNative.vcxproj"
-              },
-              "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\RainfallResourceCompiler.vcxproj": {
-                "projectPath": "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\RainfallResourceCompiler.vcxproj"
-              },
               "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj": {
                 "projectPath": "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj"
               }
@@ -87,36 +81,6 @@
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
         }
-      }
-    },
-    "D:\\Dev\\Rainfall\\RainfallNative\\RainfallNative.vcxproj": {
-      "restore": {
-        "projectUniqueName": "D:\\Dev\\Rainfall\\RainfallNative\\RainfallNative.vcxproj",
-        "projectName": "RainfallNative",
-        "projectPath": "D:\\Dev\\Rainfall\\RainfallNative\\RainfallNative.vcxproj",
-        "frameworks": {
-          "native": {
-            "projectReferences": {}
-          }
-        }
-      },
-      "frameworks": {
-        "native": {}
-      }
-    },
-    "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\RainfallResourceCompiler.vcxproj": {
-      "restore": {
-        "projectUniqueName": "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\RainfallResourceCompiler.vcxproj",
-        "projectName": "RainfallResourceCompiler",
-        "projectPath": "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\RainfallResourceCompiler.vcxproj",
-        "frameworks": {
-          "native": {
-            "projectReferences": {}
-          }
-        }
-      },
-      "frameworks": {
-        "native": {}
       }
     },
     "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj": {

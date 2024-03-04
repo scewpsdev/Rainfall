@@ -17,8 +17,6 @@
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="..\RainfallNative\RainfallNative.vcxproj" />
-    <ProjectReference Include="..\RainfallResourceCompiler\RainfallResourceCompiler.vcxproj" />
     <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
   </ItemGroup>
 

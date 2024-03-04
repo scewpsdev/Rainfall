@@ -267,7 +267,8 @@ public class Creature : Entity, Hittable
 				Vector3 particleDirection = -hitDirection.normalized * 0.5f;
 				Vector3 randomVector = new Vector3(Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle()) * 2.0f - 1.0f;
 				particleDirection += randomVector * Vector3.Dot(randomVector.normalized, particleDirection);
-				hitParticles.emitParticle(hitPosition - hitParticles.transform.translation, particleDirection);
+				hitParticles.setTransform(Matrix.CreateTranslation(hitPosition));
+				hitParticles.emitParticle(particleDirection);
 			}
 		}
 	}
@@ -490,8 +491,7 @@ public class Creature : Entity, Hittable
 
 		if (hitParticles != null)
 		{
-			hitParticles.transform = getModelMatrix();
-			hitParticles.update();
+			hitParticles.update(hitParticles.transform);
 		}
 	}
 
@@ -567,7 +567,7 @@ public class Creature : Entity, Hittable
 			}
 
 			if (hitParticles != null)
-				hitParticles.draw(graphics);
+				Renderer.DrawParticleSystem(hitParticles);
 		}
 
 

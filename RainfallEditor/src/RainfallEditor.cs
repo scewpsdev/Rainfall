@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -59,6 +60,85 @@ public unsafe class RainfallEditor : Game
 			return false;
 		}
 		return true;
+	}
+
+	public List<SceneFormat.EntityData> toEntityData(EditorInstance instance)
+	{
+		List<SceneFormat.EntityData> entities = new List<SceneFormat.EntityData>(instance.entities.Count);
+		for (int i = 0; i < instance.entities.Count; i++)
+		{
+			Entity entity = instance.entities[i];
+			entities.Add(new SceneFormat.EntityData
+			{
+				position = entity.position,
+				rotation = entity.rotation,
+				scale = entity.scale,
+				name = entity.name,
+				id = entity.id,
+				modelPath = entity.modelPath,
+				model = entity.model,
+				colliders = new List<SceneFormat.ColliderData>(entity.colliders),
+				lights = new List<SceneFormat.LightData>(entity.lights),
+				particles = new List<ParticleSystem>(entity.particles),
+			});
+		}
+		return entities;
+	}
+
+	public void fromEntityData(List<SceneFormat.EntityData> entities, EditorInstance instance)
+	{
+		/*
+		public Vector3 position;
+		public Quaternion rotation;
+		public Vector3 scale;
+
+		public string name;
+		public uint id;
+
+		public string modelPath;
+		public Model model;
+
+		public List<ColliderData> colliders;
+		public List<LightData> lights;
+		public List<ParticleSystem> particles;
+		 */
+		foreach (Entity entity in instance.entities)
+			entity.destroy();
+		instance.entities.Clear();
+
+		for (int i = 0; i < entities.Count; i++)
+		{
+			SceneFormat.EntityData entityData = entities[i];
+			instance.entities.Add(new Entity(entityData.name)
+			{
+				position = entityData.position,
+				rotation = entityData.rotation,
+				scale = entityData.scale,
+				name = entityData.name,
+				id = entityData.id,
+				modelPath = entityData.modelPath,
+				model = entityData.model,
+				colliders = new List<SceneFormat.ColliderData>(entityData.colliders),
+				lights = new List<SceneFormat.LightData>(entityData.lights),
+				particles = new List<ParticleSystem>(entityData.particles),
+			});
+			instance.entities[i].reload();
+		}
+	}
+
+	public void writeScene(EditorInstance instance, string path)
+	{
+		FileStream stream = new FileStream(instance.path, FileMode.Create, FileAccess.Write);
+		SceneFormat.SerializeScene(toEntityData(instance), stream);
+		stream.Close();
+	}
+
+	public void readScene(EditorInstance instance, string path)
+	{
+		FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+		List<SceneFormat.EntityData> entities = SceneFormat.DeserializeScene(stream);
+		fromEntityData(entities, instance);
+		stream.Close();
 	}
 
 	public EditorInstance getTab(string path)
@@ -138,7 +218,9 @@ public unsafe class RainfallEditor : Game
 		if (result == NFDResult.NFD_OKAY)
 		{
 			tab.path = new string((sbyte*)savePath);
-			SceneFormat.WriteScene(tab, tab.path);
+
+			writeScene(tab, tab.path);
+
 			tab.notifySave();
 			NFD.NFDi_Free(savePath);
 		}
@@ -158,7 +240,8 @@ public unsafe class RainfallEditor : Game
 		}
 		else
 		{
-			SceneFormat.WriteScene(tab, tab.path);
+			writeScene(tab, tab.path);
+
 			tab.notifySave();
 		}
 	}
@@ -182,6 +265,9 @@ public unsafe class RainfallEditor : Game
 
 	public string compileAsset(string path)
 	{
+		if (path != null && path.Length == 0)
+			Debug.Assert(false);
+
 		string getFilenameFromPath(string path)
 		{
 			int slash = path.LastIndexOfAny(new char[] { '/', '\\' });

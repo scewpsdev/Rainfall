@@ -80,7 +80,7 @@ vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, 
 	float ndotwi = max(dot(wi, normal), 0.0);
 	float shadow = CalculatePointShadow(position, lightPosition, shadowMap, shadowMapNear);
 
-	vec3 s = fLambert * radiance * ndotwi * ao;
+	vec3 s = fLambert * radiance * ndotwi * ao * shadow;
 
 	return s;
 }

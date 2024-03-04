@@ -34,10 +34,11 @@ public class EditorInstance
 		if (path != null)
 		{
 			this.path = path;
-			SceneFormat.ReadScene(this, path);
+
+			RainfallEditor.instance.readScene(this, path);
 		}
 
-		undoStack.Push(SceneFormat.SerializeScene(this));
+		undoStack.Push(SceneFormat.SerializeScene(RainfallEditor.instance.toEntityData(this)));
 	}
 
 	public void destroy()
@@ -67,7 +68,7 @@ public class EditorInstance
 		if (undoStack.Count > 1)
 		{
 			redoStack.Push(undoStack.Pop());
-			SceneFormat.DeserializeScene(this, undoStack.Peek());
+			RainfallEditor.instance.fromEntityData(SceneFormat.DeserializeScene(undoStack.Peek()), this);
 			unsavedChanges = true;
 		}
 	}
@@ -77,7 +78,7 @@ public class EditorInstance
 		if (redoStack.Count > 0)
 		{
 			undoStack.Push(redoStack.Pop());
-			SceneFormat.DeserializeScene(this, undoStack.Peek());
+			RainfallEditor.instance.fromEntityData(SceneFormat.DeserializeScene(undoStack.Peek()), this);
 			unsavedChanges = true;
 		}
 	}
@@ -157,7 +158,7 @@ public class EditorInstance
 	{
 		if (pushStateToUndoStack)
 		{
-			undoStack.Push(SceneFormat.SerializeScene(this));
+			undoStack.Push(SceneFormat.SerializeScene(RainfallEditor.instance.toEntityData(this)));
 			redoStack.Clear();
 			pushStateToUndoStack = false;
 		}

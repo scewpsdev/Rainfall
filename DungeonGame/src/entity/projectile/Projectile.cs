@@ -19,8 +19,6 @@ public class Projectile : Entity
 	protected Model model;
 	protected RigidBody body;
 
-	protected ParticleSystem particles = null;
-
 	protected Vector3 velocity;
 	Vector3 currentOffset;
 
@@ -123,11 +121,7 @@ public class Projectile : Entity
 
 	public override void update()
 	{
-		if (particles != null)
-		{
-			particles.transform = getModelMatrix(currentOffset);
-			particles.update();
-		}
+		base.update();
 
 		if (!hit || piercing)
 		{
@@ -138,6 +132,7 @@ public class Projectile : Entity
 			body.setTransform(position, rotation);
 
 			currentOffset = Vector3.Lerp(currentOffset, Vector3.Zero, 3.0f * Time.deltaTime);
+			base.particleOffset = currentOffset;
 
 			velocity.y += 0.5f * gravity * Time.deltaTime;
 		}
@@ -235,10 +230,9 @@ public class Projectile : Entity
 
 	public override void draw(GraphicsDevice graphics)
 	{
+		base.draw(graphics);
+
 		if (model != null)
 			Renderer.DrawModel(model, getModelMatrix(currentOffset));
-
-		if (particles != null)
-			particles.draw(graphics);
 	}
 }

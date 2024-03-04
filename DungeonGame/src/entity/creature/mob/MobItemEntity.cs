@@ -152,7 +152,7 @@ internal class MobItemEntity
 
 		foreach (ParticleSystem particleSystem in particles)
 		{
-			particleSystem.update();
+			particleSystem.update(transform);
 		}
 	}
 
@@ -161,11 +161,6 @@ internal class MobItemEntity
 		//position = transform.translation;
 		//rotation = transform.rotation;
 		this.transform = transform;
-
-		foreach (ParticleSystem particleSystem in particles)
-		{
-			particleSystem.transform = transform;
-		}
 
 		hitbox.setTransform(transform.translation, transform.rotation);
 	}
@@ -184,7 +179,7 @@ internal class MobItemEntity
 
 			foreach (ParticleSystem particleSystem in particles)
 			{
-				particleSystem.draw(graphics);
+				Renderer.DrawParticleSystem(particleSystem);
 			}
 		}
 	}

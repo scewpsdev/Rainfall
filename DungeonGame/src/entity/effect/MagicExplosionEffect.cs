@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 internal class MagicExplosionEffect : Entity
 {
-	ParticleSystem particles;
 	Sound sfxHit;
 
 	Vector3 direction;
@@ -24,13 +23,13 @@ internal class MagicExplosionEffect : Entity
 		particles.emissionRate = 0.0f;
 
 		particles.additive = true;
-		particles.particleSize = 0.05f;
-		particles.spriteTint = new Vector4(0.3f, 0.35f, 1.0f, 1.0f);
+		particles.size = 0.05f;
+		particles.color = new Vector4(0.3f, 0.35f, 1.0f, 1.0f);
 
-		particles.randomRotation = true;
-		particles.randomRotationSpeed = true;
+		particles.randomRotation = 1.0f;
+		particles.randomRotationSpeed = 1;
 		particles.rotationSpeed = 1.0f;
-		particles.randomVelocity = true;
+		particles.randomVelocity = 1.0f;
 		particles.gravity = -4.0f;
 		particles.lifetime = 3.0f;
 		//particles.randomVelocityMultiplier = 3.0f;
@@ -52,7 +51,7 @@ internal class MagicExplosionEffect : Entity
 
 	public override void init()
 	{
-		particles.transform = getModelMatrix();
+		particles.setTransform(getModelMatrix());
 		particles.emitParticle(direction, 20);
 
 		Audio.PlayOrganic(sfxHit, position);
@@ -64,14 +63,14 @@ internal class MagicExplosionEffect : Entity
 
 	public override void update()
 	{
-		particles.update();
+		particles.update(getModelMatrix());
 		if (particles.numParticles == 0)
 			remove();
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		particles.draw(graphics);
+		base.draw(graphics);
 
 		float lightIntensity = MathF.Exp(-(Time.currentTime - birthTime) / 1e9f * 8) * 50;
 		Renderer.DrawLight(position, new Vector3(0.3f, 0.35f, 1.0f) * lightIntensity);

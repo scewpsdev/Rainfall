@@ -14,7 +14,6 @@ internal class Fountain : Entity, Interactable
 	Model model;
 	RigidBody body;
 	AudioSource audio;
-	ParticleSystem particles;
 	PointLight light;
 
 	bool consumed = false;
@@ -37,16 +36,15 @@ internal class Fountain : Entity, Interactable
 		Sound sound = Resource.GetSound("res/entity/object/fountain/sfx/fountain.ogg");
 		audio.playSound(sound, DEFAULT_GAIN);
 
-		particles = new ParticleSystem(32);
-		particles.transform = getModelMatrix();
+		particles = new ParticleSystem(32, getModelMatrix());
 		particles.emissionRate = 1.5f;
 		particles.lifetime = 5.0f;
 		particles.spawnShape = ParticleSpawnShape.Circle;
 		particles.spawnRadius = 1.0f;
-		particles.spriteTint = new Vector4(0.5f, 0.675f, 1.0f, 1.0f);
-		particles.particleSize = 0.02f;
+		particles.color = new Vector4(0.5f, 0.675f, 1.0f, 1.0f);
+		particles.size = 0.02f;
 		particles.gravity = 0.0f;
-		particles.initialVelocity = new Vector3(0.0f, 1.0f, 0.0f);
+		particles.startVelocity = new Vector3(0.0f, 1.0f, 0.0f);
 
 		light = new PointLight(position + new Vector3(0.0f, 1.0f, 0.0f), Vector3.One, Renderer.graphics, 0.45f);
 	}
@@ -79,7 +77,7 @@ internal class Fountain : Entity, Interactable
 		currentGain = MathHelper.Lerp(currentGain, DEFAULT_GAIN, 1 * Time.deltaTime);
 		audio.gain = currentGain;
 
-		particles.update();
+		particles.update(getModelMatrix());
 
 		//light.position = position + new Vector3(0.0f, 0.5f, 0.0f);
 		float dstIntensity = consumed ? 0.1f : 5.0f;
@@ -91,9 +89,9 @@ internal class Fountain : Entity, Interactable
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawModel(model, getModelMatrix());
+		base.draw(graphics);
 
-		particles.draw(graphics);
+		Renderer.DrawModel(model, getModelMatrix());
 
 		Renderer.DrawPointLight(light);
 

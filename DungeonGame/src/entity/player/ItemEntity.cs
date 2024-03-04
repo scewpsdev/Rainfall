@@ -286,7 +286,7 @@ public class ItemEntity
 
 		foreach (ParticleSystem particleSystem in particles)
 		{
-			particleSystem.update();
+			particleSystem.update(particleSystem.transform);
 		}
 	}
 
@@ -304,7 +304,7 @@ public class ItemEntity
 
 		foreach (ParticleSystem particleSystem in particles)
 		{
-			particleSystem.transform = renderScale * transform;
+			particleSystem.setTransform(renderScale * transform, true);
 		}
 
 		hitbox.setTransform(transform.translation, transform.rotation);
@@ -328,7 +328,7 @@ public class ItemEntity
 
 				foreach (ParticleSystem particleSystem in particles)
 				{
-					particleSystem.draw(graphics);
+					Renderer.DrawParticleSystem(particleSystem);
 				}
 			}
 		}

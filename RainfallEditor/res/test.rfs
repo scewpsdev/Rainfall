@@ -29,6 +29,10 @@ randomRotation = 0.09799999743700027
 randomRotationSpeed = 0
 randomLifetime = 0
 velocityNoise = 0
+bursts = [ {
+time = 0
+count = 5
+duration = 0
 } ]
 } ]
-selected = "1810453118"
+} ]

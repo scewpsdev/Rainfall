@@ -599,9 +599,13 @@ public static class Renderer
 		waterTiles.Add(new WaterDrawCommand { position = position, size = 1.0f, model = model });
 	}
 
-	public static void DrawParticleSystem(Particle[] particles, List<int> particleIndices, Matrix transform, Vector3 spawnOffset, bool follow, Texture textureAtlas, Vector2i atlasSize, bool linearFiltering, bool additive)
+	public static void DrawParticleSystem(ParticleSystem particleSystem)
 	{
-		(additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particles = particles, particleIndices = particleIndices, transform = transform, spawnOffset = spawnOffset, follow = follow, textureAtlas = textureAtlas, atlasSize = atlasSize, linearFiltering = linearFiltering, additive = additive });
+		if (particleSystem.particleIndices.Count > 0)
+		{
+			particleSystem.setCameraAxis(camera.rotation.forward);
+			(particleSystem.additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particles = particleSystem.particles, particleIndices = particleSystem.particleIndices, transform = particleSystem.transform, spawnOffset = particleSystem.spawnOffset, follow = particleSystem.follow, textureAtlas = particleSystem.textureAtlas, atlasSize = particleSystem.atlasSize, linearFiltering = particleSystem.linearFiltering, additive = particleSystem.additive });
+		}
 	}
 
 	public static void DrawGrassPatch(Terrain terrain, Vector2 position)
