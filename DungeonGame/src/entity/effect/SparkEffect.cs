@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 internal class SparkEffect : Entity
 {
-	ParticleSystem particles;
-
 	Vector3 direction;
 
 
@@ -22,13 +20,13 @@ internal class SparkEffect : Entity
 
 		particles.additive = true;
 		//particles.textureAtlas = Resource.GetTexture("res/texture/particle/spark.png");
-		particles.particleSize = 0.025f;
-		particles.spriteTint = new Vector4(new Vector3(1.0f, 0.2f, 0.1f) * 5, 1.0f);
+		particles.size = 0.025f;
+		particles.color = new Vector4(new Vector3(1.0f, 0.2f, 0.1f) * 5, 1.0f);
 
-		particles.randomRotation = true;
-		particles.randomRotationSpeed = true;
+		particles.randomRotation = 1.0f;
+		particles.randomRotationSpeed = 1;
 		particles.rotationSpeed = 1.0f;
-		particles.randomVelocity = true;
+		particles.randomVelocity = 0.1f;
 		//particles.randomVelocityMultiplier = 3.0f;
 
 		//particles.particleSizeAnim = new Gradient<float>(1.0f);
@@ -44,7 +42,7 @@ internal class SparkEffect : Entity
 
 	public override void init()
 	{
-		particles.transform = getModelMatrix();
+		particles.setTransform(getModelMatrix());
 		particles.emitParticle(direction * 2.0f, 3);
 	}
 
@@ -54,13 +52,13 @@ internal class SparkEffect : Entity
 
 	public override void update()
 	{
-		particles.update();
+		particles.update(getModelMatrix());
 		if (particles.numParticles == 0)
 			remove();
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		particles.draw(graphics);
+		base.draw(graphics);
 	}
 }

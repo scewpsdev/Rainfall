@@ -201,7 +201,11 @@ public partial class EditorUI
 
 					if (FileSelect("Texture Atlas", "particle_atlas" + i, ref particles.textureAtlasPath, "png"))
 					{
-						particles.reload();
+						if (particles.textureAtlasPath != null)
+							particles.textureAtlas = Resource.GetTexture(RainfallEditor.instance.compileAsset(particles.textureAtlasPath));
+						else
+							particles.textureAtlas = null;
+
 						instance.notifyEdit();
 					}
 

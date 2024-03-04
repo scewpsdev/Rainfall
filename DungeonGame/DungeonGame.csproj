@@ -106,7 +106,7 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="xcopy /y &quot;..\RainfallNative\bin\x64\$(Configuration)\RainfallNative.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /y /e /i /s &quot;..\Rainfall3D\res\shaders&quot; &quot;res\shaders\&quot;" />
+	  <Exec Command="xcopy /y &quot;..\RainfallNative\bin\x64\$(Configuration)\RainfallNative.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /y /e /i /s /q &quot;..\Rainfall3D\res\shaders&quot; &quot;res\shaders\&quot;" />
 	</Target>
 
 	<ItemGroup>

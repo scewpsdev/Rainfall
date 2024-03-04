@@ -15,7 +15,6 @@ public class ItemPickup : Entity, Interactable
 	bool simulate;
 
 	public RigidBody body;
-	ParticleSystem particles;
 	AudioSource audio;
 
 	bool looted = false;
@@ -81,6 +80,8 @@ public class ItemPickup : Entity, Interactable
 
 	public override void update()
 	{
+		base.update();
+
 		if (looted)
 		{
 			if (!audio.isPlaying)
@@ -91,17 +92,13 @@ public class ItemPickup : Entity, Interactable
 		if (simulate)
 			body.getTransform(out position, out rotation);
 
-		if (particles != null)
-		{
-			particles.transform = getModelMatrix();
-			particles.update();
-		}
-
 		audio.updateTransform(position);
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
+		base.draw(graphics);
+
 		if (looted)
 			return;
 
@@ -114,9 +111,6 @@ public class ItemPickup : Entity, Interactable
 			Matrix lightTransform = modelMatrix * Matrix.CreateTranslation(light.position);
 			Renderer.DrawLight(lightTransform.translation, light.color);
 		}
-
-		if (particles != null)
-			particles.draw(graphics);
 	}
 
 	public bool canInteract(Entity by)

@@ -68,8 +68,10 @@ public class ParticleSystem
 		}
 	}
 
+	static ParticleComparator particleComparator = new ParticleComparator();
 
-	Matrix transform = Matrix.Identity;
+
+	public Matrix transform { get; private set; } = Matrix.Identity;
 	Vector3 entityVelocity = Vector3.Zero;
 	Quaternion entityRotationVelocity = Quaternion.Identity;
 
@@ -87,7 +89,7 @@ public class ParticleSystem
 
 	public float gravity = 0.0f;
 	public float drag = 0.0f;
-	public Vector3 startVelocity = new Vector3(0.0f, 1.0f, 0.0f);
+	public Vector3 startVelocity = Vector3.Zero;
 	public float radialVelocity = 0.0f;
 	public float startRotation = 0.0f;
 	public float rotationSpeed = 0.0f;
@@ -114,8 +116,8 @@ public class ParticleSystem
 
 	public List<ParticleBurst> bursts = null;
 
-	Particle[] particles = null;
-	List<int> particleIndices;
+	public Particle[] particles { get; private set; } = null;
+	public List<int> particleIndices { get; private set; }
 	public readonly int maxParticles = 0;
 
 	long systemStarted, lastEmitted;
@@ -123,11 +125,11 @@ public class ParticleSystem
 	Random random;
 	Simplex simplex;
 
-	ParticleComparator particleComparator;
 
-
-	public ParticleSystem(int maxParticles)
+	public ParticleSystem(int maxParticles, Matrix transform)
 	{
+		this.transform = transform;
+
 		this.maxParticles = maxParticles;
 		particles = new Particle[maxParticles];
 		particleIndices = new List<int>(maxParticles);
@@ -135,9 +137,12 @@ public class ParticleSystem
 		random = new Random();
 		simplex = new Simplex(0);
 
-		particleComparator = new ParticleComparator();
-
 		restartEffect();
+	}
+
+	public ParticleSystem(int maxParticles)
+		: this(maxParticles, Matrix.Identity)
+	{
 	}
 
 	public void copyData(ParticleSystem from)
@@ -192,19 +197,6 @@ public class ParticleSystem
 				burst.emitted = 0;
 				bursts[i] = burst;
 			}
-		}
-	}
-
-	public void reload()
-	{
-		if (textureAtlasPath != null)
-		{
-			string compiledPath = RainfallEditor.instance.compileAsset(textureAtlasPath);
-			textureAtlas = Resource.GetTexture(compiledPath);
-		}
-		else
-		{
-			textureAtlas = null;
 		}
 	}
 
@@ -324,11 +316,24 @@ public class ParticleSystem
 			simplex.sample1f(t + 200)).normalized;
 	}
 
+	public void setTransform(Matrix transform, bool applyVelocity = false)
+	{
+		if (applyVelocity)
+		{
+			entityVelocity = (transform.translation - this.transform.translation) / Time.deltaTime;
+			entityRotationVelocity = transform.rotation * this.transform.rotation.conjugated;
+		}
+		this.transform = transform;
+	}
+
+	public void setCameraAxis(Vector3 cameraAxis)
+	{
+		particleComparator.cameraAxis = cameraAxis;
+	}
+
 	public void update(Matrix transform)
 	{
-		entityVelocity = (transform.translation - this.transform.translation) / Time.deltaTime;
-		entityRotationVelocity = transform.rotation * this.transform.rotation.conjugated;
-		this.transform = transform;
+		setTransform(transform, true);
 
 
 		long now = Time.currentTime;
@@ -361,12 +366,7 @@ public class ParticleSystem
 			}
 		}
 
-		Vector3 cameraAxis = Vector3.Forward;
-		if (Renderer.camera != null)
-			cameraAxis = Renderer.camera.rotation.forward;
-
 		particleComparator.particles = particles;
-		particleComparator.cameraAxis = cameraAxis;
 
 		particleIndices.Clear();
 		for (int i = 0; i < particles.Length; i++)
@@ -411,14 +411,6 @@ public class ParticleSystem
 					particleIndices.Insert(index, i);
 				}
 			}
-		}
-	}
-
-	public void draw(GraphicsDevice graphics)
-	{
-		if (particleIndices.Count > 0)
-		{
-			Renderer.DrawParticleSystem(particles, particleIndices, transform, spawnOffset, follow, textureAtlas, atlasSize, linearFiltering, additive);
 		}
 	}
 

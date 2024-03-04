@@ -54,11 +54,10 @@ internal class WallTorch : Entity, Interactable
 		fireParticles.spawnRadius = 0.02f;
 		fireParticles.spawnShape = ParticleSpawnShape.Sphere;
 		//fireParticles.particleSize = 0.1f;
-		fireParticles.particleSizeAnim = new Gradient<float>(0.1f, 0.02f);
-		fireParticles.randomRotation = true;
-		fireParticles.randomRotationSpeed = true;
-		fireParticles.randomVelocity = true;
-		fireParticles.randomVelocityMultiplier = 0.1f;
+		fireParticles.sizeAnim = new Gradient<float>(0.1f, 0.02f);
+		fireParticles.randomRotation = 1.0f;
+		fireParticles.randomRotationSpeed = 1;
+		fireParticles.randomVelocity = 0.1f;
 		fireParticles.gravity = 2.0f;
 		fireParticles.additive = true;
 		//fireParticles.spriteTint = new Vector4(, 1.0f);
@@ -70,24 +69,23 @@ internal class WallTorch : Entity, Interactable
 		glimParticles.spawnOffset = ORIGIN;
 		glimParticles.spawnRadius = 0.06f;
 		glimParticles.spawnShape = ParticleSpawnShape.Sphere;
-		glimParticles.particleSize = 0.02f;
+		glimParticles.size = 0.02f;
 		glimParticles.gravity = 0.0f;
 		glimParticles.follow = true;
 		glimParticles.additive = true;
-		glimParticles.spriteTint = new Vector4(GLIM_COLOR * 3, 1.0f);
-		glimParticles.randomRotation = true;
+		glimParticles.color = new Vector4(GLIM_COLOR * 3, 1.0f);
+		glimParticles.randomRotation = 1.0f;
 
 		sparkParticles = new ParticleSystem(64);
 		sparkParticles.emissionRate = 0;
 		sparkParticles.lifetime = 3;
 		sparkParticles.spawnOffset = ORIGIN;
-		sparkParticles.particleSize = 0.02f;
+		sparkParticles.size = 0.02f;
 		sparkParticles.gravity = -5.0f;
 		sparkParticles.additive = true;
-		sparkParticles.spriteTint = new Vector4(GLIM_COLOR * 1.5f, 1.0f);
-		sparkParticles.randomRotation = true;
-		sparkParticles.randomVelocity = true;
-		sparkParticles.randomVelocityMultiplier = 3.0f;
+		sparkParticles.color = new Vector4(GLIM_COLOR * 1.5f, 1.0f);
+		sparkParticles.randomRotation = 1.0f;
+		sparkParticles.randomVelocity = 3.0f;
 
 		smokeParticles = new ParticleSystem(32);
 		smokeParticles.emissionRate = 0;
@@ -154,17 +152,10 @@ internal class WallTorch : Entity, Interactable
 	{
 		Matrix transform = getModelMatrix();
 
-		fireParticles.transform = transform;
-		fireParticles.update();
-
-		smokeParticles.transform = transform;
-		smokeParticles.update();
-
-		glimParticles.transform = transform;
-		glimParticles.update();
-
-		sparkParticles.transform = transform;
-		sparkParticles.update();
+		fireParticles.update(transform);
+		smokeParticles.update(transform);
+		glimParticles.update(transform);
+		sparkParticles.update(transform);
 
 
 		Vector3 lightPosition = transform * new Vector3(0.0f, 0.3f, 0.25f);
@@ -198,11 +189,10 @@ internal class WallTorch : Entity, Interactable
 		{
 			Renderer.DrawSubModel(model, 0, transform);
 
-			fireParticles.draw(graphics);
-			smokeParticles.draw(graphics);
-
-			glimParticles.draw(graphics);
-			sparkParticles.draw(graphics);
+			Renderer.DrawParticleSystem(fireParticles);
+			Renderer.DrawParticleSystem(smokeParticles);
+			Renderer.DrawParticleSystem(glimParticles);
+			Renderer.DrawParticleSystem(sparkParticles);
 
 			if (state == TorchState.Burning)
 			{

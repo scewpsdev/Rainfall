@@ -8,136 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public enum ColliderType
-{
-	Box,
-	Sphere,
-	Capsule,
-	Mesh,
-}
-
-public struct ColliderData
-{
-	public ColliderType type;
-
-	public Vector3 size;
-	public Vector3 offset;
-	public Vector3 eulers;
-
-	public string meshColliderPath;
-	public Model meshCollider;
-
-
-	public ColliderData(Vector3 size, Vector3 offset = default, Vector3 eulers = default)
-	{
-		type = ColliderType.Box;
-		this.size = size;
-		this.offset = offset;
-		this.eulers = eulers;
-	}
-
-	public ColliderData(float radius, Vector3 offset = default, Vector3 eulers = default)
-	{
-		type = ColliderType.Sphere;
-		size = new Vector3(2 * radius, 0, 0);
-		this.offset = offset;
-		this.eulers = eulers;
-	}
-
-	public ColliderData(float radius, float height, Vector3 offset = default, Vector3 eulers = default)
-	{
-		type = ColliderType.Capsule;
-		size = new Vector3(2 * radius, height, 0);
-		this.offset = offset;
-		this.eulers = eulers;
-	}
-
-	public ColliderData(string path, Vector3 offset = default, Vector3 eulers = default)
-	{
-		type = ColliderType.Mesh;
-		meshColliderPath = path;
-		this.offset = offset;
-		this.eulers = eulers;
-	}
-
-	public float radius
-	{
-		get => 0.5f * size.x;
-		set { size.x = value * 2; }
-	}
-	public float height
-	{
-		get => size.y;
-		set { size.y = value; }
-	}
-
-	public void reload()
-	{
-		if (meshColliderPath != null)
-		{
-			string compiledPath = RainfallEditor.instance.compileAsset(meshColliderPath);
-			meshCollider = Resource.GetModel(compiledPath);
-		}
-		else
-		{
-			meshCollider = null;
-		}
-	}
-
-	public override bool Equals(object obj)
-	{
-		if (obj is ColliderData)
-			return (ColliderData)obj == this;
-		return false;
-	}
-
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
-	}
-
-	public static bool operator ==(ColliderData a, ColliderData b)
-	{
-		return a.type == b.type && a.size == b.size && a.offset == b.offset && a.eulers == b.eulers && a.meshColliderPath == b.meshColliderPath && a.meshCollider == b.meshCollider;
-	}
-
-	public static bool operator !=(ColliderData a, ColliderData b) => !(a == b);
-}
-
-public struct LightData
-{
-	public Vector3 color;
-	public float intensity;
-	public Vector3 offset;
-
-
-	public LightData(Vector3 color, float intensity, Vector3 offset = default)
-	{
-		this.color = color;
-		this.intensity = intensity;
-		this.offset = offset;
-	}
-
-	public override bool Equals(object obj)
-	{
-		if (obj is LightData)
-			return (LightData)obj == this;
-		return false;
-	}
-
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
-	}
-
-	public static bool operator ==(LightData a, LightData b)
-	{
-		return a.color == b.color && a.intensity == b.intensity && a.offset == b.offset;
-	}
-
-	public static bool operator !=(LightData a, LightData b) => !(a == b);
-}
-
 public class Entity
 {
 	static uint idHash = (uint)Time.timestamp;
@@ -159,8 +29,8 @@ public class Entity
 	public string modelPath = null;
 	public Model model = null;
 
-	public List<ColliderData> colliders = new List<ColliderData>();
-	public List<LightData> lights = new List<LightData>();
+	public List<SceneFormat.ColliderData> colliders = new List<SceneFormat.ColliderData>();
+	public List<SceneFormat.LightData> lights = new List<SceneFormat.LightData>();
 	public List<ParticleSystem> particles = new List<ParticleSystem>();
 
 
@@ -173,13 +43,26 @@ public class Entity
 	public void reload()
 	{
 		if (modelPath != null)
-		{
-			string compiledPath = RainfallEditor.instance.compileAsset(modelPath);
-			model = Resource.GetModel(compiledPath);
-		}
+			model = Resource.GetModel(RainfallEditor.instance.compileAsset(modelPath));
 		else
-		{
 			model = null;
+
+		for (int i = 0; i < colliders.Count; i++)
+		{
+			SceneFormat.ColliderData collider = colliders[i];
+			if (collider.meshColliderPath != null)
+				collider.meshCollider = Resource.GetModel(RainfallEditor.instance.compileAsset(collider.meshColliderPath));
+			else
+				collider.meshCollider = null;
+			colliders[i] = collider;
+		}
+
+		for (int i = 0; i < particles.Count; i++)
+		{
+			if (particles[i].textureAtlasPath != null)
+				particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.instance.compileAsset(particles[i].textureAtlasPath));
+			else
+				particles[i].textureAtlas = null;
 		}
 	}
 
@@ -233,21 +116,21 @@ public class Entity
 			Vector4 color = new Vector4(0, 1, 0, 1);
 			for (int i = 0; i < colliders.Count; i++)
 			{
-				ColliderData collider = colliders[i];
+				SceneFormat.ColliderData collider = colliders[i];
 
-				if (collider.type == ColliderType.Box)
+				if (collider.type == SceneFormat.ColliderType.Box)
 				{
 					Renderer.DrawDebugBox(collider.size, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 				}
-				else if (collider.type == ColliderType.Sphere)
+				else if (collider.type == SceneFormat.ColliderType.Sphere)
 				{
 					Renderer.DrawDebugSphere(collider.radius, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 				}
-				else if (collider.type == ColliderType.Capsule)
+				else if (collider.type == SceneFormat.ColliderType.Capsule)
 				{
 					Renderer.DrawDebugCapsule(collider.radius, collider.height, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
 				}
-				else if (collider.type == ColliderType.Mesh)
+				else if (collider.type == SceneFormat.ColliderType.Mesh)
 				{
 					if (collider.meshCollider != null)
 					{
@@ -260,7 +143,7 @@ public class Entity
 
 		for (int i = 0; i < particles.Count; i++)
 		{
-			particles[i].draw(graphics);
+			Renderer.DrawParticleSystem(particles[i]);
 		}
 	}
 

@@ -14,6 +14,9 @@ public class Entity : PhysicsEntity
 	public bool removed { get; private set; } = false;
 	public List<Action> removeCallbacks = new List<Action>();
 
+	public ParticleSystem particles = null;
+	public Vector3 particleOffset = Vector3.Zero;
+
 
 	public virtual void init()
 	{
@@ -25,10 +28,14 @@ public class Entity : PhysicsEntity
 
 	public virtual void update()
 	{
+		if (particles != null)
+			particles.update(getModelMatrix(particleOffset));
 	}
 
 	public virtual void draw(GraphicsDevice graphics)
 	{
+		if (particles != null)
+			Renderer.DrawParticleSystem(particles);
 	}
 
 	public void remove()

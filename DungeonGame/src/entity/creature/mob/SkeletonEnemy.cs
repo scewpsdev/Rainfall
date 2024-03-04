@@ -33,16 +33,15 @@ internal class SkeletonEnemy : Creature
 		hitParticles.emissionRate = 0.0f;
 		hitParticles.lifetime = 0.5f;
 		hitParticles.gravity = 0.0f;
-		hitParticles.initialVelocity = Vector3.Zero;
-		hitParticles.spriteTint = new Vector4(0.125f, 0.0f, 0.0f, 1.0f);
-		hitParticles.particleSize = 0.5f;
+		//hitParticles.startVelocity = Vector3.Zero;
+		hitParticles.color = new Vector4(0.125f, 0.0f, 0.0f, 1.0f);
+		hitParticles.size = 0.5f;
 		hitParticles.textureAtlas = Resource.GetTexture("res/texture/particle/blood.png");
-		hitParticles.particleSizeAnim = new Gradient<float>(0.05f, 0.8f);
+		hitParticles.sizeAnim = new Gradient<float>(0.05f, 0.8f);
 		//hitParticles.atlasColumns = 1;
-		hitParticles.frameWidth = 256;
-		hitParticles.frameHeight = 256;
+		//hitParticles.atlasSize = new Vector2i(1);
 		hitParticles.numFrames = 1;
-		hitParticles.randomRotation = true;
+		hitParticles.randomRotation = 1.0f;
 
 		stats.maxHealth = 120;
 		stats.health = 120;

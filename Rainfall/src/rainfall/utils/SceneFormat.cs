@@ -9,7 +9,154 @@ using System.Threading.Tasks;
 
 public static class SceneFormat
 {
-	static DatObject SerializeEntity(Entity entity)
+	public enum ColliderType
+	{
+		Box,
+		Sphere,
+		Capsule,
+		Mesh,
+	}
+
+	public struct ColliderData
+	{
+		public ColliderType type;
+
+		public Vector3 size;
+		public Vector3 offset;
+		public Vector3 eulers;
+
+		public string meshColliderPath;
+		public Model meshCollider;
+
+
+		public ColliderData(Vector3 size, Vector3 offset = default, Vector3 eulers = default)
+		{
+			type = ColliderType.Box;
+			this.size = size;
+			this.offset = offset;
+			this.eulers = eulers;
+		}
+
+		public ColliderData(float radius, Vector3 offset = default, Vector3 eulers = default)
+		{
+			type = ColliderType.Sphere;
+			size = new Vector3(2 * radius, 0, 0);
+			this.offset = offset;
+			this.eulers = eulers;
+		}
+
+		public ColliderData(float radius, float height, Vector3 offset = default, Vector3 eulers = default)
+		{
+			type = ColliderType.Capsule;
+			size = new Vector3(2 * radius, height, 0);
+			this.offset = offset;
+			this.eulers = eulers;
+		}
+
+		public ColliderData(string path, Vector3 offset = default, Vector3 eulers = default)
+		{
+			type = ColliderType.Mesh;
+			meshColliderPath = path;
+			this.offset = offset;
+			this.eulers = eulers;
+		}
+
+		public float radius
+		{
+			get => 0.5f * size.x;
+			set { size.x = value * 2; }
+		}
+		public float height
+		{
+			get => size.y;
+			set { size.y = value; }
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is ColliderData)
+				return (ColliderData)obj == this;
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
+
+		public static bool operator ==(ColliderData a, ColliderData b)
+		{
+			return a.type == b.type && a.size == b.size && a.offset == b.offset && a.eulers == b.eulers && a.meshColliderPath == b.meshColliderPath && a.meshCollider == b.meshCollider;
+		}
+
+		public static bool operator !=(ColliderData a, ColliderData b) => !(a == b);
+	}
+
+	public struct LightData
+	{
+		public Vector3 color;
+		public float intensity;
+		public Vector3 offset;
+
+
+		public LightData(Vector3 color, float intensity, Vector3 offset = default)
+		{
+			this.color = color;
+			this.intensity = intensity;
+			this.offset = offset;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is LightData)
+				return (LightData)obj == this;
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
+
+		public static bool operator ==(LightData a, LightData b)
+		{
+			return a.color == b.color && a.intensity == b.intensity && a.offset == b.offset;
+		}
+
+		public static bool operator !=(LightData a, LightData b) => !(a == b);
+	}
+
+	public struct EntityData
+	{
+		public Vector3 position;
+		public Quaternion rotation;
+		public Vector3 scale;
+
+		public string name;
+		public uint id;
+
+		public string modelPath;
+		public Model model;
+
+		public List<ColliderData> colliders;
+		public List<LightData> lights;
+		public List<ParticleSystem> particles;
+
+		public EntityData(string name, uint id)
+		{
+			this.name = name;
+			this.id = id;
+
+			rotation = Quaternion.Identity;
+
+			colliders = new List<ColliderData>();
+			lights = new List<LightData>();
+			particles = new List<ParticleSystem>();
+		}
+	}
+
+
+	static DatObject SerializeEntity(EntityData entity)
 	{
 		DatObject obj = new DatObject();
 
@@ -31,7 +178,10 @@ public static class SceneFormat
 			collider.addVector3("offset", entity.colliders[i].offset);
 			collider.addVector3("rotation", entity.colliders[i].eulers);
 			if (entity.colliders[i].type == ColliderType.Mesh)
-				collider.addString("mesh", entity.colliders[i].meshColliderPath);
+			{
+				if (entity.colliders[i].meshColliderPath != null)
+					collider.addString("mesh", entity.colliders[i].meshColliderPath);
+			}
 			colliders.addObject(collider);
 		}
 		obj.addArray("colliders", colliders);
@@ -127,7 +277,7 @@ public static class SceneFormat
 		return obj;
 	}
 
-	public static void SerializeScene(EditorInstance instance, Stream stream)
+	public static void SerializeScene(List<EntityData> entities, Stream stream)
 	{
 		DatFile file = new DatFile();
 
@@ -139,41 +289,30 @@ public static class SceneFormat
 		*/
 
 		DatArray arr = new DatArray();
-		for (int i = 0; i < instance.entities.Count; i++)
+		for (int i = 0; i < entities.Count; i++)
 		{
-			DatObject obj = SerializeEntity(instance.entities[i]);
+			DatObject obj = SerializeEntity(entities[i]);
 			arr.addObject(obj);
 		}
 		file.addArray("entities", arr);
 
-		file.addString("selected", instance.selectedEntity.ToString());
-
 		file.serialize(stream);
 	}
 
-	public static byte[] SerializeScene(EditorInstance instance)
+	public static byte[] SerializeScene(List<EntityData> entities)
 	{
 		MemoryStream stream = new MemoryStream();
-		SerializeScene(instance, stream);
+		SerializeScene(entities, stream);
 		byte[] data = stream.ToArray();
 		stream.Close();
 		return data;
 	}
 
-	public static void WriteScene(EditorInstance instance, string path)
-	{
-		FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write);
-		SerializeScene(instance, stream);
-		stream.Close();
-	}
-
-	static Entity DeserializeEntity(DatObject obj)
+	static EntityData DeserializeEntity(DatObject obj)
 	{
 		obj.getStringContent("name", out string name);
-		Entity entity = new Entity(name);
-
-		if (obj.getStringContent("id", out string idStr))
-			entity.id = uint.Parse(idStr);
+		obj.getStringContent("id", out string idStr);
+		EntityData entity = new EntityData(name, uint.Parse(idStr));
 
 		obj.getVector3("position", out entity.position);
 		obj.getQuaternion("rotation", out entity.rotation);
@@ -194,10 +333,7 @@ public static class SceneFormat
 				if (colliders[i].obj.getVector3("rotation", out Vector3 eulers))
 					collider.eulers = eulers;
 				if (colliders[i].obj.getStringContent("mesh", out string meshColliderPath))
-				{
 					collider.meshColliderPath = meshColliderPath;
-					collider.reload();
-				}
 				entity.colliders.Add(collider);
 			}
 		}
@@ -251,7 +387,6 @@ public static class SceneFormat
 				if (particle.getString("textureAtlas", out string textureAtlasPath))
 				{
 					particleData.textureAtlasPath = textureAtlasPath;
-					particleData.reload();
 
 					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
 						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
@@ -295,14 +430,12 @@ public static class SceneFormat
 			}
 		}
 
-		entity.reload();
-
 		return entity;
 	}
 
-	public static void DeserializeScene(EditorInstance instance, Stream stream)
+	public static List<EntityData> DeserializeScene(Stream stream)
 	{
-		instance.reset();
+		List<EntityData> entities = new List<EntityData>();
 
 		DatFile file = new DatFile(stream);
 
@@ -323,8 +456,8 @@ public static class SceneFormat
 			{
 				if (arr[i].type == DatValueType.Object)
 				{
-					Entity entity = DeserializeEntity(arr[i].obj);
-					instance.entities.Add(entity);
+					EntityData entity = DeserializeEntity(arr[i].obj);
+					entities.Add(entity);
 				}
 				else
 				{
@@ -332,23 +465,15 @@ public static class SceneFormat
 				}
 			}
 		}
-		if (file.getStringContent("selected", out string selectedEntity))
-		{
-			instance.selectedEntity = uint.Parse(selectedEntity);
-		}
+
+		return entities;
 	}
 
-	public static void DeserializeScene(EditorInstance instance, byte[] data)
+	public static List<EntityData> DeserializeScene(byte[] data)
 	{
 		MemoryStream stream = new MemoryStream(data);
-		DeserializeScene(instance, stream);
+		List<EntityData> entities = DeserializeScene(stream);
 		stream.Close();
-	}
-
-	public static void ReadScene(EditorInstance instance, string path)
-	{
-		FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-		DeserializeScene(instance, stream);
-		stream.Close();
+		return entities;
 	}
 }

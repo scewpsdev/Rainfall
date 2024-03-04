@@ -240,7 +240,7 @@ public class Player : Entity
 		hitParticles = new ParticleSystem(1000);
 		hitParticles.emissionRate = 0.0f;
 		hitParticles.spawnOffset = new Vector3(0.0f, 1.2f, 0.0f);
-		hitParticles.spriteTint = new Vector4(0.3f, 0.0f, 0.0f, 1.0f);
+		hitParticles.color = new Vector4(0.3f, 0.0f, 0.0f, 1.0f);
 
 		sfxHit = Resource.GetSound("res/entity/player/sfx/hit.ogg");
 	}
@@ -417,7 +417,7 @@ public class Player : Entity
 		if (!blocking && !invincible && !parry)
 		{
 			Vector3 hitDirection = (position - from.position).normalized;
-			hitParticles.randomVelocity = true;
+			hitParticles.randomVelocity = 0.1f;
 			hitParticles.emitParticle(-hitDirection * 2.0f, 15);
 
 			audioAction.playSoundOrganic(sfxHit, 0.4f);
@@ -1855,8 +1855,7 @@ public class Player : Entity
 		handEntities[0].update();
 		handEntities[1].update();
 
-		hitParticles.transform = getModelMatrix();
-		hitParticles.update();
+		hitParticles.update(getModelMatrix());
 
 		stats.update();
 

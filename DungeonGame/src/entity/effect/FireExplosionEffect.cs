@@ -11,7 +11,6 @@ internal class FireExplosionEffect : Entity
 	const float LIFETIME = 1.5f;
 
 
-	ParticleSystem particles;
 	Sound sfxHit;
 
 	Vector3 direction;
@@ -27,19 +26,18 @@ internal class FireExplosionEffect : Entity
 		particles.emissionRate = 120.0f;
 
 		particles.additive = true;
-		particles.particleSize = 0.05f;
-		particles.spriteTint = new Vector4(1.0f, 0.35f, 0.3f, 1.0f);
+		particles.size = 0.05f;
+		particles.color = new Vector4(1.0f, 0.35f, 0.3f, 1.0f);
 
-		particles.randomRotation = true;
-		particles.randomRotationSpeed = true;
+		particles.randomRotation = 1.0f;
+		particles.randomRotationSpeed = 1;
 		particles.rotationSpeed = 1.0f;
 		particles.spawnShape = ParticleSpawnShape.Circle;
 		particles.spawnRadius = 0.2f;
-		particles.randomVelocity = true;
-		particles.randomVelocityMultiplier = 0.05f;
+		particles.randomVelocity = 0.05f;
 		particles.gravity = 1.0f;
 		particles.lifetime = 1.0f;
-		particles.randomLifetime = true;
+		particles.randomLifetime = 0.1f;
 		//particles.randomVelocityMultiplier = 3.0f;
 
 		//particles.particleSizeAnim = new Gradient<float>(1.0f);
@@ -59,7 +57,7 @@ internal class FireExplosionEffect : Entity
 
 	public override void init()
 	{
-		particles.transform = getModelMatrix();
+		particles.setTransform(getModelMatrix());
 		//particles.emitParticle(direction, 100);
 
 		Audio.PlayOrganic(sfxHit, position, 1.0f, 0.5f);
@@ -73,14 +71,14 @@ internal class FireExplosionEffect : Entity
 	{
 		float elapsed = (Time.currentTime - birthTime) / 1e9f;
 		particles.emissionRate = MathHelper.Lerp(200, 0, elapsed / LIFETIME);
-		particles.update();
+		particles.update(getModelMatrix());
 		if (elapsed > LIFETIME && particles.numParticles == 0)
 			remove();
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		particles.draw(graphics);
+		base.draw(graphics);
 
 		float lightIntensity = MathF.Exp(-(Time.currentTime - birthTime) / 1e9f * 8) * 50;
 		Renderer.DrawLight(position, new Vector3(1.0f, 0.35f, 0.3f) * lightIntensity);

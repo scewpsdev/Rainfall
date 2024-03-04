@@ -21,12 +21,11 @@ internal class Dummy : Creature
 		hitParticles.spawnOffset = new Vector3(0.0f, 0.5f, 0.0f);
 		hitParticles.textureAtlas = Resource.GetTexture("res/texture/particle/cloth.png");
 		//hitParticles.atlasColumns = 1;
-		hitParticles.frameWidth = 64;
-		hitParticles.frameHeight = 64;
+		//hitParticles.atlasSize = new Vector2i(1, 1);
 		hitParticles.numFrames = 1;
 		hitParticles.emissionRate = 0.0f;
 		//hitParticles.lifetime = 2.0f;
-		hitParticles.initialVelocity = Vector3.Zero;
+		//hitParticles.startVelocity = Vector3.Zero;
 
 		stats.maxHealth = 10000;
 		stats.health = 10000;

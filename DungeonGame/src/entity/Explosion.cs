@@ -37,45 +37,43 @@ internal class Explosion : Entity
 
 	public override void init()
 	{
-		fireParticles = new ParticleSystem(128);
-		fireParticles.transform = getModelMatrix();
+		fireParticles = new ParticleSystem(128, getModelMatrix());
 		fireParticles.emissionRate = 128.0f;
 		fireParticles.lifetime = 0.6f;
-		fireParticles.initialVelocity = new Vector3(0.0f, 1.5f, 0.0f);
+		fireParticles.startVelocity = new Vector3(0.0f, 1.5f, 0.0f);
 		fireParticles.gravity = 0.0f;
 		fireParticles.spawnShape = ParticleSpawnShape.Sphere;
 		fireParticles.spawnRadius = 0.5f;
-		fireParticles.particleSize = 1.0f;
+		fireParticles.size = 1.0f;
 		//fireParticles.textureAtlas = Resource.GetTexture("res/texture/particle/explosion.png");
 		//fireParticles.atlasColumns = 1;
 		//fireParticles.frameWidth = 256;
 		//fireParticles.frameHeight = 0;
 		//fireParticles.numFrames = 1;
 		fireParticles.additive = true;
-		fireParticles.randomRotation = true;
-		fireParticles.randomRotationSpeed = true;
+		fireParticles.randomRotation = 1.0f;
+		fireParticles.randomRotationSpeed = 1;
 		fireParticles.rotationSpeed = 1.0f;
-		fireParticles.randomVelocity = true;
+		fireParticles.randomVelocity = 0.1f;
 
-		fireParticles.particleSizeAnim = new Gradient<float>(0.4f, 0.01f);
-		fireParticles.spriteTint = new Vector4(MathHelper.SRGBToLinear(0.965f, 0.604f * 0.8f, 0.329f * 0.8f), 1.0f);
+		fireParticles.sizeAnim = new Gradient<float>(0.4f, 0.01f);
+		fireParticles.color = new Vector4(MathHelper.SRGBToLinear(0.965f, 0.604f * 0.8f, 0.329f * 0.8f), 1.0f);
 
 		//fireParticles.emitParticle(Vector3.Zero, 64);
 
 
-		dustParticles = new ParticleSystem(32);
-		dustParticles.transform = getModelMatrix();
+		dustParticles = new ParticleSystem(32, getModelMatrix());
 		dustParticles.emissionRate = 0.0f;
 		dustParticles.lifetime = 1.5f;
-		dustParticles.particleSize = 0.05f;
+		dustParticles.size = 0.05f;
 		dustParticles.rotationSpeed = 3.0f;
-		dustParticles.randomRotation = true;
-		dustParticles.randomRotationSpeed = true;
-		dustParticles.spriteTint = new Vector4(0.01f, 0.01f, 0.01f, 1.0f);
+		dustParticles.randomRotation = 1.0f;
+		dustParticles.randomRotationSpeed = 1;
+		dustParticles.color = new Vector4(0.01f, 0.01f, 0.01f, 1.0f);
 
 		for (int i = 0; i < 12; i++)
 		{
-			dustParticles.emitParticle(Vector3.Zero, new Vector3(MathHelper.RandomFloat(-1.0f, 1.0f), MathHelper.RandomFloat(-1.0f, 1.0f), MathHelper.RandomFloat(-1.0f, 1.0f)).normalized * 2.5f);
+			dustParticles.emitParticle(new Vector3(MathHelper.RandomFloat(-1.0f, 1.0f), MathHelper.RandomFloat(-1.0f, 1.0f), MathHelper.RandomFloat(-1.0f, 1.0f)).normalized * 2.5f);
 		}
 
 
@@ -131,8 +129,8 @@ internal class Explosion : Entity
 	{
 		timer += Time.deltaTime;
 
-		fireParticles.update();
-		dustParticles.update();
+		fireParticles.update(getModelMatrix());
+		dustParticles.update(getModelMatrix());
 
 		if (timer >= 0.5f)
 			fireParticles.emissionRate = 0.0f;
@@ -150,8 +148,8 @@ internal class Explosion : Entity
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		fireParticles.draw(graphics);
-		dustParticles.draw(graphics);
+		Renderer.DrawParticleSystem(fireParticles);
+		Renderer.DrawParticleSystem(dustParticles);
 
 		Renderer.DrawLight(position, new Vector3(10.0f, 4.0f, 1.0f) * lightIntensity);
 	}

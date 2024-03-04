@@ -389,7 +389,7 @@ public class Item
 				return shape;
 		}
 		Debug.Assert(false);
-		return ParticleSpawnShape.None;
+		return 0;
 	}
 
 	static bool ParseParticleFollow(string identifier)
@@ -520,19 +520,19 @@ public class Item
 				if (particleSystem.obj.getField("size", out DatField size))
 				{
 					if (size.value.type == DatValueType.Number)
-						particleSystem.obj.getNumber("size", out particles.particleSize);
+						particleSystem.obj.getNumber("size", out particles.size);
 					else if (size.value.type == DatValueType.Array)
 					{
 						particleSystem.obj.getArray("size", out DatArray arr);
 						Debug.Assert(arr.values.Count > 0);
 						Debug.Assert(arr.values[0].type == DatValueType.Number);
 						float value0 = (float)arr.values[0].number;
-						particles.particleSizeAnim = new Gradient<float>(value0);
+						particles.sizeAnim = new Gradient<float>(value0);
 						for (int i = 1; i < arr.values.Count; i++)
 						{
 							Debug.Assert(arr.values[i].type == DatValueType.Number);
 							float value = (float)arr.values[i].number;
-							particles.particleSizeAnim.setValue(i / (float)(arr.values.Count - 1), value);
+							particles.sizeAnim.setValue(i / (float)(arr.values.Count - 1), value);
 						}
 					}
 					else
@@ -551,27 +551,26 @@ public class Item
 				if (particleSystem.obj.getNumber("gravity", out float gravity))
 					particles.gravity = gravity;
 				if (particleSystem.obj.getVector3("initialVelocity", out Vector3 initialVelocity))
-					particles.initialVelocity = initialVelocity;
+					particles.startVelocity = initialVelocity;
 
 				if (particleSystem.obj.getStringContent("texture", out string particleTextureStr))
 					particles.textureAtlas = Resource.GetTexture(particleTextureStr);
 				if (particleSystem.obj.getInteger("frameSize", out int particleFrameSize))
-				{
-					particles.frameWidth = particleFrameSize;
-					particles.frameHeight = particleFrameSize;
-				}
+					particles.atlasSize = new Vector2i(particles.textureAtlas.width, particles.textureAtlas.height) / particleFrameSize;
 				if (particleSystem.obj.getInteger("frameCount", out int numFrames))
 					particles.numFrames = numFrames;
 
 				if (particleSystem.obj.getVector3("tint", out Vector3 tint))
-					particles.spriteTint = new Vector4(tint, 1.0f);
+					particles.color = new Vector4(tint, 1.0f);
 				if (particleSystem.obj.getInteger("linearFiltering", out int linearFiltering))
 					particles.linearFiltering = linearFiltering != 0;
 				if (particleSystem.obj.getInteger("additive", out int additive))
 					particles.additive = additive != 0;
 
-				particleSystem.obj.getBoolean("randomRotation", out particles.randomRotation);
-				particleSystem.obj.getBoolean("randomLifetime", out particles.randomLifetime);
+				if (particleSystem.obj.getBoolean("randomRotation", out bool randomRotation))
+					particles.randomRotation = randomRotation ? 1.0f : 0.0f;
+				if (particleSystem.obj.getBoolean("randomLifetime", out bool randomLifetime))
+					particles.randomLifetime = randomLifetime ? 0.1f : 0.0f;
 
 				item.particleSystems.Add(particles);
 			}

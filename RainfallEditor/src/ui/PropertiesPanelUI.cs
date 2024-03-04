@@ -114,7 +114,7 @@ public static partial class EditorUI
 		{
 			for (int i = 0; i < entity.colliders.Count; i++)
 			{
-				ColliderData collider = entity.colliders[i];
+				SceneFormat.ColliderData collider = entity.colliders[i];
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
@@ -124,20 +124,20 @@ public static partial class EditorUI
 				if (ImGui.BeginCombo("##collider_type" + i, collider.type.ToString(), ImGuiComboFlags.HeightSmall))
 				{
 					if (ImGui.Selectable_Bool("Box"))
-						collider.type = ColliderType.Box;
+						collider.type = SceneFormat.ColliderType.Box;
 					if (ImGui.Selectable_Bool("Sphere"))
-						collider.type = ColliderType.Sphere;
+						collider.type = SceneFormat.ColliderType.Sphere;
 					if (ImGui.Selectable_Bool("Capsule"))
-						collider.type = ColliderType.Capsule;
+						collider.type = SceneFormat.ColliderType.Capsule;
 					if (ImGui.Selectable_Bool("Mesh"))
-						collider.type = ColliderType.Mesh;
+						collider.type = SceneFormat.ColliderType.Mesh;
 					ImGui.EndCombo();
 
 					if (collider.type != entity.colliders[i].type)
 						instance.notifyEdit();
 				}
 
-				if (collider.type == ColliderType.Box)
+				if (collider.type == SceneFormat.ColliderType.Box)
 				{
 					DragFloat3(instance, "Size", "collider_size" + i, ref collider.size, 0.02f);
 
@@ -150,7 +150,7 @@ public static partial class EditorUI
 						collider.size = newSize;
 					*/
 				}
-				else if (collider.type == ColliderType.Sphere)
+				else if (collider.type == SceneFormat.ColliderType.Sphere)
 				{
 					float newRadius = collider.radius;
 					if (DragFloat(instance, "Radius", "collider_radius" + i, ref newRadius, 0.02f, 0, 1000))
@@ -165,7 +165,7 @@ public static partial class EditorUI
 						collider.radius = newRadius;
 					*/
 				}
-				else if (collider.type == ColliderType.Capsule)
+				else if (collider.type == SceneFormat.ColliderType.Capsule)
 				{
 					float newRadius = collider.radius;
 					if (DragFloat(instance, "Radius", "collider_radius" + i, ref newRadius, 0.02f, 0, 1000))
@@ -191,11 +191,11 @@ public static partial class EditorUI
 						collider.height = newHeight;
 					*/
 				}
-				else if (collider.type == ColliderType.Mesh)
+				else if (collider.type == SceneFormat.ColliderType.Mesh)
 				{
 					if (FileSelect(null, "mesh_collider" + i, ref collider.meshColliderPath, "gltf"))
 					{
-						collider.reload();
+						collider.meshCollider = collider.meshColliderPath != null ? Resource.GetModel(RainfallEditor.instance.compileAsset(collider.meshColliderPath)) : null;
 						instance.notifyEdit();
 					}
 				}
@@ -211,7 +211,7 @@ public static partial class EditorUI
 					collider.offset = newOffset;
 				*/
 
-				if (collider.type != ColliderType.Sphere)
+				if (collider.type != SceneFormat.ColliderType.Sphere)
 				{
 					DragFloat3Eulers(instance, "Rotation", "collider_rotation" + i, ref collider.eulers);
 
@@ -246,7 +246,7 @@ public static partial class EditorUI
 
 			if (ImGui.Button("Add Collider"))
 			{
-				ColliderData collider = new ColliderData(new Vector3(2.0f));
+				SceneFormat.ColliderData collider = new SceneFormat.ColliderData(new Vector3(2.0f));
 				entity.colliders.Add(collider);
 				instance.notifyEdit();
 			}
@@ -261,7 +261,7 @@ public static partial class EditorUI
 		{
 			for (int i = 0; i < entity.lights.Count; i++)
 			{
-				LightData light = entity.lights[i];
+				SceneFormat.LightData light = entity.lights[i];
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
@@ -319,7 +319,7 @@ public static partial class EditorUI
 
 			if (ImGui.Button("Add Light"))
 			{
-				LightData light = new LightData(new Vector3(1.0f), 1.0f);
+				SceneFormat.LightData light = new SceneFormat.LightData(new Vector3(1.0f), 1.0f);
 				entity.lights.Add(light);
 				instance.notifyEdit();
 			}
