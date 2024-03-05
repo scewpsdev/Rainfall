@@ -50,7 +50,7 @@ internal class DungeonGame : Game
 		Item.LoadContent();
 		Tile.Init();
 
-		Debug.debugTextEnabled = true;
+		//Debug.debugTextEnabled = true;
 
 		FontManager.LoadFont("baskerville", "res/fonts/libre-baskerville.regular.ttf");
 
@@ -153,153 +153,46 @@ internal class DungeonGame : Game
 
 	void drawDebugStats()
 	{
-		int line = 0;
-
 		Span<byte> str = stackalloc byte[128];
 
-		StringUtils.WriteString(str, "Test Build 0.0.0a");
-		str[11] = '0' + VERSION_MAJOR;
-		str[13] = '0' + VERSION_MINOR;
-		str[15] = '0' + VERSION_PATCH;
-		str[16] = (byte)VERSION_SUFFIX;
-		Debug.DrawDebugText(0, line++, 0xB, str);
+		int y = 0;
 
-		line++;
+		StringUtils.WriteString(str, "Test Build ");
+		StringUtils.AppendInteger(str, VERSION_MAJOR);
+		StringUtils.AppendCharacter(str, '.');
+		StringUtils.AppendInteger(str, VERSION_MINOR);
+		StringUtils.AppendCharacter(str, '.');
+		StringUtils.AppendInteger(str, VERSION_PATCH);
+		StringUtils.AppendCharacter(str, VERSION_SUFFIX);
+		graphics.drawDebugText(0, y++, 0xB, str);
 
-		StringUtils.WriteInteger(str, Display.viewportSize.x);
-		StringUtils.AppendString(str, "x");
-		StringUtils.AppendInteger(str, Display.viewportSize.y);
-		Debug.DrawDebugText(0, line++, str);
+		y = DebugStats.Draw(0, y, graphics);
 
-		StringUtils.WriteInteger(str, Time.fps);
-		StringUtils.AppendString(str, " fps");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteFloat(str, Time.ms, 2);
-		StringUtils.AppendString(str, " ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		long mem = Time.memory;
-		str[0] = 0;
-		WriteMemoryString(str, mem);
-		Debug.DrawDebugText(0, line++, str);
-
-		long nativeMem = Time.nativeMemory;
-		str[0] = 0;
-		WriteMemoryString(str, nativeMem);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteInteger(str, Time.numAllocations);
-		StringUtils.AppendString(str, " allocations");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Meshes: ");
-		StringUtils.AppendInteger(str, Renderer.meshRenderCounter);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Culled: ");
-		StringUtils.AppendInteger(str, Renderer.meshCulledCounter);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Physics bodies: ");
-		StringUtils.AppendInteger(str, RigidBody.numBodies);
-		Debug.DrawDebugText(0, line++, str);
-
-		line++;
-
-		RenderStats renderStats = graphics.getRenderStats();
-		cpuTimeAcc += renderStats.cpuTime;
-		gpuTimeAcc += renderStats.gpuTime;
-		physicsTimeAcc += Time.physicsDelta;
-		numFrames++;
-
-		StringUtils.WriteString(str, "CPU time: ");
-		StringUtils.AppendFloat(str, cpuTime * 1000);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "GPU time: ");
-		StringUtils.AppendFloat(str, gpuTime * 1000);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Physics time: ");
-		StringUtils.AppendFloat(str, physicsTime * 1000);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "GPU latency: ");
-		StringUtils.AppendInteger(str, (int)renderStats.maxGpuLatency);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "GPU Memory: ");
-		WriteMemoryString(str, renderStats.gpuMemoryUsed);
-		StringUtils.AppendString(str, "/");
-		WriteMemoryString(str, renderStats.gpuMemoryMax);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Texture Memory: ");
-		WriteMemoryString(str, renderStats.textureMemoryUsed);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "RT Memory: ");
-		WriteMemoryString(str, renderStats.rtMemoryUsed);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Textures: ");
-		StringUtils.AppendInteger(str, renderStats.numTextures);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Render Targets: ");
-		StringUtils.AppendInteger(str, renderStats.numRenderTargets);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Shaders: ");
-		StringUtils.AppendInteger(str, renderStats.numShaders);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Draw calls: ");
-		StringUtils.AppendInteger(str, (int)renderStats.numDraw);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Triangles: ");
-		StringUtils.AppendInteger(str, renderStats.numTriangles);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Computes: ");
-		StringUtils.AppendInteger(str, (int)renderStats.numCompute);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Blits: ");
-		StringUtils.AppendInteger(str, (int)renderStats.numBlit);
-		Debug.DrawDebugText(0, line++, str);
-
-		line++;
+		y++;
 
 		StringUtils.WriteString(str, "grounded=");
 		StringUtils.AppendBool(str, gameManager.player.isGrounded);
-		Debug.DrawDebugText(0, line++, str);
-
+		graphics.drawDebugText(0, y++, str);
+		
 		StringUtils.WriteString(str, "speed=");
 		StringUtils.AppendInteger(str, (int)(gameManager.player.velocity.xz.length * 100));
-		Debug.DrawDebugText(0, line++, str);
-
+		graphics.drawDebugText(0, y++, str);
+		
 		StringUtils.WriteString(str, "x=");
 		StringUtils.AppendInteger(str, (int)(gameManager.player.position.x * 100));
-		Debug.DrawDebugText(0, line++, str);
+		graphics.drawDebugText(0, y++, str);
 
 		StringUtils.WriteString(str, "y=");
 		StringUtils.AppendInteger(str, (int)(gameManager.player.position.y * 100));
-		Debug.DrawDebugText(0, line++, str);
+		graphics.drawDebugText(0, y++, str);
 
 		StringUtils.WriteString(str, "z=");
 		StringUtils.AppendInteger(str, (int)(gameManager.player.position.z * 100));
-		Debug.DrawDebugText(0, line++, str);
+		graphics.drawDebugText(0, y++, str);
 
-		line++;
-		line++;
-		line++;
+		y++;
+		y++;
+		y++;
 
 		/*
 		const int numAllocators = 10;
@@ -319,40 +212,12 @@ internal class DungeonGame : Game
 		*/
 	}
 
-	static void WriteMemoryString(Span<byte> str, long mem)
-	{
-		if (mem >= 1 << 30)
-		{
-			StringUtils.AppendFloat(str, mem / (float)(1 << 30), 2);
-			StringUtils.AppendString(str, "GB");
-		}
-		else if (mem >= 1 << 20)
-		{
-			StringUtils.AppendFloat(str, mem / (float)(1 << 20), 2);
-			StringUtils.AppendString(str, "MB");
-		}
-		else if (mem >= 1 << 10)
-		{
-			StringUtils.AppendFloat(str, mem / (float)(1 << 10), 2);
-			StringUtils.AppendString(str, "KB");
-		}
-		else if (mem >= 0)
-		{
-			StringUtils.AppendInteger(str, mem);
-			StringUtils.AppendString(str, "By");
-		}
-		else
-		{
-			StringUtils.AppendString(str, "0By");
-		}
-	}
-
 	public static void Main(string[] args)
 	{
 #if DEBUG
 		string outDir = "bin\\x64\\Debug";
-		string projectDir = "D:\\Dev\\Rainfall\\DungeonGame";
-		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + outDir;
+		string projectDir = "D:\\Dev\\2023\\Rainfall\\DungeonGame";
+		string resCompilerDir = "D:\\Dev\\2023\\Rainfall\\RainfallResourceCompiler\\" + outDir;
 		//string projectDir = "C:\\Users\\faris\\Documents\\Dev\\Rainfall";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();

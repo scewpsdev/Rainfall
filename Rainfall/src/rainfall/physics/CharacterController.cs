@@ -39,7 +39,7 @@ namespace Rainfall
 		uint filterGroup, filterMask;
 
 
-		public CharacterController(PhysicsEntity entity, float radius, Vector3 offset, float height, float stepOffset, uint filterGroup, uint filterMask, ControllerHitCallback hitCallback = null)
+		public CharacterController(PhysicsEntity entity, float radius, Vector3 offset, float height, float stepOffset = 0.1f, uint filterGroup = 1, uint filterMask = 0x0000FFFF, ControllerHitCallback hitCallback = null)
 		{
 			this.entity = entity;
 			this._height = height;

@@ -843,9 +843,9 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	printf("BGFX %d, renderer: %s\n", BGFX_API_VERSION, rendererTypeNames[init.type]);
 
 #ifdef _DEBUG
-	debug = BGFX_DEBUG_TEXT;
+	debug = BGFX_DEBUG_TEXT | BGFX_DEBUG_PROFILER;
 #else
-	debug = BGFX_DEBUG_NONE;
+	debug = BGFX_DEBUG_TEXT;
 #endif
 	bgfx::setDebug(debug);
 

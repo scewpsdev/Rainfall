@@ -17,5 +17,10 @@ bx::FileReaderI* Application_GetFileReader();
 
 RFAPI int64_t Application_GetTimestamp();
 RFAPI int64_t Application_GetCurrentTime();
+RFAPI int64_t Application_GetFrameTime();
+RFAPI int Application_GetFPS();
+RFAPI float Application_GetMS();
+RFAPI int64_t Application_GetMemoryUsage();
+RFAPI int Application_GetNumAllocations();
 
 RFAPI bool Application_IsMouseLocked();

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dev\\Rainfall\\RainfallEditor\\RainfallEditor.csproj": {}
+    "D:\\Dev\\2023\\Rainfall\\RainfallEditor\\RainfallEditor.csproj": {}
   },
   "projects": {
-    "D:\\Dev\\Rainfall\\RainfallEditor\\RainfallEditor.csproj": {
+    "D:\\Dev\\2023\\Rainfall\\RainfallEditor\\RainfallEditor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dev\\Rainfall\\RainfallEditor\\RainfallEditor.csproj",
+        "projectUniqueName": "D:\\Dev\\2023\\Rainfall\\RainfallEditor\\RainfallEditor.csproj",
         "projectName": "RainfallEditor",
-        "projectPath": "D:\\Dev\\Rainfall\\RainfallEditor\\RainfallEditor.csproj",
+        "projectPath": "D:\\Dev\\2023\\Rainfall\\RainfallEditor\\RainfallEditor.csproj",
         "packagesPath": "C:\\Users\\faris\\.nuget\\packages\\",
-        "outputPath": "D:\\Dev\\Rainfall\\RainfallEditor\\obj\\",
+        "outputPath": "D:\\Dev\\2023\\Rainfall\\RainfallEditor\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\faris\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -22,14 +22,15 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj": {
-                "projectPath": "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj"
+              "D:\\Dev\\2023\\Rainfall\\Rainfall\\Rainfall.csproj": {
+                "projectPath": "D:\\Dev\\2023\\Rainfall\\Rainfall\\Rainfall.csproj"
               }
             }
           }
@@ -38,6 +39,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -53,7 +59,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.1, )",
+              "version": "[8.0.2, )",
               "autoReferenced": true
             }
           },
@@ -79,18 +85,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj": {
+    "D:\\Dev\\2023\\Rainfall\\Rainfall\\Rainfall.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj",
+        "projectUniqueName": "D:\\Dev\\2023\\Rainfall\\Rainfall\\Rainfall.csproj",
         "projectName": "Rainfall",
-        "projectPath": "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj",
+        "projectPath": "D:\\Dev\\2023\\Rainfall\\Rainfall\\Rainfall.csproj",
         "packagesPath": "C:\\Users\\faris\\.nuget\\packages\\",
-        "outputPath": "D:\\Dev\\Rainfall\\Rainfall\\obj\\",
+        "outputPath": "D:\\Dev\\2023\\Rainfall\\Rainfall\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\faris\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -101,7 +107,8 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json": {}
         },
         "frameworks": {
           "net7.0": {
@@ -113,6 +120,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -134,7 +146,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }
