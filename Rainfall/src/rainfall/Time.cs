@@ -39,11 +39,6 @@ namespace Rainfall
 			get { return Native.Application.Application_GetMS(); }
 		}
 
-		public static long memory
-		{
-			get { return GC.GetTotalMemory(false); }
-		}
-
 		public static long nativeMemory
 		{
 			get { return Native.Application.Application_GetMemoryUsage(); }

@@ -945,9 +945,9 @@ namespace Rainfall
 		public static extern void PushID_Int(int int_id);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igPushItemWidth")]
 		public static extern void PushItemWidth(float item_width);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igPushStyleColor_U32")]
 		public static extern void PushStyleColor_U32(ImGuiCol idx, uint col);
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igPushStyleColor_Vec4")]
 		public static extern void PushStyleColor_Vec4(ImGuiCol idx, Vector4 col);
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igPushStyleVar_Float")]
 		public static extern void PushStyleVar_Float(ImGuiStyleVar idx, float val);

@@ -14,34 +14,6 @@ namespace Rainfall
 			System.Diagnostics.Debug.Assert(condition);
 		}
 
-		public static void DrawDebugText(int x, int y, byte color, Span<byte> text)
-		{
-			unsafe
-			{
-				fixed (byte* textPtr = text)
-					Native.Graphics.Graphics_DrawDebugText(x, y, color, textPtr);
-			}
-		}
-
-		public static void DrawDebugText(int x, int y, Span<byte> text)
-		{
-			unsafe
-			{
-				fixed (byte* textPtr = text)
-					Native.Graphics.Graphics_DrawDebugText(x, y, 0xF, textPtr);
-			}
-		}
-
-		public static void DrawDebugText(int x, int y, byte color, string text)
-		{
-			Native.Graphics.Graphics_DrawDebugText(x, y, color, text);
-		}
-
-		public static void DrawDebugText(int x, int y, string text)
-		{
-			Native.Graphics.Graphics_DrawDebugText(x, y, 0xF, text);
-		}
-
 		public static bool debugTextEnabled
 		{
 			get => Native.Application.Application_IsDebugTextEnabled() != 0;

@@ -229,4 +229,28 @@ public static class StringUtils
 			return path.Substring(slash + 1);
 		return path;
 	}
+
+	public static void MemoryString(Span<byte> str, long mem)
+	{
+		if (mem >= 1 << 30)
+		{
+			AppendFloat(str, mem / (float)(1 << 30), 2);
+			AppendString(str, " GB");
+		}
+		else if (mem >= 1 << 20)
+		{
+			AppendFloat(str, mem / (float)(1 << 20), 2);
+			AppendString(str, " MB");
+		}
+		else if (mem >= 1 << 10)
+		{
+			AppendFloat(str, mem / (float)(1 << 10), 2);
+			AppendString(str, " KB");
+		}
+		else
+		{
+			AppendInteger(str, mem);
+			AppendString(str, " B");
+		}
+	}
 }

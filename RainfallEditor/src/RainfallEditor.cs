@@ -20,13 +20,6 @@ public unsafe class RainfallEditor : Game
 
 	bool windowClosed = false;
 
-	float cpuTimeAcc = 0.0f;
-	float gpuTimeAcc = 0.0f;
-	float physicsTimeAcc = 0.0f;
-	float cpuTime, gpuTime, physicsTime;
-	int numFrames = 0;
-	long lastSecond = 0;
-
 
 	public override void init()
 	{
@@ -62,82 +55,19 @@ public unsafe class RainfallEditor : Game
 		return true;
 	}
 
-	public List<SceneFormat.EntityData> toEntityData(EditorInstance instance)
-	{
-		List<SceneFormat.EntityData> entities = new List<SceneFormat.EntityData>(instance.entities.Count);
-		for (int i = 0; i < instance.entities.Count; i++)
-		{
-			Entity entity = instance.entities[i];
-			entities.Add(new SceneFormat.EntityData
-			{
-				position = entity.position,
-				rotation = entity.rotation,
-				scale = entity.scale,
-				name = entity.name,
-				id = entity.id,
-				modelPath = entity.modelPath,
-				model = entity.model,
-				colliders = new List<SceneFormat.ColliderData>(entity.colliders),
-				lights = new List<SceneFormat.LightData>(entity.lights),
-				particles = new List<ParticleSystem>(entity.particles),
-			});
-		}
-		return entities;
-	}
-
-	public void fromEntityData(List<SceneFormat.EntityData> entities, EditorInstance instance)
-	{
-		/*
-		public Vector3 position;
-		public Quaternion rotation;
-		public Vector3 scale;
-
-		public string name;
-		public uint id;
-
-		public string modelPath;
-		public Model model;
-
-		public List<ColliderData> colliders;
-		public List<LightData> lights;
-		public List<ParticleSystem> particles;
-		 */
-		foreach (Entity entity in instance.entities)
-			entity.destroy();
-		instance.entities.Clear();
-
-		for (int i = 0; i < entities.Count; i++)
-		{
-			SceneFormat.EntityData entityData = entities[i];
-			instance.entities.Add(new Entity(entityData.name)
-			{
-				position = entityData.position,
-				rotation = entityData.rotation,
-				scale = entityData.scale,
-				name = entityData.name,
-				id = entityData.id,
-				modelPath = entityData.modelPath,
-				model = entityData.model,
-				colliders = new List<SceneFormat.ColliderData>(entityData.colliders),
-				lights = new List<SceneFormat.LightData>(entityData.lights),
-				particles = new List<ParticleSystem>(entityData.particles),
-			});
-			instance.entities[i].reload();
-		}
-	}
-
 	public void writeScene(EditorInstance instance, string path)
 	{
-		FileStream stream = new FileStream(instance.path, FileMode.Create, FileAccess.Write);
-		SceneFormat.SerializeScene(toEntityData(instance), stream);
+		FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+		SceneFormat.SerializeScene(ToEntityData(instance), instance.selectedEntity, stream);
 		stream.Close();
 	}
 
 	public void readScene(EditorInstance instance, string path)
 	{
 		FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-		List<SceneFormat.EntityData> entities = SceneFormat.DeserializeScene(stream);
-		fromEntityData(entities, instance);
+		SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
+		FromEntityData(entities, instance);
+		instance.selectedEntity = selectedEntity;
 		stream.Close();
 	}
 
@@ -263,7 +193,128 @@ public unsafe class RainfallEditor : Game
 		}
 	}
 
-	public string compileAsset(string path)
+	static string RelativePath(string path, string root)
+	{
+		if (path == null)
+			return null;
+		root = Path.GetDirectoryName(root);
+		return Path.GetRelativePath(root, path);
+	}
+
+	static string AbsolutePath(string path, string root)
+	{
+		if (path == null)
+			return null;
+		root = Path.GetDirectoryName(root);
+		return root + "/" + path;
+	}
+
+	public static List<SceneFormat.EntityData> ToEntityData(EditorInstance instance)
+	{
+		List<SceneFormat.EntityData> entities = new List<SceneFormat.EntityData>(instance.entities.Count);
+		for (int i = 0; i < instance.entities.Count; i++)
+		{
+			Entity entity = instance.entities[i];
+			SceneFormat.EntityData entityData = new SceneFormat.EntityData
+			{
+				name = entity.name,
+				id = entity.id,
+				isStatic = entity.isStatic,
+				position = entity.position,
+				rotation = entity.rotation,
+				scale = entity.scale,
+				modelPath = RelativePath(entity.modelPath, instance.path),
+				model = entity.model,
+				colliders = new List<SceneFormat.ColliderData>(entity.colliders),
+				lights = new List<SceneFormat.LightData>(entity.lights),
+				particles = new List<ParticleSystem>(entity.particles),
+			};
+
+			for (int j = 0; j < entityData.colliders.Count; j++)
+			{
+				SceneFormat.ColliderData collider = entityData.colliders[j];
+				if (collider.type == SceneFormat.ColliderType.Mesh && collider.meshColliderPath != null)
+					collider.meshColliderPath = RelativePath(collider.meshColliderPath, instance.path);
+				entityData.colliders[j] = collider;
+			}
+			for (int j = 0; j < entityData.particles.Count; j++)
+			{
+				ParticleSystem particles = new ParticleSystem(0);
+				particles.copyData(entity.particles[j]);
+				if (particles.textureAtlasPath != null)
+					particles.textureAtlasPath = RelativePath(particles.textureAtlasPath, instance.path);
+			}
+
+			entities.Add(entityData);
+		}
+		return entities;
+	}
+
+	public static void FromEntityData(List<SceneFormat.EntityData> entities, EditorInstance instance)
+	{
+		/*
+		public Vector3 position;
+		public Quaternion rotation;
+		public Vector3 scale;
+
+		public string name;
+		public uint id;
+
+		public string modelPath;
+		public Model model;
+
+		public List<ColliderData> colliders;
+		public List<LightData> lights;
+		public List<ParticleSystem> particles;
+		 */
+		instance.reset();
+
+		bool deselectEntity = true;
+		for (int i = 0; i < entities.Count; i++)
+		{
+			SceneFormat.EntityData entityData = entities[i];
+			Entity entity = new Entity(entityData.name)
+			{
+				name = entityData.name,
+				id = entityData.id,
+				isStatic = entityData.isStatic,
+				position = entityData.position,
+				rotation = entityData.rotation,
+				scale = entityData.scale,
+				modelPath = AbsolutePath(entityData.modelPath, instance.path),
+				model = entityData.model,
+				colliders = new List<SceneFormat.ColliderData>(entityData.colliders),
+				lights = new List<SceneFormat.LightData>(entityData.lights),
+				particles = new List<ParticleSystem>(entityData.particles),
+			};
+
+			for (int j = 0; j < entity.colliders.Count; j++)
+			{
+				SceneFormat.ColliderData collider = entity.colliders[j];
+				if (collider.type == SceneFormat.ColliderType.Mesh && collider.meshColliderPath != null)
+					collider.meshColliderPath = AbsolutePath(collider.meshColliderPath, instance.path);
+				entity.colliders[j] = collider;
+			}
+			for (int j = 0; j < entity.particles.Count; j++)
+			{
+				ParticleSystem particles = new ParticleSystem(0);
+				particles.copyData(entityData.particles[j]);
+				if (particles.textureAtlasPath != null)
+					particles.textureAtlasPath = AbsolutePath(particles.textureAtlasPath, instance.path);
+			}
+
+			entity.reload();
+			if (entityData.id == instance.selectedEntity)
+				deselectEntity = false;
+
+			instance.entities.Add(entity);
+		}
+
+		if (deselectEntity)
+			instance.selectedEntity = 0;
+	}
+
+	public static string CompileAsset(string path)
 	{
 		if (path != null && path.Length == 0)
 			Debug.Assert(false);
@@ -287,8 +338,8 @@ public unsafe class RainfallEditor : Game
 		string assetName = getFilenameFromPath(path);
 		string outDir = "res";
 
-		string projectDir = "D:\\Dev\\Rainfall\\RainfallEditor";
-		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + "bin\\x64\\Debug";
+		string projectDir = "D:\\Dev\\2023\\Rainfall\\RainfallEditor";
+		string resCompilerDir = "D:\\Dev\\2023\\Rainfall\\RainfallResourceCompiler\\" + "bin\\x64\\Debug";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
@@ -321,171 +372,14 @@ public unsafe class RainfallEditor : Game
 		//drawDebugStats();
 
 		Audio.Update();
-
-
-		if (Time.currentTime - lastSecond >= 1e9)
-		{
-			cpuTime = cpuTimeAcc / numFrames;
-			gpuTime = gpuTimeAcc / numFrames;
-			physicsTime = physicsTimeAcc / numFrames;
-			cpuTimeAcc = 0;
-			gpuTimeAcc = 0;
-			physicsTimeAcc = 0;
-			numFrames = 0;
-			lastSecond = Time.currentTime;
-		}
-	}
-
-	void drawDebugStats()
-	{
-		int line = 0;
-
-		Span<byte> str = stackalloc byte[128];
-
-		StringUtils.WriteInteger(str, Display.viewportSize.x);
-		StringUtils.AppendString(str, "x");
-		StringUtils.AppendInteger(str, Display.viewportSize.y);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteInteger(str, Time.fps);
-		StringUtils.AppendString(str, " fps");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteFloat(str, Time.ms, 2);
-		StringUtils.AppendString(str, " ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		long mem = Time.memory;
-		str[0] = 0;
-		WriteMemoryString(str, mem);
-		Debug.DrawDebugText(0, line++, str);
-
-		long nativeMem = Time.nativeMemory;
-		str[0] = 0;
-		WriteMemoryString(str, nativeMem);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteInteger(str, Time.numAllocations);
-		StringUtils.AppendString(str, " allocations");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Meshes: ");
-		StringUtils.AppendInteger(str, Renderer.meshRenderCounter);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Culled: ");
-		StringUtils.AppendInteger(str, Renderer.meshCulledCounter);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Physics bodies: ");
-		StringUtils.AppendInteger(str, RigidBody.numBodies);
-		Debug.DrawDebugText(0, line++, str);
-
-		line++;
-
-		RenderStats renderStats = graphics.getRenderStats();
-		cpuTimeAcc += renderStats.cpuTime;
-		gpuTimeAcc += renderStats.gpuTime;
-		physicsTimeAcc += Time.physicsDelta;
-		numFrames++;
-
-		StringUtils.WriteString(str, "CPU time: ");
-		StringUtils.AppendFloat(str, cpuTime * 1000);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "GPU time: ");
-		StringUtils.AppendFloat(str, gpuTime * 1000);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Physics time: ");
-		StringUtils.AppendFloat(str, physicsTime * 1000);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "GPU latency: ");
-		StringUtils.AppendInteger(str, (int)renderStats.maxGpuLatency);
-		StringUtils.AppendString(str, "ms");
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "GPU Memory: ");
-		WriteMemoryString(str, renderStats.gpuMemoryUsed);
-		StringUtils.AppendString(str, "/");
-		WriteMemoryString(str, renderStats.gpuMemoryMax);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Texture Memory: ");
-		WriteMemoryString(str, renderStats.textureMemoryUsed);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "RT Memory: ");
-		WriteMemoryString(str, renderStats.rtMemoryUsed);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Textures: ");
-		StringUtils.AppendInteger(str, renderStats.numTextures);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Render Targets: ");
-		StringUtils.AppendInteger(str, renderStats.numRenderTargets);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Shaders: ");
-		StringUtils.AppendInteger(str, renderStats.numShaders);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Draw calls: ");
-		StringUtils.AppendInteger(str, (int)renderStats.numDraw);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Triangles: ");
-		StringUtils.AppendInteger(str, renderStats.numTriangles);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Computes: ");
-		StringUtils.AppendInteger(str, (int)renderStats.numCompute);
-		Debug.DrawDebugText(0, line++, str);
-
-		StringUtils.WriteString(str, "Blits: ");
-		StringUtils.AppendInteger(str, (int)renderStats.numBlit);
-		Debug.DrawDebugText(0, line++, str);
-	}
-
-	static void WriteMemoryString(Span<byte> str, long mem)
-	{
-		if (mem >= 1 << 30)
-		{
-			StringUtils.AppendFloat(str, mem / (float)(1 << 30), 2);
-			StringUtils.AppendString(str, "GB");
-		}
-		else if (mem >= 1 << 20)
-		{
-			StringUtils.AppendFloat(str, mem / (float)(1 << 20), 2);
-			StringUtils.AppendString(str, "MB");
-		}
-		else if (mem >= 1 << 10)
-		{
-			StringUtils.AppendFloat(str, mem / (float)(1 << 10), 2);
-			StringUtils.AppendString(str, "KB");
-		}
-		else if (mem >= 0)
-		{
-			StringUtils.AppendInteger(str, mem);
-			StringUtils.AppendString(str, "By");
-		}
-		else
-		{
-			StringUtils.AppendString(str, "0By");
-		}
 	}
 
 	public static void Main(string[] args)
 	{
 #if DEBUG
 		string outDir = "bin\\x64\\Debug";
-		string projectDir = "D:\\Dev\\Rainfall\\RainfallEditor";
-		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + outDir;
+		string projectDir = "D:\\Dev\\2023\\Rainfall\\RainfallEditor";
+		string resCompilerDir = "D:\\Dev\\2023\\Rainfall\\RainfallResourceCompiler\\" + outDir;
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;

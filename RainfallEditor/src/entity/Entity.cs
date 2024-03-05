@@ -25,6 +25,7 @@ public class Entity
 
 	public string name = "???";
 	public uint id = 0;
+	public bool isStatic = false;
 
 	public string modelPath = null;
 	public Model model = null;
@@ -43,7 +44,7 @@ public class Entity
 	public void reload()
 	{
 		if (modelPath != null)
-			model = Resource.GetModel(RainfallEditor.instance.compileAsset(modelPath));
+			model = Resource.GetModel(RainfallEditor.CompileAsset(modelPath));
 		else
 			model = null;
 
@@ -51,7 +52,7 @@ public class Entity
 		{
 			SceneFormat.ColliderData collider = colliders[i];
 			if (collider.meshColliderPath != null)
-				collider.meshCollider = Resource.GetModel(RainfallEditor.instance.compileAsset(collider.meshColliderPath));
+				collider.meshCollider = Resource.GetModel(RainfallEditor.CompileAsset(collider.meshColliderPath));
 			else
 				collider.meshCollider = null;
 			colliders[i] = collider;
@@ -60,7 +61,7 @@ public class Entity
 		for (int i = 0; i < particles.Count; i++)
 		{
 			if (particles[i].textureAtlasPath != null)
-				particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.instance.compileAsset(particles[i].textureAtlasPath));
+				particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(particles[i].textureAtlasPath));
 			else
 				particles[i].textureAtlas = null;
 		}

@@ -815,5 +815,48 @@ namespace Rainfall
 			Native.Graphics.Graphics_GetRenderStats(out stats);
 			return stats;
 		}
+
+		public void drawDebugText(int x, int y, byte color, Span<byte> text)
+		{
+			unsafe
+			{
+				fixed (byte* textPtr = text)
+					Native.Graphics.Graphics_DrawDebugText(x, y, color, textPtr);
+			}
+		}
+
+		public void drawDebugText(int x, int y, Span<byte> text)
+		{
+			unsafe
+			{
+				fixed (byte* textPtr = text)
+					Native.Graphics.Graphics_DrawDebugText(x, y, 0xF, textPtr);
+			}
+		}
+
+		public void drawDebugText(int x, int y, byte color, string text)
+		{
+			Native.Graphics.Graphics_DrawDebugText(x, y, color, text);
+		}
+
+		public void drawDebugText(int x, int y, string text)
+		{
+			Native.Graphics.Graphics_DrawDebugText(x, y, 0xF, text);
+		}
+
+		public int drawDebugInfo(int x, int y)
+		{
+			y = Native.Graphics.Graphics_DrawDebugInfo(x, y);
+
+			y++;
+
+			Span<byte> str = stackalloc byte[128];
+
+			StringUtils.WriteString(str, "C# RAM: ");
+			StringUtils.MemoryString(str, GC.GetTotalMemory(false));
+			drawDebugText(x, y++, str);
+
+			return y;
+		}
 	}
 }

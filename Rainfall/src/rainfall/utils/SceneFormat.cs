@@ -134,6 +134,7 @@ public static class SceneFormat
 
 		public string name;
 		public uint id;
+		public bool isStatic;
 
 		public string modelPath;
 		public Model model;
@@ -146,6 +147,8 @@ public static class SceneFormat
 		{
 			this.name = name;
 			this.id = id;
+
+			isStatic = false;
 
 			rotation = Quaternion.Identity;
 
@@ -162,6 +165,7 @@ public static class SceneFormat
 
 		obj.addString("name", entity.name);
 		obj.addString("id", entity.id.ToString());
+		obj.addBoolean("static", entity.isStatic);
 		obj.addVector3("position", entity.position);
 		obj.addQuaternion("rotation", entity.rotation);
 		obj.addVector3("scale", entity.scale);
@@ -277,7 +281,7 @@ public static class SceneFormat
 		return obj;
 	}
 
-	public static void SerializeScene(List<EntityData> entities, Stream stream)
+	public static void SerializeScene(List<EntityData> entities, uint selectedEntity, Stream stream)
 	{
 		DatFile file = new DatFile();
 
@@ -296,13 +300,15 @@ public static class SceneFormat
 		}
 		file.addArray("entities", arr);
 
+		file.addString("selectedEntity", selectedEntity.ToString());
+
 		file.serialize(stream);
 	}
 
-	public static byte[] SerializeScene(List<EntityData> entities)
+	public static byte[] SerializeScene(List<EntityData> entities, uint selectedEntity)
 	{
 		MemoryStream stream = new MemoryStream();
-		SerializeScene(entities, stream);
+		SerializeScene(entities, selectedEntity, stream);
 		byte[] data = stream.ToArray();
 		stream.Close();
 		return data;
@@ -313,6 +319,8 @@ public static class SceneFormat
 		obj.getStringContent("name", out string name);
 		obj.getStringContent("id", out string idStr);
 		EntityData entity = new EntityData(name, uint.Parse(idStr));
+
+		obj.getBoolean("static", out entity.isStatic);
 
 		obj.getVector3("position", out entity.position);
 		obj.getQuaternion("rotation", out entity.rotation);
@@ -433,9 +441,10 @@ public static class SceneFormat
 		return entity;
 	}
 
-	public static List<EntityData> DeserializeScene(Stream stream)
+	public static void DeserializeScene(Stream stream, out List<EntityData> entities, out uint selectedEntity)
 	{
-		List<EntityData> entities = new List<EntityData>();
+		entities = new List<EntityData>();
+		selectedEntity = 0;
 
 		DatFile file = new DatFile(stream);
 
@@ -466,14 +475,14 @@ public static class SceneFormat
 			}
 		}
 
-		return entities;
+		if (file.getStringContent("selectedEntity", out string selectedEntityIDStr))
+			selectedEntity = uint.Parse(selectedEntityIDStr);
 	}
 
-	public static List<EntityData> DeserializeScene(byte[] data)
+	public static void DeserializeScene(byte[] data, out List<EntityData> entities, out uint selectedEntity)
 	{
 		MemoryStream stream = new MemoryStream(data);
-		List<EntityData> entities = DeserializeScene(stream);
+		DeserializeScene(stream, out entities, out selectedEntity);
 		stream.Close();
-		return entities;
 	}
 }

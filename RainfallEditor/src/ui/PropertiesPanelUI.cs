@@ -195,7 +195,7 @@ public static partial class EditorUI
 				{
 					if (FileSelect(null, "mesh_collider" + i, ref collider.meshColliderPath, "gltf"))
 					{
-						collider.meshCollider = collider.meshColliderPath != null ? Resource.GetModel(RainfallEditor.instance.compileAsset(collider.meshColliderPath)) : null;
+						collider.meshCollider = collider.meshColliderPath != null ? Resource.GetModel(RainfallEditor.CompileAsset(collider.meshColliderPath)) : null;
 						instance.notifyEdit();
 					}
 				}
@@ -356,6 +356,8 @@ public static partial class EditorUI
 						instance.notifyEdit();
 					}
 				}
+
+				Checkbox(instance, "Static", "entity_static", ref selectedEntity.isStatic);
 
 				Transform(selectedEntity, instance);
 

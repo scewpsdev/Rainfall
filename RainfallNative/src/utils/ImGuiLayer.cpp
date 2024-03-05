@@ -676,15 +676,19 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 
 		KeyEvent* keyEvent = (KeyEvent*)ev;
 
-		io.KeysDown[(int)keyEvent->key] = keyEvent->down;
+		if (imguiHovered)
+		{
+			io.KeysDown[(int)keyEvent->key] = keyEvent->down;
 
-		io.KeyCtrl = io.KeysDown[(int)KeyCode::LeftCtrl] || io.KeysDown[(int)KeyCode::RightCtrl];
-		io.KeyShift = io.KeysDown[(int)KeyCode::LeftShift] || io.KeysDown[(int)KeyCode::RightShift];
-		io.KeyAlt = io.KeysDown[(int)KeyCode::LeftAlt] || io.KeysDown[(int)KeyCode::RightAlt];
-		io.KeySuper = io.KeysDown[(int)KeyCode::LeftMeta] || io.KeysDown[(int)KeyCode::RightMeta];
+			io.KeyCtrl = io.KeysDown[(int)KeyCode::LeftCtrl] || io.KeysDown[(int)KeyCode::RightCtrl];
+			io.KeyShift = io.KeysDown[(int)KeyCode::LeftShift] || io.KeysDown[(int)KeyCode::RightShift];
+			io.KeyAlt = io.KeysDown[(int)KeyCode::LeftAlt] || io.KeysDown[(int)KeyCode::RightAlt];
+			io.KeySuper = io.KeysDown[(int)KeyCode::LeftMeta] || io.KeysDown[(int)KeyCode::RightMeta];
 
-		if (keyEvent->down && imguiHovered)
-			return true;
+			if (keyEvent->down)
+				return true;
+		}
+
 		return false;
 	}
 	break;

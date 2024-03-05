@@ -11,7 +11,7 @@ using System.Text;
 
 public static class Renderer
 {
-	enum RenderPass : int
+	public enum RenderPass : int
 	{
 		Geometry,
 		Shadow0,
@@ -2015,17 +2015,21 @@ public static class Renderer
 		lights.Sort(LightDistanceComparator);
 		pointLights.Sort(PointLightDistanceComparator);
 
-		GeometryPass();
-		ShadowPass();
-		ReflectionProbePass();
-		AmbientOcclusionPass();
-		DeferredPass();
+		if (camera != null)
+		{
+			GeometryPass();
+			ShadowPass();
+			ReflectionProbePass();
+			AmbientOcclusionPass();
+			DeferredPass();
 
-		graphics.blit(forward.getAttachmentTexture(forward.attachmentCount - 1), gbuffer.getAttachmentTexture(gbuffer.attachmentCount - 1));
+			graphics.blit(forward.getAttachmentTexture(forward.attachmentCount - 1), gbuffer.getAttachmentTexture(gbuffer.attachmentCount - 1));
 
-		ForwardPass();
-		PostProcessing();
-		TonemappingPass();
+			ForwardPass();
+			PostProcessing();
+			TonemappingPass();
+		}
+
 		GUI.Draw((int)RenderPass.UI);
 
 		models.Clear();

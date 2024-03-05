@@ -125,7 +125,7 @@ namespace Rainfall
 			if (states.Count > 0)
 			{
 				states[0].update(model, stateAnimationTimers[0]);
-				Array.Copy(states[0].nodeAnimationLocalTransforms, nodeLocalTransforms, nodeLocalTransforms.Length);
+				Array.Copy(states[0].nodeAnimationLocalTransforms, nodeLocalTransforms, Math.Min(states[0].nodeAnimationLocalTransforms.Length, nodeLocalTransforms.Length));
 
 				for (int i = 1; i < states.Count; i++)
 				{

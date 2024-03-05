@@ -14,6 +14,7 @@
 
 #include <bgfx/bgfx.h>
 #include <bx/allocator.h>
+#include <bx/os.h>
 #include <bimg/decode.h>
 
 #include <string.h>
@@ -636,4 +637,65 @@ RFAPI void Graphics_GetRenderStats(bgfx::Stats* renderStats)
 {
 	const bgfx::Stats* stats = bgfx::getStats();
 	*renderStats = *stats;
+}
+
+static void MemoryString(int64_t mem, char* str)
+{
+	if (mem >= 1 << 30)
+		sprintf(str, "%.2f GB", mem / (float)(1 << 30));
+	else if (mem >= 1 << 20)
+		sprintf(str, "%.2f MB", mem / (float)(1 << 20));
+	else if (mem >= 1 << 10)
+		sprintf(str, "%.2f KB", mem / (float)(1 << 10));
+	else
+		sprintf(str, "%lld B", mem);
+}
+
+static const char* MemoryString(int64_t mem)
+{
+	static char str[32];
+	MemoryString(mem, str);
+	return str;
+}
+
+RFAPI int Graphics_DrawDebugInfo(int x, int y)
+{
+	const bgfx::Stats* stats = bgfx::getStats();
+
+	bgfx::dbgTextPrintf(x, y++, BX_CONFIG_DEBUG ? 0xc : 0xf
+		, "%s / " BX_COMPILER_NAME
+		" / " BX_CPU_NAME
+		" / " BX_ARCH_NAME
+		" / " BX_PLATFORM_NAME
+		" / Version 1.%d"
+		, bgfx::getRendererName(bgfx::getRendererType())
+		, BGFX_API_VERSION
+	);
+
+	bgfx::dbgTextPrintf(x, y++, 0xF, "%dx%d", stats->width, stats->height);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "%.2f ms, %d fps", Application_GetMS(), Application_GetFPS());
+
+	bgfx::dbgTextPrintf(x, y++, 0xF, "CPU: %.2f ms", (stats->cpuTimeEnd - stats->cpuTimeBegin) / (float)stats->cpuTimerFreq * 1000);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "GPU: %.2f ms", (stats->gpuTimeEnd - stats->gpuTimeBegin) / (float)stats->gpuTimerFreq * 1000);
+
+	y++;
+
+	bgfx::dbgTextPrintf(x, y++, 0xF, "%d allocations", Application_GetNumAllocations());
+	bgfx::dbgTextPrintf(x, y++, 0xF, "RAM: %s", MemoryString(bx::getProcessMemoryUsed()));
+
+	char gpuMemUsed[32];
+	char gpuMemMax[32];
+	MemoryString(stats->gpuMemoryUsed, gpuMemUsed);
+	MemoryString(stats->gpuMemoryMax, gpuMemMax);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "VRAM: %s/%s", gpuMemUsed, gpuMemMax);
+
+	bgfx::dbgTextPrintf(x, y++, 0xF, "Textures: %d, %s", stats->numTextures, MemoryString(stats->textureMemoryUsed));
+	bgfx::dbgTextPrintf(x, y++, 0xF, "RTs: %d, %s", stats->numFrameBuffers, MemoryString(stats->rtMemoryUsed));
+	bgfx::dbgTextPrintf(x, y++, 0xF, "Shaders : %d", stats->numShaders);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "Draw Calls: %d", stats->numDraw);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "Triangles: %d", stats->numPrims[0]);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "Computes: %d", stats->numCompute);
+	bgfx::dbgTextPrintf(x, y++, 0xF, "Blits: %d", stats->numBlit);
+
+	return y;
 }

@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 
 public class Entity : PhysicsEntity
 {
+	public string name;
+
 	public Vector3 position = Vector3.Zero;
 	public Quaternion rotation = Quaternion.Identity;
 	public Vector3 scale = Vector3.One;
 
 	public bool removed { get; private set; } = false;
 	public List<Action> removeCallbacks = new List<Action>();
+
+	public Model model = null;
+	public Animator animator = null;
+	public Matrix modelTransform = Matrix.Identity;
+
+	public RigidBody body = null;
 
 	public ParticleSystem particles = null;
 	public Vector3 particleOffset = Vector3.Zero;
@@ -24,16 +32,27 @@ public class Entity : PhysicsEntity
 
 	public virtual void destroy()
 	{
+		model?.destroy();
+		animator?.destroy();
 	}
 
 	public virtual void update()
 	{
+		if (animator != null)
+		{
+			animator.update();
+			animator.applyAnimation();
+		}
+		if (body != null)
+			body.getTransform(out position, out rotation);
 		if (particles != null)
 			particles.update(getModelMatrix(particleOffset));
 	}
 
 	public virtual void draw(GraphicsDevice graphics)
 	{
+		if (model != null)
+			Renderer.DrawModel(model, getModelMatrix() * modelTransform, animator);
 		if (particles != null)
 			Renderer.DrawParticleSystem(particles);
 	}

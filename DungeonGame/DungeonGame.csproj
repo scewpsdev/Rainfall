@@ -68,7 +68,7 @@
 	<PropertyGroup>
 		<PublishAot>true</PublishAot>
 		<RootNamespace />
-		<RunPostBuildEvent>Always</RunPostBuildEvent>
+		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 	</PropertyGroup>
 
 	<ItemGroup>

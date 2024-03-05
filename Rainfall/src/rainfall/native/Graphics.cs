@@ -76,7 +76,7 @@ namespace Rainfall
 		ushort textHeight;                //!< Debug text height in characters.
 
 		ushort numViews;                //!< Number of view stats.
-		IntPtr viewStats;               //!< Array of View stats.
+		ViewStats* viewStats;               //!< Array of View stats.
 
 		byte numEncoders;          //!< Number of encoders used during frame.
 		IntPtr encoderStats;         //!< Array of encoder stats.
@@ -87,6 +87,49 @@ namespace Rainfall
 		public int numShaders { get => _numPrograms; }
 		public int numTextures { get => _numTextures; }
 		public int numTriangles { get => (int)numPrims[0]; }
+
+		public float getCpuTime(ushort view)
+		{
+			for (int i = 0; i < numViews; i++)
+			{
+				if (viewStats[i].view == view)
+				{
+					return (viewStats[i].cpuTimeEnd - viewStats[i].cpuTimeBegin) / (float)cpuTimerFreq;
+				}
+			}
+			return 0.0f;
+		}
+
+		public float getGpuTime(ushort view)
+		{
+			for (int i = 0; i < numViews; i++)
+			{
+				if (viewStats[i].view == view)
+				{
+					return (viewStats[i].gpuTimeEnd - viewStats[i].gpuTimeBegin) / (float)gpuTimerFreq;
+				}
+			}
+			return 0.0f;
+		}
+
+		public float getCumulativeGpuTime(ushort view, int count)
+		{
+			float result = 0.0f;
+			for (ushort v = view; v < view + count; v++)
+				result += getGpuTime(v);
+			return result;
+		}
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	unsafe struct ViewStats
+	{
+		internal fixed byte name[256];      //!< View name.
+		internal ushort view;           //!< View id.
+		internal long cpuTimeBegin;   //!< CPU (submit) begin time.
+		internal long cpuTimeEnd;     //!< CPU (submit) end time.
+		internal long gpuTimeBegin;   //!< GPU begin time.
+		internal long gpuTimeEnd;     //!< GPU end time.
 	}
 
 	namespace Native
@@ -312,6 +355,9 @@ namespace Rainfall
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_GetRenderStats(out RenderStats renderStats);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern int Graphics_DrawDebugInfo(int x, int y);
 		}
 	}
 }
