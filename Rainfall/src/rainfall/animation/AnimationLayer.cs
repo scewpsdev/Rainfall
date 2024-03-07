@@ -13,6 +13,7 @@ namespace Rainfall
 	public class AnimationLayer
 	{
 		public Matrix[] nodeAnimationLocalTransforms { get; private set; }
+		public bool[] mask;
 
 		public string animationName;
 		public Model animationData;
@@ -36,8 +37,15 @@ namespace Rainfall
 
 			this.animationName = animationName;
 			this.looping = looping;
+			this.mask = mask;
 
 			this.animationData = animationData;
+		}
+
+		public void setMask(Node node, bool value)
+		{
+			if (mask != null)
+				mask[node.id] = value;
 		}
 
 		public unsafe void update(float timer)
@@ -157,8 +165,14 @@ namespace Rainfall
 
 		internal bool hasNode(string name)
 		{
-			uint nameHash = Hash.hash(name);
-			return animationData.skeleton.nameMap.ContainsKey(nameHash);
+			Node node = animationData.skeleton.getNode(name);
+			if (node != null)
+			{
+				if (mask != null)
+					return mask[node.id];
+				return true;
+			}
+			return false;
 		}
 
 		public unsafe float duration

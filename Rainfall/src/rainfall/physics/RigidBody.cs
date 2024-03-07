@@ -164,9 +164,9 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyAddCapsuleTrigger(body, radius, height, position, rotation, filterGroup, filterMask);
 		}
 
-		public void addMeshTrigger(IntPtr mesh, Vector3 position, Quaternion rotation)
+		public void addMeshTrigger(MeshCollider mesh, Matrix transform)
 		{
-			Native.Physics.Physics_RigidBodyAddMeshTrigger(body, mesh, position, rotation, filterGroup, filterMask);
+			Native.Physics.Physics_RigidBodyAddMeshTrigger(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask);
 		}
 
 		public void clearColliders()

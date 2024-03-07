@@ -777,9 +777,12 @@ namespace Physics
 		AddTrigger(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterGroup, filterMask, position, rotation);
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshTrigger(RigidBody* body, physx::PxTriangleMesh* mesh, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddMeshTrigger(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh), filterGroup, filterMask, position, rotation);
+		Vector3 position = transform.translation();
+		Quaternion rotation = transform.rotation();
+		Vector3 scale = transform.scale();
+		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation);
 	}
 
 	RFAPI void Physics_RigidBodyClearColliders(RigidBody* body)
