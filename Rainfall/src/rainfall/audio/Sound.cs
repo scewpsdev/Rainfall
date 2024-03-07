@@ -18,5 +18,13 @@ namespace Rainfall
 			this.handle = handle;
 			this.duration = duration;
 		}
+
+		public bool singleInstance
+		{
+			set
+			{
+				Native.Audio.Audio_SoundSetSingleInstance(handle, value);
+			}
+		}
 	}
 }

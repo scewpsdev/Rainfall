@@ -122,6 +122,11 @@ RFAPI void Audio_SourceSetLooping(uint32_t source, bool looping)
 	soloud.setLooping(source, looping);
 }
 
+RFAPI void Audio_SoundSetSingleInstance(AudioSource* sound, bool singleInstance)
+{
+	sound->setSingleInstance(singleInstance);
+}
+
 RFAPI void Audio_SetEffectNone()
 {
 	soloud.stop(reverbBusSource);

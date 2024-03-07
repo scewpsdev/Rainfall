@@ -156,6 +156,24 @@ public static class SceneFormat
 			lights = new List<LightData>();
 			particles = new List<ParticleSystem>();
 		}
+
+		public void load(string directory)
+		{
+			if (modelPath != null)
+				model = Resource.GetModel(directory + "/" + modelPath);
+			for (int i = 0; i < colliders.Count; i++)
+			{
+				ColliderData collider = colliders[i];
+				if (collider.type == ColliderType.Mesh && collider.meshColliderPath != null)
+					collider.meshCollider = Resource.GetModel(directory + "/" + collider.meshColliderPath);
+				colliders[i] = collider;
+			}
+			for (int i = 0; i < particles.Count; i++)
+			{
+				if (particles[i].textureAtlasPath != null)
+					particles[i].textureAtlas = Resource.GetTexture(directory + "/" + particles[i].textureAtlasPath);
+			}
+		}
 	}
 
 
@@ -340,8 +358,7 @@ public static class SceneFormat
 					collider.offset = offset;
 				if (colliders[i].obj.getVector3("rotation", out Vector3 eulers))
 					collider.eulers = eulers;
-				if (colliders[i].obj.getStringContent("mesh", out string meshColliderPath))
-					collider.meshColliderPath = meshColliderPath;
+				colliders[i].obj.getStringContent("mesh", out collider.meshColliderPath);
 				entity.colliders.Add(collider);
 			}
 		}
@@ -392,10 +409,8 @@ public static class SceneFormat
 				particle.getBoolean("applyEntityVelocity", out particleData.applyEntityVelocity);
 				particle.getBoolean("applyCentrifugalForce", out particleData.applyCentrifugalForce);
 
-				if (particle.getString("textureAtlas", out string textureAtlasPath))
+				if (particle.getString("textureAtlas", out particleData.textureAtlasPath))
 				{
-					particleData.textureAtlasPath = textureAtlasPath;
-
 					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
 						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
 					particle.getInteger("numFrames", out particleData.numFrames);

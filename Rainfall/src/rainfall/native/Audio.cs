@@ -56,6 +56,9 @@ namespace Rainfall.Native
 		internal static extern void Audio_SourceSetLooping(uint source, byte looping);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SoundSetSingleInstance(IntPtr sound, [MarshalAs(UnmanagedType.I1)] bool singleInstance);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SetEffectNone();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

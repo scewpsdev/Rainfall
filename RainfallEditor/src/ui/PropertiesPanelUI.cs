@@ -139,7 +139,7 @@ public static partial class EditorUI
 
 				if (collider.type == SceneFormat.ColliderType.Box)
 				{
-					DragFloat3(instance, "Size", "collider_size" + i, ref collider.size, 0.02f);
+					DragFloat3(instance, "Size", "collider_size" + i, ref collider.size, 0.02f, 0, 100);
 
 					/*
 					ImGui.TextUnformatted("Size");
