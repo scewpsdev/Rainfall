@@ -8,7 +8,9 @@ uniform vec4 u_atlasSize;
 
 uniform vec4 u_pointLight_position[16];
 uniform vec4 u_pointLight_color[16];
-uniform vec4 u_lightInfo; // numPointLights
+uniform vec4 u_lightInfo; // numPointLights, emissiveStrength
+#define u_numPointLights u_lightInfo[0]
+#define u_emissiveStrength u_lightInfo[1]
 
 
 vec3 L(vec3 color, float distanceSq)
@@ -32,8 +34,9 @@ vec3 CalculatePointLights(vec3 position, vec3 albedo)
 		float distanceSq = dot(lightPosition - position, lightPosition - position);
 		vec3 light = L(lightColor, distanceSq);
 
-		result += i < u_lightInfo[0] ? light * albedo : vec3(0.0, 0.0, 0.0);
+		result += i < u_numPointLights ? light * albedo : vec3(0.0, 0.0, 0.0);
 	}
+	result += u_emissiveStrength * albedo;
 
 	return result;
 }
@@ -62,5 +65,5 @@ void main()
 
 	vec3 final = CalculatePointLights(v_position, albedo.rgb);
 
-	gl_FragColor = vec4(albedo.rgb, albedo.a);
+	gl_FragColor = vec4(final, albedo.a);
 }

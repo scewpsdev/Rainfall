@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,28 +20,26 @@ namespace Rainfall
 			return root + "/" + path;
 		}
 
-		public static Entity Load(string path)
+		public static Entity CreateEntityFromData(SceneFormat.EntityData entityData, string path)
 		{
-			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
-			SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
-			stream.Close();
-
-			Debug.Assert(entities.Count == 1);
-
-			SceneFormat.EntityData entityData = entities[0];
 			Entity entity = new Entity();
 
 			entity.name = entityData.name;
+			entity.isStatic = entityData.isStatic;
+
 			entity.position = entityData.position;
 			entity.rotation = entityData.rotation;
 			entity.scale = entityData.scale;
+
 			if (entityData.modelPath != null)
 			{
 				entity.model = Resource.GetModel(CombinePath(entityData.modelPath, path));
-				entity.model.isStatic = entityData.isStatic;
+				if (entity.model != null)
+					entity.model.isStatic = entityData.isStatic;
 			}
-			entity.body = entityData.colliders.Count > 0 ? new RigidBody(entity, entityData.isStatic ? RigidBodyType.Static : RigidBodyType.Kinematic) : null;
 
+			if (entityData.colliders.Count > 0)
+				entity.body = new RigidBody(entity, entityData.rigidBodyType);
 			for (int i = 0; i < entityData.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData colliderData = entityData.colliders[i];
@@ -74,15 +73,36 @@ namespace Rainfall
 				}
 			}
 
-			if (entityData.particles.Count > 0)
+			for (int i = 0; i < entityData.lights.Count; i++)
 			{
-				entity.particles = new ParticleSystem(1000);
-				entity.particles.copyData(entityData.particles[0]);
-				if (entity.particles.textureAtlasPath != null)
-					entity.particles.textureAtlas = Resource.GetTexture(CombinePath(entity.particles.textureAtlasPath, path));
+				SceneFormat.LightData lightData = entityData.lights[i];
+				PointLight light = new PointLight(lightData.offset, lightData.color * lightData.intensity, Renderer.graphics);
+				entity.lights.Add(light);
+			}
+
+			for (int i = 0; i < entityData.particles.Count; i++)
+			{
+				ParticleSystem particles = new ParticleSystem(1000);
+				particles.copyData(entityData.particles[0]);
+				if (particles.textureAtlasPath != null)
+					particles.textureAtlas = Resource.GetTexture(CombinePath(particles.textureAtlasPath, path));
+				entity.particles.Add(particles);
 			}
 
 			return entity;
+		}
+
+		public static Entity Load(string path)
+		{
+			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
+			SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
+			stream.Close();
+
+			Debug.Assert(entities.Count == 1);
+
+			SceneFormat.EntityData entityData = entities[0];
+
+			return CreateEntityFromData(entityData, path);
 		}
 	}
 }

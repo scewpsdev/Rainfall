@@ -79,6 +79,12 @@ public static class Renderer
 		internal Vector3 color;
 	}
 
+	struct PointLightDrawCommand
+	{
+		internal PointLight light;
+		internal Vector3 position;
+	}
+
 	struct ReflectionProbeDrawCommand
 	{
 		internal ReflectionProbe reflectionProbe;
@@ -89,15 +95,7 @@ public static class Renderer
 
 	struct ParticleSystemDrawCommand
 	{
-		internal Particle[] particles;
-		internal List<int> particleIndices;
-		internal Matrix transform;
-		internal Vector3 spawnOffset;
-		internal bool follow;
-		internal Texture textureAtlas;
-		internal Vector2i atlasSize;
-		internal bool linearFiltering;
-		internal bool additive;
+		internal ParticleSystem particleSystem;
 	}
 
 	struct GrassDrawCommand
@@ -223,7 +221,7 @@ public static class Renderer
 	static List<SkyDrawCommand> skies = new List<SkyDrawCommand>();
 	static List<WaterDrawCommand> waterTiles = new List<WaterDrawCommand>();
 	static List<LightDrawCommand> lights = new List<LightDrawCommand>();
-	static List<PointLight> pointLights = new List<PointLight>();
+	static List<PointLightDrawCommand> pointLights = new List<PointLightDrawCommand>();
 	static List<DirectionalLight> directionalLights = new List<DirectionalLight>();
 	static List<ReflectionProbeDrawCommand> reflectionProbes = new List<ReflectionProbeDrawCommand>();
 	static List<ParticleSystemDrawCommand> particleSystems = new List<ParticleSystemDrawCommand>();
@@ -569,9 +567,9 @@ public static class Renderer
 		lights.Add(new LightDrawCommand { position = position, color = color });
 	}
 
-	public static void DrawPointLight(PointLight light)
+	public static void DrawPointLight(PointLight light, Vector3 position)
 	{
-		pointLights.Add(light);
+		pointLights.Add(new PointLightDrawCommand { light = light, position = position });
 	}
 
 	public static void DrawDirectionalLight(DirectionalLight light)
@@ -604,7 +602,7 @@ public static class Renderer
 		if (particleSystem.particleIndices.Count > 0)
 		{
 			particleSystem.setCameraAxis(camera.rotation.forward);
-			(particleSystem.additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particles = particleSystem.particles, particleIndices = particleSystem.particleIndices, transform = particleSystem.transform, spawnOffset = particleSystem.spawnOffset, follow = particleSystem.follow, textureAtlas = particleSystem.textureAtlas, atlasSize = particleSystem.atlasSize, linearFiltering = particleSystem.linearFiltering, additive = particleSystem.additive });
+			(particleSystem.additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particleSystem = particleSystem });
 		}
 	}
 
@@ -1043,11 +1041,11 @@ public static class Renderer
 		int numUpdatedPointShadows = 0;
 		for (int h = 0; h < pointLights.Count && numUpdatedPointShadows < MAX_POINT_SHADOWS; h++)
 		{
-			if (!pointLights[h].shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
+			if (!pointLights[h].light.shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
 				continue;
-			pointLights[h].shadowMap.needsUpdate = false;
+			pointLights[h].light.shadowMap.needsUpdate = false;
 
-			PointShadowMap shadowMap = pointLights[h].shadowMap;
+			PointShadowMap shadowMap = pointLights[h].light.shadowMap;
 
 			for (int i = 0; i < shadowMap.renderTargets.Length; i++)
 			{
@@ -1057,7 +1055,7 @@ public static class Renderer
 				graphics.setRenderTarget(shadowMap.renderTargets[i]);
 
 				Matrix shadowMapProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, shadowMap.nearPlane, 30.0f);
-				Matrix shadowMapView = cubemapFaceRotations[i] * Matrix.CreateTranslation(-pointLights[h].position);
+				Matrix shadowMapView = cubemapFaceRotations[i] * Matrix.CreateTranslation(-pointLights[h].position - pointLights[h].light.offset);
 				Matrix reflectionProbePV = shadowMapProjection * shadowMapView;
 				graphics.setViewTransform(shadowMapProjection, shadowMapView);
 
@@ -1313,13 +1311,13 @@ public static class Renderer
 			int numRemainingLights = Math.Min(pointLights.Count, MAX_POINT_SHADOWS);
 			for (int j = 0; j < numRemainingLights; j++)
 			{
-				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
-				pointLightColorBuffer[j] = new Vector4(pointLights[j].color, 0.0f);
-				pointLightShadowNears[j] = pointLights[j].shadowMap.nearPlane;
+				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position + pointLights[j].light.offset, 0.0f);
+				pointLightColorBuffer[j] = new Vector4(pointLights[j].light.color, 0.0f);
+				pointLightShadowNears[j] = pointLights[j].light.shadowMap.nearPlane;
 
 				StringUtils.WriteString(uniformName, "s_lightShadowMap");
 				StringUtils.AppendInteger(uniformName, j);
-				graphics.setTexture(shader, uniformName, 5 + j, pointLights[j].shadowMap.cubemap);
+				graphics.setTexture(shader, uniformName, 5 + j, pointLights[j].light.shadowMap.cubemap);
 			}
 
 			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_POINT_SHADOWS), pointLightPositionBuffer);
@@ -1502,8 +1500,8 @@ public static class Renderer
 	{
 		Vector3 cameraPosition = camera.position;
 		Vector3 cameraAxis = camera.rotation.forward;
-		float d1 = Vector3.Dot(particleSystem1.transform.translation - cameraPosition, cameraAxis);
-		float d2 = Vector3.Dot(particleSystem2.transform.translation - cameraPosition, cameraAxis);
+		float d1 = Vector3.Dot(particleSystem1.particleSystem.transform * particleSystem1.particleSystem.spawnOffset - cameraPosition, cameraAxis);
+		float d2 = Vector3.Dot(particleSystem2.particleSystem.transform * particleSystem2.particleSystem.spawnOffset - cameraPosition, cameraAxis);
 
 		return d1 < d2 ? 1 : d1 > d2 ? -1 : 0;
 	}
@@ -1589,7 +1587,7 @@ public static class Renderer
 			Vector3 cameraAxis = camera.rotation.forward;
 			for (int i = 0; i < particleSystems.Count; i++)
 			{
-				Vector3 toParticles = particleSystems[i].transform.translation - cameraPosition;
+				Vector3 toParticles = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset - cameraPosition;
 				float d = Vector3.Dot(toParticles, cameraAxis);
 				float l2 = Vector3.Dot(toParticles, toParticles);
 				if (d < 0.0f || l2 > maxParticleDistance * maxParticleDistance)
@@ -1605,26 +1603,26 @@ public static class Renderer
 
 			foreach (ParticleSystemDrawCommand draw in particleSystems)
 			{
-				int numParticles = draw.particleIndices.Count;
+				int numParticles = draw.particleSystem.particleIndices.Count;
 				graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
 
-				float scale = draw.transform.scale.x;
-				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
+				float scale = draw.particleSystem.transform.scale.x;
+				Vector3 globalSpawnPos = draw.particleSystem.transform * draw.particleSystem.spawnOffset;
 
-				if (draw.textureAtlas != null)
-					graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
-				graphics.setUniform(particleShader, "u_atlasSize", new Vector4(draw.atlasSize.x, draw.atlasSize.y, draw.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
+				if (draw.particleSystem.textureAtlas != null)
+					graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.particleSystem.textureAtlas, draw.particleSystem.linearFiltering ? 0 : (uint)SamplerFlags.Point);
+				graphics.setUniform(particleShader, "u_atlasSize", new Vector4(draw.particleSystem.atlasSize.x, draw.particleSystem.atlasSize.y, draw.particleSystem.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
 
 				for (int i = 0; i < numParticles; i++)
 				{
-					int particleID = draw.particleIndices[i];
-					Particle particle = draw.particles[particleID];
+					int particleID = draw.particleSystem.particleIndices[i];
+					Particle particle = draw.particleSystem.particles[particleID];
 					Debug.Assert(particle.active);
 
 					Vector3 position = particle.position;
 					float size = scale * particle.size;
 
-					if (draw.follow)
+					if (draw.particleSystem.follow)
 						position = globalSpawnPos + particle.position * scale;
 
 					unsafe
@@ -1652,7 +1650,7 @@ public static class Renderer
 				}
 				graphics.setUniform(particleShader.getUniform("u_pointLight_position", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightPositions);
 				graphics.setUniform(particleShader.getUniform("u_pointLight_color", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightColors);
-				graphics.setUniform(particleShader, "u_lightInfo", new Vector4(lights.Count + 0.5f, 0.0f, 0.0f, 0.0f));
+				graphics.setUniform(particleShader, "u_lightInfo", new Vector4(lights.Count + 0.5f, draw.particleSystem.emissiveIntensity, 0.0f, 0.0f));
 
 
 				graphics.draw(particleShader);
@@ -1670,7 +1668,7 @@ public static class Renderer
 			Vector3 cameraAxis = camera.rotation.forward;
 			for (int i = 0; i < particleSystemsAdditive.Count; i++)
 			{
-				Vector3 toParticles = particleSystemsAdditive[i].transform.translation - cameraPosition;
+				Vector3 toParticles = (particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset) - cameraPosition;
 				float d = Vector3.Dot(toParticles, cameraAxis);
 				float l2 = Vector3.Dot(toParticles, toParticles);
 				if (d < 0.0f || l2 > maxParticleDistance * maxParticleDistance)
@@ -1686,26 +1684,26 @@ public static class Renderer
 
 			foreach (ParticleSystemDrawCommand draw in particleSystemsAdditive)
 			{
-				int numParticles = draw.particleIndices.Count;
+				int numParticles = draw.particleSystem.particleIndices.Count;
 				graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
 
-				float scale = draw.transform.scale.x;
-				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
+				float scale = draw.particleSystem.transform.scale.x;
+				Vector3 globalSpawnPos = draw.particleSystem.transform * draw.particleSystem.spawnOffset;
 
-				if (draw.textureAtlas != null)
-					graphics.setTexture(particleAdditiveShader, "s_textureAtlas", 0, draw.textureAtlas, draw.linearFiltering ? 0 : (uint)SamplerFlags.Point);
-				graphics.setUniform(particleAdditiveShader, "u_atlasSize", new Vector4(draw.atlasSize.x, draw.atlasSize.y, draw.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
+				if (draw.particleSystem.textureAtlas != null)
+					graphics.setTexture(particleAdditiveShader, "s_textureAtlas", 0, draw.particleSystem.textureAtlas, draw.particleSystem.linearFiltering ? 0 : (uint)SamplerFlags.Point);
+				graphics.setUniform(particleAdditiveShader, "u_atlasSize", new Vector4(draw.particleSystem.atlasSize.x, draw.particleSystem.atlasSize.y, draw.particleSystem.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
 
 				for (int i = 0; i < numParticles; i++)
 				{
-					int particleID = draw.particleIndices[i];
-					Particle particle = draw.particles[particleID];
+					int particleID = draw.particleSystem.particleIndices[i];
+					Particle particle = draw.particleSystem.particles[particleID];
 					Debug.Assert(particle.active);
 
 					Vector3 position = particle.position;
 					float size = scale * particle.size;
 
-					if (draw.follow)
+					if (draw.particleSystem.follow)
 						position = globalSpawnPos + particle.position * scale;
 
 					unsafe
@@ -1998,10 +1996,10 @@ public static class Renderer
 		return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
 	}
 
-	static int PointLightDistanceComparator(PointLight light1, PointLight light2)
+	static int PointLightDistanceComparator(PointLightDrawCommand light1, PointLightDrawCommand light2)
 	{
-		Vector3 delta1 = light1.position - camera.position;
-		Vector3 delta2 = light2.position - camera.position;
+		Vector3 delta1 = light1.position + light1.light.offset - camera.position;
+		Vector3 delta2 = light2.position + light1.light.offset - camera.position;
 		float d1 = Vector3.Dot(delta1, delta1);
 		float d2 = Vector3.Dot(delta2, delta2);
 		return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;

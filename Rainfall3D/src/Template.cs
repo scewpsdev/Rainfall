@@ -90,22 +90,25 @@ internal class Program : Game
 		y = DebugStats.Draw(0, y, graphics);
 	}
 
-	public static void Main(string[] args)
+	static void CompileFolder(string folder, string outDir)
 	{
-#if DEBUG
-		string outDir = "bin\\Debug";
-		string projectDir = "D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME;
+		string projectDir = folder;
 		string resCompilerDir = "D:\\Dev\\2023\\Rainfall\\RainfallResourceCompiler\\bin\\x64\\Debug";
-		//string projectDir = "C:\\Users\\faris\\Documents\\Dev\\Rainfall";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + projectDir + "\\" + outDir + "\\net8.0\\res gltf fbx png hdr ogg dat shader ttf rfs";
+		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + outDir + "\\res gltf fbx png hdr ogg dat shader ttf rfs";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();
 		process.WaitForExit();
+	}
+
+	public static void Main(string[] args)
+	{
+#if DEBUG
+		CompileFolder("D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME, "D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME + "\\bin\\Debug\\net8.0");
 #endif
 
 		LaunchParams launchParams = new LaunchParams(args);

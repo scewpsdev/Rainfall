@@ -89,7 +89,7 @@ public class EditorInstance
 	{
 		foreach (Entity entity in entities)
 		{
-			if (entity.id == id)
+			if (entity.data.id == id)
 				return entity;
 		}
 		return null;
@@ -99,7 +99,7 @@ public class EditorInstance
 	{
 		foreach (Entity entity in entities)
 		{
-			if (entity.name == name)
+			if (entity.data.name == name)
 				return entity;
 		}
 		return null;
@@ -142,14 +142,14 @@ public class EditorInstance
 		string name = newEntityName();
 		Entity entity = new Entity(name);
 		entities.Add(entity);
-		selectedEntity = entity.id;
+		selectedEntity = entity.data.id;
 		notifyEdit();
 		return entity;
 	}
 
 	public void removeEntity(Entity entity)
 	{
-		if (selectedEntity == entity.id)
+		if (selectedEntity == entity.data.id)
 			selectedEntity = 0;
 		entity.destroy();
 		entities.Remove(entity);

@@ -164,7 +164,7 @@ internal class WallTorch : Entity, Interactable
 		float lightFlicker = 1.0f + 0.5f * flickerNoise.sample1f(Time.currentTime / 1e9f);
 		lightColor *= lightFlicker;
 
-		light.position = lightPosition;
+		light.offset = lightPosition;
 		light.color = lightColor;
 
 

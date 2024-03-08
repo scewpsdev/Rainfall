@@ -60,9 +60,9 @@ public static partial class EditorUI
 
 	static unsafe void Transform(Entity entity, EditorInstance instance)
 	{
-		DragFloat3(instance, "Position", "transform_position", ref entity.position, 0.02f);
-		DragFloat3Rotation(instance, "Rotation", "transform_rotation", ref entity.rotation, 1.0f);
-		DragFloat3(instance, "Scale", "transform_scale", ref entity.scale, 0.02f);
+		DragFloat3(instance, "Position", "transform_position", ref entity.data.position, 0.02f);
+		DragFloat3Rotation(instance, "Rotation", "transform_rotation", ref entity.data.rotation, 1.0f);
+		DragFloat3(instance, "Scale", "transform_scale", ref entity.data.scale, 0.02f);
 
 		/*
 		ImGui.TextUnformatted("Position");
@@ -98,7 +98,7 @@ public static partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Model", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			if (FileSelect(null, "model", ref entity.modelPath, "gltf"))
+			if (FileSelect(null, "model", ref entity.data.modelPath, "gltf"))
 			{
 				entity.reload();
 				instance.notifyEdit();
@@ -112,12 +112,21 @@ public static partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Collider", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			for (int i = 0; i < entity.colliders.Count; i++)
+			if (entity.data.colliders.Count > 0)
 			{
-				SceneFormat.ColliderData collider = entity.colliders[i];
+				Combo(instance, "Rigid Body Type", "body_type", ref entity.data.rigidBodyType, ImGuiComboFlags.HeightSmall);
+				ImGui.Separator();
+			}
+
+			for (int i = 0; i < entity.data.colliders.Count; i++)
+			{
+				SceneFormat.ColliderData collider = entity.data.colliders[i];
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
+				Combo(instance, "Collider Type", "collider_type" + i, ref collider.type, ImGuiComboFlags.HeightSmall);
+
+				/*
 				ImGui.TextUnformatted("Collider Type");
 				ImGui.SameLine(SPACING_X);
 				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
@@ -136,6 +145,7 @@ public static partial class EditorUI
 					if (collider.type != entity.colliders[i].type)
 						instance.notifyEdit();
 				}
+				*/
 
 				if (collider.type == SceneFormat.ColliderType.Box)
 				{
@@ -230,14 +240,14 @@ public static partial class EditorUI
 				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##collider_remove" + i))
 				{
-					entity.colliders.RemoveAt(i--);
+					entity.data.colliders.RemoveAt(i--);
 					instance.notifyEdit();
 					ImGui.SetCursorPos(cursorPos);
 					continue;
 				}
 				ImGui.SetCursorPos(cursorPos);
 
-				entity.colliders[i] = collider;
+				entity.data.colliders[i] = collider;
 
 				ImGui.Spacing();
 				ImGui.Separator();
@@ -247,7 +257,7 @@ public static partial class EditorUI
 			if (ImGui.Button("Add Collider"))
 			{
 				SceneFormat.ColliderData collider = new SceneFormat.ColliderData(new Vector3(2.0f));
-				entity.colliders.Add(collider);
+				entity.data.colliders.Add(collider);
 				instance.notifyEdit();
 			}
 
@@ -259,9 +269,9 @@ public static partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Lights", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			for (int i = 0; i < entity.lights.Count; i++)
+			for (int i = 0; i < entity.data.lights.Count; i++)
 			{
-				SceneFormat.LightData light = entity.lights[i];
+				SceneFormat.LightData light = entity.data.lights[i];
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
@@ -303,14 +313,14 @@ public static partial class EditorUI
 				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##light_remove" + i))
 				{
-					entity.lights.RemoveAt(i--);
+					entity.data.lights.RemoveAt(i--);
 					instance.notifyEdit();
 					ImGui.SetCursorPos(cursorPos);
 					continue;
 				}
 				ImGui.SetCursorPos(cursorPos);
 
-				entity.lights[i] = light;
+				entity.data.lights[i] = light;
 
 				ImGui.Spacing();
 				ImGui.Separator();
@@ -320,7 +330,7 @@ public static partial class EditorUI
 			if (ImGui.Button("Add Light"))
 			{
 				SceneFormat.LightData light = new SceneFormat.LightData(new Vector3(1.0f), 1.0f);
-				entity.lights.Add(light);
+				entity.data.lights.Add(light);
 				instance.notifyEdit();
 			}
 
@@ -340,7 +350,7 @@ public static partial class EditorUI
 
 				if (instance.selectedEntity != lastSelectedEntity)
 				{
-					StringUtils.WriteString(renameBuffer, selectedEntity.name);
+					StringUtils.WriteString(renameBuffer, selectedEntity.data.name);
 					lastSelectedEntity = instance.selectedEntity;
 				}
 
@@ -352,12 +362,12 @@ public static partial class EditorUI
 				{
 					if (ImGui.InputText("##entity_name", renameBufferPtr, (ulong)renameBuffer.Length, ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.EnterReturnsTrue))
 					{
-						selectedEntity.name = new string((sbyte*)renameBufferPtr);
+						selectedEntity.data.name = new string((sbyte*)renameBufferPtr);
 						instance.notifyEdit();
 					}
 				}
 
-				Checkbox(instance, "Static", "entity_static", ref selectedEntity.isStatic);
+				Checkbox(instance, "Static", "entity_static", ref selectedEntity.data.isStatic);
 
 				Transform(selectedEntity, instance);
 

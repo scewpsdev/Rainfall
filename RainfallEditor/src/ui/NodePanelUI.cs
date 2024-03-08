@@ -25,7 +25,7 @@ public static partial class EditorUI
 				if (ImGui.IsKeyPressed(KeyCode.F2))
 				{
 					renamingEntity = instance.selectedEntity;
-					StringUtils.WriteString(renamingEntityBuffer, instance.getEntity(renamingEntity).name);
+					StringUtils.WriteString(renamingEntityBuffer, instance.getEntity(renamingEntity).data.name);
 				}
 				if (ImGui.IsKeyPressed(KeyCode.Delete))
 				{
@@ -34,13 +34,13 @@ public static partial class EditorUI
 				if (ImGui.IsKeyPressed(KeyCode.Down))
 				{
 					Entity nextEntity = instance.getNextEntity(instance.selectedEntity);
-					instance.selectedEntity = nextEntity.id;
+					instance.selectedEntity = nextEntity.data.id;
 					instance.notifyEdit();
 				}
 				if (ImGui.IsKeyPressed(KeyCode.Up))
 				{
 					Entity nextEntity = instance.getPrevEntity(instance.selectedEntity);
-					instance.selectedEntity = nextEntity.id;
+					instance.selectedEntity = nextEntity.data.id;
 					instance.notifyEdit();
 				}
 			}
@@ -48,8 +48,8 @@ public static partial class EditorUI
 			for (int i = 0; i < instance.entities.Count; i++)
 			{
 				Entity entity = instance.entities[i];
-				bool selected = entity.id == instance.selectedEntity;
-				bool renaming = entity.id == renamingEntity;
+				bool selected = entity.data.id == instance.selectedEntity;
+				bool renaming = entity.data.id == renamingEntity;
 				if (renaming)
 				{
 					Vector2 cursorPos = ImGui.GetCursorPos();
@@ -66,7 +66,7 @@ public static partial class EditorUI
 
 							if (ImGui.InputText("##entity_rename", bufferPtr, (ulong)renamingEntityBuffer.Length, ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.EnterReturnsTrue))
 							{
-								entity.name = new string((sbyte*)bufferPtr);
+								entity.data.name = new string((sbyte*)bufferPtr);
 								instance.notifyEdit();
 								renamingEntity = 0;
 							}
@@ -83,14 +83,14 @@ public static partial class EditorUI
 				}
 				else
 				{
-					if (ImGui.TreeNodeEx(entity.name + "##entity_" + i, ImGuiTreeNodeFlags.Leaf | (selected ? ImGuiTreeNodeFlags.Selected : 0) | ImGuiTreeNodeFlags.SpanAvailWidth))
+					if (ImGui.TreeNodeEx(entity.data.name + "##entity_" + i, ImGuiTreeNodeFlags.Leaf | (selected ? ImGuiTreeNodeFlags.Selected : 0) | ImGuiTreeNodeFlags.SpanAvailWidth))
 					{
 						if (ImGui.IsItemHovered())
 							anyNodeHovered = true;
 
 						if (ImGui.IsItemHovered() && ImGui.IsMouseButtonPressed(MouseButton.Left))
 						{
-							instance.selectedEntity = entity.id;
+							instance.selectedEntity = entity.data.id;
 							instance.notifyEdit();
 						}
 
@@ -98,12 +98,12 @@ public static partial class EditorUI
 						{
 							if (ImGui.MenuItem("Rename"))
 							{
-								renamingEntity = entity.id;
-								StringUtils.WriteString(renamingEntityBuffer, instance.getEntity(renamingEntity).name);
+								renamingEntity = entity.data.id;
+								StringUtils.WriteString(renamingEntityBuffer, instance.getEntity(renamingEntity).data.name);
 							}
 							if (ImGui.MenuItem("Remove"))
 							{
-								entityToRemove = entity.id;
+								entityToRemove = entity.data.id;
 							}
 							ImGui.EndPopup();
 						}

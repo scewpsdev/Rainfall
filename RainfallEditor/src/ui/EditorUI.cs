@@ -423,7 +423,7 @@ public static unsafe partial class EditorUI
 					Matrix matrix = selectedEntity.getModelMatrix();
 					if (ImGuizmo.Manipulate(view, projection, currentManipulateOperation, GuizmoManipulateMode.LOCAL, ref matrix, null, snap))
 					{
-						matrix.decompose(out selectedEntity.position, out selectedEntity.rotation, out selectedEntity.scale);
+						matrix.decompose(out selectedEntity.data.position, out selectedEntity.data.rotation, out selectedEntity.data.scale);
 						manipulateEdited = true;
 					}
 					if (ImGui.IsMouseButtonReleased(MouseButton.Left) && manipulateEdited)

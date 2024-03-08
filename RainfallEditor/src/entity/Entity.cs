@@ -19,6 +19,9 @@ public class Entity
 	}
 
 
+	public SceneFormat.EntityData data;
+
+	/*
 	public Vector3 position = Vector3.Zero;
 	public Quaternion rotation = Quaternion.Identity;
 	public Vector3 scale = Vector3.One;
@@ -30,40 +33,46 @@ public class Entity
 	public string modelPath = null;
 	public Model model = null;
 
+	public RigidBodyType rigidBodyType;
 	public List<SceneFormat.ColliderData> colliders = new List<SceneFormat.ColliderData>();
 	public List<SceneFormat.LightData> lights = new List<SceneFormat.LightData>();
 	public List<ParticleSystem> particles = new List<ParticleSystem>();
+	*/
 
 
 	public Entity(string name)
 	{
-		this.name = name;
-		id = GenerateID();
+		data = new SceneFormat.EntityData(name, GenerateID());
+	}
+
+	public Entity(string name, uint id)
+	{
+		data = new SceneFormat.EntityData(name, id);
 	}
 
 	public void reload()
 	{
-		if (modelPath != null)
-			model = Resource.GetModel(RainfallEditor.CompileAsset(modelPath));
+		if (data.modelPath != null)
+			data.model = Resource.GetModel(RainfallEditor.CompileAsset(data.modelPath));
 		else
-			model = null;
+			data.model = null;
 
-		for (int i = 0; i < colliders.Count; i++)
+		for (int i = 0; i < data.colliders.Count; i++)
 		{
-			SceneFormat.ColliderData collider = colliders[i];
+			SceneFormat.ColliderData collider = data.colliders[i];
 			if (collider.meshColliderPath != null)
 				collider.meshCollider = Resource.GetModel(RainfallEditor.CompileAsset(collider.meshColliderPath));
 			else
 				collider.meshCollider = null;
-			colliders[i] = collider;
+			data.colliders[i] = collider;
 		}
 
-		for (int i = 0; i < particles.Count; i++)
+		for (int i = 0; i < data.particles.Count; i++)
 		{
-			if (particles[i].textureAtlasPath != null)
-				particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(particles[i].textureAtlasPath));
+			if (data.particles[i].textureAtlasPath != null)
+				data.particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(data.particles[i].textureAtlasPath));
 			else
-				particles[i].textureAtlas = null;
+				data.particles[i].textureAtlas = null;
 		}
 	}
 
@@ -78,24 +87,24 @@ public class Entity
 	public void update()
 	{
 		Matrix transform = getModelMatrix();
-		for (int i = 0; i < particles.Count; i++)
+		for (int i = 0; i < data.particles.Count; i++)
 		{
-			if (particles[i].bursts != null && particles[i].bursts.Count > 0 && particles[i].numParticles == 0)
+			if (data.particles[i].bursts != null && data.particles[i].bursts.Count > 0 && data.particles[i].numParticles == 0)
 			{
 				bool allBurstsEmitted = true;
-				for (int j = 0; j < particles[i].bursts.Count; j++)
+				for (int j = 0; j < data.particles[i].bursts.Count; j++)
 				{
-					if (particles[i].bursts[j].emitted < particles[i].bursts[j].count)
+					if (data.particles[i].bursts[j].emitted < data.particles[i].bursts[j].count)
 					{
 						allBurstsEmitted = false;
 						break;
 					}
 				}
 				if (allBurstsEmitted)
-					particles[i].restartEffect();
+					data.particles[i].restartEffect();
 			}
 
-			particles[i].update(transform);
+			data.particles[i].update(transform);
 		}
 	}
 
@@ -103,21 +112,21 @@ public class Entity
 	{
 		Matrix transform = getModelMatrix();
 
-		if (model != null)
-			Renderer.DrawModel(model, transform);
+		if (data.model != null)
+			Renderer.DrawModel(data.model, transform);
 
-		for (int i = 0; i < lights.Count; i++)
+		for (int i = 0; i < data.lights.Count; i++)
 		{
-			Renderer.DrawLight(transform * lights[i].offset, lights[i].color * lights[i].intensity);
+			Renderer.DrawLight(transform * data.lights[i].offset, data.lights[i].color * data.lights[i].intensity);
 		}
 
-		if (RainfallEditor.instance.currentTab.selectedEntity == id)
+		if (RainfallEditor.instance.currentTab.selectedEntity == data.id)
 		{
 			// Debug colliders
 			Vector4 color = new Vector4(0, 1, 0, 1);
-			for (int i = 0; i < colliders.Count; i++)
+			for (int i = 0; i < data.colliders.Count; i++)
 			{
-				SceneFormat.ColliderData collider = colliders[i];
+				SceneFormat.ColliderData collider = data.colliders[i];
 
 				if (collider.type == SceneFormat.ColliderType.Box)
 				{
@@ -142,15 +151,15 @@ public class Entity
 			}
 		}
 
-		for (int i = 0; i < particles.Count; i++)
+		for (int i = 0; i < data.particles.Count; i++)
 		{
-			Renderer.DrawParticleSystem(particles[i]);
+			Renderer.DrawParticleSystem(data.particles[i]);
 		}
 	}
 
 	ParticleSystem getParticlesByName(string name)
 	{
-		foreach (ParticleSystem particle in particles)
+		foreach (ParticleSystem particle in data.particles)
 		{
 			if (particle.name == name)
 				return particle;
@@ -171,7 +180,7 @@ public class Entity
 
 	public Matrix getModelMatrix(Vector3 offset)
 	{
-		return Matrix.CreateTranslation(position + offset) * Matrix.CreateRotation(rotation) * Matrix.CreateScale(scale);
+		return Matrix.CreateTranslation(data.position + offset) * Matrix.CreateRotation(data.rotation) * Matrix.CreateScale(data.scale);
 	}
 
 	public Matrix getModelMatrix()

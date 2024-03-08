@@ -11,7 +11,7 @@ public class PointLight
 	const int RESOLUTION = 512;
 
 
-	public Vector3 position;
+	public Vector3 offset;
 	public Vector3 color;
 
 	public PointShadowMap shadowMap;
@@ -19,7 +19,7 @@ public class PointLight
 
 	public PointLight(Vector3 position, Vector3 color, GraphicsDevice graphics, float nearPlane = 0.1f)
 	{
-		this.position = position;
+		this.offset = position;
 		this.color = color;
 
 		shadowMap = new PointShadowMap(RESOLUTION, nearPlane, graphics);

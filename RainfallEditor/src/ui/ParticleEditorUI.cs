@@ -15,9 +15,9 @@ public partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Particles", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			for (int i = 0; i < entity.particles.Count; i++)
+			for (int i = 0; i < entity.data.particles.Count; i++)
 			{
-				ParticleSystem particles = entity.particles[i];
+				ParticleSystem particles = entity.data.particles[i];
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
@@ -261,11 +261,13 @@ public partial class EditorUI
 					//if (ImGui.Checkbox("##additive" + i, &additive))
 					//	particles.additive = additive != 0;
 
+					DragFloat(instance, "Emissive Intensity", "particle_emissive_intensity" + i, ref particles.emissiveIntensity, 0.005f, 0, 100);
+
 					ImGui.Spacing();
 					ImGui.Spacing();
 					ImGui.Spacing();
 
-					DragFloat(instance, "Randomize Velocity", "particle_random_velocity" + i, ref particles.randomVelocity, 0.001f, 0, 100);
+					DragFloat3(instance, "Randomize Velocity", "particle_random_velocity" + i, ref particles.randomVelocity, 0.001f, 0, 100);
 
 					//ImGui.TextUnformatted("Randomize Velocity");
 					//ImGui.SameLine(SPACING_X);
@@ -440,7 +442,7 @@ public partial class EditorUI
 				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##particles_remove" + i))
 				{
-					entity.particles.RemoveAt(i--);
+					entity.data.particles.RemoveAt(i--);
 					instance.notifyEdit();
 					ImGui.SetCursorPos(cursorPos);
 					continue;
@@ -456,7 +458,7 @@ public partial class EditorUI
 			{
 				ParticleSystem particles = new ParticleSystem(1000);
 				particles.name = entity.newParticleName();
-				entity.particles.Add(particles);
+				entity.data.particles.Add(particles);
 				instance.notifyEdit();
 			}
 

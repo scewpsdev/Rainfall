@@ -197,6 +197,8 @@ public unsafe class RainfallEditor : Game
 	{
 		if (path == null)
 			return null;
+		if (root == null)
+			return path;
 		root = Path.GetDirectoryName(root);
 		return Path.GetRelativePath(root, path);
 	}
@@ -214,21 +216,11 @@ public unsafe class RainfallEditor : Game
 		List<SceneFormat.EntityData> entities = new List<SceneFormat.EntityData>(instance.entities.Count);
 		for (int i = 0; i < instance.entities.Count; i++)
 		{
-			Entity entity = instance.entities[i];
-			SceneFormat.EntityData entityData = new SceneFormat.EntityData
-			{
-				name = entity.name,
-				id = entity.id,
-				isStatic = entity.isStatic,
-				position = entity.position,
-				rotation = entity.rotation,
-				scale = entity.scale,
-				modelPath = RelativePath(entity.modelPath, instance.path),
-				model = entity.model,
-				colliders = new List<SceneFormat.ColliderData>(entity.colliders),
-				lights = new List<SceneFormat.LightData>(entity.lights),
-				particles = new List<ParticleSystem>(entity.particles),
-			};
+			SceneFormat.EntityData entityData = instance.entities[i].data;
+			entityData.modelPath = RelativePath(entityData.modelPath, instance.path);
+			entityData.colliders = new List<SceneFormat.ColliderData>(entityData.colliders);
+			entityData.lights = new List<SceneFormat.LightData>(entityData.lights);
+			entityData.particles = new List<ParticleSystem>(entityData.particles);
 
 			for (int j = 0; j < entityData.colliders.Count; j++)
 			{
@@ -240,9 +232,10 @@ public unsafe class RainfallEditor : Game
 			for (int j = 0; j < entityData.particles.Count; j++)
 			{
 				ParticleSystem particles = new ParticleSystem(0);
-				particles.copyData(entity.particles[j]);
+				particles.copyData(entityData.particles[j]);
 				if (particles.textureAtlasPath != null)
 					particles.textureAtlasPath = RelativePath(particles.textureAtlasPath, instance.path);
+				entityData.particles[j] = particles;
 			}
 
 			entities.Add(entityData);
@@ -252,59 +245,35 @@ public unsafe class RainfallEditor : Game
 
 	public static void FromEntityData(List<SceneFormat.EntityData> entities, EditorInstance instance)
 	{
-		/*
-		public Vector3 position;
-		public Quaternion rotation;
-		public Vector3 scale;
-
-		public string name;
-		public uint id;
-
-		public string modelPath;
-		public Model model;
-
-		public List<ColliderData> colliders;
-		public List<LightData> lights;
-		public List<ParticleSystem> particles;
-		 */
 		instance.reset();
 
 		bool deselectEntity = true;
 		for (int i = 0; i < entities.Count; i++)
 		{
-			SceneFormat.EntityData entityData = entities[i];
-			Entity entity = new Entity(entityData.name)
+			Entity entity = new Entity(entities[i].name, entities[i].id);
+			entity.data = entities[i];
+			entity.data.modelPath = AbsolutePath(entity.data.modelPath, instance.path);
+			entity.data.colliders = new List<SceneFormat.ColliderData>(entities[i].colliders);
+			entity.data.lights = new List<SceneFormat.LightData>(entities[i].lights);
+			entity.data.particles = new List<ParticleSystem>(entities[i].particles);
+			for (int j = 0; j < entity.data.colliders.Count; j++)
 			{
-				name = entityData.name,
-				id = entityData.id,
-				isStatic = entityData.isStatic,
-				position = entityData.position,
-				rotation = entityData.rotation,
-				scale = entityData.scale,
-				modelPath = AbsolutePath(entityData.modelPath, instance.path),
-				model = entityData.model,
-				colliders = new List<SceneFormat.ColliderData>(entityData.colliders),
-				lights = new List<SceneFormat.LightData>(entityData.lights),
-				particles = new List<ParticleSystem>(entityData.particles),
-			};
-
-			for (int j = 0; j < entity.colliders.Count; j++)
-			{
-				SceneFormat.ColliderData collider = entity.colliders[j];
+				SceneFormat.ColliderData collider = entity.data.colliders[j];
 				if (collider.type == SceneFormat.ColliderType.Mesh && collider.meshColliderPath != null)
 					collider.meshColliderPath = AbsolutePath(collider.meshColliderPath, instance.path);
-				entity.colliders[j] = collider;
+				entity.data.colliders[j] = collider;
 			}
-			for (int j = 0; j < entity.particles.Count; j++)
+			for (int j = 0; j < entity.data.particles.Count; j++)
 			{
-				ParticleSystem particles = new ParticleSystem(0);
-				particles.copyData(entityData.particles[j]);
+				ParticleSystem particles = new ParticleSystem(1000);
+				particles.copyData(entity.data.particles[j]);
 				if (particles.textureAtlasPath != null)
 					particles.textureAtlasPath = AbsolutePath(particles.textureAtlasPath, instance.path);
+				entity.data.particles[j] = particles;
 			}
 
 			entity.reload();
-			if (entityData.id == instance.selectedEntity)
+			if (entity.data.id == instance.selectedEntity)
 				deselectEntity = false;
 
 			instance.entities.Add(entity);
