@@ -26,8 +26,8 @@ void main()
 	float blend = fract(frameIdx);
 	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), mix(frameColor, nextFrameColor, blend), u_atlasSize.z);
 	vec4 albedo = textureColor * v_color0;
-	if (albedo.a < 0.5)
+	if (albedo.a < 0.001)
 		discard;
 
-	gl_FragColor = albedo;
+	gl_FragColor = vec4(albedo.rgb * albedo.a, 1.0);
 }

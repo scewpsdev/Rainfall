@@ -128,17 +128,18 @@ public static class SceneFormat
 
 	public struct EntityData
 	{
-		public Vector3 position;
-		public Quaternion rotation;
-		public Vector3 scale;
-
 		public string name;
 		public uint id;
 		public bool isStatic;
 
+		public Vector3 position;
+		public Quaternion rotation;
+		public Vector3 scale;
+
 		public string modelPath;
 		public Model model;
 
+		public RigidBodyType rigidBodyType;
 		public List<ColliderData> colliders;
 		public List<LightData> lights;
 		public List<ParticleSystem> particles;
@@ -160,7 +161,10 @@ public static class SceneFormat
 		public void load(string directory)
 		{
 			if (modelPath != null)
+			{
 				model = Resource.GetModel(directory + "/" + modelPath);
+				model.isStatic = isStatic;
+			}
 			for (int i = 0; i < colliders.Count; i++)
 			{
 				ColliderData collider = colliders[i];
@@ -190,6 +194,9 @@ public static class SceneFormat
 
 		if (entity.modelPath != null)
 			obj.addString("model", entity.modelPath);
+
+		if (entity.colliders.Count > 0)
+			obj.addIdentifier("rigidBodyType", entity.rigidBodyType.ToString());
 
 		DatArray colliders = new DatArray();
 		for (int i = 0; i < entity.colliders.Count; i++)
@@ -259,8 +266,9 @@ public static class SceneFormat
 
 			particle.addVector4("color", particleData.color);
 			particle.addBoolean("additive", particleData.additive);
+			particle.addNumber("emissiveIntensity", particleData.emissiveIntensity);
 
-			particle.addNumber("randomVelocity", particleData.randomVelocity);
+			particle.addVector3("randomVelocity", particleData.randomVelocity);
 			particle.addNumber("randomRotation", particleData.randomRotation);
 			particle.addNumber("randomRotationSpeed", particleData.randomRotationSpeed);
 			particle.addNumber("randomLifetime", particleData.randomLifetime);
@@ -345,6 +353,9 @@ public static class SceneFormat
 		obj.getVector3("scale", out entity.scale);
 		obj.getStringContent("model", out entity.modelPath);
 
+		if (obj.getIdentifier("rigidBodyType", out string rigidBodyType))
+			entity.rigidBodyType = Utils.ParseEnum<RigidBodyType>(rigidBodyType);
+
 		if (obj.getArray("colliders", out DatArray colliders))
 		{
 			for (int i = 0; i < colliders.size; i++)
@@ -419,8 +430,9 @@ public static class SceneFormat
 
 				particle.getVector4("color", out particleData.color);
 				particle.getBoolean("additive", out particleData.additive);
+				particle.getNumber("emissiveIntensity", out particleData.emissiveIntensity);
 
-				particle.getNumber("randomVelocity", out particleData.randomVelocity);
+				particle.getVector3("randomVelocity", out particleData.randomVelocity);
 				particle.getNumber("randomRotation", out particleData.randomRotation);
 				particle.getNumber("randomRotationSpeed", out particleData.randomRotationSpeed);
 				particle.getNumber("randomLifetime", out particleData.randomLifetime);

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 public class Entity : PhysicsEntity
 {
 	public string name;
+	public bool isStatic;
 
 	public Vector3 position = Vector3.Zero;
 	public Quaternion rotation = Quaternion.Identity;
@@ -22,12 +23,16 @@ public class Entity : PhysicsEntity
 
 	public RigidBody body = null;
 
-	public ParticleSystem particles = null;
-	public Vector3 particleOffset = Vector3.Zero;
+	public List<PointLight> lights = new List<PointLight>();
+
+	public List<ParticleSystem> particles = new List<ParticleSystem>();
+	//public Vector3 particleOffset = Vector3.Zero;
 
 
 	public virtual void init()
 	{
+		if (body != null && !isStatic)
+			body.setTransform(position, rotation);
 	}
 
 	public virtual void destroy()
@@ -45,16 +50,23 @@ public class Entity : PhysicsEntity
 		}
 		if (body != null)
 			body.getTransform(out position, out rotation);
-		if (particles != null)
-			particles.update(getModelMatrix(particleOffset));
+		for (int i = 0; i < particles.Count; i++)
+			particles[i].update(getModelMatrix());
 	}
 
 	public virtual void draw(GraphicsDevice graphics)
 	{
 		if (model != null)
 			Renderer.DrawModel(model, getModelMatrix() * modelTransform, animator);
-		if (particles != null)
-			Renderer.DrawParticleSystem(particles);
+		for (int i = 0; i < lights.Count; i++)
+		{
+			if (isStatic)
+				Renderer.DrawPointLight(lights[i], position);
+			else
+				Renderer.DrawLight(position + lights[i].offset, lights[i].color);
+		}
+		for (int i = 0; i < particles.Count; i++)
+			Renderer.DrawParticleSystem(particles[i]);
 	}
 
 	public void remove()

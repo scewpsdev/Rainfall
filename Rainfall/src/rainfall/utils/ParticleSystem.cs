@@ -104,8 +104,9 @@ public class ParticleSystem
 
 	public Vector4 color = Vector4.One;
 	public bool additive = false;
+	public float emissiveIntensity = 0.0f;
 
-	public float randomVelocity = 0.0f;
+	public Vector3 randomVelocity = Vector3.Zero;
 	public float randomRotation = 0.0f;
 	public float randomRotationSpeed = 0.0f;
 	public float randomLifetime = 0.0f;
@@ -282,8 +283,8 @@ public class ParticleSystem
 						velocity += centrifugalVelocity;
 					}
 				}
-				if (randomVelocity > 0)
-					velocity += MathHelper.RandomVector3(random) * randomVelocity;
+				if (randomVelocity.lengthSquared > 0)
+					velocity += MathHelper.RandomVector3(-1, 1, random).normalized * randomVelocity;
 				if (radialVelocity > 0)
 					velocity += (transform * new Vector4(localPosition, 0.0f)).xyz.normalized * radialVelocity;
 

@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 
-			std::string assetTableFile = outputDirectory + std::string("\\asset_table");
+			std::string assetTableFile = rootDirectory.string() + std::string("\\asset_table");
 
 			TryLoadAssetTable(assetTableFile.c_str());
 
