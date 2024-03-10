@@ -56,34 +56,34 @@ namespace Rainfall.Native
 		internal static extern void Physics_DestroyHeightField(IntPtr heightField);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddSphereCollider(IntPtr body, float radius, Vector3 position, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern void Physics_RigidBodyAddSphereCollider(IntPtr body, float radius, Vector3 position, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddBoxCollider(IntPtr body, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern void Physics_RigidBodyAddBoxCollider(IntPtr body, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddCapsuleCollider(IntPtr body, float radius, float height, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern void Physics_RigidBodyAddCapsuleCollider(IntPtr body, float radius, float height, Vector3 position, Quaternion rotation, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern void Physics_RigidBodyAddMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe void Physics_RigidBodyAddConvexMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern unsafe void Physics_RigidBodyAddConvexMeshCollider(IntPtr body, IntPtr mesh, Matrix transform, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddHeightFieldCollider(IntPtr body, IntPtr heightField, Vector3 scale, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+		internal static extern void Physics_RigidBodyAddHeightFieldCollider(IntPtr body, IntPtr heightField, Vector3 scale, Matrix transform, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddSphereTrigger(IntPtr body, float radius, Vector3 position, uint filterGroup, uint filterMask);
+		internal static extern void Physics_RigidBodyAddSphereTrigger(IntPtr body, float radius, Vector3 position, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddBoxTrigger(IntPtr body, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask);
+		internal static extern void Physics_RigidBodyAddBoxTrigger(IntPtr body, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddCapsuleTrigger(IntPtr body, float radius, float height, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask);
+		internal static extern void Physics_RigidBodyAddCapsuleTrigger(IntPtr body, float radius, float height, Vector3 position, Quaternion rotation, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RigidBodyAddMeshTrigger(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask);
+		internal static extern void Physics_RigidBodyAddMeshTrigger(IntPtr body, IntPtr mesh, Matrix transform, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyClearColliders(IntPtr body);
@@ -134,7 +134,7 @@ namespace Rainfall.Native
 		internal static extern void Physics_CharacterControllerSetPosition(IntPtr controller, Vector3 position);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern ControllerCollisionFlag Physics_MoveCharacterController(IntPtr controller, Vector3 delta, uint filterGroup, uint filterMask);
+		internal static extern ControllerCollisionFlag Physics_MoveCharacterController(IntPtr controller, Vector3 delta, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Physics_CreateRagdoll();
@@ -149,10 +149,10 @@ namespace Rainfall.Native
 		internal static extern IntPtr Physics_RagdollAddLinkEmpty(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_RagdollAddLinkCapsule(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, float radius, float halfHeight, Vector3 capsulePosition, Quaternion capsuleRotation, uint filterGroup, uint filterMask);
+		internal static extern IntPtr Physics_RagdollAddLinkCapsule(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, float radius, float halfHeight, Vector3 capsulePosition, Quaternion capsuleRotation, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_RagdollAddLinkBox(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, Vector3 halfExtents, Vector3 capsulePosition, Quaternion capsuleRotation, uint filterGroup, uint filterMask);
+		internal static extern IntPtr Physics_RagdollAddLinkBox(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, Vector3 halfExtents, Vector3 capsulePosition, Quaternion capsuleRotation, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RagdollLinkSetSwingLimit(IntPtr link, float zLimit, float yLimit);

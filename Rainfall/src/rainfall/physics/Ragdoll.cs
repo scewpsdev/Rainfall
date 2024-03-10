@@ -44,7 +44,7 @@ namespace Rainfall
 		public readonly PhysicsEntity entity;
 
 		IntPtr ragdoll;
-		uint filterGroup, filterMask;
+		uint filterMask;
 
 		Dictionary<string, BoneHitbox> hitboxData;
 		public readonly List<RigidBody> hitboxes = new List<RigidBody>();
@@ -58,13 +58,12 @@ namespace Rainfall
 		public readonly Animator animator;
 
 
-		public Ragdoll(PhysicsEntity entity, Model model, Node rootNode, Animator animator, Matrix transform, Dictionary<string, BoneHitbox> hitboxData = null, uint filterGroup = 1, uint filterMask = 0x0000FFFF)
+		public Ragdoll(PhysicsEntity entity, Model model, Node rootNode, Animator animator, Matrix transform, Dictionary<string, BoneHitbox> hitboxData = null, uint filterMask = 1)
 		{
 			this.entity = entity;
 			this.rootNode = rootNode;
 			this.animator = animator;
 			this.hitboxData = hitboxData;
-			this.filterGroup = filterGroup;
 			this.filterMask = filterMask;
 
 			init(transform);
@@ -124,7 +123,7 @@ namespace Rainfall
 
 							//ragdollColliderData.Add(node, new Tuple<Vector3, Vector3>(midPoint, halfExtents));
 
-							link = Native.Physics.Physics_RagdollAddLinkBox(ragdoll, parentLink, globalTransformInDefaultPose.translation, globalTransformInDefaultPose.rotation, velocity, rotationVelocity.eulers, halfExtents, midPoint, Quaternion.Identity, filterGroup, filterMask);
+							link = Native.Physics.Physics_RagdollAddLinkBox(ragdoll, parentLink, globalTransformInDefaultPose.translation, globalTransformInDefaultPose.rotation, velocity, rotationVelocity.eulers, halfExtents, midPoint, Quaternion.Identity, filterMask);
 							Native.Physics.Physics_RagdollLinkSetGlobalTransform(link, globalTransform.translation, globalTransform.rotation);
 						}
 						else
@@ -141,7 +140,7 @@ namespace Rainfall
 
 							//ragdollColliderData.Add(node, new Tuple<Vector3, Vector3>(midPoint, new Vector3(radius, 0.5f * height, radius)));
 
-							link = Native.Physics.Physics_RagdollAddLinkCapsule(ragdoll, parentLink, globalTransformInDefaultPose.translation, globalTransformInDefaultPose.rotation, velocity, rotationVelocity.eulers, radius, 0.5f * height - radius, midPoint, Quaternion.Identity, filterGroup, filterMask);
+							link = Native.Physics.Physics_RagdollAddLinkCapsule(ragdoll, parentLink, globalTransformInDefaultPose.translation, globalTransformInDefaultPose.rotation, velocity, rotationVelocity.eulers, radius, 0.5f * height - radius, midPoint, Quaternion.Identity, filterMask);
 							Native.Physics.Physics_RagdollLinkSetGlobalTransform(link, globalTransform.translation, globalTransform.rotation);
 						}
 					}
@@ -152,7 +151,7 @@ namespace Rainfall
 
 					if (link != IntPtr.Zero)
 					{
-						RigidBody body = new RigidBody(entity, link, this, filterGroup, filterMask);
+						RigidBody body = new RigidBody(entity, link, this, filterMask);
 						hitboxes.Add(body);
 						RigidBody.bodies.Add(link, body);
 

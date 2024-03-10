@@ -204,7 +204,7 @@ public static unsafe partial class EditorUI
 		ImGui.SameLine(SPACING_X);
 		ImGui.SetNextItemWidth(ITEM_WIDTH);
 		byte newValue = (byte)(v ? 1 : 0);
-		if (ImGui.Checkbox("##" + label, &newValue))
+		if (ImGui.Checkbox("##" + sid, &newValue))
 		{
 			v = newValue != 0;
 			instance.notifyEdit();
@@ -226,6 +226,23 @@ public static unsafe partial class EditorUI
 			instance.notifyEdit();
 		}
 		ImGui.PopStyleVar();
+		return openSettings;
+	}
+
+	public static unsafe bool TreeNodeRemovable(EditorInstance instance, string label, string sid, out bool removed)
+	{
+		Vector2 topRight = ImGui.GetCursorPos();
+		ImGui.SetNextItemAllowOverlap();
+		bool openSettings = ImGui.TreeNodeEx(label + "##" + sid + "_settings");
+		ImGui.SameLine(SPACING_X);
+		ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
+		if (ImGui.SmallButton("X##" + sid + "_close"))
+		{
+			instance.notifyEdit();
+			removed = true;
+			return openSettings;
+		}
+		removed = false;
 		return openSettings;
 	}
 

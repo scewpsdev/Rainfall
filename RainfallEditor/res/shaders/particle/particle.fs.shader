@@ -38,6 +38,9 @@ vec3 CalculatePointLights(vec3 position, vec3 albedo)
 	}
 	result += u_emissiveStrength * albedo;
 
+	// ambient
+	result += 1.0 * albedo;
+
 	return result;
 }
 

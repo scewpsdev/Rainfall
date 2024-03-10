@@ -86,6 +86,13 @@ namespace Rainfall
 			return t * t * (3.0f - 2.0f * t);
 		}
 
+		public static void Swap(ref float a, ref float b)
+		{
+			float tmp = a;
+			a = b;
+			b = tmp;
+		}
+
 		public static Vector4 ARGBToVector(uint argb)
 		{
 			byte r = (byte)((argb & 0xFF0000) >> 16);
@@ -104,9 +111,9 @@ namespace Rainfall
 			return new Vector3(rr, gg, bb);
 		}
 
-		public static Vector2i WorldToScreenSpace(Vector3 p, Matrix vp, Vector2i displaySize)
+		public static Vector2i WorldToScreenSpace(Vector3 p, Matrix pv, Vector2i displaySize)
 		{
-			Vector4 clipSpacePosition = vp * new Vector4(p, 1.0f);
+			Vector4 clipSpacePosition = pv * new Vector4(p, 1.0f);
 			Vector3 ndcSpacePosition = clipSpacePosition.xyz / clipSpacePosition.w;
 			if (ndcSpacePosition.z >= -1.0f && ndcSpacePosition.z <= 1.0f)
 			{
@@ -168,16 +175,6 @@ namespace Rainfall
 			return RandomVector2(min, max, Random.Shared);
 		}
 
-		public static Vector3 RandomVector3(Random random)
-		{
-			return RandomVector3(-1, 1, random).normalized;
-		}
-
-		public static Vector3 RandomVector3()
-		{
-			return RandomVector3(Random.Shared);
-		}
-
 		public static Vector3 RandomVector3(float min, float max, Random random)
 		{
 			return new Vector3(RandomFloat(min, max, random), RandomFloat(min, max, random), RandomFloat(min, max, random));
@@ -186,6 +183,37 @@ namespace Rainfall
 		public static Vector3 RandomVector3(float min, float max)
 		{
 			return RandomVector3(min, max, Random.Shared);
+		}
+
+		static float nextGaussian = float.MaxValue;
+		public static float RandomGaussian()
+		{
+			if (nextGaussian == float.MaxValue)
+			{
+				float u1 = Random.Shared.NextSingle();
+				float u2 = Random.Shared.NextSingle();
+				float r = MathF.Sqrt(-2 * MathF.Log(u1));
+				float t = 2 * MathF.PI * u2;
+				float x = r * MathF.Cos(t);
+				float y = r * MathF.Sin(t);
+				nextGaussian = y;
+				return x;
+			}
+			else
+			{
+				float r = nextGaussian;
+				nextGaussian = float.MaxValue;
+				return r;
+			}
+		}
+
+		public static Vector3 RandomPointOnSphere()
+		{
+			float x = RandomGaussian();
+			float y = RandomGaussian();
+			float z = RandomGaussian();
+			Vector3 p = new Vector3(x, y, z);
+			return p.normalized;
 		}
 
 		public static void ShuffleList<T>(List<T> list, Random random = null)

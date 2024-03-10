@@ -1508,70 +1508,32 @@ public static class Renderer
 
 	static void RenderParticles()
 	{
-		/*
+		float particleRenderDistance = 20;
+		Matrix particleSystemPV = Matrix.CreatePerspective(camera.fov, Display.aspectRatio, camera.near, particleRenderDistance) * view;
+		for (int i = 0; i < particleSystems.Count; i++)
 		{
-			graphics.resetState();
-			//particleSystems.Sort(systemDepthComparator);
-
-			int totalParticleCount = 0;
-			foreach (ParticleSystemDrawCommand draw in particleSystems)
-				totalParticleCount += draw.numParticles;
-
-			particleBatch.begin(totalParticleCount);
-			foreach (ParticleSystemDrawCommand draw in particleSystems)
+			Vector3 center = particleSystems[i].particleSystem.boundingSphere.center;
+			float radius = particleSystems[i].particleSystem.boundingSphere.radius;
+			if (particleSystems[i].particleSystem.follow)
 			{
-				float scale = draw.transform.scale.x;
-				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
-
-				for (int i = 0; i < draw.numParticles; i++)
-				{
-					Particle particle = draw.particles[i];
-					if (particle.id != -1)
-					{
-						Vector3 position = particle.position;
-						float size = scale * particle.size;
-
-						if (draw.followMode == ParticleFollowMode.Follow)
-							position = globalSpawnPos + particle.position * scale;
-
-						float u0 = draw.textureAtlas != null ? particle.u0 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v0 = draw.textureAtlas != null ? particle.v0 / (float)draw.textureAtlas.info.height : 0.0f;
-						float u1 = draw.textureAtlas != null ? particle.u1 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v1 = draw.textureAtlas != null ? particle.v1 / (float)draw.textureAtlas.info.height : 0.0f;
-						particleBatch.drawBillboard(position.x, position.y, position.z,
-							size, size,
-							particle.rotation,
-							draw.textureAtlas, uint.MaxValue,
-							u0, v0, u1, v1,
-							particle.color);
-					}
-				}
+				center = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset + center;
+				radius = particleSystems[i].particleSystem.transform.scale.x * radius;
 			}
-			particleBatch.end();
-
-
-			Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-			Span<Vector4> pointLightColors = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-
-			for (int i = 0; i < particleBatch.getNumDrawCalls(); i++)
-			{
-				graphics.setBlendState(BlendState.Alpha);
-				graphics.setViewTransform(projection, view);
-
-				for (int j = 0; j < Math.Min(lights.Count, MAX_LIGHTS_PER_PASS); j++)
-				{
-					pointLightPositions[j] = new Vector4(lights[j].position, 1.0f);
-					pointLightColors[j] = new Vector4(lights[j].color, 1.0f);
-				}
-				graphics.setUniform(particleShader.getUniform("u_pointLight_position", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightPositions);
-				graphics.setUniform(particleShader.getUniform("u_pointLight_color", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightColors);
-				graphics.setUniform(particleShader, "u_lightInfo", new Vector4(lights.Count + 0.5f, 0.0f, 0.0f, 0.0f));
-
-				particleBatch.submitDrawCall(i, particleShader);
-			}
+			if (!IsInFrustum(center, radius, particleSystems[i].particleSystem.transform, particleSystemPV))
+				particleSystems.RemoveAt(i--);
 		}
-		*/
-
+		for (int i = 0; i < particleSystemsAdditive.Count; i++)
+		{
+			Vector3 center = particleSystemsAdditive[i].particleSystem.boundingSphere.center;
+			float radius = particleSystemsAdditive[i].particleSystem.boundingSphere.radius;
+			if (particleSystemsAdditive[i].particleSystem.follow)
+			{
+				center = particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset + center;
+				radius = particleSystemsAdditive[i].particleSystem.transform.scale.x * radius;
+			}
+			if (!IsInFrustum(center, radius, Matrix.Identity, particleSystemPV))
+				particleSystemsAdditive.RemoveAt(i--);
+		}
 
 		{
 			Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
@@ -1582,9 +1544,10 @@ public static class Renderer
 			particleSystems.Sort(ParticleSystemDepthComparator);
 
 			int maxParticleSystems = 32;
-			float maxParticleDistance = 20.0f;
 			Vector3 cameraPosition = camera.position;
 			Vector3 cameraAxis = camera.rotation.forward;
+			/*
+			float maxParticleDistance = 20.0f;
 			for (int i = 0; i < particleSystems.Count; i++)
 			{
 				Vector3 toParticles = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset - cameraPosition;
@@ -1595,6 +1558,7 @@ public static class Renderer
 					particleSystems.RemoveAt(i--);
 				}
 			}
+			*/
 			if (particleSystems.Count > maxParticleSystems)
 				particleSystems.RemoveRange(0, particleSystems.Count - maxParticleSystems);
 
@@ -1607,7 +1571,6 @@ public static class Renderer
 				graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
 
 				float scale = draw.particleSystem.transform.scale.x;
-				Vector3 globalSpawnPos = draw.particleSystem.transform * draw.particleSystem.spawnOffset;
 
 				if (draw.particleSystem.textureAtlas != null)
 					graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.particleSystem.textureAtlas, draw.particleSystem.linearFiltering ? 0 : (uint)SamplerFlags.Point);
@@ -1623,7 +1586,7 @@ public static class Renderer
 					float size = scale * particle.size;
 
 					if (draw.particleSystem.follow)
-						position = globalSpawnPos + particle.position * scale;
+						position = draw.particleSystem.transform * (draw.particleSystem.spawnOffset + particle.position);
 
 					unsafe
 					{
@@ -1663,9 +1626,10 @@ public static class Renderer
 			particleSystemsAdditive.Sort(ParticleSystemDepthComparator);
 
 			int maxParticleSystems = 32;
-			float maxParticleDistance = 20.0f;
 			Vector3 cameraPosition = camera.position;
 			Vector3 cameraAxis = camera.rotation.forward;
+			/*
+			float maxParticleDistance = 20.0f;
 			for (int i = 0; i < particleSystemsAdditive.Count; i++)
 			{
 				Vector3 toParticles = (particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset) - cameraPosition;
@@ -1676,6 +1640,7 @@ public static class Renderer
 					particleSystemsAdditive.RemoveAt(i--);
 				}
 			}
+			*/
 			if (particleSystemsAdditive.Count > maxParticleSystems)
 				particleSystemsAdditive.RemoveRange(0, particleSystemsAdditive.Count - maxParticleSystems);
 
@@ -1688,7 +1653,6 @@ public static class Renderer
 				graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
 
 				float scale = draw.particleSystem.transform.scale.x;
-				Vector3 globalSpawnPos = draw.particleSystem.transform * draw.particleSystem.spawnOffset;
 
 				if (draw.particleSystem.textureAtlas != null)
 					graphics.setTexture(particleAdditiveShader, "s_textureAtlas", 0, draw.particleSystem.textureAtlas, draw.particleSystem.linearFiltering ? 0 : (uint)SamplerFlags.Point);
@@ -1704,7 +1668,7 @@ public static class Renderer
 					float size = scale * particle.size;
 
 					if (draw.particleSystem.follow)
-						position = globalSpawnPos + particle.position * scale;
+						position = draw.particleSystem.transform * (draw.particleSystem.spawnOffset + particle.position);
 
 					unsafe
 					{
@@ -1727,59 +1691,6 @@ public static class Renderer
 				graphics.draw(particleAdditiveShader);
 			}
 		}
-
-
-
-		/*
-		{
-			graphics.resetState();
-			//particleSystemsAdditive.Sort(systemDepthComparator);
-
-			int totalParticleCount = 0;
-			foreach (ParticleSystemDrawCommand draw in particleSystemsAdditive)
-				totalParticleCount += draw.numParticles;
-
-			particleBatch.begin(totalParticleCount);
-			foreach (ParticleSystemDrawCommand draw in particleSystemsAdditive)
-			{
-				float scale = draw.transform.scale.x;
-				Vector3 globalSpawnPos = (draw.transform * new Vector4(draw.spawnOffset, 1.0f)).xyz;
-
-				for (int i = 0; i < draw.numParticles; i++)
-				{
-					Particle particle = draw.particles[i];
-					if (particle.id != -1)
-					{
-						Vector3 position = particle.position;
-						float size = scale * particle.size;
-
-						if (draw.followMode == ParticleFollowMode.Follow)
-							position = globalSpawnPos + particle.position * scale;
-
-						float u0 = draw.textureAtlas != null ? particle.u0 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v0 = draw.textureAtlas != null ? particle.v0 / (float)draw.textureAtlas.info.height : 0.0f;
-						float u1 = draw.textureAtlas != null ? particle.u1 / (float)draw.textureAtlas.info.width : 0.0f;
-						float v1 = draw.textureAtlas != null ? particle.v1 / (float)draw.textureAtlas.info.height : 0.0f;
-						particleBatch.drawBillboard(position.x, position.y, position.z,
-							size, size,
-							particle.rotation,
-							draw.textureAtlas, uint.MaxValue,
-							u0, v0, u1, v1,
-							particle.color);
-					}
-				}
-			}
-			particleBatch.end();
-
-			for (int i = 0; i < particleBatch.getNumDrawCalls(); i++)
-			{
-				graphics.setBlendState(BlendState.Additive);
-				graphics.setViewTransform(projection, view);
-
-				particleBatch.submitDrawCall(i, particleAdditiveShader);
-			}
-		}
-		*/
 	}
 
 	static void SubmitWaterMesh(ushort vertexBuffer, ushort indexBuffer, Matrix transform)

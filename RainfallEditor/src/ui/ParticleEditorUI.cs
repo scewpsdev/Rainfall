@@ -117,18 +117,7 @@ public partial class EditorUI
 					}
 					*/
 
-					DragFloat3(instance, "Spawn Offset", "particle_spawn_offset" + i, ref particles.spawnOffset, 0.005f);
-
-					/*
-					ImGui.TextUnformatted("Spawn Offset");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ITEM_WIDTH);
-					Vector3 spawnOffset = particles.spawnOffset;
-					if (ImGui.DragFloat3("##spawn_offset" + i, &spawnOffset, 0.005f))
-						particles.spawnOffset = spawnOffset;
-					*/
-
-					if (particles.spawnShape == ParticleSpawnShape.Circle || particles.spawnShape == ParticleSpawnShape.Sphere)
+					if (particles.spawnShape == ParticleSpawnShape.Circle || particles.spawnShape == ParticleSpawnShape.Sphere || particles.spawnShape == ParticleSpawnShape.Line)
 					{
 						DragFloat(instance, "Spawn Radius", "particle_spawn_radius" + i, ref particles.spawnRadius, 0.01f, 0, 10);
 
@@ -141,7 +130,7 @@ public partial class EditorUI
 							particles.spawnRadius = spawnRadius;
 						*/
 					}
-					else if (particles.spawnShape == ParticleSpawnShape.Line)
+					if (particles.spawnShape == ParticleSpawnShape.Line)
 					{
 						DragFloat3(instance, "Line End", "particle_line_end" + i, ref particles.lineEnd, 0.005f);
 
@@ -154,6 +143,17 @@ public partial class EditorUI
 							particles.lineEnd = lineEnd;
 						*/
 					}
+
+					DragFloat3(instance, "Spawn Offset", "particle_spawn_offset" + i, ref particles.spawnOffset, 0.005f);
+
+					/*
+					ImGui.TextUnformatted("Spawn Offset");
+					ImGui.SameLine(SPACING_X);
+					ImGui.SetNextItemWidth(ITEM_WIDTH);
+					Vector3 spawnOffset = particles.spawnOffset;
+					if (ImGui.DragFloat3("##spawn_offset" + i, &spawnOffset, 0.005f))
+						particles.spawnOffset = spawnOffset;
+					*/
 
 					ImGui.Spacing();
 					ImGui.Spacing();
@@ -276,7 +276,7 @@ public partial class EditorUI
 					//if (ImGui.DragFloat("##random_velocity" + i, &randomVelocity, 0.001f, 0, 100))
 					//	particles.randomVelocity = randomVelocity;
 
-					DragFloat(instance, "Randomize Rotation", "particle_random_rotation" + i, ref particles.randomRotation, 0.002f, 0, 10);
+					DragFloat(instance, "Randomize Rotation", "particle_random_rotation" + i, ref particles.randomRotation, 0.002f, 0, 1);
 
 					DragAngle(instance, "Randomize Rotation Speed", "particle_random_rotation_speed" + i, ref particles.randomRotationSpeed, 1.0f, 0, 10000);
 

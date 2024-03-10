@@ -29,13 +29,12 @@ namespace Rainfall
 		public readonly Ragdoll ragdoll = null;
 
 		IntPtr body;
-		public readonly uint filterGroup, filterMask;
+		public readonly uint filterMask;
 
 
-		public RigidBody(PhysicsEntity entity, RigidBodyType type, Vector3 position, Quaternion rotation, float density, Vector3 centerOfMass, uint filterGroup = 1, uint filterMask = 0x0000FFFF)
+		public RigidBody(PhysicsEntity entity, RigidBodyType type, Vector3 position, Quaternion rotation, float density, Vector3 centerOfMass, uint filterMask = 1)
 		{
 			this.entity = entity;
-			this.filterGroup = filterGroup;
 			this.filterMask = filterMask;
 
 			body = Native.Physics.Physics_CreateRigidBody(type, density, centerOfMass, position, rotation);
@@ -47,22 +46,21 @@ namespace Rainfall
 		{
 		}
 
-		public RigidBody(PhysicsEntity entity, RigidBodyType type, float density, Vector3 centerOfMass, uint filterGroup = 1, uint filterMask = 0x0000FFFF)
-			: this(entity, type, entity != null ? entity.getPosition() : Vector3.Zero, entity != null ? entity.getRotation() : Quaternion.Identity, density, centerOfMass, filterGroup, filterMask)
+		public RigidBody(PhysicsEntity entity, RigidBodyType type, float density, Vector3 centerOfMass, uint filterMask = 1)
+			: this(entity, type, entity != null ? entity.getPosition() : Vector3.Zero, entity != null ? entity.getRotation() : Quaternion.Identity, density, centerOfMass, filterMask)
 		{
 		}
 
-		public RigidBody(PhysicsEntity entity, RigidBodyType type = RigidBodyType.Dynamic, uint filterGroup = 1, uint filterMask = 0x0000FFFF)
-			: this(entity, type, 1.0f, Vector3.Zero, filterGroup, filterMask)
+		public RigidBody(PhysicsEntity entity, RigidBodyType type = RigidBodyType.Dynamic, uint filterMask = 1)
+			: this(entity, type, 1.0f, Vector3.Zero, filterMask)
 		{
 		}
 
-		public RigidBody(PhysicsEntity entity, IntPtr body, Ragdoll ragdoll, uint filterGroup, uint filterMask)
+		public RigidBody(PhysicsEntity entity, IntPtr body, Ragdoll ragdoll, uint filterMask)
 		{
 			this.entity = entity;
 			this.body = body;
 			this.ragdoll = ragdoll;
-			this.filterGroup = filterGroup;
 			this.filterMask = filterMask;
 		}
 
@@ -80,12 +78,12 @@ namespace Rainfall
 
 		public void addSphereCollider(float radius, Vector3 position)
 		{
-			Native.Physics.Physics_RigidBodyAddSphereCollider(body, radius, position, filterGroup, filterMask, 0.5f, 0.5f, 0.1f);
+			Native.Physics.Physics_RigidBodyAddSphereCollider(body, radius, position, filterMask, 0.5f, 0.5f, 0.1f);
 		}
 
 		public void addBoxCollider(Vector3 halfExtents, Vector3 position, Quaternion rotation, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddBoxCollider(body, halfExtents, position, rotation, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddBoxCollider(body, halfExtents, position, rotation, filterMask, friction, friction, restitution);
 		}
 
 		public void addBoxCollider(Vector3 position, Vector3 size)
@@ -95,17 +93,17 @@ namespace Rainfall
 
 		public void addCapsuleCollider(float radius, float height, Vector3 position, Quaternion rotation, float friction = 0.0f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterMask, friction, friction, restitution);
 		}
 
-		public void addCapsuleCollider(float radius, float height, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float friction = 0.0f, float restitution = 0.1f)
+		public void addCapsuleCollider(float radius, float height, Vector3 position, Quaternion rotation, uint filterMask, float friction = 0.0f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterMask, friction, friction, restitution);
 		}
 
 		public void addMeshCollider(MeshCollider mesh, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddMeshCollider(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddMeshCollider(body, mesh.handle, transform * mesh.transform, filterMask, friction, friction, restitution);
 		}
 
 		public MeshCollider addMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
@@ -123,7 +121,7 @@ namespace Rainfall
 
 		public void addConvexMeshCollider(ConvexMeshCollider mesh, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddConvexMeshCollider(body, mesh.handle, transform, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddConvexMeshCollider(body, mesh.handle, transform, filterMask, friction, friction, restitution);
 		}
 
 		public ConvexMeshCollider addConvexMeshCollider(Model model, int meshIdx, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
@@ -141,32 +139,32 @@ namespace Rainfall
 
 		public void addHeightFieldCollider(IntPtr heightField, Vector3 scale, Matrix transform, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddHeightFieldCollider(body, heightField, scale, transform, filterGroup, filterMask, friction, friction, restitution);
+			Native.Physics.Physics_RigidBodyAddHeightFieldCollider(body, heightField, scale, transform, filterMask, friction, friction, restitution);
 		}
 
 		public void addSphereTrigger(float radius, Vector3 position)
 		{
-			Native.Physics.Physics_RigidBodyAddSphereTrigger(body, radius, position, filterGroup, filterMask);
+			Native.Physics.Physics_RigidBodyAddSphereTrigger(body, radius, position, filterMask);
 		}
 
 		public void addBoxTrigger(Vector3 halfExtents, Vector3 position, Quaternion rotation)
 		{
-			Native.Physics.Physics_RigidBodyAddBoxTrigger(body, halfExtents, position, rotation, filterGroup, filterMask);
+			Native.Physics.Physics_RigidBodyAddBoxTrigger(body, halfExtents, position, rotation, filterMask);
 		}
 
 		public void addBoxTrigger(Vector3 halfExtents)
 		{
-			Native.Physics.Physics_RigidBodyAddBoxTrigger(body, halfExtents, Vector3.Zero, Quaternion.Identity, filterGroup, filterMask);
+			Native.Physics.Physics_RigidBodyAddBoxTrigger(body, halfExtents, Vector3.Zero, Quaternion.Identity, filterMask);
 		}
 
 		public void addCapsuleTrigger(float radius, float height, Vector3 position, Quaternion rotation)
 		{
-			Native.Physics.Physics_RigidBodyAddCapsuleTrigger(body, radius, height, position, rotation, filterGroup, filterMask);
+			Native.Physics.Physics_RigidBodyAddCapsuleTrigger(body, radius, height, position, rotation, filterMask);
 		}
 
 		public void addMeshTrigger(MeshCollider mesh, Matrix transform)
 		{
-			Native.Physics.Physics_RigidBodyAddMeshTrigger(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask);
+			Native.Physics.Physics_RigidBodyAddMeshTrigger(body, mesh.handle, transform * mesh.transform, filterMask);
 		}
 
 		public void clearColliders()

@@ -126,54 +126,17 @@ public static partial class EditorUI
 
 				Combo(instance, "Collider Type", "collider_type" + i, ref collider.type, ImGuiComboFlags.HeightSmall);
 
-				/*
-				ImGui.TextUnformatted("Collider Type");
-				ImGui.SameLine(SPACING_X);
-				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-				if (ImGui.BeginCombo("##collider_type" + i, collider.type.ToString(), ImGuiComboFlags.HeightSmall))
-				{
-					if (ImGui.Selectable_Bool("Box"))
-						collider.type = SceneFormat.ColliderType.Box;
-					if (ImGui.Selectable_Bool("Sphere"))
-						collider.type = SceneFormat.ColliderType.Sphere;
-					if (ImGui.Selectable_Bool("Capsule"))
-						collider.type = SceneFormat.ColliderType.Capsule;
-					if (ImGui.Selectable_Bool("Mesh"))
-						collider.type = SceneFormat.ColliderType.Mesh;
-					ImGui.EndCombo();
-
-					if (collider.type != entity.colliders[i].type)
-						instance.notifyEdit();
-				}
-				*/
+				Checkbox(instance, "Trigger", "collider_trigger" + i, ref collider.trigger);
 
 				if (collider.type == SceneFormat.ColliderType.Box)
 				{
 					DragFloat3(instance, "Size", "collider_size" + i, ref collider.size, 0.02f, 0, 100);
-
-					/*
-					ImGui.TextUnformatted("Size");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-					Vector3 newSize = collider.size;
-					if (ImGui.DragFloat3("##collider_size" + i, &newSize, 0.02f))
-						collider.size = newSize;
-					*/
 				}
 				else if (collider.type == SceneFormat.ColliderType.Sphere)
 				{
 					float newRadius = collider.radius;
 					if (DragFloat(instance, "Radius", "collider_radius" + i, ref newRadius, 0.02f, 0, 1000))
 						collider.radius = newRadius;
-
-					/*
-					ImGui.TextUnformatted("Radius");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-					float newRadius = collider.radius;
-					if (ImGui.DragFloat("##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
-						collider.radius = newRadius;
-					*/
 				}
 				else if (collider.type == SceneFormat.ColliderType.Capsule)
 				{
@@ -184,22 +147,6 @@ public static partial class EditorUI
 					float newHeight = collider.height;
 					if (DragFloat(instance, "Height", "collider_height" + i, ref newHeight, 0.02f, 2 * collider.radius, 1000))
 						collider.height = newHeight;
-
-					/*
-					ImGui.TextUnformatted("Radius");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-					float newRadius = collider.radius;
-					if (ImGui.DragFloat("##collider_radius" + i, &newRadius, 0.02f, 0, 1000))
-						collider.radius = newRadius;
-
-					ImGui.TextUnformatted("Height");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-					float newHeight = collider.height;
-					if (ImGui.DragFloat("##collider_height" + i, &newHeight, 0.02f, 2 * collider.radius, 1000))
-						collider.height = newHeight;
-					*/
 				}
 				else if (collider.type == SceneFormat.ColliderType.Mesh)
 				{
@@ -212,27 +159,9 @@ public static partial class EditorUI
 
 				DragFloat3(instance, "Offset", "collider_offset" + i, ref collider.offset, 0.02f);
 
-				/*
-				ImGui.TextUnformatted("Offset");
-				ImGui.SameLine(SPACING_X);
-				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-				Vector3 newOffset = collider.offset;
-				if (ImGui.DragFloat3("##collider_offset" + i, &newOffset, 0.02f))
-					collider.offset = newOffset;
-				*/
-
 				if (collider.type != SceneFormat.ColliderType.Sphere)
 				{
 					DragFloat3Eulers(instance, "Rotation", "collider_rotation" + i, ref collider.eulers);
-
-					/*
-					ImGui.TextUnformatted("Rotation");
-					ImGui.SameLine(SPACING_X);
-					ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-					Vector3 newEulers = collider.eulers * 180 / MathF.PI;
-					if (ImGui.DragFloat3("##collider_rotation" + i, &newEulers, 1.0f))
-						collider.eulers = newEulers / 180 * MathF.PI;
-					*/
 				}
 
 				// X Button
@@ -259,6 +188,88 @@ public static partial class EditorUI
 				SceneFormat.ColliderData collider = new SceneFormat.ColliderData(new Vector3(2.0f));
 				entity.data.colliders.Add(collider);
 				instance.notifyEdit();
+			}
+
+			ImGui.Separator();
+
+			if (entity.data.boneColliders != null)
+			{
+				if (entity.data.model != null)
+				{
+					foreach (string nodeName in entity.data.boneColliders.Keys)
+					{
+						SceneFormat.ColliderData collider = entity.data.boneColliders[nodeName];
+						Node node = entity.data.model.skeleton.getNode(nodeName);
+						int nodeID = node.id;
+
+						if (TreeNodeRemovable(instance, node.name, "bone_collider" + nodeID, out bool colliderRemoved))
+						{
+							Combo(instance, "Collider Type", "bone_collider_type" + nodeID, ref collider.type, ImGuiComboFlags.HeightSmall);
+
+							Checkbox(instance, "Trigger", "bone_collider_trigger" + nodeID, ref collider.trigger);
+
+							if (collider.type == SceneFormat.ColliderType.Box)
+							{
+								DragFloat3(instance, "Size", "bone_collider_size" + nodeID, ref collider.size, 0.02f, 0, 100);
+							}
+							else if (collider.type == SceneFormat.ColliderType.Sphere)
+							{
+								float newRadius = collider.radius;
+								if (DragFloat(instance, "Radius", "bone_collider_radius" + nodeID, ref newRadius, 0.02f, 0, 1000))
+									collider.radius = newRadius;
+							}
+							else if (collider.type == SceneFormat.ColliderType.Capsule)
+							{
+								float newRadius = collider.radius;
+								if (DragFloat(instance, "Radius", "bone_collider_radius" + nodeID, ref newRadius, 0.02f, 0, 1000))
+									collider.radius = newRadius;
+
+								float newHeight = collider.height;
+								if (DragFloat(instance, "Height", "bone_collider_height" + nodeID, ref newHeight, 0.02f, 2 * collider.radius, 1000))
+									collider.height = newHeight;
+							}
+							else if (collider.type == SceneFormat.ColliderType.Mesh)
+							{
+								ImGui.TextUnformatted("Mesh bone collider not supported.");
+							}
+
+							DragFloat3(instance, "Offset", "bone_collider_offset" + nodeID, ref collider.offset, 0.02f);
+
+							if (collider.type != SceneFormat.ColliderType.Sphere)
+							{
+								DragFloat3Eulers(instance, "Rotation", "bone_collider_rotation" + nodeID, ref collider.eulers);
+							}
+
+							entity.data.boneColliders[nodeName] = collider;
+
+							ImGui.TreePop();
+						}
+						if (colliderRemoved)
+						{
+							entity.data.boneColliders.Remove(nodeName);
+							if (entity.data.boneColliders.Count == 0)
+								entity.data.boneColliders = null;
+						}
+					}
+				}
+			}
+			else
+			{
+				if (entity.data.model != null && entity.data.model.scene->numAnimations > 0 && entity.data.boneColliders == null)
+				{
+					if (ImGui.Button("Create Bone Colliders"))
+					{
+						entity.data.boneColliders = new Dictionary<string, SceneFormat.ColliderData>();
+						for (int i = 0; i < entity.data.model.skeleton.nodes.Length; i++)
+						{
+							Node node = entity.data.model.skeleton.nodes[i];
+							float radius = 0.1f;
+							SceneFormat.ColliderData collider = new SceneFormat.ColliderData(radius);
+							if (!entity.data.boneColliders.ContainsKey(node.name))
+								entity.data.boneColliders.Add(node.name, collider);
+						}
+					}
+				}
 			}
 
 			ImGui.TreePop();

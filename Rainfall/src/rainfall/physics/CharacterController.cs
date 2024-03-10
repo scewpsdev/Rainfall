@@ -36,16 +36,15 @@ namespace Rainfall
 		float _height, _radius;
 		Vector3 _offset;
 
-		uint filterGroup, filterMask;
+		uint filterMask;
 
 
-		public CharacterController(PhysicsEntity entity, float radius, Vector3 offset, float height, float stepOffset = 0.1f, uint filterGroup = 1, uint filterMask = 0x0000FFFF, ControllerHitCallback hitCallback = null)
+		public CharacterController(PhysicsEntity entity, float radius, Vector3 offset, float height, float stepOffset = 0.1f, uint filterMask = 1, ControllerHitCallback hitCallback = null)
 		{
 			this.entity = entity;
 			this._height = height;
 			this._radius = radius;
 			this._offset = offset;
-			this.filterGroup = filterGroup;
 			this.filterMask = filterMask;
 
 			this.hitCallback = hitCallback;
@@ -67,7 +66,7 @@ namespace Rainfall
 
 		public ControllerCollisionFlag move(Vector3 delta)
 		{
-			return Native.Physics.Physics_MoveCharacterController(controller, delta, filterGroup, filterMask);
+			return Native.Physics.Physics_MoveCharacterController(controller, delta, filterMask);
 		}
 
 		public void setPosition(Vector3 position)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -88,6 +89,18 @@ namespace Rainfall
 			if (nameMap.ContainsKey(nameHash))
 				return nodes[nameMap[nameHash]];
 			return null;
+		}
+
+		public unsafe Matrix getNodeTransform(Node node)
+		{
+			Matrix inverseBindPose = scene->skeletons[0].inverseBindPose;
+			Matrix transform = node.transform;
+			while (node.parent != null)
+			{
+				transform = node.parent.transform * transform;
+				node = node.parent;
+			}
+			return inverseBindPose * transform;
 		}
 
 		public unsafe Matrix inverseBindPose

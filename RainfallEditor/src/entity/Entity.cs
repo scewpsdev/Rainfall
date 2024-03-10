@@ -21,24 +21,6 @@ public class Entity
 
 	public SceneFormat.EntityData data;
 
-	/*
-	public Vector3 position = Vector3.Zero;
-	public Quaternion rotation = Quaternion.Identity;
-	public Vector3 scale = Vector3.One;
-
-	public string name = "???";
-	public uint id = 0;
-	public bool isStatic = false;
-
-	public string modelPath = null;
-	public Model model = null;
-
-	public RigidBodyType rigidBodyType;
-	public List<SceneFormat.ColliderData> colliders = new List<SceneFormat.ColliderData>();
-	public List<SceneFormat.LightData> lights = new List<SceneFormat.LightData>();
-	public List<ParticleSystem> particles = new List<ParticleSystem>();
-	*/
-
 
 	public Entity(string name)
 	{
@@ -113,7 +95,14 @@ public class Entity
 		Matrix transform = getModelMatrix();
 
 		if (data.model != null)
+		{
 			Renderer.DrawModel(data.model, transform);
+			unsafe
+			{
+				if (data.model.scene->numAnimations > 0)
+					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, new Vector4(0.5f, 0.5f, 1, 1));
+			}
+		}
 
 		for (int i = 0; i < data.lights.Count; i++)
 		{
@@ -123,31 +112,11 @@ public class Entity
 		if (RainfallEditor.instance.currentTab.selectedEntity == data.id)
 		{
 			// Debug colliders
-			Vector4 color = new Vector4(0, 1, 0, 1);
 			for (int i = 0; i < data.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData collider = data.colliders[i];
-
-				if (collider.type == SceneFormat.ColliderType.Box)
-				{
-					Renderer.DrawDebugBox(collider.size, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
-				}
-				else if (collider.type == SceneFormat.ColliderType.Sphere)
-				{
-					Renderer.DrawDebugSphere(collider.radius, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
-				}
-				else if (collider.type == SceneFormat.ColliderType.Capsule)
-				{
-					Renderer.DrawDebugCapsule(collider.radius, collider.height, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
-				}
-				else if (collider.type == SceneFormat.ColliderType.Mesh)
-				{
-					if (collider.meshCollider != null)
-					{
-						Renderer.DrawDebugBox(collider.meshCollider.boundingBox.Value.size, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.offset + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
-						Renderer.DrawDebugSphere(collider.meshCollider.boundingSphere.Value.radius, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.offset + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
-					}
-				}
+				Vector4 color = collider.trigger ? new Vector4(1, 0, 0, 1) : new Vector4(0, 1, 0, 1);
+				Renderer.DrawDebugCollider(collider, transform, color);
 			}
 		}
 

@@ -662,7 +662,7 @@ namespace Physics
 		heightField->release();
 	}
 
-	static void AddCollider(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation, float staticFriction, float dynamicFriction, float restitution, bool isDynamic, float density, Vector3 centerOfMass)
+	static void AddCollider(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterMask, const Vector3& position, const Quaternion& rotation, float staticFriction, float dynamicFriction, float restitution, bool isDynamic, float density, Vector3 centerOfMass)
 	{
 		PxMaterial* material = physics->createMaterial(staticFriction, dynamicFriction, restitution);
 		PxShape* shape = physics->createShape(geometry, *material, true);
@@ -673,8 +673,8 @@ namespace Physics
 		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
 
 		PxFilterData filterData;
-		filterData.word0 = filterGroup;
-		filterData.word1 = filterMask;
+		filterData.word0 = filterMask;
+		//filterData.word1 = filterMask;
 		shape->setSimulationFilterData(filterData);
 		shape->setQueryFilterData(filterData);
 
@@ -691,7 +691,7 @@ namespace Physics
 		material->release();
 	}
 
-	static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
+	static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
 	{
 		PxMaterial* material = physics->createMaterial(0.0f, 0.0f, 0.0f);
 		PxShape* shape = physics->createShape(geometry, *material, true);
@@ -701,8 +701,8 @@ namespace Physics
 		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
 
 		PxFilterData filterData;
-		filterData.word0 = filterGroup;
-		filterData.word1 = filterMask;
+		filterData.word0 = filterMask;
+		//filterData.word1 = filterMask;
 		shape->setSimulationFilterData(filterData);
 		shape->setQueryFilterData(filterData);
 
@@ -714,19 +714,19 @@ namespace Physics
 		actor->attachShape(*shape);
 	}
 
-	RFAPI void Physics_RigidBodyAddSphereCollider(RigidBody* body, float radius, const Vector3& position, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddSphereCollider(RigidBody* body, float radius, const Vector3& position, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxSphereGeometry(radius), filterGroup, filterMask, position, Quaternion::Identity, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxSphereGeometry(radius), filterMask, position, Quaternion::Identity, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddBoxCollider(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddBoxCollider(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddCapsuleCollider(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddCapsuleCollider(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
 	static Matrix GetNodeTransform(NodeData* node)
@@ -741,48 +741,48 @@ namespace Physics
 		return transform;
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
 		Vector3 scale = transform.scale();
-		AddCollider(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, PxConvexMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, PxConvexMesh* mesh, const Matrix& transform, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
 		Vector3 scale = transform.scale();
-		AddCollider(body->actor, PxConvexMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxConvexMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddHeightFieldCollider(RigidBody* body, PxHeightField* heightField, const Vector3& scale, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddHeightFieldCollider(RigidBody* body, PxHeightField* heightField, const Vector3& scale, const Matrix& transform, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxHeightFieldGeometry(heightField, (PxMeshGeometryFlags)0, scale.y, scale.x, scale.z), filterGroup, filterMask, transform.translation(), transform.rotation(), staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxHeightFieldGeometry(heightField, (PxMeshGeometryFlags)0, scale.y, scale.x, scale.z), filterMask, transform.translation(), transform.rotation(), staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddSphereTrigger(RigidBody* body, float radius, const Vector3& position, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddSphereTrigger(RigidBody* body, float radius, const Vector3& position, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxSphereGeometry(radius), filterGroup, filterMask, position, Quaternion::Identity);
+		AddTrigger(body->actor, PxSphereGeometry(radius), filterMask, position, Quaternion::Identity);
 	}
 
-	RFAPI void Physics_RigidBodyAddBoxTrigger(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddBoxTrigger(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterGroup, filterMask, position, rotation);
+		AddTrigger(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterMask, position, rotation);
 	}
 
-	RFAPI void Physics_RigidBodyAddCapsuleTrigger(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddCapsuleTrigger(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterGroup, filterMask, position, rotation);
+		AddTrigger(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterMask, position, rotation);
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshTrigger(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddMeshTrigger(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterMask)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
 		Vector3 scale = transform.scale();
-		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation);
+		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterMask, position, rotation);
 	}
 
 	RFAPI void Physics_RigidBodyClearColliders(RigidBody* body)
@@ -812,13 +812,24 @@ namespace Physics
 				__debugbreak();
 			}
 		}
-		else
+		else if (body->type == RigidBodyType::Dynamic)
 		{
 			if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
 			{
 				dynamic->setGlobalPose(transform);
 				body->interpolatedPosition = position;
 				body->interpolatedRotation = rotation;
+			}
+			else
+			{
+				__debugbreak();
+			}
+		}
+		else if (body->type == RigidBodyType::Static)
+		{
+			if (PxRigidStatic* staticBody = body->actor->is<PxRigidStatic>())
+			{
+				staticBody->setGlobalPose(transform);
 			}
 			else
 			{
@@ -1030,7 +1041,7 @@ namespace Physics
 		controller->lastMove = now;
 	}
 
-	RFAPI uint8_t Physics_MoveCharacterController(CharacterController* controller, const Vector3& delta, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI uint8_t Physics_MoveCharacterController(CharacterController* controller, const Vector3& delta, uint32_t filterMask)
 	{
 		if (!(controller->controller->getActor()->getActorFlags() & PxActorFlag::eDISABLE_SIMULATION))
 		{
@@ -1042,8 +1053,8 @@ namespace Physics
 			float timeStep = (now - controller->lastMove) / 1e9f;
 
 			PxFilterData filterData;
-			filterData.word0 = filterGroup;
-			filterData.word1 = filterMask;
+			filterData.word0 = filterMask;
+			//filterData.word1 = filterMask;
 
 			PxControllerFilters filters;
 			filters.mFilterData = &filterData;
@@ -1132,20 +1143,20 @@ namespace Physics
 		return body;
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkCapsule(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, float halfHeight, const Vector3& capsulePosition, const Quaternion& capsuleRotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI RigidBody* Physics_RagdollAddLinkCapsule(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, float halfHeight, const Vector3& capsulePosition, const Quaternion& capsuleRotation, uint32_t filterMask)
 	{
 		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
 
-		AddCollider(body->actor, PxCapsuleGeometry(radius, halfHeight), filterGroup, filterMask, capsulePosition, capsuleRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
+		AddCollider(body->actor, PxCapsuleGeometry(radius, halfHeight), filterMask, capsulePosition, capsuleRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
 
 		return body;
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkBox(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, const Vector3& halfExtents, const Vector3& capsulePosition, const Quaternion& capsuleRotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI RigidBody* Physics_RagdollAddLinkBox(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, const Vector3& halfExtents, const Vector3& capsulePosition, const Quaternion& capsuleRotation, uint32_t filterMask)
 	{
 		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
 
-		AddCollider(body->actor, PxBoxGeometry(PxVec3(halfExtents.x, halfExtents.y, halfExtents.z)), filterGroup, filterMask, capsulePosition, capsuleRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
+		AddCollider(body->actor, PxBoxGeometry(PxVec3(halfExtents.x, halfExtents.y, halfExtents.z)), filterMask, capsulePosition, capsuleRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
 
 		return body;
 	}
