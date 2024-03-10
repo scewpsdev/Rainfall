@@ -77,6 +77,7 @@ public static class Renderer
 		internal Vector3 vertex0;
 		internal Vector3 vertex1;
 		internal Vector4 color;
+		internal bool inFront;
 	}
 
 	class ModelComparer : IComparer<Model>
@@ -146,7 +147,7 @@ public static class Renderer
 
 	static SpriteBatch particleBatch;
 
-	static LineRenderer debugLineRenderer;
+	static LineRenderer debugLineRenderer, debugLineRendererFront;
 
 	public static Camera camera;
 	public static Matrix projection, view, pv;
@@ -264,6 +265,7 @@ public static class Renderer
 		particleBatch = new SpriteBatch(graphics);
 
 		debugLineRenderer = new LineRenderer();
+		debugLineRendererFront = new LineRenderer();
 
 		GUI.Init(graphics);
 	}
@@ -303,12 +305,12 @@ public static class Renderer
 		models.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform });
 	}
 
-	public static void DrawDebugLine(Vector3 vertex0, Vector3 vertex1, Vector4 color)
+	public static void DrawDebugLine(Vector3 vertex0, Vector3 vertex1, Vector4 color, bool inFront = false)
 	{
-		debugLines.Add(new DebugLineDrawCommand { vertex0 = vertex0, vertex1 = vertex1, color = color });
+		debugLines.Add(new DebugLineDrawCommand { vertex0 = vertex0, vertex1 = vertex1, color = color, inFront = inFront });
 	}
 
-	public static void DrawDebugBox(Vector3 size, Matrix transform, Vector4 color)
+	public static void DrawDebugBox(Vector3 size, Matrix transform, Vector4 color, bool inFront = false)
 	{
 		Vector3 vertex0 = transform * (0.5f * new Vector3(-size.x, -size.y, -size.z));
 		Vector3 vertex1 = transform * (0.5f * new Vector3(size.x, -size.y, -size.z));
@@ -319,23 +321,23 @@ public static class Renderer
 		Vector3 vertex6 = transform * (0.5f * new Vector3(size.x, size.y, size.z));
 		Vector3 vertex7 = transform * (0.5f * new Vector3(-size.x, size.y, size.z));
 
-		DrawDebugLine(vertex0, vertex1, color);
-		DrawDebugLine(vertex1, vertex2, color);
-		DrawDebugLine(vertex2, vertex3, color);
-		DrawDebugLine(vertex3, vertex0, color);
+		DrawDebugLine(vertex0, vertex1, color, inFront);
+		DrawDebugLine(vertex1, vertex2, color, inFront);
+		DrawDebugLine(vertex2, vertex3, color, inFront);
+		DrawDebugLine(vertex3, vertex0, color, inFront);
 
-		DrawDebugLine(vertex4, vertex5, color);
-		DrawDebugLine(vertex5, vertex6, color);
-		DrawDebugLine(vertex6, vertex7, color);
-		DrawDebugLine(vertex7, vertex4, color);
+		DrawDebugLine(vertex4, vertex5, color, inFront);
+		DrawDebugLine(vertex5, vertex6, color, inFront);
+		DrawDebugLine(vertex6, vertex7, color, inFront);
+		DrawDebugLine(vertex7, vertex4, color, inFront);
 
-		DrawDebugLine(vertex0, vertex4, color);
-		DrawDebugLine(vertex1, vertex5, color);
-		DrawDebugLine(vertex2, vertex6, color);
-		DrawDebugLine(vertex3, vertex7, color);
+		DrawDebugLine(vertex0, vertex4, color, inFront);
+		DrawDebugLine(vertex1, vertex5, color, inFront);
+		DrawDebugLine(vertex2, vertex6, color, inFront);
+		DrawDebugLine(vertex3, vertex7, color, inFront);
 	}
 
-	public static void DrawDebugSphere(float radius, Matrix transform, Vector4 color)
+	public static void DrawDebugSphere(float radius, Matrix transform, Vector4 color, bool inFront = false)
 	{
 		int segmentCount = 32;
 		for (int j = 0; j < 3; j++)
@@ -347,12 +349,12 @@ public static class Renderer
 				Vector3 vertex0 = transform * (ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 				Vector3 vertex1 = transform * (ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 
-				DrawDebugLine(vertex0, vertex1, color);
+				DrawDebugLine(vertex0, vertex1, color, inFront);
 			}
 		}
 	}
 
-	public static void DrawDebugCapsule(float radius, float height, Matrix transform, Vector4 color)
+	public static void DrawDebugCapsule(float radius, float height, Matrix transform, Vector4 color, bool inFront = false)
 	{
 		int segmentCount = 32;
 
@@ -362,7 +364,7 @@ public static class Renderer
 			Vector3 vertex0 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 
-			DrawDebugLine(vertex0, vertex1, color);
+			DrawDebugLine(vertex0, vertex1, color, inFront);
 		}
 
 		// bottom ring
@@ -371,7 +373,7 @@ public static class Renderer
 			Vector3 vertex0 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 
-			DrawDebugLine(vertex0, vertex1, color);
+			DrawDebugLine(vertex0, vertex1, color, inFront);
 		}
 
 		// vertical ring 1
@@ -382,7 +384,7 @@ public static class Renderer
 			Vector3 vertex0 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 			Vector3 vertex1 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 
-			DrawDebugLine(vertex0, vertex1, color);
+			DrawDebugLine(vertex0, vertex1, color, inFront);
 		}
 
 		// vertical ring 2
@@ -393,7 +395,7 @@ public static class Renderer
 			Vector3 vertex0 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 			Vector3 vertex1 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 
-			DrawDebugLine(vertex0, vertex1, color);
+			DrawDebugLine(vertex0, vertex1, color, inFront);
 		}
 
 		// vertical lines
@@ -402,8 +404,64 @@ public static class Renderer
 			Vector3 vertex0 = transform * (new Vector3(0.0f, -height * 0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / 4.0f * MathF.PI * 2) * new Vector3(0.0f, 0.0f, radius));
 			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / 4.0f * MathF.PI * 2) * new Vector3(0.0f, 0.0f, radius));
 
-			DrawDebugLine(vertex0, vertex1, color);
+			DrawDebugLine(vertex0, vertex1, color, inFront);
 		}
+	}
+
+	public static void DrawDebugCollider(SceneFormat.ColliderData collider, Matrix transform, Vector4 color, bool inFront = false)
+	{
+		if (collider.type == SceneFormat.ColliderType.Box)
+		{
+			DrawDebugBox(collider.size, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+		}
+		else if (collider.type == SceneFormat.ColliderType.Sphere)
+		{
+			DrawDebugSphere(collider.radius, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+		}
+		else if (collider.type == SceneFormat.ColliderType.Capsule)
+		{
+			DrawDebugCapsule(collider.radius, collider.height, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+		}
+		else if (collider.type == SceneFormat.ColliderType.Mesh)
+		{
+			if (collider.meshCollider != null)
+			{
+				DrawDebugBox(collider.meshCollider.boundingBox.Value.size, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+				DrawDebugSphere(collider.meshCollider.boundingSphere.Value.radius, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+			}
+		}
+	}
+
+	static void DrawDebugSkeletonNode(Node node, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix nodeTransform, Vector4 color)
+	{
+		bool isLeafNode = node.children.Length == 0;
+		if (isLeafNode)
+		{
+			Vector3 endPoint = nodeTransform * Vector3.Up;
+			DrawDebugLine(nodeTransform.translation, endPoint, color, true);
+		}
+		else
+		{
+			for (int i = 0; i < node.children.Length; i++)
+			{
+				Matrix childTransform = nodeTransform * node.children[i].transform;
+				DrawDebugLine(nodeTransform.translation, childTransform.translation, color, true);
+				DrawDebugSkeletonNode(node.children[i], boneColliders, childTransform, color);
+			}
+		}
+
+		if (boneColliders != null)
+		{
+			if (boneColliders.ContainsKey(node.name))
+			{
+				DrawDebugCollider(boneColliders[node.name], nodeTransform, color, true);
+			}
+		}
+	}
+
+	public static void DrawDebugSkeleton(Skeleton skeleton, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix transform, Vector4 color)
+	{
+		DrawDebugSkeletonNode(skeleton.rootNode, boneColliders, transform * skeleton.rootNode.transform, color);
 	}
 
 	public static void DrawLight(Vector3 position, Vector3 color)
@@ -1163,6 +1221,31 @@ public static class Renderer
 
 	static void RenderParticles()
 	{
+		for (int i = 0; i < particleSystems.Count; i++)
+		{
+			Vector3 center = particleSystems[i].particleSystem.boundingSphere.center;
+			float radius = particleSystems[i].particleSystem.boundingSphere.radius;
+			if (particleSystems[i].particleSystem.follow)
+			{
+				center = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset + center;
+				radius = particleSystems[i].particleSystem.transform.scale.x * radius;
+			}
+			if (!IsInFrustum(center, radius, particleSystems[i].particleSystem.transform, pv))
+				particleSystems.RemoveAt(i--);
+		}
+		for (int i = 0; i < particleSystemsAdditive.Count; i++)
+		{
+			Vector3 center = particleSystemsAdditive[i].particleSystem.boundingSphere.center;
+			float radius = particleSystemsAdditive[i].particleSystem.boundingSphere.radius;
+			if (particleSystemsAdditive[i].particleSystem.follow)
+			{
+				center = particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset + center;
+				radius = particleSystemsAdditive[i].particleSystem.transform.scale.x * radius;
+			}
+			if (!IsInFrustum(center, radius, Matrix.Identity, pv))
+				particleSystemsAdditive.RemoveAt(i--);
+		}
+
 		{
 			Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
 			Span<Vector4> pointLightColors = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
@@ -1172,9 +1255,10 @@ public static class Renderer
 			particleSystems.Sort(ParticleSystemDepthComparator);
 
 			int maxParticleSystems = 32;
-			float maxParticleDistance = 20.0f;
 			Vector3 cameraPosition = camera.position;
 			Vector3 cameraAxis = camera.rotation.forward;
+			/*
+			float maxParticleDistance = 20.0f;
 			for (int i = 0; i < particleSystems.Count; i++)
 			{
 				Vector3 toParticles = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset - cameraPosition;
@@ -1185,6 +1269,7 @@ public static class Renderer
 					particleSystems.RemoveAt(i--);
 				}
 			}
+			*/
 			if (particleSystems.Count > maxParticleSystems)
 				particleSystems.RemoveRange(0, particleSystems.Count - maxParticleSystems);
 
@@ -1213,7 +1298,7 @@ public static class Renderer
 					float size = scale * particle.size;
 
 					if (draw.particleSystem.follow)
-						position = globalSpawnPos + particle.position * scale;
+						position = draw.particleSystem.transform * (draw.particleSystem.spawnOffset + particle.position);
 
 					unsafe
 					{
@@ -1253,12 +1338,13 @@ public static class Renderer
 			particleSystemsAdditive.Sort(ParticleSystemDepthComparator);
 
 			int maxParticleSystems = 32;
-			float maxParticleDistance = 20.0f;
 			Vector3 cameraPosition = camera.position;
 			Vector3 cameraAxis = camera.rotation.forward;
+			/*
+			float maxParticleDistance = 20.0f;
 			for (int i = 0; i < particleSystemsAdditive.Count; i++)
 			{
-				Vector3 toParticles = particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset - cameraPosition;
+				Vector3 toParticles = (particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset) - cameraPosition;
 				float d = Vector3.Dot(toParticles, cameraAxis);
 				float l2 = Vector3.Dot(toParticles, toParticles);
 				if (d < 0.0f || l2 > maxParticleDistance * maxParticleDistance)
@@ -1266,6 +1352,7 @@ public static class Renderer
 					particleSystemsAdditive.RemoveAt(i--);
 				}
 			}
+			*/
 			if (particleSystemsAdditive.Count > maxParticleSystems)
 				particleSystemsAdditive.RemoveRange(0, particleSystemsAdditive.Count - maxParticleSystems);
 
@@ -1294,7 +1381,7 @@ public static class Renderer
 					float size = scale * particle.size;
 
 					if (draw.particleSystem.follow)
-						position = globalSpawnPos + particle.position * scale;
+						position = draw.particleSystem.transform * (draw.particleSystem.spawnOffset + particle.position);
 
 					unsafe
 					{
@@ -1321,16 +1408,36 @@ public static class Renderer
 
 	static void RenderDebugLines()
 	{
-		graphics.resetState();
-
-		graphics.setViewTransform(projection, view);
-
-		debugLineRenderer.begin(debugLines.Count);
+		int numDebugLines = 0;
+		int numDebugLinesFront = 0;
 		for (int i = 0; i < debugLines.Count; i++)
 		{
-			debugLineRenderer.draw(debugLines[i].vertex0, debugLines[i].vertex1, debugLines[i].color);
+			if (debugLines[i].inFront)
+				numDebugLinesFront++;
+			else
+				numDebugLines++;
+		}
+
+		graphics.resetState();
+		graphics.setViewTransform(projection, view);
+		debugLineRenderer.begin(numDebugLines);
+		for (int i = 0; i < debugLines.Count; i++)
+		{
+			if (!debugLines[i].inFront)
+				debugLineRenderer.draw(debugLines[i].vertex0, debugLines[i].vertex1, debugLines[i].color);
 		}
 		debugLineRenderer.end((int)RenderPass.Forward, lineShader, graphics);
+
+		graphics.resetState();
+		graphics.setViewTransform(projection, view);
+		debugLineRendererFront.begin(numDebugLinesFront);
+		for (int i = 0; i < debugLines.Count; i++)
+		{
+			if (debugLines[i].inFront)
+				debugLineRendererFront.draw(debugLines[i].vertex0, debugLines[i].vertex1, debugLines[i].color);
+		}
+		graphics.setDepthTest(DepthTest.None);
+		debugLineRendererFront.end((int)RenderPass.Forward, lineShader, graphics);
 	}
 
 	static void ForwardPass()

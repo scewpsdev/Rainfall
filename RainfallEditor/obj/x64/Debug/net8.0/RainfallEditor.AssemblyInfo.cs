@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RainfallEditor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5fb2d144f9b48efb4e712b365b6ceb6d36502a33")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ddfd823d00b34eeb56280b7cc0deaef9eee02651")]
 [assembly: System.Reflection.AssemblyProductAttribute("RainfallEditor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RainfallEditor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

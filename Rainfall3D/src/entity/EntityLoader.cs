@@ -20,10 +20,8 @@ namespace Rainfall
 			return root + "/" + path;
 		}
 
-		public static Entity CreateEntityFromData(SceneFormat.EntityData entityData, string path)
+		public static void CreateEntityFromData(SceneFormat.EntityData entityData, string path, Entity entity)
 		{
-			Entity entity = new Entity();
-
 			entity.name = entityData.name;
 			entity.isStatic = entityData.isStatic;
 
@@ -39,37 +37,123 @@ namespace Rainfall
 			}
 
 			if (entityData.colliders.Count > 0)
-				entity.body = new RigidBody(entity, entityData.rigidBodyType);
+			{
+				entity.bodyType = entityData.rigidBodyType;
+				entity.body = new RigidBody(entity, entityData.rigidBodyType, entity.bodyFilterMask);
+			}
 			for (int i = 0; i < entityData.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData colliderData = entityData.colliders[i];
-				switch (colliderData.type)
+				if (colliderData.trigger)
 				{
-					case SceneFormat.ColliderType.Box:
-						entity.body.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
-						break;
-					case SceneFormat.ColliderType.Sphere:
-						entity.body.addSphereCollider(colliderData.radius, colliderData.offset);
-						break;
-					case SceneFormat.ColliderType.Capsule:
-						entity.body.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
-						break;
-					case SceneFormat.ColliderType.Mesh:
-						if (colliderData.meshColliderPath != null)
-						{
-							Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
-							meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
-							if (meshCollider == null)
+					switch (colliderData.type)
+					{
+						case SceneFormat.ColliderType.Box:
+							entity.body.addBoxTrigger(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						case SceneFormat.ColliderType.Sphere:
+							entity.body.addSphereTrigger(colliderData.radius, colliderData.offset);
+							break;
+						case SceneFormat.ColliderType.Capsule:
+							entity.body.addCapsuleTrigger(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						case SceneFormat.ColliderType.Mesh:
+							if (colliderData.meshColliderPath != null)
 							{
-								meshCollider = Physics.CreateMeshCollider(model, 0);
-								meshColliderCache.Add(model, meshCollider);
+								Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
+								meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
+								if (meshCollider == null)
+								{
+									meshCollider = Physics.CreateMeshCollider(model, 0);
+									meshColliderCache.Add(model, meshCollider);
+								}
+								entity.body.addMeshTrigger(meshCollider, Matrix.CreateTranslation(colliderData.offset));
 							}
-							entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
+							break;
+						default:
+							Debug.Assert(false);
+							break;
+					}
+				}
+				else
+				{
+					switch (colliderData.type)
+					{
+						case SceneFormat.ColliderType.Box:
+							entity.body.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						case SceneFormat.ColliderType.Sphere:
+							entity.body.addSphereCollider(colliderData.radius, colliderData.offset);
+							break;
+						case SceneFormat.ColliderType.Capsule:
+							entity.body.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						case SceneFormat.ColliderType.Mesh:
+							if (colliderData.meshColliderPath != null)
+							{
+								Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
+								meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
+								if (meshCollider == null)
+								{
+									meshCollider = Physics.CreateMeshCollider(model, 0);
+									meshColliderCache.Add(model, meshCollider);
+								}
+								entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
+							}
+							break;
+						default:
+							Debug.Assert(false);
+							break;
+					}
+				}
+			}
+
+			if (entityData.boneColliders != null)
+			{
+				entity.hitboxes = new Dictionary<string, RigidBody>();
+
+				foreach (string nodeName in entityData.boneColliders.Keys)
+				{
+					RigidBody boneCollider = new RigidBody(entity, RigidBodyType.Kinematic, entity.hitboxFilterMask);
+					entity.hitboxes.Add(nodeName, boneCollider);
+
+					SceneFormat.ColliderData colliderData = entityData.boneColliders[nodeName];
+					if (colliderData.trigger)
+					{
+						switch (colliderData.type)
+						{
+							case SceneFormat.ColliderType.Box:
+								boneCollider.addBoxTrigger(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							case SceneFormat.ColliderType.Sphere:
+								boneCollider.addSphereTrigger(colliderData.radius, colliderData.offset);
+								break;
+							case SceneFormat.ColliderType.Capsule:
+								boneCollider.addCapsuleTrigger(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							default:
+								Debug.Assert(false);
+								break;
 						}
-						break;
-					default:
-						Debug.Assert(false);
-						break;
+					}
+					else
+					{
+						switch (colliderData.type)
+						{
+							case SceneFormat.ColliderType.Box:
+								boneCollider.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							case SceneFormat.ColliderType.Sphere:
+								boneCollider.addSphereCollider(colliderData.radius, colliderData.offset);
+								break;
+							case SceneFormat.ColliderType.Capsule:
+								boneCollider.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							default:
+								Debug.Assert(false);
+								break;
+						}
+					}
 				}
 			}
 
@@ -88,11 +172,9 @@ namespace Rainfall
 					particles.textureAtlas = Resource.GetTexture(CombinePath(particles.textureAtlasPath, path));
 				entity.particles.Add(particles);
 			}
-
-			return entity;
 		}
 
-		public static Entity Load(string path)
+		public static T Load<T>(string path) where T : Entity, new()
 		{
 			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
 			SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
@@ -102,7 +184,14 @@ namespace Rainfall
 
 			SceneFormat.EntityData entityData = entities[0];
 
-			return CreateEntityFromData(entityData, path);
+			T t = new T();
+			CreateEntityFromData(entityData, path, t);
+			return t;
+		}
+
+		public static Entity Load(string path)
+		{
+			return Load<Entity>(path);
 		}
 	}
 }

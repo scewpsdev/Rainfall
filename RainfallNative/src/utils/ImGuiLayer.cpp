@@ -627,7 +627,7 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 	ImGuiIO& io = ImGui::GetIO();
 
 	bool mouseLocked = Application_IsMouseLocked();
-	bool imguiHovered = ImGui::IsAnyItemActive() || ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+	bool imguiHovered = ImGui::IsAnyItemActive() || ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByPopup);
 
 	switch (ev->type)
 	{
@@ -676,7 +676,7 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 
 		KeyEvent* keyEvent = (KeyEvent*)ev;
 
-		if (imguiHovered)
+		if (imguiHovered || !keyEvent->down)
 		{
 			io.KeysDown[(int)keyEvent->key] = keyEvent->down;
 

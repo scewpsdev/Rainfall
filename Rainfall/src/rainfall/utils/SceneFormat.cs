@@ -20,6 +20,7 @@ public static class SceneFormat
 	public struct ColliderData
 	{
 		public ColliderType type;
+		public bool trigger;
 
 		public Vector3 size;
 		public Vector3 offset;
@@ -141,6 +142,8 @@ public static class SceneFormat
 
 		public RigidBodyType rigidBodyType;
 		public List<ColliderData> colliders;
+		public Dictionary<string, ColliderData> boneColliders = null;
+
 		public List<LightData> lights;
 		public List<ParticleSystem> particles;
 
@@ -152,8 +155,10 @@ public static class SceneFormat
 			isStatic = false;
 
 			rotation = Quaternion.Identity;
+			scale = Vector3.One;
 
 			colliders = new List<ColliderData>();
+
 			lights = new List<LightData>();
 			particles = new List<ParticleSystem>();
 		}
@@ -203,6 +208,7 @@ public static class SceneFormat
 		{
 			DatObject collider = new DatObject();
 			collider.addIdentifier("type", entity.colliders[i].type.ToString());
+			collider.addBoolean("trigger", entity.colliders[i].trigger);
 			collider.addVector3("size", entity.colliders[i].size);
 			collider.addVector3("offset", entity.colliders[i].offset);
 			collider.addVector3("rotation", entity.colliders[i].eulers);
@@ -214,6 +220,25 @@ public static class SceneFormat
 			colliders.addObject(collider);
 		}
 		obj.addArray("colliders", colliders);
+
+		if (entity.boneColliders != null && entity.model != null)
+		{
+			DatArray boneColliders = new DatArray();
+
+			foreach (string nodeName in entity.boneColliders.Keys)
+			{
+				DatObject collider = new DatObject();
+				collider.addString("bone", nodeName);
+				collider.addIdentifier("type", entity.boneColliders[nodeName].type.ToString());
+				collider.addBoolean("trigger", entity.boneColliders[nodeName].trigger);
+				collider.addVector3("size", entity.boneColliders[nodeName].size);
+				collider.addVector3("offset", entity.boneColliders[nodeName].offset);
+				collider.addVector3("rotation", entity.boneColliders[nodeName].eulers);
+				boneColliders.addObject(collider);
+			}
+
+			obj.addArray("boneColliders", boneColliders);
+		}
 
 		DatArray lights = new DatArray();
 		for (int i = 0; i < entity.lights.Count; i++)
@@ -242,7 +267,7 @@ public static class SceneFormat
 			particle.addNumber("emissionRate", particleData.emissionRate);
 			particle.addIdentifier("spawnShape", particleData.spawnShape.ToString());
 			particle.addVector3("spawnOffset", particleData.spawnOffset);
-			if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere)
+			if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere || particleData.spawnShape == ParticleSpawnShape.Line)
 				particle.addNumber("spawnRadius", particleData.spawnRadius);
 			if (particleData.spawnShape == ParticleSpawnShape.Line)
 				particle.addVector3("lineEnd", particleData.lineEnd);
@@ -363,14 +388,35 @@ public static class SceneFormat
 				ColliderData collider = new ColliderData();
 				if (colliders[i].obj.getIdentifier("type", out string type))
 					collider.type = Utils.ParseEnum<ColliderType>(type);
+				colliders[i].obj.getBoolean("trigger", out collider.trigger);
 				if (colliders[i].obj.getVector3("size", out Vector3 size))
 					collider.size = size;
-				if (colliders[i].obj.getVector3("offset", out Vector3 offset))
-					collider.offset = offset;
-				if (colliders[i].obj.getVector3("rotation", out Vector3 eulers))
-					collider.eulers = eulers;
+				colliders[i].obj.getVector3("offset", out collider.offset);
+				colliders[i].obj.getVector3("rotation", out collider.eulers);
 				colliders[i].obj.getStringContent("mesh", out collider.meshColliderPath);
 				entity.colliders.Add(collider);
+			}
+		}
+
+		if (obj.getArray("boneColliders", out DatArray boneColliders))
+		{
+			entity.boneColliders = new Dictionary<string, ColliderData>();
+
+			for (int i = 0; i < boneColliders.size; i++)
+			{
+				DatObject collider = boneColliders[i].obj;
+				collider.getStringContent("bone", out string nodeName);
+
+				ColliderData colliderData = new ColliderData();
+				if (collider.getIdentifier("type", out string type))
+					colliderData.type = Utils.ParseEnum<ColliderType>(type);
+				collider.getBoolean("trigger", out colliderData.trigger);
+				if (collider.getVector3("size", out Vector3 size))
+					colliderData.size = size;
+				collider.getVector3("offset", out colliderData.offset);
+				collider.getVector3("rotation", out colliderData.eulers);
+
+				entity.boneColliders.Add(nodeName, colliderData);
 			}
 		}
 
@@ -406,10 +452,8 @@ public static class SceneFormat
 				if (particle.getIdentifier("spawnShape", out string spawnShape))
 					particleData.spawnShape = Utils.ParseEnum<ParticleSpawnShape>(spawnShape);
 				particle.getVector3("spawnOffset", out particleData.spawnOffset);
-				if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere)
-					particle.getNumber("spawnRadius", out particleData.spawnRadius);
-				if (particleData.spawnShape == ParticleSpawnShape.Line)
-					particle.getVector3("lineEnd", out particleData.lineEnd);
+				particle.getNumber("spawnRadius", out particleData.spawnRadius);
+				particle.getVector3("lineEnd", out particleData.lineEnd);
 
 				particle.getNumber("gravity", out particleData.gravity);
 				particle.getNumber("drag", out particleData.drag);

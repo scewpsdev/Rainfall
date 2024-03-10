@@ -38,7 +38,7 @@ namespace Rainfall
 		}
 
 		public Vector3 size { get => new Vector3(x1 - x0, y1 - y0, z1 - z0); }
-		public Vector3 offset { get => new Vector3(x0 + x1, y0 + y1, z0 + z1) * 0.5f; }
+		public Vector3 center { get => new Vector3(x0 + x1, y0 + y1, z0 + z1) * 0.5f; }
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -47,7 +47,11 @@ namespace Rainfall
 		public float xcenter, ycenter, zcenter;
 		public float radius;
 
-		public Vector3 center { get => new Vector3(xcenter, ycenter, zcenter); }
+		public Vector3 center
+		{
+			get => new Vector3(xcenter, ycenter, zcenter);
+			set { xcenter = value.x; ycenter = value.y; zcenter = value.z; }
+		}
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

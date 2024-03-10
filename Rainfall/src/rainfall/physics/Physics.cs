@@ -142,7 +142,7 @@ namespace Rainfall
 			}
 		}
 
-		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, uint filterMask = 0xFFFF, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, uint filterMask = 1, QueryFilterFlags filterData = QueryFilterFlags.Default)
 		{
 			Span<HitData> hits = stackalloc HitData[16];
 			int numHits = Raycast(origin, direction, distance, hits, filterData);
@@ -153,7 +153,7 @@ namespace Rainfall
 				int closestHit = -1;
 				for (int i = 0; i < numHits; i++)
 				{
-					if (hits[i].body != null && (hits[i].body.filterGroup & filterMask) != 0 && hits[i].distance < shortestDistance)
+					if (hits[i].body != null && (hits[i].body.filterMask & filterMask) != 0 && hits[i].distance < shortestDistance)
 					{
 						shortestDistance = hits[i].distance;
 						closestHit = i;

@@ -123,6 +123,8 @@ public class ParticleSystem
 
 	long systemStarted, lastEmitted;
 
+	public BoundingSphere boundingSphere { get; private set; }
+
 	Random random;
 	Simplex simplex;
 
@@ -163,9 +165,11 @@ public class ParticleSystem
 		gravity = from.gravity;
 		drag = from.drag;
 		startVelocity = from.startVelocity;
+		radialVelocity = from.radialVelocity;
 		startRotation = from.startRotation;
 		rotationSpeed = from.rotationSpeed;
 		applyEntityVelocity = from.applyEntityVelocity;
+		applyCentrifugalForce = from.applyCentrifugalForce;
 
 		textureAtlasPath = from.textureAtlasPath;
 		textureAtlas = from.textureAtlas;
@@ -175,14 +179,18 @@ public class ParticleSystem
 
 		color = from.color;
 		additive = from.additive;
+		emissiveIntensity = from.emissiveIntensity;
 
 		randomVelocity = from.randomVelocity;
 		randomRotation = from.randomRotation;
 		randomRotationSpeed = from.randomRotationSpeed;
 		randomLifetime = from.randomLifetime;
+		velocityNoise = from.velocityNoise;
 
 		sizeAnim = from.sizeAnim != null ? new Gradient<float>(from.sizeAnim) : null;
 		colorAnim = from.colorAnim != null ? new Gradient<Vector4>(from.colorAnim) : null;
+
+		bursts = from.bursts != null ? new List<ParticleBurst>(from.bursts) : null;
 	}
 
 	public void restartEffect()
@@ -235,25 +243,32 @@ public class ParticleSystem
 						localPosition = Vector3.Zero;
 						break;
 					case ParticleSpawnShape.Circle:
-						float r = spawnRadius * MathF.Sqrt((float)random.NextDouble());
-						float theta = (float)random.NextDouble() * 2.0f * MathF.PI;
-						localPosition = new Vector3(r * MathF.Cos(theta), 0.0f, r * MathF.Sin(theta));
+						{
+							// sqrt the random number to get an even distribution in the circle
+							float r = spawnRadius * MathF.Sqrt(random.NextSingle());
+							float theta = random.NextSingle() * 2.0f * MathF.PI;
+							localPosition = new Vector3(r * MathF.Cos(theta), 0.0f, r * MathF.Sin(theta));
+						}
 						break;
 					case ParticleSpawnShape.Sphere:
-						float d = 2.0f;
-						float x = 0.0f, y = 0.0f, z = 0.0f;
-						for (int j = 0; j < 8 && d > 1.0f; j++)
 						{
-							x = (float)random.NextDouble() * 2.0f - 1.0f;
-							y = (float)random.NextDouble() * 2.0f - 1.0f;
-							z = (float)random.NextDouble() * 2.0f - 1.0f;
-							d = x * x + y * y + z * z;
+							float r = spawnRadius * MathF.Pow(random.NextSingle(), 0.333333f);
+							float theta = random.NextSingle() * 2.0f * MathF.PI;
+							float phi = random.NextSingle() * MathF.PI;
+							localPosition = new Vector3(r * MathF.Sin(phi) * MathF.Cos(theta), r * MathF.Sin(phi) * MathF.Sin(theta), r * MathF.Cos(phi));
 						}
-						localPosition = new Vector3(x, y, z) * spawnRadius;
 						break;
 					case ParticleSpawnShape.Line:
-						float t = (float)random.NextDouble();
+						float t = random.NextSingle();
 						localPosition = Vector3.Lerp(Vector3.Zero, lineEnd, t);
+						if (spawnRadius > 0)
+						{
+
+							float r = spawnRadius * random.NextSingle();
+							float theta = random.NextSingle() * 2.0f * MathF.PI;
+							float phi = random.NextSingle() * MathF.PI;
+							localPosition += new Vector3(r * MathF.Sin(phi) * MathF.Cos(theta), r * MathF.Sin(phi) * MathF.Sin(theta), r * MathF.Cos(phi));
+						}
 						break;
 					default:
 						Debug.Assert(false);
@@ -367,8 +382,10 @@ public class ParticleSystem
 			}
 		}
 
-		particleComparator.particles = particles;
+		Vector3 min = new Vector3(float.MaxValue), max = new Vector3(float.MinValue);
+		float maxRadiusSq = 0.0f;
 
+		particleComparator.particles = particles;
 		particleIndices.Clear();
 		for (int i = 0; i < particles.Length; i++)
 		{
@@ -383,6 +400,10 @@ public class ParticleSystem
 				if (velocityNoise > 0)
 					particle.position += velocityNoise * sampleVelocityNoise((Time.currentTime + Hash.hash(i)) / 1e9f) * Time.deltaTime;
 				particle.velocity.y += 0.5f * gravity * Time.deltaTime;
+
+				min = Vector3.Min(min, particle.position - particle.size);
+				max = Vector3.Max(max, particle.position + particle.size);
+				maxRadiusSq = MathF.Max(maxRadiusSq, (particle.position - boundingSphere.center).lengthSquared);
 
 				particle.rotation += particle.rotationVelocity * Time.deltaTime;
 
@@ -413,6 +434,8 @@ public class ParticleSystem
 				}
 			}
 		}
+
+		boundingSphere = new BoundingSphere { center = (min + max) * 0.5f, radius = MathF.Sqrt(maxRadiusSq) };
 	}
 
 	public int numParticles
