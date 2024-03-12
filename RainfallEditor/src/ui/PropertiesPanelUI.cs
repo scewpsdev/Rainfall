@@ -110,8 +110,11 @@ public static partial class EditorUI
 
 	static unsafe void Colliders(Entity entity, EditorInstance instance)
 	{
+		entity.showDebugColliders = false;
 		if (ImGui.TreeNodeEx("Collider", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
+			entity.showDebugColliders = true;
+
 			if (entity.data.colliders.Count > 0)
 			{
 				Combo(instance, "Rigid Body Type", "body_type", ref entity.data.rigidBodyType, ImGuiComboFlags.HeightSmall);
@@ -202,8 +205,11 @@ public static partial class EditorUI
 						Node node = entity.data.model.skeleton.getNode(nodeName);
 						int nodeID = node.id;
 
+						entity.showDebugBoneColliders[nodeID] = false;
 						if (TreeNodeRemovable(instance, node.name, "bone_collider" + nodeID, out bool colliderRemoved))
 						{
+							entity.showDebugBoneColliders[nodeID] = true;
+
 							Combo(instance, "Collider Type", "bone_collider_type" + nodeID, ref collider.type, ImGuiComboFlags.HeightSmall);
 
 							Checkbox(instance, "Trigger", "bone_collider_trigger" + nodeID, ref collider.trigger);
@@ -263,10 +269,22 @@ public static partial class EditorUI
 						for (int i = 0; i < entity.data.model.skeleton.nodes.Length; i++)
 						{
 							Node node = entity.data.model.skeleton.nodes[i];
-							float radius = 0.1f;
-							SceneFormat.ColliderData collider = new SceneFormat.ColliderData(radius);
-							if (!entity.data.boneColliders.ContainsKey(node.name))
-								entity.data.boneColliders.Add(node.name, collider);
+							bool deforming = !(node.name.IndexOf("ik", StringComparison.OrdinalIgnoreCase) >= 0
+								|| node.name.IndexOf("pole_target", StringComparison.OrdinalIgnoreCase) >= 0
+								|| node.name.IndexOf("poletarget", StringComparison.OrdinalIgnoreCase) >= 0);
+							if (deforming)
+							{
+								float radius = 0.05f;
+								float distanceToEnd;
+								bool isLeafNode = node.children.Length == 0;
+								if (isLeafNode)
+									distanceToEnd = 0.05f;
+								else
+									distanceToEnd = node.children[0].transform.translation.length;
+								SceneFormat.ColliderData collider = new SceneFormat.ColliderData(new Vector3(radius, distanceToEnd, radius), new Vector3(0.0f, 0.5f * distanceToEnd, 0.0f));
+								if (!entity.data.boneColliders.ContainsKey(node.name))
+									entity.data.boneColliders.Add(node.name, collider);
+							}
 						}
 					}
 				}

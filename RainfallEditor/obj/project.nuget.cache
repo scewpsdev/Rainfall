@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "DJh3yyYg7NjOQk4nL3DyALY4qLX0T9s7FsrfmPGhowKeWQBGjmXTH6tI5/KcSol90dM1ISiNR70BzZVwsDFmiQ==",
+  "dgSpecHash": "HwRt30lxT7d34MWFFit5m7jf+L7oC+k1DQvFe0idLwW4cZ9debdwdFOshd5Sw2kYKB1Tt8Hoo/T6k2+zPexOcg==",
   "success": true,
   "projectFilePath": "D:\\Dev\\2023\\Rainfall\\RainfallEditor\\RainfallEditor.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.1\\microsoft.dotnet.ilcompiler.8.0.1.nupkg.sha512",
-    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.1\\microsoft.net.illink.tasks.8.0.1.nupkg.sha512",
-    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.1\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.1.nupkg.sha512"
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.2\\microsoft.dotnet.ilcompiler.8.0.2.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.2\\microsoft.net.illink.tasks.8.0.2.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.2\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.2.nupkg.sha512"
   ],
   "logs": []
 }

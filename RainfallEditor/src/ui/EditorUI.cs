@@ -216,7 +216,7 @@ public static unsafe partial class EditorUI
 	public static unsafe bool TreeNodeOptional(EditorInstance instance, string label, string sid, ref bool enabled)
 	{
 		ImGui.SetNextItemAllowOverlap();
-		bool openSettings = ImGui.TreeNodeEx(label + "##" + sid + "_settings");
+		bool openSettings = ImGui.TreeNodeEx(label + "##" + sid + "_settings", ImGuiTreeNodeFlags.SpanAvailWidth);
 		ImGui.SameLine(SPACING_X);
 		byte newEnabled = (byte)(enabled ? 1 : 0);
 		ImGui.PushStyleVar_Vec2(ImGuiStyleVar.FramePadding, Vector2.Zero);

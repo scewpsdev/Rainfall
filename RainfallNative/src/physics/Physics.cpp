@@ -152,6 +152,10 @@ namespace Physics
 				int shapeID = getShapeID(pair.shapes[0]->getActor(), pair.shapes[0]);
 				int otherShapeID = getShapeID(pair.shapes[1]->getActor(), pair.shapes[1]);
 
+				PxContactPairPoint contactPoints[8];
+				int numContactPoints = pair.extractContacts(contactPoints, sizeof(contactPoints) / sizeof(PxContactPairPoint));
+				printf("NumContactPoints %d\n", numContactPoints);
+
 				CharacterController* otherController = nullptr;
 				bool isController = other->actorType == ActorType::CharacterController;
 
@@ -270,7 +274,7 @@ namespace Physics
 		virtual PxQueryHitType::Enum preFilter(
 			const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
 		{
-			if (filterData.word1 & shape->getQueryFilterData().word0)
+			if (filterData.word0 & shape->getQueryFilterData().word0)
 				return PxQueryHitType::eBLOCK;
 			return PxQueryHitType::eNONE;
 		}
@@ -1279,10 +1283,10 @@ namespace Physics
 		return Sweep(PxCapsuleGeometry(radius, 0.5f * height), position, rotation, direction, maxDistance, hits, maxHits, flags);
 	}
 
-	static int Overlap(const PxGeometry& geometry, PxTransform transform, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	static int Overlap(const PxGeometry& geometry, PxTransform transform, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
 		PxQueryFilterData queryFilterData = PxQueryFilterData(flags);
-		//queryFilterData.data.word0 = 1;
+		queryFilterData.data.word0 = filterMask;
 		//queryFilterData.data.word1 = filterMask;
 
 		static PxOverlapHit hitData[256];
@@ -1314,18 +1318,18 @@ namespace Physics
 		return hitBuffer.getNbTouches();
 	}
 
-	RFAPI int Physics_OverlapBox(const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int Physics_OverlapBox(const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
-		return Overlap(PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), hits, maxHits, flags);
+		return Overlap(PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), hits, maxHits, flags, filterMask);
 	}
 
-	RFAPI int Physics_OverlapSphere(float radius, const Vector3& position, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int Physics_OverlapSphere(float radius, const Vector3& position, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
-		return Overlap(PxSphereGeometry(radius), PxTransform(PxVec3(position.x, position.y, position.z)), hits, maxHits, flags);
+		return Overlap(PxSphereGeometry(radius), PxTransform(PxVec3(position.x, position.y, position.z)), hits, maxHits, flags, filterMask);
 	}
 
-	RFAPI int Physics_OverlapCapsule(float radius, float height, const Vector3& position, const Quaternion& rotation, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int Physics_OverlapCapsule(float radius, float height, const Vector3& position, const Quaternion& rotation, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
-		return Overlap(PxCapsuleGeometry(radius, 0.5f * height - radius), PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), hits, maxHits, flags);
+		return Overlap(PxCapsuleGeometry(radius, 0.5f * height - radius), PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), hits, maxHits, flags, filterMask);
 	}
 }
