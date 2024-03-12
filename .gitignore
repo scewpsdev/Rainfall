@@ -12,6 +12,8 @@ RainfallNative/lib/
 RainfallResourceCompiler/bin/
 RainfallResourceCompiler/obj/
 RainfallResourceCompiler/lib/
+RainfallEditor/bin/
+RainfallEditor/obj/
 DungeonGame/bin/
 DungeonGame/obj/
 DungeonGame/builds/
