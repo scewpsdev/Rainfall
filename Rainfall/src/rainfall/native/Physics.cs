@@ -179,12 +179,12 @@ namespace Rainfall.Native
 		internal static extern unsafe int Physics_SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe int Physics_OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, HitData* hits, int maxHits, QueryFilterFlags filterData);
+		internal static extern unsafe int Physics_OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe int Physics_OverlapSphere(float radius, Vector3 position, HitData* hits, int maxHits, QueryFilterFlags filterData);
+		internal static extern unsafe int Physics_OverlapSphere(float radius, Vector3 position, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe int Physics_OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, HitData* hits, int maxHits, QueryFilterFlags filterData);
+		internal static extern unsafe int Physics_OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
 	}
 }

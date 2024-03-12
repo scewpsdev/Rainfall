@@ -220,57 +220,57 @@ namespace Rainfall
 			}
 		}
 
-		public static int OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData);
+					return Native.Physics.Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData);
+					return Native.Physics.Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int OverlapSphere(float radius, Vector3 position, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int OverlapSphere(float radius, Vector3 position, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapSphere(radius, position, data, hits.Length, filterData);
+					return Native.Physics.Physics_OverlapSphere(radius, position, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int OverlapSphere(float radius, Vector3 position, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int OverlapSphere(float radius, Vector3 position, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapSphere(radius, position, data, hits.Length, filterData);
+					return Native.Physics.Physics_OverlapSphere(radius, position, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData);
+					return Native.Physics.Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData);
+					return Native.Physics.Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 

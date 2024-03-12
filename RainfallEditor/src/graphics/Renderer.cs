@@ -370,8 +370,8 @@ public static class Renderer
 		// bottom ring
 		for (int k = 0; k < segmentCount; k++)
 		{
-			Vector3 vertex0 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
-			Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex0 = transform * (new Vector3(0.0f, height * -0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+			Vector3 vertex1 = transform * (new Vector3(0.0f, height * -0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
 
 			DrawDebugLine(vertex0, vertex1, color, inFront);
 		}
@@ -432,21 +432,32 @@ public static class Renderer
 		}
 	}
 
-	static void DrawDebugSkeletonNode(Node node, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix nodeTransform, Vector4 color)
+	static bool IsDeformBone(Node node)
+	{
+		bool ik = node.name.IndexOf("ik", StringComparison.OrdinalIgnoreCase) >= 0;
+		bool poleTarget = node.name.IndexOf("pole_target", StringComparison.OrdinalIgnoreCase) >= 0 || node.name.IndexOf("poletarget", StringComparison.OrdinalIgnoreCase) >= 0;
+
+		return !ik && !poleTarget;
+	}
+
+	static void DrawDebugSkeletonNode(Node node, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix nodeTransform, Vector4 color, bool[] mask)
 	{
 		bool isLeafNode = node.children.Length == 0;
 		if (isLeafNode)
 		{
-			Vector3 endPoint = nodeTransform * Vector3.Up;
+			Vector3 endPoint = nodeTransform * (Vector3.Up * 0.1f);
 			DrawDebugLine(nodeTransform.translation, endPoint, color, true);
 		}
 		else
 		{
 			for (int i = 0; i < node.children.Length; i++)
 			{
-				Matrix childTransform = nodeTransform * node.children[i].transform;
-				DrawDebugLine(nodeTransform.translation, childTransform.translation, color, true);
-				DrawDebugSkeletonNode(node.children[i], boneColliders, childTransform, color);
+				if (IsDeformBone(node.children[i]))
+				{
+					Matrix childTransform = nodeTransform * node.children[i].transform;
+					DrawDebugLine(nodeTransform.translation, childTransform.translation, color, true);
+					DrawDebugSkeletonNode(node.children[i], boneColliders, childTransform, color, mask);
+				}
 			}
 		}
 
@@ -454,14 +465,15 @@ public static class Renderer
 		{
 			if (boneColliders.ContainsKey(node.name))
 			{
-				DrawDebugCollider(boneColliders[node.name], nodeTransform, color, true);
+				if (mask == null || mask[node.id])
+					DrawDebugCollider(boneColliders[node.name], nodeTransform, color, true);
 			}
 		}
 	}
 
-	public static void DrawDebugSkeleton(Skeleton skeleton, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix transform, Vector4 color)
+	public static void DrawDebugSkeleton(Skeleton skeleton, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix transform, Vector4 color, bool[] mask = null)
 	{
-		DrawDebugSkeletonNode(skeleton.rootNode, boneColliders, transform * skeleton.rootNode.transform, color);
+		DrawDebugSkeletonNode(skeleton.rootNode, boneColliders, transform * skeleton.rootNode.transform, color, mask);
 	}
 
 	public static void DrawLight(Vector3 position, Vector3 color)

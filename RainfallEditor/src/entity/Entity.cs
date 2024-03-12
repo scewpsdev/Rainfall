@@ -21,6 +21,9 @@ public class Entity
 
 	public SceneFormat.EntityData data;
 
+	public bool showDebugColliders;
+	public bool[] showDebugBoneColliders;
+
 
 	public Entity(string name)
 	{
@@ -35,7 +38,10 @@ public class Entity
 	public void reload()
 	{
 		if (data.modelPath != null)
+		{
 			data.model = Resource.GetModel(RainfallEditor.CompileAsset(data.modelPath));
+			showDebugBoneColliders = new bool[data.model.skeleton.nodes.Length];
+		}
 		else
 			data.model = null;
 
@@ -90,18 +96,13 @@ public class Entity
 		}
 	}
 
-	public void draw(GraphicsDevice graphics)
+	public unsafe void draw(GraphicsDevice graphics)
 	{
 		Matrix transform = getModelMatrix();
 
 		if (data.model != null)
 		{
 			Renderer.DrawModel(data.model, transform);
-			unsafe
-			{
-				if (data.model.scene->numAnimations > 0)
-					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, new Vector4(0.5f, 0.5f, 1, 1));
-			}
 		}
 
 		for (int i = 0; i < data.lights.Count; i++)
@@ -109,7 +110,7 @@ public class Entity
 			Renderer.DrawLight(transform * data.lights[i].offset, data.lights[i].color * data.lights[i].intensity);
 		}
 
-		if (RainfallEditor.instance.currentTab.selectedEntity == data.id)
+		if (RainfallEditor.instance.currentTab.selectedEntity == data.id && showDebugColliders)
 		{
 			// Debug colliders
 			for (int i = 0; i < data.colliders.Count; i++)
@@ -117,6 +118,12 @@ public class Entity
 				SceneFormat.ColliderData collider = data.colliders[i];
 				Vector4 color = collider.trigger ? new Vector4(1, 0, 0, 1) : new Vector4(0, 1, 0, 1);
 				Renderer.DrawDebugCollider(collider, transform, color);
+			}
+
+			if (data.model != null)
+			{
+				if (data.model.scene->numAnimations > 0)
+					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, new Vector4(0.5f, 0.5f, 1, 1), showDebugBoneColliders);
 			}
 		}
 
