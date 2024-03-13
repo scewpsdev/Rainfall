@@ -41,9 +41,9 @@ public class Camera
 		{
 			if (ImGui.IsMouseButtonDown(MouseButton.Left))
 			{
-				if (ImGui.IsKeyDown(KeyCode.LeftAlt))
+				if (ImGui.IsKeyDown(KeyCode.Alt))
 				{
-					if (ImGui.IsKeyDown(KeyCode.LeftShift))
+					if (ImGui.IsKeyDown(KeyCode.Shift))
 					{
 						Vector3 right = _rotation.right;
 						Vector3 down = _rotation.down;
@@ -72,7 +72,7 @@ public class Camera
 			{
 				if (ImGui.IsKeyPressed(KeyCode.NumPad1) || ImGui.IsKeyPressed(KeyCode.Key1))
 				{
-					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+					if (ImGui.IsKeyDown(KeyCode.Ctrl))
 						rotationTarget = new Vector2(0, MathF.PI);
 					else
 						rotationTarget = new Vector2(0, 0);
@@ -80,7 +80,7 @@ public class Camera
 				}
 				if (ImGui.IsKeyPressed(KeyCode.NumPad3) || ImGui.IsKeyPressed(KeyCode.Key3))
 				{
-					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+					if (ImGui.IsKeyDown(KeyCode.Ctrl))
 						rotationTarget = new Vector2(0, -MathF.PI * 0.5f);
 					else
 						rotationTarget = new Vector2(0, MathF.PI * 0.5f);
@@ -88,7 +88,7 @@ public class Camera
 				}
 				if (ImGui.IsKeyPressed(KeyCode.NumPad7) || ImGui.IsKeyPressed(KeyCode.Key7))
 				{
-					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+					if (ImGui.IsKeyDown(KeyCode.Ctrl))
 						rotationTarget = new Vector2(MathF.PI * 0.5f, MathF.PI);
 					else
 						rotationTarget = new Vector2(-MathF.PI * 0.5f, 0);

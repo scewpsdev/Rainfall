@@ -277,15 +277,15 @@ public static unsafe partial class EditorUI
 				ImGui.EndMenu();
 			}
 
-			if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyN))
+			if (ImGui.IsKeyDown(KeyCode.Ctrl) && ImGui.IsKeyPressed(KeyCode.N))
 				editor.newTab();
-			if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyO))
+			if (ImGui.IsKeyDown(KeyCode.Ctrl) && ImGui.IsKeyPressed(KeyCode.O))
 				editor.open();
-			if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyS))
+			if (ImGui.IsKeyDown(KeyCode.Ctrl) && ImGui.IsKeyPressed(KeyCode.S))
 			{
-				if (ImGui.IsKeyDown(KeyCode.LeftShift))
+				if (ImGui.IsKeyDown(KeyCode.Shift))
 				{
-					if (ImGui.IsKeyDown(KeyCode.LeftAlt))
+					if (ImGui.IsKeyDown(KeyCode.Alt))
 						editor.saveAll();
 					else
 						editor.saveAs();
@@ -298,11 +298,11 @@ public static unsafe partial class EditorUI
 
 			if (editor.currentTab != null)
 			{
-				if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyY))
+				if (ImGui.IsKeyDown(KeyCode.Ctrl) && ImGui.IsKeyPressed(KeyCode.Y))
 					editor.currentTab.undo();
-				if (ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyPressed(KeyCode.KeyZ))
+				if (ImGui.IsKeyDown(KeyCode.Ctrl) && ImGui.IsKeyPressed(KeyCode.Z))
 					editor.currentTab.redo();
-				if (ImGui.IsKeyDown(KeyCode.LeftShift) && ImGui.IsKeyPressed(KeyCode.KeyA))
+				if (ImGui.IsKeyDown(KeyCode.Shift) && ImGui.IsKeyPressed(KeyCode.A))
 					editor.currentTab.newEntity();
 			}
 
@@ -315,9 +315,9 @@ public static unsafe partial class EditorUI
 		ImGui.SetNextWindowPos(new Vector2(0, ImGui.GetFrameHeight()));
 		ImGui.SetNextWindowSize(new Vector2(Display.width, ImGui.GetFrameHeight()));
 
-		if (ImGui.IsKeyPressed(KeyCode.Tab) && ImGui.IsKeyDown(KeyCode.LeftCtrl))
+		if (ImGui.IsKeyPressed(KeyCode.Tab) && ImGui.IsKeyDown(KeyCode.Ctrl))
 			nextSelectedTab = editor.getNextTab(editor.currentTab);
-		if (ImGui.IsKeyPressed(KeyCode.Tab) && ImGui.IsKeyDown(KeyCode.LeftCtrl) && ImGui.IsKeyDown(KeyCode.LeftShift))
+		if (ImGui.IsKeyPressed(KeyCode.Tab) && ImGui.IsKeyDown(KeyCode.Ctrl) && ImGui.IsKeyDown(KeyCode.Shift))
 			nextSelectedTab = editor.getPrevTab(editor.currentTab);
 
 		if (ImGui.Begin("tab_pane", null, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
@@ -346,9 +346,9 @@ public static unsafe partial class EditorUI
 					{
 						editor.currentTab = tab;
 
-						if (ImGui.IsKeyPressed(KeyCode.KeyW) && ImGui.IsKeyDown(KeyCode.LeftCtrl) && !closedTabs.Contains(tab))
+						if (ImGui.IsKeyPressed(KeyCode.W) && ImGui.IsKeyDown(KeyCode.Ctrl) && !closedTabs.Contains(tab))
 						{
-							if (ImGui.IsKeyDown(KeyCode.LeftShift))
+							if (ImGui.IsKeyDown(KeyCode.Shift))
 							{
 								foreach (EditorInstance otherTab in editor.tabs)
 								{
@@ -415,18 +415,18 @@ public static unsafe partial class EditorUI
 			{
 				if (ImGui.IsWindowHovered())
 				{
-					if (!ImGui.IsAnyItemActive() && !ImGui.IsKeyDown(KeyCode.LeftCtrl) && !ImGui.IsKeyDown(KeyCode.LeftShift) && !ImGui.IsKeyDown(KeyCode.LeftAlt))
+					if (!ImGui.IsAnyItemActive() && !ImGui.IsKeyDown(KeyCode.Ctrl) && !ImGui.IsKeyDown(KeyCode.Shift) && !ImGui.IsKeyDown(KeyCode.Alt))
 					{
-						if (ImGui.IsKeyPressed(KeyCode.KeyT))
+						if (ImGui.IsKeyPressed(KeyCode.T))
 							currentManipulateOperation = GuizmoManipulateOperation.TRANSLATE;
-						if (ImGui.IsKeyPressed(KeyCode.KeyR))
+						if (ImGui.IsKeyPressed(KeyCode.R))
 							currentManipulateOperation = GuizmoManipulateOperation.ROTATE;
-						if (ImGui.IsKeyPressed(KeyCode.KeyS))
+						if (ImGui.IsKeyPressed(KeyCode.S))
 							currentManipulateOperation = GuizmoManipulateOperation.SCALE;
 					}
 
 					Vector3? snap = null;
-					if (ImGui.IsKeyDown(KeyCode.LeftCtrl))
+					if (ImGui.IsKeyDown(KeyCode.Ctrl))
 					{
 						if (currentManipulateOperation == GuizmoManipulateOperation.TRANSLATE)
 							snap = new Vector3(0.5f);

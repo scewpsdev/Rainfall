@@ -95,7 +95,7 @@ internal class DungeonGame : Game
 		}
 #endif
 
-		if (Input.IsKeyPressed(KeyCode.KeyP))
+		if (Input.IsKeyPressed(KeyCode.P))
 		{
 			gameManager.resetGameState();
 		}

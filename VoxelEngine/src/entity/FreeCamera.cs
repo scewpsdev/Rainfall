@@ -27,22 +27,22 @@ public class FreeCamera : Camera
 
 		Vector3 velocity = Vector3.Zero;
 
-		if (Input.IsKeyDown(KeyCode.KeyA))
+		if (Input.IsKeyDown(KeyCode.A))
 			velocity.x -= 1;
-		if (Input.IsKeyDown(KeyCode.KeyD))
+		if (Input.IsKeyDown(KeyCode.D))
 			velocity.x += 1;
-		if (Input.IsKeyDown(KeyCode.KeyW))
+		if (Input.IsKeyDown(KeyCode.W))
 			velocity.z -= 1;
-		if (Input.IsKeyDown(KeyCode.KeyS))
+		if (Input.IsKeyDown(KeyCode.S))
 			velocity.z += 1;
-		if (Input.IsKeyDown(KeyCode.LeftCtrl))
+		if (Input.IsKeyDown(KeyCode.Ctrl))
 			velocity.y -= 1;
 		if (Input.IsKeyDown(KeyCode.Space))
 			velocity.y += 1;
 
 		if (velocity.lengthSquared > 0)
 		{
-			float speedMultiplier = Input.IsKeyDown(KeyCode.LeftShift) ? 3 : 1;
+			float speedMultiplier = Input.IsKeyDown(KeyCode.Shift) ? 3 : 1;
 
 			velocity = Quaternion.FromAxisAngle(Vector3.Up, yaw) * velocity.normalized * SPEED * speedMultiplier;
 			Vector3 displacement = velocity * Time.deltaTime;
