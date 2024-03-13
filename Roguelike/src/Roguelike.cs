@@ -116,18 +116,18 @@ internal class Roguelike : Game
 
 		if (state == GameState.Menu)
 		{
-			if (Input.IsKeyPressed(KeyCode.Down) || Input.IsKeyPressed(KeyCode.KeyS))
+			if (Input.IsKeyPressed(KeyCode.Down) || Input.IsKeyPressed(KeyCode.S))
 			{
 				selectedButton = Math.Min(selectedButton + 1, 1);
 				Audio.PlayBackground(sfxSelect);
 			}
-			else if (Input.IsKeyPressed(KeyCode.Up) || Input.IsKeyPressed(KeyCode.KeyW))
+			else if (Input.IsKeyPressed(KeyCode.Up) || Input.IsKeyPressed(KeyCode.W))
 			{
 				selectedButton = Math.Max(selectedButton - 1, 0);
 				Audio.PlayBackground(sfxSelect);
 			}
 
-			if (Input.IsKeyPressed(KeyCode.KeyE) || Input.IsKeyPressed(KeyCode.Return))
+			if (Input.IsKeyPressed(KeyCode.E) || Input.IsKeyPressed(KeyCode.Return))
 			{
 				if (selectedButton == 0)
 				{

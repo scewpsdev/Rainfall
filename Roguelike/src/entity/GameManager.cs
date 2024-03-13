@@ -77,7 +77,7 @@ public class GameManager
 	{
 		if (player.health == 0)
 		{
-			if (Input.IsKeyPressed(KeyCode.KeyE))
+			if (Input.IsKeyPressed(KeyCode.E))
 			{
 				resetGameState();
 			}

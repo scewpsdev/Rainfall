@@ -152,13 +152,13 @@ public class Player : Entity
 	{
 		Vector2i input = Vector2i.Zero;
 
-		if (Input.IsKeyDown(KeyCode.KeyA))
+		if (Input.IsKeyDown(KeyCode.A))
 			input.x--;
-		if (Input.IsKeyDown(KeyCode.KeyD))
+		if (Input.IsKeyDown(KeyCode.D))
 			input.x++;
-		if (Input.IsKeyDown(KeyCode.KeyS))
+		if (Input.IsKeyDown(KeyCode.S))
 			input.y--;
-		if (Input.IsKeyDown(KeyCode.KeyW))
+		if (Input.IsKeyDown(KeyCode.W))
 			input.y++;
 
 		Vector2 velocity = Vector2.Zero;
@@ -214,7 +214,7 @@ public class Player : Entity
 		}
 		if (interactableInFocus != null)
 		{
-			if (Input.IsKeyPressed(KeyCode.KeyE))
+			if (Input.IsKeyPressed(KeyCode.E))
 			{
 				interactableInFocus.interact(this);
 			}

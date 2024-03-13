@@ -137,11 +137,11 @@ public class InventoryUI
 				bool selected = totalSlotIndex == equipmentTabOverviewSelectedSlot;
 				if (selected)
 				{
-					if (hovered && Input.IsMouseButtonPressed(MouseButton.Left) || Input.IsKeyPressed(KeyCode.KeyE))
+					if (hovered && Input.IsMouseButtonPressed(MouseButton.Left) || Input.IsKeyPressed(KeyCode.E))
 					{
 						//openItemSelectScreen(ItemCategory.Weapon, ItemCategory.Shield, ItemCategory.Utility, ItemCategory.Consumable);
 					}
-					else if (Input.IsKeyPressed(KeyCode.KeyF))
+					else if (Input.IsKeyPressed(KeyCode.F))
 					{
 						//if (player.equipHandItem(handID, i, null))
 						//{ }
@@ -229,7 +229,7 @@ public class InventoryUI
 			equipmentTabSelectScreenSelectedItem = (equipmentTabSelectScreenSelectedItem - 1 + totalItemCount) % totalItemCount;
 		*/
 
-		if (Input.IsKeyPressed(KeyCode.Esc) || Input.IsKeyPressed(KeyCode.KeyQ))
+		if (Input.IsKeyPressed(KeyCode.Esc) || Input.IsKeyPressed(KeyCode.Q))
 		{
 			equipmentTabSelectScreenOpen = false;
 			return null;
@@ -243,7 +243,7 @@ public class InventoryUI
 			bool selected = totalItemIndex == equipmentTabSelectScreenSelectedItem;
 			if (selected)
 			{
-				if (hovered && Input.IsMouseButtonPressed(MouseButton.Left) || Input.IsKeyPressed(KeyCode.KeyE))
+				if (hovered && Input.IsMouseButtonPressed(MouseButton.Left) || Input.IsKeyPressed(KeyCode.E))
 					return equipmentTabSelectScreenSlots[i];
 			}
 

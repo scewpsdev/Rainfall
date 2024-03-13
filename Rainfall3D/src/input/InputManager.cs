@@ -154,12 +154,12 @@ public static class InputManager
 		get
 		{
 			float x = 0
-				+ (Input.IsKeyDown(KeyCode.KeyD) ? 1.0f : 0.0f)
-				+ (Input.IsKeyDown(KeyCode.KeyA) ? -1.0f : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.D) ? 1.0f : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.A) ? -1.0f : 0.0f)
 				;
 			float y = 0
-				+ (Input.IsKeyDown(KeyCode.KeyW) ? 1.0f : 0.0f)
-				+ (Input.IsKeyDown(KeyCode.KeyS) ? -1.0f : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.W) ? 1.0f : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.S) ? -1.0f : 0.0f)
 				;
 			return new Vector2(x, y);
 		}
@@ -170,12 +170,12 @@ public static class InputManager
 		get
 		{
 			float x = Input.cursorMove.x * MOUSE_SENSITIVITY
-				+ (Input.IsKeyDown(KeyCode.KeyL) ? TURN_SPEED * Time.deltaTime : 0.0f)
-				+ (Input.IsKeyDown(KeyCode.KeyJ) ? -TURN_SPEED * Time.deltaTime : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.L) ? TURN_SPEED * Time.deltaTime : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.J) ? -TURN_SPEED * Time.deltaTime : 0.0f)
 				;
 			float y = Input.cursorMove.y * MOUSE_SENSITIVITY
-				+ (Input.IsKeyDown(KeyCode.KeyK) ? TURN_SPEED * Time.deltaTime : 0.0f)
-				+ (Input.IsKeyDown(KeyCode.KeyI) ? -TURN_SPEED * Time.deltaTime : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.K) ? TURN_SPEED * Time.deltaTime : 0.0f)
+				+ (Input.IsKeyDown(KeyCode.I) ? -TURN_SPEED * Time.deltaTime : 0.0f)
 				;
 			return new Vector2(x, y);
 		}
