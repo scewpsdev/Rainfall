@@ -23,6 +23,7 @@ public class Entity : PhysicsEntity
 
 	public RigidBodyType bodyType;
 	public RigidBody body = null;
+	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
 	public Dictionary<string, RigidBody> hitboxes;
 	public uint hitboxFilterGroup = 1, hitboxFilterMask = 1;

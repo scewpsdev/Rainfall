@@ -1074,12 +1074,15 @@ namespace Physics
 			joint->setLimitParams(PxArticulationAxis::eSWING1, PxArticulationLimit(-0.18f * 3, 0.18f * 3));
 			joint->setLimitParams(PxArticulationAxis::eSWING2, PxArticulationLimit(-0.18f * 3, 0.18f * 3));
 			joint->setLimitParams(PxArticulationAxis::eTWIST, PxArticulationLimit(-0.18f * 2, 0.18f * 2));
-			//joint->setDriveParams(PxArticulationAxis::eSWING1, PxArticulationDrive())
-			//joint->setDamping(10.0f);
-			//joint->setTwistLimitEnabled(true);
-			//joint->setSwingLimitEnabled(true);
-			//joint->setTwistLimit(-0.18f * 2, 0.18f * 2);
-			//joint->setSwingLimit(0.18f * 3, 0.18f * 3);
+
+			float friction = 0.1f;
+			joint->setFrictionCoefficient(friction);
+
+			float stiffness = 0.0f;
+			float damping = 0.02f;
+			joint->setDriveParams(PxArticulationAxis::eSWING1, PxArticulationDrive(stiffness, damping, 1000));
+			joint->setDriveParams(PxArticulationAxis::eSWING2, PxArticulationDrive(stiffness, damping, 1000));
+			joint->setDriveParams(PxArticulationAxis::eTWIST, PxArticulationDrive(stiffness, damping, 1000));
 		}
 		else
 		{
