@@ -23,9 +23,9 @@ public class Entity : PhysicsEntity
 
 	public RigidBodyType bodyType;
 	public RigidBody body = null;
-	public uint bodyFilterMask = 1;
+	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
 	public Dictionary<string, RigidBody> hitboxes;
-	public uint hitboxFilterMask = 1;
+	public uint hitboxFilterGroup = 1, hitboxFilterMask = 1;
 
 	public List<PointLight> lights = new List<PointLight>();
 
@@ -43,8 +43,11 @@ public class Entity : PhysicsEntity
 			foreach (string nodeName in hitboxes.Keys)
 			{
 				Node node = model.skeleton.getNode(nodeName);
-				Matrix nodeTransform = entityTransform * model.skeleton.getNodeTransform(node);
-				hitboxes[nodeName].setTransform(nodeTransform.translation, nodeTransform.rotation);
+				if (node != null)
+				{
+					Matrix nodeTransform = entityTransform * model.skeleton.getNodeTransform(node);
+					hitboxes[nodeName].setTransform(nodeTransform.translation, nodeTransform.rotation);
+				}
 			}
 		}
 	}
@@ -78,8 +81,13 @@ public class Entity : PhysicsEntity
 			animator.applyAnimation();
 		}
 
-		if (body != null && bodyType == RigidBodyType.Dynamic)
-			body.getTransform(out position, out rotation);
+		if (body != null)
+		{
+			if (bodyType == RigidBodyType.Dynamic)
+				body.getTransform(out position, out rotation);
+			else if (bodyType == RigidBodyType.Kinematic)
+				body.setTransform(position, rotation);
+		}
 
 		Matrix transform = getModelMatrix();
 

@@ -124,28 +124,28 @@ namespace Rainfall
 			Native.Physics.Physics_DestroyHeightField(heightField);
 		}
 
-		public static int Raycast(Vector3 origin, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int Raycast(Vector3 origin, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_Raycast(origin, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_Raycast(origin, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int Raycast(Vector3 origin, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int Raycast(Vector3 origin, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_Raycast(origin, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_Raycast(origin, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, uint filterMask = 1, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			Span<HitData> hits = stackalloc HitData[16];
-			int numHits = Raycast(origin, direction, distance, hits, filterData);
+			int numHits = Raycast(origin, direction, distance, hits, filterData, filterMask);
 
 			if (numHits > 0)
 			{
@@ -153,7 +153,7 @@ namespace Rainfall
 				int closestHit = -1;
 				for (int i = 0; i < numHits; i++)
 				{
-					if (hits[i].body != null && (hits[i].body.filterMask & filterMask) != 0 && hits[i].distance < shortestDistance)
+					if (hits[i].body != null && hits[i].distance < shortestDistance)
 					{
 						shortestDistance = hits[i].distance;
 						closestHit = i;
@@ -166,57 +166,57 @@ namespace Rainfall
 			return null;
 		}
 
-		public static int SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int SweepSphere(float radius, Vector3 position, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int SweepSphere(float radius, Vector3 position, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int SweepSphere(float radius, Vector3 position, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int SweepSphere(float radius, Vector3 position, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
-		public static int SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default)
+		public static int SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float distance, HitData[] hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData);
+					return Native.Physics.Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 

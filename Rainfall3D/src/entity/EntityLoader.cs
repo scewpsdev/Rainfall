@@ -33,13 +33,17 @@ namespace Rainfall
 			{
 				entity.model = Resource.GetModel(CombinePath(entityData.modelPath, path));
 				if (entity.model != null)
+				{
 					entity.model.isStatic = entityData.isStatic;
+					if (entity.model.isAnimated)
+						entity.animator = new Animator(entity.model);
+				}
 			}
 
 			if (entityData.colliders.Count > 0)
 			{
 				entity.bodyType = entityData.rigidBodyType;
-				entity.body = new RigidBody(entity, entityData.rigidBodyType, entity.bodyFilterMask);
+				entity.body = new RigidBody(entity, entityData.rigidBodyType);
 			}
 			for (int i = 0; i < entityData.colliders.Count; i++)
 			{
@@ -110,11 +114,13 @@ namespace Rainfall
 
 			if (entityData.boneColliders != null)
 			{
+				entity.hitboxData = new Dictionary<string, SceneFormat.ColliderData>();
 				entity.hitboxes = new Dictionary<string, RigidBody>();
 
 				foreach (string nodeName in entityData.boneColliders.Keys)
 				{
-					RigidBody boneCollider = new RigidBody(entity, RigidBodyType.Kinematic, entity.hitboxFilterMask);
+					RigidBody boneCollider = new RigidBody(entity, RigidBodyType.Kinematic, entity.hitboxFilterGroup);
+					entity.hitboxData.Add(nodeName, entityData.boneColliders[nodeName]);
 					entity.hitboxes.Add(nodeName, boneCollider);
 
 					SceneFormat.ColliderData colliderData = entityData.boneColliders[nodeName];
