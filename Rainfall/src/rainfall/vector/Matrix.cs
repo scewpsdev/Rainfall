@@ -196,6 +196,11 @@ namespace Rainfall
 			rotation = new Quaternion(qx, qy, qz, qw).normalized;
 		}
 
+		public void decompose(out Vector3 position, out Quaternion rotation)
+		{
+			decompose(out position, out rotation, out _);
+		}
+
 		public float determinant
 		{
 			get
