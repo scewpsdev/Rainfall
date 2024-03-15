@@ -339,6 +339,11 @@ namespace Rainfall
 			return scene->lights[idx];
 		}
 
+		public unsafe bool isAnimated
+		{
+			get => scene->numAnimations > 0;
+		}
+
 		public override bool Equals(object obj)
 		{
 			unsafe

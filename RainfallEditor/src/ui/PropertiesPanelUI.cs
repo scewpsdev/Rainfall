@@ -203,35 +203,37 @@ public static partial class EditorUI
 					{
 						SceneFormat.ColliderData collider = entity.data.boneColliders[nodeName];
 						Node node = entity.data.model.skeleton.getNode(nodeName);
-						int nodeID = node.id;
+						int nodeID = node != null ? node.id : -1;
 
-						entity.showDebugBoneColliders[nodeID] = false;
-						if (TreeNodeRemovable(instance, node.name, "bone_collider" + nodeID, out bool colliderRemoved))
+						if (nodeID != -1)
+							entity.showDebugBoneColliders[nodeID] = false;
+						if (TreeNodeRemovable(instance, nodeName, "bone_collider" + nodeName, out bool colliderRemoved))
 						{
-							entity.showDebugBoneColliders[nodeID] = true;
+							if (nodeID != -1)
+								entity.showDebugBoneColliders[nodeID] = true;
 
-							Combo(instance, "Collider Type", "bone_collider_type" + nodeID, ref collider.type, ImGuiComboFlags.HeightSmall);
+							Combo(instance, "Collider Type", "bone_collider_type" + nodeName, ref collider.type, ImGuiComboFlags.HeightSmall);
 
-							Checkbox(instance, "Trigger", "bone_collider_trigger" + nodeID, ref collider.trigger);
+							Checkbox(instance, "Trigger", "bone_collider_trigger" + nodeName, ref collider.trigger);
 
 							if (collider.type == SceneFormat.ColliderType.Box)
 							{
-								DragFloat3(instance, "Size", "bone_collider_size" + nodeID, ref collider.size, 0.02f, 0, 100);
+								DragFloat3(instance, "Size", "bone_collider_size" + nodeName, ref collider.size, 0.02f, 0, 100);
 							}
 							else if (collider.type == SceneFormat.ColliderType.Sphere)
 							{
 								float newRadius = collider.radius;
-								if (DragFloat(instance, "Radius", "bone_collider_radius" + nodeID, ref newRadius, 0.02f, 0, 1000))
+								if (DragFloat(instance, "Radius", "bone_collider_radius" + nodeName, ref newRadius, 0.02f, 0, 1000))
 									collider.radius = newRadius;
 							}
 							else if (collider.type == SceneFormat.ColliderType.Capsule)
 							{
 								float newRadius = collider.radius;
-								if (DragFloat(instance, "Radius", "bone_collider_radius" + nodeID, ref newRadius, 0.02f, 0, 1000))
+								if (DragFloat(instance, "Radius", "bone_collider_radius" + nodeName, ref newRadius, 0.02f, 0, 1000))
 									collider.radius = newRadius;
 
 								float newHeight = collider.height;
-								if (DragFloat(instance, "Height", "bone_collider_height" + nodeID, ref newHeight, 0.02f, 2 * collider.radius, 1000))
+								if (DragFloat(instance, "Height", "bone_collider_height" + nodeName, ref newHeight, 0.02f, 2 * collider.radius, 1000))
 									collider.height = newHeight;
 							}
 							else if (collider.type == SceneFormat.ColliderType.Mesh)
@@ -239,11 +241,11 @@ public static partial class EditorUI
 								ImGui.TextUnformatted("Mesh bone collider not supported.");
 							}
 
-							DragFloat3(instance, "Offset", "bone_collider_offset" + nodeID, ref collider.offset, 0.02f);
+							DragFloat3(instance, "Offset", "bone_collider_offset" + nodeName, ref collider.offset, 0.02f);
 
 							if (collider.type != SceneFormat.ColliderType.Sphere)
 							{
-								DragFloat3Eulers(instance, "Rotation", "bone_collider_rotation" + nodeID, ref collider.eulers);
+								DragFloat3Eulers(instance, "Rotation", "bone_collider_rotation" + nodeName, ref collider.eulers);
 							}
 
 							entity.data.boneColliders[nodeName] = collider;

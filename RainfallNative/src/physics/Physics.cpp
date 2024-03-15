@@ -258,42 +258,6 @@ namespace Physics
 		virtual void onAdvance(const PxRigidBody* const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) {}
 	};
 
-	class QueryFilterCallback : public PxQueryFilterCallback
-	{
-	public:
-
-		/**
-		\brief This filter callback is executed before the exact intersection test if PxQueryFlag::ePREFILTER flag was set.
-
-		\param[in] filterData custom filter data specified as the query's filterData.data parameter.
-		\param[in] shape A shape that has not yet passed the exact intersection test.
-		\param[in] actor The shape's actor.
-		\param[in,out] queryFlags scene query flags from the query's function call (only flags from PxHitFlag::eMODIFIABLE_FLAGS bitmask can be modified)
-		\return the updated type for this hit  (see #PxQueryHitType)
-		*/
-		virtual PxQueryHitType::Enum preFilter(
-			const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
-		{
-			if (filterData.word0 & shape->getQueryFilterData().word0)
-				return PxQueryHitType::eBLOCK;
-			return PxQueryHitType::eNONE;
-		}
-
-		/**
-		\brief This filter callback is executed if the exact intersection test returned true and PxQueryFlag::ePOSTFILTER flag was set.
-
-		\param[in] filterData custom filter data of the query
-		\param[in] hit Scene query hit information. faceIndex member is not valid for overlap queries. For sweep and raycast queries the hit information can be cast to #PxSweepHit and #PxRaycastHit respectively.
-		\return the updated hit type for this hit  (see #PxQueryHitType)
-		*/
-		virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor) override
-		{
-			return PxQueryHitType::eBLOCK;
-		}
-	};
-
-	static QueryFilterCallback filterCallback;
-
 
 	static PxFoundation* foundation;
 	static PxPhysics* physics;
@@ -541,11 +505,6 @@ namespace Physics
 		body->interpolatedPosition = position;
 		body->interpolatedRotation = rotation;
 
-		if (body->type == RigidBodyType::Static)
-		{
-			//body->lastStaticTransform = body->entity->transform.getGlobalTransform();
-		}
-
 		rigidBodies.push_back(body);
 
 		return body;
@@ -558,18 +517,9 @@ namespace Physics
 			scene->removeActor(*body->actor);
 			body->actor->release();
 			body->actor = nullptr;
-
-			//rigidBodies.erase(body);
 		}
 
 		rigidBodies.erase(std::find(rigidBodies.begin(), rigidBodies.end(), body));
-
-		/*
-		for (size_t i = 0; i < simulationEventCallback.contactEvents.size(); i++)
-		{
-			if (simulationEventCallback)
-		}
-		*/
 	}
 
 	RFAPI PxTriangleMesh* Physics_CreateMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
@@ -666,7 +616,7 @@ namespace Physics
 		heightField->release();
 	}
 
-	static void AddCollider(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterMask, const Vector3& position, const Quaternion& rotation, float staticFriction, float dynamicFriction, float restitution, bool isDynamic, float density, Vector3 centerOfMass)
+	static void AddCollider(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation, float staticFriction, float dynamicFriction, float restitution, bool isDynamic, float density, Vector3 centerOfMass)
 	{
 		PxMaterial* material = physics->createMaterial(staticFriction, dynamicFriction, restitution);
 		PxShape* shape = physics->createShape(geometry, *material, true);
@@ -677,8 +627,8 @@ namespace Physics
 		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
 
 		PxFilterData filterData;
-		filterData.word0 = filterMask;
-		//filterData.word1 = filterMask;
+		filterData.word0 = filterGroup;
+		filterData.word1 = filterMask;
 		shape->setSimulationFilterData(filterData);
 		shape->setQueryFilterData(filterData);
 
@@ -695,7 +645,7 @@ namespace Physics
 		material->release();
 	}
 
-	static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
+	static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
 	{
 		PxMaterial* material = physics->createMaterial(0.0f, 0.0f, 0.0f);
 		PxShape* shape = physics->createShape(geometry, *material, true);
@@ -705,8 +655,8 @@ namespace Physics
 		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
 
 		PxFilterData filterData;
-		filterData.word0 = filterMask;
-		//filterData.word1 = filterMask;
+		filterData.word0 = filterGroup;
+		filterData.word1 = filterMask;
 		shape->setSimulationFilterData(filterData);
 		shape->setQueryFilterData(filterData);
 
@@ -716,21 +666,23 @@ namespace Physics
 		shape->setLocalPose(relativeTransform);
 
 		actor->attachShape(*shape);
+
+		material->release();
 	}
 
-	RFAPI void Physics_RigidBodyAddSphereCollider(RigidBody* body, float radius, const Vector3& position, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddSphereCollider(RigidBody* body, float radius, const Vector3& position, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxSphereGeometry(radius), filterMask, position, Quaternion::Identity, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxSphereGeometry(radius), filterGroup, filterMask, position, Quaternion::Identity, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddBoxCollider(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddBoxCollider(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddCapsuleCollider(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddCapsuleCollider(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
 	static Matrix GetNodeTransform(NodeData* node)
@@ -745,48 +697,48 @@ namespace Physics
 		return transform;
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
 		Vector3 scale = transform.scale();
-		AddCollider(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, PxConvexMesh* mesh, const Matrix& transform, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddConvexMeshCollider(RigidBody* body, PxConvexMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
 		Vector3 scale = transform.scale();
-		AddCollider(body->actor, PxConvexMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxConvexMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddHeightFieldCollider(RigidBody* body, PxHeightField* heightField, const Vector3& scale, const Matrix& transform, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
+	RFAPI void Physics_RigidBodyAddHeightFieldCollider(RigidBody* body, PxHeightField* heightField, const Vector3& scale, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 	{
-		AddCollider(body->actor, PxHeightFieldGeometry(heightField, (PxMeshGeometryFlags)0, scale.y, scale.x, scale.z), filterMask, transform.translation(), transform.rotation(), staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
+		AddCollider(body->actor, PxHeightFieldGeometry(heightField, (PxMeshGeometryFlags)0, scale.y, scale.x, scale.z), filterGroup, filterMask, transform.translation(), transform.rotation(), staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 	}
 
-	RFAPI void Physics_RigidBodyAddSphereTrigger(RigidBody* body, float radius, const Vector3& position, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddSphereTrigger(RigidBody* body, float radius, const Vector3& position, uint32_t filterGroup, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxSphereGeometry(radius), filterMask, position, Quaternion::Identity);
+		AddTrigger(body->actor, PxSphereGeometry(radius), filterGroup, filterMask, position, Quaternion::Identity);
 	}
 
-	RFAPI void Physics_RigidBodyAddBoxTrigger(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddBoxTrigger(RigidBody* body, const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterMask, position, rotation);
+		AddTrigger(body->actor, PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), filterGroup, filterMask, position, rotation);
 	}
 
-	RFAPI void Physics_RigidBodyAddCapsuleTrigger(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddCapsuleTrigger(RigidBody* body, float radius, float height, const Vector3& position, const Quaternion& rotation, uint32_t filterGroup, uint32_t filterMask)
 	{
-		AddTrigger(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterMask, position, rotation);
+		AddTrigger(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterGroup, filterMask, position, rotation);
 	}
 
-	RFAPI void Physics_RigidBodyAddMeshTrigger(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterMask)
+	RFAPI void Physics_RigidBodyAddMeshTrigger(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask)
 	{
 		Vector3 position = transform.translation();
 		Quaternion rotation = transform.rotation();
 		Vector3 scale = transform.scale();
-		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterMask, position, rotation);
+		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation);
 	}
 
 	RFAPI void Physics_RigidBodyClearColliders(RigidBody* body)
@@ -1058,11 +1010,9 @@ namespace Physics
 
 			PxFilterData filterData;
 			filterData.word0 = filterMask;
-			//filterData.word1 = filterMask;
 
 			PxControllerFilters filters;
 			filters.mFilterData = &filterData;
-			filters.mFilterCallback = &filterCallback;
 
 			PxControllerCollisionFlags collisionFlags = controller->controller->move(PxVec3(delta.x, delta.y, delta.z), 0.0f, timeStep, filters);
 			PxExtendedVec3 newFootPosition = controller->controller->getFootPosition();
@@ -1147,20 +1097,29 @@ namespace Physics
 		return body;
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkCapsule(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, float halfHeight, const Vector3& capsulePosition, const Quaternion& capsuleRotation, uint32_t filterMask)
+	RFAPI RigidBody* Physics_RagdollAddLinkBox(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, const Vector3& halfExtents, const Vector3& colliderPosition, const Quaternion& colliderRotation, uint32_t filterGroup, uint32_t filterMask)
 	{
 		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
 
-		AddCollider(body->actor, PxCapsuleGeometry(radius, halfHeight), filterMask, capsulePosition, capsuleRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
+		AddCollider(body->actor, PxBoxGeometry(PxVec3(halfExtents.x, halfExtents.y, halfExtents.z)), filterGroup, filterMask, colliderPosition, colliderRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
 
 		return body;
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkBox(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, const Vector3& halfExtents, const Vector3& capsulePosition, const Quaternion& capsuleRotation, uint32_t filterMask)
+	RFAPI RigidBody* Physics_RagdollAddLinkSphere(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, const Vector3& colliderPosition, uint32_t filterGroup, uint32_t filterMask)
 	{
 		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
 
-		AddCollider(body->actor, PxBoxGeometry(PxVec3(halfExtents.x, halfExtents.y, halfExtents.z)), filterMask, capsulePosition, capsuleRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
+		AddCollider(body->actor, PxSphereGeometry(radius), filterGroup, filterMask, colliderPosition, Quaternion::Identity, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
+
+		return body;
+	}
+
+	RFAPI RigidBody* Physics_RagdollAddLinkCapsule(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, float halfHeight, const Vector3& colliderPosition, const Quaternion& colliderRotation, uint32_t filterGroup, uint32_t filterMask)
+	{
+		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
+
+		AddCollider(body->actor, PxCapsuleGeometry(radius, halfHeight), filterGroup, filterMask, colliderPosition, colliderRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
 
 		return body;
 	}
@@ -1191,17 +1150,16 @@ namespace Physics
 		*outRotation = Quaternion(transform.q.x, transform.q.y, transform.q.z, transform.q.w);
 	}
 
-	RFAPI int Physics_Raycast(const Vector3& origin, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int Physics_Raycast(const Vector3& origin, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
 		if (direction.lengthSquared() == 0.0f)
 			return 0;
 
 		PxHitFlags hitFlags = PxHitFlags(PxHitFlag::eDEFAULT);
 		PxQueryFilterData queryFilterData = PxQueryFilterData(flags);
-		//queryFilterData.data.word0 = 1;
-		//queryFilterData.data.word1 = filterMask;
+		queryFilterData.data.word0 = filterMask;
 
-		PxRaycastHit* hitData = (PxRaycastHit*)BX_ALLOC(Application_GetAllocator(), sizeof(PxRaycastHit) * maxHits);
+		static PxRaycastHit hitData[256];
 		PxRaycastBuffer hitBuffer(hitData, maxHits);
 
 		if (scene->raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
@@ -1216,34 +1174,28 @@ namespace Physics
 				hits[i].isTrigger = hit->shape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE ? 1 : 0;
 				hits[i].userData = hit->actor->userData;
 			}
-
-			if (!hitData)
-			{
-				BX_FREE(Application_GetAllocator(), hitData);
-				return 1;
-			}
 		}
-
-		BX_FREE(Application_GetAllocator(), hitData);
 
 		return hitBuffer.getNbTouches();
 	}
 
-	static int Sweep(const PxGeometry& geometry, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	static int Sweep(const PxGeometry& geometry, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
 		if (direction.lengthSquared() == 0.0f)
 			return 0;
 
 		PxHitFlags hitFlags = PxHitFlags(PxHitFlag::eDEFAULT | PxHitFlag::eMTD);
 		PxQueryFilterData queryFilterData = PxQueryFilterData(flags);
-		//queryFilterData.data.word0 = 1;
-		//queryFilterData.data.word1 = filterMask;
+		queryFilterData.data.word0 = filterMask;
 
 		static PxSweepHit hitData[256];
-		//PxSweepHit* hitData = (PxSweepHit*)BX_ALLOC(Application_GetAllocator(), sizeof(PxSweepHit) * maxHits);
 		PxSweepBuffer hitBuffer(hitData, maxHits);
 
-		if (scene->sweep(geometry, PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
+		PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+		if (geometry.getType() == PxGeometryType::eCAPSULE)
+			transform.q = transform.q * PxQuat(PxHalfPi, PxVec3(0, 0, 1));
+
+		if (scene->sweep(geometry, transform, PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
 		{
 			for (uint32_t i = 0; i < hitBuffer.getNbTouches(); i++)
 			{
@@ -1255,42 +1207,32 @@ namespace Physics
 				hits[i].isTrigger = hit->shape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE ? 1 : 0;
 				hits[i].userData = hit->actor->userData;
 			}
-
-			if (!hitData)
-			{
-				//BX_FREE(Application_GetAllocator(), hitData);
-				return 1;
-			}
 		}
-
-		//BX_FREE(Application_GetAllocator(), hitData);
 
 		return hitBuffer.getNbTouches();
 	}
 
-	RFAPI int Physics_SweepBox(const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int Physics_SweepBox(const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
-		return Sweep(PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), position, rotation, direction, maxDistance, hits, maxHits, flags);
+		return Sweep(PxBoxGeometry(halfExtents.x, halfExtents.y, halfExtents.z), position, rotation, direction, maxDistance, hits, maxHits, flags, filterMask);
 	}
 
-	RFAPI int Physics_SweepSphere(float radius, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int Physics_SweepSphere(float radius, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
-		return Sweep(PxSphereGeometry(radius), position, rotation, direction, maxDistance, hits, maxHits, flags);
+		return Sweep(PxSphereGeometry(radius), position, rotation, direction, maxDistance, hits, maxHits, flags, filterMask);
 	}
 
-	RFAPI int PhysicsSweepCapsule(float radius, float height, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags)
+	RFAPI int PhysicsSweepCapsule(float radius, float height, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
-		return Sweep(PxCapsuleGeometry(radius, 0.5f * height), position, rotation, direction, maxDistance, hits, maxHits, flags);
+		return Sweep(PxCapsuleGeometry(radius, 0.5f * height), position, rotation, direction, maxDistance, hits, maxHits, flags, filterMask);
 	}
 
 	static int Overlap(const PxGeometry& geometry, PxTransform transform, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
 		PxQueryFilterData queryFilterData = PxQueryFilterData(flags);
 		queryFilterData.data.word0 = filterMask;
-		//queryFilterData.data.word1 = filterMask;
 
 		static PxOverlapHit hitData[256];
-		//PxOverlapHit* hitData = (PxOverlapHit*)BX_ALLOC(Application_GetAllocator(), sizeof(PxOverlapHit) * maxHits);
 		PxOverlapBuffer hitBuffer(hitData, maxHits);
 
 		if (geometry.getType() == PxGeometryType::eCAPSULE)
@@ -1305,15 +1247,7 @@ namespace Physics
 				hits[i].isTrigger = hit->shape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE ? 1 : 0;
 				hits[i].userData = hit->actor->userData;
 			}
-
-			if (!hitData)
-			{
-				//BX_FREE(Application_GetAllocator(), hitData);
-				return 1;
-			}
 		}
-
-		//BX_FREE(Application_GetAllocator(), hitData);
 
 		return hitBuffer.getNbTouches();
 	}
