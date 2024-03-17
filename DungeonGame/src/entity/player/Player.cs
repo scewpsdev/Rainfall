@@ -211,9 +211,9 @@ public class Player : Entity
 			actionState2[i] = new AnimationState(viewmodel, "default", false, 0.2f);
 		}
 
-		animator0.setState(idleState[0]);
-		animator1.setState(idleState[1]);
-		moveAnimator.setState(idleState[2]);
+		animator0.setAnimation(idleState[0]);
+		animator1.setAnimation(idleState[1]);
+		moveAnimator.setAnimation(idleState[2]);
 
 		sfxStep = new Sound[]
 		{
@@ -1545,7 +1545,7 @@ public class Player : Entity
 			if (currentAction.animationName[0] != null)
 			{
 				if (currentAction.startTime == Time.currentTime)
-					animator0.setState(currentActionState[0]);
+					animator0.setAnimation(currentActionState[0]);
 				else
 					animator0.setStateIfNot(currentActionState[0]);
 				animator0.timer = currentAction.elapsedTime;
@@ -1558,7 +1558,7 @@ public class Player : Entity
 			if (currentAction.animationName[1] != null)
 			{
 				if (currentAction.startTime == Time.currentTime)
-					animator1.setState(currentActionState[1]);
+					animator1.setAnimation(currentActionState[1]);
 				else
 					animator1.setStateIfNot(currentActionState[1]);
 				animator1.timer = currentAction.elapsedTime;
@@ -1573,7 +1573,7 @@ public class Player : Entity
 			{
 				if (currentAction.startTime == Time.currentTime)
 				{
-					moveAnimator.setState(currentActionState[2]);
+					moveAnimator.setAnimation(currentActionState[2]);
 					moveAnimator.setTimer(movementAnimationTimerLooping);
 				}
 				else

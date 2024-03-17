@@ -172,7 +172,7 @@ namespace Rainfall
 			Native.Animation.Animation_UpdateAnimationState(handle, model.scene, nodeGlobalTransforms, nodeGlobalTransforms.Length);
 		}
 
-		public void setState(AnimationState state, bool restart = false)
+		public void setAnimation(AnimationState state, bool restart = false)
 		{
 			if (states.Count == 0 || state != states[states.Count - 1] || restart)
 			{
@@ -180,11 +180,6 @@ namespace Rainfall
 				stateTransitionTimers.Add(0.0f);
 				stateAnimationTimers.Add(0.0f);
 			}
-		}
-
-		public AnimationState getState()
-		{
-			return states.Count > 0 ? states[states.Count - 1] : null;
 		}
 
 		public Matrix getNodeLocalTransform(Node node)
@@ -197,7 +192,7 @@ namespace Rainfall
 			nodeLocalTransforms[node.id] = transform;
 		}
 
-		public unsafe Matrix getNodeTransform(Node node, int skeletonID)
+		public unsafe Matrix getNodeTransform(Node node, int skeletonID = 0)
 		{
 			Matrix inverseBindPose = model.scene->skeletons[skeletonID].inverseBindPose;
 			Matrix transform = getNodeLocalTransform(node);
@@ -254,6 +249,19 @@ namespace Rainfall
 			set
 			{
 				stateAnimationTimers[states.Count - 1] = value;
+			}
+		}
+
+		public Vector3 rootMotionVelocity
+		{
+			get
+			{
+				if (states.Count > 0 && currentUpdateTime > lastAnimUpdateTime)
+				{
+					float dt = (currentUpdateTime - lastAnimUpdateTime) / 1e9f;
+					return states[states.Count - 1].layers[0].rootMotionDisplacement / dt;
+				}
+				return Vector3.Zero;
 			}
 		}
 	}

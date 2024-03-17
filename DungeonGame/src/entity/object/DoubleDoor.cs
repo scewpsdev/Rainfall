@@ -29,7 +29,7 @@ public class DoubleDoor : Entity, Interactable
 
 		defaultState = new AnimationState(model, "default", true);
 		openState = new AnimationState(model, "open");
-		animator.setState(defaultState);
+		animator.setAnimation(defaultState);
 	}
 
 	public override void init()

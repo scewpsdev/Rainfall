@@ -9,6 +9,16 @@ using System.Runtime.CompilerServices;
 
 namespace Rainfall.Native
 {
+	internal enum JointType
+	{
+		Fix = 0,                   //!< All joint axes, i.e. degrees of freedom (DOFs) locked
+		Prismatic = 1,             //!< Single linear DOF, e.g. cart on a rail
+		Revolute = 2,              //!< Single rotational DOF, e.g. an elbow joint or a rotational motor, position wrapped at 2pi radians
+		RevoluteUnwrapped = 3,    //!< Single rotational DOF, e.g. an elbow joint or a rotational motor, position not wrapped
+		Spherical = 4,             //!< Ball and socket joint with two or three DOFs
+		Undefined = 5
+	}
+
 	internal static class Physics
 	{
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodySetTransformCallback_t(Vector3 position, Quaternion rotation, IntPtr userPtr);
@@ -146,28 +156,28 @@ namespace Rainfall.Native
 		internal static extern void Physics_DestroyRagdoll(IntPtr ragdoll);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_RagdollAddLinkEmpty(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity);
+		internal static extern IntPtr Physics_RagdollCreateLink(IntPtr ragdoll, IntPtr parentLink, JointType jointType, Matrix linkTransform, Vector3 jointPosition, Vector3 jointRotation, Vector3 velocity, Vector3 rotationVelocity);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_RagdollAddLinkBox(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, Vector3 halfExtents, Vector3 colliderPosition, Quaternion colliderRotation, uint filterGroup, uint filterMask);
+		internal static extern void Physics_RagdollLinkAddBoxCollider(IntPtr link, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_RagdollAddLinkSphere(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, float radius, Vector3 colliderPosition, uint filterGroup, uint filterMask);
+		internal static extern void Physics_RagdollLinkAddSphereCollider(IntPtr link, float radius, Vector3 colliderPosition, uint filterGroup, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Physics_RagdollAddLinkCapsule(IntPtr ragdoll, IntPtr parentLink, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 rotationVelocity, float radius, float halfHeight, Vector3 colliderPosition, Quaternion colliderRotation, uint filterGroup, uint filterMask);
-
-		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RagdollLinkSetSwingLimit(IntPtr link, float zLimit, float yLimit);
-
-		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RagdollLinkSetTwistLimit(IntPtr link, float lower, float upper);
-
-		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_RagdollLinkSetGlobalTransform(IntPtr link, Vector3 position, Quaternion rotation);
+		internal static extern void Physics_RagdollLinkAddCapsuleCollider(IntPtr link, float radius, float height, Vector3 colliderPosition, Quaternion colliderRotation, uint filterGroup, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RagdollLinkGetGlobalTransform(IntPtr link, out Vector3 position, out Quaternion rotation);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkSetSwingXLimit(IntPtr link, float min, float max);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkSetSwingZLimit(IntPtr link, float min, float max);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkSetTwistLimit(IntPtr link, float min, float max);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe int Physics_Raycast(Vector3 origin, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
