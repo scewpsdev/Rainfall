@@ -19,7 +19,7 @@ internal class Bob : Creature
 		deadState = new AnimationState(model, "death", false, 0.2f);
 		actionState1 = new AnimationState(model, "default", false, 0.2f);
 		actionState2 = new AnimationState(model, "default", false, 0.2f);
-		animator.setState(idleState);
+		animator.setAnimation(idleState);
 
 		stats.maxHealth = 100;
 		stats.health = 100;

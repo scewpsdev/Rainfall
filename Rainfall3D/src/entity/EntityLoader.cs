@@ -119,7 +119,7 @@ namespace Rainfall
 
 				foreach (string nodeName in entityData.boneColliders.Keys)
 				{
-					RigidBody boneCollider = new RigidBody(entity, RigidBodyType.Kinematic, entity.hitboxFilterGroup);
+					RigidBody boneCollider = new RigidBody(entity, RigidBodyType.Kinematic, entity.hitboxFilterGroup, entity.hitboxFilterMask);
 					entity.hitboxData.Add(nodeName, entityData.boneColliders[nodeName]);
 					entity.hitboxes.Add(nodeName, boneCollider);
 

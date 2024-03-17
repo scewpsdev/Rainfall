@@ -48,7 +48,7 @@ public class Chest : Entity, Interactable, ItemContainerEntity
 		animator = new Animator(model);
 		lidNode = model.skeleton.getNode("Chest_Lid");
 
-		animator.setState(new AnimationState(model, "default"));
+		animator.setAnimation(new AnimationState(model, "default"));
 		openAnimation = new AnimationState(model, "open");
 		closeAnimation = new AnimationState(model, "close");
 

@@ -286,6 +286,14 @@ namespace Physics
 	static std::vector<CharacterController*> controllers;
 
 
+	static PxTransform MatrixToPxTransform(Matrix matrix)
+	{
+		Vector3 position = matrix.translation();
+		Quaternion rotation = matrix.rotation();
+		PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+		return transform;
+	}
+
 	RFAPI void Physics_Init(RigidBodySetTransformCallback_t rigidBodySetTransform, RigidBodyGetTransformCallback_t rigidBodyGetTransform, RigidBodyContactCallback_t rigidBodyOnContact, CharacterControllerSetPositionCallback_t controllerSetPosition, CharacterControllerOnHitCallback_t controllerOnHit)
 	{
 		foundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocator, defaultErrorCallback);
@@ -1042,10 +1050,19 @@ namespace Physics
 		articulation->release();
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkEmpty(PxArticulationReducedCoordinate* articulation, RigidBody* parentLink, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity)
+	RFAPI RigidBody* Physics_RagdollCreateLink(PxArticulationReducedCoordinate* articulation, RigidBody* parentLink, PxArticulationJointType::Enum jointType, Matrix linkTransform, Vector3 jointPosition, Vector3 jointRotation, Vector3 velocity, Vector3 rotationVelocity)
 	{
-		PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
-		PxArticulationLink* link = articulation->createLink(parentLink ? (PxArticulationLink*)parentLink->actor : nullptr, transform);
+		PxTransform transform = MatrixToPxTransform(linkTransform);
+
+		PxArticulationLink* link = nullptr;
+		if (parentLink)
+		{
+			link = articulation->createLink(parentLink->actor->is<PxArticulationLink>(), transform);
+		}
+		else
+		{
+			link = articulation->createLink(nullptr, transform);
+		}
 		//link->userData = articulation;
 		//link->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
@@ -1057,32 +1074,57 @@ namespace Physics
 			PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
 
 			joint->setParentPose(joint->getParentArticulationLink().getGlobalPose().getInverse() * transform);
-			joint->setChildPose(link->getGlobalPose().getInverse() * transform);
+			//joint->setChildPose(link->getGlobalPose().getInverse() * transform); // will be identity anyways
+
+			// Twist is actually rotation around the X axis, Swing1 is Y, Swing2 is Z
+
+			joint->setJointPosition(PxArticulationAxis::eX, jointPosition.x);
+			joint->setJointPosition(PxArticulationAxis::eY, jointPosition.y);
+			joint->setJointPosition(PxArticulationAxis::eZ, jointPosition.z);
+			joint->setJointPosition(PxArticulationAxis::eTWIST, jointRotation.x);
+			joint->setJointPosition(PxArticulationAxis::eSWING1, jointRotation.y);
+			joint->setJointPosition(PxArticulationAxis::eSWING2, jointRotation.z);
 
 			joint->setJointVelocity(PxArticulationAxis::eX, velocity.x);
 			joint->setJointVelocity(PxArticulationAxis::eY, velocity.y);
 			joint->setJointVelocity(PxArticulationAxis::eZ, velocity.z);
-			joint->setJointVelocity(PxArticulationAxis::eSWING1, rotationVelocity.x);
-			joint->setJointVelocity(PxArticulationAxis::eTWIST, rotationVelocity.y);
+			joint->setJointVelocity(PxArticulationAxis::eTWIST, rotationVelocity.x);
+			joint->setJointVelocity(PxArticulationAxis::eSWING1, rotationVelocity.y);
 			joint->setJointVelocity(PxArticulationAxis::eSWING2, rotationVelocity.z);
 
-			joint->setJointType(PxArticulationJointType::eSPHERICAL);
+			joint->setJointType(jointType);
 
-			joint->setMotion(PxArticulationAxis::eSWING1, PxArticulationMotion::eLIMITED);
-			joint->setMotion(PxArticulationAxis::eSWING2, PxArticulationMotion::eLIMITED);
-			joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
-			joint->setLimitParams(PxArticulationAxis::eSWING1, PxArticulationLimit(-0.18f * 3, 0.18f * 3));
-			joint->setLimitParams(PxArticulationAxis::eSWING2, PxArticulationLimit(-0.18f * 3, 0.18f * 3));
-			joint->setLimitParams(PxArticulationAxis::eTWIST, PxArticulationLimit(-0.18f * 2, 0.18f * 2));
+			//if (jointType == PxArticulationJointType::eREVOLUTE_UNWRAPPED)
+			//{
+			//	joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
+			//	//joint->setMotion(PxArticulationAxis::eSWING1, PxArticulationMotion::eLIMITED);
+			//	//joint->setMotion(PxArticulationAxis::eSWING2, PxArticulationMotion::eLIMITED);
+			//	joint->setLimitParams(PxArticulationAxis::eTWIST, PxArticulationLimit(0.0f, 0.9f * 3.1415f));
+			//	//joint->setLimitParams(PxArticulationAxis::eSWING1, PxArticulationLimit(-0.2f * 3.1415f, 0.2f * 3.1415f));
+			//	//joint->setLimitParams(PxArticulationAxis::eSWING2, PxArticulationLimit(-0.5f * 3.1415f, 0.5f * 3.1415f));
+			//}
+			//else if (jointType == PxArticulationJointType::eSPHERICAL)
+			//{
+			//	joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
+			//	joint->setMotion(PxArticulationAxis::eSWING1, PxArticulationMotion::eLIMITED);
+			//	joint->setMotion(PxArticulationAxis::eSWING2, PxArticulationMotion::eLIMITED);
+			//	joint->setLimitParams(PxArticulationAxis::eTWIST, PxArticulationLimit(-0.3f * 3.1415f, 0.3f * 3.1415f));
+			//	joint->setLimitParams(PxArticulationAxis::eSWING1, PxArticulationLimit(-0.1f * 3.1415f, 0.1f * 3.1415f));
+			//	joint->setLimitParams(PxArticulationAxis::eSWING2, PxArticulationLimit(-0.3f * 3.1415f, 0.3f * 3.1415f));
+			//}
 
-			float friction = 0.1f;
-			joint->setFrictionCoefficient(friction);
+			//float friction = 0.05f;
+			//joint->setFrictionCoefficient(friction);
 
-			float stiffness = 0.0f;
-			float damping = 0.02f;
-			joint->setDriveParams(PxArticulationAxis::eSWING1, PxArticulationDrive(stiffness, damping, 1000));
-			joint->setDriveParams(PxArticulationAxis::eSWING2, PxArticulationDrive(stiffness, damping, 1000));
-			joint->setDriveParams(PxArticulationAxis::eTWIST, PxArticulationDrive(stiffness, damping, 1000));
+			//float stiffness = 0.0f;
+			//float damping = 0.05f;
+			//joint->setDriveParams(PxArticulationAxis::eSWING1, PxArticulationDrive(stiffness, damping, 10));
+			//joint->setDriveVelocity(PxArticulationAxis::eSWING1, 0.0f);
+			//joint->setDriveParams(PxArticulationAxis::eSWING2, PxArticulationDrive(stiffness, damping, 10));
+			//joint->setDriveVelocity(PxArticulationAxis::eSWING2, 0.0f);
+			//joint->setDriveParams(PxArticulationAxis::eTWIST, PxArticulationDrive(stiffness, damping, 10));
+			//joint->setDriveVelocity(PxArticulationAxis::eTWIST, 0.0f);
+			//joint->setDriveTarget(PxArticulationAxis::eTWIST, 0.0f);
 		}
 		else
 		{
@@ -1100,50 +1142,19 @@ namespace Physics
 		return body;
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkBox(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, const Vector3& halfExtents, const Vector3& colliderPosition, const Quaternion& colliderRotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RagdollLinkAddBoxCollider(RigidBody* link, const Vector3& halfExtents, const Vector3& colliderPosition, const Quaternion& colliderRotation, uint32_t filterGroup, uint32_t filterMask)
 	{
-		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
-
-		AddCollider(body->actor, PxBoxGeometry(PxVec3(halfExtents.x, halfExtents.y, halfExtents.z)), filterGroup, filterMask, colliderPosition, colliderRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
-
-		return body;
+		AddCollider(link->actor, PxBoxGeometry(PxVec3(halfExtents.x, halfExtents.y, halfExtents.z)), filterGroup, filterMask, colliderPosition, colliderRotation, 0.6f, 0.6f, 0.0f, true, 1.0f, Vector3::Zero);
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkSphere(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, const Vector3& colliderPosition, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RagdollLinkAddSphereCollider(RigidBody* link, float radius, const Vector3& colliderPosition, uint32_t filterGroup, uint32_t filterMask)
 	{
-		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
-
-		AddCollider(body->actor, PxSphereGeometry(radius), filterGroup, filterMask, colliderPosition, Quaternion::Identity, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
-
-		return body;
+		AddCollider(link->actor, PxSphereGeometry(radius), filterGroup, filterMask, colliderPosition, Quaternion::Identity, 0.6f, 0.6f, 0.0f, true, 1.0f, Vector3::Zero);
 	}
 
-	RFAPI RigidBody* Physics_RagdollAddLinkCapsule(PxArticulationReducedCoordinate* articulation, RigidBody* parentBody, const Vector3& position, const Quaternion& rotation, const Vector3& velocity, const Vector3& rotationVelocity, float radius, float halfHeight, const Vector3& colliderPosition, const Quaternion& colliderRotation, uint32_t filterGroup, uint32_t filterMask)
+	RFAPI void Physics_RagdollLinkAddCapsuleCollider(RigidBody* link, float radius, float height, const Vector3& colliderPosition, const Quaternion& colliderRotation, uint32_t filterGroup, uint32_t filterMask)
 	{
-		RigidBody* body = Physics_RagdollAddLinkEmpty(articulation, parentBody, position, rotation, velocity, rotationVelocity);
-
-		AddCollider(body->actor, PxCapsuleGeometry(radius, halfHeight), filterGroup, filterMask, colliderPosition, colliderRotation, 0.5f, 0.5f, 0.6f, true, 1.0f, Vector3::Zero);
-
-		return body;
-	}
-
-	RFAPI void Physics_RagdollLinkSetSwingLimit(RigidBody* body, float zLimit, float yLimit)
-	{
-		PxArticulationJointReducedCoordinate* joint = ((PxArticulationLink*)body->actor)->getInboundJoint();
-		joint->setLimitParams(PxArticulationAxis::eSWING1, PxArticulationLimit(-yLimit, yLimit));
-		joint->setLimitParams(PxArticulationAxis::eSWING2, PxArticulationLimit(-zLimit, zLimit));
-	}
-
-	RFAPI void Physics_RagdollLinkSetTwistLimit(RigidBody* body, float lower, float upper)
-	{
-		PxArticulationJointReducedCoordinate* joint = ((PxArticulationLink*)body->actor)->getInboundJoint();
-		joint->setLimitParams(PxArticulationAxis::eTWIST, PxArticulationLimit(lower, upper));
-	}
-
-	RFAPI void Physics_RagdollLinkSetGlobalTransform(RigidBody* body, const Vector3& position, const Quaternion& rotation)
-	{
-		PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
-		body->actor->setGlobalPose(transform);
+		AddCollider(link->actor, PxCapsuleGeometry(radius, height * 0.5f - radius), filterGroup, filterMask, colliderPosition, colliderRotation, 0.6f, 0.6f, 0.0f, true, 1.0f, Vector3::Zero);
 	}
 
 	RFAPI void Physics_RagdollLinkGetGlobalTransform(RigidBody* body, Vector3* outPosition, Quaternion* outRotation)
@@ -1151,6 +1162,27 @@ namespace Physics
 		PxTransform transform = body->actor->getGlobalPose();
 		*outPosition = Vector3(transform.p.x, transform.p.y, transform.p.z);
 		*outRotation = Quaternion(transform.q.x, transform.q.y, transform.q.z, transform.q.w);
+	}
+
+	RFAPI void Physics_RagdollLinkSetSwingXLimit(RigidBody* body, float min, float max)
+	{
+		PxArticulationJointReducedCoordinate* joint = ((PxArticulationLink*)body->actor)->getInboundJoint();
+		joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eLIMITED);
+		joint->setLimitParams(PxArticulationAxis::eTWIST, PxArticulationLimit(min, max));
+	}
+
+	RFAPI void Physics_RagdollLinkSetSwingZLimit(RigidBody* body, float min, float max)
+	{
+		PxArticulationJointReducedCoordinate* joint = ((PxArticulationLink*)body->actor)->getInboundJoint();
+		joint->setMotion(PxArticulationAxis::eSWING2, PxArticulationMotion::eLIMITED);
+		joint->setLimitParams(PxArticulationAxis::eSWING2, PxArticulationLimit(min, max));
+	}
+
+	RFAPI void Physics_RagdollLinkSetTwistLimit(RigidBody* body, float min, float max)
+	{
+		PxArticulationJointReducedCoordinate* joint = ((PxArticulationLink*)body->actor)->getInboundJoint();
+		joint->setMotion(PxArticulationAxis::eSWING1, PxArticulationMotion::eLIMITED);
+		joint->setLimitParams(PxArticulationAxis::eSWING1, PxArticulationLimit(min, max));
 	}
 
 	RFAPI int Physics_Raycast(const Vector3& origin, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)

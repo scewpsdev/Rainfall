@@ -21,7 +21,7 @@ internal class Jerry : Creature
 		actionState1 = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "default", false) }, 0.2f);
 		actionState2 = new AnimationState(model, new AnimationLayer[] { new AnimationLayer(model, "default", false) }, 0.2f);
 
-		animator.setState(idleState);
+		animator.setAnimation(idleState);
 
 		hitParticles = new ParticleSystem(64);
 		//hitParticles.spawnOffset = new Vector3(0.0f, 0.8f, 0.0f);
