@@ -16,8 +16,6 @@ public class Projectile : Entity
 	protected Item itemDrop = null;
 
 	public readonly Entity shooter;
-	protected Model model;
-	protected RigidBody body;
 
 	protected Vector3 velocity;
 	Vector3 currentOffset;
@@ -132,7 +130,7 @@ public class Projectile : Entity
 			body.setTransform(position, rotation);
 
 			currentOffset = Vector3.Lerp(currentOffset, Vector3.Zero, 3.0f * Time.deltaTime);
-			base.particleOffset = currentOffset;
+			//base.particleOffset = currentOffset;
 
 			velocity.y += 0.5f * gravity * Time.deltaTime;
 		}

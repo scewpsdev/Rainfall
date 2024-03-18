@@ -62,9 +62,7 @@ public class Creature : Entity, Hittable
 	protected AnimationState currentActionState;
 
 	public RigidBody movementBody { get; protected set; }
-	public List<RigidBody> hitboxes { get; private set; } = new List<RigidBody>();
 	public Dictionary<Node, int> hitboxesNodeMap { get; private set; } = new Dictionary<Node, int>();
-	protected Dictionary<string, BoneHitbox> hitboxData = new Dictionary<string, BoneHitbox>();
 	int headColliderID = -1;
 
 	public Ragdoll ragdoll { get; private set; }

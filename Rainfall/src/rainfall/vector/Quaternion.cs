@@ -39,8 +39,12 @@ namespace Rainfall
 		{
 			get
 			{
-				float s = 1.0f / MathF.Sqrt(1.0f - w * w);
-				return new Vector3(x * s, y * s, z * s);
+				if (w < 1)
+				{
+					float s = 1.0f / MathF.Sqrt(1.0f - w * w);
+					return new Vector3(x * s, y * s, z * s);
+				}
+				return Vector3.Zero;
 			}
 		}
 
@@ -208,6 +212,7 @@ namespace Rainfall
 		public static Quaternion operator +(Quaternion a, Quaternion b) { return new Quaternion(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w); }
 		public static Quaternion operator *(Quaternion a, float b) { return new Quaternion(a.x * b, a.y * b, a.z * b, a.w * b); }
 		public static Quaternion operator *(float a, Quaternion b) { return new Quaternion(a * b.x, a * b.y, a * b.z, a * b.w); }
+		public static Quaternion operator /(Quaternion a, float b) { return new Quaternion(a.x / b, a.y / b, a.z / b, a.w / b); }
 
 
 		public static Quaternion FromAxisAngle(Vector3 axis, float radians)

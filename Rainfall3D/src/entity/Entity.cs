@@ -59,7 +59,7 @@ public class Entity : PhysicsEntity
 		animator?.destroy();
 	}
 
-	void updateBoneHitbox(Node node, Matrix nodeTransform)
+	protected void updateBoneHitbox(Node node, Matrix nodeTransform)
 	{
 		if (hitboxes.ContainsKey(node.name))
 		{
