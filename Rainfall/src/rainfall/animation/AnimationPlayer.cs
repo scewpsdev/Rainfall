@@ -222,7 +222,7 @@ namespace Rainfall
 			float dt = (currentUpdateTime - lastAnimUpdateTime) / 1e9f;
 
 			velocity = (currentPosition - lastPosition) / dt;
-			rotationVelocity = ((lastRotation.conjugated * currentRotation) * (1.0f / dt)).normalized;
+			rotationVelocity = ((lastRotation.conjugated * currentRotation) / dt).normalized;
 		}
 
 		public bool isPlaying
@@ -252,16 +252,19 @@ namespace Rainfall
 			}
 		}
 
-		public Vector3 rootMotionVelocity
+		public void getRootMotion(out Vector3 position, out Quaternion rotation)
 		{
-			get
+			if (states.Count > 0 && currentUpdateTime > lastAnimUpdateTime)
 			{
-				if (states.Count > 0 && currentUpdateTime > lastAnimUpdateTime)
-				{
-					float dt = (currentUpdateTime - lastAnimUpdateTime) / 1e9f;
-					return states[states.Count - 1].layers[0].rootMotionDisplacement / dt;
-				}
-				return Vector3.Zero;
+				//float dt = (currentUpdateTime - lastAnimUpdateTime) / 1e9f;
+				Matrix displacement = states[states.Count - 1].layers[0].rootMotionDisplacement;
+				position = displacement.translation;
+				rotation = displacement.rotation;
+			}
+			else
+			{
+				position = Vector3.Zero;
+				rotation = Quaternion.Identity;
 			}
 		}
 	}

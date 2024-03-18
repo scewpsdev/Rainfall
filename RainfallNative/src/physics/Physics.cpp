@@ -1054,15 +1054,7 @@ namespace Physics
 	{
 		PxTransform transform = MatrixToPxTransform(linkTransform);
 
-		PxArticulationLink* link = nullptr;
-		if (parentLink)
-		{
-			link = articulation->createLink(parentLink->actor->is<PxArticulationLink>(), transform);
-		}
-		else
-		{
-			link = articulation->createLink(nullptr, transform);
-		}
+		PxArticulationLink* link = articulation->createLink(parentLink ? parentLink->actor->is<PxArticulationLink>() : nullptr, transform);
 		//link->userData = articulation;
 		//link->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 

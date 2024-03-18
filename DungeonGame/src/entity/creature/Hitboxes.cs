@@ -33,18 +33,18 @@ public static class Hitboxes
 		return false;
 	}
 
-	static void ProcessNode(Node node, Dictionary<string, BoneHitbox> hitboxData, Creature creature, List<RigidBody> hitboxes, Dictionary<Node, int> hitboxesNodeMap)
+	static void ProcessNode(Node node, Dictionary<string, SceneFormat.ColliderData> hitboxData, Creature creature, List<RigidBody> hitboxes, Dictionary<Node, int> hitboxesNodeMap)
 	{
 		if (hitboxData.ContainsKey(node.name))
 		{
-			BoneHitbox hitbox = hitboxData[node.name];
+			SceneFormat.ColliderData hitbox = hitboxData[node.name];
 			Matrix globalTransform = creature.getModelMatrix() * Matrix.CreateRotation(Vector3.Up, MathF.PI) * creature.animator.getNodeTransform(node, 0);
 
 			RigidBody body = new RigidBody(creature, RigidBodyType.Kinematic, globalTransform.translation, globalTransform.rotation, 1.0f, Vector3.Zero, (uint)PhysicsFilterGroup.CreatureHitbox, (uint)PhysicsFilterMask.CreatureHitbox);
 
 			FindEndPoint(node, out Vector3 endPoint);
 
-			if (hitbox.isBox)
+			if (hitbox.type == SceneFormat.ColliderType.Box)
 			{
 				float height = endPoint.length;
 
@@ -82,7 +82,7 @@ public static class Hitboxes
 		}
 	}
 
-	public static void GenerateHitboxBodies(Dictionary<string, BoneHitbox> hitboxData, Node rootNode, Creature creature, List<RigidBody> hitboxes, Dictionary<Node, int> hitboxesNodeMap)
+	public static void GenerateHitboxBodies(Dictionary<string, SceneFormat.ColliderData> hitboxData, Node rootNode, Creature creature, List<RigidBody> hitboxes, Dictionary<Node, int> hitboxesNodeMap)
 	{
 		ProcessNode(rootNode, hitboxData, creature, hitboxes, hitboxesNodeMap);
 	}

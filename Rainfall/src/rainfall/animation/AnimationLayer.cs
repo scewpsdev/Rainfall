@@ -25,8 +25,8 @@ namespace Rainfall
 
 		public bool rootMotion = false;
 		public Node rootMotionNode = null;
-		public Vector3 rootMotionDisplacement { get; private set; } = Vector3.Zero;
-		Matrix lastRootTransform;
+		public Matrix rootMotionDisplacement { get; private set; } = Matrix.Identity;
+		Matrix lastRootTransform = Matrix.Identity;
 		float lastAnimationTimer = float.MaxValue;
 
 
@@ -114,26 +114,42 @@ namespace Rainfall
 			// Root Motion
 			if (rootMotion && rootMotionNode != null && node.name == rootMotionNode.name)
 			{
-				rootMotionDisplacement = Vector3.Zero;
+				Matrix rootNodeInitialTransform = Matrix.Identity;
+				Native.Animation.Animation_AnimateNode(nodeID, animation, 0.0f, 0, ref rootNodeInitialTransform);
 
-				Matrix rootTransform = getNodeTransform(node);
+				Matrix rootTransform = nodeAnimationLocalTransforms[node.id];
+				rootMotionDisplacement = rootTransform * rootNodeInitialTransform.inverted;
+
+				nodeAnimationLocalTransforms[node.id] = rootNodeInitialTransform;
+
+				/*
 				if (timer > lastAnimationTimer)
 				{
 					//Vector3 displacement = rootTransform.translation - lastRootTransform.translation;
 					//Matrix delta = lastRootTransform.inverted * rootTransform;
-					Vector3 displacement = rootTransform.translation - lastRootTransform.translation;
+					Matrix displacement = lastRootTransform.inverted * rootTransform; // rootTransform.translation - lastRootTransform.translation;
 					rootMotionDisplacement = displacement;
 				}
 				lastRootTransform = rootTransform;
 				lastAnimationTimer = timer;
 
 				// Should be X and Z but model is in different coordinate system
+				//rootTransform.m00 = 1.0f;
+				//rootTransform.m01 = 0.0f;
+				//rootTransform.m02 = 0.0f;
+				//rootTransform.m10 = 0.0f;
+				//rootTransform.m11 = 1.0f;
+				//rootTransform.m12 = 0.0f;
+				//rootTransform.m20 = 0.0f;
+				//rootTransform.m21 = 0.0f;
+				//rootTransform.m22 = 1.0f;
 				rootTransform.m30 = 0.0f;
 				rootTransform.m31 = 0.0f;
 				rootTransform.m32 = 0.0f;
-				Matrix parentTransform = getNodeTransform(node.parent);
+				//Matrix parentTransform = getNodeTransform(node.parent);
 				Matrix rootLocalTransform = parentTransform.inverted * rootTransform;
 				nodeAnimationLocalTransforms[node.id] = rootLocalTransform;
+				*/
 			}
 
 			for (int i = 0; i < node.children.Length; i++)
