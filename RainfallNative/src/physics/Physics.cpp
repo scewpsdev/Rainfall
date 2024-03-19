@@ -39,6 +39,7 @@ namespace Physics
 
 	enum class RigidBodyType
 	{
+		Null = 0,
 		Static,
 		Kinematic,
 		Dynamic,

@@ -7,6 +7,7 @@ namespace Rainfall
 {
 	public enum RigidBodyType
 	{
+		Null = 0,
 		Static,
 		Kinematic,
 		Dynamic,
@@ -26,6 +27,7 @@ namespace Rainfall
 
 
 		public readonly PhysicsEntity entity;
+		public readonly RigidBodyType type;
 		public readonly Ragdoll ragdoll = null;
 
 		IntPtr body;
@@ -35,9 +37,10 @@ namespace Rainfall
 		public RigidBody(PhysicsEntity entity, RigidBodyType type, Vector3 position, Quaternion rotation, float density, Vector3 centerOfMass, uint filterGroup = 1, uint filterMask = 1)
 		{
 			this.entity = entity;
+			this.type = type;
 			this.filterGroup = filterGroup;
 			this.filterMask = filterMask;
-
+			
 			body = Native.Physics.Physics_CreateRigidBody(type, density, centerOfMass, position, rotation);
 			bodies.Add(body, this);
 		}
@@ -60,6 +63,7 @@ namespace Rainfall
 		public RigidBody(PhysicsEntity entity, IntPtr body, Ragdoll ragdoll, uint filterGroup, uint filterMask)
 		{
 			this.entity = entity;
+			this.type = RigidBodyType.Dynamic;
 			this.body = body;
 			this.ragdoll = ragdoll;
 			this.filterGroup = filterGroup;

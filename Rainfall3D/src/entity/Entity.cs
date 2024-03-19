@@ -21,8 +21,8 @@ public class Entity : PhysicsEntity
 	public Animator animator = null;
 	public Matrix modelTransform = Matrix.Identity;
 
-	public RigidBodyType bodyType;
 	public RigidBody body = null;
+	public RigidBodyType bodyType = RigidBodyType.Null;
 	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
 	public Dictionary<string, RigidBody> hitboxes;
@@ -84,9 +84,9 @@ public class Entity : PhysicsEntity
 
 		if (body != null)
 		{
-			if (bodyType == RigidBodyType.Dynamic)
+			if (body.type == RigidBodyType.Dynamic)
 				body.getTransform(out position, out rotation);
-			else if (bodyType == RigidBodyType.Kinematic)
+			else if (body.type == RigidBodyType.Kinematic)
 				body.setTransform(position, rotation);
 		}
 
@@ -129,8 +129,6 @@ public class Entity : PhysicsEntity
 	{
 		position = transform.translation;
 		rotation = transform.rotation;
-		if (body != null && bodyType == RigidBodyType.Kinematic)
-			body.setTransform(position, rotation);
 	}
 
 	public void setPosition(Vector3 position)

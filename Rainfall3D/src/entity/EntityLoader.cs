@@ -42,8 +42,7 @@ namespace Rainfall
 
 			if (entityData.colliders.Count > 0)
 			{
-				entity.bodyType = entityData.rigidBodyType;
-				entity.body = new RigidBody(entity, entityData.rigidBodyType, entity.bodyFilterGroup, entity.bodyFilterMask);
+				entity.body = new RigidBody(entity, entity.bodyType != RigidBodyType.Null ? entity.bodyType : entityData.rigidBodyType, entity.bodyFilterGroup, entity.bodyFilterMask);
 			}
 			for (int i = 0; i < entityData.colliders.Count; i++)
 			{
