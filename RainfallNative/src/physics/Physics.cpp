@@ -144,18 +144,14 @@ namespace Physics
 			{
 				const PxContactPair& pair = pairs[i];
 
-				if (pair.flags & PxContactPairFlag::eREMOVED_SHAPE_0 || pair.flags & PxContactPairFlag::eREMOVED_SHAPE_1)
-					continue;
+				//if (pair.flags & PxContactPairFlag::eREMOVED_SHAPE_0 || pair.flags & PxContactPairFlag::eREMOVED_SHAPE_1)
+				//	continue;
 
 				RigidBody* body = (RigidBody*)pair.shapes[0]->getActor()->userData;
 				RigidBody* other = (RigidBody*)pair.shapes[1]->getActor()->userData;
 
 				int shapeID = getShapeID(pair.shapes[0]->getActor(), pair.shapes[0]);
 				int otherShapeID = getShapeID(pair.shapes[1]->getActor(), pair.shapes[1]);
-
-				PxContactPairPoint contactPoints[8];
-				int numContactPoints = pair.extractContacts(contactPoints, sizeof(contactPoints) / sizeof(PxContactPairPoint));
-				printf("NumContactPoints %d\n", numContactPoints);
 
 				CharacterController* otherController = nullptr;
 				bool isController = other->actorType == ActorType::CharacterController;
@@ -750,6 +746,14 @@ namespace Physics
 		AddTrigger(body->actor, PxTriangleMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation);
 	}
 
+	RFAPI void Physics_RigidBodyAddConvexMeshTrigger(RigidBody* body, PxConvexMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask)
+	{
+		Vector3 position = transform.translation();
+		Quaternion rotation = transform.rotation();
+		Vector3 scale = transform.scale();
+		AddTrigger(body->actor, PxConvexMeshGeometry(mesh, PxMeshScale(PxVec3(scale.x, scale.y, scale.z))), filterGroup, filterMask, position, rotation);
+	}
+
 	RFAPI void Physics_RigidBodyClearColliders(RigidBody* body)
 	{
 		uint32_t numShapes = body->actor->getNbShapes();
@@ -782,8 +786,49 @@ namespace Physics
 			if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
 			{
 				dynamic->setGlobalPose(transform);
-				body->interpolatedPosition = position;
-				body->interpolatedRotation = rotation;
+				body->position0 = body->position1 = body->interpolatedPosition = position;
+				body->rotation0 = body->rotation1 = body->interpolatedRotation = rotation;
+			}
+			else
+			{
+				__debugbreak();
+			}
+		}
+		else if (body->type == RigidBodyType::Static)
+		{
+			if (PxRigidStatic* staticBody = body->actor->is<PxRigidStatic>())
+			{
+				staticBody->setGlobalPose(transform);
+			}
+			else
+			{
+				__debugbreak();
+			}
+		}
+	}
+
+	RFAPI void Physics_RigidBodySetRotation(RigidBody* body, const Quaternion& rotation)
+	{
+		PxTransform transform = body->actor->getGlobalPose();
+		transform.q = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
+
+		if (body->type == RigidBodyType::Kinematic)
+		{
+			if (PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>())
+			{
+				dynamic->setKinematicTarget(transform);
+			}
+			else
+			{
+				__debugbreak();
+			}
+		}
+		else if (body->type == RigidBodyType::Dynamic)
+		{
+			if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
+			{
+				dynamic->setGlobalPose(transform);
+				body->rotation0 = body->rotation1 = body->interpolatedRotation = rotation;
 			}
 			else
 			{

@@ -117,7 +117,7 @@ public static partial class EditorUI
 
 			if (entity.data.colliders.Count > 0)
 			{
-				Combo(instance, "Rigid Body Type", "body_type", ref entity.data.rigidBodyType, ImGuiComboFlags.HeightSmall);
+				Combo(instance, "Rigid Body Type", "body_type", ref entity.data.rigidBodyType, ImGuiComboFlags.HeightRegular);
 				ImGui.Separator();
 			}
 
@@ -151,7 +151,7 @@ public static partial class EditorUI
 					if (DragFloat(instance, "Height", "collider_height" + i, ref newHeight, 0.02f, 2 * collider.radius, 1000))
 						collider.height = newHeight;
 				}
-				else if (collider.type == SceneFormat.ColliderType.Mesh)
+				else if (collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh)
 				{
 					if (FileSelect(null, "mesh_collider" + i, ref collider.meshColliderPath, "gltf"))
 					{
@@ -236,7 +236,7 @@ public static partial class EditorUI
 								if (DragFloat(instance, "Height", "bone_collider_height" + nodeName, ref newHeight, 0.02f, 2 * collider.radius, 1000))
 									collider.height = newHeight;
 							}
-							else if (collider.type == SceneFormat.ColliderType.Mesh)
+							else if (collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh)
 							{
 								ImGui.TextUnformatted("Mesh bone collider not supported.");
 							}

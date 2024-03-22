@@ -40,7 +40,7 @@ namespace Rainfall
 			this.type = type;
 			this.filterGroup = filterGroup;
 			this.filterMask = filterMask;
-			
+
 			body = Native.Physics.Physics_CreateRigidBody(type, density, centerOfMass, position, rotation);
 			bodies.Add(body, this);
 		}
@@ -168,6 +168,11 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyAddMeshTrigger(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask);
 		}
 
+		public void addConvexMeshTrigger(ConvexMeshCollider mesh, Matrix transform)
+		{
+			Native.Physics.Physics_RigidBodyAddConvexMeshTrigger(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask);
+		}
+
 		public void clearColliders()
 		{
 			Native.Physics.Physics_RigidBodyClearColliders(body);
@@ -176,6 +181,11 @@ namespace Rainfall
 		public void setTransform(Vector3 position, Quaternion rotation)
 		{
 			Native.Physics.Physics_RigidBodySetTransform(body, position, rotation);
+		}
+
+		public void setRotation(Quaternion rotation)
+		{
+			Native.Physics.Physics_RigidBodySetRotation(body, rotation);
 		}
 
 		public void setVelocity(Vector3 velocity)

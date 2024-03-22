@@ -225,7 +225,7 @@ public unsafe class RainfallEditor : Game
 			for (int j = 0; j < entityData.colliders.Count; j++)
 			{
 				SceneFormat.ColliderData collider = entityData.colliders[j];
-				if (collider.type == SceneFormat.ColliderType.Mesh && collider.meshColliderPath != null)
+				if ((collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh) && collider.meshColliderPath != null)
 					collider.meshColliderPath = RelativePath(collider.meshColliderPath, instance.path);
 				entityData.colliders[j] = collider;
 			}
@@ -259,7 +259,7 @@ public unsafe class RainfallEditor : Game
 			for (int j = 0; j < entity.data.colliders.Count; j++)
 			{
 				SceneFormat.ColliderData collider = entity.data.colliders[j];
-				if (collider.type == SceneFormat.ColliderType.Mesh && collider.meshColliderPath != null)
+				if ((collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh) && collider.meshColliderPath != null)
 					collider.meshColliderPath = AbsolutePath(collider.meshColliderPath, instance.path);
 				entity.data.colliders[j] = collider;
 			}

@@ -197,18 +197,6 @@ namespace Rainfall
 			return result;
 		}
 
-		public bool getString(string name, out string str)
-		{
-			DatField field = getField(name);
-			if (field != null && field.value.type == DatValueType.String)
-			{
-				str = field.str;
-				return true;
-			}
-			str = null;
-			return false;
-		}
-
 		public bool getIdentifier(string name, out string identifier)
 		{
 			DatField field = getField(name);
@@ -893,11 +881,6 @@ namespace Rainfall
 		public bool getNumber(string name, out float number)
 		{
 			return root.getNumber(name, out number);
-		}
-
-		public bool getString(string name, out string str)
-		{
-			return root.getString(name, out str);
 		}
 
 		public bool getIdentifier(string name, out string identifier)
