@@ -96,10 +96,16 @@ namespace Rainfall.Native
 		internal static extern void Physics_RigidBodyAddMeshTrigger(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddConvexMeshTrigger(IntPtr body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyClearColliders(IntPtr body);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodySetTransform(IntPtr body, Vector3 position, Quaternion rotation);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetRotation(IntPtr body, Quaternion rotation);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodySetVelocity(IntPtr body, Vector3 velocity);

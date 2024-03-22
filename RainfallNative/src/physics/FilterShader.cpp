@@ -33,7 +33,7 @@ namespace Physics
 				return PxFilterFlag::eDEFAULT;
 			}
 
-			pairFlags = PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_CONTACT_POINTS;
+			pairFlags = PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 			return PxFilterFlag::eDEFAULT;
 		}
 		return PxFilterFlag::eKILL;

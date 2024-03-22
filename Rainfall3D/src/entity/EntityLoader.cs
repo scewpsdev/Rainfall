@@ -12,6 +12,7 @@ namespace Rainfall
 	public static class EntityLoader
 	{
 		static Dictionary<Model, MeshCollider> meshColliderCache = new Dictionary<Model, MeshCollider>();
+		static Dictionary<Model, ConvexMeshCollider> convexMeshColliderCache = new Dictionary<Model, ConvexMeshCollider>();
 
 
 		static string CombinePath(string path, string root)
@@ -42,71 +43,100 @@ namespace Rainfall
 
 			if (entityData.colliders.Count > 0)
 			{
-				entity.body = new RigidBody(entity, entity.bodyType != RigidBodyType.Null ? entity.bodyType : entityData.rigidBodyType, entity.bodyFilterGroup, entity.bodyFilterMask);
-			}
-			for (int i = 0; i < entityData.colliders.Count; i++)
-			{
-				SceneFormat.ColliderData colliderData = entityData.colliders[i];
-				if (colliderData.trigger)
+				Vector3 centerOfMass = Vector3.Zero;
+				if (entity.model != null)
+					centerOfMass = entity.model.boundingSphere.Value.center;
+				entity.body = new RigidBody(entity, entity.bodyType != RigidBodyType.Null ? entity.bodyType : entityData.rigidBodyType, 1.0f, centerOfMass, entity.bodyFilterGroup, entity.bodyFilterMask);
+				for (int i = 0; i < entityData.colliders.Count; i++)
 				{
-					switch (colliderData.type)
+					SceneFormat.ColliderData colliderData = entityData.colliders[i];
+					if (colliderData.trigger)
 					{
-						case SceneFormat.ColliderType.Box:
-							entity.body.addBoxTrigger(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
-							break;
-						case SceneFormat.ColliderType.Sphere:
-							entity.body.addSphereTrigger(colliderData.radius, colliderData.offset);
-							break;
-						case SceneFormat.ColliderType.Capsule:
-							entity.body.addCapsuleTrigger(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
-							break;
-						case SceneFormat.ColliderType.Mesh:
-							if (colliderData.meshColliderPath != null)
-							{
-								Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
-								meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
-								if (meshCollider == null)
+						switch (colliderData.type)
+						{
+							case SceneFormat.ColliderType.Box:
+								entity.body.addBoxTrigger(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							case SceneFormat.ColliderType.Sphere:
+								entity.body.addSphereTrigger(colliderData.radius, colliderData.offset);
+								break;
+							case SceneFormat.ColliderType.Capsule:
+								entity.body.addCapsuleTrigger(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							case SceneFormat.ColliderType.Mesh:
+								if (colliderData.meshColliderPath != null)
 								{
-									meshCollider = Physics.CreateMeshCollider(model, 0);
-									meshColliderCache.Add(model, meshCollider);
+									Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
+									meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
+									if (meshCollider == null)
+									{
+										meshCollider = Physics.CreateMeshCollider(model, 0);
+										meshColliderCache.Add(model, meshCollider);
+									}
+									entity.body.addMeshTrigger(meshCollider, Matrix.CreateTranslation(colliderData.offset));
 								}
-								entity.body.addMeshTrigger(meshCollider, Matrix.CreateTranslation(colliderData.offset));
-							}
-							break;
-						default:
-							Debug.Assert(false);
-							break;
+								break;
+							case SceneFormat.ColliderType.ConvexMesh:
+								if (colliderData.meshColliderPath != null)
+								{
+									Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
+									convexMeshColliderCache.TryGetValue(model, out ConvexMeshCollider meshCollider);
+									if (meshCollider == null)
+									{
+										meshCollider = Physics.CreateConvexMeshCollider(model, 0);
+										convexMeshColliderCache.Add(model, meshCollider);
+									}
+									entity.body.addConvexMeshTrigger(meshCollider, Matrix.CreateTranslation(colliderData.offset));
+								}
+								break;
+							default:
+								Debug.Assert(false);
+								break;
+						}
 					}
-				}
-				else
-				{
-					switch (colliderData.type)
+					else
 					{
-						case SceneFormat.ColliderType.Box:
-							entity.body.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
-							break;
-						case SceneFormat.ColliderType.Sphere:
-							entity.body.addSphereCollider(colliderData.radius, colliderData.offset);
-							break;
-						case SceneFormat.ColliderType.Capsule:
-							entity.body.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
-							break;
-						case SceneFormat.ColliderType.Mesh:
-							if (colliderData.meshColliderPath != null)
-							{
-								Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
-								meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
-								if (meshCollider == null)
+						switch (colliderData.type)
+						{
+							case SceneFormat.ColliderType.Box:
+								entity.body.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							case SceneFormat.ColliderType.Sphere:
+								entity.body.addSphereCollider(colliderData.radius, colliderData.offset);
+								break;
+							case SceneFormat.ColliderType.Capsule:
+								entity.body.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								break;
+							case SceneFormat.ColliderType.Mesh:
+								if (colliderData.meshColliderPath != null)
 								{
-									meshCollider = Physics.CreateMeshCollider(model, 0);
-									meshColliderCache.Add(model, meshCollider);
+									Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
+									meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
+									if (meshCollider == null)
+									{
+										meshCollider = Physics.CreateMeshCollider(model, 0);
+										meshColliderCache.Add(model, meshCollider);
+									}
+									entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
 								}
-								entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
-							}
-							break;
-						default:
-							Debug.Assert(false);
-							break;
+								break;
+							case SceneFormat.ColliderType.ConvexMesh:
+								if (colliderData.meshColliderPath != null)
+								{
+									Model model = Resource.GetModel(CombinePath(colliderData.meshColliderPath, path));
+									convexMeshColliderCache.TryGetValue(model, out ConvexMeshCollider meshCollider);
+									if (meshCollider == null)
+									{
+										meshCollider = Physics.CreateConvexMeshCollider(model, 0);
+										convexMeshColliderCache.Add(model, meshCollider);
+									}
+									entity.body.addConvexMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
+								}
+								break;
+							default:
+								Debug.Assert(false);
+								break;
+						}
 					}
 				}
 			}

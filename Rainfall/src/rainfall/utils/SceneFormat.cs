@@ -15,6 +15,7 @@ public static class SceneFormat
 		Sphere,
 		Capsule,
 		Mesh,
+		ConvexMesh,
 	}
 
 	public struct ColliderData
@@ -173,7 +174,7 @@ public static class SceneFormat
 			for (int i = 0; i < colliders.Count; i++)
 			{
 				ColliderData collider = colliders[i];
-				if (collider.type == ColliderType.Mesh && collider.meshColliderPath != null)
+				if ((collider.type == ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh) && collider.meshColliderPath != null)
 					collider.meshCollider = Resource.GetModel(directory + "/" + collider.meshColliderPath);
 				colliders[i] = collider;
 			}
@@ -212,7 +213,7 @@ public static class SceneFormat
 			collider.addVector3("size", entity.colliders[i].size);
 			collider.addVector3("offset", entity.colliders[i].offset);
 			collider.addVector3("rotation", entity.colliders[i].eulers);
-			if (entity.colliders[i].type == ColliderType.Mesh)
+			if (entity.colliders[i].type == ColliderType.Mesh || entity.colliders[i].type == ColliderType.ConvexMesh)
 			{
 				if (entity.colliders[i].meshColliderPath != null)
 					collider.addString("mesh", entity.colliders[i].meshColliderPath);
@@ -464,7 +465,7 @@ public static class SceneFormat
 				particle.getBoolean("applyEntityVelocity", out particleData.applyEntityVelocity);
 				particle.getBoolean("applyCentrifugalForce", out particleData.applyCentrifugalForce);
 
-				if (particle.getString("textureAtlas", out particleData.textureAtlasPath))
+				if (particle.getStringContent("textureAtlas", out particleData.textureAtlasPath))
 				{
 					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
 						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
