@@ -36,6 +36,9 @@ public class Entity : PhysicsEntity
 
 	public virtual void init()
 	{
+		if (animator != null)
+			animator.setAnimation(new AnimationState(model, "default"));
+
 		if (body != null)
 			body.setTransform(position, rotation);
 		if (hitboxes != null)
@@ -57,6 +60,17 @@ public class Entity : PhysicsEntity
 	{
 		model?.destroy();
 		animator?.destroy();
+		body?.destroy();
+		if (hitboxes != null)
+		{
+			foreach (var hitbox in hitboxes.Values)
+				hitbox.destroy();
+		}
+		if (lights != null)
+		{
+			foreach (PointLight light in lights)
+				light.destroy(Renderer.graphics);
+		}
 	}
 
 	protected void updateBoneHitbox(Node node, Matrix nodeTransform)
