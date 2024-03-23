@@ -102,6 +102,9 @@ namespace Rainfall.Native
 		internal static extern void Physics_RigidBodyClearColliders(IntPtr body);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetSimulationEnabled(IntPtr body, byte enabled);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodySetTransform(IntPtr body, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
