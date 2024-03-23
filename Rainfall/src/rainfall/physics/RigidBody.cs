@@ -178,6 +178,11 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyClearColliders(body);
 		}
 
+		public void setSimulationEnabled(bool enabled)
+		{
+			Native.Physics.Physics_RigidBodySetSimulationEnabled(body, (byte)(enabled ? 1 : 0));
+		}
+
 		public void setTransform(Vector3 position, Quaternion rotation)
 		{
 			Native.Physics.Physics_RigidBodySetTransform(body, position, rotation);

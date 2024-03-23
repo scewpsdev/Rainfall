@@ -767,6 +767,11 @@ namespace Physics
 		BX_FREE(Application_GetAllocator(), shapeBuffer);
 	}
 
+	RFAPI void Physics_RigidBodySetSimulationEnabled(RigidBody* body, bool enabled)
+	{
+		body->actor->setActorFlag(PxActorFlag::eDISABLE_SIMULATION, !enabled);
+	}
+
 	RFAPI void Physics_RigidBodySetTransform(RigidBody* body, const Vector3& position, const Quaternion& rotation)
 	{
 		PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
