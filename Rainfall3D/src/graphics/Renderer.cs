@@ -1121,7 +1121,7 @@ public static class Renderer
 
 						for (int l = 0; l < models[k].model.meshCount; l++)
 						{
-							graphics.setCullState(CullState.CounterClockWise);
+							graphics.setCullState(CullState.None);
 
 							if (directionalLights.Count > 0)
 							{
