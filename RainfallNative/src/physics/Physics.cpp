@@ -1300,7 +1300,7 @@ namespace Physics
 		return Sweep(PxSphereGeometry(radius), position, rotation, direction, maxDistance, hits, maxHits, flags, filterMask);
 	}
 
-	RFAPI int PhysicsSweepCapsule(float radius, float height, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
+	RFAPI int Physics_SweepCapsule(float radius, float height, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)
 	{
 		return Sweep(PxCapsuleGeometry(radius, 0.5f * height), position, rotation, direction, maxDistance, hits, maxHits, flags, filterMask);
 	}

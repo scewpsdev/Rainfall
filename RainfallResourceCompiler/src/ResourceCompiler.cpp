@@ -155,7 +155,8 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 
 		if (name.find("cubemap") != std::string::npos)
 		{
-			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, false, false, true, false, true);
+			bool equirect = name.find("equirect") != std::string::npos;
+			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, false, false, true, equirect, !equirect);
 		}
 		else
 		{

@@ -617,7 +617,10 @@ namespace Rainfall
 				DatField field = new DatField(name, value);
 				obj.fields.Add(field);
 
+				if (hasNextChar() && state.peek() == ',')
+					state.advance();
 				skipWhitespaceNewlineComments();
+
 				hasNext = hasNextChar() && state.peek() != '}';
 			}
 		}
