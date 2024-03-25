@@ -47,6 +47,14 @@ namespace Rainfall
 		public float xcenter, ycenter, zcenter;
 		public float radius;
 
+		public BoundingSphere(float xcenter, float ycenter, float zcenter, float radius)
+		{
+			this.xcenter = xcenter;
+			this.ycenter = ycenter;
+			this.zcenter = zcenter;
+			this.radius = radius;
+		}
+
 		public Vector3 center
 		{
 			get => new Vector3(xcenter, ycenter, zcenter);
@@ -62,7 +70,7 @@ namespace Rainfall
 		uint* vertexColors;
 		IntPtr boneWeights;
 
-		public void* vertices { get => positionsNormalsTangents; }
+		public PositionNormalTangent* vertices { get => positionsNormalsTangents; }
 		public int vertexCount { get; internal set; }
 
 		public int* indices { get; internal set; }
@@ -220,17 +228,22 @@ namespace Rainfall
 		public AnimationData* animations;
 		public NodeData* nodes;
 		public LightData* lights;
+
+		public BoundingBox boundingBox;
+		public BoundingSphere boundingSphere;
 	}
 
 	public class Model
 	{
 		public unsafe SceneData* scene { get; private set; }
+		public unsafe BoundingBox boundingBox { get => scene->boundingBox; }
+		public unsafe BoundingSphere boundingSphere { get => scene->boundingSphere; }
 		bool ownsScene = false;
-		public float maxDistance = float.MaxValue;
 
 		public readonly Skeleton skeleton;
 
 		public bool isStatic = true;
+		public float maxDistance = float.MaxValue;
 
 
 		unsafe internal Model(SceneData* scene)
@@ -317,16 +330,6 @@ namespace Rainfall
 		public unsafe int meshCount
 		{
 			get => scene->numMeshes;
-		}
-
-		public unsafe BoundingBox? boundingBox
-		{
-			get => scene->numMeshes > 0 ? scene->meshes[0].boundingBox : null;
-		}
-
-		public unsafe BoundingSphere? boundingSphere
-		{
-			get => scene->numMeshes > 0 ? scene->meshes[0].boundingSphere : null;
 		}
 
 		public unsafe int lightCount

@@ -346,6 +346,9 @@ bool ReadSceneData(FileReaderI* reader, const char* path, SceneData& scene)
 		ReadNodes(reader, scene, &err);
 		ReadLights(reader, scene, &err);
 
+		read(reader, scene.boundingBox, &err);
+		read(reader, scene.boundingSphere, &err);
+
 		close(reader);
 
 		return true;

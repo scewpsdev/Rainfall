@@ -224,4 +224,7 @@ struct SceneData
 	AnimationData* animations;
 	NodeData* nodes;
 	LightData* lights;
+
+	AABB boundingBox;
+	Sphere boundingSphere;
 };

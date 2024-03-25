@@ -216,6 +216,9 @@ void WriteSceneData(FileWriterI* writer, const SceneData& scene, const char* out
 		WriteNodes(writer, scene, &err);
 		WriteLights(writer, scene, &err);
 
+		write(writer, scene.boundingBox, &err);
+		write(writer, scene.boundingSphere, &err);
+
 		close(writer);
 	}
 }

@@ -48,13 +48,13 @@ namespace Rainfall.Native
 		internal static extern void Physics_DestroyRigidBody(IntPtr body);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe IntPtr Physics_CreateMeshCollider(void* vertices, int numVertices, int* indices, int numIndices);
+		internal static extern unsafe IntPtr Physics_CreateMeshCollider(void* vertices, int numVertices, int vertexStride, int* indices, int numIndices);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_DestroyMeshCollider(IntPtr mesh);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe IntPtr Physics_CreateConvexMeshCollider(void* vertices, int numVertices, int* indices, int numIndices);
+		internal static extern unsafe IntPtr Physics_CreateConvexMeshCollider(void* vertices, int numVertices, int vertexStride, int* indices, int numIndices);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_DestroyConvexMeshCollider(IntPtr mesh);

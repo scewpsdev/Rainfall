@@ -527,11 +527,11 @@ namespace Physics
 		rigidBodies.erase(std::find(rigidBodies.begin(), rigidBodies.end(), body));
 	}
 
-	RFAPI PxTriangleMesh* Physics_CreateMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
+	RFAPI PxTriangleMesh* Physics_CreateMeshCollider(const void* vertices, int numVertices, int vertexStride, const int* indices, int numIndices)
 	{
 		PxTriangleMeshDesc meshDesc;
 		meshDesc.points.count = numVertices;
-		meshDesc.points.stride = sizeof(PositionNormalTangent);
+		meshDesc.points.stride = vertexStride;
 		meshDesc.points.data = vertices;
 
 		meshDesc.triangles.count = numIndices / 3;
@@ -558,16 +558,18 @@ namespace Physics
 		mesh->release();
 	}
 
-	RFAPI PxConvexMesh* Physics_CreateConvexMeshCollider(const PositionNormalTangent* vertices, int numVertices, const int* indices, int numIndices)
+	RFAPI PxConvexMesh* Physics_CreateConvexMeshCollider(const void* vertices, int numVertices, int vertexStride, const int* indices, int numIndices)
 	{
+		/*
 		Vector3* vertexPositions = (Vector3*)BX_ALLOC(Application_GetAllocator(), numVertices * sizeof(Vector3));
 		for (int i = 0; i < numVertices; i++)
 			vertexPositions[i] = vertices[i].position;
+			*/
 
 		PxConvexMeshDesc meshDesc;
 		meshDesc.points.count = numVertices;
-		meshDesc.points.stride = sizeof(Vector3);
-		meshDesc.points.data = vertexPositions;
+		meshDesc.points.stride = vertexStride;
+		meshDesc.points.data = vertices;
 
 		meshDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::ePLANE_SHIFTING | PxConvexFlag::eFAST_INERTIA_COMPUTATION | PxConvexFlag::eSHIFT_VERTICES;
 
@@ -579,14 +581,14 @@ namespace Physics
 		if (!status)
 		{
 			printf("Failed to cook convex mesh\n");
-			BX_FREE(Application_GetAllocator(), vertexPositions);
+			//BX_FREE(Application_GetAllocator(), vertexPositions);
 			return nullptr;
 		}
 
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 		PxConvexMesh* mesh = physics->createConvexMesh(readBuffer);
 
-		BX_FREE(Application_GetAllocator(), vertexPositions);
+		//BX_FREE(Application_GetAllocator(), vertexPositions);
 
 		return mesh;
 	}

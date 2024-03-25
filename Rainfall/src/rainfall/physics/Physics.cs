@@ -101,17 +101,93 @@ namespace Rainfall
 		public static unsafe MeshCollider CreateMeshCollider(Model model, int meshIdx)
 		{
 			MeshData mesh = model.scene->meshes[meshIdx];
-			IntPtr handle = Native.Physics.Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, mesh.indices, mesh.indexCount);
+			IntPtr handle = Native.Physics.Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, sizeof(PositionNormalTangent), mesh.indices, mesh.indexCount);
 			Matrix transform = GetNodeTransform(model, meshIdx);
 			return new MeshCollider(handle, transform);
+		}
+
+		public static unsafe MeshCollider CreateMeshCollider(Model model)
+		{
+			int numVertices = 0;
+			int numIndices = 0;
+			for (int i = 0; i < model.scene->numMeshes; i++)
+			{
+				numVertices += model.scene->meshes[i].vertexCount;
+				numIndices += model.scene->meshes[i].indexCount;
+			}
+			Span<Vector3> vertices = stackalloc Vector3[numVertices];
+			Span<int> indices = stackalloc int[numIndices];
+
+			int currentVertex = 0;
+			int currentIndex = 0;
+			for (int i = 0; i < model.scene->numMeshes; i++)
+			{
+				Matrix transform = GetNodeTransform(model, i);
+				int startIndex = currentVertex;
+				for (int j = 0; j < model.scene->meshes[i].vertexCount; j++)
+				{
+					PositionNormalTangent* vertex = &model.scene->meshes[i].vertices[j];
+					vertices[currentVertex++] = transform * vertex->position;
+				}
+				for (int j = 0; j < model.scene->meshes[i].indexCount; j++)
+				{
+					int index = startIndex + model.scene->meshes[i].indices[j];
+					indices[currentIndex++] = index;
+				}
+			}
+
+			fixed (Vector3* verticesPtr = vertices)
+			fixed (int* indicesPtr = indices)
+			{
+				IntPtr handle = Native.Physics.Physics_CreateMeshCollider(verticesPtr, numVertices, sizeof(Vector3), indicesPtr, numIndices);
+				return new MeshCollider(handle, Matrix.Identity);
+			}
 		}
 
 		public static unsafe ConvexMeshCollider CreateConvexMeshCollider(Model model, int meshIdx)
 		{
 			MeshData mesh = model.scene->meshes[meshIdx];
-			IntPtr handle = Native.Physics.Physics_CreateConvexMeshCollider(mesh.vertices, mesh.vertexCount, mesh.indices, mesh.indexCount);
+			IntPtr handle = Native.Physics.Physics_CreateConvexMeshCollider(mesh.vertices, mesh.vertexCount, sizeof(PositionNormalTangent), mesh.indices, mesh.indexCount);
 			Matrix transform = GetNodeTransform(model, meshIdx);
 			return new ConvexMeshCollider(handle, transform);
+		}
+
+		public static unsafe ConvexMeshCollider CreateConvexMeshCollider(Model model)
+		{
+			int numVertices = 0;
+			int numIndices = 0;
+			for (int i = 0; i < model.scene->numMeshes; i++)
+			{
+				numVertices += model.scene->meshes[i].vertexCount;
+				numIndices += model.scene->meshes[i].indexCount;
+			}
+			Span<Vector3> vertices = stackalloc Vector3[numVertices];
+			Span<int> indices = stackalloc int[numIndices];
+
+			int currentVertex = 0;
+			int currentIndex = 0;
+			for (int i = 0; i < model.scene->numMeshes; i++)
+			{
+				Matrix transform = GetNodeTransform(model, i);
+				int startIndex = currentVertex;
+				for (int j = 0; j < model.scene->meshes[i].vertexCount; j++)
+				{
+					PositionNormalTangent* vertex = &model.scene->meshes[i].vertices[j];
+					vertices[currentVertex++] = transform * vertex->position;
+				}
+				for (int j = 0; j < model.scene->meshes[i].indexCount; j++)
+				{
+					int index = startIndex + model.scene->meshes[i].indices[j];
+					indices[currentIndex++] = index;
+				}
+			}
+
+			fixed (Vector3* verticesPtr = vertices)
+			fixed (int* indicesPtr = indices)
+			{
+				IntPtr handle = Native.Physics.Physics_CreateConvexMeshCollider(verticesPtr, numVertices, sizeof(Vector3), indicesPtr, numIndices);
+				return new ConvexMeshCollider(handle, Matrix.Identity);
+			}
 		}
 
 		public static IntPtr CreateHeightField(int width, int height, HeightFieldSample[] data)

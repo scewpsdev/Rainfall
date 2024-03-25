@@ -5,6 +5,7 @@
 
 #include <bx/allocator.h>
 #include <bx/file.h>
+#include <bx/math.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -46,6 +47,89 @@ static void ConstructBoundingInfo(MeshData& mesh, aiMesh* aimesh)
 	}
 
 	mesh.boundingSphere.radius = sqrtf(radiusSq);
+}
+
+static aiNode* FindMeshNode(aiNode* ainode, int meshID)
+{
+	for (int i = 0; i < (int)ainode->mNumMeshes; i++)
+	{
+		if (ainode->mMeshes[i] == meshID)
+			return ainode;
+	}
+	for (int i = 0; i < (int)ainode->mNumChildren; i++)
+	{
+		if (aiNode* child = FindMeshNode(ainode->mChildren[i], meshID))
+			return child;
+	}
+	return nullptr;
+}
+
+static aiMatrix4x4 GetNodeTransform(aiNode* ainode)
+{
+	aiMatrix4x4 transform = ainode->mTransformation;
+	aiNode* parent = ainode->mParent;
+	while (parent)
+	{
+		transform = parent->mTransformation * transform;
+		parent = parent->mParent;
+	}
+	return transform;
+}
+
+static aiMatrix4x4 GetMeshTransform(SceneData& scene, const aiScene* aiscene, int meshID)
+{
+	if (aiNode* meshNode = FindMeshNode(aiscene->mRootNode, meshID))
+		return GetNodeTransform(meshNode);
+	return aiMatrix4x4();
+}
+
+static void ConstructSceneBoundingInfo(SceneData& scene, const aiScene* aiscene)
+{
+	scene.boundingBox.x0 = INFINITY;
+	scene.boundingBox.y0 = INFINITY;
+	scene.boundingBox.z0 = INFINITY;
+	scene.boundingBox.x1 = -INFINITY;
+	scene.boundingBox.y1 = -INFINITY;
+	scene.boundingBox.z1 = -INFINITY;
+
+	for (int i = 0; i < scene.numMeshes; i++)
+	{
+		aiMatrix4x4 transform = GetMeshTransform(scene, aiscene, i);
+		for (int j = 0; j < scene.meshes[i].vertexCount; j++)
+		{
+			Vector3 vertex = scene.meshes[i].positions[j];
+
+			aiVector3D aiPos;
+			aiQuaternion aiRot;
+			(transform * aiMatrix4x4(aiVector3D(1), aiQuaternion(1, 0, 0, 0), aiVector3D(vertex.x, vertex.y, vertex.z))).DecomposeNoScaling(aiRot, aiPos);
+			vertex = Vector3{ aiPos.x, aiPos.y, aiPos.z };
+
+			scene.boundingBox.x0 = fminf(scene.boundingBox.x0, vertex.x);
+			scene.boundingBox.y0 = fminf(scene.boundingBox.y0, vertex.y);
+			scene.boundingBox.z0 = fminf(scene.boundingBox.z0, vertex.z);
+			scene.boundingBox.x1 = fmaxf(scene.boundingBox.x1, vertex.x);
+			scene.boundingBox.y1 = fmaxf(scene.boundingBox.y1, vertex.y);
+			scene.boundingBox.z1 = fmaxf(scene.boundingBox.z1, vertex.z);
+		}
+	}
+
+	scene.boundingSphere.xcenter = 0.5f * (scene.boundingBox.x0 + scene.boundingBox.x1);
+	scene.boundingSphere.ycenter = 0.5f * (scene.boundingBox.y0 + scene.boundingBox.y1);
+	scene.boundingSphere.zcenter = 0.5f * (scene.boundingBox.z0 + scene.boundingBox.z1);
+
+	float radiusSq = 0.0f;
+	for (int i = 0; i < scene.numMeshes; i++)
+	{
+		for (int j = 0; j < scene.meshes[i].vertexCount; j++)
+		{
+			float dx = scene.meshes[i].positions[j].x - scene.boundingSphere.xcenter;
+			float dy = scene.meshes[i].positions[j].y - scene.boundingSphere.ycenter;
+			float dz = scene.meshes[i].positions[j].z - scene.boundingSphere.zcenter;
+			radiusSq = fmaxf(dx * dx + dy * dy + dz * dz, radiusSq);
+		}
+	}
+
+	scene.boundingSphere.radius = sqrtf(radiusSq);
 }
 
 static void ProcessMesh(MeshData& mesh, aiMesh* aimesh, int skeletonID)
@@ -585,6 +669,8 @@ bool CompileGeometry(const char* path, const char* out)
 		ProcessMaterials(scene, aiscene, path);
 		ProcessAnimations(scene, aiscene);
 		ProcessLights(scene, aiscene);
+
+		ConstructSceneBoundingInfo(scene, aiscene);
 
 		bx::FileWriter* writer = new bx::FileWriter();
 		WriteSceneData(writer, scene, out);
