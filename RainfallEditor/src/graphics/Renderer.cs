@@ -426,7 +426,7 @@ public static class Renderer
 		{
 			if (collider.meshCollider != null)
 			{
-				DrawDebugBox(collider.meshCollider.boundingBox.Value.size, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+				DrawDebugBox(collider.meshCollider.boundingBox.size, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
 				//DrawDebugSphere(collider.meshCollider.boundingSphere.Value.radius, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
 			}
 		}
@@ -732,7 +732,7 @@ public static class Renderer
 					if (draw.meshID != -1 && draw.meshID != j)
 						continue;
 
-					BoundingSphere boundingSphere = model.boundingSphere.Value;
+					BoundingSphere boundingSphere = model.boundingSphere;
 					if (numDrawnInstances < instanceTransformBuffer.Length)
 					{
 						Matrix transform = draw.transform;

@@ -10,7 +10,7 @@ public class Camera
 {
 	public const float FOV = 60;
 	public const float NEAR = 0.05f;
-	public const float FAR = 100;
+	public const float FAR = 500;
 
 	const float MOUSE_SENSITIVITY = 0.004f;
 

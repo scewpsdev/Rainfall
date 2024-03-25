@@ -45,7 +45,7 @@ namespace Rainfall
 			{
 				Vector3 centerOfMass = Vector3.Zero;
 				if (entity.model != null)
-					centerOfMass = entity.model.boundingSphere.Value.center;
+					centerOfMass = entity.model.boundingSphere.center;
 				entity.body = new RigidBody(entity, entity.bodyType != RigidBodyType.Null ? entity.bodyType : entityData.rigidBodyType, 1.0f, centerOfMass, entity.bodyFilterGroup, entity.bodyFilterMask);
 				for (int i = 0; i < entityData.colliders.Count; i++)
 				{
@@ -70,7 +70,7 @@ namespace Rainfall
 									meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
 									if (meshCollider == null)
 									{
-										meshCollider = Physics.CreateMeshCollider(model, 0);
+										meshCollider = Physics.CreateMeshCollider(model);
 										meshColliderCache.Add(model, meshCollider);
 									}
 									entity.body.addMeshTrigger(meshCollider, Matrix.CreateTranslation(colliderData.offset));
@@ -83,7 +83,7 @@ namespace Rainfall
 									convexMeshColliderCache.TryGetValue(model, out ConvexMeshCollider meshCollider);
 									if (meshCollider == null)
 									{
-										meshCollider = Physics.CreateConvexMeshCollider(model, 0);
+										meshCollider = Physics.CreateConvexMeshCollider(model);
 										convexMeshColliderCache.Add(model, meshCollider);
 									}
 									entity.body.addConvexMeshTrigger(meshCollider, Matrix.CreateTranslation(colliderData.offset));
@@ -114,7 +114,7 @@ namespace Rainfall
 									meshColliderCache.TryGetValue(model, out MeshCollider meshCollider);
 									if (meshCollider == null)
 									{
-										meshCollider = Physics.CreateMeshCollider(model, 0);
+										meshCollider = Physics.CreateMeshCollider(model);
 										meshColliderCache.Add(model, meshCollider);
 									}
 									entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
@@ -127,7 +127,7 @@ namespace Rainfall
 									convexMeshColliderCache.TryGetValue(model, out ConvexMeshCollider meshCollider);
 									if (meshCollider == null)
 									{
-										meshCollider = Physics.CreateConvexMeshCollider(model, 0);
+										meshCollider = Physics.CreateConvexMeshCollider(model);
 										convexMeshColliderCache.Add(model, meshCollider);
 									}
 									entity.body.addConvexMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));

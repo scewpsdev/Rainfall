@@ -823,7 +823,7 @@ public static class Renderer
 					if (draw.meshID != -1 && draw.meshID != j)
 						continue;
 
-					BoundingSphere boundingSphere = model.boundingSphere.Value;
+					BoundingSphere boundingSphere = model.boundingSphere;
 					if (numDrawnInstances < instanceTransformBuffer.Length)
 					{
 						Matrix transform = draw.transform;
