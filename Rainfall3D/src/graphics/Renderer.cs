@@ -1742,7 +1742,6 @@ public static class Renderer
 		graphics.resetState();
 
 		graphics.setViewTransform(projection, view);
-		//graphics.setTransform(Matrix.CreateTranslation(0.0f, 3.0f, 0.0f));
 
 		for (int i = 0; i < waterTiles.Count; i++)
 		{
@@ -1784,7 +1783,7 @@ public static class Renderer
 		RenderSky();
 		RenderParticles();
 		//RenderGrass();
-		//RenderWater();
+		RenderWater();
 	}
 
 	static void DistanceFog()
@@ -1921,6 +1920,7 @@ public static class Renderer
 		meshRenderCounter = 0;
 		meshCulledCounter = 0;
 
+		// TODO light frustum culling
 		lights.Sort(LightDistanceComparator);
 		pointLights.Sort(PointLightDistanceComparator);
 

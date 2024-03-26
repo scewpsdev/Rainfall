@@ -87,7 +87,7 @@ internal class Program : Game
 		StringUtils.AppendCharacter(str, VERSION_SUFFIX);
 		graphics.drawDebugText(0, y++, 0xB, str);
 
-		y = DebugStats.Draw(0, y, graphics);
+		y = DebugStats.Draw(0, y, 0xB, graphics);
 	}
 
 	static void CompileFolder(string folder, string outDir)
@@ -109,13 +109,14 @@ internal class Program : Game
 	{
 #if DEBUG
 		CompileFolder("D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME, "D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME + "\\bin\\Debug\\net8.0");
+		CompileFolder("D:\\Dev\\2023\\Rainfall\\Rainfall3D", "D:\\Dev\\2024\\" + ASSEMBLY_NAME + "\\" + ASSEMBLY_NAME + "\\bin\\Debug\\net8.0");
 #endif
 
 		LaunchParams launchParams = new LaunchParams(args);
 #if DEBUG
 		launchParams.width = 1600;
 		launchParams.height = 900;
-		launchParams.maximized = true;
+		launchParams.maximized = false;
 #else
 		launchParams.width = 1600;
 		launchParams.height = 900;

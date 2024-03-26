@@ -844,9 +844,9 @@ namespace Rainfall
 			Native.Graphics.Graphics_DrawDebugText(x, y, 0xF, text);
 		}
 
-		public int drawDebugInfo(int x, int y)
+		public int drawDebugInfo(int x, int y, byte color)
 		{
-			y = Native.Graphics.Graphics_DrawDebugInfo(x, y);
+			y = Native.Graphics.Graphics_DrawDebugInfo(x, y, color);
 
 			y++;
 
@@ -854,7 +854,7 @@ namespace Rainfall
 
 			StringUtils.WriteString(str, "C# RAM: ");
 			StringUtils.MemoryString(str, GC.GetTotalMemory(false));
-			drawDebugText(x, y++, str);
+			drawDebugText(x, y++, color, str);
 
 			return y;
 		}
