@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RainfallEditor", "RainfallE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FPSSouls", "..\..\2024\FPSSouls\FPSSouls\FPSSouls.csproj", "{6DFBA34F-56B4-4ADE-9813-B15FBA45DA09}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorBlade", "..\..\2024\MirrorBlade\MirrorBlade\MirrorBlade.csproj", "{D6C26713-4316-496B-A9B5-8E49DF343FAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +178,18 @@ Global
 		{6DFBA34F-56B4-4ADE-9813-B15FBA45DA09}.Release|x64.Build.0 = Release|Any CPU
 		{6DFBA34F-56B4-4ADE-9813-B15FBA45DA09}.Release|x86.ActiveCfg = Release|Any CPU
 		{6DFBA34F-56B4-4ADE-9813-B15FBA45DA09}.Release|x86.Build.0 = Release|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Debug|x64.Build.0 = Debug|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Debug|x86.Build.0 = Debug|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Release|x64.ActiveCfg = Release|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Release|x64.Build.0 = Release|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Release|x86.ActiveCfg = Release|Any CPU
+		{D6C26713-4316-496B-A9B5-8E49DF343FAE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

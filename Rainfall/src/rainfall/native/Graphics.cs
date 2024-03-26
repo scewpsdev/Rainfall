@@ -357,7 +357,7 @@ namespace Rainfall
 			internal static extern void Graphics_GetRenderStats(out RenderStats renderStats);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern int Graphics_DrawDebugInfo(int x, int y);
+			internal static extern int Graphics_DrawDebugInfo(int x, int y, byte color);
 		}
 	}
 }
