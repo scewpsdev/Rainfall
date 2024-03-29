@@ -1266,8 +1266,6 @@ public static class Renderer
 
 			graphics.setTexture(shader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
 
-			graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, 0.0f));
-
 			int numRemainingLights = Math.Min(lights.Count - i, MAX_LIGHTS_PER_PASS);
 			for (int j = 0; j < numRemainingLights; j++)
 			{
@@ -1279,6 +1277,8 @@ public static class Renderer
 
 			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
 			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightColorBuffer);
+
+			graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, numRemainingLights));
 
 			graphics.draw(shader);
 		}
