@@ -6,7 +6,7 @@ void animateWater(vec2 p, float t, int numWaves, out vec3 outPosition, out vec3 
 	float amplitudeMultiplier = 0.82;
 	float frequencyMultiplier = 1.18;
 
-	float amplitude = 0.5;
+	float amplitude = 1.0;
 	float frequency = 0.1;
 	float result = 0.0;
 	vec2 derivative = vec2_splat(0.0);

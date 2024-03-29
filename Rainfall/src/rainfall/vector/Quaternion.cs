@@ -249,12 +249,15 @@ namespace Rainfall
 
 			///*
 			Vector3 forward = (at - eye).normalized;
+			if (forward == Vector3.Zero)
+				return Identity;
+
 			float d = Vector3.Dot(Vector3.Forward, forward);
 
 			if (MathF.Abs(d - -1.0f) < 0.000001f)
 				return FromAxisAngle(new Vector3(0.0f, 1.0f, 0.0f), MathF.PI);
 			if (MathF.Abs(d - 1.0f) < 0.000001f)
-				return Quaternion.Identity;
+				return Identity;
 
 			float angle = MathF.Acos(d);
 			Vector3 axis = Vector3.Cross(Vector3.Forward, forward).normalized;

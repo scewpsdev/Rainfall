@@ -1,4 +1,4 @@
-$input v_position, v_normal, v_localposition
+$input v_position, v_normal
 
 #include "../common/common.shader"
 #include "wave.shader"
@@ -6,8 +6,10 @@ $input v_position, v_normal, v_localposition
 
 #define PI 3.141592653589793
 
-#define AMBIENT_COLOR SRGBToLinear(vec3(9, 83, 82) / 255.0) * 0.02
-#define SCATTER_COLOR SRGBToLinear(vec3(64, 157, 150) / 255.0) * 0.5
+//#define WATER_COLOR SRGBToLinear(vec3(28, 71, 68) / 255.0) * 4.0
+//#define SCATTER_COLOR SRGBToLinear(vec3(28, 71, 68) / 255.0) * 2.0
+#define WATER_COLOR vec3(0.1, 0.5, 1.0)
+#define SCATTER_COLOR vec3(0.1, 0.5, 1.0)
 
 
 uniform vec4 u_cameraPosition;
@@ -92,11 +94,14 @@ float SmithMaskingBeckmann(float3 H, float3 S, float roughness)
 
 void main()
 {
+	vec3 albedo = WATER_COLOR;
 	vec3 position = v_position;
 	vec3 normal = normalize(v_normal);
 	vec3 cameraPosition = u_cameraPosition.xyz;
 	float time = u_cameraPosition.w;
 
+	float roughness = 0.03;
+	
 	int numWaves = 64;
 
 	vec3 animatedPosition, animatedNormal;
@@ -107,20 +112,19 @@ void main()
 	vec3 toLight = -u_directionalLightDirection.xyz;
 	vec3 view = normalize(cameraPosition - position);
 
-	float k1 = 0.5;
-	float k2 = 0.1;
-	float k3 = 0.1;
+	float ndotl = max(dot(normal, toLight), 0.0);
+	vec3 diffuse = ndotl * u_directionalLightColor.rgb;
+	//diffuse = textureCubeLod(s_environmentMap, normal, 12.0).rgb;
 
-	float roughness = 0.03;
-	vec3 h = normalize(toLight + view);
-	float lightMask = SmithMaskingBeckmann(h, toLight, roughness);
-	float scatter0 = k1 * max(v_localposition.y, 0) * pow(max(dot(toLight, -view), 0.0), 4) * pow((0.5 - 0.5 * dot(toLight, normal)), 3);
-
-	float scatter1 = k2 * pow(max(dot(normal, view), 0.0), 2);
-	float scatter2 = k3 * max(dot(normal, toLight), 0.0);
-	vec3 scatter = ((scatter0 + scatter1) * rcp(1.0 + lightMask) + scatter2) * SCATTER_COLOR * u_directionalLightColor.rgb + AMBIENT_COLOR;
+	/*
+	float hdotv = ;
+	float lightFresnel = pow(clamp(1.0 - max(dot(h, view), 0.0), 0.0, 1.0), 5.0);
+	float specularFactor = pow(max(dot(h, normal), 0.0), 400.0);
+	vec3 specular = lightFresnel * specularFactor * u_directionalLightColor.rgb;
+	*/
 
 	// Cook-Torrance BRDF
+	vec3 h = normalize(toLight + view);
 	vec3 wi = toLight;
 	float d = normalDistribution(normal, h, roughness);
 	float g = geometrySmith(normal, view, wi, roughness);
@@ -129,12 +133,24 @@ void main()
 	float denominator = 4.0 * max(dot(view, normal), 0.0) * max(dot(wi, normal), 0.0);
 	vec3 specular = numerator / max(denominator, 0.001);
 
+	float scatterStrength = 0.01;
+	float wavePeakScatterStrength = 0.1;
+	float scatterShadowStrength = 0.01;
+	float H = animatedPosition.y > 0.8 ? max(animatedPosition.y - 0.8, 0.0) / 0.2 : 0.0;
+	float k1 = wavePeakScatterStrength * H * pow(max(dot(toLight, -view), 0.0), 4.0) * pow(0.5 - 0.5 * dot(toLight, normal), 3.0);
+	float k2 = scatterStrength * pow(max(dot(view, normal), 0.0), 2.0);
+	float k3 = scatterShadowStrength * ndotl;
+	float k4 = 0.01;
+	float lightMask = SmithMaskingBeckmann(h, toLight, roughness);
+	vec3 scatter = (k1 + k2) * SCATTER_COLOR * u_directionalLightColor.rgb * rcp(1.0 + lightMask);
+	scatter += k3 * SCATTER_COLOR * u_directionalLightColor.rgb + k4 * albedo * textureCubeLod(s_environmentMap, normal, 12.0).rgb;
+
 	vec3 reflected = reflect(-view, normal);
 	float vdotn = max(dot(view, normal), 0.0);
 	vec3 fresnel = pow(clamp(1.0 - vdotn, 0.0, 1.0), 5.0);
-	vec3 environment = sampleEnvironment(s_environmentMap, reflected) * fresnel;
+	vec3 environment = sampleEnvironment(s_environmentMap, reflected);
 
-	vec3 final = scatter + specular + environment;
+	vec3 final = scatter + specular + environment * fresnel; //albedo + scatter + specular + environment * fresnel * 0.3; //mix(diffuse, environment, fresnel) + specular;
 
 	gl_FragColor = vec4(final, 1.0);
 }
