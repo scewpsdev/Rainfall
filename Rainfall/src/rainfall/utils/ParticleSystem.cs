@@ -300,8 +300,13 @@ public class ParticleSystem
 				}
 				if (randomVelocity.lengthSquared > 0)
 					velocity += MathHelper.RandomVector3(-1, 1, random).normalized * randomVelocity;
-				if (radialVelocity > 0)
-					velocity += (transform * new Vector4(localPosition, 0.0f)).xyz.normalized * radialVelocity;
+				if (radialVelocity != 0)
+				{
+					if (spawnShape == ParticleSpawnShape.Point)
+						velocity += MathHelper.RandomPointOnSphere() * radialVelocity;
+					else
+						velocity += (transform * new Vector4(localPosition, 0.0f)).xyz.normalized * radialVelocity;
+				}
 
 				float rotationVelocity = 0.0f;
 				if (randomRotationSpeed > 0)

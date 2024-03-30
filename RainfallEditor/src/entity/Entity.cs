@@ -79,6 +79,8 @@ public class Entity
 		bool restartEffect = true;
 		for (int i = 0; i < data.particles.Count; i++)
 		{
+			if (data.particles[i].emissionRate > 0)
+				restartEffect = false;
 			if (data.particles[i].numParticles > 0)
 				restartEffect = false;
 

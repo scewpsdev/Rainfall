@@ -165,7 +165,7 @@ public static unsafe partial class EditorUI
 		}
 		ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
 		Vector4 newValue = v;
-		bool changed = ImGui.ColorEdit4("##" + sid, &newValue, ImGuiColorEditFlags.NoInputs | (hdr ? ImGuiColorEditFlags.HDR : 0));
+		bool changed = ImGui.ColorEdit4("##" + sid, &newValue, ImGuiColorEditFlags.NoInputs | ImGuiColorEditFlags.NoSidePreview | (hdr ? ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.Float : 0));
 		if (changed)
 			v = newValue;
 		if (ImGui.IsItemDeactivatedAfterEdit())

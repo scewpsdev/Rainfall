@@ -183,6 +183,11 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodySetSimulationEnabled(body, (byte)(enabled ? 1 : 0));
 		}
 
+		public void setGravityEnabled(bool enabled)
+		{
+			Native.Physics.Physics_RigidBodySetGravityEnabled(body, (byte)(enabled ? 1 : 0));
+		}
+
 		public void setTransform(Vector3 position, Quaternion rotation)
 		{
 			Native.Physics.Physics_RigidBodySetTransform(body, position, rotation);
@@ -224,6 +229,11 @@ namespace Rainfall
 		public void addForce(Vector3 force)
 		{
 			Native.Physics.Physics_RigidBodyAddForce(body, force);
+		}
+
+		public void addAcceleration(Vector3 acceleration)
+		{
+			Native.Physics.Physics_RigidBodyAddAcceleration(body, acceleration);
 		}
 
 		public void lockAxis(bool x, bool y, bool z)

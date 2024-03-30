@@ -105,6 +105,9 @@ namespace Rainfall.Native
 		internal static extern void Physics_RigidBodySetSimulationEnabled(IntPtr body, byte enabled);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetGravityEnabled(IntPtr body, byte enabled);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodySetTransform(IntPtr body, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -124,6 +127,9 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyAddForce(IntPtr body, Vector3 force);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddAcceleration(IntPtr body, Vector3 acceleration);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyGetTransform(IntPtr body, out Vector3 position, out Quaternion rotation);
