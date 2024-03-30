@@ -186,12 +186,12 @@ namespace Rainfall
 		}
 
 		static float nextGaussian = float.MaxValue;
-		public static float RandomGaussian()
+		public static float RandomGaussian(Random random)
 		{
 			if (nextGaussian == float.MaxValue)
 			{
-				float u1 = Random.Shared.NextSingle();
-				float u2 = Random.Shared.NextSingle();
+				float u1 = random.NextSingle();
+				float u2 = random.NextSingle();
 				float r = MathF.Sqrt(-2 * MathF.Log(u1));
 				float t = 2 * MathF.PI * u2;
 				float x = r * MathF.Cos(t);
@@ -207,13 +207,26 @@ namespace Rainfall
 			}
 		}
 
-		public static Vector3 RandomPointOnSphere()
+		public static Vector3 RandomPointInSphere(Random random)
 		{
-			float x = RandomGaussian();
-			float y = RandomGaussian();
-			float z = RandomGaussian();
+			float x = RandomGaussian(random);
+			float y = RandomGaussian(random);
+			float z = RandomGaussian(random);
+			return new Vector3(x, y, z);
+		}
+
+		public static Vector3 RandomPointOnSphere(Random random)
+		{
+			float x = RandomGaussian(random);
+			float y = RandomGaussian(random);
+			float z = RandomGaussian(random);
 			Vector3 p = new Vector3(x, y, z);
 			return p.normalized;
+		}
+
+		public static Vector3 RandomPointOnSphere()
+		{
+			return RandomPointOnSphere(Random.Shared);
 		}
 
 		public static void ShuffleList<T>(List<T> list, Random random = null)

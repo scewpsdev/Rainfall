@@ -774,6 +774,11 @@ namespace Physics
 		body->actor->setActorFlag(PxActorFlag::eDISABLE_SIMULATION, !enabled);
 	}
 
+	RFAPI void Physics_RigidBodySetGravityEnabled(RigidBody* body, bool enabled)
+	{
+		body->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !enabled);
+	}
+
 	RFAPI void Physics_RigidBodySetTransform(RigidBody* body, const Vector3& position, const Quaternion& rotation)
 	{
 		PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
@@ -907,6 +912,15 @@ namespace Physics
 		{
 			PxRigidBody* dynamic = body->actor->is<PxRigidBody>();
 			dynamic->addForce(PxVec3(force.x, force.y, force.z), PxForceMode::eFORCE);
+		}
+	}
+
+	RFAPI void Physics_RigidBodyAddAcceleration(RigidBody* body, Vector3 acceleration)
+	{
+		if (body->type == RigidBodyType::Dynamic)
+		{
+			PxRigidBody* dynamic = body->actor->is<PxRigidBody>();
+			dynamic->addForce(PxVec3(acceleration.x, acceleration.y, acceleration.z), PxForceMode::eACCELERATION);
 		}
 	}
 
