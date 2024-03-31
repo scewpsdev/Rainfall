@@ -79,26 +79,11 @@ public class Entity
 		bool restartEffect = true;
 		for (int i = 0; i < data.particles.Count; i++)
 		{
-			if (data.particles[i].emissionRate > 0)
-				restartEffect = false;
-			if (data.particles[i].numParticles > 0)
-				restartEffect = false;
-
-			bool allBurstsEmitted = true;
-			if (data.particles[i].bursts != null && data.particles[i].bursts.Count > 0 && data.particles[i].numParticles == 0)
+			if (!data.particles[i].hasFinished)
 			{
-				for (int j = 0; j < data.particles[i].bursts.Count; j++)
-				{
-					if (data.particles[i].bursts[j].emitted < data.particles[i].bursts[j].count)
-					{
-						allBurstsEmitted = false;
-						break;
-					}
-				}
-			}
-
-			if (!allBurstsEmitted)
 				restartEffect = false;
+				break;
+			}
 		}
 
 		for (int i = 0; i < data.particles.Count; i++)

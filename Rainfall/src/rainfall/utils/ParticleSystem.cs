@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 public enum ParticleSpawnShape
@@ -446,5 +447,34 @@ public class ParticleSystem
 	public int numParticles
 	{
 		get => particleIndices.Count;
+	}
+
+	public bool hasFinished
+	{
+		get
+		{
+			if (emissionRate > 0)
+				return false;
+			if (numParticles > 0)
+				return false;
+
+			bool allBurstsEmitted = true;
+			if (bursts != null && bursts.Count > 0 && numParticles == 0)
+			{
+				for (int j = 0; j < bursts.Count; j++)
+				{
+					if (bursts[j].emitted < bursts[j].count)
+					{
+						allBurstsEmitted = false;
+						break;
+					}
+				}
+			}
+
+			if (!allBurstsEmitted)
+				return false;
+
+			return true;
+		}
 	}
 }

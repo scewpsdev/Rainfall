@@ -202,7 +202,7 @@ namespace Rainfall
 			for (int i = 0; i < entityData.particles.Count; i++)
 			{
 				ParticleSystem particles = new ParticleSystem(1000);
-				particles.copyData(entityData.particles[0]);
+				particles.copyData(entityData.particles[i]);
 				if (particles.textureAtlasPath != null)
 					particles.textureAtlas = Resource.GetTexture(CombinePath(particles.textureAtlasPath, path));
 				entity.particles.Add(particles);

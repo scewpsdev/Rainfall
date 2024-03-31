@@ -267,8 +267,10 @@ namespace Rainfall
 		public unsafe void destroy()
 		{
 			if (ownsScene)
+			{
 				Model_Destroy(scene);
-			scene = null;
+				scene = null;
+			}
 		}
 
 		public unsafe void drawMesh(GraphicsDevice graphics, int meshID, Shader shader, Matrix transform)
