@@ -1461,7 +1461,7 @@ public static class Renderer
 
 		RenderPointLights();
 		RenderDirectionalLights();
-		RenderEnvironmentLights();
+		//RenderEnvironmentLights();
 	}
 
 	static void RenderSky()
