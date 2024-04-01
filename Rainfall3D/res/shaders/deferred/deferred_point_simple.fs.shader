@@ -76,7 +76,8 @@ void main()
     vec3 view = toCamera / distance;
 
     vec3 lightS = vec3_splat(0.0);
-    for (int i = 0; i < MAX_LIGHTS; i++)
+    int numLights = int(u_cameraPosition.w + 0.5);
+    for (int i = 0; i < numLights; i++)
     {
         vec3 lightPosition = u_lightPosition[i].xyz;
         vec3 lightColor = u_lightColor[i].rgb;
