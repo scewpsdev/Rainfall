@@ -477,6 +477,9 @@ RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, 
 	sceneData->nodes = nullptr;
 	sceneData->lights = nullptr;
 
+	sceneData->boundingBox = meshData->boundingBox;
+	sceneData->boundingSphere = meshData->boundingSphere;
+
 	InitializeScene(*sceneData, nullptr, 0); // textureFlags == 0 since textures will not be reinitialized here
 
 	return sceneData;
