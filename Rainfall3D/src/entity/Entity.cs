@@ -123,7 +123,7 @@ public class Entity : PhysicsEntity
 			if (isStatic)
 				Renderer.DrawPointLight(lights[i], position);
 			else
-				Renderer.DrawLight(position + lights[i].offset, lights[i].color);
+				Renderer.DrawLight(transform * lights[i].offset, lights[i].color);
 		}
 		for (int i = 0; i < particles.Count; i++)
 			Renderer.DrawParticleSystem(particles[i]);
