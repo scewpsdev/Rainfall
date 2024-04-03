@@ -226,7 +226,7 @@ public class ParticleSystem
 		return -1;
 	}
 
-	public void emitParticle(Vector3 particleVelocity, int num = 1)
+	public void emitParticle(int num = 1)
 	{
 		for (int i = 0; i < num; i++)
 		{
@@ -280,9 +280,11 @@ public class ParticleSystem
 				Vector3 position = localPosition;
 
 				if (!follow)
-					position = (transform * new Vector4(position + spawnOffset, 1.0f)).xyz;
+					position = transform * (position + spawnOffset);
 
-				Vector3 velocity = startVelocity + particleVelocity;
+				Vector3 velocity = startVelocity;
+				if (!follow)
+					velocity = (transform * new Vector4(velocity, 0.0f)).xyz;
 				if (applyEntityVelocity)
 					velocity += entityVelocity;
 				if (applyCentrifugalForce)
@@ -364,7 +366,7 @@ public class ParticleSystem
 			if (now - lastEmitted > 1e9 / emissionRate)
 			{
 				int numParticles = (int)MathF.Floor((now - lastEmitted) / 1e9f * emissionRate);
-				emitParticle(Vector3.Zero, numParticles);
+				emitParticle(numParticles);
 				lastEmitted = now;
 			}
 		}
@@ -380,7 +382,7 @@ public class ParticleSystem
 					int delta = shouldEmitted - burst.emitted;
 					if (delta > 0)
 					{
-						emitParticle(Vector3.Zero, delta);
+						emitParticle(delta);
 						burst.emitted = shouldEmitted;
 					}
 				}

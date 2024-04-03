@@ -300,6 +300,8 @@ public static partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Lights", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
+			Matrix pv = Renderer.projection * Renderer.view;
+
 			for (int i = 0; i < entity.data.lights.Count; i++)
 			{
 				SceneFormat.LightData light = entity.data.lights[i];
@@ -308,36 +310,9 @@ public static partial class EditorUI
 
 				ColorEdit3(instance, "Color", "light_color" + i, ref light.color);
 
-				/*
-				ImGui.TextUnformatted("Color");
-				ImGui.SameLine(SPACING_X);
-				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-				Vector3 newColor = light.color;
-				if (ImGui.ColorEdit3("##light_color" + i, &newColor, ImGuiColorEditFlags.NoInputs))
-					light.color = newColor;
-				*/
-
 				DragFloat(instance, "Intensity", "light_intensity" + i, ref light.intensity, 0.02f, 0, 10000);
 
-				/*
-				ImGui.TextUnformatted("Intensity");
-				ImGui.SameLine(SPACING_X);
-				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-				float newIntensity = light.intensity;
-				if (ImGui.DragFloat("##light_intensity", &newIntensity, 0.02f))
-					light.intensity = newIntensity;
-				*/
-
 				DragFloat3(instance, "Offset", "light_offset" + i, ref light.offset, 0.02f);
-
-				/*
-				ImGui.TextUnformatted("Offset");
-				ImGui.SameLine(SPACING_X);
-				ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().x - RIGHT_PADDING);
-				Vector3 newOffset = light.offset;
-				if (ImGui.DragFloat3("##light_offset", &newOffset, 0.02f))
-					light.offset = newOffset;
-				*/
 
 				// X Button
 				Vector2 cursorPos = ImGui.GetCursorPos();
@@ -356,6 +331,13 @@ public static partial class EditorUI
 				ImGui.Spacing();
 				ImGui.Separator();
 				ImGui.Spacing();
+
+				Vector3 lightGlobalPosition = Matrix.CreateTransform(entity.data.position, entity.data.rotation) * light.offset;
+				Vector2i screenPosition = MathHelper.WorldToScreenSpace(lightGlobalPosition, pv, Display.viewportSize);
+				int width = 64;
+				int height = 64;
+				Texture lightGizmo = Resource.GetTexture("res/textures/light_gizmo.png");
+				GUI.Texture(screenPosition.x - width / 2, screenPosition.y - height / 2, width, height, lightGizmo);
 			}
 
 			if (ImGui.Button("Add Light"))

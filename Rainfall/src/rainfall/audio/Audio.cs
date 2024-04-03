@@ -67,6 +67,11 @@ namespace Rainfall
 			Native.Audio.Audio_SourceSetGain(source, gain);
 		}
 
+		public static void SetSourceLooping(uint source, bool looping)
+		{
+			Native.Audio.Audio_SourceSetLooping(source, (byte)(looping ? 1 : 0));
+		}
+
 		public static void StopSource(uint source)
 		{
 			Native.Audio.Audio_SourceStop(source);
