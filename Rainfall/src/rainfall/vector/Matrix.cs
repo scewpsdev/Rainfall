@@ -135,6 +135,12 @@ namespace Rainfall
 		public Vector3 translation
 		{
 			get { return new Vector3(m30, m31, m32); }
+			set
+			{
+				m30 = value.x;
+				m31 = value.y;
+				m32 = value.z;
+			}
 		}
 
 		public Quaternion rotation
