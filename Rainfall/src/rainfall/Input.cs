@@ -663,10 +663,5 @@ namespace Rainfall
 		{
 			get => mouseCurrent.x != mouseLast.x || mouseCurrent.y != mouseLast.y;
 		}
-
-		public static bool IsHovered(int x, int y, int width, int height)
-		{
-			return mouseCurrent.x >= x && mouseCurrent.x < x + width && mouseCurrent.y >= y && mouseCurrent.y < y + height;
-		}
 	}
 }

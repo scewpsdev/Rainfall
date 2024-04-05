@@ -70,6 +70,12 @@ namespace Rainfall
 			currentUILayer--;
 		}
 
+		public static bool IsHovered(int x, int y, int width, int height)
+		{
+			Vector2i cursorPos = Input.cursorPosition;
+			return cursorPos.x >= x && cursorPos.x < x + width && cursorPos.y >= y && cursorPos.y < y + height;
+		}
+
 		public static void Texture(int x, int y, int width, int height, Texture texture, int u0, int v0, int u1, int v1, uint color)
 		{
 			uiTextures.Add(new UITextureDrawCommand { x = x, y = Display.viewportSize.y - y - height, layer = currentUILayer * 1000 + uiDepthCounter++, width = width, height = height, texture = texture, u0 = u0, v0 = v0, u1 = u1, v1 = v1, color = MathHelper.ARGBToVector(color) });
