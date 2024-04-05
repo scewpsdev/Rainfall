@@ -65,6 +65,7 @@ namespace Rainfall
 		public void destroy()
 		{
 			Native.Animation.Animation_DestroyAnimationState(handle);
+			handle = IntPtr.Zero;
 		}
 
 		float getTransitionDuration(AnimationState from, AnimationState to)
