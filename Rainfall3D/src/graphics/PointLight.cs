@@ -25,9 +25,16 @@ public class PointLight
 		shadowMap = new PointShadowMap(RESOLUTION, nearPlane, graphics);
 	}
 
+	public PointLight(Vector3 position, Vector3 color)
+	{
+		this.offset = position;
+		this.color = color;
+	}
+
 	public void destroy(GraphicsDevice graphics)
 	{
-		shadowMap.destroy(graphics);
+		if (shadowMap != null)
+			shadowMap.destroy(graphics);
 	}
 
 	public void updateShadowMap()

@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -569,7 +570,10 @@ public static class Renderer
 
 	public static void DrawPointLight(PointLight light, Vector3 position)
 	{
-		pointLights.Add(new PointLightDrawCommand { light = light, position = position });
+		if (light.shadowMap != null)
+			pointLights.Add(new PointLightDrawCommand { light = light, position = position });
+		else
+			lights.Add(new LightDrawCommand { position = position + light.offset, color = light.color });
 	}
 
 	public static void DrawDirectionalLight(DirectionalLight light)

@@ -195,7 +195,11 @@ namespace Rainfall
 			for (int i = 0; i < entityData.lights.Count; i++)
 			{
 				SceneFormat.LightData lightData = entityData.lights[i];
-				PointLight light = new PointLight(lightData.offset, lightData.color * lightData.intensity, Renderer.graphics);
+				PointLight light;
+				if (entityData.isStatic)
+					light = new PointLight(lightData.offset, lightData.color * lightData.intensity, Renderer.graphics);
+				else
+					light = new PointLight(lightData.offset, lightData.color * lightData.intensity);
 				entity.lights.Add(light);
 			}
 

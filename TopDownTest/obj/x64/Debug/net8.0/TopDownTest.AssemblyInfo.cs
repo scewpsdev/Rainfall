@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TopDownTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8297577adf0e299e5fb14ad8768a56f726a5d92")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0ab49d80ee3516139867f8420069820931222c6")]
 [assembly: System.Reflection.AssemblyProductAttribute("TopDownTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TopDownTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
