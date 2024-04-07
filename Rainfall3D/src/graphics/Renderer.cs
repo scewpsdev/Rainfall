@@ -568,12 +568,12 @@ public static class Renderer
 		lights.Add(new LightDrawCommand { position = position, color = color });
 	}
 
-	public static void DrawPointLight(PointLight light, Vector3 position)
+	public static void DrawPointLight(PointLight light, Matrix transform)
 	{
 		if (light.shadowMap != null)
-			pointLights.Add(new PointLightDrawCommand { light = light, position = position });
+			pointLights.Add(new PointLightDrawCommand { light = light, position = transform * light.offset });
 		else
-			lights.Add(new LightDrawCommand { position = position + light.offset, color = light.color });
+			lights.Add(new LightDrawCommand { position = transform * light.offset, color = light.color });
 	}
 
 	public static void DrawDirectionalLight(DirectionalLight light)
@@ -1315,7 +1315,7 @@ public static class Renderer
 			int numRemainingLights = Math.Min(pointLights.Count, MAX_POINT_SHADOWS);
 			for (int j = 0; j < numRemainingLights; j++)
 			{
-				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position + pointLights[j].light.offset, 0.0f);
+				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
 				pointLightColorBuffer[j] = new Vector4(pointLights[j].light.color, 0.0f);
 				pointLightShadowNears[j] = pointLights[j].light.shadowMap.nearPlane;
 

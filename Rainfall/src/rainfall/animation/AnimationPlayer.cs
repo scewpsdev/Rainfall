@@ -253,7 +253,7 @@ namespace Rainfall
 			}
 		}
 
-		public void getRootMotion(out Vector3 position, out Quaternion rotation)
+		public void getRootMotion(out Vector3 position, out Quaternion rotation, out bool hasLooped)
 		{
 			if (states.Count > 0 && currentUpdateTime > lastAnimUpdateTime)
 			{
@@ -261,11 +261,13 @@ namespace Rainfall
 				Matrix displacement = states[states.Count - 1].layers[0].rootMotionDisplacement;
 				position = displacement.translation;
 				rotation = displacement.rotation;
+				hasLooped = states[states.Count - 1].layers[0].hasLooped;
 			}
 			else
 			{
 				position = Vector3.Zero;
 				rotation = Quaternion.Identity;
+				hasLooped = false;
 			}
 		}
 	}
