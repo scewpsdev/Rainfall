@@ -26,6 +26,7 @@ namespace Rainfall
 		public bool rootMotion = false;
 		public Node rootMotionNode = null;
 		public Matrix rootMotionDisplacement { get; private set; } = Matrix.Identity;
+		public bool hasLooped = false;
 		Matrix lastRootTransform = Matrix.Identity;
 		float lastAnimationTimer = float.MaxValue;
 
@@ -51,13 +52,20 @@ namespace Rainfall
 		public unsafe void update(float timer)
 		{
 			timer += timerOffset;
+			hasLooped = false;
 
 			SceneData* scene = animationData.scene;
 			AnimationData* animation = getAnimationByName(scene, animationName);
 			if (animation != null)
 			{
 				if (looping)
-					timer %= animation->duration;
+				{
+					if (timer >= animation->duration)
+					{
+						timer %= animation->duration;
+						hasLooped = true;
+					}
+				}
 				else
 				{
 					float startTime = 0.0f / 24.0f;

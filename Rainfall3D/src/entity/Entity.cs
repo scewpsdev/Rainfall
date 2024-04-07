@@ -119,7 +119,7 @@ public class Entity : PhysicsEntity
 		if (model != null)
 			Renderer.DrawModel(model, transform * modelTransform, animator);
 		for (int i = 0; i < lights.Count; i++)
-			Renderer.DrawPointLight(lights[i], position);
+			Renderer.DrawPointLight(lights[i], transform);
 		for (int i = 0; i < particles.Count; i++)
 			Renderer.DrawParticleSystem(particles[i]);
 	}
