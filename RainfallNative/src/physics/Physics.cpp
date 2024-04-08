@@ -1005,6 +1005,7 @@ namespace Physics
 		desc.contactOffset = 0.01f;
 		desc.stepOffset = stepOffset;
 		desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
+		desc.slopeLimit = 0.5f;
 		desc.reportCallback = hitCallback;
 
 		PxCapsuleController* capsule = (PxCapsuleController*)controllerManager->createController(desc);

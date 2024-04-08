@@ -32,7 +32,7 @@ static Vector3 AnimatePosition(AnimationChannel& channel, AnimationData& animati
 
 		if (timer >= keyframeTime)
 		{
-			int nextKeyframeIdx = (i + 1) % channel.positionsCount;
+			int nextKeyframeIdx = looping ? (i + 1) % channel.positionsCount : min(i + 1, channel.positionsCount - 1);
 			PositionKeyframe& keyframe0 = channel.positions[i];
 			PositionKeyframe& keyframe1 = channel.positions[nextKeyframeIdx];
 			float time0 = keyframe0.time;
@@ -59,7 +59,7 @@ static Quaternion AnimateRotation(AnimationChannel& channel, AnimationData& anim
 
 		if (timer >= keyframeTime)
 		{
-			int nextKeyframeIdx = (i + 1) % channel.rotationsCount;
+			int nextKeyframeIdx = looping ? (i + 1) % channel.rotationsCount : min(i + 1, channel.rotationsCount - 1);
 			RotationKeyframe& keyframe0 = channel.rotations[i];
 			RotationKeyframe& keyframe1 = channel.rotations[nextKeyframeIdx];
 			float time0 = keyframe0.time;
@@ -93,7 +93,7 @@ static Vector3 AnimateScale(AnimationChannel& channel, AnimationData& animation,
 
 		if (timer >= keyframeTime)
 		{
-			int nextKeyframeIdx = (i + 1) % channel.scalesCount;
+			int nextKeyframeIdx = looping ? (i + 1) % channel.scalesCount : min(i + 1, channel.scalesCount - 1);
 			ScaleKeyframe& keyframe0 = channel.scales[i];
 			ScaleKeyframe& keyframe1 = channel.scales[nextKeyframeIdx];
 			float time0 = keyframe0.time;

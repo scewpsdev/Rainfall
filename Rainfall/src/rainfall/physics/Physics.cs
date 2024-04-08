@@ -224,20 +224,7 @@ namespace Rainfall
 			int numHits = Raycast(origin, direction, distance, hits, filterData, filterMask);
 
 			if (numHits > 0)
-			{
-				float shortestDistance = float.MaxValue;
-				int closestHit = -1;
-				for (int i = 0; i < numHits; i++)
-				{
-					if (hits[i].body != null && hits[i].distance < shortestDistance)
-					{
-						shortestDistance = hits[i].distance;
-						closestHit = i;
-					}
-				}
-				if (closestHit != -1)
-					return hits[closestHit];
-			}
+				return hits[0];
 
 			return null;
 		}
@@ -276,6 +263,17 @@ namespace Rainfall
 				fixed (HitData* data = hits)
 					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
 			}
+		}
+
+		public static HitData? SweepSphere(float radius, Vector3 position, Vector3 direction, float distance, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
+		{
+			Span<HitData> hits = stackalloc HitData[16];
+			int numHits = SweepSphere(radius, position, direction, distance, hits, filterData, filterMask);
+
+			if (numHits > 0)
+				return hits[0];
+
+			return null;
 		}
 
 		public static int SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
