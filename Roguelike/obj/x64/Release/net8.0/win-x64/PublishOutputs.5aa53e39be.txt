@@ -1,4 +1,0 @@
-D:\Dev\Rainfall\MumbleWizard\bin\x64\Release\net8.0\win-x64\publish\MumbleWizard.exe
-D:\Dev\Rainfall\MumbleWizard\bin\x64\Release\net8.0\win-x64\publish\MumbleWizard.pdb
-D:\Dev\Rainfall\MumbleWizard\bin\x64\Release\net8.0\win-x64\publish\Rainfall2D.pdb
-D:\Dev\Rainfall\MumbleWizard\bin\x64\Release\net8.0\win-x64\publish\Rainfall.pdb

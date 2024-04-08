@@ -1,4 +1,0 @@
-D:\Dev\Rainfall\MJ149\bin\x64\Release\net8.0\win-x64\publish\MJ149.exe
-D:\Dev\Rainfall\MJ149\bin\x64\Release\net8.0\win-x64\publish\MJ149.pdb
-D:\Dev\Rainfall\MJ149\bin\x64\Release\net8.0\win-x64\publish\Rainfall2D.pdb
-D:\Dev\Rainfall\MJ149\bin\x64\Release\net8.0\win-x64\publish\Rainfall.pdb
