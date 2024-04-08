@@ -20,9 +20,8 @@ DungeonGame/obj/
 DungeonGame/builds/
 VoxelEngine/obj/
 VoxelEngine/bin/
-Roguelike/bin/
-Roguelike/obj/
+TopDownTest/bin/
+TopDownTest/obj/
 MumbleWizard/bin/
 MumbleWizard/obj/
-DDB/
-OntoNewHorizons/
+
