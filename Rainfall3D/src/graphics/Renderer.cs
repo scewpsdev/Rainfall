@@ -691,7 +691,7 @@ public static class Renderer
 		}
 	}
 
-	static bool IsInFrustum(Vector3 p, float radius, Matrix transform, Matrix pv)
+	public static bool IsInFrustum(Vector3 p, float radius, Matrix transform, Matrix pv)
 	{
 		Span<Vector4> planes = stackalloc Vector4[16];
 		GetFrustumPlanes(pv, planes);

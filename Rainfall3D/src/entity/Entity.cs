@@ -90,11 +90,7 @@ public class Entity : PhysicsEntity
 
 	public virtual void update()
 	{
-		if (animator != null)
-		{
-			animator.update();
-			animator.applyAnimation();
-		}
+		Matrix transform = getModelMatrix();
 
 		if (body != null)
 		{
@@ -103,14 +99,20 @@ public class Entity : PhysicsEntity
 			else if (body.type == RigidBodyType.Kinematic)
 				body.setTransform(position, rotation);
 		}
-
-		Matrix transform = getModelMatrix();
-
 		if (hitboxes != null && model != null && animator != null)
 			updateBoneHitbox(model.skeleton.rootNode, transform * animator.getNodeLocalTransform(model.skeleton.rootNode));
 
+		if (animator != null)
+		{
+			animator.update();
+			animator.applyAnimation();
+		}
+
 		for (int i = 0; i < particles.Count; i++)
-			particles[i].update(transform);
+		{
+			//if (Renderer.IsInFrustum(particles[i].boundingSphere.center, particles[i].boundingSphere.radius, transform, Renderer.pv))
+				particles[i].update(transform);
+		}
 	}
 
 	public virtual void draw(GraphicsDevice graphics)

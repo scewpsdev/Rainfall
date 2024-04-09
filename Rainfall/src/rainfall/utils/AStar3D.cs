@@ -89,8 +89,8 @@ public static class AStar3D
 		ANode3D current = grid.getNode(start);
 		openList.add(current);
 
-		var isWalkable = (Vector3i position) => walkable[position.x + position.y * size.x + position.z * size.x * size.y];
-		var getWalkCost = (Vector3i position, Vector3i direction) => (costs != null ? costs[position.x + position.y * size.x + position.z * size.x * size.y] : 1) + (current.parent != null && direction != current.position - current.parent.position && current.position.y - current.parent.position.y == 0 ? 0.001f : 0.0f);
+		bool isWalkable(Vector3i position) => walkable[position.x + position.y * size.x + position.z * size.x * size.y];
+		float getWalkCost(Vector3i position, Vector3i direction) => (costs != null ? costs[position.x + position.y * size.x + position.z * size.x * size.y] : 1) + (current.parent != null && direction != current.position - current.parent.position && current.position.y - current.parent.position.y == 0 ? 0.001f : 0.0f);
 
 		while (openList.count > 0)
 		{
