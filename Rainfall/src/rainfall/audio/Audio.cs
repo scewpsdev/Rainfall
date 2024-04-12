@@ -35,24 +35,24 @@ namespace Rainfall
 			Native.Audio.Audio_ListenerUpdateTransform(position, rotation.forward, rotation.up);
 		}
 
-		public static uint Play(Sound sound, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 0.2f)
+		public static uint Play(Sound sound, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 1)
 		{
 			return Native.Audio.Audio_SourcePlay(sound.handle, position, gain, pitch, rolloff);
 		}
 
-		public static uint Play(Sound[] sounds, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 0.2f)
+		public static uint Play(Sound[] sounds, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 1)
 		{
 			return Play(sounds[Random.Shared.Next() % sounds.Length], position, gain, pitch, rolloff);
 		}
 
-		public static uint PlayOrganic(Sound sound, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 0.2f)
+		public static uint PlayOrganic(Sound sound, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 1)
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
 			return Native.Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
 		}
 
-		public static uint PlayOrganic(Sound[] sounds, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 0.2f)
+		public static uint PlayOrganic(Sound[] sounds, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 1)
 		{
 			return PlayOrganic(sounds[Random.Shared.Next() % sounds.Length], position, gain, pitch, gainVariation, pitchVariation, rolloff);
 		}

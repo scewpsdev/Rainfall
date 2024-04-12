@@ -793,9 +793,10 @@ namespace Rainfall
 				array.values.Add(value);
 
 				skipWhitespaceNewlineComments();
-				hasNext = state.peek() == ',';
-				if (hasNext)
-					state.advance(); // ,
+				if (state.peek() == ',')
+					state.advance();
+				skipWhitespaceNewlineComments();
+				hasNext = state.peek() != ']';
 			}
 
 			skipWhitespaceNewlineComments();

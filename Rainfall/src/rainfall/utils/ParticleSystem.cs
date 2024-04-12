@@ -71,6 +71,48 @@ public class ParticleSystem
 
 	static ParticleComparator particleComparator = new ParticleComparator();
 
+	static List<ParticleSystem> particleSystems = new List<ParticleSystem>();
+
+	public static ParticleSystem Create(Matrix transform, int maxParticles = 400)
+	{
+		ParticleSystem system = new ParticleSystem(maxParticles, transform);
+		particleSystems.Add(system);
+		return system;
+	}
+
+	public static ParticleSystem CreateTemplate()
+	{
+		ParticleSystem system = new ParticleSystem(0, Matrix.Identity);
+		return system;
+	}
+
+	public static void Destroy(ParticleSystem particleSystem)
+	{
+		//particleSystem.destroy();
+		if (particleSystems.Contains(particleSystem))
+			particleSystems.Remove(particleSystem);
+	}
+
+	public static void Update(Vector3 cameraPosition)
+	{
+		/*
+		for (int i = 0; i < particleSystems.Count; i++)
+		{
+			Vector3 toCamera = cameraPosition - particleSystems[i].transform.translation;
+			float distanceSq = toCamera.lengthSquared;
+			float maxDistance = 20;
+			if (distanceSq < maxDistance * maxDistance)
+			particleSystems[i].update();
+		}
+		*/
+
+		void updateParticleSystem(int idx)
+		{
+			particleSystems[idx].update();
+		}
+		Parallel.For(0, particleSystems.Count, updateParticleSystem);
+	}
+
 
 	public Matrix transform { get; private set; } = Matrix.Identity;
 	Vector3 entityVelocity = Vector3.Zero;
@@ -118,8 +160,9 @@ public class ParticleSystem
 
 	public List<ParticleBurst> bursts = null;
 
-	public Particle[] particles { get; private set; } = null;
-	public List<int> particleIndices { get; private set; }
+	public Particle[] particles;
+	public List<int> particleIndices;
+	int inactiveParticleStart = 0;
 	public readonly int maxParticles = 0;
 
 	long systemStarted, lastEmitted;
@@ -130,7 +173,7 @@ public class ParticleSystem
 	Simplex simplex;
 
 
-	public ParticleSystem(int maxParticles, Matrix transform)
+	ParticleSystem(int maxParticles, Matrix transform)
 	{
 		this.transform = transform;
 
@@ -142,11 +185,6 @@ public class ParticleSystem
 		simplex = new Simplex(0);
 
 		restartEffect();
-	}
-
-	public ParticleSystem(int maxParticles)
-		: this(maxParticles, Matrix.Identity)
-	{
 	}
 
 	public void copyData(ParticleSystem from)
@@ -214,11 +252,12 @@ public class ParticleSystem
 	{
 		if (particleIndices.Count < maxParticles)
 		{
-			for (int i = 0; i < particles.Length; i++)
+			for (int i = inactiveParticleStart; i < particles.Length; i++)
 			{
 				if (!particles[i].active)
 				{
 					particles[i].active = true;
+					inactiveParticleStart++;
 					return i;
 				}
 			}
@@ -355,17 +394,15 @@ public class ParticleSystem
 		particleComparator.cameraAxis = cameraAxis;
 	}
 
-	public void update(Matrix transform)
+	void update()
 	{
-		setTransform(transform, true);
-
-
 		long now = Time.currentTime;
 		if (emissionRate > 0.0f)
 		{
 			if (now - lastEmitted > 1e9 / emissionRate)
 			{
 				int numParticles = (int)MathF.Floor((now - lastEmitted) / 1e9f * emissionRate);
+				numParticles = Math.Min(numParticles, (int)MathF.Ceiling(emissionRate * 2));
 				emitParticle(numParticles);
 				lastEmitted = now;
 			}
@@ -400,6 +437,9 @@ public class ParticleSystem
 			ref Particle particle = ref particles[i];
 			if (particle.active)
 			{
+				if (i == inactiveParticleStart)
+					inactiveParticleStart++;
+
 				float particleTimer = (now - particle.birthTime) / 1e9f;
 
 				particle.velocity.y += 0.5f * gravity * Time.deltaTime;
@@ -440,6 +480,11 @@ public class ParticleSystem
 						index = ~index;
 					particleIndices.Insert(index, i);
 				}
+			}
+
+			if (!particle.active && inactiveParticleStart > i)
+			{
+				inactiveParticleStart = i;
 			}
 		}
 

@@ -24,11 +24,6 @@ namespace Rainfall
 			get { return Native.Application.Application_GetFrameTime() / 1e9f; }
 		}
 
-		public static float physicsDelta
-		{
-			get { return Native.Physics.Physics_GetSimulationDelta() / 1e9f; }
-		}
-
 		public static int fps
 		{
 			get { return Native.Application.Application_GetFPS(); }
