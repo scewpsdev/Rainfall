@@ -59,7 +59,8 @@ public class Entity : PhysicsEntity
 	public virtual void destroy()
 	{
 		model?.destroy();
-		animator?.destroy();
+		if (animator != null)
+			Animator.Destroy(animator);
 		body?.destroy();
 		if (hitboxes != null)
 		{
@@ -104,14 +105,14 @@ public class Entity : PhysicsEntity
 
 		if (animator != null)
 		{
-			animator.update();
+			//animator.update();
 			animator.applyAnimation();
 		}
 
 		for (int i = 0; i < particles.Count; i++)
 		{
 			//if (Renderer.IsInFrustum(particles[i].boundingSphere.center, particles[i].boundingSphere.radius, transform, Renderer.pv))
-				particles[i].update(transform);
+			particles[i].setTransform(transform);
 		}
 	}
 

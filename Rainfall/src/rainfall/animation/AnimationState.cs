@@ -76,5 +76,16 @@ namespace Rainfall
 				}
 			}
 		}
+
+		internal void updateRootMotion(float timer)
+		{
+			for (int i = 0; i < layers.Length; i++)
+			{
+				if (layers[i] != null && layers[i].active)
+				{
+					layers[i].updateRootMotion(timer);
+				}
+			}
+		}
 	}
 }

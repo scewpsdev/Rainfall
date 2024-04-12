@@ -228,6 +228,7 @@
     <ClCompile Include="src\Hash.cpp" />
     <ClCompile Include="src\physics\FilterShader.cpp" />
     <ClCompile Include="src\physics\Physics.cpp" />
+    <ClCompile Include="src\Platform.cpp" />
     <ClCompile Include="src\Resource.cpp" />
     <ClCompile Include="src\utils\ImGuiLayer.cpp" />
     <ClCompile Include="src\vector\Math.cpp" />
@@ -236,6 +237,7 @@
     <ClCompile Include="src\vector\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform.h" />
     <ClInclude Include="src\graphics\LineRenderer.h" />
     <ClInclude Include="src\imgui\cimgui.h" />
     <ClInclude Include="src\Application.h" />

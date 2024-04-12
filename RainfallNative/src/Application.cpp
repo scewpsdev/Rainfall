@@ -4,12 +4,12 @@
 #include "Input.h"
 #include "Console.h"
 #include "Hash.h"
+#include "Platform.h"
 
 #include "audio/Audio.h"
 
 #include "utils/ImGuiLayer.h"
 
-#include <chrono>
 #include <mutex>
 #include <unordered_map>
 #include <map>
@@ -132,7 +132,6 @@ int fpsCap;
 int vsync;
 bool mouseLocked = false;
 
-int64_t appStartTime = 0;
 int64_t currentFrame = 0;
 int64_t delta = 0;
 int fps = 0;
@@ -595,30 +594,9 @@ static void DestroyWindow(GLFWwindow* _window)
 	glfwDestroyWindow(_window);
 }
 
-RFAPI int64_t Application_GetTimestamp()
-{
-	int64_t t = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-	return t - appStartTime;
-}
-
-RFAPI void Application_SleepFor(int millis)
-{
-	std::this_thread::sleep_for(std::chrono::milliseconds(millis));
-}
-
-RFAPI void Application_SleepForNanos(int nanos)
-{
-	std::this_thread::sleep_for(std::chrono::nanoseconds(nanos));
-}
-
 RFAPI void Application_Terminate()
 {
 	eventQueue.postExitEvent();
-}
-
-static const Event* PollEvent()
-{
-	return eventQueue.poll();
 }
 
 static bool ProcessEvents(const ApplicationCallbacks& callbacks)
@@ -628,7 +606,7 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 		;
 	bool needsReset = nextReset != reset;
 
-	while (const Event* ev = PollEvent())
+	while (const Event* ev = eventQueue.poll())
 	{
 		if (ImGuiLayerProcessEvent(ev)) // if the event was already handled by ImGui, skip it
 			continue;
@@ -719,85 +697,57 @@ static inline T min(const T& a, const T& b)
 
 static bool Loop(const ApplicationCallbacks& callbacks)
 {
-	int64_t now = Application_GetTimestamp();
+	currentFrame = Application_GetTimestamp();
 
-	bool nextFrame = false;
-	int nanosUntilNextFrame = 0;
+	int64_t maxDelta = 1000000000 / 10;
+	delta = min(currentFrame - lastFrame, maxDelta);
+
+	bool exit = !ProcessEvents(callbacks);
+
+	if (currentFrame - lastSecond > 1000000000)
+	{
+		lastSecond = currentFrame;
+
+		ms = msCounter / frameCounter;
+		msCounter = 0.0f;
+
+		fps = frameCounter;
+		frameCounter = 0;
+	}
+
+	callbacks.update();
+
+	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
+	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH);
+	bgfx::touch(0);
+
+	bgfx::dbgTextClear();
+
+	ImGuiLayerBeginFrame();
+
+	callbacks.draw();
+
+	ImGuiLayerEndFrame();
+
+	bgfx::frame();
+
+	int64_t afterFrame = Application_GetTimestamp();
 
 	if (fpsCap)
 	{
-		timeAccumulator += (now - lastFrame) / 1e9f;
 
-		float timeStep = 1.0f / fpsCap;
-		if (timeAccumulator >= timeStep)
+		int64_t frameLength = afterFrame - currentFrame;
+		int64_t remaining = 1000000000 / fpsCap - frameLength;
+		if (remaining > 0)
 		{
-			int numIterations = (int)(timeAccumulator / timeStep);
-			int maxIterations = 10;
-			numIterations = min(numIterations, maxIterations);
-
-			delta = 1000000000i64 / fpsCap * numIterations;
-			timeAccumulator = fmodf(timeAccumulator, timeStep);
-			nextFrame = true;
-		}
-		else
-		{
-			nanosUntilNextFrame = (int)((timeStep - timeAccumulator) * 1000000000);
+			Application_SleepFor(remaining / 1000000);
 		}
 	}
-	else
-	{
-		int64_t maxDelta = 1000000000 / 10;
-		delta = min(now - lastFrame, maxDelta);
-		nextFrame = true;
-	}
 
-	bool exit = false;
-	if (nextFrame)
-	{
-		exit = !ProcessEvents(callbacks);
+	msCounter += (afterFrame - currentFrame) / 1e6f;
+	frameCounter++;
 
-		currentFrame = now;
-
-		if (now - lastSecond > 1000000000)
-		{
-			lastSecond = now;
-
-			ms = msCounter / frameCounter;
-			msCounter = 0.0f;
-
-			fps = frameCounter;
-			frameCounter = 0;
-		}
-
-		callbacks.update();
-
-		bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
-		bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH);
-		bgfx::touch(0);
-
-		bgfx::dbgTextClear();
-
-		ImGuiLayerBeginFrame();
-
-		callbacks.draw();
-
-		ImGuiLayerEndFrame();
-
-		//Audio_Update();
-
-		bgfx::frame();
-
-		int64_t afterFrame = Application_GetTimestamp();
-		msCounter += (afterFrame - now) / 1e6f;
-
-		frameCounter++;
-	}
-	else
-	{
-		Application_SleepForNanos(nanosUntilNextFrame);
-	}
-
-	lastFrame = now;
+	lastFrame = currentFrame;
 
 	return !exit;
 }
@@ -906,7 +856,7 @@ static int GameThreadEntry(bx::Thread* thread, void* userData)
 
 RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 {
-	appStartTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+	Platform_Init();
 
 	glfwSetErrorCallback(ErrorCallback);
 
@@ -979,7 +929,7 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	bool running = true;
 	while (running)
 	{
-		glfwWaitEventsTimeout(params.fpsCap ? 1.0 / params.fpsCap : 0.001);
+		glfwWaitEventsTimeout(1 / 140.0f);
 
 		bool windowExit = glfwWindowShouldClose(window);
 		if (!keepRunning || windowExit)
@@ -1112,6 +1062,8 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 
 	DestroyWindow(window);
 	glfwTerminate();
+
+	Platform_Terminate();
 
 	return gameThread.getExitCode();
 }

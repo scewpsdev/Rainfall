@@ -25,10 +25,6 @@ namespace Rainfall
 			StringUtils.AppendInteger(str, Renderer.meshCulledCounter);
 			graphics.drawDebugText(x, y++, color, str);
 
-			StringUtils.WriteString(str, "Physics bodies: ");
-			StringUtils.AppendInteger(str, RigidBody.numBodies);
-			graphics.drawDebugText(x, y++, color, str);
-
 			y++;
 
 			RenderStats renderStats = graphics.getRenderStats();
@@ -65,6 +61,17 @@ namespace Rainfall
 
 			StringUtils.WriteString(str, "UI Pass: ");
 			StringUtils.AppendFloat(str, renderStats.getGpuTime((ushort)Renderer.RenderPass.UI) * 1000, 2);
+			StringUtils.AppendString(str, " ms");
+			graphics.drawDebugText(x, y++, color, str);
+
+			y++;
+
+			StringUtils.WriteString(str, "Physics Bodies: ");
+			StringUtils.AppendInteger(str, RigidBody.numBodies);
+			graphics.drawDebugText(x, y++, color, str);
+
+			StringUtils.WriteString(str, "Physics Delta: ");
+			StringUtils.AppendFloat(str, Physics.SimulationDelta * 1000, 2);
 			StringUtils.AppendString(str, " ms");
 			graphics.drawDebugText(x, y++, color, str);
 

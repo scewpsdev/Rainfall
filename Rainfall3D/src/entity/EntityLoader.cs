@@ -37,7 +37,7 @@ namespace Rainfall
 				{
 					entity.model.isStatic = entityData.isStatic;
 					if (entity.model.isAnimated)
-						entity.animator = new Animator(entity.model);
+						entity.animator = Animator.Create(entity.model);
 				}
 			}
 
@@ -205,7 +205,7 @@ namespace Rainfall
 
 			for (int i = 0; i < entityData.particles.Count; i++)
 			{
-				ParticleSystem particles = new ParticleSystem(1000);
+				ParticleSystem particles = ParticleSystem.Create(Matrix.Identity);
 				particles.copyData(entityData.particles[i]);
 				if (particles.textureAtlasPath != null)
 					particles.textureAtlas = Resource.GetTexture(CombinePath(particles.textureAtlasPath, path));

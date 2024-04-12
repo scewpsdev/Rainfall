@@ -81,15 +81,17 @@ namespace Rainfall
 
 			for (int i = 0; i < values.Count; i++)
 			{
-				if (position < values[i].position)
+				VectorGradientValue<T> v1 = values[i];
+				if (position < v1.position)
 				{
-					T value1 = values[i].value;
+					T value1 = v1.value;
 					if (i == 0)
 						return value1;
 					else
 					{
-						T value0 = values[i - 1].value;
-						float progress = (position - values[i - 1].position) / (values[i].position - values[i - 1].position);
+						VectorGradientValue<T> v0 = values[i - 1];
+						T value0 = v0.value;
+						float progress = (position - v0.position) / (v1.position - v0.position);
 						return value0 * (1.0f - progress) + value1 * progress;
 					}
 				}

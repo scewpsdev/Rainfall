@@ -441,7 +441,7 @@ public static class SceneFormat
 			for (int i = 0; i < particles.size; i++)
 			{
 				DatObject particle = particles[i].obj;
-				ParticleSystem particleData = new ParticleSystem(1000);
+				ParticleSystem particleData = ParticleSystem.CreateTemplate();
 
 				particle.getStringContent("name", out particleData.name);
 

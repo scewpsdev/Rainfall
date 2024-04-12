@@ -84,6 +84,11 @@ namespace Rainfall
 			Native.Physics.Physics_Update();
 		}
 
+		public static float SimulationDelta
+		{
+			get => Native.Physics.Physics_GetSimulationDelta() / 1e9f;
+		}
+
 		static unsafe Matrix GetNodeTransform(Model model, int idx)
 		{
 			MeshData mesh = model.scene->meshes[idx];

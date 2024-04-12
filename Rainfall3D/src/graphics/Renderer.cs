@@ -1547,7 +1547,7 @@ public static class Renderer
 
 			particleSystems.Sort(ParticleSystemDepthComparator);
 
-			int maxParticleSystems = 32;
+			int maxParticleSystems = 128;
 			Vector3 cameraPosition = camera.position;
 			Vector3 cameraAxis = camera.rotation.forward;
 			/*

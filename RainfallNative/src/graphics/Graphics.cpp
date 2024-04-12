@@ -675,8 +675,8 @@ RFAPI int Graphics_DrawDebugInfo(int x, int y, uint8_t color)
 	bgfx::dbgTextPrintf(x, y++, color, "%dx%d", stats->width, stats->height);
 	bgfx::dbgTextPrintf(x, y++, color, "%.2f ms, %d fps", Application_GetMS(), Application_GetFPS());
 
-	bgfx::dbgTextPrintf(x, y++, color, "CPU: %.2f ms", (stats->cpuTimeEnd - stats->cpuTimeBegin) / (float)stats->cpuTimerFreq * 1000);
-	bgfx::dbgTextPrintf(x, y++, color, "GPU: %.2f ms", (stats->gpuTimeEnd - stats->gpuTimeBegin) / (float)stats->gpuTimerFreq * 1000);
+	bgfx::dbgTextPrintf(x, y++, color, "CPU Frame: %.2f ms", (stats->cpuTimeEnd - stats->cpuTimeBegin) / (float)stats->cpuTimerFreq * 1000);
+	bgfx::dbgTextPrintf(x, y++, color, "GPU Frame: %.2f ms", (stats->gpuTimeEnd - stats->gpuTimeBegin) / (float)stats->gpuTimerFreq * 1000);
 
 	y++;
 
