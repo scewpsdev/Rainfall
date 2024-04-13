@@ -1,0 +1,31 @@
+id: 401
+name: wooden_round_shield
+displayName: "Wooden Round Shield"
+category: shield
+
+model: "wooden_round_shield.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.06, 0.8, 0.01]
+		offset = [0.0, 0.3, 0.0]
+	},
+	{
+		type: box
+		size = [0.16, 0.02, 0.02]
+		offset = [0.0, 0.06, 0.0]
+	}
+]
+
+moveset: "wooden_round_shield_moveset.gltf"
+
+icon: "wooden_round_shield_icon.png"
+
+description: "very cool shield"
+
+shieldDamageAbsorption: 70
+shieldHitStaminaCost: 4
+shieldBlockSfx: "../wooden_shield_block.ogg"
+shieldGuardBreakSfx: "../wooden_shield_guard_break.ogg"
+
+sfxHit = "block.ogg"

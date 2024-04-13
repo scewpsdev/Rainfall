@@ -1,0 +1,62 @@
+id: 2
+name: longsword
+displayName: "Longsword"
+category: weapon
+
+model: "longsword.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.1, 1.6, 0.02]
+		offset = [0.0, 0.5, 0.0]
+	},
+	{
+		type: box
+		size = [0.3, 0.03, 0.04]
+		offset = [0.0, 0.08, 0.0]
+	}
+]
+
+moveset: "longsword_moveset.gltf"
+
+icon: "longsword_icon.png"
+
+description: "A decently long steel blade forged by blacksmiths. Fairly basic but very effective at close range."
+
+weaponType: melee
+twoHanded: 1
+
+baseDamage: 50
+range: 1.2
+
+sfxHit = "hit.ogg"
+sfxSwing = "swing.ogg"
+
+drawSfx: longsword_draw.ogg
+
+attackSfx: [
+	longsword_attack.ogg
+]
+
+attacks: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 10
+		damageFramesEnd: 21
+		followUpCancelFrame: 26
+		sfxFrame: 13
+		staminaCost: 4.5
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 11
+		damageFramesEnd: 17
+		followUpCancelFrame: 23
+		sfxFrame: 13
+		staminaCost: 4.5
+	}
+]

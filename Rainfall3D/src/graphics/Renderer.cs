@@ -524,6 +524,7 @@ public static class Renderer
 
 	public static void DrawSubModel(Model model, int meshID, Matrix transform)
 	{
+		Debug.Assert(meshID < model.meshCount);
 		models.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform });
 	}
 

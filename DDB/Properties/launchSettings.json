@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DDB": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

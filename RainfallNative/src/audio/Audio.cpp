@@ -29,6 +29,7 @@ RFAPI void Audio_Init()
 
 	// We need to play 3d sounds over a default bus,
 	// otherwise sound attenuation will glitch for the first frame of playing (yikes)
+	//defaultBus.set3dAttenuation(SoLoud::AudioSource::INVERSE_DISTANCE, 10);
 	soloud.play(defaultBus);
 }
 
@@ -63,18 +64,20 @@ RFAPI uint32_t Audio_PlayBackground(AudioSource* sound, float gain, float pitch,
 
 RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, const Vector3& position, float gain, float pitch, float rolloff)
 {
-	handle source = defaultBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, gain, true);
+	handle source = defaultBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0, true);
 	soloud.setRelativePlaySpeed(source, pitch);
 	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
 	soloud.set3dSourceMinMaxDistance(source, 1, 500);
+	soloud.fadeVolume(source, gain, 0.0001f);
 	soloud.setPause(source, false);
 
 	if (reverbBusSource != 0)
 	{
-		handle reverbSource = reverbBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, gain, true);
+		handle reverbSource = reverbBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0, true);
 		soloud.setRelativePlaySpeed(reverbSource, pitch);
 		soloud.set3dSourceAttenuation(reverbSource, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
 		soloud.set3dSourceMinMaxDistance(reverbSource, 1, 500);
+		soloud.fadeVolume(source, gain, 0.0001f);
 		soloud.setPause(reverbSource, false);
 	}
 
