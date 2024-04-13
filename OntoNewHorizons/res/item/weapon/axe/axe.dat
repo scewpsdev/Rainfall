@@ -1,0 +1,56 @@
+id: 101
+name: axe
+displayName: "Axe"
+category: weapon
+
+model: "axe.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.06, 0.8, 0.01]
+		offset = [0.0, 0.3, 0.0]
+	},
+	{
+		type: box
+		size = [0.16, 0.02, 0.02]
+		offset = [0.0, 0.06, 0.0]
+	}
+]
+
+moveset: "axe_moveset.gltf"
+
+icon: "axe_icon.png"
+
+description: "slap tree"
+
+weaponType: melee
+twoHanded: 0
+
+baseDamage: 35
+range: 0.5
+
+sfxHit = "hit.ogg"
+sfxSwing = "swing.ogg"
+sfxDraw = "draw.ogg"
+sfxDrop = "drop.ogg"
+
+attacks: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 5
+		damageFramesEnd: 9
+		followUpCancelFrame: 14
+		staminaCost: 3.5
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 5
+		damageFramesEnd: 9
+		followUpCancelFrame: 14
+		staminaCost: 3.5
+	}
+]

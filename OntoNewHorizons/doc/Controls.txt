@@ -1,0 +1,10 @@
+Mouse - Look
+WASD - Move
+Shift - Sprint
+Ctrl - Crouch
+Space - Jump
+E - Interact
+F - Use Item
+G - Drop weapon
+Mouse 1 - Use right weapon
+Mouse 2 - Use left weapon

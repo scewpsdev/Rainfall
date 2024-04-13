@@ -1,0 +1,57 @@
+id: 3
+name: shortsword
+displayName: "Shortsword"
+category: weapon
+
+model: "shortsword.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.06, 0.8, 0.01]
+		offset = [0.0, 0.3, 0.0]
+	},
+	{
+		type: box
+		size = [0.16, 0.02, 0.02]
+		offset = [0.0, 0.06, 0.0]
+	}
+]
+
+moveset: "shortsword_moveset.gltf"
+
+icon: "shortsword_icon.png"
+
+description: "cool sword mmh yes"
+
+weaponType: melee
+twoHanded: 0
+
+baseDamage: 35
+range: 1.2
+
+sfxHit = "hit.ogg"
+sfxSwing = "swing.ogg"
+sfxDraw = "draw.ogg"
+
+attacks: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 7
+		damageFramesEnd: 13
+		followUpCancelFrame: 19
+		sfxFrame: 13
+		staminaCost: 3.5
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 7
+		damageFramesEnd: 13
+		followUpCancelFrame: 19
+		sfxFrame: 13
+		staminaCost: 3.5
+	}
+]
