@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "OntoNewHorizons": {
-      "commandName": "Project",
-      "nativeDebugging": true
-    }
-  }
-}
