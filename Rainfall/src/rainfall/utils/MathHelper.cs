@@ -194,6 +194,16 @@ namespace Rainfall
 			return RandomVector3(min, max, Random.Shared);
 		}
 
+		public static Quaternion RandomQuaternion(Random random)
+		{
+			return Quaternion.FromAxisAngle(RandomVector3(-1, 1, random).normalized, random.NextSingle() * MathF.PI * 2);
+		}
+
+		public static Quaternion RandomQuaternion()
+		{
+			return RandomQuaternion(Random.Shared);
+		}
+
 		static float nextGaussian = float.MaxValue;
 		public static float RandomGaussian(Random random)
 		{
