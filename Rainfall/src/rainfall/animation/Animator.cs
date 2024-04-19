@@ -57,10 +57,15 @@ namespace Rainfall
 			//Parallel.For(0, animators.Count, updateAnimator);
 		}
 
+		public static int numAnimators
+		{
+			get => animators.Count;
+		}
+
 
 		PhysicsEntity entity;
 
-		internal IntPtr handle;
+		public IntPtr handle;
 		public Model model { get; private set; }
 
 		List<AnimationState> states = new List<AnimationState>();

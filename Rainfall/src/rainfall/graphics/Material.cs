@@ -33,6 +33,6 @@ namespace Rainfall
 		static extern MaterialData Material_Create(uint color, float metallicFactor, float roughnessFactor, Vector3 emissiveColor, float emissiveStrength, ushort diffuse, ushort normal, ushort roughness, ushort metallic, ushort emissive);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern unsafe MaterialData Material_Destroy(MaterialData* data);
+		static extern unsafe void Material_Destroy(MaterialData* data);
 	}
 }

@@ -689,9 +689,11 @@ RFAPI int Graphics_DrawDebugInfo(int x, int y, uint8_t color)
 	MemoryString(stats->gpuMemoryMax, gpuMemMax);
 	bgfx::dbgTextPrintf(x, y++, color, "VRAM: %s/%s", gpuMemUsed, gpuMemMax);
 
+	bgfx::dbgTextPrintf(x, y++, color, "VB: %d", stats->numVertexBuffers);
+	bgfx::dbgTextPrintf(x, y++, color, "IB: %d", stats->numIndexBuffers);
 	bgfx::dbgTextPrintf(x, y++, color, "Textures: %d, %s", stats->numTextures, MemoryString(stats->textureMemoryUsed));
 	bgfx::dbgTextPrintf(x, y++, color, "RTs: %d, %s", stats->numFrameBuffers, MemoryString(stats->rtMemoryUsed));
-	bgfx::dbgTextPrintf(x, y++, color, "Shaders : %d", stats->numShaders);
+	bgfx::dbgTextPrintf(x, y++, color, "Shaders : %d", stats->numPrograms);
 	bgfx::dbgTextPrintf(x, y++, color, "Draw Calls: %d", stats->numDraw);
 	bgfx::dbgTextPrintf(x, y++, color, "Triangles: %d", stats->numPrims[0]);
 	bgfx::dbgTextPrintf(x, y++, color, "Computes: %d", stats->numCompute);

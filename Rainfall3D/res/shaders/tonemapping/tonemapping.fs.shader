@@ -36,10 +36,12 @@ vec3 ACESFilmic(vec3 color)
 
 vec3 Tonemap(vec3 color, float exposure)
 {
-	//color = toFilmic(color);
-	//color = toAcesFilmic(color * 4);
+	color = toFilmic(color);
+
+	//color = toAcesFilmic(color * 2);
 	//color = pow(color, vec3_splat(1.0 / 2.2)); // Gamma correction
-	//return color;
+
+	return color;
 
 	color = vec3(1.0, 1.0, 1.0) - exp(-color * exposure); // Convert to LDR space
 	color = pow(color, vec3_splat(1.0 / 2.2)); // Gamma correction

@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "Console.h"
+#include "Hash.h"
 
 #include "FilterShader.h"
 
@@ -281,6 +282,8 @@ namespace Physics
 
 	static std::vector<RigidBody*> rigidBodies;
 	static std::vector<CharacterController*> controllers;
+
+	static std::unordered_map<uint32_t, PxMaterial*> materialCache;
 
 
 	static PxTransform MatrixToPxTransform(Matrix matrix)
@@ -623,9 +626,27 @@ namespace Physics
 		heightField->release();
 	}
 
+	static PxMaterial* GetMaterial(float staticFriction, float dynamicFriction, float restitution)
+	{
+		static PxMaterial* mat;
+		if (!mat)
+			mat = physics->createMaterial(0.5f, 0.5f, 0.0f);
+		return mat;
+
+		uint32_t h = hashCombine(hashCombine(hash(staticFriction), hash(dynamicFriction)), hash(restitution));
+
+		auto it = materialCache.find(h);
+		if (it != materialCache.end())
+			return it->second;
+
+		PxMaterial* material = physics->createMaterial(staticFriction, dynamicFriction, restitution);
+		materialCache.emplace(h, material);
+		return material;
+	}
+
 	static void AddCollider(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation, float staticFriction, float dynamicFriction, float restitution, bool isDynamic, float density, Vector3 centerOfMass)
 	{
-		PxMaterial* material = physics->createMaterial(staticFriction, dynamicFriction, restitution);
+		PxMaterial* material = GetMaterial(staticFriction, dynamicFriction, restitution);
 		PxShape* shape = physics->createShape(geometry, *material, true);
 
 		shape->setContactOffset(0.01f);
@@ -648,13 +669,11 @@ namespace Physics
 
 		if (isDynamic)
 			PxRigidBodyExt::updateMassAndInertia(*(PxRigidBody*)actor, density, (PxVec3*)&centerOfMass);
-
-		material->release();
 	}
 
 	static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
 	{
-		PxMaterial* material = physics->createMaterial(0.0f, 0.0f, 0.0f);
+		PxMaterial* material = GetMaterial(0.0f, 0.0f, 0.0f);
 		PxShape* shape = physics->createShape(geometry, *material, true);
 
 		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
@@ -673,8 +692,6 @@ namespace Physics
 		shape->setLocalPose(relativeTransform);
 
 		actor->attachShape(*shape);
-
-		material->release();
 	}
 
 	RFAPI void Physics_RigidBodyAddSphereCollider(RigidBody* body, float radius, const Vector3& position, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
@@ -764,7 +781,7 @@ namespace Physics
 		for (uint32_t i = 0; i < body->actor->getNbShapes(); i++)
 		{
 			body->actor->detachShape(*shapeBuffer[i]);
-			shapeBuffer[i]->release();
+			//shapeBuffer[i]->release();
 		}
 		BX_FREE(Application_GetAllocator(), shapeBuffer);
 	}
@@ -963,7 +980,7 @@ namespace Physics
 
 	RFAPI CharacterController* Physics_CreateCharacterController(float radius, float height, Vector3 offset, float stepOffset, Vector3 position)
 	{
-		PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+		PxMaterial* material = GetMaterial(0.5f, 0.5f, 0.1f);
 
 		class ControllerHitCallback : public PxUserControllerHitReport
 		{

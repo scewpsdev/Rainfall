@@ -503,19 +503,67 @@ RFAPI void Model_Destroy(SceneData* scene)
 				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].boneWeights);
 			if (sceneData->meshes[i].indexData)
 				BX_FREE(Application_GetAllocator(), sceneData->meshes[i].indexData);
+
+			if (sceneData->meshes[i].vertexNormalTangentBuffer.idx != bgfx::kInvalidHandle)
+				bgfx::destroy(sceneData->meshes[i].vertexNormalTangentBuffer);
+			if (sceneData->meshes[i].texcoordBuffer.idx != bgfx::kInvalidHandle)
+				bgfx::destroy(sceneData->meshes[i].texcoordBuffer);
+			if (sceneData->meshes[i].vertexColorBuffer.idx != bgfx::kInvalidHandle)
+				bgfx::destroy(sceneData->meshes[i].vertexColorBuffer);
+			if (sceneData->meshes[i].boneWeightBuffer.idx != bgfx::kInvalidHandle)
+				bgfx::destroy(sceneData->meshes[i].boneWeightBuffer);
+
+			if (sceneData->meshes[i].indexBuffer.idx != bgfx::kInvalidHandle)
+				bgfx::destroy(sceneData->meshes[i].indexBuffer);
 		}
 		BX_FREE(Application_GetAllocator(), sceneData->meshes);
 	}
 	if (sceneData->materials)
+	{
 		BX_FREE(Application_GetAllocator(), sceneData->materials);
+	}
 	if (sceneData->skeletons)
+	{
+		for (int i = 0; i < sceneData->numSkeletons; i++)
+		{
+			if (sceneData->skeletons[i].bones)
+				BX_FREE(Application_GetAllocator(), sceneData->skeletons[i].bones);
+		}
+
 		BX_FREE(Application_GetAllocator(), sceneData->skeletons);
+	}
 	if (sceneData->animations)
+	{
+		for (int i = 0; i < sceneData->numAnimations; i++)
+		{
+			if (sceneData->animations[i].positionKeyframes)
+				BX_FREE(Application_GetAllocator(), sceneData->animations[i].positionKeyframes);
+			if (sceneData->animations[i].rotationKeyframes)
+				BX_FREE(Application_GetAllocator(), sceneData->animations[i].rotationKeyframes);
+			if (sceneData->animations[i].scaleKeyframes)
+				BX_FREE(Application_GetAllocator(), sceneData->animations[i].scaleKeyframes);
+			if (sceneData->animations[i].channels)
+				BX_FREE(Application_GetAllocator(), sceneData->animations[i].channels);
+		}
+
 		BX_FREE(Application_GetAllocator(), sceneData->animations);
+	}
 	if (sceneData->nodes)
+	{
+		for (int i = 0; i < sceneData->numNodes; i++)
+		{
+			if (sceneData->nodes[i].children)
+				BX_FREE(Application_GetAllocator(), sceneData->nodes[i].children);
+			if (sceneData->nodes[i].meshes)
+				BX_FREE(Application_GetAllocator(), sceneData->nodes[i].meshes);
+		}
+
 		BX_FREE(Application_GetAllocator(), sceneData->nodes);
+	}
 	if (sceneData->lights)
+	{
 		BX_FREE(Application_GetAllocator(), sceneData->lights);
+	}
 
 	BX_FREE(Application_GetAllocator(), sceneData);
 }
