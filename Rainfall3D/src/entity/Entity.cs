@@ -60,7 +60,10 @@ public class Entity : PhysicsEntity
 	{
 		model?.destroy();
 		if (animator != null)
+		{
 			Animator.Destroy(animator);
+			animator = null;
+		}
 		body?.destroy();
 		if (hitboxes != null)
 		{
@@ -71,6 +74,11 @@ public class Entity : PhysicsEntity
 		{
 			foreach (PointLight light in lights)
 				light.destroy(Renderer.graphics);
+		}
+		if (particles != null)
+		{
+			foreach (ParticleSystem particleSystem in particles)
+				ParticleSystem.Destroy(particleSystem);
 		}
 	}
 

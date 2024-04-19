@@ -21,6 +21,19 @@ namespace Rainfall
 			return root + "/" + path;
 		}
 
+		public static void CreateEntityFromData(string path, Entity entity)
+		{
+			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
+			SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
+			stream.Close();
+
+			Debug.Assert(entities.Count == 1);
+
+			SceneFormat.EntityData entityData = entities[0];
+
+			CreateEntityFromData(entityData, path, entity);
+		}
+
 		public static void CreateEntityFromData(SceneFormat.EntityData entityData, string path, Entity entity)
 		{
 			entity.name = entityData.name;
@@ -215,16 +228,8 @@ namespace Rainfall
 
 		public static T Load<T>(string path) where T : Entity, new()
 		{
-			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
-			SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
-			stream.Close();
-
-			Debug.Assert(entities.Count == 1);
-
-			SceneFormat.EntityData entityData = entities[0];
-
 			T t = new T();
-			CreateEntityFromData(entityData, path, t);
+			CreateEntityFromData(path, t);
 			return t;
 		}
 

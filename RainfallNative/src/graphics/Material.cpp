@@ -38,9 +38,29 @@ static void DestroyTextureData(TextureData* texture)
 
 RFAPI void Material_Destroy(MaterialData* material)
 {
-	if (material->diffuse) DestroyTextureData(material->diffuse);
-	if (material->normal) DestroyTextureData(material->normal);
-	if (material->roughness) DestroyTextureData(material->roughness);
-	if (material->metallic) DestroyTextureData(material->metallic);
-	if (material->emissive) DestroyTextureData(material->emissive);
+	if (material->diffuse)
+	{
+		DestroyTextureData(material->diffuse);
+		material->diffuse = nullptr;
+	}
+	if (material->normal)
+	{
+		DestroyTextureData(material->normal);
+		material->normal = nullptr;
+	}
+	if (material->roughness)
+	{
+		DestroyTextureData(material->roughness);
+		material->roughness = nullptr;
+	}
+	if (material->metallic)
+	{
+		DestroyTextureData(material->metallic);
+		material->metallic = nullptr;
+	}
+	if (material->emissive)
+	{
+		DestroyTextureData(material->emissive);
+		material->emissive = nullptr;
+	}
 }

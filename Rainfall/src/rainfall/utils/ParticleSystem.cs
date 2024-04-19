@@ -113,6 +113,11 @@ public class ParticleSystem
 		Parallel.For(0, particleSystems.Count, updateParticleSystem);
 	}
 
+	public static int numParticleSystems
+	{
+		get => particleSystems.Count;
+	}
+
 
 	public Matrix transform { get; private set; } = Matrix.Identity;
 	Vector3 entityVelocity = Vector3.Zero;

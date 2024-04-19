@@ -617,7 +617,7 @@ namespace Rainfall
 				DatField field = new DatField(name, value);
 				obj.fields.Add(field);
 
-				if (hasNextChar() && state.peek() == ',')
+				if (hasNextChar() && (state.peek() == ',' || state.peek() == ';'))
 					state.advance();
 				skipWhitespaceNewlineComments();
 

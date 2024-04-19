@@ -519,6 +519,8 @@ public static class Renderer
 
 	public static void DrawModel(Model model, Matrix transform, Animator animator = null)
 	{
+		if (animator != null)
+			Debug.Assert(animator.handle != IntPtr.Zero);
 		models.Add(new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = animator });
 	}
 

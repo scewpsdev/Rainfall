@@ -129,6 +129,7 @@ namespace Rainfall
 		}
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct MaterialData
 	{
 		public UInt32 color;
