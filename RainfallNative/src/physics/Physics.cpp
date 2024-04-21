@@ -776,9 +776,9 @@ namespace Physics
 	RFAPI void Physics_RigidBodyClearColliders(RigidBody* body)
 	{
 		uint32_t numShapes = body->actor->getNbShapes();
-		PxShape** shapeBuffer = (PxShape**)BX_ALLOC(Application_GetAllocator(), numShapes * sizeof(PxShape));
+		PxShape** shapeBuffer = (PxShape**)BX_ALLOC(Application_GetAllocator(), numShapes * sizeof(PxShape*));
 		body->actor->getShapes(shapeBuffer, numShapes);
-		for (uint32_t i = 0; i < body->actor->getNbShapes(); i++)
+		for (uint32_t i = 0; i < numShapes; i++)
 		{
 			body->actor->detachShape(*shapeBuffer[i]);
 			//shapeBuffer[i]->release();
