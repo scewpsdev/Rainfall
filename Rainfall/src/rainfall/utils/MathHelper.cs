@@ -120,6 +120,13 @@ namespace Rainfall
 			return new Vector3(rr, gg, bb);
 		}
 
+		public static uint ColorAlpha(uint color, float alpha)
+		{
+			byte a = (byte)(alpha * 255);
+			color = (color & 0x00FFFFFFu) | (uint)(a << 24);
+			return color;
+		}
+
 		public static Vector2i WorldToScreenSpace(Vector3 p, Matrix pv, Vector2i displaySize)
 		{
 			Vector4 clipSpacePosition = pv * new Vector4(p, 1.0f);
