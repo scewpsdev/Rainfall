@@ -125,6 +125,9 @@ namespace Rainfall
 
 		void update()
 		{
+			lastAnimUpdateTime = currentUpdateTime;
+			currentUpdateTime = Time.currentTime;
+
 			for (int i = 0; i < states.Count; i++)
 				stateAnimationTimers[i] += Time.deltaTime * states[i].animationSpeed;
 
@@ -194,17 +197,18 @@ namespace Rainfall
 		{
 			nodeGlobalTransforms[node.id] = parentTransform * nodeLocalTransforms[node.id];
 
-			for (int i = 0; i < node.children.Length; i++)
+			if (node.children != null)
 			{
-				applyNodeAnimation(node.children[i], nodeGlobalTransforms[node.id], nodeLocalTransforms);
+				for (int i = 0; i < node.children.Length; i++)
+				{
+					applyNodeAnimation(node.children[i], nodeGlobalTransforms[node.id], nodeLocalTransforms);
+				}
 			}
 		}
 
 		public unsafe void applyAnimation()
 		{
 			Array.Copy(nodeGlobalTransforms, lastNodeGlobalTransforms, nodeGlobalTransforms.Length);
-			lastAnimUpdateTime = currentUpdateTime;
-			currentUpdateTime = Time.currentTime;
 
 			applyNodeAnimation(model.skeleton.rootNode, Matrix.Identity, nodeLocalTransforms);
 			Native.Animation.Animation_UpdateAnimationState(handle, model.scene, nodeGlobalTransforms, nodeGlobalTransforms.Length);
@@ -230,9 +234,15 @@ namespace Rainfall
 			nodeLocalTransforms[node.id] = transform;
 		}
 
+		public unsafe Matrix getNodeTransform(Node node, Matrix parentTransform)
+		{
+			return parentTransform * getNodeLocalTransform(node);
+		}
+
 		public unsafe Matrix getNodeTransform(Node node, int skeletonID = 0)
 		{
-			Matrix inverseBindPose = model.scene->skeletons[skeletonID].inverseBindPose;
+			// TODO retrieve skeletonID from mesh.skeletonID, not needed if we dont use this transform independent of mesh rendering
+			Matrix inverseBindPose = model.scene->numSkeletons > 0 ? model.scene->skeletons[skeletonID].inverseBindPose : Matrix.Identity;
 			Matrix transform = getNodeLocalTransform(node);
 			while (node.parent != null)
 			{

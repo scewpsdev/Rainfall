@@ -21,8 +21,10 @@ public static class Renderer
 	struct SpriteDraw
 	{
 		public Vector3 position;
-		public Vector2 size;
 		public float rotation;
+		public Vector2 size;
+		public bool useTransform;
+		public Matrix transform;
 		public Texture texture;
 		public FloatRect rect;
 		public Vector4 color;
@@ -43,6 +45,13 @@ public static class Renderer
 		public string text;
 		public uint color;
 		public int size;
+	}
+
+	struct LineDraw
+	{
+		public Vector3 vertex0;
+		public Vector3 vertex1;
+		public Vector4 color;
 	}
 
 	struct LightDraw
@@ -82,6 +91,10 @@ public static class Renderer
 	static Shader textShader;
 	static List<TextDraw> textDraws = new List<TextDraw>();
 
+	static LineRenderer lineRenderer;
+	static Shader lineShader;
+	static List<LineDraw> lineDraws = new List<LineDraw>();
+
 	static FontData fontData;
 	static Font font;
 
@@ -89,18 +102,18 @@ public static class Renderer
 	static float left, right, bottom, top;
 
 
-	public static void Init(GraphicsDevice graphics)
+	public static void Init(GraphicsDevice graphics, int width, int height)
 	{
 		Renderer.graphics = graphics;
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
-			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(width, height, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(width, height, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(BackbufferRatio.Equal, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(width, height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 
 		bloomDownsampleChain = new RenderTarget[BLOOM_CHAIN_LENGTH];
@@ -108,19 +121,19 @@ public static class Renderer
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
 		{
 			int exp = (int)Math.Pow(2, i + 1);
-			int width = Display.viewportSize.x / exp;
-			int height = Display.viewportSize.y / exp;
+			int w = Display.viewportSize.x / exp;
+			int h = Display.viewportSize.y / exp;
 
 			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 			{
-				new RenderTargetAttachment(width, height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
+				new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
 			});
 
 			if (i < BLOOM_CHAIN_LENGTH - 1)
 			{
 				bloomUpsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 				{
-					new RenderTargetAttachment(width, height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
+					new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
 				});
 			}
 		}
@@ -145,12 +158,29 @@ public static class Renderer
 		textBatch = new SpriteBatch(graphics);
 		textShader = Resource.GetShader("res/shaders/text/text.vs.shader", "res/shaders/text/text.fs.shader");
 
+		lineRenderer = new LineRenderer();
+		lineShader = Resource.GetShader("res/shaders/line/line.vs.shader", "res/shaders/line/line.fs.shader");
+
 		fontData = Resource.GetFontData("res/fonts/dpcomic.ttf");
 		font = fontData.createFont(14, false);
 	}
 
 	public static void Resize(int width, int height)
 	{
+		if (gbuffer != null)
+			graphics.destroyRenderTarget(gbuffer);
+		if (lighting != null)
+			graphics.destroyRenderTarget(lighting);
+
+		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
+		{
+			new RenderTargetAttachment(width, height, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(width, height, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+		});
+		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
+		{
+			new RenderTargetAttachment(width, height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+		});
 	}
 
 	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
@@ -178,10 +208,22 @@ public static class Renderer
 		DrawSprite(x, y, 0.0f, width, height, 0.0f, sprite, flipped, color);
 	}
 
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+
 	public static void DrawSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
 		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawSprite(float width, float height, Matrix transform, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		draws.Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
@@ -218,6 +260,17 @@ public static class Renderer
 	{
 		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
 		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, rotation = rotation, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawLine(Vector3 vertex0, Vector3 vertex1, Vector4 color)
+	{
+		lineDraws.Add(new LineDraw { vertex0 = vertex0, vertex1 = vertex1, color = color });
 	}
 
 	public static void DrawLight(Vector2 position, Vector3 color, float radius)
@@ -288,13 +341,25 @@ public static class Renderer
 		{
 			SpriteDraw draw = draws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
-			spriteBatch.draw(
-				draw.position.x, draw.position.y, draw.position.z,
-				draw.size.x, draw.size.y,
-				draw.rotation,
-				draw.texture, uint.MaxValue,
-				u0, v0, u1, v1,
-				draw.color);
+			if (draws[i].useTransform)
+			{
+				spriteBatch.draw(
+					draw.size.x, draw.size.y,
+					draw.transform,
+					draw.texture, uint.MaxValue,
+					u0, v0, u1, v1,
+					draw.color);
+			}
+			else
+			{
+				spriteBatch.draw(
+					draw.position.x, draw.position.y, draw.position.z,
+					draw.size.x, draw.size.y,
+					draw.rotation,
+					draw.texture, uint.MaxValue,
+					u0, v0, u1, v1,
+					draw.color);
+			}
 		}
 		for (int i = 0; i < verticalDraws.Count; i++)
 		{
@@ -312,11 +377,18 @@ public static class Renderer
 
 		for (int i = 0; i < spriteBatch.getNumDrawCalls(); i++)
 		{
-			graphics.setCullState(CullState.ClockWise);
+			graphics.setCullState(CullState.None);
 			graphics.setBlendState(BlendState.Alpha);
 
 			spriteBatch.submitDrawCall(i, spriteShader);
 		}
+
+		lineRenderer.begin(lineDraws.Count);
+		for (int i = 0; i < lineDraws.Count; i++)
+		{
+			lineRenderer.draw(lineDraws[i].vertex0, lineDraws[i].vertex1, lineDraws[i].color);
+		}
+		lineRenderer.end((int)RenderPass.Geometry, lineShader, graphics);
 	}
 
 	static void LightingPass()
@@ -506,6 +578,7 @@ public static class Renderer
 		verticalDraws.Clear();
 		uiDraws.Clear();
 		textDraws.Clear();
+		lineDraws.Clear();
 		lightDraws.Clear();
 	}
 }

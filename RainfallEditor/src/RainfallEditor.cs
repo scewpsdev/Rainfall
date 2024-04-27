@@ -231,7 +231,7 @@ public unsafe class RainfallEditor : Game
 			}
 			for (int j = 0; j < entityData.particles.Count; j++)
 			{
-				ParticleSystem particles = new ParticleSystem(0);
+				ParticleSystem particles = ParticleSystem.CreateTemplate();
 				particles.copyData(entityData.particles[j]);
 				if (particles.textureAtlasPath != null)
 					particles.textureAtlasPath = RelativePath(particles.textureAtlasPath, instance.path);
@@ -265,7 +265,7 @@ public unsafe class RainfallEditor : Game
 			}
 			for (int j = 0; j < entity.data.particles.Count; j++)
 			{
-				ParticleSystem particles = new ParticleSystem(1000);
+				ParticleSystem particles = ParticleSystem.Create(Matrix.Identity);
 				particles.copyData(entity.data.particles[j]);
 				if (particles.textureAtlasPath != null)
 					particles.textureAtlasPath = AbsolutePath(particles.textureAtlasPath, instance.path);
@@ -307,8 +307,8 @@ public unsafe class RainfallEditor : Game
 		string assetName = getFilenameFromPath(path);
 		string outDir = "res";
 
-		string projectDir = "D:\\Dev\\2023\\Rainfall\\RainfallEditor";
-		string resCompilerDir = "D:\\Dev\\2023\\Rainfall\\RainfallResourceCompiler\\" + "bin\\x64\\Debug";
+		string projectDir = "D:\\Dev\\Rainfall\\RainfallEditor";
+		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + "bin\\x64\\Debug";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
@@ -326,6 +326,12 @@ public unsafe class RainfallEditor : Game
 	{
 		if (windowClosed && EditorUI.unsavedChangesPopup.Count == 0)
 			terminate();
+
+		if (currentTab != null)
+		{
+			Animator.Update(currentTab.camera.getModelMatrix());
+			ParticleSystem.Update(currentTab.camera.position);
+		}
 
 		currentTab?.update();
 
@@ -347,8 +353,8 @@ public unsafe class RainfallEditor : Game
 	{
 #if DEBUG
 		string outDir = "bin\\x64\\Debug";
-		string projectDir = "D:\\Dev\\2023\\Rainfall\\RainfallEditor";
-		string resCompilerDir = "D:\\Dev\\2023\\Rainfall\\RainfallResourceCompiler\\" + outDir;
+		string projectDir = "D:\\Dev\\Rainfall\\RainfallEditor";
+		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + outDir;
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;

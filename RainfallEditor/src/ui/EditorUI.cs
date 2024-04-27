@@ -173,7 +173,7 @@ public static unsafe partial class EditorUI
 		return changed;
 	}
 
-	public static unsafe void Combo<T>(EditorInstance instance, string label, string sid, ref T v, ImGuiComboFlags flags = 0) where T : struct, Enum
+	public static unsafe void Combo<T>(EditorInstance instance, string label, string sid, ref T v, ImGuiComboFlags flags = 0, int enumOffset = 0) where T : struct, Enum
 	{
 		ImGui.TextUnformatted(label);
 		ImGui.SameLine(SPACING_X);
@@ -182,8 +182,10 @@ public static unsafe partial class EditorUI
 		{
 			T newValue = v;
 
-			foreach (T t in Enum.GetValues<T>())
+			T[] values = Enum.GetValues<T>();
+			for (int i = enumOffset; i < values.Length; i++)
 			{
+				T t = values[i];
 				if (ImGui.Selectable_Bool(t.ToString()))
 					newValue = t;
 			}

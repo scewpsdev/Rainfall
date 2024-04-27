@@ -11,6 +11,7 @@ namespace Rainfall
 {
 	public static class EntityLoader
 	{
+		static Dictionary<string, List<SceneFormat.EntityData>> entityDataCache = new Dictionary<string, List<SceneFormat.EntityData>>();
 		static Dictionary<Model, MeshCollider> meshColliderCache = new Dictionary<Model, MeshCollider>();
 		static Dictionary<Model, ConvexMeshCollider> convexMeshColliderCache = new Dictionary<Model, ConvexMeshCollider>();
 
@@ -23,9 +24,19 @@ namespace Rainfall
 
 		public static void CreateEntityFromData(string path, Entity entity)
 		{
-			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
-			SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
-			stream.Close();
+			List<SceneFormat.EntityData> entities;
+			if (entityDataCache.ContainsKey(path))
+			{
+				entities = entityDataCache[path];
+			}
+			else
+			{
+				FileStream stream = new FileStream(path + ".bin", FileMode.Open);
+				SceneFormat.DeserializeScene(stream, out entities, out uint selectedEntity);
+				stream.Close();
+
+				entityDataCache.Add(path, entities);
+			}
 
 			Debug.Assert(entities.Count == 1);
 

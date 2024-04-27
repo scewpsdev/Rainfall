@@ -68,7 +68,7 @@ void main()
 		s_reflectionProbe2, u_reflectionProbePosition2, u_reflectionProbeSize2, u_reflectionProbeOrigin2, 1.0,
 		s_reflectionProbe3, u_reflectionProbePosition3, u_reflectionProbeSize3, u_reflectionProbeOrigin3, 1.0);
 
-	vec3 final = ambient + emissive;
+	vec3 final = ambient;
 
 	gl_FragColor = vec4(final, 1.0);
 

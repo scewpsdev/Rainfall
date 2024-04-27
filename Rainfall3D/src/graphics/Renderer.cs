@@ -168,6 +168,7 @@ public static class Renderer
 	static Shader deferredPointShader, deferredPointShadowShader, deferredPointSimpleShader, deferredPointShadowSimpleShader;
 	static Shader deferredDirectionalShader;
 	static Shader deferredEnvironmentShader, deferredEnvironmentSimpleShader;
+	static Shader deferredEmissiveShader;
 	static Shader skyShader;
 	static Shader waterShader;
 	static Shader particleShader;
@@ -494,6 +495,7 @@ public static class Renderer
 		deferredDirectionalShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_directional.fs.shader");
 		deferredEnvironmentShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment.fs.shader");
 		deferredEnvironmentSimpleShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_environment_simple.fs.shader");
+		deferredEmissiveShader = Resource.GetShader("res/shaders/deferred/deferred.vs.shader", "res/shaders/deferred/deferred_emissive.fs.shader");
 		skyShader = Resource.GetShader("res/shaders/sky/sky.vs.shader", "res/shaders/sky/sky.fs.shader");
 		waterShader = Resource.GetShader("res/shaders/water/water.vs.shader", "res/shaders/water/water.fs.shader");
 		particleShader = Resource.GetShader("res/shaders/particle/particle.vs.shader", "res/shaders/particle/particle.fs.shader");
@@ -1248,6 +1250,24 @@ public static class Renderer
 		}
 	}
 
+	static void RenderEmissive()
+	{
+		Shader shader = deferredEmissiveShader;
+
+		graphics.resetState();
+
+		graphics.setBlendState(BlendState.Additive);
+		graphics.setDepthTest(DepthTest.None);
+		graphics.setCullState(CullState.ClockWise);
+
+		graphics.setVertexBuffer(quad);
+
+		graphics.setTexture(shader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
+		graphics.setTexture(shader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
+
+		graphics.draw(shader);
+	}
+
 	static void RenderPointLights()
 	{
 		Span<Vector4> lightPositionBuffer = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
@@ -1466,9 +1486,10 @@ public static class Renderer
 		graphics.setPass((int)RenderPass.Deferred);
 		graphics.setRenderTarget(forward);
 
+		RenderEmissive();
 		RenderPointLights();
 		RenderDirectionalLights();
-		//RenderEnvironmentLights();
+		RenderEnvironmentLights();
 	}
 
 	static void RenderSky()

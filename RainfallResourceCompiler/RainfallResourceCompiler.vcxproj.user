@@ -14,8 +14,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>res D:\Dev\Rainfall\DungeonGame\bin\x64\Debug\net7.0\res gltf fbx png hdr ogg dat shader ttf</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>D:\Dev\Rainfall\DungeonGame</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>res D:\Dev\Roguelike\bin\Debug\net8.0\res gltf fbx png hdr ogg dat shader ttf</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>D:\Dev\Roguelike</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

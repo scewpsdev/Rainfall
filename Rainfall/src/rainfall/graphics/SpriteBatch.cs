@@ -425,5 +425,71 @@ namespace Rainfall
 				color.w,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
+
+		public void draw(float width, float height, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		{
+			float x0 = -0.5f * width;
+			float x1 = 0.5f * width;
+			float y0 = -0.5f * height;
+			float y1 = 0.5f * height;
+
+			Vector3 vertex0 = new Vector3(x0, y0, 0);
+			Vector3 vertex1 = new Vector3(x1, y0, 0);
+			Vector3 vertex2 = new Vector3(x1, y1, 0);
+			Vector3 vertex3 = new Vector3(x0, y1, 0);
+
+			vertex0 = transform * vertex0;
+			vertex1 = transform * vertex1;
+			vertex2 = transform * vertex2;
+			vertex3 = transform * vertex3;
+
+			Vector2 uv0 = new Vector2(u0, v1);
+			Vector2 uv1 = new Vector2(u1, v1);
+			Vector2 uv2 = new Vector2(u1, v0);
+			Vector2 uv3 = new Vector2(u0, v0);
+
+			Vector3 normal0 = Vector3.Zero;
+			Vector3 normal1 = Vector3.Zero;
+			Vector3 normal2 = Vector3.Zero;
+			Vector3 normal3 = Vector3.Zero;
+
+			Native.SpriteBatch.SpriteBatch_Draw(handle, vertex0.x,
+				vertex0.y,
+				vertex0.z,
+				vertex1.x,
+				vertex1.y,
+				vertex1.z,
+				vertex2.x,
+				vertex2.y,
+				vertex2.z,
+				vertex3.x,
+				vertex3.y,
+				vertex3.z,
+				normal0.x,
+				normal0.y,
+				normal0.z,
+				normal1.x,
+				normal1.y,
+				normal1.z,
+				normal2.x,
+				normal2.y,
+				normal2.z,
+				normal3.x,
+				normal3.y,
+				normal3.z,
+				uv0.x,
+				uv0.y,
+				uv1.x,
+				uv1.y,
+				uv2.x,
+				uv2.y,
+				uv3.x,
+				uv3.y,
+				color.x,
+				color.y,
+				color.z,
+				color.w,
+				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
+		}
 	}
 }

@@ -117,7 +117,7 @@ public static partial class EditorUI
 
 			if (entity.data.colliders.Count > 0)
 			{
-				Combo(instance, "Rigid Body Type", "body_type", ref entity.data.rigidBodyType, ImGuiComboFlags.HeightRegular);
+				Combo(instance, "Rigid Body Type", "body_type", ref entity.data.rigidBodyType, ImGuiComboFlags.HeightRegular, 1);
 				ImGui.Separator();
 			}
 

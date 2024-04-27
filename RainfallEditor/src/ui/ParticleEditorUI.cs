@@ -456,7 +456,7 @@ public partial class EditorUI
 
 			if (ImGui.Button("Add Particle Effect"))
 			{
-				ParticleSystem particles = new ParticleSystem(1000);
+				ParticleSystem particles = ParticleSystem.Create(entity.getModelMatrix());
 				particles.name = entity.newParticleName();
 				entity.data.particles.Add(particles);
 				instance.notifyEdit();

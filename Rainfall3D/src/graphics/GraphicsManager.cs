@@ -40,27 +40,27 @@ public static class GraphicsManager
 			{
 				bool found = true;
 
-				if (setting.name == "vSync")
+				if (setting.name.Equals("vsync", StringComparison.OrdinalIgnoreCase))
 				{
 					Debug.Assert(setting.value.type == DatValueType.Number);
 					settings.vsync = setting.value.integer;
 				}
-				else if (setting.name == "fpsCap")
+				else if (setting.name.Equals("fpscap", StringComparison.OrdinalIgnoreCase))
 				{
 					Debug.Assert(setting.value.type == DatValueType.Number);
 					settings.fpsCap = setting.value.integer;
 				}
-				else if (setting.name == "potato")
+				else if (setting.name.Equals("potato", StringComparison.OrdinalIgnoreCase))
 				{
 					Debug.Assert(setting.value.type == DatValueType.Number);
 					settings.potato = setting.value.integer != 0;
 				}
-				else if (setting.name == "ambientOcclusion")
+				else if (setting.name.Equals("ambientocclusion", StringComparison.OrdinalIgnoreCase))
 				{
 					Debug.Assert(setting.value.type == DatValueType.Number);
 					settings.ambientOcclusion = setting.value.integer != 0;
 				}
-				else if (setting.name == "bloom")
+				else if (setting.name.Equals("bloom", StringComparison.OrdinalIgnoreCase))
 				{
 					Debug.Assert(setting.value.type == DatValueType.Number);
 					settings.bloom = setting.value.integer != 0;

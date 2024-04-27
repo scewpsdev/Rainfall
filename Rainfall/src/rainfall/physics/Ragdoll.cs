@@ -108,9 +108,12 @@ namespace Rainfall
 					nodes.Add(node);
 				}
 
-				for (int i = 0; i < node.children.Length; i++)
+				if (node.children != null)
 				{
-					processNode(node.children[i], globalTransform, link != IntPtr.Zero ? link : parentLink, initialVelocity);
+					for (int i = 0; i < node.children.Length; i++)
+					{
+						processNode(node.children[i], globalTransform, link != IntPtr.Zero ? link : parentLink, initialVelocity);
+					}
 				}
 			}
 		}

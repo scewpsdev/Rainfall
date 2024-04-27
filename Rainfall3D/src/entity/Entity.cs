@@ -36,9 +36,6 @@ public class Entity : PhysicsEntity
 
 	public virtual void init()
 	{
-		if (animator != null)
-			animator.setAnimation(new AnimationState(model, "default"));
-
 		if (body != null)
 			body.setTransform(position, rotation);
 		if (hitboxes != null)
@@ -90,10 +87,13 @@ public class Entity : PhysicsEntity
 			hitbox.setTransform(nodeTransform.translation, nodeTransform.rotation);
 		}
 
-		for (int i = 0; i < node.children.Length; i++)
+		if (node.children != null)
 		{
-			Matrix childTransform = nodeTransform * animator.getNodeLocalTransform(node.children[i]);
-			updateBoneHitbox(node.children[i], childTransform);
+			for (int i = 0; i < node.children.Length; i++)
+			{
+				Matrix childTransform = nodeTransform * animator.getNodeLocalTransform(node.children[i]);
+				updateBoneHitbox(node.children[i], childTransform);
+			}
 		}
 	}
 
@@ -147,8 +147,16 @@ public class Entity : PhysicsEntity
 
 	public void setTransform(Matrix transform)
 	{
-		position = transform.translation;
-		rotation = transform.rotation;
+		if (body != null)
+		{
+			if (body.type == RigidBodyType.Dynamic || body.type == RigidBodyType.Kinematic)
+				body.setTransform(transform.translation, transform.rotation);
+		}
+		else
+		{
+			position = transform.translation;
+			rotation = transform.rotation;
+		}
 	}
 
 	public void setPosition(Vector3 position)

@@ -156,9 +156,12 @@ namespace Rainfall
 				}
 			}
 
-			for (int i = 0; i < node.children.Length; i++)
+			if (node.children != null)
 			{
-				animateNode(node.children[i], animation, timer);
+				for (int i = 0; i < node.children.Length; i++)
+				{
+					animateNode(node.children[i], animation, timer);
+				}
 			}
 		}
 
