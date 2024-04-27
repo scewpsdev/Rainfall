@@ -31,7 +31,15 @@ public static class AudioManager
 	{
 		if (ambientSource != 0)
 			Audio.FadeoutSource(ambientSource, 4.0f);
-		ambientSource = Audio.PlayBackground(sound, gain, 1, true, 4.0f);
+		if (sound != null)
+		{
+			ambientSource = Audio.PlayBackground(sound, gain, 1, true, 4.0f);
+			Audio.SetSourceLooping(ambientSource, true);
+		}
+		else
+		{
+			ambientSource = 0;
+		}
 		currentAmbientSound = sound;
 		currentAmbientGain = gain;
 	}

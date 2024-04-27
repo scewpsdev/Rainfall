@@ -61,7 +61,7 @@ namespace Rainfall
 			node.parent = parent;
 
 			int numChildren = scene->nodes[node.id].numChildren;
-			node.children = new Node[numChildren];
+			node.children = numChildren > 0 ? new Node[numChildren] : null;
 			for (int i = 0; i < numChildren; i++)
 			{
 				int childID = scene->nodes[node.id].children[i];

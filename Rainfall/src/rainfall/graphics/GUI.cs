@@ -171,6 +171,8 @@ namespace Rainfall
 
 			graphics.setRenderTarget(target);
 
+			graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.viewportSize.x, 0, Display.viewportSize.y, -1.0f, 1.0f), Matrix.Identity);
+
 
 			uiTextureBatch.begin(uiTextures.Count);
 
@@ -197,8 +199,6 @@ namespace Rainfall
 			{
 				//graphics.setDepthTest(DepthTest.None);
 				graphics.setBlendState(BlendState.Alpha);
-
-				graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.viewportSize.x, 0, Display.viewportSize.y, -1.0f, 1.0f), Matrix.Identity);
 
 				uiTextureBatch.submitDrawCall(i, uiTextureShader);
 			}

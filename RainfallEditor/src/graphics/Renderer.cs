@@ -442,7 +442,7 @@ public static class Renderer
 
 	static void DrawDebugSkeletonNode(Node node, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix nodeTransform, Vector4 color, bool[] mask)
 	{
-		bool isLeafNode = node.children.Length == 0;
+		bool isLeafNode = node.children == null;
 		if (isLeafNode)
 		{
 			Vector3 endPoint = nodeTransform * (Vector3.Up * 0.1f);

@@ -139,6 +139,11 @@ public class Camera
 		yaw = newEulers.y;
 	}
 
+	public Matrix getModelMatrix()
+	{
+		return Matrix.CreateTranslation(_position) * Matrix.CreateRotation(_rotation);
+	}
+
 	public Matrix getProjectionMatrix(int width, int height)
 	{
 		float aspect = width / (float)height;

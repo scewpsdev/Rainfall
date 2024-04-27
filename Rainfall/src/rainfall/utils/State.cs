@@ -1,0 +1,33 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class State
+{
+	public Game game;
+
+
+	public virtual void init()
+	{
+	}
+
+	public virtual void destroy()
+	{
+	}
+
+	public virtual void update()
+	{
+	}
+
+	public virtual void draw(GraphicsDevice graphics)
+	{
+	}
+
+	public virtual void drawDebugStats(int y, byte color, GraphicsDevice graphics)
+	{
+	}
+}

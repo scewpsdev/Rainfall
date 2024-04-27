@@ -40,10 +40,13 @@ public class Entity
 		if (data.modelPath != null)
 		{
 			data.model = Resource.GetModel(RainfallEditor.CompileAsset(data.modelPath));
-			showDebugBoneColliders = new bool[data.model.skeleton.nodes.Length];
+			if (data.model != null)
+				showDebugBoneColliders = new bool[data.model.skeleton.nodes.Length];
 		}
 		else
+		{
 			data.model = null;
+		}
 
 		for (int i = 0; i < data.colliders.Count; i++)
 		{
@@ -90,7 +93,7 @@ public class Entity
 		{
 			if (restartEffect)
 				data.particles[i].restartEffect();
-			data.particles[i].update(transform);
+			data.particles[i].setTransform(transform);
 		}
 	}
 
