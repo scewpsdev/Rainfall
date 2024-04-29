@@ -205,6 +205,7 @@
     <ClCompile Include="src\graphics\Animation.cpp" />
     <ClCompile Include="src\graphics\LineRenderer.cpp" />
     <ClCompile Include="src\graphics\Material.cpp" />
+    <ClCompile Include="src\graphics\renderer3d\Renderer3D.cpp" />
     <ClCompile Include="src\imguizmo\GraphEditor.cpp" />
     <ClCompile Include="src\imguizmo\ImCurveEdit.cpp" />
     <ClCompile Include="src\imguizmo\ImGradient.cpp" />
@@ -237,6 +238,8 @@
     <ClCompile Include="src\vector\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\graphics\Material.h" />
+    <ClInclude Include="src\graphics\renderer3d\Renderer3D.h" />
     <ClInclude Include="src\Platform.h" />
     <ClInclude Include="src\graphics\LineRenderer.h" />
     <ClInclude Include="src\imgui\cimgui.h" />
@@ -284,6 +287,22 @@
     <ClInclude Include="src\vector\Matrix.h" />
     <ClInclude Include="src\vector\Quaternion.h" />
     <ClInclude Include="src\vector\Vector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
+    <None Include="res\shaders\rainfall\common\common.shader" />
+    <None Include="res\shaders\rainfall\common\shaderlib.shader" />
+    <None Include="res\shaders\rainfall\common\utils.shader" />
+    <None Include="res\shaders\rainfall\default\default.fs" />
+    <None Include="res\shaders\rainfall\default\default.vs" />
+    <None Include="res\shaders\rainfall\default\varying.def.sc" />
+    <None Include="res\shaders\rainfall\deferred\deferred.vs.shader" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.fs.shader" />
+    <None Include="res\shaders\rainfall\deferred\pbr.shader" />
+    <None Include="res\shaders\rainfall\deferred\varying.def.sc" />
+    <None Include="res\shaders\rainfall\tonemapping\tonemapping.fs.shader" />
+    <None Include="res\shaders\rainfall\tonemapping\tonemapping.vs.shader" />
+    <None Include="res\shaders\rainfall\tonemapping\varying.def.sc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

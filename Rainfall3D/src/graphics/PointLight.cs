@@ -13,6 +13,7 @@ public class PointLight
 
 	public Vector3 offset;
 	public Vector3 color;
+	public float radius = 4.0f;
 
 	public PointShadowMap shadowMap;
 

@@ -286,10 +286,15 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	if (assetTable.size() == 0)
 		return true;
 
-	if (extension == ".shader")
+	if (extension == ".shader" || extension == ".vs" || extension == ".fs" || extension == ".cs")
 	{
 		std::string name = file.stem().string();
-		if (name.size() > 3 && name[name.size() - 3] == '.' &&
+		if (extension.size() >= 2 && (
+			strncmp(&extension[extension.size() - 2], "vs", 2) == 0 ||
+			strncmp(&extension[extension.size() - 2], "fs", 2) == 0 ||
+			strncmp(&extension[extension.size() - 2], "cs", 2) == 0
+			) ||
+			name.size() > 3 && name[name.size() - 3] == '.' &&
 			(strncmp(&name[name.size() - 2], "vs", 2) == 0 ||
 				strncmp(&name[name.size() - 2], "fs", 2) == 0 ||
 				strncmp(&name[name.size() - 2], "cs", 2) == 0))

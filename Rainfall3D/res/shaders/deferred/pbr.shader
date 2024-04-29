@@ -47,16 +47,28 @@ vec3 fresnel2(float hdotv, vec3 f0, float roughness)
 }
 
 // Radiance calculation for radial flux over the angle w
-vec3 L(vec3 color, float distanceSq)
+vec3 L(vec3 color, float lightRadius, float distanceSq)
 {
-	float attenuation = 1.0 / (1.0 + distanceSq);
+	//float attenuation = 1.0 / (distanceSq);
+
+	//float attenuation = 1.0 / (1.0 + distanceSq * 4);
+
+	float distance = sqrt(distanceSq);
+    float attenuation = max(1 - distance / lightRadius, 0);
+	attenuation = attenuation * attenuation;
+	attenuation += 0.05 * exp(-0.2 * distance);
+
+	//float radius = 0.1;
+	//float distance = sqrt(distanceSq);
+	//float attenuation = 2 / (radius * radius) * (1 - distance / sqrt(distanceSq + radius * radius));
+
 	vec3 radiance = color * attenuation;
 
 	return radiance;
 }
 
 // Point light indirect specular lighting
-vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, vec3 lightColor)
+vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, float lightRadius, vec3 lightColor)
 {
 	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 	vec3 fLambert = albedo / PI;
@@ -67,7 +79,7 @@ vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float 
 	vec3 h = normalize(view + wi);
 
 	float distanceSq = dot(toLight, toLight);
-	vec3 radiance = L(lightColor, distanceSq);
+	vec3 radiance = L(lightColor, lightRadius, distanceSq);
 
 	// Cook-Torrance BRDF
 	float d = normalDistribution(normal, h, roughness);
@@ -89,7 +101,7 @@ vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float 
 }
 
 // Point light indirect specular lighting
-vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, vec3 lightColor, samplerCube shadowMap, float shadowMapNear)
+vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, float lightRadius, vec3 lightColor, samplerCube shadowMap, float shadowMapNear)
 {
 	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 	vec3 fLambert = albedo / PI;
@@ -100,7 +112,7 @@ vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, 
 	vec3 h = normalize(view + wi);
 
 	float distanceSq = dot(toLight, toLight);
-	vec3 radiance = L(lightColor, distanceSq);
+	vec3 radiance = L(lightColor, lightRadius, distanceSq);
 
 	// Cook-Torrance BRDF
 	float d = normalDistribution(normal, h, roughness);

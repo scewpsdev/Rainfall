@@ -65,7 +65,6 @@ namespace Rainfall
 
 		public void addModel(Model model, Matrix transform, int atlasIndex, Vector2i atlasSize)
 		{
-			material = model.getMaterialData(0).Value;
 			for (int i = 0; i < model.meshCount; i++)
 			{
 				int indexOffset = vertices.Count;

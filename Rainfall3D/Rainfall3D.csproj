@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Remove="src\entity\RagdollEntity.cs" />
+    <Compile Remove="src\graphics\Renderer.cs" />
   </ItemGroup>
 
   <ItemGroup>

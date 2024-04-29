@@ -48,7 +48,7 @@ namespace Rainfall
 			{
 				fixed (byte* vertexPtrData = vertexPtr, fragmentPtrData = fragmentPtr)
 				{
-					IntPtr handle = Native.Resource.Resource_CreateShader(vertexPtrData, fragmentPtrData);
+					IntPtr handle = Native.Resource.Shader_Create(vertexPtrData, fragmentPtrData);
 					if (handle != IntPtr.Zero)
 						return new Shader(handle);
 					return null;
@@ -66,7 +66,7 @@ namespace Rainfall
 			{
 				fixed (byte* computePtrData = computePtr)
 				{
-					IntPtr handle = Native.Resource.Resource_CreateShaderCompute(computePtrData);
+					IntPtr handle = Native.Resource.Shader_CreateCompute(computePtrData);
 					if (handle != IntPtr.Zero)
 						return new Shader(handle);
 					return null;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Rainfall.h"
+
 #include <bgfx/bgfx.h>
 #include <tinystl/allocator.h>
 #include <tinystl/unordered_map.h>
@@ -16,3 +18,8 @@ struct Shader
 
 	bgfx::UniformHandle getUniform(const char* name, bgfx::UniformType::Enum type, int16_t num = 1);
 };
+
+
+RFAPI Shader* Shader_Create(const char* vertexPath, const char* fragmentPath);
+RFAPI Shader* Shader_CreateCompute(const char* computePath);
+RFAPI void Shader_Destroy(Shader* shader);

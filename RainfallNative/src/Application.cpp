@@ -740,7 +740,7 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 		int64_t remaining = 1000000000 / fpsCap - frameLength;
 		if (remaining > 0)
 		{
-			Application_SleepFor(remaining / 1000000);
+			Application_SleepFor((int)(remaining / 1000000));
 		}
 	}
 

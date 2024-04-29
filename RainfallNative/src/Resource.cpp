@@ -48,37 +48,6 @@ const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path)
 }
 
 
-RFAPI Shader* Resource_CreateShader(const char* vertexPath, const char* fragmentPath)
-{
-	//printf("Reading shaders '%s', '%s'\n", vertexPath, fragmentPath);
-
-	const bgfx::Memory* vertexMemory = ReadFileBinary(Application_GetFileReader(), vertexPath);
-	const bgfx::Memory* fragmentMemory = ReadFileBinary(Application_GetFileReader(), fragmentPath);
-
-	if (!vertexMemory)
-		Console_Error("Failed to read vertex shader '%s'", vertexPath);
-	if (!fragmentMemory)
-		Console_Error("Failed to read fragment shader '%s'", fragmentPath);
-
-	if (vertexMemory && fragmentMemory)
-		return Graphics_CreateShader(vertexMemory, fragmentMemory);
-
-	return nullptr;
-}
-
-RFAPI Shader* Resource_CreateShaderCompute(const char* computePath)
-{
-	const bgfx::Memory* computeMemory = ReadFileBinary(Application_GetFileReader(), computePath);
-
-	if (!computeMemory)
-		Console_Error("Failed to read compute shader '%s'", computePath);
-
-	if (computeMemory)
-		return Graphics_CreateShaderCompute(computeMemory);
-
-	return nullptr;
-}
-
 RFAPI bimg::ImageContainer* Resource_ReadImageFromFile(const char* path, bgfx::TextureInfo* info)
 {
 	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))

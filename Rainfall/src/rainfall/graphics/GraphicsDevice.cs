@@ -165,7 +165,7 @@ namespace Rainfall
 
 		public unsafe VideoMemory createVideoMemoryReference(void* data, int length)
 		{
-			Native.Graphics.Graphics_CreateVideoMemoryRef(length, data, null, out IntPtr memoryHandle);
+			IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(length, data, null);
 			return new VideoMemory(memoryHandle, (IntPtr)data, length);
 		}
 
@@ -460,7 +460,7 @@ namespace Rainfall
 			ushort[] textureIDs = new ushort[numAttachments];
 			TextureInfo[] textureInfos = new TextureInfo[numAttachments];
 			Texture[] textures = new Texture[numAttachments];
-			ushort handle = Native.Graphics.Graphics_CreateRenderTarget(numAttachments, ref attachments[0], ref textureInfos[0], textureIDs);
+			ushort handle = Native.Graphics.Graphics_CreateRenderTarget(numAttachments, ref attachments[0], textureIDs, ref textureInfos[0]);
 
 			if (handle != ushort.MaxValue)
 			{
