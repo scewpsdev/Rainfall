@@ -77,6 +77,7 @@ public static class Renderer
 	struct LightDrawCommand
 	{
 		internal Vector3 position;
+		internal float radius;
 		internal Vector3 color;
 	}
 
@@ -568,9 +569,16 @@ public static class Renderer
 		foliage.Add(new LeaveDrawCommand { model = model, meshID = meshID, transform = transform });
 	}
 
+	public static void DrawLight(Vector3 position, Vector3 color, float radius)
+	{
+		lights.Add(new LightDrawCommand { position = position, radius = radius, color = color });
+	}
+
 	public static void DrawLight(Vector3 position, Vector3 color)
 	{
-		lights.Add(new LightDrawCommand { position = position, color = color });
+		float luma = Vector3.Dot(new Vector3(0.2126729f, 0.7151522f, 0.0721750f), color);
+		float radius = luma * 3.0f;
+		DrawLight(position, color, radius);
 	}
 
 	public static void DrawPointLight(PointLight light, Matrix transform)
@@ -578,7 +586,7 @@ public static class Renderer
 		if (light.shadowMap != null)
 			pointLights.Add(new PointLightDrawCommand { light = light, position = transform * light.offset });
 		else
-			lights.Add(new LightDrawCommand { position = transform * light.offset, color = light.color });
+			lights.Add(new LightDrawCommand { position = transform * light.offset, radius = light.radius, color = light.color });
 	}
 
 	public static void DrawDirectionalLight(DirectionalLight light)
@@ -1161,7 +1169,7 @@ public static class Renderer
 							for (int m = 0; m < MAX_LIGHTS_PER_PASS; m++)
 							{
 								int lightID = m;
-								lightPositionBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].position, 0.0f) : new Vector4(0.0f);
+								lightPositionBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].position, lights[lightID].radius) : new Vector4(0.0f);
 								lightColorBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].color, 0.0f) : new Vector4(0.0f);
 							}
 							graphics.setUniform(modelSimpleShader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
@@ -1297,7 +1305,7 @@ public static class Renderer
 			for (int j = 0; j < numRemainingLights; j++)
 			{
 				int lightID = i + j;
-				lightPositionBuffer[j] = new Vector4(lights[lightID].position, 0.0f);
+				lightPositionBuffer[j] = new Vector4(lights[lightID].position, lights[lightID].radius);
 				lightColorBuffer[j] = new Vector4(lights[lightID].color, 0.0f);
 			}
 			i += numRemainingLights;
@@ -1338,7 +1346,7 @@ public static class Renderer
 			int numRemainingLights = Math.Min(pointLights.Count, MAX_POINT_SHADOWS);
 			for (int j = 0; j < numRemainingLights; j++)
 			{
-				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, 0.0f);
+				pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, pointLights[j].light.radius);
 				pointLightColorBuffer[j] = new Vector4(pointLights[j].light.color, 0.0f);
 				pointLightShadowNears[j] = pointLights[j].light.shadowMap.nearPlane;
 

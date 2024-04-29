@@ -129,6 +129,7 @@ struct Vector4
 
 
 	Vector4();
+	Vector4(float f);
 	Vector4(float x, float y, float z, float w);
 	Vector4(const Vector3& xyz, float w);
 

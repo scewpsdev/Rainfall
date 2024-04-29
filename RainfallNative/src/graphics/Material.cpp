@@ -1,8 +1,12 @@
-#include "Geometry.h"
+#include "Material.h"
 
 #include "Application.h"
+#include "Geometry.h"
 
 #include <bx/allocator.h>
+
+
+extern Shader* defaultShader;
 
 
 static TextureData* CreateTextureData(bgfx::TextureHandle handle)
@@ -12,55 +16,58 @@ static TextureData* CreateTextureData(bgfx::TextureHandle handle)
 	return texture;
 }
 
-RFAPI MaterialData Material_Create(uint32_t color, float metallicFactor, float roughnessFactor, const Vector3& emissiveColor, float emissiveStrength, uint16_t diffuse, uint16_t normal, uint16_t roughness, uint16_t metallic, uint16_t emissive)
+RFAPI Material* Material_GetDefault()
 {
-	MaterialData material;
+	static Material material =
+	{
+		defaultShader,
+		{
+			Vector4(0, 0, 0, 0),
+			Vector4(1, 1, 1, 0),
+			Vector4(1, 0, 0, 0),
+			Vector4(0, 0, 0, 0),
+		},
+		{
+			BGFX_INVALID_HANDLE,
+			BGFX_INVALID_HANDLE,
+			BGFX_INVALID_HANDLE,
+			BGFX_INVALID_HANDLE,
+			BGFX_INVALID_HANDLE
+		}
+	};
+	return &material;
+}
 
-	material.color = color;
-	material.metallicFactor = metallicFactor;
-	material.roughnessFactor = roughnessFactor;
-	material.emissiveColor = emissiveColor;
-	material.emissiveStrength = emissiveStrength;
+RFAPI Material* Material_Create(uint32_t color, float metallicFactor, float roughnessFactor, const Vector3& emissiveColor, float emissiveStrength, uint16_t diffuse, uint16_t normal, uint16_t roughness, uint16_t metallic, uint16_t emissive)
+{
+	Material* material = BX_NEW(Application_GetAllocator(), Material) {};
 
-	material.diffuse = diffuse != bgfx::kInvalidHandle ? CreateTextureData(bgfx::TextureHandle{ diffuse }) : nullptr;
-	material.normal = normal != bgfx::kInvalidHandle ? CreateTextureData(bgfx::TextureHandle{ normal }) : nullptr;
-	material.roughness = roughness != bgfx::kInvalidHandle ? CreateTextureData(bgfx::TextureHandle{ roughness }) : nullptr;
-	material.metallic = metallic != bgfx::kInvalidHandle ? CreateTextureData(bgfx::TextureHandle{ metallic }) : nullptr;
-	material.emissive = emissive != bgfx::kInvalidHandle ? CreateTextureData(bgfx::TextureHandle{ emissive }) : nullptr;
+	float r = ((color & 0x00FF0000) >> 16) / 255.0f;
+	float g = ((color & 0x0000FF00) >> 8) / 255.0f;
+	float b = ((color & 0x000000FF) >> 0) / 255.0f;
+	float a = ((color & 0xFF000000) >> 24) / 255.0f;
+	material->materialData[0] = Vector4(r, g, b, a);
+
+	material->materialData[1].r = roughnessFactor;
+	material->materialData[1].g = metallicFactor;
+	material->materialData[2].rgb = emissiveColor;
+	material->materialData[2].a = emissiveStrength;
+
+	material->textures[0] = diffuse != bgfx::kInvalidHandle ? bgfx::TextureHandle{ diffuse } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
+	material->textures[1] = normal != bgfx::kInvalidHandle ? bgfx::TextureHandle{ normal } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
+	material->textures[2] = roughness != bgfx::kInvalidHandle ? bgfx::TextureHandle{ roughness } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
+	material->textures[3] = metallic != bgfx::kInvalidHandle ? bgfx::TextureHandle{ metallic } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
+	material->textures[4] = emissive != bgfx::kInvalidHandle ? bgfx::TextureHandle{ emissive } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
 
 	return material;
 }
 
-static void DestroyTextureData(TextureData* texture)
+RFAPI void Material_Destroy(Material* material)
 {
-	BX_FREE(Application_GetAllocator(), texture);
-}
-
-RFAPI void Material_Destroy(MaterialData* material)
-{
-	if (material->diffuse)
+	for (int i = 0; i < 5; i++)
 	{
-		DestroyTextureData(material->diffuse);
-		material->diffuse = nullptr;
+		if (material->textures[i].idx != bgfx::kInvalidHandle)
+			bgfx::destroy(material->textures[i]);
 	}
-	if (material->normal)
-	{
-		DestroyTextureData(material->normal);
-		material->normal = nullptr;
-	}
-	if (material->roughness)
-	{
-		DestroyTextureData(material->roughness);
-		material->roughness = nullptr;
-	}
-	if (material->metallic)
-	{
-		DestroyTextureData(material->metallic);
-		material->metallic = nullptr;
-	}
-	if (material->emissive)
-	{
-		DestroyTextureData(material->emissive);
-		material->emissive = nullptr;
-	}
+	BX_FREE(Application_GetAllocator(), material);
 }

@@ -56,16 +56,17 @@ void main()
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		vec3 lightPosition = u_lightPosition[i].xyz;
+		float lightRadius = u_lightPosition[i].w;
 		vec3 lightColor = u_lightColor[i].rgb;
 
-		if (i == 0) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap0, u_lightShadowMapNear0[0]);
-		if (i == 1) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap1, u_lightShadowMapNear0[1]);
-		if (i == 2) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap2, u_lightShadowMapNear0[2]);
-		if (i == 3) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap3, u_lightShadowMapNear0[3]);
-		if (i == 4) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap4, u_lightShadowMapNear1[0]);
-		if (i == 5) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap5, u_lightShadowMapNear1[1]);
-		if (i == 6) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap6, u_lightShadowMapNear1[2]);
-		if (i == 7) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor, s_lightShadowMap7, u_lightShadowMapNear1[3]);
+		if (i == 0) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap0, u_lightShadowMapNear0[0]);
+		if (i == 1) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap1, u_lightShadowMapNear0[1]);
+		if (i == 2) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap2, u_lightShadowMapNear0[2]);
+		if (i == 3) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap3, u_lightShadowMapNear0[3]);
+		if (i == 4) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap4, u_lightShadowMapNear1[0]);
+		if (i == 5) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap5, u_lightShadowMapNear1[1]);
+		if (i == 6) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap6, u_lightShadowMapNear1[2]);
+		if (i == 7) lightS += RenderPointLightShadow(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor, s_lightShadowMap7, u_lightShadowMapNear1[3]);
 	}
 
 	gl_FragColor = vec4(lightS, 1.0);

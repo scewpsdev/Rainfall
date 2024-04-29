@@ -46,8 +46,9 @@ void main()
 	for (int i = 0; i < numLights; i++)
 	{
 		vec3 lightPosition = u_lightPosition[i].xyz;
+		float lightRadius = u_lightPosition[i].w;
 		vec3 lightColor = u_lightColor[i].rgb;
-		lightS += RenderPointLight(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor);
+		lightS += RenderPointLight(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightRadius, lightColor);
 	}
 
 	gl_FragColor = vec4(lightS, 1.0);

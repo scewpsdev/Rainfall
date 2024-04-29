@@ -171,7 +171,7 @@ namespace Rainfall
 			internal static extern IntPtr Graphics_AllocateVideoMemory(int size, out IntPtr memoryHandle);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern unsafe void Graphics_CreateVideoMemoryRef(int size, void* data, MemoryReleaseCallback_t releaseCallback, out IntPtr memoryHandle);
+			internal static extern unsafe IntPtr Graphics_CreateVideoMemoryRef(int size, void* data, MemoryReleaseCallback_t releaseCallback);
 
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -250,7 +250,7 @@ namespace Rainfall
 			internal static extern void Graphics_DestroyShader(IntPtr shader);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern ushort Graphics_CreateRenderTarget(int numAttachments, ref RenderTargetAttachment attachmentInfo, ref TextureInfo textureInfos, [MarshalAs(UnmanagedType.LPArray)] ushort[] textures);
+			internal static extern ushort Graphics_CreateRenderTarget(int numAttachments, ref RenderTargetAttachment attachmentInfo, [MarshalAs(UnmanagedType.LPArray)] ushort[] textures, ref TextureInfo textureInfos);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_DestroyRenderTarget(ushort renderTarget);

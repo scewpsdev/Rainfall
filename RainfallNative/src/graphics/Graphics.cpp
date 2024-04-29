@@ -1,4 +1,4 @@
-
+#include "Graphics.h"
 
 #include "Rainfall.h"
 #include "Application.h"
@@ -8,7 +8,6 @@
 #include "Model.h"
 #include "Shader.h"
 #include "ModelReader.h"
-#include "Font.h"
 
 #include "vector/Matrix.h"
 
@@ -20,108 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
-
-
-enum class VertexAttribute : int
-{
-	Position,  //!< a_position
-	Normal,    //!< a_normal
-	Tangent,   //!< a_tangent
-	Bitangent, //!< a_bitangent
-	Color0,    //!< a_color0
-	Color1,    //!< a_color1
-	Color2,    //!< a_color2
-	Color3,    //!< a_color3
-	Indices,   //!< a_indices
-	Weight,    //!< a_weight
-	TexCoord0, //!< a_texcoord0
-	TexCoord1, //!< a_texcoord1
-	TexCoord2, //!< a_texcoord2
-	TexCoord3, //!< a_texcoord3
-	TexCoord4, //!< a_texcoord4
-	TexCoord5, //!< a_texcoord5
-	TexCoord6, //!< a_texcoord6
-	TexCoord7, //!< a_texcoord7
-
-	Count
-};
-
-enum class VertexAttributeType : int
-{
-	Byte4,
-	Half,
-	Single,
-	Vector2,
-	Vector3,
-	Vector4,
-
-	Count
-};
-
-struct VertexElement
-{
-	VertexAttribute attribute;
-	VertexAttributeType type;
-	bool normalized;
-};
-
-struct RenderTargetAttachment
-{
-	int width, height;
-	bgfx::BackbufferRatio::Enum ratio;
-	bgfx::TextureFormat::Enum format;
-	uint64_t flags;
-
-	bgfx::TextureHandle texture;
-	int textureLayer;
-	bool isCubemap;
-
-	bool generateMipmaps;
-};
-
-enum class BlendState
-{
-	Default,
-	Alpha,
-	Additive,
-
-	Count
-};
-
-enum class DepthTest
-{
-	None,
-	Less,
-	LEqual,
-	Equal,
-	GEqual,
-	Greater,
-	NotEqual,
-	Never,
-	Always,
-
-	Count
-};
-
-enum class CullState
-{
-	None,
-	ClockWise,
-	CounterClockWise,
-
-	Count
-};
-
-enum class PrimitiveType
-{
-	Triangle,
-	TriangleStrip,
-	Lines,
-	LineStrip,
-	Points,
-
-	Count
-};
 
 
 static int vertexAttributeTypeCounts[(int)VertexAttributeType::Count] = { 4, 1, 1, 2, 3, 4 };
@@ -205,13 +102,12 @@ RFAPI const void* Graphics_AllocateVideoMemory(int size, const bgfx::Memory** ou
 	return memory->data;
 }
 
-RFAPI void Graphics_CreateVideoMemoryRef(int size, const void* data, void(releaseCallback)(void* _ptr, void* _userData), const bgfx::Memory** outDataPtr)
+RFAPI const bgfx::Memory* Graphics_CreateVideoMemoryRef(int size, const void* data, void(releaseCallback)(void* _ptr, void* _userData))
 {
-	const bgfx::Memory* memory = bgfx::makeRef(data, size, releaseCallback);
-	*outDataPtr = memory;
+	return bgfx::makeRef(data, size, releaseCallback);
 }
 
-RFAPI uint16_t Graphics_CreateVertexBuffer(const bgfx::Memory* memory, const VertexElement* layoutElements, int layoutElementsCount, uint16_t flags)
+RFAPI uint16_t Graphics_CreateVertexBuffer(const bgfx::Memory* memory, const VertexElement* layoutElements, int layoutElementsCount, BufferFlags flags)
 {
 	bgfx::VertexLayout layout = CreateVertexLayout(layoutElements, layoutElementsCount);
 	bgfx::VertexBufferHandle handle = bgfx::createVertexBuffer(memory, layout, flags);
@@ -411,9 +307,14 @@ RFAPI uint16_t Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx:
 RFAPI void Graphics_DestroyShader(Shader* shader)
 {
 	bgfx::destroy(shader->program);
+	for (auto pair : shader->uniforms)
+	{
+		bgfx::destroy(pair.second);
+	}
+	BX_FREE(Application_GetAllocator(), shader);
 }
 
-RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTargetAttachment* attachmentInfo, bgfx::TextureInfo* textureInfos, uint16_t* textures)
+RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTargetAttachment* attachmentInfo, bgfx::TextureHandle* textures, bgfx::TextureInfo* textureInfos)
 {
 	bgfx::Attachment attachments[8] = {};
 	for (int i = 0; i < numAttachments; i++)
@@ -424,7 +325,7 @@ RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTarge
 			if (!bgfx::isTextureValid(0, false, 1, attachmentInfo[i].format, attachmentInfo[i].flags))
 			{
 				Console_Error("Invalid framebuffer attachment #%i format", i);
-				return bgfx::kInvalidHandle;
+				return BGFX_INVALID_HANDLE;
 			}
 
 			if (attachmentInfo[i].ratio < bgfx::BackbufferRatio::Count)
@@ -432,7 +333,7 @@ RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTarge
 			else
 				texture = bgfx::createTexture2D(attachmentInfo[i].width, attachmentInfo[i].height, false, 1, attachmentInfo[i].format, attachmentInfo[i].flags);
 
-			textures[i] = texture.idx;
+			textures[i] = texture;
 			textureInfos[i] = bgfx::TextureInfo{ attachmentInfo[i].format, 0, (uint16_t)attachmentInfo[i].width, (uint16_t)attachmentInfo[i].height, 0, 1, 1, 0, false };
 		}
 
@@ -443,7 +344,7 @@ RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTarge
 	if (!bgfx::isValid(handle))
 	{
 		Console_Error("Failed to validate framebuffer %i", (int)handle.idx);
-		return bgfx::kInvalidHandle;
+		return BGFX_INVALID_HANDLE;
 	}
 
 	return handle.idx;
