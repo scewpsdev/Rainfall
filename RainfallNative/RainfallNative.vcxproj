@@ -205,6 +205,7 @@
     <ClCompile Include="src\graphics\Animation.cpp" />
     <ClCompile Include="src\graphics\LineRenderer.cpp" />
     <ClCompile Include="src\graphics\Material.cpp" />
+    <ClCompile Include="src\graphics\ParticleSystem.cpp" />
     <ClCompile Include="src\graphics\renderer3d\Renderer3D.cpp" />
     <ClCompile Include="src\imguizmo\GraphEditor.cpp" />
     <ClCompile Include="src\imguizmo\ImCurveEdit.cpp" />
@@ -232,6 +233,7 @@
     <ClCompile Include="src\Platform.cpp" />
     <ClCompile Include="src\Resource.cpp" />
     <ClCompile Include="src\utils\ImGuiLayer.cpp" />
+    <ClCompile Include="src\utils\Simplex.cpp" />
     <ClCompile Include="src\vector\Math.cpp" />
     <ClCompile Include="src\vector\Matrix.cpp" />
     <ClCompile Include="src\vector\Quaternion.cpp" />
@@ -239,6 +241,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Material.h" />
+    <ClInclude Include="src\graphics\ParticleSystem.h" />
     <ClInclude Include="src\graphics\renderer3d\Renderer3D.h" />
     <ClInclude Include="src\Platform.h" />
     <ClInclude Include="src\graphics\LineRenderer.h" />
@@ -283,22 +286,51 @@
     <ClInclude Include="src\Resource.h" />
     <ClInclude Include="src\utils\ImGuiLayer.h" />
     <ClInclude Include="src\utils\List.h" />
+    <ClInclude Include="src\utils\Random.h" />
+    <ClInclude Include="src\utils\Simplex.h" />
+    <ClInclude Include="src\vector\Gradient.h" />
     <ClInclude Include="src\vector\Math.h" />
     <ClInclude Include="src\vector\Matrix.h" />
     <ClInclude Include="src\vector\Quaternion.h" />
     <ClInclude Include="src\vector\Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Rainfall3D\res\shaders\deferred\shadow_mapping.shader" />
+    <None Include="res\rainfall\shaders\bgfx\bgfx_shader.shader" />
+    <None Include="res\rainfall\shaders\common\common.shader" />
+    <None Include="res\rainfall\shaders\common\shaderlib.shader" />
+    <None Include="res\rainfall\shaders\common\utils.shader" />
+    <None Include="res\rainfall\shaders\default\default.fs" />
+    <None Include="res\rainfall\shaders\default\default.vs" />
+    <None Include="res\rainfall\shaders\default\default_animated.vs" />
+    <None Include="res\rainfall\shaders\default\varying.def.sc" />
+    <None Include="res\rainfall\shaders\deferred\deferred.vs" />
+    <None Include="res\rainfall\shaders\deferred\deferred_point.fs" />
+    <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
+    <None Include="res\rainfall\shaders\deferred\pbr.shader" />
+    <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
+    <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
+    <None Include="res\rainfall\shaders\particle\particle.fs" />
+    <None Include="res\rainfall\shaders\particle\particle.vs" />
+    <None Include="res\rainfall\shaders\particle\varying.def.sc" />
+    <None Include="res\rainfall\shaders\tonemapping\tonemapping.fs" />
+    <None Include="res\rainfall\shaders\tonemapping\tonemapping.vs" />
+    <None Include="res\rainfall\shaders\tonemapping\varying.def.sc" />
     <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
     <None Include="res\shaders\rainfall\common\common.shader" />
     <None Include="res\shaders\rainfall\common\shaderlib.shader" />
     <None Include="res\shaders\rainfall\common\utils.shader" />
     <None Include="res\shaders\rainfall\default\default.fs" />
     <None Include="res\shaders\rainfall\default\default.vs" />
+    <None Include="res\shaders\rainfall\default\default_animated.vs" />
     <None Include="res\shaders\rainfall\default\varying.def.sc" />
+    <None Include="res\shaders\rainfall\deferred\deferred.vs" />
     <None Include="res\shaders\rainfall\deferred\deferred.vs.shader" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.fs" />
     <None Include="res\shaders\rainfall\deferred\deferred_point.fs.shader" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.vs" />
     <None Include="res\shaders\rainfall\deferred\pbr.shader" />
+    <None Include="res\shaders\rainfall\deferred\shadow_mapping.shader" />
     <None Include="res\shaders\rainfall\deferred\varying.def.sc" />
     <None Include="res\shaders\rainfall\tonemapping\tonemapping.fs.shader" />
     <None Include="res\shaders\rainfall\tonemapping\tonemapping.vs.shader" />

@@ -145,6 +145,9 @@ struct Vector4
 	Vector4& operator-=(float f);
 	Vector4& operator*=(float f);
 	Vector4& operator/=(float f);
+
+	static const Vector4 Zero;
+	static const Vector4 One;
 };
 
 struct Vector2i
@@ -269,6 +272,23 @@ Vector3 operator/(float a, Vector3 b);
 
 bool operator==(const Vector3& a, const Vector3& b);
 
+Vector4 operator+(Vector4 a, Vector4 b);
+Vector4 operator-(Vector4 a, Vector4 b);
+Vector4 operator*(Vector4 a, Vector4 b);
+Vector4 operator/(Vector4 a, Vector4 b);
+
+Vector4 operator+(Vector4 a, float b);
+Vector4 operator-(Vector4 a, float b);
+Vector4 operator*(Vector4 a, float b);
+Vector4 operator/(Vector4 a, float b);
+
+Vector4 operator+(float a, Vector4 b);
+Vector4 operator-(float a, Vector4 b);
+Vector4 operator*(float a, Vector4 b);
+Vector4 operator/(float a, Vector4 b);
+
+bool operator==(const Vector4& a, const Vector4& b);
+
 
 Vector3i operator+(Vector3i a, Vector3i b);
 Vector3i operator-(Vector3i a, Vector3i b);
@@ -289,8 +309,15 @@ Vector2 abs(const Vector2& v);
 
 Vector2 min(const Vector2& a, const Vector2& b);
 Vector2 max(const Vector2& a, const Vector2& b);
+Vector3 min(const Vector3& a, const Vector3& b);
+Vector3 max(const Vector3& a, const Vector3& b);
 
 Vector2i sign(const Vector2& v);
 
 Vector2 mix(const Vector2& a, const Vector2& b, float t);
 Vector3 mix(const Vector3& a, const Vector3& b, float t);
+template<typename T>
+T mix(const T& a, const T& b, float t)
+{
+	return t * b + (1 - t) * a;
+}

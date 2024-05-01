@@ -30,8 +30,24 @@ struct AABB
 
 struct Sphere
 {
-	float xcenter, ycenter, zcenter;
-	float radius;
+	union
+	{
+		Vector3 center = Vector3::Zero;
+		struct {
+			float xcenter, ycenter, zcenter;
+		};
+	};
+
+	float radius = 0;
+
+	Sphere()
+	{
+	}
+
+	Sphere(Vector3 center, float radius)
+		: center(center), radius(radius)
+	{
+	}
 };
 
 struct MeshData

@@ -247,9 +247,6 @@ namespace Rainfall
 			internal static extern ushort Graphics_ShaderGetUniform(IntPtr shader, [MarshalAs(UnmanagedType.LPStr)] string name, UniformType type, int num);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern void Graphics_DestroyShader(IntPtr shader);
-
-			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern ushort Graphics_CreateRenderTarget(int numAttachments, ref RenderTargetAttachment attachmentInfo, [MarshalAs(UnmanagedType.LPArray)] ushort[] textures, ref TextureInfo textureInfos);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

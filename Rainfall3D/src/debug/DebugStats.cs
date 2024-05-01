@@ -27,8 +27,13 @@ namespace Rainfall
 
 			y++;
 
+			y = Renderer.DrawDebugStats(0, y, 0x1F);
+
 			RenderStats renderStats = graphics.getRenderStats();
 
+			// TODO reimplement
+
+			/*
 			StringUtils.WriteString(str, "Geometry Pass: ");
 			StringUtils.AppendFloat(str, renderStats.getGpuTime((ushort)Renderer.RenderPass.Geometry) * 1000, 2);
 			StringUtils.AppendString(str, " ms");
@@ -63,6 +68,7 @@ namespace Rainfall
 			StringUtils.AppendFloat(str, renderStats.getGpuTime((ushort)Renderer.RenderPass.UI) * 1000, 2);
 			StringUtils.AppendString(str, " ms");
 			graphics.drawDebugText(x, y++, color, str);
+			*/
 
 			y++;
 

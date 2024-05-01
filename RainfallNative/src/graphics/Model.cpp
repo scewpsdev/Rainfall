@@ -19,9 +19,6 @@
 #include <map>
 
 
-#define MAX_BONES 128
-
-
 std::map<uint32_t, bgfx::TextureHandle> loadedTextures;
 
 
@@ -114,8 +111,8 @@ RFAPI void Model_DrawMesh(int pass, SceneData* scene, int meshID, Shader* shader
 
 RFAPI void Model_DrawMeshAnimated(int pass, SceneData* scene, int meshID, Shader* shader, AnimationState* animationState, const Matrix& transform)
 {
-	SkeletonState* skeleton = animationState->skeletons[meshID];
-	bgfx::setUniform(shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
+	//SkeletonState* skeleton = animationState->skeletons[meshID];
+	//bgfx::setUniform(shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
 	SubmitMesh((bgfx::ViewId)pass, scene, meshID, shader, transform);
 }
@@ -434,7 +431,7 @@ static Sphere CalculateBoundingSphere(int numVertices, PositionNormalTangent* ve
 	return boundingSphere;
 }
 
-RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material)
+RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices)
 {
 	vertices = CopyData(vertices, numVertices);
 	uvs = CopyData(uvs, numVertices);
@@ -460,18 +457,15 @@ RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, 
 	meshData->boneWeightBuffer = BGFX_INVALID_HANDLE;
 	meshData->indexBuffer = BGFX_INVALID_HANDLE;
 
-	MaterialData* materialData = BX_NEW(Application_GetAllocator(), MaterialData)();
-	*materialData = *material;
-
 	sceneData->numMeshes = 1;
-	sceneData->numMaterials = 1;
+	sceneData->numMaterials = 0;
 	sceneData->numSkeletons = 0;
 	sceneData->numAnimations = 0;
 	sceneData->numNodes = 0;
 	sceneData->numLights = 0;
 
 	sceneData->meshes = meshData;
-	sceneData->materials = materialData;
+	sceneData->materials = nullptr;
 	sceneData->skeletons = nullptr;
 	sceneData->animations = nullptr;
 	sceneData->nodes = nullptr;

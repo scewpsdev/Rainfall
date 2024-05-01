@@ -45,7 +45,7 @@ namespace Rainfall
 			CreateEntityFromData(entityData, path, entity);
 		}
 
-		public static void CreateEntityFromData(SceneFormat.EntityData entityData, string path, Entity entity)
+		public static unsafe void CreateEntityFromData(SceneFormat.EntityData entityData, string path, Entity entity)
 		{
 			entity.name = entityData.name;
 			entity.isStatic = entityData.isStatic;
@@ -230,9 +230,9 @@ namespace Rainfall
 			for (int i = 0; i < entityData.particles.Count; i++)
 			{
 				ParticleSystem particles = ParticleSystem.Create(Matrix.Identity);
-				particles.copyData(entityData.particles[i]);
-				if (particles.textureAtlasPath != null)
-					particles.textureAtlas = Resource.GetTexture(CombinePath(particles.textureAtlasPath, path));
+				*particles.handle = entityData.particles[i];
+				if (particles.handle->textureAtlasPath[0] != 0)
+					particles.handle->textureAtlas = Resource.GetTexture(CombinePath(new string((sbyte*)particles.handle->textureAtlasPath), path)).handle;
 				entity.particles.Add(particles);
 			}
 		}

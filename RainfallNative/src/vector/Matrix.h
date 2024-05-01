@@ -55,8 +55,9 @@ Vector4 mul(const Matrix& left, const Vector4& right);
 
 Matrix operator*(const Matrix& left, const Matrix& right);
 Vector4 operator*(const Matrix& left, const Vector4& right);
+Vector3 operator*(const Matrix& left, const Vector3& right);
 
 bool operator==(const Matrix& a, const Matrix& b);
 bool operator!=(const Matrix& a, const Matrix& b);
 
-void GetFrustumPlanes(const Matrix& pv, Vector4* planes);
+void GetFrustumPlanes(const Matrix& pv, Vector4 planes[6]);

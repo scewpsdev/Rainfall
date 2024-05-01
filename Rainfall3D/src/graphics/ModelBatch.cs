@@ -15,8 +15,6 @@ namespace Rainfall
 		List<Vector2> uvs = new List<Vector2>();
 		List<int> indices = new List<int>();
 
-		MaterialData material;
-
 		Model model;
 
 
@@ -34,11 +32,6 @@ namespace Rainfall
 		public void destroy()
 		{
 			model.destroy();
-		}
-
-		public void setMaterial(Material material)
-		{
-			this.material = material.data;
 		}
 
 		public int addVertex(Vector3 position, Vector3 normal, Vector3 tangent, Vector2 uv)
@@ -63,29 +56,29 @@ namespace Rainfall
 			indices.Add(i2);
 		}
 
-		public void addModel(Model model, Matrix transform, int atlasIndex, Vector2i atlasSize)
+		public unsafe void addModel(Model model, Matrix transform, int atlasIndex, Vector2i atlasSize)
 		{
 			for (int i = 0; i < model.meshCount; i++)
 			{
 				int indexOffset = vertices.Count;
-				MeshData mesh = model.getMeshData(i).Value;
-				for (int j = 0; j < mesh.vertexCount; j++)
+				MeshData* mesh = model.getMeshData(i);
+				for (int j = 0; j < mesh->vertexCount; j++)
 				{
-					PositionNormalTangent vertex = mesh.getVertex(j);
+					PositionNormalTangent vertex = mesh->getVertex(j);
 					vertex.position = (transform * new Vector4(vertex.position, 1.0f)).xyz;
 					vertex.normal = (transform * new Vector4(vertex.normal, 0.0f)).xyz;
 					vertex.tangent = (transform * new Vector4(vertex.tangent, 0.0f)).xyz;
 					vertices.Add(vertex);
 
-					Vector2 uv = mesh.getUV(j);
+					Vector2 uv = mesh->getUV(j);
 					int atlasX = atlasIndex % atlasSize.x;
 					int atlasY = atlasIndex / atlasSize.x;
 					uv = (uv + new Vector2(atlasX, atlasY)) / atlasSize;
 					uvs.Add(uv);
 				}
-				for (int j = 0; j < mesh.indexCount; j++)
+				for (int j = 0; j < mesh->indexCount; j++)
 				{
-					indices.Add(indexOffset + mesh.getIndex(j));
+					indices.Add(indexOffset + mesh->getIndex(j));
 				}
 			}
 		}
@@ -99,7 +92,7 @@ namespace Rainfall
 		{
 			if (vertices.Count > 0)
 			{
-				model = new Model(vertices.Count, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(uvs), indices.Count, CollectionsMarshal.AsSpan(indices), material);
+				model = new Model(vertices.Count, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(uvs), indices.Count, CollectionsMarshal.AsSpan(indices));
 				vertices = null;
 				uvs = null;
 				indices = null;

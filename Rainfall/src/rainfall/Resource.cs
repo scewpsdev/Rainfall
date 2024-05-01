@@ -124,7 +124,7 @@ namespace Rainfall
 			}
 		}
 
-		internal static IntPtr CreateScene(string path, ulong textureFlags)
+		internal static unsafe SceneData* CreateScene(string path, ulong textureFlags)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
 			StringUtils.WriteString(pathPtr, path);
@@ -134,7 +134,7 @@ namespace Rainfall
 			{
 				fixed (byte* pathPtrData = pathPtr)
 				{
-					IntPtr handle = Native.Resource.Resource_CreateSceneDataFromFile(pathPtrData, textureFlags);
+					SceneData* handle = Native.Resource.Resource_CreateSceneDataFromFile(pathPtrData, textureFlags);
 					return handle;
 				}
 			}
@@ -268,11 +268,12 @@ namespace Rainfall
 			}
 			else
 			{
-				IntPtr scene = CreateScene(path, textureFlags);
-				if (scene != IntPtr.Zero)
+				SceneData* scene = CreateScene(path, textureFlags);
+				Material.Material_CreateMaterialsForScene(scene);
+				if (scene != null)
 				{
-					scenes.Add(path, scene);
-					return new Model((SceneData*)scene);
+					scenes.Add(path, (IntPtr)scene);
+					return new Model(scene);
 				}
 				return null;
 			}

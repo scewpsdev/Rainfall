@@ -231,6 +231,12 @@
     <ClCompile Include="src\graphics\renderer3d\Renderer3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\Simplex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Event.h">
@@ -380,6 +386,18 @@
     <ClInclude Include="src\graphics\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector\Gradient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Simplex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\rainfall\default\default.fs" />
@@ -396,5 +414,31 @@
     <None Include="res\shaders\rainfall\common\shaderlib.shader" />
     <None Include="res\shaders\rainfall\common\utils.shader" />
     <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
+    <None Include="..\Rainfall3D\res\shaders\deferred\shadow_mapping.shader" />
+    <None Include="res\shaders\rainfall\default\default_animated.vs" />
+    <None Include="res\shaders\rainfall\deferred\deferred.vs" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.fs" />
+    <None Include="res\shaders\rainfall\deferred\shadow_mapping.shader" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.vs" />
+    <None Include="res\rainfall\shaders\particle\particle.fs" />
+    <None Include="res\rainfall\shaders\particle\particle.vs" />
+    <None Include="res\rainfall\shaders\particle\varying.def.sc" />
+    <None Include="res\rainfall\shaders\tonemapping\tonemapping.fs" />
+    <None Include="res\rainfall\shaders\tonemapping\tonemapping.vs" />
+    <None Include="res\rainfall\shaders\tonemapping\varying.def.sc" />
+    <None Include="res\rainfall\shaders\deferred\deferred.vs" />
+    <None Include="res\rainfall\shaders\deferred\deferred_point.fs" />
+    <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
+    <None Include="res\rainfall\shaders\deferred\pbr.shader" />
+    <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
+    <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
+    <None Include="res\rainfall\shaders\default\default.fs" />
+    <None Include="res\rainfall\shaders\default\default.vs" />
+    <None Include="res\rainfall\shaders\default\default_animated.vs" />
+    <None Include="res\rainfall\shaders\default\varying.def.sc" />
+    <None Include="res\rainfall\shaders\common\common.shader" />
+    <None Include="res\rainfall\shaders\common\shaderlib.shader" />
+    <None Include="res\rainfall\shaders\common\utils.shader" />
+    <None Include="res\rainfall\shaders\bgfx\bgfx_shader.shader" />
   </ItemGroup>
 </Project>

@@ -12,4 +12,4 @@
 
 void InitializeScene(SceneData& scene, const char* scenePath, uint64_t textureFlags);
 
-RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
+RFAPI SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices);

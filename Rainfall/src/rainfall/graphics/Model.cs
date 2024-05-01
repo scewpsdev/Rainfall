@@ -253,13 +253,13 @@ namespace Rainfall
 			skeleton = new Skeleton(scene);
 		}
 
-		public unsafe Model(int numVertices, Span<PositionNormalTangent> vertices, Span<Vector2> uvs, int numIndices, Span<int> indices, MaterialData material)
+		public unsafe Model(int numVertices, Span<PositionNormalTangent> vertices, Span<Vector2> uvs, int numIndices, Span<int> indices)
 		{
 			fixed (PositionNormalTangent* verticesPtr = vertices)
 			fixed (Vector2* uvsPtr = uvs)
 			fixed (int* indicesPtr = indices)
 			{
-				scene = Model_Create(numVertices, verticesPtr, uvsPtr, numIndices, indicesPtr, &material);
+				scene = Model_Create(numVertices, verticesPtr, uvsPtr, numIndices, indicesPtr);
 			}
 			skeleton = null;
 			ownsScene = true;
@@ -289,17 +289,17 @@ namespace Rainfall
 			Model_Draw(graphics.currentPass, scene, shader.handle, animatedShader != null ? animatedShader.handle : IntPtr.Zero, animator != null ? animator.handle : IntPtr.Zero, ref transform);
 		}
 
-		public unsafe MeshData? getMeshData(int index)
+		public unsafe MeshData* getMeshData(int index)
 		{
 			if (index < scene->numMeshes)
-				return scene->meshes[index];
+				return &scene->meshes[index];
 			return null;
 		}
 
-		public unsafe MaterialData? getMaterialData(int meshIndex)
+		public unsafe MaterialData* getMaterialData(int meshIndex)
 		{
 			if (meshIndex < scene->numMeshes)
-				return scene->materials[scene->meshes[meshIndex].materialID];
+				return scene->meshes[meshIndex].materialID != -1 ? &scene->materials[scene->meshes[meshIndex].materialID] : null;
 			return null;
 		}
 
@@ -369,7 +369,7 @@ namespace Rainfall
 		}
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern unsafe SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices, MaterialData* material);
+		static extern unsafe SceneData* Model_Create(int numVertices, PositionNormalTangent* vertices, Vector2* uvs, int numIndices, int* indices);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		static extern unsafe void Model_Destroy(SceneData* scene);

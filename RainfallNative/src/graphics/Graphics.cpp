@@ -298,12 +298,6 @@ RFAPI Shader* Graphics_CreateShaderCompute(const bgfx::Memory* computeMemory)
 	return shader;
 }
 
-RFAPI uint16_t Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx::UniformType::Enum type, int num)
-{
-	bgfx::UniformHandle handle = shader->getUniform(name, type, num);
-	return handle.idx;
-}
-
 RFAPI void Graphics_DestroyShader(Shader* shader)
 {
 	bgfx::destroy(shader->program);
@@ -312,6 +306,12 @@ RFAPI void Graphics_DestroyShader(Shader* shader)
 		bgfx::destroy(pair.second);
 	}
 	BX_FREE(Application_GetAllocator(), shader);
+}
+
+RFAPI uint16_t Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx::UniformType::Enum type, int num)
+{
+	bgfx::UniformHandle handle = shader->getUniform(name, type, num);
+	return handle.idx;
 }
 
 RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTargetAttachment* attachmentInfo, bgfx::TextureHandle* textures, bgfx::TextureInfo* textureInfos)

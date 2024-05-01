@@ -196,8 +196,8 @@ RFAPI void Graphics_SetTransientIndexBuffer(const bgfx::TransientIndexBuffer* bu
 RFAPI void Graphics_SetInstanceBuffer(const bgfx::InstanceDataBuffer* buffer);
 RFAPI void Graphics_SetInstanceBufferN(const bgfx::InstanceDataBuffer* buffer, int offset, int count);
 RFAPI void Graphics_SetComputeBuffer(int stage, uint16_t handle, bgfx::Access::Enum access);
-RFAPI void Graphics_SetUniform(uint16_t handle, const void* value, int num);
-inline void Graphics_SetUniform(bgfx::UniformHandle handle, const void* value, int num) { Graphics_SetUniform(handle.idx, value, num); }
+RFAPI void Graphics_SetUniform(uint16_t handle, const void* value, int num = 1);
+inline void Graphics_SetUniform(bgfx::UniformHandle handle, const void* value, int num = 1) { Graphics_SetUniform(handle.idx, value, num); }
 RFAPI void Graphics_SetTexture(uint16_t sampler, int unit, uint16_t texture, uint32_t flags = UINT32_MAX);
 inline void Graphics_SetTexture(bgfx::UniformHandle sampler, int unit, bgfx::TextureHandle texture, uint32_t flags = UINT32_MAX) { Graphics_SetTexture(sampler.idx, unit, texture.idx, flags); }
 RFAPI void Graphics_SetComputeTexture(int stage, uint16_t texture, int mip, bgfx::Access::Enum access);

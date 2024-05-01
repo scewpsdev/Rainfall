@@ -16,7 +16,9 @@ namespace Rainfall
 	{
 		public static GraphicsDevice graphics { get; private set; }
 
-		public static Matrix projection, view, pv;
+		static Vector3 cameraPosition;
+		static Quaternion cameraRotation;
+		public static Matrix pv;
 
 		public static Vector3 fogColor = new Vector3(1.0f);
 		public static float fogIntensity = 0.0f;
@@ -32,1441 +34,136 @@ namespace Rainfall
 		public static bool bloomEnabled = true;
 
 
-		public static void Init(GraphicsDevice graphics)
+		public static void Init(int width, int height, GraphicsDevice graphics)
 		{
 			Renderer.graphics = graphics;
+
+			Renderer3D_Init(width, height);
 
 			GUI.Init(graphics);
 		}
 
-		public static void DrawModel(Model model, Matrix transform, Animator animator = null)
+		public static void Resize(int width, int height)
 		{
-
-			models.Add(new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = animator });
+			Renderer3D_Resize(width, height);
 		}
 
-		public static void DrawSubModel(Model model, int meshID, Matrix transform)
+		public static void Terminate()
 		{
-			Debug.Assert(meshID < model.meshCount);
-			models.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform });
+			Renderer3D_Terminate();
+		}
+
+		public static unsafe void DrawMesh(MeshData* mesh, Material material, Matrix transform, Animator animator = null)
+		{
+			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero);
+		}
+
+		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null)
+		{
+			MeshData* mesh = model.getMeshData(meshID);
+			IntPtr material = mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : IntPtr.Zero;
+			Renderer3D_DrawMesh(mesh, transform, material, animator != null ? animator.handle : IntPtr.Zero);
+		}
+
+		public static unsafe void DrawModel(Model model, Matrix transform, Animator animator = null)
+		{
+			Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero);
 		}
 
 		public static void DrawModelStaticInstanced_(Model model, Matrix transform)
 		{
-			modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
-			/*
-			if (!modelsInstanced.TryGetValue(model, out List<ModelDrawCommand> drawList))
-			{
-				drawList = new List<ModelDrawCommand>();
-				modelsInstanced.Add(model, drawList);
-			}
-			drawList.Add(new ModelDrawCommand { model = model, meshID = -1, transform = transform, animator = null });
-			*/
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawSubModelStaticInstanced_(Model model, int meshID, Matrix transform)
 		{
-			modelsInstanced.Add(model, new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
-			/*
-			if (!modelsInstanced.TryGetValue(model, out List<ModelDrawCommand> drawList))
-			{
-				drawList = new List<ModelDrawCommand>();
-				modelsInstanced.Add(model, drawList);
-			}
-			drawList.Add(new ModelDrawCommand { model = model, meshID = meshID, transform = transform, animator = null });
-			*/
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawTerrain(Texture heightmap, Texture normalmap, Texture splatMap, Matrix transform, Texture diffuse0, Texture diffuse1, Texture diffuse2, Texture diffuse3)
 		{
-			terrains.Add(new TerrainDrawCommand { heightmap = heightmap, normalmap = normalmap, splatMap = splatMap, transform = transform, diffuse0 = diffuse0, diffuse1 = diffuse1, diffuse2 = diffuse2, diffuse3 = diffuse3 });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawLeaves(Model model, int meshID, Matrix transform)
 		{
-			foliage.Add(new LeaveDrawCommand { model = model, meshID = meshID, transform = transform });
-		}
-
-		public static void DrawLight(Vector3 position, Vector3 color, float radius)
-		{
-			lights.Add(new LightDrawCommand { position = position, radius = radius, color = color });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawLight(Vector3 position, Vector3 color)
 		{
-			float luma = Vector3.Dot(new Vector3(0.2126729f, 0.7151522f, 0.0721750f), color);
-			float radius = luma * 3.0f;
-			DrawLight(position, color, radius);
+			Renderer3D_DrawPointLight(position, color);
 		}
 
 		public static void DrawPointLight(PointLight light, Matrix transform)
 		{
-			if (light.shadowMap != null)
-				pointLights.Add(new PointLightDrawCommand { light = light, position = transform * light.offset });
-			else
-				lights.Add(new LightDrawCommand { position = transform * light.offset, radius = light.radius, color = light.color });
+			DrawLight(transform * light.offset, light.color);
 		}
 
 		public static void DrawDirectionalLight(DirectionalLight light)
 		{
-			directionalLights.Add(light);
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawReflectionProbe(ReflectionProbe reflectionProbe)
 		{
-			reflectionProbes.Add(new ReflectionProbeDrawCommand { reflectionProbe = reflectionProbe, position = reflectionProbe.position, size = reflectionProbe.size, origin = reflectionProbe.origin });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawSky(Cubemap cubemap, float intensity, Matrix transform)
 		{
-			skies.Add(new SkyDrawCommand { cubemap = cubemap, intensity = intensity, transform = transform });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawWater(Vector3 position, float size)
 		{
-			waterTiles.Add(new WaterDrawCommand { position = position, size = size, model = null });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawWater(Vector3 position, Model model)
 		{
-			waterTiles.Add(new WaterDrawCommand { position = position, size = 1.0f, model = model });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void DrawParticleSystem(ParticleSystem particleSystem)
 		{
-			if (particleSystem.particleIndices.Count > 0)
-			{
-				particleSystem.setCameraAxis(camera.rotation.forward);
-				(particleSystem.additive ? particleSystemsAdditive : particleSystems).Add(new ParticleSystemDrawCommand { particleSystem = particleSystem });
-			}
+			// TODO implement
 		}
 
-		public static void DrawGrassPatch(Terrain terrain, Vector2 position)
+		public static void DrawGrassPatch(/*Terrain terrain, Vector2 position*/)
 		{
-			grassPatches.Add(new GrassDrawCommand { position = position, terrain = terrain });
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void SetEnvironmentMap(Cubemap environmentMap, float intensity)
 		{
-			Renderer.environmentMap = environmentMap;
-			Renderer.environmentMapIntensity = intensity;
+			// not supported atm, dont use
+			Debug.Assert(false);
 		}
 
 		public static void Begin()
 		{
+			Renderer3D_Begin();
 		}
 
-		public static void SetCamera(Camera camera)
+		public static void SetCamera(Vector3 position, Quaternion rotation, Matrix projection)
 		{
-			Renderer.camera = camera;
+			cameraPosition = position;
+			cameraRotation = rotation;
 
-			Renderer.projection = camera.getProjectionMatrix();
-			Renderer.view = camera.getViewMatrix();
-			Renderer.pv = projection * view;
-		}
+			pv = projection * Matrix.CreateTransform(position, rotation).inverted;
 
-		static Matrix GetNodeTransform(Node node)
-		{
-			Matrix transform = node.transform;
-			Node parent = node.parent;
-			while (parent != null)
-			{
-				transform = parent.transform * transform;
-				parent = parent.parent;
-			}
-			return transform;
-		}
-
-		static void GetFrustumPlanes(Matrix matrix, Span<Vector4> planes)
-		{
-			// Left clipping plane
-			planes[0].x = matrix.m03 + matrix.m00;
-			planes[0].y = matrix.m13 + matrix.m10;
-			planes[0].z = matrix.m23 + matrix.m20;
-			planes[0].w = matrix.m33 + matrix.m30;
-			// Right clipping plane
-			planes[1].x = matrix.m03 - matrix.m00;
-			planes[1].y = matrix.m13 - matrix.m10;
-			planes[1].z = matrix.m23 - matrix.m20;
-			planes[1].w = matrix.m33 - matrix.m30;
-			// Bottom clipping plane
-			planes[2].x = matrix.m03 + matrix.m01;
-			planes[2].y = matrix.m13 + matrix.m11;
-			planes[2].z = matrix.m23 + matrix.m21;
-			planes[2].w = matrix.m33 + matrix.m31;
-			// Top clipping plane
-			planes[3].x = matrix.m03 - matrix.m01;
-			planes[3].y = matrix.m13 - matrix.m11;
-			planes[3].z = matrix.m23 - matrix.m21;
-			planes[3].w = matrix.m33 - matrix.m31;
-			// Near clipping plane
-			planes[4].x = matrix.m03 + matrix.m02;
-			planes[4].y = matrix.m13 + matrix.m12;
-			planes[4].z = matrix.m23 + matrix.m22;
-			planes[4].w = matrix.m33 + matrix.m32;
-			// Far clipping plane
-			planes[5].x = matrix.m03 - matrix.m02;
-			planes[5].y = matrix.m13 - matrix.m12;
-			planes[5].z = matrix.m23 - matrix.m22;
-			planes[5].w = matrix.m33 - matrix.m32;
-
-			for (int i = 0; i < 6; i++)
-			{
-				float sl = planes[i].x * planes[i].x + planes[i].y * planes[i].y + planes[i].z * planes[i].z;
-				float ll = MathF.Sqrt(sl);
-				float l = 1.0f / ll;
-				planes[i].x *= l;
-				planes[i].y *= l;
-				planes[i].z *= l;
-				planes[i].w *= l;
-			}
-		}
-
-		public static bool IsInFrustum(Vector3 p, float radius, Matrix transform, Matrix pv)
-		{
-			Span<Vector4> planes = stackalloc Vector4[16];
-			GetFrustumPlanes(pv, planes);
-
-			Vector4 boundingSpherePos = (transform * new Vector4(p, 1.0f));
-			float boundingSphereRadius = MathF.Sqrt(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * radius;
-
-			for (int i = 0; i < 6; i++)
-			{
-				float distance = boundingSpherePos.x * planes[i].x + boundingSpherePos.y * planes[i].y + boundingSpherePos.z * planes[i].z;
-				float l = MathF.Sqrt(planes[i].x * planes[i].x + planes[i].y * planes[i].y + planes[i].z * planes[i].z);
-				distance += planes[i].w / l;
-				if (distance + boundingSphereRadius < 0.0f)
-					return false;
-			}
-			return true;
-		}
-
-		static bool IsOccluded()
-		{
-			// TODO occlusion culling
-			return false;
-		}
-
-		static bool IsInRange(Vector3 p, float radius, Matrix meshTransform, float maxDistance)
-		{
-			Vector3 d = p + meshTransform.translation - camera.position;
-			float distanceSq = Vector3.Dot(d, d);
-			return distanceSq < maxDistance * maxDistance;
-		}
-
-		static void SubmitMesh(Model model, int meshID, Animator animator, Shader shader, Shader animShader, Matrix transform, Matrix pv)
-		{
-			MeshData meshData = model.getMeshData(meshID).Value;
-			Matrix meshTransform = transform;
-			if (meshData.nodeID != -1)
-				meshTransform *= GetNodeTransform(model.skeleton.getNode(meshData.nodeID));
-			bool isAnimated = meshData.hasSkeleton && animator != null && animShader != null;
-
-			if (IsInFrustum(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, pv))
-			{
-				if (!IsOccluded())
-				{
-					if (IsInRange(meshData.boundingSphere.center, meshData.boundingSphere.radius * (isAnimated ? 3.0f : 1.0f), meshTransform, model.maxDistance))
-					{
-						if (isAnimated)
-							model.drawMeshAnimated(graphics, meshID, animShader, animator, meshTransform);
-						else
-							model.drawMesh(graphics, meshID, shader, meshTransform);
-
-						meshRenderCounter++;
-					}
-					else
-					{
-						graphics.resetState(); // reset state so we can submit new draw call data
-						meshCulledCounter++;
-					}
-				}
-				else
-				{
-					graphics.resetState(); // reset state so we can submit new draw call data
-					meshCulledCounter++;
-				}
-			}
-			else
-			{
-				graphics.resetState(); // reset state so we can submit new draw call data
-				meshCulledCounter++;
-			}
-		}
-
-		static void RenderModels()
-		{
-			graphics.resetState();
-			graphics.setViewTransform(projection, view);
-
-			for (int i = 0; i < models.Count; i++)
-			{
-				Model model = models[i].model;
-				int meshID = models[i].meshID;
-				Animator animator = models[i].animator;
-				Matrix transform = models[i].transform;
-				CullState cullState = CullState.ClockWise;
-
-				if (meshID != -1)
-				{
-					graphics.setCullState(cullState);
-
-					SubmitMesh(model, meshID, animator, modelShader, modelAnimShader, transform, pv);
-				}
-				else
-				{
-					for (int j = 0; j < model.meshCount; j++)
-					{
-						graphics.setCullState(cullState);
-
-						SubmitMesh(model, j, animator, modelShader, modelAnimShader, transform, pv);
-					}
-				}
-			}
-		}
-
-		static int CountInstances(SortedList<Model, ModelDrawCommand> draws, int offset)
-		{
-			Model firstModel = draws.GetKeyAtIndex(offset);
-			for (int i = offset; i < draws.Count; i++)
-			{
-				if (draws.GetKeyAtIndex(i) != firstModel)
-					return i - offset;
-			}
-			return draws.Count - offset;
-		}
-
-		static void RenderModelsInstanced()
-		{
-			graphics.resetState();
-			graphics.setViewTransform(projection, view);
-
-			for (int i = 0; i < modelsInstanced.Count; i++)
-			{
-				ModelDrawCommand draw = modelsInstanced.GetValueAtIndex(i);
-				Model model = draw.model;
-
-				int instanceCount = CountInstances(modelsInstanced, i);
-				for (int j = 0; j < model.meshCount; j++)
-				{
-					graphics.createInstanceBuffer(instanceCount, 16 * sizeof(float), out InstanceBufferData instances);
-
-					int numDrawnInstances = 0;
-					for (int k = 0; k < instanceCount; k++)
-					{
-						draw = modelsInstanced.GetValueAtIndex(i + k);
-						if (draw.meshID != -1 && draw.meshID != j)
-							continue;
-
-						BoundingSphere boundingSphere = model.boundingSphere;
-						if (numDrawnInstances < instanceTransformBuffer.Length)
-						{
-							Matrix transform = draw.transform;
-							// TODO fix model duplication glitch with frustum culling
-							//if (IntersectsFrustum(new Vector3(boundingSphere.xcenter, boundingSphere.ycenter, boundingSphere.zcenter), boundingSphere.radius, transform, pv))
-							instanceTransformBuffer[numDrawnInstances++] = transform;
-						}
-						else
-						{
-							Console.WriteLine("Overflowing instance transform buffer of size " + instanceTransformBuffer.Length);
-							break;
-						}
-					}
-
-					instances.write(instanceTransformBuffer);
-
-
-					graphics.setCullState(CullState.ClockWise);
-
-					graphics.setInstanceBuffer(instances, 0, numDrawnInstances);
-
-					model.drawMesh(graphics, j, meshInstancedShader, Matrix.Identity);
-					meshRenderCounter += numDrawnInstances;
-					meshCulledCounter += instanceCount - numDrawnInstances;
-				}
-				i += instanceCount - 1;
-			}
-		}
-
-		static void RenderTerrains()
-		{
-			graphics.resetState();
-			graphics.setViewTransform(projection, view);
-
-			// TODO frustum culling
-			for (int i = 0; i < terrains.Count; i++)
-			{
-				Matrix transform = terrains[i].transform;
-				Vector3 center = transform.translation + 0.5f * new Vector3(TERRAIN_SIZE, 0.0f, TERRAIN_SIZE);
-				float distance = Vector3.Distance(center, camera.position);
-				int lod = distance < TERRAIN_SIZE ? 0 : distance < 2 * TERRAIN_SIZE ? 1 : distance < 4 * TERRAIN_SIZE ? 2 : 3;
-
-				graphics.setCullState(CullState.ClockWise);
-
-				graphics.setTexture(terrainShader.getUniform("s_heightMap", UniformType.Sampler), 0, terrains[i].heightmap);
-				graphics.setTexture(terrainShader.getUniform("s_normalMap", UniformType.Sampler), 1, terrains[i].normalmap);
-				graphics.setUniform(terrainShader.getUniform("u_terrainScale", UniformType.Vector4), new Vector4(TERRAIN_SIZE, 1.0f, TERRAIN_SIZE, 0.0f));
-
-				graphics.setTexture(terrainShader.getUniform("s_splatMap", UniformType.Sampler), 2, terrains[i].splatMap);
-
-				graphics.setTexture(terrainShader, "s_diffuse0", 3, terrains[i].diffuse0);
-				graphics.setUniform(terrainShader, "u_materialInfo0", new Vector4(terrains[i].diffuse0 != null ? 1.0f : 0.0f, 0.0f, 0.0f, 0.25f));
-
-				graphics.setTexture(terrainShader, "s_diffuse1", 6, terrains[i].diffuse1);
-				graphics.setUniform(terrainShader, "u_materialInfo1", new Vector4(terrains[i].diffuse1 != null ? 1.0f : 0.0f, 0.0f, 0.0f, 0.25f));
-
-				graphics.setTexture(terrainShader, "s_diffuse2", 9, terrains[i].diffuse2);
-				graphics.setUniform(terrainShader, "u_materialInfo2", new Vector4(terrains[i].diffuse2 != null ? 1.0f : 0.0f, 0.0f, 0.0f, 0.25f));
-
-				graphics.setTexture(terrainShader, "s_diffuse3", 12, terrains[i].diffuse3);
-				graphics.setUniform(terrainShader, "u_materialInfo3", new Vector4(terrains[i].diffuse3 != null ? 1.0f : 0.0f, 0.0f, 0.0f, 0.25f));
-
-				graphics.setVertexBuffer(terrainMeshes[lod]);
-				graphics.setIndexBuffer(terrainMeshesIndices[lod]);
-
-				graphics.setTransform(transform);
-
-				graphics.draw(terrainShader);
-
-				meshRenderCounter++;
-			}
-		}
-
-		static void RenderFoliage()
-		{
-			graphics.resetState();
-
-			graphics.setViewTransform(projection, view);
-
-			graphics.setCullState(CullState.ClockWise);
-
-			graphics.setUniform(foliageShader.getUniform("u_animationData", UniformType.Vector4), new Vector4(Time.currentTime / 1e9f, 0.0f, 0.0f, 0.0f));
-
-			// TODO frustum culling
-			for (int i = 0; i < foliage.Count; i++)
-			{
-				Model model = foliage[i].model;
-				int meshID = foliage[i].meshID;
-				Matrix transform = foliage[i].transform;
-				model.drawMesh(graphics, meshID, foliageShader, transform);
-			}
-		}
-
-		static void RenderGrass()
-		{
-			if (grassPatches.Count > 0)
-			{
-				// TODO remove duplicate allocation
-				graphics.createInstanceBuffer(NUM_GRASS_BLADES, 16, out InstanceBufferData grassInstances);
-				grassInstances.write(grassData);
-
-				for (int i = 0; i < grassPatches.Count; i++)
-				{
-					graphics.resetState();
-
-					graphics.setBlendState(BlendState.Default);
-					graphics.setCullState(CullState.None);
-
-					graphics.setViewTransform(projection, view);
-
-					graphics.setTransform(Matrix.CreateTranslation(grassPatches[i].position.x, 0.0f, grassPatches[i].position.y));
-
-					graphics.setUniform(grassShader.getUniform("u_animationData", UniformType.Vector4), new Vector4(grassPatches[i].position - grassPatches[i].terrain.position.xz, grassPatches[i].terrain.size, Time.currentTime / 1e9f));
-
-					graphics.setTexture(grassShader.getUniform("s_heightmap", UniformType.Sampler), 0, grassPatches[i].terrain.heightmap);
-					graphics.setTexture(grassShader.getUniform("s_normalmap", UniformType.Sampler), 1, grassPatches[i].terrain.normalmap);
-					graphics.setTexture(grassShader.getUniform("s_splatMap", UniformType.Sampler), 2, grassPatches[i].terrain.splatMap);
-					//graphics.setTexture(grassShader.getUniform("s_perlinTexture", UniformType.Sampler), 0, perlinTexture);
-
-					graphics.setVertexBuffer(grassBlade);
-					graphics.setIndexBuffer(grassIndices);
-
-					//float distanceSq = (grassPatches[i].position + new Vector2(GrassPatch.TILE_SIZE) * 0.5f - camera.position.xz).lengthSquared;
-					//int lod = distanceSq < GrassPatch.TILE_SIZE * GrassPatch.TILE_SIZE + GrassPatch.TILE_SIZE * GrassPatch.TILE_SIZE ? 0 :
-					//	distanceSq < 20 * 20 + 20 * 20 ? 1 : 2;
-					//lod = 0;
-					//int numGrassBlades = GrassPatch.NUM_GRASS_BLADES / (int)Math.Pow(4, lod);
-					graphics.setInstanceBuffer(grassInstances);
-
-					graphics.draw(grassShader);
-				}
-			}
-		}
-
-		static void GeometryPass()
-		{
-			graphics.setPass((int)RenderPass.Geometry);
-			graphics.setRenderTarget(gbuffer);
-
-			models.Sort((ModelDrawCommand a, ModelDrawCommand b) =>
-			{
-				float d1 = (a.transform.translation - camera.position).lengthSquared;
-				float d2 = (b.transform.translation - camera.position).lengthSquared;
-				return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
-			});
-
-			RenderModels();
-			RenderModelsInstanced();
-			//RenderTerrains();
-			//RenderFoliage();
-			//RenderGrass();
-		}
-
-		static void UpdateDirectionalShadows()
-		{
-			if (directionalLights.Count > 0)
-			{
-				if (!directionalLights[0].shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
-					return;
-				directionalLights[0].shadowMap.needsUpdate = false;
-
-				DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
-
-				shadowMap.calculateCascadeTransforms(camera.position, camera.rotation, camera.fov, Display.aspectRatio);
-
-				for (int i = 0; i < shadowMap.renderTargets.Length; i++)
-				{
-					graphics.resetState();
-					graphics.setPass((int)RenderPass.Shadow0 + i);
-
-					graphics.setRenderTarget(shadowMap.renderTargets[i]);
-
-					Matrix cascadePV = shadowMap.cascadeProjections[i] * shadowMap.cascadeViews[i];
-					graphics.setViewTransform(shadowMap.cascadeProjections[i], shadowMap.cascadeViews[i]);
-
-					for (int j = 0; j < models.Count; j++)
-					{
-						Model model = models[j].model;
-						if (!model.isStatic)
-							continue;
-
-						Animator animator = models[j].animator;
-						Matrix transform = models[j].transform;
-						//graphics.drawModel(model, modelDepthShader, modelAnimDepthShader, animator, transform);
-
-						for (int k = 0; k < models[j].model.meshCount; k++)
-						{
-							graphics.setCullState(CullState.None);
-
-							SubmitMesh(model, k, animator, modelDepthShader, modelAnimDepthShader, transform, cascadePV);
-						}
-					}
-
-
-					// TODO frustum culling
-					for (int j = 0; j < foliage.Count; j++)
-					{
-						Model model = foliage[j].model;
-						int meshID = foliage[j].meshID;
-						Matrix transform = foliage[j].transform;
-						// TODO use depth shader
-
-						graphics.setCullState(CullState.None);
-
-						graphics.setUniform(foliageShader.getUniform("u_animationData", UniformType.Vector4), new Vector4(Time.currentTime / 1e9f, 0.0f, 0.0f, 0.0f));
-
-						model.drawMesh(graphics, meshID, foliageShader, transform);
-					}
-				}
-			}
-		}
-
-		static void UpdatePointShadows()
-		{
-			int numUpdatedPointShadows = 0;
-			for (int h = 0; h < pointLights.Count && numUpdatedPointShadows < MAX_POINT_SHADOWS; h++)
-			{
-				if (!pointLights[h].light.shadowMap.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
-					continue;
-				pointLights[h].light.shadowMap.needsUpdate = false;
-
-				PointShadowMap shadowMap = pointLights[h].light.shadowMap;
-
-				for (int i = 0; i < shadowMap.renderTargets.Length; i++)
-				{
-					graphics.resetState();
-					graphics.setPass((int)RenderPass.PointShadow + numUpdatedPointShadows * 6 + i);
-
-					graphics.setRenderTarget(shadowMap.renderTargets[i]);
-
-					Matrix shadowMapProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, shadowMap.nearPlane, 30.0f);
-					Matrix shadowMapView = cubemapFaceRotations[i] * Matrix.CreateTranslation(-pointLights[h].position - pointLights[h].light.offset);
-					Matrix reflectionProbePV = shadowMapProjection * shadowMapView;
-					graphics.setViewTransform(shadowMapProjection, shadowMapView);
-
-					for (int j = 0; j < models.Count; j++)
-					{
-						Model model = models[j].model;
-						if (!model.isStatic)
-							continue;
-
-						Animator animator = models[j].animator;
-						Matrix transform = models[j].transform;
-						//graphics.drawModel(model, modelDepthShader, modelAnimDepthShader, animator, transform);
-
-						for (int k = 0; k < models[j].model.meshCount; k++)
-						{
-							graphics.setCullState(CullState.None);
-
-							SubmitMesh(model, k, animator, modelDepthShader, modelAnimDepthShader, transform, reflectionProbePV);
-						}
-					}
-				}
-
-				numUpdatedPointShadows++;
-			}
-		}
-
-		static void ShadowPass()
-		{
-			UpdateDirectionalShadows();
-			UpdatePointShadows();
-		}
-
-		static void ReflectionProbePass()
-		{
-			Span<Vector4> lightPositionBuffer = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-			Span<Vector4> lightColorBuffer = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-
-			for (int i = 0; i < reflectionProbes.Count; i++)
-			{
-				if (!reflectionProbes[i].reflectionProbe.needsUpdate && !Input.IsKeyPressed(KeyCode.F5))
-					continue;
-				reflectionProbes[i].reflectionProbe.needsUpdate = false;
-
-				for (int j = 0; j < 6; j++)
-				{
-					graphics.resetState();
-					graphics.setPass((int)RenderPass.ReflectionProbe + i * 6 + j);
-
-					graphics.setRenderTarget(reflectionProbes[i].reflectionProbe.renderTargets[j], 0xff00ffff);
-
-					Matrix reflectionProbeProjection = Matrix.CreatePerspective(MathF.PI * 0.5f, 1.0f, 0.1f, 100.0f);
-					Matrix reflectionProbeView = cubemapFaceRotations[j] * Matrix.CreateTranslation(-reflectionProbes[i].origin);
-					Matrix reflectionProbePV = reflectionProbeProjection * reflectionProbeView;
-					graphics.setViewTransform(reflectionProbeProjection, reflectionProbeView);
-
-					{
-						graphics.setUniform(modelSimpleShader, "u_cameraPosition", new Vector4(reflectionProbes[i].origin, 0.0f));
-
-						for (int k = 0; k < models.Count; k++)
-						{
-							if (!models[k].model.isStatic)
-								continue;
-
-							for (int l = 0; l < models[k].model.meshCount; l++)
-							{
-								graphics.setCullState(CullState.None);
-
-								if (directionalLights.Count > 0)
-								{
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].direction, 0.0f));
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].color, 0.0f));
-
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-									DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
-									int lastCascade = shadowMap.renderTargets.Length - 1;
-									RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
-									Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
-									graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, renderTarget.getAttachmentTexture(0));
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), toLightSpace);
-								}
-								else
-								{
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
-
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-									graphics.setTexture(modelSimpleShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, emptyShadowTexture);
-									graphics.setUniform(modelSimpleShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
-								}
-
-
-								for (int m = 0; m < MAX_LIGHTS_PER_PASS; m++)
-								{
-									int lightID = m;
-									lightPositionBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].position, lights[lightID].radius) : new Vector4(0.0f);
-									lightColorBuffer[j] = lightID < lights.Count ? new Vector4(lights[lightID].color, 0.0f) : new Vector4(0.0f);
-								}
-								graphics.setUniform(modelSimpleShader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
-								graphics.setUniform(modelSimpleShader.getUniform("u_lightColor", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightColorBuffer);
-
-								//graphics.drawSubModel(models[k].model, l, modelSimpleShader, models[k].transform);
-								SubmitMesh(models[k].model, l, null, modelSimpleShader, null, models[k].transform, reflectionProbePV);
-							}
-						}
-					}
-
-					for (int k = 0; k < skies.Count; k++)
-					{
-						graphics.setCullState(CullState.None);
-
-						graphics.setVertexBuffer(skydome);
-						graphics.setIndexBuffer(skydomeIdx);
-
-						graphics.setTransform(skies[k].transform);
-
-						graphics.setViewTransform(reflectionProbeProjection, reflectionProbeView);
-
-						Vector4 skyData = new Vector4(skies[k].intensity, 0.0f, 0.0f, 0.0f);
-						graphics.setUniform(skyShader.getUniform("u_skyData", UniformType.Vector4), skyData);
-
-						graphics.setTexture(skyShader.getUniform("s_skyTexture", UniformType.Sampler), 0, skies[k].cubemap);
-
-						graphics.draw(skyShader);
-					}
-				}
-			}
-		}
-
-		static void AmbientOcclusionPass()
-		{
-			if (!ambientOcclusionEnabled)
-				return;
-
-			// AO
-			{
-				graphics.resetState();
-				graphics.setPass((int)RenderPass.AmbientOcclusion);
-
-				graphics.setRenderTarget(ssaoRenderTarget);
-
-				graphics.setTexture(ssaoShader.getUniform("s_depthBuffer", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(4));
-				graphics.setTexture(ssaoShader.getUniform("s_normalsBuffer", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-
-				//graphics.setUniform(ssaoShader.getUniform("u_ssaoKernel", UniformType.Vector4, SSAO_KERNEL_SIZE), ssaoKernel, SSAO_KERNEL_SIZE);
-				graphics.setTexture(ssaoShader.getUniform("s_ssaoNoise", UniformType.Sampler), 2, ssaoNoiseTexture);
-
-				Vector4 cameraFrustum = new Vector4(camera.near, camera.far, 0.0f, 0.0f);
-				Matrix pv = projection * view;
-				Matrix pvInv = pv.inverted;
-				Matrix viewInv = view.inverted;
-				Matrix projectionInv = projection.inverted;
-
-				graphics.setUniform(ssaoShader.getUniform("u_cameraFrustum", UniformType.Vector4), cameraFrustum);
-				graphics.setUniform(ssaoShader.getUniform("u_viewMatrix", UniformType.Matrix4), view);
-				graphics.setUniform(ssaoShader.getUniform("u_viewInv", UniformType.Matrix4), viewInv);
-				graphics.setUniform(ssaoShader.getUniform("u_projectionView", UniformType.Matrix4), pv);
-				graphics.setUniform(ssaoShader.getUniform("u_projectionInv", UniformType.Matrix4), projectionInv);
-				graphics.setUniform(ssaoShader.getUniform("u_projectionViewInv", UniformType.Matrix4), pvInv);
-
-				graphics.setVertexBuffer(quad);
-
-				graphics.draw(ssaoShader);
-			}
-
-			// Blur
-			{
-				graphics.resetState();
-				graphics.setPass((int)RenderPass.AmbientOcclusionBlur);
-
-				graphics.setRenderTarget(ssaoBlurRenderTarget);
-
-				graphics.setTexture(ssaoBlurShader.getUniform("s_depthBuffer", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(4));
-				graphics.setTexture(ssaoBlurShader.getUniform("s_ssao", UniformType.Sampler), 1, ssaoRenderTarget.getAttachmentTexture(0));
-
-				Vector4 cameraFrustum = new Vector4(camera.near, camera.far, 0.0f, 0.0f);
-				graphics.setUniform(ssaoBlurShader.getUniform("u_cameraFrustum", UniformType.Vector4), cameraFrustum);
-
-				graphics.setVertexBuffer(quad);
-
-				graphics.draw(ssaoBlurShader);
-			}
-		}
-
-		static void RenderEmissive()
-		{
-			Shader shader = deferredEmissiveShader;
-
-			graphics.resetState();
-
-			graphics.setBlendState(BlendState.Additive);
-			graphics.setDepthTest(DepthTest.None);
-			graphics.setCullState(CullState.ClockWise);
-
-			graphics.setVertexBuffer(quad);
-
-			graphics.setTexture(shader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-			graphics.setTexture(shader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
-
-			graphics.draw(shader);
-		}
-
-		static void RenderPointLights()
-		{
-			Span<Vector4> lightPositionBuffer = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-			Span<Vector4> lightColorBuffer = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-
-			Shader shader = simplifiedLighting ? deferredPointSimpleShader : deferredPointShader;
-
-			int maxLights = 32;
-			for (int i = 0; i < Math.Min(lights.Count, maxLights); i++)
-			{
-				graphics.resetState();
-
-				graphics.setBlendState(BlendState.Additive);
-				graphics.setDepthTest(DepthTest.None);
-				graphics.setCullState(CullState.ClockWise);
-
-				graphics.setVertexBuffer(quad);
-
-				graphics.setTexture(shader.getUniform("s_gbuffer0", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
-				graphics.setTexture(shader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-				graphics.setTexture(shader.getUniform("s_gbuffer2", UniformType.Sampler), 2, gbuffer.getAttachmentTexture(2));
-				graphics.setTexture(shader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
-
-				graphics.setTexture(shader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
-
-				int numRemainingLights = Math.Min(lights.Count - i, MAX_LIGHTS_PER_PASS);
-				for (int j = 0; j < numRemainingLights; j++)
-				{
-					int lightID = i + j;
-					lightPositionBuffer[j] = new Vector4(lights[lightID].position, lights[lightID].radius);
-					lightColorBuffer[j] = new Vector4(lights[lightID].color, 0.0f);
-				}
-				i += numRemainingLights;
-
-				graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
-				graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightColorBuffer);
-
-				graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, numRemainingLights));
-
-				graphics.draw(shader);
-			}
-
-			Span<Vector4> pointLightPositionBuffer = stackalloc Vector4[MAX_POINT_SHADOWS];
-			Span<Vector4> pointLightColorBuffer = stackalloc Vector4[MAX_POINT_SHADOWS];
-			Span<float> pointLightShadowNears = stackalloc float[MAX_POINT_SHADOWS];
-			Span<byte> uniformName = stackalloc byte[32];
-			if (pointLights.Count > 0)
-			{
-				shader = simplifiedLighting ? deferredPointShadowSimpleShader : deferredPointShadowShader;
-
-				graphics.resetState();
-
-				graphics.setBlendState(BlendState.Additive);
-				graphics.setDepthTest(DepthTest.None);
-				graphics.setCullState(CullState.ClockWise);
-
-				graphics.setVertexBuffer(quad);
-
-				graphics.setTexture(shader.getUniform("s_gbuffer0", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
-				graphics.setTexture(shader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-				graphics.setTexture(shader.getUniform("s_gbuffer2", UniformType.Sampler), 2, gbuffer.getAttachmentTexture(2));
-				graphics.setTexture(shader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
-
-				graphics.setTexture(shader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
-
-				graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, 0.0f));
-
-				int numRemainingLights = Math.Min(pointLights.Count, MAX_POINT_SHADOWS);
-				for (int j = 0; j < numRemainingLights; j++)
-				{
-					pointLightPositionBuffer[j] = new Vector4(pointLights[j].position, pointLights[j].light.radius);
-					pointLightColorBuffer[j] = new Vector4(pointLights[j].light.color, 0.0f);
-					pointLightShadowNears[j] = pointLights[j].light.shadowMap.nearPlane;
-
-					StringUtils.WriteString(uniformName, "s_lightShadowMap");
-					StringUtils.AppendInteger(uniformName, j);
-					graphics.setTexture(shader, uniformName, 5 + j, pointLights[j].light.shadowMap.cubemap);
-				}
-
-				graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_POINT_SHADOWS), pointLightPositionBuffer);
-				graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, MAX_POINT_SHADOWS), pointLightColorBuffer);
-
-				for (int i = 0; i < MAX_POINT_SHADOWS / 4; i++)
-				{
-					StringUtils.WriteString(uniformName, "u_lightShadowMapNear");
-					StringUtils.AppendInteger(uniformName, i);
-					graphics.setUniform(shader, uniformName, new Vector4(pointLightShadowNears[i * 4 + 0], pointLightShadowNears[i * 4 + 1], pointLightShadowNears[i * 4 + 2], pointLightShadowNears[i * 4 + 3]));
-				}
-
-				graphics.draw(shader);
-			}
-		}
-
-		static void RenderDirectionalLights()
-		{
-			Span<byte> directionalLightShadowMapUniform = stackalloc byte[32];
-			Span<byte> directionalLightToLightSpaceUniform = stackalloc byte[32];
-
-
-			for (int i = 0; i < directionalLights.Count; i++)
-			{
-				graphics.resetState();
-
-				graphics.setBlendState(BlendState.Additive);
-				graphics.setDepthTest(DepthTest.None);
-				graphics.setCullState(CullState.ClockWise);
-
-				graphics.setVertexBuffer(quad);
-
-				graphics.setTexture(deferredDirectionalShader.getUniform("s_gbuffer0", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
-				graphics.setTexture(deferredDirectionalShader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-				graphics.setTexture(deferredDirectionalShader.getUniform("s_gbuffer2", UniformType.Sampler), 2, gbuffer.getAttachmentTexture(2));
-				graphics.setTexture(deferredDirectionalShader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
-
-				graphics.setTexture(deferredDirectionalShader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
-
-				graphics.setUniform(deferredDirectionalShader, "u_cameraPosition", new Vector4(camera.position, (Time.currentTime / 5 % 1000000000) / 1e9f));
-
-				graphics.setUniform(deferredDirectionalShader, "u_directionalLightDirection", new Vector4(directionalLights[i].direction, 0.0f));
-				graphics.setUniform(deferredDirectionalShader, "u_directionalLightColor", new Vector4(directionalLights[i].color, 0.0f));
-
-				graphics.setUniform(deferredDirectionalShader, "u_directionalLightCascadeFarPlanes", new Vector4(DirectionalShadowMap.FAR_PLANES[0], DirectionalShadowMap.FAR_PLANES[1], DirectionalShadowMap.FAR_PLANES[2], 0.0f));
-
-				DirectionalShadowMap shadowMap = directionalLights[i].shadowMap;
-				for (int j = 0; j < shadowMap.renderTargets.Length; j++)
-				{
-					RenderTarget renderTarget = shadowMap.renderTargets[j];
-					Matrix toLightSpace = shadowMap.cascadeProjections[j] * shadowMap.cascadeViews[j];
-
-					StringUtils.WriteStringDigit(directionalLightShadowMapUniform, "s_directionalLightShadowMap", j);
-					StringUtils.WriteStringDigit(directionalLightToLightSpaceUniform, "u_directionalLightToLightSpace", j);
-
-					graphics.setTexture(deferredDirectionalShader, directionalLightShadowMapUniform, 10 + j, renderTarget.getAttachmentTexture(0));
-					graphics.setUniform(deferredDirectionalShader, directionalLightToLightSpaceUniform, toLightSpace);
-				}
-
-				graphics.draw(deferredDirectionalShader);
-			}
-		}
-
-		static void RenderEnvironmentLights()
-		{
-			Span<byte> reflectionProbeUniform = stackalloc byte[32];
-			Span<byte> reflectionProbePositionUniform = stackalloc byte[32];
-			Span<byte> reflectionProbeSizeUniform = stackalloc byte[32];
-			Span<byte> reflectionProbeOriginUniform = stackalloc byte[32];
-
-
-			Shader shader = simplifiedLighting ? deferredEnvironmentSimpleShader : deferredEnvironmentShader;
-
-			graphics.resetState();
-
-			graphics.setBlendState(BlendState.Additive);
-			graphics.setDepthTest(DepthTest.None);
-			graphics.setCullState(CullState.ClockWise);
-
-			graphics.setVertexBuffer(quad);
-
-			graphics.setTexture(shader.getUniform("s_gbuffer0", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
-			graphics.setTexture(shader.getUniform("s_gbuffer1", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-			graphics.setTexture(shader.getUniform("s_gbuffer2", UniformType.Sampler), 2, gbuffer.getAttachmentTexture(2));
-			graphics.setTexture(shader.getUniform("s_gbuffer3", UniformType.Sampler), 3, gbuffer.getAttachmentTexture(3));
-
-			graphics.setTexture(shader.getUniform("s_ambientOcclusion", UniformType.Sampler), 4, ssaoBlurRenderTarget.getAttachmentTexture(0));
-
-			graphics.setUniform(shader, "u_cameraPosition", new Vector4(camera.position, 0.0f));
-
-
-			Vector4 environmentMapIntensities = new Vector4(environmentMapIntensity, 0.0f, 0.0f, 0.0f);
-			graphics.setUniform(shader.getUniform("u_environmentMapIntensities", UniformType.Vector4), environmentMapIntensities);
-			if (environmentMap != null)
-			{
-				graphics.setTexture(shader.getUniform("s_environmentMap", UniformType.Sampler), 5, environmentMap);
-			}
-			else
-			{
-				graphics.setTexture(shader.getUniform("s_environmentMap", UniformType.Sampler), 5, emptyCubemap);
-			}
-
-
-			reflectionProbes.Sort((ReflectionProbeDrawCommand cmd0, ReflectionProbeDrawCommand cmd1) =>
-			{
-				float distance0 = (cmd0.position - camera.position).length;
-				float distance1 = (cmd1.position - camera.position).length;
-				return distance0 < distance1 ? -1 : distance0 > distance1 ? 1 : 0;
-			});
-
-			for (int j = 0; j < MAX_REFLECTION_PROBES; j++)
-			{
-				StringUtils.WriteStringDigit(reflectionProbeUniform, "s_reflectionProbe", j);
-				StringUtils.WriteStringDigit(reflectionProbePositionUniform, "u_reflectionProbePosition", j);
-				StringUtils.WriteStringDigit(reflectionProbeSizeUniform, "u_reflectionProbeSize", j);
-				StringUtils.WriteStringDigit(reflectionProbeOriginUniform, "u_reflectionProbeOrigin", j);
-
-				if (j < reflectionProbes.Count)
-				{
-					graphics.setTexture(shader, reflectionProbeUniform, 6 + j, reflectionProbes[j].reflectionProbe.cubemap);
-					graphics.setUniform(shader, reflectionProbePositionUniform, new Vector4(reflectionProbes[j].position, 0.0f));
-					graphics.setUniform(shader, reflectionProbeSizeUniform, new Vector4(reflectionProbes[j].size, 0.0f));
-					graphics.setUniform(shader, reflectionProbeOriginUniform, new Vector4(reflectionProbes[j].origin, 0.0f));
-				}
-				else
-				{
-					graphics.setTexture(shader, reflectionProbeUniform, 6 + j, emptyCubemap);
-					graphics.setUniform(shader, reflectionProbePositionUniform, new Vector4(0.0f, -100000.0f, 0.0f, 0.0f));
-					graphics.setUniform(shader, reflectionProbeSizeUniform, Vector4.One);
-					graphics.setUniform(shader, reflectionProbeOriginUniform, Vector4.Zero);
-				}
-			}
-
-			graphics.draw(shader);
-		}
-
-		static void DeferredPass()
-		{
-			graphics.setPass((int)RenderPass.Deferred);
-			graphics.setRenderTarget(forward);
-
-			RenderEmissive();
-			RenderPointLights();
-			RenderDirectionalLights();
-			RenderEnvironmentLights();
-		}
-
-		static void RenderSky()
-		{
-			graphics.resetState();
-
-			graphics.setBlendState(BlendState.Alpha);
-
-			graphics.setViewTransform(projection, view);
-
-			for (int i = 0; i < skies.Count; i++)
-			{
-				graphics.setVertexBuffer(skydome);
-				graphics.setIndexBuffer(skydomeIdx);
-
-				graphics.setTransform(skies[i].transform);
-
-				Vector4 skyData = new Vector4(skies[i].intensity, 0.0f, 0.0f, 0.0f);
-				graphics.setUniform(skyShader.getUniform("u_skyData", UniformType.Vector4), skyData);
-
-				graphics.setTexture(skyShader.getUniform("s_skyTexture", UniformType.Sampler), 0, skies[i].cubemap);
-
-				graphics.draw(skyShader);
-			}
-		}
-
-		[StructLayout(LayoutKind.Sequential)]
-		struct ParticleInstanceData
-		{
-			public Vector4 positionRotation;
-			public Vector4 color;
-			public Vector4 sizeAnimation;
-		}
-
-		static int ParticleSystemDepthComparator(ParticleSystemDrawCommand particleSystem1, ParticleSystemDrawCommand particleSystem2)
-		{
-			Vector3 cameraPosition = camera.position;
-			Vector3 cameraAxis = camera.rotation.forward;
-			float d1 = Vector3.Dot(particleSystem1.particleSystem.transform * particleSystem1.particleSystem.spawnOffset - cameraPosition, cameraAxis);
-			float d2 = Vector3.Dot(particleSystem2.particleSystem.transform * particleSystem2.particleSystem.spawnOffset - cameraPosition, cameraAxis);
-
-			return d1 < d2 ? 1 : d1 > d2 ? -1 : 0;
-		}
-
-		static void RenderParticles()
-		{
-			float particleRenderDistance = 20;
-			Matrix particleSystemPV = Matrix.CreatePerspective(camera.fov, Display.aspectRatio, camera.near, particleRenderDistance) * view;
-			for (int i = 0; i < particleSystems.Count; i++)
-			{
-				Vector3 center = particleSystems[i].particleSystem.boundingSphere.center;
-				float radius = particleSystems[i].particleSystem.boundingSphere.radius;
-				if (particleSystems[i].particleSystem.follow)
-				{
-					center = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset + center;
-					radius = particleSystems[i].particleSystem.transform.scale.x * radius;
-				}
-				if (!IsInFrustum(center, radius, particleSystems[i].particleSystem.transform, particleSystemPV))
-					particleSystems.RemoveAt(i--);
-			}
-			for (int i = 0; i < particleSystemsAdditive.Count; i++)
-			{
-				Vector3 center = particleSystemsAdditive[i].particleSystem.boundingSphere.center;
-				float radius = particleSystemsAdditive[i].particleSystem.boundingSphere.radius;
-				if (particleSystemsAdditive[i].particleSystem.follow)
-				{
-					center = particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset + center;
-					radius = particleSystemsAdditive[i].particleSystem.transform.scale.x * radius;
-				}
-				if (!IsInFrustum(center, radius, Matrix.Identity, particleSystemPV))
-					particleSystemsAdditive.RemoveAt(i--);
-			}
-
-			{
-				Span<Vector4> pointLightPositions = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-				Span<Vector4> pointLightColors = stackalloc Vector4[MAX_LIGHTS_PER_PASS];
-
-				graphics.resetState();
-
-				particleSystems.Sort(ParticleSystemDepthComparator);
-
-				int maxParticleSystems = 128;
-				Vector3 cameraPosition = camera.position;
-				Vector3 cameraAxis = camera.rotation.forward;
-				/*
-				float maxParticleDistance = 20.0f;
-				for (int i = 0; i < particleSystems.Count; i++)
-				{
-					Vector3 toParticles = particleSystems[i].particleSystem.transform * particleSystems[i].particleSystem.spawnOffset - cameraPosition;
-					float d = Vector3.Dot(toParticles, cameraAxis);
-					float l2 = Vector3.Dot(toParticles, toParticles);
-					if (d < 0.0f || l2 > maxParticleDistance * maxParticleDistance)
-					{
-						particleSystems.RemoveAt(i--);
-					}
-				}
-				*/
-				if (particleSystems.Count > maxParticleSystems)
-					particleSystems.RemoveRange(0, particleSystems.Count - maxParticleSystems);
-
-				graphics.setUniform(particleShader, "u_cameraAxisRight", new Vector4(camera.rotation.right, 1.0f));
-				graphics.setUniform(particleShader, "u_cameraAxisUp", new Vector4(camera.rotation.up, 1.0f));
-
-				foreach (ParticleSystemDrawCommand draw in particleSystems)
-				{
-					int numParticles = draw.particleSystem.particleIndices.Count;
-					graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
-
-					float scale = draw.particleSystem.transform.scale.x;
-
-					if (draw.particleSystem.textureAtlas != null)
-						graphics.setTexture(particleShader, "s_textureAtlas", 0, draw.particleSystem.textureAtlas, draw.particleSystem.linearFiltering ? 0 : (uint)SamplerFlags.Point);
-					graphics.setUniform(particleShader, "u_atlasSize", new Vector4(draw.particleSystem.atlasSize.x, draw.particleSystem.atlasSize.y, draw.particleSystem.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
-
-					for (int i = 0; i < numParticles; i++)
-					{
-						int particleID = draw.particleSystem.particleIndices[i];
-						Particle particle = draw.particleSystem.particles[particleID];
-						Debug.Assert(particle.active);
-
-						Vector3 position = particle.position;
-						float size = scale * particle.size;
-
-						if (draw.particleSystem.follow)
-							position = draw.particleSystem.transform * (draw.particleSystem.spawnOffset + particle.position);
-
-						unsafe
-						{
-							ParticleInstanceData* particleData = particleInstanceBuffer.getData<ParticleInstanceData>();
-							particleData[i].positionRotation.xyz = position;
-							particleData[i].positionRotation.w = particle.rotation;
-							particleData[i].color = particle.color;
-							particleData[i].sizeAnimation.x = size;
-							particleData[i].sizeAnimation.y = particle.animationFrame;
-						}
-					}
-
-					graphics.setBlendState(BlendState.Alpha);
-					graphics.setViewTransform(projection, view);
-
-					graphics.setInstanceBuffer(particleInstanceBuffer, 0, numParticles);
-					graphics.setVertexBuffer(particleVertexBuffer);
-					graphics.setIndexBuffer(particleIndexBuffer);
-
-					for (int j = 0; j < Math.Min(lights.Count, MAX_LIGHTS_PER_PASS); j++)
-					{
-						pointLightPositions[j] = new Vector4(lights[j].position, 1.0f);
-						pointLightColors[j] = new Vector4(lights[j].color, 1.0f);
-					}
-					graphics.setUniform(particleShader.getUniform("u_pointLight_position", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightPositions);
-					graphics.setUniform(particleShader.getUniform("u_pointLight_color", UniformType.Vector4, MAX_LIGHTS_PER_PASS), pointLightColors);
-					graphics.setUniform(particleShader, "u_lightInfo", new Vector4(lights.Count + 0.5f, draw.particleSystem.emissiveIntensity, 0.0f, 0.0f));
-
-
-					graphics.draw(particleShader);
-				}
-			}
-
-			{
-				graphics.resetState();
-
-				particleSystemsAdditive.Sort(ParticleSystemDepthComparator);
-
-				int maxParticleSystems = 32;
-				Vector3 cameraPosition = camera.position;
-				Vector3 cameraAxis = camera.rotation.forward;
-				/*
-				float maxParticleDistance = 20.0f;
-				for (int i = 0; i < particleSystemsAdditive.Count; i++)
-				{
-					Vector3 toParticles = (particleSystemsAdditive[i].particleSystem.transform * particleSystemsAdditive[i].particleSystem.spawnOffset) - cameraPosition;
-					float d = Vector3.Dot(toParticles, cameraAxis);
-					float l2 = Vector3.Dot(toParticles, toParticles);
-					if (d < 0.0f || l2 > maxParticleDistance * maxParticleDistance)
-					{
-						particleSystemsAdditive.RemoveAt(i--);
-					}
-				}
-				*/
-				if (particleSystemsAdditive.Count > maxParticleSystems)
-					particleSystemsAdditive.RemoveRange(0, particleSystemsAdditive.Count - maxParticleSystems);
-
-				graphics.setUniform(particleAdditiveShader, "u_cameraAxisRight", new Vector4(camera.rotation.right, 1.0f));
-				graphics.setUniform(particleAdditiveShader, "u_cameraAxisUp", new Vector4(camera.rotation.up, 1.0f));
-
-				foreach (ParticleSystemDrawCommand draw in particleSystemsAdditive)
-				{
-					int numParticles = draw.particleSystem.particleIndices.Count;
-					graphics.createInstanceBuffer(numParticles, 12 * sizeof(float), out InstanceBufferData particleInstanceBuffer);
-
-					float scale = draw.particleSystem.transform.scale.x;
-
-					if (draw.particleSystem.textureAtlas != null)
-						graphics.setTexture(particleAdditiveShader, "s_textureAtlas", 0, draw.particleSystem.textureAtlas, draw.particleSystem.linearFiltering ? 0 : (uint)SamplerFlags.Point);
-					graphics.setUniform(particleAdditiveShader, "u_atlasSize", new Vector4(draw.particleSystem.atlasSize.x, draw.particleSystem.atlasSize.y, draw.particleSystem.textureAtlas != null ? 1.0f : 0.0f, 0.0f));
-
-					for (int i = 0; i < numParticles; i++)
-					{
-						int particleID = draw.particleSystem.particleIndices[i];
-						Particle particle = draw.particleSystem.particles[particleID];
-						Debug.Assert(particle.active);
-
-						Vector3 position = particle.position;
-						float size = scale * particle.size;
-
-						if (draw.particleSystem.follow)
-							position = draw.particleSystem.transform * (draw.particleSystem.spawnOffset + particle.position);
-
-						unsafe
-						{
-							ParticleInstanceData* particleData = particleInstanceBuffer.getData<ParticleInstanceData>();
-							particleData[i].positionRotation.xyz = position;
-							particleData[i].positionRotation.w = particle.rotation;
-							particleData[i].color = particle.color;
-							particleData[i].sizeAnimation.x = size;
-							particleData[i].sizeAnimation.y = particle.animationFrame;
-						}
-					}
-
-					graphics.setBlendState(BlendState.Additive);
-					graphics.setViewTransform(projection, view);
-
-					graphics.setInstanceBuffer(particleInstanceBuffer, 0, numParticles);
-					graphics.setVertexBuffer(particleVertexBuffer);
-					graphics.setIndexBuffer(particleIndexBuffer);
-
-					graphics.draw(particleAdditiveShader);
-				}
-			}
-		}
-
-		static void SubmitWaterMesh(ushort vertexBuffer, ushort indexBuffer, Matrix transform)
-		{
-			graphics.setVertexBuffer(vertexBuffer);
-			graphics.setIndexBuffer(indexBuffer);
-
-			graphics.setTransform(transform);
-
-			graphics.setUniform(waterShader.getUniform("u_time", UniformType.Vector4), new Vector4(Time.currentTime / 1e9f, 0.0f, 0.0f, 0.0f));
-
-			graphics.setUniform(waterShader.getUniform("u_cameraPosition", UniformType.Vector4), new Vector4(camera.position, Time.currentTime / 1e9f));
-
-			if (directionalLights.Count > 0)
-			{
-				graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(directionalLights[0].direction, 0.0f));
-				graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(directionalLights[0].color, 0.0f));
-
-				graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-				DirectionalShadowMap shadowMap = directionalLights[0].shadowMap;
-				int lastCascade = shadowMap.renderTargets.Length - 1;
-				RenderTarget renderTarget = shadowMap.renderTargets[lastCascade];
-				Matrix toLightSpace = shadowMap.cascadeProjections[lastCascade] * shadowMap.cascadeViews[lastCascade];
-				graphics.setTexture(waterShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 5, renderTarget.getAttachmentTexture(0));
-				graphics.setUniform(waterShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), toLightSpace);
-			}
-			else
-			{
-				graphics.setUniform(waterShader.getUniform("u_directionalLightDirection", UniformType.Vector4), new Vector4(0.0f));
-				graphics.setUniform(waterShader.getUniform("u_directionalLightColor", UniformType.Vector4), new Vector4(0.0f));
-
-				graphics.setUniform(waterShader.getUniform("u_directionalLightFarPlane", UniformType.Vector4), new Vector4(DirectionalShadowMap.FAR_PLANES[2], 0.0f, 0.0f, 0.0f));
-
-				graphics.setTexture(waterShader.getUniform("s_directionalLightShadowMap", UniformType.Sampler), 0, emptyShadowTexture);
-				graphics.setUniform(waterShader.getUniform("u_directionalLightToLightSpace", UniformType.Matrix4), Matrix.Identity);
-			}
-
-			if (environmentMap != null)
-				graphics.setTexture(waterShader.getUniform("s_environmentMap", UniformType.Sampler), 1, environmentMap);
-			else
-				graphics.setTexture(waterShader.getUniform("s_environmentMap", UniformType.Sampler), 1, emptyCubemap);
-
-			graphics.draw(waterShader);
-		}
-
-		static void RenderWater()
-		{
-			graphics.resetState();
-
-			graphics.setViewTransform(projection, view);
-
-			for (int i = 0; i < waterTiles.Count; i++)
-			{
-				if (waterTiles[i].model != null)
-				{
-					for (int j = 0; j < waterTiles[i].model.meshCount; j++)
-					{
-						MeshData mesh = waterTiles[i].model.getMeshData(j).Value;
-						Matrix transform = Matrix.CreateTranslation(waterTiles[i].position) * GetNodeTransform(waterTiles[i].model.skeleton.getNode(mesh.nodeID));
-						if (IsInFrustum(new Vector3(mesh.boundingSphere.xcenter, mesh.boundingSphere.ycenter, mesh.boundingSphere.zcenter), mesh.boundingSphere.radius, transform, pv))
-						{
-							SubmitWaterMesh(mesh.vertexBufferID, mesh.indexBufferID, transform);
-
-							meshRenderCounter++;
-						}
-						else
-						{
-							// reset state so we can submit new draw call data
-							//graphics.resetState();
-
-							meshCulledCounter++;
-						}
-					}
-				}
-				else
-				{
-					Matrix transform = Matrix.CreateTranslation(waterTiles[i].position) * Matrix.CreateScale(waterTiles[i].size);
-					SubmitWaterMesh(waterTileVertexBuffer.handle, waterTileIndexBuffer.handle, transform);
-				}
-			}
-		}
-
-		static void ForwardPass()
-		{
-			graphics.setPass((int)RenderPass.Forward);
-			graphics.setRenderTarget(forward);
-
-
-			RenderSky();
-			RenderParticles();
-			//RenderGrass();
-			RenderWater();
-		}
-
-		static void DistanceFog()
-		{
-			graphics.setPass((int)RenderPass.DistanceFog);
-			graphics.setRenderTarget(postProcessing);
-
-			graphics.resetState();
-			graphics.setCullState(CullState.ClockWise);
-
-			graphics.setTexture(fogShader, "s_frame", 0, forward.getAttachmentTexture(0));
-			graphics.setTexture(fogShader, "s_depth", 1, forward.getAttachmentTexture(1));
-
-			graphics.setUniform(fogShader.getUniform("u_fogData", UniformType.Vector4), new Vector4(fogColor, fogIntensity));
-			graphics.setUniform(fogShader.getUniform("u_cameraFrustum", UniformType.Vector4), new Vector4(camera.near, camera.far, 0.0f, 0.0f));
-
-			graphics.setVertexBuffer(quad);
-
-			graphics.draw(fogShader);
-		}
-
-		static void BloomDownsample(int idx, Texture texture, RenderTarget target)
-		{
-			graphics.resetState();
-			graphics.setPass((int)RenderPass.BloomDownsample + idx);
-
-			graphics.setRenderTarget(target);
-
-			graphics.setTexture(bloomDownsampleShader.getUniform("s_input", UniformType.Sampler), 0, texture);
-
-			graphics.setVertexBuffer(quad);
-			graphics.draw(bloomDownsampleShader);
-		}
-
-		static void BloomUpsample(int idx, Texture texture0, Texture texture1, RenderTarget target)
-		{
-			graphics.resetState();
-			graphics.setPass((int)RenderPass.BloomUpsample + idx);
-
-			graphics.setRenderTarget(target);
-
-			graphics.setTexture(bloomUpsampleShader.getUniform("s_input0", UniformType.Sampler), 0, texture0);
-			graphics.setTexture(bloomUpsampleShader.getUniform("s_input1", UniformType.Sampler), 1, texture1);
-
-			graphics.setVertexBuffer(quad);
-			graphics.draw(bloomUpsampleShader);
-		}
-
-		static Texture Bloom(Texture input)
-		{
-			BloomDownsample(0, input, bloomDownsampleChain[0]);
-			BloomDownsample(1, bloomDownsampleChain[0].getAttachmentTexture(0), bloomDownsampleChain[1]);
-			BloomDownsample(2, bloomDownsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[2]);
-			BloomDownsample(3, bloomDownsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[3]);
-			BloomDownsample(4, bloomDownsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[4]);
-			BloomDownsample(5, bloomDownsampleChain[4].getAttachmentTexture(0), bloomDownsampleChain[5]);
-
-			BloomUpsample(0, bloomDownsampleChain[5].getAttachmentTexture(0), bloomDownsampleChain[4].getAttachmentTexture(0), bloomUpsampleChain[4]);
-			BloomUpsample(1, bloomUpsampleChain[4].getAttachmentTexture(0), bloomDownsampleChain[3].getAttachmentTexture(0), bloomUpsampleChain[3]);
-			BloomUpsample(2, bloomUpsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[2].getAttachmentTexture(0), bloomUpsampleChain[2]);
-			BloomUpsample(3, bloomUpsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[1].getAttachmentTexture(0), bloomUpsampleChain[1]);
-			BloomUpsample(4, bloomUpsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[0].getAttachmentTexture(0), bloomUpsampleChain[0]);
-
-			return bloomUpsampleChain[0].getAttachmentTexture(0);
-		}
-
-		static void Composite(Texture bloom)
-		{
-			graphics.resetState();
-			graphics.setPass((int)RenderPass.Composite);
-
-			graphics.setRenderTarget(compositeRenderTarget);
-
-			graphics.setDepthTest(DepthTest.None);
-			graphics.setCullState(CullState.ClockWise);
-
-			graphics.setTexture(compositeShader.getUniform("s_hdrBuffer", UniformType.Sampler), 0, postProcessing.getAttachmentTexture(0));
-			if (bloom != null)
-				graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 1, bloom);
-
-			graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
-
-			graphics.setVertexBuffer(quad);
-			graphics.draw(compositeShader);
-		}
-
-		static void PostProcessing()
-		{
-			DistanceFog();
-
-			Texture bloom = null;
-			if (bloomEnabled)
-				bloom = Bloom(postProcessing.getAttachmentTexture(0));
-
-			Composite(bloom);
-		}
-
-		static void TonemappingPass()
-		{
-			graphics.resetState();
-			graphics.setPass((int)RenderPass.Tonemapping);
-
-			graphics.setRenderTarget(null);
-
-			graphics.setDepthTest(DepthTest.None);
-			graphics.setCullState(CullState.ClockWise);
-
-			graphics.setVertexBuffer(quad);
-			graphics.setTexture(tonemappingShader.getUniform("s_hdrBuffer", UniformType.Sampler), 0, compositeRenderTarget.getAttachmentTexture(0));
-
-			graphics.draw(tonemappingShader);
-		}
-
-		static int LightDistanceComparator(LightDrawCommand light1, LightDrawCommand light2)
-		{
-			Vector3 delta1 = light1.position - camera.position;
-			Vector3 delta2 = light2.position - camera.position;
-			float d1 = Vector3.Dot(delta1, delta1);
-			float d2 = Vector3.Dot(delta2, delta2);
-			return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
-		}
-
-		static int PointLightDistanceComparator(PointLightDrawCommand light1, PointLightDrawCommand light2)
-		{
-			Vector3 delta1 = light1.position + light1.light.offset - camera.position;
-			Vector3 delta2 = light2.position + light1.light.offset - camera.position;
-			float d1 = Vector3.Dot(delta1, delta1);
-			float d2 = Vector3.Dot(delta2, delta2);
-			return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
+			Renderer3D_SetCamera(position, rotation, projection);
 		}
 
 		public static void End()
@@ -1474,41 +171,16 @@ namespace Rainfall
 			meshRenderCounter = 0;
 			meshCulledCounter = 0;
 
-			// TODO light frustum culling
-			lights.Sort(LightDistanceComparator);
-			pointLights.Sort(PointLightDistanceComparator);
+			Renderer3D_End();
 
-			if (camera != null)
-			{
-				GeometryPass();
-				ShadowPass();
-				ReflectionProbePass();
-				AmbientOcclusionPass();
-				DeferredPass();
-
-				graphics.blit(forward.getAttachmentTexture(forward.attachmentCount - 1), gbuffer.getAttachmentTexture(gbuffer.attachmentCount - 1));
-
-				ForwardPass();
-				PostProcessing();
-				TonemappingPass();
-			}
-
-			GUI.Draw((int)RenderPass.UI);
-
-			models.Clear();
-			modelsInstanced.Clear();
-			terrains.Clear();
-			foliage.Clear();
-			skies.Clear();
-			waterTiles.Clear();
-			lights.Clear();
-			pointLights.Clear();
-			directionalLights.Clear();
-			reflectionProbes.Clear();
-			particleSystems.Clear();
-			particleSystemsAdditive.Clear();
-			grassPatches.Clear();
+			GUI.Draw(94);
 		}
+
+		public static int DrawDebugStats(int x, int y, byte color)
+		{
+			return Renderer3D_DrawDebugStats(x, y, color);
+		}
+
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_Init(int width, int height);
@@ -1523,12 +195,21 @@ namespace Rainfall
 		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern unsafe static void Renderer3D_DrawModel(SceneData* scene, Matrix transform, IntPtr material);
+		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern unsafe static void Renderer3D_DrawScene(SceneData* scene, Matrix transform, IntPtr animation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_Begin();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_End();
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static int Renderer3D_DrawDebugStats(int x, int y, byte color);
 	}
 }

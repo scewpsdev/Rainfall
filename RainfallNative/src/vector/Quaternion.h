@@ -19,6 +19,7 @@ struct Quaternion
 	Quaternion conjugated() const;
 	Vector4 toAxisAngle() const;
 	float getAngle() const;
+	Vector3 getAxis() const;
 
 	Vector3 forward() const;
 	Vector3 back() const;

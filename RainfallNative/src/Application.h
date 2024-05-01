@@ -24,3 +24,8 @@ RFAPI int64_t Application_GetMemoryUsage();
 RFAPI int Application_GetNumAllocations();
 
 RFAPI bool Application_IsMouseLocked();
+
+inline float Application_GetDelta()
+{
+	return Application_GetFrameTime() / 1e9f;
+}

@@ -1,6 +1,7 @@
 #include "Math.h"
 
 #include <math.h>
+#include <float.h>
 
 
 int ipow(int base, int exp)
@@ -47,6 +48,37 @@ int min(int a, int b)
 int max(int a, int b)
 {
 	return a > b ? a : b;
+}
+
+static float nextGaussian = FLT_MAX;
+static float RandomGaussian(Random& random)
+{
+	if (nextGaussian == FLT_MAX)
+	{
+		float u1 = random.nextFloat();
+		float u2 = random.nextFloat();
+		float r = sqrtf(-2 * logf(u1));
+		float t = 2 * PI * u2;
+		float x = r * cosf(t);
+		float y = r * sinf(t);
+		nextGaussian = y;
+		return x;
+	}
+	else
+	{
+		float r = nextGaussian;
+		nextGaussian = FLT_MAX;
+		return r;
+	}
+}
+
+Vector3 RandomPointOnSphere(Random& random)
+{
+	float x = RandomGaussian(random);
+	float y = RandomGaussian(random);
+	float z = RandomGaussian(random);
+	Vector3 p = Vector3(x, y, z);
+	return p.normalized();
 }
 
 Vector2i WorldToScreenSpace(const Vector3& p, const Matrix& vp, int displayWidth, int displayHeight)

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -146,7 +148,7 @@ public static class SceneFormat
 		public Dictionary<string, ColliderData> boneColliders = null;
 
 		public List<LightData> lights;
-		public List<ParticleSystem> particles;
+		public List<ParticleSystemData> particles;
 
 		public EntityData(string name, uint id)
 		{
@@ -161,10 +163,10 @@ public static class SceneFormat
 			colliders = new List<ColliderData>();
 
 			lights = new List<LightData>();
-			particles = new List<ParticleSystem>();
+			particles = new List<ParticleSystemData>();
 		}
 
-		public void load(string directory)
+		public unsafe void load(string directory)
 		{
 			if (modelPath != null)
 			{
@@ -180,14 +182,15 @@ public static class SceneFormat
 			}
 			for (int i = 0; i < particles.Count; i++)
 			{
-				if (particles[i].textureAtlasPath != null)
-					particles[i].textureAtlas = Resource.GetTexture(directory + "/" + particles[i].textureAtlasPath);
+				ParticleSystemData system = particles[i];
+				if (system.textureAtlasPath[0] != 0)
+					system.textureAtlas = Resource.GetTexture(directory + "/" + new string((sbyte*)system.textureAtlasPath)).handle;
 			}
 		}
 	}
 
 
-	static DatObject SerializeEntity(EntityData entity)
+	static unsafe DatObject SerializeEntity(EntityData entity)
 	{
 		DatObject obj = new DatObject();
 
@@ -255,15 +258,15 @@ public static class SceneFormat
 		DatArray particles = new DatArray();
 		for (int i = 0; i < entity.particles.Count; i++)
 		{
-			ParticleSystem particleData = entity.particles[i];
+			ParticleSystemData particleData = entity.particles[i];
 
 			DatObject particle = new DatObject();
 
-			particle.addString("name", particleData.name);
+			//particle.addString("name", particleData.name);
 
 			particle.addNumber("lifetime", particleData.lifetime);
 			particle.addNumber("size", particleData.size);
-			particle.addBoolean("follow", particleData.follow);
+			particle.addBoolean("follow", particleData.follow != 0);
 
 			particle.addNumber("emissionRate", particleData.emissionRate);
 			particle.addIdentifier("spawnShape", particleData.spawnShape.ToString());
@@ -271,7 +274,7 @@ public static class SceneFormat
 			if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere || particleData.spawnShape == ParticleSpawnShape.Line)
 				particle.addNumber("spawnRadius", particleData.spawnRadius);
 			if (particleData.spawnShape == ParticleSpawnShape.Line)
-				particle.addVector3("lineEnd", particleData.lineEnd);
+				particle.addVector3("lineEnd", particleData.lineSpawnEnd);
 
 			particle.addNumber("gravity", particleData.gravity);
 			particle.addNumber("drag", particleData.drag);
@@ -282,17 +285,18 @@ public static class SceneFormat
 			particle.addBoolean("applyEntityVelocity", particleData.applyEntityVelocity);
 			particle.addBoolean("applyCentrifugalForce", particleData.applyCentrifugalForce);
 
-			if (particleData.textureAtlasPath != null)
+			if (particleData.textureAtlasPath[0] != 0)
 			{
-				particle.addString("textureAtlas", particleData.textureAtlasPath);
+				particle.addString("textureAtlas", new string((sbyte*)particleData.textureAtlasPath));
 				particle.addVector2("atlasSize", (Vector2)particleData.atlasSize);
 				particle.addNumber("numFrames", particleData.numFrames);
-				particle.addBoolean("linearFiltering", particleData.linearFiltering);
+				particle.addBoolean("linearFiltering", particleData.linearFiltering != 0);
 			}
 
 			particle.addVector4("color", particleData.color);
-			particle.addBoolean("additive", particleData.additive);
+			particle.addBoolean("additive", particleData.additive != 0);
 			particle.addNumber("emissiveIntensity", particleData.emissiveIntensity);
+			particle.addNumber("lightInfluence", particleData.lightInfluence);
 
 			particle.addVector3("randomVelocity", particleData.randomVelocity);
 			particle.addNumber("randomRotation", particleData.randomRotation);
@@ -300,19 +304,19 @@ public static class SceneFormat
 			particle.addNumber("randomLifetime", particleData.randomLifetime);
 			particle.addNumber("velocityNoise", particleData.velocityNoise);
 
-			if (particleData.sizeAnim != null)
-				particle.addVector2("sizeAnim", new Vector2(particleData.sizeAnim.getValue(0), particleData.sizeAnim.getValue(1)));
-			if (particleData.colorAnim != null)
+			if (particleData.sizeAnim.count > 0)
+				particle.addVector2("sizeAnim", new Vector2(particleData.sizeAnim.value0.value, particleData.sizeAnim.value1.value));
+			if (particleData.colorAnim.count > 0)
 			{
-				particle.addVector4("colorAnimStart", particleData.colorAnim.getValue(0));
-				particle.addVector4("colorAnimEnd", particleData.colorAnim.getValue(1));
+				particle.addVector4("colorAnimStart", particleData.colorAnim.value0.value);
+				particle.addVector4("colorAnimEnd", particleData.colorAnim.value1.value);
 			}
 
 			if (particleData.bursts != null)
 			{
 				DatArray bursts = new DatArray();
 
-				for (int j = 0; j < particleData.bursts.Count; j++)
+				for (int j = 0; j < particleData.numBursts; j++)
 				{
 					DatObject burst = new DatObject();
 
@@ -366,7 +370,7 @@ public static class SceneFormat
 		return data;
 	}
 
-	static EntityData DeserializeEntity(DatObject obj)
+	static unsafe EntityData DeserializeEntity(DatObject obj)
 	{
 		obj.getStringContent("name", out string name);
 		obj.getStringContent("id", out string idStr);
@@ -441,20 +445,21 @@ public static class SceneFormat
 			for (int i = 0; i < particles.size; i++)
 			{
 				DatObject particle = particles[i].obj;
-				ParticleSystem particleData = ParticleSystem.CreateTemplate();
+				ParticleSystemData particleData = new ParticleSystemData(0);
 
-				particle.getStringContent("name", out particleData.name);
+				//particle.getStringContent("name", out particleData.name);
 
 				particle.getNumber("lifetime", out particleData.lifetime);
 				particle.getNumber("size", out particleData.size);
-				particle.getBoolean("follow", out particleData.follow);
+				if (particle.getBoolean("follow", out bool follow))
+					particleData.follow = (byte)(follow ? 1 : 0);
 
 				particle.getNumber("emissionRate", out particleData.emissionRate);
 				if (particle.getIdentifier("spawnShape", out string spawnShape))
 					particleData.spawnShape = Utils.ParseEnum<ParticleSpawnShape>(spawnShape);
 				particle.getVector3("spawnOffset", out particleData.spawnOffset);
 				particle.getNumber("spawnRadius", out particleData.spawnRadius);
-				particle.getVector3("lineEnd", out particleData.lineEnd);
+				particle.getVector3("lineEnd", out particleData.lineSpawnEnd);
 
 				particle.getNumber("gravity", out particleData.gravity);
 				particle.getNumber("drag", out particleData.drag);
@@ -465,16 +470,19 @@ public static class SceneFormat
 				particle.getBoolean("applyEntityVelocity", out particleData.applyEntityVelocity);
 				particle.getBoolean("applyCentrifugalForce", out particleData.applyCentrifugalForce);
 
-				if (particle.getStringContent("textureAtlas", out particleData.textureAtlasPath))
+				if (particle.getStringContent("textureAtlas", out string atlasPath))
 				{
+					StringUtils.WriteString(particleData.textureAtlasPath, atlasPath);
 					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
 						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
 					particle.getInteger("numFrames", out particleData.numFrames);
-					particle.getBoolean("linearFiltering", out particleData.linearFiltering);
+					if (particle.getBoolean("linearFiltering", out bool linearFiltering))
+						particleData.linearFiltering = (byte)(linearFiltering ? 1 : 0);
 				}
 
 				particle.getVector4("color", out particleData.color);
-				particle.getBoolean("additive", out particleData.additive);
+				if (particle.getBoolean("additive", out bool additive))
+					particleData.additive = (byte)(additive ? 1 : 0);
 				particle.getNumber("emissiveIntensity", out particleData.emissiveIntensity);
 
 				particle.getVector3("randomVelocity", out particleData.randomVelocity);
@@ -484,16 +492,17 @@ public static class SceneFormat
 				particle.getNumber("velocityNoise", out particleData.velocityNoise);
 
 				if (particle.getVector2("sizeAnim", out Vector2 sizeAnim))
-					particleData.sizeAnim = new Gradient<float>(sizeAnim.x, sizeAnim.y);
+					particleData.sizeAnim = new Gradient_float_2 { value0 = { value = sizeAnim.x, position = 0 }, value1 = { value = sizeAnim.y, position = 1 } };
 				if (particle.getVector4("colorAnimStart", out Vector4 colorAnimStart))
 				{
 					particle.getVector4("colorAnimEnd", out Vector4 colorAnimEnd);
-					particleData.colorAnim = new Gradient<Vector4>(colorAnimStart, colorAnimEnd);
+					particleData.colorAnim = new Gradient_Vector4_2 { value0 = { value = colorAnimStart, position = 0 }, value1 = { value = colorAnimEnd, position = 1 } };
 				}
 
 				if (particle.getArray("bursts", out DatArray bursts))
 				{
-					particleData.bursts = new List<ParticleBurst>();
+					particleData.numBursts = bursts.size;
+					particleData.bursts = (ParticleBurst*)Marshal.AllocHGlobal(bursts.size * sizeof(ParticleBurst));
 					for (int j = 0; j < bursts.size; j++)
 					{
 						DatObject burst = bursts[j].obj;
@@ -502,7 +511,7 @@ public static class SceneFormat
 						burst.getInteger("count", out int count);
 						burst.getNumber("duration", out float duration);
 
-						particleData.bursts.Add(new ParticleBurst(time, count, duration));
+						particleData.bursts[j] = new ParticleBurst { time = time, count = count, duration = duration };
 					}
 				}
 
