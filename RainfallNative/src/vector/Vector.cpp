@@ -264,6 +264,9 @@ Vector4& Vector4::operator/=(float f)
 	return *this;
 }
 
+const Vector4 Vector4::Zero = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+const Vector4 Vector4::One = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
 Vector2i::Vector2i()
 	: x(0), y(0)
 {
@@ -506,6 +509,71 @@ Vector3& operator*=(Vector3& a, float b)
 	return a;
 }
 
+Vector4 operator+(Vector4 a, Vector4 b)
+{
+	return Vector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+}
+
+Vector4 operator-(Vector4 a, Vector4 b)
+{
+	return Vector4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+
+Vector4 operator*(Vector4 a, Vector4 b)
+{
+	return Vector4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+}
+
+Vector4 operator/(Vector4 a, Vector4 b)
+{
+	return Vector4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
+}
+
+Vector4 operator+(Vector4 a, float b)
+{
+	return Vector4(a.x + b, a.y + b, a.z + b, a.w + b);
+}
+
+Vector4 operator-(Vector4 a, float b)
+{
+	return Vector4(a.x - b, a.y - b, a.z - b, a.w - b);
+}
+
+Vector4 operator*(Vector4 a, float b)
+{
+	return Vector4(a.x * b, a.y * b, a.z * b, a.w * b);
+}
+
+Vector4 operator/(Vector4 a, float b)
+{
+	return Vector4(a.x / b, a.y / b, a.z / b, a.w / b);
+}
+
+Vector4 operator+(float a, Vector4 b)
+{
+	return Vector4(a + b.x, a + b.y, a + b.z, a + b.w);
+}
+
+Vector4 operator-(float a, Vector4 b)
+{
+	return Vector4(a - b.x, a - b.y, a - b.z, a - b.w);
+}
+
+Vector4 operator*(float a, Vector4 b)
+{
+	return Vector4(a * b.x, a * b.y, a * b.z, a * b.w);
+}
+
+Vector4 operator/(float a, Vector4 b)
+{
+	return Vector4(a / b.x, a / b.y, a / b.z, a / b.w);
+}
+
+bool operator==(const Vector4& a, const Vector4& b)
+{
+	return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+
 Vector4& operator*=(Vector4& a, float b)
 {
 	a.x *= b;
@@ -586,6 +654,16 @@ Vector2 min(const Vector2& a, const Vector2& b)
 Vector2 max(const Vector2& a, const Vector2& b)
 {
 	return Vector2(fmaxf(a.x, b.x), fmaxf(a.y, b.y));
+}
+
+Vector3 min(const Vector3& a, const Vector3& b)
+{
+	return Vector3(fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z));
+}
+
+Vector3 max(const Vector3& a, const Vector3& b)
+{
+	return Vector3(fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z));
 }
 
 Vector2i sign(const Vector2& v)

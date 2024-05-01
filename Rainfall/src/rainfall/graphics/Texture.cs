@@ -187,7 +187,7 @@ namespace Rainfall
 
 	public class Texture
 	{
-		internal ushort handle;
+		public ushort handle;
 
 		public readonly TextureInfo info;
 

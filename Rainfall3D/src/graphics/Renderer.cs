@@ -1308,7 +1308,7 @@ public static class Renderer
 				lightPositionBuffer[j] = new Vector4(lights[lightID].position, lights[lightID].radius);
 				lightColorBuffer[j] = new Vector4(lights[lightID].color, 0.0f);
 			}
-			i += numRemainingLights;
+			i += numRemainingLights - 1;
 
 			graphics.setUniform(shader.getUniform("u_lightPosition", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightPositionBuffer);
 			graphics.setUniform(shader.getUniform("u_lightColor", UniformType.Vector4, MAX_LIGHTS_PER_PASS), lightColorBuffer);

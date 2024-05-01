@@ -67,7 +67,7 @@ Vector4 Quaternion::toAxisAngle() const
 	{
 		return Vector4(1.0f, 0.0f, 0.0f, 0.0f);
 	}
-	if (s < 0.001f)
+	else if (s < 0.001f)
 	{
 		return Vector4(1.0f, 0.0f, 0.0f, angle);
 	}
@@ -80,6 +80,16 @@ Vector4 Quaternion::toAxisAngle() const
 float Quaternion::getAngle() const
 {
 	return 2.0f * acosf(w);
+}
+
+Vector3 Quaternion::getAxis() const
+{
+	if (w < 1)
+	{
+		float s = 1.0f / sqrtf(1.0f - w * w);
+		return Vector3(x * s, y * s, z * s);
+	}
+	return Vector3(1, 0, 0);
 }
 
 Vector3 Quaternion::forward() const

@@ -7,6 +7,7 @@
 
 
 uint32_t hash(uint32_t i);
+uint32_t hash(int i);
 uint32_t hash(float f);
 
 uint32_t hash(const Vector3& v);

@@ -11,6 +11,11 @@ uint32_t hash(uint32_t i)
 	return i;
 }
 
+uint32_t hash(int i)
+{
+	return hash((uint32_t)i);
+}
+
 uint32_t hash(float f)
 {
 	return hash(*(uint32_t*)&f);

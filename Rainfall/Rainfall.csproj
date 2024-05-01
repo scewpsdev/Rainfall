@@ -24,6 +24,7 @@
     <Compile Remove="src\rainfall\graphics\AnimationState.cs" />
     <Compile Remove="src\rainfall\imgui\ImGui _.cs" />
     <Compile Remove="src\rainfall\utils\ImGui _.cs" />
+    <Compile Remove="src\rainfall\utils\ParticleSystem - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,7 +31,7 @@ internal class Program : Game
 		InputManager.Init();
 		GraphicsManager.Init();
 
-		Renderer.Init(graphics);
+		Renderer.Init(Display.width, Display.height, graphics);
 		Physics.Init();
 		Audio.Init();
 		AudioManager.Init();

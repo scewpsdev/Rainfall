@@ -306,7 +306,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.R32F);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
 				}
 			}
@@ -320,7 +320,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA32F);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTextureData(texture.handle, x, y, width, height, memoryHandle);
 				}
 			}
@@ -373,7 +373,7 @@ namespace Rainfall
 			{
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -388,7 +388,7 @@ namespace Rainfall
 					texture.info.format >= TextureFormat.RG8 && texture.info.format <= TextureFormat.RG8S);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(ushort) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(ushort) * data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -402,7 +402,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA8 || texture.info.format == TextureFormat.BGRA8);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(uint) * data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -416,7 +416,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.R32F);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(float) * data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -430,7 +430,7 @@ namespace Rainfall
 				Debug.Assert(texture.info.format == TextureFormat.RGBA32F);
 				fixed (void* dataPtr = data)
 				{
-					Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, null, out IntPtr memoryHandle);
+					IntPtr memoryHandle = Native.Graphics.Graphics_CreateVideoMemoryRef(sizeof(Vector4) * data.Length, dataPtr, null);
 					Native.Graphics.Graphics_SetTexture3DData(texture.handle, mip, x, y, z, width, height, depth, memoryHandle);
 				}
 			}
@@ -484,12 +484,6 @@ namespace Rainfall
 		{
 			Native.Graphics.Graphics_DestroyRenderTarget(renderTarget.handle);
 		}
-
-		public void destroyShader(Shader shader)
-		{
-			Native.Graphics.Graphics_DestroyShader(shader.handle);
-		}
-
 
 		public void resetState()
 		{

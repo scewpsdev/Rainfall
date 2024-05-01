@@ -256,9 +256,27 @@ Matrix operator*(const Matrix& left, const Matrix& right)
 	return result;
 }
 
-Vector4 operator*(const Matrix& left, const Vector4& right)
+Vector4 operator*(const Matrix& a, const Vector4& b)
 {
-	return mul(left, right);
+	Vector4 result;
+
+	result.x = a.m00 * b.x + a.m10 * b.y + a.m20 * b.z + a.m30 * b.w;
+	result.y = a.m01 * b.x + a.m11 * b.y + a.m21 * b.z + a.m31 * b.w;
+	result.z = a.m02 * b.x + a.m12 * b.y + a.m22 * b.z + a.m32 * b.w;
+	result.w = a.m03 * b.x + a.m13 * b.y + a.m23 * b.z + a.m33 * b.w;
+
+	return result;
+}
+
+Vector3 operator*(const Matrix& a, const Vector3& b)
+{
+	Vector3 result;
+
+	result.x = a.m00 * b.x + a.m10 * b.y + a.m20 * b.z;
+	result.y = a.m01 * b.x + a.m11 * b.y + a.m21 * b.z;
+	result.z = a.m02 * b.x + a.m12 * b.y + a.m22 * b.z;
+
+	return result;
 }
 
 bool operator==(const Matrix& a, const Matrix& b)
@@ -271,7 +289,7 @@ bool operator!=(const Matrix& a, const Matrix& b)
 	return memcmp(a.elements, b.elements, 16 * sizeof(float)) != 0;
 }
 
-void GetFrustumPlanes(const Matrix& pv, Vector4* planes)
+void GetFrustumPlanes(const Matrix& pv, Vector4 planes[6])
 {
 	Matrix matrix = pv;
 

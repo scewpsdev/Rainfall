@@ -135,18 +135,20 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 
 	bool success = true;
 
-	if (extension == ".glsl" || extension == ".shader")
+	if (extension == ".glsl" || extension == ".shader" || extension == ".vs" || extension == ".fs" || extension == ".cs")
 	{
 		std::string name = file.stem().string();
-		if (name.size() > 3 && name[name.size() - 3] == '.')
-		{
-			if (strncmp(&name[name.size() - 2], "vs", 2) == 0)
-				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "vertex");
-			else if (strncmp(&name[name.size() - 2], "fs", 2) == 0)
-				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "fragment") && success;
-			else if (strncmp(&name[name.size() - 2], "cs", 2) == 0)
-				success = CompileShader(filepathStr.c_str(), outpath.c_str(), "compute") && success;
-		}
+
+		bool vertex = extension.size() == 3 && extension == ".vs" || name.size() > 3 && strncmp(&name[name.size() - 3], ".vs", 3) == 0;
+		bool fragment = extension.size() == 3 && extension == ".fs" || name.size() > 3 && strncmp(&name[name.size() - 3], ".fs", 3) == 0;
+		bool compute = extension.size() == 3 && extension == ".cs" || name.size() > 3 && strncmp(&name[name.size() - 3], ".cs", 3) == 0;
+
+		if (vertex)
+			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "vertex") && success;
+		if (fragment)
+			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "fragment") && success;
+		if (compute)
+			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "compute") && success;
 	}
 	else if (extension == ".png")
 	{
@@ -286,7 +288,7 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	if (assetTable.size() == 0)
 		return true;
 
-	if (extension == ".shader" || extension == ".vs" || extension == ".fs" || extension == ".cs")
+	if (extension == ".glsl" || extension == ".shader" || extension == ".vs" || extension == ".fs" || extension == ".cs")
 	{
 		std::string name = file.stem().string();
 		if (extension.size() >= 2 && (

@@ -35,6 +35,7 @@ RFAPI void Audio_Init()
 
 RFAPI void Audio_Shutdown()
 {
+	soloud.stopAll();
 	soloud.deinit();
 }
 
