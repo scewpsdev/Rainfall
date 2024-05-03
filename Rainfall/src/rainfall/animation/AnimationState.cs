@@ -8,6 +8,7 @@ namespace Rainfall
 {
 	public class AnimationState
 	{
+		Model model;
 		public AnimationLayer[] layers;
 		public float transitionDuration;
 		public float transitionFromDuration = -1.0f;
@@ -16,18 +17,14 @@ namespace Rainfall
 		public Matrix[] nodeAnimationLocalTransforms { get; private set; }
 
 
-		public AnimationState(Model model, AnimationLayer[] layers, float transitionDuration = 0.0f)
+		internal AnimationState(Model model, AnimationLayer[] layers, float transitionDuration = 0.0f)
 		{
+			this.model = model;
 			this.layers = layers;
 			this.transitionDuration = transitionDuration;
 
 			nodeAnimationLocalTransforms = new Matrix[model.skeleton.nodes.Length];
 			Array.Fill(nodeAnimationLocalTransforms, Matrix.Identity);
-		}
-
-		public AnimationState(Model model, string name, bool looping = false, float transitionDuration = 0.0f)
-			: this(model, new AnimationLayer[] { new AnimationLayer(model, name, looping) }, transitionDuration)
-		{
 		}
 
 		public Matrix getNodeLocalTransform(Node node)
@@ -58,10 +55,8 @@ namespace Rainfall
 			}
 		}
 
-		internal void update(Model model, float timer)
+		internal void update(/*Model model,*/ float timer)
 		{
-			//timer += Time.deltaTime * animationSpeed;
-
 			for (int i = 0; i < layers.Length; i++)
 			{
 				if (layers[i] != null && layers[i].active)

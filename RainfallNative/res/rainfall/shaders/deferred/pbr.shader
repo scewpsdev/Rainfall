@@ -137,11 +137,7 @@ vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, 
 }
 
 // Directional light indirect specular lighting
-vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distance, vec3 albedo, float roughness, float metallic, float ao, vec3 lightDirection, vec3 lightColor,
-	sampler2DShadow shadowMap0, float shadowMapFar0, mat4 toLightSpace0,
-	sampler2DShadow shadowMap1, float shadowMapFar1, mat4 toLightSpace1,
-	sampler2DShadow shadowMap2, float shadowMapFar2, mat4 toLightSpace2,
-	vec4 fragCoord)
+vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distance, vec3 albedo, float roughness, float metallic, vec3 lightDirection, vec3 lightColor)
 {
 	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 	vec3 fLambert = albedo / PI;
@@ -166,6 +162,7 @@ vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distanc
 	float ndotwi = max(dot(wi, normal), 0.0);
 
 	// Shadow mapping
+	/*
 	int cascadeID = distance < shadowMapFar0 ? 0 : distance < shadowMapFar1 ? 1 : 2;
 	float shadow = 0.0;
 	switch (cascadeID)
@@ -177,8 +174,9 @@ vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distanc
 	//case 1: radiance = vec3(0, 1, 0); break;
 	//default: radiance = vec3(0, 0, 1); break;
 	}
-
-	vec3 s = (specular * ao + fLambert * kd * ao) * radiance * ndotwi * shadow;
+	*/
+	
+	vec3 s = specular + fLambert * kd * radiance * ndotwi;
 
 	return s;
 }
@@ -247,7 +245,12 @@ float DistanceToBox(vec3 position, vec3 size, vec3 p)
 	{
 		if (ap.y <= 1.0)
 		{
-			if (ap.z > 1.0)
+			if (ap.z <= 1.0)
+			{
+				vec3 pp = scale - ap * scale;
+				return -min(min(pp.x, pp.y), pp.z);
+			}
+			else
 				return (ap.z - 1.0) * scale.z;
 		}
 		else
@@ -320,82 +323,22 @@ vec4 SampleCubemapParallax(vec3 position, vec3 direction, float lod, samplerCube
 	return textureCubeLod(cubemap, boxToIntersection, lod);
 }
 
-vec3 SampleEnvironmentIrradiance(vec3 position, vec3 normal,
-	samplerCube environmentMap, float environmentMapIntensity,
-	samplerCube reflection0, vec3 reflectionPosition0, vec3 reflectionSize0, vec3 reflectionOrigin0, float reflectionIntensity0,
-	samplerCube reflection1, vec3 reflectionPosition1, vec3 reflectionSize1, vec3 reflectionOrigin1, float reflectionIntensity1,
-	samplerCube reflection2, vec3 reflectionPosition2, vec3 reflectionSize2, vec3 reflectionOrigin2, float reflectionIntensity2,
-	samplerCube reflection3, vec3 reflectionPosition3, vec3 reflectionSize3, vec3 reflectionOrigin3, float reflectionIntensity3)
+vec3 SampleEnvironmentIrradiance(vec3 position, vec3 normal, samplerCube environmentMap, float environmentIntensity)
 {
-	vec3 irradiance = textureCubeLod(environmentMap, normal, log2(textureSize(environmentMap, 0).x)).rgb * environmentMapIntensity;
-
-	vec3 reflectionIrradiance0 = SampleCubemapParallax(position, normal, log2(textureSize(reflection0, 0).x), reflection0, reflectionPosition0, reflectionSize0, reflectionOrigin0).rgb * reflectionIntensity0;
-	vec3 reflectionIrradiance1 = SampleCubemapParallax(position, normal, log2(textureSize(reflection1, 0).x), reflection1, reflectionPosition1, reflectionSize1, reflectionOrigin1).rgb * reflectionIntensity1;
-	vec3 reflectionIrradiance2 = SampleCubemapParallax(position, normal, log2(textureSize(reflection2, 0).x), reflection2, reflectionPosition2, reflectionSize2, reflectionOrigin2).rgb * reflectionIntensity2;
-	vec3 reflectionIrradiance3 = SampleCubemapParallax(position, normal, log2(textureSize(reflection3, 0).x), reflection3, reflectionPosition3, reflectionSize3, reflectionOrigin3).rgb * reflectionIntensity3;
-
-	vec4 reflectionWeights = CalculateReflectionWeights(position,
-		reflectionPosition0, reflectionSize0, reflectionOrigin0,
-		reflectionPosition1, reflectionSize1, reflectionOrigin1,
-		reflectionPosition2, reflectionSize2, reflectionOrigin2,
-		reflectionPosition3, reflectionSize3, reflectionOrigin3);
-	float skyboxWeight = 1 - reflectionWeights[0] - reflectionWeights[1] - reflectionWeights[2] - reflectionWeights[3];
-
-	irradiance = skyboxWeight * irradiance +
-		reflectionWeights[0] * reflectionIrradiance0 + 
-		reflectionWeights[1] * reflectionIrradiance1 + 
-		reflectionWeights[2] * reflectionIrradiance2 + 
-		reflectionWeights[3] * reflectionIrradiance3;
-
-	return irradiance;
+	return (textureCubeLod(environmentMap, normal, log2(textureSize(environmentMap, 0).x)).rgb) * environmentIntensity;
 }
 
-vec3 SampleEnvironmentPrefiltered(vec3 position, vec3 normal, vec3 view, float roughness,
-	samplerCube environmentMap, float environmentMapIntensity,
-	samplerCube reflection0, vec3 reflectionPosition0, vec3 reflectionSize0, vec3 reflectionOrigin0, float reflectionIntensity0,
-	samplerCube reflection1, vec3 reflectionPosition1, vec3 reflectionSize1, vec3 reflectionOrigin1, float reflectionIntensity1,
-	samplerCube reflection2, vec3 reflectionPosition2, vec3 reflectionSize2, vec3 reflectionOrigin2, float reflectionIntensity2,
-	samplerCube reflection3, vec3 reflectionPosition3, vec3 reflectionSize3, vec3 reflectionOrigin3, float reflectionIntensity3)
+vec3 SampleEnvironmentPrefiltered(vec3 position, vec3 normal, vec3 view, float roughness, samplerCube environmentMap, float environmentIntensity)
 {
 	vec3 r = reflect(-view, normal);
 	float lodFactor = 1.0 - exp(-roughness * 12);
 
-	vec3 prefiltered = textureCubeLod(environmentMap, r, lodFactor * log2(textureSize(environmentMap, 0).x)).rgb * environmentMapIntensity;
-
-	vec3 reflectionPrefiltered0 = SampleCubemapParallax(position, r, lodFactor * log2(textureSize(reflection0, 0).x), reflection0, reflectionPosition0, reflectionSize0, reflectionOrigin0).rgb * reflectionIntensity0;
-	vec3 reflectionPrefiltered1 = SampleCubemapParallax(position, r, lodFactor * log2(textureSize(reflection1, 0).x), reflection1, reflectionPosition1, reflectionSize1, reflectionOrigin1).rgb * reflectionIntensity1;
-	vec3 reflectionPrefiltered2 = SampleCubemapParallax(position, r, lodFactor * log2(textureSize(reflection2, 0).x), reflection2, reflectionPosition2, reflectionSize2, reflectionOrigin2).rgb * reflectionIntensity2;
-	vec3 reflectionPrefiltered3 = SampleCubemapParallax(position, r, lodFactor * log2(textureSize(reflection3, 0).x), reflection3, reflectionPosition3, reflectionSize3, reflectionOrigin3).rgb * reflectionIntensity3;
-
-	vec4 reflectionWeights = CalculateReflectionWeights(position,
-		reflectionPosition0, reflectionSize0, reflectionOrigin0,
-		reflectionPosition1, reflectionSize1, reflectionOrigin1,
-		reflectionPosition2, reflectionSize2, reflectionOrigin2,
-		reflectionPosition3, reflectionSize3, reflectionOrigin3);
-	float skyboxWeight = 1 - reflectionWeights[0] - reflectionWeights[1] - reflectionWeights[2] - reflectionWeights[3];
-
-	prefiltered = skyboxWeight * prefiltered +
-		reflectionWeights[0] * reflectionPrefiltered0 + 
-		reflectionWeights[1] * reflectionPrefiltered1 + 
-		reflectionWeights[2] * reflectionPrefiltered2 + 
-		reflectionWeights[3] * reflectionPrefiltered3;
-
-	return prefiltered;
+	return (textureCubeLod(environmentMap, r, lodFactor * log2(textureSize(environmentMap, 0).x)).rgb) * environmentIntensity;
 }
 
-vec3 RenderEnvironment(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao,
-	samplerCube environmentMap, float environmentMapIntensity,
-	samplerCube reflection0, vec3 reflectionPosition0, vec3 reflectionSize0, vec3 reflectionOrigin0, vec3 reflectionIntensity0,
-	samplerCube reflection1, vec3 reflectionPosition1, vec3 reflectionSize1, vec3 reflectionOrigin1, vec3 reflectionIntensity1,
-	samplerCube reflection2, vec3 reflectionPosition2, vec3 reflectionSize2, vec3 reflectionOrigin2, vec3 reflectionIntensity2,
-	samplerCube reflection3, vec3 reflectionPosition3, vec3 reflectionSize3, vec3 reflectionOrigin3, vec3 reflectionIntensity3)
+vec3 RenderEnvironment(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, samplerCube environmentMap, float environmentIntensity)
 {
-	vec3 irradiance = SampleEnvironmentIrradiance(position, normal,
-		environmentMap, environmentMapIntensity,
-		reflection0, reflectionPosition0, reflectionSize0, reflectionOrigin0, reflectionIntensity0,
-		reflection1, reflectionPosition1, reflectionSize1, reflectionOrigin1, reflectionIntensity1,
-		reflection2, reflectionPosition2, reflectionSize2, reflectionOrigin2, reflectionIntensity2,
-		reflection3, reflectionPosition3, reflectionSize3, reflectionOrigin3, reflectionIntensity3);
+	vec3 irradiance = SampleEnvironmentIrradiance(position, normal, environmentMap, environmentIntensity);
 
 	vec3 diffuse = irradiance * albedo;
 
@@ -403,17 +346,12 @@ vec3 RenderEnvironment(vec3 position, vec3 normal, vec3 view, vec3 albedo, float
 	vec3 ks = fresnel2(max(dot(normal, view), 0.0), f0, roughness);
 	vec3 kd = (1.0 - ks) * (1.0 - metallic);
 
-	vec3 prefiltered = SampleEnvironmentPrefiltered(position, normal, view, roughness,
-		environmentMap, environmentMapIntensity,
-		reflection0, reflectionPosition0, reflectionSize0, reflectionOrigin0, reflectionIntensity0,
-		reflection1, reflectionPosition1, reflectionSize1, reflectionOrigin1, reflectionIntensity1,
-		reflection2, reflectionPosition2, reflectionSize2, reflectionOrigin2, reflectionIntensity2,
-		reflection3, reflectionPosition3, reflectionSize3, reflectionOrigin3, reflectionIntensity3);
+	vec3 prefiltered = SampleEnvironmentPrefiltered(position, normal, view, roughness, environmentMap, environmentIntensity);
 
 	vec2 brdfInteg = vec2(1.0, 0.0);
 	vec3 specular = prefiltered * (ks * brdfInteg.r + brdfInteg.g);
 
-	vec3 ambient = kd * diffuse * ao + specular * ao;
+	vec3 ambient = kd * diffuse + specular;
 
 	return ambient;
 }

@@ -6,6 +6,7 @@
 #include "graphics/Graphics.h"
 #include "graphics/Model.h"
 #include "graphics/Material.h"
+#include "graphics/ParticleSystem.h"
 
 #include "vector/Math.h"
 
@@ -71,7 +72,14 @@ struct PointLightDraw
 
 struct ParticleSystemDraw
 {
-	
+	ParticleSystem* system;
+};
+
+struct EnvironmentMapMask
+{
+	Vector3 position;
+	Vector3 size;
+	float falloff;
 };
 
 
@@ -94,43 +102,81 @@ static bgfx::TextureInfo compositeRTTextureInfo;
 Shader* defaultShader;
 Shader* defaultAnimatedShader;
 static Shader* deferredPointShader;
+static Shader* deferredDirectionalShader;
+static Shader* deferredEmissiveShader;
+static Shader* deferredEnvironmentShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
+static Shader* skyShader;
 
 static const float quadVertices[] = { -3.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 3.0f, 1.0f };
 static uint16_t quad;
 
-static const float boxVertices[] = { -1, -1, -1, 1, -1, -1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, 1, 1 };
-static const int boxIndices[] = { 0, 1, 2, 3, 2, 1, 0, 4, 5, 0, 5, 1, 0, 2, 6, 0, 6, 4, 1, 5, 7, 1, 7, 3, 4, 6, 7, 4, 7, 5, 2, 3, 7, 2, 7, 6 };
-static uint16_t box;
+static const float particleVertices[] = { -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, -0.5f, 0.5f, -0.5f, -0.5f };
+static uint16_t particle;
+
+static const float skydomeVertices[] = { -10, -10, 10, 10, -10, 10, 0, -10, -10, 0, 10, 0 };
+static const short skydomeIndices[] = { 0, 1, 2, 2, 1, 3, 1, 0, 3, 0, 2, 3 };
+static uint16_t skydome;
+static uint16_t skydomeIBO;
+
+static uint16_t emptyCubemap;
 
 static Vector3 cameraPosition;
 static Quaternion cameraRotation;
+static Vector3 cameraRight, cameraUp, cameraForward;
 static Matrix projection, view, pv;
 static Vector4 frustumPlanes[6];
 
 static List<MeshDraw> meshDraws;
 static List<SceneDraw> sceneDraws;
 static List<PointLightDraw> pointLightDraws;
+static List<ParticleSystemDraw> particleSystemDraws;
+
+static bool renderDirectionalLight;
+static Vector3 directionalLightDirection;
+static Vector3 directionalLightColor;
+
+static uint16_t environmentMap = bgfx::kInvalidHandle;
+float environmentIntensity;
+static List<EnvironmentMapMask> environmentMapMasks;
+
+static uint16_t skyTexture = bgfx::kInvalidHandle;
+static float skyIntensity;
+static Matrix skyTransform;
 
 
 RFAPI void Renderer3D_Init(int width, int height)
 {
 	Renderer3D_Resize(width, height);
 
-	defaultShader = Shader_Create("res/rainfall/shaders/default/default.vs.bin", "res/rainfall/shaders/default/default.fs.bin");
-	defaultAnimatedShader = Shader_Create("res/rainfall/shaders/default/default_animated.vs.bin", "res/rainfall/shaders/default/default.fs.bin");
-	deferredPointShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vs.bin", "res/rainfall/shaders/deferred/deferred_point.fs.bin");
-	tonemappingShader = Shader_Create("res/rainfall/shaders/tonemapping/tonemapping.vs.bin", "res/rainfall/shaders/tonemapping/tonemapping.fs.bin");
-	particleShader = Shader_Create("res/rainfall/shaders/particle/particle.vs", "res/rainfall/shaders/particle/particle.fs");
+	defaultShader = Shader_Create("res/rainfall/shaders/default/default.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
+	defaultAnimatedShader = Shader_Create("res/rainfall/shaders/default/default_animated.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
+	deferredPointShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_point.fsh.bin");
+	deferredDirectionalShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_directional.fsh.bin");
+	deferredEmissiveShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_emissive.fsh.bin");
+	deferredEnvironmentShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_environment.fsh.bin");
+	tonemappingShader = Shader_Create("res/rainfall/shaders/tonemapping/tonemapping.vsh.bin", "res/rainfall/shaders/tonemapping/tonemapping.fsh.bin");
+	particleShader = Shader_Create("res/rainfall/shaders/particle/particle.vsh.bin", "res/rainfall/shaders/particle/particle.fsh.bin");
+	skyShader = Shader_Create("res/rainfall/shaders/sky/sky.vsh.bin", "res/rainfall/shaders/sky/sky.fsh.bin");
 
 	VertexElement quadLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
 	const bgfx::Memory* quadMemory = Graphics_CreateVideoMemoryRef(sizeof(quadVertices), quadVertices, nullptr);
 	quad = Graphics_CreateVertexBuffer(quadMemory, &quadLayout, 1, BufferFlags::None);
 
-	VertexElement boxLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
-	const bgfx::Memory* boxMemory = Graphics_CreateVideoMemoryRef(sizeof(boxVertices), boxVertices, nullptr);
-	box = Graphics_CreateVertexBuffer(boxMemory, &boxLayout, 1, BufferFlags::None);
+	VertexElement particleLayout(VertexAttribute::Position, VertexAttributeType::Vector2);
+	const bgfx::Memory* particleMemory = Graphics_CreateVideoMemoryRef(sizeof(particleVertices), particleVertices, nullptr);
+	particle = Graphics_CreateVertexBuffer(particleMemory, &particleLayout, 1, BufferFlags::None);
+
+	VertexElement skydomeLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
+	const bgfx::Memory* skydomeMemory = Graphics_CreateVideoMemoryRef(sizeof(skydomeVertices), skydomeVertices, nullptr);
+	skydome = Graphics_CreateVertexBuffer(skydomeMemory, &skydomeLayout, 1, BufferFlags::None);
+
+	const bgfx::Memory* skydomeIndicesMemory = Graphics_CreateVideoMemoryRef(sizeof(skydomeIndices), skydomeIndices, nullptr);
+	skydomeIBO = Graphics_CreateIndexBuffer(skydomeIndicesMemory, BufferFlags::None);
+
+	bgfx::TextureInfo cubemapInfo;
+	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, 0, &cubemapInfo);
 }
 
 RFAPI void Renderer3D_Resize(int width, int height)
@@ -184,6 +230,9 @@ RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix pr
 {
 	cameraPosition = position;
 	cameraRotation = rotation;
+	cameraRight = rotation.right();
+	cameraUp = rotation.up();
+	cameraForward = rotation.forward();
 	projection = proj;
 	view = (Matrix::Translate(position) * Matrix::Rotate(rotation)).inverted();
 	pv = projection * view;
@@ -203,6 +252,36 @@ RFAPI void Renderer3D_DrawScene(SceneData* scene, Matrix transform, AnimationSta
 RFAPI void Renderer3D_DrawPointLight(Vector3 position, Vector3 color)
 {
 	pointLightDraws.add({ position, color });
+}
+
+RFAPI void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color)
+{
+	renderDirectionalLight = true;
+	directionalLightDirection = direction;
+	directionalLightColor = color;
+}
+
+RFAPI void Renderer3D_DrawParticleSystem(ParticleSystem* particleSystem)
+{
+	particleSystemDraws.add({ particleSystem });
+}
+
+RFAPI void Renderer3D_DrawSky(uint16_t sky, float intensity, Quaternion rotation)
+{
+	skyTexture = sky;
+	skyIntensity = intensity;
+	skyTransform = Matrix::Rotate(rotation);
+}
+
+RFAPI void Renderer3D_DrawEnvironmentMap(uint16_t envir, float intensity)
+{
+	environmentMap = envir;
+	environmentIntensity = intensity;
+}
+
+RFAPI void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff)
+{
+	environmentMapMasks.add({ position, size, falloff });
 }
 
 RFAPI void Renderer3D_Begin()
@@ -364,6 +443,24 @@ static void GeometryPass()
 	}
 }
 
+static void RenderEmissive()
+{
+	Shader* shader = deferredEmissiveShader;
+
+	Graphics_ResetState();
+
+	Graphics_SetBlendState(BlendState::Additive);
+	Graphics_SetDepthTest(DepthTest::None);
+	Graphics_SetCullState(CullState::ClockWise);
+
+	Graphics_SetVertexBuffer(quad);
+
+	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+
+	Graphics_Draw(RenderPass::Deferred, shader);
+}
+
 static float CalculateLightRadius(Vector3 color)
 {
 	/// 
@@ -384,8 +481,6 @@ static float CalculateLightRadius(Vector3 color)
 static void RenderPointLights()
 {
 	Shader* shader = deferredPointShader;
-
-	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
 
 	Vector4 lightPositions[MAX_LIGHTS_PER_PASS];
 	Vector4 lightColors[MAX_LIGHTS_PER_PASS];
@@ -442,26 +537,220 @@ static void RenderPointLights()
 	}
 }
 
+static void RenderDirectionalLights()
+{
+	if (renderDirectionalLight)
+	{
+		Shader* shader = deferredDirectionalShader;
+
+		Graphics_ResetState();
+
+		Graphics_SetBlendState(BlendState::Additive);
+		Graphics_SetDepthTest(DepthTest::None);
+		Graphics_SetCullState(CullState::ClockWise);
+
+		Graphics_SetVertexBuffer(quad);
+
+		Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+
+		Vector4 lightDirection(directionalLightDirection, 0);
+		Vector4 lightColor(directionalLightColor, 0);
+		Graphics_SetUniform(shader->getUniform("u_lightDirection", bgfx::UniformType::Vec4), &lightDirection);
+		Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4), &lightColor);
+
+		Vector4 u_cameraPosition(cameraPosition, 0);
+		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+		Graphics_Draw(RenderPass::Deferred, shader);
+	}
+}
+
+static void RenderEnvironmentMaps()
+{
+	if (environmentMap == bgfx::kInvalidHandle)
+		return;
+
+	Shader* shader = deferredEnvironmentShader;
+
+	Graphics_ResetState();
+
+	Graphics_SetBlendState(BlendState::Additive);
+	Graphics_SetDepthTest(DepthTest::None);
+	Graphics_SetCullState(CullState::ClockWise);
+
+	Graphics_SetVertexBuffer(quad);
+
+	Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+
+	Graphics_SetTexture(shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler), 4, bgfx::TextureHandle{ environmentMap });
+
+	int numEnvironmentMasks = min(environmentMapMasks.size, 4);
+
+	Vector4 environmentData(environmentIntensity, (float)numEnvironmentMasks, 0, 0);
+	Graphics_SetUniform(shader->getUniform("u_environmentData", bgfx::UniformType::Vec4), &environmentData);
+
+	Vector4 maskPositions[4];
+	Vector4 maskSizes[4];
+	for (int i = 0; i < numEnvironmentMasks; i++)
+	{
+		maskPositions[i] = Vector4(environmentMapMasks[i].position, 0);
+		maskSizes[i] = Vector4(environmentMapMasks[i].size, environmentMapMasks[i].falloff);
+	}
+	Graphics_SetUniform(shader->getUniform("u_maskPosition", bgfx::UniformType::Vec4, 4), maskPositions, numEnvironmentMasks);
+	Graphics_SetUniform(shader->getUniform("u_maskSize", bgfx::UniformType::Vec4, 4), maskSizes, numEnvironmentMasks);
+
+	Vector4 u_cameraPosition(cameraPosition, 0);
+	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+	Graphics_Draw(RenderPass::Deferred, shader);
+}
+
 static bgfx::TextureHandle DeferredPass()
 {
 	Graphics_SetRenderTarget(RenderPass::Deferred, forwardRT, width, height, true, true, 0, 1);
 
+	RenderEmissive();
 	RenderPointLights();
+	RenderDirectionalLights();
+	RenderEnvironmentMaps();
 
 	return forwardRTTextures[0];
 }
 
+struct ParticleInstanceData
+{
+	Vector3 position;
+	float rotation;
+	Vector4 color;
+	Vector4 sizeAnimation;
+};
+
+static int ParticleComparator(const ParticleInstanceData* a, const ParticleInstanceData* b)
+{
+	float d1 = dot(a->position, cameraForward);
+	float d2 = dot(b->position, cameraForward);
+
+	return d1 < d2 ? 1 : d1 > d2 ? -1 : 0;
+}
+
 static void RenderParticles()
 {
+	Shader* shader = particleShader;
 
+	for (int i = 0; i < particleSystemDraws.size; i++)
+	{
+		ParticleSystem* system = particleSystemDraws[i].system;
+
+		if (system->numParticles == 0)
+			continue;
+
+		Sphere boundingSphere = system->boundingSphere;
+		if (system->follow)
+			boundingSphere.center += system->transform * (boundingSphere.center + system->spawnOffset);
+
+		if (!FrustumCulling(boundingSphere, frustumPlanes))
+			continue;
+
+		int numParticles = system->numParticles;
+		bgfx::InstanceDataBuffer instanceBuffer;
+		if (Graphics_CreateInstanceBuffer(numParticles, sizeof(ParticleInstanceData), &instanceBuffer))
+		{
+			ParticleInstanceData* instanceData = (ParticleInstanceData*)instanceBuffer.data;
+
+			int particleCount = 0;
+			for (int i = 0; i < system->maxParticles; i++)
+			{
+				Particle* particle = &system->particles[i];
+				if (particle->active)
+				{
+					Vector3 position = particle->position;
+					if (system->follow)
+						position = system->transform * (position + system->spawnOffset);
+
+					ParticleInstanceData* particleData = &instanceData[particleCount++];
+					particleData->position = position;
+					particleData->rotation = particle->rotation;
+					particleData->color = particle->color;
+					particleData->sizeAnimation.x = particle->size;
+					particleData->sizeAnimation.y = particle->animationFrame;
+				}
+			}
+
+			qsort(instanceData, particleCount, sizeof(ParticleInstanceData), (_CoreCrtNonSecureSearchSortCompareFunction)ParticleComparator);
+
+			if (system->textureAtlas != bgfx::kInvalidHandle)
+				Graphics_SetTexture(shader->getUniform("s_textureAtlas", bgfx::UniformType::Sampler), 0, bgfx::TextureHandle{ system->textureAtlas }, system->linearFiltering ? 0 : BGFX_SAMPLER_POINT);
+			Vector4 atlasSize((float)system->atlasSize.x, (float)system->atlasSize.y, system->textureAtlas != bgfx::kInvalidHandle ? 1.0f : 0.0f, 0);
+			Graphics_SetUniform(shader->getUniform("u_atlasSize", bgfx::UniformType::Vec4), &atlasSize);
+
+			int numLights = min(pointLightDraws.size, MAX_LIGHTS_PER_PASS);
+
+			Vector4 lightInfo((float)numLights, system->emissiveIntensity, system->lightInfluence, system->additive);
+			Graphics_SetUniform(shader->getUniform("u_lightInfo", bgfx::UniformType::Vec4), &lightInfo);
+
+			Vector4 lightPositions[MAX_LIGHTS_PER_PASS];
+			Vector4 lightColors[MAX_LIGHTS_PER_PASS];
+			for (int j = 0; j < numLights; j++)
+			{
+				lightPositions[j] = Vector4(pointLightDraws[j].position, 1);
+				lightColors[j] = Vector4(pointLightDraws[j].color, 1);
+			}
+			Graphics_SetUniform(shader->getUniform("u_lightPosition", bgfx::UniformType::Vec4, MAX_LIGHTS_PER_PASS), lightPositions, numLights);
+			Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4, MAX_LIGHTS_PER_PASS), lightColors, numLights);
+
+			Vector4 cameraAxisRight(cameraRight, 1);
+			Vector4 cameraAxisUp(cameraUp, 1);
+			Graphics_SetUniform(shader->getUniform("u_cameraAxisRight", bgfx::UniformType::Vec4), &cameraAxisRight);
+			Graphics_SetUniform(shader->getUniform("u_cameraAxisUp", bgfx::UniformType::Vec4), &cameraAxisUp);
+
+			Graphics_SetBlendState(system->additive ? BlendState::Additive : BlendState::Alpha);
+
+			Graphics_SetVertexBuffer(particle);
+			Graphics_SetInstanceBuffer(&instanceBuffer);
+
+			Graphics_Draw(RenderPass::Forward, shader);
+		}
+	}
+}
+
+static void RenderSky()
+{
+	if (skyTexture == bgfx::kInvalidHandle)
+		return;
+
+	Shader* shader = skyShader;
+
+	Graphics_ResetState();
+
+	Graphics_SetBlendState(BlendState::Alpha);
+
+	Graphics_SetVertexBuffer(skydome);
+	Graphics_SetIndexBuffer(skydomeIBO);
+
+	Graphics_SetTransform(RenderPass::Forward, skyTransform);
+
+	Vector4 skyData(skyIntensity, 0, 0, 0);
+	Graphics_SetUniform(shader->getUniform("u_skyData", bgfx::UniformType::Vec4), &skyData);
+
+	Graphics_SetTexture(shader->getUniform("s_skyTexture", bgfx::UniformType::Sampler), 0, bgfx::TextureHandle{ skyTexture });
+
+	Graphics_Draw(RenderPass::Forward, shader);
 }
 
 static void ForwardPass()
 {
 	Graphics_ResetState();
 	Graphics_SetRenderTarget(RenderPass::Forward, forwardRT, width, height, true, true, 0, 1);
-	
+	Graphics_SetViewTransform(RenderPass::Forward, projection, view);
+
 	RenderParticles();
+	RenderSky();
 }
 
 static void TonemappingPass(bgfx::TextureHandle input)
@@ -494,6 +783,11 @@ RFAPI void Renderer3D_End()
 	meshDraws.clear();
 	sceneDraws.clear();
 	pointLightDraws.clear();
+	renderDirectionalLight = false;
+	particleSystemDraws.clear();
+	skyTexture = bgfx::kInvalidHandle;
+	environmentMap = bgfx::kInvalidHandle;
+	environmentMapMasks.clear();
 }
 
 static float GetCPUTime(RenderPass pass)

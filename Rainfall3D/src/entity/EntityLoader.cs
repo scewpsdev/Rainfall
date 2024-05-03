@@ -123,13 +123,13 @@ namespace Rainfall
 						switch (colliderData.type)
 						{
 							case SceneFormat.ColliderType.Box:
-								entity.body.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								entity.body.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers), entity.bodyFriction);
 								break;
 							case SceneFormat.ColliderType.Sphere:
-								entity.body.addSphereCollider(colliderData.radius, colliderData.offset);
+								entity.body.addSphereCollider(colliderData.radius, colliderData.offset, entity.bodyFriction);
 								break;
 							case SceneFormat.ColliderType.Capsule:
-								entity.body.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+								entity.body.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers), entity.bodyFriction);
 								break;
 							case SceneFormat.ColliderType.Mesh:
 								if (colliderData.meshColliderPath != null)
@@ -141,7 +141,7 @@ namespace Rainfall
 										meshCollider = Physics.CreateMeshCollider(model);
 										meshColliderCache.Add(model, meshCollider);
 									}
-									entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
+									entity.body.addMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset), entity.bodyFriction);
 								}
 								break;
 							case SceneFormat.ColliderType.ConvexMesh:
@@ -154,7 +154,7 @@ namespace Rainfall
 										meshCollider = Physics.CreateConvexMeshCollider(model);
 										convexMeshColliderCache.Add(model, meshCollider);
 									}
-									entity.body.addConvexMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset));
+									entity.body.addConvexMeshCollider(meshCollider, Matrix.CreateTranslation(colliderData.offset), entity.bodyFriction);
 								}
 								break;
 							default:

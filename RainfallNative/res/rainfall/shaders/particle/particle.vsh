@@ -1,4 +1,4 @@
-$input a_position, a_texcoord0, i_data0, i_data1, i_data2
+$input a_position, i_data0, i_data1, i_data2
 $output v_position, v_texcoord0, v_color0
 
 
@@ -19,12 +19,13 @@ void main()
 	
 	vec2 localPosition = vec2(a_position.x * cos(rotation) - a_position.y * sin(rotation),
 							  cos(rotation) * a_position.y + sin(rotation) * a_position.x);
+	vec2 texcoord = a_position * vec2(1, -1) + 0.5;
 
 	position += localPosition.x * size * u_cameraAxisRight.xyz + localPosition.y * size * u_cameraAxisUp.xyz;
 
 	gl_Position = mul(u_viewProj, vec4(position, 1.0));
 
 	v_position = position;
-	v_texcoord0 = vec3(a_texcoord0.xy, animation);
+	v_texcoord0 = vec3(texcoord, animation);
 	v_color0 = color;
 }

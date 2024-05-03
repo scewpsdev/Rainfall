@@ -27,6 +27,7 @@ namespace Rainfall
 	public class Animator
 	{
 		static List<Animator> animators = new List<Animator>();
+		static Mutex activeAnimationsMutex = new Mutex();
 
 		public static Animator Create(Model model, PhysicsEntity entity = null)
 		{
@@ -41,8 +42,24 @@ namespace Rainfall
 			animators.Remove(animator);
 		}
 
+		public static AnimationState CreateAnimation(Model model, AnimationLayer[] layers, float transitionDuration = 0.0f)
+		{
+			AnimationState animation = new AnimationState(model, layers, transitionDuration);
+			return animation;
+		}
+
+		public static AnimationState CreateAnimation(Model model, string name, bool looping = false, float transitionDuration = 0.0f)
+		{
+			return CreateAnimation(model, new AnimationLayer[] { new AnimationLayer(model, name, looping) }, transitionDuration);
+		}
+
 		public static void Update(Matrix cameraTransform)
 		{
+			// multithreaded animations cause some glitching?
+			// disabled it for now since it doesn't save that much, but should be fixable
+			// could be because some animation states are used by multiple animators at the same time
+			// possible solution could be to update all states first, and then the animators
+
 			void updateAnimator(int idx)
 			{
 				animators[idx].update();
@@ -50,10 +67,6 @@ namespace Rainfall
 			}
 			for (int i = 0; i < animators.Count; i++)
 				updateAnimator(i);
-			// multithreaded animations cause some glitching?
-			// disabled it for now since it doesn't save that much, but should be fixable
-			// could be because some animation states are used by multiple animators at the same time
-			// possible solution could be to update all states first, and then the animators
 			//Parallel.For(0, animators.Count, updateAnimator);
 		}
 
@@ -136,10 +149,10 @@ namespace Rainfall
 
 			if (states.Count > 0)
 			{
-				//states[states.Count - 1].update(model, stateAnimationTimers[states.Count - 1]);
+				states[states.Count - 1].update(stateAnimationTimers[states.Count - 1]);
 				for (int i = 0; i < states.Count - 1; i++)
 				{
-					//states[i].update(model, stateAnimationTimers[i]);
+					states[i].update(stateAnimationTimers[i]);
 					AnimationState nextState = states[i + 1];
 					float transitionDuration = getTransitionDuration(states[i], nextState);
 					if (stateTransitionTimers[i + 1] > transitionDuration)
@@ -157,12 +170,12 @@ namespace Rainfall
 
 			if (states.Count > 0)
 			{
-				states[0].update(model, stateAnimationTimers[0]);
+				//states[0].update(model, stateAnimationTimers[0]);
 				Array.Copy(states[0].nodeAnimationLocalTransforms, nodeLocalTransforms, Math.Min(states[0].nodeAnimationLocalTransforms.Length, nodeLocalTransforms.Length));
 
 				for (int i = 1; i < states.Count; i++)
 				{
-					states[i].update(model, stateAnimationTimers[i]);
+					//states[i].update(model, stateAnimationTimers[i]);
 
 					float transitionDuration = getTransitionDuration(states[i - 1], states[i]);
 					float transitionProgress = Math.Clamp(stateTransitionTimers[i] / transitionDuration, 0.0f, 1.0f);

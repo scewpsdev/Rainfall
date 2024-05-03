@@ -272,9 +272,9 @@ Vector3 operator*(const Matrix& a, const Vector3& b)
 {
 	Vector3 result;
 
-	result.x = a.m00 * b.x + a.m10 * b.y + a.m20 * b.z;
-	result.y = a.m01 * b.x + a.m11 * b.y + a.m21 * b.z;
-	result.z = a.m02 * b.x + a.m12 * b.y + a.m22 * b.z;
+	result.x = a.m00 * b.x + a.m10 * b.y + a.m20 * b.z + a.m30;
+	result.y = a.m01 * b.x + a.m11 * b.y + a.m21 * b.z + a.m31;
+	result.z = a.m02 * b.x + a.m12 * b.y + a.m22 * b.z + a.m32;
 
 	return result;
 }

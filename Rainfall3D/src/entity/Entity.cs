@@ -24,6 +24,7 @@ public class Entity : PhysicsEntity
 	public RigidBody body = null;
 	public RigidBodyType bodyType = RigidBodyType.Null;
 	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
+	public float bodyFriction = 0.5f;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
 	public Dictionary<string, RigidBody> hitboxes;
 	public uint hitboxFilterGroup = 1, hitboxFilterMask = 1;

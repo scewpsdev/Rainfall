@@ -15,6 +15,7 @@ RFAPI ParticleSystem* ParticleSystem_Create(int maxParticles, Matrix transform)
 	system->transform = transform;
 	system->maxParticles = maxParticles;
 	system->particles = (Particle*)BX_ALLOC(Application_GetAllocator(), maxParticles * sizeof(Particle));
+	memset(system->particles, 0, sizeof(Particle) * maxParticles);
 
 	uint32_t seed = (uint32_t)Application_GetCurrentTime();
 	system->random = Random(seed);
@@ -108,7 +109,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 
 	Vector3 velocity = system->startVelocity;
 	if (!system->follow)
-		velocity = system->transform * velocity;
+		velocity = (system->transform * Vector4(velocity, 0)).xyz;
 	if (system->applyEntityVelocity)
 		velocity += system->entityVelocity;
 	if (system->applyCentrifugalForce)
@@ -133,7 +134,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 		if (system->spawnShape == ParticleSpawnShape::Point)
 			velocity += RandomPointOnSphere(system->random) * system->radialVelocity;
 		else
-			velocity += (system->transform * localPosition).normalized() * system->radialVelocity;
+			velocity += (system->transform * Vector4(localPosition, 0)).xyz.normalized() * system->radialVelocity;
 	}
 
 	float rotationVelocity = 0.0f;
@@ -145,6 +146,8 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 		particleLifetime *= 1 + system->random.nextFloat(-system->randomLifetime, system->randomLifetime);
 
 	Particle* particle = &system->particles[particleID];
+	memset(particle, 0, sizeof(Particle));
+	particle->active = true;
 	particle->position = position;
 	particle->rotation = rotation;
 	particle->velocity = velocity;
@@ -216,7 +219,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 			particle->velocity.y += 0.5f * system->gravity * Application_GetDelta();
 
 			minpos = min(minpos, particle->position - particle->size);
-			maxpos = min(maxpos, particle->position + particle->size);
+			maxpos = max(maxpos, particle->position + particle->size);
 			maxRadiusSq = fmaxf(maxRadiusSq, (particle->position - system->boundingSphere.center).lengthSquared());
 
 			particle->rotation += particle->rotationVelocity * Application_GetDelta();

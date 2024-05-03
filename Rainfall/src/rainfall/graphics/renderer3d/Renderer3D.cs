@@ -70,6 +70,21 @@ namespace Rainfall
 			Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero);
 		}
 
+		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)
+		{
+			Renderer3D_DrawSky(skybox.handle, intensity, rotation);
+		}
+
+		public static void DrawEnvironmentMap(Cubemap environmentMap, float intensity)
+		{
+			Renderer3D_DrawEnvironmentMap(environmentMap.handle, intensity);
+		}
+
+		public static void DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff)
+		{
+			Renderer3D_DrawEnvironmentMapMask(position, size, falloff);
+		}
+
 		public static void DrawModelStaticInstanced_(Model model, Matrix transform)
 		{
 			// not supported atm, dont use
@@ -106,20 +121,12 @@ namespace Rainfall
 
 		public static void DrawDirectionalLight(DirectionalLight light)
 		{
-			// not supported atm, dont use
-			Debug.Assert(false);
+			Renderer3D_DrawDirectionalLight(light.direction, light.color);
 		}
 
 		public static void DrawReflectionProbe(ReflectionProbe reflectionProbe)
 		{
-			// not supported atm, dont use
-			Debug.Assert(false);
-		}
-
-		public static void DrawSky(Cubemap cubemap, float intensity, Matrix transform)
-		{
-			// not supported atm, dont use
-			Debug.Assert(false);
+			// TODO implement
 		}
 
 		public static void DrawWater(Vector3 position, float size)
@@ -134,18 +141,12 @@ namespace Rainfall
 			Debug.Assert(false);
 		}
 
-		public static void DrawParticleSystem(ParticleSystem particleSystem)
+		public static unsafe void DrawParticleSystem(ParticleSystem particleSystem)
 		{
-			// TODO implement
+			Renderer3D_DrawParticleSystem(particleSystem.handle);
 		}
 
 		public static void DrawGrassPatch(/*Terrain terrain, Vector2 position*/)
-		{
-			// not supported atm, dont use
-			Debug.Assert(false);
-		}
-
-		public static void SetEnvironmentMap(Cubemap environmentMap, float intensity)
 		{
 			// not supported atm, dont use
 			Debug.Assert(false);
@@ -202,6 +203,21 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static unsafe void Renderer3D_DrawParticleSystem(ParticleSystemData* particleSystem);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawSky(ushort sky, float intensity, Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawEnvironmentMap(ushort environmentMap, float intensity);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_Begin();

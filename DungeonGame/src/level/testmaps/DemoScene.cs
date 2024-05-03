@@ -102,7 +102,7 @@ internal class DemoScene : Room
 		base.draw(graphics);
 
 		Renderer.DrawSky(skybox, 1.5f, Matrix.Identity);
-		Renderer.SetEnvironmentMap(skybox, 1.5f);
+		Renderer.DrawEnvironmentMap(skybox, 1.5f);
 		Renderer.DrawDirectionalLight(sun);
 
 		Renderer.DrawReflectionProbe(towerReflection);

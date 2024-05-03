@@ -258,8 +258,9 @@ RFAPI uint16_t Graphics_CreateCubemapFromMemory(const bgfx::Memory* memory, uint
 
 RFAPI uint16_t Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
 {
-	bgfx::TextureHandle handle = bgfx::createTextureCube(size, true, 1, format, flags, nullptr);
-	bgfx::calcTextureSize(*info, size, size, 1, true, true, 1, format);
+	bgfx::TextureHandle handle = bgfx::createTextureCube(size, false, 1, format, flags, nullptr);
+	if (info)
+		bgfx::calcTextureSize(*info, size, size, 1, true, false, 1, format);
 	return handle.idx;
 }
 

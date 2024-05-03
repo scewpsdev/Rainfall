@@ -9,7 +9,7 @@ uniform vec4 u_atlasSize;
 uniform vec4 u_pointLight_position[16];
 uniform vec4 u_pointLight_color[16];
 uniform vec4 u_lightInfo; // numPointLights, emissiveStrength, lightInfluence, additive
-#define u_numPointLights u_lightInfo[0]
+#define u_numPointLights int(u_lightInfo[0] + 0.5)
 #define u_emissiveStrength u_lightInfo[1]
 #define u_lightInfluence u_lightInfo[2]
 #define u_additive u_lightInfo[3]

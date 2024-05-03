@@ -135,13 +135,13 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 
 	bool success = true;
 
-	if (extension == ".glsl" || extension == ".shader" || extension == ".vs" || extension == ".fs" || extension == ".cs")
+	if (extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh")
 	{
 		std::string name = file.stem().string();
 
-		bool vertex = extension.size() == 3 && extension == ".vs" || name.size() > 3 && strncmp(&name[name.size() - 3], ".vs", 3) == 0;
-		bool fragment = extension.size() == 3 && extension == ".fs" || name.size() > 3 && strncmp(&name[name.size() - 3], ".fs", 3) == 0;
-		bool compute = extension.size() == 3 && extension == ".cs" || name.size() > 3 && strncmp(&name[name.size() - 3], ".cs", 3) == 0;
+		bool vertex = extension == ".vsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".vsh", 4) == 0;
+		bool fragment = extension == ".fsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".fsh", 4) == 0;
+		bool compute = extension == ".csh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".csh", 4) == 0;
 
 		if (vertex)
 			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "vertex") && success;
@@ -158,7 +158,7 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 		if (name.find("cubemap") != std::string::npos)
 		{
 			bool equirect = name.find("equirect") != std::string::npos;
-			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, false, false, true, equirect, !equirect);
+			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, true, false, true, equirect, !equirect);
 		}
 		else
 		{
@@ -292,14 +292,14 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	{
 		std::string name = file.stem().string();
 		if (extension.size() >= 2 && (
-			strncmp(&extension[extension.size() - 2], "vs", 2) == 0 ||
-			strncmp(&extension[extension.size() - 2], "fs", 2) == 0 ||
-			strncmp(&extension[extension.size() - 2], "cs", 2) == 0
+			strncmp(&extension[extension.size() - 3], "vsh", 2) == 0 ||
+			strncmp(&extension[extension.size() - 3], "fsh", 2) == 0 ||
+			strncmp(&extension[extension.size() - 3], "csh", 2) == 0
 			) ||
-			name.size() > 3 && name[name.size() - 3] == '.' &&
-			(strncmp(&name[name.size() - 2], "vs", 2) == 0 ||
-				strncmp(&name[name.size() - 2], "fs", 2) == 0 ||
-				strncmp(&name[name.size() - 2], "cs", 2) == 0))
+			name.size() > 4 && name[name.size() - 4] == '.' &&
+			(strncmp(&name[name.size() - 3], "vsh", 3) == 0 ||
+				strncmp(&name[name.size() - 3], "fsh", 3) == 0 ||
+				strncmp(&name[name.size() - 3], "csh", 3) == 0))
 			;
 		else
 		{
