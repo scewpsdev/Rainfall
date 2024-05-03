@@ -137,8 +137,7 @@ namespace Rainfall
 
 		public static void DrawWater(Vector3 position, Model model)
 		{
-			// not supported atm, dont use
-			Debug.Assert(false);
+			// TODO implement
 		}
 
 		public static unsafe void DrawParticleSystem(ParticleSystem particleSystem)

@@ -170,6 +170,11 @@ public unsafe class ParticleSystem
 		handle = null;
 	}
 
+	public unsafe void setData(ParticleSystemData data)
+	{
+		*handle = data;
+	}
+
 	public void restartEffect()
 	{
 		ParticleSystem_Restart(handle);
