@@ -244,7 +244,12 @@ float DistanceToBox(vec3 position, vec3 size, vec3 p)
 	{
 		if (ap.y <= 1.0)
 		{
-			if (ap.z > 1.0)
+			if (ap.z <= 1.0)
+			{
+				vec3 pp = scale - ap * scale;
+				return -min(min(pp.x, pp.y), pp.z);
+			}
+			else
 				return (ap.z - 1.0) * scale.z;
 		}
 		else

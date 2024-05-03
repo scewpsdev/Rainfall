@@ -90,9 +90,9 @@ public static class GraphicsManager
 	public static void Draw()
 	{
 		if (environmentMap != null)
-			Renderer.SetEnvironmentMap(environmentMap, environmentMapIntensity);
+			Renderer.DrawEnvironmentMap(environmentMap, environmentMapIntensity);
 		if (skybox != null)
-			Renderer.DrawSky(skybox, skyboxIntensity, Matrix.Identity);
+			Renderer.DrawSky(skybox, skyboxIntensity, Quaternion.Identity);
 		if (sun != null)
 			Renderer.DrawDirectionalLight(sun);
 	}

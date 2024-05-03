@@ -82,9 +82,9 @@ namespace Rainfall
 			get => body != IntPtr.Zero;
 		}
 
-		public void addSphereCollider(float radius, Vector3 position)
+		public void addSphereCollider(float radius, Vector3 position, float friction = 0.5f, float restitution = 0.1f)
 		{
-			Native.Physics.Physics_RigidBodyAddSphereCollider(body, radius, position, filterGroup, filterMask, 0.5f, 0.5f, 0.1f);
+			Native.Physics.Physics_RigidBodyAddSphereCollider(body, radius, position, filterGroup, filterMask, friction, friction, restitution);
 		}
 
 		public void addBoxCollider(Vector3 halfExtents, Vector3 position, Quaternion rotation, float friction = 0.5f, float restitution = 0.1f)
@@ -97,7 +97,7 @@ namespace Rainfall
 			addBoxCollider(size * 0.5f, position + 0.5f * size, Quaternion.Identity);
 		}
 
-		public void addCapsuleCollider(float radius, float height, Vector3 position, Quaternion rotation, float friction = 0.0f, float restitution = 0.1f)
+		public void addCapsuleCollider(float radius, float height, Vector3 position, Quaternion rotation, float friction = 0.5f, float restitution = 0.1f)
 		{
 			Native.Physics.Physics_RigidBodyAddCapsuleCollider(body, radius, height, position, rotation, filterGroup, filterMask, friction, friction, restitution);
 		}

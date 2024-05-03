@@ -41,7 +41,6 @@ public unsafe struct Gradient_Vector4_2
 	{
 		public Vector4 value;
 		public float position;
-		public int count;
 	}
 
 	public Value value0;
@@ -126,7 +125,7 @@ public unsafe class ParticleSystem
 
 	public static void Destroy(ParticleSystem particleSystem)
 	{
-		//particleSystem.destroy();
+		particleSystem.destroy();
 		if (particleSystems.Contains(particleSystem))
 			particleSystems.Remove(particleSystem);
 	}
@@ -163,6 +162,12 @@ public unsafe class ParticleSystem
 	ParticleSystem(int maxParticles, Matrix transform)
 	{
 		handle = ParticleSystem_Create(maxParticles, transform);
+	}
+
+	void destroy()
+	{
+		ParticleSystem_Destroy(handle);
+		handle = null;
 	}
 
 	public void restartEffect()
