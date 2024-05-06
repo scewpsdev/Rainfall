@@ -53,21 +53,21 @@ namespace Rainfall
 			Renderer3D_Terminate();
 		}
 
-		public static unsafe void DrawMesh(MeshData* mesh, Material material, Matrix transform, Animator animator = null)
+		public static unsafe void DrawMesh(MeshData* mesh, Material material, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
-			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero);
+			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
-		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null)
+		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
 			MeshData* mesh = model.getMeshData(meshID);
 			IntPtr material = mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : IntPtr.Zero;
-			Renderer3D_DrawMesh(mesh, transform, material, animator != null ? animator.handle : IntPtr.Zero);
+			Renderer3D_DrawMesh(mesh, transform, material, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
-		public static unsafe void DrawModel(Model model, Matrix transform, Animator animator = null)
+		public static unsafe void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
-			Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero);
+			Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
 		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)
@@ -173,7 +173,7 @@ namespace Rainfall
 
 			Renderer3D_End();
 
-			GUI.Draw(94);
+			GUI.Draw();
 		}
 
 		public static int DrawDebugStats(int x, int y, byte color)
@@ -195,10 +195,10 @@ namespace Rainfall
 		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation);
+		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation, byte isOccluder);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern unsafe static void Renderer3D_DrawScene(SceneData* scene, Matrix transform, IntPtr animation);
+		extern unsafe static void Renderer3D_DrawScene(SceneData* scene, Matrix transform, IntPtr animation, byte isOccluder);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color);

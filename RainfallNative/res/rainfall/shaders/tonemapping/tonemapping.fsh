@@ -83,4 +83,5 @@ void main()
 	tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);
+	//gl_FragColor = vec4(depthToDistance(texture2DLod(s_hdrBuffer, v_texcoord0, 5).r, 0.025, 1000) / 20, 0, 0, 0);
 }

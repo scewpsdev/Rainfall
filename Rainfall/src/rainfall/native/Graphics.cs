@@ -309,10 +309,13 @@ namespace Rainfall
 			internal static extern void Graphics_SetComputeTexture(int stage, ushort texture, int mip, ComputeAccess access);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern void Graphics_SetRenderTarget(int pass, ushort renderTarget, int width, int height, byte hasRGB, byte hasDepth, uint rgba, float depth);
+			internal static extern void Graphics_SetRenderTarget(int pass, ushort renderTarget, int width, int height);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern void Graphics_SetRenderTargetR(int pass, ushort renderTarget, BackbufferRatio ratio, byte hasRGB, byte hasDepth, uint rgba, float depth);
+			internal static extern void Graphics_SetRenderTargetR(int pass, ushort renderTarget, BackbufferRatio ratio);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_ClearRenderTarget(int pass, ushort renderTarget, byte hasRGB, byte hasDepth, uint rgba, float depth);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetTransform(int pass, ref Matrix transform);

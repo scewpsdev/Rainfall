@@ -24,8 +24,20 @@ struct BoneWeights
 
 struct AABB
 {
-	float x0, y0, z0;
-	float x1, y1, z1;
+	union
+	{
+		Vector3 min = Vector3::Zero;
+		struct {
+			float x0, y0, z0;
+		};
+	};
+	union
+	{
+		Vector3 max = Vector3::Zero;
+		struct {
+			float x1, y1, z1;
+		};
+	};
 };
 
 struct Sphere

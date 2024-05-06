@@ -52,7 +52,7 @@ namespace Rainfall
 
 	public class GraphicsDevice
 	{
-		const ushort INVALID_HANDLE = 0xffff;
+		const ushort INVALID_HANDLE = ushort.MaxValue;
 
 
 		internal int currentPass = 0;
@@ -722,18 +722,23 @@ namespace Rainfall
 			currentPass++;
 		}
 
-		public void setRenderTarget(RenderTarget renderTarget, uint rgba = 0x0, float depth = 1.0f)
+		public void setRenderTarget(RenderTarget renderTarget, bool clear = true, uint rgba = 0x0, float depth = 1.0f)
 		{
 			if (renderTarget != null)
 			{
 				if (renderTarget.ratio != BackbufferRatio.Count)
-					Native.Graphics.Graphics_SetRenderTargetR(currentPass, renderTarget.handle, renderTarget.ratio, renderTarget.hasRGB ? (byte)1 : (byte)0, renderTarget.hasDepth ? (byte)1 : (byte)0, rgba, depth);
+					Native.Graphics.Graphics_SetRenderTargetR(currentPass, renderTarget.handle, renderTarget.ratio);
 				else
-					Native.Graphics.Graphics_SetRenderTarget(currentPass, renderTarget.handle, renderTarget.width, renderTarget.height, renderTarget.hasRGB ? (byte)1 : (byte)0, renderTarget.hasDepth ? (byte)1 : (byte)0, rgba, depth);
+					Native.Graphics.Graphics_SetRenderTarget(currentPass, renderTarget.handle, renderTarget.width, renderTarget.height);
+
+				if (clear)
+					Native.Graphics.Graphics_ClearRenderTarget(currentPass, renderTarget.handle, renderTarget.hasRGB ? (byte)1 : (byte)0, renderTarget.hasDepth ? (byte)1 : (byte)0, rgba, depth);
 			}
 			else
 			{
-				Native.Graphics.Graphics_SetRenderTargetR(currentPass, INVALID_HANDLE, BackbufferRatio.Equal, 1, 1, rgba, depth);
+				Native.Graphics.Graphics_SetRenderTargetR(currentPass, INVALID_HANDLE, BackbufferRatio.Equal);
+				if (clear)
+					Native.Graphics.Graphics_ClearRenderTarget(currentPass, INVALID_HANDLE, 1, 1, rgba, depth);
 			}
 		}
 

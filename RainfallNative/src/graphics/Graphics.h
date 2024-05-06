@@ -164,7 +164,9 @@ RFAPI uint16_t Graphics_CreateDynamicIndexBuffer(int indexCount, uint16_t flags)
 RFAPI void Graphics_DestroyDynamicIndexBuffer(uint16_t buffer);
 RFAPI bgfx::TransientIndexBuffer Graphics_CreateTransientIndexBuffer(int indexCount, bool index32);
 RFAPI bool Graphics_CreateInstanceBuffer(int count, int stride, bgfx::InstanceDataBuffer* buffer);
+RFAPI uint16_t Graphics_CreateIndirectBuffer(int count);
 RFAPI uint16_t Graphics_CreateTextureMutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info);
+RFAPI uint16_t Graphics_CreateTextureMutableEx(int width, int height, bgfx::TextureFormat::Enum format, bool hasMips, int numLayers, uint64_t flags, bgfx::TextureInfo* info);
 RFAPI uint16_t Graphics_CreateTextureMutableR(bgfx::BackbufferRatio::Enum ratio, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info);
 RFAPI void Graphics_SetTextureData(uint16_t texture, int x, int y, int width, int height, const bgfx::Memory* memory);
 RFAPI uint16_t Graphics_CreateTextureImmutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, const bgfx::Memory* memory, bgfx::TextureInfo* info);
@@ -201,9 +203,10 @@ inline void Graphics_SetUniform(bgfx::UniformHandle handle, const void* value, i
 RFAPI void Graphics_SetTexture(uint16_t sampler, int unit, uint16_t texture, uint32_t flags = UINT32_MAX);
 inline void Graphics_SetTexture(bgfx::UniformHandle sampler, int unit, bgfx::TextureHandle texture, uint32_t flags = UINT32_MAX) { Graphics_SetTexture(sampler.idx, unit, texture.idx, flags); }
 RFAPI void Graphics_SetComputeTexture(int stage, uint16_t texture, int mip, bgfx::Access::Enum access);
-RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int height, bool hasRGB, bool hasDepth, uint32_t rgba, float depth);
-inline void Graphics_SetRenderTarget(int pass, bgfx::FrameBufferHandle handle, int width, int height, bool hasRGB, bool hasDepth, uint32_t rgba, float depth) { Graphics_SetRenderTarget(pass, handle.idx, width, height, hasRGB, hasDepth, rgba, depth); }
-RFAPI void Graphics_SetRenderTargetR(int pass, uint16_t handle, bgfx::BackbufferRatio::Enum ratio, bool hasRGB, bool hasDepth, uint32_t rgba, float depth);
+RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int height);
+inline void Graphics_SetRenderTarget(int pass, bgfx::FrameBufferHandle handle, int width, int height) { Graphics_SetRenderTarget(pass, handle.idx, width, height); }
+RFAPI void Graphics_SetRenderTargetR(int pass, uint16_t handle, bgfx::BackbufferRatio::Enum ratio);
+RFAPI void Graphics_ClearRenderTarget(int pass, uint16_t handle, bool hasRGB, bool hasDepth, uint32_t rgba, float depth);
 RFAPI void Graphics_SetTransform(int pass, const Matrix& transform);
 RFAPI void Graphics_SetViewTransform(int pass, const Matrix& projection, const Matrix& view);
 RFAPI void Graphics_Draw(int pass, Shader* shader);

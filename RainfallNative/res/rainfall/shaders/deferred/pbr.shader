@@ -325,7 +325,7 @@ vec4 SampleCubemapParallax(vec3 position, vec3 direction, float lod, samplerCube
 
 vec3 SampleEnvironmentIrradiance(vec3 position, vec3 normal, samplerCube environmentMap, float environmentIntensity)
 {
-	return (textureCubeLod(environmentMap, normal, log2(textureSize(environmentMap, 0).x)).rgb) * environmentIntensity;
+	return SRGBToLinear(textureCubeLod(environmentMap, normal, log2(textureSize(environmentMap, 0).x)).rgb) * environmentIntensity;
 }
 
 vec3 SampleEnvironmentPrefiltered(vec3 position, vec3 normal, vec3 view, float roughness, samplerCube environmentMap, float environmentIntensity)
@@ -333,7 +333,7 @@ vec3 SampleEnvironmentPrefiltered(vec3 position, vec3 normal, vec3 view, float r
 	vec3 r = reflect(-view, normal);
 	float lodFactor = 1.0 - exp(-roughness * 12);
 
-	return (textureCubeLod(environmentMap, r, lodFactor * log2(textureSize(environmentMap, 0).x)).rgb) * environmentIntensity;
+	return SRGBToLinear(textureCubeLod(environmentMap, r, lodFactor * log2(textureSize(environmentMap, 0).x)).rgb) * environmentIntensity;
 }
 
 vec3 RenderEnvironment(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, samplerCube environmentMap, float environmentIntensity)

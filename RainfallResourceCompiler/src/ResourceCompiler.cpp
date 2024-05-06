@@ -288,7 +288,7 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	if (assetTable.size() == 0)
 		return true;
 
-	if (extension == ".glsl" || extension == ".shader" || extension == ".vs" || extension == ".fs" || extension == ".cs")
+	if (extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh")
 	{
 		std::string name = file.stem().string();
 		if (extension.size() >= 2 && (

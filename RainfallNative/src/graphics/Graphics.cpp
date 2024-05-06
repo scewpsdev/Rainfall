@@ -65,7 +65,6 @@ static uint64_t primitiveTypeValues[(int)PrimitiveType::Count] = {
 
 
 static uint64_t state = 0;
-static uint16_t currentRenderTarget = bgfx::kInvalidHandle;
 
 
 static bgfx::VertexLayout CreateVertexLayout(const VertexElement* layoutElements, int layoutElementsCount)
@@ -185,10 +184,23 @@ RFAPI bool Graphics_CreateInstanceBuffer(int count, int stride, bgfx::InstanceDa
 	return false;
 }
 
+RFAPI uint16_t Graphics_CreateIndirectBuffer(int count)
+{
+	bgfx::IndirectBufferHandle handle = bgfx::createIndirectBuffer(count);
+	return handle.idx;
+}
+
 RFAPI uint16_t Graphics_CreateTextureMutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture2D(width, height, false, 1, format, flags);
 	bgfx::calcTextureSize(*info, width, height, 0, false, false, 1, format);
+	return handle.idx;
+}
+
+RFAPI uint16_t Graphics_CreateTextureMutableEx(int width, int height, bgfx::TextureFormat::Enum format, bool hasMips, int numLayers, uint64_t flags, bgfx::TextureInfo* info)
+{
+	bgfx::TextureHandle handle = bgfx::createTexture2D(width, height, hasMips, numLayers, format, flags);
+	bgfx::calcTextureSize(*info, width, height, 0, false, hasMips, numLayers, format);
 	return handle.idx;
 }
 
@@ -456,30 +468,23 @@ RFAPI void Graphics_SetComputeTexture(int stage, uint16_t texture, int mip, bgfx
 	bgfx::setImage(stage, bgfx::TextureHandle{ texture }, mip, access);
 }
 
-RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int height, bool hasRGB, bool hasDepth, uint32_t rgba, float depth)
+RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int height)
 {
 	bgfx::setViewFrameBuffer((bgfx::ViewId)pass, bgfx::FrameBufferHandle{ handle });
 	bgfx::setViewRect((bgfx::ViewId)pass, 0, 0, width, height);
 
-	if (currentRenderTarget != handle)
-	{
-		bgfx::setViewClear((bgfx::ViewId)pass, (hasRGB ? BGFX_CLEAR_COLOR : 0) | (hasDepth ? BGFX_CLEAR_DEPTH : 0), rgba, depth, 0);
-		currentRenderTarget = handle;
-	}
-
 	bgfx::touch((bgfx::ViewId)pass);
 }
 
-RFAPI void Graphics_SetRenderTargetR(int pass, uint16_t handle, bgfx::BackbufferRatio::Enum ratio, bool hasRGB, bool hasDepth, uint32_t rgba, float depth)
+RFAPI void Graphics_SetRenderTargetR(int pass, uint16_t handle, bgfx::BackbufferRatio::Enum ratio)
 {
 	bgfx::setViewFrameBuffer((bgfx::ViewId)pass, bgfx::FrameBufferHandle{ handle });
 	bgfx::setViewRect((bgfx::ViewId)pass, 0, 0, ratio);
+}
 
-	if (currentRenderTarget != handle)
-	{
-		bgfx::setViewClear((bgfx::ViewId)pass, (hasRGB ? BGFX_CLEAR_COLOR : 0) | (hasDepth ? BGFX_CLEAR_DEPTH : 0), rgba, depth, 0);
-		currentRenderTarget = handle;
-	}
+RFAPI void Graphics_ClearRenderTarget(int pass, uint16_t handle, bool hasRGB, bool hasDepth, uint32_t rgba, float depth)
+{
+	bgfx::setViewClear((bgfx::ViewId)pass, (hasRGB ? BGFX_CLEAR_COLOR : 0) | (hasDepth ? BGFX_CLEAR_DEPTH : 0), rgba, depth, 0);
 
 	bgfx::touch((bgfx::ViewId)pass);
 }
