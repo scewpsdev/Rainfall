@@ -164,12 +164,12 @@ namespace Rainfall
 			return line + 1;
 		}
 
-		public static void Draw(int pass, RenderTarget target = null)
+		public static void Draw(RenderTarget target = null)
 		{
 			graphics.resetState();
-			graphics.setPass(pass);
+			graphics.setPass(108);
 
-			graphics.setRenderTarget(target);
+			graphics.setRenderTarget(target, false);
 
 			graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.viewportSize.x, 0, Display.viewportSize.y, -1.0f, 1.0f), Matrix.Identity);
 

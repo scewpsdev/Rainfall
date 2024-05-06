@@ -295,32 +295,9 @@
     <ClInclude Include="src\vector\Vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\rainfall\shaders\bgfx\bgfx_shader.shader" />
-    <None Include="res\rainfall\shaders\common\common.shader" />
-    <None Include="res\rainfall\shaders\common\shaderlib.shader" />
-    <None Include="res\rainfall\shaders\common\utils.shader" />
-    <None Include="res\rainfall\shaders\default\default.fsh" />
-    <None Include="res\rainfall\shaders\default\default.vsh" />
-    <None Include="res\rainfall\shaders\default\default_animated.vsh" />
-    <None Include="res\rainfall\shaders\default\varying.def.sc" />
-    <None Include="res\rainfall\shaders\deferred\deferred.vsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_directional.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_emissive.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_point.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
-    <None Include="res\rainfall\shaders\deferred\pbr.shader" />
-    <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
-    <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
-    <None Include="res\rainfall\shaders\particle\particle.fsh" />
-    <None Include="res\rainfall\shaders\particle\particle.vsh" />
-    <None Include="res\rainfall\shaders\particle\varying.def.sc" />
-    <None Include="res\rainfall\shaders\sky\sky.fsh" />
-    <None Include="res\rainfall\shaders\sky\sky.vsh" />
-    <None Include="res\rainfall\shaders\sky\varying.def.sc" />
+    <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
     <None Include="res\rainfall\shaders\tonemapping\tonemapping.fsh" />
-    <None Include="res\rainfall\shaders\tonemapping\tonemapping.vsh" />
-    <None Include="res\rainfall\shaders\tonemapping\varying.def.sc" />
     <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
     <None Include="res\shaders\rainfall\common\common.shader" />
     <None Include="res\shaders\rainfall\common\shaderlib.shader" />
@@ -340,6 +317,11 @@
     <None Include="res\shaders\rainfall\tonemapping\tonemapping.fs.shader" />
     <None Include="res\shaders\rainfall\tonemapping\tonemapping.vs.shader" />
     <None Include="res\shaders\rainfall\tonemapping\varying.def.sc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

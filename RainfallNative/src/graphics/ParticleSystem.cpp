@@ -257,7 +257,8 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 	system->boundingSphere.center = (minpos + maxpos) * 0.5f;
 	system->boundingSphere.radius = sqrtf(maxRadiusSq);
 
-	// TODO sort
+	if (system->follow)
+		system->boundingSphere.center += system->transform * (system->boundingSphere.center + system->spawnOffset);
 }
 
 RFAPI int ParticleSystem_GetNumParticles(ParticleSystem* system)
