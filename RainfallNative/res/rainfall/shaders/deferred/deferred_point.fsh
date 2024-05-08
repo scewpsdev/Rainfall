@@ -1,10 +1,9 @@
-$input v_texcoord0
+$input v_data0, v_data1
 
 #include "../common/common.shader"
+#include "../bgfx/bgfx_compute.shader"
 
 #include "pbr.shader"
-
-#define MAX_LIGHTS 16
 
 
 SAMPLER2D(s_gbuffer0, 0);
@@ -12,15 +11,15 @@ SAMPLER2D(s_gbuffer1, 1);
 SAMPLER2D(s_gbuffer2, 2);
 SAMPLER2D(s_gbuffer3, 3);
 
-SAMPLER2D(s_ambientOcclusion, 4);
+uniform vec4 u_lightPosition;
+uniform vec4 u_lightColor;
 
 uniform vec4 u_cameraPosition;
-uniform vec4 u_lightPosition[MAX_LIGHTS];
-uniform vec4 u_lightColor[MAX_LIGHTS];
 
 
 void main()
 {
+	vec2 v_texcoord0 = gl_FragCoord.xy * u_viewTexel.xy;
 	vec4 positionW = texture2D( s_gbuffer0, v_texcoord0);
 	vec4 normalEmissionStrength = texture2D( s_gbuffer1, v_texcoord0);
 	vec4 albedoRoughness = texture2D( s_gbuffer2, v_texcoord0);
@@ -35,23 +34,16 @@ void main()
 	float roughness = albedoRoughness.a;
 	float metallic = emissiveMetallic.a;
 	
-	float ao = 1.0 - texture2D(s_ambientOcclusion, v_texcoord0).r;
-
 	vec3 toCamera = u_cameraPosition.xyz - position;
 	float distance = length(toCamera);
 	vec3 view = toCamera / distance;
 
-	vec3 lightS = vec3_splat(0.0);
-	int numLights = int(u_cameraPosition.w + 0.5);
-	for (int i = 0; i < numLights; i++)
-	{
-		vec3 lightPosition = u_lightPosition[i].xyz;
-		vec3 lightColor = u_lightColor[i].rgb;
-		lightS += RenderPointLight(position, normal, view, albedo, roughness, metallic, ao, lightPosition, lightColor);
-	}
+	vec3 lightPosition = v_data0.xyz;
+	vec3 lightColor = v_data1.xyz;
+	vec3 lightS = RenderPointLight(position, normal, view, albedo, roughness, metallic, lightPosition, lightColor);
 
 	gl_FragColor = vec4(lightS, 1.0);
-
-	if (positionW.a < 0.5)
-		discard;
+	gl_FragColor.rgb += 0.01;
+	//gl_FragColor = vec4(v_texcoord0, 0, 1.0);
+	//gl_FragColor = vec4(0.01, 0, 0, 1);
 }

@@ -51,7 +51,10 @@ vec3 L(vec3 color, float distanceSq)
 {
 	//float attenuation = 1.0 / (distanceSq * 4);
 
-	float attenuation = 1.0 / (1.0 + 4 * distanceSq);
+	//float attenuation = 1.0 / (1.0 + 4 * distanceSq);
+
+	float dist = sqrt(distanceSq);
+	float attenuation = 1.0 / (1.0 + 2 * dist + 4 * distanceSq);
 
 	//float distance = sqrt(distanceSq);
     //float attenuation = max(1 - distance / lightRadius, 0);
@@ -65,13 +68,13 @@ vec3 L(vec3 color, float distanceSq)
 	vec3 radiance = color * attenuation;
 
 	float maxComponent = max(radiance.r, max(radiance.g, radiance.b));
-	radiance *= max(1 - 0.01 / maxComponent, 0);
+	radiance *= max(1 - 0.02 / maxComponent, 0);
 
 	return radiance;
 }
 
 // Point light indirect specular lighting
-vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, vec3 lightColor)
+vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, vec3 lightPosition, vec3 lightColor)
 {
 	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 	vec3 fLambert = albedo / PI;
@@ -98,7 +101,7 @@ vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float 
 	float ndotwi = max(dot(wi, normal), 0.0);
 	float shadow = 1.0; // Shadow mapping
 
-	vec3 s = (specular * ao + fLambert * kd * ao) * radiance * ndotwi * shadow;
+	vec3 s = (specular + fLambert * kd) * radiance * ndotwi * shadow;
 
 	return s;
 }

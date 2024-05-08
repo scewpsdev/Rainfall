@@ -167,7 +167,7 @@ namespace Rainfall
 		public static void Draw(RenderTarget target = null)
 		{
 			graphics.resetState();
-			graphics.setPass(108);
+			graphics.setPass(109);
 
 			graphics.setRenderTarget(target, false);
 

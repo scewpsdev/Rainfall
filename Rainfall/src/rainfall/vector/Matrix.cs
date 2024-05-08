@@ -526,16 +526,34 @@ namespace Rainfall
 		{
 			Matrix matrix = Identity;
 
-			float y = 1.0f / MathF.Tan(0.5f * fov);
-			float x = y / aspect;
-			float l = far - near;
+			bool homogenousDepth = false;
 
-			matrix.m00 = x;
-			matrix.m11 = y;
-			matrix.m22 = (far + near) / -l;
-			matrix.m23 = -1.0f;
-			matrix.m32 = -2.0f * near * far / l;
-			matrix.m33 = 0.0f;
+			if (homogenousDepth)
+			{
+				float y = 1.0f / MathF.Tan(0.5f * fov);
+				float x = y / aspect;
+				float l = far - near;
+
+				matrix.m00 = x;
+				matrix.m11 = y;
+				matrix.m22 = (far + near) / -l;
+				matrix.m23 = -1.0f;
+				matrix.m32 = -2.0f * near * far / l;
+				matrix.m33 = 0.0f;
+			}
+			else
+			{
+				float y = 1.0f / MathF.Tan(0.5f * fov);
+				float x = y / aspect;
+				float l = far - near;
+
+				matrix.m00 = x;
+				matrix.m11 = y;
+				matrix.m22 = far / -l;
+				matrix.m23 = -1.0f;
+				matrix.m32 = near * far / -l;
+				matrix.m33 = 0.0f;
+			}
 
 			return matrix;
 		}

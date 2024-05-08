@@ -123,7 +123,6 @@ bool CompileShader(const char* path, const char* out, const char* type)
 
 	const char* platform = platforms[renderer];
 	const char* profile = GetShaderProfile(renderer, shaderType);
-	const char* opt = GetShaderOpt(renderer, shaderType);
 
 	const char* argv[] = {
 		"shaderc",
@@ -133,7 +132,12 @@ bool CompileShader(const char* path, const char* out, const char* type)
 		"--platform", platform,
 		"--profile", profile,
 		"--type", type,
-		"-O", opt,
+#if _DEBUG
+		"-O", "0",
+		"--debug",
+#else
+		"-O", GetShaderOpt(renderer, shaderType),
+#endif
 	};
 	int argc = sizeof(argv) / sizeof(const char*);
 
