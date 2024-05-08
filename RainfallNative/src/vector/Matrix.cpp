@@ -193,6 +193,10 @@ Matrix Matrix::Transform(const Vector3& position, const Quaternion& rotation, co
 
 Matrix Matrix::Perspective(float fovy, float aspect, float near, float far)
 {
+	__debugbreak();
+
+	// TODO homogenous depth check
+
 	Matrix matrix = Identity;
 
 	float y = 1.0f / tanf(0.5f * fovy);

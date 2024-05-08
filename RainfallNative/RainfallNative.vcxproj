@@ -295,8 +295,8 @@
     <ClInclude Include="src\vector\Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\rainfall\shaders\deferred\deferred_point.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
-    <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
     <None Include="res\rainfall\shaders\tonemapping\tonemapping.fsh" />
     <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
     <None Include="res\shaders\rainfall\common\common.shader" />
@@ -319,7 +319,7 @@
     <None Include="res\shaders\rainfall\tonemapping\varying.def.sc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh">
+    <None Include="res\rainfall\shaders\occlusion_culling\light_indirect.csh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

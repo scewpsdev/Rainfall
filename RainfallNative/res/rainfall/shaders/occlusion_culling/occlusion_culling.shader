@@ -1,50 +1,83 @@
-
+#include "../common/common.shader"
 
 
 bool OcclusionCulling(vec3 aabbMin, vec3 aabbMax, mat4 pv, sampler2D hzb)
 {
-	vec4 point0 = mul(pv, vec4(aabbMin.x, aabbMin.y, aabbMin.z, 1));
-    vec4 point1 = mul(pv, vec4(aabbMax.x, aabbMin.y, aabbMin.z, 1));
-    vec4 point2 = mul(pv, vec4(aabbMin.x, aabbMin.y, aabbMax.z, 1));
-    vec4 point3 = mul(pv, vec4(aabbMax.x, aabbMin.y, aabbMax.z, 1));
-    vec4 point4 = mul(pv, vec4(aabbMin.x, aabbMax.y, aabbMin.z, 1));
-    vec4 point5 = mul(pv, vec4(aabbMax.x, aabbMax.y, aabbMin.z, 1));
-    vec4 point6 = mul(pv, vec4(aabbMin.x, aabbMax.y, aabbMax.z, 1));
-    vec4 point7 = mul(pv, vec4(aabbMax.x, aabbMax.y, aabbMax.z, 1));
-    
-    point0.xyz /= point0.w;
-    point1.xyz /= point1.w;
-    point2.xyz /= point2.w;
-    point3.xyz /= point3.w;
-    point4.xyz /= point4.w;
-    point5.xyz /= point5.w;
-    point6.xyz /= point6.w;
-    point7.xyz /= point7.w;
-	
-    float x0 = min(min(min(point0.x, point1.x), min(point2.x, point3.x)), min(min(point4.x, point5.x), min(point6.x, point7.x)));
-    float x1 = max(max(max(point0.x, point1.x), max(point2.x, point3.x)), max(max(point4.x, point5.x), max(point6.x, point7.x)));
-    float y0 = min(min(min(point0.y, point1.y), min(point2.y, point3.y)), min(min(point4.y, point5.y), min(point6.y, point7.y)));
-    float y1 = max(max(max(point0.y, point1.y), max(point2.y, point3.y)), max(max(point4.y, point5.y), max(point6.y, point7.y)));
-	
-    float z0 = min(min(min(point0.z, point1.z), min(point2.z, point3.z)), min(min(point4.z, point5.z), min(point6.z, point7.z)));
-    
-    float u0 = x0 * 0.5 + 0.5;
-    float u1 = x1 * 0.5 + 0.5;
-    float v0 = -y1 * 0.5 + 0.5;
-    float v1 = -y0 * 0.5 + 0.5;
-	
-    ivec2 hzbSize = textureSize(hzb, 0);
-    float pixelWidth = (u1 - u0) * hzbSize.x;
-    float pixelHeight = (v1 - v0) * hzbSize.y;
-    int mipLevel = floor(log2(max(pixelWidth, pixelHeight)));
-	
-    float sample0 = texture2DLod(hzb, vec2(u0, v0), mipLevel).r;
-    float sample1 = texture2DLod(hzb, vec2(u1, v0), mipLevel).r;
-    float sample2 = texture2DLod(hzb, vec2(u0, v1), mipLevel).r;
-    float sample3 = texture2DLod(hzb, vec2(u1, v1), mipLevel).r;
-    float maxDepth = max(max(sample0, sample1), max(sample2, sample3));
-	
-    bool visible = z0 < maxDepth;
+    vec3 boxSize = aabbMax - aabbMin;
 
-    return visible;
+    vec3 boxCorners[] = {
+        aabbMin,
+        aabbMin + vec3(boxSize.x, 0, 0),
+        aabbMin + vec3(0, boxSize.y, 0),
+        aabbMin + vec3(0, 0, boxSize.z),
+        aabbMin + vec3(boxSize.xy, 0),
+        aabbMin + vec3(0, boxSize.yz),
+        aabbMin + vec3(boxSize.x, 0, boxSize.z),
+        aabbMin + boxSize,
+    };
+
+    float minZ = 1.0;
+    vec2 minXY = vec2(1.0, 1.0);
+	vec2 maxXY = vec2(0.0, 0.0);
+
+	UNROLL
+	for (int i = 0; i < 8; i++)
+	{
+		//transform World space aaBox to NDC
+		vec4 clipPos = mul( pv, vec4(boxCorners[i], 1) );
+
+#if BGFX_SHADER_LANGUAGE_GLSL 
+		clipPos.z = 0.5 * ( clipPos.z + clipPos.w );
+#endif
+		clipPos.z = max(clipPos.z, 0);
+
+		clipPos.xyz = clipPos.xyz / clipPos.w;
+
+		clipPos.xy = clamp(clipPos.xy, -1, 1);
+		clipPos.xy = clipPos.xy * vec2(0.5, -0.5) + vec2(0.5, 0.5);
+
+		minXY = min(clipPos.xy, minXY);
+		maxXY = max(clipPos.xy, maxXY);
+
+		minZ = saturate(min(minZ, clipPos.z));
+	}
+
+	vec4 boxUVs = vec4(minXY, maxXY);
+
+	// Calculate hi-Z buffer mip
+    ivec2 u_inputRTSize = textureSize(hzb, 0);
+	ivec2 size = ivec2( (maxXY - minXY) * u_inputRTSize.xy);
+	float mip = ceil(log2(max(size.x, size.y)));
+
+    int maxMip = floor(log2(max(u_inputRTSize.x, u_inputRTSize.y)));
+	mip = clamp(mip, 0, maxMip);
+
+	// Texel footprint for the lower (finer-grained) level
+	float level_lower = max(mip - 1, 0);
+	vec2 scale = vec2_splat(exp2(-level_lower) );
+	vec2 a = floor(boxUVs.xy*scale);
+	vec2 b = ceil(boxUVs.zw*scale);
+	vec2 dims = b - a;
+
+	// Use the lower level if we only touch <= 2 texels in both dimensions
+	if (dims.x <= 2 && dims.y <= 2)
+		mip = level_lower;
+
+#if BGFX_SHADER_LANGUAGE_GLSL
+	boxUVs.y = 1.0 - boxUVs.y;
+	boxUVs.w = 1.0 - boxUVs.w;
+#endif
+	//load depths from high z buffer
+	vec4 depth =
+	{
+		texture2DLod(hzb, boxUVs.xy, mip).x,
+		texture2DLod(hzb, boxUVs.zy, mip).x,
+		texture2DLod(hzb, boxUVs.xw, mip).x,
+		texture2DLod(hzb, boxUVs.zw, mip).x,
+	};
+
+	//find the max depth
+	float maxDepth = max( max(depth.x, depth.y), max(depth.z, depth.w) );
+
+	return minZ <= maxDepth;
 }

@@ -113,19 +113,19 @@ RFAPI uint16_t Graphics_CreateVertexBuffer(const bgfx::Memory* memory, const Ver
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyVertexBuffer(uint16_t buffer)
+RFAPI void Graphics_DestroyVertexBuffer(VertexBuffer buffer)
 {
 	bgfx::destroy(bgfx::VertexBufferHandle{ buffer });
 }
 
-RFAPI uint16_t Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags)
+RFAPI DynamicVertexBuffer Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags)
 {
 	bgfx::VertexLayout layout = CreateVertexLayout(layoutElements, layoutElementsCount);
 	bgfx::DynamicVertexBufferHandle handle = bgfx::createDynamicVertexBuffer(vertexCount, layout, flags);
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyDynamicVertexBuffer(uint16_t buffer)
+RFAPI void Graphics_DestroyDynamicVertexBuffer(DynamicVertexBuffer buffer)
 {
 	bgfx::destroy(bgfx::DynamicVertexBufferHandle{ buffer });
 }
@@ -141,37 +141,36 @@ RFAPI bool Graphics_CreateTransientVertexBuffer(const VertexElement* layoutEleme
 	return false;
 }
 
-RFAPI uint16_t Graphics_CreateIndexBuffer(const bgfx::Memory* memory, uint16_t flags)
+RFAPI IndexBuffer Graphics_CreateIndexBuffer(const bgfx::Memory* memory, uint16_t flags)
 {
 	bgfx::IndexBufferHandle handle = bgfx::createIndexBuffer(memory, flags);
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyIndexBuffer(uint16_t buffer)
+RFAPI void Graphics_DestroyIndexBuffer(IndexBuffer buffer)
 {
 	bgfx::destroy(bgfx::IndexBufferHandle{ buffer });
 }
 
-RFAPI uint16_t Graphics_CreateDynamicIndexBuffer(int indexCount, uint16_t flags)
+RFAPI DynamicIndexBuffer Graphics_CreateDynamicIndexBuffer(int indexCount, uint16_t flags)
 {
 	bgfx::DynamicIndexBufferHandle handle = bgfx::createDynamicIndexBuffer(indexCount, flags);
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyDynamicIndexBuffer(uint16_t buffer)
+RFAPI void Graphics_DestroyDynamicIndexBuffer(DynamicIndexBuffer buffer)
 {
 	bgfx::destroy(bgfx::DynamicIndexBufferHandle{ buffer });
 }
 
-RFAPI bgfx::TransientIndexBuffer Graphics_CreateTransientIndexBuffer(int indexCount, bool index32)
+RFAPI bool Graphics_CreateTransientIndexBuffer(int indexCount, bool index32, bgfx::TransientIndexBuffer* buffer)
 {
 	if (bgfx::getAvailTransientIndexBuffer(indexCount, index32) == indexCount)
 	{
-		bgfx::TransientIndexBuffer buffer;
-		bgfx::allocTransientIndexBuffer(&buffer, indexCount, index32);
-		return buffer;
+		bgfx::allocTransientIndexBuffer(buffer, indexCount, index32);
+		return true;
 	}
-	return {};
+	return false;
 }
 
 RFAPI bool Graphics_CreateInstanceBuffer(int count, int stride, bgfx::InstanceDataBuffer* buffer)
@@ -184,67 +183,72 @@ RFAPI bool Graphics_CreateInstanceBuffer(int count, int stride, bgfx::InstanceDa
 	return false;
 }
 
-RFAPI uint16_t Graphics_CreateIndirectBuffer(int count)
+RFAPI IndirectBuffer Graphics_CreateIndirectBuffer(int count)
 {
 	bgfx::IndirectBufferHandle handle = bgfx::createIndirectBuffer(count);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateTextureMutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI void Graphics_DestroyIndirectBuffer(IndirectBuffer buffer)
+{
+	bgfx::destroy(bgfx::IndirectBufferHandle{ buffer });
+}
+
+RFAPI Texture Graphics_CreateTextureMutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture2D(width, height, false, 1, format, flags);
 	bgfx::calcTextureSize(*info, width, height, 0, false, false, 1, format);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateTextureMutableEx(int width, int height, bgfx::TextureFormat::Enum format, bool hasMips, int numLayers, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateTextureMutableEx(int width, int height, bgfx::TextureFormat::Enum format, bool hasMips, int numLayers, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture2D(width, height, hasMips, numLayers, format, flags);
 	bgfx::calcTextureSize(*info, width, height, 0, false, hasMips, numLayers, format);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateTextureMutableR(bgfx::BackbufferRatio::Enum ratio, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateTextureMutableR(bgfx::BackbufferRatio::Enum ratio, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture2D(ratio, hasMips, 1, format, flags);
 	bgfx::calcTextureSize(*info, info->width, info->height, info->depth, false, hasMips, 1, format);
 	return handle.idx;
 }
 
-RFAPI void Graphics_SetTextureData(uint16_t texture, int x, int y, int width, int height, const bgfx::Memory* memory)
+RFAPI void Graphics_SetTextureData(Texture texture, int x, int y, int width, int height, const bgfx::Memory* memory)
 {
 	bgfx::TextureHandle handle = { texture };
 	bgfx::updateTexture2D(handle, 0, 0, x, y, width, height, memory);
 }
 
-RFAPI uint16_t Graphics_CreateTextureImmutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, const bgfx::Memory* memory, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateTextureImmutable(int width, int height, bgfx::TextureFormat::Enum format, uint64_t flags, const bgfx::Memory* memory, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture2D(width, height, false, 1, format, flags, memory);
 	bgfx::calcTextureSize(*info, width, height, 0, false, false, 1, format);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateTextureFromMemory(const bgfx::Memory* memory, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateTextureFromMemory(const bgfx::Memory* memory, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture(memory, flags, 0, info);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateTexture3DImmutable(int width, int height, int depth, bgfx::TextureFormat::Enum format, uint64_t flags, const bgfx::Memory* memory, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateTexture3DImmutable(int width, int height, int depth, bgfx::TextureFormat::Enum format, uint64_t flags, const bgfx::Memory* memory, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture3D(width, height, depth, false, format, flags, memory);
 	bgfx::calcTextureSize(*info, width, height, depth, false, false, 1, format);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateTexture3DMutable(int width, int height, int depth, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateTexture3DMutable(int width, int height, int depth, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTexture3D(width, height, depth, hasMips, format, flags);
 	bgfx::calcTextureSize(*info, width, height, depth, false, hasMips, 1, format);
 	return handle.idx;
 }
 
-RFAPI void Graphics_SetTexture3DData(uint16_t texture, int mip, int x, int y, int z, int width, int height, int depth, const bgfx::Memory* memory)
+RFAPI void Graphics_SetTexture3DData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, const bgfx::Memory* memory)
 {
 	bgfx::TextureHandle handle = { texture };
 	bgfx::updateTexture3D(handle, mip, x, y, z, width, height, depth, memory);
@@ -257,7 +261,7 @@ static void ImageReleaseCallback(void* ptr, void* userData)
 	bimg::imageFree(image);
 }
 
-RFAPI uint16_t Graphics_CreateCubemapFromMemory(const bgfx::Memory* memory, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateCubemapFromMemory(const bgfx::Memory* memory, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bimg::ImageContainer* image = bimg::imageParse(Application_GetAllocator(), memory->data, memory->size);
 	bgfx::calcTextureSize(*info, image->m_width, image->m_height, image->m_depth, image->m_cubeMap, image->m_numMips > 1, image->m_numLayers, (bgfx::TextureFormat::Enum)image->m_format);
@@ -268,7 +272,7 @@ RFAPI uint16_t Graphics_CreateCubemapFromMemory(const bgfx::Memory* memory, uint
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
 {
 	bgfx::TextureHandle handle = bgfx::createTextureCube(size, false, 1, format, flags, nullptr);
 	if (info)
@@ -276,7 +280,7 @@ RFAPI uint16_t Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyTexture(uint16_t texture)
+RFAPI void Graphics_DestroyTexture(Texture texture)
 {
 	bgfx::destroy(bgfx::TextureHandle{ texture });
 }
@@ -321,13 +325,13 @@ RFAPI void Graphics_DestroyShader(Shader* shader)
 	BX_FREE(Application_GetAllocator(), shader);
 }
 
-RFAPI uint16_t Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx::UniformType::Enum type, int num)
+RFAPI Uniform Graphics_ShaderGetUniform(Shader* shader, const char* name, bgfx::UniformType::Enum type, int num)
 {
 	bgfx::UniformHandle handle = shader->getUniform(name, type, num);
 	return handle.idx;
 }
 
-RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTargetAttachment* attachmentInfo, bgfx::TextureHandle* textures, bgfx::TextureInfo* textureInfos)
+RFAPI RenderTarget Graphics_CreateRenderTarget(int numAttachments, const RenderTargetAttachment* attachmentInfo, bgfx::TextureHandle* textures, bgfx::TextureInfo* textureInfos)
 {
 	bgfx::Attachment attachments[8] = {};
 	for (int i = 0; i < numAttachments; i++)
@@ -363,7 +367,7 @@ RFAPI uint16_t Graphics_CreateRenderTarget(int numAttachments, const RenderTarge
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyRenderTarget(uint16_t renderTarget)
+RFAPI void Graphics_DestroyRenderTarget(RenderTarget renderTarget)
 {
 	bgfx::destroy(bgfx::FrameBufferHandle{ renderTarget });
 }
@@ -408,12 +412,12 @@ RFAPI void Graphics_SetPrimitiveType(PrimitiveType primitiveType)
 	bgfx::setState(state);
 }
 
-RFAPI void Graphics_SetVertexBuffer(uint16_t handle)
+RFAPI void Graphics_SetVertexBuffer(VertexBuffer handle)
 {
 	bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ handle });
 }
 
-RFAPI void Graphics_SetDynamicVertexBuffer(uint16_t handle)
+RFAPI void Graphics_SetDynamicVertexBuffer(DynamicVertexBuffer handle)
 {
 	bgfx::setVertexBuffer(0, bgfx::DynamicVertexBufferHandle{ handle });
 }
@@ -423,12 +427,12 @@ RFAPI void Graphics_SetTransientVertexBuffer(const bgfx::TransientVertexBuffer* 
 	bgfx::setVertexBuffer(0, buffer);
 }
 
-RFAPI void Graphics_SetIndexBuffer(uint16_t handle)
+RFAPI void Graphics_SetIndexBuffer(IndexBuffer handle)
 {
 	bgfx::setIndexBuffer(bgfx::IndexBufferHandle{ handle });
 }
 
-RFAPI void Graphics_SetDynamicIndexBuffer(uint16_t handle)
+RFAPI void Graphics_SetDynamicIndexBuffer(DynamicIndexBuffer handle)
 {
 	bgfx::setIndexBuffer(bgfx::DynamicIndexBufferHandle{ handle });
 }
@@ -448,27 +452,27 @@ RFAPI void Graphics_SetInstanceBufferN(const bgfx::InstanceDataBuffer* buffer, i
 	bgfx::setInstanceDataBuffer(buffer, offset, count);
 }
 
-RFAPI void Graphics_SetComputeBuffer(int stage, uint16_t handle, bgfx::Access::Enum access)
+RFAPI void Graphics_SetComputeBuffer(int stage, VertexBuffer handle, bgfx::Access::Enum access)
 {
 	bgfx::setBuffer(stage, bgfx::VertexBufferHandle{ handle }, access);
 }
 
-RFAPI void Graphics_SetUniform(uint16_t handle, const void* value, int num)
+RFAPI void Graphics_SetUniform(Uniform handle, const void* value, int num)
 {
 	bgfx::setUniform(bgfx::UniformHandle{ handle }, value, num);
 }
 
-RFAPI void Graphics_SetTexture(uint16_t sampler, int unit, uint16_t texture, uint32_t flags)
+RFAPI void Graphics_SetTexture(Uniform sampler, int unit, Texture texture, uint32_t flags)
 {
 	bgfx::setTexture(unit, bgfx::UniformHandle{ sampler }, bgfx::TextureHandle{ texture }, flags);
 }
 
-RFAPI void Graphics_SetComputeTexture(int stage, uint16_t texture, int mip, bgfx::Access::Enum access)
+RFAPI void Graphics_SetComputeTexture(int stage, Texture texture, int mip, bgfx::Access::Enum access)
 {
 	bgfx::setImage(stage, bgfx::TextureHandle{ texture }, mip, access);
 }
 
-RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int height)
+RFAPI void Graphics_SetRenderTarget(int pass, RenderTarget handle, int width, int height)
 {
 	bgfx::setViewFrameBuffer((bgfx::ViewId)pass, bgfx::FrameBufferHandle{ handle });
 	bgfx::setViewRect((bgfx::ViewId)pass, 0, 0, width, height);
@@ -476,13 +480,13 @@ RFAPI void Graphics_SetRenderTarget(int pass, uint16_t handle, int width, int he
 	bgfx::touch((bgfx::ViewId)pass);
 }
 
-RFAPI void Graphics_SetRenderTargetR(int pass, uint16_t handle, bgfx::BackbufferRatio::Enum ratio)
+RFAPI void Graphics_SetRenderTargetR(int pass, RenderTarget handle, bgfx::BackbufferRatio::Enum ratio)
 {
 	bgfx::setViewFrameBuffer((bgfx::ViewId)pass, bgfx::FrameBufferHandle{ handle });
 	bgfx::setViewRect((bgfx::ViewId)pass, 0, 0, ratio);
 }
 
-RFAPI void Graphics_ClearRenderTarget(int pass, uint16_t handle, bool hasRGB, bool hasDepth, uint32_t rgba, float depth)
+RFAPI void Graphics_ClearRenderTarget(int pass, RenderTarget handle, bool hasRGB, bool hasDepth, uint32_t rgba, float depth)
 {
 	bgfx::setViewClear((bgfx::ViewId)pass, (hasRGB ? BGFX_CLEAR_COLOR : 0) | (hasDepth ? BGFX_CLEAR_DEPTH : 0), rgba, depth, 0);
 
@@ -502,6 +506,11 @@ RFAPI void Graphics_SetViewTransform(int pass, const Matrix& projection, const M
 RFAPI void Graphics_Draw(int pass, Shader* shader)
 {
 	bgfx::submit((bgfx::ViewId)pass, shader->program, 0, BGFX_DISCARD_ALL);
+}
+
+RFAPI void Graphics_DrawIndirect(int pass, Shader* shader, IndirectBuffer indirectBuffer, int start, int num)
+{
+	bgfx::submit((bgfx::ViewId)pass, shader->program, bgfx::IndirectBufferHandle{ indirectBuffer }, start, num);
 }
 
 RFAPI void Graphics_DrawText(int pass, int x, int y, float z, float scale, const char* text, int offset, int count, Font* font, uint32_t color, SpriteBatch* batch)
@@ -525,12 +534,12 @@ RFAPI void Graphics_ComputeDispatch(int pass, Shader* shader, int numX, int numY
 	bgfx::dispatch((bgfx::ViewId)pass, shader->program, numX, numY, numZ, BGFX_DISCARD_ALL);
 }
 
-RFAPI void Graphics_Blit(int pass, uint16_t dst, uint16_t src)
+RFAPI void Graphics_Blit(int pass, Texture dst, Texture src)
 {
 	bgfx::blit((bgfx::ViewId)pass, bgfx::TextureHandle{ dst }, 0, 0, bgfx::TextureHandle{ src }, 0, 0);
 }
 
-RFAPI void Graphics_BlitEx(int pass, uint16_t dst, int dstMip, int dstX, int dstY, int dstZ, uint16_t src, int srcMip, int srcX, int srcY, int srcZ, int width, int height, int depth)
+RFAPI void Graphics_BlitEx(int pass, Texture dst, int dstMip, int dstX, int dstY, int dstZ, Texture src, int srcMip, int srcX, int srcY, int srcZ, int width, int height, int depth)
 {
 	bgfx::blit((bgfx::ViewId)pass, bgfx::TextureHandle{ dst }, dstMip, dstX, dstY, dstZ, bgfx::TextureHandle{ src }, srcMip, srcX, srcY, srcZ, width, height, depth);
 }

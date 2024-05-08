@@ -34,7 +34,6 @@ public static class AudioManager
 		if (sound != null)
 		{
 			ambientSource = Audio.PlayBackground(sound, gain, 1, true, 4.0f);
-			Audio.SetSourceLooping(ambientSource, true);
 		}
 		else
 		{

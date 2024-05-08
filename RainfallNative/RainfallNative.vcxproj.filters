@@ -420,8 +420,8 @@
     <None Include="res\shaders\rainfall\deferred\shadow_mapping.shader" />
     <None Include="res\shaders\rainfall\deferred\deferred_point.vs" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
-    <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh" />
+    <None Include="res\rainfall\shaders\deferred\deferred_point.fsh" />
+    <None Include="res\rainfall\shaders\occlusion_culling\light_indirect.csh" />
     <None Include="res\rainfall\shaders\tonemapping\tonemapping.fsh" />
-    <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
   </ItemGroup>
 </Project>
