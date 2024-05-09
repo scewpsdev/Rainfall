@@ -27,7 +27,7 @@ enum RenderPass
 {
 	DepthPrepass,
 	HZB,
-	OcclusionCulling = HZB + 12,
+	OcclusionCulling,
 	StreamCompaction,
 	Geometry,
 	Shadow0,
@@ -664,8 +664,7 @@ static void BuildHZB()
 		Graphics_SetComputeTexture(0, src, max(i - 1, 0), bgfx::Access::Read);
 		Graphics_SetComputeTexture(1, dst, i, bgfx::Access::Write);
 
-		// TODO try same pass
-		Graphics_ComputeDispatch(RenderPass::HZB + i, hzbDownsampleShader, w / 16 + 1, h / 16 + 1, 1);
+		Graphics_ComputeDispatch(RenderPass::HZB, hzbDownsampleShader, w / 16 + 1, h / 16 + 1, 1);
 
 		w /= 2;
 		h /= 2;
@@ -706,6 +705,18 @@ static void FillIndirectBuffer()
 
 static void CullLights()
 {
+	Vector3 test = Vector3(130.17516f, 9.18115f, 98.92216f);
+	Vector4 clipPos = pv * Vector4(test, 1);
+	clipPos.xyz /= clipPos.w;
+
+	Vector3 test2 = cameraPosition + cameraRotation.forward() * 0.35f;
+	Vector4 clipPos2 = pv * Vector4(test2, 1);
+	clipPos2.xyz /= clipPos2.w;
+
+	Vector3 test3 = cameraPosition + cameraRotation.forward() * 1000;
+	Vector4 clipPos3 = pv * Vector4(test3, 1);
+	clipPos3.xyz /= clipPos3.w;
+
 	if (numVisibleLights == 0)
 		return;
 
@@ -737,7 +748,7 @@ static void CullLights()
 
 	Graphics_SetUniform(lightIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
 
-	Graphics_ComputeDispatch(RenderPass::OcclusionCulling, lightIndirectShader, MAX_POINT_LIGHTS / 64 + 1, 1, 1);
+	Graphics_ComputeDispatch(RenderPass::OcclusionCulling, lightIndirectShader, numVisibleLights / 64 + 1, 1, 1);
 	return;
 	// Stream compaction
 
@@ -1114,6 +1125,15 @@ float GetCumulativeGPUTime(RenderPass pass, int count)
 RFAPI int Renderer3D_DrawDebugStats(int x, int y, uint8_t color)
 {
 	char str[64] = "";
+
+	sprintf(str, "Depth Prepass: %.2f ms", GetGPUTime(RenderPass::DepthPrepass) * 1000);
+	Graphics_DrawDebugText(x, y++, color, str);
+
+	sprintf(str, "HZB: %.2f ms", GetGPUTime(RenderPass::HZB) * 1000);
+	Graphics_DrawDebugText(x, y++, color, str);
+
+	sprintf(str, "Occlusion Culling: %.2f ms", GetGPUTime(RenderPass::OcclusionCulling) * 1000);
+	Graphics_DrawDebugText(x, y++, color, str);
 
 	sprintf(str, "Geometry Pass: %.2f ms", GetGPUTime(RenderPass::Geometry) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);

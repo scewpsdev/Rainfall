@@ -33,18 +33,19 @@ void main()
 		//	atomicAdd(instanceCount[0], 1);
 	}
 	
-	if (predicate)
-	{
-		drawIndexedIndirect(
+	int numIndices = predicate ? 6 * 6 : 0;
+	int numInstances = predicate ? 1 : 0;
+	int instanceOffset = predicate ? i : 0;
+
+	drawIndexedIndirect(
 			drawcallData,
 			i,
-			6*6, 			//number of indices
-			1, 				//number of instances
+			numIndices, 			//number of indices
+			numInstances, 				//number of instances
 			0,
 			0,			//offset into the vertex buffer
-			i							//offset into the instance buffer
+			instanceOffset							//offset into the instance buffer
 			);
-	}
 
 	instancePredicates[i] = predicate;
 }
