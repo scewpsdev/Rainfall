@@ -81,6 +81,41 @@ Vector3 RandomPointOnSphere(Random& random)
 	return p.normalized();
 }
 
+AABB TransformBoundingBox(const AABB& localBox, const Matrix& transform)
+{
+	Vector3 size = localBox.max - localBox.min;
+	Vector3 corners[] =
+	{
+		localBox.min,
+		localBox.min + Vector3(size.x, 0, 0),
+		localBox.min + Vector3(0, size.y, 0),
+		localBox.min + Vector3(0, 0, size.z),
+		localBox.min + Vector3(size.xy, 0),
+		localBox.min + Vector3(0, size.yz),
+		localBox.min + Vector3(size.x, 0, size.z),
+		localBox.min + size
+	};
+	Vector3 aabbMin = Vector3(FLT_MAX), aabbMax = Vector3(FLT_MIN);
+	for (int i = 0; i < 8; i++)
+	{
+		Vector3 corner = transform * corners[i];
+
+		aabbMin.x = fminf(aabbMin.x, corner.x);
+		aabbMax.x = fmaxf(aabbMax.x, corner.x);
+
+		aabbMin.y = fminf(aabbMin.y, corner.y);
+		aabbMax.y = fmaxf(aabbMax.y, corner.y);
+
+		aabbMin.z = fminf(aabbMin.z, corner.z);
+		aabbMax.z = fmaxf(aabbMax.z, corner.z);
+	}
+
+	AABB worldSpaceBox;
+	worldSpaceBox.min = aabbMin;
+	worldSpaceBox.max = aabbMax;
+	return worldSpaceBox;
+}
+
 Vector2i WorldToScreenSpace(const Vector3& p, const Matrix& vp, int displayWidth, int displayHeight)
 {
 	Vector4 clipSpacePosition = vp * Vector4(p, 1.0f);

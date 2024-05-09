@@ -254,11 +254,17 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 		}
 	}
 
+	system->boundingBox.min = minpos;
+	system->boundingBox.max = maxpos;
+
 	system->boundingSphere.center = (minpos + maxpos) * 0.5f;
 	system->boundingSphere.radius = sqrtf(maxRadiusSq);
 
 	if (system->follow)
+	{
 		system->boundingSphere.center += system->transform * (system->boundingSphere.center + system->spawnOffset);
+		system->boundingBox = TransformBoundingBox(system->boundingBox, system->transform);
+	}
 }
 
 RFAPI int ParticleSystem_GetNumParticles(ParticleSystem* system)

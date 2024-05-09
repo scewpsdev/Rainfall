@@ -93,6 +93,7 @@ static void WriteMaterial(FileWriterI* writer, const MaterialData& material, Err
 	write(writer, material.roughness ? 1 : 0, err);
 	write(writer, material.metallic ? 1 : 0, err);
 	write(writer, material.emissive ? 1 : 0, err);
+	write(writer, material.height ? 1 : 0, err);
 
 	if (material.diffuse)
 		WriteTexture(writer, *material.diffuse, err);
@@ -104,6 +105,8 @@ static void WriteMaterial(FileWriterI* writer, const MaterialData& material, Err
 		WriteTexture(writer, *material.metallic, err);
 	if (material.emissive)
 		WriteTexture(writer, *material.emissive, err);
+	if (material.height)
+		WriteTexture(writer, *material.height, err);
 }
 
 static void WriteMaterials(FileWriterI* writer, const SceneData& scene, Error* err)

@@ -160,18 +160,21 @@ static void ReadMaterial(FileReaderI* reader, MaterialData& material, Error* err
 	int hasRoughness;
 	int hasMetallic;
 	int hasEmissive;
+	int hasHeight;
 
 	read(reader, hasDiffuse, err);
 	read(reader, hasNormal, err);
 	read(reader, hasRoughness, err);
 	read(reader, hasMetallic, err);
 	read(reader, hasEmissive, err);
+	read(reader, hasHeight, err);
 
 	material.diffuse = nullptr;
 	material.normal = nullptr;
 	material.roughness = nullptr;
 	material.metallic = nullptr;
 	material.emissive = nullptr;
+	material.height = nullptr;
 
 	if (hasDiffuse)
 	{
@@ -197,6 +200,11 @@ static void ReadMaterial(FileReaderI* reader, MaterialData& material, Error* err
 	{
 		material.emissive = BX_NEW(Application_GetAllocator(), TextureData);
 		ReadTexture(reader, *material.emissive, err);
+	}
+	if (hasHeight)
+	{
+		material.height = BX_NEW(Application_GetAllocator(), TextureData);
+		ReadTexture(reader, *material.height, err);
 	}
 }
 
