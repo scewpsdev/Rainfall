@@ -36,7 +36,8 @@ RFAPI void Material_CreateMaterialsForScene(SceneData* scene)
 				materialData->normal ? materialData->normal->handle.idx : bgfx::kInvalidHandle,
 				materialData->roughness ? materialData->roughness->handle.idx : bgfx::kInvalidHandle,
 				materialData->metallic ? materialData->metallic->handle.idx : bgfx::kInvalidHandle,
-				materialData->emissive ? materialData->emissive->handle.idx : bgfx::kInvalidHandle
+				materialData->emissive ? materialData->emissive->handle.idx : bgfx::kInvalidHandle,
+				materialData->height ? materialData->height->handle.idx : bgfx::kInvalidHandle
 			);
 
 			bool animated = scene->meshes[i].skeletonID != -1;
@@ -47,7 +48,7 @@ RFAPI void Material_CreateMaterialsForScene(SceneData* scene)
 	}
 }
 
-RFAPI Material* Material_Create(uint32_t color, float metallicFactor, float roughnessFactor, const Vector3& emissiveColor, float emissiveStrength, uint16_t diffuse, uint16_t normal, uint16_t roughness, uint16_t metallic, uint16_t emissive)
+RFAPI Material* Material_Create(uint32_t color, float metallicFactor, float roughnessFactor, const Vector3& emissiveColor, float emissiveStrength, uint16_t diffuse, uint16_t normal, uint16_t roughness, uint16_t metallic, uint16_t emissive, uint16_t height)
 {
 	Material* material = BX_NEW(Application_GetAllocator(), Material) {};
 
@@ -69,6 +70,7 @@ RFAPI Material* Material_Create(uint32_t color, float metallicFactor, float roug
 	material->textures[2] = roughness != bgfx::kInvalidHandle ? bgfx::TextureHandle{ roughness } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
 	material->textures[3] = metallic != bgfx::kInvalidHandle ? bgfx::TextureHandle{ metallic } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
 	material->textures[4] = emissive != bgfx::kInvalidHandle ? bgfx::TextureHandle{ emissive } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
+	material->textures[5] = height != bgfx::kInvalidHandle ? bgfx::TextureHandle{ height } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
 
 	return material;
 }

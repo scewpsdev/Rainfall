@@ -43,7 +43,7 @@ void main()
 	vec3 lightS = RenderPointLight(position, normal, view, albedo, roughness, metallic, lightPosition, lightColor);
 
 	gl_FragColor = vec4(lightS, 1.0);
-	gl_FragColor.rgb += 0.01;
+	//gl_FragColor.rgb += 0.01;
 	//gl_FragColor = vec4(v_texcoord0, 0, 1.0);
 	//gl_FragColor = vec4(0.01, 0, 0, 1);
 }

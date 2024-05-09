@@ -24,6 +24,8 @@ std::map<uint32_t, bgfx::TextureHandle> loadedTextures;
 
 static void SubmitMesh(bgfx::ViewId view, SceneData* scene, int id, Shader* shader, const Matrix& transform)
 {
+	__debugbreak(); // deprecated
+
 	MeshData& mesh = scene->meshes[id];
 
 	bgfx::setTransform(&transform.m00);
@@ -307,6 +309,8 @@ static void InitializeMaterial(MaterialData& material, const char* scenePath, ui
 			InitializeTexture(*material.metallic, scenePath, textureFlags);
 		if (material.emissive)
 			InitializeTexture(*material.emissive, scenePath, textureFlags);
+		if (material.height)
+			InitializeTexture(*material.height, scenePath, textureFlags);
 	}
 }
 

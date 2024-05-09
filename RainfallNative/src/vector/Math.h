@@ -4,6 +4,8 @@
 #include "Quaternion.h"
 #include "Matrix.h"
 
+#include "graphics/Geometry.h"
+
 #include "utils/Random.h"
 
 
@@ -23,5 +25,5 @@ int min(int a, int b);
 int max(int a, int b);
 
 Vector3 RandomPointOnSphere(Random& random);
-
+AABB TransformBoundingBox(const AABB& localBox, const Matrix& transform);
 Vector2i WorldToScreenSpace(const Vector3& p, const Matrix& vp, int displayWidth, int displayHeight);

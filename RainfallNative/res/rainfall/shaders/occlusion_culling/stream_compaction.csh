@@ -96,17 +96,18 @@ void main()
 		instanceDataOut[2 * temp[index] + 1] = instanceDataIn[2 * index + 1];
 	}
 	
-	return;
 	if (tID == 0)
 	{
 		int numIndices = 6 * 6;
+		int numInstances = drawcallInstanceCount[0];
 
-		drawIndirect(
+		drawIndexedIndirect(
 			drawcallData,
 			0,
 			numIndices, 			//number of indices
-			drawcallInstanceCount[0], 				//number of instances
+			numInstances, 				//number of instances
 			0,			//offset into the vertex buffer
+			0,
 			0							//offset into the instance buffer
 			);
 

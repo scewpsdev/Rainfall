@@ -394,6 +394,7 @@ static void ProcessMaterial(MaterialData& material, aiMaterial* aimaterial, cons
 	material.metallic = nullptr;
 	material.normal = nullptr;
 	material.emissive = nullptr;
+	material.height = nullptr;
 
 
 	aiColor4D color;
@@ -449,6 +450,11 @@ static void ProcessMaterial(MaterialData& material, aiMaterial* aimaterial, cons
 	{
 		material.emissive = new TextureData();
 		ProcessTexture(*material.emissive, texturePath, aiscene, scenePath);
+	}
+	if (aimaterial->GetTexture(aiTextureType_HEIGHT, 0, &texturePath) == aiReturn_SUCCESS)
+	{
+		material.height = new TextureData();
+		ProcessTexture(*material.height, texturePath, aiscene, scenePath);
 	}
 }
 

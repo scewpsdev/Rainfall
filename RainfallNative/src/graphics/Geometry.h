@@ -115,6 +115,7 @@ struct MaterialData
 	TextureData* roughness;
 	TextureData* metallic;
 	TextureData* emissive;
+	TextureData* height;
 };
 
 struct BoneData

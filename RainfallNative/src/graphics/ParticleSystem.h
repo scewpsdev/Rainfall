@@ -104,6 +104,7 @@ struct ParticleSystem
 
 	int64_t systemStarted, lastEmitted;
 
+	AABB boundingBox;
 	Sphere boundingSphere;
 };
 
