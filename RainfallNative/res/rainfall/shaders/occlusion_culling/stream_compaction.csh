@@ -98,7 +98,7 @@ void main()
 	
 	if (tID == 0)
 	{
-		int numIndices = 6 * 6;
+		int numIndices = 144;
 		int numInstances = drawcallInstanceCount[0];
 
 		drawIndexedIndirect(

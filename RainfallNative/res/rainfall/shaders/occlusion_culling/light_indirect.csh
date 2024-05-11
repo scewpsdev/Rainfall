@@ -8,7 +8,7 @@ BUFFER_WR(instancePredicates, bool, 2);
 
 SAMPLER2D(s_hzb, 3);
 
-uniform vec4 u_params;
+uniform vec4 u_lightParams;
 uniform mat4 u_pv;
 
 
@@ -16,10 +16,11 @@ NUM_THREADS(64, 1, 1)
 void main()
 {
     int i = gl_GlobalInvocationID.x;
+	int numVisibleLights = int(pointLightBuffer[0 * 2 + 1].w + 0.5);
 
 	bool predicate = false;
 
-	if (i < uint(u_params.x + 0.5))
+	if (i < numVisibleLights)
 	{
 		vec3 lightPosition = pointLightBuffer[i * 2 + 0].xyz;
 		float lightRadius = pointLightBuffer[i * 2 + 0].w;

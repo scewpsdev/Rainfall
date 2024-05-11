@@ -695,12 +695,24 @@ static inline T min(const T& a, const T& b)
 	return a < b ? a : b;
 }
 
+template<typename T>
+static inline T max(const T& a, const T& b)
+{
+	return a > b ? a : b;
+}
+
+template<typename T>
+static inline T clamp(const T& a, const T& v0, const T& v1)
+{
+	return min(max(a, v0), v1);
+}
+
 static bool Loop(const ApplicationCallbacks& callbacks)
 {
 	currentFrame = Application_GetTimestamp();
 
 	int64_t maxDelta = 1000000000 / 10;
-	delta = min(currentFrame - lastFrame, maxDelta);
+	delta = max(min(currentFrame - lastFrame, maxDelta), (int64_t)0);
 
 	bool exit = !ProcessEvents(callbacks);
 

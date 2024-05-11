@@ -28,8 +28,10 @@ enum RenderPass
 {
 	DepthPrepass,
 	HZB,
-	OcclusionCulling,
+	MeshCulling,
+	LightCulling,
 	StreamCompaction,
+	ParticleCulling,
 	Geometry,
 	Shadow0,
 	Shadow1,
@@ -132,6 +134,10 @@ static const short boxIndices[] = { 0, 1, 2, 3, 2, 1, 0, 4, 5, 0, 5, 1, 0, 2, 6,
 static uint16_t box;
 static uint16_t boxIBO;
 
+static SceneData* sphereData;
+static uint16_t sphere;
+static uint16_t sphereIBO;
+
 static const float particleVertices[] = { -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, -0.5f, 0.5f, -0.5f, -0.5f };
 static uint16_t particle;
 
@@ -216,6 +222,10 @@ RFAPI void Renderer3D_Init(int width, int height)
 	const bgfx::Memory* boxIndicesMemory = Graphics_CreateVideoMemoryRef(sizeof(boxIndices), boxIndices, nullptr);
 	boxIBO = Graphics_CreateIndexBuffer(boxIndicesMemory, BufferFlags::None);
 
+	sphereData = Resource_CreateSceneDataFromFile("res/rainfall/sphere.gltf.bin", 0);
+	sphere = sphereData->meshes[0].vertexNormalTangentBuffer.idx;
+	sphereIBO = sphereData->meshes[0].indexBuffer.idx;
+
 	VertexElement particleLayout(VertexAttribute::Position, VertexAttributeType::Vector2);
 	const bgfx::Memory* particleMemory = Graphics_CreateVideoMemoryRef(sizeof(particleVertices), particleVertices, nullptr);
 	particle = Graphics_CreateVertexBuffer(particleMemory, &particleLayout, 1, BufferFlags::None);
@@ -264,6 +274,8 @@ RFAPI void Renderer3D_Resize(int width, int height)
 
 	if (gbuffer != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ gbuffer });
+	if (hzb != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::TextureHandle{ hzb });
 	if (forwardRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ forwardRT });
 	if (compositeRT != bgfx::kInvalidHandle)
@@ -394,8 +406,9 @@ static float CalculateLightRadius(Vector3 color)
 	/// 
 
 	float maxComponent = fmaxf(color.x, fmaxf(color.y, color.z));
-	float brightnessCap = 0.02f;
-	float radius = sqrtf(maxComponent / brightnessCap - 1) / 2;
+	float brightnessCap = 0.01f;
+	float radius = sqrtf(maxComponent / brightnessCap - 1) / sqrtf(2);
+	//radius *= 0.1f;
 	return radius;
 }
 
@@ -583,9 +596,9 @@ static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, Skele
 	bgfx::setUniform(material->shader->getUniform("u_materialData3", bgfx::UniformType::Vec4), &material->materialData[3]);
 
 	if (hasDiffuse)
-		bgfx::setTexture(0, material->shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material->textures[0], 0);
+		bgfx::setTexture(0, material->shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material->textures[0], UINT32_MAX);
 	if (hasNormal)
-		bgfx::setTexture(1, material->shader->getUniform("s_normal", bgfx::UniformType::Sampler), material->textures[1], 0);
+		bgfx::setTexture(1, material->shader->getUniform("s_normal", bgfx::UniformType::Sampler), material->textures[1], UINT32_MAX);
 	if (hasRoughness)
 		bgfx::setTexture(2, material->shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material->textures[2], UINT32_MAX);
 	if (hasMetallic)
@@ -593,11 +606,13 @@ static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, Skele
 	if (hasEmissive)
 		bgfx::setTexture(4, material->shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material->textures[4], UINT32_MAX);
 	if (hasHeight)
-		bgfx::setTexture(5, material->shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], 0);
+		bgfx::setTexture(5, material->shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], UINT32_MAX);
 
 	if (skeleton)
 		bgfx::setUniform(material->shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
+	Vector4 u_cameraPosition(cameraPosition, 0);
+	Graphics_SetUniform(material->shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
 
 	if (indirect.idx != bgfx::kInvalidHandle)
 		bgfx::submit(view, material->shader->program, indirect, indirectID, 1);
@@ -664,8 +679,9 @@ static void CullMeshes()
 	for (int i = 0; i < numVisibleMeshes; i++)
 	{
 		aabbBufferData[i * 2 + 0].xyz = meshDraws[i].boundingBox.min;
+		aabbBufferData[i * 2 + 0].w = (float)meshDraws[i].mesh->indexCount;
 		aabbBufferData[i * 2 + 1].xyz = meshDraws[i].boundingBox.max;
-		aabbBufferData[i * 2 + 1].w = (float)meshDraws[i].mesh->indexCount;
+		aabbBufferData[i * 2 + 1].w = (float)numVisibleMeshes;
 	}
 
 	bgfx::update(aabbBuffer, 0, bgfx::makeRef(aabbBufferData, numVisibleMeshes * 2 * sizeof(Vector4)));
@@ -678,27 +694,15 @@ static void CullMeshes()
 	Graphics_SetTexture(meshIndirectShader->getUniform("s_hzb", bgfx::UniformType::Sampler), 2, bgfx::TextureHandle{ hzb });
 
 	Vector4 params((float)numVisibleMeshes, 0, 0, 0);
-	Graphics_SetUniform(meshIndirectShader->getUniform("u_params", bgfx::UniformType::Vec4), &params);
+	Graphics_SetUniform(meshIndirectShader->getUniform("u_meshParams", bgfx::UniformType::Vec4), &params);
 
 	Graphics_SetUniform(meshIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
 
-	Graphics_ComputeDispatch(RenderPass::OcclusionCulling, meshIndirectShader, numVisibleMeshes / 64 + 1, 1, 1);
+	Graphics_ComputeDispatch(RenderPass::MeshCulling, meshIndirectShader, numVisibleMeshes / 64 + 1, 1, 1);
 }
 
 static void CullLights()
 {
-	Vector3 test = Vector3(130.17516f, 9.18115f, 98.92216f);
-	Vector4 clipPos = pv * Vector4(test, 1);
-	clipPos.xyz /= clipPos.w;
-
-	Vector3 test2 = cameraPosition + cameraRotation.forward() * 0.35f;
-	Vector4 clipPos2 = pv * Vector4(test2, 1);
-	clipPos2.xyz /= clipPos2.w;
-
-	Vector3 test3 = cameraPosition + cameraRotation.forward() * 1000;
-	Vector4 clipPos3 = pv * Vector4(test3, 1);
-	clipPos3.xyz /= clipPos3.w;
-
 	if (numVisibleLights == 0)
 		return;
 
@@ -710,6 +714,7 @@ static void CullLights()
 		lightBufferData[i * 2 + 0].xyz = pointLightDraws[i].position;
 		lightBufferData[i * 2 + 0].w = pointLightDraws[i].radius;
 		lightBufferData[i * 2 + 1].xyz = pointLightDraws[i].color;
+		lightBufferData[i * 2 + 1].w = (float)numVisibleLights;
 	}
 
 	bgfx::update(lightBuffer, 0, bgfx::makeRef(lightBufferData, numVisibleLights * 2 * sizeof(Vector4)));
@@ -722,13 +727,13 @@ static void CullLights()
 
 	Graphics_SetTexture(lightIndirectShader->getUniform("s_hzb", bgfx::UniformType::Sampler), 3, bgfx::TextureHandle{ hzb });
 
-	int instancesPowOf2 = ipow(2, (int)ceil(log2((double)numVisibleLights + 0.5)));
+	int instancesPowOf2 = ipow(2, (int)ceil(log2((double)numVisibleLights)));
 	Vector4 params((float)numVisibleLights, (float)instancesPowOf2, 0, 1);
-	Graphics_SetUniform(lightIndirectShader->getUniform("u_params", bgfx::UniformType::Vec4), &params);
+	Graphics_SetUniform(lightIndirectShader->getUniform("u_lightParams", bgfx::UniformType::Vec4), &params);
 
 	Graphics_SetUniform(lightIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
 
-	Graphics_ComputeDispatch(RenderPass::OcclusionCulling, lightIndirectShader, numVisibleLights / 64 + 1, 1, 1);
+	Graphics_ComputeDispatch(RenderPass::LightCulling, lightIndirectShader, MAX_POINT_LIGHTS / 64 + 1, 1, 1);
 
 	// Stream compaction
 
@@ -755,8 +760,9 @@ static void CullParticles()
 	for (int i = 0; i < numVisibleParticleSystems; i++)
 	{
 		particleAabbBufferData[i * 2 + 0].xyz = particleSystemDraws[i].system->boundingBox.min;
+		particleAabbBufferData[i * 2 + 0].w = (float)particleSystemDraws[i].system->numParticles;
 		particleAabbBufferData[i * 2 + 1].xyz = particleSystemDraws[i].system->boundingBox.max;
-		particleAabbBufferData[i * 2 + 1].w = (float)particleSystemDraws[i].system->numParticles;
+		particleAabbBufferData[i * 2 + 1].w = (float)numVisibleParticleSystems;
 	}
 
 	bgfx::update(particleAabbBuffer, 0, bgfx::makeRef(particleAabbBufferData, numVisibleParticleSystems * 2 * sizeof(Vector4)));
@@ -773,7 +779,7 @@ static void CullParticles()
 
 	Graphics_SetUniform(particleIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
 
-	Graphics_ComputeDispatch(RenderPass::OcclusionCulling, particleIndirectShader, numVisibleParticleSystems / 64 + 1, 1, 1);
+	Graphics_ComputeDispatch(RenderPass::ParticleCulling, particleIndirectShader, numVisibleParticleSystems / 64 + 1, 1, 1);
 }
 
 static void GeometryPass()
@@ -830,8 +836,8 @@ static void RenderPointLights()
 	Graphics_SetDepthTest(DepthTest::None);
 	Graphics_SetCullState(CullState::CounterClockWise);
 
-	Graphics_SetVertexBuffer(box);
-	Graphics_SetIndexBuffer(boxIBO);
+	Graphics_SetVertexBuffer(sphere);
+	Graphics_SetIndexBuffer(sphereIBO);
 
 	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
 
@@ -845,7 +851,7 @@ static void RenderPointLights()
 
 	bgfx::setInstanceDataBuffer(lightCulledInstanceBuffer, 0, numVisibleLights);
 
-	Graphics_DrawIndirect(RenderPass::Deferred, shader, lightIndirectBuffer.idx, 0, numVisibleLights);
+	Graphics_DrawIndirect(RenderPass::Deferred, shader, lightIndirectBuffer.idx, 0, 1);
 }
 
 static void RenderDirectionalLights()
@@ -956,17 +962,20 @@ static void RenderParticles()
 	for (int i = 0; i < particleSystemDraws.size; i++)
 	{
 		if (particleSystemDraws[i].culled)
-			continue;
+			break;
 		if (particleSystemDraws[i].system->numParticles == 0)
 			continue;
 
 		ParticleSystem* system = particleSystemDraws[i].system;
 
-		int numParticles = system->numParticles;
 		bgfx::InstanceDataBuffer instanceBuffer;
-		if (Graphics_CreateInstanceBuffer(numParticles, sizeof(ParticleInstanceData), &instanceBuffer))
+		if (Graphics_CreateInstanceBuffer(system->numParticles, sizeof(ParticleInstanceData), &instanceBuffer))
 		{
+			if (instanceBuffer.num != system->numParticles)
+				__debugbreak();
+
 			ParticleInstanceData* instanceData = (ParticleInstanceData*)instanceBuffer.data;
+			memset(instanceBuffer.data, 0, instanceBuffer.size);
 
 			int particleCount = 0;
 			for (int i = 0; i < system->maxParticles; i++)
@@ -986,6 +995,9 @@ static void RenderParticles()
 					particleData->sizeAnimation.y = particle->animationFrame;
 				}
 			}
+
+			if (particleCount != system->numParticles)
+				__debugbreak();
 
 			qsort(instanceData, particleCount, sizeof(ParticleInstanceData), (_CoreCrtNonSecureSearchSortCompareFunction)ParticleComparator);
 
@@ -1019,7 +1031,8 @@ static void RenderParticles()
 			Graphics_SetVertexBuffer(particle);
 			Graphics_SetInstanceBuffer(&instanceBuffer);
 
-			Graphics_DrawIndirect(RenderPass::Forward, shader, particleIndirectBuffer.idx, i, 1);
+			//Graphics_DrawIndirect(RenderPass::Forward, shader, particleIndirectBuffer.idx, i, 1);
+			Graphics_Draw(RenderPass::Forward, shader);
 		}
 	}
 }
@@ -1145,7 +1158,7 @@ RFAPI int Renderer3D_DrawDebugStats(int x, int y, uint8_t color)
 	sprintf(str, "HZB: %.2f ms", GetGPUTime(RenderPass::HZB) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
-	sprintf(str, "Occlusion Culling: %.2f ms", GetGPUTime(RenderPass::OcclusionCulling) * 1000);
+	sprintf(str, "Occlusion Culling: %.2f ms", GetGPUTime(RenderPass::LightCulling) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
 	sprintf(str, "Geometry Pass: %.2f ms", GetGPUTime(RenderPass::Geometry) * 1000);

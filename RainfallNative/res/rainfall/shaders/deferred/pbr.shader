@@ -54,7 +54,7 @@ vec3 L(vec3 color, float distanceSq)
 	//float attenuation = 1.0 / (1.0 + 4 * distanceSq);
 
 	float dist = sqrt(distanceSq);
-	float attenuation = 1.0 / (1.0 + 2 * dist + 4 * distanceSq);
+	float attenuation = 1.0 / (1.0 + 1 * dist + 2 * distanceSq);
 
 	//float distance = sqrt(distanceSq);
     //float attenuation = max(1 - distance / lightRadius, 0);
@@ -68,7 +68,7 @@ vec3 L(vec3 color, float distanceSq)
 	vec3 radiance = color * attenuation;
 
 	float maxComponent = max(radiance.r, max(radiance.g, radiance.b));
-	radiance *= max(1 - 0.02 / maxComponent, 0);
+	radiance *= max(1 - 0.01 / maxComponent, 0);
 
 	return radiance;
 }

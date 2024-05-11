@@ -424,5 +424,16 @@
     <None Include="res\rainfall\shaders\occlusion_culling\light_indirect.csh" />
     <None Include="res\rainfall\shaders\tonemapping\tonemapping.fsh" />
     <None Include="res\rainfall\shaders\occlusion_culling\particle_indirect.csh" />
+    <None Include="res\rainfall\shaders\deferred\pbr.shader" />
+    <None Include="res\rainfall\shaders\deferred\deferred_directional.fsh" />
+    <None Include="res\rainfall\shaders\deferred\deferred_emissive.fsh" />
+    <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
+    <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
+    <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
+    <None Include="res\rainfall\shaders\deferred\deferred.vsh" />
+    <None Include="res\rainfall\shaders\deferred\deferred_point.vsh" />
+    <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
+    <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh" />
+    <None Include="res\rainfall\shaders\occlusion_culling\stream_compaction.csh" />
   </ItemGroup>
 </Project>

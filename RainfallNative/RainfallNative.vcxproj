@@ -152,6 +152,11 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ExceptionHandling>false</ExceptionHandling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -295,8 +300,15 @@
     <ClInclude Include="src\vector\Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\rainfall\shaders\deferred\deferred_directional.fsh" />
+    <None Include="res\rainfall\shaders\deferred\deferred_emissive.fsh" />
+    <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
+    <None Include="res\rainfall\shaders\deferred\pbr.shader" />
+    <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
+    <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
+    <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
     <None Include="res\rainfall\shaders\tonemapping\tonemapping.fsh" />
     <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
     <None Include="res\shaders\rainfall\common\common.shader" />
@@ -325,6 +337,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\rainfall\shaders\occlusion_culling\particle_indirect.csh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\deferred\deferred.vsh">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="res\rainfall\shaders\deferred\deferred_point.vsh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="res\rainfall\shaders\occlusion_culling\stream_compaction.csh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
