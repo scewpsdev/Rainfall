@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string.h>
+#include <math.h>
 
 
 template<typename T, int capacity>
@@ -90,7 +91,7 @@ struct Gradient
 				{
 					Value v0 = values[i - 1];
 					T value0 = v0.value;
-					float progress = (position - v0.position) / (v1.position - v0.position);
+					float progress = fminf(fmaxf((position - v0.position) / (v1.position - v0.position), 0.0f), 1.0f);
 					return value0 * (1 - progress) + value1 * progress;
 				}
 			}
