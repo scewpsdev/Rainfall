@@ -1,5 +1,7 @@
 #include "Math.h"
 
+#include "utils/Random.h"
+
 #include <math.h>
 #include <float.h>
 

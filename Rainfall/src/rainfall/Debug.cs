@@ -14,6 +14,11 @@ namespace Rainfall
 			System.Diagnostics.Debug.Assert(condition);
 		}
 
+		public static void CaptureFrame()
+		{
+			Native.Application.Application_CaptureFrame();
+		}
+
 		public static bool debugTextEnabled
 		{
 			get => Native.Application.Application_IsDebugTextEnabled() != 0;

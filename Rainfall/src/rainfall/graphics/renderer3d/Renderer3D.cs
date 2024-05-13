@@ -156,14 +156,14 @@ namespace Rainfall
 			Renderer3D_Begin();
 		}
 
-		public static void SetCamera(Vector3 position, Quaternion rotation, Matrix projection)
+		public static void SetCamera(Vector3 position, Quaternion rotation, Matrix projection, float near, float far)
 		{
 			cameraPosition = position;
 			cameraRotation = rotation;
 
 			pv = projection * Matrix.CreateTransform(position, rotation).inverted;
 
-			Renderer3D_SetCamera(position, rotation, projection);
+			Renderer3D_SetCamera(position, rotation, projection, near, far);
 		}
 
 		public static void End()
@@ -192,7 +192,7 @@ namespace Rainfall
 		extern static void Renderer3D_Terminate();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj);
+		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float near, float far);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation, byte isOccluder);

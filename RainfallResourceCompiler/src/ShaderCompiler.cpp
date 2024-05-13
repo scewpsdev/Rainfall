@@ -56,14 +56,7 @@ static const char* GetShaderProfile(bgfx::RendererType::Enum renderer, int shade
 		*/
 	case bgfx::RendererType::Direct3D11:
 	case bgfx::RendererType::Direct3D12:
-		//return "s_5_0";
-		switch (shaderType)
-		{
-		case 0: return "vs_5_0";
-		case 1: return "ps_5_0";
-		case 2: return "cs_5_0";
-		default: return nullptr;
-		}
+		return "s_5_0";
 	case bgfx::RendererType::OpenGL:
 		switch (shaderType)
 		{

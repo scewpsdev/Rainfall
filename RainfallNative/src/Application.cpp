@@ -127,6 +127,7 @@ static bool keepRunning;
 uint32_t width, height;
 uint32_t reset;
 uint32_t debug;
+bool captureFrame = false;
 
 int fpsCap;
 int vsync;
@@ -148,41 +149,12 @@ EventQueue eventQueue;
 static KeyCode keyTranslation[GLFW_KEY_LAST + 1];
 
 
-template<typename A, typename B>
-std::pair<B, A> flip_pair(const std::pair<A, B>& p)
-{
-	return std::pair<B, A>(p.second, p.first);
-}
-
-template<typename A, typename B>
-std::multimap<B, A> flip_map(const std::map<A, B>& src, std::multimap<B, A>& dst)
-{
-	std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
-		flip_pair<A, B>);
-	return dst;
-}
-
-#if _DEBUG
-#define TRACK_ALLOCATIONS 0
-#define TRACK_ALLOCATION_FILES 0
-#define PRINT_ALLOCATIONS 0
-#else
-#define TRACK_ALLOCATIONS 0
-#define TRACK_ALLOCATION_FILES 0
-#define PRINT_ALLOCATIONS 0
-#endif
-
 struct MemoryAllocator : bx::DefaultAllocator
 {
 #if TRACK_ALLOCATIONS
 public:
 	std::unordered_map<void*, int64_t> allocations;
 	int64_t numBytes = 0;
-
-#if TRACK_ALLOCATION_FILES
-	std::map<const char*, int64_t> fileMap;
-	std::multimap<int64_t, const char*> fileMapSorted;
-#endif
 
 	std::mutex mutex;
 
@@ -203,14 +175,16 @@ public:
 		, uint32_t line
 	) override
 	{
-#if PRINT_ALLOCATIONS
-		if (!file || line == 0)
-			__debugbreak();
-		fprintf(stderr, "%s:%d\n", file, line);
-#endif
-
 		void* result = bx::DefaultAllocator::realloc(ptr, size, align, file, line);
-		memset(result, 0, size);
+		if (!ptr) // malloc
+			; // memset(result, 0, size);
+		else if (size == 0)
+			; // free
+		else
+		{
+			// realloc
+			int a = 5;
+		}
 
 #if TRACK_ALLOCATIONS
 		if (size == 0)
@@ -223,9 +197,6 @@ public:
 				{
 					numBytes -= allocations.at(ptr);
 					allocations.erase(ptr);
-#if TRACK_ALLOCATION_FILES
-					fileMap[file] -= size;
-#endif
 				}
 				else
 				{
@@ -239,9 +210,6 @@ public:
 			mutex.lock();
 			allocations.emplace(result, size);
 			numBytes += size;
-#if TRACK_ALLOCATION_FILES
-			fileMap[file] += size;
-#endif
 			mutex.unlock();
 		}
 		else
@@ -249,17 +217,9 @@ public:
 			mutex.lock();
 			int64_t& s = allocations.at(ptr);
 			numBytes += size - s;
-#if TRACK_ALLOCATION_FILES
-			fileMap[file] += size - s;
-#endif
 			s = size;
 			mutex.unlock();
 		}
-
-#if TRACK_ALLOCATION_FILES
-		fileMapSorted.clear();
-		flip_map(fileMap, fileMapSorted);
-#endif
 #endif
 
 		return result;
@@ -741,7 +701,8 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 
 	ImGuiLayerEndFrame();
 
-	bgfx::frame();
+	bgfx::frame(captureFrame);
+	captureFrame = false;
 
 	int64_t afterFrame = Application_GetTimestamp();
 
@@ -1475,4 +1436,9 @@ RFAPI void Application_GetMonitorSize(int* outWidth, int* outHeight)
 		*outWidth = videoMode->width;
 		*outHeight = videoMode->height;
 	}
+}
+
+RFAPI void Application_CaptureFrame()
+{
+	captureFrame = true;
 }

@@ -129,5 +129,8 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int Application_GetMonitorSize(out int width, out int height);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Application_CaptureFrame();
 	}
 }

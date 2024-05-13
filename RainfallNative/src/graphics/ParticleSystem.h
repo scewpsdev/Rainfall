@@ -91,7 +91,7 @@ struct ParticleSystem
 	Gradient<float, 2> sizeAnim;
 	Gradient<Vector4, 2> colorAnim;
 
-	int numBursts;
+	int numBursts = 0;
 	ParticleBurst* bursts;
 
 	Random random;

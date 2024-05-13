@@ -47,6 +47,7 @@ namespace Rainfall
 		public uint numCompute;                //!< Number of compute calls submitted.
 		public uint numBlit;                   //!< Number of blit calls submitted.
 		public uint maxGpuLatency;             //!< GPU driver latency.
+		public uint gpuFrameNum;
 
 		ushort _numDynamicIndexBuffers;    //!< Number of used dynamic index buffers.
 		ushort _numDynamicVertexBuffers;   //!< Number of used dynamic vertex buffers.

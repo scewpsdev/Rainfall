@@ -13,8 +13,8 @@
 #include "bgfx/common/imgui/icons_kenney.ttf.h"
 #include "bgfx/common/imgui/icons_font_awesome.ttf.h"
 
-#include "bgfx/common/iconfontheaders/icons_font_awesome.h"
-#include "bgfx/common/iconfontheaders/icons_kenney.h"
+#include "bgfx/iconfontheaders/icons_font_awesome.h"
+#include "bgfx/iconfontheaders/icons_kenney.h"
 
 //#include "bgfx/common/bgfx_utils.h"
 
