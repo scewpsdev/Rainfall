@@ -10,7 +10,7 @@
 
 RFAPI ParticleSystem* ParticleSystem_Create(int maxParticles, Matrix transform)
 {
-	ParticleSystem* system = BX_NEW(Application_GetAllocator(), ParticleSystem);
+	ParticleSystem* system = BX_NEW(Application_GetAllocator(), ParticleSystem) {};
 
 	system->transform = transform;
 	system->maxParticles = maxParticles;

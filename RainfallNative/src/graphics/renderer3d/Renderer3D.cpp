@@ -54,7 +54,7 @@ enum RenderPass
 
 struct Renderer3DSettings
 {
-
+	bool ssaoEnabled = true;
 };
 
 struct MeshDraw
@@ -100,7 +100,7 @@ static uint16_t gbuffer = bgfx::kInvalidHandle;
 static bgfx::TextureHandle gbufferTextures[5];
 static bgfx::TextureInfo gbufferTextureInfos[5];
 
-static uint16_t hzb;
+static uint16_t hzb = bgfx::kInvalidHandle;
 static bgfx::TextureInfo hzbTextureInfo;
 static int hzbWidth, hzbHeight;
 
@@ -112,44 +112,60 @@ static uint16_t compositeRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle compositeRTTexture;
 static bgfx::TextureInfo compositeRTTextureInfo;
 
+static uint16_t ssaoRT = bgfx::kInvalidHandle;
+static bgfx::TextureHandle ssaoRTTexture;
+static bgfx::TextureInfo ssaoRTTextureInfo;
+static bgfx::TextureHandle ssaoNoise;
+static Shader* ssaoShader;
+static bgfx::UniformHandle s_depth;
+static bgfx::UniformHandle s_normals;
+static bgfx::UniformHandle s_ssaoNoise;
+static bgfx::UniformHandle u_cameraFrustum;
+static bgfx::UniformHandle u_viewMatrix;
+static bgfx::UniformHandle u_viewInv;
+static bgfx::UniformHandle u_projectionView;
+static bgfx::UniformHandle u_projectionInv;
+static bgfx::UniformHandle u_projectionViewInv;
+
 Shader* defaultShader;
 Shader* defaultAnimatedShader;
 static Shader* deferredPointShader;
 static Shader* deferredDirectionalShader;
 static Shader* deferredEmissiveShader;
 static Shader* deferredEnvironmentShader;
-static Shader* hzbDownsampleShader;
-static Shader* meshIndirectShader;
-static Shader* lightIndirectShader;
-static Shader* particleIndirectShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
 static Shader* skyShader;
 
 static const float quadVertices[] = { -3.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 3.0f, 1.0f };
-static uint16_t quad;
+static uint16_t quad = bgfx::kInvalidHandle;
 
 static const float boxVertices[] = { -1, -1, -1, 1, -1, -1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, 1, 1 };
 static const short boxIndices[] = { 0, 1, 2, 3, 2, 1, 0, 4, 5, 0, 5, 1, 0, 2, 6, 0, 6, 4, 1, 5, 7, 1, 7, 3, 4, 6, 7, 4, 7, 5, 2, 3, 7, 2, 7, 6 };
-static uint16_t box;
-static uint16_t boxIBO;
+static uint16_t box = bgfx::kInvalidHandle;
+static uint16_t boxIBO = bgfx::kInvalidHandle;
 
 static SceneData* sphereData;
-static uint16_t sphere;
-static uint16_t sphereIBO;
+static uint16_t sphere = bgfx::kInvalidHandle;
+static uint16_t sphereIBO = bgfx::kInvalidHandle;
 
 static const float particleVertices[] = { -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, -0.5f, 0.5f, -0.5f, -0.5f };
-static uint16_t particle;
+static uint16_t particle = bgfx::kInvalidHandle;
 
 static const float skydomeVertices[] = { -10, -10, 10, 10, -10, 10, 0, -10, -10, 0, 10, 0 };
 static const short skydomeIndices[] = { 0, 1, 2, 2, 1, 3, 1, 0, 3, 0, 2, 3 };
-static uint16_t skydome;
-static uint16_t skydomeIBO;
+static uint16_t skydome = bgfx::kInvalidHandle;
+static uint16_t skydomeIBO = bgfx::kInvalidHandle;
 
-static uint16_t emptyCubemap;
+static uint16_t emptyCubemap = bgfx::kInvalidHandle;
+
+static bgfx::UniformHandle s_hzb;
+static bgfx::UniformHandle u_params;
+static bgfx::UniformHandle u_pv;
 
 static Vector3 cameraPosition;
 static Quaternion cameraRotation;
+static float cameraNear, cameraFar;
 static Vector3 cameraRight, cameraUp, cameraForward;
 static Matrix projection, view, pv;
 static Vector4 frustumPlanes[6];
@@ -159,23 +175,24 @@ static List<MeshDraw> occluderMeshes;
 static int numVisibleMeshes;
 static bgfx::IndirectBufferHandle indirectBuffer;
 static bgfx::DynamicVertexBufferHandle aabbBuffer;
-static Vector4* aabbBufferData;
+static Shader* hzbDownsampleShader;
+static Shader* meshIndirectShader;
 
 static List<PointLightDraw> pointLightDraws;
 static int numVisibleLights;
 static bgfx::IndirectBufferHandle lightIndirectBuffer;
 static bgfx::DynamicVertexBufferHandle lightBuffer;
-static Vector4* lightBufferData;
 static bgfx::DynamicIndexBufferHandle lightInstanceCount;
 static bgfx::DynamicIndexBufferHandle lightInstancePredicates;
 static bgfx::DynamicVertexBufferHandle lightCulledInstanceBuffer;
+static Shader* lightIndirectShader;
 static Shader* streamCompactionShader;
 
 static List<ParticleSystemDraw> particleSystemDraws;
 static int numVisibleParticleSystems;
 static bgfx::IndirectBufferHandle particleIndirectBuffer;
 static bgfx::DynamicVertexBufferHandle particleAabbBuffer;
-static Vector4* particleAabbBufferData;
+static Shader* particleIndirectShader;
 
 static bool renderDirectionalLight;
 static Vector3 directionalLightDirection;
@@ -209,6 +226,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	tonemappingShader = Shader_Create("res/rainfall/shaders/tonemapping/tonemapping.vsh.bin", "res/rainfall/shaders/tonemapping/tonemapping.fsh.bin");
 	particleShader = Shader_Create("res/rainfall/shaders/particle/particle.vsh.bin", "res/rainfall/shaders/particle/particle.fsh.bin");
 	skyShader = Shader_Create("res/rainfall/shaders/sky/sky.vsh.bin", "res/rainfall/shaders/sky/sky.fsh.bin");
+	ssaoShader = Shader_Create("res/rainfall/shaders/ao/ssao.vsh.bin", "res/rainfall/shaders/ao/ssao.fsh.bin");
 	streamCompactionShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/stream_compaction.csh.bin");
 
 	VertexElement quadLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
@@ -240,11 +258,14 @@ RFAPI void Renderer3D_Init(int width, int height)
 	bgfx::TextureInfo cubemapInfo;
 	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, 0, &cubemapInfo);
 
+	s_hzb = bgfx::createUniform("s_hzb", bgfx::UniformType::Sampler);
+	u_params = bgfx::createUniform("u_params", bgfx::UniformType::Vec4);
+	u_pv = bgfx::createUniform("u_pv", bgfx::UniformType::Mat4);
+
 	indirectBuffer = bgfx::IndirectBufferHandle{ Graphics_CreateIndirectBuffer(MAX_INDIRECT_DRAWS) };
 
 	VertexElement aabbLayout(VertexAttribute::TexCoord0, VertexAttributeType::Vector4);
 	aabbBuffer = bgfx::DynamicVertexBufferHandle{ Graphics_CreateDynamicVertexBuffer(&aabbLayout, 1, MAX_INDIRECT_DRAWS * 2, BGFX_BUFFER_COMPUTE_READ) };
-	aabbBufferData = (Vector4*)BX_ALLOC(Application_GetAllocator(), MAX_INDIRECT_DRAWS * 2 * sizeof(Vector4));
 
 	lightIndirectBuffer = bgfx::IndirectBufferHandle{ Graphics_CreateIndirectBuffer(MAX_POINT_LIGHTS) };
 
@@ -253,7 +274,6 @@ RFAPI void Renderer3D_Init(int width, int height)
 		VertexElement(VertexAttribute::TexCoord6, VertexAttributeType::Vector4),
 	};
 	lightBuffer = bgfx::DynamicVertexBufferHandle{ Graphics_CreateDynamicVertexBuffer(lightLayout, 2, MAX_POINT_LIGHTS, BGFX_BUFFER_COMPUTE_READ) };
-	lightBufferData = (Vector4*)BX_ALLOC(Application_GetAllocator(), MAX_POINT_LIGHTS * 2 * sizeof(Vector4));
 
 	lightInstanceCount = bgfx::DynamicIndexBufferHandle{ Graphics_CreateDynamicIndexBuffer(1, BGFX_BUFFER_INDEX32 | BGFX_BUFFER_COMPUTE_READ_WRITE) };
 
@@ -264,7 +284,22 @@ RFAPI void Renderer3D_Init(int width, int height)
 	particleIndirectBuffer = bgfx::IndirectBufferHandle{ Graphics_CreateIndirectBuffer(MAX_PARTICLE_SYSTEMS) };
 
 	particleAabbBuffer = bgfx::DynamicVertexBufferHandle{ Graphics_CreateDynamicVertexBuffer(lightLayout, 2, MAX_PARTICLE_SYSTEMS, BGFX_BUFFER_COMPUTE_READ) };
-	particleAabbBufferData = (Vector4*)BX_ALLOC(Application_GetAllocator(), MAX_PARTICLE_SYSTEMS * 2 * sizeof(Vector4));
+
+	s_depth = bgfx::createUniform("s_depth", bgfx::UniformType::Sampler);
+	s_normals = bgfx::createUniform("s_normals", bgfx::UniformType::Sampler);
+
+	Random random((uint32_t)Application_GetTimestamp());
+	const bgfx::Memory* ssaoNoiseMem = bgfx::alloc(4 * 4 * 2);
+	random.nextBytes(ssaoNoiseMem->data, ssaoNoiseMem->size);
+	ssaoNoise = bgfx::TextureHandle{ Graphics_CreateTextureImmutable(4, 4, bgfx::TextureFormat::RG8, 0, ssaoNoiseMem, nullptr) };
+
+	s_ssaoNoise = bgfx::createUniform("s_ssaoNoise", bgfx::UniformType::Sampler);
+	u_cameraFrustum = bgfx::createUniform("u_cameraFrustum", bgfx::UniformType::Vec4);
+	u_viewMatrix = bgfx::createUniform("u_viewMatrix", bgfx::UniformType::Mat4);
+	u_viewInv = bgfx::createUniform("u_viewInv", bgfx::UniformType::Mat4);
+	u_projectionView = bgfx::createUniform("u_projectionView", bgfx::UniformType::Mat4);
+	u_projectionInv = bgfx::createUniform("u_projectionInv", bgfx::UniformType::Mat4);
+	u_projectionViewInv = bgfx::createUniform("u_projectionViewInv", bgfx::UniformType::Mat4);
 }
 
 RFAPI void Renderer3D_Resize(int width, int height)
@@ -280,6 +315,8 @@ RFAPI void Renderer3D_Resize(int width, int height)
 		bgfx::destroy(bgfx::FrameBufferHandle{ forwardRT });
 	if (compositeRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ compositeRT });
+	if (ssaoRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
 
 	RenderTargetAttachment gbufferAttachments[5] =
 	{
@@ -304,6 +341,9 @@ RFAPI void Renderer3D_Resize(int width, int height)
 
 	RenderTargetAttachment compositeRTAttachment(width, height, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
 	compositeRT = Graphics_CreateRenderTarget(1, &compositeRTAttachment, &compositeRTTexture, &compositeRTTextureInfo);
+
+	RenderTargetAttachment ssaoRTAttachment(width, height, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
+	ssaoRT = Graphics_CreateRenderTarget(1, &ssaoRTAttachment, &ssaoRTTexture, &ssaoRTTextureInfo);
 }
 
 RFAPI void Renderer3D_Terminate()
@@ -342,22 +382,21 @@ RFAPI void Renderer3D_Terminate()
 
 	Graphics_DestroyIndirectBuffer(indirectBuffer.idx);
 	Graphics_DestroyDynamicVertexBuffer(aabbBuffer.idx);
-	BX_FREE(Application_GetAllocator(), aabbBufferData);
 
 	Graphics_DestroyIndirectBuffer(lightIndirectBuffer.idx);
 	Graphics_DestroyDynamicVertexBuffer(lightBuffer.idx);
-	BX_FREE(Application_GetAllocator(), lightBufferData);
 	Graphics_DestroyDynamicIndexBuffer(lightInstanceCount.idx);
 	Graphics_DestroyDynamicIndexBuffer(lightInstancePredicates.idx);
 	Graphics_DestroyDynamicVertexBuffer(lightCulledInstanceBuffer.idx);
 
 	Graphics_DestroyIndirectBuffer(particleIndirectBuffer.idx);
 	Graphics_DestroyDynamicVertexBuffer(particleAabbBuffer.idx);
-	BX_FREE(Application_GetAllocator(), particleAabbBufferData);
 }
 
-RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj)
+RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float near, float far)
 {
+	cameraNear = near;
+	cameraFar = far;
 	cameraPosition = position;
 	cameraRotation = rotation;
 	cameraRight = rotation.right();
@@ -642,6 +681,7 @@ static void DoDepthPrepass()
 		if (animation && mesh->skeletonID != -1)
 			skeleton = animation->skeletons[mesh->skeletonID];
 
+		bgfx::setMarker("Depth Prepass");
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::DepthPrepass);
 	}
 }
@@ -661,6 +701,7 @@ static void BuildHZB()
 		Graphics_SetComputeTexture(0, src, max(i - 1, 0), bgfx::Access::Read);
 		Graphics_SetComputeTexture(1, dst, i, bgfx::Access::Write);
 
+		bgfx::setMarker("HZB Downsample");
 		Graphics_ComputeDispatch(RenderPass::HZB, hzbDownsampleShader, w / 16 + 1, h / 16 + 1, 1);
 
 		w /= 2;
@@ -676,6 +717,8 @@ static void CullMeshes()
 	if (numVisibleMeshes > MAX_INDIRECT_DRAWS)
 		__debugbreak();
 
+	const bgfx::Memory* aabbBufferMem = bgfx::alloc(numVisibleMeshes * 2 * sizeof(Vector4));
+	Vector4* aabbBufferData = (Vector4*)aabbBufferMem->data;
 	for (int i = 0; i < numVisibleMeshes; i++)
 	{
 		aabbBufferData[i * 2 + 0].xyz = meshDraws[i].boundingBox.min;
@@ -684,7 +727,7 @@ static void CullMeshes()
 		aabbBufferData[i * 2 + 1].w = (float)numVisibleMeshes;
 	}
 
-	bgfx::update(aabbBuffer, 0, bgfx::makeRef(aabbBufferData, numVisibleMeshes * 2 * sizeof(Vector4)));
+	bgfx::update(aabbBuffer, 0, aabbBufferMem);
 
 	Graphics_ResetState();
 
@@ -698,6 +741,7 @@ static void CullMeshes()
 
 	Graphics_SetUniform(meshIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
 
+	bgfx::setMarker("Mesh Culling");
 	Graphics_ComputeDispatch(RenderPass::MeshCulling, meshIndirectShader, numVisibleMeshes / 64 + 1, 1, 1);
 }
 
@@ -709,6 +753,8 @@ static void CullLights()
 	if (numVisibleLights > MAX_POINT_LIGHTS)
 		__debugbreak();
 
+	const bgfx::Memory* lightBufferMem = bgfx::alloc(numVisibleLights * 2 * sizeof(Vector4));
+	Vector4* lightBufferData = (Vector4*)lightBufferMem->data;
 	for (int i = 0; i < numVisibleLights; i++)
 	{
 		lightBufferData[i * 2 + 0].xyz = pointLightDraws[i].position;
@@ -717,7 +763,7 @@ static void CullLights()
 		lightBufferData[i * 2 + 1].w = (float)numVisibleLights;
 	}
 
-	bgfx::update(lightBuffer, 0, bgfx::makeRef(lightBufferData, numVisibleLights * 2 * sizeof(Vector4)));
+	bgfx::update(lightBuffer, 0, lightBufferMem);
 
 	Graphics_ResetState();
 
@@ -725,15 +771,16 @@ static void CullLights()
 	bgfx::setBuffer(1, lightInstanceCount, bgfx::Access::ReadWrite);
 	bgfx::setBuffer(2, lightInstancePredicates, bgfx::Access::Write);
 
-	Graphics_SetTexture(lightIndirectShader->getUniform("s_hzb", bgfx::UniformType::Sampler), 3, bgfx::TextureHandle{ hzb });
+	bgfx::setTexture(3, s_hzb, bgfx::TextureHandle{ hzb });
 
 	int instancesPowOf2 = ipow(2, (int)ceil(log2((double)numVisibleLights)));
 	Vector4 params((float)numVisibleLights, (float)instancesPowOf2, 0, 1);
-	Graphics_SetUniform(lightIndirectShader->getUniform("u_lightParams", bgfx::UniformType::Vec4), &params);
+	bgfx::setUniform(u_params, &params);
 
-	Graphics_SetUniform(lightIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
+	bgfx::setUniform(u_pv, &pv);
 
-	Graphics_ComputeDispatch(RenderPass::LightCulling, lightIndirectShader, MAX_POINT_LIGHTS / 64 + 1, 1, 1);
+	bgfx::setMarker("Light Culling");
+	bgfx::dispatch((bgfx::ViewId)RenderPass::LightCulling, lightIndirectShader->program, MAX_POINT_LIGHTS / 64 + 1, 1, 1);
 
 	// Stream compaction
 
@@ -746,6 +793,7 @@ static void CullLights()
 
 	Graphics_SetUniform(streamCompactionShader->getUniform("u_params", bgfx::UniformType::Vec4), &params);
 
+	bgfx::setMarker("Stream Compaction");
 	Graphics_ComputeDispatch(RenderPass::StreamCompaction, streamCompactionShader, 1, 1, 1);
 }
 
@@ -757,15 +805,17 @@ static void CullParticles()
 	if (numVisibleParticleSystems > MAX_PARTICLE_SYSTEMS)
 		__debugbreak();
 
+	const bgfx::Memory* aabbBufferMem = bgfx::alloc(numVisibleParticleSystems * 2 * sizeof(Vector4));
+	Vector4* aabbBufferData = (Vector4*)aabbBufferMem->data;
 	for (int i = 0; i < numVisibleParticleSystems; i++)
 	{
-		particleAabbBufferData[i * 2 + 0].xyz = particleSystemDraws[i].system->boundingBox.min;
-		particleAabbBufferData[i * 2 + 0].w = (float)particleSystemDraws[i].system->numParticles;
-		particleAabbBufferData[i * 2 + 1].xyz = particleSystemDraws[i].system->boundingBox.max;
-		particleAabbBufferData[i * 2 + 1].w = (float)numVisibleParticleSystems;
+		aabbBufferData[i * 2 + 0].xyz = particleSystemDraws[i].system->boundingBox.min;
+		aabbBufferData[i * 2 + 0].w = (float)particleSystemDraws[i].system->numParticles;
+		aabbBufferData[i * 2 + 1].xyz = particleSystemDraws[i].system->boundingBox.max;
+		aabbBufferData[i * 2 + 1].w = (float)numVisibleParticleSystems;
 	}
 
-	bgfx::update(particleAabbBuffer, 0, bgfx::makeRef(particleAabbBufferData, numVisibleParticleSystems * 2 * sizeof(Vector4)));
+	bgfx::update(particleAabbBuffer, 0, aabbBufferMem);
 
 	Graphics_ResetState();
 
@@ -779,6 +829,7 @@ static void CullParticles()
 
 	Graphics_SetUniform(particleIndirectShader->getUniform("u_pv", bgfx::UniformType::Mat4), &pv);
 
+	bgfx::setMarker("Particle Culling");
 	Graphics_ComputeDispatch(RenderPass::ParticleCulling, particleIndirectShader, numVisibleParticleSystems / 64 + 1, 1, 1);
 }
 
@@ -801,8 +852,40 @@ static void GeometryPass()
 		if (animation && mesh->skeletonID != -1)
 			skeleton = animation->skeletons[mesh->skeletonID];
 
+		bgfx::setMarker("Geometry Pass");
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::Geometry, indirectBuffer, i);
 	}
+}
+
+static void AmbientOcclusionPass()
+{
+	if (!settings.ssaoEnabled)
+		return;
+
+	Graphics_ResetState();
+
+	Graphics_SetRenderTarget(RenderPass::AmbientOcclusion, ssaoRT, ssaoRTTextureInfo.width, ssaoRTTextureInfo.height);
+
+	bgfx::setTexture(0, s_depth, gbufferTextures[4]);
+	bgfx::setTexture(1, s_normals, gbufferTextures[1]);
+
+	bgfx::setTexture(2, s_ssaoNoise, ssaoNoise);
+
+	Vector4 cameraFrustum(cameraNear, cameraFar, 0.0f, 0.0f);
+	Matrix pvInv = pv.inverted();
+	Matrix viewInv = view.inverted();
+	Matrix projectionInv = projection.inverted();
+
+	bgfx::setUniform(u_cameraFrustum, &cameraFrustum);
+	bgfx::setUniform(u_viewMatrix, &view);
+	bgfx::setUniform(u_viewInv, &viewInv);
+	bgfx::setUniform(u_projectionView, &pv);
+	bgfx::setUniform(u_projectionInv, &projectionInv);
+	bgfx::setUniform(u_projectionViewInv, &pvInv);
+
+	bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ quad });
+
+	bgfx::submit((bgfx::ViewId)RenderPass::AmbientOcclusion, ssaoShader->program);
 }
 
 static void RenderEmissive()
@@ -1031,8 +1114,8 @@ static void RenderParticles()
 			Graphics_SetVertexBuffer(particle);
 			Graphics_SetInstanceBuffer(&instanceBuffer);
 
-			//Graphics_DrawIndirect(RenderPass::Forward, shader, particleIndirectBuffer.idx, i, 1);
-			Graphics_Draw(RenderPass::Forward, shader);
+			Graphics_DrawIndirect(RenderPass::Forward, shader, particleIndirectBuffer.idx, i, 1);
+			//Graphics_Draw(RenderPass::Forward, shader);
 		}
 	}
 }
@@ -1099,6 +1182,7 @@ RFAPI void Renderer3D_End()
 	CullParticles();
 
 	GeometryPass(); // render visible models here
+	AmbientOcclusionPass();
 	DeferredPass(); // render visible lights here
 
 	Graphics_Blit(RenderPass::Forward, forwardRTTextures[1], gbufferTextures[4]);

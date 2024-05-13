@@ -34,6 +34,8 @@ static void ReadSphere(FileReaderI* reader, Sphere& sphere, Error* err)
 
 static void ReadMesh(FileReaderI* reader, MeshData& mesh, Error* err)
 {
+	mesh = {};
+
 	int hasPositions;
 	int hasNormals;
 	int hasTangents;
@@ -121,6 +123,8 @@ static void ReadMeshes(FileReaderI* reader, SceneData& scene, Error* err)
 
 static void ReadTexture(FileReaderI* reader, TextureData& texture, Error* err)
 {
+	texture = {};
+
 	int isEmbedded;
 
 	read(reader, texture.path, sizeof(texture.path), err);
@@ -149,6 +153,8 @@ static void ReadTexture(FileReaderI* reader, TextureData& texture, Error* err)
 
 static void ReadMaterial(FileReaderI* reader, MaterialData& material, Error* err)
 {
+	material = {};
+
 	read(reader, material.color, err);
 	read(reader, material.metallicFactor, err);
 	read(reader, material.roughnessFactor, err);

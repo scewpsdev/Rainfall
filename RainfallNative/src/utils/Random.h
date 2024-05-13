@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Hash.h"
+#include "vector/Math.h"
 
 #include <stdint.h>
+#include <string.h>
 
 
 struct Random
@@ -45,5 +47,15 @@ struct Random
 			nextFloat(min, max),
 			nextFloat(min, max)
 		);
+	}
+
+	void nextBytes(uint8_t* bytes, int size)
+	{
+		int numInts = (size + 3) / 4;
+		for (int i = 0; i < numInts; i++)
+		{
+			uint32_t i32 = next();
+			memcpy(&bytes[i * 4], &i32, min(4, size - numInts * 4));
+		}
 	}
 };
