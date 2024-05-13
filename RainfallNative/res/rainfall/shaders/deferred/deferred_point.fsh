@@ -14,6 +14,8 @@ SAMPLER2D(s_gbuffer3, 3);
 uniform vec4 u_lightPosition;
 uniform vec4 u_lightColor;
 
+SAMPLER2D(s_ao, 4);
+
 uniform vec4 u_cameraPosition;
 
 
@@ -41,6 +43,9 @@ void main()
 	vec3 lightPosition = v_data0.xyz;
 	vec3 lightColor = v_data1.xyz;
 	vec3 lightS = RenderPointLight(position, normal, view, albedo, roughness, metallic, lightPosition, lightColor);
+
+	float ao = texture2D(s_ao, v_texcoord0).r;
+	lightS *= ao;
 
 	gl_FragColor = vec4(lightS, 1.0);
 	//gl_FragColor.rgb += 0.01;

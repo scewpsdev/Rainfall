@@ -18,6 +18,8 @@ uniform vec4 u_environmentData;
 uniform vec4 u_maskPosition[4];
 uniform vec4 u_maskSize[4];
 
+SAMPLER2D(s_ao, 5);
+
 uniform vec4 u_cameraPosition;
 
 
@@ -51,6 +53,9 @@ void main()
 		float attenuation = 1 / (1 + falloff * distanceToBounds * distanceToBounds) - 0.01;
 		ambient *= attenuation;
 	}
+
+	float ao = texture2D(s_ao, v_texcoord0).r;
+	ambient *= ao;
 
 	gl_FragColor = vec4(ambient, 1.0);
 

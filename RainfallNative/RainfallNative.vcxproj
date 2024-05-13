@@ -300,6 +300,7 @@
     <ClInclude Include="src\vector\Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\rainfall\shaders\ao\ssao.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_directional.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_emissive.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
@@ -353,6 +354,11 @@
       <FileType>Document</FileType>
     </None>
     <None Include="res\rainfall\shaders\occlusion_culling\stream_compaction.csh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\ao\ssao.vsh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

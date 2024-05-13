@@ -13,6 +13,8 @@ SAMPLER2D(s_gbuffer3, 3);
 uniform vec4 u_lightDirection;
 uniform vec4 u_lightColor;
 
+SAMPLER2D(s_ao, 4);
+
 uniform vec4 u_cameraPosition;
 
 
@@ -37,7 +39,10 @@ void main()
 	vec3 view = toCamera / distance;
 
 	vec3 lightS = RenderDirectionalLight(position, normal, view, distance, albedo, roughness, metallic, u_lightDirection.xyz, u_lightColor.rgb);
-	
+
+	float ao = texture2D(s_ao, v_texcoord0).r;
+	lightS *= ao;
+
 	gl_FragColor = vec4(lightS, 1.0);
 
 	//if (v_texcoord0.x > 0.75 && v_texcoord0.y > 0.75)
