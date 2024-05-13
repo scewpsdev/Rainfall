@@ -435,5 +435,7 @@
     <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
     <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh" />
     <None Include="res\rainfall\shaders\occlusion_culling\stream_compaction.csh" />
+    <None Include="res\rainfall\shaders\ao\ssao.fsh" />
+    <None Include="res\rainfall\shaders\ao\ssao.vsh" />
   </ItemGroup>
 </Project>

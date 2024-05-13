@@ -865,6 +865,7 @@ static void AmbientOcclusionPass()
 	Graphics_ResetState();
 
 	Graphics_SetRenderTarget(RenderPass::AmbientOcclusion, ssaoRT, ssaoRTTextureInfo.width, ssaoRTTextureInfo.height);
+	Graphics_ClearRenderTarget(RenderPass::AmbientOcclusion, ssaoRT, true, false, 0xFFFFFFFF, 1);
 
 	bgfx::setTexture(0, s_depth, gbufferTextures[4]);
 	bgfx::setTexture(1, s_normals, gbufferTextures[1]);
@@ -886,24 +887,6 @@ static void AmbientOcclusionPass()
 	bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ quad });
 
 	bgfx::submit((bgfx::ViewId)RenderPass::AmbientOcclusion, ssaoShader->program);
-}
-
-static void RenderEmissive()
-{
-	Shader* shader = deferredEmissiveShader;
-
-	Graphics_ResetState();
-
-	Graphics_SetBlendState(BlendState::Additive);
-	Graphics_SetDepthTest(DepthTest::None);
-	Graphics_SetCullState(CullState::ClockWise);
-
-	Graphics_SetVertexBuffer(quad);
-
-	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
-
-	Graphics_Draw(RenderPass::Deferred, shader);
 }
 
 static void RenderPointLights()
@@ -928,6 +911,8 @@ static void RenderPointLights()
 	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
 	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
 	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+
+	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoRTTexture);
 
 	Vector4 u_cameraPosition(cameraPosition, (float)numVisibleLights);
 	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -960,6 +945,8 @@ static void RenderDirectionalLights()
 		Vector4 lightColor(directionalLightColor, 0);
 		Graphics_SetUniform(shader->getUniform("u_lightDirection", bgfx::UniformType::Vec4), &lightDirection);
 		Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4), &lightColor);
+
+		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoRTTexture);
 
 		Vector4 u_cameraPosition(cameraPosition, 0);
 		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -1005,8 +992,28 @@ static void RenderEnvironmentMaps()
 	Graphics_SetUniform(shader->getUniform("u_maskPosition", bgfx::UniformType::Vec4, 4), maskPositions, numEnvironmentMasks);
 	Graphics_SetUniform(shader->getUniform("u_maskSize", bgfx::UniformType::Vec4, 4), maskSizes, numEnvironmentMasks);
 
+	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoRTTexture);
+
 	Vector4 u_cameraPosition(cameraPosition, 0);
 	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+	Graphics_Draw(RenderPass::Deferred, shader);
+}
+
+static void RenderEmissive()
+{
+	Shader* shader = deferredEmissiveShader;
+
+	Graphics_ResetState();
+
+	Graphics_SetBlendState(BlendState::Additive);
+	Graphics_SetDepthTest(DepthTest::None);
+	Graphics_SetCullState(CullState::ClockWise);
+
+	Graphics_SetVertexBuffer(quad);
+
+	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
 
 	Graphics_Draw(RenderPass::Deferred, shader);
 }
@@ -1016,10 +1023,10 @@ static void DeferredPass()
 	Graphics_SetRenderTarget(RenderPass::Deferred, forwardRT, width, height);
 	Graphics_ClearRenderTarget(RenderPass::Deferred, forwardRT, true, true, 0, 1);
 
-	RenderEmissive();
 	RenderPointLights();
 	RenderDirectionalLights();
 	RenderEnvironmentMaps();
+	RenderEmissive();
 }
 
 struct ParticleInstanceData
