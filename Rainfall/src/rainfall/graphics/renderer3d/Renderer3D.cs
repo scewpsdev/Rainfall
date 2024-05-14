@@ -85,6 +85,16 @@ namespace Rainfall
 			Renderer3D_DrawEnvironmentMapMask(position, size, falloff);
 		}
 
+		public static void DrawReflectionProbe(Vector3 position, Vector3 size)
+		{
+			Renderer3D_DrawReflectionProbe(position, size);
+		}
+
+		public static void DrawReflectionProbe(ReflectionProbe reflectionProbe)
+		{
+			Renderer3D_DrawReflectionProbe(reflectionProbe.position, reflectionProbe.size);
+		}
+
 		public static void DrawModelStaticInstanced_(Model model, Matrix transform)
 		{
 			// not supported atm, dont use
@@ -122,11 +132,6 @@ namespace Rainfall
 		public static void DrawDirectionalLight(DirectionalLight light)
 		{
 			Renderer3D_DrawDirectionalLight(light.direction, light.color);
-		}
-
-		public static void DrawReflectionProbe(ReflectionProbe reflectionProbe)
-		{
-			// TODO implement
 		}
 
 		public static void DrawWater(Vector3 position, float size)
@@ -217,6 +222,9 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_Begin();

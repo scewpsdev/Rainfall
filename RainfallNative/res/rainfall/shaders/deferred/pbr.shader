@@ -308,10 +308,10 @@ vec4 CalculateReflectionWeights(vec3 position,
 	return vec4(fadeOut0, fadeOut1, fadeOut2, fadeOut3);
 }
 
-vec4 SampleCubemapParallax(vec3 position, vec3 direction, float lod, samplerCube cubemap, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin)
+vec4 SampleCubemapParallax(samplerCube cubemap, vec3 position, vec3 direction, float lod, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin)
 {
-	vec3 boxMax = cubemapPosition + 0.5 * cubemapSize;
-	vec3 boxMin = cubemapPosition - 0.5 * cubemapSize;
+	vec3 boxMin = cubemapPosition;
+	vec3 boxMax = cubemapPosition + cubemapSize;
 
 	vec3 firstPlaneIntersect = (boxMax - position) / direction;
 	vec3 secondPlaneIntersect = (boxMin - position) / direction;
@@ -324,6 +324,29 @@ vec4 SampleCubemapParallax(vec3 position, vec3 direction, float lod, samplerCube
 	vec3 boxToIntersection = intersection - cubemapOrigin;
 
 	return textureCubeLod(cubemap, boxToIntersection, lod);
+}
+
+vec3 RenderReflectionsParallax(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, samplerCube environmentMap, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin)
+{
+	vec3 irradiance = SRGBToLinear(SampleCubemapParallax(environmentMap, position, normal, log2(textureSize(environmentMap, 0).x), cubemapPosition, cubemapSize, cubemapOrigin).rgb);
+
+	vec3 diffuse = irradiance * albedo;
+
+	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
+	vec3 ks = fresnel2(max(dot(normal, view), 0.0), f0, roughness);
+	vec3 kd = (1.0 - ks) * (1.0 - metallic);
+
+	vec3 r = reflect(-view, normal);
+	float lodFactor = 1.0 - exp(-roughness * 12);
+
+	vec3 prefiltered = SRGBToLinear(SampleCubemapParallax(environmentMap, position, r, lodFactor * log2(textureSize(environmentMap, 0).x), cubemapPosition, cubemapSize, cubemapOrigin).rgb);
+
+	vec2 brdfInteg = vec2(1.0, 0.0);
+	vec3 specular = prefiltered * (ks * brdfInteg.r + brdfInteg.g);
+
+	vec3 ambient = kd * diffuse + specular;
+
+	return ambient;
 }
 
 vec3 SampleEnvironmentIrradiance(vec3 position, vec3 normal, samplerCube environmentMap, float environmentIntensity)

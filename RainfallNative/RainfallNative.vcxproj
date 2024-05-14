@@ -307,6 +307,7 @@
     <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
+    <None Include="res\rainfall\shaders\deferred\deferred_reflection_probe.fsh" />
     <None Include="res\rainfall\shaders\deferred\pbr.shader" />
     <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
     <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
@@ -365,6 +366,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\rainfall\shaders\ao\ssao_blur.vsh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\deferred\deferred_reflection_probe.vsh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

@@ -92,6 +92,12 @@ struct EnvironmentMapMask
 	float falloff;
 };
 
+struct ReflectionProbeDraw
+{
+	Vector3 position;
+	Vector3 size;
+};
+
 
 static Renderer3DSettings settings;
 
@@ -148,6 +154,7 @@ static Shader* deferredPointShader;
 static Shader* deferredDirectionalShader;
 static Shader* deferredEmissiveShader;
 static Shader* deferredEnvironmentShader;
+static Shader* deferredReflectionProbeShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
 static Shader* skyShader;
@@ -219,6 +226,8 @@ static uint16_t environmentMap = bgfx::kInvalidHandle;
 float environmentIntensity;
 static List<EnvironmentMapMask> environmentMapMasks;
 
+static List<ReflectionProbeDraw> reflectionProbeDraws;
+
 static uint16_t skyTexture = bgfx::kInvalidHandle;
 static float skyIntensity;
 static Matrix skyTransform;
@@ -243,6 +252,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	deferredDirectionalShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_directional.fsh.bin");
 	deferredEmissiveShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_emissive.fsh.bin");
 	deferredEnvironmentShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_environment.fsh.bin");
+	deferredReflectionProbeShader = Shader_Create("res/rainfall/shaders/deferred/deferred_reflection_probe.vsh.bin", "res/rainfall/shaders/deferred/deferred_reflection_probe.fsh.bin");
 	hzbDownsampleShader = Shader_CreateCompute("res/rainfall/shaders/hzb/hzb_downsample.csh.bin");
 	meshIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/mesh_indirect.csh.bin");
 	lightIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/light_indirect.csh.bin");
@@ -545,6 +555,11 @@ RFAPI void Renderer3D_DrawEnvironmentMap(uint16_t envir, float intensity)
 RFAPI void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff)
 {
 	environmentMapMasks.add({ position, size, falloff });
+}
+
+RFAPI void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size)
+{
+	reflectionProbeDraws.add({ position, size });
 }
 
 RFAPI void Renderer3D_Begin()
@@ -1074,6 +1089,49 @@ static void RenderEnvironmentMaps()
 	Graphics_Draw(RenderPass::Deferred, shader);
 }
 
+static void RenderReflectionProbes()
+{
+	Shader* shader = deferredReflectionProbeShader;
+
+	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
+
+	for (int i = 0; i < reflectionProbeDraws.size; i++)
+	{
+		Graphics_ResetState();
+
+		Graphics_SetBlendState(BlendState::Additive);
+		Graphics_SetDepthTest(DepthTest::None);
+		Graphics_SetCullState(CullState::CounterClockWise);
+
+		Graphics_SetVertexBuffer(box);
+		Graphics_SetIndexBuffer(boxIBO);
+
+		Matrix boxTransform = Matrix::Translate(reflectionProbeDraws[i].position + reflectionProbeDraws[i].size * 0.5f) * Matrix::Scale(reflectionProbeDraws[i].size * 0.5f);
+		Graphics_SetTransform(RenderPass::Deferred, boxTransform);
+
+		Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+
+		Graphics_SetTexture(shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler).idx, 4, environmentMap);
+
+		Vector4 cubemapPosition(reflectionProbeDraws[i].position, 0);
+		Vector4 cubemapSize(reflectionProbeDraws[i].size, 0);
+		Vector4 cubemapOrigin(reflectionProbeDraws[i].position, 0);
+		Graphics_SetUniform(shader->getUniform("u_cubemapPosition", bgfx::UniformType::Vec4), &cubemapPosition);
+		Graphics_SetUniform(shader->getUniform("u_cubemapSize", bgfx::UniformType::Vec4), &cubemapSize);
+		Graphics_SetUniform(shader->getUniform("u_cubemapOrigin", bgfx::UniformType::Vec4), &cubemapOrigin);
+
+		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoBlurRTTexture);
+
+		Vector4 u_cameraPosition(cameraPosition, 0);
+		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+		Graphics_Draw(RenderPass::Deferred, shader);
+	}
+}
+
 static void RenderEmissive()
 {
 	Shader* shader = deferredEmissiveShader;
@@ -1100,6 +1158,7 @@ static void DeferredPass()
 	RenderPointLights();
 	RenderDirectionalLights();
 	RenderEnvironmentMaps();
+	RenderReflectionProbes();
 	RenderEmissive();
 }
 
@@ -1302,7 +1361,6 @@ static void TonemappingPass()
 	Graphics_SetVertexBuffer(quad);
 	Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, forwardRTTextures[0]);
 	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 1, bloomUpsampleRTTextures[0]);
-	//Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, ssaoBlurRTTexture);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }
@@ -1334,6 +1392,7 @@ RFAPI void Renderer3D_End()
 	skyTexture = bgfx::kInvalidHandle;
 	environmentMap = bgfx::kInvalidHandle;
 	environmentMapMasks.clear();
+	reflectionProbeDraws.clear();
 }
 
 static float GetCPUTime(RenderPass pass)
