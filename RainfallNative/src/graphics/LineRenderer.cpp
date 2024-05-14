@@ -3,6 +3,7 @@
 #include "Rainfall.h"
 #include "Application.h"
 #include "Shader.h"
+#include "Graphics.h"
 
 #include <bx/allocator.h>
 
@@ -62,6 +63,7 @@ void LineRenderer::end(bgfx::ViewId pass, bgfx::ProgramHandle shader)
 	{
 		bgfx::setVertexBuffer(0, &vertexBuffer);
 		bgfx::setIndexBuffer(&indexBuffer, 0, indexCount);
+		Graphics_SetPrimitiveType(PrimitiveType::Lines);
 
 		bgfx::submit(pass, shader);
 	}
@@ -69,6 +71,9 @@ void LineRenderer::end(bgfx::ViewId pass, bgfx::ProgramHandle shader)
 
 void LineRenderer::processDrawCommand(const LineDrawCommand& cmd)
 {
+	if (!vertexPtr || !indexPtr)
+		return;
+
 	Vector3 vertex0 = cmd.vertex0;
 	Vector3 vertex1 = cmd.vertex1;
 	Vector4 color = cmd.color;

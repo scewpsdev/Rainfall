@@ -25,3 +25,4 @@ int max(int a, int b);
 Vector3 RandomPointOnSphere(struct Random& random);
 AABB TransformBoundingBox(const AABB& localBox, const Matrix& transform);
 Vector2i WorldToScreenSpace(const Vector3& p, const Matrix& vp, int displayWidth, int displayHeight);
+Vector4 ARGBToVector(uint32_t argb);

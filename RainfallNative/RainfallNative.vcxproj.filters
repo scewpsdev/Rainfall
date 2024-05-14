@@ -398,6 +398,9 @@
     <ClInclude Include="src\utils\Simplex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\physics\Physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\rainfall\default\default.fs" />

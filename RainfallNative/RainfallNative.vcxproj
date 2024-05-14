@@ -248,6 +248,7 @@
     <ClInclude Include="src\graphics\Material.h" />
     <ClInclude Include="src\graphics\ParticleSystem.h" />
     <ClInclude Include="src\graphics\renderer3d\Renderer3D.h" />
+    <ClInclude Include="src\physics\Physics.h" />
     <ClInclude Include="src\Platform.h" />
     <ClInclude Include="src\graphics\LineRenderer.h" />
     <ClInclude Include="src\imgui\cimgui.h" />

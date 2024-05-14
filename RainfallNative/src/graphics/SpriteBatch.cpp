@@ -147,6 +147,9 @@ void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, flo
 	float r, float g, float b, float a,
 	uint16_t texture, uint32_t flags)
 {
+	if (!vertexPtr || !indexPtr)
+		return;
+
 	int textureIdx = -1;
 	if (texture != bgfx::kInvalidHandle)
 	{

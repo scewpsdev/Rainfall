@@ -4,7 +4,8 @@ $input v_texcoord0
 
 
 SAMPLER2D(s_hdrBuffer, 0);
-SAMPLER2D(s_bloom, 1);
+SAMPLER2D(s_depth, 1);
+SAMPLER2D(s_bloom, 2);
 
 
 vec3 ThreshholdBloom(vec3 bloom)
@@ -92,5 +93,6 @@ void main()
 	tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);
+	gl_FragDepth = texture2D(s_depth, v_texcoord0).r;
 	//gl_FragColor = vec4(vec3_splat(texture2D(s_hdrBuffer, v_texcoord0).r), 1);
 }

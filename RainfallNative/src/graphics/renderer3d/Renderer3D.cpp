@@ -7,6 +7,9 @@
 #include "graphics/Model.h"
 #include "graphics/Material.h"
 #include "graphics/ParticleSystem.h"
+#include "graphics/LineRenderer.h"
+
+#include "physics/Physics.h"
 
 #include "vector/Math.h"
 
@@ -48,6 +51,7 @@ enum RenderPass
 	Composite = BloomUpsample_ + BLOOM_STEP_COUNT - 1,
 	Tonemapping,
 	UI,
+	Debug,
 
 	Count
 };
@@ -56,6 +60,8 @@ struct Renderer3DSettings
 {
 	bool ssaoEnabled = true;
 	bool bloomEnabled = true;
+
+	bool physicsDebugDraw = false;
 };
 
 struct MeshDraw
@@ -96,6 +102,13 @@ struct ReflectionProbeDraw
 {
 	Vector3 position;
 	Vector3 size;
+};
+
+struct DebugLineDraw
+{
+	Vector3 position0;
+	Vector3 position1;
+	uint32_t color;
 };
 
 
@@ -158,6 +171,7 @@ static Shader* deferredReflectionProbeShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
 static Shader* skyShader;
+static Shader* debugShader;
 
 static const float quadVertices[] = { -3.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 3.0f, 1.0f };
 static uint16_t quad = bgfx::kInvalidHandle;
@@ -232,6 +246,9 @@ static uint16_t skyTexture = bgfx::kInvalidHandle;
 static float skyIntensity;
 static Matrix skyTransform;
 
+static List<DebugLineDraw> debugLineDraws;
+static LineRenderer debugLineRenderer;
+
 
 RFAPI void Renderer3D_Resize(int width, int height);
 
@@ -265,6 +282,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	ssaoBlurShader = Shader_Create("res/rainfall/shaders/ao/ssao_blur.vsh.bin", "res/rainfall/shaders/ao/ssao_blur.fsh.bin");
 	bloomDownsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_downsample.fsh.bin");
 	bloomUpsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_upsample.fsh.bin");
+	debugShader = Shader_Create("res/rainfall/shaders/debug/debug.vsh.bin", "res/rainfall/shaders/debug/debug.fsh.bin");
 
 	VertexElement quadLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
 	const bgfx::Memory* quadMemory = Graphics_CreateVideoMemoryRef(sizeof(quadVertices), quadVertices, nullptr);
@@ -560,6 +578,11 @@ RFAPI void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, flo
 RFAPI void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size)
 {
 	reflectionProbeDraws.add({ position, size });
+}
+
+RFAPI void Renderer3D_DrawDebugLine(Vector3 position0, Vector3 position1, uint32_t color)
+{
+	debugLineDraws.add({ position0, position1, color });
 }
 
 RFAPI void Renderer3D_Begin()
@@ -1091,6 +1114,9 @@ static void RenderEnvironmentMaps()
 
 static void RenderReflectionProbes()
 {
+	return;
+	// TODO implement
+
 	Shader* shader = deferredReflectionProbeShader;
 
 	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
@@ -1360,9 +1386,24 @@ static void TonemappingPass()
 
 	Graphics_SetVertexBuffer(quad);
 	Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, forwardRTTextures[0]);
-	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 1, bloomUpsampleRTTextures[0]);
+	Graphics_SetTexture(shader->getUniform("s_depth", bgfx::UniformType::Sampler), 1, forwardRTTextures[1]);
+	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 2, bloomUpsampleRTTextures[0]);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
+}
+
+static void DebugDrawPass()
+{
+	debugLineRenderer.begin(debugLineDraws.size);
+	for (int i = 0; i < debugLineDraws.size; i++)
+	{
+		LineDrawCommand cmd;
+		cmd.vertex0 = debugLineDraws[i].position0;
+		cmd.vertex1 = debugLineDraws[i].position1;
+		cmd.color = ARGBToVector(debugLineDraws[i].color);
+		debugLineRenderer.processDrawCommand(cmd);
+	}
+	debugLineRenderer.end(RenderPass::Debug, debugShader->program);
 }
 
 RFAPI void Renderer3D_End()
@@ -1384,6 +1425,8 @@ RFAPI void Renderer3D_End()
 	BloomPass();
 	TonemappingPass();
 
+	DebugDrawPass();
+
 	meshDraws.clear();
 	occluderMeshes.clear();
 	pointLightDraws.clear();
@@ -1393,6 +1436,7 @@ RFAPI void Renderer3D_End()
 	environmentMap = bgfx::kInvalidHandle;
 	environmentMapMasks.clear();
 	reflectionProbeDraws.clear();
+	debugLineDraws.clear();
 }
 
 static float GetCPUTime(RenderPass pass)

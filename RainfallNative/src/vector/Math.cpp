@@ -136,3 +136,12 @@ Vector2i WorldToScreenSpace(const Vector3& p, const Matrix& vp, int displayWidth
 		return Vector2i(-1, -1);
 	}
 }
+
+Vector4 ARGBToVector(uint32_t argb)
+{
+	uint8_t a = (argb & 0xFF000000) >> 24;
+	uint8_t r = (argb & 0x00FF0000) >> 16;
+	uint8_t g = (argb & 0x0000FF00) >> 8;
+	uint8_t b = (argb & 0x000000FF) >> 0;
+	return Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+}
