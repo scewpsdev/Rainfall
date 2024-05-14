@@ -301,6 +301,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\rainfall\shaders\ao\ssao.fsh" />
+    <None Include="res\rainfall\shaders\ao\ssao_blur.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_directional.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_emissive.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
@@ -359,6 +360,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\rainfall\shaders\ao\ssao.vsh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\ao\ssao_blur.vsh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

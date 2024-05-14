@@ -4,7 +4,6 @@ $input v_texcoord0
 
 
 #define BLOOM_STRENGTH 0.02
-#define BLOOM_FALLOFF 10.0
 
 
 SAMPLER2D(s_hdrBuffer, 0);
@@ -15,6 +14,7 @@ uniform vec4 u_vignetteColor;
 
 vec3 ThreshholdBloom(vec3 bloom)
 {
+#define BLOOM_FALLOFF 10.0
 	return bloom * (1.0 - exp(-RGBToLuminance(bloom) * BLOOM_FALLOFF));
 	//return bloom;
 }

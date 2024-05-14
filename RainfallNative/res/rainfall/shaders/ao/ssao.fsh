@@ -1,5 +1,4 @@
-$
-input v_texcoord0
+$input v_texcoord0
 
 #include "../common/common.shader"
 
@@ -14,7 +13,7 @@ SAMPLER2D(s_depthBuffer, 0);
 SAMPLER2D(s_normalBuffer, 1);
 
 //uniform vec4 u_ssaoKernel[KERNEL_SIZE];
-SAMPLER2D(s_ssaoNoise, 2);
+SAMPLER2D(s_noise, 2);
 
 uniform vec4 u_cameraFrustum;
 uniform mat4 u_viewMatrix;
@@ -106,6 +105,9 @@ void main_()
 */
 
 
+// https://www.shadertoy.com/view/Ms33WB
+
+
 #define SAMPLES 16
 #define INTENSITY 5
 #define SCALE 2.5
@@ -176,7 +178,7 @@ float spiralAO(vec2 uv, vec3 p, vec3 n, float scale)
     float inv = 1. / float(SAMPLES);
     float radius = 0.;
 
-    float rotatePhase = texture2D( s_ssaoNoise, uv / (u_viewTexel.xy * 4.0)).x * 6.28;
+    float rotatePhase = texture2D(s_noise, uv * u_viewRect.zw / textureSize(s_noise, 0)).r * 6.28;
     float rStep = inv * SAMPLE_RAD;
     vec2 spiralUV;
 
@@ -207,7 +209,7 @@ void main()
 
     ao = pow(1 - ao, INTENSITY);
     //ao = 1. - ao;
-	
+
     gl_FragColor = vec4(ao, ao, ao, 1.0);
 	//gl_FragColor = vec4(n.y, 0.0, 0.0, 1.0);
 }

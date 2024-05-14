@@ -16,4 +16,5 @@ namespace bx
 
 const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path);
 
+RFAPI uint16_t Resource_CreateTexture2DFromFile(const char* path, uint64_t flags, bgfx::TextureInfo* info);
 RFAPI SceneData* Resource_CreateSceneDataFromFile(const char* path, uint64_t textureFlags);

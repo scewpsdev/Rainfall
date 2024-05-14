@@ -43,9 +43,9 @@ enum RenderPass
 	Deferred,
 	Forward,
 	DistanceFog,
-	BloomDownsample,
-	BloomUpsample = BloomDownsample + BLOOM_STEP_COUNT,
-	Composite = BloomUpsample + BLOOM_STEP_COUNT - 1,
+	BloomDownsample_,
+	BloomUpsample_ = BloomDownsample_ + BLOOM_STEP_COUNT,
+	Composite = BloomUpsample_ + BLOOM_STEP_COUNT - 1,
 	Tonemapping,
 	UI,
 
@@ -55,6 +55,7 @@ enum RenderPass
 struct Renderer3DSettings
 {
 	bool ssaoEnabled = true;
+	bool bloomEnabled = true;
 };
 
 struct MeshDraw
@@ -115,17 +116,31 @@ static bgfx::TextureInfo compositeRTTextureInfo;
 static uint16_t ssaoRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle ssaoRTTexture;
 static bgfx::TextureInfo ssaoRTTextureInfo;
-static bgfx::TextureHandle ssaoNoise;
 static Shader* ssaoShader;
+static uint16_t ssaoBlurRT = bgfx::kInvalidHandle;
+static bgfx::TextureHandle ssaoBlurRTTexture;
+static bgfx::TextureInfo ssaoBlurRTTextureInfo;
+static Shader* ssaoBlurShader;
+
 static bgfx::UniformHandle s_depth;
 static bgfx::UniformHandle s_normals;
-static bgfx::UniformHandle s_ssaoNoise;
+static bgfx::UniformHandle s_ao;
+static bgfx::UniformHandle s_noise;
 static bgfx::UniformHandle u_cameraFrustum;
 static bgfx::UniformHandle u_viewMatrix;
 static bgfx::UniformHandle u_viewInv;
 static bgfx::UniformHandle u_projectionView;
 static bgfx::UniformHandle u_projectionInv;
 static bgfx::UniformHandle u_projectionViewInv;
+
+static uint16_t bloomDownsampleRTs[BLOOM_STEP_COUNT];
+static bgfx::TextureHandle bloomDownsampleRTTextures[BLOOM_STEP_COUNT];
+static bgfx::TextureInfo bloomDownsampleRTTextureInfos[BLOOM_STEP_COUNT];
+static Shader* bloomDownsampleShader;
+static uint16_t bloomUpsampleRTs[BLOOM_STEP_COUNT - 1];
+static bgfx::TextureHandle bloomUpsampleRTTextures[BLOOM_STEP_COUNT - 1];
+static bgfx::TextureInfo bloomUpsampleRTTextureInfos[BLOOM_STEP_COUNT - 1];
+static Shader* bloomUpsampleShader;
 
 Shader* defaultShader;
 Shader* defaultAnimatedShader;
@@ -158,6 +173,8 @@ static uint16_t skydome = bgfx::kInvalidHandle;
 static uint16_t skydomeIBO = bgfx::kInvalidHandle;
 
 static uint16_t emptyCubemap = bgfx::kInvalidHandle;
+
+static bgfx::TextureHandle blueNoise64;
 
 static bgfx::UniformHandle s_hzb;
 static bgfx::UniformHandle u_params;
@@ -211,6 +228,13 @@ RFAPI void Renderer3D_Resize(int width, int height);
 
 RFAPI void Renderer3D_Init(int width, int height)
 {
+	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	{
+		bloomDownsampleRTs[i] = bgfx::kInvalidHandle;
+		if (i < BLOOM_STEP_COUNT - 1)
+			bloomUpsampleRTs[i] = bgfx::kInvalidHandle;
+	}
+
 	Renderer3D_Resize(width, height);
 
 	defaultShader = Shader_Create("res/rainfall/shaders/default/default.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
@@ -222,12 +246,15 @@ RFAPI void Renderer3D_Init(int width, int height)
 	hzbDownsampleShader = Shader_CreateCompute("res/rainfall/shaders/hzb/hzb_downsample.csh.bin");
 	meshIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/mesh_indirect.csh.bin");
 	lightIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/light_indirect.csh.bin");
+	streamCompactionShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/stream_compaction.csh.bin");
 	particleIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/particle_indirect.csh.bin");
 	tonemappingShader = Shader_Create("res/rainfall/shaders/tonemapping/tonemapping.vsh.bin", "res/rainfall/shaders/tonemapping/tonemapping.fsh.bin");
 	particleShader = Shader_Create("res/rainfall/shaders/particle/particle.vsh.bin", "res/rainfall/shaders/particle/particle.fsh.bin");
 	skyShader = Shader_Create("res/rainfall/shaders/sky/sky.vsh.bin", "res/rainfall/shaders/sky/sky.fsh.bin");
 	ssaoShader = Shader_Create("res/rainfall/shaders/ao/ssao.vsh.bin", "res/rainfall/shaders/ao/ssao.fsh.bin");
-	streamCompactionShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/stream_compaction.csh.bin");
+	ssaoBlurShader = Shader_Create("res/rainfall/shaders/ao/ssao_blur.vsh.bin", "res/rainfall/shaders/ao/ssao_blur.fsh.bin");
+	bloomDownsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_downsample.fsh.bin");
+	bloomUpsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_upsample.fsh.bin");
 
 	VertexElement quadLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
 	const bgfx::Memory* quadMemory = Graphics_CreateVideoMemoryRef(sizeof(quadVertices), quadVertices, nullptr);
@@ -258,6 +285,8 @@ RFAPI void Renderer3D_Init(int width, int height)
 	bgfx::TextureInfo cubemapInfo;
 	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, 0, &cubemapInfo);
 
+	blueNoise64 = bgfx::TextureHandle{ Resource_CreateTexture2DFromFile("res/rainfall/LDR_LLL1_0.png.bin", BGFX_SAMPLER_POINT, nullptr) };
+
 	s_hzb = bgfx::createUniform("s_hzb", bgfx::UniformType::Sampler);
 	u_params = bgfx::createUniform("u_params", bgfx::UniformType::Vec4);
 	u_pv = bgfx::createUniform("u_pv", bgfx::UniformType::Mat4);
@@ -287,13 +316,8 @@ RFAPI void Renderer3D_Init(int width, int height)
 
 	s_depth = bgfx::createUniform("s_depth", bgfx::UniformType::Sampler);
 	s_normals = bgfx::createUniform("s_normals", bgfx::UniformType::Sampler);
-
-	Random random((uint32_t)Application_GetTimestamp());
-	const bgfx::Memory* ssaoNoiseMem = bgfx::alloc(4 * 4 * 2);
-	random.nextBytes(ssaoNoiseMem->data, ssaoNoiseMem->size);
-	ssaoNoise = bgfx::TextureHandle{ Graphics_CreateTextureImmutable(4, 4, bgfx::TextureFormat::RG8, 0, ssaoNoiseMem, nullptr) };
-
-	s_ssaoNoise = bgfx::createUniform("s_ssaoNoise", bgfx::UniformType::Sampler);
+	s_ao = bgfx::createUniform("s_ao", bgfx::UniformType::Sampler);
+	s_noise = bgfx::createUniform("s_noise", bgfx::UniformType::Sampler);
 	u_cameraFrustum = bgfx::createUniform("u_cameraFrustum", bgfx::UniformType::Vec4);
 	u_viewMatrix = bgfx::createUniform("u_viewMatrix", bgfx::UniformType::Mat4);
 	u_viewInv = bgfx::createUniform("u_viewInv", bgfx::UniformType::Mat4);
@@ -317,6 +341,15 @@ RFAPI void Renderer3D_Resize(int width, int height)
 		bgfx::destroy(bgfx::FrameBufferHandle{ compositeRT });
 	if (ssaoRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
+	if (ssaoBlurRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoBlurRT });
+	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	{
+		if (bloomDownsampleRTs[i] != bgfx::kInvalidHandle)
+			Graphics_DestroyRenderTarget(bloomDownsampleRTs[i]);
+		if (i < BLOOM_STEP_COUNT - 1 && bloomUpsampleRTs[i] != bgfx::kInvalidHandle)
+			Graphics_DestroyRenderTarget(bloomUpsampleRTs[i]);
+	}
 
 	RenderTargetAttachment gbufferAttachments[5] =
 	{
@@ -342,8 +375,24 @@ RFAPI void Renderer3D_Resize(int width, int height)
 	RenderTargetAttachment compositeRTAttachment(width, height, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
 	compositeRT = Graphics_CreateRenderTarget(1, &compositeRTAttachment, &compositeRTTexture, &compositeRTTextureInfo);
 
-	RenderTargetAttachment ssaoRTAttachment(width, height, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
+	RenderTargetAttachment ssaoRTAttachment(width / 2, height / 2, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
 	ssaoRT = Graphics_CreateRenderTarget(1, &ssaoRTAttachment, &ssaoRTTexture, &ssaoRTTextureInfo);
+
+	RenderTargetAttachment ssaoBlurRTAttachment(width, height, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
+	ssaoBlurRT = Graphics_CreateRenderTarget(1, &ssaoBlurRTAttachment, &ssaoBlurRTTexture, &ssaoBlurRTTextureInfo);
+
+	int bloomRTWidth = width / 2;
+	int bloomRTHeight = height / 2;
+	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	{
+		RenderTargetAttachment bloomRTAttachment(bloomRTWidth, bloomRTHeight, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
+		bloomDownsampleRTs[i] = Graphics_CreateRenderTarget(1, &bloomRTAttachment, &bloomDownsampleRTTextures[i], &bloomDownsampleRTTextureInfos[i]);
+		if (i < BLOOM_STEP_COUNT - 1)
+			bloomUpsampleRTs[i] = Graphics_CreateRenderTarget(1, &bloomRTAttachment, &bloomUpsampleRTTextures[i], &bloomUpsampleRTTextureInfos[i]);
+
+		bloomRTWidth /= 2;
+		bloomRTHeight /= 2;
+	}
 }
 
 RFAPI void Renderer3D_Terminate()
@@ -356,6 +405,17 @@ RFAPI void Renderer3D_Terminate()
 		bgfx::destroy(bgfx::FrameBufferHandle{ forwardRT });
 	if (compositeRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ compositeRT });
+	if (ssaoRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
+	if (ssaoBlurRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoBlurRT });
+	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	{
+		if (bloomDownsampleRTs[i] != bgfx::kInvalidHandle)
+			Graphics_DestroyRenderTarget(bloomDownsampleRTs[i]);
+		if (i < BLOOM_STEP_COUNT - 1 && bloomUpsampleRTs[i] != bgfx::kInvalidHandle)
+			Graphics_DestroyRenderTarget(bloomUpsampleRTs[i]);
+	}
 
 	Graphics_DestroyShader(defaultShader);
 	Graphics_DestroyShader(defaultAnimatedShader);
@@ -862,15 +922,15 @@ static void AmbientOcclusionPass()
 	if (!settings.ssaoEnabled)
 		return;
 
+
 	Graphics_ResetState();
 
 	Graphics_SetRenderTarget(RenderPass::AmbientOcclusion, ssaoRT, ssaoRTTextureInfo.width, ssaoRTTextureInfo.height);
-	Graphics_ClearRenderTarget(RenderPass::AmbientOcclusion, ssaoRT, true, false, 0xFFFFFFFF, 1);
 
 	bgfx::setTexture(0, s_depth, gbufferTextures[4]);
 	bgfx::setTexture(1, s_normals, gbufferTextures[1]);
 
-	bgfx::setTexture(2, s_ssaoNoise, ssaoNoise);
+	bgfx::setTexture(2, s_noise, blueNoise64, BGFX_SAMPLER_POINT);
 
 	Vector4 cameraFrustum(cameraNear, cameraFar, 0.0f, 0.0f);
 	Matrix pvInv = pv.inverted();
@@ -887,6 +947,20 @@ static void AmbientOcclusionPass()
 	bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ quad });
 
 	bgfx::submit((bgfx::ViewId)RenderPass::AmbientOcclusion, ssaoShader->program);
+
+
+	Graphics_ResetState();
+
+	Graphics_SetRenderTarget(RenderPass::AmbientOcclusionBlur, ssaoBlurRT, ssaoBlurRTTextureInfo.width, ssaoBlurRTTextureInfo.height);
+
+	bgfx::setTexture(0, s_depth, gbufferTextures[4]);
+	bgfx::setTexture(1, s_ao, ssaoRTTexture);
+
+	bgfx::setUniform(u_cameraFrustum, &cameraFrustum);
+
+	bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ quad });
+
+	bgfx::submit((bgfx::ViewId)RenderPass::AmbientOcclusionBlur, ssaoBlurShader->program);
 }
 
 static void RenderPointLights()
@@ -912,7 +986,7 @@ static void RenderPointLights()
 	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
 	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
 
-	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoRTTexture);
+	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
 
 	Vector4 u_cameraPosition(cameraPosition, (float)numVisibleLights);
 	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -946,7 +1020,7 @@ static void RenderDirectionalLights()
 		Graphics_SetUniform(shader->getUniform("u_lightDirection", bgfx::UniformType::Vec4), &lightDirection);
 		Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4), &lightColor);
 
-		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoRTTexture);
+		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
 
 		Vector4 u_cameraPosition(cameraPosition, 0);
 		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -992,7 +1066,7 @@ static void RenderEnvironmentMaps()
 	Graphics_SetUniform(shader->getUniform("u_maskPosition", bgfx::UniformType::Vec4, 4), maskPositions, numEnvironmentMasks);
 	Graphics_SetUniform(shader->getUniform("u_maskSize", bgfx::UniformType::Vec4, 4), maskSizes, numEnvironmentMasks);
 
-	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoRTTexture);
+	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoBlurRTTexture);
 
 	Vector4 u_cameraPosition(cameraPosition, 0);
 	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -1122,7 +1196,6 @@ static void RenderParticles()
 			Graphics_SetInstanceBuffer(&instanceBuffer);
 
 			Graphics_DrawIndirect(RenderPass::Forward, shader, particleIndirectBuffer.idx, i, 1);
-			//Graphics_Draw(RenderPass::Forward, shader);
 		}
 	}
 }
@@ -1161,6 +1234,60 @@ static void ForwardPass()
 	RenderSky();
 }
 
+static void BloomDownsample(int idx, bgfx::TextureHandle texture, RenderTarget target, int width, int height)
+{
+	Graphics_ResetState();
+	Graphics_SetRenderTarget(RenderPass::BloomDownsample_ + idx, target, width, height);
+	Graphics_ClearRenderTarget(RenderPass::BloomDownsample_ + idx, target, true, false, 0, 1);
+
+	Graphics_SetDepthTest(DepthTest::None);
+	Graphics_SetCullState(CullState::ClockWise);
+
+	Graphics_SetTexture(bloomDownsampleShader->getUniform("s_input", bgfx::UniformType::Sampler), 0, texture);
+
+	Graphics_SetVertexBuffer(quad);
+
+	Graphics_Draw(RenderPass::BloomDownsample_ + idx, bloomDownsampleShader);
+}
+
+static void BloomUpsample(int idx, bgfx::TextureHandle texture0, bgfx::TextureHandle texture1, RenderTarget target, int width, int height)
+{
+	Graphics_ResetState();
+	Graphics_SetRenderTarget(RenderPass::BloomUpsample_ + idx, target, width, height);
+	Graphics_ClearRenderTarget(RenderPass::BloomUpsample_ + idx, target, true, false, 0, 1);
+
+	Graphics_SetDepthTest(DepthTest::None);
+	Graphics_SetCullState(CullState::ClockWise);
+
+	Graphics_SetTexture(bloomUpsampleShader->getUniform("s_input0", bgfx::UniformType::Sampler), 0, texture0);
+	Graphics_SetTexture(bloomUpsampleShader->getUniform("s_input1", bgfx::UniformType::Sampler), 1, texture1);
+
+	Graphics_SetVertexBuffer(quad);
+
+	Graphics_Draw(RenderPass::BloomUpsample_ + idx, bloomUpsampleShader);
+}
+
+static void BloomPass()
+{
+	if (!settings.bloomEnabled)
+		return;
+
+	bgfx::TextureHandle input = forwardRTTextures[0];
+
+	BloomDownsample(0, input, bloomDownsampleRTs[0], bloomDownsampleRTTextureInfos[0].width, bloomDownsampleRTTextureInfos[0].height);
+	BloomDownsample(1, bloomDownsampleRTTextures[0], bloomDownsampleRTs[1], bloomDownsampleRTTextureInfos[1].width, bloomDownsampleRTTextureInfos[1].height);
+	BloomDownsample(2, bloomDownsampleRTTextures[1], bloomDownsampleRTs[2], bloomDownsampleRTTextureInfos[2].width, bloomDownsampleRTTextureInfos[2].height);
+	BloomDownsample(3, bloomDownsampleRTTextures[2], bloomDownsampleRTs[3], bloomDownsampleRTTextureInfos[3].width, bloomDownsampleRTTextureInfos[3].height);
+	BloomDownsample(4, bloomDownsampleRTTextures[3], bloomDownsampleRTs[4], bloomDownsampleRTTextureInfos[4].width, bloomDownsampleRTTextureInfos[4].height);
+	BloomDownsample(5, bloomDownsampleRTTextures[4], bloomDownsampleRTs[5], bloomDownsampleRTTextureInfos[5].width, bloomDownsampleRTTextureInfos[5].height);
+
+	BloomUpsample(0, bloomDownsampleRTTextures[5], bloomDownsampleRTTextures[4], bloomUpsampleRTs[4], bloomUpsampleRTTextureInfos[4].width, bloomUpsampleRTTextureInfos[4].height);
+	BloomUpsample(1, bloomUpsampleRTTextures[4], bloomDownsampleRTTextures[3], bloomUpsampleRTs[3], bloomUpsampleRTTextureInfos[3].width, bloomUpsampleRTTextureInfos[3].height);
+	BloomUpsample(2, bloomUpsampleRTTextures[3], bloomDownsampleRTTextures[2], bloomUpsampleRTs[2], bloomUpsampleRTTextureInfos[2].width, bloomUpsampleRTTextureInfos[2].height);
+	BloomUpsample(3, bloomUpsampleRTTextures[2], bloomDownsampleRTTextures[1], bloomUpsampleRTs[1], bloomUpsampleRTTextureInfos[1].width, bloomUpsampleRTTextureInfos[1].height);
+	BloomUpsample(4, bloomUpsampleRTTextures[1], bloomDownsampleRTTextures[0], bloomUpsampleRTs[0], bloomUpsampleRTTextureInfos[0].width, bloomUpsampleRTTextureInfos[0].height);
+}
+
 static void TonemappingPass()
 {
 	Graphics_ResetState();
@@ -1174,7 +1301,8 @@ static void TonemappingPass()
 
 	Graphics_SetVertexBuffer(quad);
 	Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, forwardRTTextures[0]);
-	//Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, bgfx::TextureHandle{ hzb }, BGFX_SAMPLER_POINT);
+	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 1, bloomUpsampleRTTextures[0]);
+	//Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, ssaoBlurRTTexture);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }
@@ -1195,6 +1323,7 @@ RFAPI void Renderer3D_End()
 	Graphics_Blit(RenderPass::Forward, forwardRTTextures[1], gbufferTextures[4]);
 
 	ForwardPass(); // render visible particles here
+	BloomPass();
 	TonemappingPass();
 
 	meshDraws.clear();
@@ -1264,7 +1393,7 @@ RFAPI int Renderer3D_DrawDebugStats(int x, int y, uint8_t color)
 	sprintf(str, "Forward Pass: %.2f ms", GetGPUTime(RenderPass::Forward) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
-	sprintf(str, "Bloom Pass: %.2f ms", GetCumulativeGPUTime(RenderPass::BloomDownsample, RenderPass::Composite - RenderPass::BloomDownsample) * 1000);
+	sprintf(str, "Bloom Pass: %.2f ms", GetCumulativeGPUTime(RenderPass::BloomDownsample_, RenderPass::Composite - RenderPass::BloomDownsample_) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
 	sprintf(str, "Tonemapping Pass: %.2f ms", GetGPUTime(RenderPass::Tonemapping) * 1000);

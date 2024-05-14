@@ -125,7 +125,7 @@ bool CompileShader(const char* path, const char* out, const char* type)
 		"--platform", platform,
 		"--profile", profile,
 		"--type", type,
-#if _DEBUG
+#if 0 //_DEBUG
 		"-O", "0",
 		"--debug",
 #else
