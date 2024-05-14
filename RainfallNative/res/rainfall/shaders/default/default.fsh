@@ -55,6 +55,22 @@ void main()
 		vec3 toCamera = u_cameraPosition.xyz - v_position;
 		vec3 view = normalize(mul(invTbn, toCamera));
 
+		int numLayers = 8;
+		float parallaxStrength = 0.005;
+		vec2 p = view.xy / view.z * vec2(-1, 1) * parallaxStrength;
+		float currentLayer = 0.5;
+		float nextLayerDepth = 0.25;
+		vec2 offset = p * currentLayer;
+		for (int i = 0; i < numLayers; i++)
+		{
+			float currentDepth = 1 - texture2D(s_height, v_texcoord0 + offset).r;
+			currentLayer += (currentDepth >= currentLayer ? 1 : -1) * nextLayerDepth;
+			nextLayerDepth *= 0.5;
+			offset = p * currentLayer;
+		}
+		vec2 interpolatedOffset = offset;
+
+		/*
 		int minLayers = 8;
 		int maxLayers = 32;
 		float viewSteepness = clamp(dot(vec3(0, 0, 1), view), 0, 1);
@@ -88,6 +104,7 @@ void main()
 		float currentDepthDelta = currentLayer - currentDepth;
 		float weight = lastDepthDelta / (lastDepthDelta + currentDepthDelta);
 		vec2 interpolatedOffset = mix(lastOffset, offset, weight);
+		*/
 
 		v_texcoord0 += interpolatedOffset;
 	}

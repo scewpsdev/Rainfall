@@ -4,7 +4,15 @@ $input v_texcoord0
 
 
 SAMPLER2D(s_hdrBuffer, 0);
+SAMPLER2D(s_bloom, 1);
 
+
+vec3 ThreshholdBloom(vec3 bloom)
+{
+	const float bloomFalloff = 5;
+	return bloom * (1.0 - exp(-RGBToLuminance(bloom) * bloomFalloff));
+	//return bloom;
+}
 
 vec3 ACESCinematic(vec3 color)
 {
@@ -79,9 +87,10 @@ vec3 BayerDither(vec3 color, vec2 uv)
 void main()
 {
 	vec3 hdr = texture2D(s_hdrBuffer, v_texcoord0).rgb;
+	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * 0.2;
 	vec3 tonemapped = Tonemap(hdr, 1.0);
 	tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);
-	//gl_FragColor = vec4(depthToDistance(texture2DLod(s_hdrBuffer, v_texcoord0, 5).r, 0.025, 1000) / 20, 0, 0, 0);
+	//gl_FragColor = vec4(vec3_splat(texture2D(s_hdrBuffer, v_texcoord0).r), 1);
 }

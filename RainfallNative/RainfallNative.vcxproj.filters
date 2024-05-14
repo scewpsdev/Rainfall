@@ -437,5 +437,7 @@
     <None Include="res\rainfall\shaders\occlusion_culling\stream_compaction.csh" />
     <None Include="res\rainfall\shaders\ao\ssao.fsh" />
     <None Include="res\rainfall\shaders\ao\ssao.vsh" />
+    <None Include="res\rainfall\shaders\ao\ssao_blur.fsh" />
+    <None Include="res\rainfall\shaders\ao\ssao_blur.vsh" />
   </ItemGroup>
 </Project>

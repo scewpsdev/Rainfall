@@ -8,7 +8,7 @@ $input v_texcoord0
 
 
 SAMPLER2D(s_depthBuffer, 0);
-SAMPLER2D(s_ssao, 1);
+SAMPLER2D(s_ao, 1);
 
 uniform vec4 u_cameraFrustum;
 
@@ -32,8 +32,8 @@ void main()
 	{
 		for (int x = x0; x <= x1; x++)
 		{
-			vec2 offset = vec2(x, y) / textureSize(s_ssao, 0.0);
-			float value = texture2D(s_ssao, v_texcoord0 + offset).r;
+			vec2 offset = vec2(x, y) / textureSize(s_ao, 0.0);
+			float value = texture2D(s_ao, v_texcoord0 + offset).r;
 
 			float sampleDepth = texture2D(s_depthBuffer, v_texcoord0 + offset);
 			float sampleDistance = depthToDistance(sampleDepth, near, far);
