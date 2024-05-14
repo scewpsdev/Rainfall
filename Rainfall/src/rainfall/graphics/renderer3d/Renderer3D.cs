@@ -95,6 +95,11 @@ namespace Rainfall
 			Renderer3D_DrawReflectionProbe(reflectionProbe.position, reflectionProbe.size);
 		}
 
+		public static void DrawDebugLine(Vector3 position0, Vector3 position1, uint color)
+		{
+			Renderer3D_DrawDebugLine(position0, position1, color);
+		}
+
 		public static void DrawModelStaticInstanced_(Model model, Matrix transform)
 		{
 			// not supported atm, dont use
@@ -225,6 +230,9 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawDebugLine(Vector3 position0, Vector3 position1, uint color);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_Begin();
