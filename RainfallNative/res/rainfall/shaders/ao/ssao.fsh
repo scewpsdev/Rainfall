@@ -109,7 +109,7 @@ void main_()
 
 
 #define SAMPLES 16
-#define INTENSITY 5
+#define INTENSITY 2
 #define SCALE 2.5
 #define BIAS 0.05
 #define SAMPLE_RAD 0.05
@@ -159,7 +159,7 @@ vec2 getRandom(vec2 uv)
 }
 
 
-float doAmbientOcclusion(in vec2 tcoord, in vec2 uv, in vec3 p, in vec3 cnorm, float scale)
+float doAmbientOcclusion(in vec2 tcoord, in vec2 uv, in vec3 p, in vec3 cnorm, float scale, inout float influence)
 {
     vec3 diff = (getPosition(tcoord + uv) - p) / scale;
     float l = length(diff);
@@ -167,7 +167,8 @@ float doAmbientOcclusion(in vec2 tcoord, in vec2 uv, in vec3 p, in vec3 cnorm, f
     float d = l * SCALE;
     float ao = max(0.0, dot(cnorm, v) - BIAS) * (1.0 / (1.0 + d / scale));
 	//ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, l);
-    ao *= smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, diff.z);
+    influence = smoothstep(MAX_DISTANCE, MAX_DISTANCE * 0.5, diff.z);
+    ao *= influence;
     return ao;
 }
 
@@ -182,15 +183,18 @@ float spiralAO(vec2 uv, vec3 p, vec3 n, float scale)
     float rStep = inv * SAMPLE_RAD;
     vec2 spiralUV;
 
+    float sampleInfluence = 0.0;
     for (int i = 0; i < SAMPLES; i++)
     {
         spiralUV.x = sin(rotatePhase);
         spiralUV.y = cos(rotatePhase);
         radius += rStep;
-        ao += doAmbientOcclusion(uv, spiralUV * radius, p, n, scale);
+        float influence;
+        ao += doAmbientOcclusion(uv, spiralUV * radius, p, n, scale, influence);
+        sampleInfluence += influence;
         rotatePhase += goldenAngle;
     }
-    ao *= inv;
+    ao /= sampleInfluence;
     return ao;
 }
 

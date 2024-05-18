@@ -75,6 +75,12 @@ namespace Rainfall
 			Renderer3D_DrawSky(skybox.handle, intensity, rotation);
 		}
 
+		public static unsafe void DrawCloth(Cloth cloth, MaterialData* materialData)
+		{
+			IntPtr material = Material.Material_GetForData(materialData);
+			Renderer3D_DrawCloth(cloth.handle, material);
+		}
+
 		public static void DrawEnvironmentMap(Cubemap environmentMap, float intensity)
 		{
 			Renderer3D_DrawEnvironmentMap(environmentMap.handle, intensity);
@@ -221,6 +227,9 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawSky(ushort sky, float intensity, Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawCloth(IntPtr cloth, IntPtr material);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawEnvironmentMap(ushort environmentMap, float intensity);
