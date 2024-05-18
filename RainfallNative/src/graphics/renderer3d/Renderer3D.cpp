@@ -10,6 +10,7 @@
 #include "graphics/LineRenderer.h"
 
 #include "physics/Physics.h"
+#include "physics/Cloth.h"
 
 #include "vector/Math.h"
 
@@ -71,6 +72,14 @@ struct MeshDraw
 	AABB boundingBox;
 	Material* material;
 	AnimationState* animation = nullptr;
+
+	bool culled = false;
+};
+
+struct ClothDraw
+{
+	Cloth* cloth;
+	Material* material;
 
 	bool culled = false;
 };
@@ -171,6 +180,7 @@ static Shader* deferredReflectionProbeShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
 static Shader* skyShader;
+static Shader* clothShader;
 static Shader* debugShader;
 
 static const float quadVertices[] = { -3.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 3.0f, 1.0f };
@@ -232,6 +242,8 @@ static bgfx::IndirectBufferHandle particleIndirectBuffer;
 static bgfx::DynamicVertexBufferHandle particleAabbBuffer;
 static Shader* particleIndirectShader;
 
+static List<ClothDraw> clothDraws;
+
 static bool renderDirectionalLight;
 static Vector3 directionalLightDirection;
 static Vector3 directionalLightColor;
@@ -278,6 +290,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	tonemappingShader = Shader_Create("res/rainfall/shaders/tonemapping/tonemapping.vsh.bin", "res/rainfall/shaders/tonemapping/tonemapping.fsh.bin");
 	particleShader = Shader_Create("res/rainfall/shaders/particle/particle.vsh.bin", "res/rainfall/shaders/particle/particle.fsh.bin");
 	skyShader = Shader_Create("res/rainfall/shaders/sky/sky.vsh.bin", "res/rainfall/shaders/sky/sky.fsh.bin");
+	clothShader = Shader_Create("res/rainfall/shaders/cloth/cloth.vsh.bin", "res/rainfall/shaders/cloth/cloth.fsh.bin");
 	ssaoShader = Shader_Create("res/rainfall/shaders/ao/ssao.vsh.bin", "res/rainfall/shaders/ao/ssao.fsh.bin");
 	ssaoBlurShader = Shader_Create("res/rainfall/shaders/ao/ssao_blur.vsh.bin", "res/rainfall/shaders/ao/ssao_blur.fsh.bin");
 	bloomDownsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_downsample.fsh.bin");
@@ -562,6 +575,11 @@ RFAPI void Renderer3D_DrawSky(uint16_t sky, float intensity, Quaternion rotation
 	skyTexture = sky;
 	skyIntensity = intensity;
 	skyTransform = Matrix::Rotate(rotation);
+}
+
+RFAPI void Renderer3D_DrawCloth(Cloth* cloth, Material* material)
+{
+	clothDraws.add({ cloth, material });
 }
 
 RFAPI void Renderer3D_DrawEnvironmentMap(uint16_t envir, float intensity)
@@ -931,12 +949,74 @@ static void CullParticles()
 	Graphics_ComputeDispatch(RenderPass::ParticleCulling, particleIndirectShader, numVisibleParticleSystems / 64 + 1, 1, 1);
 }
 
+static void DrawCloth(Cloth* cloth, const Matrix& transform, Material* material, bgfx::ViewId view)
+{
+	Shader* shader = clothShader;
+
+	Graphics_SetCullState(CullState::None);
+
+	bgfx::setTransform(&transform.m00);
+
+	if (cloth->mesh->vertexNormalTangentBuffer.idx != bgfx::kInvalidHandle)
+		bgfx::setVertexBuffer(0, cloth->mesh->vertexNormalTangentBuffer);
+	if (cloth->mesh->texcoordBuffer.idx != bgfx::kInvalidHandle)
+		bgfx::setVertexBuffer(1, cloth->mesh->texcoordBuffer);
+	bgfx::setVertexBuffer(2, cloth->animatedPosition);
+	bgfx::setVertexBuffer(3, cloth->animatedNormalTangent);
+
+	bgfx::setIndexBuffer(cloth->mesh->indexBuffer);
+
+
+	bool hasDiffuse = material->textures[0].idx != bgfx::kInvalidHandle;
+	bool hasNormal = material->textures[1].idx != bgfx::kInvalidHandle;
+	bool hasRoughness = material->textures[2].idx != bgfx::kInvalidHandle;
+	bool hasMetallic = material->textures[3].idx != bgfx::kInvalidHandle;
+	bool hasEmissive = material->textures[4].idx != bgfx::kInvalidHandle;
+	bool hasHeight = material->textures[5].idx != bgfx::kInvalidHandle;
+
+	Vector4 attributeInfo0(hasDiffuse, hasNormal, hasRoughness, hasMetallic);
+	Vector4 attributeInfo1(
+		hasEmissive,
+		hasHeight,
+		0,
+		cloth->mesh->texcoordBuffer.idx != bgfx::kInvalidHandle
+	);
+
+	bgfx::setUniform(shader->getUniform("u_attributeInfo0", bgfx::UniformType::Vec4), &attributeInfo0);
+	bgfx::setUniform(shader->getUniform("u_attributeInfo1", bgfx::UniformType::Vec4), &attributeInfo1);
+
+	bgfx::setUniform(shader->getUniform("u_materialData0", bgfx::UniformType::Vec4), &material->materialData[0]);
+	bgfx::setUniform(shader->getUniform("u_materialData1", bgfx::UniformType::Vec4), &material->materialData[1]);
+	bgfx::setUniform(shader->getUniform("u_materialData2", bgfx::UniformType::Vec4), &material->materialData[2]);
+	bgfx::setUniform(shader->getUniform("u_materialData3", bgfx::UniformType::Vec4), &material->materialData[3]);
+
+	if (hasDiffuse)
+		bgfx::setTexture(0, shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material->textures[0], UINT32_MAX);
+	if (hasNormal)
+		bgfx::setTexture(1, shader->getUniform("s_normal", bgfx::UniformType::Sampler), material->textures[1], UINT32_MAX);
+	if (hasRoughness)
+		bgfx::setTexture(2, shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material->textures[2], UINT32_MAX);
+	if (hasMetallic)
+		bgfx::setTexture(3, shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material->textures[3], UINT32_MAX);
+	if (hasEmissive)
+		bgfx::setTexture(4, shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material->textures[4], UINT32_MAX);
+	if (hasHeight)
+		bgfx::setTexture(5, shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], UINT32_MAX);
+
+	Vector4 u_cameraPosition(cameraPosition, 0);
+	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+	bgfx::submit(view, shader->program);
+}
+
 static void GeometryPass()
 {
 	Graphics_ResetState();
 
 	Graphics_SetRenderTarget(RenderPass::Geometry, gbuffer, width, height);
 	Graphics_SetViewTransform(RenderPass::Geometry, projection, view);
+
+	bgfx::setMarker("Geometry Pass");
 
 	for (int i = 0; i < numVisibleMeshes; i++)
 	{
@@ -950,8 +1030,17 @@ static void GeometryPass()
 		if (animation && mesh->skeletonID != -1)
 			skeleton = animation->skeletons[mesh->skeletonID];
 
-		bgfx::setMarker("Geometry Pass");
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::Geometry, indirectBuffer, i);
+	}
+
+	for (int i = 0; i < clothDraws.size; i++)
+	{
+		Cloth* cloth = clothDraws[i].cloth;
+		Material* material = clothDraws[i].material;
+
+		Matrix transform = Matrix::Transform(clothDraws[i].cloth->position, clothDraws[i].cloth->rotation, Vector3::One);
+
+		DrawCloth(cloth, transform, material, RenderPass::Geometry);
 	}
 }
 
@@ -1430,6 +1519,7 @@ RFAPI void Renderer3D_End()
 	meshDraws.clear();
 	occluderMeshes.clear();
 	pointLightDraws.clear();
+	clothDraws.clear();
 	renderDirectionalLight = false;
 	particleSystemDraws.clear();
 	skyTexture = bgfx::kInvalidHandle;

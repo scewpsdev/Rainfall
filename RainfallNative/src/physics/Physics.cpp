@@ -1,8 +1,11 @@
 #include "Physics.h"
 
+#include "Cloth.h"
+
 #include "Application.h"
 #include "Console.h"
 #include "Hash.h"
+#include "Resource.h"
 
 #include "FilterShader.h"
 
@@ -13,6 +16,7 @@
 #include "vector/Math.h"
 
 #include <PxPhysicsAPI.h>
+#include <extensions/PxParticleClothCooker.h>
 
 #include <bx/allocator.h>
 
@@ -29,6 +33,7 @@
 
 
 using namespace physx;
+using namespace physx::ExtGpu;
 
 
 enum class ActorType
@@ -334,6 +339,9 @@ RFAPI void Physics_Init(RigidBodySetTransformCallback_t rigidBodySetTransform, R
 	controllerManager = PxCreateControllerManager(*scene);
 
 
+	Physics_ClothInit();
+
+
 	::rigidBodySetTransform = rigidBodySetTransform;
 	::rigidBodyGetTransform = rigidBodyGetTransform;
 	::rigidBodyOnContact = rigidBodyOnContact;
@@ -348,6 +356,8 @@ RFAPI void Physics_Init(RigidBodySetTransformCallback_t rigidBodySetTransform, R
 
 RFAPI void Physics_Shutdown()
 {
+	Physics_ClothTerminate();
+
 	controllerManager->release();
 	scene->release();
 	physics->release();
@@ -440,6 +450,8 @@ RFAPI void Physics_Update()
 			rigidBodyOnContact(body, other, shapeID, otherShapeID, isTrigger, otherTrigger, contactType, otherController);
 		}
 		simulationEventCallback.contactEvents.clear();
+
+		Physics_ClothUpdate(timeStep);
 
 		numSteps++;
 	}

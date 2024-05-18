@@ -1,0 +1,43 @@
+entities = [ {
+name = "Entity"
+id = "1455290075"
+static = 1
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "test_level.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Mesh
+trigger = 0
+size = [ 40, 2, 40 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+mesh = "test_level.gltf"
+}, {
+type = Box
+trigger = 0
+size = [ 40, 1, 40 ]
+offset = [ 0, -0.5, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [ {
+color = [ 1, 1, 1 ]
+intensity = 5
+offset = [ -5, 3, -5 ]
+}, {
+color = [ 1, 1, 1 ]
+intensity = 5
+offset = [ 5, 3, -5 ]
+}, {
+color = [ 1, 1, 1 ]
+intensity = 5
+offset = [ -5, 3, 5 ]
+}, {
+color = [ 1, 1, 1 ]
+intensity = 5
+offset = [ 5, 3, 5 ]
+} ]
+particles = [  ]
+} ]
+selectedEntity = "1455290075"

@@ -32,6 +32,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roguelike", "..\Roguelike\R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DungeonStrider", "..\Roguelike\DungeonStrider\DungeonStrider.csproj", "{4936677E-D46F-416A-B779-0FC703F2CF29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopDownGaem", "TopDownGaem\TopDownGaem.csproj", "{FA12DA23-2CED-45A6-99D8-468F499C783E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,18 @@ Global
 		{4936677E-D46F-416A-B779-0FC703F2CF29}.Release|x64.Build.0 = Release|Any CPU
 		{4936677E-D46F-416A-B779-0FC703F2CF29}.Release|x86.ActiveCfg = Release|Any CPU
 		{4936677E-D46F-416A-B779-0FC703F2CF29}.Release|x86.Build.0 = Release|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Debug|x64.Build.0 = Debug|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Debug|x86.Build.0 = Debug|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Release|x64.ActiveCfg = Release|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Release|x64.Build.0 = Release|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Release|x86.ActiveCfg = Release|Any CPU
+		{FA12DA23-2CED-45A6-99D8-468F499C783E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

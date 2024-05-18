@@ -98,6 +98,11 @@ namespace Rainfall
 			return positionsNormalsTangents[index];
 		}
 
+		public uint getVertexColor(int index)
+		{
+			return vertexColors[index];
+		}
+
 		public Vector2 getUV(int index)
 		{
 			return texcoords[index];
