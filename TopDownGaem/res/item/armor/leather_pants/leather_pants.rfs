@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "190280114"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "leather_pants.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.3109999895095825, 0.7789999842643738, 0.17299999296665192 ]
+offset = [ 0, -0.009999999776482582, -0.017000000923871994 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "190280114"

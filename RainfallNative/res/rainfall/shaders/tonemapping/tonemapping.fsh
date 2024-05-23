@@ -7,10 +7,13 @@ SAMPLER2D(s_hdrBuffer, 0);
 SAMPLER2D(s_depth, 1);
 SAMPLER2D(s_bloom, 2);
 
+uniform vec4 u_params;
+#define bloomStrength u_params[0]
+#define bloomFalloff u_params[1]
+
 
 vec3 ThreshholdBloom(vec3 bloom)
 {
-	const float bloomFalloff = 5;
 	return bloom * (1.0 - exp(-RGBToLuminance(bloom) * bloomFalloff));
 	//return bloom;
 }
@@ -88,7 +91,7 @@ vec3 BayerDither(vec3 color, vec2 uv)
 void main()
 {
 	vec3 hdr = texture2D(s_hdrBuffer, v_texcoord0).rgb;
-	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * 0.2;
+	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
 	vec3 tonemapped = Tonemap(hdr, 1.0);
 	tonemapped = BayerDither(tonemapped, v_texcoord0);
 

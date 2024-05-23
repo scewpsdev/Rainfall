@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 public class TestState : State
 {
+	Level level;
+
 	Entity map;
 
 	Entity player;
 	Camera camera;
-
-	List<Entity> entities = new List<Entity>();
 
 	Cubemap skybox;
 
@@ -24,10 +24,11 @@ public class TestState : State
 
 	public override unsafe void init()
 	{
-		map = EntityLoader.Load("res/level/test_level/test_level.rfs");
-		player = new Player();
-		camera = new FreeCamera(); // new PlayerCamera(player);
-		camera.init();
+		level = new Level();
+
+		level.addEntity(map = EntityLoader.Load("res/level/test_level/test_level.rfs"));
+		level.addEntity(player = new Player());
+		level.addEntity(camera = new PlayerCamera(player)); // new FreeCamera();
 
 		skybox = Resource.GetCubemap("res/level/test_level/sky1_cubemap_equirect.png");
 	}
@@ -38,9 +39,6 @@ public class TestState : State
 
 	public override void update()
 	{
-		player.update();
-		camera.update();
-
 		long beforeParticleUpdate = Time.timestamp;
 		ParticleSystem.Update(camera.position);
 		long afterParticleUpdate = Time.timestamp;
@@ -52,12 +50,7 @@ public class TestState : State
 		animationUpdateDelta = afterAnimationUpdate - beforeAnimationUpdate;
 
 		long beforeEntityUpdate = Time.timestamp;
-		for (int i = 0; i < entities.Count; i++)
-		{
-			entities[i].update();
-		}
-		player.update();
-
+		level.update();
 		long afterEntityUpdate = Time.timestamp;
 		entityUpdateDelta = afterEntityUpdate - beforeEntityUpdate;
 	}
@@ -66,17 +59,10 @@ public class TestState : State
 	{
 		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(), camera.near, camera.far);
 
-		player.draw(graphics);
-		camera.draw(graphics);
-		map.draw(graphics);
-
 		Renderer.DrawSky(skybox, 0.5f, Quaternion.Identity);
-		Renderer.DrawEnvironmentMap(skybox, 0.1f);
+		Renderer.DrawEnvironmentMap(skybox, 0.5f);
 
-		for (int i = 0; i < entities.Count; i++)
-		{
-			entities[i].draw(graphics);
-		}
+		level.draw(graphics);
 	}
 
 	public override void drawDebugStats(int y, byte color, GraphicsDevice graphics)

@@ -1,0 +1,12 @@
+name = "leather_cap"
+displayName = "Leather Cap"
+description = "thicc armor"
+category = armor
+
+entity = "leather_cap.rfs"
+icon = "leather_cap_icon.png"
+
+armorType = helmet
+baseAbsorption = 1.0
+
+equipSound = "../../sfx/equip_light.ogg"

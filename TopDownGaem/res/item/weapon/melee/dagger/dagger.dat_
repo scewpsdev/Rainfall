@@ -1,0 +1,58 @@
+id: 4
+name: dagger
+displayName: "Dagger"
+category: weapon
+
+model: "dagger.gltf"
+colliders: [
+	{
+		type = box
+		size = [0.04, 0.6, 0.01]
+		offset = [0.0, 0.2, 0.0]
+	},
+	{
+		type: box
+		size = [0.2, 0.03, 0.01]
+		offset = [0.0, 0.065, 0.0]
+	}
+]
+
+moveset: "dagger_moveset.gltf"
+
+icon: "dagger_icon.png"
+
+description: "very cool dagger"
+
+weaponType: melee
+
+baseDamage: 30
+range: 0.5
+
+drawSfx: dagger_draw.ogg
+
+attackSfx: [
+	dagger_attack.ogg
+]
+
+attacks: [
+	{
+		type: light
+		index: 0
+		animName: attack_light1
+		damageFramesStart: 10
+		damageFramesEnd: 13
+		followUpCancelFrame: 17
+		sfxFrame: 10
+		staminaCost: 2
+	},
+	{
+		type: light
+		index: 1
+		animName: attack_light2
+		damageFramesStart: 10
+		damageFramesEnd: 13
+		followUpCancelFrame: 17
+		sfxFrame: 10
+		staminaCost: 2
+	}
+]

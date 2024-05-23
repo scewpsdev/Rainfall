@@ -1,0 +1,20 @@
+name = "flask_mana"
+displayName = "Flask of Mana"
+description = "pepsi"
+category = consumable
+
+entity = "flask_mana.rfs"
+moveset = "flask_mana_moveset.gltf"
+icon = "flask_mana_icon.png"
+
+useSounds = [
+	{sound = "../../sfx/heal.ogg", time = 0.7},
+	{sound = "sfx/cork.ogg", gain = 0.3, time = 0.2}
+]
+
+consumableType = regenerate
+consumableEffectStat = mana
+consumableEffectAmount = 8
+consumableEffectFrame = 22
+consumableEffectDuration = 0.7
+consumableUseTwoHanded = 1

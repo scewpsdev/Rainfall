@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "3349192805"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "iron_greaves.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.335999995470047, 0.7879999876022339, 0.18799999356269836 ]
+offset = [ 0, -0.009999999776482582, -0.017000000923871994 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3349192805"

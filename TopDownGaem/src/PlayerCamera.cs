@@ -11,7 +11,8 @@ internal class PlayerCamera : Camera
 	Entity player;
 
 	Vector3 target;
-	float distance = 4;
+	float distance = 50;
+	float distanceDst = 20;
 	float pitch = 0.0f, yaw = 0.0f;
 
 
@@ -19,21 +20,24 @@ internal class PlayerCamera : Camera
 	{
 		this.player = player;
 
-		fov = 60;
+		fov = 20;
 		near = 0.5f;
 		far = 200;
 
-		target = player.position + Vector3.Up * 2;
-		pitch = MathHelper.ToRadians(-45);
+		target = player.position + Vector3.Up;
+		pitch = MathHelper.ToRadians(-30);
 	}
 
 	public override void update()
 	{
 		base.update();
 
-		Vector3 targetDst = player.position + Vector3.Up * 2;
-		target = Vector3.Lerp(target, targetDst, 2 * Time.deltaTime);
+		Vector3 targetDst = player.position + Vector3.Up;
+		target = Vector3.Lerp(target, targetDst, 5 * Time.deltaTime);
 		Matrix transform = Matrix.CreateTranslation(target) * Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateTranslation(0.0f, 0.0f, distance);
 		transform.decompose(out position, out rotation, out _);
+
+		distanceDst *= MathF.Pow(1.5f, -Input.scrollMove * 0.2f);
+		distance = MathHelper.Lerp(distance, distanceDst, 6 * Time.deltaTime);
 	}
 }
