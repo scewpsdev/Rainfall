@@ -12,6 +12,23 @@ using System.Text;
 
 namespace Rainfall
 {
+	public struct RendererSettings
+	{
+		internal byte _ssaoEnabled = 1;
+		public bool ssaoEnabled { get => _ssaoEnabled != 0; set { _ssaoEnabled = (byte)(value ? 1 : 0); } }
+
+		internal byte _bloomEnabled = 1;
+		public bool bloomEnabled { get => _bloomEnabled != 0; set { _bloomEnabled = (byte)(value ? 1 : 0); } }
+		public float bloomStrength = 0.2f;
+		public float bloomFalloff = 5.0f;
+
+		internal byte physicsDebugDraw = 0;
+
+		public RendererSettings(int _)
+		{
+		}
+	}
+
 	public static class Renderer
 	{
 		public static GraphicsDevice graphics { get; private set; }
@@ -53,6 +70,11 @@ namespace Rainfall
 			Renderer3D_Terminate();
 		}
 
+		public static void SetSettings(RendererSettings settings)
+		{
+			Renderer3D_SetSettings(settings);
+		}
+
 		public static unsafe void DrawMesh(MeshData* mesh, Material material, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
 			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
@@ -75,10 +97,10 @@ namespace Rainfall
 			Renderer3D_DrawSky(skybox.handle, intensity, rotation);
 		}
 
-		public static unsafe void DrawCloth(Cloth cloth, MaterialData* materialData)
+		public static unsafe void DrawCloth(Cloth cloth, MaterialData* materialData, Vector3 position, Quaternion rotation)
 		{
 			IntPtr material = Material.Material_GetForData(materialData);
-			Renderer3D_DrawCloth(cloth.handle, material);
+			Renderer3D_DrawCloth(cloth.handle, material, position, rotation);
 		}
 
 		public static void DrawEnvironmentMap(Cubemap environmentMap, float intensity)
@@ -208,6 +230,9 @@ namespace Rainfall
 		extern static void Renderer3D_Terminate();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_SetSettings(RendererSettings settings);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float near, float far);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -229,7 +254,7 @@ namespace Rainfall
 		extern static void Renderer3D_DrawSky(ushort sky, float intensity, Quaternion rotation);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_DrawCloth(IntPtr cloth, IntPtr material);
+		extern static void Renderer3D_DrawCloth(IntPtr cloth, IntPtr material, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawEnvironmentMap(ushort environmentMap, float intensity);

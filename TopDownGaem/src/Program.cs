@@ -42,6 +42,13 @@ public class Program : Game
 		Audio.Init();
 		AudioManager.Init();
 
+		RendererSettings settings = new RendererSettings(0);
+		settings.bloomEnabled = false;
+		settings.bloomStrength = 0.1f;
+		Renderer.SetSettings(settings);
+
+		Item.LoadContent();
+
 		pushState(new TestState());
 	}
 

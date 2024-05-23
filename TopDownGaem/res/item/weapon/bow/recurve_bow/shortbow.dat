@@ -1,0 +1,19 @@
+name = "recurve_bow"
+displayName = "Recurve Bow"
+description = "pew pew but smol"
+category = weapon
+
+entity = "shortbow.rfs"
+moveset = "shortbow_moveset.gltf"
+icon = "shortbow_icon.png"
+
+weaponType = bow
+twoHanded = 1
+
+baseDamage = 6
+poiseDamage = 10
+
+bowDrawSound = "../../../sfx/bow_draw.ogg"
+bowDrawSoundFrame = 18
+bowShootSound = "../../../sfx/bow_shoot.ogg"
+equipSound = "../../../sfx/equip_light.ogg"

@@ -217,7 +217,7 @@ RFAPI Cloth* Physics_CreateCloth(MeshData* mesh, float* invMasses, Vector3 posit
 		}
 
 		//For this example we give every phase the same config
-		phases[i].mStiffness = 1.0f;
+		phases[i].mStiffness = 10.0f;
 		phases[i].mStiffnessMultiplier = 1.0f;
 		phases[i].mCompressionLimit = 1.0f;
 		phases[i].mStretchLimit = 1.0f;

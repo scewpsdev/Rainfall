@@ -1,0 +1,19 @@
+name = "longbow"
+displayName = "Longbow"
+description = "pew pew"
+category = weapon
+
+entity = "longbow.rfs"
+moveset = "longbow_moveset.gltf"
+icon = "longbow_icon.png"
+
+weaponType = bow
+twoHanded = 1
+
+baseDamage = 8
+poiseDamage = 15
+
+bowDrawSound = "../../../sfx/bow_draw.ogg"
+bowDrawSoundFrame = 13
+bowShootSound = "../../../sfx/bow_shoot.ogg"
+equipSound = "../../../sfx/equip_light.ogg"

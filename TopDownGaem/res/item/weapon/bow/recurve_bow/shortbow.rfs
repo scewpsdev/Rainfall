@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "913033379"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "shortbow.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.164000004529953, 0.972000002861023, 0.04500000178813934 ]
+offset = [ 0.06700000166893005, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "913033379"

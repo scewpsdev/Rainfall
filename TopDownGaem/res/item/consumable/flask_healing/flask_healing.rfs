@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "3120009339"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "flask_healing.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Sphere
+trigger = 0
+size = [ 0.11999999731779099, 2, 2 ]
+offset = [ 0, -0.09000000357627869, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Capsule
+trigger = 0
+size = [ 0.041999999433755875, 0.10000000149011612, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3120009339"

@@ -1,0 +1,12 @@
+name = "wizard_hat"
+displayName = "Wizard Hat"
+description = "pointy hat for big hed"
+category = armor
+
+entity = "wizard_hat.rfs"
+icon = "wizard_hat_icon.png"
+
+armorType = helmet
+baseAbsorption = 0.5
+
+equipSound = "../../sfx/equip_light.ogg"

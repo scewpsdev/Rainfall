@@ -1,0 +1,12 @@
+name = "leather_boots"
+displayName = "Leather Boots"
+description = "thicc armor"
+category = armor
+
+entity = "leather_boots.rfs"
+icon = "leather_boots_icon.png"
+
+armorType = boots
+baseAbsorption = 0.5
+
+equipSound = "../../sfx/equip_light.ogg"

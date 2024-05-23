@@ -1,0 +1,12 @@
+name = "iron_chestplate"
+displayName = "Iron Chestplate"
+description = "thicc armor"
+category = armor
+
+entity = "iron_chestplate.rfs"
+icon = "iron_chestplate_icon.png"
+
+armorType = torso
+baseAbsorption = 3
+
+equipSound = "../../sfx/equip_heavy.ogg"

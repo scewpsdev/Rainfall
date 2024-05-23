@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "2966200649"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "iron_key.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.31299999356269836, 0.05999999865889549, 0.024000000208616257 ]
+offset = [ 0.10700000077486038, -0.017999999225139618, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.09600000083446503, 0.125, 0.02199999988079071 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2966200649"

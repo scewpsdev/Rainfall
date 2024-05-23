@@ -143,16 +143,20 @@ namespace Rainfall
 						StringUtils.WriteCharacter(mirroredName, mirroredName.Length - 2, 'l');
 					if (StringUtils.EndsWith(node.name, "_l"))
 						StringUtils.WriteCharacter(mirroredName, mirroredName.Length - 2, 'r');
-					nodeID = animationData.skeleton.getNode(mirroredName).id;
+					Node mirroredNode = animationData.skeleton.getNode(mirroredName);
+					nodeID = mirroredNode != null ? mirroredNode.id : -1;
 				}
-				Native.Animation.Animation_AnimateNode(nodeID, animation, timer, (byte)(looping ? 1 : 0), ref nodeAnimationLocalTransforms[node.id]);
-				if (mirrored)
+				if (nodeID != -1)
 				{
-					nodeAnimationLocalTransforms[node.id].m30 *= -1.0f;
-					nodeAnimationLocalTransforms[node.id].m01 *= -1.0f;
-					nodeAnimationLocalTransforms[node.id].m02 *= -1.0f;
-					nodeAnimationLocalTransforms[node.id].m10 *= -1.0f;
-					nodeAnimationLocalTransforms[node.id].m20 *= -1.0f;
+					Native.Animation.Animation_AnimateNode(nodeID, animation, timer, (byte)(looping ? 1 : 0), ref nodeAnimationLocalTransforms[node.id]);
+					if (mirrored)
+					{
+						nodeAnimationLocalTransforms[node.id].m30 *= -1.0f;
+						nodeAnimationLocalTransforms[node.id].m01 *= -1.0f;
+						nodeAnimationLocalTransforms[node.id].m02 *= -1.0f;
+						nodeAnimationLocalTransforms[node.id].m10 *= -1.0f;
+						nodeAnimationLocalTransforms[node.id].m20 *= -1.0f;
+					}
 				}
 			}
 

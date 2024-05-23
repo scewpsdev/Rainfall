@@ -15,17 +15,18 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cape"
+			"name":"Plane"
 		}
 	],
 	"materials":[
 		{
-			"name":"Material",
+			"doubleSided":true,
+			"name":"Material.001",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.800000011920929,
-					0.800000011920929,
-					0.800000011920929,
+					0.055711474269628525,
+					0.054590292274951935,
+					0.12758201360702515,
 					1
 				],
 				"metallicFactor":0,
@@ -35,7 +36,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Mesh",
+			"name":"Plane",
 			"primitives":[
 				{
 					"attributes":{
@@ -54,80 +55,80 @@
 		{
 			"bufferView":0,
 			"componentType":5123,
-			"count":344,
+			"count":81,
 			"normalized":true,
 			"type":"VEC4"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":344,
+			"count":81,
 			"max":[
-				0.6808249354362488,
-				1.9882045984268188,
-				0.6158393621444702
+				0.30000001192092896,
+				1.2720905542373657,
+				0.2248193323612213
 			],
 			"min":[
-				-0.6808249354362488,
-				0.05658853426575661,
-				-0.44259434938430786
+				-0.30000001192092896,
+				0,
+				0.033294618129730225
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":344,
+			"count":81,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":3,
 			"componentType":5126,
-			"count":344,
+			"count":81,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":4,
 			"componentType":5123,
-			"count":1536,
+			"count":384,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2752,
+			"byteLength":648,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4128,
-			"byteOffset":2752,
+			"byteLength":972,
+			"byteOffset":648,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4128,
-			"byteOffset":6880,
+			"byteLength":972,
+			"byteOffset":1620,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2752,
-			"byteOffset":11008,
+			"byteLength":648,
+			"byteOffset":2592,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3072,
-			"byteOffset":13760,
+			"byteLength":768,
+			"byteOffset":3240,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":16832,
+			"byteLength":4008,
 			"uri":"player_cape.bin"
 		}
 	]

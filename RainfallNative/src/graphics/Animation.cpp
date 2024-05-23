@@ -32,7 +32,16 @@ static Vector3 AnimatePosition(AnimationChannel& channel, AnimationData& animati
 
 		if (timer >= keyframeTime)
 		{
-			int nextKeyframeIdx = looping ? (i + 1) % channel.positionsCount : min(i + 1, channel.positionsCount - 1);
+			int nextKeyframeIdx = 0;
+			if (looping)
+				nextKeyframeIdx = (i + 1) % channel.positionsCount;
+			else
+			{
+				if (i + 1 >= channel.positionsCount - 1)
+					nextKeyframeIdx = channel.positionsCount - 1;
+				else
+					nextKeyframeIdx = i + 1;
+			}
 			PositionKeyframe& keyframe0 = channel.positions[i];
 			PositionKeyframe& keyframe1 = channel.positions[nextKeyframeIdx];
 			float time0 = keyframe0.time;
@@ -42,10 +51,17 @@ static Vector3 AnimatePosition(AnimationChannel& channel, AnimationData& animati
 		}
 	}
 
-	PositionKeyframe& keyframe0 = channel.positions[channel.positionsCount - 1];
-	PositionKeyframe& keyframe1 = channel.positions[0];
-	float blend = (timer - (keyframe0.time - animation.duration)) / (keyframe1.time - (keyframe0.time - animation.duration));
-	return mix(keyframe0.value, keyframe1.value, blend);
+	if (looping)
+	{
+		PositionKeyframe& keyframe0 = channel.positions[channel.positionsCount - 1];
+		PositionKeyframe& keyframe1 = channel.positions[0];
+		float blend = (timer - (keyframe0.time - animation.duration)) / (keyframe1.time - (keyframe0.time - animation.duration));
+		return mix(keyframe0.value, keyframe1.value, blend);
+	}
+	else
+	{
+		return channel.positions[0].value;
+	}
 }
 
 static Quaternion AnimateRotation(AnimationChannel& channel, AnimationData& animation, float timer, bool looping)
@@ -103,10 +119,17 @@ static Vector3 AnimateScale(AnimationChannel& channel, AnimationData& animation,
 		}
 	}
 
-	ScaleKeyframe& keyframe0 = channel.scales[channel.scalesCount - 1];
-	ScaleKeyframe& keyframe1 = channel.scales[0];
-	float blend = (timer - (keyframe0.time - animation.duration)) / (keyframe1.time - (keyframe0.time - animation.duration));
-	return mix(keyframe0.value, keyframe1.value, blend);
+	if (looping)
+	{
+		ScaleKeyframe& keyframe0 = channel.scales[channel.scalesCount - 1];
+		ScaleKeyframe& keyframe1 = channel.scales[0];
+		float blend = (timer - (keyframe0.time - animation.duration)) / (keyframe1.time - (keyframe0.time - animation.duration));
+		return mix(keyframe0.value, keyframe1.value, blend);
+	}
+	else
+	{
+		return channel.scales[0].value;
+	}
 }
 
 RFAPI void Animation_AnimateNode(int nodeID, AnimationData* animation, float timer, bool looping, Matrix* outTransform)

@@ -60,7 +60,10 @@ enum RenderPass
 struct Renderer3DSettings
 {
 	bool ssaoEnabled = true;
+
 	bool bloomEnabled = true;
+	float bloomStrength = 0.2f;
+	float bloomFalloff = 5.0f;
 
 	bool physicsDebugDraw = false;
 };
@@ -80,6 +83,8 @@ struct ClothDraw
 {
 	Cloth* cloth;
 	Material* material;
+	Vector3 position;
+	Quaternion rotation;
 
 	bool culled = false;
 };
@@ -494,6 +499,11 @@ RFAPI void Renderer3D_Terminate()
 	Graphics_DestroyDynamicVertexBuffer(particleAabbBuffer.idx);
 }
 
+RFAPI void Renderer3D_SetSettings(Renderer3DSettings settings)
+{
+	::settings = settings;
+}
+
 RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float near, float far)
 {
 	cameraNear = near;
@@ -577,9 +587,9 @@ RFAPI void Renderer3D_DrawSky(uint16_t sky, float intensity, Quaternion rotation
 	skyTransform = Matrix::Rotate(rotation);
 }
 
-RFAPI void Renderer3D_DrawCloth(Cloth* cloth, Material* material)
+RFAPI void Renderer3D_DrawCloth(Cloth* cloth, Material* material, Vector3 position, Quaternion rotation)
 {
-	clothDraws.add({ cloth, material });
+	clothDraws.add({ cloth, material, position, rotation });
 }
 
 RFAPI void Renderer3D_DrawEnvironmentMap(uint16_t envir, float intensity)
@@ -1038,7 +1048,7 @@ static void GeometryPass()
 		Cloth* cloth = clothDraws[i].cloth;
 		Material* material = clothDraws[i].material;
 
-		Matrix transform = Matrix::Transform(clothDraws[i].cloth->position, clothDraws[i].cloth->rotation, Vector3::One);
+		Matrix transform = Matrix::Transform(clothDraws[i].position, clothDraws[i].rotation, Vector3::One);
 
 		DrawCloth(cloth, transform, material, RenderPass::Geometry);
 	}
@@ -1477,6 +1487,9 @@ static void TonemappingPass()
 	Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, forwardRTTextures[0]);
 	Graphics_SetTexture(shader->getUniform("s_depth", bgfx::UniformType::Sampler), 1, forwardRTTextures[1]);
 	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 2, bloomUpsampleRTTextures[0]);
+
+	Vector4 params(settings.bloomStrength, settings.bloomFalloff, 0, 0);
+	Graphics_SetUniform(u_params, &params);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }
