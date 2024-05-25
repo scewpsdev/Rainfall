@@ -1,0 +1,10 @@
+name = "spear"
+category = projectile
+
+entityData = "spear.rfs"
+
+projectileSpeed = 20
+consumeOnHit = 0
+itemDrop = "spear"
+
+hitSound = "../sfx/projectile_hit.ogg"

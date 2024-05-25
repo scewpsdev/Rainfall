@@ -1,0 +1,35 @@
+entities = [ {
+name = "Entity"
+id = "1662262953"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "combat_dummy.gltf"
+rigidBodyType = Kinematic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.7039999961853027, 1.8860000371932983, 2 ]
+offset = [ 0, 0.8920000195503235, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+boneColliders = [ {
+bone = "Root"
+type = Capsule
+trigger = 0
+size = [ 0.7020000219345093, 1.3259999752044678, 0 ]
+offset = [ 0, 0.652999997138977, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Head"
+type = Capsule
+trigger = 0
+size = [ 0.3619999885559082, 0.5130000114440918, 0 ]
+offset = [ 0, 0.26100000739097595, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "1662262953"

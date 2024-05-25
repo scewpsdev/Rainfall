@@ -1,0 +1,53 @@
+entities = [ {
+name = "Entity"
+id = "4219594349"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "teleporter.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = ConvexMesh
+trigger = 0
+size = [ 2, 0.30000001192092896, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+mesh = "teleporter.gltf"
+} ]
+lights = [ {
+color = [ 0.47876447439193726, 0.6437889337539673, 1 ]
+intensity = 2
+offset = [ 0, 0.9980000257492065, 0 ]
+} ]
+particles = [ {
+name = "Particles"
+lifetime = 6.199999809265137
+size = 0.009999999776482582
+follow = 0
+emissionRate = 1
+spawnShape = Circle
+spawnOffset = [ 0, 0.30000001192092896, 0 ]
+spawnRadius = 0.6000000238418579
+gravity = 0
+drag = 0
+startVelocity = [ 0, 0.23600000143051147, 0 ]
+radialVelocity = 0
+startRotation = 0
+rotationSpeed = 0
+applyEntityVelocity = 0
+applyCentrifugalForce = 0
+color = [ 1, 1, 1, 1 ]
+additive = 1
+emissiveIntensity = 0
+randomVelocity = [ 0, 0, 0 ]
+randomRotation = 1
+randomRotationSpeed = 0
+randomLifetime = 0
+velocityNoise = 0
+sizeAnim = [ 0, 0.05000000074505806 ]
+colorAnimStart = [ 0.19691121578216553, 0.600006103515625, 1, 1 ]
+colorAnimEnd = [ 0.5289574861526489, 0.7981247305870056, 1, 0 ]
+} ]
+} ]
+selectedEntity = "4219594349"

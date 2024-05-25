@@ -1,0 +1,6 @@
+name = "magic_impact"
+category = effect
+
+entityData = "magic_impact.rfs"
+
+idleSound = "../sfx/splash.ogg"

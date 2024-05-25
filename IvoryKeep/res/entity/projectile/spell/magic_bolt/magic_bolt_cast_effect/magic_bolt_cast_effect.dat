@@ -1,0 +1,4 @@
+name = "magic_bolt_cast_effect"
+category = effect
+
+entityData = "magic_bolt_cast_effect.rfs"

@@ -1,0 +1,7 @@
+name = "firebomb"
+category = projectile
+
+entityData = "../../../item/consumable/firebomb/firebomb.rfs"
+
+projectileRemoveOnHit = 1
+projectileHitSpawnEntity = "fire_explosion"

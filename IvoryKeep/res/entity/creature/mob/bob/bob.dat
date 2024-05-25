@@ -1,0 +1,5 @@
+name = "bob"
+displayName = "Bob"
+category = mob
+
+entityData = "bob.rfs"
