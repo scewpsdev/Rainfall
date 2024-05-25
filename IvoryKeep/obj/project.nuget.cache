@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "TzBKkSUH6whjYKlP8CyjHSY8LSEGCxTMh/Gc2XJZNUfYMbyG1fnh5AqDOPTXAjh2Wa9VrSSw5fDI1e3AEGbOyw==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\IvoryKeep\\IvoryKeep.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "2946478555"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "armor_stand.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.5460000038146973, 1.4759999513626099, 0.38199999928474426 ]
+offset = [ 0, 0.7459999918937683, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2946478555"

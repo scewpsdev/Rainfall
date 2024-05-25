@@ -1,0 +1,5 @@
+name = "wall_torch"
+entityData = "wall_torch.rfs"
+category = object
+
+//idleSound = "torch.ogg"

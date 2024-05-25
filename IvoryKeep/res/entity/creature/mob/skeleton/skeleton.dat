@@ -1,0 +1,89 @@
+name = "skeleton"
+displayName = "Skeleton"
+category = mob
+
+entityData = "skeleton.rfs"
+
+ai = hostile
+
+rightHandItem = broadsword
+
+itemDrops = [
+	{ item = broadsword, dropChance = 0.05 }
+]
+
+hitSound = [
+	"sfx/hit.ogg"
+]
+stepSound = [
+	"../../sfx/step/stone1.ogg",
+	"../../sfx/step/stone2.ogg"
+]
+landSound = [
+	"../../sfx/step/stone_land.ogg"
+]
+
+health = 15
+poise = 15
+
+baseDamage = 5
+attacks = [
+	{
+		name = light1
+		animation = "attack_light1"
+		damageFrames = [15, 20]
+		followUp = light2
+		followUpCancelFrame = 23
+	},
+	{
+		name = light2
+		animation = "attack_light2"
+		damageFrames = [8, 14]
+		followUp = light1
+		followUpCancelFrame = 23
+	},
+	{
+		name = stab
+		animation = "attack_stab"
+		damageFrames = [30, 35]
+		followUp = light2
+		followUpCancelFrame = 59
+		triggerDistanceMin = 1.5
+		triggerDistanceMax = 4.0
+		triggerAngleMin = -30
+		triggerAngleMax = 30
+	},
+	{
+		name = spin
+		animation = "attack_backswing"
+		damageFrames = [27, 48]
+		triggerDistanceMin = 0
+		triggerDistanceMax = 3
+		triggerAngleMin = -225
+		triggerAngleMax = -135
+	},
+	{
+		name = dodge
+		animation = "dodge"
+		triggerDistanceMin = 0
+		triggerDistanceMax = 0.5
+		triggerAngleMin = -90
+		triggerAngleMax = 90
+	},
+	{
+		name = dodge_long
+		animation = "dodge_long"
+		triggerDistanceMin = 4
+		triggerDistanceMax = 8
+		triggerAngleMin = -120
+		triggerAngleMax = 120
+	},
+	{
+		name = turn_back
+		animation = "turn_back"
+		triggerDistanceMin = 0
+		triggerDistanceMax = 4
+		triggerAngleMin = -220
+		triggerAngleMax = -140
+	}
+]
