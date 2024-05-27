@@ -19,12 +19,14 @@ public class Player : Entity
 	float jumpPower = 8.0f;
 	float gravity = -20;
 
+	public PlayerCamera camera;
 	CharacterController controller;
 	Vector3 movementInput;
 	float direction = 0.0f;
 	float directionDst;
 	float currentSpeed;
 	Vector3 velocity;
+	Vector3 rootMotionVelocity;
 	float distanceWalked;
 	bool isGrounded = true;
 	bool isSprinting = false;
@@ -215,6 +217,7 @@ public class Player : Entity
 			movementInput.z--;
 		if (Input.IsKeyDown(KeyCode.S))
 			movementInput.z++;
+		movementInput = Quaternion.FromAxisAngle(Vector3.Up, camera.yaw) * movementInput;
 
 		isSprinting = isGrounded && Input.IsKeyDown(KeyCode.Shift);
 		if (Input.IsKeyPressed(KeyCode.Shift))
@@ -222,24 +225,27 @@ public class Player : Entity
 
 		if (isGrounded)
 		{
-			animator.getRootMotion(out Vector3 rootMotion, out Quaternion _, out bool hasLooped);
-			rootMotion = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI) * rootMotion;
-			Vector3 rootMotionDelta = hasLooped || animator.currentAnimation != lastRootMotionAnim ? Vector3.Zero : rotation * (rootMotion - lastRootMotion);
-			lastRootMotion = rootMotion;
-			lastRootMotionAnim = animator.currentAnimation;
-
 			if (movementInput.lengthSquared > 0)
 			{
 				currentSpeed = (isSprinting ? sprintSpeed : speed) * (actions.currentAction != null ? actions.currentAction.movementSpeedMultiplier : 1);
-				velocity.xz = movementInput.xz.normalized * currentSpeed + rootMotionDelta.xz / Time.deltaTime;
-				distanceWalked += currentSpeed * Time.deltaTime + rootMotionDelta.length;
+				velocity.xz = movementInput.xz.normalized * currentSpeed;
+				distanceWalked += currentSpeed * Time.deltaTime;
 			}
 			else
 			{
 				currentSpeed = 0;
-				velocity.xz = rootMotionDelta.xz / Time.deltaTime;
+				float friction = 100000;
+				velocity.xz *= MathF.Pow(1.0f / friction, Time.deltaTime);
 			}
 		}
+
+		animator.getRootMotion(out Vector3 rootMotion, out Quaternion _, out bool hasLooped);
+		rootMotion = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI) * rootMotion;
+		Vector3 rootMotionDelta = hasLooped || animator.currentAnimation != lastRootMotionAnim ? Vector3.Zero : rotation * (rootMotion - lastRootMotion);
+		lastRootMotion = rootMotion;
+		lastRootMotionAnim = animator.currentAnimation;
+		if (isGrounded)
+			rootMotionVelocity = rootMotionDelta / Time.deltaTime;
 
 		if (movementInput.lengthSquared > 0)
 			directionDst = directionToAngle(movementInput);
@@ -262,7 +268,8 @@ public class Player : Entity
 
 		velocity.y += gravity * Time.deltaTime;
 
-		Vector3 displacement = velocity * Time.deltaTime;
+		Vector3 displacement = (velocity + rootMotionVelocity) * Time.deltaTime;
+
 		ControllerCollisionFlag controllerFlags = controller.move(displacement);
 		if ((controllerFlags & ControllerCollisionFlag.Down) != 0)
 			isGrounded = true;

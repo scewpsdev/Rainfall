@@ -12,8 +12,8 @@ public class TestState : State
 
 	Entity map;
 
-	Entity player;
-	Camera camera;
+	Player player;
+	PlayerCamera camera;
 
 	Cubemap skybox;
 
@@ -30,6 +30,8 @@ public class TestState : State
 		level.addEntity(player = new Player());
 		level.addEntity(camera = new PlayerCamera(player)); // new FreeCamera();
 		level.addEntity(EntityType.Get("combat_dummy").create(), new Vector3(0, 0, -2));
+
+		player.camera = camera;
 
 		skybox = Resource.GetCubemap("res/level/test_level/sky1_cubemap_equirect.png");
 	}
