@@ -6,33 +6,36 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class PlayerCamera : Camera
+public class PlayerCamera : Camera
 {
+	Vector3 targetOffset = new Vector3(0, 1.5f, 0);
+
 	Entity player;
 
 	Vector3 target;
 	float distance = 50;
-	float distanceDst = 10;
-	float pitch = 0.0f, yaw = 0.0f;
+	float distanceDst = 20;
+	public float pitch = 0.0f, yaw = 0.0f;
 
 
 	public PlayerCamera(Entity player)
 	{
 		this.player = player;
 
-		fov = 40;
+		fov = 20;
 		near = 0.5f;
 		far = 200;
 
-		target = player.position + Vector3.Up;
+		target = player.position + targetOffset;
 		pitch = MathHelper.ToRadians(-45);
+		yaw = MathHelper.ToRadians(45);
 	}
 
 	public override void update()
 	{
 		base.update();
 
-		Vector3 targetDst = player.position + Vector3.Up;
+		Vector3 targetDst = player.position + targetOffset;
 		target = Vector3.Lerp(target, targetDst, 5 * Time.deltaTime);
 		Matrix transform = Matrix.CreateTranslation(target) * Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateTranslation(0.0f, 0.0f, distance);
 		transform.decompose(out position, out rotation, out _);

@@ -1476,7 +1476,6 @@ static void TonemappingPass()
 {
 	Graphics_ResetState();
 	Graphics_SetRenderTarget(RenderPass::Tonemapping, BGFX_INVALID_HANDLE, width, height);
-	Graphics_ClearRenderTarget(RenderPass::Tonemapping, BGFX_INVALID_HANDLE, true, true, 0, 1);
 
 	Graphics_SetDepthTest(DepthTest::None);
 	Graphics_SetCullState(CullState::ClockWise);
