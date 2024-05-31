@@ -15,6 +15,7 @@ internal class AttackAction : Action
 	const float HIT_KNOCKBACK_DURATION = 0.4f;
 
 	const float PIVOT_WINDOW = 0.2f;
+	const float PIVOT_WINDOW_START = 5 / 24.0f;
 
 
 	public Item item;
@@ -54,8 +55,6 @@ internal class AttackAction : Action
 		}
 
 		mirrorAnimation = handID == 1;
-		fullBodyAnimation = false;
-		animateCameraRotation = false;
 		rootMotion = true;
 		animationTransitionDuration = 0.1f;
 		if (attack.followUpCancelTime != 0)
@@ -92,7 +91,7 @@ internal class AttackAction : Action
 	{
 		base.onStarted(player);
 
-		player.setDirection(player.getInputDirection());
+		//player.setDirection(player.getInputDirection());
 	}
 
 	public override void update(Player player)
@@ -112,7 +111,7 @@ internal class AttackAction : Action
 			player.parryingHand = -1;
 		}
 
-		if (elapsedTime >= attack.damageTimeStart && elapsedTime < attack.damageTimeStart + PIVOT_WINDOW)
+		if (elapsedTime >= PIVOT_WINDOW_START && elapsedTime < PIVOT_WINDOW_START + PIVOT_WINDOW)
 			rotationSpeedMultiplier = 1;
 		else
 			rotationSpeedMultiplier = 0;

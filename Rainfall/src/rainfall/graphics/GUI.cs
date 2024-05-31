@@ -197,7 +197,7 @@ namespace Rainfall
 
 			for (int i = 0; i < uiTextureBatch.getNumDrawCalls(); i++)
 			{
-				//graphics.setDepthTest(DepthTest.None);
+				graphics.setDepthTest(DepthTest.None);
 				graphics.setBlendState(BlendState.Alpha);
 
 				uiTextureBatch.submitDrawCall(i, uiTextureShader);
@@ -242,8 +242,7 @@ namespace Rainfall
 
 			for (int i = 0; i < textBatch.getNumDrawCalls(); i++)
 			{
-				//graphics.setDepthTest(DepthTest.None);
-
+				graphics.setDepthTest(DepthTest.None);
 				graphics.setBlendState(BlendState.Alpha);
 
 				textBatch.submitDrawCall(i, textShader);

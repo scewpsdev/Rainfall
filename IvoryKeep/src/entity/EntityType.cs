@@ -103,7 +103,7 @@ public class EntityType
 	{
 		switch (name.ToLower())
 		{
-			//case "mob": return new Mob(type);
+			case "mob": return new Mob(type);
 			case "combatdummy": return new CombatDummy(this);
 			//case "effect": return new Effect(this);
 			//case "projectile": return new Projectile(this);
