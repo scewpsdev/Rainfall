@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "2531054622"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "halberd.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.10000000149011612, 2.121000051498413, 0.10000000149011612 ]
+offset = [ 0, 0.5109999775886536, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.36399999260902405, 0.34700000286102295, 0.03400000184774399 ]
+offset = [ -0.012000000104308128, 1.059999942779541, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2531054622"

@@ -8,19 +8,28 @@ using System.Threading.Tasks;
 
 public class TestState : State
 {
+	public static TestState instance;
+
+
 	Level level;
 
 	Entity map;
 
-	Player player;
+	public Player player;
 	PlayerCamera camera;
 
 	Cubemap skybox;
 
 	long particleUpdateDelta;
 	long animationUpdateDelta;
+	long aiUpdateDelta;
 	long entityUpdateDelta;
 
+
+	public TestState()
+	{
+		instance = this;
+	}
 
 	public override unsafe void init()
 	{
@@ -29,7 +38,7 @@ public class TestState : State
 		level.addEntity(map = EntityLoader.Load("res/level/test_level/test_level.rfs"));
 		level.addEntity(player = new Player());
 		level.addEntity(camera = new PlayerCamera(player)); // new FreeCamera();
-		level.addEntity(EntityType.Get("combat_dummy").create(), new Vector3(0, 0, -2));
+		level.addEntity(EntityType.Get("boss1").create(), new Vector3(0, 0, -2));
 
 		player.camera = camera;
 
@@ -51,6 +60,11 @@ public class TestState : State
 		Animator.Update(camera.getModelMatrix());
 		long afterAnimationUpdate = Time.timestamp;
 		animationUpdateDelta = afterAnimationUpdate - beforeAnimationUpdate;
+
+		long beforeAIUpdate = Time.timestamp;
+		AI.Update();
+		long afterAIUpdate = Time.timestamp;
+		aiUpdateDelta = afterAIUpdate - beforeAIUpdate;
 
 		long beforeEntityUpdate = Time.timestamp;
 		level.update();
@@ -87,6 +101,11 @@ public class TestState : State
 
 		StringUtils.WriteString(str, "Animation Update: ");
 		StringUtils.AppendFloat(str, (animationUpdateDelta / 1e9f) * 1000, 2);
+		StringUtils.AppendString(str, " ms");
+		graphics.drawDebugText(0, y++, color, str);
+
+		StringUtils.WriteString(str, "AI Update: ");
+		StringUtils.AppendFloat(str, (aiUpdateDelta / 1e9f) * 1000, 2);
 		StringUtils.AppendString(str, " ms");
 		graphics.drawDebugText(0, y++, color, str);
 

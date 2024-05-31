@@ -1,0 +1,74 @@
+name = "halberd"
+displayName = "Halberd"
+description = "very long stick with axe"
+category = weapon
+
+entity = "halberd.rfs"
+moveset = "../spear/spear_moveset.gltf"
+icon = "../spear/spear_icon.png"
+
+weaponType = melee
+twoHanded = 1
+
+baseDamage = 5
+criticalDamage = 3
+poiseDamage = 10
+
+blockSound = "../../../sfx/block_wood.ogg"
+parrySound = "../../../sfx/block_wood.ogg"
+equipSound = "../../../sfx/equip_light.ogg"
+
+attacks = [
+	{
+		type = light
+		name = light1
+		animation = "attack_light1"
+		damageFrameStart = 13
+		damageFrameEnd = 28
+		staminaCost: 3.5
+		followUp = light2
+		followUpCancelFrame = 28
+	},
+	{
+		type = light
+		name = light2
+		animation = "attack_light2"
+		damageFrameStart = 13
+		damageFrameEnd = 28
+		staminaCost: 3.5
+		followUp = light1
+		followUpCancelFrame = 28
+	},
+	{
+		type = heavy
+		name = heavy1
+		animation = "attack_heavy1"
+		staminaCost = 6
+		damageMultiplier = 2.5
+		projectiles = [
+			{ name = "spear", frame = 33, offset = [0, 0, 0], consumesItem = 1 }
+		]
+	},
+	{
+		type = heavy
+		name = heavy2
+		animation = "attack_heavy2"
+		damageFrameStart = 13
+		damageFrameEnd = 18
+		staminaCost = 5.5
+		damageMultiplier = 1.5
+		followUp = heavy1
+		followUpCancelFrame = 25
+	},
+	{
+		type = riposte
+		name = riposte
+		animation = "attack_riposte"
+		damageFrameStart = 21
+		damageFrameEnd = 27
+		staminaCost = 3.5
+		damageMultiplier = 1.5
+		followUp = light1
+		followUpCancelFrame = 49
+	}
+]

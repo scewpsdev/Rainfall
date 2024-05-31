@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 public class RollAction : Action
 {
+	const float ROLL_IFRAMES = 15 / 24.0f;
+
+
 	float direction;
 
 
@@ -27,6 +30,9 @@ public class RollAction : Action
 		rotationSpeedMultiplier = 0.0f;
 
 		rootMotion = true;
+
+		iframesStartTime = 0;
+		iframesEndTime = ROLL_IFRAMES;
 	}
 
 	public override void onStarted(Player player)

@@ -1,0 +1,27 @@
+name = "player"
+displayName = "Player"
+category = player
+
+stepSound = [
+	"../sfx/step/stone1.ogg",
+	"../sfx/step/stone2.ogg",
+	"../sfx/step/stone3.ogg",
+	"../sfx/step/stone4.ogg",
+	"../sfx/step/stone5.ogg",
+	"../sfx/step/stone6.ogg",
+	"../sfx/step/stone7.ogg",
+	"../sfx/step/stone8.ogg",
+]
+
+landSound = [
+	"../sfx/step/bare_land1.ogg",
+	"../sfx/step/bare_land2.ogg",
+	"../sfx/step/bare_land3.ogg"
+]
+
+hitSound = [
+	"../sfx/hit/flesh1.ogg",
+	"../sfx/hit/flesh2.ogg",
+	"../sfx/hit/flesh3.ogg",
+	"../sfx/hit/flesh4.ogg",
+]
