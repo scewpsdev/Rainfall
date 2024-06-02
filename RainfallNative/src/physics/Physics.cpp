@@ -720,18 +720,6 @@ RFAPI void Physics_RigidBodyAddCapsuleCollider(RigidBody* body, float radius, fl
 	AddCollider(body->actor, PxCapsuleGeometry(radius, 0.5f * height - radius), filterGroup, filterMask, position, rotation, staticFriction, dynamicFriction, restitution, body->type == RigidBodyType::Dynamic, body->density, body->centerOfMass);
 }
 
-static Matrix GetNodeTransform(NodeData* node)
-{
-	Matrix transform = node->transform;
-	NodeData* parent = node->parent;
-	while (parent)
-	{
-		transform = parent->transform * transform;
-		parent = parent->parent;
-	}
-	return transform;
-}
-
 RFAPI void Physics_RigidBodyAddMeshCollider(RigidBody* body, PxTriangleMesh* mesh, const Matrix& transform, uint32_t filterGroup, uint32_t filterMask, float staticFriction, float dynamicFriction, float restitution)
 {
 	Vector3 position = transform.translation();

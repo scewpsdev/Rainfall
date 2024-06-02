@@ -150,6 +150,12 @@ static void InitializeNode(NodeData& node, SceneData& scene)
 		MeshData& mesh = scene.meshes[node.meshes[i]];
 		mesh.node = &node;
 	}
+	for (int i = 0; i < node.numChildren; i++)
+	{
+		int childID = node.children[i];
+		NodeData& child = scene.nodes[childID];
+		child.parent = &node;
+	}
 }
 
 static void OnMemoryRelease(void* ptr, void* userData)

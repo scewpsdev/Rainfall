@@ -62,11 +62,14 @@ public class Player : Creature
 	Vector3 lastRootMotion;
 	AnimationState lastRootMotionAnim;
 
-	Animator rightHandAnimator;
 	Node rightWeaponNode;
-
-	Animator leftHandAnimator;
 	Node leftWeaponNode;
+
+	Node backWeaponNode;
+	Node waistWeaponNode;
+
+	Animator rightHandAnimator;
+	Animator leftHandAnimator;
 
 	AnimationState idleAnim;
 	AnimationState runAnim;
@@ -93,6 +96,8 @@ public class Player : Creature
 		rootMotionNode = model.skeleton.getNode("Root");
 		rightWeaponNode = model.skeleton.getNode("Weapon.R");
 		leftWeaponNode = model.skeleton.getNode("Weapon.L");
+		backWeaponNode = model.skeleton.getNode("Weapon.Back");
+		waistWeaponNode = model.skeleton.getNode("Weapon.Waist");
 		modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
 		animator = Animator.Create(model, this);
 
@@ -130,8 +135,8 @@ public class Player : Creature
 
 		audio = new AudioSource(position + Vector3.Up);
 
-		setHandItem(0, Item.Get("broadsword"));
-		setHandItem(1, Item.Get("wooden_round_shield"));
+		//setHandItem(0, Item.Get("broadsword"));
+		//setHandItem(1, Item.Get("wooden_round_shield"));
 	}
 
 	public void playSound(Sound sound, float gain = 1)
@@ -423,7 +428,7 @@ public class Player : Creature
 	void updateAnimations()
 	{
 		AnimationState movementState;
-		//float movementAnimTimer = animator.timer;
+		float movementAnimTimer = animator.timer;
 
 		if (isGrounded)
 		{
@@ -431,7 +436,7 @@ public class Player : Creature
 			{
 				float animationSpeed = MathHelper.Clamp(currentSpeed / speed, 0, 2) * 0.6f;
 				runAnim.animationSpeed = animationSpeed;
-				//movementAnimTimer = distanceWalked / speed * 0.8f;
+				movementAnimTimer = distanceWalked / speed * 0.8f;
 				movementState = runAnim;
 			}
 			else
@@ -449,21 +454,21 @@ public class Player : Creature
 		else
 		{
 			rightHandAnimator.setAnimation(movementState);
-			//rightHandAnimator.timer = movementAnimTimer;
+			rightHandAnimator.timer = movementAnimTimer;
 		}
 		if (actions.currentAction != null && actions.currentAction.animationName[2] != null)
 			leftHandAnimator.setAnimation(currentActionAnim, actions.currentAction.startTime == Time.currentTime);
 		else
 		{
 			leftHandAnimator.setAnimation(movementState);
-			//leftHandAnimator.timer = movementAnimTimer;
+			leftHandAnimator.timer = movementAnimTimer;
 		}
 		if (actions.currentAction != null && actions.currentAction.animationName[0] != null)
 			animator.setAnimation(currentActionAnim, actions.currentAction.startTime == Time.currentTime);
 		else
 		{
 			animator.setAnimation(movementState);
-			//animator.timer = movementAnimTimer;
+			animator.timer = movementAnimTimer;
 		}
 
 		foreach (Node node in model.skeleton.nodes)
@@ -505,8 +510,8 @@ public class Player : Creature
 		updateAnimations();
 
 		Matrix transform = getModelMatrix();
-		rightHand.update(transform * animator.getNodeTransform(rightWeaponNode) * Matrix.CreateRotation(Vector3.Up, MathF.PI));
-		leftHand.update(transform * animator.getNodeTransform(leftWeaponNode) * Matrix.CreateRotation(Vector3.Up, MathF.PI));
+		rightHand.update(transform * modelTransform * animator.getNodeTransform(rightWeaponNode) * Matrix.CreateRotation(Vector3.Up, MathF.PI));
+		leftHand.update(transform * modelTransform * animator.getNodeTransform(leftWeaponNode) * Matrix.CreateRotation(Vector3.Up, MathF.PI));
 
 		audio.updateTransform(position + Vector3.Up);
 	}
@@ -514,6 +519,9 @@ public class Player : Creature
 	public override unsafe void draw(GraphicsDevice graphics)
 	{
 		base.draw(graphics);
+
+		Matrix transform = getModelMatrix();
+		Renderer.DrawModel(Item.Get("halberd").entity.Value.model, transform * modelTransform * animator.getNodeTransform(backWeaponNode));
 
 		rightHand.draw();
 		leftHand.draw();

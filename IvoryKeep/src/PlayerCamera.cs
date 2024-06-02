@@ -59,6 +59,8 @@ public class PlayerCamera : Camera
 
 			if (candidates.Count > 0)
 			{
+				Debug.Assert(candidates.Count == 1);
+
 				candidates.Sort((Creature a, Creature b) =>
 				{
 					float da = (a.position - player.position).length;

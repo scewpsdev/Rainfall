@@ -27,23 +27,27 @@ RFAPI void Material_CreateMaterialsForScene(SceneData* scene)
 	{
 		if (scene->meshes[i].materialID != -1)
 		{
-			MaterialData* materialData = &scene->materials[i];
-			Material* material = Material_Create(
-				materialData->color,
-				materialData->metallicFactor, materialData->roughnessFactor,
-				materialData->emissiveColor, materialData->emissiveStrength,
-				materialData->diffuse ? materialData->diffuse->handle.idx : bgfx::kInvalidHandle,
-				materialData->normal ? materialData->normal->handle.idx : bgfx::kInvalidHandle,
-				materialData->roughness ? materialData->roughness->handle.idx : bgfx::kInvalidHandle,
-				materialData->metallic ? materialData->metallic->handle.idx : bgfx::kInvalidHandle,
-				materialData->emissive ? materialData->emissive->handle.idx : bgfx::kInvalidHandle,
-				materialData->height ? materialData->height->handle.idx : bgfx::kInvalidHandle
-			);
+			MaterialData* materialData = &scene->materials[scene->meshes[i].materialID];
 
-			bool animated = scene->meshes[i].skeletonID != -1;
-			material->shader = animated ? defaultAnimatedShader : defaultShader;
+			if (materials.find(materialData) == materials.end())
+			{
+				Material* material = Material_Create(
+					materialData->color,
+					materialData->metallicFactor, materialData->roughnessFactor,
+					materialData->emissiveColor, materialData->emissiveStrength,
+					materialData->diffuse ? materialData->diffuse->handle.idx : bgfx::kInvalidHandle,
+					materialData->normal ? materialData->normal->handle.idx : bgfx::kInvalidHandle,
+					materialData->roughness ? materialData->roughness->handle.idx : bgfx::kInvalidHandle,
+					materialData->metallic ? materialData->metallic->handle.idx : bgfx::kInvalidHandle,
+					materialData->emissive ? materialData->emissive->handle.idx : bgfx::kInvalidHandle,
+					materialData->height ? materialData->height->handle.idx : bgfx::kInvalidHandle
+				);
 
-			materials.emplace(materialData, material);
+				bool animated = scene->meshes[i].skeletonID != -1;
+				material->shader = animated ? defaultAnimatedShader : defaultShader;
+
+				materials.emplace(materialData, material);
+			}
 		}
 	}
 }
