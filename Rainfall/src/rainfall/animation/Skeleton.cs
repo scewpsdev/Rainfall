@@ -46,9 +46,14 @@ namespace Rainfall
 				for (int i = 0; i < scene->numNodes; i++)
 				{
 					nodes[i] = new Node(scene->nodes[i].id, Marshal.PtrToStringAnsi((IntPtr)scene->nodes[i].name), scene->nodes[i].transform);
-					uint nameHash = Hash.hash(nodes[i].name);
-					if (!nameMap.ContainsKey(nameHash))
-						nameMap.Add(nameHash, i);
+
+					// Only add nodes that are actual bones so we dont accidentally confuse bones with scene nodes
+					//if (scene->nodes[i].armatureID != -1)
+					{
+						uint nameHash = Hash.hash(nodes[i].name);
+						if (!nameMap.ContainsKey(nameHash))
+							nameMap.Add(nameHash, i);
+					}
 				}
 
 				rootNode = nodes[0];

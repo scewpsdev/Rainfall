@@ -306,10 +306,11 @@ namespace Rainfall
 
 		public float timer
 		{
-			get => stateAnimationTimers[states.Count - 1];
+			get => states.Count > 0 ? stateAnimationTimers[states.Count - 1] : 0;
 			set
 			{
-				stateAnimationTimers[states.Count - 1] = value;
+				if (states.Count > 0)
+					stateAnimationTimers[states.Count - 1] = value;
 			}
 		}
 

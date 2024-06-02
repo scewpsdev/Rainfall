@@ -14,8 +14,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>res D:\Dev\Roguelike\DungeonStrider\bin\Debug\net8.0\res gltf fbx png hdr ogg dat shader ttf</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>D:\Dev\Roguelike\DungeonStrider</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>res D:\Dev\Rainfall\IvoryKeep\bin\Debug\net8.0\res gltf fbx png hdr ogg dat shader ttf</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>D:\Dev\Rainfall\IvoryKeep</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

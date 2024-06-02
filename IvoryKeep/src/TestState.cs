@@ -77,7 +77,7 @@ public class TestState : State
 		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(), camera.near, camera.far);
 
 		Renderer.DrawSky(skybox, 0.5f, Quaternion.Identity);
-		Renderer.DrawEnvironmentMap(skybox, 0.5f);
+		Renderer.DrawEnvironmentMap(skybox, 0.25f);
 
 		level.draw(graphics);
 	}

@@ -13,6 +13,8 @@
 #include <assimp/material.h>
 #include <assimp/GltfMaterial.h>
 
+#include <unordered_map>
+
 
 static void ConstructBoundingInfo(MeshData& mesh, aiMesh* aimesh)
 {
@@ -299,6 +301,45 @@ static int FindNodeWithName(const char* name, SceneData& scene)
 	return -1;
 }
 
+static void ProcessNode(NodeData& node, SceneData& scene, aiNode* ainode, int& idCounter, std::unordered_map<aiNode*, int>& nodeMap)
+{
+	node.id = idCounter;
+	strcpy(node.name, ainode->mName.C_Str());
+	//node.armatureID = -1;
+	nodeMap.emplace(ainode, node.id);
+
+	CopyMatrixTransposed(node.transform, ainode->mTransformation);
+
+	node.numChildren = ainode->mNumChildren;
+	node.numMeshes = ainode->mNumMeshes;
+
+	node.children = new int[node.numChildren];
+	node.meshes = new int[node.numMeshes];
+
+	for (int i = 0; i < node.numChildren; i++)
+	{
+		int childID = ++idCounter;
+		node.children[i] = childID;
+
+		ProcessNode(scene.nodes[childID], scene, ainode->mChildren[i], idCounter, nodeMap);
+	}
+
+	for (int i = 0; i < node.numMeshes; i++)
+	{
+		node.meshes[i] = ainode->mMeshes[i];
+	}
+}
+
+static std::unordered_map<aiNode*, int> nodeMap;
+
+static void ProcessNodes(SceneData& scene, const aiScene* aiscene)
+{
+	nodeMap.clear();
+
+	int idCounter = 0;
+	ProcessNode(scene.nodes[0], scene, aiscene->mRootNode, idCounter, nodeMap);
+}
+
 static void ProcessSkeleton(SkeletonData& skeleton, aiMesh* aimesh, SceneData& scene)
 {
 	skeleton.boneCount = aimesh->mNumBones;
@@ -311,7 +352,7 @@ static void ProcessSkeleton(SkeletonData& skeleton, aiMesh* aimesh, SceneData& s
 		BoneData& bone = skeleton.bones[i];
 		strcpy(bone.name, aimesh->mBones[i]->mName.C_Str());
 		CopyMatrixTransposed(bone.offsetMatrix, aimesh->mBones[i]->mOffsetMatrix);
-		bone.nodeID = FindNodeWithName(bone.name, scene);
+		bone.nodeID = nodeMap[aimesh->mBones[i]->mNode];
 		//skeleton.boneNames[i] = _strdup(aimesh->mBones[i]->mName.C_Str());
 	}
 }
@@ -466,39 +507,6 @@ static void ProcessMaterials(SceneData& scene, const aiScene* aiscene, const cha
 	}
 }
 
-static void ProcessNode(NodeData& node, SceneData& scene, aiNode* ainode, int& idCounter)
-{
-	node.id = idCounter;
-	strcpy(node.name, ainode->mName.C_Str());
-
-	CopyMatrixTransposed(node.transform, ainode->mTransformation);
-
-	node.numChildren = ainode->mNumChildren;
-	node.numMeshes = ainode->mNumMeshes;
-
-	node.children = new int[node.numChildren];
-	node.meshes = new int[node.numMeshes];
-
-	for (int i = 0; i < node.numChildren; i++)
-	{
-		int childID = ++idCounter;
-		node.children[i] = childID;
-
-		ProcessNode(scene.nodes[childID], scene, ainode->mChildren[i], idCounter);
-	}
-
-	for (int i = 0; i < node.numMeshes; i++)
-	{
-		node.meshes[i] = ainode->mMeshes[i];
-	}
-}
-
-static void ProcessNodes(SceneData& scene, const aiScene* aiscene)
-{
-	int idCounter = 0;
-	ProcessNode(scene.nodes[0], scene, aiscene->mRootNode, idCounter);
-}
-
 static void CountKeyframes(AnimationData& animation, aiAnimation* aianimation)
 {
 	animation.numPositions = 0;
@@ -643,6 +651,7 @@ bool CompileGeometry(const char* path, const char* out)
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
 		| aiProcess_OptimizeGraph
+		| aiProcess_PopulateArmatureData
 		//| aiProcess_RemoveRedundantMaterials
 		;
 

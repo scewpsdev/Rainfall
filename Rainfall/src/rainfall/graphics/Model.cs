@@ -164,6 +164,7 @@ namespace Rainfall
 	{
 		public int id { get; internal set; }
 		internal fixed byte name[32];
+		//public int armatureID { get; internal set; }
 		public Matrix transform { get; internal set; }
 
 		internal int numChildren;
