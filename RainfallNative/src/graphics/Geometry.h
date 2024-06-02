@@ -194,6 +194,7 @@ struct NodeData
 {
 	int id;
 	char name[32];
+	int armatureID;
 	Matrix transform;
 
 	int numChildren;

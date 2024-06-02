@@ -521,8 +521,8 @@ RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix pr
 
 RFAPI void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, Material* material, AnimationState* animation, bool isOccluder)
 {
-	if (mesh->node)
-		transform = transform * mesh->node->transform;
+	//if (mesh->node)
+	//	transform = transform * mesh->node->transform;
 
 	AABB worldSpaceBoundingBox = TransformBoundingBox(mesh->boundingBox, transform);
 

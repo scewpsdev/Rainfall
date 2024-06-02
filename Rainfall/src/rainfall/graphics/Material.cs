@@ -40,7 +40,7 @@ namespace Rainfall
 		static extern unsafe void Material_Destroy(IntPtr data);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern IntPtr Material_GetDefault();
+		internal static extern IntPtr Material_GetDefault();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe void Material_CreateMaterialsForScene(SceneData* scene);

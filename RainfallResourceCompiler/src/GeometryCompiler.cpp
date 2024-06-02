@@ -305,7 +305,7 @@ static void ProcessNode(NodeData& node, SceneData& scene, aiNode* ainode, int& i
 {
 	node.id = idCounter;
 	strcpy(node.name, ainode->mName.C_Str());
-	//node.armatureID = -1;
+	node.armatureID = -1;
 	nodeMap.emplace(ainode, node.id);
 
 	CopyMatrixTransposed(node.transform, ainode->mTransformation);
@@ -353,6 +353,7 @@ static void ProcessSkeleton(SkeletonData& skeleton, aiMesh* aimesh, SceneData& s
 		strcpy(bone.name, aimesh->mBones[i]->mName.C_Str());
 		CopyMatrixTransposed(bone.offsetMatrix, aimesh->mBones[i]->mOffsetMatrix);
 		bone.nodeID = nodeMap[aimesh->mBones[i]->mNode];
+		scene.nodes[bone.nodeID].armatureID = nodeMap[aimesh->mBones[i]->mArmature];
 		//skeleton.boneNames[i] = _strdup(aimesh->mBones[i]->mName.C_Str());
 	}
 }
