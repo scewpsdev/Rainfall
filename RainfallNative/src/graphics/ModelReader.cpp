@@ -289,6 +289,7 @@ static void ReadNode(FileReaderI* reader, NodeData& node, Error* err)
 {
 	read(reader, node.id, err);
 	read(reader, node.name, sizeof(node.name), err);
+	read(reader, node.armatureID, err);
 	read(reader, node.transform, err);
 
 	read(reader, node.numChildren, err);

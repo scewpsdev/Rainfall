@@ -160,6 +160,7 @@ static void WriteNode(FileWriterI* writer, const NodeData& node, Error* err)
 {
 	write(writer, node.id, err);
 	write(writer, node.name, sizeof(node.name), err);
+	write(writer, node.armatureID, err);
 	write(writer, node.transform, sizeof(node.transform), err);
 
 	write(writer, node.numChildren, err);

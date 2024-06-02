@@ -181,6 +181,7 @@ struct NodeData
 {
 	int id;
 	char name[32];
+	int armatureID;
 	float transform[16];
 
 	int numChildren;

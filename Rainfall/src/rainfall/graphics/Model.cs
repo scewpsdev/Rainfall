@@ -148,6 +148,7 @@ namespace Rainfall
 		public IntPtr roughness;
 		public IntPtr metallic;
 		public IntPtr emissive;
+		public IntPtr height;
 	};
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -164,7 +165,7 @@ namespace Rainfall
 	{
 		public int id { get; internal set; }
 		internal fixed byte name[32];
-		//public int armatureID { get; internal set; }
+		public int armatureID { get; internal set; }
 		public Matrix transform { get; internal set; }
 
 		internal int numChildren;
@@ -302,10 +303,10 @@ namespace Rainfall
 			return null;
 		}
 
-		public unsafe MaterialData* getMaterialData(int meshIndex)
+		public unsafe MaterialData* getMaterialData(int index)
 		{
-			if (meshIndex < scene->numMeshes)
-				return scene->meshes[meshIndex].materialID != -1 ? &scene->materials[scene->meshes[meshIndex].materialID] : null;
+			if (index < scene->numMaterials)
+				return &scene->materials[index];
 			return null;
 		}
 

@@ -83,13 +83,28 @@ namespace Rainfall
 		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
 			MeshData* mesh = model.getMeshData(meshID);
-			IntPtr material = mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : IntPtr.Zero;
+			IntPtr material = mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : Material.Material_GetDefault();
+			if (mesh->node != null)
+			{
+				if (animator != null && mesh->node->parent->armatureID != -1)
+				{
+					transform = transform * animator.getNodeTransform(model.skeleton.getNode(mesh->node->id));
+				}
+				else
+				{
+					transform = transform * mesh->node->transform;
+				}
+			}
 			Renderer3D_DrawMesh(mesh, transform, material, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
 		public static unsafe void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
-			Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+			for (int i = 0; i < model.meshCount; i++)
+			{
+				DrawMesh(model, i, transform, animator, isOccluder);
+			}
+			//Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
 		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)

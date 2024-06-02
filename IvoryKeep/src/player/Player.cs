@@ -521,7 +521,6 @@ public class Player : Creature
 		base.draw(graphics);
 
 		Matrix transform = getModelMatrix();
-		Renderer.DrawModel(Item.Get("halberd").entity.Value.model, transform * modelTransform * animator.getNodeTransform(backWeaponNode));
 
 		rightHand.draw();
 		leftHand.draw();
