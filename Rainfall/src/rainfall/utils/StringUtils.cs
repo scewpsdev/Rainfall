@@ -78,6 +78,16 @@ public static class StringUtils
 		return length;
 	}
 
+	public unsafe static int WriteString(Span<byte> dst, int length, byte* str, int strLen)
+	{
+		for (int i = 0; i < strLen; i++)
+		{
+			dst[length++] = str[i];
+		}
+		dst[length] = 0;
+		return length;
+	}
+
 	public static unsafe int WriteString(byte* dst, int length, string str)
 	{
 		for (int i = 0; i < str.Length; i++)
@@ -91,6 +101,11 @@ public static class StringUtils
 	public static int WriteString(Span<byte> dst, string str)
 	{
 		return WriteString(dst, 0, str);
+	}
+
+	public static unsafe int WriteString(Span<byte> dst, byte* str, int length)
+	{
+		return WriteString(dst, 0, str, length);
 	}
 
 	public static unsafe int WriteString(byte* dst, string str)

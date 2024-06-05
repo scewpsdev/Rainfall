@@ -20,6 +20,6 @@ public class StaggerAction : Action
 		animationTransitionDuration = 0.1f;
 
 		movementSpeedMultiplier = 0.0f;
-		rotationSpeedMultiplier = 0.0f;
+		lockRotation = true;
 	}
 }

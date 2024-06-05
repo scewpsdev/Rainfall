@@ -43,7 +43,7 @@ public class Action
 	public string[] handItemAnimations = new string[2];
 
 	public float movementSpeedMultiplier = 1.0f;
-	public float rotationSpeedMultiplier = 1.0f;
+	public bool lockRotation = false;
 	public Vector3 movementInput = Vector3.Zero;
 	public float maxSpeed = 0.0f;
 

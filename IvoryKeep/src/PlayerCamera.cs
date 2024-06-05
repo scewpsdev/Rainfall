@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class PlayerCamera : Camera
 {
-	Vector3 targetOffset = new Vector3(0, 1.5f, 0);
+	Vector3 targetOffset = new Vector3(0, 1.8f, 0);
 
 	Player player;
 

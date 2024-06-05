@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,20 +19,20 @@ public partial class EditorUI
 		{
 			for (int i = 0; i < entity.data.particles.Count; i++)
 			{
-				ParticleSystem particles = entity.data.particles[i];
+				ParticleSystemData particles = entity.data.particles[i];
 
 				Vector2 topRight = ImGui.GetCursorPos();
 
 				bool particlesOpen = ImGui.TreeNodeEx("##particles" + i, ImGuiTreeNodeFlags.AllowOverlap | ImGuiTreeNodeFlags.SpanAvailWidth);
 
-				StringUtils.WriteString(renamingParticlesBuffer, particles.name);
+				StringUtils.WriteString(renamingParticlesBuffer, particles.name, StringUtils.StringLength(particles.name));
 				ImGui.SameLine(54);
 				ImGui.PushStyleVar_Vec2(ImGuiStyleVar.FramePadding, new Vector2(0.0f));
 				fixed (byte* newNamePtr = renamingParticlesBuffer)
 				{
 					if (ImGui.InputText("##particle_rename" + i, newNamePtr, (ulong)renamingParticlesBuffer.Length, ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.EnterReturnsTrue))
 					{
-						particles.name = new string((sbyte*)newNamePtr);
+						StringUtils.WriteString(particles.name, new string((sbyte*)newNamePtr));
 						instance.notifyEdit();
 					}
 				}
@@ -64,7 +66,9 @@ public partial class EditorUI
 						particles.size = particleSize;
 					*/
 
-					Checkbox(instance, "Follow", "particle_follow" + i, ref particles.follow);
+					bool follow = particles.follow != 0;
+					Checkbox(instance, "Follow", "particle_follow" + i, ref follow);
+					particles.follow = (byte)(follow ? 1 : 0);
 
 					//ImGui.TextUnformatted("Follow");
 					//ImGui.SameLine(SPACING_X);
@@ -132,7 +136,7 @@ public partial class EditorUI
 					}
 					if (particles.spawnShape == ParticleSpawnShape.Line)
 					{
-						DragFloat3(instance, "Line End", "particle_line_end" + i, ref particles.lineEnd, 0.005f);
+						DragFloat3(instance, "Line End", "particle_line_end" + i, ref particles.lineSpawnEnd, 0.005f);
 
 						/*
 						ImGui.TextUnformatted("Line End");
@@ -199,12 +203,14 @@ public partial class EditorUI
 					ImGui.Spacing();
 					ImGui.Spacing();
 
-					if (FileSelect("Texture Atlas", "particle_atlas" + i, ref particles.textureAtlasPath, "png"))
+					string textureAtlasPath = null;
+					if (FileSelect("Texture Atlas", "particle_atlas" + i, ref textureAtlasPath, "png"))
 					{
-						if (particles.textureAtlasPath != null)
-							particles.textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(particles.textureAtlasPath));
+						StringUtils.WriteString(particles.textureAtlasPath, textureAtlasPath);
+						if (textureAtlasPath != null)
+							particles.textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(textureAtlasPath)).handle;
 						else
-							particles.textureAtlas = null;
+							particles.textureAtlas = ushort.MaxValue;
 
 						instance.notifyEdit();
 					}
@@ -229,7 +235,9 @@ public partial class EditorUI
 						//if (ImGui.DragInt("##frame_count" + i, &numFrames, 0.1f, 1, 100))
 						//	particles.numFrames = numFrames;
 
-						Checkbox(instance, "Linear Filtering", "particle_linear_filtering" + i, ref particles.linearFiltering);
+						bool linearFiltering = particles.linearFiltering != 0;
+						Checkbox(instance, "Linear Filtering", "particle_linear_filtering" + i, ref linearFiltering);
+						particles.linearFiltering = (byte)(linearFiltering ? 1 : 0);
 
 						//ImGui.TextUnformatted("Linear Filtering");
 						//ImGui.SameLine(SPACING_X);
@@ -252,7 +260,9 @@ public partial class EditorUI
 					//if (ImGui.ColorEdit4("##color" + i, &color, ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.NoInputs))
 					//	particles.color = color;
 
-					Checkbox(instance, "Additive", "particle_additive" + i, ref particles.additive);
+					bool additive = particles.additive != 0;
+					Checkbox(instance, "Additive", "particle_additive" + i, ref additive);
+					particles.additive = (byte)(additive ? 1 : 0);
 
 					//ImGui.TextUnformatted("Additive");
 					//ImGui.SameLine(SPACING_X);
@@ -302,21 +312,28 @@ public partial class EditorUI
 					ImGui.Spacing();
 					ImGui.Spacing();
 
-					bool animateSizeEnabled = particles.sizeAnim != null;
+					bool animateSizeEnabled = particles.sizeAnim.count > 0;
 					bool animateSizeOpen = TreeNodeOptional(instance, "Animate Size", "particle_size_anim" + i, ref animateSizeEnabled);
-					if (animateSizeEnabled != (particles.sizeAnim != null))
-						particles.sizeAnim = animateSizeEnabled ? new Gradient<float>(0.1f, 0.0f) : null;
+					if (animateSizeEnabled != (particles.sizeAnim.count > 0))
+					{
+						if (animateSizeEnabled)
+							particles.sizeAnim = new Gradient_float_2 { value0 = new Gradient_float_2.Value { value = 0.1f, position = 0 }, value1 = new Gradient_float_2.Value { value = 0.0f, position = 1 }, count = 2 };
+						else
+							particles.sizeAnim = new Gradient_float_2 { count = 0 };
+					}
 					if (animateSizeOpen)
 					{
-						if (particles.sizeAnim != null)
+						if (particles.sizeAnim.count > 0)
 						{
-							float startValue = particles.sizeAnim.getValue(0);
+							float startValue = particles.sizeAnim.value0.value;
 							if (DragFloat(instance, "From", "particle_size_anim_start" + i, ref startValue, 0.001f, 0, 10))
-								particles.sizeAnim.setValue(0, startValue);
+								particles.sizeAnim.value0 = new Gradient_float_2.Value { value = startValue, position = 0 };
 
-							float endValue = particles.sizeAnim.getValue(1);
+							float endValue = particles.sizeAnim.value1.value;
 							if (DragFloat(instance, "To", "particle_size_anim_end" + i, ref endValue, 0.001f, 0, 10))
-								particles.sizeAnim.setValue(1, endValue);
+								particles.sizeAnim.value1 = new Gradient_float_2.Value { value = endValue, position = 1 };
+
+							particles.sizeAnim.count = 2;
 						}
 
 						ImGui.TreePop();
@@ -353,21 +370,28 @@ public partial class EditorUI
 					//	ImGui.TreePop();
 					//}
 
-					bool animateColorEnabled = particles.colorAnim != null;
+					bool animateColorEnabled = particles.colorAnim.count > 0;
 					bool animateColorOpen = TreeNodeOptional(instance, "Animate Color", "particle_color_anim" + i, ref animateColorEnabled);
-					if (animateColorEnabled != (particles.colorAnim != null))
-						particles.colorAnim = animateColorEnabled ? new Gradient<Vector4>(new Vector4(1.0f), new Vector4(0.5f, 0.5f, 0.5f, 1.0f)) : null;
+					if (animateColorEnabled != (particles.colorAnim.count > 0))
+					{
+						if (animateColorEnabled)
+							particles.colorAnim = new Gradient_Vector4_2 { value0 = new Gradient_Vector4_2.Value { value = new Vector4(1), position = 0 }, value1 = new Gradient_Vector4_2.Value { value = new Vector4(0.5f, 0.5f, 0.5f, 1.0f), position = 1 }, count = 2 };
+						else
+							particles.colorAnim = new Gradient_Vector4_2 { count = 0 };
+					}
 					if (animateColorOpen)
 					{
-						if (particles.colorAnim != null)
+						if (particles.colorAnim.count > 0)
 						{
-							Vector4 startValue = particles.colorAnim.getValue(0);
+							Vector4 startValue = particles.colorAnim.value0.value;
 							if (ColorEdit4(instance, "From", "particle_color_anim_start" + i, ref startValue, true))
-								particles.colorAnim.setValue(0, startValue);
+								particles.colorAnim.value0 = new Gradient_Vector4_2.Value { value = startValue, position = 0 };
 
-							Vector4 endValue = particles.colorAnim.getValue(1);
+							Vector4 endValue = particles.colorAnim.value1.value;
 							if (ColorEdit4(instance, "To", "particle_color_anim_end" + i, ref endValue, true))
-								particles.colorAnim.setValue(1, endValue);
+								particles.colorAnim.value1 = new Gradient_Vector4_2.Value { value = endValue, position = 1 };
+
+							particles.colorAnim.count = 2;
 						}
 
 						ImGui.TreePop();
@@ -404,13 +428,13 @@ public partial class EditorUI
 
 					bool burstsEnabled = particles.bursts != null;
 					bool burstsOpen = TreeNodeOptional(instance, "Bursts", "particle_bursts" + i, ref burstsEnabled);
-					if (burstsEnabled != (particles.bursts != null))
-						particles.bursts = burstsEnabled ? new List<ParticleBurst>() : null;
+					//if (burstsEnabled != (particles.bursts != null))
+					//	particles.bursts = burstsEnabled ? new List<ParticleBurst>() : null;
 					if (burstsOpen)
 					{
 						if (particles.bursts != null)
 						{
-							for (int j = 0; j < particles.bursts.Count; j++)
+							for (int j = 0; j < particles.numBursts; j++)
 							{
 								ParticleBurst burst = particles.bursts[j];
 
@@ -425,8 +449,12 @@ public partial class EditorUI
 
 							if (ImGui.Button("Add Burst##particle_bursts" + i + "_add"))
 							{
-								ParticleBurst burst = new ParticleBurst(0.0f, 5, 0);
-								particles.bursts.Add(burst);
+								ParticleBurst burst = new ParticleBurst { time = 0.0f, count = 5, duration = 0 };
+								ParticleBurst* oldBuffer = particles.bursts;
+								particles.bursts = (ParticleBurst*)Marshal.AllocHGlobal(sizeof(ParticleBurst) * (particles.numBursts + 1));
+								Unsafe.CopyBlock(oldBuffer, particles.bursts, (uint)(particles.numBursts * sizeof(ParticleBurst)));
+								Marshal.FreeHGlobal((IntPtr)oldBuffer);
+								particles.numBursts++;
 								instance.notifyEdit();
 							}
 						}
@@ -456,8 +484,8 @@ public partial class EditorUI
 
 			if (ImGui.Button("Add Particle Effect"))
 			{
-				ParticleSystem particles = ParticleSystem.Create(entity.getModelMatrix());
-				particles.name = entity.newParticleName();
+				ParticleSystemData particles = new ParticleSystemData(0) { transform = entity.getModelMatrix() };
+				//particles.name = entity.newParticleName();
 				entity.data.particles.Add(particles);
 				instance.notifyEdit();
 			}

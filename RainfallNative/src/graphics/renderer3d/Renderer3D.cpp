@@ -59,6 +59,8 @@ enum RenderPass
 
 struct Renderer3DSettings
 {
+	bool showFrame = true;
+
 	bool ssaoEnabled = true;
 
 	bool bloomEnabled = true;
@@ -145,6 +147,10 @@ static bgfx::TextureInfo forwardRTTextureInfos[2];
 static uint16_t compositeRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle compositeRTTexture;
 static bgfx::TextureInfo compositeRTTextureInfo;
+
+static uint16_t tonemappingRT = bgfx::kInvalidHandle;
+static bgfx::TextureHandle tonemappingRTTextures[2];
+static bgfx::TextureInfo tonemappingRTTextureInfos[2];
 
 static uint16_t ssaoRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle ssaoRTTexture;
@@ -385,6 +391,8 @@ RFAPI void Renderer3D_Resize(int width, int height)
 		bgfx::destroy(bgfx::FrameBufferHandle{ forwardRT });
 	if (compositeRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ compositeRT });
+	if (tonemappingRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ tonemappingRT });
 	if (ssaoRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
 	if (ssaoBlurRT != bgfx::kInvalidHandle)
@@ -421,6 +429,12 @@ RFAPI void Renderer3D_Resize(int width, int height)
 	RenderTargetAttachment compositeRTAttachment(width, height, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
 	compositeRT = Graphics_CreateRenderTarget(1, &compositeRTAttachment, &compositeRTTexture, &compositeRTTextureInfo);
 
+	RenderTargetAttachment tonemappingRTAttachments[2] = {
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::D16F, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP),
+	};
+	tonemappingRT = Graphics_CreateRenderTarget(2, tonemappingRTAttachments, tonemappingRTTextures, tonemappingRTTextureInfos);
+
 	RenderTargetAttachment ssaoRTAttachment(width / 2, height / 2, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
 	ssaoRT = Graphics_CreateRenderTarget(1, &ssaoRTAttachment, &ssaoRTTexture, &ssaoRTTextureInfo);
 
@@ -451,6 +465,8 @@ RFAPI void Renderer3D_Terminate()
 		bgfx::destroy(bgfx::FrameBufferHandle{ forwardRT });
 	if (compositeRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ compositeRT });
+	if (tonemappingRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ tonemappingRT });
 	if (ssaoRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
 	if (ssaoBlurRT != bgfx::kInvalidHandle)
@@ -1057,7 +1073,16 @@ static void GeometryPass()
 static void AmbientOcclusionPass()
 {
 	if (!settings.ssaoEnabled)
+	{
+		Graphics_ResetState();
+
+		Graphics_SetRenderTarget(RenderPass::AmbientOcclusionBlur, ssaoBlurRT, ssaoBlurRTTextureInfo.width, ssaoBlurRTTextureInfo.height);
+		Graphics_ClearRenderTarget(RenderPass::AmbientOcclusionBlur, ssaoBlurRT, true, false, 0xFFFFFFFF, 1);
+
+		bgfx::touch(RenderPass::AmbientOcclusionBlur);
+
 		return;
+	}
 
 
 	Graphics_ResetState();
@@ -1472,10 +1497,11 @@ static void BloomPass()
 	BloomUpsample(4, bloomUpsampleRTTextures[1], bloomDownsampleRTTextures[0], bloomUpsampleRTs[0], bloomUpsampleRTTextureInfos[0].width, bloomUpsampleRTTextureInfos[0].height);
 }
 
-static void TonemappingPass()
+static void TonemappingPass(uint16_t target)
 {
 	Graphics_ResetState();
-	Graphics_SetRenderTarget(RenderPass::Tonemapping, BGFX_INVALID_HANDLE, width, height);
+	Graphics_SetRenderTarget(RenderPass::Tonemapping, target, width, height);
+	Graphics_ClearRenderTarget(RenderPass::Tonemapping, target, true, true, 0x0, 1);
 
 	Graphics_SetDepthTest(DepthTest::None);
 	Graphics_SetCullState(CullState::ClockWise);
@@ -1493,8 +1519,13 @@ static void TonemappingPass()
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }
 
-static void DebugDrawPass()
+static void DebugDrawPass(uint16_t target)
 {
+	Graphics_ResetState();
+	Graphics_SetRenderTarget(RenderPass::Debug, target, width, height);
+
+	Graphics_SetViewTransform(RenderPass::Debug, projection, view);
+
 	debugLineRenderer.begin(debugLineDraws.size);
 	for (int i = 0; i < debugLineDraws.size; i++)
 	{
@@ -1507,7 +1538,7 @@ static void DebugDrawPass()
 	debugLineRenderer.end(RenderPass::Debug, debugShader->program);
 }
 
-RFAPI void Renderer3D_End()
+RFAPI uint16_t Renderer3D_End()
 {
 	FrustumCullObjects();
 	DoDepthPrepass(); // render occluder objects
@@ -1524,9 +1555,11 @@ RFAPI void Renderer3D_End()
 
 	ForwardPass(); // render visible particles here
 	BloomPass();
-	TonemappingPass();
+	TonemappingPass(settings.showFrame ? bgfx::kInvalidHandle : tonemappingRT);
 
-	DebugDrawPass();
+	Graphics_Blit(RenderPass::Tonemapping, tonemappingRTTextures[1], forwardRTTextures[1]);
+
+	DebugDrawPass(settings.showFrame ? bgfx::kInvalidHandle : tonemappingRT);
 
 	meshDraws.clear();
 	occluderMeshes.clear();
@@ -1539,6 +1572,8 @@ RFAPI void Renderer3D_End()
 	environmentMapMasks.clear();
 	reflectionProbeDraws.clear();
 	debugLineDraws.clear();
+
+	return settings.showFrame ? bgfx::kInvalidHandle : tonemappingRTTextures[0].idx;
 }
 
 static float GetCPUTime(RenderPass pass)

@@ -48,6 +48,7 @@ struct ParticleBurst
 
 struct ParticleSystem
 {
+	char name[32] = "";
 	Matrix transform = Matrix::Identity;
 	Vector3 entityVelocity = Vector3::Zero;
 	Quaternion entityRotationVelocity = Quaternion::Identity;

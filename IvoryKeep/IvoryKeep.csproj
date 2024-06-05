@@ -19,4 +19,10 @@
     <Folder Include="res\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="InputBindings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -25,7 +25,7 @@ public unsafe class RainfallEditor : Game
 	{
 		Display.windowTitle = ASSEMBLY_NAME;
 
-		Renderer.Init(graphics);
+		Renderer.Init(Display.width, Display.height, graphics);
 		Physics.Init();
 		Audio.Init();
 
@@ -207,6 +207,8 @@ public unsafe class RainfallEditor : Game
 	{
 		if (path == null)
 			return null;
+		if (root == null)
+			return path;
 		root = Path.GetDirectoryName(root);
 		return root + "/" + path;
 	}
@@ -220,7 +222,7 @@ public unsafe class RainfallEditor : Game
 			entityData.modelPath = RelativePath(entityData.modelPath, instance.path);
 			entityData.colliders = new List<SceneFormat.ColliderData>(entityData.colliders);
 			entityData.lights = new List<SceneFormat.LightData>(entityData.lights);
-			entityData.particles = new List<ParticleSystem>(entityData.particles);
+			entityData.particles = new List<ParticleSystemData>(entityData.particles);
 
 			for (int j = 0; j < entityData.colliders.Count; j++)
 			{
@@ -231,10 +233,9 @@ public unsafe class RainfallEditor : Game
 			}
 			for (int j = 0; j < entityData.particles.Count; j++)
 			{
-				ParticleSystem particles = ParticleSystem.CreateTemplate();
-				particles.copyData(entityData.particles[j]);
+				ParticleSystemData particles = entityData.particles[j];
 				if (particles.textureAtlasPath != null)
-					particles.textureAtlasPath = RelativePath(particles.textureAtlasPath, instance.path);
+					StringUtils.WriteString(particles.textureAtlasPath, RelativePath(new string((sbyte*)particles.textureAtlasPath), instance.path));
 				entityData.particles[j] = particles;
 			}
 
@@ -255,7 +256,7 @@ public unsafe class RainfallEditor : Game
 			entity.data.modelPath = AbsolutePath(entity.data.modelPath, instance.path);
 			entity.data.colliders = new List<SceneFormat.ColliderData>(entities[i].colliders);
 			entity.data.lights = new List<SceneFormat.LightData>(entities[i].lights);
-			entity.data.particles = new List<ParticleSystem>(entities[i].particles);
+			entity.data.particles = new List<ParticleSystemData>(entities[i].particles);
 			for (int j = 0; j < entity.data.colliders.Count; j++)
 			{
 				SceneFormat.ColliderData collider = entity.data.colliders[j];
@@ -265,10 +266,9 @@ public unsafe class RainfallEditor : Game
 			}
 			for (int j = 0; j < entity.data.particles.Count; j++)
 			{
-				ParticleSystem particles = ParticleSystem.Create(Matrix.Identity);
-				particles.copyData(entity.data.particles[j]);
+				ParticleSystemData particles = entity.data.particles[j];
 				if (particles.textureAtlasPath != null)
-					particles.textureAtlasPath = AbsolutePath(particles.textureAtlasPath, instance.path);
+					StringUtils.WriteString(particles.textureAtlasPath, AbsolutePath(new string((sbyte*)particles.textureAtlasPath), instance.path));
 				entity.data.particles[j] = particles;
 			}
 
@@ -349,22 +349,36 @@ public unsafe class RainfallEditor : Game
 		Audio.Update();
 	}
 
-	public static void Main(string[] args)
+	static void CompileFolder(string folder, string outDir)
 	{
-#if DEBUG
-		string outDir = "bin\\x64\\Debug";
-		string projectDir = "D:\\Dev\\Rainfall\\RainfallEditor";
-		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + outDir;
+		string projectDir = folder;
+		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\bin\\x64\\Debug";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + projectDir + "\\" + outDir + "\\net8.0\\res gltf fbx png hdr ogg dat shader ttf";
+		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + outDir + "\\res gltf fbx png hdr ogg dat shader vsh fsh csh ttf rfs";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();
 		process.WaitForExit();
-#endif
+	}
+
+	static void RunCommand(string file, string args)
+	{
+		System.Diagnostics.Process process = System.Diagnostics.Process.Start(file, args);
+		process.WaitForExit();
+	}
+
+	public static void Main(string[] args)
+	{
+		string config = "Debug";
+
+		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0");
+
+		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
+		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
 
 		LaunchParams launchParams = new LaunchParams(args);
 		launchParams.width = 1600;

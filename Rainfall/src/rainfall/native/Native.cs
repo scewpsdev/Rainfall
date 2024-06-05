@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Rainfall.Native
 {
-	internal static class Native
+	public static class Native
 	{
-		internal const string DllName = "RainfallNative.dll";
+		public const string DllName = "RainfallNative.dll";
 	}
 }

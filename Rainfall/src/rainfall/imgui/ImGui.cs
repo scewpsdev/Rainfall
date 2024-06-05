@@ -672,17 +672,17 @@ namespace Rainfall
 		public static extern float GetWindowWidth();
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igImage")]
 		public static extern void Image(ImTexture2D user_texture_id, Vector2 image_size, Vector2 uv0, Vector2 uv1, Vector4 tint_col, Vector4 border_col);
-		public static void Image(Texture texture, Vector2 image_size, Vector2 uv0, Vector2 uv1, Vector4 tint_col, Vector4 border_col)
+		public static void Image(ushort texture, Vector2 image_size, Vector2 uv0, Vector2 uv1, Vector4 tint_col, Vector4 border_col)
 		{
-			Image(new ImTexture2D { texture = texture.handle, flags = 0, mip = 0 }, image_size, uv0, uv1, tint_col, border_col);
+			Image(new ImTexture2D { texture = texture, flags = 0, mip = 0 }, image_size, uv0, uv1, tint_col, border_col);
 		}
-		public static void Image(Texture texture, Vector2 image_size)
+		public static void Image(ushort texture, Vector2 image_size)
 		{
 			Image(texture, image_size, new Vector2(0, 0), new Vector2(1, 1), new Vector4(1, 1, 1, 1), new Vector4(0, 0, 0, 0));
 		}
-		public static void Image(Texture texture, Vector2 image_size, bool alphaBlending, bool mipmaps)
+		public static void Image(ushort texture, Vector2 image_size, bool alphaBlending, bool mipmaps)
 		{
-			Image(new ImTexture2D { texture = texture.handle, flags = (byte)(alphaBlending ? 1 : 0), mip = (byte)(mipmaps ? 1 : 0) }, image_size, new Vector2(0, 0), new Vector2(1, 1), new Vector4(1, 1, 1, 1), new Vector4(0, 0, 0, 0));
+			Image(new ImTexture2D { texture = texture, flags = (byte)(alphaBlending ? 1 : 0), mip = (byte)(mipmaps ? 1 : 0) }, image_size, new Vector2(0, 0), new Vector2(1, 1), new Vector4(1, 1, 1, 1), new Vector4(0, 0, 0, 0));
 		}
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "igImageButton")]
 		[return: MarshalAs(UnmanagedType.I1)]
