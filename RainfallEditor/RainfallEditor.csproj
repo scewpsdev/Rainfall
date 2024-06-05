@@ -17,6 +17,12 @@
   </Target>
 
   <ItemGroup>
+    <Compile Remove="src\graphics\**" />
+    <EmbeddedResource Remove="src\graphics\**" />
+    <None Remove="src\graphics\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
   </ItemGroup>
 

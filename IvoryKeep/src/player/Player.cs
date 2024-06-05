@@ -135,8 +135,8 @@ public class Player : Creature
 
 		audio = new AudioSource(position + Vector3.Up);
 
-		//setHandItem(0, Item.Get("broadsword"));
-		//setHandItem(1, Item.Get("wooden_round_shield"));
+		setHandItem(0, Item.Get("broadsword"));
+		setHandItem(1, Item.Get("wooden_round_shield"));
 	}
 
 	public void playSound(Sound sound, float gain = 1)
@@ -202,6 +202,7 @@ public class Player : Creature
 
 	public void setDirection(float direction)
 	{
+		directionDst = direction;
 		yaw = direction;
 	}
 
@@ -369,11 +370,14 @@ public class Player : Creature
 		if (isGrounded)
 			rootMotionVelocity = rootMotionDelta / Time.deltaTime;
 
-		if (movementInput.lengthSquared > 0 && (!strafing || isSprinting))
-			directionDst = directionToAngle(movementInput);
-		else if (strafing)
-			directionDst = camera.yaw;
-		yaw = MathHelper.LerpAngle(yaw, directionDst, 10 * Time.deltaTime * (actions.currentAction != null ? actions.currentAction.rotationSpeedMultiplier : 1));
+		if (actions.currentAction == null || !actions.currentAction.lockRotation)
+		{
+			if (movementInput.lengthSquared > 0 && (!strafing || isSprinting))
+				directionDst = directionToAngle(movementInput);
+			else if (strafing)
+				directionDst = camera.yaw;
+		}
+		yaw = MathHelper.LerpAngle(yaw, directionDst, 10 * Time.deltaTime);
 		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw);
 
 		if (Input.IsKeyPressed(KeyCode.Space))
@@ -411,14 +415,172 @@ public class Player : Creature
 			lastRollInput = 0;
 		}
 
-		if (Input.IsMouseButtonPressed(MouseButton.Left))
+		if (Input.mouseLocked)
 		{
-			Attack? currentAttack = null;
-			if (actions.currentAction != null && actions.currentAction is AttackAction)
-				currentAttack = ((AttackAction)actions.currentAction).attack;
-			Attack? attack = rightHand.item.getAttack(AttackType.Light, currentAttack);
-			if (attack.HasValue)
-				actions.queueAction(new AttackAction(rightHand.item, 0, attack.Value));
+			for (int i = 0; i < 2; i++)
+			{
+				string input = i == 0 ? "AttackRight" : "AttackLeft";
+				string otherInput = i == 0 ? "AttackLeft" : "AttackRight";
+				PlayerHand hand = i == 0 ? rightHand : leftHand;
+				PlayerHand otherHand = i == 0 ? leftHand : rightHand;
+
+				// Melee Attacks
+				if (hand.item != null && hand.item.category == ItemCategory.Weapon && hand.item.weaponType == WeaponType.Melee)
+				{
+					if (InputManager.IsPressed(input))
+					{
+						AttackType type = InputManager.IsDown("AttackHeavy") ? AttackType.Heavy : AttackType.Light;
+						if (isSprinting && hand.item.getAttack(AttackType.Running) != null)
+							type = AttackType.Running;
+						Attack? lastAttack = null;
+						if (actions.currentAction != null && actions.currentAction is AttackAction && ((AttackAction)actions.currentAction).handID == i)
+						{
+							AttackAction lastAttackAction = actions.currentAction as AttackAction;
+							if (lastAttackAction.attack.type == type || lastAttackAction.attack.type != AttackType.Heavy && type != AttackType.Heavy)
+								lastAttack = lastAttackAction.attack;
+						}
+
+						Attack? attack = hand.item.getAttack(type, lastAttack);
+						if (actions.currentAction != null && actions.currentAction is BlockHitAction && ((BlockHitAction)actions.currentAction).wasParry)
+						{
+							Attack? riposte = hand.item.getAttack(AttackType.Riposte);
+							if (riposte != null)
+							{
+								attack = riposte;
+								actions.cancelAction();
+							}
+						}
+						if (actions.currentAction != null && actions.currentAction is BlockStanceAction)
+							actions.cancelAction();
+						if (attack != null)
+							actions.queueAction(new AttackAction(hand.item, i, attack.Value));
+					}
+					if (hand.item.twoHanded || otherHand.item == null)
+					{
+						if (InputManager.IsDown(otherInput))
+						{
+							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction is BlockHitAction && ((BlockHitAction)actions.currentAction).handID == i)
+							{
+								bool resumeBlock = actions.currentAction is BlockHitAction;
+								if (InputManager.IsPressed(otherInput) && actions.actionQueue.Count == 1)
+								{
+									actions.cancelAction();
+									resumeBlock = false;
+								}
+								actions.queueAction(new BlockStanceAction(hand.item, i, resumeBlock));
+							}
+						}
+						else
+						{
+							if (actions.currentAction != null && actions.currentAction is BlockStanceAction && ((BlockStanceAction)actions.currentAction).handID == i)
+							{
+								actions.cancelAction();
+							}
+						}
+					}
+				}
+
+				// Staff
+				if (hand.item != null && hand.item.category == ItemCategory.Weapon && hand.item.weaponType == WeaponType.Staff)
+				{
+					if (InputManager.IsPressed(input))
+					{
+						// cast
+						AttackType type = AttackType.Cast;
+						Attack? lastAttack = null;
+						if (actions.currentAction != null && actions.currentAction is AttackAction && ((AttackAction)actions.currentAction).handID == i)
+						{
+							AttackAction lastAttackAction = actions.currentAction as AttackAction;
+							if (lastAttackAction.attack.type == type)
+								lastAttack = lastAttackAction.attack;
+						}
+
+						Item spell = inventory.getCurrentSpellSlot().item;
+						if (spell != null)
+						{
+							Attack? attack = spell.getAttack(type, lastAttack);
+
+							if (actions.currentAction != null && actions.currentAction is BlockStanceAction)
+								actions.cancelAction();
+							if (attack != null)
+								actions.queueAction(new AttackAction(spell, i, attack.Value, hand.item));
+						}
+					}
+					if (hand.item.twoHanded || otherHand.item == null)
+					{
+						if (InputManager.IsDown(otherInput))
+						{
+							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction is BlockHitAction && ((BlockHitAction)actions.currentAction).handID == i)
+							{
+								bool resumeBlock = actions.currentAction is BlockHitAction;
+								if (InputManager.IsPressed(otherInput) && actions.actionQueue.Count == 1)
+								{
+									actions.cancelAction();
+									resumeBlock = false;
+								}
+								actions.queueAction(new BlockStanceAction(hand.item, i, resumeBlock));
+							}
+						}
+						else
+						{
+							if (actions.currentAction != null && actions.currentAction is BlockStanceAction && ((BlockStanceAction)actions.currentAction).handID == i)
+							{
+								actions.cancelAction();
+							}
+						}
+					}
+				}
+
+				// Shield
+				if (hand.item != null && hand.item.category == ItemCategory.Weapon && hand.item.weaponType == WeaponType.Shield)
+				{
+					if (InputManager.IsDown(input))
+					{
+						if (InputManager.IsDown("AttackHeavy"))
+						{
+							if (actions.currentAction == null)
+							{
+								Attack? lastAttack = null;
+								if (actions.currentAction != null && actions.currentAction is AttackAction && ((AttackAction)actions.currentAction).handID == i)
+									lastAttack = ((AttackAction)actions.currentAction).attack;
+								Attack? attack = hand.item.getAttack(AttackType.Heavy, lastAttack);
+								if (attack != null)
+									actions.queueAction(new AttackAction(hand.item, i, attack.Value));
+							}
+						}
+						else
+						{
+							if (actions.currentAction == null || actions.currentAction is BlockHitAction && ((BlockHitAction)actions.currentAction).handID == i)
+							{
+								bool resumeBlock = actions.currentAction is BlockHitAction;
+								actions.queueAction(new BlockStanceAction(hand.item, i, resumeBlock));
+							}
+						}
+					}
+					else
+					{
+						if (actions.currentAction != null && actions.currentAction is BlockStanceAction && ((BlockStanceAction)actions.currentAction).handID == i)
+						{
+							actions.cancelAction();
+						}
+					}
+				}
+
+				// Bows
+				/*
+				if (hand.item != null && hand.item.category == ItemCategory.Weapon && hand.item.weaponType == WeaponType.Bow)
+				{
+					if (InputManager.IsDown(input) && !InputManager.IsDown(otherInput))
+					{
+						if (actions.currentAction == null)
+						{
+							if (inventory.arrows.item != null)
+								actions.queueAction(new BowDrawAction(hand.item, i));
+						}
+					}
+				}
+				*/
+			}
 		}
 
 		actions.update();
@@ -510,8 +672,8 @@ public class Player : Creature
 		updateAnimations();
 
 		Matrix transform = getModelMatrix();
-		rightHand.update(transform * modelTransform * animator.getNodeTransform(rightWeaponNode) * Matrix.CreateRotation(Vector3.Up, MathF.PI));
-		leftHand.update(transform * modelTransform * animator.getNodeTransform(leftWeaponNode) * Matrix.CreateRotation(Vector3.Up, MathF.PI));
+		rightHand.update(transform * modelTransform * animator.getNodeTransform(rightWeaponNode));
+		leftHand.update(transform * modelTransform * animator.getNodeTransform(leftWeaponNode));
 
 		audio.updateTransform(position + Vector3.Up);
 	}

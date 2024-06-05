@@ -19,10 +19,12 @@ public class EditorInstance
 	public List<Entity> entities = new List<Entity>();
 	public Camera camera;
 
+	Cubemap environmentMap;
+
 	public uint selectedEntity = 0;
 
 	Vector2 lastViewportSize;
-	public Texture frame;
+	public ushort frame;
 
 
 	public EditorInstance(string path)
@@ -37,6 +39,14 @@ public class EditorInstance
 
 			RainfallEditor.instance.readScene(this, path);
 		}
+
+		environmentMap = Resource.GetCubemap("res/textures/cubemap_equirect.png");
+
+		RendererSettings settings = new RendererSettings(0);
+		settings.showFrame = false;
+		settings.bloomEnabled = false;
+		settings.ssaoEnabled = false;
+		Renderer.SetSettings(settings);
 
 		undoStack.Push(SceneFormat.SerializeScene(RainfallEditor.ToEntityData(this), selectedEntity));
 	}
@@ -182,10 +192,12 @@ public class EditorInstance
 		}
 
 		Renderer.Begin();
-		Renderer.SetCamera(camera);
+		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(EditorUI.currentViewportSize.x / EditorUI.currentViewportSize.y), Camera.NEAR, Camera.FAR);
+
+		Renderer.DrawEnvironmentMap(environmentMap, 0.1f);
 
 		int gridSize = 10;
-		Vector4 gridColor = new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+		uint gridColor = 0xFF1F1F1F; ;
 		for (int i = -gridSize; i <= gridSize; i++)
 		{
 			Renderer.DrawDebugLine(new Vector3(-gridSize, 0, i), new Vector3(gridSize, 0, i), gridColor);

@@ -12,8 +12,12 @@ using System.Text;
 
 namespace Rainfall
 {
+	[StructLayout(LayoutKind.Sequential)]
 	public struct RendererSettings
 	{
+		internal byte _showFrame = 1;
+		public bool showFrame { get => _showFrame != 0; set { _showFrame = (byte)(value ? 1 : 0); } }
+
 		internal byte _ssaoEnabled = 1;
 		public bool ssaoEnabled { get => _ssaoEnabled != 0; set { _ssaoEnabled = (byte)(value ? 1 : 0); } }
 
@@ -143,6 +147,172 @@ namespace Rainfall
 			Renderer3D_DrawDebugLine(position0, position1, color);
 		}
 
+		public static void DrawDebugBox(Vector3 size, Matrix transform, uint color)
+		{
+			Vector3 vertex0 = transform * (0.5f * new Vector3(-size.x, -size.y, -size.z));
+			Vector3 vertex1 = transform * (0.5f * new Vector3(size.x, -size.y, -size.z));
+			Vector3 vertex2 = transform * (0.5f * new Vector3(size.x, -size.y, size.z));
+			Vector3 vertex3 = transform * (0.5f * new Vector3(-size.x, -size.y, size.z));
+			Vector3 vertex4 = transform * (0.5f * new Vector3(-size.x, size.y, -size.z));
+			Vector3 vertex5 = transform * (0.5f * new Vector3(size.x, size.y, -size.z));
+			Vector3 vertex6 = transform * (0.5f * new Vector3(size.x, size.y, size.z));
+			Vector3 vertex7 = transform * (0.5f * new Vector3(-size.x, size.y, size.z));
+
+			DrawDebugLine(vertex0, vertex1, color);
+			DrawDebugLine(vertex1, vertex2, color);
+			DrawDebugLine(vertex2, vertex3, color);
+			DrawDebugLine(vertex3, vertex0, color);
+
+			DrawDebugLine(vertex4, vertex5, color);
+			DrawDebugLine(vertex5, vertex6, color);
+			DrawDebugLine(vertex6, vertex7, color);
+			DrawDebugLine(vertex7, vertex4, color);
+
+			DrawDebugLine(vertex0, vertex4, color);
+			DrawDebugLine(vertex1, vertex5, color);
+			DrawDebugLine(vertex2, vertex6, color);
+			DrawDebugLine(vertex3, vertex7, color);
+		}
+
+		public static void DrawDebugSphere(float radius, Matrix transform, uint color)
+		{
+			int segmentCount = 32;
+			for (int j = 0; j < 3; j++)
+			{
+				Quaternion ringRot = j == 0 ? Quaternion.Identity : j == 1 ? Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI * 0.5f) : Quaternion.FromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f);
+
+				for (int k = 0; k < segmentCount; k++)
+				{
+					Vector3 vertex0 = transform * (ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+					Vector3 vertex1 = transform * (ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+					DrawDebugLine(vertex0, vertex1, color);
+				}
+			}
+		}
+
+		public static void DrawDebugCapsule(float radius, float height, Matrix transform, uint color)
+		{
+			int segmentCount = 32;
+
+			// top ring
+			for (int k = 0; k < segmentCount; k++)
+			{
+				Vector3 vertex0 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+				Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+				DrawDebugLine(vertex0, vertex1, color);
+			}
+
+			// bottom ring
+			for (int k = 0; k < segmentCount; k++)
+			{
+				Vector3 vertex0 = transform * (new Vector3(0.0f, height * -0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+				Vector3 vertex1 = transform * (new Vector3(0.0f, height * -0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+				DrawDebugLine(vertex0, vertex1, color);
+			}
+
+			// vertical ring 1
+			for (int k = 0; k < segmentCount; k++)
+			{
+				Quaternion ringRot = Quaternion.FromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f);
+
+				Vector3 vertex0 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+				Vector3 vertex1 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+				DrawDebugLine(vertex0, vertex1, color);
+			}
+
+			// vertical ring 2
+			for (int k = 0; k < segmentCount; k++)
+			{
+				Quaternion ringRot = Quaternion.FromAxisAngle(Vector3.UnitY, MathF.PI * 0.5f) * Quaternion.FromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f);
+
+				Vector3 vertex0 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, k / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+				Vector3 vertex1 = transform * ((k < segmentCount / 2 ? 1 : -1) * new Vector3(0.0f, height * 0.5f - radius, 0.0f) + ringRot * Quaternion.FromAxisAngle(Vector3.Up, (k + 1) / (float)segmentCount * 2 * MathF.PI) * new Vector3(0.0f, 0.0f, radius));
+
+				DrawDebugLine(vertex0, vertex1, color);
+			}
+
+			// vertical lines
+			for (int k = 0; k < 4; k++)
+			{
+				Vector3 vertex0 = transform * (new Vector3(0.0f, -height * 0.5f + radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / 4.0f * MathF.PI * 2) * new Vector3(0.0f, 0.0f, radius));
+				Vector3 vertex1 = transform * (new Vector3(0.0f, height * 0.5f - radius, 0.0f) + Quaternion.FromAxisAngle(Vector3.Up, k / 4.0f * MathF.PI * 2) * new Vector3(0.0f, 0.0f, radius));
+
+				DrawDebugLine(vertex0, vertex1, color);
+			}
+		}
+
+		public static void DrawDebugCollider(SceneFormat.ColliderData collider, Matrix transform, uint color)
+		{
+			if (collider.type == SceneFormat.ColliderType.Box)
+			{
+				DrawDebugBox(collider.size, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+			}
+			else if (collider.type == SceneFormat.ColliderType.Sphere)
+			{
+				DrawDebugSphere(collider.radius, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+			}
+			else if (collider.type == SceneFormat.ColliderType.Capsule)
+			{
+				DrawDebugCapsule(collider.radius, collider.height, transform * Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+			}
+			else if (collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh)
+			{
+				if (collider.meshCollider != null)
+				{
+					DrawDebugBox(collider.meshCollider.boundingBox.size, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color);
+					//DrawDebugSphere(collider.meshCollider.boundingSphere.Value.radius, transform * Matrix.CreateTranslation(collider.meshCollider.boundingBox.Value.center + collider.offset) * Matrix.CreateRotation(Quaternion.FromEulerAngles(collider.eulers)), color, inFront);
+				}
+			}
+		}
+
+		static bool IsDeformBone(Node node)
+		{
+			bool ik = node.name.IndexOf("ik", StringComparison.OrdinalIgnoreCase) >= 0;
+			bool poleTarget = node.name.IndexOf("pole_target", StringComparison.OrdinalIgnoreCase) >= 0 || node.name.IndexOf("poletarget", StringComparison.OrdinalIgnoreCase) >= 0;
+
+			return !ik && !poleTarget;
+		}
+
+		static void DrawDebugSkeletonNode(Node node, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix nodeTransform, uint color, bool[] mask)
+		{
+			bool isLeafNode = node.children == null;
+			if (isLeafNode)
+			{
+				Vector3 endPoint = nodeTransform * (Vector3.Up * 0.1f);
+				DrawDebugLine(nodeTransform.translation, endPoint, color);
+			}
+			else
+			{
+				for (int i = 0; i < node.children.Length; i++)
+				{
+					if (IsDeformBone(node.children[i]))
+					{
+						Matrix childTransform = nodeTransform * node.children[i].transform;
+						DrawDebugLine(nodeTransform.translation, childTransform.translation, color);
+						DrawDebugSkeletonNode(node.children[i], boneColliders, childTransform, color, mask);
+					}
+				}
+			}
+
+			if (boneColliders != null)
+			{
+				if (boneColliders.ContainsKey(node.name))
+				{
+					if (mask == null || mask[node.id])
+						DrawDebugCollider(boneColliders[node.name], nodeTransform, color);
+				}
+			}
+		}
+
+		public static void DrawDebugSkeleton(Skeleton skeleton, Dictionary<string, SceneFormat.ColliderData> boneColliders, Matrix transform, uint color, bool[] mask = null)
+		{
+			DrawDebugSkeletonNode(skeleton.rootNode, boneColliders, transform * skeleton.rootNode.transform, color, mask);
+		}
+
 		public static void DrawModelStaticInstanced_(Model model, Matrix transform)
 		{
 			// not supported atm, dont use
@@ -219,14 +389,16 @@ namespace Rainfall
 			Renderer3D_SetCamera(position, rotation, projection, near, far);
 		}
 
-		public static void End()
+		public static ushort End()
 		{
 			meshRenderCounter = 0;
 			meshCulledCounter = 0;
 
-			Renderer3D_End();
+			ushort frame = Renderer3D_End();
 
 			GUI.Draw();
+
+			return frame;
 		}
 
 		public static int DrawDebugStats(int x, int y, byte color)
@@ -287,7 +459,7 @@ namespace Rainfall
 		extern static void Renderer3D_Begin();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_End();
+		extern static ushort Renderer3D_End();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static int Renderer3D_DrawDebugStats(int x, int y, byte color);

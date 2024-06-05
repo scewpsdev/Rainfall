@@ -14,7 +14,7 @@ internal class AttackAction : Action
 
 	const float HIT_KNOCKBACK_DURATION = 0.4f;
 
-	const float PIVOT_WINDOW = 0.2f;
+	const float PIVOT_WINDOW = 0.1f;
 	const float PIVOT_WINDOW_START = 5 / 24.0f;
 
 
@@ -61,7 +61,7 @@ internal class AttackAction : Action
 			followUpCancelTime = attack.followUpCancelTime;
 
 		movementSpeedMultiplier = 0.0f;
-		rotationSpeedMultiplier = 0.0f;
+		lockRotation = true;
 
 		staminaCost = attack.staminaCost;
 		staminaCostTime = attack.damageTimeStart;
@@ -112,9 +112,9 @@ internal class AttackAction : Action
 		}
 
 		if (elapsedTime >= PIVOT_WINDOW_START && elapsedTime < PIVOT_WINDOW_START + PIVOT_WINDOW)
-			rotationSpeedMultiplier = 1;
+			lockRotation = false;
 		else
-			rotationSpeedMultiplier = 0;
+			lockRotation = true;
 
 		/*
 		if (attack.projectiles != null)

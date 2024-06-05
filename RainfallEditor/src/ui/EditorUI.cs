@@ -392,7 +392,7 @@ public static unsafe partial class EditorUI
 			Vector2 windowSize = ImGui.GetContentRegionAvail();
 			currentViewportSize = windowSize;
 
-			if (instance.frame != null)
+			if (instance.frame != ushort.MaxValue)
 				ImGui.Image(instance.frame, windowSize, true, false);
 
 			ImGuizmo.SetRect(topLeft.x, topLeft.y, windowSize.x, windowSize.y);
@@ -401,7 +401,7 @@ public static unsafe partial class EditorUI
 
 			instance.camera.updateControls(instance);
 
-			Matrix projection = instance.camera.getProjectionMatrix((int)windowSize.x, (int)windowSize.y);
+			Matrix projection = instance.camera.getProjectionMatrix(windowSize.x / windowSize.y);
 			Matrix view = instance.camera.getViewMatrix();
 
 			//ImGuizmo.DrawGrid(view, projection, Matrix.Identity, 10);

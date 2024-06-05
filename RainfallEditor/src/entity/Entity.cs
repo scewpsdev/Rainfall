@@ -1,9 +1,12 @@
 ﻿using Rainfall;
+using Rainfall.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,7 +38,7 @@ public class Entity
 		data = new SceneFormat.EntityData(name, id);
 	}
 
-	public void reload()
+	public unsafe void reload()
 	{
 		if (data.modelPath != null)
 		{
@@ -60,10 +63,13 @@ public class Entity
 
 		for (int i = 0; i < data.particles.Count; i++)
 		{
-			if (data.particles[i].textureAtlasPath != null)
-				data.particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(data.particles[i].textureAtlasPath));
+			ParticleSystemData particleData = data.particles[i];
+			byte* textureAtlasPath = particleData.textureAtlasPath;
+			if (textureAtlasPath != null)
+				particleData.textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(new string((sbyte*)particleData.textureAtlasPath))).handle;
 			else
-				data.particles[i].textureAtlas = null;
+				particleData.textureAtlas = ushort.MaxValue;
+			data.particles[i] = particleData;
 		}
 	}
 
@@ -75,14 +81,15 @@ public class Entity
 	{
 	}
 
-	public void update()
+	public unsafe void update()
 	{
 		Matrix transform = getModelMatrix();
 
 		bool restartEffect = true;
 		for (int i = 0; i < data.particles.Count; i++)
 		{
-			if (!data.particles[i].hasFinished)
+			ParticleSystemData particles = data.particles[i];
+			if (Rainfall.Native.ParticleSystem.ParticleSystem_HasFinished(&particles) == 0)
 			{
 				restartEffect = false;
 				break;
@@ -91,9 +98,11 @@ public class Entity
 
 		for (int i = 0; i < data.particles.Count; i++)
 		{
+			ParticleSystemData particleData = data.particles[i];
 			if (restartEffect)
-				data.particles[i].restartEffect();
-			data.particles[i].setTransform(transform);
+				Rainfall.Native.ParticleSystem.ParticleSystem_Restart(&particleData);
+			Rainfall.Native.ParticleSystem.ParticleSystem_SetTransform(&particleData, transform, 1);
+			data.particles[i] = particleData;
 		}
 	}
 
@@ -117,28 +126,33 @@ public class Entity
 			for (int i = 0; i < data.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData collider = data.colliders[i];
-				Vector4 color = collider.trigger ? new Vector4(1, 0, 0, 1) : new Vector4(0, 1, 0, 1);
+				uint color = collider.trigger ? 0xFFFF0000 : 0xFF00FF00;
 				Renderer.DrawDebugCollider(collider, transform, color);
 			}
 
 			if (data.model != null)
 			{
 				if (data.model.scene->numAnimations > 0)
-					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, new Vector4(0.5f, 0.5f, 1, 1), showDebugBoneColliders);
+					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, 0xFF7F7FFF, showDebugBoneColliders);
 			}
 		}
 
 		for (int i = 0; i < data.particles.Count; i++)
 		{
-			Renderer.DrawParticleSystem(data.particles[i]);
+			ParticleSystemData particleData = data.particles[i];
+			Renderer3D_DrawParticleSystem(&particleData);
 		}
 	}
 
-	ParticleSystem getParticlesByName(string name)
+	[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+	extern static unsafe void Renderer3D_DrawParticleSystem(ParticleSystemData* particleSystem);
+
+	unsafe ParticleSystemData? getParticlesByName(string name)
 	{
-		foreach (ParticleSystem particle in data.particles)
+		foreach (ParticleSystemData particle in data.particles)
 		{
-			if (particle.name == name)
+			byte* namePtr = particle.name;
+			if (StringUtils.CompareStrings(name, namePtr))
 				return particle;
 		}
 		return null;

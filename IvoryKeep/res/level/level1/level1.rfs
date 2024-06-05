@@ -1,0 +1,12 @@
+entities = [ {
+name = "Entity"
+id = "1408763657"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "1408763657"

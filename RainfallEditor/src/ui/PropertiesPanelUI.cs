@@ -300,7 +300,7 @@ public static partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Lights", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			Matrix pv = Renderer.projection * Renderer.view;
+			Matrix pv = Renderer.pv;
 
 			for (int i = 0; i < entity.data.lights.Count; i++)
 			{

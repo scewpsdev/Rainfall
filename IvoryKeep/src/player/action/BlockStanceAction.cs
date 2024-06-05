@@ -24,17 +24,20 @@ internal class BlockStanceAction : Action
 		this.item = item;
 		this.resumeBlock = resumeBlock;
 
+		//animationName[0] = "block_stance";
+		//animationSet[0] = item.moveset;
+
 		if (item.twoHanded)
 		{
-			animationName[0] = "block_stance";
 			animationName[1] = "block_stance";
-			animationSet[0] = item.moveset;
+			animationName[2] = "block_stance";
 			animationSet[1] = item.moveset;
+			animationSet[2] = item.moveset;
 		}
 		else
 		{
-			animationName[handID] = "block_stance";
-			animationSet[handID] = item.moveset;
+			animationName[1 + handID] = "block_stance";
+			animationSet[1 + handID] = item.moveset;
 		}
 
 		Debug.Assert(item.category == ItemCategory.Weapon);

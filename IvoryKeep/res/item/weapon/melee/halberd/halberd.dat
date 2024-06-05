@@ -4,11 +4,11 @@ description = "very long stick with axe"
 category = weapon
 
 entity = "halberd.rfs"
-moveset = "../spear/spear_moveset.gltf"
+moveset = "halberd_moveset.gltf"
 icon = "../spear/spear_icon.png"
 
 weaponType = melee
-twoHanded = 1
+twoHanded = 0
 
 baseDamage = 5
 criticalDamage = 3
@@ -23,21 +23,21 @@ attacks = [
 		type = light
 		name = light1
 		animation = "attack_light1"
-		damageFrameStart = 13
-		damageFrameEnd = 28
+		damageFrameStart = 10
+		damageFrameEnd = 14
 		staminaCost: 3.5
 		followUp = light2
-		followUpCancelFrame = 28
+		followUpCancelFrame = 18
 	},
 	{
 		type = light
 		name = light2
 		animation = "attack_light2"
-		damageFrameStart = 13
-		damageFrameEnd = 28
+		damageFrameStart = 10
+		damageFrameEnd = 14
 		staminaCost: 3.5
 		followUp = light1
-		followUpCancelFrame = 28
+		followUpCancelFrame = 18
 	},
 	{
 		type = heavy

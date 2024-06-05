@@ -144,9 +144,8 @@ public class Camera
 		return Matrix.CreateTranslation(_position) * Matrix.CreateRotation(_rotation);
 	}
 
-	public Matrix getProjectionMatrix(int width, int height)
+	public Matrix getProjectionMatrix(float aspect)
 	{
-		float aspect = width / (float)height;
 		if (orthographic)
 			//return Matrix.CreatePerspective(MathHelper.ToRadians(3), aspect, NEAR, FAR) * Matrix.CreateTranslation(0.0f, 0.0f, -40);
 			return Matrix.CreateOrthographic(distance * 2 * aspect, distance * 2, -100, +100);
