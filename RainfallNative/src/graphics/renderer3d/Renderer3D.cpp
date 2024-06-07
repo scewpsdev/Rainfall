@@ -431,7 +431,7 @@ RFAPI void Renderer3D_Resize(int width, int height)
 
 	RenderTargetAttachment tonemappingRTAttachments[2] = {
 		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP),
-		RenderTargetAttachment(width, height, bgfx::TextureFormat::D16F, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::D32F, BGFX_TEXTURE_RT | BGFX_TEXTURE_BLIT_DST | BGFX_SAMPLER_UVW_CLAMP),
 	};
 	tonemappingRT = Graphics_CreateRenderTarget(2, tonemappingRTAttachments, tonemappingRTTextures, tonemappingRTTextureInfos);
 

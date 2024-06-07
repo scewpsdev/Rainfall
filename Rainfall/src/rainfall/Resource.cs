@@ -269,9 +269,9 @@ namespace Rainfall
 			else
 			{
 				SceneData* scene = CreateScene(path, textureFlags);
-				Material.Material_CreateMaterialsForScene(scene);
 				if (scene != null)
 				{
+					Material.Material_CreateMaterialsForScene(scene);
 					scenes.Add(path, (IntPtr)scene);
 					return new Model(scene);
 				}
