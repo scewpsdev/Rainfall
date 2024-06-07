@@ -42,7 +42,7 @@ internal class DungeonGame : Game
 		InputManager.Init();
 		GraphicsManager.Init();
 
-		Renderer.Init(graphics);
+		Renderer.Init(Display.width, Display.height, graphics);
 		Physics.Init();
 		Audio.Init();
 		AudioManager.Init();
@@ -77,7 +77,7 @@ internal class DungeonGame : Game
 	{
 		if (Input.IsKeyPressed(KeyCode.F8))
 		{
-			GraphicsManager.cinematicMode = !GraphicsManager.cinematicMode;
+			//GraphicsManager.cinematicMode = !GraphicsManager.cinematicMode;
 		}
 		if (Input.IsKeyPressed(KeyCode.F11))
 		{
@@ -120,7 +120,7 @@ internal class DungeonGame : Game
 	public override void draw()
 	{
 		Renderer.Begin();
-		Renderer.SetCamera(camera);
+		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(), camera.near, camera.far);
 
 		GraphicsManager.Draw();
 
@@ -129,11 +129,8 @@ internal class DungeonGame : Game
 
 		Renderer.End();
 
-		if (!GraphicsManager.cinematicMode)
-			drawDebugStats();
-
-		//ImGui.ShowDemoWindow();
-		//ImGui.ShowUserGuide();
+		//if (!GraphicsManager.cinematicMode)
+		//	drawDebugStats();
 
 		Audio.Update();
 
@@ -166,7 +163,7 @@ internal class DungeonGame : Game
 		StringUtils.AppendCharacter(str, VERSION_SUFFIX);
 		graphics.drawDebugText(0, y++, 0xB, str);
 
-		y = DebugStats.Draw(0, y, graphics);
+		y = DebugStats.Draw(0, y, 0xB, graphics);
 
 		y++;
 
