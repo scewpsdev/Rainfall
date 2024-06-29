@@ -60,6 +60,6 @@ public class FreeCamera : Camera
 	{
 		base.draw(graphics);
 
-		Renderer.SetCamera(position, rotation, getProjectionMatrix(), near, far);
+		Renderer.SetCamera(position, rotation, getProjectionMatrix(), fov, Display.aspectRatio, near, far);
 	}
 }

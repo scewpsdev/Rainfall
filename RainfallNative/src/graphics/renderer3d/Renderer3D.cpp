@@ -67,6 +67,11 @@ struct Renderer3DSettings
 	float bloomStrength = 0.2f;
 	float bloomFalloff = 5.0f;
 
+	float exposure = 1.0f;
+
+	Vector3 fogColor = Vector3::One;
+	float fogStrength = 0.0f;
+
 	bool physicsDebugDraw = false;
 };
 
@@ -139,6 +144,10 @@ static bgfx::TextureInfo gbufferTextureInfos[5];
 static uint16_t hzb = bgfx::kInvalidHandle;
 static bgfx::TextureInfo hzbTextureInfo;
 static int hzbWidth, hzbHeight;
+
+static uint16_t deferredRT = bgfx::kInvalidHandle;
+static bgfx::TextureHandle deferredRTTextures[2];
+static bgfx::TextureInfo deferredRTTextureInfos[2];
 
 static uint16_t forwardRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle forwardRTTextures[2];
@@ -224,6 +233,7 @@ static bgfx::UniformHandle u_pv;
 
 static Vector3 cameraPosition;
 static Quaternion cameraRotation;
+static float cameraFOV, cameraAspect;
 static float cameraNear, cameraFar;
 static Vector3 cameraRight, cameraUp, cameraForward;
 static Matrix projection, view, pv;
@@ -236,6 +246,8 @@ static bgfx::IndirectBufferHandle indirectBuffer;
 static bgfx::DynamicVertexBufferHandle aabbBuffer;
 static Shader* hzbDownsampleShader;
 static Shader* meshIndirectShader;
+
+static List<MeshDraw> forwardDraws;
 
 static List<PointLightDraw> pointLightDraws;
 static int numVisibleLights;
@@ -258,6 +270,11 @@ static List<ClothDraw> clothDraws;
 static bool renderDirectionalLight;
 static Vector3 directionalLightDirection;
 static Vector3 directionalLightColor;
+static bool directionalLightShadowsNeedUpdate;
+static int directionalLightShadowMapRes;
+static bgfx::FrameBufferHandle directionalLightShadowMapRTs[3];
+static float directionalLightShadowMapFar[3];
+static Matrix directionalLightShadowMapMatrix[3];
 
 static uint16_t environmentMap = bgfx::kInvalidHandle;
 float environmentIntensity;
@@ -387,6 +404,8 @@ RFAPI void Renderer3D_Resize(int width, int height)
 		bgfx::destroy(bgfx::FrameBufferHandle{ gbuffer });
 	if (hzb != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::TextureHandle{ hzb });
+	if (deferredRT != bgfx::kInvalidHandle)
+		bgfx::destroy(bgfx::FrameBufferHandle{ deferredRT });
 	if (forwardRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ forwardRT });
 	if (compositeRT != bgfx::kInvalidHandle)
@@ -419,9 +438,16 @@ RFAPI void Renderer3D_Resize(int width, int height)
 	hzbHeight = ipow(2, (int)floor(log2((double)height + 0.5)));
 	hzb = Graphics_CreateTextureMutableEx(hzbWidth, hzbHeight, bgfx::TextureFormat::R32F, true, 1, BGFX_SAMPLER_POINT | BGFX_SAMPLER_UVW_CLAMP | BGFX_TEXTURE_COMPUTE_WRITE, &hzbTextureInfo);
 
-	RenderTargetAttachment forwardRTAttachments[2] =
+	RenderTargetAttachment deferredRTAttachments[2] =
 	{
 		RenderTargetAttachment(width, height, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::D32F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP)
+	};
+	deferredRT = Graphics_CreateRenderTarget(2, deferredRTAttachments, deferredRTTextures, deferredRTTextureInfos);
+
+	RenderTargetAttachment forwardRTAttachments[2] =
+	{
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_TEXTURE_BLIT_DST | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
 		RenderTargetAttachment(width, height, bgfx::TextureFormat::D32F, BGFX_TEXTURE_RT | BGFX_TEXTURE_BLIT_DST | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP)
 	};
 	forwardRT = Graphics_CreateRenderTarget(2, forwardRTAttachments, forwardRTTextures, forwardRTTextureInfos);
@@ -520,8 +546,10 @@ RFAPI void Renderer3D_SetSettings(Renderer3DSettings settings)
 	::settings = settings;
 }
 
-RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float near, float far)
+RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float fov, float aspect, float near, float far)
 {
+	cameraFOV = fov;
+	cameraAspect = aspect;
 	cameraNear = near;
 	cameraFar = far;
 	cameraPosition = position;
@@ -544,6 +572,8 @@ RFAPI void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, Material* mater
 
 	if (isOccluder)
 		occluderMeshes.add({ mesh, transform, worldSpaceBoundingBox, material, animation });
+	else if (material->isForward)
+		forwardDraws.add({ mesh, transform, worldSpaceBoundingBox, material, animation });
 	else
 		meshDraws.add({ mesh, transform, worldSpaceBoundingBox, material, animation });
 }
@@ -584,11 +614,16 @@ RFAPI void Renderer3D_DrawPointLight(Vector3 position, Vector3 color)
 	pointLightDraws.add({ position, color, radius });
 }
 
-RFAPI void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color)
+RFAPI void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color, bool shadowsNeedUpdate, int shadowMapRes, RenderTarget cascade0, RenderTarget cascade1, RenderTarget cascade2)
 {
 	renderDirectionalLight = true;
 	directionalLightDirection = direction;
 	directionalLightColor = color;
+	directionalLightShadowsNeedUpdate = shadowsNeedUpdate;
+	directionalLightShadowMapRes = shadowMapRes;
+	directionalLightShadowMapRTs[0] = { cascade0 };
+	directionalLightShadowMapRTs[1] = { cascade1 };
+	directionalLightShadowMapRTs[2] = { cascade2 };
 }
 
 RFAPI void Renderer3D_DrawParticleSystem(ParticleSystem* particleSystem)
@@ -1070,6 +1105,120 @@ static void GeometryPass()
 	}
 }
 
+void CalculateCascade(float near, float far, Matrix* lightProjection, Matrix* lightView)
+{
+	Vector3 forward = cameraRotation.forward();
+	Vector3 up = cameraRotation.up();
+	Vector3 right = cameraRotation.right();
+
+	float halfHeight = tanf(cameraFOV * 0.5f / 180.0f * PI);
+	float farHalfHeight = far * halfHeight;
+	float nearHalfHeight = near * halfHeight;
+
+	float farHalfWidth = farHalfHeight * cameraAspect;
+	float nearHalfWidth = nearHalfHeight * cameraAspect;
+
+	Vector3 centerFar = cameraPosition + forward * far;
+	Vector3 centerNear = cameraPosition + forward * near;
+
+	Vector3 corners[8];
+	corners[0] = centerFar + up * farHalfHeight + right * farHalfWidth;
+	corners[1] = centerFar + up * farHalfHeight - right * farHalfWidth;
+	corners[2] = centerFar - up * farHalfHeight + right * farHalfWidth;
+	corners[3] = centerFar - up * farHalfHeight - right * farHalfWidth;
+	corners[4] = centerNear + up * nearHalfHeight + right * nearHalfWidth;
+	corners[5] = centerNear + up * nearHalfHeight - right * nearHalfWidth;
+	corners[6] = centerNear - up * nearHalfHeight + right * nearHalfWidth;
+	corners[7] = centerNear - up * nearHalfHeight - right * nearHalfWidth;
+
+	Quaternion lightRotation = Quaternion::LookAt(Vector3::Zero, directionalLightDirection);
+	Quaternion lightRotationInv = lightRotation.conjugated();
+
+	for (int i = 0; i < 8; i++)
+		corners[i] = lightRotationInv * corners[i];
+
+	Vector3 vmin = corners[0];
+	Vector3 vmax = corners[0];
+	for (int i = 0; i < 8; i++)
+	{
+		vmin = min(vmin, corners[i]);
+		vmax = max(vmax, corners[i]);
+	}
+
+	Vector3 center = 0.5f * (vmin + vmax);
+
+	Vector3 localMin = vmin - center;
+	Vector3 localMax = vmax - center;
+
+	Vector3 size = vmax - vmin;
+	Vector3 unitsPerTexel = size / (float)directionalLightShadowMapRes;
+	//localMin = Vector3.Floor(localMin / unitsPerTexel) * unitsPerTexel;
+	//localMax = Vector3.Floor(localMax / unitsPerTexel) * unitsPerTexel;
+
+	Vector3 boxPosition = lightRotation * center;
+
+	*lightProjection = Matrix::Orthographic(localMin.x, localMax.x, localMin.y, localMax.y, localMin.z, localMax.z);
+	*lightView = (Matrix::Translate(boxPosition) * Matrix::Rotate(lightRotation)).inverted();
+}
+
+static void CalculateCascadeMatrices(Vector3 position, Quaternion rotation, float fov, float aspect, Matrix projections[3], Matrix views[3])
+{
+	static float NEAR_PLANES[3] = { -40.0f, 30.0f, 80.0f };
+	static float FAR_PLANES[3] = { 40.0f, 100.0f, 200.0f };
+
+	for (int i = 0; i < 3; i++)
+	{
+		CalculateCascade(NEAR_PLANES[i], FAR_PLANES[i], &projections[i], &views[i]);
+		directionalLightShadowMapFar[i] = FAR_PLANES[i];
+	}
+}
+
+static void UpdateDirectionalShadows()
+{
+	if (renderDirectionalLight)
+	{
+		if (!directionalLightShadowsNeedUpdate)
+			return;
+
+		Matrix cascadeProjections[3];
+		Matrix cascadeViews[3];
+
+		CalculateCascadeMatrices(cameraPosition, cameraRotation, cameraFOV, cameraAspect, cascadeProjections, cascadeViews);
+
+		for (int i = 0; i < 3; i++)
+		{
+			Graphics_ResetState();
+
+			Graphics_SetRenderTarget(RenderPass::Shadow0 + i, directionalLightShadowMapRTs[i], directionalLightShadowMapRes, directionalLightShadowMapRes);
+			Graphics_ClearRenderTarget(RenderPass::Shadow0 + i, directionalLightShadowMapRTs[i].idx, false, true, 0, 1);
+
+			Matrix cascadePV = cascadeProjections[i] * cascadeViews[i];
+			Graphics_SetViewTransform(RenderPass::Shadow0 + i, cascadeProjections[i], cascadeViews[i]);
+			directionalLightShadowMapMatrix[i] = cascadePV;
+
+			for (int j = 0; j < meshDraws.size; j++)
+			{
+				MeshData* mesh = meshDraws[j].mesh;
+				Material* material = meshDraws[j].material;
+				AnimationState* animation = meshDraws[j].animation;
+
+				Matrix transform = meshDraws[j].transform;
+
+				SkeletonState* skeleton = nullptr;
+				if (animation && mesh->skeletonID != -1)
+					skeleton = animation->skeletons[mesh->skeletonID];
+
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i);
+			}
+		}
+	}
+}
+
+static void ShadowPass()
+{
+	UpdateDirectionalShadows();
+}
+
 static void AmbientOcclusionPass()
 {
 	if (!settings.ssaoEnabled)
@@ -1182,7 +1331,23 @@ static void RenderDirectionalLights()
 		Graphics_SetUniform(shader->getUniform("u_lightDirection", bgfx::UniformType::Vec4), &lightDirection);
 		Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4), &lightColor);
 
-		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
+		Vector4 farPlanes;
+		for (int i = 0; i < 3; i++)
+		{
+			char s_shadowMap[32];
+			sprintf(s_shadowMap, "s_shadowMap%d", i);
+			Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 4 + i, bgfx::getTexture(directionalLightShadowMapRTs[i]));
+
+			char u_toLightSpace[32];
+			sprintf(u_toLightSpace, "u_toLightSpace%d", i);
+			Graphics_SetUniform(shader->getUniform(u_toLightSpace, bgfx::UniformType::Mat4), &directionalLightShadowMapMatrix[i]);
+
+			farPlanes[i] = directionalLightShadowMapFar[i];
+		}
+
+		Graphics_SetUniform(shader->getUniform("u_params", bgfx::UniformType::Vec4), &farPlanes);
+
+		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 7, ssaoBlurRTTexture);
 
 		Vector4 u_cameraPosition(cameraPosition, 0);
 		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -1302,14 +1467,35 @@ static void RenderEmissive()
 
 static void DeferredPass()
 {
-	Graphics_SetRenderTarget(RenderPass::Deferred, forwardRT, width, height);
-	Graphics_ClearRenderTarget(RenderPass::Deferred, forwardRT, true, true, 0, 1);
+	Graphics_SetRenderTarget(RenderPass::Deferred, deferredRT, width, height);
+	Graphics_ClearRenderTarget(RenderPass::Deferred, deferredRT, true, true, 0, 1);
 
 	RenderPointLights();
 	RenderDirectionalLights();
 	RenderEnvironmentMaps();
 	RenderReflectionProbes();
 	RenderEmissive();
+}
+
+static void RenderForwardMeshes()
+{
+	for (int i = 0; i < forwardDraws.size; i++)
+	{
+		MeshData* mesh = forwardDraws[i].mesh;
+		Material* material = forwardDraws[i].material;
+		AnimationState* animation = forwardDraws[i].animation;
+
+		Matrix transform = forwardDraws[i].transform;
+
+		SkeletonState* skeleton = nullptr;
+		if (animation && mesh->skeletonID != -1)
+			skeleton = animation->skeletons[mesh->skeletonID];
+
+		Graphics_SetTexture(material->shader->getUniform("s_deferredFrame", bgfx::UniformType::Sampler), 0, deferredRTTextures[0]);
+		Graphics_SetTexture(material->shader->getUniform("s_deferredDepth", bgfx::UniformType::Sampler), 1, gbufferTextures[4]);
+
+		DrawMesh(mesh, transform, material, skeleton, RenderPass::Forward);
+	}
 }
 
 struct ParticleInstanceData
@@ -1439,6 +1625,7 @@ static void ForwardPass()
 	Graphics_SetRenderTarget(RenderPass::Forward, forwardRT, width, height);
 	Graphics_SetViewTransform(RenderPass::Forward, projection, view);
 
+	RenderForwardMeshes();
 	RenderParticles();
 	RenderSky();
 }
@@ -1513,8 +1700,14 @@ static void TonemappingPass(uint16_t target)
 	Graphics_SetTexture(shader->getUniform("s_depth", bgfx::UniformType::Sampler), 1, forwardRTTextures[1]);
 	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 2, bloomUpsampleRTTextures[0]);
 
-	Vector4 params(settings.bloomStrength, settings.bloomFalloff, 0, 0);
+	Vector4 params(settings.exposure, settings.bloomStrength, settings.bloomFalloff, 0);
 	Graphics_SetUniform(u_params, &params);
+
+	Vector4 fogData(settings.fogColor, settings.fogStrength);
+	Graphics_SetUniform(shader->getUniform("u_fogData", bgfx::UniformType::Vec4), &fogData);
+
+	Vector4 cameraFrustum(cameraNear, cameraFar, 0, 0);
+	Graphics_SetUniform(shader->getUniform("u_cameraFrustum", bgfx::UniformType::Vec4), &cameraFrustum);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }
@@ -1548,9 +1741,11 @@ RFAPI uint16_t Renderer3D_End()
 	CullParticles();
 
 	GeometryPass(); // render visible models here
+	ShadowPass();
 	AmbientOcclusionPass();
 	DeferredPass(); // render visible lights here
 
+	Graphics_Blit(RenderPass::Forward, forwardRTTextures[0], deferredRTTextures[0]);
 	Graphics_Blit(RenderPass::Forward, forwardRTTextures[1], gbufferTextures[4]);
 
 	ForwardPass(); // render visible particles here
@@ -1563,6 +1758,7 @@ RFAPI uint16_t Renderer3D_End()
 
 	meshDraws.clear();
 	occluderMeshes.clear();
+	forwardDraws.clear();
 	pointLightDraws.clear();
 	clothDraws.clear();
 	renderDirectionalLight = false;

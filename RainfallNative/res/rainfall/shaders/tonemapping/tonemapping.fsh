@@ -8,8 +8,16 @@ SAMPLER2D(s_depth, 1);
 SAMPLER2D(s_bloom, 2);
 
 uniform vec4 u_params;
-#define bloomStrength u_params[0]
-#define bloomFalloff u_params[1]
+#define exposure u_params[0]
+#define bloomStrength u_params[1]
+#define bloomFalloff u_params[2]
+
+uniform vec4 u_fogData;
+#define u_fogColor u_fogData.rgb
+#define u_fogStrength u_fogData.w
+uniform vec4 u_cameraFrustum;
+#define u_cameraNear u_cameraFrustum.x
+#define u_cameraFar u_cameraFrustum.y
 
 
 vec3 ThreshholdBloom(vec3 bloom)
@@ -46,7 +54,7 @@ vec3 ACESFilmic(vec3 color)
     return clamp((color * (a * color + b)) / (color * (c * color + d ) + e), 0.0, 1.0);
 }
 
-vec3 Tonemap(vec3 color, float exposure)
+vec3 Tonemap(vec3 color)
 {
 	//color = toFilmic(color);
 
@@ -91,8 +99,15 @@ vec3 BayerDither(vec3 color, vec2 uv)
 void main()
 {
 	vec3 hdr = texture2D(s_hdrBuffer, v_texcoord0).rgb;
+
+	float depth = texture2D(s_depth, v_texcoord0).r;
+	float distance = depthToDistance(depth, u_cameraNear, u_cameraFar);
+	float fogFactor = 1.0 - exp(-distance * u_fogStrength);
+	hdr = mix(hdr, u_fogColor, fogFactor);
+
 	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
-	vec3 tonemapped = Tonemap(hdr, 1.0);
+	hdr *= exposure;
+	vec3 tonemapped = Tonemap(hdr);
 	//tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);

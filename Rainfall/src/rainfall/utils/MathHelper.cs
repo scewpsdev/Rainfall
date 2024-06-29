@@ -89,6 +89,11 @@ namespace Rainfall
 			return Math.Max(Math.Min(i, max), min);
 		}
 
+		public static int Step(float edge, float x)
+		{
+			return x < edge ? 0 : 1;
+		}
+
 		public static float Smoothstep(float edge0, float edge1, float x)
 		{
 			float t = Clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);

@@ -140,7 +140,7 @@ vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, 
 }
 
 // Directional light indirect specular lighting
-vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distance, vec3 albedo, float roughness, float metallic, vec3 lightDirection, vec3 lightColor)
+vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distance, vec3 albedo, float roughness, float metallic, vec3 lightDirection, vec3 lightColor, sampler2DShadow shadowMap0, float shadowMapFar0, mat4 toLightSpace0, sampler2DShadow shadowMap1, float shadowMapFar1, mat4 toLightSpace1, sampler2DShadow shadowMap2, float shadowMapFar2, mat4 toLightSpace2, vec4 fragCoord)
 {
 	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 	vec3 fLambert = albedo / PI;
@@ -165,21 +165,19 @@ vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distanc
 	float ndotwi = max(dot(wi, normal), 0.0);
 
 	// Shadow mapping
-	/*
 	int cascadeID = distance < shadowMapFar0 ? 0 : distance < shadowMapFar1 ? 1 : 2;
-	float shadow = 0.0;
+	float shadow = 1;
 	switch (cascadeID)
 	{
 	case 0: shadow = CalculateDirectionalShadow(position, distance, shadowMap0, shadowMapFar0, toLightSpace0, 0.0, fragCoord); break;
 	case 1: shadow = CalculateDirectionalShadow(position, distance, shadowMap1, shadowMapFar1, toLightSpace1, 0.0, fragCoord); break;
-	default: shadow = CalculateDirectionalShadow(position, distance, shadowMap2, shadowMapFar2, toLightSpace2, 1.0, fragCoord); break;
+	case 2: shadow = CalculateDirectionalShadow(position, distance, shadowMap2, shadowMapFar2, toLightSpace2, 1.0, fragCoord); break;
 	//case 0: radiance = vec3(1, 0, 0); break;
 	//case 1: radiance = vec3(0, 1, 0); break;
-	//default: radiance = vec3(0, 0, 1); break;
+	//case 2: radiance = vec3(0, 0, 1); break;
 	}
-	*/
 	
-	vec3 s = specular + fLambert * kd * radiance * ndotwi;
+	vec3 s = specular * shadow + fLambert * kd * radiance * ndotwi * shadow;
 
 	return s;
 }

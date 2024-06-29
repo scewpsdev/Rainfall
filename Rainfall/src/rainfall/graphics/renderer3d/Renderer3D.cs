@@ -26,6 +26,11 @@ namespace Rainfall
 		public float bloomStrength = 0.2f;
 		public float bloomFalloff = 5.0f;
 
+		public float exposure = 1.0f;
+
+		public Vector3 fogColor = Vector3.One;
+		public float fogStrength = 0.0f;
+
 		internal byte physicsDebugDraw = 0;
 
 		public RendererSettings(int _)
@@ -102,6 +107,23 @@ namespace Rainfall
 			Renderer3D_DrawMesh(mesh, transform, material, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
+		public static unsafe void DrawMesh(Model model, int meshID, Material material, Matrix transform, Animator animator = null, bool isOccluder = false)
+		{
+			MeshData* mesh = model.getMeshData(meshID);
+			if (mesh->node != null)
+			{
+				if (animator != null && mesh->node->parent->armatureID != -1)
+				{
+					transform = transform * animator.getNodeTransform(model.skeleton.getNode(mesh->node->id));
+				}
+				else
+				{
+					transform = transform * mesh->node->transform;
+				}
+			}
+			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+		}
+
 		public static unsafe void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
 			for (int i = 0; i < model.meshCount; i++)
@@ -109,6 +131,14 @@ namespace Rainfall
 				DrawMesh(model, i, transform, animator, isOccluder);
 			}
 			//Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+		}
+
+		public static unsafe void DrawModel(Model model, Matrix transform, Material material, Animator animator = null, bool isOccluder = false)
+		{
+			for (int i = 0; i < model.meshCount; i++)
+			{
+				DrawMesh(model, i, material, transform, animator, isOccluder);
+			}
 		}
 
 		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)
@@ -349,7 +379,7 @@ namespace Rainfall
 
 		public static void DrawDirectionalLight(DirectionalLight light)
 		{
-			Renderer3D_DrawDirectionalLight(light.direction, light.color);
+			Renderer3D_DrawDirectionalLight(light.direction, light.color, (byte)(light.shadowMap.needsUpdate ? 1 : 0), light.shadowMap.resolution, light.shadowMap.renderTargets[0].handle, light.shadowMap.renderTargets[1].handle, light.shadowMap.renderTargets[2].handle);
 		}
 
 		public static void DrawWater(Vector3 position, float size)
@@ -379,14 +409,14 @@ namespace Rainfall
 			Renderer3D_Begin();
 		}
 
-		public static void SetCamera(Vector3 position, Quaternion rotation, Matrix projection, float near, float far)
+		public static void SetCamera(Vector3 position, Quaternion rotation, Matrix projection, float fov, float aspect, float near, float far)
 		{
 			cameraPosition = position;
 			cameraRotation = rotation;
 
 			pv = projection * Matrix.CreateTransform(position, rotation).inverted;
 
-			Renderer3D_SetCamera(position, rotation, projection, near, far);
+			Renderer3D_SetCamera(position, rotation, projection, fov, aspect, near, far);
 		}
 
 		public static ushort End()
@@ -420,7 +450,7 @@ namespace Rainfall
 		extern static void Renderer3D_SetSettings(RendererSettings settings);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float near, float far);
+		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float fov, float aspect, float near, float far);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation, byte isOccluder);
@@ -432,7 +462,7 @@ namespace Rainfall
 		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color);
+		extern static void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color, byte shadowsNeedUpdate, int shadowMapRes, ushort cascade0, ushort cascade1, ushort cascade2);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static unsafe void Renderer3D_DrawParticleSystem(ParticleSystemData* particleSystem);

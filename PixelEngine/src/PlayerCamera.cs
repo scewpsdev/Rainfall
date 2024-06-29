@@ -1,0 +1,51 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class PlayerCamera : Entity
+{
+	Player player;
+	Vector2 target;
+
+	float width, height;
+
+
+	public PlayerCamera(Player player)
+	{
+		this.player = player;
+	}
+
+	public override void update()
+	{
+		float x0 = 0.0f + 0.5f * width;
+		float x1 = GameState.instance.level.width - 0.5f * width;
+		float y0 = 0.0f + 0.5f * height;
+		float y1 = GameState.instance.level.height - 0.5f * height;
+
+		target = player.position + new Vector2(0, 2);
+		target.x = MathHelper.Clamp(target.x, x0, x1);
+		target.y = MathHelper.Clamp(target.y, y0, y1);
+
+		position = Vector2.Lerp(position, target, 5 * Time.deltaTime);
+		position.x = MathHelper.Clamp(position.x, x0, x1);
+		position.y = MathHelper.Clamp(position.y, y0, y1);
+	}
+
+	public override void render()
+	{
+		int scale = 4;
+		height = Display.height / (float)scale / 16.0f;
+
+		float aspect = Display.aspectRatio;
+		width = aspect * height;
+		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
+
+		Matrix view = getTransform().inverted;
+
+		Renderer.SetCamera(projection, view, -0.5f * width, 0.5f * width, -0.5f * height, 0.5f * height);
+	}
+}

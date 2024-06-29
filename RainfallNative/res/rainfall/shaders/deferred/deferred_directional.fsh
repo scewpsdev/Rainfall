@@ -13,7 +13,18 @@ SAMPLER2D(s_gbuffer3, 3);
 uniform vec4 u_lightDirection;
 uniform vec4 u_lightColor;
 
-SAMPLER2D(s_ao, 4);
+SAMPLER2DSHADOW(s_shadowMap0, 4);
+SAMPLER2DSHADOW(s_shadowMap1, 5);
+SAMPLER2DSHADOW(s_shadowMap2, 6);
+uniform vec4 u_params;
+#define u_shadowMapFar0 u_params[0]
+#define u_shadowMapFar1 u_params[1]
+#define u_shadowMapFar2 u_params[2]
+uniform mat4 u_toLightSpace0;
+uniform mat4 u_toLightSpace1;
+uniform mat4 u_toLightSpace2;
+
+SAMPLER2D(s_ao, 7);
 
 uniform vec4 u_cameraPosition;
 
@@ -38,7 +49,7 @@ void main()
 	float distance = length(toCamera);
 	vec3 view = toCamera / distance;
 
-	vec3 lightS = RenderDirectionalLight(position, normal, view, distance, albedo, roughness, metallic, u_lightDirection.xyz, u_lightColor.rgb);
+	vec3 lightS = RenderDirectionalLight(position, normal, view, distance, albedo, roughness, metallic, u_lightDirection.xyz, u_lightColor.rgb, s_shadowMap0, u_shadowMapFar0, u_toLightSpace0, s_shadowMap1, u_shadowMapFar1, u_toLightSpace1, s_shadowMap2, u_shadowMapFar2, u_toLightSpace2, gl_FragCoord);
 
 	float ao = texture2D(s_ao, v_texcoord0).r;
 	lightS *= ao;

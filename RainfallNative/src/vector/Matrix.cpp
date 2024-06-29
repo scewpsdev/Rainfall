@@ -219,11 +219,11 @@ Matrix Matrix::Orthographic(float left, float right, float bottom, float top, fl
 
 	matrix[0][0] = 2.0f / (right - left);
 	matrix[1][1] = 2.0f / (top - bottom);
-	matrix[2][2] = -2.0f / (far - near);
+	matrix[2][2] = -1.0f / (far - near);
 
 	matrix[3][0] = -(right + left) / (right - left);
 	matrix[3][1] = -(top + bottom) / (top - bottom);
-	matrix[3][2] = -(far + near) / (far - near);
+	matrix[3][2] = (far + near) / (far - near) + 0.5f;
 
 	return matrix;
 }
