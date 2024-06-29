@@ -51,7 +51,7 @@ vec4 SampleTextureByID(float fid, vec2 texcoord)
 void main()
 {
 	float textureID = v_texcoord0.z;
-	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SampleTextureByID(textureID, v_texcoord0.xy), textureID > -0.5 ? 1.0 : 0.0);
+	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SRGBToLinear(SampleTextureByID(textureID, v_texcoord0.xy)), textureID > -0.5 ? 1.0 : 0.0);
 	textureColor.rgb *= v_color0.rgb;
 	
 	if (textureColor.a < 0.01)

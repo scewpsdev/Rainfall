@@ -22,7 +22,7 @@ namespace Rainfall
 			return root + "/" + path;
 		}
 
-		public static void CreateEntityFromData(string path, Entity entity)
+		public static List<SceneFormat.EntityData> LoadEntities(string path)
 		{
 			List<SceneFormat.EntityData> entities;
 			if (entityDataCache.ContainsKey(path))
@@ -37,9 +37,14 @@ namespace Rainfall
 
 				entityDataCache.Add(path, entities);
 			}
+			return entities;
+		}
+
+		public static void CreateEntityFromData(string path, Entity entity)
+		{
+			List<SceneFormat.EntityData> entities = LoadEntities(path);
 
 			Debug.Assert(entities.Count == 1);
-
 			SceneFormat.EntityData entityData = entities[0];
 
 			CreateEntityFromData(entityData, path, entity);

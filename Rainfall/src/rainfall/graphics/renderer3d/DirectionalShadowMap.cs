@@ -20,7 +20,7 @@ public class DirectionalShadowMap
 	public Matrix[] cascadeProjections = new Matrix[NUM_SHADOW_CASCADES];
 
 	DirectionalLight light;
-	int resolution;
+	public readonly int resolution;
 
 	internal bool needsUpdate = true;
 

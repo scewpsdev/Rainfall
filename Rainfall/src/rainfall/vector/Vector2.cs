@@ -79,6 +79,17 @@ namespace Rainfall
 			get { return MathF.Atan2(y, x); }
 		}
 
+		public float this[int index]
+		{
+			get { return index == 0 ? x : y; }
+			set
+			{
+				if (index == 0)
+					x = value;
+				else y = value;
+			}
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (obj is Vector2)

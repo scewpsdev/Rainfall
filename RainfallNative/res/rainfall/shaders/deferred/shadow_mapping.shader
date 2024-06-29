@@ -64,6 +64,7 @@ float CalculateDirectionalShadow(vec3 position, float distance, sampler2DShadow 
 	*/
 
 	float result = 0.0;
+
 	for (int i = 0; i < NUM_SAMPLES; i++)
 	{
 		//int idx = int(hash2(fragCoord.xy) + i) % 16;

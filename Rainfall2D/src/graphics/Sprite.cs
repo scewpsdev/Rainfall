@@ -11,38 +11,48 @@ namespace Rainfall
 	{
 		public SpriteSheet spriteSheet;
 		public Vector2i position;
+		public Vector2i size;
 
 
 		public Sprite(SpriteSheet spriteSheet, int x, int y)
 		{
 			this.spriteSheet = spriteSheet;
+			position = new Vector2i(x, y) * spriteSheet.spriteSize;
+			size = spriteSheet.spriteSize;
+		}
+
+		public Sprite(Texture texture, int x, int y, int width, int height)
+		{
+			spriteSheet = new SpriteSheet(texture, 1, 1);
 			position = new Vector2i(x, y);
+			size = new Vector2i(width, height);
 		}
 
 		public Sprite(Texture texture)
 		{
 			spriteSheet = new SpriteSheet(texture, texture.width, texture.height);
 			position = new Vector2i(0, 0);
+			size = new Vector2i(texture.width, texture.height);
 		}
 
 		public int width
 		{
-			get => spriteSheet.spriteSize.x;
+			get => size.x;
 		}
 
 		public int height
 		{
-			get => spriteSheet.spriteSize.y;
+			get => size.y;
 		}
 
 		internal Vector2 uv0
 		{
-			get => new Vector2(position.x * spriteSheet.spriteSize.x, position.y * spriteSheet.spriteSize.y) / new Vector2(spriteSheet.texture.width, spriteSheet.texture.height);
+			get => new Vector2(position.x, position.y) / new Vector2(spriteSheet.texture.width, spriteSheet.texture.height);
 		}
 
 		internal Vector2 uv1
 		{
-			get => new Vector2((position.x + 1) * spriteSheet.spriteSize.x, (position.y + 1) * spriteSheet.spriteSize.y) / new Vector2(spriteSheet.texture.width, spriteSheet.texture.height);
+			get => new Vector2(position.x + size.x, position.y + size.y) / new Vector2(spriteSheet.texture.width, spriteSheet.texture.height);
 		}
 	}
 }

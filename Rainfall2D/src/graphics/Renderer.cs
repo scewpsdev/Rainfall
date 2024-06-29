@@ -138,28 +138,28 @@ public static class Renderer
 			}
 		}
 
-		bloomDownsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vs.shader", "res/shaders/bloom/bloom_downsample.fs.shader");
-		bloomUpsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vs.shader", "res/shaders/bloom/bloom_upsample.fs.shader");
-		compositeShader = Resource.GetShader("res/shaders/composite/composite.vs.shader", "res/shaders/composite/composite.fs.shader");
+		bloomDownsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vsh", "res/shaders/bloom/bloom_downsample.fsh");
+		bloomUpsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vsh", "res/shaders/bloom/bloom_upsample.fsh");
+		compositeShader = Resource.GetShader("res/shaders/composite/composite.vsh", "res/shaders/composite/composite.fsh");
 
 		quad = graphics.createVertexBuffer(graphics.createVideoMemory(new float[] { -3, -1, 1, -1, 1, 3 }), new VertexElement[]
 		{
 			new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector2, false)
 		});
 
-		lightingShader = Resource.GetShader("res/shaders/lighting/lighting.vs.shader", "res/shaders/lighting/lighting.fs.shader");
+		lightingShader = Resource.GetShader("res/shaders/lighting/lighting.vsh", "res/shaders/lighting/lighting.fsh");
 
 		spriteBatch = new SpriteBatch(graphics);
-		spriteShader = Resource.GetShader("res/shaders/sprite/sprite.vs.shader", "res/shaders/sprite/sprite.fs.shader");
+		spriteShader = Resource.GetShader("res/shaders/sprite/sprite.vsh", "res/shaders/sprite/sprite.fsh");
 
 		uiBatch = new SpriteBatch(graphics);
-		uiShader = Resource.GetShader("res/shaders/ui/ui.vs.shader", "res/shaders/ui/ui.fs.shader");
+		uiShader = Resource.GetShader("res/shaders/ui/ui.vsh", "res/shaders/ui/ui.fsh");
 
 		textBatch = new SpriteBatch(graphics);
-		textShader = Resource.GetShader("res/shaders/text/text.vs.shader", "res/shaders/text/text.fs.shader");
+		textShader = Resource.GetShader("res/shaders/text/text.vsh", "res/shaders/text/text.fsh");
 
 		lineRenderer = new LineRenderer();
-		lineShader = Resource.GetShader("res/shaders/line/line.vs.shader", "res/shaders/line/line.fs.shader");
+		lineShader = Resource.GetShader("res/shaders/line/line.vsh", "res/shaders/line/line.fsh");
 
 		fontData = Resource.GetFontData("res/fonts/dpcomic.ttf");
 		font = fontData.createFont(14, false);
@@ -210,19 +210,19 @@ public static class Renderer
 
 	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
-		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
 	public static void DrawSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
-		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
 	public static void DrawSprite(float width, float height, Matrix transform, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
-		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
 		draws.Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
@@ -300,7 +300,7 @@ public static class Renderer
 
 	public static void DrawUISprite(int x, int y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
-		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color });
 	}
 

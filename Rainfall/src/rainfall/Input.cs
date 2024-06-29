@@ -624,6 +624,14 @@ namespace Rainfall
 			return !mouseCurrent.IsButtonDown(button) && mouseLast.IsButtonDown(button);
 		}
 
+		public static void ConsumeKeyEvent(KeyCode key)
+		{
+			if (IsKeyPressed(key))
+				keysLast.InternalSetKey(key);
+			else if (IsKeyReleased(key))
+				keysLast.InternalClearKey(key);
+		}
+
 		public static bool mouseLocked
 		{
 			get { return _mouseLocked; }
