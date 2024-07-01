@@ -50,7 +50,7 @@ public class GameState : State
 		}
 		cachedLevels.Clear();
 
-		currentSeed = 123456789; // Hash.hash(Time.timestamp);
+		currentSeed = 1234567; // Hash.hash(Time.timestamp);
 
 		level = new Level();
 		level.addEntity(new ItemEntity(new Sword()), new Vector2(13, 10));

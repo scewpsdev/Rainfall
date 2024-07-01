@@ -21,6 +21,15 @@ public class PlayerCamera : Entity
 
 	public override void update()
 	{
+		height = 1080 / 4.0f / 16.0f;
+
+		// pixel perfect correction
+		int scale = (int)MathF.Ceiling(Display.height / height / 16.0f);
+		height = Display.height / (float)scale / 16.0f;
+
+		float aspect = Display.aspectRatio;
+		width = aspect * height;
+
 		float x0 = 0.0f + 0.5f * width;
 		float x1 = GameState.instance.level.width - 0.5f * width;
 		float y0 = 0.0f + 0.5f * height;
@@ -37,13 +46,7 @@ public class PlayerCamera : Entity
 
 	public override void render()
 	{
-		int scale = 4;
-		height = Display.height / (float)scale / 16.0f;
-
-		float aspect = Display.aspectRatio;
-		width = aspect * height;
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
-
 		Matrix view = getTransform().inverted;
 
 		Renderer.SetCamera(projection, view, -0.5f * width, 0.5f * width, -0.5f * height, 0.5f * height);

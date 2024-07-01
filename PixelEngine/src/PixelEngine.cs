@@ -164,12 +164,12 @@ public class PixelEngine : Game
 		string config = "Release";
 #endif
 
-		CompileFolder("D:\\Dev\\" + ASSEMBLY_NAME, "D:\\Dev\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
-		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
-		CompileFolder("D:\\Dev\\Rainfall\\Rainfall2D", "D:\\Dev\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\Rainfall2D", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
 
-		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
-		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 
 		LaunchParams launchParams = new LaunchParams(args);
 #if DEBUG

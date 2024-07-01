@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-public class Snake : Mob
+public class Spider : Mob
 {
-	public Snake()
+	public Spider()
 	{
-		sprite = new Sprite(Resource.GetTexture("res/sprites/snake.png", false));
+		sprite = new Sprite(Resource.GetTexture("res/sprites/spider.png", false));
 
 		ai = new WanderAI();
 	}

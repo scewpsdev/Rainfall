@@ -259,7 +259,7 @@ public class LevelGenerator
 			{
 				if (!grid[x + y * numRoomsX])
 				{
-					generateRoom(x * roomWidth, y * roomWidth, roomWidth, roomHeight, other, otherInfo, level);
+					generateRoom(x * roomWidth, y * roomHeight, roomWidth, roomHeight, other, otherInfo, level);
 				}
 			}
 		}
@@ -267,7 +267,7 @@ public class LevelGenerator
 		if (lastLevel != null)
 		{
 			RoomInfo startingRoom = rooms[0];
-			for (int y = startingRoom.position.y * roomHeight; y < (startingRoom.position.y + 1) * roomHeight; y++)
+			for (int y = startingRoom.position.y * roomHeight + 1; y < (startingRoom.position.y + 1) * roomHeight; y++)
 			{
 				int x = startingRoom.position.x * roomWidth + roomWidth / 2;
 				if (level.getTile(x, y) == 0)
@@ -276,6 +276,10 @@ public class LevelGenerator
 					level.entrance = new Door(lastLevel, lastLevel.exit);
 					lastLevel.exit.otherDoor = level.entrance;
 					level.addEntity(level.entrance, entrancePosition);
+
+					if (level.getTile(x, y - 1) == 0)
+						level.setTile(x, y - 1, 2);
+
 					break;
 				}
 			}
@@ -326,7 +330,33 @@ public class LevelGenerator
 						float gemChance = up != null ? 0.04f : 0.01f;
 						if (random.NextSingle() < gemChance)
 						{
-							level.addEntity(new Gem(100), new Vector2(x + 0.5f, y + 0.5f));
+							level.addEntity(new Gem(1), new Vector2(x + 0.5f, y + 0.5f));
+						}
+					}
+
+					if (down != null && up == null)
+					{
+						TileType upUp = TileType.Get(level.getTile(x, y + 2));
+						if (upUp == null)
+						{
+							float springChance = 0.02f;
+							if (random.NextSingle() < springChance)
+							{
+								level.addEntity(new Spring(), new Vector2(x + 0.5f, y));
+							}
+						}
+					}
+
+					if (down == null && up == null)
+					{
+						TileType downDown = TileType.Get(level.getTile(x, y - 2));
+						if (downDown != null)
+						{
+							float torchChance = 0.03f;
+							if (random.NextSingle() < torchChance)
+							{
+								level.addEntity(new Torch(), new Vector2(x + 0.5f, y + 0.5f));
+							}
 						}
 					}
 
@@ -345,17 +375,26 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null && up == null && (left == null || right == null))
+					if (down != null && up == null && (left == null && right == null))
 					{
 						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
 						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
 
 						if (downLeft != null || downRight != null)
 						{
-							float enemyChance = 0.02f;
+							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)
 							{
-								level.addEntity(new Snake(), new Vector2(x + 0.5f, y));
+								float enemyType = random.NextSingle();
+
+								Mob enemy;
+
+								if (enemyType > 0.5f)
+									enemy = new Snake();
+								else
+									enemy = new Spider();
+
+								level.addEntity(enemy, new Vector2(x + 0.5f, y));
 							}
 						}
 					}

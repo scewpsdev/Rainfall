@@ -16,8 +16,11 @@ public abstract class Item
 	public string name;
 	public string displayName = "???";
 
-	public int attackDamage = 0;
+	public int attackDamage = 1;
 	public float attackRange = 1;
+
+	public bool projectileItem = false;
+	public bool breakOnHit = true;
 
 	public Sprite sprite = null;
 	public Sprite ingameSprite = null;

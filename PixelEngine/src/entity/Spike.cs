@@ -24,7 +24,7 @@ public class Spike : Entity
 			if (hit.entity != null && hit.entity != this && hit.entity is Hittable)
 			{
 				Hittable hittable = hit.entity as Hittable;
-				if (hit.entity.velocity.y < 0 && hit.entity.position.y - hit.entity.velocity.y * Time.deltaTime > position.y + 1)
+				if (hit.entity.velocity.y < 0 && hit.entity.position.y - hit.entity.velocity.y * Time.deltaTime > position.y + 0.5f)
 					hittable.hit(1000, this);
 			}
 		}

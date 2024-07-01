@@ -23,7 +23,9 @@ public class AttackAction : EntityAction
 	{
 		base.update(player);
 
-		HitData hit = GameState.instance.level.raycast(player.position + new Vector2(0.0f, 0.5f), new Vector2(player.direction, 0), weapon.attackRange, Entity.FILTER_MOB);
+		//HitData hit = GameState.instance.level.raycast(player.position + new Vector2(0.0f, 0.5f), new Vector2(player.direction, 0), weapon.attackRange, Entity.FILTER_MOB);
+		HitData hit = GameState.instance.level.overlap(player.position + new Vector2(0.5f * weapon.attackRange * player.direction - 0.5f * weapon.attackRange, 0.25f),
+			player.position + new Vector2(0.5f * weapon.attackRange * player.direction + 0.5f * weapon.attackRange, 0.75f), Entity.FILTER_MOB);
 		if (hit != null)
 		{
 			if (hit.entity != null && hit.entity != player && hit.entity is Hittable)

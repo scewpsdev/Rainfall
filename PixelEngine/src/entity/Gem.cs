@@ -17,7 +17,7 @@ public class Gem : Entity
 	{
 		this.value = value;
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/entity.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Item.tileset, 3, 0);
 	}
 
 	public override void update()

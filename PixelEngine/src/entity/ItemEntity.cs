@@ -4,24 +4,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 
 public class ItemEntity : Entity, Interactable
 {
-	float gravity = -30;
-	float bounciness = 0.5f;
+	public float gravity = -30;
+	public float bounciness = 0.5f;
 
-	public Vector2 velocity = Vector2.Zero;
-	int ricochets = 0;
+	public int ricochets = 0;
+	int damage;
+
+	float rotationVelocity = 0;
+
+	Entity thrower = null;
+	long throwTime;
 
 	public Item item;
 
 
-	public ItemEntity(Item item)
+	public ItemEntity(Item item, Entity thrower = null, Vector2 velocity = default)
 	{
 		this.item = item;
 
 		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+		filterGroup = FILTER_ITEM;
+
+		damage = item.attackDamage;
+
+		this.thrower = thrower;
+		this.velocity = velocity;
+		throwTime = Time.currentTime;
 	}
 
 	public bool canInteract(Player player)
@@ -45,6 +58,28 @@ public class ItemEntity : Entity, Interactable
 		return KeyCode.X;
 	}
 
+	void onHit(bool x, bool y)
+	{
+		if (!x && !y)
+			return;
+
+		if (x)
+		{
+			velocity.x = -velocity.x * bounciness;
+		}
+		else if (y)
+		{
+			velocity.y = -velocity.y * bounciness;
+			velocity.x *= bounciness;
+		}
+
+		ricochets++;
+		if (damage > 0)
+			damage--;
+
+		rotationVelocity = MathHelper.RandomFloat(-1, 1) * 20;
+	}
+
 	public override void update()
 	{
 		velocity.y += gravity * Time.deltaTime;
@@ -53,31 +88,30 @@ public class ItemEntity : Entity, Interactable
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement);
 		position += displacement;
 
-		if ((collisionFlags & Level.COLLISION_X) != 0)
-		{
-			velocity.x = -velocity.x * bounciness;
-			ricochets++;
-		}
-		if ((collisionFlags & Level.COLLISION_Y) != 0)
-		{
-			velocity.y = -velocity.y * bounciness;
-			velocity.x *= bounciness;
-			ricochets++;
-		}
+		onHit((collisionFlags & Level.COLLISION_X) != 0, (collisionFlags & Level.COLLISION_Y) != 0);
 
-		if (ricochets == 0)
+		if (damage > 0)
 		{
-			HitData overlap = GameState.instance.level.overlap(position + collider.min, position + collider.max, FILTER_MOB);
-			if (overlap != null)
+			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, 0.5f, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
+			if (hit != null)
 			{
-				if (overlap.entity != null && overlap.entity != this)
+				bool skipHit = hit.entity == thrower && (Time.currentTime - throwTime) / 1e9f < 0.1f;
+
+				if (!skipHit)
 				{
-					if (overlap.entity is Mob)
+					if (hit.entity != null && hit.entity != this)
 					{
-						Mob mob = overlap.entity as Mob;
-						mob.hit(1, this);
+						if (hit.entity is Hittable)
+						{
+							Hittable hittable = hit.entity as Hittable;
+							hittable.hit(damage, this);
+
+							onHit(MathF.Abs(hit.normal.x) > 0.5f, MathF.Abs(hit.normal.y) > 0.5f);
+						}
 					}
-					remove();
+
+					if (item.breakOnHit && velocity.lengthSquared > 1)
+						remove();
 				}
 			}
 		}
@@ -85,6 +119,36 @@ public class ItemEntity : Entity, Interactable
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, LAYER_DEFAULT_OVERLAY, 1, 1, 0, item.sprite, false, 0xFFFFFFFF);
+		bool flipped = false;
+		if (item.projectileItem && ricochets == 0)
+		{
+			if (velocity.lengthSquared > 0.1f)
+			{
+				rotation = MathF.Atan2(velocity.y, velocity.x);
+				//flipped = velocity.x < 0;
+			}
+		}
+		else if (item.projectileItem && ricochets > 0)
+		{
+			// Tumble
+			if (velocity.lengthSquared > 0.1f)
+			{
+				rotation += rotationVelocity * Time.deltaTime;
+				flipped = false;
+			}
+			else
+			{
+				if (MathF.Abs(rotation) < 0.5f * MathF.PI)
+					rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
+				else
+					rotation = MathHelper.LerpAngle(rotation, MathF.PI, 5 * Time.deltaTime);
+			}
+		}
+		else
+		{
+			rotation = 0.0f;
+			flipped = false;
+		}
+		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, LAYER_DEFAULT_OVERLAY, 1, 1, rotation, item.sprite, flipped, 0xFFFFFFFF);
 	}
 }

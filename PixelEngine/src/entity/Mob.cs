@@ -35,7 +35,7 @@ public abstract class Mob : Entity, Hittable
 
 	public int damage = 1;
 
-	AI ai;
+	protected AI ai;
 
 	Interactable interactableInFocus = null;
 	Climbable currentLadder = null;
@@ -47,8 +47,6 @@ public abstract class Mob : Entity, Hittable
 	{
 		collider = new FloatRect(-0.3f, 0, 0.6f, 0.8f);
 		filterGroup = FILTER_MOB;
-
-		ai = new WanderAI();
 	}
 
 	public override void destroy()
@@ -58,7 +56,7 @@ public abstract class Mob : Entity, Hittable
 	public void hit(int damage, Entity by)
 	{
 		health -= damage;
-		if (health == 0)
+		if (health <= 0)
 			remove();
 	}
 

@@ -1,0 +1,3 @@
+[X] bouncy things
+[X] torches
+[ ] pneumatic spikes

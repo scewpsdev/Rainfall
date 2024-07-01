@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 public class ArrowTrap : Entity
 {
+	const float SPEED = 20;
 	const float RANGE = 8;
 
 
@@ -27,7 +28,7 @@ public class ArrowTrap : Entity
 	{
 		if (hasAmmo)
 		{
-			HitData hit = GameState.instance.level.raycast(position + new Vector2(0.5f) + direction, direction, RANGE, FILTER_PLAYER | FILTER_MOB);
+			HitData hit = GameState.instance.level.raycast(position + new Vector2(0.5f) + direction, direction, RANGE, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM);
 			if (hit != null)
 			{
 				if (hit.entity != null)
@@ -38,7 +39,8 @@ public class ArrowTrap : Entity
 
 	void shoot()
 	{
-		GameState.instance.level.addEntity(new Arrow(direction + new Vector2(0.0f, 0.1f)), position + new Vector2(0.5f) + direction);
+		Vector2 velocity = (direction + new Vector2(0, 0.1f)) * SPEED;
+		GameState.instance.level.addEntity(new ItemEntity(new Arrow(), this, velocity), position + new Vector2(0.5f) + direction);
 		hasAmmo = false;
 	}
 

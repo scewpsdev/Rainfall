@@ -11,6 +11,7 @@ public class Entity
 	public const uint FILTER_DEFAULT = 1 << 0;
 	public const uint FILTER_PLAYER = 1 << 1;
 	public const uint FILTER_MOB = 1 << 2;
+	public const uint FILTER_ITEM = 1 << 3;
 
 	public const float LAYER_DEFAULT = 0.0f;
 	public const float LAYER_DEFAULT_OVERLAY = -0.01f;
