@@ -16,10 +16,10 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 
 
-	float speed = 6;
-	float climbingSpeed = 6;
-	float jumpPower = 12;
-	float gravity = -30;
+	float speed = 5;
+	float climbingSpeed = 3;
+	float jumpPower = 10;
+	float gravity = -22;
 
 	public int direction = 1;
 	float currentSpeed;
@@ -68,10 +68,10 @@ public class Player : Entity, Hittable
 
 		animator.addAnimation("idle", 0, 0, 16, 0, 4, 5, true);
 		animator.addAnimation("run", 4 * 16, 0, 16, 0, 4, 10, true);
-		animator.addAnimation("jump", 0, 0, 16, 0, 4, 12, true);
-		animator.addAnimation("fall", 0, 0, 16, 0, 4, 12, true);
-		animator.addAnimation("climb", 0, 0, 16, 0, 4, 12, true);
-		animator.addAnimation("dead", 0, 0, 16, 0, 4, 12, true);
+		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 4, true);
+		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
 
 		hud = new HUD(this);
 	}
@@ -82,15 +82,32 @@ public class Player : Entity, Hittable
 
 	public bool pickupObject(ItemEntity obj)
 	{
+		if (handItem != null)
+			throwItem(handItem, true);
 		handItem = obj.item;
 		return true;
 	}
 
 	public void throwItem(Item item, bool shortThrow = false)
 	{
-		ItemEntity obj = new ItemEntity(item);
-		obj.velocity = velocity + new Vector2(direction, 1) * (shortThrow ? new Vector2(0.2f, 0) : new Vector2(1, 0.25f)) * 14;
-		GameState.instance.level.addEntity(obj, position + new Vector2(0, shortThrow ? 0.25f : 0.5f));
+		Vector2 itemVelocity = velocity;
+		if (Input.IsKeyDown(KeyCode.Up))
+		{
+			itemVelocity += new Vector2(direction * 0.05f, 1.0f) * 14;
+		}
+		else if (Input.IsKeyDown(KeyCode.Down))
+		{
+			itemVelocity += new Vector2(direction * 0.05f, -1.0f) * 14;
+			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
+		}
+		else
+		{
+			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.1f) : new Vector2(1, 0.25f)) * 14;
+		}
+		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.5f);
+		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
+		GameState.instance.level.addEntity(obj, throwOrigin);
+
 		if (item == handItem)
 			handItem = null;
 	}
@@ -105,7 +122,7 @@ public class Player : Entity, Hittable
 			Vector2 enemyPosition = by.position;
 			if (by.collider != null)
 				enemyPosition += 0.5f * (by.collider.max + by.collider.min);
-			Vector2 knockback = (position - enemyPosition).normalized * 10.0f;
+			Vector2 knockback = (position - enemyPosition).normalized * 4.0f;
 			addImpulse(knockback);
 
 			if (health <= 0)
@@ -120,7 +137,8 @@ public class Player : Entity, Hittable
 
 	public void addImpulse(Vector2 impulse)
 	{
-		impulseVelocity += impulse;
+		impulseVelocity.x += impulse.x;
+		velocity.y += impulse.y;
 	}
 
 	void onDeath()
@@ -224,13 +242,14 @@ public class Player : Entity, Hittable
 			if (!isAlive || !Input.IsKeyDown(KeyCode.C))
 			{
 				gravityMultiplier = 2;
-				velocity.y = MathF.Min(velocity.y, 0);
+				if (Input.IsKeyReleased(KeyCode.C))
+					velocity.y = MathF.Min(velocity.y, 0);
 			}
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
-			velocity.y = MathF.Max(velocity.y, -20);
+			velocity.y = MathF.Max(velocity.y, -15);
 
 			velocity += impulseVelocity;
-			impulseVelocity = Vector2.Lerp(impulseVelocity, Vector2.Zero, 5.0f * Time.deltaTime);
+			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 10 * Time.deltaTime);
 
 			if (velocity.y < 0 && lastLadderJumpedFrom != null)
 				lastLadderJumpedFrom = null;
@@ -246,10 +265,12 @@ public class Player : Entity, Hittable
 		{
 			velocity.y = 0;
 			impulseVelocity.y = 0;
+			impulseVelocity.x *= 0.5f;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{
 			impulseVelocity.x = 0;
+			impulseVelocity.y *= 0.5f;
 		}
 
 		position += displacement;

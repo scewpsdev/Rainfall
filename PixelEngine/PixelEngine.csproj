@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Rainfall\Rainfall2D\Rainfall2D.csproj" />
-    <ProjectReference Include="..\Rainfall\Rainfall\Rainfall.csproj" />
+    <Folder Include="res\level\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="res\level\" />
+    <ProjectReference Include="..\Rainfall2D\Rainfall2D.csproj" />
+    <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
   </ItemGroup>
 
 </Project>

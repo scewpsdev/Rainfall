@@ -28,7 +28,7 @@ public class WanderAI : AI
 		{
 			HitData forwardDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -0.5f));
 			HitData forwardDownDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -1.5f));
-			if (forwardDownTile == null && forwardDownDownTile == null)
+			if (forwardDownTile == null /*&& forwardDownDownTile == null*/)
 				walkDirection *= -1;
 		}
 	}
