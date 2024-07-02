@@ -300,7 +300,7 @@ public class Player : Entity, Hittable
 		Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
 		if (currentLadder == null)
 		{
-			if (hoveredLadder != null && Input.IsKeyDown(KeyCode.Up) && lastLadderJumpedFrom == null)
+			if (hoveredLadder != null && (Input.IsKeyDown(KeyCode.Up) || Input.IsKeyDown(KeyCode.Down)) && lastLadderJumpedFrom == null)
 			{
 				currentLadder = hoveredLadder;
 				isClimbing = true;

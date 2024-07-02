@@ -21,7 +21,7 @@ public class Spring : Entity
 
 	public override void update()
 	{
-		HitData hit = GameState.instance.level.overlap(position + new Vector2(-0.5f, 0), position + new Vector2(0.5f, 1), FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
+		HitData hit = GameState.instance.level.overlap(position + new Vector2(-0.5f, 0), position + new Vector2(0.5f, 0.5f), FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
 		if (hit != null && hit.entity != null && hit.entity != this)
 		{
 			if (hit.entity.velocity.y < -0.1f)
