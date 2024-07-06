@@ -12,10 +12,10 @@ public abstract class Mob : Entity, Hittable
 	const float DUCKED_MULTIPLIER = 0.8f;
 
 
-	float speed = 4;
-	float climbingSpeed = 4;
-	float jumpPower = 12;
-	float gravity = -30;
+	public float speed = 4;
+	public float climbingSpeed = 4;
+	public float jumpPower = 12;
+	public float gravity = -30;
 
 	public bool inputLeft, inputRight, inputUp, inputDown;
 	public bool inputSprint, inputDuck, inputJump;
@@ -45,7 +45,6 @@ public abstract class Mob : Entity, Hittable
 
 	public Mob()
 	{
-		collider = new FloatRect(-0.3f, 0, 0.6f, 0.8f);
 		filterGroup = FILTER_MOB;
 	}
 
@@ -131,7 +130,7 @@ public abstract class Mob : Entity, Hittable
 
 		Vector2 displacement = velocity * Time.deltaTime;
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, inputDown);
-		if (velocity.y < 0 && (collisionFlags & Level.COLLISION_Y) != 0)
+		if ((collisionFlags & Level.COLLISION_Y) != 0)
 			velocity.y = 0;
 		position += displacement;
 		distanceWalked += MathF.Abs(displacement.x);

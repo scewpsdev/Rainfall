@@ -13,6 +13,7 @@ public class ItemEntity : Entity, Interactable
 	public float bounciness = 0.5f;
 
 	public int ricochets = 0;
+	int pierces = 0;
 	int damage;
 
 	float rotationVelocity = 0;
@@ -76,8 +77,8 @@ public class ItemEntity : Entity, Interactable
 		ricochets++;
 		if (damage > 0)
 			damage--;
-
-		rotationVelocity = MathHelper.RandomFloat(-1, 1) * 20;
+		if (damage == 0)
+			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 20;
 	}
 
 	public override void update()
@@ -106,7 +107,13 @@ public class ItemEntity : Entity, Interactable
 							Hittable hittable = hit.entity as Hittable;
 							hittable.hit(damage, this);
 
-							onHit(MathF.Abs(hit.normal.x) > 0.5f, MathF.Abs(hit.normal.y) > 0.5f);
+							if (pierces < item.maxPierces)
+								pierces++;
+							else
+							{
+								damage = 0;
+								onHit(MathF.Abs(hit.normal.x) > 0.5f, MathF.Abs(hit.normal.y) > 0.5f);
+							}
 						}
 					}
 
@@ -120,7 +127,7 @@ public class ItemEntity : Entity, Interactable
 	public override void render()
 	{
 		bool flipped = false;
-		if (item.projectileItem && ricochets == 0)
+		if (item.projectileItem && damage > 0)
 		{
 			if (velocity.lengthSquared > 0.1f)
 			{
@@ -128,7 +135,7 @@ public class ItemEntity : Entity, Interactable
 				//flipped = velocity.x < 0;
 			}
 		}
-		else if (item.projectileItem && ricochets > 0)
+		else if (item.projectileItem && damage == 0)
 		{
 			// Tumble
 			if (velocity.lengthSquared > 0.1f)

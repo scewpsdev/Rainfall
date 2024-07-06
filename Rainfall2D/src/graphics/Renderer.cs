@@ -278,7 +278,7 @@ public static class Renderer
 		lightDraws.Add(new LightDraw { position = position, color = new Vector4(color, 1.0f), radius = radius });
 	}
 
-	public static void DrawUISprite(int x, int y, int width, int height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	public static void DrawUISprite(int x, int y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)

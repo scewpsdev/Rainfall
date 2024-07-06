@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\item\ItemType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="res\level\" />
   </ItemGroup>
 

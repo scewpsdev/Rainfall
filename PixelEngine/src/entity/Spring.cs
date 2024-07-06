@@ -27,6 +27,8 @@ public class Spring : Entity
 			if (hit.entity.velocity.y < -0.1f)
 			{
 				hit.entity.velocity.y = MathF.Max(-hit.entity.velocity.y, STRENGTH);
+				if (hit.entity is Mob)
+					((Mob)hit.entity).isGrounded = true;
 			}
 		}
 	}

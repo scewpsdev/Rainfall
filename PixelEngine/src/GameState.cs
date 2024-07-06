@@ -30,7 +30,7 @@ public class GameState : State
 	Level newLevel = null;
 	Door newLevelDoor = null;
 
-	Player player;
+	public Player player;
 	PlayerCamera camera;
 
 
@@ -50,7 +50,7 @@ public class GameState : State
 		}
 		cachedLevels.Clear();
 
-		currentSeed = 1234567; // Hash.hash(Time.timestamp);
+		currentSeed = 123456; // Hash.hash(Time.timestamp);
 
 		level = new Level();
 		level.addEntity(new ItemEntity(new Sword()), new Vector2(13, 10));
