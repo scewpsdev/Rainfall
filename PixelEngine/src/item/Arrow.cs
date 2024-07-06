@@ -17,6 +17,8 @@ public class Arrow : Item
 
 		projectileItem = true;
 		breakOnHit = false;
+
+		maxPierces = 1;
 	}
 
 	public override void use(Player player)

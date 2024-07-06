@@ -10,10 +10,13 @@ using System.Threading.Tasks;
 public class Player : Entity, Hittable
 {
 	const float JUMP_BUFFER = 0.3f;
-	const float COYOTE_TIME = 0.3f;
+	const float COYOTE_TIME = 0.2f;
 	const float SPRINT_MULTIPLIER = 1.8f;
 	const float DUCKED_MULTIPLIER = 0.8f;
+	const float MAX_FALL_SPEED = -15;
 	const float HIT_COOLDOWN = 1.0f;
+	const float STUN_DURATION = 1.0f;
+	const float FALL_DAMAGE_DISTANCE = 8;
 
 
 	float speed = 5;
@@ -29,7 +32,12 @@ public class Player : Entity, Hittable
 	bool isSprinting = false;
 	public bool isDucked = false;
 	bool isClimbing = false;
-	float distanceWalked = 0;
+	float fallDistance = 0;
+
+	// Status effects
+	bool isStunned = false;
+
+	Sprite stunnedIcon;
 
 	Sprite sprite;
 	SpriteAnimator animator;
@@ -44,6 +52,7 @@ public class Player : Entity, Hittable
 
 	long lastHit = 0;
 	public long deathTime = -1;
+	long stunTime = -1;
 
 	public ActionQueue actions;
 
@@ -52,6 +61,8 @@ public class Player : Entity, Hittable
 	Climbable lastLadderJumpedFrom = null;
 
 	public Item handItem = null;
+	public Item[] quickItems = new Item[4];
+	public int currentQuickItem = 0;
 
 	HUD hud;
 
@@ -60,7 +71,7 @@ public class Player : Entity, Hittable
 	{
 		actions = new ActionQueue(this);
 
-		collider = new FloatRect(-0.3f, 0, 0.6f, 0.8f);
+		collider = new FloatRect(-0.2f, 0, 0.4f, 0.75f);
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
@@ -72,8 +83,13 @@ public class Player : Entity, Hittable
 		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 4, true);
 		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("stun", 17 * 16, 0, 16, 0, 1, 1, true);
+
+		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
 
 		hud = new HUD(this);
+
+		quickItems[0] = new RopeItem();
 	}
 
 	public override void destroy()
@@ -135,6 +151,12 @@ public class Player : Entity, Hittable
 		}
 	}
 
+	void stun()
+	{
+		isStunned = true;
+		stunTime = Time.currentTime;
+	}
+
 	public void addImpulse(Vector2 impulse)
 	{
 		impulseVelocity.x += impulse.x;
@@ -143,13 +165,24 @@ public class Player : Entity, Hittable
 
 	void onDeath()
 	{
+		if (handItem != null)
+			throwItem(handItem);
 	}
 
 	void updateMovement()
 	{
 		Vector2 delta = Vector2.Zero;
 
-		if (isAlive)
+		if (isStunned)
+		{
+			if ((Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
+			{
+				isStunned = false;
+				stunTime = -1;
+			}
+		}
+
+		if (isAlive && !isStunned)
 		{
 			if (Input.IsKeyDown(KeyCode.Left))
 				delta.x--;
@@ -241,12 +274,12 @@ public class Player : Entity, Hittable
 			float gravityMultiplier = 1;
 			if (!isAlive || !Input.IsKeyDown(KeyCode.C))
 			{
-				gravityMultiplier = 2;
+				gravityMultiplier = 1.5f;
 				if (Input.IsKeyReleased(KeyCode.C))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
-			velocity.y = MathF.Max(velocity.y, -15);
+			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
 			velocity += impulseVelocity;
 			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 10 * Time.deltaTime);
@@ -260,9 +293,23 @@ public class Player : Entity, Hittable
 		}
 
 		Vector2 displacement = velocity * Time.deltaTime;
+
+		if (!isGrounded && displacement.y < 0)
+			fallDistance += -displacement.y;
+		else
+			fallDistance = 0;
+
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, Input.IsKeyDown(KeyCode.Down));
+
+		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
 		{
+			if (fallDistance >= FALL_DAMAGE_DISTANCE)
+				stun();
+
+			if (velocity.y < 0)
+				isGrounded = true;
+
 			velocity.y = 0;
 			impulseVelocity.y = 0;
 			impulseVelocity.x *= 0.5f;
@@ -274,9 +321,9 @@ public class Player : Entity, Hittable
 		}
 
 		position += displacement;
-		distanceWalked += MathF.Abs(displacement.x);
 
-		isGrounded = GameState.instance.level.getTile((Vector2i)Vector2.Floor(position - new Vector2(0, 0.1f))) != 0;
+		//TileType below = TileType.Get(GameState.instance.level.getTile((Vector2i)Vector2.Floor(position - new Vector2(0, 0.1f))));
+		//isGrounded = below != null && below.isSolid;
 
 		float rotationDst = direction == 1 ? 0 : MathF.PI;
 		rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
@@ -284,93 +331,124 @@ public class Player : Entity, Hittable
 
 	void updateActions()
 	{
-		if (!isAlive)
-			return;
-
-		interactableInFocus = GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f));
-		if (interactableInFocus != null && interactableInFocus.canInteract(this))
+		if (isAlive)
 		{
-			if (Input.IsKeyPressed(interactableInFocus.getInput()))
+			if (Input.IsKeyPressed(KeyCode.V))
 			{
-				Input.ConsumeKeyEvent(interactableInFocus.getInput());
-				interactableInFocus.interact(this);
+				bool switched = false;
+				for (int i = 0; i < quickItems.Length; i++)
+				{
+					if (quickItems[(currentQuickItem + 1 + i) % quickItems.Length] != null)
+					{
+						currentQuickItem = (currentQuickItem + 1 + i) % quickItems.Length;
+						switched = true;
+						break;
+					}
+				}
+				if (!switched)
+					currentQuickItem = (currentQuickItem + 1) % quickItems.Length;
 			}
-		}
-
-		Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
-		if (currentLadder == null)
-		{
-			if (hoveredLadder != null && (Input.IsKeyDown(KeyCode.Up) || Input.IsKeyDown(KeyCode.Down)) && lastLadderJumpedFrom == null)
+			if (Input.IsKeyPressed(KeyCode.F))
 			{
-				currentLadder = hoveredLadder;
-				isClimbing = true;
-				velocity = Vector2.Zero;
+				if (quickItems[currentQuickItem] != null)
+					quickItems[currentQuickItem].use(this);
 			}
-		}
-		else
-		{
-			if (hoveredLadder == null)
-			{
-				currentLadder = null;
-				isClimbing = false;
-			}
-		}
 
-		HitData overlap = GameState.instance.level.overlap(position + collider.min, position + collider.max, FILTER_MOB);
-		if (overlap != null)
-		{
-			if (overlap.entity != null && overlap.entity is Mob)
+			HitData overlap = GameState.instance.level.overlap(position + collider.min, position + collider.max, FILTER_MOB);
+			if (overlap != null)
 			{
-				Mob mob = overlap.entity as Mob;
-				hit(mob.damage, mob);
+				if (overlap.entity != null && overlap.entity is Mob)
+				{
+					Mob mob = overlap.entity as Mob;
+					hit(mob.damage, mob);
+				}
 			}
-		}
 
-		if (handItem != null)
-		{
-			if (Input.IsKeyPressed(KeyCode.X))
+			if (!isStunned)
 			{
-				Input.ConsumeKeyEvent(KeyCode.X);
-				if (isDucked)
-					throwItem(handItem, true);
+				interactableInFocus = GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f));
+				if (interactableInFocus != null && interactableInFocus.canInteract(this))
+				{
+					if (Input.IsKeyPressed(interactableInFocus.getInput()))
+					{
+						Input.ConsumeKeyEvent(interactableInFocus.getInput());
+						interactableInFocus.interact(this);
+					}
+				}
+
+				Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
+				if (currentLadder == null)
+				{
+					if (hoveredLadder != null && (Input.IsKeyDown(KeyCode.Up) || Input.IsKeyDown(KeyCode.Down)) && lastLadderJumpedFrom == null)
+					{
+						currentLadder = hoveredLadder;
+						isClimbing = true;
+						velocity = Vector2.Zero;
+					}
+				}
 				else
-					handItem.use(this);
-			}
-		}
+				{
+					if (hoveredLadder == null)
+					{
+						currentLadder = null;
+						isClimbing = false;
+					}
+				}
 
-		actions.update();
+				if (handItem != null)
+				{
+					if (Input.IsKeyPressed(KeyCode.X))
+					{
+						Input.ConsumeKeyEvent(KeyCode.X);
+						if (isDucked)
+							throwItem(handItem, true);
+						else
+							handItem.use(this);
+					}
+				}
+			}
+
+			actions.update();
+		}
 	}
 
 	void updateAnimation()
 	{
 		if (isAlive)
 		{
-			if (isGrounded)
+			if (isStunned)
 			{
-				if (isMoving)
-				{
-					animator.setAnimation("run");
-				}
-				else
-				{
-					animator.setAnimation("idle");
-				}
+				animator.setAnimation("stun");
 			}
 			else
 			{
-				if (isClimbing)
+				if (isGrounded)
 				{
-					animator.setAnimation("climb");
-				}
-				else
-				{
-					if (velocity.y > 0)
+					if (isMoving)
 					{
-						animator.setAnimation("jump");
+						animator.setAnimation("run");
 					}
 					else
 					{
-						animator.setAnimation("fall");
+						animator.setAnimation("idle");
+					}
+				}
+				else
+				{
+					if (isClimbing)
+					{
+						animator.setAnimation("climb");
+					}
+					else
+					{
+						if (velocity.y > 0)
+						{
+							animator.setAnimation("jump");
+						}
+						else
+						{
+							animator.setAnimation("fall");
+						}
 					}
 				}
 			}
@@ -421,6 +499,11 @@ public class Player : Entity, Hittable
 				/*
 				Renderer.DrawSprite(position.x - 0.25f, position.y + (isDucked ? 0.5f : 1) + 0.5f - 0.25f, 0, 0.5f, 0.5f, null, 0, 0, 0, 0, 0xFF444444);
 				*/
+			}
+
+			if (isStunned)
+			{
+				Renderer.DrawSprite(position.x - 0.5f, position.y + 1.0f, 1, 1, stunnedIcon, false);
 			}
 		}
 

@@ -392,7 +392,13 @@ public class LevelGenerator
 								if (enemyType > 0.5f)
 									enemy = new Snake();
 								else
-									enemy = new Spider();
+								{
+									float spiderType = random.NextSingle();
+									if (spiderType < 0.5f)
+										enemy = new Spider();
+									else
+										enemy = new GreenSpider();
+								}
 
 								level.addEntity(enemy, new Vector2(x + 0.5f, y));
 							}
