@@ -7,7 +7,124 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
+
+struct DoorDef
+{
+	public Vector2i position;
+	public Vector2i direction;
+}
+
+struct RoomDef
+{
+	public int id;
+	public RoomDefSet set;
+
+	public int x;
+	public int y;
+	public int width;
+	public int height;
+	public bool mirrored;
+	public List<DoorDef> doorDefs;
+
+	public uint getTile(int x, int y)
+	{
+		if (mirrored)
+			x = width - x - 1;
+		y = height - y - 1;
+		x += this.x;
+		y += this.y;
+		return set.rooms[x + y * set.roomsInfo.width];
+	}
+}
+
+class RoomDefSet
+{
+	public uint[] rooms;
+	public TextureInfo roomsInfo;
+
+	public int width { get => roomsInfo.width; }
+	public int height { get => roomsInfo.height; }
+
+	public List<RoomDef> roomDefs = new List<RoomDef>();
+
+	public RoomDefSet(string path)
+	{
+		rooms = Resource.ReadImagePixels(path, out roomsInfo);
+		for (int y = 0; y < roomsInfo.height; y++)
+		{
+			for (int x = 0; x < roomsInfo.width; x++)
+			{
+				uint pixel = rooms[x + y * roomsInfo.width];
+				if (pixel != 0xFFFF00FF)
+				{
+					Debug.Assert(x > 0 && y > 0);
+					uint top = rooms[x + (y - 1) * roomsInfo.width];
+					uint left = rooms[x - 1 + y * roomsInfo.width];
+					if (top == 0xFFFF00FF && left == 0xFFFF00FF)
+					{
+						int roomWidth = 0, roomHeight = 0;
+						for (int xx = x; xx < roomsInfo.width; xx++)
+						{
+							if (rooms[xx + y * roomsInfo.width] != 0xFFFF00FF)
+								roomWidth++;
+							else
+								break;
+						}
+						for (int yy = y; yy < roomsInfo.height; yy++)
+						{
+							if (rooms[x + yy * roomsInfo.width] != 0xFFFF00FF)
+								roomHeight++;
+							else
+								break;
+						}
+
+						List<DoorDef> doorDefs = new List<DoorDef>();
+
+						for (int yy = y; yy < y + roomHeight; yy++)
+						{
+							for (int xx = x; xx < x + roomWidth; xx++)
+							{
+								if (rooms[xx + yy * roomsInfo.width] == 0xFFFF0000)
+								{
+									Vector2i doorPosition = new Vector2i(xx - x, roomHeight - (yy - y) - 1);
+									Vector2i doorDirection =
+										yy == y ? Vector2i.Up :
+										yy == y + roomHeight - 1 ? Vector2i.Down :
+										xx == x ? Vector2i.Left :
+										xx == x + roomWidth - 1 ? Vector2i.Right :
+										Vector2i.Zero;
+									doorDefs.Add(new DoorDef { position = doorPosition, direction = doorDirection });
+								}
+							}
+						}
+
+						roomDefs.Add(new RoomDef { id = roomDefs.Count, set = this, x = x, y = y, width = roomWidth, height = roomHeight, doorDefs = doorDefs });
+					}
+				}
+			}
+		}
+
+		// mirrored defs
+		int numRoomDefs = roomDefs.Count;
+		for (int i = 0; i < numRoomDefs; i++)
+		{
+			RoomDef def = roomDefs[i];
+			def.id = roomDefs.Count;
+			def.mirrored = true;
+			def.doorDefs = new List<DoorDef>(roomDefs[i].doorDefs);
+			for (int j = 0; j < def.doorDefs.Count; j++)
+			{
+				DoorDef doorDef = def.doorDefs[j];
+				doorDef.position.x = def.width - doorDef.position.x - 1;
+				doorDef.direction.x *= -1;
+				def.doorDefs[j] = doorDef;
+			}
+			roomDefs.Add(def);
+		}
+	}
+}
 
 public class LevelGenerator
 {
@@ -16,20 +133,8 @@ public class LevelGenerator
 
 	Random random;
 
-	byte[] horiz;
-	TextureInfo horizInfo;
-
-	byte[] drop;
-	TextureInfo dropInfo;
-
-	byte[] land;
-	TextureInfo landInfo;
-
-	byte[] dropland;
-	TextureInfo droplandInfo;
-
-	byte[] other;
-	TextureInfo otherInfo;
+	RoomDefSet defaultSet;
+	RoomDefSet specialSet;
 
 
 	public LevelGenerator(uint seed, int floor)
@@ -39,19 +144,16 @@ public class LevelGenerator
 
 		random = new Random((int)seed + floor);
 
-		horiz = Resource.ReadImage("res/level/rooms_horiz.png", out horizInfo);
-		drop = Resource.ReadImage("res/level/rooms_drop.png", out dropInfo);
-		land = Resource.ReadImage("res/level/rooms_land.png", out landInfo);
-		dropland = Resource.ReadImage("res/level/rooms_dropland.png", out droplandInfo);
-		other = Resource.ReadImage("res/level/rooms_other.png", out otherInfo);
+		defaultSet = new RoomDefSet("res/level/rooms.png");
+		specialSet = new RoomDefSet("res/level/rooms_special.png");
 	}
 
-	unsafe int countLadderHeight(int x, int y, uint* input, int inputWidth, int inputHeight)
+	int countLadderHeight(int x, int y, RoomDefSet set)
 	{
 		int result = 0;
 		while (true)
 		{
-			uint color = input[x + (inputHeight - y - result - 1) * inputWidth];
+			uint color = set.rooms[x + (set.roomsInfo.height - y - result - 1) * set.roomsInfo.width];
 			if (color == 0xFF00FF00 || color == 0xFF00FFFF)
 				result++;
 			else
@@ -60,216 +162,249 @@ public class LevelGenerator
 		return result;
 	}
 
-	unsafe void generateRoom(int x, int y, int width, int height, byte[] wfc, TextureInfo wfcInfo, Level level)
+	void placeRoom(Room room, Level level)
 	{
-		int numPossibleRooms = wfcInfo.width / width;
-		int roomIndex = random.Next() % numPossibleRooms;
+		int x = room.x;
+		int y = room.y;
+		int width = room.width;
+		int height = room.height;
+		RoomDef roomDef = room.set.roomDefs[room.roomDefID];
 
-		fixed (byte* wfcPtr = wfc)
+		for (int yy = 0; yy < height; yy++)
 		{
-			uint* input = (uint*)wfcPtr;
-
-			for (int yy = 0; yy < height; yy++)
+			for (int xx = 0; xx < width; xx++)
 			{
-				for (int xx = 0; xx < width; xx++)
+				//uint color = rooms[roomDef.x + xx + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
+				uint color = roomDef.getTile(xx, yy);
+				switch (color)
 				{
-					uint color = input[roomIndex * width + xx + (wfcInfo.height - yy - 1) * wfcInfo.width];
-					switch (color)
-					{
-						case 0xFF000000:
-							level.setTile(x + xx, y + yy, 0);
-							break;
-						case 0xFFFFFFFF:
-							level.setTile(x + xx, y + yy, 2);
-							break;
-						case 0xFF0000FF:
-							level.setTile(x + xx, y + yy, 3);
-							break;
-						case 0xFFFF00FF:
-							level.setTile(x + xx, y + yy, 1);
-							uint left = input[roomIndex * width + xx - 1 + (wfcInfo.height - yy - 1) * wfcInfo.width];
-							uint right = input[roomIndex * width + xx + 1 + (wfcInfo.height - yy - 1) * wfcInfo.width];
-							Vector2 direction = (right == 0xFFFFFFFF) ? new Vector2(-1, 0) : new Vector2(1, 0);
-							level.addEntity(new ArrowTrap(direction), new Vector2(x + xx, y + yy));
-							break;
-						case 0xFF00FF00:
-							level.setTile(x + xx, y + yy, 0);
-							if (horizInfo.height - yy - 1 == 0 ||
-								(input[roomIndex * width + xx + (wfcInfo.height - yy + 1 - 1) * wfcInfo.width] != 0xFF00FF00 && input[roomIndex * width + xx + (wfcInfo.height - yy + 1 - 1) * wfcInfo.width] != 0xFF00FFFF))
-								level.addEntity(new Ladder(countLadderHeight(roomIndex * width + xx, yy, input, wfcInfo.width, wfcInfo.height)), new Vector2(x + xx, y + yy));
-							break;
-						case 0xFF00FFFF:
-							level.setTile(x + xx, y + yy, 3);
-							break;
-						case 0xFFFF0000:
-							level.setTile(x + xx, y + yy, 0);
-							level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
-							break;
-						default:
-							level.setTile(x + xx, y + yy, 0);
-							break;
-					}
+					case 0xFF000000:
+						level.setTile(x + xx, y + yy, 0);
+						break;
+					case 0xFFFFFFFF:
+						level.setTile(x + xx, y + yy, 2);
+						break;
+					case 0xFF0000FF:
+						level.setTile(x + xx, y + yy, 3);
+						break;
+					case 0xFFFF00FF:
+						level.setTile(x + xx, y + yy, 1);
+						//uint left = rooms[roomDef.x + xx - 1 + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
+						//uint right = rooms[roomDef.x + xx + 1 + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
+						uint left = roomDef.getTile(xx - 1, yy);
+						uint right = roomDef.getTile(xx + 1, yy);
+						Vector2 direction = (right == 0xFFFFFFFF) ? new Vector2(-1, 0) : new Vector2(1, 0);
+						level.addEntity(new ArrowTrap(direction), new Vector2(x + xx, y + yy));
+						break;
+					case 0xFF00FF00:
+						level.setTile(x + xx, y + yy, 0);
+						if (yy == room.set.height - 1 ||
+							(roomDef.getTile(xx, yy - 1) != 0xFF00FF00 && roomDef.getTile(xx, yy - 1) != 0xFF00FFFF))
+							level.addEntity(new Ladder(countLadderHeight(roomDef.x + xx, yy, room.set)), new Vector2(x + xx, y + yy));
+						break;
+					case 0xFF00FFFF:
+						level.setTile(x + xx, y + yy, 3);
+						break;
+					case 0xFFFF0000:
+						level.setTile(x + xx, y + yy, 0);
+						//level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
+						break;
+					default:
+						level.setTile(x + xx, y + yy, 0);
+						break;
 				}
-			}
-		}
-
-		return;
-
-
-		WFCOptions options = new WFCOptions();
-		options.outWidth = width;
-		options.outHeight = height;
-		options.symmetry = 2;
-		options.patternSize = 3;
-		options.ground = true;
-
-		uint[] output = new uint[width * height];
-
-		while (true)
-		{
-			if (WFC.Run(options, (uint)random.Next(), horiz, horizInfo.width, horizInfo.height, output))
-			{
-				for (int yy = 0; yy < height / 2; yy++)
-				{
-					for (int xx = 0; xx < width; xx++)
-					{
-						uint tmp = output[xx + yy * width];
-						output[xx + yy * width] = output[xx + (height - yy - 1) * width];
-						output[xx + (height - yy - 1) * width] = tmp;
-					}
-				}
-
-				for (int yy = 0; yy < height; yy++)
-				{
-					for (int xx = 0; xx < width; xx++)
-					{
-						uint color = output[xx + yy * width];
-						switch (color)
-						{
-							case 0xFF000000:
-								level.setTile(x + xx, y + yy, 0);
-								break;
-							case 0xFFFFFFFF:
-								level.setTile(x + xx, y + yy, 2);
-								break;
-							case 0xFF0000FF:
-								level.setTile(x + xx, y + yy, 3);
-								break;
-							case 0xFFFF00FF:
-								level.setTile(x + xx, y + yy, 4);
-								break;
-							default:
-								level.setTile(x + xx, y + yy, 4);
-								break;
-						}
-					}
-				}
-
-				break;
 			}
 		}
 	}
 
-	struct RoomInfo
+	class Room
 	{
+		public int roomDefID;
+		public RoomDefSet set;
+		public int x, y;
+		public int width, height;
+		public List<Doorway> doorways = new List<Doorway>();
+	}
+
+	class Doorway
+	{
+		public Room room;
+		public DoorDef doorDef;
+		public Doorway otherDoorway;
 		public Vector2i position;
-		public bool land;
-		public bool drop;
+		public Vector2i direction;
+	}
+
+	bool fitRoom(Vector2i position, Vector2i size, List<Room> rooms, int width, int height)
+	{
+		if (position.x < 0 || position.x + size.x > width || position.y < 0 || position.y + size.y > height)
+			return false;
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			if (position.x + size.x > rooms[i].x && position.x < rooms[i].x + rooms[i].width &&
+				position.y + size.y > rooms[i].y && position.y < rooms[i].y + rooms[i].height)
+				return false;
+		}
+		return true;
+	}
+
+	Room fillDoorway(Doorway lastDoorway, RoomDefSet set, List<Room> rooms, int width, int height)
+	{
+		Room lastRoom = lastDoorway.room;
+		Vector2i matchingDirection = -lastDoorway.direction;
+
+		List<RoomDef> candidates = new List<RoomDef>();
+		candidates.AddRange(set.roomDefs);
+		MathHelper.ShuffleList(candidates, random);
+
+		for (int i = 0; i < candidates.Count; i++)
+		{
+			// check if matching
+			RoomDef def = candidates[i];
+			for (int j = 0; j < def.doorDefs.Count; j++)
+			{
+				if (def.doorDefs[j].direction == matchingDirection)
+				{
+					Vector2i roomPosition = new Vector2i(lastRoom.x, lastRoom.y) + lastDoorway.position + lastDoorway.direction - def.doorDefs[j].position;
+					Vector2i roomSize = new Vector2i(def.width, def.height);
+					if (fitRoom(roomPosition, roomSize, rooms, width, height))
+					{
+						Room room = new Room
+						{
+							x = roomPosition.x, y = roomPosition.y,
+							width = roomSize.x, height = roomSize.y,
+							roomDefID = def.id,
+							set = set
+						};
+						for (int k = 0; k < def.doorDefs.Count; k++)
+						{
+							Doorway doorway = new Doorway
+							{
+								room = room,
+								doorDef = def.doorDefs[k],
+								otherDoorway = null,
+								position = def.doorDefs[k].position,
+								direction = def.doorDefs[k].direction
+							};
+							if (k == j)
+							{
+								doorway.otherDoorway = lastDoorway;
+								lastDoorway.otherDoorway = doorway;
+							}
+							room.doorways.Add(doorway);
+						}
+
+						rooms.Add(room);
+
+						return room;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	public unsafe void run(Level level, Level nextLevel, Level lastLevel)
 	{
-		int roomWidth = 10;
-		int roomHeight = 8;
-		int numRoomsX = 4;
-		int numRoomsY = 4;
-		int width = numRoomsX * roomWidth;
-		int height = numRoomsY * roomHeight;
+		int width = 40;
+		int height = 32;
 		level.resize(width, height);
 
-		List<RoomInfo> rooms = new List<RoomInfo>();
+		List<Room> rooms = new List<Room>();
 
-		int roomX = random.Next() % numRoomsX;
-		int roomY = 3;
-		int direction = -1;
+		Room startingRoom = null;
+		Room exitRoom = null;
 
+		Room lastRoom = null;
 		while (true)
 		{
-			RoomInfo room = new RoomInfo();
-			room.position = new Vector2i(roomX, roomY);
-
-			if (direction == 2)
-				room.land = true;
-
-			int lastDirection = direction;
-			direction = random.Next() % 3;
-
-			if (lastDirection == 0 && direction == 1)
-				direction = 0;
-			else if (lastDirection == 1 && direction == 0)
-				direction = 1;
-
-			if (direction == 0 && roomX == 0)
-				direction = 2;
-			else if (direction == 1 && roomX == 3)
-				direction = 2;
-
-			if (direction == 2 && roomY > 0)
-				room.drop = true;
-
-			rooms.Add(room);
-
-			if (direction == 2 && roomY == 0)
-				break;
-
-			switch (direction)
+			if (lastRoom == null) // Starting room
 			{
-				case 0:
-					roomX--;
-					break;
-				case 1:
-					roomX++;
-					break;
-				case 2:
-					roomY--;
-					break;
-			}
-		}
-
-		bool[] grid = new bool[numRoomsX * numRoomsY];
-
-		for (int i = 0; i < rooms.Count; i++)
-		{
-			RoomInfo room = rooms[i];
-			if (room.drop && room.land)
-				generateRoom(room.position.x * roomWidth, room.position.y * roomHeight, roomWidth, roomHeight, dropland, droplandInfo, level);
-			else if (room.drop)
-				generateRoom(room.position.x * roomWidth, room.position.y * roomHeight, roomWidth, roomHeight, drop, dropInfo, level);
-			else if (room.land)
-				generateRoom(room.position.x * roomWidth, room.position.y * roomHeight, roomWidth, roomHeight, land, landInfo, level);
-			else
-				generateRoom(room.position.x * roomWidth, room.position.y * roomHeight, roomWidth, roomHeight, horiz, horizInfo, level);
-
-			grid[room.position.x + room.position.y * numRoomsX] = true;
-		}
-
-		for (int y = 0; y < numRoomsY; y++)
-		{
-			for (int x = 0; x < numRoomsX; x++)
-			{
-				if (!grid[x + y * numRoomsX])
+				int roomDefID = random.Next() % defaultSet.roomDefs.Count;
+				RoomDef roomDef = defaultSet.roomDefs[roomDefID];
+				int startingRoomX = random.Next() % (width - roomDef.width);
+				int startingRoomY = random.Next() % (height - roomDef.height);
+				Room room = new Room
 				{
-					generateRoom(x * roomWidth, y * roomHeight, roomWidth, roomHeight, other, otherInfo, level);
+					x = startingRoomX, y = startingRoomY,
+					width = roomDef.width, height = roomDef.height,
+					roomDefID = roomDefID,
+					set = defaultSet
+				};
+				for (int i = 0; i < roomDef.doorDefs.Count; i++)
+				{
+					room.doorways.Add(new Doorway { room = room, doorDef = roomDef.doorDefs[i], otherDoorway = null, position = roomDef.doorDefs[i].position, direction = roomDef.doorDefs[i].direction });
+				}
+				rooms.Add(room);
+
+				startingRoom = room;
+
+				lastRoom = room;
+			}
+			else
+			{
+				List<Doorway> emptyDoorways = new List<Doorway>();
+				for (int i = 0; i < lastRoom.doorways.Count; i++)
+				{
+					if (lastRoom.doorways[i].otherDoorway == null)
+						emptyDoorways.Add(lastRoom.doorways[i]);
+				}
+				MathHelper.ShuffleList(emptyDoorways, random);
+
+				Debug.Assert(emptyDoorways.Count > 0);
+
+				bool found = false;
+				for (int s = 0; s < emptyDoorways.Count; s++)
+				{
+					Doorway lastDoorway = emptyDoorways[s];
+					Room room = fillDoorway(lastDoorway, defaultSet, rooms, width, height);
+
+					if (room != null)
+					{
+						lastRoom = room;
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					exitRoom = rooms[rooms.Count - 1];
+					break;
 				}
 			}
 		}
 
+		// Spawn special rooms
+		{
+			List<Doorway> emptyDoorways = new List<Doorway>();
+			for (int i = 0; i < rooms.Count; i++)
+			{
+				for (int j = 0; j < rooms[i].doorways.Count; j++)
+				{
+					if (rooms[i].doorways[j].otherDoorway == null)
+						emptyDoorways.Add(rooms[i].doorways[j]);
+				}
+			}
+			MathHelper.ShuffleList(emptyDoorways, random);
+			for (int i = 0; i < emptyDoorways.Count; i++)
+			{
+				Doorway emptyDoorway = emptyDoorways[i];
+				fillDoorway(emptyDoorway, specialSet, rooms, width, height);
+			}
+		}
+
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			placeRoom(room, level);
+		}
+
 		if (lastLevel != null)
 		{
-			RoomInfo startingRoom = rooms[0];
-			for (int y = startingRoom.position.y * roomHeight + 1; y < (startingRoom.position.y + 1) * roomHeight; y++)
+			for (int y = startingRoom.y + 1; y < startingRoom.y + startingRoom.height; y++)
 			{
-				int x = startingRoom.position.x * roomWidth + roomWidth / 2;
+				int x = startingRoom.x + startingRoom.width / 2;
 				if (level.getTile(x, y) == 0)
 				{
 					Vector2 entrancePosition = new Vector2(x + 0.5f, y);
@@ -287,10 +422,9 @@ public class LevelGenerator
 
 		if (nextLevel != null)
 		{
-			RoomInfo exitRoom = rooms[rooms.Count - 1];
-			for (int y = exitRoom.position.y * roomHeight; y < (exitRoom.position.y + 1) * roomHeight; y++)
+			for (int y = exitRoom.y; y < exitRoom.y + exitRoom.height; y++)
 			{
-				int x = exitRoom.position.x * roomWidth + roomWidth / 2;
+				int x = exitRoom.x + exitRoom.width / 2;
 				if (level.getTile(x, y) == 0)
 				{
 					Vector2 exitPosition = new Vector2(x + 0.5f, y);
@@ -303,13 +437,13 @@ public class LevelGenerator
 
 		for (int y = 0; y < height; y++)
 		{
-			level.setTile(0, y, 2);
-			level.setTile(width - 1, y, 2);
+			//level.setTile(0, y, 2);
+			//level.setTile(width - 1, y, 2);
 		}
 		for (int x = 0; x < width; x++)
 		{
-			level.setTile(x, 0, 2);
-			level.setTile(x, height - 1, 2);
+			//level.setTile(x, 0, 2);
+			//level.setTile(x, height - 1, 2);
 		}
 
 		for (int y = 0; y < height; y++)

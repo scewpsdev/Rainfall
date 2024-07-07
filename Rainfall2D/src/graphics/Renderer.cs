@@ -101,10 +101,16 @@ public static class Renderer
 	static Matrix projection, view;
 	static float left, right, bottom, top;
 
+	public const int UIHeight = 1000;
+	public static int UIWidth;
+
 
 	public static void Init(GraphicsDevice graphics, int width, int height)
 	{
 		Renderer.graphics = graphics;
+
+		float aspect = width / (float)height;
+		UIWidth = (int)(aspect * UIHeight);
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -167,6 +173,9 @@ public static class Renderer
 
 	public static void Resize(int width, int height)
 	{
+		float aspect = width / (float)height;
+		UIWidth = (int)(aspect * UIHeight);
+
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);
 		if (lighting != null)
@@ -505,7 +514,7 @@ public static class Renderer
 		graphics.setPass((int)RenderPass.Composite);
 		graphics.setRenderTarget(null);
 
-		graphics.setViewTransform(Matrix.CreateOrthographic(0, Display.width, 0, Display.height, 1.0f, -1.0f), Matrix.Identity);
+		graphics.setViewTransform(Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f), Matrix.Identity);
 
 		uiBatch.begin(uiDraws.Count);
 		for (int i = 0; i < uiDraws.Count; i++)
@@ -517,7 +526,7 @@ public static class Renderer
 			float u1 = draw.rect.max.x;
 			float v1 = draw.rect.max.y;
 			uiBatch.draw(
-				draw.position.x, Display.height - draw.position.y - draw.size.y, 0.0f,
+				draw.position.x, UIHeight - draw.position.y - draw.size.y, 0.0f,
 				draw.size.x, draw.size.y,
 				0.0f,
 				texture, uint.MaxValue,

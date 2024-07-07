@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Remove="src\item\ItemType.cs" />
+    <Compile Remove="src\level\LevelGenerator - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>

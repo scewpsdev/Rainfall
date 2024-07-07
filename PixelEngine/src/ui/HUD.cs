@@ -22,6 +22,9 @@ public class HUD
 
 	public void render()
 	{
+		if (player.inventoryOpen)
+			return;
+
 		for (int i = 0; i < player.maxHealth; i++)
 		{
 			int size = 24;

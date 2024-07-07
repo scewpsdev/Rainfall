@@ -172,6 +172,7 @@ public class PixelEngine : Game
 		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 
 		LaunchParams launchParams = new LaunchParams(args);
+		launchParams.fpsCap = 120;
 #if DEBUG
 		launchParams.width = 1280;
 		launchParams.height = 720;

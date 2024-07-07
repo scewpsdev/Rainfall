@@ -63,8 +63,11 @@ public class Player : Entity, Hittable
 	public Item handItem = null;
 	public Item[] quickItems = new Item[4];
 	public int currentQuickItem = 0;
+	public Item[] passiveItems = new Item[4];
 
 	HUD hud;
+	InventoryUI inventoryUI;
+	public bool inventoryOpen = false;
 
 
 	public Player()
@@ -88,6 +91,7 @@ public class Player : Entity, Hittable
 		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
 
 		hud = new HUD(this);
+		inventoryUI = new InventoryUI(this);
 
 		quickItems[0] = new RopeItem();
 	}
@@ -508,5 +512,6 @@ public class Player : Entity, Hittable
 		}
 
 		hud.render();
+		inventoryUI.render();
 	}
 }

@@ -30,7 +30,6 @@ public abstract class Mob : Entity, Hittable
 
 	protected Sprite sprite;
 
-	public int maxHealth = 1;
 	public int health = 1;
 
 	public int damage = 1;
