@@ -225,6 +225,15 @@ namespace Rainfall
 			}
 		}
 
+		public static uint[] ReadImagePixels(string path, out TextureInfo info)
+		{
+			byte[] data = ReadImage(path, out info);
+			uint[] pixels = new uint[data.Length / 4];
+			for (int i = 0; i < data.Length / 4; i++)
+				pixels[i] = BitConverter.ToUInt32(data, i * 4);
+			return pixels;
+		}
+
 		public static Texture GetTexture(string path, ulong flags = 0)
 		{
 			if (textures.ContainsKey(path))

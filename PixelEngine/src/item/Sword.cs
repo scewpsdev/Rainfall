@@ -13,7 +13,7 @@ public class Sword : Item
 	{
 		displayName = "Sword";
 
-		attackDamage = 1;
+		attackDamage = 3;
 		attackRange = 1.5f;
 
 		sprite = new Sprite(tileset, 1, 0);
