@@ -8,6 +8,29 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public class RunStats
+{
+	public uint seed;
+	public float duration = 0.0f;
+	public int floor = 0;
+
+	public bool active = true;
+
+
+	public RunStats(uint seed)
+	{
+		this.seed = seed;
+	}
+
+	public void update()
+	{
+		if (active)
+		{
+			duration += Time.deltaTime;
+		}
+	}
+}
+
 public class GameState : State
 {
 	const float AREA_TEXT_DURATION = 7.0f;
@@ -22,7 +45,7 @@ public class GameState : State
 	long animationUpdateDelta;
 	long entityUpdateDelta;
 
-	uint currentSeed = 0;
+	public RunStats run;
 
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
@@ -50,15 +73,15 @@ public class GameState : State
 		}
 		cachedLevels.Clear();
 
-		currentSeed = 123456; // Hash.hash(Time.timestamp);
+		run = new RunStats(1234567); // Hash.hash(Time.timestamp)
 
-		level = new Level();
+		level = new Level(-1);
 		level.addEntity(new ItemEntity(new Sword()), new Vector2(13, 10));
 		level.addEntity(new Snake(), new Vector2(5, 1));
 		level.addEntity(player = new Player(), new Vector2(10, 1));
 		level.addEntity(camera = new PlayerCamera(player));
 
-		Level secondLevel = new Level();
+		Level secondLevel = new Level(-1);
 		secondLevel.setTile(secondLevel.width - 2, 2, 3);
 		secondLevel.setTile(secondLevel.width - 3, 2, 3);
 		secondLevel.setTile(secondLevel.width - 4, 2, 3);
@@ -67,7 +90,7 @@ public class GameState : State
 		secondLevel.setTile(12, 1, 1);
 		cachedLevels.Add(secondLevel);
 
-		Level[] levels = [new Level(), new Level(), new Level()];
+		Level[] levels = [new Level(1), new Level(2), new Level(3)];
 
 		level.exit = new Door(secondLevel);
 		level.addEntity(level.exit, new Vector2(15, 1));
@@ -82,7 +105,7 @@ public class GameState : State
 		Level lastLevel = secondLevel;
 		for (int i = 0; i < levels.Length; i++)
 		{
-			LevelGenerator generator = new LevelGenerator(currentSeed, i);
+			LevelGenerator generator = new LevelGenerator(run.seed, i);
 			generator.run(levels[i], i < levels.Length - 1 ? levels[i + 1] : null, lastLevel);
 			lastLevel = levels[i];
 		}
@@ -112,6 +135,8 @@ public class GameState : State
 
 	public override void update()
 	{
+		run.update();
+
 		if (newLevel != null)
 		{
 			cachedLevels.Add(level);
@@ -122,6 +147,9 @@ public class GameState : State
 				cachedLevels.Remove(newLevel);
 			newLevel.addEntity(player, newLevelDoor.position, false);
 			newLevel.addEntity(camera, false);
+
+			if (newLevel.floor > run.floor)
+				run.floor = newLevel.floor;
 
 			level = newLevel;
 			newLevel = null;
@@ -149,16 +177,11 @@ public class GameState : State
 
 		if (!player.isAlive && (Time.currentTime - player.deathTime) / 1e9f >= GAME_OVER_SCREEN_DELAY)
 		{
-			renderGameOverScreen();
+			GameOverScreen.Render();
 
 			if (Input.IsKeyPressed(KeyCode.X))
 				reset();
 		}
-	}
-
-	void renderGameOverScreen()
-	{
-		Renderer.DrawUIText(100, 100, "YA DED", 2, 0xFFFF00FF);
 	}
 
 	public override void drawDebugStats(int y, byte color, GraphicsDevice graphics)

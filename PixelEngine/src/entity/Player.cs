@@ -19,8 +19,8 @@ public class Player : Entity, Hittable
 	const float FALL_DAMAGE_DISTANCE = 8;
 
 
-	float speed = 5;
-	float climbingSpeed = 3;
+	float speed = 7;
+	float climbingSpeed = 4;
 	float jumpPower = 10;
 	float gravity = -22;
 
@@ -93,6 +93,7 @@ public class Player : Entity, Hittable
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
+		handItem = new Dagger();
 		quickItems[0] = new RopeItem();
 	}
 
@@ -118,7 +119,8 @@ public class Player : Entity, Hittable
 		else if (Input.IsKeyDown(KeyCode.Down))
 		{
 			itemVelocity += new Vector2(direction * 0.05f, -1.0f) * 14;
-			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
+			if (!isGrounded)
+				velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
 		}
 		else
 		{
@@ -171,6 +173,8 @@ public class Player : Entity, Hittable
 	{
 		if (handItem != null)
 			throwItem(handItem);
+
+		GameState.instance.run.active = false;
 	}
 
 	void updateMovement()
@@ -358,12 +362,13 @@ public class Player : Entity, Hittable
 					quickItems[currentQuickItem].use(this);
 			}
 
-			HitData overlap = GameState.instance.level.overlap(position + collider.min, position + collider.max, FILTER_MOB);
-			if (overlap != null)
+			Span<HitData> hits = new HitData[16];
+			int numHits = GameState.instance.level.overlap(position + collider.min, position + collider.max, hits, FILTER_MOB);
+			for (int i = 0; i < numHits; i++)
 			{
-				if (overlap.entity != null && overlap.entity is Mob)
+				if (hits[i].entity != null && hits[i].entity is Mob)
 				{
-					Mob mob = overlap.entity as Mob;
+					Mob mob = hits[i].entity as Mob;
 					hit(mob.damage, mob);
 				}
 			}
@@ -408,6 +413,14 @@ public class Player : Entity, Hittable
 							throwItem(handItem, true);
 						else
 							handItem.use(this);
+					}
+				}
+				else
+				{
+					if (Input.IsKeyPressed(KeyCode.X))
+					{
+						Input.ConsumeKeyEvent(KeyCode.X);
+						actions.queueAction(new AttackAction(DefaultWeapon.instance));
 					}
 				}
 			}
@@ -494,15 +507,34 @@ public class Player : Entity, Hittable
 				}
 				else if (handItem.sprite != null)
 				{
-					Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_DEFAULT_OVERLAY, 1, 1, 0, handItem.sprite, direction == -1);
+					if (actions.currentAction is AttackAction)
+					{
+						AttackAction action = actions.currentAction as AttackAction;
+						float xoffset = (action.currentRange - 0.5f) * action.direction;
+						Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_DEFAULT_OVERLAY, 1, 1, 0, handItem.sprite, action.direction == -1);
+					}
+					else
+					{
+						Renderer.DrawSprite(position.x - 0.5f + direction * 0.2f, position.y - 0.2f, LAYER_DEFAULT_OVERLAY, 1, 1, 0, handItem.sprite, direction == -1);
+					}
 				}
-
-				if (actions.currentAction is AttackAction)
-					Renderer.DrawLine(new Vector3(position.x, position.y + 0.5f, 0), new Vector3(position.x + direction * handItem.attackRange, position.y + 0.5f, 0), new Vector4(1));
 
 				/*
 				Renderer.DrawSprite(position.x - 0.25f, position.y + (isDucked ? 0.5f : 1) + 0.5f - 0.25f, 0, 0.5f, 0.5f, null, 0, 0, 0, 0, 0xFF444444);
 				*/
+			}
+
+			if (actions.currentAction is AttackAction)
+			{
+				AttackAction action = actions.currentAction as AttackAction;
+				if (handItem != null)
+				{
+					//Renderer.DrawLine(new Vector3(position.x, position.y + 0.5f, 0), new Vector3(position.x + direction * handItem.attackRange, position.y + 0.5f, 0), new Vector4(1));
+				}
+				else
+				{
+					Renderer.DrawLine(new Vector3(position.x, position.y + 0.5f, 0), new Vector3(position.x + action.direction * action.currentRange, position.y + 0.5f, 0), new Vector4(1));
+				}
 			}
 
 			if (isStunned)
@@ -511,7 +543,10 @@ public class Player : Entity, Hittable
 			}
 		}
 
-		hud.render();
-		inventoryUI.render();
+		if (GameState.instance.run.active)
+		{
+			hud.render();
+			inventoryUI.render();
+		}
 	}
 }

@@ -14,7 +14,12 @@ public class RopeItem : Item
 		displayName = "Rope";
 		type = ItemType.Active;
 
-		sprite = new Sprite(TileType.tileset, 2, 3);
+		sprite = new Sprite(tileset, 6, 0);
+	}
+
+	public override Item createNew()
+	{
+		return new RopeItem();
 	}
 
 	int getRopeLength(Vector2i pos)

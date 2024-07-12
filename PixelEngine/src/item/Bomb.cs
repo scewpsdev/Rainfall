@@ -1,10 +1,83 @@
-﻿using System;
+﻿using Rainfall;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 
-public class Bomb
+public class Bomb : Item
 {
+	int blastRadius = 3;
+	float fuseTime = 2.0f;
+
+
+	long useTime = -1;
+
+
+	public Bomb()
+		: base("bomb")
+	{
+		displayName = "Bomb";
+
+		attackDamage = 5;
+
+		projectileItem = true;
+
+		sprite = new Sprite(tileset, 1, 0);
+	}
+
+	public override Item createNew()
+	{
+		return new Bomb();
+	}
+
+	public override void use(Player player)
+	{
+		player.throwItem(this);
+
+		useTime = Time.currentTime;
+	}
+
+	public override void update(ItemEntity entity)
+	{
+		if (useTime != -1 && (Time.currentTime - useTime) / 1e9f >= fuseTime)
+		{
+			Vector2i tile = (Vector2i)Vector2.Round(entity.position);
+			for (int y = tile.y - blastRadius; y < tile.y + blastRadius; y++)
+			{
+				for (int x = tile.x - blastRadius; x < tile.x + blastRadius; x++)
+				{
+					float distance = (new Vector2(x, y) + 0.5f - tile).length;
+					if (distance < blastRadius)
+						GameState.instance.level.setTile(x, y, 0);
+				}
+			}
+
+			Span<HitData> hits = new HitData[16];
+			int numHits = GameState.instance.level.overlap(tile - (float)blastRadius, tile + (float)blastRadius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM);
+			for (int i = 0; i < numHits; i++)
+			{
+				if (hits[i].entity != null)
+				{
+					Vector2 center = hits[i].entity.position + 0.5f * (hits[i].entity.collider.min + hits[i].entity.collider.max);
+					float distance = (center - tile).length;
+					if (distance < blastRadius)
+					{
+						if (hits[i].entity is Hittable)
+						{
+							int damage = (int)MathF.Round((1 - distance / blastRadius) * attackDamage);
+
+							Hittable hittable = hits[i].entity as Hittable;
+							hittable.hit(damage, entity);
+						}
+
+						hits[i].entity.velocity += (center - tile).normalized * (1 - distance / blastRadius) * 30;
+					}
+				}
+			}
+
+			entity.remove();
+		}
+	}
 }

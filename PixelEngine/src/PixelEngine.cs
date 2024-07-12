@@ -36,6 +36,8 @@ public class PixelEngine : Game
 		Physics.Init();
 		Audio.Init();
 
+		Item.InitTypes();
+
 		pushState(new GameState());
 	}
 

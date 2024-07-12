@@ -271,8 +271,10 @@ public class LevelGenerator
 					{
 						Room room = new Room
 						{
-							x = roomPosition.x, y = roomPosition.y,
-							width = roomSize.x, height = roomSize.y,
+							x = roomPosition.x,
+							y = roomPosition.y,
+							width = roomSize.x,
+							height = roomSize.y,
 							roomDefID = def.id,
 							set = set
 						};
@@ -307,8 +309,8 @@ public class LevelGenerator
 
 	public unsafe void run(Level level, Level nextLevel, Level lastLevel)
 	{
-		int width = 40;
-		int height = 32;
+		int width = 50;
+		int height = 40;
 		level.resize(width, height);
 
 		List<Room> rooms = new List<Room>();
@@ -327,8 +329,10 @@ public class LevelGenerator
 				int startingRoomY = random.Next() % (height - roomDef.height);
 				Room room = new Room
 				{
-					x = startingRoomX, y = startingRoomY,
-					width = roomDef.width, height = roomDef.height,
+					x = startingRoomX,
+					y = startingRoomY,
+					width = roomDef.width,
+					height = roomDef.height,
 					roomDefID = roomDefID,
 					set = defaultSet
 				};
@@ -376,6 +380,7 @@ public class LevelGenerator
 		}
 
 		// Spawn special rooms
+		for (int k = 0; k < 2; k++)
 		{
 			List<Doorway> emptyDoorways = new List<Doorway>();
 			for (int i = 0; i < rooms.Count; i++)
@@ -473,11 +478,20 @@ public class LevelGenerator
 						TileType upUp = TileType.Get(level.getTile(x, y + 2));
 						if (upUp == null)
 						{
-							float springChance = 0.02f;
+							float springChance = 0.01f;
 							if (random.NextSingle() < springChance)
 							{
 								level.addEntity(new Spring(), new Vector2(x + 0.5f, y));
 							}
+						}
+					}
+
+					if (down != null)
+					{
+						float spikeChance = 0.015f;
+						if (random.NextSingle() < spikeChance)
+						{
+							level.addEntity(new Spike(), new Vector2(x, y));
 						}
 					}
 
@@ -496,16 +510,29 @@ public class LevelGenerator
 
 					if (down != null)
 					{
-						float skullChance = 0.01f;
-						if (random.NextSingle() < skullChance)
-						{
-							level.addEntity(new ItemEntity(new Skull()), new Vector2(x + 0.5f, y + 0.5f));
-						}
+						float itemChance = up != null && (left != null || right != null) ? 0.02f :
+							up != null ? 0.005f :
+							(left != null || right != null) ? 0.005f :
+							0.002f;
 
-						float swordChance = 0.005f;
-						if (random.NextSingle() < swordChance)
+						if (random.NextSingle() < itemChance)
 						{
-							level.addEntity(new ItemEntity(new Sword()), new Vector2(x + 0.5f, y + 0.5f));
+							float toolChance = 0.35f;
+							float activeChance = 0.35f;
+
+							float f = random.NextSingle();
+							Item item = null;
+
+							if (f < toolChance)
+								item = Item.GetRandomItem(ItemType.Tool, random);
+							else if (f < toolChance + activeChance)
+								item = Item.GetRandomItem(ItemType.Active, random);
+							else
+								item = Item.GetRandomItem(ItemType.Passive, random);
+
+							item = item.createNew();
+
+							level.addEntity(new ItemEntity(item), new Vector2(x + 0.5f, y + 0.5f));
 						}
 					}
 
@@ -523,15 +550,19 @@ public class LevelGenerator
 
 								Mob enemy;
 
-								if (enemyType > 0.5f)
+								if (enemyType > 0.666f)
 									enemy = new Snake();
-								else
+								else if (enemyType > 0.333f)
 								{
 									float spiderType = random.NextSingle();
 									if (spiderType < 0.5f)
 										enemy = new Spider();
 									else
 										enemy = new GreenSpider();
+								}
+								else
+								{
+									enemy = new Rat();
 								}
 
 								level.addEntity(enemy, new Vector2(x + 0.5f, y));

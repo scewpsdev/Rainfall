@@ -16,6 +16,13 @@ public class GreenSpider : Mob
 		speed = 6;
 		jumpPower = 9;
 
-		ai = new GreenSpiderAI();
+		health = 2;
+
+		ai = new SpiderAI
+		{
+			aggroRange = 12,
+			loseRange = 15,
+			jumpChargeTime = 0.5f,
+		};
 	}
 }

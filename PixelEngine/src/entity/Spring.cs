@@ -21,14 +21,18 @@ public class Spring : Entity
 
 	public override void update()
 	{
-		HitData hit = GameState.instance.level.overlap(position + new Vector2(-0.5f, 0), position + new Vector2(0.5f, 0.5f), FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
-		if (hit != null && hit.entity != null && hit.entity != this)
+		Span<HitData> hits = new HitData[16];
+		int numHits = GameState.instance.level.overlap(position + new Vector2(-0.5f, 0), position + new Vector2(0.5f, 0.5f), hits, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
+		for (int i = 0; i < numHits; i++)
 		{
-			if (hit.entity.velocity.y < -0.1f)
+			if (hits[i].entity != null && hits[i].entity != this)
 			{
-				hit.entity.velocity.y = MathF.Max(-hit.entity.velocity.y, STRENGTH);
-				if (hit.entity is Mob)
-					((Mob)hit.entity).isGrounded = true;
+				if (hits[i].entity.velocity.y < -0.1f)
+				{
+					hits[i].entity.velocity.y = MathF.Max(-hits[i].entity.velocity.y, STRENGTH);
+					if (hits[i].entity is Mob)
+						((Mob)hits[i].entity).isGrounded = true;
+				}
 			}
 		}
 	}

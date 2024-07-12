@@ -10,6 +10,7 @@ public abstract class Mob : Entity, Hittable
 {
 	const float SPRINT_MULTIPLIER = 1.8f;
 	const float DUCKED_MULTIPLIER = 0.8f;
+	const float STUN_DURATION = 0.4f;
 
 
 	public float speed = 4;
@@ -27,6 +28,8 @@ public abstract class Mob : Entity, Hittable
 	bool isDucked = false;
 	bool isClimbing = false;
 	float distanceWalked = 0;
+	bool isStunned = false;
+	long stunTime = -1;
 
 	protected Sprite sprite;
 
@@ -54,15 +57,30 @@ public abstract class Mob : Entity, Hittable
 	public void hit(int damage, Entity by)
 	{
 		health -= damage;
-		if (health <= 0)
-			remove();
+
+		if (health > 0)
+			stun();
+		else
+			onDeath();
+	}
+
+	void onDeath()
+	{
+		remove();
+	}
+
+	public void stun()
+	{
+		stunTime = Time.currentTime;
 	}
 
 	void updateMovement()
 	{
 		Vector2 delta = Vector2.Zero;
 
-		//if (actions.currentAction == null)
+		isStunned = stunTime != -1 && (Time.currentTime - stunTime) / 1e9f < STUN_DURATION;
+
+		if (!isStunned)
 		{
 			if (inputLeft)
 				delta.x--;
@@ -129,12 +147,17 @@ public abstract class Mob : Entity, Hittable
 
 		Vector2 displacement = velocity * Time.deltaTime;
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, inputDown);
+
+		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
+		{
+			if (velocity.y < 0)
+				isGrounded = true;
+
 			velocity.y = 0;
+		}
 		position += displacement;
 		distanceWalked += MathF.Abs(displacement.x);
-
-		isGrounded = GameState.instance.level.getTile((Vector2i)Vector2.Floor(position - new Vector2(0, 0.1f))) != 0;
 
 		float rotationDst = direction == 1 ? 0 : MathF.PI;
 		rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);

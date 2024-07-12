@@ -10,13 +10,22 @@ public class AttackAction : EntityAction
 {
 	Item weapon;
 
+	public int direction;
+
+	List<Entity> hitEntities = new List<Entity>();
+
 
 	public AttackAction(Item weapon)
 		: base("attack")
 	{
-		duration = 0.3f;
+		duration = 1.0f / weapon.attackRate;
 
 		this.weapon = weapon;
+	}
+
+	public override void onStarted(Player player)
+	{
+		direction = player.direction;
 	}
 
 	public override void update(Player player)
@@ -24,15 +33,22 @@ public class AttackAction : EntityAction
 		base.update(player);
 
 		//HitData hit = GameState.instance.level.raycast(player.position + new Vector2(0.0f, 0.5f), new Vector2(player.direction, 0), weapon.attackRange, Entity.FILTER_MOB);
-		HitData hit = GameState.instance.level.overlap(player.position + new Vector2(0.5f * weapon.attackRange * player.direction - 0.5f * weapon.attackRange, 0.25f),
-			player.position + new Vector2(0.5f * weapon.attackRange * player.direction + 0.5f * weapon.attackRange, 0.75f), Entity.FILTER_MOB);
-		if (hit != null)
+		Span<HitData> hits = new HitData[16];
+		int numHits = GameState.instance.level.overlap(player.position + new Vector2(0.5f * currentRange * direction - 0.5f * currentRange, 0.25f),
+			player.position + new Vector2(0.5f * currentRange * direction + 0.5f * currentRange, 0.75f), hits, Entity.FILTER_MOB);
+		for (int i = 0; i < numHits; i++)
 		{
-			if (hit.entity != null && hit.entity != player && hit.entity is Hittable)
+			if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))
 			{
-				Hittable hittable = hit.entity as Hittable;
+				Hittable hittable = hits[i].entity as Hittable;
 				hittable.hit(weapon.attackDamage, player);
+				hitEntities.Add(hits[i].entity);
 			}
 		}
+	}
+
+	public float currentRange
+	{
+		get => MathF.Min(elapsedTime / duration * 2, 1) * weapon.attackRange;
 	}
 }

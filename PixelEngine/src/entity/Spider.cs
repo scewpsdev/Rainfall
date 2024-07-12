@@ -14,5 +14,7 @@ public class Spider : Mob
 		collider = new FloatRect(-0.4f, 0, 0.8f, 0.5f);
 
 		ai = new SpiderAI();
+
+		health = 2;
 	}
 }

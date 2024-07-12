@@ -22,12 +22,13 @@ public class Gem : Entity
 
 	public override void update()
 	{
-		HitData hit = GameState.instance.level.overlap(position - 0.25f, position + 0.25f, FILTER_PLAYER);
-		if (hit != null)
+		HitData[] hits = new HitData[16];
+		int numHits = GameState.instance.level.overlap(position - 0.25f, position + 0.25f, hits, FILTER_PLAYER);
+		for (int i = 0; i < numHits; i++)
 		{
-			if (hit.entity != null && hit.entity is Player)
+			if (hits[i].entity != null && hits[i].entity is Player)
 			{
-				Player player = hit.entity as Player;
+				Player player = hits[i].entity as Player;
 				player.money += value;
 				remove();
 			}
