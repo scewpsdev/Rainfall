@@ -18,13 +18,14 @@ public class Spike : Entity
 
 	public override void update()
 	{
-		HitData hit = GameState.instance.level.overlap(position, position + new Vector2(1, 0.5f), FILTER_PLAYER | FILTER_MOB);
-		if (hit != null)
+		Span<HitData> hits = new HitData[16];
+		int numHits = GameState.instance.level.overlap(position, position + new Vector2(1, 0.5f), hits, FILTER_PLAYER | FILTER_MOB);
+		for (int i = 0; i < numHits; i++)
 		{
-			if (hit.entity != null && hit.entity != this && hit.entity is Hittable)
+			if (hits[i].entity != null && hits[i].entity != this && hits[i].entity is Hittable)
 			{
-				Hittable hittable = hit.entity as Hittable;
-				if (hit.entity.velocity.y < 0 && hit.entity.position.y - hit.entity.velocity.y * Time.deltaTime > position.y + 0.5f)
+				Hittable hittable = hits[i].entity as Hittable;
+				if (hits[i].entity.velocity.y < 0 && hits[i].entity.position.y - hits[i].entity.velocity.y * Time.deltaTime > position.y + 0.5f)
 					hittable.hit(1000, this);
 			}
 		}

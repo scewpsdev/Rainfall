@@ -10,14 +10,23 @@ public class HUD
 {
 	Player player;
 
-	Sprite gemSprite;
+	SpriteSheet tileset;
+
+	Sprite heartFull, heartHalf, heartEmpty;
+	Sprite gems;
 
 
 	public HUD(Player player)
 	{
 		this.player = player;
 
-		gemSprite = new Sprite(Item.tileset, 3, 0);
+		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/ui.png", false), 8, 8);
+
+		heartFull = new Sprite(tileset, 0, 0);
+		heartHalf = new Sprite(tileset, 1, 0);
+		heartEmpty = new Sprite(tileset, 2, 0);
+
+		gems = new Sprite(tileset, 3, 0);
 	}
 
 	public void render()
@@ -25,25 +34,29 @@ public class HUD
 		if (player.inventoryOpen)
 			return;
 
-		for (int i = 0; i < player.maxHealth; i++)
+		// Health
+		for (int i = 0; i < (int)MathF.Ceiling(player.maxHealth / 2.0f); i++)
 		{
 			int size = 24;
 			int padding = 8;
 			int x = 20 + i * (size + padding);
 			int y = 20;
-			if (i < player.health)
-				Renderer.DrawUISprite(x, y, size, size, null, 0, 0, 0, 0, 0xFFFF7777);
+
+			if (i < player.health / 2)
+				Renderer.DrawUISprite(x, y, size, size, heartFull);
+			else if (i == player.health / 2 && player.health % 2 == 1)
+				Renderer.DrawUISprite(x, y, size, size, heartHalf);
 			else
-				Renderer.DrawUISprite(x, y, size, size, null, 0, 0, 0, 0, 0xFF777777);
+				Renderer.DrawUISprite(x, y, size, size, heartEmpty);
 		}
 
 		{ // Gems
-			int size = 48;
-			int x = 18;
+			int size = 24;
+			int x = 20;
 			int y = 20 + 24 + 8;
 
-			Renderer.DrawUISprite(x, y, size, size, gemSprite, false);
-			Renderer.DrawUIText(x + size, y, player.money.ToString(), 3);
+			Renderer.DrawUISprite(x, y, size, size, gems, false);
+			Renderer.DrawUIText(x + size + 8, y, player.money.ToString(), 2);
 		}
 
 		{ // Hand item

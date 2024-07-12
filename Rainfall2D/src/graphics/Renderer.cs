@@ -101,7 +101,7 @@ public static class Renderer
 	static Matrix projection, view;
 	static float left, right, bottom, top;
 
-	public const int UIHeight = 1000;
+	public static int UIHeight;
 	public static int UIWidth;
 
 
@@ -109,6 +109,7 @@ public static class Renderer
 	{
 		Renderer.graphics = graphics;
 
+		UIHeight = 1000 / height * height;
 		float aspect = width / (float)height;
 		UIWidth = (int)(aspect * UIHeight);
 

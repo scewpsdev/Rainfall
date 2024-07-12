@@ -21,13 +21,13 @@ public class WanderAI : AI
 		else if (walkDirection == -1)
 			mob.inputLeft = true;
 
-		HitData forwardTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, 0.5f));
+		HitData forwardTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.5f * walkDirection, 0.5f));
 		if (forwardTile != null)
 			walkDirection *= -1;
 		else
 		{
-			HitData forwardDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -0.5f));
-			HitData forwardDownDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -1.5f));
+			HitData forwardDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.5f * walkDirection, -0.5f));
+			HitData forwardDownDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.5f * walkDirection, -1.5f));
 			if (forwardDownTile == null /*&& forwardDownDownTile == null*/)
 				walkDirection *= -1;
 		}

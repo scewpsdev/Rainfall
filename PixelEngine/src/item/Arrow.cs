@@ -16,9 +16,13 @@ public class Arrow : Item
 		attackDamage = 2;
 
 		projectileItem = true;
-		breakOnHit = false;
 
 		maxPierces = 1;
+	}
+
+	public override Item createNew()
+	{
+		return new Arrow();
 	}
 
 	public override void use(Player player)

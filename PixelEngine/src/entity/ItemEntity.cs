@@ -91,12 +91,12 @@ public class ItemEntity : Entity, Interactable
 
 		onHit((collisionFlags & Level.COLLISION_X) != 0, (collisionFlags & Level.COLLISION_Y) != 0);
 
-		if (damage > 0)
+		if (damage > 0 && item.projectileItem)
 		{
 			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, 0.5f, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
 			if (hit != null)
 			{
-				bool skipHit = hit.entity == thrower && (Time.currentTime - throwTime) / 1e9f < 0.1f;
+				bool skipHit = hit.entity == thrower && (Time.currentTime - throwTime) / 1e9f < 1.0f;
 
 				if (!skipHit)
 				{
@@ -107,7 +107,7 @@ public class ItemEntity : Entity, Interactable
 							Hittable hittable = hit.entity as Hittable;
 							hittable.hit(damage, this);
 
-							if (pierces < item.maxPierces)
+							if (pierces < item.maxPierces || item.maxPierces == -1)
 								pierces++;
 							else
 							{
@@ -122,6 +122,8 @@ public class ItemEntity : Entity, Interactable
 				}
 			}
 		}
+
+		item.update(this);
 	}
 
 	public override void render()

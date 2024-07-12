@@ -22,6 +22,8 @@ public class Level
 	public const int COLLISION_Y = 1 << 1;
 
 
+	public int floor;
+
 	public int width, height;
 	int[] tiles;
 
@@ -31,8 +33,10 @@ public class Level
 	public List<Entity> entities = new List<Entity>();
 
 
-	public Level()
+	public Level(int floor)
 	{
+		this.floor = floor;
+
 		width = 20;
 		height = 20;
 		tiles = new int[width * height];
@@ -418,8 +422,9 @@ public class Level
 		return new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
 	}
 
-	public HitData overlap(Vector2 bmin, Vector2 bmax, uint filterMask = 1)
+	public int overlap(Vector2 bmin, Vector2 bmax, Span<HitData> hits, uint filterMask = 1)
 	{
+		int numHits = 0;
 		for (int i = 0; i < entities.Count; i++)
 		{
 			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0)
@@ -427,10 +432,13 @@ public class Level
 				Vector2 min = entities[i].position + entities[i].collider.min;
 				Vector2 max = entities[i].position + entities[i].collider.max;
 				if (bmax.x >= min.x && bmin.x <= max.x && bmax.y >= min.y && bmin.y <= max.y)
-					return new HitData() { entity = entities[i] };
+				{
+					if (numHits < hits.Length)
+						hits[numHits++] = new HitData() { entity = entities[i] };
+				}
 			}
 		}
-		return null;
+		return numHits;
 	}
 
 	public HitData sampleTiles(Vector2 position)

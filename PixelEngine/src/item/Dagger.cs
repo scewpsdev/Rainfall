@@ -6,24 +6,24 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Sword : Item
+public class Dagger : Item
 {
-	public Sword()
-		: base("sword")
+	public Dagger()
+		: base("dagger")
 	{
-		displayName = "Sword";
+		displayName = "Dagger";
 
-		attackDamage = 3;
-		attackRange = 1.5f;
-		attackRate = 2;
+		attackDamage = 1;
+		attackRange = 1.0f;
+		attackRate = 4;
 
-		sprite = new Sprite(tileset, 1, 1);
+		sprite = new Sprite(tileset, 2, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
 	public override Item createNew()
 	{
-		return new Sword();
+		return new Dagger();
 	}
 
 	public override void use(Player player)
