@@ -19,12 +19,14 @@ public class Bomb : Item
 		: base("bomb")
 	{
 		displayName = "Bomb";
+		type = ItemType.Active;
+		stackable = true;
+
+		sprite = new Sprite(tileset, 1, 0);
 
 		attackDamage = 5;
 
 		projectileItem = true;
-
-		sprite = new Sprite(tileset, 1, 0);
 	}
 
 	public override Item createNew()

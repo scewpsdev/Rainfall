@@ -13,7 +13,7 @@ public class Dagger : Item
 	{
 		displayName = "Dagger";
 
-		attackDamage = 1;
+		attackDamage = 2;
 		attackRange = 1.0f;
 		attackRate = 4;
 

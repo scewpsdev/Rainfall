@@ -13,6 +13,7 @@ public class RopeItem : Item
 	{
 		displayName = "Rope";
 		type = ItemType.Active;
+		stackable = true;
 
 		sprite = new Sprite(tileset, 6, 0);
 	}

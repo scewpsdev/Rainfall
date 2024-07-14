@@ -16,6 +16,6 @@ public class Rat : Mob
 
 		ai = new WanderAI();
 
-		health = 2;
+		health = 4;
 	}
 }

@@ -18,9 +18,12 @@ public abstract class Item
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
 
 
+	public int id;
 	public string name;
 	public string displayName = "???";
 	public ItemType type = ItemType.Tool;
+	public bool stackable = false;
+	public int stackSize = 1;
 	public float rarity = 1;
 
 	public int attackDamage = 1;
@@ -42,6 +45,7 @@ public abstract class Item
 	public Item(string name)
 	{
 		this.name = name;
+		id = (int)Hash.hash(name);
 	}
 
 	public abstract Item createNew();
@@ -65,15 +69,17 @@ public abstract class Item
 
 	public static void InitTypes()
 	{
+		InitType(new Skull());
 		InitType(new Arrow());
 		InitType(new Bomb());
 		InitType(new Dagger());
+		InitType(new Sword());
+		InitType(new RopeItem());
 		InitType(new Pickaxe());
 		InitType(new Rock());
-		InitType(new RopeItem());
-		InitType(new Skull());
-		InitType(new Sword());
 		InitType(new Cloak());
+		InitType(new HealthPotion());
+		InitType(new Boomerang());
 	}
 
 	static void InitType(Item item)

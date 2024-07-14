@@ -15,6 +15,6 @@ public class Spider : Mob
 
 		ai = new SpiderAI();
 
-		health = 2;
+		health = 4;
 	}
 }

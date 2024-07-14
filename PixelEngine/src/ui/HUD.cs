@@ -35,17 +35,17 @@ public class HUD
 			return;
 
 		// Health
-		for (int i = 0; i < (int)MathF.Ceiling(player.maxHealth / 2.0f); i++)
+		for (int i = 0; i < player.maxHealth; i++)
 		{
 			int size = 24;
 			int padding = 8;
 			int x = 20 + i * (size + padding);
 			int y = 20;
 
-			if (i < player.health / 2)
+			if (i < player.health)
 				Renderer.DrawUISprite(x, y, size, size, heartFull);
-			else if (i == player.health / 2 && player.health % 2 == 1)
-				Renderer.DrawUISprite(x, y, size, size, heartHalf);
+			//else if (i == player.health / 2 && player.health % 2 == 1)
+			//	Renderer.DrawUISprite(x, y, size, size, heartHalf);
 			else
 				Renderer.DrawUISprite(x, y, size, size, heartEmpty);
 		}
@@ -75,9 +75,12 @@ public class HUD
 			int y = Display.height - 40 - size;
 
 			Renderer.DrawUISprite(x, y, size, size, null, 0, 0, 0, 0, 0xFF111111);
-			Renderer.DrawUIText(x + size - size / 4, y, (player.currentQuickItem + 1).ToString(), 2, 0xFFBBBBBB);
 			if (player.quickItems[player.currentQuickItem] != null)
+			{
 				Renderer.DrawUISprite(x, y, size, size, player.quickItems[player.currentQuickItem].sprite);
+				if (player.quickItems[player.currentQuickItem].stackable && player.quickItems[player.currentQuickItem].stackSize > 1)
+					Renderer.DrawUIText(x + size - size / 4, y + size - 22, player.quickItems[player.currentQuickItem].stackSize.ToString(), 2, 0xFFBBBBBB);
+			}
 		}
 	}
 }

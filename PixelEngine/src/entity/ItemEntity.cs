@@ -155,9 +155,9 @@ public class ItemEntity : Entity, Interactable
 		}
 		else
 		{
-			rotation = 0.0f;
+			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
 			flipped = false;
 		}
-		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, LAYER_DEFAULT_OVERLAY, 1, 1, rotation, item.sprite, flipped, 0xFFFFFFFF);
+		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, LAYER_PLAYER_ITEM, 1, 1, rotation, item.sprite, flipped, 0xFFFFFFFF);
 	}
 }

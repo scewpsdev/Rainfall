@@ -14,7 +14,8 @@ public class Entity
 	public const uint FILTER_ITEM = 1 << 3;
 
 	public const float LAYER_DEFAULT = 0.0f;
-	public const float LAYER_DEFAULT_OVERLAY = -0.01f;
+	public const float LAYER_PLAYER_ARMOR = -0.005f;
+	public const float LAYER_PLAYER_ITEM = -0.01f;
 	public const float LAYER_BG = 0.1f;
 	public const float LAYER_FG = -0.1f;
 
