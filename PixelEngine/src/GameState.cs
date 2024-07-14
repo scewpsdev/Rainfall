@@ -73,7 +73,7 @@ public class GameState : State
 		}
 		cachedLevels.Clear();
 
-		run = new RunStats(1234567); // Hash.hash(Time.timestamp)
+		run = new RunStats(12345678); // Hash.hash(Time.timestamp)
 
 		level = new Level(-1);
 		level.addEntity(new ItemEntity(new Sword()), new Vector2(13, 10));

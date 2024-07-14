@@ -16,7 +16,7 @@ public class GreenSpider : Mob
 		speed = 6;
 		jumpPower = 9;
 
-		health = 2;
+		health = 6;
 
 		ai = new SpiderAI
 		{

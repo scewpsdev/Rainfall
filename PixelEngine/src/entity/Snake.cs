@@ -16,7 +16,7 @@ public class Snake : Mob
 
 		ai = new SnakeAI();
 
-		health = 2;
+		health = 4;
 		speed = 2;
 	}
 }

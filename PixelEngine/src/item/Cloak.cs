@@ -16,6 +16,7 @@ public class Cloak : Item
 		armor = 1;
 
 		sprite = new Sprite(tileset, 5, 0);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/cloak.png", false), 0, 0, 16, 16);
 	}
 
 	public override Item createNew()

@@ -39,7 +39,6 @@ public abstract class Mob : Entity, Hittable
 
 	protected AI ai;
 
-	Interactable interactableInFocus = null;
 	Climbable currentLadder = null;
 
 	public Item handItem = null;

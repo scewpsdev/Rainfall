@@ -148,12 +148,12 @@ public class LevelGenerator
 		specialSet = new RoomDefSet("res/level/rooms_special.png");
 	}
 
-	int countLadderHeight(int x, int y, RoomDefSet set)
+	int countLadderHeight(int x, int y, RoomDef def)
 	{
 		int result = 0;
 		while (true)
 		{
-			uint color = set.rooms[x + (set.roomsInfo.height - y - result - 1) * set.roomsInfo.width];
+			uint color = def.getTile(x, y + result);
 			if (color == 0xFF00FF00 || color == 0xFF00FFFF)
 				result++;
 			else
@@ -200,7 +200,7 @@ public class LevelGenerator
 						level.setTile(x + xx, y + yy, 0);
 						if (yy == room.set.height - 1 ||
 							(roomDef.getTile(xx, yy - 1) != 0xFF00FF00 && roomDef.getTile(xx, yy - 1) != 0xFF00FFFF))
-							level.addEntity(new Ladder(countLadderHeight(roomDef.x + xx, yy, room.set)), new Vector2(x + xx, y + yy));
+							level.addEntity(new Ladder(countLadderHeight(xx, yy, roomDef)), new Vector2(x + xx, y + yy));
 						break;
 					case 0xFF00FFFF:
 						level.setTile(x + xx, y + yy, 3);
@@ -395,7 +395,8 @@ public class LevelGenerator
 			for (int i = 0; i < emptyDoorways.Count; i++)
 			{
 				Doorway emptyDoorway = emptyDoorways[i];
-				fillDoorway(emptyDoorway, specialSet, rooms, width, height);
+				RoomDefSet set = random.NextSingle() < 0.8f ? defaultSet : specialSet;
+				fillDoorway(emptyDoorway, set, rooms, width, height);
 			}
 		}
 
@@ -514,6 +515,7 @@ public class LevelGenerator
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
+						itemChance *= 20;
 
 						if (random.NextSingle() < itemChance)
 						{
@@ -555,7 +557,7 @@ public class LevelGenerator
 								else if (enemyType > 0.333f)
 								{
 									float spiderType = random.NextSingle();
-									if (spiderType < 0.5f)
+									if (spiderType < 0.9f)
 										enemy = new Spider();
 									else
 										enemy = new GreenSpider();

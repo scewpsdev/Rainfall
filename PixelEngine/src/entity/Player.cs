@@ -45,8 +45,8 @@ public class Player : Entity, Hittable
 	long lastJumpInput = -10000000000;
 	long lastGrounded = -10000000000;
 
-	public int maxHealth = 5;
-	public int health = 5;
+	public int maxHealth = 3;
+	public int health = 3;
 
 	public int money = 0;
 
@@ -81,7 +81,7 @@ public class Player : Entity, Hittable
 		animator = new SpriteAnimator();
 
 		animator.addAnimation("idle", 0, 0, 16, 0, 4, 5, true);
-		animator.addAnimation("run", 4 * 16, 0, 16, 0, 4, 10, true);
+		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 10, true);
 		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 4, true);
@@ -93,8 +93,8 @@ public class Player : Entity, Hittable
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
-		handItem = new Dagger();
-		quickItems[0] = new RopeItem();
+		handItem = new Boomerang();
+		quickItems[0] = new HealthPotion();
 	}
 
 	public override void destroy()
@@ -103,10 +103,48 @@ public class Player : Entity, Hittable
 
 	public bool pickupObject(ItemEntity obj)
 	{
-		if (handItem != null)
-			throwItem(handItem, true);
-		handItem = obj.item;
-		return true;
+		if (obj.item.type == ItemType.Tool)
+		{
+			if (handItem != null)
+				throwItem(handItem, true);
+			handItem = obj.item;
+			return true;
+		}
+		else if (obj.item.type == ItemType.Active)
+		{
+			if (obj.item.stackable)
+			{
+				for (int i = 0; i < quickItems.Length; i++)
+				{
+					if (quickItems[i] != null && quickItems[i].id == obj.item.id)
+					{
+						quickItems[i].stackSize += obj.item.stackSize;
+						return true;
+					}
+				}
+			}
+			for (int i = 0; i < quickItems.Length; i++)
+			{
+				if (quickItems[i] == null)
+				{
+					quickItems[i] = obj.item;
+					return true;
+				}
+			}
+			return false;
+		}
+		else
+		{
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] == null)
+				{
+					passiveItems[i] = obj.item;
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	public void throwItem(Item item, bool shortThrow = false)
@@ -124,7 +162,7 @@ public class Player : Entity, Hittable
 		}
 		else
 		{
-			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.1f) : new Vector2(1, 0.25f)) * 14;
+			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.1f) : new Vector2(1, 0.1f)) * 14;
 		}
 		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.5f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
@@ -358,8 +396,15 @@ public class Player : Entity, Hittable
 			}
 			if (Input.IsKeyPressed(KeyCode.F))
 			{
-				if (quickItems[currentQuickItem] != null)
-					quickItems[currentQuickItem].use(this);
+				Item item = quickItems[currentQuickItem];
+				if (item != null)
+				{
+					item.use(this);
+					if (item.stackable && item.stackSize > 1)
+						item.stackSize--;
+					else
+						quickItems[currentQuickItem] = null;
+				}
 			}
 
 			Span<HitData> hits = new HitData[16];
@@ -476,6 +521,12 @@ public class Player : Entity, Hittable
 		}
 
 		animator.update(sprite);
+
+		for (int i = 0; i < passiveItems.Length; i++)
+		{
+			if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+				animator.update(passiveItems[i].ingameSprite);
+		}
 	}
 
 	public override void update()
@@ -499,23 +550,25 @@ public class Player : Entity, Hittable
 		{
 			Renderer.DrawSprite(position.x - 0.5f, position.y, 1, isDucked ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
 
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+					Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, 0xFFFFFFFF);
+			}
+
 			if (handItem != null)
 			{
-				if (handItem.ingameSprite != null)
-				{
-					Renderer.DrawSprite(position.x - 1, position.y - 0.5f, LAYER_DEFAULT_OVERLAY, 2, 2, 0, handItem.ingameSprite, direction == -1);
-				}
-				else if (handItem.sprite != null)
+				if (handItem.sprite != null)
 				{
 					if (actions.currentAction is AttackAction)
 					{
 						AttackAction action = actions.currentAction as AttackAction;
 						float xoffset = (action.currentRange - 0.5f) * action.direction;
-						Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_DEFAULT_OVERLAY, 1, 1, 0, handItem.sprite, action.direction == -1);
+						Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, 1, 1, 0, handItem.sprite, action.direction == -1);
 					}
 					else
 					{
-						Renderer.DrawSprite(position.x - 0.5f + direction * 0.2f, position.y - 0.2f, LAYER_DEFAULT_OVERLAY, 1, 1, 0, handItem.sprite, direction == -1);
+						Renderer.DrawSprite(position.x - 0.5f + itemRenderOffset.x, position.y - 0.5f + itemRenderOffset.y, LAYER_PLAYER_ITEM, 1, 1, 0, handItem.sprite, direction == -1);
 					}
 				}
 
@@ -548,5 +601,10 @@ public class Player : Entity, Hittable
 			hud.render();
 			inventoryUI.render();
 		}
+	}
+
+	public Vector2 itemRenderOffset
+	{
+		get => new Vector2(direction * 0.2f, 0.5f - 0.2f);
 	}
 }
