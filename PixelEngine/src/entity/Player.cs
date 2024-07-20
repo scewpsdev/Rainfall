@@ -187,7 +187,7 @@ public class Player : Entity, Hittable
 
 			if (health <= 0)
 			{
-				onDeath();
+				onDeath(by);
 				deathTime = Time.currentTime;
 			}
 
@@ -207,12 +207,13 @@ public class Player : Entity, Hittable
 		velocity.y += impulse.y;
 	}
 
-	void onDeath()
+	void onDeath(Entity by)
 	{
 		if (handItem != null)
 			throwItem(handItem);
 
 		GameState.instance.run.active = false;
+		GameState.instance.run.killedBy = by;
 	}
 
 	void updateMovement()

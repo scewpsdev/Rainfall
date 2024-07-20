@@ -73,8 +73,7 @@ public static class GameOverScreen
 		y += lineHeight;
 
 		drawLeft("Killed by ");
-		//drawRight(game.player.killedBy != null ? game.player.killedBy.name : "a heart attack");
-		drawRight("deth");
+		drawRight(game.run.killedBy.displayName);
 		y += lineHeight;
 
 		drawLeft("Floor");

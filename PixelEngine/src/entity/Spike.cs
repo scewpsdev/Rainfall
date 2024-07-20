@@ -13,6 +13,8 @@ public class Spike : Entity
 
 	public Spike()
 	{
+		displayName = "Spikes";
+
 		sprite = new Sprite(TileType.tileset, 0, 3);
 	}
 
