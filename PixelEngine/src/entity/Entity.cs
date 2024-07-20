@@ -30,6 +30,9 @@ public class Entity
 	public FloatRect collider;
 	public uint filterGroup = FILTER_DEFAULT;
 
+	public string name;
+	public string displayName;
+
 
 	public virtual void init()
 	{

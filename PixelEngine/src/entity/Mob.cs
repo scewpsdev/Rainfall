@@ -44,8 +44,10 @@ public abstract class Mob : Entity, Hittable
 	public Item handItem = null;
 
 
-	public Mob()
+	public Mob(string name)
 	{
+		this.name = name;
+
 		filterGroup = FILTER_MOB;
 	}
 

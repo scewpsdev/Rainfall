@@ -16,6 +16,8 @@ public class RunStats
 
 	public bool active = true;
 
+	public Entity killedBy;
+
 
 	public RunStats(uint seed)
 	{

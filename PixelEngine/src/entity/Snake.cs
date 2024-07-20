@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 public class Snake : Mob
 {
 	public Snake()
+		: base("snake")
 	{
+		displayName = "Snake";
+
 		sprite = new Sprite(Resource.GetTexture("res/sprites/snake.png", false));
 
 		collider = new FloatRect(-0.3f, 0, 0.6f, 0.8f);
