@@ -134,17 +134,14 @@ public class LevelGenerator
 	Random random;
 
 	RoomDefSet defaultSet;
+	RoomDefSet miscSet;
 	RoomDefSet specialSet;
 
 
-	public LevelGenerator(uint seed, int floor)
+	public LevelGenerator()
 	{
-		this.seed = seed;
-		this.floor = floor;
-
-		random = new Random((int)seed + floor);
-
 		defaultSet = new RoomDefSet("res/level/rooms.png");
+		miscSet = new RoomDefSet("res/level/rooms_misc.png");
 		specialSet = new RoomDefSet("res/level/rooms_special.png");
 	}
 
@@ -201,6 +198,10 @@ public class LevelGenerator
 						if (yy == room.set.height - 1 ||
 							(roomDef.getTile(xx, yy - 1) != 0xFF00FF00 && roomDef.getTile(xx, yy - 1) != 0xFF00FFFF))
 							level.addEntity(new Ladder(countLadderHeight(xx, yy, roomDef)), new Vector2(x + xx, y + yy));
+						break;
+					case 0xFFFF7F00:
+						level.setTile(x + xx, y + yy, 0);
+						level.addEntity(new Spring(), new Vector2(x + xx + 0.5f, y + yy));
 						break;
 					case 0xFF00FFFF:
 						level.setTile(x + xx, y + yy, 3);
@@ -307,8 +308,13 @@ public class LevelGenerator
 		return null;
 	}
 
-	public unsafe void run(Level level, Level nextLevel, Level lastLevel)
+	public unsafe void run(uint seed, int floor, Level level, Level nextLevel, Level lastLevel)
 	{
+		this.seed = seed;
+		this.floor = floor;
+
+		random = new Random((int)seed + floor);
+
 		int width = 50;
 		int height = 40;
 		level.resize(width, height);
@@ -395,7 +401,7 @@ public class LevelGenerator
 			for (int i = 0; i < emptyDoorways.Count; i++)
 			{
 				Doorway emptyDoorway = emptyDoorways[i];
-				RoomDefSet set = random.NextSingle() < 0.8f ? defaultSet : specialSet;
+				RoomDefSet set = random.NextSingle() < 0.8f ? defaultSet : miscSet;
 				fillDoorway(emptyDoorway, set, rooms, width, height);
 			}
 		}
@@ -426,7 +432,7 @@ public class LevelGenerator
 			}
 		}
 
-		if (nextLevel != null)
+		//if (nextLevel != null)
 		{
 			for (int y = exitRoom.y; y < exitRoom.y + exitRoom.height; y++)
 			{
@@ -487,12 +493,31 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null)
+					if (down != null && up == null)
 					{
-						float spikeChance = 0.015f;
-						if (random.NextSingle() < spikeChance)
+						TileType upLeft = TileType.Get(level.getTile(x - 1, y + 1));
+						TileType upRight = TileType.Get(level.getTile(x + 1, y + 1));
+
+						if (upLeft == null || upRight == null)
 						{
-							level.addEntity(new Spike(), new Vector2(x, y));
+							float spikeChance = 0.015f;
+							if (random.NextSingle() < spikeChance)
+							{
+								level.addEntity(new Spike(), new Vector2(x, y));
+							}
+						}
+					}
+
+					if (up != null)
+					{
+						TileType downDown = TileType.Get(level.getTile(x, y - 2));
+						if (down == null && downDown == null)
+						{
+							float spikeTrapChance = 0.01f;
+							if (random.NextSingle() < spikeTrapChance)
+							{
+								level.addEntity(new SpikeTrap(), new Vector2(x + 0.5f, y + 0.5f));
+							}
 						}
 					}
 
@@ -515,7 +540,7 @@ public class LevelGenerator
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
-						itemChance *= 20;
+						itemChance *= 3;
 
 						if (random.NextSingle() < itemChance)
 						{
@@ -534,7 +559,7 @@ public class LevelGenerator
 
 							item = item.createNew();
 
-							level.addEntity(new ItemEntity(item), new Vector2(x + 0.5f, y + 0.5f));
+							level.addEntity(new Chest(item, left != null && right == null), new Vector2(x + 0.5f, y));
 						}
 					}
 
@@ -574,5 +599,41 @@ public class LevelGenerator
 				}
 			}
 		}
+	}
+
+	public void generateLobby(Level level)
+	{
+		RoomDef def = specialSet.roomDefs[0];
+		level.resize(def.width, def.height);
+
+		Room room = new Room
+		{
+			x = 0,
+			y = 0,
+			width = def.width,
+			height = def.height,
+			roomDefID = def.id,
+			set = specialSet
+		};
+
+		placeRoom(room, level);
+	}
+
+	public void generateTutorial(Level level)
+	{
+		RoomDef def = specialSet.roomDefs[1];
+		level.resize(def.width, def.height);
+
+		Room room = new Room
+		{
+			x = 0,
+			y = 0,
+			width = def.width,
+			height = def.height,
+			roomDefID = def.id,
+			set = specialSet
+		};
+
+		placeRoom(room, level);
 	}
 }

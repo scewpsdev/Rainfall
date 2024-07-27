@@ -174,6 +174,7 @@ public static class Renderer
 
 	public static void Resize(int width, int height)
 	{
+		UIHeight = 1000 / height * height;
 		float aspect = width / (float)height;
 		UIWidth = (int)(aspect * UIHeight);
 
@@ -319,9 +320,9 @@ public static class Renderer
 		textDraws.Add(new TextDraw { position = new Vector2i(x, y), text = text, size = size, color = color });
 	}
 
-	public static int MeasureUIText(string text, int length, int scale)
+	public static Vector2i MeasureUIText(string text, int length, int scale)
 	{
-		return font.measureText(text, length) * scale;
+		return new Vector2i(font.measureText(text, length) * scale, (int)(font.size * scale));
 	}
 
 	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)
@@ -351,6 +352,10 @@ public static class Renderer
 		{
 			SpriteDraw draw = draws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+			u0 += 0.0001f;
+			v0 += 0.0001f;
+			u1 -= 0.0001f;
+			v1 -= 0.0001f;
 			if (draws[i].useTransform)
 			{
 				spriteBatch.draw(
@@ -552,6 +557,7 @@ public static class Renderer
 			graphics.drawText(
 				draw.position.x, draw.position.y, 0.0f,
 				draw.size,
+				UIHeight,
 				draw.text, 0, draw.text.Length,
 				font, draw.color,
 				textBatch);

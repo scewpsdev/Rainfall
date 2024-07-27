@@ -223,7 +223,7 @@ RFAPI void Graphics_SetTransform(int pass, const Matrix& transform);
 RFAPI void Graphics_SetViewTransform(int pass, const Matrix& projection, const Matrix& view);
 RFAPI void Graphics_Draw(int pass, Shader* shader);
 RFAPI void Graphics_DrawIndirect(int pass, Shader* shader, IndirectBuffer indirectBuffer, int start, int num);
-RFAPI void Graphics_DrawText(int pass, int x, int y, float z, float scale, const char* text, int offset, int count, Font* font, uint32_t color, SpriteBatch* batch);
+RFAPI void Graphics_DrawText(int pass, int x, int y, float z, float scale, int viewportHeight, const char* text, int offset, int count, Font* font, uint32_t color, SpriteBatch* batch);
 RFAPI void Graphics_DrawDebugText(int x, int y, uint8_t color, const char* text);
 RFAPI void Graphics_GetDebugTextSize(int* outWidth, int* outHeight);
 RFAPI void Graphics_ComputeDispatch(int pass, Shader* shader, int numX, int numY, int numZ);

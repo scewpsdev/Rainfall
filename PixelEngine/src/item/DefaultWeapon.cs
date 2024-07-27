@@ -15,8 +15,10 @@ public class DefaultWeapon : Item
 		: base("default_weapon")
 	{
 		attackDamage = 1;
-		attackRange = 1;
-		attackRate = 2;
+		attackRange = 0.5f;
+		attackRate = 5;
+
+		sprite = new Sprite(tileset, 4, 1);
 	}
 
 	public override Item createNew()

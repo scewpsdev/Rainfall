@@ -42,8 +42,14 @@ public class HUD
 			int x = 20 + i * (size + padding);
 			int y = 20;
 
+			Renderer.DrawUISprite(x, y, size, size, heartEmpty);
 			if (i < player.health)
-				Renderer.DrawUISprite(x, y, size, size, heartFull);
+			{
+				float fraction = MathF.Min(player.health - i, 1);
+				fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
+				//Renderer.DrawUISprite(x, y, size, size, heartFull);
+				Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), heartFull.spriteSheet.texture, heartFull.position.x, heartFull.position.y + (int)(heartFull.size.y * (1 - fraction)), heartFull.size.x, (int)(heartFull.size.y * fraction));
+			}
 			//else if (i == player.health / 2 && player.health % 2 == 1)
 			//	Renderer.DrawUISprite(x, y, size, size, heartHalf);
 			else

@@ -13,9 +13,10 @@ public class Sword : Item
 	{
 		displayName = "Sword";
 
-		attackDamage = 3;
+		attackDamage = 4;
 		attackRange = 1.5f;
 		attackRate = 2;
+		stab = false;
 
 		sprite = new Sprite(tileset, 1, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));

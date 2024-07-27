@@ -220,6 +220,11 @@ public class Level
 		return false;
 	}
 
+	public bool overlapTiles(Vector2 min, Vector2 max)
+	{
+		return overlapTiles(min, max, false, false);
+	}
+
 	public int doCollision(ref Vector2 position, FloatRect collider, ref Vector2 displacement, bool downInput = false)
 	{
 		int flags = 0;

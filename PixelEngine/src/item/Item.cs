@@ -30,6 +30,7 @@ public abstract class Item
 	public float attackRange = 1;
 	public float attackRate = 2.0f;
 	public int maxPierces = 0;
+	public bool stab = true;
 
 	public int armor = 0;
 

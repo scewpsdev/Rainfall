@@ -328,10 +328,10 @@ namespace Rainfall
 			internal static extern void Graphics_Draw(int pass, IntPtr shader);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, byte* text, int offset, int count, IntPtr font, uint color, IntPtr batch);
+			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, int viewportHeight, byte* text, int offset, int count, IntPtr font, uint color, IntPtr batch);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, [MarshalAs(UnmanagedType.LPStr)] string text, int offset, int count, IntPtr font, uint color, IntPtr batch);
+			internal static extern unsafe void Graphics_DrawText(int pass, int x, int y, float z, float scale, int viewportHeight, [MarshalAs(UnmanagedType.LPStr)] string text, int offset, int count, IntPtr font, uint color, IntPtr batch);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe void Graphics_DrawDebugText(int x, int y, byte color, byte* text);

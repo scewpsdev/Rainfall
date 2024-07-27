@@ -25,7 +25,7 @@ public static class GameOverScreen
 
 		{
 			string caption = "YOU DIED";
-			int captionWidth = Renderer.MeasureUIText(caption, caption.Length, 2);
+			int captionWidth = Renderer.MeasureUIText(caption, caption.Length, 2).x;
 			Renderer.DrawUIText(x + width / 2 - captionWidth / 2, y, caption, 2, 0xFFAA3333);
 			y += 22;
 		}
@@ -36,11 +36,15 @@ public static class GameOverScreen
 
 		void drawLeft(string str, uint color = 0xFFAAAAAA)
 		{
+			if (str == null)
+				str = "???";
 			Renderer.DrawUIText(x, y, str, 2, color);
 		}
 		void drawRight(string str, uint color = 0xFFAAAAAA)
 		{
-			int textWidth = Renderer.MeasureUIText(str, str.Length, 2);
+			if (str == null)
+				str = "???";
+			int textWidth = Renderer.MeasureUIText(str, str.Length, 2).x;
 			Renderer.DrawUIText(x + width - textWidth, y, str, 2, color);
 		}
 
@@ -52,6 +56,7 @@ public static class GameOverScreen
 		drawRight(game.run.seed.ToString());
 		y += lineHeight;
 
+		/*
 		drawLeft("Name");
 		//drawRight(game.player.name);
 		drawRight("Bob");
@@ -71,20 +76,21 @@ public static class GameOverScreen
 		//drawRight(game.player.inventory.numGold.ToString());
 		drawRight("broke");
 		y += lineHeight;
+		*/
 
 		drawLeft("Killed by ");
 		drawRight(game.run.killedBy.displayName);
 		y += lineHeight;
 
 		drawLeft("Floor");
-		drawRight(game.run.floor.ToString());
+		drawRight((game.run.floor + 1).ToString());
 		y += lineHeight;
 
 		drawLeft("Enemies killed");
-		//drawRight(game.player.stats.kills.ToString());
-		drawRight("1");
+		drawRight(game.run.kills.ToString());
 		y += lineHeight;
 
+		/*
 		drawLeft("Steps walked");
 		drawRight("1");
 		y += lineHeight;
@@ -96,6 +102,7 @@ public static class GameOverScreen
 		drawLeft("Cookies eaten");
 		drawRight("0");
 		y += lineHeight;
+		*/
 	}
 
 	static void RenderInventory()
