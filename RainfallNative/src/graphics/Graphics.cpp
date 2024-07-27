@@ -513,9 +513,9 @@ RFAPI void Graphics_DrawIndirect(int pass, Shader* shader, IndirectBuffer indire
 	bgfx::submit((bgfx::ViewId)pass, shader->program, bgfx::IndirectBufferHandle{ indirectBuffer }, start, num);
 }
 
-RFAPI void Graphics_DrawText(int pass, int x, int y, float z, float scale, const char* text, int offset, int count, Font* font, uint32_t color, SpriteBatch* batch)
+RFAPI void Graphics_DrawText(int pass, int x, int y, float z, float scale, int viewportHeight, const char* text, int offset, int count, Font* font, uint32_t color, SpriteBatch* batch)
 {
-	font->drawText((bgfx::ViewId)pass, x, y, z, scale, text, offset, count, color, batch);
+	font->drawText((bgfx::ViewId)pass, x, y, z, scale, viewportHeight, text, offset, count, color, batch);
 }
 
 RFAPI void Graphics_DrawDebugText(int x, int y, uint8_t color, const char* text)

@@ -21,7 +21,7 @@ public class Player : Entity, Hittable
 
 	float speed = 7;
 	float climbingSpeed = 4;
-	float jumpPower = 10;
+	float jumpPower = 10.5f;
 	float gravity = -22;
 
 	public int direction = 1;
@@ -44,13 +44,15 @@ public class Player : Entity, Hittable
 
 	long lastJumpInput = -10000000000;
 	long lastGrounded = -10000000000;
+	long lastWallTouchRight = -10000000000;
+	long lastWallTouchLeft = -10000000000;
 
 	public int maxHealth = 3;
-	public int health = 3;
+	public float health = 3;
 
 	public int money = 0;
 
-	long lastHit = 0;
+	long lastHit = -10000000000;
 	public long deathTime = -1;
 	long stunTime = -1;
 
@@ -92,9 +94,6 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
-
-		handItem = new Boomerang();
-		quickItems[0] = new HealthPotion();
 	}
 
 	public override void destroy()
@@ -172,11 +171,21 @@ public class Player : Entity, Hittable
 			handItem = null;
 	}
 
-	public void hit(int damage, Entity by)
+	public void hit(float damage, Entity by)
 	{
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (!invincible)
 		{
+			int totalArmor = 0;
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null)
+					totalArmor += passiveItems[i].armor;
+			}
+
+			float armorAbsorption = totalArmor / (10.0f + totalArmor);
+			damage *= 1 - armorAbsorption;
+
 			health -= damage;
 
 			Vector2 enemyPosition = by.position;
@@ -211,6 +220,8 @@ public class Player : Entity, Hittable
 	{
 		if (handItem != null)
 			throwItem(handItem);
+
+		actions.cancelAllActions();
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
@@ -253,6 +264,12 @@ public class Player : Entity, Hittable
 
 			if (isGrounded)
 				lastGrounded = Time.currentTime;
+
+			if (Input.IsKeyDown(KeyCode.Right) && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
+				lastWallTouchRight = Time.currentTime;
+			if (Input.IsKeyDown(KeyCode.Left) && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
+				lastWallTouchLeft = Time.currentTime;
+
 			if (Input.IsKeyPressed(KeyCode.C))
 			{
 				if (isClimbing)
@@ -272,6 +289,20 @@ public class Player : Entity, Hittable
 						velocity.y = jumpPower;
 						lastJumpInput = 0;
 						lastGrounded = 0;
+					}
+					else if (!isGrounded)
+					{
+						if ((Time.currentTime - lastWallTouchRight) / 1e9f < COYOTE_TIME)
+						{
+							velocity.y = jumpPower * 0.7f;
+							addImpulse(new Vector2(-15, 0.0f));
+						}
+
+						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
+						{
+							velocity.y = jumpPower * 0.7f;
+							addImpulse(new Vector2(15, 0.0f));
+						}
 					}
 				}
 			}
@@ -328,8 +359,11 @@ public class Player : Entity, Hittable
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
+			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 3 * Time.deltaTime);
+			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
+				impulseVelocity.x = 0;
+			//impulseVelocity.x = impulseVelocity.x - velocity.x;
 			velocity += impulseVelocity;
-			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 10 * Time.deltaTime);
 
 			if (velocity.y < 0 && lastLadderJumpedFrom != null)
 				lastLadderJumpedFrom = null;
@@ -564,8 +598,17 @@ public class Player : Entity, Hittable
 					if (actions.currentAction is AttackAction)
 					{
 						AttackAction action = actions.currentAction as AttackAction;
-						float xoffset = (action.currentRange - 0.5f) * action.direction;
-						Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, 1, 1, 0, handItem.sprite, action.direction == -1);
+						if (handItem.stab)
+						{
+							float xoffset = (action.currentRange - 0.5f) * action.direction;
+							Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, 1, 1, 0, handItem.sprite, action.direction == -1);
+						}
+						else
+						{
+							float rotation = ((1 - action.currentRange / handItem.attackRange) * MathF.PI - 0.25f * MathF.PI) * action.direction;
+							Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
+							Renderer.DrawSprite(position.x - 0.5f + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, 1, 1, rotation, handItem.sprite, action.direction == -1);
+						}
 					}
 					else
 					{
@@ -577,17 +620,13 @@ public class Player : Entity, Hittable
 				Renderer.DrawSprite(position.x - 0.25f, position.y + (isDucked ? 0.5f : 1) + 0.5f - 0.25f, 0, 0.5f, 0.5f, null, 0, 0, 0, 0, 0xFF444444);
 				*/
 			}
-
-			if (actions.currentAction is AttackAction)
+			else
 			{
-				AttackAction action = actions.currentAction as AttackAction;
-				if (handItem != null)
+				if (actions.currentAction is AttackAction)
 				{
-					//Renderer.DrawLine(new Vector3(position.x, position.y + 0.5f, 0), new Vector3(position.x + direction * handItem.attackRange, position.y + 0.5f, 0), new Vector4(1));
-				}
-				else
-				{
-					Renderer.DrawLine(new Vector3(position.x, position.y + 0.5f, 0), new Vector3(position.x + action.direction * action.currentRange, position.y + 0.5f, 0), new Vector4(1));
+					AttackAction action = actions.currentAction as AttackAction;
+					float xoffset = (action.currentRange - 0.5f) * action.direction;
+					Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, 1, 1, 0, DefaultWeapon.instance.sprite, action.direction == -1);
 				}
 			}
 

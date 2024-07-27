@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Door : Entity, Interactable
 {
-	Level destination;
+	public Level destination;
 	public Door otherDoor;
 
 	Sprite sprite;

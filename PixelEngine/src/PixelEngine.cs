@@ -1,4 +1,11 @@
-﻿using Rainfall;
+﻿#if DEBUG
+#define COMPILE_RESOURCES
+#else
+//#define COMPILE_RESOURCES
+#endif
+
+
+using Rainfall;
 using System;
 using System.Drawing;
 using System.Collections.Generic;
@@ -160,6 +167,7 @@ public class PixelEngine : Game
 
 	public static void Main(string[] args)
 	{
+#if COMPILE_RESOURCES
 #if DEBUG
 		string config = "Debug";
 #else
@@ -172,6 +180,7 @@ public class PixelEngine : Game
 
 		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+#endif
 
 		LaunchParams launchParams = new LaunchParams(args);
 		launchParams.fpsCap = 120;

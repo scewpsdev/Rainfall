@@ -66,7 +66,7 @@ public class SpiderAI : AI
 			Player player = GameState.instance.player;
 			if ((player.position - mob.position).lengthSquared < aggroRange * aggroRange)
 			{
-				HitData hit = GameState.instance.level.raycastTiles(mob.position + new Vector2(0, 1), (player.position - mob.position).normalized, aggroRange);
+				HitData hit = GameState.instance.level.raycastTiles(mob.position + new Vector2(0, 0.5f), (player.position - mob.position).normalized, aggroRange);
 				if (hit == null)
 					target = player;
 			}

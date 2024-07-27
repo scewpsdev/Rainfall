@@ -229,11 +229,11 @@ namespace Rainfall
 
 					if (text != null)
 					{
-						graphics.drawText(x, y, z, scale, text, offset, length, font, color, textBatch);
+						graphics.drawText(x, y, z, scale, Display.viewportSize.y, text, offset, length, font, color, textBatch);
 					}
 					else if (str != null)
 					{
-						graphics.drawText(x, y, z, scale, str, offset, length, font, color, textBatch);
+						graphics.drawText(x, y, z, scale, Display.viewportSize.y, str, offset, length, font, color, textBatch);
 					}
 				}
 			}

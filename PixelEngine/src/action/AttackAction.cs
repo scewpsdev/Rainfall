@@ -43,6 +43,9 @@ public class AttackAction : EntityAction
 				Hittable hittable = hits[i].entity as Hittable;
 				hittable.hit(weapon.attackDamage, player);
 				hitEntities.Add(hits[i].entity);
+
+				if (hittable is Mob && ((Mob)hittable).health == 0)
+					GameState.instance.run.kills++;
 			}
 		}
 	}

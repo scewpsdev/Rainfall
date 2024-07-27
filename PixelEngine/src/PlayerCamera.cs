@@ -19,6 +19,13 @@ public class PlayerCamera : Entity
 		this.player = player;
 	}
 
+	public Vector2i worldToScreen(Vector2 pos)
+	{
+		int x = (int)(MathHelper.Remap(pos.x, position.x - 0.5f * width, position.x + 0.5f * width, 0, 1) * Renderer.UIWidth);
+		int y = (int)(MathHelper.Remap(pos.y, position.y - 0.5f * height, position.y + 0.5f * height, 1, 0) * Renderer.UIHeight);
+		return new Vector2i(x, y);
+	}
+
 	public override void update()
 	{
 		height = 1080 / 4.0f / 16.0f;
@@ -43,8 +50,15 @@ public class PlayerCamera : Entity
 		target.y = MathHelper.Clamp(target.y, y0, y1);
 
 		position = Vector2.Lerp(position, target, 5 * Time.deltaTime);
-		position.x = MathHelper.Clamp(position.x, x0, x1);
-		position.y = MathHelper.Clamp(position.y, y0, y1);
+
+		if (x1 > x0)
+			position.x = MathHelper.Clamp(position.x, x0, x1);
+		else
+			position.x = (x0 + x1) * 0.5f;
+		if (y1 > y0)
+			position.y = MathHelper.Clamp(position.y, y0, y1);
+		else
+			position.y = (y0 + y1) * 0.5f;
 	}
 
 	public override void render()

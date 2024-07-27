@@ -33,7 +33,7 @@ public abstract class Mob : Entity, Hittable
 
 	protected Sprite sprite;
 
-	public int health = 1;
+	public float health = 1;
 
 	public int damage = 1;
 
@@ -55,7 +55,7 @@ public abstract class Mob : Entity, Hittable
 	{
 	}
 
-	public void hit(int damage, Entity by)
+	public void hit(float damage, Entity by)
 	{
 		health -= damage;
 
@@ -72,7 +72,8 @@ public abstract class Mob : Entity, Hittable
 
 	public void stun()
 	{
-		stunTime = Time.currentTime;
+		if (stunTime == -1 || (Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
+			stunTime = Time.currentTime;
 	}
 
 	void updateMovement()

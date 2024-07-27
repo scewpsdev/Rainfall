@@ -43,5 +43,5 @@ struct Font
 
 	int measureText(const char* str, int offset, int count);
 
-	void drawText(bgfx::ViewId view, int x, int y, float z, float textScale, const char* text, int offset, int count, uint32_t color, SpriteBatch* batch);
+	void drawText(bgfx::ViewId view, int x, int y, float z, float textScale, int viewportHeight, const char* text, int offset, int count, uint32_t color, SpriteBatch* batch);
 };

@@ -13,6 +13,7 @@ public class RunStats
 	public uint seed;
 	public float duration = 0.0f;
 	public int floor = 0;
+	public int kills = 0;
 
 	public bool active = true;
 
@@ -56,7 +57,7 @@ public class GameState : State
 	Door newLevelDoor = null;
 
 	public Player player;
-	PlayerCamera camera;
+	public PlayerCamera camera;
 
 
 	public unsafe GameState()
@@ -75,44 +76,70 @@ public class GameState : State
 		}
 		cachedLevels.Clear();
 
-		run = new RunStats(12345678); // Hash.hash(Time.timestamp)
+		//run = new RunStats(12345678);
+		run = new RunStats(Hash.hash(Time.timestamp));
+
+		LevelGenerator generator = new LevelGenerator();
 
 		level = new Level(-1);
-		level.addEntity(new ItemEntity(new Sword()), new Vector2(13, 10));
-		level.addEntity(new Snake(), new Vector2(5, 1));
-		level.addEntity(player = new Player(), new Vector2(10, 1));
+		Level tutorial = new Level(-1);
+
+		int numFloors = 5;
+		Level[] floors = new Level[numFloors];
+		for (int i = 0; i < floors.Length; i++)
+			floors[i] = new Level(i);
+
+		Door tutorialEntrance = new Door(level);
+		Door tutorialExit = new Door(level);
+
+		Door tutorialDoor = new Door(tutorial, tutorialEntrance);
+		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
+		Door dungeonDoor = new Door(floors[0]);
+		level.exit = dungeonDoor;
+
+		tutorialEntrance.otherDoor = tutorialDoor;
+		tutorialExit.otherDoor = tutorialExitDoor;
+
+		level.addEntity(player = new Player(), new Vector2(2, 1));
 		level.addEntity(camera = new PlayerCamera(player));
 
-		Level secondLevel = new Level(-1);
-		secondLevel.setTile(secondLevel.width - 2, 2, 3);
-		secondLevel.setTile(secondLevel.width - 3, 2, 3);
-		secondLevel.setTile(secondLevel.width - 4, 2, 3);
-		secondLevel.addEntity(new Ladder(5), new Vector2(8, 1));
-		secondLevel.addEntity(new ArrowTrap(new Vector2(-1, 0)), new Vector2(12, 1));
-		secondLevel.setTile(12, 1, 1);
-		cachedLevels.Add(secondLevel);
+		level.addEntity(tutorialDoor, new Vector2(7.5f, 1));
+		level.addEntity(new TutorialText("Tutorial [X]", 2, 0xFFFFFFFF), new Vector2(7.5f, 3));
+		level.addEntity(tutorialExitDoor, new Vector2(7.5f, 5));
+		level.addEntity(dungeonDoor, new Vector2(4.5f, 1));
 
-		Level[] levels = [new Level(1), new Level(2), new Level(3)];
+		generator.generateLobby(level);
+		generator.generateTutorial(tutorial);
+		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
+		tutorial.addEntity(tutorialExit, new Vector2(41, 24));
+		tutorial.addEntity(new TutorialText("Arrow Keys to move", 2, 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
+		tutorial.addEntity(new TutorialText("C to jump", 2, 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 5));
+		tutorial.addEntity(new TutorialText("Hold to jump higher", 2, 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 2));
+		tutorial.addEntity(new TutorialText("Down to drop", 2, 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
+		tutorial.addEntity(new TutorialText("Up to climb", 2, 0xFFFFFFFF), new Vector2(43.5f, tutorial.height - 15));
+		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 2, 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
+		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
+		tutorial.addEntity(new TutorialText("X to interact", 2, 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
+		tutorial.addEntity(new TutorialText("X to attack", 2, 0xFFFFFFFF), new Vector2(43, 19));
+		tutorial.addEntity(new TutorialText("F to use item", 2, 0xFFFFFFFF), new Vector2(43, 25));
+		tutorial.addEntity(new Chest(new HealthPotion()), new Vector2(43, 24));
+		tutorial.addEntity(new Rat(), new Vector2(42, 17));
+		tutorial.addEntity(new Snake(), new Vector2(50, 19));
+		tutorial.addEntity(new Spider(), new Vector2(48, 23));
 
-		level.exit = new Door(secondLevel);
-		level.addEntity(level.exit, new Vector2(15, 1));
-
-		secondLevel.entrance = new Door(level, level.exit);
-		secondLevel.addEntity(secondLevel.entrance, new Vector2(4, 1));
-		level.exit.otherDoor = secondLevel.entrance;
-
-		secondLevel.exit = new Door(levels[0]);
-		secondLevel.addEntity(secondLevel.exit, new Vector2(15, 1));
-
-		Level lastLevel = secondLevel;
-		for (int i = 0; i < levels.Length; i++)
+		Level lastLevel = level;
+		for (int i = 0; i < floors.Length; i++)
 		{
-			LevelGenerator generator = new LevelGenerator(run.seed, i);
-			generator.run(levels[i], i < levels.Length - 1 ? levels[i + 1] : null, lastLevel);
-			lastLevel = levels[i];
+			generator.run(run.seed, i, floors[i], i < floors.Length - 1 ? floors[i + 1] : null, lastLevel);
+			lastLevel = floors[i];
 		}
 
-		switchLevel(levels[0], levels[0].entrance);
+		Level finalRoom = new Level(-1);
+		Door finalRoomEntrance = new Door(lastLevel, lastLevel.exit);
+		lastLevel.exit.destination = finalRoom;
+		lastLevel.exit.otherDoor = finalRoomEntrance;
+		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
+		finalRoom.addEntity(new TutorialText("Thanks for playing", 3, 0xFFFFFFFF), new Vector2(10, 6));
 	}
 
 	public override void init()
@@ -149,6 +176,8 @@ public class GameState : State
 				cachedLevels.Remove(newLevel);
 			newLevel.addEntity(player, newLevelDoor.position, false);
 			newLevel.addEntity(camera, false);
+
+			camera.position = player.position;
 
 			if (newLevel.floor > run.floor)
 				run.floor = newLevel.floor;

@@ -26,7 +26,7 @@ public class Bomb : Item
 
 		attackDamage = 5;
 
-		projectileItem = true;
+		//projectileItem = true;
 	}
 
 	public override Item createNew()

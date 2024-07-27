@@ -757,35 +757,35 @@ namespace Rainfall
 			Native.Graphics.Graphics_Draw(currentPass, shader.handle);
 		}
 
-		public unsafe void drawText(int x, int y, float z, float scale, byte* text, int offset, int count, Font font, uint color, SpriteBatch batch)
+		public unsafe void drawText(int x, int y, float z, float scale, int viewportHeight, byte* text, int offset, int count, Font font, uint color, SpriteBatch batch)
 		{
-			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, offset, count, font.handle, color, batch.handle);
+			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, viewportHeight, text, offset, count, font.handle, color, batch.handle);
 		}
 
-		public unsafe void drawText(int x, int y, float z, float scale, byte* text, int length, Font font, uint color, SpriteBatch batch)
+		public unsafe void drawText(int x, int y, float z, float scale, int viewportHeight, byte* text, int length, Font font, uint color, SpriteBatch batch)
 		{
-			drawText(x, y, z, scale, text, 0, length, font, color, batch);
+			drawText(x, y, z, scale, viewportHeight, text, 0, length, font, color, batch);
 		}
 
-		public unsafe void drawText(int x, int y, float z, float scale, Span<byte> text, int offset, int count, Font font, uint color, SpriteBatch batch)
+		public unsafe void drawText(int x, int y, float z, float scale, int viewportHeight, Span<byte> text, int offset, int count, Font font, uint color, SpriteBatch batch)
 		{
 			fixed (byte* textPtr = text)
-				Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, textPtr, offset, count, font.handle, color, batch.handle);
+				Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, viewportHeight, textPtr, offset, count, font.handle, color, batch.handle);
 		}
 
-		public void drawText(int x, int y, float z, float scale, Span<byte> text, int length, Font font, uint color, SpriteBatch batch)
+		public void drawText(int x, int y, float z, float scale, int viewportHeight, Span<byte> text, int length, Font font, uint color, SpriteBatch batch)
 		{
-			drawText(x, y, z, scale, text, 0, length, font, color, batch);
+			drawText(x, y, z, scale, viewportHeight, text, 0, length, font, color, batch);
 		}
 
-		public void drawText(int x, int y, float z, float scale, string text, int offset, int count, Font font, uint color, SpriteBatch batch)
+		public void drawText(int x, int y, float z, float scale, int viewportHeight, string text, int offset, int count, Font font, uint color, SpriteBatch batch)
 		{
-			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, text, offset, count, font.handle, color, batch.handle);
+			Native.Graphics.Graphics_DrawText(currentPass, x, y, z, scale, viewportHeight, text, offset, count, font.handle, color, batch.handle);
 		}
 
-		public void drawText(int x, int y, float z, float scale, string text, Font font, uint color, SpriteBatch batch)
+		public void drawText(int x, int y, float z, float scale, int viewportHeight, string text, Font font, uint color, SpriteBatch batch)
 		{
-			drawText(x, y, z, scale, text, 0, text.Length, font, color, batch);
+			drawText(x, y, z, scale, viewportHeight, text, 0, text.Length, font, color, batch);
 		}
 
 		public void computeDispatch(Shader shader, int numX, int numY, int numZ)
