@@ -13,7 +13,7 @@ public class Cloak : Item
 	{
 		type = ItemType.Passive;
 
-		armor = 10;
+		armor = 5;
 
 		sprite = new Sprite(tileset, 5, 0);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/cloak.png", false), 0, 0, 16, 16);

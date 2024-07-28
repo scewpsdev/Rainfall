@@ -14,6 +14,7 @@ public class Arrow : Item
 		sprite = new Sprite(tileset, 2, 0);
 
 		attackDamage = 2;
+		rarity = 0;
 
 		projectileItem = true;
 
