@@ -30,7 +30,9 @@ public abstract class Item
 	public float attackRange = 1;
 	public float attackRate = 2.0f;
 	public int maxPierces = 0;
+
 	public bool stab = true;
+	public Vector2 size = new Vector2(1);
 
 	public int armor = 0;
 
@@ -81,6 +83,8 @@ public abstract class Item
 		InitType(new Cloak());
 		InitType(new HealthPotion());
 		InitType(new Boomerang());
+		InitType(new Stick());
+		InitType(new Spear());
 	}
 
 	static void InitType(Item item)

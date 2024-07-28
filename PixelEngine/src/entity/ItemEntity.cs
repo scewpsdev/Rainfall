@@ -158,6 +158,6 @@ public class ItemEntity : Entity, Interactable
 			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
 			flipped = false;
 		}
-		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, LAYER_PLAYER_ITEM, 1, 1, rotation, item.sprite, flipped, 0xFFFFFFFF);
+		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, 0xFFFFFFFF);
 	}
 }

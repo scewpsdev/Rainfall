@@ -601,18 +601,18 @@ public class Player : Entity, Hittable
 						if (handItem.stab)
 						{
 							float xoffset = (action.currentRange - 0.5f) * action.direction;
-							Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, 1, 1, 0, handItem.sprite, action.direction == -1);
+							Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, action.direction == -1);
 						}
 						else
 						{
 							float rotation = ((1 - action.currentRange / handItem.attackRange) * MathF.PI - 0.25f * MathF.PI) * action.direction;
 							Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
-							Renderer.DrawSprite(position.x - 0.5f + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, 1, 1, rotation, handItem.sprite, action.direction == -1);
+							Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
 						}
 					}
 					else
 					{
-						Renderer.DrawSprite(position.x - 0.5f + itemRenderOffset.x, position.y - 0.5f + itemRenderOffset.y, LAYER_PLAYER_ITEM, 1, 1, 0, handItem.sprite, direction == -1);
+						Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + itemRenderOffset.x, position.y - 0.5f + itemRenderOffset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, direction == -1);
 					}
 				}
 
