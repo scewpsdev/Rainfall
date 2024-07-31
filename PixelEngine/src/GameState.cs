@@ -104,7 +104,7 @@ public class GameState : State
 		level.addEntity(camera = new PlayerCamera(player));
 
 		level.addEntity(tutorialDoor, new Vector2(7.5f, 1));
-		level.addEntity(new TutorialText("Tutorial [X]", 2, 0xFFFFFFFF), new Vector2(7.5f, 3));
+		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(7.5f, 3));
 		level.addEntity(tutorialExitDoor, new Vector2(7.5f, 5));
 		level.addEntity(dungeonDoor, new Vector2(4.5f, 1));
 
@@ -112,16 +112,16 @@ public class GameState : State
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
 		tutorial.addEntity(tutorialExit, new Vector2(41, 24));
-		tutorial.addEntity(new TutorialText("Arrow Keys to move", 2, 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
-		tutorial.addEntity(new TutorialText("C to jump", 2, 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 5));
-		tutorial.addEntity(new TutorialText("Hold to jump higher", 2, 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 2));
-		tutorial.addEntity(new TutorialText("Down to drop", 2, 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
-		tutorial.addEntity(new TutorialText("Up to climb", 2, 0xFFFFFFFF), new Vector2(43.5f, tutorial.height - 15));
-		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 2, 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
+		tutorial.addEntity(new TutorialText("Arrow Keys to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
+		tutorial.addEntity(new TutorialText("C to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 5));
+		tutorial.addEntity(new TutorialText("Hold to jump higher", 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 2));
+		tutorial.addEntity(new TutorialText("Down to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
+		tutorial.addEntity(new TutorialText("Up to climb", 0xFFFFFFFF), new Vector2(43.5f, tutorial.height - 15));
+		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
 		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
-		tutorial.addEntity(new TutorialText("X to interact", 2, 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
-		tutorial.addEntity(new TutorialText("X to attack", 2, 0xFFFFFFFF), new Vector2(43, 19));
-		tutorial.addEntity(new TutorialText("F to use item", 2, 0xFFFFFFFF), new Vector2(43, 25));
+		tutorial.addEntity(new TutorialText("X to interact", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
+		tutorial.addEntity(new TutorialText("X to attack", 0xFFFFFFFF), new Vector2(43, 19));
+		tutorial.addEntity(new TutorialText("F to use item", 0xFFFFFFFF), new Vector2(43, 25));
 		tutorial.addEntity(new Chest(new HealthPotion()), new Vector2(43, 24));
 		tutorial.addEntity(new Rat(), new Vector2(42, 17));
 		tutorial.addEntity(new Snake(), new Vector2(50, 19));
@@ -139,7 +139,7 @@ public class GameState : State
 		lastLevel.exit.destination = finalRoom;
 		lastLevel.exit.otherDoor = finalRoomEntrance;
 		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
-		finalRoom.addEntity(new TutorialText("Thanks for playing", 3, 0xFFFFFFFF), new Vector2(10, 6));
+		finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
 	}
 
 	public override void init()

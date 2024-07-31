@@ -39,6 +39,11 @@ namespace Rainfall
 			this.z = z;
 		}
 
+		public Vector2i xy
+		{
+			get => new Vector2i(x, y);
+		}
+
 		public override string ToString()
 		{
 			return x.ToString(CultureInfo.InvariantCulture) + "," + y.ToString(CultureInfo.InvariantCulture) + "," + z.ToString(CultureInfo.InvariantCulture);
