@@ -296,12 +296,14 @@ public class Player : Entity, Hittable
 						{
 							velocity.y = jumpPower * 0.7f;
 							addImpulse(new Vector2(-15, 0.0f));
+							lastWallTouchRight = 0;
 						}
 
 						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
 						{
 							velocity.y = jumpPower * 0.7f;
 							addImpulse(new Vector2(15, 0.0f));
+							lastWallTouchLeft = 0;
 						}
 					}
 				}

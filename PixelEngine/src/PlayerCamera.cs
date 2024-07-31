@@ -12,6 +12,7 @@ public class PlayerCamera : Entity
 	Vector2 target;
 
 	float width, height;
+	public int scale;
 
 
 	public PlayerCamera(Player player)
@@ -31,7 +32,7 @@ public class PlayerCamera : Entity
 		height = 1080 / 4.0f / 16.0f;
 
 		// pixel perfect correction
-		int scale = (int)MathF.Ceiling(Display.height / height / 16.0f);
+		scale = (int)MathF.Ceiling(Display.height / height / 16.0f);
 		height = Display.height / (float)scale / 16.0f;
 
 		float aspect = Display.aspectRatio;

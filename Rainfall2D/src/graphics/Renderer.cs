@@ -1,4 +1,5 @@
 ﻿using Rainfall;
+using Rainfall2D;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,6 +98,7 @@ public static class Renderer
 
 	static FontData fontData;
 	static Font font;
+	static PixelFont smallFont;
 
 	static Matrix projection, view;
 	static float left, right, bottom, top;
@@ -170,6 +172,8 @@ public static class Renderer
 
 		fontData = Resource.GetFontData("res/fonts/dpcomic.ttf");
 		font = fontData.createFont(14, false);
+
+		smallFont = new PixelFont("res/fonts/font.png");
 	}
 
 	public static void Resize(int width, int height)
@@ -323,6 +327,26 @@ public static class Renderer
 	public static Vector2i MeasureUIText(string text, int length, int scale)
 	{
 		return new Vector2i(font.measureText(text, length) * scale, (int)(font.size * scale));
+	}
+
+	public static void DrawUITextBMP(int x, int y, string text, int size, uint color = 0xFFFFFFFF)
+	{
+		int cursor = 0;
+		for (int i = 0; i < text.Length; i++)
+		{
+			IntRect rect = smallFont.getCharacterRect(text[i]);
+			if (rect == null)
+				rect = smallFont.getCharacterRect('?');
+
+			uiDraws.Add(new UIDraw { position = new Vector2i(x + cursor * size, y), size = new Vector2i(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+
+			cursor += rect.size.x;
+		}
+	}
+
+	public static Vector2i MeasureUITextBMP(string text, int length, int scale)
+	{
+		return new Vector2i(smallFont.measureText(text, length) * scale, (int)(smallFont.size * scale));
 	}
 
 	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)

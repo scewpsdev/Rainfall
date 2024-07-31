@@ -38,14 +38,14 @@ public static class GameOverScreen
 		{
 			if (str == null)
 				str = "???";
-			Renderer.DrawUIText(x, y, str, 2, color);
+			Renderer.DrawUITextBMP(x, y, str, 2, color);
 		}
 		void drawRight(string str, uint color = 0xFFAAAAAA)
 		{
 			if (str == null)
 				str = "???";
-			int textWidth = Renderer.MeasureUIText(str, str.Length, 2).x;
-			Renderer.DrawUIText(x + width - textWidth, y, str, 2, color);
+			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 2).x;
+			Renderer.DrawUITextBMP(x + width - textWidth, y, str, 2, color);
 		}
 
 		drawLeft("Time");

@@ -16,7 +16,7 @@ public class Stick : Item
 		attackDamage = 2;
 		attackRange = 1.0f;
 		attackRate = 2;
-		stab = false;
+		//stab = false;
 
 		sprite = new Sprite(tileset, 5, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
