@@ -26,8 +26,9 @@ public class Arrow : Item
 		return new Arrow();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		player.throwItem(this, false);
+		return true;
 	}
 }

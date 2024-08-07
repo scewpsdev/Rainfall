@@ -52,28 +52,11 @@ void main()
 {
 	float textureID = v_texcoord0.z;
 	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SRGBToLinear(SampleTextureByID(textureID, v_texcoord0.xy)), textureID > -0.5 ? 1.0 : 0.0);
-	textureColor.rgb *= v_color0.rgb;
+	float mask = v_texcoord0.w;
+	textureColor.rgb = (mask * textureColor.rgb + (1 - mask)) * v_color0.rgb;
 	
 	if (textureColor.a < 0.01)
 		discard;
 	
-	vec3 normal = normalize(v_normal);
-	
-	float roughness = 0.5;
-	vec3 emissive = vec3(0.0, 0.0, 0.0);
-	float emissionStrength = 0.0;
-	float metallic = 0.0;
-	
-	emissive = textureColor.rgb;
-	emissionStrength = max(v_color0.a - 1.0, 0.0);
-
 	gl_FragColor = textureColor;
-	//gl_FragColor = vec4(linearToSRGB(textureColor.rgb), textureColor.a);
-
-	/*
-	gl_FragData[0] = vec4(v_position, 1);
-    gl_FragData[1] = vec4(normal * 0.5 + 0.5, emissionStrength);
-    gl_FragData[2] = vec4(textureColor.rgb, roughness);
-    gl_FragData[3] = vec4(emissive, metallic);
-	*/
 }

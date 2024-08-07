@@ -26,7 +26,7 @@ public class Pickaxe : Item
 		return new Pickaxe();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
 
@@ -38,24 +38,39 @@ public class Pickaxe : Item
 			}
 			else
 			{
-				Vector2i pos = (Vector2i)Vector2.Floor(player.position + new Vector2(player.direction, 0.5f));
-				TileType tile = TileType.Get(GameState.instance.level.getTile(pos));
-				if (tile != null && tile.isSolid)
+				if (Input.IsKeyDown(KeyCode.Up))
 				{
-					GameState.instance.level.setTile(pos.x, pos.y, 0);
-					//player.actions.cancelAction();
-				}
-				else
-				{
-					pos = (Vector2i)Vector2.Floor(player.position + new Vector2(player.direction, -0.5f));
-					tile = TileType.Get(GameState.instance.level.getTile(pos));
+					Vector2i pos = (Vector2i)Vector2.Floor(player.position + new Vector2(0, 1.5f));
+					TileType tile = TileType.Get(GameState.instance.level.getTile(pos));
 					if (tile != null && tile.isSolid)
 					{
 						GameState.instance.level.setTile(pos.x, pos.y, 0);
 						//player.actions.cancelAction();
 					}
 				}
+				else
+				{
+					Vector2i pos = (Vector2i)Vector2.Floor(player.position + new Vector2(player.direction, 0.5f));
+					TileType tile = TileType.Get(GameState.instance.level.getTile(pos));
+					if (tile != null && tile.isSolid)
+					{
+						GameState.instance.level.setTile(pos.x, pos.y, 0);
+						//player.actions.cancelAction();
+					}
+					else
+					{
+						pos = (Vector2i)Vector2.Floor(player.position + new Vector2(player.direction, -0.5f));
+						tile = TileType.Get(GameState.instance.level.getTile(pos));
+						if (tile != null && tile.isSolid)
+						{
+							GameState.instance.level.setTile(pos.x, pos.y, 0);
+							//player.actions.cancelAction();
+						}
+					}
+				}
 			}
 		}
+
+		return true;
 	}
 }

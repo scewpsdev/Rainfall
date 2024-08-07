@@ -22,8 +22,9 @@ public class Rock : Item
 		return new Rock();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		player.throwItem(this);
+		return true;
 	}
 }

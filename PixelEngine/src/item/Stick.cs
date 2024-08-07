@@ -17,6 +17,7 @@ public class Stick : Item
 		attackRange = 1.0f;
 		attackRate = 2;
 		//stab = false;
+		//attackAngle = MathF.PI * 0.7f;
 
 		sprite = new Sprite(tileset, 5, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
@@ -27,8 +28,9 @@ public class Stick : Item
 		return new Stick();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
+		return true;
 	}
 }

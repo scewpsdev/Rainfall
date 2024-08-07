@@ -190,6 +190,7 @@ namespace Rainfall
 					uiTextures[i].texture, uint.MaxValue,
 					u0, v0, u1, v1, false, false,
 					uiTextures[i].color,
+					1.0f,
 					Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
 			}
 

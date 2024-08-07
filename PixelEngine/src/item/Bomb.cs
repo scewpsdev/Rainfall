@@ -24,7 +24,7 @@ public class Bomb : Item
 
 		sprite = new Sprite(tileset, 1, 0);
 
-		attackDamage = 5;
+		attackDamage = 8;
 
 		//projectileItem = true;
 	}
@@ -34,11 +34,11 @@ public class Bomb : Item
 		return new Bomb();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		player.throwItem(this);
-
 		useTime = Time.currentTime;
+		return true;
 	}
 
 	public override void update(ItemEntity entity)
@@ -57,11 +57,14 @@ public class Bomb : Item
 			}
 
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.overlap(tile - (float)blastRadius, tile + (float)blastRadius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM);
+			int numHits = GameState.instance.level.overlap(tile - (float)blastRadius, tile + (float)blastRadius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				if (hits[i].entity != null)
 				{
+					if (hits[i].entity is ItemEntity && ((ItemEntity)hits[i].entity).item == this)
+						continue;
+
 					Vector2 center = hits[i].entity.position + 0.5f * (hits[i].entity.collider.min + hits[i].entity.collider.max);
 					float distance = (center - tile).length;
 					if (distance < blastRadius)
@@ -72,6 +75,12 @@ public class Bomb : Item
 
 							Hittable hittable = hits[i].entity as Hittable;
 							hittable.hit(damage, entity);
+						}
+						else if (hits[i].entity is Destructible && distance / blastRadius < 0.5f)
+						{
+							Destructible destructible = hits[i].entity as Destructible;
+							destructible.onDestroyed(null, this);
+							hits[i].entity.remove();
 						}
 
 						hits[i].entity.velocity += (center - tile).normalized * (1 - distance / blastRadius) * 30;

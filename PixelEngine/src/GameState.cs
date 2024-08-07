@@ -32,6 +32,20 @@ public class RunStats
 			duration += Time.deltaTime;
 		}
 	}
+
+	public int score
+	{
+		get
+		{
+			int result = 0;
+
+			result += floor * 1000;
+			result += kills * 200;
+			result += Math.Max(1000 - (int)duration, 0);
+
+			return result;
+		}
+	}
 }
 
 public class GameState : State
@@ -121,8 +135,9 @@ public class GameState : State
 		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
 		tutorial.addEntity(new TutorialText("X to interact", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
 		tutorial.addEntity(new TutorialText("X to attack", 0xFFFFFFFF), new Vector2(43, 19));
-		tutorial.addEntity(new TutorialText("F to use item", 0xFFFFFFFF), new Vector2(43, 25));
-		tutorial.addEntity(new Chest(new HealthPotion()), new Vector2(43, 24));
+		tutorial.addEntity(new TutorialText("F to use item", 0xFFFFFFFF), new Vector2(43, 26));
+		tutorial.addEntity(new TutorialText("V to switch item", 0xFFFFFFFF), new Vector2(43, 25.5f));
+		tutorial.addEntity(new Chest(new HealthPotion(), new RopeItem()), new Vector2(43, 24));
 		tutorial.addEntity(new Rat(), new Vector2(42, 17));
 		tutorial.addEntity(new Snake(), new Vector2(50, 19));
 		tutorial.addEntity(new Spider(), new Vector2(48, 23));

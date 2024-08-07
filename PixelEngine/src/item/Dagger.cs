@@ -26,8 +26,9 @@ public class Dagger : Item
 		return new Dagger();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
+		return true;
 	}
 }

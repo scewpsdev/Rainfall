@@ -34,7 +34,7 @@ public class RopeItem : Item
 		return pos.y - 1;
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		Vector2i playerTile = new Vector2i((int)MathF.Floor(player.position.x), (int)MathF.Floor(player.position.y + 0.5f));
 		TileType tile = TileType.Get(GameState.instance.level.getTile(playerTile));
@@ -49,12 +49,15 @@ public class RopeItem : Item
 				{
 					Vector2i spawnTile = playerTile + new Vector2i(player.direction, 0);
 					GameState.instance.level.addEntity(new Rope(getRopeLength(spawnTile)), spawnTile + new Vector2(0.5f));
+					return true;
 				}
 			}
 			else
 			{
 				GameState.instance.level.addEntity(new Rope(getRopeLength(playerTile)), playerTile + new Vector2(0.5f));
+				return true;
 			}
 		}
+		return false;
 	}
 }

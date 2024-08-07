@@ -84,6 +84,11 @@ public class Level
 		return getTile(v.x, v.y);
 	}
 
+	public int getTile(Vector2 v)
+	{
+		return getTile((Vector2i)Vector2.Floor(v));
+	}
+
 	public void reset()
 	{
 		foreach (Entity entity in entities)
@@ -425,6 +430,25 @@ public class Level
 		}
 
 		return new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
+	}
+
+	public int raycastNoBlock(Vector2 origin, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)
+	{
+		int numHits = 0;
+		for (int i = 0; i < entities.Count; i++)
+		{
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0)
+			{
+				Vector2 min = entities[i].position + entities[i].collider.min;
+				Vector2 max = entities[i].position + entities[i].collider.max;
+				if (hitBoundingBox(origin, direction, min, max, out Vector2 position, out float distance, out Vector2 normal))
+				{
+					if (numHits < hits.Length && distance < range)
+						hits[numHits++] = new HitData() { entity = entities[i], position = position, distance = distance, normal = normal };
+				}
+			}
+		}
+		return numHits;
 	}
 
 	public int overlap(Vector2 bmin, Vector2 bmax, Span<HitData> hits, uint filterMask = 1)

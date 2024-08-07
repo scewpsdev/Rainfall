@@ -48,6 +48,10 @@ public static class GameOverScreen
 			Renderer.DrawUITextBMP(x + width - textWidth, y, str, 2, color);
 		}
 
+		drawLeft("Score");
+		drawRight(game.run.score.ToString());
+		y += lineHeight;
+
 		drawLeft("Time");
 		drawRight(TimeToString(game.run.duration));
 		y += lineHeight;
