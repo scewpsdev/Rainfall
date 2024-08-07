@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 
-public class ItemEntity : Entity, Interactable
+public class ItemEntity : Entity, Interactable, Destructible
 {
 	public float gravity = -30;
 	public float bounciness = 0.5f;
@@ -36,6 +36,10 @@ public class ItemEntity : Entity, Interactable
 		this.thrower = thrower;
 		this.velocity = velocity;
 		throwTime = Time.currentTime;
+	}
+
+	public void onDestroyed(Entity entity, Item item)
+	{
 	}
 
 	public bool canInteract(Player player)

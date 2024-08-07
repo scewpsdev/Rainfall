@@ -425,7 +425,7 @@ public class LevelGenerator
 					level.addEntity(level.entrance, entrancePosition);
 
 					if (level.getTile(x, y - 1) == 0)
-						level.setTile(x, y - 1, 2);
+						level.setTile(x, y - 1, 3);
 
 					break;
 				}
@@ -544,22 +544,9 @@ public class LevelGenerator
 
 						if (random.NextSingle() < itemChance)
 						{
-							float toolChance = 0.35f;
-							float activeChance = 0.35f;
+							Item item = Item.CreateRandom(random);
 
-							float f = random.NextSingle();
-							Item item = null;
-
-							if (f < toolChance)
-								item = Item.GetRandomItem(ItemType.Tool, random);
-							else if (f < toolChance + activeChance)
-								item = Item.GetRandomItem(ItemType.Active, random);
-							else
-								item = Item.GetRandomItem(ItemType.Passive, random);
-
-							item = item.createNew();
-
-							level.addEntity(new Chest(item, left != null && right == null), new Vector2(x + 0.5f, y));
+							level.addEntity(new Chest([item], left != null && right == null), new Vector2(x + 0.5f, y));
 						}
 					}
 
@@ -568,7 +555,9 @@ public class LevelGenerator
 						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
 						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
 
-						if (downLeft != null || downRight != null)
+						float distanceToEntrance = (new Vector2(x, y) + 0.5f - level.entrance.position).length;
+
+						if (distanceToEntrance > 8 && (downLeft != null || downRight != null))
 						{
 							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)

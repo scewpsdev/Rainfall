@@ -143,6 +143,7 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, i
 			color.y,
 			color.z,
 			color.w,
+			1.0f,
 			texture, flags);
 
 		int kerning = stbtt_GetCodepointKernAdvance(this->data->info, text[i], text[i + 1]);

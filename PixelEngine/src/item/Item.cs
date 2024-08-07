@@ -28,6 +28,7 @@ public abstract class Item
 
 	public int attackDamage = 1;
 	public float attackRange = 1;
+	public float attackAngle = MathF.PI;
 	public float attackRate = 2.0f;
 	public int maxPierces = 0;
 
@@ -53,8 +54,9 @@ public abstract class Item
 
 	public abstract Item createNew();
 
-	public virtual void use(Player player)
+	public virtual bool use(Player player)
 	{
+		return false;
 	}
 
 	public virtual void update(ItemEntity entity)
@@ -85,6 +87,7 @@ public abstract class Item
 		InitType(new Boomerang());
 		InitType(new Stick());
 		InitType(new Spear());
+		InitType(new TorchItem());
 	}
 
 	static void InitType(Item item)
@@ -123,5 +126,25 @@ public abstract class Item
 
 		Debug.Assert(false);
 		return null;
+	}
+
+	public static Item CreateRandom(Random random)
+	{
+		float toolChance = 0.35f;
+		float activeChance = 0.35f;
+
+		float f = random.NextSingle();
+		Item item = null;
+
+		if (f < toolChance)
+			item = GetRandomItem(ItemType.Tool, random);
+		else if (f < toolChance + activeChance)
+			item = GetRandomItem(ItemType.Active, random);
+		else
+			item = GetRandomItem(ItemType.Passive, random);
+
+		item = item.createNew();
+
+		return item;
 	}
 }

@@ -29,6 +29,7 @@ public static class Renderer
 		public Texture texture;
 		public FloatRect rect;
 		public Vector4 color;
+		public bool solid;
 	}
 
 	struct UIDraw
@@ -241,6 +242,26 @@ public static class Renderer
 		draws.Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
+	public static void DrawSpriteSolid(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+			if (flipped)
+			{
+				float tmp = u0;
+				u0 = u1;
+				u1 = tmp;
+			}
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color), solid = true });
+	}
+
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -387,7 +408,7 @@ public static class Renderer
 					draw.transform,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
-					draw.color);
+					draw.color, draw.solid ? 0.0f : 1.0f);
 			}
 			else
 			{
@@ -397,7 +418,7 @@ public static class Renderer
 					draw.rotation,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
-					draw.color);
+					draw.color, draw.solid ? 0.0f : 1.0f);
 			}
 		}
 		for (int i = 0; i < verticalDraws.Count; i++)
@@ -561,7 +582,7 @@ public static class Renderer
 				0.0f,
 				texture, uint.MaxValue,
 				u0, v0, u1, v1,
-				MathHelper.ARGBToVector(draw.color));
+				MathHelper.ARGBToVector(draw.color), 1.0f);
 		}
 		uiBatch.end();
 

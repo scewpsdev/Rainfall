@@ -18,6 +18,16 @@ public abstract class Mob : Entity, Hittable
 	public float jumpPower = 12;
 	public float gravity = -30;
 
+	public float itemDropChance = 0.1f;
+
+	public float health = 1;
+
+	public int damage = 1;
+
+	protected Sprite sprite;
+
+	protected AI ai;
+
 	public bool inputLeft, inputRight, inputUp, inputDown;
 	public bool inputSprint, inputDuck, inputJump;
 
@@ -31,17 +41,11 @@ public abstract class Mob : Entity, Hittable
 	bool isStunned = false;
 	long stunTime = -1;
 
-	protected Sprite sprite;
-
-	public float health = 1;
-
-	public int damage = 1;
-
-	protected AI ai;
-
 	Climbable currentLadder = null;
 
 	public Item handItem = null;
+
+	long lastHit = -1;
 
 
 	public Mob(string name)
@@ -63,10 +67,22 @@ public abstract class Mob : Entity, Hittable
 			stun();
 		else
 			onDeath();
+
+		lastHit = Time.currentTime;
 	}
 
 	void onDeath()
 	{
+		if (Random.Shared.NextSingle() < itemDropChance)
+		{
+			Item item = Item.CreateRandom(Random.Shared);
+
+			Vector2 itemVelocity = new Vector2(0, 1) * 8;
+			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+			ItemEntity obj = new ItemEntity(item, this, itemVelocity);
+			GameState.instance.level.addEntity(obj, throwOrigin);
+		}
+
 		remove();
 	}
 
@@ -216,8 +232,15 @@ public abstract class Mob : Entity, Hittable
 
 	public override void render()
 	{
+		bool hitMarker = lastHit != -1 && (Time.currentTime - lastHit) / 1e9f < 0.1f;
+
 		if (sprite != null)
-			Renderer.DrawSprite(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
+		{
+			if (hitMarker)
+				Renderer.DrawSpriteSolid(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
+			else
+				Renderer.DrawSprite(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
+		}
 
 		if (handItem != null)
 		{

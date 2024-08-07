@@ -134,6 +134,7 @@ namespace Rainfall
 				color.y,
 				color.z,
 				color.w,
+				1.0f,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
@@ -142,7 +143,7 @@ namespace Rainfall
 			drawVertical(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
 		}
 
-		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
+		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
 		{
 			float x0 = -rotationCenter.x;
 			float y0 = -rotationCenter.y;
@@ -230,10 +231,11 @@ namespace Rainfall
 				color.y,
 				color.z,
 				color.w,
+				mask,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, bool horizontal, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
+		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, bool horizontal, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
 		{
 			float x0 = -rotationCenter.x;
 			float y0 = -rotationCenter.y;
@@ -357,15 +359,16 @@ namespace Rainfall
 				color.y,
 				color.z,
 				color.w,
+				mask,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		public void draw(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
 		{
-			draw(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
+			draw(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, mask, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
 		}
 
-		public void drawBillboard(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		public void drawBillboard(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
 		{
 			Vector3 vertex0 = new Vector3(x, y, z);
 			Vector3 vertex1 = new Vector3(x + width, y, z);
@@ -423,10 +426,11 @@ namespace Rainfall
 				color.y,
 				color.z,
 				color.w,
+				mask,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float width, float height, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		public void draw(float width, float height, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
 		{
 			float x0 = -0.5f * width;
 			float x1 = 0.5f * width;
@@ -489,6 +493,7 @@ namespace Rainfall
 				color.y,
 				color.z,
 				color.w,
+				mask,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 	}

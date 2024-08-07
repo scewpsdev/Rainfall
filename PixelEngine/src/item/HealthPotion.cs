@@ -23,9 +23,10 @@ public class HealthPotion : Item
 		return new HealthPotion();
 	}
 
-	public override void use(Player player)
+	public override bool use(Player player)
 	{
 		if (player.health < player.maxHealth)
 			player.health++;
+		return true;
 	}
 }

@@ -6,25 +6,24 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Sword : Item
+public class TorchItem : Item
 {
-	public Sword()
-		: base("sword")
+	public TorchItem() 
+		: base("torch")
 	{
-		displayName = "Sword";
+		displayName = "Torch";
 
-		attackDamage = 4;
+		attackDamage = 1;
 		attackRange = 1.5f;
-		attackRate = 2;
+		attackRate = 3.0f;
 		stab = false;
 
-		sprite = new Sprite(tileset, 1, 1);
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
+		sprite = new Sprite(tileset, 8, 0);
 	}
 
 	public override Item createNew()
 	{
-		return new Sword();
+		return new TorchItem();
 	}
 
 	public override bool use(Player player)

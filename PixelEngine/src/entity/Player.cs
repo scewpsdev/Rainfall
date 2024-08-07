@@ -94,6 +94,9 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
+
+		handItem = new Pickaxe();
+		quickItems[0] = new Bomb();
 	}
 
 	public override void destroy()
@@ -252,6 +255,18 @@ public class Player : Entity, Hittable
 				{
 					if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
 						delta.y++;
+					else
+					{
+						TileType tile = TileType.Get(GameState.instance.level.getTile(position));
+						TileType up = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0, 0.2f)));
+						if (tile != null && tile.isPlatform && up == null)
+						{
+							lastLadderJumpedFrom = currentLadder;
+							currentLadder = null;
+							isClimbing = false;
+							position.y = MathF.Floor(position.y + 0.2f);
+						}
+					}
 				}
 				if (Input.IsKeyDown(KeyCode.Down))
 					delta.y--;
@@ -274,7 +289,7 @@ public class Player : Entity, Hittable
 			{
 				if (isClimbing)
 				{
-					velocity.y = jumpPower;
+					velocity.y = Input.IsKeyDown(KeyCode.Down) ? 0.0f : jumpPower;
 					lastJumpInput = 0;
 					lastGrounded = 0;
 					lastLadderJumpedFrom = currentLadder;
@@ -367,7 +382,7 @@ public class Player : Entity, Hittable
 			//impulseVelocity.x = impulseVelocity.x - velocity.x;
 			velocity += impulseVelocity;
 
-			if (velocity.y < 0 && lastLadderJumpedFrom != null)
+			if (isGrounded && lastLadderJumpedFrom != null)
 				lastLadderJumpedFrom = null;
 		}
 		else
@@ -607,7 +622,7 @@ public class Player : Entity, Hittable
 						}
 						else
 						{
-							float rotation = ((1 - action.currentRange / handItem.attackRange) * MathF.PI - 0.25f * MathF.PI) * action.direction;
+							float rotation = action.currentDirection * action.direction;
 							Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
 							Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
 						}
