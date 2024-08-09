@@ -63,6 +63,7 @@ public class GameState : State
 	long entityUpdateDelta;
 
 	public RunStats run;
+	uint seed = 0;
 
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
@@ -74,8 +75,9 @@ public class GameState : State
 	public PlayerCamera camera;
 
 
-	public unsafe GameState()
+	public GameState(uint seed)
 	{
+		this.seed = seed;
 		reset();
 	}
 
@@ -91,7 +93,7 @@ public class GameState : State
 		cachedLevels.Clear();
 
 		//run = new RunStats(12345678);
-		run = new RunStats(Hash.hash(Time.timestamp));
+		run = new RunStats(seed != 0 ? seed : Hash.hash(Time.timestamp));
 
 		LevelGenerator generator = new LevelGenerator();
 

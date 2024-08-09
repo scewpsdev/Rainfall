@@ -150,6 +150,22 @@ public class Level
 		for (int i = 0; i < entities.Count; i++)
 		{
 			entities[i].update();
+
+			if (entities[i].position.y < 0)
+			{
+				if (entities[i] is Hittable)
+				{
+					Hittable hittable = entities[i] as Hittable;
+					hittable.hit(1000, null);
+				}
+				else if (entities[i] is Destructible)
+				{
+					Destructible destructible = entities[i] as Destructible;
+					destructible.onDestroyed(null, null);
+				}
+				entities[i].remove();
+			}
+
 			if (entities[i].removed)
 			{
 				foreach (var removeCallback in entities[i].removeCallbacks)
@@ -212,7 +228,7 @@ public class Level
 		{
 			for (int x = x0; x <= x1; x++)
 			{
-				if (x < 0 || x >= width || y < 0 || y >= height)
+				if (x < 0 || x >= width /*|| y < 0*/ || y >= height)
 					return true;
 				TileType tile = TileType.Get(getTile(x, y));
 				if (tile != null)

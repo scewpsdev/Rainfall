@@ -12,7 +12,7 @@ public class PlayerCamera : Entity
 	Vector2 target;
 
 	float width, height;
-	public int scale;
+	int scale;
 
 
 	public PlayerCamera(Player player)

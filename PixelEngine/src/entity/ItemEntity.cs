@@ -18,7 +18,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	float rotationVelocity = 0;
 
-	Entity thrower = null;
+	public Entity thrower = null;
 	long throwTime;
 
 	public Item item;
@@ -95,7 +95,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 		onHit((collisionFlags & Level.COLLISION_X) != 0, (collisionFlags & Level.COLLISION_Y) != 0);
 
-		if (damage > 0 && item.projectileItem)
+		if (damage > 0 && item.projectileItem && thrower != null)
 		{
 			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, 0.5f, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
 			if (hit != null)

@@ -43,8 +43,11 @@ internal class SpikeTrap : Entity
 			velocity.y += -20 * Time.deltaTime;
 			position.y += velocity.y * Time.deltaTime;
 
+			if (GameState.instance.level.overlapTiles(position + new Vector2(-0.25f, -0.3f), position + new Vector2(0.25f, 0.0f)))
+				hit = true;
+
 			HitData[] hits = new HitData[16];
-			int numHits = GameState.instance.level.overlap(position + new Vector2(-0.25f, -0.5f), position + new Vector2(0.25f, 0.0f), hits, FILTER_PLAYER | FILTER_MOB);
+			int numHits = GameState.instance.level.overlap(position + new Vector2(-0.25f, -0.3f), position + new Vector2(0.25f, 0.0f), hits, FILTER_PLAYER | FILTER_MOB);
 			for (int i = 0; i < numHits; i++)
 			{
 				HitData hit = hits[i];
@@ -56,10 +59,6 @@ internal class SpikeTrap : Entity
 						hittable.hit(damage, this);
 						hitEntities.Add(hit.entity);
 					}
-				}
-				else
-				{
-					this.hit = true;
 				}
 			}
 		}

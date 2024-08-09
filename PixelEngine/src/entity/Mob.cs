@@ -66,20 +66,23 @@ public abstract class Mob : Entity, Hittable
 		if (health > 0)
 			stun();
 		else
-			onDeath();
+			onDeath(by);
 
 		lastHit = Time.currentTime;
 	}
 
-	void onDeath()
+	void onDeath(Entity by)
 	{
+		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player)
+			GameState.instance.run.kills++;
+
 		if (Random.Shared.NextSingle() < itemDropChance)
 		{
 			Item item = Item.CreateRandom(Random.Shared);
 
 			Vector2 itemVelocity = new Vector2(0, 1) * 8;
 			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
-			ItemEntity obj = new ItemEntity(item, this, itemVelocity);
+			ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);
 		}
 

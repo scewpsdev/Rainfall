@@ -37,7 +37,7 @@ public class BoomerangProjectile : Entity
 
 	void drop()
 	{
-		GameState.instance.level.addEntity(new ItemEntity(new Boomerang(), shooter, velocity) { rotation = rotation }, position - velocity.normalized * 0.25f);
+		GameState.instance.level.addEntity(new ItemEntity(new Boomerang(), null, velocity) { rotation = rotation }, position - velocity.normalized * 0.25f);
 		remove();
 	}
 

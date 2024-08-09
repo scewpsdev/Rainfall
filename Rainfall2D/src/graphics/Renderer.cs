@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 
 enum RenderPass
@@ -112,8 +113,10 @@ public static class Renderer
 	{
 		Renderer.graphics = graphics;
 
-		UIHeight = 1000 / height * height;
-		float aspect = width / (float)height;
+		// pixel perfect correction
+		int scale = (int)MathF.Ceiling(Display.height / 1080.0f * 4);
+		UIHeight = (int)(Display.height / (float)scale);
+		float aspect = Display.aspectRatio;
 		UIWidth = (int)(aspect * UIHeight);
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
@@ -179,9 +182,11 @@ public static class Renderer
 
 	public static void Resize(int width, int height)
 	{
-		UIHeight = 1000 / height * height;
-		float aspect = width / (float)height;
-		UIWidth = (int)(aspect * UIHeight);
+		// pixel perfect correction
+		int scale = (int)MathF.Ceiling(Display.height / 1080.0f * 4);
+		UIHeight = (int)(Display.height / (float)scale);
+		float aspect = Display.aspectRatio;
+		UIWidth= (int)(aspect * UIHeight);
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);

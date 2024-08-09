@@ -45,7 +45,7 @@ public class PixelEngine : Game
 
 		Item.InitTypes();
 
-		pushState(new GameState());
+		pushState(new MainMenuState());
 	}
 
 	public override void destroy()

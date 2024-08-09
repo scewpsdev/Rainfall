@@ -23,6 +23,7 @@ public class Player : Entity, Hittable
 	float climbingSpeed = 4;
 	float jumpPower = 10.5f;
 	float gravity = -22;
+	float wallJumpPower = 15;
 
 	public int direction = 1;
 	float currentSpeed;
@@ -96,7 +97,7 @@ public class Player : Entity, Hittable
 		inventoryUI = new InventoryUI(this);
 
 		handItem = new Pickaxe();
-		quickItems[0] = new Bomb();
+		passiveItems[0] = new Cloak();
 	}
 
 	public override void destroy()
@@ -174,28 +175,36 @@ public class Player : Entity, Hittable
 			handItem = null;
 	}
 
+	public int getTotalArmor()
+	{
+		int totalArmor = 0;
+		for (int i = 0; i < passiveItems.Length; i++)
+		{
+			if (passiveItems[i] != null)
+				totalArmor += passiveItems[i].armor;
+		}
+		return totalArmor;
+	}
+
 	public void hit(float damage, Entity by)
 	{
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (!invincible)
 		{
-			int totalArmor = 0;
-			for (int i = 0; i < passiveItems.Length; i++)
-			{
-				if (passiveItems[i] != null)
-					totalArmor += passiveItems[i].armor;
-			}
-
+			int totalArmor = getTotalArmor();
 			float armorAbsorption = totalArmor / (10.0f + totalArmor);
 			damage *= 1 - armorAbsorption;
 
 			health -= damage;
 
-			Vector2 enemyPosition = by.position;
-			if (by.collider != null)
-				enemyPosition += 0.5f * (by.collider.max + by.collider.min);
-			Vector2 knockback = (position - enemyPosition).normalized * 4.0f;
-			addImpulse(knockback);
+			if (by != null)
+			{
+				Vector2 enemyPosition = by.position;
+				if (by.collider != null)
+					enemyPosition += 0.5f * (by.collider.max + by.collider.min);
+				Vector2 knockback = (position - enemyPosition).normalized * 4.0f;
+				addImpulse(knockback);
+			}
 
 			if (health <= 0)
 			{
@@ -310,14 +319,14 @@ public class Player : Entity, Hittable
 						if ((Time.currentTime - lastWallTouchRight) / 1e9f < COYOTE_TIME)
 						{
 							velocity.y = jumpPower * 0.7f;
-							addImpulse(new Vector2(-15, 0.0f));
+							addImpulse(new Vector2(-wallJumpPower, 0.0f));
 							lastWallTouchRight = 0;
 						}
 
 						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
 						{
 							velocity.y = jumpPower * 0.7f;
-							addImpulse(new Vector2(15, 0.0f));
+							addImpulse(new Vector2(wallJumpPower, 0.0f));
 							lastWallTouchLeft = 0;
 						}
 					}
@@ -379,6 +388,8 @@ public class Player : Entity, Hittable
 			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 3 * Time.deltaTime);
 			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
 				impulseVelocity.x = 0;
+			else if (velocity.x == 0)
+				impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
 			//impulseVelocity.x = impulseVelocity.x - velocity.x;
 			velocity += impulseVelocity;
 
