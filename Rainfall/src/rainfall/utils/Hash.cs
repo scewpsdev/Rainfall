@@ -18,6 +18,13 @@ public static class Hash
 		return i;
 	}
 
+	public static uint combine(uint a, uint b)
+	{
+		uint u = a;
+		u = u * 19 + b;
+		return u;
+	}
+
 	public static uint hash(int i)
 	{
 		return hash((uint)i);

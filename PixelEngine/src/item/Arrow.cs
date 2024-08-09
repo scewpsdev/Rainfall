@@ -11,6 +11,8 @@ public class Arrow : Item
 	public Arrow()
 		: base("arrow")
 	{
+		displayName = "Arrow";
+
 		sprite = new Sprite(tileset, 2, 0);
 
 		attackDamage = 2;
