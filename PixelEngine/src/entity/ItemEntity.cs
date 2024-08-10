@@ -22,6 +22,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 	long throwTime;
 
 	public Item item;
+	public uint color = 0xFFFFFFFF;
 
 
 	public ItemEntity(Item item, Entity thrower = null, Vector2 velocity = default)
@@ -162,6 +163,6 @@ public class ItemEntity : Entity, Interactable, Destructible
 			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
 			flipped = false;
 		}
-		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, 0xFFFFFFFF);
+		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 	}
 }

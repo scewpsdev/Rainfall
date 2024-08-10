@@ -27,6 +27,14 @@ public class State
 	{
 	}
 
+	public virtual void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
+	{
+	}
+
+	public virtual void onCharEvent(byte length, uint value)
+	{
+	}
+
 	public virtual void drawDebugStats(int y, byte color, GraphicsDevice graphics)
 	{
 	}

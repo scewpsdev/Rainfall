@@ -412,12 +412,15 @@ public class LevelGenerator
 			placeRoom(room, level);
 		}
 
+		bool[] objectFlags = new bool[width * height];
+		Array.Fill(objectFlags, false);
+
 		if (lastLevel != null)
 		{
 			for (int y = startingRoom.y + 1; y < startingRoom.y + startingRoom.height; y++)
 			{
 				int x = startingRoom.x + startingRoom.width / 2;
-				if (level.getTile(x, y) == 0)
+				if (y > 0 && level.getTile(x, y) == 0)
 				{
 					Vector2 entrancePosition = new Vector2(x + 0.5f, y);
 					level.entrance = new Door(lastLevel, lastLevel.exit);
@@ -426,6 +429,8 @@ public class LevelGenerator
 
 					if (level.getTile(x, y - 1) == 0)
 						level.setTile(x, y - 1, 3);
+
+					objectFlags[x + y * width] = true;
 
 					break;
 				}
@@ -442,6 +447,7 @@ public class LevelGenerator
 					Vector2 exitPosition = new Vector2(x + 0.5f, y);
 					level.exit = new Door(nextLevel);
 					level.addEntity(level.exit, exitPosition);
+					objectFlags[x + y * width] = true;
 					break;
 				}
 			}
@@ -449,19 +455,11 @@ public class LevelGenerator
 
 		for (int y = 0; y < height; y++)
 		{
-			//level.setTile(0, y, 2);
-			//level.setTile(width - 1, y, 2);
-		}
-		for (int x = 0; x < width; x++)
-		{
-			//level.setTile(x, 0, 2);
-			//level.setTile(x, height - 1, 2);
-		}
-
-		for (int y = 0; y < height; y++)
-		{
 			for (int x = 0; x < width; x++)
 			{
+				if (objectFlags[x + y * width])
+					continue;
+
 				TileType tile = TileType.Get(level.getTile(x, y));
 
 				if (tile == null)
@@ -477,6 +475,7 @@ public class LevelGenerator
 						if (random.NextSingle() < gemChance)
 						{
 							level.addEntity(new Gem(1), new Vector2(x + 0.5f, y + 0.5f));
+							objectFlags[x + y * width] = true;
 						}
 					}
 
@@ -489,6 +488,7 @@ public class LevelGenerator
 							if (random.NextSingle() < springChance)
 							{
 								level.addEntity(new Spring(), new Vector2(x + 0.5f, y));
+								objectFlags[x + y * width] = true;
 							}
 						}
 					}
@@ -504,6 +504,7 @@ public class LevelGenerator
 							if (random.NextSingle() < spikeChance)
 							{
 								level.addEntity(new Spike(), new Vector2(x, y));
+								objectFlags[x + y * width] = true;
 							}
 						}
 					}
@@ -517,6 +518,7 @@ public class LevelGenerator
 							if (random.NextSingle() < spikeTrapChance)
 							{
 								level.addEntity(new SpikeTrap(), new Vector2(x + 0.5f, y + 0.5f));
+								objectFlags[x + y * width] = true;
 							}
 						}
 					}
@@ -530,6 +532,7 @@ public class LevelGenerator
 							if (random.NextSingle() < torchChance)
 							{
 								level.addEntity(new Torch(), new Vector2(x + 0.5f, y + 0.5f));
+								objectFlags[x + y * width] = true;
 							}
 						}
 					}
@@ -544,9 +547,18 @@ public class LevelGenerator
 
 						if (random.NextSingle() < itemChance)
 						{
-							Item item = Item.CreateRandom(random);
-
-							level.addEntity(new Chest([item], left != null && right == null), new Vector2(x + 0.5f, y));
+							float scamChestChance = 1.0f;
+							if (random.NextSingle() < scamChestChance)
+							{
+								level.addEntity(new Chest(null, left != null && right == null), new Vector2(x + 0.5f, y));
+								objectFlags[x + y * width] = true;
+							}
+							else
+							{
+								Item item = Item.CreateRandom(random);
+								level.addEntity(new Chest([item], left != null && right == null), new Vector2(x + 0.5f, y));
+								objectFlags[x + y * width] = true;
+							}
 						}
 					}
 
@@ -557,7 +569,7 @@ public class LevelGenerator
 
 						float distanceToEntrance = (new Vector2(x, y) + 0.5f - level.entrance.position).length;
 
-						if (distanceToEntrance > 8 && (downLeft != null || downRight != null))
+						if ((distanceToEntrance > 8 || y < (int)level.entrance.position.y) && (downLeft != null || downRight != null))
 						{
 							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)
@@ -582,6 +594,7 @@ public class LevelGenerator
 								}
 
 								level.addEntity(enemy, new Vector2(x + 0.5f, y));
+								objectFlags[x + y * width] = true;
 							}
 						}
 					}

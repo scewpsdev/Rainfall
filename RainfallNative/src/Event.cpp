@@ -16,7 +16,7 @@ EventQueue::~EventQueue()
 	}
 }
 
-void EventQueue::postAxisEvent(GamepadHandle gamepad, GamepadAxis axis, int32_t value)
+void EventQueue::postAxisEvent(int gamepad, GamepadAxis axis, int32_t value)
 {
 	AxisEvent* ev = BX_NEW(Application_GetAllocator(), AxisEvent)();
 	ev->gamepad = gamepad;
@@ -39,11 +39,11 @@ void EventQueue::postExitEvent()
 	m_queue.push(ev);
 }
 
-void EventQueue::postGamepadEvent(GamepadHandle _gamepad, bool _connected)
+void EventQueue::postGamepadEvent(int _gamepad, int event)
 {
 	GamepadEvent* ev = BX_NEW(Application_GetAllocator(), GamepadEvent)();
 	ev->gamepad = _gamepad;
-	ev->connected = _connected;
+	ev->event = event;
 	m_queue.push(ev);
 }
 

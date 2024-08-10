@@ -27,7 +27,7 @@ public class InventoryUI
 
 	public void render()
 	{
-		if (Input.IsKeyPressed(KeyCode.Tab))
+		if (InputManager.IsPressed("Inventory"))
 			player.inventoryOpen = !player.inventoryOpen;
 
 		if (player.inventoryOpen)

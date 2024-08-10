@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Rainfall.Native;
 
 namespace Rainfall
 {
@@ -125,22 +127,6 @@ namespace Rainfall
 		RightMeta,
 		Menu,
 
-		GamepadA,
-		GamepadB,
-		GamepadX,
-		GamepadY,
-		GamepadThumbL,
-		GamepadThumbR,
-		GamepadShoulderL,
-		GamepadShoulderR,
-		GamepadUp,
-		GamepadDown,
-		GamepadLeft,
-		GamepadRight,
-		GamepadBack,
-		GamepadStart,
-		GamepadGuide,
-
 		Count
 	}
 
@@ -168,6 +154,29 @@ namespace Rainfall
 		RightShift = 1 << 5,
 		LeftMeta = 1 << 6,
 		RightMeta = 1 << 7,
+	}
+
+	public enum GamepadButton
+	{
+		None = -1,
+
+		A = 0,
+		B = 1,
+		X = 2,
+		Y = 3,
+		BumperL = 4,
+		BumperR = 5,
+		Back = 6,
+		Start = 7,
+		Guide = 8,
+		ThumbL = 9,
+		ThumbR = 10,
+		DPadUp = 11,
+		DPadRight = 12,
+		DPadDown = 13,
+		DPadLeft = 14,
+
+		Count
 	}
 
 	public enum GamepadAxis
@@ -547,10 +556,34 @@ namespace Rainfall
 		*/
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	unsafe struct GamepadState
+	{
+		fixed byte buttons[15];
+		fixed float axes[6];
+
+
+		internal bool IsButtonDown(GamepadButton button)
+		{
+			return buttons[(int)button] != 0;
+		}
+
+		internal void InternalSetButton(GamepadButton button)
+		{
+			buttons[(int)button] = 1;
+		}
+
+		internal void InternalClearButton(GamepadButton button)
+		{
+			buttons[(int)button] = 0;
+		}
+	}
+
 	public static class Input
 	{
 		static KeyState keysCurrent, keysLast;
 		static MouseState mouseCurrent, mouseLast;
+		static GamepadState gamepadCurrent, gamepadLast;
 
 		static bool _mouseLocked = false;
 
@@ -592,6 +625,9 @@ namespace Rainfall
 		{
 			keysLast = keysCurrent;
 			mouseLast = mouseCurrent;
+
+			gamepadLast = gamepadCurrent;
+			Application.Application_GetGamepadState(0, out gamepadCurrent);
 		}
 
 		public static bool IsKeyDown(KeyCode key)
@@ -624,12 +660,43 @@ namespace Rainfall
 			return !mouseCurrent.IsButtonDown(button) && mouseLast.IsButtonDown(button);
 		}
 
+		public static bool IsGamepadButtonDown(GamepadButton button)
+		{
+			return gamepadCurrent.IsButtonDown(button);
+		}
+
+		public static bool IsGamepadButtonPressed(GamepadButton button)
+		{
+			return gamepadCurrent.IsButtonDown(button) && !gamepadLast.IsButtonDown(button);
+		}
+
+		public static bool IsGamepadButtonReleased(GamepadButton button)
+		{
+			return !gamepadCurrent.IsButtonDown(button) && gamepadLast.IsButtonDown(button);
+		}
+
 		public static void ConsumeKeyEvent(KeyCode key)
 		{
 			if (IsKeyPressed(key))
 				keysLast.InternalSetKey(key);
 			else if (IsKeyReleased(key))
 				keysLast.InternalClearKey(key);
+		}
+
+		public static void ConsumeMouseButtonEvent(MouseButton button)
+		{
+			if (IsMouseButtonPressed(button))
+				mouseLast.InternalSetButton(button);
+			else if (IsMouseButtonReleased(button))
+				mouseLast.InternalClearButton(button);
+		}
+
+		public static void ConsumeGamepadButtonEvent(GamepadButton button)
+		{
+			if (IsGamepadButtonPressed(button))
+				gamepadLast.InternalSetButton(button);
+			else if (IsGamepadButtonReleased(button))
+				gamepadLast.InternalClearButton(button);
 		}
 
 		public static bool mouseLocked

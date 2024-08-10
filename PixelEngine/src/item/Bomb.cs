@@ -37,12 +37,22 @@ public class Bomb : Item
 	public override bool use(Player player)
 	{
 		player.throwItem(this);
-		useTime = Time.currentTime;
+		ignite();
 		return true;
+	}
+
+	public void ignite()
+	{
+		useTime = Time.currentTime;
 	}
 
 	public override void update(ItemEntity entity)
 	{
+		if (useTime != -1)
+		{
+			entity.color = 0xFFFFBB00;
+		}
+
 		if (useTime != -1 && (Time.currentTime - useTime) / 1e9f >= fuseTime)
 		{
 			Vector2i tile = (Vector2i)Vector2.Round(entity.position);

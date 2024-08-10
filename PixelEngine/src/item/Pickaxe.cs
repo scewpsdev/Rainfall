@@ -29,6 +29,12 @@ public class Pickaxe : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
+		return true;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.actions.queueAction(new AttackAction(this));
 
 		HitData hit = GameState.instance.level.raycast(player.position + new Vector2(0, 0.5f), new Vector2(player.direction, 0), attackRange, Entity.FILTER_MOB);
 		if (hit != null)
@@ -38,7 +44,7 @@ public class Pickaxe : Item
 			}
 			else
 			{
-				if (Input.IsKeyDown(KeyCode.Up))
+				if (InputManager.IsDown("Up"))
 				{
 					Vector2i pos = (Vector2i)Vector2.Floor(player.position + new Vector2(0, 1.5f));
 					TileType tile = TileType.Get(GameState.instance.level.getTile(pos));

@@ -136,6 +136,7 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
 		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
 		tutorial.addEntity(new TutorialText("X to interact", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
+		tutorial.addEntity(new TutorialText("Down+X to drop", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37.5f));
 		tutorial.addEntity(new TutorialText("X to attack", 0xFFFFFFFF), new Vector2(43, 19));
 		tutorial.addEntity(new TutorialText("F to use item", 0xFFFFFFFF), new Vector2(43, 26));
 		tutorial.addEntity(new TutorialText("V to switch item", 0xFFFFFFFF), new Vector2(43, 25.5f));
@@ -227,7 +228,7 @@ public class GameState : State
 		{
 			GameOverScreen.Render();
 
-			if (Input.IsKeyPressed(KeyCode.X))
+			if (InputManager.IsPressed("Interact"))
 				reset();
 		}
 	}

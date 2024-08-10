@@ -24,4 +24,10 @@
     <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="InputBindings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -120,22 +120,6 @@ enum class KeyCode : int
 	RightMeta,
 	Menu,
 
-	GamepadA,
-	GamepadB,
-	GamepadX,
-	GamepadY,
-	GamepadThumbL,
-	GamepadThumbR,
-	GamepadShoulderL,
-	GamepadShoulderR,
-	GamepadUp,
-	GamepadDown,
-	GamepadLeft,
-	GamepadRight,
-	GamepadBack,
-	GamepadStart,
-	GamepadGuide,
-
 	Count
 };
 
@@ -165,6 +149,27 @@ enum class KeyModifier : uint8_t
 	RightMeta = 1 << 7,
 };
 
+enum class GamepadButton : int
+{
+	A,
+	B,
+	X,
+	Y,
+	ThumbL,
+	ThumbR,
+	ShoulderL,
+	ShoulderR,
+	Up,
+	Down,
+	Left,
+	Right,
+	Back,
+	Start,
+	Guide,
+
+	Count
+};
+
 enum class GamepadAxis : int
 {
 	LeftX,
@@ -186,9 +191,6 @@ enum class SuspendState : int
 
 	Count
 };
-
-struct GamepadHandle { uint16_t idx; };
-inline bool isValid(GamepadHandle handle) { return handle.idx != UINT16_MAX; }
 
 
 inline KeyModifier operator|(KeyModifier m1, KeyModifier m2) { return (KeyModifier)((uint8_t)m1 | (uint8_t)m2); }

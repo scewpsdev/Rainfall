@@ -232,15 +232,15 @@ void ImGuiLayerInit()
 		| ImGuiConfigFlags_NavEnableKeyboard
 		;
 
-	io.NavInputs[ImGuiNavInput_Activate] = (int)KeyCode::GamepadA;
-	io.NavInputs[ImGuiNavInput_Cancel] = (int)KeyCode::GamepadB;
+	//io.NavInputs[ImGuiNavInput_Activate] = (int)KeyCode::GamepadA;
+	//io.NavInputs[ImGuiNavInput_Cancel] = (int)KeyCode::GamepadB;
 	//		io.NavInputs[ImGuiNavInput_Input]       = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_Menu]        = (int)entry::Key::;
-	io.NavInputs[ImGuiNavInput_DpadLeft] = (int)KeyCode::GamepadLeft;
-	io.NavInputs[ImGuiNavInput_DpadRight] = (int)KeyCode::GamepadRight;
-	io.NavInputs[ImGuiNavInput_DpadUp] = (int)KeyCode::GamepadUp;
-	io.NavInputs[ImGuiNavInput_DpadDown] = (int)KeyCode::GamepadDown;
-	io.NavInputs[ImGuiNavInput_FocusNext];
+	//io.NavInputs[ImGuiNavInput_DpadLeft] = (int)KeyCode::GamepadLeft;
+	//io.NavInputs[ImGuiNavInput_DpadRight] = (int)KeyCode::GamepadRight;
+	//io.NavInputs[ImGuiNavInput_DpadUp] = (int)KeyCode::GamepadUp;
+	//io.NavInputs[ImGuiNavInput_DpadDown] = (int)KeyCode::GamepadDown;
+	//io.NavInputs[ImGuiNavInput_FocusNext];
 	//		io.NavInputs[ImGuiNavInput_LStickLeft]  = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_LStickRight] = (int)entry::Key::;
 	//		io.NavInputs[ImGuiNavInput_LStickUp]    = (int)entry::Key::;
@@ -700,10 +700,16 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 
 		CharEvent* charEvent = (CharEvent*)ev;
 
-		if (charEvent->value > 0 && charEvent->value < 0x10000)
-			io.AddInputCharacter(charEvent->value);
+		if (imguiHovered)
+		{
+			if (charEvent->value > 0 && charEvent->value < 0x10000)
+			{
+				io.AddInputCharacter(charEvent->value);
+				return true;
+			}
+		}
 
-		return true;
+		return false;
 	}
 	break;
 

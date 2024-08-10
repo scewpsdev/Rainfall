@@ -104,7 +104,7 @@ public class HUD
 			{
 				Renderer.DrawUISprite(x, y, size, size, player.quickItems[player.currentQuickItem].sprite);
 				if (player.quickItems[player.currentQuickItem].stackable && player.quickItems[player.currentQuickItem].stackSize > 1)
-					Renderer.DrawUIText(x + size - size / 4, y + size - 22, player.quickItems[player.currentQuickItem].stackSize.ToString(), 1, 0xFFBBBBBB);
+					Renderer.DrawUITextBMP(x + size - size / 4, y + size - 22, player.quickItems[player.currentQuickItem].stackSize.ToString(), 1, 0xFFBBBBBB);
 			}
 		}
 	}

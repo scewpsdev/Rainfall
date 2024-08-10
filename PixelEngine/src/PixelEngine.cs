@@ -45,6 +45,8 @@ public class PixelEngine : Game
 
 		Item.InitTypes();
 
+		InputManager.Init();
+
 		pushState(new MainMenuState());
 	}
 
@@ -69,6 +71,18 @@ public class PixelEngine : Game
 		stateMachine.Pop().destroy();
 		if (stateMachine.Count == 0)
 			terminate();
+	}
+
+	protected override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
+	{
+		if (stateMachine.TryPeek(out State state))
+			state.onKeyEvent(key, modifiers, down);
+	}
+
+	protected override void onCharEvent(byte length, uint value)
+	{
+		if (stateMachine.TryPeek(out State state))
+			state.onCharEvent(length, value);
 	}
 
 	public override void update()

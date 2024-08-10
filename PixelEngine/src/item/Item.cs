@@ -59,6 +59,11 @@ public abstract class Item
 		return false;
 	}
 
+	public virtual bool useSecondary(Player player)
+	{
+		return false;
+	}
+
 	public virtual void update(ItemEntity entity)
 	{
 	}

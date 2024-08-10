@@ -259,6 +259,36 @@ public class Level
 			displacement.y = 0;
 			flags |= COLLISION_Y;
 		}
+		if (flags == 0 && overlapTiles(position + collider.min + displacement, position + collider.max + displacement, displacement.y < 0, downInput))
+		{
+			float displacementFactor = 0.5f;
+			for (int i = 1; i < 10; i++)
+			{
+				if (overlapTiles(position + collider.min + displacement * displacementFactor, position + collider.max + displacement * displacementFactor, displacement.y < 0, downInput))
+					displacementFactor -= MathF.Pow(0.5f, i + 1);
+				else
+				{
+					if (overlapTiles(position + collider.min + new Vector2(displacement.x, displacement.y * displacementFactor), position + collider.max + new Vector2(displacement.x, displacement.y * displacementFactor), displacement.y < 0, downInput))
+					{
+						displacement.x *= displacementFactor;
+						flags |= COLLISION_X;
+						return flags;
+					}
+					if (overlapTiles(position + collider.min + new Vector2(0, displacement.y), position + collider.max + new Vector2(0, displacement.y), displacement.y < 0, downInput))
+					{
+						displacement.y *= displacementFactor;
+						flags |= COLLISION_Y;
+						return flags;
+					}
+
+					displacementFactor += MathF.Pow(0.5f, i + 1);
+				}
+			}
+
+			displacement *= displacementFactor;
+			flags |= COLLISION_X | COLLISION_Y;
+			return flags;
+		}
 		return flags;
 	}
 

@@ -69,7 +69,18 @@ public class Chest : Entity, Interactable, Destructible
 	public void interact(Player player)
 	{
 		open = true;
-		dropItems();
+		if (items != null)
+			dropItems();
+		else
+		{
+			// Scam chest
+			Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 1) * 8;
+			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+			Bomb bomb = new Bomb();
+			bomb.ignite();
+			ItemEntity obj = new ItemEntity(bomb, null, itemVelocity);
+			GameState.instance.level.addEntity(obj, throwOrigin);
+		}
 	}
 
 	public override void render()
