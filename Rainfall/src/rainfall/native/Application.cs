@@ -15,7 +15,7 @@ namespace Rainfall.Native
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnInternalErrorEvent_t([MarshalAs(UnmanagedType.LPStr)] string msg);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnAxisEvent_t(GamepadAxis axis, int value, ushort gamepadHandle);
-	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnGamepadEvent_t(ushort gamepadHandle, bool connected);
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnGamepadEvent_t(int gamepad, int ev);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnCharEvent_t(byte length, uint value);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnKeyEvent_t(KeyCode key, KeyModifier modifiers, bool down);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnMouseButtonEvent_t(MouseButton button, bool down);
@@ -93,6 +93,9 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern byte Application_IsDebugWireframeEnabled();
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern byte Application_GetGamepadState(int gamepad, out GamepadState state);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Application_SetMouseLock(bool locked);

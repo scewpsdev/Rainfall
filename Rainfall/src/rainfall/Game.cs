@@ -79,9 +79,9 @@ namespace Rainfall
 			instance.onAxisEvent(axis, value, gamepadHandle);
 		}
 
-		static void Game_OnGamepadEvent(ushort gamepadHandle, bool connected)
+		static void Game_OnGamepadEvent(int gamepad, int ev)
 		{
-			instance.onGamepadEvent(gamepadHandle, connected);
+			instance.onGamepadEvent(gamepad, ev);
 		}
 
 		static void Game_OnCharEvent(byte length, uint value)
@@ -173,7 +173,7 @@ namespace Rainfall
 		{
 		}
 
-		protected virtual void onGamepadEvent(ushort gamepadHandle, bool connected)
+		protected virtual void onGamepadEvent(int gamepad, int ev)
 		{
 		}
 

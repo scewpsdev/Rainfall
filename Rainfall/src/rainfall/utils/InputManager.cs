@@ -11,19 +11,22 @@ class InputBinding
 {
 	public KeyCode key = KeyCode.None;
 	public MouseButton button = MouseButton.None;
+	public GamepadButton gamepadButton = GamepadButton.None;
 	public int scrollDelta = 0;
 
 
 	public bool isDown()
 	{
 		return key != KeyCode.None && Input.IsKeyDown(key)
-			|| button != MouseButton.None && Input.IsMouseButtonDown(button);
+			|| button != MouseButton.None && Input.IsMouseButtonDown(button)
+			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonDown(gamepadButton);
 	}
 
 	public bool isPressed()
 	{
 		return key != KeyCode.None && Input.IsKeyPressed(key)
 			|| button != MouseButton.None && Input.IsMouseButtonPressed(button)
+			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonPressed(gamepadButton)
 			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove);
 	}
 
@@ -31,7 +34,18 @@ class InputBinding
 	{
 		return key != KeyCode.None && Input.IsKeyReleased(key)
 			|| button != MouseButton.None && Input.IsMouseButtonReleased(button)
+			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonReleased(gamepadButton)
 			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove);
+	}
+
+	public void consumeEvent()
+	{
+		if (key != KeyCode.None)
+			Input.ConsumeKeyEvent(key);
+		if (button != MouseButton.None)
+			Input.ConsumeMouseButtonEvent(button);
+		if (gamepadButton != GamepadButton.None)
+			Input.ConsumeGamepadButtonEvent(gamepadButton);
 	}
 }
 
@@ -44,6 +58,7 @@ public static class InputManager
 
 	static Dictionary<string, KeyCode> keys = new Dictionary<string, KeyCode>();
 	static Dictionary<string, MouseButton> buttons = new Dictionary<string, MouseButton>();
+	static Dictionary<string, GamepadButton> gamepadButtons = new Dictionary<string, GamepadButton>();
 
 	static Dictionary<string, InputBinding> bindings = new Dictionary<string, InputBinding>();
 
@@ -58,6 +73,10 @@ public static class InputManager
 		{
 			buttons.Add(button.ToString(), button);
 		}
+		foreach (GamepadButton button in Enum.GetValues<GamepadButton>())
+		{
+			gamepadButtons.Add("Gamepad" + button.ToString(), button);
+		}
 
 		if (File.Exists(INPUT_BINDINGS_FILE))
 		{
@@ -66,6 +85,7 @@ public static class InputManager
 			{
 				MouseButton button = MouseButton.None;
 				KeyCode key = KeyCode.None;
+				GamepadButton gamepadButton = GamepadButton.None;
 				int scrollDelta = 0;
 
 				if (binding.value.type == DatValueType.Identifier)
@@ -73,6 +93,7 @@ public static class InputManager
 					string valueStr = binding.value.identifier;
 					TryGetButton(valueStr, ref button);
 					TryGetKey(valueStr, ref key);
+					TryGetGamepadButton(valueStr, ref gamepadButton);
 					TryGetScroll(valueStr, ref scrollDelta);
 				}
 				else if (binding.value.type == DatValueType.Array)
@@ -82,13 +103,14 @@ public static class InputManager
 						string valueStr = value.identifier;
 						TryGetButton(valueStr, ref button);
 						TryGetKey(valueStr, ref key);
+						TryGetGamepadButton(valueStr, ref gamepadButton);
 						TryGetScroll(valueStr, ref scrollDelta);
 					}
 				}
 
-				if (button != MouseButton.None || key != KeyCode.None || scrollDelta != 0)
+				if (button != MouseButton.None || key != KeyCode.None || gamepadButton != GamepadButton.None || scrollDelta != 0)
 				{
-					bindings.Add(binding.name, new InputBinding() { button = button, key = key, scrollDelta = scrollDelta });
+					bindings.Add(binding.name, new InputBinding() { button = button, key = key, gamepadButton = gamepadButton, scrollDelta = scrollDelta });
 					Console.WriteLine("Registered binding " + binding.name);
 				}
 			}
@@ -110,6 +132,12 @@ public static class InputManager
 		}
 	}
 
+	static void TryGetGamepadButton(string value, ref GamepadButton button)
+	{
+		if (gamepadButtons.ContainsKey(value))
+			button = gamepadButtons[value];
+	}
+
 	static void TryGetScroll(string value, ref int scroll)
 	{
 		if (value == "ScrollUp")
@@ -123,9 +151,9 @@ public static class InputManager
 		bindings.Add(name, new InputBinding() { key = key });
 	}
 
-	static void AddBinding(string name, MouseButton button, KeyCode key = KeyCode.None, int scrollDelta = 0)
+	static void AddBinding(string name, MouseButton button = MouseButton.None, KeyCode key = KeyCode.None, GamepadButton gamepadButton = GamepadButton.None, int scrollDelta = 0)
 	{
-		bindings.Add(name, new InputBinding() { button = button, key = key, scrollDelta = scrollDelta });
+		bindings.Add(name, new InputBinding() { button = button, key = key, gamepadButton = gamepadButton, scrollDelta = scrollDelta });
 	}
 
 	public static bool IsDown(string name)
@@ -147,6 +175,12 @@ public static class InputManager
 		if (bindings.ContainsKey(name))
 			return bindings[name].isReleased();
 		return false;
+	}
+
+	public static void ConsumeEvent(string name)
+	{
+		if (bindings.ContainsKey(name))
+			bindings[name].consumeEvent();
 	}
 
 	public static Vector2 moveVector

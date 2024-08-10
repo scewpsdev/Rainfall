@@ -36,7 +36,7 @@ struct AxisEvent : public Event
 {
 	GamepadAxis axis;
 	int32_t value;
-	GamepadHandle gamepad;
+	int gamepad;
 
 
 	AxisEvent()
@@ -59,8 +59,8 @@ struct CharEvent : public Event
 
 struct GamepadEvent : public Event
 {
-	GamepadHandle gamepad;
-	bool connected;
+	int gamepad;
+	int event;
 
 
 	GamepadEvent()
@@ -151,10 +151,10 @@ struct EventQueue
 	EventQueue();
 	~EventQueue();
 
-	void postAxisEvent(GamepadHandle gamepad, GamepadAxis axis, int32_t value);
+	void postAxisEvent(int gamepad, GamepadAxis axis, int32_t value);
 	void postCharEvent(uint8_t _len, uint32_t _value);
 	void postExitEvent();
-	void postGamepadEvent(GamepadHandle _gamepad, bool _connected);
+	void postGamepadEvent(int _gamepad, int event);
 	void postKeyEvent(KeyCode _key, uint8_t _modifiers, bool _down);
 	void postMouseEvent(int32_t _mx, int32_t _my, int32_t _mz);
 	void postMouseEvent(int32_t _mx, int32_t _my, int32_t _mz, MouseButton _button, bool _down);

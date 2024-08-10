@@ -153,11 +153,11 @@ public class Player : Entity, Hittable
 	public void throwItem(Item item, bool shortThrow = false)
 	{
 		Vector2 itemVelocity = velocity;
-		if (Input.IsKeyDown(KeyCode.Up))
+		if (InputManager.IsDown("Up"))
 		{
 			itemVelocity += new Vector2(direction * 0.05f, 1.0f) * 14;
 		}
-		else if (Input.IsKeyDown(KeyCode.Down))
+		else if (InputManager.IsDown("Down"))
 		{
 			itemVelocity += new Vector2(direction * 0.05f, -1.0f) * 14;
 			if (!isGrounded)
@@ -254,13 +254,13 @@ public class Player : Entity, Hittable
 
 		if (isAlive && !isStunned)
 		{
-			if (Input.IsKeyDown(KeyCode.Left))
+			if (InputManager.IsDown("Left"))
 				delta.x--;
-			if (Input.IsKeyDown(KeyCode.Right))
+			if (InputManager.IsDown("Right"))
 				delta.x++;
 			if (isClimbing)
 			{
-				if (Input.IsKeyDown(KeyCode.Up))
+				if (InputManager.IsDown("Up"))
 				{
 					if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
 						delta.y++;
@@ -277,28 +277,28 @@ public class Player : Entity, Hittable
 						}
 					}
 				}
-				if (Input.IsKeyDown(KeyCode.Down))
+				if (InputManager.IsDown("Down"))
 					delta.y--;
 			}
 
-			isSprinting = Input.IsKeyDown(KeyCode.Shift);
+			isSprinting = InputManager.IsDown("Sprint");
 
-			isDucked = Input.IsKeyDown(KeyCode.Down);
+			isDucked = InputManager.IsDown("Down");
 			collider.size.y = isDucked ? 0.4f : 0.8f;
 
 			if (isGrounded)
 				lastGrounded = Time.currentTime;
 
-			if (Input.IsKeyDown(KeyCode.Right) && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
+			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
 				lastWallTouchRight = Time.currentTime;
-			if (Input.IsKeyDown(KeyCode.Left) && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
+			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
 				lastWallTouchLeft = Time.currentTime;
 
-			if (Input.IsKeyPressed(KeyCode.C))
+			if (InputManager.IsPressed("Jump"))
 			{
 				if (isClimbing)
 				{
-					velocity.y = Input.IsKeyDown(KeyCode.Down) ? 0.0f : jumpPower;
+					velocity.y = InputManager.IsDown("Down") ? 0.0f : jumpPower;
 					lastJumpInput = 0;
 					lastGrounded = 0;
 					lastLadderJumpedFrom = currentLadder;
@@ -376,10 +376,10 @@ public class Player : Entity, Hittable
 		if (!isClimbing)
 		{
 			float gravityMultiplier = 1;
-			if (!isAlive || !Input.IsKeyDown(KeyCode.C))
+			if (!isAlive || !InputManager.IsDown("Jump"))
 			{
 				gravityMultiplier = 1.5f;
-				if (Input.IsKeyReleased(KeyCode.C))
+				if (InputManager.IsReleased("Jump"))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
@@ -408,7 +408,7 @@ public class Player : Entity, Hittable
 		else
 			fallDistance = 0;
 
-		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, Input.IsKeyDown(KeyCode.Down));
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, InputManager.IsDown("Down"));
 
 		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
@@ -442,7 +442,7 @@ public class Player : Entity, Hittable
 	{
 		if (isAlive)
 		{
-			if (Input.IsKeyPressed(KeyCode.V))
+			if (InputManager.IsPressed("SwitchItem"))
 			{
 				bool switched = false;
 				for (int i = 0; i < quickItems.Length; i++)
@@ -457,7 +457,7 @@ public class Player : Entity, Hittable
 				if (!switched)
 					currentQuickItem = (currentQuickItem + 1) % quickItems.Length;
 			}
-			if (Input.IsKeyPressed(KeyCode.F))
+			if (InputManager.IsPressed("UseItem"))
 			{
 				Item item = quickItems[currentQuickItem];
 				if (item != null)
@@ -486,9 +486,9 @@ public class Player : Entity, Hittable
 				interactableInFocus = GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f));
 				if (interactableInFocus != null && interactableInFocus.canInteract(this))
 				{
-					if (Input.IsKeyPressed(interactableInFocus.getInput()))
+					if (InputManager.IsPressed("Interact"))
 					{
-						Input.ConsumeKeyEvent(interactableInFocus.getInput());
+						InputManager.ConsumeEvent("Interact");
 						interactableInFocus.interact(this);
 					}
 				}
@@ -496,7 +496,7 @@ public class Player : Entity, Hittable
 				Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
 				if (currentLadder == null)
 				{
-					if (hoveredLadder != null && (Input.IsKeyDown(KeyCode.Up) || Input.IsKeyDown(KeyCode.Down)) && lastLadderJumpedFrom == null)
+					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down")) && lastLadderJumpedFrom == null)
 					{
 						currentLadder = hoveredLadder;
 						isClimbing = true;
@@ -514,20 +514,25 @@ public class Player : Entity, Hittable
 
 				if (handItem != null)
 				{
-					if (Input.IsKeyPressed(KeyCode.X))
+					if (InputManager.IsPressed("Attack"))
 					{
-						Input.ConsumeKeyEvent(KeyCode.X);
+						InputManager.ConsumeEvent("Attack");
+						handItem.use(this);
+					}
+					if (InputManager.IsPressed("Interact"))
+					{
+						InputManager.ConsumeEvent("Interact");
 						if (isDucked)
 							throwItem(handItem, true);
 						else
-							handItem.use(this);
+							handItem.useSecondary(this);
 					}
 				}
 				else
 				{
-					if (Input.IsKeyPressed(KeyCode.X))
+					if (InputManager.IsPressed("Attack"))
 					{
-						Input.ConsumeKeyEvent(KeyCode.X);
+						InputManager.ConsumeEvent("Attack");
 						actions.queueAction(new AttackAction(DefaultWeapon.instance));
 					}
 				}

@@ -11,5 +11,4 @@ public interface Interactable
 	public bool canInteract(Player player);
 	public void interact(Player player);
 	public float getRange();
-	public KeyCode getInput();
 }

@@ -7,8 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+enum MainMenuScreen
+{
+	Main,
+	CustomRunSettings,
+}
+
 public class MainMenuState : State
 {
+	MainMenuScreen screen = MainMenuScreen.Main;
 	int currentButton = 0;
 
 
@@ -20,7 +27,7 @@ public class MainMenuState : State
 	{
 	}
 
-	public override void draw(GraphicsDevice graphics)
+	void mainScreen()
 	{
 		string[] labels = [
 			"Play",
@@ -33,9 +40,9 @@ public class MainMenuState : State
 
 		int linePadding = 3;
 
-		if (Input.IsKeyPressed(KeyCode.Down))
+		if (InputManager.IsPressed("Down"))
 			currentButton = (currentButton + 1) % labels.Length;
-		if (Input.IsKeyPressed(KeyCode.Up))
+		if (InputManager.IsPressed("Up"))
 			currentButton = (currentButton + labels.Length - 1) % labels.Length;
 
 		for (int i = 0; i < labels.Length; i++)
@@ -45,7 +52,7 @@ public class MainMenuState : State
 			uint color = i == currentButton ? 0xFFFFFFFF : 0xFF666666;
 			Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 2 - size.y / 2 + i * (size.y + linePadding), txt, 1, color);
 
-			if (i == currentButton && Input.IsKeyPressed(KeyCode.X))
+			if (i == currentButton && InputManager.IsPressed("Interact"))
 			{
 				switch (i)
 				{
@@ -62,7 +69,7 @@ public class MainMenuState : State
 						break;
 
 					case 2: // Custom Run
-
+						screen = MainMenuScreen.CustomRunSettings;
 						break;
 
 					case 3: // Options
@@ -84,5 +91,46 @@ public class MainMenuState : State
 				}
 			}
 		}
+	}
+
+	StringBuilder customRunSeedStr = new StringBuilder();
+
+	void customRun()
+	{
+		int width = 60;
+		int height = 15;
+		int x = Renderer.UIWidth / 2 - width / 2;
+		int y = Renderer.UIHeight / 2 - height / 2;
+
+		Renderer.DrawUISprite(x - 2, y - 2, width + 4, height + 4, null, false, 0xFFAAAAAA);
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFF000000);
+		Renderer.DrawUITextBMP(x, Renderer.UIHeight / 2 - Renderer.smallFont.size / 2, customRunSeedStr.ToString() + "_", 1, 0xFFFFFFFF);
+	}
+
+	public override void onCharEvent(byte length, uint value)
+	{
+		if (screen == MainMenuScreen.CustomRunSettings)
+		{
+			customRunSeedStr.Append((char)value);
+		}
+	}
+
+	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
+	{
+		if (screen == MainMenuScreen.CustomRunSettings)
+		{
+			if (key == KeyCode.Backspace && modifiers == KeyModifier.None && down && customRunSeedStr.Length > 0)
+				customRunSeedStr.Remove(customRunSeedStr.Length - 1, 1);
+			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
+				PixelEngine.instance.pushState(new GameState(Hash.hash(customRunSeedStr.ToString())));
+		}
+	}
+
+	public override void draw(GraphicsDevice graphics)
+	{
+		if (screen == MainMenuScreen.Main)
+			mainScreen();
+		else if (screen == MainMenuScreen.CustomRunSettings)
+			customRun();
 	}
 }

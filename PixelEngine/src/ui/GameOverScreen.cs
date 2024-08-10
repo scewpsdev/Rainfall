@@ -21,31 +21,31 @@ public static class GameOverScreen
 
 	static void RenderRunStats(GameState game, int x, int y, int width, int height)
 	{
-		y += 32;
+		y += 10;
 
 		{
 			string caption = "YOU DIED";
-			int captionWidth = Renderer.MeasureUIText(caption, caption.Length, 2).x;
-			Renderer.DrawUIText(x + width / 2 - captionWidth / 2, y, caption, 2, 0xFFAA3333);
-			y += 22;
+			int captionWidth = Renderer.MeasureUIText(caption, caption.Length, 1).x;
+			Renderer.DrawUIText(x + width / 2 - captionWidth / 2, y, caption, 1, 0xFFAA3333);
+			y += 7;
 		}
 
-		y += 52;
+		y += 17;
 
-		int lineHeight = 22 + 12;
+		int lineHeight = 8 + 4;
 
 		void drawLeft(string str, uint color = 0xFFAAAAAA)
 		{
 			if (str == null)
 				str = "???";
-			Renderer.DrawUITextBMP(x, y, str, 2, color);
+			Renderer.DrawUITextBMP(x, y, str, 1, color);
 		}
 		void drawRight(string str, uint color = 0xFFAAAAAA)
 		{
 			if (str == null)
 				str = "???";
-			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 2).x;
-			Renderer.DrawUITextBMP(x + width - textWidth, y, str, 2, color);
+			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
+			Renderer.DrawUITextBMP(x + width - textWidth, y, str, 1, color);
 		}
 
 		drawLeft("Score");
@@ -116,13 +116,13 @@ public static class GameOverScreen
 
 	public static void Render()
 	{
-		int x = 50;
-		int y = 50;
-		int width = Renderer.UIWidth - 2 * 50;
-		int height = Renderer.UIHeight - 2 * 50;
+		int x = 16;
+		int y = 16;
+		int width = Renderer.UIWidth - 2 * 16;
+		int height = Renderer.UIHeight - 2 * 16;
 		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
 
-		int padding = 24;
+		int padding = 8;
 
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
 		RenderInventory();

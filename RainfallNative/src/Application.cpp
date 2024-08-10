@@ -68,8 +68,8 @@ struct ApplicationCallbacks
 	void (*draw)();
 
 	void (*onInternalErrorEvent)(const char* msg);
-	void (*onAxisEvent)(GamepadAxis axis, int value, GamepadHandle gamepadHandle);
-	void (*onGamepadEvent)(GamepadHandle gamepadHandle, bool connected);
+	void (*onAxisEvent)(GamepadAxis axis, int value, int gamepad);
+	void (*onGamepadEvent)(int gamepad, int event);
 	void (*onCharEvent)(uint8_t length, uint32_t value);
 	void (*onKeyEvent)(KeyCode key, KeyModifier modifier, bool down);
 	void (*onMouseButtonEvent)(MouseButton button, bool down);
@@ -376,11 +376,6 @@ static void ErrorCallback(int error, const char* description)
 	Console_Error("GLFW error %d: %s", error, description);
 }
 
-static void JoystickCallback(int jid, int action)
-{
-	// TODO
-}
-
 static KeyModifier TranslateKeyModifiers(int mods)
 {
 	KeyModifier modifiers = KeyModifier::None;
@@ -475,6 +470,11 @@ static void MouseButtonCallback(GLFWwindow* window, int button, int action, int 
 	double mx, my;
 	glfwGetCursorPos(window, &mx, &my);
 	eventQueue.postMouseEvent((int)mx, (int)my, (int)scrollPos, TranslateMouseButton(button), action != GLFW_RELEASE);
+}
+
+static void JoystickCallback(int jid, int event)
+{
+	eventQueue.postGamepadEvent(jid, event);
 }
 
 static void WindowSizeCallback(GLFWwindow* window, int width, int height)
@@ -588,7 +588,7 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 		case EventType::Gamepad:
 		{
 			GamepadEvent* gamepadEvent = (GamepadEvent*)ev;
-			callbacks.onGamepadEvent(gamepadEvent->gamepad, gamepadEvent->connected);
+			callbacks.onGamepadEvent(gamepadEvent->gamepad, gamepadEvent->event);
 			break;
 		}
 		case EventType::Key:
@@ -1061,8 +1061,6 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	}
 	printf("GLFW %s\n", glfwGetVersionString());
 
-	glfwSetJoystickCallback(JoystickCallback);
-
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_MAXIMIZED, params.maximized ? GLFW_TRUE : GLFW_FALSE);
@@ -1102,6 +1100,7 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	glfwSetScrollCallback(window, ScrollCallback);
 	glfwSetCursorPosCallback(window, CursorPosCallback);
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
+	glfwSetJoystickCallback(JoystickCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);
 	glfwSetDropCallback(window, DropFileCallback);
 
@@ -1343,6 +1342,11 @@ RFAPI void Application_SetDebugWireframeEnabled(bool enabled)
 RFAPI bool Application_IsDebugWireframeEnabled()
 {
 	return debug & BGFX_DEBUG_WIREFRAME;
+}
+
+RFAPI bool Application_GetGamepadState(int gamepad, GLFWgamepadstate* state)
+{
+	return glfwGetGamepadState(gamepad, state);
 }
 
 RFAPI void Application_SetMouseLock(bool locked)

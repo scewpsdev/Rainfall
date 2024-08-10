@@ -99,8 +99,8 @@ public static class Renderer
 	static List<LineDraw> lineDraws = new List<LineDraw>();
 
 	static FontData fontData;
-	static Font font;
-	static PixelFont smallFont;
+	public static Font font;
+	public static PixelFont smallFont;
 
 	static Matrix projection, view;
 	static float left, right, bottom, top;
