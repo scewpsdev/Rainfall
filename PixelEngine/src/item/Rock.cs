@@ -15,6 +15,8 @@ public class Rock : Item
 
 		projectileItem = true;
 		maxPierces = -1;
+
+		attackDamage = 4;
 	}
 
 	public override Item createNew()

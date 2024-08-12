@@ -17,17 +17,20 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
+	const float ITEM_SECONDARY_HOLD_DURATION = 0.5f;
 
 
 	float speed = 7;
 	float climbingSpeed = 4;
 	float jumpPower = 10.5f;
 	float gravity = -22;
-	float wallJumpPower = 15;
+	float wallJumpPower = 10;
 
 	public int direction = 1;
 	float currentSpeed;
 	Vector2 impulseVelocity;
+	float wallJumpVelocity;
+	float wallJumpFactor;
 	public bool isGrounded = false;
 	bool isMoving = false;
 	bool isSprinting = false;
@@ -47,6 +50,7 @@ public class Player : Entity, Hittable
 	long lastGrounded = -10000000000;
 	long lastWallTouchRight = -10000000000;
 	long lastWallTouchLeft = -10000000000;
+	long lastItemUseDown = -1;
 
 	public int maxHealth = 3;
 	public float health = 3;
@@ -84,20 +88,22 @@ public class Player : Entity, Hittable
 		animator = new SpriteAnimator();
 
 		animator.addAnimation("idle", 0, 0, 16, 0, 4, 5, true);
-		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 10, true);
+		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 12, true);
 		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 4, true);
 		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("stun", 17 * 16, 0, 16, 0, 1, 1, true);
 
+		animator.addAnimationEvent("run", 3, onStep);
+		animator.addAnimationEvent("run", 7, onStep);
+
 		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
-		handItem = new Pickaxe();
-		passiveItems[0] = new Cloak();
+		handItem = new Spear();
 	}
 
 	public override void destroy()
@@ -165,7 +171,7 @@ public class Player : Entity, Hittable
 		}
 		else
 		{
-			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.1f) : new Vector2(1, 0.1f)) * 14;
+			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.1f) : new Vector2(1, 0.15f)) * 14;
 		}
 		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.5f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
@@ -231,7 +237,10 @@ public class Player : Entity, Hittable
 	void onDeath(Entity by)
 	{
 		if (handItem != null)
-			throwItem(handItem);
+		{
+			Item handItemCopy = handItem.createNew();
+			throwItem(handItemCopy);
+		}
 
 		actions.cancelAllActions();
 
@@ -298,7 +307,7 @@ public class Player : Entity, Hittable
 			{
 				if (isClimbing)
 				{
-					velocity.y = InputManager.IsDown("Down") ? 0.0f : jumpPower;
+					velocity.y = InputManager.IsDown("Down") ? -0.5f * jumpPower : jumpPower;
 					lastJumpInput = 0;
 					lastGrounded = 0;
 					lastLadderJumpedFrom = currentLadder;
@@ -319,14 +328,16 @@ public class Player : Entity, Hittable
 						if ((Time.currentTime - lastWallTouchRight) / 1e9f < COYOTE_TIME)
 						{
 							velocity.y = jumpPower * 0.7f;
-							addImpulse(new Vector2(-wallJumpPower, 0.0f));
+							wallJumpVelocity = -wallJumpPower;
+							wallJumpFactor = 1.0f;
 							lastWallTouchRight = 0;
 						}
 
 						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
 						{
 							velocity.y = jumpPower * 0.7f;
-							addImpulse(new Vector2(wallJumpPower, 0.0f));
+							wallJumpVelocity = wallJumpPower;
+							wallJumpFactor = 1.0f;
 							lastWallTouchLeft = 0;
 						}
 					}
@@ -385,6 +396,9 @@ public class Player : Entity, Hittable
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
+			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, 2 * Time.deltaTime);
+			velocity.x = MathHelper.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
+
 			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 3 * Time.deltaTime);
 			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
 				impulseVelocity.x = 0;
@@ -427,6 +441,7 @@ public class Player : Entity, Hittable
 		{
 			impulseVelocity.x = 0;
 			impulseVelocity.y *= 0.5f;
+			wallJumpFactor = 0;
 		}
 
 		position += displacement;
@@ -518,14 +533,21 @@ public class Player : Entity, Hittable
 					{
 						InputManager.ConsumeEvent("Attack");
 						handItem.use(this);
+						lastItemUseDown = Time.currentTime;
 					}
+					if (InputManager.IsReleased("Attack"))
+						lastItemUseDown = -1;
+					if (InputManager.IsDown("Attack") && (Time.currentTime - lastItemUseDown) / 1e9f > ITEM_SECONDARY_HOLD_DURATION)
+					{
+						handItem.useSecondary(this);
+						lastItemUseDown = -1;
+					}
+
 					if (InputManager.IsPressed("Interact"))
 					{
 						InputManager.ConsumeEvent("Interact");
 						if (isDucked)
 							throwItem(handItem, true);
-						else
-							handItem.useSecondary(this);
 					}
 				}
 				else
@@ -536,6 +558,18 @@ public class Player : Entity, Hittable
 						actions.queueAction(new AttackAction(DefaultWeapon.instance));
 					}
 				}
+			}
+
+			handItem?.update(this);
+			for (int i = 0; i < quickItems.Length; i++)
+			{
+				if (quickItems[i] != null)
+					quickItems[i].update(this);
+			}
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null)
+					passiveItems[i].update(this);
 			}
 
 			actions.update();
@@ -597,6 +631,11 @@ public class Player : Entity, Hittable
 		}
 	}
 
+	void onStep()
+	{
+		GameState.instance.run.stepsTaken++;
+	}
+
 	public override void update()
 	{
 		updateMovement();
@@ -624,7 +663,7 @@ public class Player : Entity, Hittable
 					Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, 0xFFFFFFFF);
 			}
 
-			if (handItem != null)
+			if (isAlive && handItem != null)
 			{
 				if (handItem.sprite != null)
 				{
@@ -633,14 +672,14 @@ public class Player : Entity, Hittable
 						AttackAction action = actions.currentAction as AttackAction;
 						if (handItem.stab)
 						{
-							float xoffset = (action.currentRange - 0.5f) * action.direction;
-							Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, action.direction == -1);
+							float xoffset = action.currentRange * action.direction;
+							Renderer.DrawSprite(position.x - ((action.direction + 1) / 2 * handItem.size.x) + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, action.direction == -1);
 						}
 						else
 						{
 							float rotation = action.currentDirection * action.direction;
 							Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
-							Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
+							Renderer.DrawSprite(position.x - (handItem.size.x - 0.5f) + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
 						}
 					}
 					else

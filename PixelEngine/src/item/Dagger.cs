@@ -19,6 +19,8 @@ public class Dagger : Item
 
 		sprite = new Sprite(tileset, 2, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
+
+		projectileItem = true;
 	}
 
 	public override Item createNew()
@@ -29,6 +31,12 @@ public class Dagger : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
+		return true;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.throwItem(this);
 		return true;
 	}
 }

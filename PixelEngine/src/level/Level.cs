@@ -475,7 +475,9 @@ public class Level
 			}
 		}
 
-		return new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
+		if (hit != null || hitDistance != range)
+			return new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
+		return null;
 	}
 
 	public int raycastNoBlock(Vector2 origin, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)

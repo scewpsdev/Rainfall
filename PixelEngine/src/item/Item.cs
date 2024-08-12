@@ -64,7 +64,7 @@ public abstract class Item
 		return false;
 	}
 
-	public virtual void update(ItemEntity entity)
+	public virtual void update(Entity entity)
 	{
 	}
 

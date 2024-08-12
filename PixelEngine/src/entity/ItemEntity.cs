@@ -20,6 +20,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public Entity thrower = null;
 	long throwTime;
+	List<Entity> hitEntities = new List<Entity>();
 
 	public Item item;
 	public uint color = 0xFFFFFFFF;
@@ -107,10 +108,11 @@ public class ItemEntity : Entity, Interactable, Destructible
 				{
 					if (hit.entity != null && hit.entity != this)
 					{
-						if (hit.entity is Hittable)
+						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 						{
 							Hittable hittable = hit.entity as Hittable;
 							hittable.hit(damage, this);
+							hitEntities.Add(hit.entity);
 
 							if (pierces < item.maxPierces || item.maxPierces == -1)
 								pierces++;
@@ -122,8 +124,14 @@ public class ItemEntity : Entity, Interactable, Destructible
 						}
 					}
 
-					if (item.breakOnHit && velocity.lengthSquared > 1)
-						remove();
+					if (hit.entity == null)
+						hitEntities.Clear();
+
+					if (hit.entity == null || hit.entity != null && hit.entity != this)
+					{
+						if (item.breakOnHit && velocity.lengthSquared > 1)
+							remove();
+					}
 				}
 			}
 		}

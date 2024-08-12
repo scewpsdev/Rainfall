@@ -6,14 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-internal class SpikeTrap : Entity
+internal class SpikeTrap : Entity, Hittable
 {
 	int damage = 5;
+	float gravity = -30;
 
 	Sprite sprite;
 
 	bool falling = false;
-	bool hit = false;
+	bool hitGround = false;
 	List<Entity> hitEntities = new List<Entity>();
 
 
@@ -21,12 +22,19 @@ internal class SpikeTrap : Entity
 	{
 		displayName = "Spike Trap";
 
+		collider = new FloatRect(-0.25f, -0.5f, 0.5f, 1.0f);
+
 		sprite = new Sprite(TileType.tileset, 0, 4);
+	}
+
+	public void hit(float damage, Entity by)
+	{
+		remove();
 	}
 
 	public override void update()
 	{
-		if (hit)
+		if (hitGround)
 		{
 			velocity.y = 0;
 		}
@@ -40,11 +48,11 @@ internal class SpikeTrap : Entity
 		}
 		else if (falling)
 		{
-			velocity.y += -20 * Time.deltaTime;
+			velocity.y += gravity * Time.deltaTime;
 			position.y += velocity.y * Time.deltaTime;
 
 			if (GameState.instance.level.overlapTiles(position + new Vector2(-0.25f, -0.3f), position + new Vector2(0.25f, 0.0f)))
-				hit = true;
+				hitGround = true;
 
 			HitData[] hits = new HitData[16];
 			int numHits = GameState.instance.level.overlap(position + new Vector2(-0.25f, -0.3f), position + new Vector2(0.25f, 0.0f), hits, FILTER_PLAYER | FILTER_MOB);

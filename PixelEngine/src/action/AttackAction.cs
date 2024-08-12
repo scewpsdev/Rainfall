@@ -12,7 +12,7 @@ public class AttackAction : EntityAction
 
 	public int direction;
 
-	List<Entity> hitEntities = new List<Entity>();
+	public List<Entity> hitEntities = new List<Entity>();
 
 
 	public AttackAction(Item weapon)
@@ -36,7 +36,7 @@ public class AttackAction : EntityAction
 		Span<HitData> hits = new HitData[16];
 		//int numHits = GameState.instance.level.overlap(player.position + new Vector2(0.5f * currentRange * direction - 0.5f * currentRange, 0.25f),
 		//	player.position + new Vector2(0.5f * currentRange * direction + 0.5f * currentRange, 0.75f), hits, Entity.FILTER_MOB);
-		int numHits = GameState.instance.level.raycastNoBlock(player.position + new Vector2(0, 0.5f), new Vector2(MathF.Cos(currentDirection) * direction, MathF.Sin(currentDirection)), currentRange, hits, Entity.FILTER_MOB);
+		int numHits = GameState.instance.level.raycastNoBlock(player.position + new Vector2(0, 0.25f), new Vector2(MathF.Cos(currentDirection) * direction, MathF.Sin(currentDirection)), currentRange, hits, Entity.FILTER_MOB);
 		for (int i = 0; i < numHits; i++)
 		{
 			if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))
@@ -60,6 +60,6 @@ public class AttackAction : EntityAction
 
 	public float currentDirection
 	{
-		get => (1 - currentProgress) * weapon.attackAngle - 0.25f * MathF.PI;
+		get => weapon.stab ? 0.0f : (1 - currentProgress) * weapon.attackAngle - 0.25f * MathF.PI;
 	}
 }
