@@ -18,7 +18,7 @@ public class InventoryUI
 
 	void drawItemSlot(int x, int y, int size, Item item)
 	{
-		int border = 4;
+		int border = 1;
 		Renderer.DrawUISprite(x - border, y - border, size + 2 * border, size + 2 * border, null, false, 0xFF333333);
 		Renderer.DrawUISprite(x, y, size, size, null, false, 0xFF111111);
 		if (item != null)

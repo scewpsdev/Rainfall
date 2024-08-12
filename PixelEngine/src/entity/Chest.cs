@@ -44,11 +44,6 @@ public class Chest : Entity, Interactable, Destructible
 		return !open;
 	}
 
-	public KeyCode getInput()
-	{
-		return KeyCode.X;
-	}
-
 	public float getRange()
 	{
 		return 1;
@@ -69,6 +64,8 @@ public class Chest : Entity, Interactable, Destructible
 	public void interact(Player player)
 	{
 		open = true;
+		GameState.instance.run.chestsOpened++;
+
 		if (items != null)
 			dropItems();
 		else

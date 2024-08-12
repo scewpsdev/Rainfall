@@ -415,6 +415,9 @@ public class LevelGenerator
 		bool[] objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
 
+		float[] lootModifier = new float[width * height];
+		Array.Fill(lootModifier, 1.0f);
+
 		if (lastLevel != null)
 		{
 			for (int y = startingRoom.y + 1; y < startingRoom.y + startingRoom.height; y++)
@@ -453,6 +456,29 @@ public class LevelGenerator
 			}
 		}
 
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			int connectedDoorways = 0;
+			for (int j = 0; j < room.doorways.Count; j++)
+			{
+				if (room.doorways[j].otherDoorway != null)
+					connectedDoorways++;
+			}
+			Debug.Assert(connectedDoorways > 0);
+			bool isDeadEnd = connectedDoorways == 1;
+			if (isDeadEnd)
+			{
+				for (int y = room.y; y < room.y + room.height; y++)
+				{
+					for (int x = room.x; x < room.x + room.width; x++)
+					{
+						lootModifier[x + y * width] = 3.0f;
+					}
+				}
+			}
+		}
+
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
@@ -462,14 +488,32 @@ public class LevelGenerator
 
 				TileType tile = TileType.Get(level.getTile(x, y));
 
-				if (tile == null)
+				if (tile != null)
 				{
 					TileType up = TileType.Get(level.getTile(x, y + 1));
 					TileType down = TileType.Get(level.getTile(x, y - 1));
 					TileType left = TileType.Get(level.getTile(x - 1, y));
 					TileType right = TileType.Get(level.getTile(x + 1, y));
 
-					if (down != null)
+					if (tile.isSolid && (left == null || right == null))
+					{
+						float arrowTrapChance = 0.001f;
+						if (random.NextSingle() < arrowTrapChance)
+						{
+							int direction = right == null ? 1 : left == null ? -1 : random.Next() % 2 * 2 - 1;
+							level.setTile(x, y, 1);
+							level.addEntity(new ArrowTrap(new Vector2(direction, 0)), new Vector2(x, y));
+						}
+					}
+				}
+				else if (tile == null)
+				{
+					TileType up = TileType.Get(level.getTile(x, y + 1));
+					TileType down = TileType.Get(level.getTile(x, y - 1));
+					TileType left = TileType.Get(level.getTile(x - 1, y));
+					TileType right = TileType.Get(level.getTile(x + 1, y));
+
+					if (down != null && !objectFlags[x + y * width])
 					{
 						float gemChance = up != null ? 0.04f : 0.01f;
 						if (random.NextSingle() < gemChance)
@@ -479,7 +523,7 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null && up == null)
+					if (down != null && up == null && !objectFlags[x + y * width])
 					{
 						TileType upUp = TileType.Get(level.getTile(x, y + 2));
 						if (upUp == null)
@@ -493,7 +537,7 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null && up == null)
+					if (down != null && up == null && !objectFlags[x + y * width])
 					{
 						TileType upLeft = TileType.Get(level.getTile(x - 1, y + 1));
 						TileType upRight = TileType.Get(level.getTile(x + 1, y + 1));
@@ -509,10 +553,12 @@ public class LevelGenerator
 						}
 					}
 
-					if (up != null)
+					if (up != null && up.isSolid && !objectFlags[x + y * width])
 					{
 						TileType downDown = TileType.Get(level.getTile(x, y - 2));
-						if (down == null && downDown == null)
+						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
+						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
+						if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null))
 						{
 							float spikeTrapChance = 0.01f;
 							if (random.NextSingle() < spikeTrapChance)
@@ -523,7 +569,7 @@ public class LevelGenerator
 						}
 					}
 
-					if (down == null && up == null)
+					if (down == null && up == null && !objectFlags[x + y * width])
 					{
 						TileType downDown = TileType.Get(level.getTile(x, y - 2));
 						if (downDown != null)
@@ -537,17 +583,18 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null)
+					if (down != null && !objectFlags[x + y * width])
 					{
 						float itemChance = up != null && (left != null || right != null) ? 0.02f :
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
 						itemChance *= 3;
+						itemChance *= lootModifier[x + y * width];
 
 						if (random.NextSingle() < itemChance)
 						{
-							float scamChestChance = 1.0f;
+							float scamChestChance = 0.02f;
 							if (random.NextSingle() < scamChestChance)
 							{
 								level.addEntity(new Chest(null, left != null && right == null), new Vector2(x + 0.5f, y));
@@ -562,7 +609,7 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null && up == null && (left == null && right == null))
+					if (down != null && up == null && (left == null && right == null) && !objectFlags[x + y * width])
 					{
 						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
 						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));

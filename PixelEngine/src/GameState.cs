@@ -14,6 +14,8 @@ public class RunStats
 	public float duration = 0.0f;
 	public int floor = 0;
 	public int kills = 0;
+	public int chestsOpened = 0;
+	public int stepsTaken = 0;
 
 	public bool active = true;
 
@@ -41,7 +43,8 @@ public class RunStats
 
 			result += floor * 1000;
 			result += kills * 200;
-			result += Math.Max(1000 - (int)duration, 0);
+			result += chestsOpened * 17;
+			result += stepsTaken * 5;
 
 			return result;
 		}
@@ -137,9 +140,22 @@ public class GameState : State
 		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
 		tutorial.addEntity(new TutorialText("X to interact", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
 		tutorial.addEntity(new TutorialText("Down+X to drop", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37.5f));
-		tutorial.addEntity(new TutorialText("X to attack", 0xFFFFFFFF), new Vector2(43, 19));
+		tutorial.addEntity(new TutorialText("Y to attack", 0xFFFFFFFF), new Vector2(43, 19));
 		tutorial.addEntity(new TutorialText("F to use item", 0xFFFFFFFF), new Vector2(43, 26));
 		tutorial.addEntity(new TutorialText("V to switch item", 0xFFFFFFFF), new Vector2(43, 25.5f));
+		tutorial.addEntity(new TutorialText("For Gode ->", 0xFFFFFFFF), new Vector2(55, 25.5f));
+		for (int i = 0; i < 50; i++)
+		{
+			tutorial.addEntity(new SpikeTrap(), new Vector2(67.5f + i, 27.5f));
+		}
+		tutorial.addEntity(new TutorialText("Das ist eine Spike Trap ->     <-", 0xFFFFFFFF), new Vector2(121.7f, 29.5f));
+		tutorial.addEntity(new TutorialText("Ja, man kann sie sehen.", 0xFFFFFFFF), new Vector2(121, 28.5f));
+		tutorial.addEntity(new TutorialText("Von denen sollte man nicht", 0xFFFFFFFF), new Vector2(121, 27.5f));
+		tutorial.addEntity(new TutorialText("getroffen werden.", 0xFFFFFFFF), new Vector2(121, 27.0f));
+		tutorial.addEntity(new TutorialText("Das tut weh.", 0xFFFFFFFF), new Vector2(121, 26.5f));
+		tutorial.addEntity(new TutorialText("(:", 0xFFFFFFFF), new Vector2(121, 26.0f));
+		tutorial.addEntity(new SpikeTrap(), new Vector2(124.5f, 29.5f));
+		//tutorial.addEntity(new TutorialText("Ja man kann sie sehen", 0xFFFFFFFF), new Vector2(55, 25.5f));
 		tutorial.addEntity(new Chest(new HealthPotion(), new RopeItem()), new Vector2(43, 24));
 		tutorial.addEntity(new Rat(), new Vector2(42, 17));
 		tutorial.addEntity(new Snake(), new Vector2(50, 19));

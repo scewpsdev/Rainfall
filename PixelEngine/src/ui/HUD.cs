@@ -66,8 +66,8 @@ public class HUD
 		{
 			int size = 8;
 			int padding = 3;
-			int x = 6 + i * (size + padding);
-			int y = 6 + 8 + 3;
+			int x = 6 + player.maxHealth * (size + padding) + 4 + i * (size + padding);
+			int y = 6;
 
 			Renderer.DrawUISprite(x, y, size, size, armorEmpty);
 			float fraction = MathF.Min(totalArmor / 10.0f - i, 1);
@@ -78,7 +78,7 @@ public class HUD
 		{ // Gems
 			int size = 8;
 			int x = 6;
-			int y = 6 + 8 + 3 + 8 + 3;
+			int y = 6 + 8 + 3;
 
 			Renderer.DrawUISprite(x, y, size, size, gems, false);
 			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);

@@ -18,11 +18,21 @@ namespace Rainfall
 		public bool looping;
 	}
 
+	public class SpriteAnimationEvent
+	{
+		public string name;
+		public int frame;
+		public Action action;
+	}
+
 	public class SpriteAnimator
 	{
 		List<SpriteAnimation> animations = new List<SpriteAnimation>();
 		string currentAnimation = null;
 		long startTime = 0;
+		int lastFrameIdx = -1;
+
+		List<SpriteAnimationEvent> events = new List<SpriteAnimationEvent>();
 
 
 		public void addAnimation(string name, int x, int y, int dx, int dy, int length, int fps, bool looping)
@@ -49,6 +59,11 @@ namespace Rainfall
 			return null;
 		}
 
+		public void addAnimationEvent(string name, int frame, Action action)
+		{
+			events.Add(new SpriteAnimationEvent() { name = name, frame = frame, action = action });
+		}
+
 		public void update(Sprite sprite)
 		{
 			if (currentAnimation != null)
@@ -64,6 +79,17 @@ namespace Rainfall
 					else
 						frameIdx = Math.Min(frameIdx, current.length - 1);
 					sprite.position = current.start + current.delta * frameIdx;
+
+					for (int i = 0; i < events.Count; i++)
+					{
+						if (events[i].name == currentAnimation)
+						{
+							if (frameIdx == events[i].frame && lastFrameIdx != frameIdx)
+								events[i].action();
+						}
+					}
+
+					lastFrameIdx = frameIdx;
 				}
 			}
 		}

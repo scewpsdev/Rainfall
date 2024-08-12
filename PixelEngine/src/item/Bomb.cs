@@ -46,11 +46,12 @@ public class Bomb : Item
 		useTime = Time.currentTime;
 	}
 
-	public override void update(ItemEntity entity)
+	public override void update(Entity entity)
 	{
-		if (useTime != -1)
+		if (useTime != -1 && entity is ItemEntity)
 		{
-			entity.color = 0xFFFFBB00;
+			ItemEntity itemEntity = entity as ItemEntity;
+			itemEntity.color = 0xFFFFBB00;
 		}
 
 		if (useTime != -1 && (Time.currentTime - useTime) / 1e9f >= fuseTime)

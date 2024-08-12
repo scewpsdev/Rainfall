@@ -15,6 +15,8 @@ public class Skull : Item
 
 		projectileItem = true;
 		breakOnHit = true;
+
+		attackDamage = 4;
 	}
 
 	public override Item createNew()

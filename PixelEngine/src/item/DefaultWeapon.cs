@@ -15,7 +15,7 @@ public class DefaultWeapon : Item
 		: base("default_weapon")
 	{
 		attackDamage = 1;
-		attackRange = 0.5f;
+		attackRange = 0.8f;
 		attackRate = 5;
 
 		sprite = new Sprite(tileset, 4, 1);
