@@ -114,10 +114,9 @@ public static class Renderer
 		Renderer.graphics = graphics;
 
 		// pixel perfect correction
-		int scale = (int)MathF.Ceiling(Display.height / 1080.0f * 4);
-		UIHeight = (int)(Display.height / (float)scale);
-		float aspect = Display.aspectRatio;
-		UIWidth = (int)(aspect * UIHeight);
+		int scale = (int)MathF.Ceiling(Display.width / 320);
+		UIWidth = (int)(Display.width / (float)scale);
+		UIHeight = (int)(UIWidth / Display.aspectRatio);
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -183,10 +182,10 @@ public static class Renderer
 	public static void Resize(int width, int height)
 	{
 		// pixel perfect correction
-		int scale = (int)MathF.Ceiling(Display.height / 1080.0f * 4);
-		UIHeight = (int)(Display.height / (float)scale);
-		float aspect = Display.aspectRatio;
-		UIWidth= (int)(aspect * UIHeight);
+		int scale = (int)MathF.Ceiling(Display.width / 320);
+		UIWidth = (int)(Display.width / (float)scale);
+		UIHeight = (int)(UIWidth / Display.aspectRatio);
+		Console.WriteLine(UIWidth + "," + UIHeight);
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);

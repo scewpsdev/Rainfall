@@ -164,6 +164,11 @@ namespace Rainfall
 			return new Vector2(x, y);
 		}
 
+		public static Vector2 Reflect(Vector2 v, Vector2 n)
+		{
+			return v - 2 * Dot(v, n) * n;
+		}
+
 		public static Vector2 operator +(Vector2 a, Vector2 b) { return new Vector2(a.x + b.x, a.y + b.y); }
 		public static Vector2 operator -(Vector2 a, Vector2 b) { return new Vector2(a.x - b.x, a.y - b.y); }
 		public static Vector2 operator *(Vector2 a, Vector2 b) { return new Vector2(a.x * b.x, a.y * b.y); }

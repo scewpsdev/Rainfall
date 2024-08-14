@@ -15,7 +15,7 @@ public class Sword : Item
 
 		attackDamage = 4;
 		attackRange = 1.5f;
-		attackRate = 2;
+		attackRate = 1.4f;
 		stab = false;
 
 		sprite = new Sprite(tileset, 1, 1);

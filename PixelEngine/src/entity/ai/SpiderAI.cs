@@ -27,6 +27,12 @@ public class SpiderAI : AI
 	Player target;
 
 
+	public void onHit(Entity by)
+	{
+		if (target == null && by is Player)
+			target = by as Player;
+	}
+
 	void updateTargetFollow(Mob mob)
 	{
 		if (!mob.isGrounded)

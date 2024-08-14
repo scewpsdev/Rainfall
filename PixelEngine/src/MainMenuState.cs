@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
@@ -38,18 +39,37 @@ public class MainMenuState : State
 			"Quit"
 		];
 
+		bool[] enabled = [
+			true,
+			true,
+			true,
+			false,
+			false,
+			true
+		];
+
 		int linePadding = 3;
 
 		if (InputManager.IsPressed("Down"))
-			currentButton = (currentButton + 1) % labels.Length;
+		{
+			do
+			{
+				currentButton = (currentButton + 1) % labels.Length;
+			} while (!enabled[currentButton]);
+		}
 		if (InputManager.IsPressed("Up"))
-			currentButton = (currentButton + labels.Length - 1) % labels.Length;
+		{
+			do
+			{
+				currentButton = (currentButton + labels.Length - 1) % labels.Length;
+			} while (!enabled[currentButton]);
+		}
 
 		for (int i = 0; i < labels.Length; i++)
 		{
 			string txt = labels[i];
 			Vector2i size = Renderer.MeasureUITextBMP(txt, txt.Length, 1);
-			uint color = i == currentButton ? 0xFFFFFFFF : 0xFF666666;
+			uint color = enabled[i] ? (i == currentButton ? 0xFFFFFFFF : 0xFF666666) : 0xFF333333;
 			Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 2 - size.y / 2 + i * (size.y + linePadding), txt, 1, color);
 
 			if (i == currentButton && InputManager.IsPressed("Interact"))
@@ -123,6 +143,8 @@ public class MainMenuState : State
 				customRunSeedStr.Remove(customRunSeedStr.Length - 1, 1);
 			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
 				PixelEngine.instance.pushState(new GameState(Hash.hash(customRunSeedStr.ToString())));
+			if (key == KeyCode.Esc && modifiers == KeyModifier.None && down)
+				screen = MainMenuScreen.Main;
 		}
 	}
 

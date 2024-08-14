@@ -54,6 +54,7 @@ void main()
 	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SRGBToLinear(SampleTextureByID(textureID, v_texcoord0.xy)), textureID > -0.5 ? 1.0 : 0.0);
 	float mask = v_texcoord0.w;
 	textureColor.rgb = (mask * textureColor.rgb + (1 - mask)) * v_color0.rgb;
+	textureColor.a *= v_color0.a;
 	
 	if (textureColor.a < 0.01)
 		discard;

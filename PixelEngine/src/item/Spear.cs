@@ -15,7 +15,7 @@ public class Spear : Item
 
 		attackDamage = 2;
 		attackRange = 2.0f;
-		attackRate = 2;
+		attackRate = 1.6f;
 
 		sprite = new Sprite(tileset, 6, 1, 2, 1);
 		size = new Vector2(2, 1);

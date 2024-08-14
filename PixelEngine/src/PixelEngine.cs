@@ -20,8 +20,8 @@ using System.Reflection;
 public class PixelEngine : Game
 {
 	const int VERSION_MAJOR = 0;
-	const int VERSION_MINOR = 0;
-	const int VERSION_PATCH = 1;
+	const int VERSION_MINOR = 1;
+	const int VERSION_PATCH = 3;
 	const char VERSION_SUFFIX = 'a';
 
 
@@ -38,7 +38,7 @@ public class PixelEngine : Game
 	{
 		Display.windowTitle = ASSEMBLY_NAME;
 
-		Renderer.Init(graphics, Display.width, Display.height /*320, 180*/);
+		Renderer.Init(graphics, Display.width, Display.height);
 
 		Physics.Init();
 		Audio.Init();
@@ -57,6 +57,11 @@ public class PixelEngine : Game
 
 		Audio.Shutdown();
 		Physics.Shutdown();
+	}
+
+	protected override void onViewportSizeEvent(int width, int height)
+	{
+		Renderer.Resize(width, height);
 	}
 
 	public void pushState(State state)
