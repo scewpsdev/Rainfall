@@ -34,6 +34,12 @@ public class SnakeAI : AI
 	Player target;
 
 
+	public void onHit(Entity by)
+	{
+		if (target == null && by is Player)
+			target = by as Player;
+	}
+
 	void updateTargetFollow(Mob mob)
 	{
 		walkDirection = target.position.x < mob.position.x ? -1 : 1;

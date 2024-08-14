@@ -17,14 +17,13 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
-	const float ITEM_SECONDARY_HOLD_DURATION = 0.5f;
 
 
-	float speed = 7;
-	float climbingSpeed = 4;
-	float jumpPower = 10.5f;
-	float gravity = -22;
-	float wallJumpPower = 10;
+	public float speed = 6;
+	public float climbingSpeed = 4;
+	public float jumpPower = 10.5f;
+	public float gravity = -22;
+	public float wallJumpPower = 10;
 
 	public int direction = 1;
 	float currentSpeed;
@@ -64,7 +63,7 @@ public class Player : Entity, Hittable
 	public ActionQueue actions;
 
 	Interactable interactableInFocus = null;
-	Climbable currentLadder = null;
+	public Climbable currentLadder = null;
 	Climbable lastLadderJumpedFrom = null;
 
 	public Item handItem = null;
@@ -102,8 +101,6 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
-
-		handItem = new Spear();
 	}
 
 	public override void destroy()
@@ -115,8 +112,12 @@ public class Player : Entity, Hittable
 		if (obj.item.type == ItemType.Tool)
 		{
 			if (handItem != null)
+			{
+				handItem.onUnequip(this);
 				throwItem(handItem, true);
+			}
 			handItem = obj.item;
+			handItem.onEquip(this);
 			return true;
 		}
 		else if (obj.item.type == ItemType.Active)
@@ -128,6 +129,7 @@ public class Player : Entity, Hittable
 					if (quickItems[i] != null && quickItems[i].id == obj.item.id)
 					{
 						quickItems[i].stackSize += obj.item.stackSize;
+						quickItems[i].onEquip(this);
 						return true;
 					}
 				}
@@ -137,6 +139,7 @@ public class Player : Entity, Hittable
 				if (quickItems[i] == null)
 				{
 					quickItems[i] = obj.item;
+					quickItems[i].onEquip(this);
 					return true;
 				}
 			}
@@ -149,6 +152,7 @@ public class Player : Entity, Hittable
 				if (passiveItems[i] == null)
 				{
 					passiveItems[i] = obj.item;
+					passiveItems[i].onEquip(this);
 					return true;
 				}
 			}
@@ -529,15 +533,20 @@ public class Player : Entity, Hittable
 
 				if (handItem != null)
 				{
+					if (InputManager.IsDown("Attack"))
+					{
+						if (lastItemUseDown == -1)
+							lastItemUseDown = Time.currentTime;
+					}
+					if (InputManager.IsReleased("Attack"))
+						lastItemUseDown = -1;
+
 					if (InputManager.IsPressed("Attack"))
 					{
 						InputManager.ConsumeEvent("Attack");
 						handItem.use(this);
-						lastItemUseDown = Time.currentTime;
 					}
-					if (InputManager.IsReleased("Attack"))
-						lastItemUseDown = -1;
-					if (InputManager.IsDown("Attack") && (Time.currentTime - lastItemUseDown) / 1e9f > ITEM_SECONDARY_HOLD_DURATION)
+					else if (InputManager.IsDown("Attack") && lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.chargeTime)
 					{
 						handItem.useSecondary(this);
 						lastItemUseDown = -1;

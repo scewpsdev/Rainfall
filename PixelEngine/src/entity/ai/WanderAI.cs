@@ -11,6 +11,10 @@ public class WanderAI : AI
 	int walkDirection = 1;
 
 
+	public void onHit(Entity by)
+	{
+	}
+
 	public void update(Mob mob)
 	{
 		mob.inputRight = false;

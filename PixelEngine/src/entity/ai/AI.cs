@@ -8,4 +8,5 @@ using System.Threading.Tasks;
 public interface AI
 {
 	void update(Mob mob);
+	void onHit(Entity by);
 }

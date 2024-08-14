@@ -66,7 +66,7 @@ public class BoomerangProjectile : Entity
 		rotation += 3 * Time.deltaTime;
 		rotation = (rotation + MathF.PI) % (MathF.PI * 2) - MathF.PI;
 
-		HitData hit = GameState.instance.level.sample(position, FILTER_MOB | FILTER_PLAYER);
+		HitData hit = GameState.instance.level.sample(position, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit != null)
 		{
 			if (hit.entity != null)

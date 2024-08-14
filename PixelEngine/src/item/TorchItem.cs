@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class TorchItem : Item
 {
-	public TorchItem() 
+	public TorchItem()
 		: base("torch")
 	{
 		displayName = "Torch";
@@ -17,6 +17,7 @@ public class TorchItem : Item
 		attackRange = 1.5f;
 		attackRate = 3.0f;
 		stab = false;
+		rarity = 0;
 
 		sprite = new Sprite(tileset, 8, 0);
 	}

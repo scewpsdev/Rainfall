@@ -445,11 +445,15 @@ public class LevelGenerator
 			for (int y = exitRoom.y; y < exitRoom.y + exitRoom.height; y++)
 			{
 				int x = exitRoom.x + exitRoom.width / 2;
-				if (level.getTile(x, y) == 0)
+				if (y > 0 && level.getTile(x, y) == 0)
 				{
 					Vector2 exitPosition = new Vector2(x + 0.5f, y);
 					level.exit = new Door(nextLevel);
 					level.addEntity(level.exit, exitPosition);
+
+					if (level.getTile(x, y - 1) == 0)
+						level.setTile(x, y - 1, 3);
+
 					objectFlags[x + y * width] = true;
 					break;
 				}
@@ -589,7 +593,7 @@ public class LevelGenerator
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
-						itemChance *= 3;
+						itemChance *= 2;
 						itemChance *= lootModifier[x + y * width];
 
 						if (random.NextSingle() < itemChance)

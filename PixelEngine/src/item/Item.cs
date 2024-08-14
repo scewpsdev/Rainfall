@@ -34,6 +34,7 @@ public abstract class Item
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
+	public float chargeTime = 0.5f;
 
 	public int armor = 0;
 
@@ -62,6 +63,14 @@ public abstract class Item
 	public virtual bool useSecondary(Player player)
 	{
 		return false;
+	}
+
+	public virtual void onEquip(Player player)
+	{
+	}
+
+	public virtual void onUnequip(Player player)
+	{
 	}
 
 	public virtual void update(Entity entity)
@@ -93,6 +102,9 @@ public abstract class Item
 		InitType(new Stick());
 		InitType(new Spear());
 		InitType(new TorchItem());
+		InitType(new SpeedUpgrade());
+		InitType(new HealthUpgrade());
+		InitType(new Staff());
 	}
 
 	static void InitType(Item item)
@@ -135,8 +147,8 @@ public abstract class Item
 
 	public static Item CreateRandom(Random random)
 	{
-		float toolChance = 0.35f;
-		float activeChance = 0.35f;
+		float toolChance = 0.4f;
+		float activeChance = 0.4f;
 
 		float f = random.NextSingle();
 		Item item = null;
