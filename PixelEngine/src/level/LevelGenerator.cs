@@ -128,7 +128,7 @@ class RoomDefSet
 
 public class LevelGenerator
 {
-	uint seed;
+	string seed;
 	int floor;
 
 	Random random;
@@ -225,6 +225,40 @@ public class LevelGenerator
 		public int x, y;
 		public int width, height;
 		public List<Doorway> doorways = new List<Doorway>();
+
+
+		public int countConnectedDoorways()
+		{
+			int connectedDoorways = 0;
+			for (int j = 0; j < doorways.Count; j++)
+			{
+				if (doorways[j].otherDoorway != null)
+					connectedDoorways++;
+			}
+			return connectedDoorways;
+		}
+
+		public bool getFloorSpawn(Level level, Random random, out Vector2i pos)
+		{
+			int offset = random.Next() % this.width;
+			for (int i = 0; i < this.width; i++)
+			{
+				int x = this.x + (offset + i) % this.width;
+				for (int y = this.y + 1; y < this.y + this.height; y++)
+				{
+					if (y > 0 && level.getTile(x, y) == 0)
+					{
+						if (level.getTile(x, y - 1) == 0)
+							level.setTile(x, y - 1, 3);
+
+						pos = new Vector2i(x, y);
+						return true;
+					}
+				}
+			}
+			pos = Vector2i.Zero;
+			return false;
+		}
 	}
 
 	class Doorway
@@ -308,12 +342,12 @@ public class LevelGenerator
 		return null;
 	}
 
-	public unsafe void run(uint seed, int floor, Level level, Level nextLevel, Level lastLevel)
+	public unsafe void run(string seed, int floor, Level level, Level nextLevel, Level lastLevel)
 	{
 		this.seed = seed;
 		this.floor = floor;
 
-		random = new Random((int)seed + floor);
+		random = new Random((int)Hash.hash(seed) + floor);
 
 		int width = 50;
 		int height = 40;
@@ -420,64 +454,65 @@ public class LevelGenerator
 
 		if (lastLevel != null)
 		{
-			for (int y = startingRoom.y + 1; y < startingRoom.y + startingRoom.height; y++)
+			if (startingRoom.getFloorSpawn(level, random, out Vector2i entrancePosition))
 			{
-				int x = startingRoom.x + startingRoom.width / 2;
-				if (y > 0 && level.getTile(x, y) == 0)
-				{
-					Vector2 entrancePosition = new Vector2(x + 0.5f, y);
-					level.entrance = new Door(lastLevel, lastLevel.exit);
-					lastLevel.exit.otherDoor = level.entrance;
-					level.addEntity(level.entrance, entrancePosition);
+				level.entrance = new Door(lastLevel, lastLevel.exit);
+				lastLevel.exit.otherDoor = level.entrance;
+				level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
 
-					if (level.getTile(x, y - 1) == 0)
-						level.setTile(x, y - 1, 3);
-
-					objectFlags[x + y * width] = true;
-
-					break;
-				}
+				objectFlags[entrancePosition.x + entrancePosition.y * width] = true;
+			}
+			else
+			{
+				Debug.Assert(false);
 			}
 		}
 
 		//if (nextLevel != null)
 		{
-			for (int y = exitRoom.y; y < exitRoom.y + exitRoom.height; y++)
+			if (exitRoom.getFloorSpawn(level, random, out Vector2i exitPosition))
 			{
-				int x = exitRoom.x + exitRoom.width / 2;
-				if (y > 0 && level.getTile(x, y) == 0)
-				{
-					Vector2 exitPosition = new Vector2(x + 0.5f, y);
-					level.exit = new Door(nextLevel);
-					level.addEntity(level.exit, exitPosition);
+				level.exit = new Door(nextLevel);
+				level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
-					if (level.getTile(x, y - 1) == 0)
-						level.setTile(x, y - 1, 3);
-
-					objectFlags[x + y * width] = true;
-					break;
-				}
+				objectFlags[exitPosition.x + exitPosition.y * width] = true;
+			}
+			else
+			{
+				Debug.Assert(false);
 			}
 		}
 
 		for (int i = 0; i < rooms.Count; i++)
 		{
 			Room room = rooms[i];
-			int connectedDoorways = 0;
-			for (int j = 0; j < room.doorways.Count; j++)
-			{
-				if (room.doorways[j].otherDoorway != null)
-					connectedDoorways++;
-			}
-			Debug.Assert(connectedDoorways > 0);
-			bool isDeadEnd = connectedDoorways == 1;
-			if (isDeadEnd)
+			bool isDeadEnd = room.countConnectedDoorways() == 1;
+			if (isDeadEnd && room != startingRoom && room != exitRoom)
 			{
 				for (int y = room.y; y < room.y + room.height; y++)
 				{
 					for (int x = room.x; x < room.x + room.width; x++)
 					{
 						lootModifier[x + y * width] = 3.0f;
+					}
+				}
+
+				float npcChance = 0.2f;
+				if (random.NextSingle() < npcChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
+					{
+						NPC npc = new NPC("abc");
+						int numShopItems = MathHelper.RandomInt(1, 5, random);
+						for (int j = 0; j < numShopItems; j++)
+						{
+							Item item = Item.CreateRandom(random);
+							int price = (int)(item.value * 1.25f);
+							npc.addShopItem(item, price);
+						}
+						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
+
+						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
 			}

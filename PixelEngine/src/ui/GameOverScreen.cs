@@ -110,32 +110,6 @@ public static class GameOverScreen
 		*/
 	}
 
-	static void drawItemSlot(int x, int y, int size, int border, Item item)
-	{
-		Renderer.DrawUISprite(x, y, size, size, null, false, 0xFF333333);
-		Renderer.DrawUISprite(x + border, y + border, size - 2 * border, size - 2 * border, null, false, 0xFF111111);
-		if (item != null)
-			Renderer.DrawUISprite(x, y, size, size, item.sprite);
-	}
-
-	static void RenderInventory(Player player, int x, int y, int width, int height)
-	{
-		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
-
-		int handItemSlotSize = 16 * 3;
-		drawItemSlot(x + 16, y + 16, handItemSlotSize, 3, player.handItem);
-
-		int xpadding = 2;
-		int ypadding = 4;
-		int slotSize = 16 * 2;
-
-		for (int i = 0; i < player.quickItems.Length; i++)
-			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding, slotSize, 2, player.quickItems[i]);
-
-		for (int i = 0; i < player.passiveItems.Length; i++)
-			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding + slotSize + ypadding, slotSize, 2, player.passiveItems[i]);
-	}
-
 	public static void Render()
 	{
 		int x = 16;
@@ -147,6 +121,6 @@ public static class GameOverScreen
 		int padding = 8;
 
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
-		RenderInventory(GameState.instance.player, x + width / 2 + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
+		InventoryUI.DrawInventory(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding, GameState.instance.player);
 	}
 }

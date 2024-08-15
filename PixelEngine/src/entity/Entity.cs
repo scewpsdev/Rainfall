@@ -50,6 +50,10 @@ public class Entity
 	{
 	}
 
+	public virtual void onLevelSwitch()
+	{
+	}
+
 	public void remove()
 	{
 		removed = true;

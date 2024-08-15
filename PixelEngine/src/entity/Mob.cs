@@ -68,6 +68,8 @@ public abstract class Mob : Entity, Hittable
 		else
 			onDeath(by);
 
+		ai?.onHit(by);
+
 		lastHit = Time.currentTime;
 	}
 

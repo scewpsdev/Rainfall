@@ -73,6 +73,7 @@ public class Player : Entity, Hittable
 
 	HUD hud;
 	InventoryUI inventoryUI;
+	public int numOverlaysOpen = 0;
 	public bool inventoryOpen = false;
 
 
@@ -101,34 +102,36 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
+
+		handItem = new Staff();
 	}
 
 	public override void destroy()
 	{
 	}
 
-	public bool pickupObject(ItemEntity obj)
+	public bool giveItem(Item item)
 	{
-		if (obj.item.type == ItemType.Tool)
+		if (item.type == ItemType.Tool)
 		{
 			if (handItem != null)
 			{
 				handItem.onUnequip(this);
 				throwItem(handItem, true);
 			}
-			handItem = obj.item;
+			handItem = item;
 			handItem.onEquip(this);
 			return true;
 		}
-		else if (obj.item.type == ItemType.Active)
+		else if (item.type == ItemType.Active)
 		{
-			if (obj.item.stackable)
+			if (item.stackable)
 			{
 				for (int i = 0; i < quickItems.Length; i++)
 				{
-					if (quickItems[i] != null && quickItems[i].id == obj.item.id)
+					if (quickItems[i] != null && quickItems[i].id == item.id)
 					{
-						quickItems[i].stackSize += obj.item.stackSize;
+						quickItems[i].stackSize += item.stackSize;
 						quickItems[i].onEquip(this);
 						return true;
 					}
@@ -138,7 +141,7 @@ public class Player : Entity, Hittable
 			{
 				if (quickItems[i] == null)
 				{
-					quickItems[i] = obj.item;
+					quickItems[i] = item;
 					quickItems[i].onEquip(this);
 					return true;
 				}
@@ -151,7 +154,7 @@ public class Player : Entity, Hittable
 			{
 				if (passiveItems[i] == null)
 				{
-					passiveItems[i] = obj.item;
+					passiveItems[i] = item;
 					passiveItems[i].onEquip(this);
 					return true;
 				}
@@ -296,7 +299,7 @@ public class Player : Entity, Hittable
 
 			isSprinting = InputManager.IsDown("Sprint");
 
-			isDucked = InputManager.IsDown("Down");
+			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
 
 			if (isGrounded)
@@ -541,12 +544,23 @@ public class Player : Entity, Hittable
 					if (InputManager.IsReleased("Attack"))
 						lastItemUseDown = -1;
 
-					if (InputManager.IsPressed("Attack"))
+					if (InputManager.IsDown("Attack"))
 					{
-						InputManager.ConsumeEvent("Attack");
-						handItem.use(this);
+						if (handItem.trigger)
+						{
+							if (InputManager.IsPressed("Attack"))
+							{
+								InputManager.ConsumeEvent("Attack");
+								handItem.use(this);
+							}
+						}
+						else
+						{
+							if (actions.currentAction == null)
+								handItem.use(this);
+						}
 					}
-					else if (InputManager.IsDown("Attack") && lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.chargeTime)
+					else if (InputManager.IsDown("Attack") && lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
 					{
 						handItem.useSecondary(this);
 						lastItemUseDown = -1;
@@ -554,9 +568,11 @@ public class Player : Entity, Hittable
 
 					if (InputManager.IsPressed("Interact"))
 					{
-						InputManager.ConsumeEvent("Interact");
-						if (isDucked)
+						if (isDucked && numOverlaysOpen == 0)
+						{
+							InputManager.ConsumeEvent("Interact");
 							throwItem(handItem, true);
+						}
 					}
 				}
 				else

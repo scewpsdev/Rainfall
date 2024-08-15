@@ -11,6 +11,8 @@ public class Skull : Item
 	public Skull()
 		: base("skull")
 	{
+		displayName = "Skull";
+
 		sprite = new Sprite(tileset, 0, 0);
 
 		projectileItem = true;

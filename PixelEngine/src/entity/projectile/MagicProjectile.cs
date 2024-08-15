@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 public class MagicProjectile : Entity
 {
-	int damage = 1;
 	float speed = 2;
 	float maxSpeed = 20;
 	float acceleration = 30;
 	int maxRicochets = 0;
 
 	Entity shooter;
+	Item item;
+
 	Sprite sprite;
 	Vector2 direction;
 
@@ -24,15 +25,18 @@ public class MagicProjectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter)
+	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item)
 	{
 		this.direction = direction;
 		this.offset = offset;
 		this.shooter = shooter;
+		this.item = item;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
 
 		velocity = direction * speed;
+		if (MathF.Sign(velocity.x) == MathF.Sign(startVelocity.x) && MathF.Abs(startVelocity.x) > MathF.Abs(velocity.x))
+			velocity.x = startVelocity.x;
 		//velocity += (Vector2.Dot(startVelocity, velocity) + 1.0f) * 0.5f * startVelocity * 0.05f;
 
 		sprite = new Sprite(Item.tileset, 9, 1);
@@ -59,7 +63,7 @@ public class MagicProjectile : Entity
 				if (hit.entity != shooter && hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(damage, shooter);
+					hittable.hit(item.attackDamage, shooter);
 					hitEntities.Add(hit.entity);
 					remove();
 				}
