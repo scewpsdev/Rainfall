@@ -9,21 +9,12 @@ using System.Threading.Tasks;
 public class Torch : Entity, Interactable
 {
 	Sprite sprite;
+	uint outline = 0;
 
 
 	public Torch()
 	{
 		sprite = new Sprite(TileType.tileset, 1, 3);
-	}
-
-	public KeyCode getInput()
-	{
-		return KeyCode.X;
-	}
-
-	public float getRange()
-	{
-		return 1;
 	}
 
 	public bool canInteract(Player player)
@@ -37,8 +28,21 @@ public class Torch : Entity, Interactable
 		remove();
 	}
 
+	public void onFocusEnter(Player player)
+	{
+		outline = 0x7FFFFFFF;
+	}
+
+	public void onFocusLeft(Player player)
+	{
+		outline = 0;
+	}
+
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, 1, 1, sprite, false);
+
+		if (outline != 0)
+			Renderer.DrawOutline(position.x - 0.5f, position.y - 0.5f, 1, 1, sprite, false, outline);
 	}
 }

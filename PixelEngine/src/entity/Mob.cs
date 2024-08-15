@@ -25,6 +25,8 @@ public abstract class Mob : Entity, Hittable
 	public int damage = 1;
 
 	protected Sprite sprite;
+	protected SpriteAnimator animator;
+	protected uint outline = 0;
 
 	protected AI ai;
 
@@ -223,6 +225,7 @@ public abstract class Mob : Entity, Hittable
 
 	void updateAnimation()
 	{
+		animator?.update(sprite);
 	}
 
 	public override void update()
@@ -245,6 +248,9 @@ public abstract class Mob : Entity, Hittable
 				Renderer.DrawSpriteSolid(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
 			else
 				Renderer.DrawSprite(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
+
+			if (outline != 0)
+				Renderer.DrawOutline(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, outline);
 		}
 
 		if (handItem != null)

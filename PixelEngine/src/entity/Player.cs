@@ -505,8 +505,13 @@ public class Player : Entity, Hittable
 
 			if (!isStunned)
 			{
-				interactableInFocus = GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f));
-				if (interactableInFocus != null && interactableInFocus.canInteract(this))
+				Interactable interactable = GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f), this);
+				if (interactableInFocus != null && interactableInFocus != interactable)
+					interactableInFocus.onFocusLeft(this);
+				if (interactable != null && interactable != interactableInFocus)
+					interactable.onFocusEnter(this);
+				interactableInFocus = interactable;
+				if (interactableInFocus != null)
 				{
 					if (InputManager.IsPressed("Interact"))
 					{

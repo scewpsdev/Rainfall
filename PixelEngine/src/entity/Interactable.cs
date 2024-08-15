@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 public interface Interactable
 {
-	public bool canInteract(Player player);
 	public void interact(Player player);
-	public float getRange();
+	public bool canInteract(Player player) { return true; }
+	public float getRange() { return 1; }
+	public void onFocusEnter(Player player) { }
+	public void onFocusLeft(Player player) { }
 }

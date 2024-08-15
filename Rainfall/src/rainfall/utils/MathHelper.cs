@@ -116,6 +116,16 @@ namespace Rainfall
 			return new Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 		}
 
+		public static uint VectorToARGB(Vector4 v)
+		{
+			byte r = (byte)(MathF.Min(v.x * 255, 255));
+			byte g = (byte)(MathF.Min(v.y * 255, 255));
+			byte b = (byte)(MathF.Min(v.z * 255, 255));
+			byte a = (byte)(MathF.Min(v.w * 255, 255));
+			uint color = (uint)((a << 24) | (r << 16) | (g << 8) | b);
+			return color;
+		}
+
 		public static Vector3 SRGBToLinear(float r, float g, float b)
 		{
 			float gamma = 2.2f;
@@ -258,6 +268,14 @@ namespace Rainfall
 		public static Vector3 RandomPointOnSphere()
 		{
 			return RandomPointOnSphere(Random.Shared);
+		}
+
+		public static Vector2 RandomPointOnCircle(Random random)
+		{
+			float x = RandomGaussian(random);
+			float y = RandomGaussian(random);
+			Vector2 p = new Vector2(x, y);
+			return p.normalized;
 		}
 
 		public static void ShuffleList<T>(List<T> list, Random random = null)

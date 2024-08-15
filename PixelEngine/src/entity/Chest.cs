@@ -10,8 +10,9 @@ public class Chest : Entity, Interactable, Destructible
 {
 	Sprite sprite;
 	Sprite openSprite;
-
+	uint outline = 0;
 	bool flipped;
+
 	bool open = false;
 	Item[] items;
 
@@ -44,9 +45,14 @@ public class Chest : Entity, Interactable, Destructible
 		return !open;
 	}
 
-	public float getRange()
+	public void onFocusEnter(Player player)
 	{
-		return 1;
+		outline = 0x9FFFFFFF;
+	}
+
+	public void onFocusLeft(Player player)
+	{
+		outline = 0;
 	}
 
 	void dropItems()
@@ -83,5 +89,8 @@ public class Chest : Entity, Interactable, Destructible
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, open ? openSprite : sprite, flipped);
+
+		if (outline != 0)
+			Renderer.DrawOutline(position.x - 0.5f, position.y, 0, 1, 1, 0, open ? openSprite : sprite, flipped, outline);
 	}
 }

@@ -292,7 +292,7 @@ public class Level
 		return flags;
 	}
 
-	public Interactable getInteractable(Vector2 position)
+	public Interactable getInteractable(Vector2 position, Player player)
 	{
 		Interactable result = null;
 		float resultD2 = float.MaxValue;
@@ -304,7 +304,7 @@ public class Level
 				Vector2 p = entities[i].position;
 				Vector2 delta = p - position;
 				float d2 = Vector2.Dot(delta, delta);
-				if (d2 < interactable.getRange() * interactable.getRange())
+				if (interactable.canInteract(player) && d2 < interactable.getRange() * interactable.getRange())
 				{
 					if (d2 < resultD2)
 					{

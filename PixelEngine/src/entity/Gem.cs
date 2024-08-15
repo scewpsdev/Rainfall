@@ -12,7 +12,7 @@ public class Gem : Entity
 
 	Sprite sprite;
 
-	
+
 	public Gem(int value)
 	{
 		this.value = value;
@@ -28,9 +28,19 @@ public class Gem : Entity
 		{
 			if (hits[i].entity != null && hits[i].entity is Player)
 			{
-				Player player = hits[i].entity as Player;
-				player.money += value;
+				for (int j = 0; j < value; j++)
+				{
+					Coin coin = new Coin();
+					Vector2 spawnPosition = position + Vector2.Rotate(Vector2.UnitX, j / (float)value * 2 * MathF.PI) * 0.2f;
+					coin.velocity = (spawnPosition - position).normalized * 4;
+					GameState.instance.level.addEntity(coin, spawnPosition);
+				}
+
+				//Player player = hits[i].entity as Player;
+				//player.money += value;
 				remove();
+
+				break;
 			}
 		}
 	}

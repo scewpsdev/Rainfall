@@ -266,6 +266,19 @@ public static class Renderer
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color), solid = true });
 	}
 
+	public static void DrawOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)
+	{
+		DrawSpriteSolid(x - 1.0f / 16.0f, y, z, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x + 1.0f / 16.0f, y, z, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x, y - 1.0f / 16.0f, z, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x, y + 1.0f / 16.0f, z, width, height, rotation, sprite, flipped, color);
+	}
+
+	public static void DrawOutline(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
+	{
+		DrawOutline(x, y, 0, width, height, 0, sprite, flipped, color);
+	}
+
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
