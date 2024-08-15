@@ -24,6 +24,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public Item item;
 	public uint color = 0xFFFFFFFF;
+	uint outline = 0;
 
 
 	public ItemEntity(Item item, Entity thrower = null, Vector2 velocity = default)
@@ -46,25 +47,20 @@ public class ItemEntity : Entity, Interactable, Destructible
 	{
 	}
 
-	public bool canInteract(Player player)
-	{
-		return true;
-	}
-
 	public void interact(Player player)
 	{
 		if (player.giveItem(item))
 			remove();
 	}
 
-	public float getRange()
+	public void onFocusEnter(Player player)
 	{
-		return 1.0f;
+		outline = 0x9FFFFFFF;
 	}
 
-	public KeyCode getInput()
+	public void onFocusLeft(Player player)
 	{
-		return KeyCode.X;
+		outline = 0;
 	}
 
 	void onHit(bool x, bool y)
@@ -174,5 +170,8 @@ public class ItemEntity : Entity, Interactable, Destructible
 			flipped = false;
 		}
 		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
+
+		if (outline != 0)
+			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 	}
 }

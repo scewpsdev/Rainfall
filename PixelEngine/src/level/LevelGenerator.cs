@@ -507,8 +507,7 @@ public class LevelGenerator
 						for (int j = 0; j < numShopItems; j++)
 						{
 							Item item = Item.CreateRandom(random);
-							int price = (int)(item.value * 1.25f);
-							npc.addShopItem(item, price);
+							npc.addShopItem(item, random);
 						}
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
@@ -557,7 +556,7 @@ public class LevelGenerator
 						float gemChance = up != null ? 0.04f : 0.01f;
 						if (random.NextSingle() < gemChance)
 						{
-							level.addEntity(new Gem(1), new Vector2(x + 0.5f, y + 0.5f));
+							level.addEntity(new Gem(10), new Vector2(x + 0.5f, y + 0.5f));
 							objectFlags[x + y * width] = true;
 						}
 					}

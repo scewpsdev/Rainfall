@@ -22,6 +22,11 @@ public class NPC : Mob, Interactable
 	{
 		displayName = "Cool NPC";
 
+		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant.png", false), 0, 0, 16, 16);
+		animator = new SpriteAnimator();
+		animator.addAnimation("idle", 0, 0, 1, 0, 2, 2, true);
+		animator.setAnimation("idle");
+
 		gemSprite = HUD.gems;
 	}
 
@@ -37,8 +42,9 @@ public class NPC : Mob, Interactable
 			closeShop();
 	}
 
-	public void addShopItem(Item item, int price)
+	public void addShopItem(Item item, Random random)
 	{
+		int price = (int)(item.value * MathHelper.RandomFloat(0.95f, 1.5f, random));
 		shopItems.Add(new Tuple<Item, int>(item, price));
 	}
 
@@ -64,6 +70,16 @@ public class NPC : Mob, Interactable
 		}
 	}
 
+	public void onFocusEnter(Player player)
+	{
+		outline = 0x9FFFFFFF;
+	}
+
+	public void onFocusLeft(Player player)
+	{
+		outline = 0;
+	}
+
 	void openShop()
 	{
 		shopOpen = true;
@@ -78,19 +94,27 @@ public class NPC : Mob, Interactable
 
 	public override void update()
 	{
+		Player player = GameState.instance.player;
+
 		if (shopOpen)
 		{
 			float maxDistance = 2;
-			if (InputManager.IsPressed("UIQuit") || (GameState.instance.player.position - position).lengthSquared > maxDistance * maxDistance)
+			if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
 			{
 				closeShop();
 			}
+		}
+
+		const float lookRange = 3;
+		if (player.position.y >= position.y - 1.0f && (player.position - position).lengthSquared < lookRange * lookRange)
+		{
+			direction = MathF.Sign(player.position.x - position.x);
 		}
 	}
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, null, false, 0xFFAA0000);
+		base.render();
 
 		if (shopOpen)
 		{

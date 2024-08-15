@@ -55,15 +55,16 @@ vec3 Dither(vec3 color, vec2 uv)
 
 void main()
 {
-	vec3 hdr = texture2D(s_color, v_texcoord0).rgb;
+	vec4 hdr = texture2D(s_color, v_texcoord0);
+	hdr.rgb *= hdr.a;
 	vec3 lighting = texture2D(s_lighting, v_texcoord0).rgb;
 	vec3 bloom = texture2D(s_bloom, v_texcoord0).rgb;
-	vec3 color = hdr + ThreshholdBloom(bloom) * BLOOM_STRENGTH;
+	vec3 color = hdr.rgb + ThreshholdBloom(bloom) * BLOOM_STRENGTH;
 
 	vec3 final = linearToSRGB(color) * linearToSRGB(lighting);
 	final = Vignette(final, v_texcoord0);
 	final = Dither(final, v_texcoord0);
 
 	gl_FragColor = vec4(final, 1.0);
-	gl_FragColor = vec4(linearToSRGB(hdr), 1.0);
+	gl_FragColor = vec4(linearToSRGB(hdr.rgb), 1.0);
 }

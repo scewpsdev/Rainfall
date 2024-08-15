@@ -164,6 +164,8 @@ public abstract class Item
 
 		item = item.createNew();
 
+		item.value = 1.0f / item.rarity * 10;
+
 		return item;
 	}
 }

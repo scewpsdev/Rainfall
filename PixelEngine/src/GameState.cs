@@ -128,8 +128,8 @@ public class GameState : State
 		level.addEntity(dungeonDoor, new Vector2(4.5f, 1));
 
 		NPC npc = new NPC("abc");
-		npc.addShopItem(new Pickaxe(), 0);
-		npc.addShopItem(new HealthUpgrade(), 0);
+		npc.addShopItem(new Pickaxe(), Random.Shared);
+		npc.addShopItem(new HealthUpgrade(), Random.Shared);
 		level.addEntity(npc, new Vector2(6, 1));
 
 		generator.generateLobby(level);
