@@ -8,19 +8,14 @@ using System.Threading.Tasks;
 
 public class HUD
 {
-	Player player;
+	public static SpriteSheet tileset;
 
-	SpriteSheet tileset;
+	public static Sprite heartFull, heartHalf, heartEmpty;
+	public static Sprite armor, armorEmpty;
+	public static Sprite gems;
 
-	Sprite heartFull, heartHalf, heartEmpty;
-	Sprite armor, armorEmpty;
-	Sprite gems;
-
-
-	public HUD(Player player)
+	static HUD()
 	{
-		this.player = player;
-
 		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/ui.png", false), 8, 8);
 
 		heartFull = new Sprite(tileset, 0, 0);
@@ -33,9 +28,18 @@ public class HUD
 		gems = new Sprite(tileset, 3, 0);
 	}
 
+
+	Player player;
+
+
+	public HUD(Player player)
+	{
+		this.player = player;
+	}
+
 	public void render()
 	{
-		if (player.inventoryOpen)
+		if (player.numOverlaysOpen > 0)
 			return;
 
 		// Health

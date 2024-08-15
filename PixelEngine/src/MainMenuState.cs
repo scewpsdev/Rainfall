@@ -77,7 +77,7 @@ public class MainMenuState : State
 				switch (i)
 				{
 					case 0: // Play
-						PixelEngine.instance.pushState(new GameState(0));
+						PixelEngine.instance.pushState(new GameState(null));
 						break;
 
 					case 1: // Daily Run
@@ -85,7 +85,7 @@ public class MainMenuState : State
 						int day = today.DayOfYear;
 						int year = today.Year;
 						uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
-						PixelEngine.instance.pushState(new GameState(seed));
+						PixelEngine.instance.pushState(new GameState(seed.ToString()));
 						break;
 
 					case 2: // Custom Run
@@ -142,7 +142,7 @@ public class MainMenuState : State
 			if (key == KeyCode.Backspace && modifiers == KeyModifier.None && down && customRunSeedStr.Length > 0)
 				customRunSeedStr.Remove(customRunSeedStr.Length - 1, 1);
 			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
-				PixelEngine.instance.pushState(new GameState(Hash.hash(customRunSeedStr.ToString())));
+				PixelEngine.instance.pushState(new GameState(customRunSeedStr.ToString()));
 			if (key == KeyCode.Esc && modifiers == KeyModifier.None && down)
 				screen = MainMenuScreen.Main;
 		}

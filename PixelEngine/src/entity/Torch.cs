@@ -33,7 +33,7 @@ public class Torch : Entity, Interactable
 
 	public void interact(Player player)
 	{
-		player.pickupObject(new ItemEntity(new TorchItem()));
+		player.giveItem(new TorchItem());
 		remove();
 	}
 

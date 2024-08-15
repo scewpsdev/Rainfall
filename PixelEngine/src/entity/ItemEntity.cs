@@ -30,6 +30,8 @@ public class ItemEntity : Entity, Interactable, Destructible
 	{
 		this.item = item;
 
+		displayName = item.displayName;
+
 		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
 		filterGroup = FILTER_ITEM;
 
@@ -51,7 +53,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public void interact(Player player)
 	{
-		if (player.pickupObject(this))
+		if (player.giveItem(item))
 			remove();
 	}
 

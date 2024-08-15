@@ -11,6 +11,8 @@ public class Rock : Item
 	public Rock()
 		: base("rock")
 	{
+		displayName = "Rock";
+
 		sprite = new Sprite(tileset, 4, 0);
 
 		projectileItem = true;

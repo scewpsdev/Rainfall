@@ -24,16 +24,16 @@ public class InventoryUI
 			Renderer.DrawUISprite(x, y, size, size, item.sprite);
 	}
 
-	static void drawInventory(int x, int y, int width, int height, Player player)
+	public static void DrawInventory(int x, int y, int width, int height, Player player)
 	{
 		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
 
-		int handItemSlotSize = 16 * 3;
-		drawItemSlot(x + 16, y + 16, handItemSlotSize, 3, player.handItem);
+		int handItemSlotSize = 16 * 2;
+		drawItemSlot(x + 16, y + 16, handItemSlotSize, 2, player.handItem);
 
 		int xpadding = 2;
 		int ypadding = 4;
-		int slotSize = 16 * 2;
+		int slotSize = 24;
 
 		for (int i = 0; i < player.quickItems.Length; i++)
 			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding, slotSize, 2, player.quickItems[i]);
@@ -46,7 +46,9 @@ public class InventoryUI
 	public void render()
 	{
 		if (InputManager.IsPressed("Inventory"))
+		{
 			player.inventoryOpen = !player.inventoryOpen;
+		}
 
 		if (player.inventoryOpen)
 		{
@@ -55,7 +57,7 @@ public class InventoryUI
 			int width = Renderer.UIWidth / 2 - 16;
 			int height = Renderer.UIHeight - 2 * 16;
 
-			drawInventory(x, y, width, height, player);
+			DrawInventory(x, y, width, height, player);
 		}
 	}
 }

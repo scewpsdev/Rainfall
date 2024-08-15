@@ -25,16 +25,18 @@ public abstract class Item
 	public bool stackable = false;
 	public int stackSize = 1;
 	public float rarity = 1;
+	public float value = 1.0f;
 
 	public int attackDamage = 1;
 	public float attackRange = 1;
 	public float attackAngle = MathF.PI;
 	public float attackRate = 2.0f;
+	public float secondaryChargeTime = 0.5f;
+	public bool trigger = true;
 	public int maxPierces = 0;
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
-	public float chargeTime = 0.5f;
 
 	public int armor = 0;
 

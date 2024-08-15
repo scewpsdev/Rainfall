@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public class RunStats
 {
-	public uint seed;
+	public string seed;
 	public float duration = 0.0f;
 	public int floor = 0;
 	public int kills = 0;
@@ -22,7 +22,7 @@ public class RunStats
 	public Entity killedBy;
 
 
-	public RunStats(uint seed)
+	public RunStats(string seed)
 	{
 		this.seed = seed;
 	}
@@ -66,7 +66,7 @@ public class GameState : State
 	long entityUpdateDelta;
 
 	public RunStats run;
-	uint seed = 0;
+	string seed = null;
 
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
@@ -78,7 +78,7 @@ public class GameState : State
 	public PlayerCamera camera;
 
 
-	public GameState(uint seed)
+	public GameState(string seed)
 	{
 		this.seed = seed;
 		reset();
@@ -96,7 +96,7 @@ public class GameState : State
 		cachedLevels.Clear();
 
 		//run = new RunStats(12345678);
-		run = new RunStats(seed != 0 ? seed : Hash.hash(Time.timestamp));
+		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString());
 
 		LevelGenerator generator = new LevelGenerator();
 
@@ -126,6 +126,11 @@ public class GameState : State
 		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(7.5f, 3));
 		level.addEntity(tutorialExitDoor, new Vector2(7.5f, 5));
 		level.addEntity(dungeonDoor, new Vector2(4.5f, 1));
+
+		NPC npc = new NPC("abc");
+		npc.addShopItem(new Pickaxe(), 0);
+		npc.addShopItem(new HealthUpgrade(), 0);
+		level.addEntity(npc, new Vector2(6, 1));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
@@ -174,6 +179,7 @@ public class GameState : State
 		lastLevel.exit.otherDoor = finalRoomEntrance;
 		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
 		finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
+		finalRoom.addEntity(new Spike(), new Vector2(10, 1));
 	}
 
 	public override void init()
@@ -202,6 +208,11 @@ public class GameState : State
 
 		if (newLevel != null)
 		{
+			for (int i = 0; i < level.entities.Count; i++)
+			{
+				level.entities[i].onLevelSwitch();
+			}
+
 			cachedLevels.Add(level);
 			level.removeEntity(player);
 			level.removeEntity(camera);
