@@ -6,20 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class SpeedUpgrade : Item
+public class RingOfSwiftness : Item
 {
-	public SpeedUpgrade()
-		: base("speed_upgrade")
+	public RingOfSwiftness()
+		: base("ring_of_swiftness")
 	{
-		displayName = "Speed Upgrade";
+		displayName = "Ring of Swiftness";
 		type = ItemType.Passive;
 
 		sprite = new Sprite(tileset, 9, 0);
-	}
 
-	public override Item createNew()
-	{
-		return new SpeedUpgrade();
+		value = 100;
+		//rarity = 20;
 	}
 
 	public override void onEquip(Player player)

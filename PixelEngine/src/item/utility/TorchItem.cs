@@ -17,14 +17,12 @@ public class TorchItem : Item
 		attackRange = 1.5f;
 		attackRate = 3.0f;
 		stab = false;
-		rarity = 0;
+
+		value = 1;
+
+		canDrop = false;
 
 		sprite = new Sprite(tileset, 8, 0);
-	}
-
-	public override Item createNew()
-	{
-		return new TorchItem();
 	}
 
 	public override bool use(Player player)

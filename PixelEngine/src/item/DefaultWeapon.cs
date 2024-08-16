@@ -18,11 +18,6 @@ public class DefaultWeapon : Item
 		attackRange = 0.8f;
 		attackRate = 5;
 
-		sprite = new Sprite(tileset, 4, 1);
-	}
-
-	public override Item createNew()
-	{
-		return new DefaultWeapon();
+		sprite = new Sprite(tileset, 0, 2);
 	}
 }

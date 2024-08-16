@@ -53,7 +53,7 @@ void main()
 	float textureID = v_texcoord0.z;
 	float font = SampleTextureByID(textureID, v_texcoord0.xy);
 	vec4 textureColor = vec4(1.0, 1.0, 1.0, font);
-	if (textureColor.a < 0.1)
+	if (textureColor.a < 0.01)
 		discard;
 
 	gl_FragColor = textureColor * v_color0;

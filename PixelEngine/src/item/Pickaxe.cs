@@ -18,12 +18,9 @@ public class Pickaxe : Item
 		attackRate = 3.0f;
 		stab = false;
 
-		sprite = new Sprite(tileset, 0, 1);
-	}
+		value = 15;
 
-	public override Item createNew()
-	{
-		return new Pickaxe();
+		sprite = new Sprite(tileset, 0, 1);
 	}
 
 	public override bool use(Player player)

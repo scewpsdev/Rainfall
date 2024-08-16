@@ -1,7 +1,7 @@
 ﻿#if DEBUG
 #define COMPILE_RESOURCES
 #else
-//#define COMPILE_RESOURCES
+#define COMPILE_RESOURCES
 #endif
 
 

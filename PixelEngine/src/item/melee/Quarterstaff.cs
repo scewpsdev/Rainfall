@@ -6,26 +6,24 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Stick : Item
+public class Quarterstaff : Item
 {
-	public Stick()
-		: base("stick")
+	public Quarterstaff()
+		: base("quarterstaff")
 	{
-		displayName = "Stick";
+		displayName = "Quarterstaff";
 
-		attackDamage = 2;
-		attackRange = 1.0f;
+		attackDamage = 1;
+		attackRange = 1.2f;
 		attackRate = 2;
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
-		sprite = new Sprite(tileset, 5, 1);
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
-	}
+		value = 2;
 
-	public override Item createNew()
-	{
-		return new Stick();
+		sprite = new Sprite(tileset, 4, 1, 2, 1);
+		size = new Vector2(2, 1);
+		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
 	public override bool use(Player player)

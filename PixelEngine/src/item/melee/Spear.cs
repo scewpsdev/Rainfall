@@ -17,13 +17,10 @@ public class Spear : Item
 		attackRange = 2.0f;
 		attackRate = 1.6f;
 
+		value = 5;
+
 		sprite = new Sprite(tileset, 6, 1, 2, 1);
 		size = new Vector2(2, 1);
-	}
-
-	public override Item createNew()
-	{
-		return new Spear();
 	}
 
 	public override bool use(Player player)

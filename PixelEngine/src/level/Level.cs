@@ -23,6 +23,7 @@ public class Level
 
 
 	public int floor;
+	public string name;
 
 	public int width, height;
 	int[] tiles;
@@ -33,9 +34,10 @@ public class Level
 	public List<Entity> entities = new List<Entity>();
 
 
-	public Level(int floor)
+	public Level(int floor, string name)
 	{
 		this.floor = floor;
+		this.name = name;
 
 		width = 20;
 		height = 20;
@@ -233,7 +235,7 @@ public class Level
 				TileType tile = TileType.Get(getTile(x, y));
 				if (tile != null)
 				{
-					if (!tile.isPlatform || tile.isPlatform && falling && !downInput && min.y - y - 1 > -0.1f)
+					if (!tile.isPlatform || tile.isPlatform && falling && !downInput && min.y - y - 1 > -0.25f)
 						return true;
 				}
 			}
@@ -522,7 +524,7 @@ public class Level
 	{
 		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
 		TileType tile = TileType.Get(getTile(tilePosition));
-		if (tile != null && tile.isSolid && !tile.isPlatform)
+		if (tile != null && (tile.isSolid || tile.isPlatform))
 			return new HitData() { position = position };
 		return null;
 	}

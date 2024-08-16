@@ -71,7 +71,7 @@ public class Player : Entity, Hittable
 	public int currentQuickItem = 0;
 	public Item[] passiveItems = new Item[4];
 
-	HUD hud;
+	public HUD hud;
 	InventoryUI inventoryUI;
 	public int numOverlaysOpen = 0;
 	public bool inventoryOpen = false;
@@ -93,7 +93,8 @@ public class Player : Entity, Hittable
 		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 4, true);
 		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("stun", 17 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("dead_falling", 17 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("stun", 18 * 16, 0, 16, 0, 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
@@ -102,8 +103,6 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
-
-		handItem = new Staff();
 	}
 
 	public override void destroy()
@@ -150,6 +149,17 @@ public class Player : Entity, Hittable
 		}
 		else
 		{
+			if (!item.canEquipMultiple)
+			{
+				for (int i = 0; i < passiveItems.Length; i++)
+				{
+					if (passiveItems[i] != null && passiveItems[i].name == item.name)
+					{
+						throwItem(passiveItems[i], true);
+						break;
+					}
+				}
+			}
 			for (int i = 0; i < passiveItems.Length; i++)
 			{
 				if (passiveItems[i] == null)
@@ -178,7 +188,7 @@ public class Player : Entity, Hittable
 		}
 		else
 		{
-			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.1f) : new Vector2(1, 0.15f)) * 14;
+			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.15f) : new Vector2(1, 0.15f)) * 14;
 		}
 		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.5f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
@@ -245,8 +255,23 @@ public class Player : Entity, Hittable
 	{
 		if (handItem != null)
 		{
-			Item handItemCopy = handItem.createNew();
+			Item handItemCopy = handItem.copy();
 			throwItem(handItemCopy);
+		}
+
+		for (int i = 0; i < passiveItems.Length; i++)
+		{
+			if (passiveItems[i] != null && passiveItems[i].ingameSprite == null)
+			{
+				passiveItems[i].onUnequip(this);
+				passiveItems[i] = null;
+			}
+		}
+
+		if (interactableInFocus != null)
+		{
+			interactableInFocus.onFocusLeft(this);
+			interactableInFocus = null;
 		}
 
 		actions.cancelAllActions();
@@ -429,7 +454,7 @@ public class Player : Entity, Hittable
 		else
 			fallDistance = 0;
 
-		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, InputManager.IsDown("Down"));
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, isDucked);
 
 		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
@@ -484,11 +509,18 @@ public class Player : Entity, Hittable
 				Item item = quickItems[currentQuickItem];
 				if (item != null)
 				{
-					item.use(this);
 					if (item.stackable && item.stackSize > 1)
+					{
+						Item copy = item.copy();
+						copy.stackSize = 1;
+						copy.use(this);
 						item.stackSize--;
+					}
 					else
+					{
+						item.use(this);
 						quickItems[currentQuickItem] = null;
+					}
 				}
 			}
 
@@ -505,12 +537,13 @@ public class Player : Entity, Hittable
 
 			if (!isStunned)
 			{
-				Interactable interactable = GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f), this);
+				Interactable interactable = isAlive ? GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f), this) : null;
 				if (interactableInFocus != null && interactableInFocus != interactable)
 					interactableInFocus.onFocusLeft(this);
 				if (interactable != null && interactable != interactableInFocus)
 					interactable.onFocusEnter(this);
 				interactableInFocus = interactable;
+
 				if (interactableInFocus != null)
 				{
 					if (InputManager.IsPressed("Interact"))
@@ -649,7 +682,14 @@ public class Player : Entity, Hittable
 		}
 		else
 		{
-			animator.setAnimation("dead");
+			if (isGrounded)
+			{
+				animator.setAnimation("dead");
+			}
+			else
+			{
+				animator.setAnimation("dead_falling");
+			}
 		}
 
 		animator.update(sprite);
@@ -700,6 +740,7 @@ public class Player : Entity, Hittable
 					if (actions.currentAction is AttackAction)
 					{
 						AttackAction action = actions.currentAction as AttackAction;
+						/*
 						if (handItem.stab)
 						{
 							float xoffset = action.currentRange * action.direction;
@@ -707,14 +748,17 @@ public class Player : Entity, Hittable
 						}
 						else
 						{
-							float rotation = action.currentDirection * action.direction;
-							Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
-							Renderer.DrawSprite(position.x - (handItem.size.x - 0.5f) + itemRenderOffset.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
-						}
+						*/
+						Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, LAYER_PLAYER_ITEM) * action.currentTransform;
+						Renderer.DrawSprite(handItem.size.x, handItem.size.y, weaponTransform, handItem.sprite);
+
+						//Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
+						//Renderer.DrawSprite(position.x - (handItem.size.x - 0.5f) + itemRenderOffset.x * handItem.size.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
+						//}
 					}
 					else
 					{
-						Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + itemRenderOffset.x, position.y - 0.5f + itemRenderOffset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, direction == -1);
+						Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + handItem.renderOffset.x * direction, position.y - 0.5f + handItem.renderOffset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, direction == -1);
 					}
 				}
 
@@ -732,6 +776,12 @@ public class Player : Entity, Hittable
 				}
 			}
 
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null)
+					passiveItems[i].render(this);
+			}
+
 			if (isStunned)
 			{
 				Renderer.DrawSprite(position.x - 0.5f, position.y + 1.0f, 1, 1, stunnedIcon, false);
@@ -743,10 +793,5 @@ public class Player : Entity, Hittable
 			hud.render();
 			inventoryUI.render();
 		}
-	}
-
-	public Vector2 itemRenderOffset
-	{
-		get => new Vector2(direction * 0.2f, 0.5f - 0.2f);
 	}
 }

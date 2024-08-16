@@ -6,24 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Staff : Item
+public class MagicStaff : Item
 {
-	public Staff()
-		: base("staff")
+	public MagicStaff()
+		: base("magic_staff")
 	{
-		displayName = "Staff";
-
-		sprite = new Sprite(tileset, 8, 1);
+		displayName = "Magic Staff";
 
 		attackRate = 2.0f;
 		trigger = false;
 
 		attackDamage = 2;
-	}
 
-	public override Item createNew()
-	{
-		return new Staff();
+		value = 30;
+
+		sprite = new Sprite(tileset, 8, 1);
 	}
 
 	public override bool use(Player player)

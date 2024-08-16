@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -50,7 +51,10 @@ public class ItemEntity : Entity, Interactable, Destructible
 	public void interact(Player player)
 	{
 		if (player.giveItem(item))
+		{
+			player.hud.showMessage("Picked up " + item.displayName);
 			remove();
+		}
 	}
 
 	public void onFocusEnter(Player player)
@@ -137,10 +141,33 @@ public class ItemEntity : Entity, Interactable, Destructible
 		item.update(this);
 	}
 
+	void renderTooltip()
+	{
+		Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+		int direction = GameState.instance.player.position.x < position.x ? 1 : -1;
+
+		string name = (item.stackable ? item.stackSize.ToString() + "x " : "") + item.displayName;
+		string rarityString = item.rarityString;
+
+		int lineHeight = 16;
+		int height = lineHeight + 12;
+		int width = 1 + lineHeight + 5 + Math.Max(Renderer.MeasureUITextBMP(name).x, Renderer.MeasureUITextBMP(rarityString).x) + 4;
+		int x = Math.Min(direction == 1 ? pos.x : pos.x - width, Renderer.UIWidth - width - 2);
+		int y = Math.Max(pos.y - height, 2);
+
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF222222);
+
+		Renderer.DrawUISprite(x + 1, y, lineHeight, lineHeight, item.sprite);
+		Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
+
+		Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + lineHeight, rarityString, 1, 0xFF888888);
+	}
+
 	public override void render()
 	{
 		bool flipped = false;
-		if (item.projectileItem && damage > 0)
+		if (item.projectileItem && damage > 0 && thrower != null)
 		{
 			if (velocity.lengthSquared > 0.1f)
 			{
@@ -171,7 +198,11 @@ public class ItemEntity : Entity, Interactable, Destructible
 		}
 		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 
-		if (outline != 0)
+		if (outline != 0 && velocity.lengthSquared < 1)
+		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
+
+			renderTooltip();
+		}
 	}
 }

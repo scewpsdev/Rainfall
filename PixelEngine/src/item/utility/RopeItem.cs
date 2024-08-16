@@ -15,12 +15,9 @@ public class RopeItem : Item
 		type = ItemType.Active;
 		stackable = true;
 
-		sprite = new Sprite(tileset, 6, 0);
-	}
+		value = 1;
 
-	public override Item createNew()
-	{
-		return new RopeItem();
+		sprite = new Sprite(tileset, 6, 0);
 	}
 
 	int getRopeLength(Vector2i pos)

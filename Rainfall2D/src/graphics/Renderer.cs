@@ -246,6 +246,11 @@ public static class Renderer
 		draws.Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
+	public static void DrawSprite(float width, float height, Matrix transform, Sprite sprite, uint color = 0xFFFFFFFF)
+	{
+		DrawSprite(width, height, transform, sprite.spriteSheet.texture, sprite.position.x, sprite.position.y, sprite.size.x, sprite.size.y, color);
+	}
+
 	public static void DrawSpriteSolid(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -382,9 +387,9 @@ public static class Renderer
 		}
 	}
 
-	public static Vector2i MeasureUITextBMP(string text, int length, int scale)
+	public static Vector2i MeasureUITextBMP(string text, int length = -1, int scale = 1)
 	{
-		return new Vector2i(smallFont.measureText(text, length) * scale, (int)(smallFont.size * scale));
+		return new Vector2i(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
 	}
 
 	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)

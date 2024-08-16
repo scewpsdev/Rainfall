@@ -31,6 +31,10 @@ public class Spike : Entity
 					hittable.hit(1000, this);
 			}
 		}
+
+		TileType tile = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0.5f, -0.5f)));
+		if (tile == null)
+			remove();
 	}
 
 	public override void render()

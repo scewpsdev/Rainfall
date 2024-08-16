@@ -18,6 +18,7 @@ public class PlayerCamera : Entity
 	public PlayerCamera(Player player)
 	{
 		this.player = player;
+		position = player.position;
 	}
 
 	public Vector2i worldToScreen(Vector2 pos)

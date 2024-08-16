@@ -42,6 +42,10 @@ public class Spring : Entity
 				}
 			}
 		}
+
+		TileType tile = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0.0f, -0.5f)));
+		if (tile == null)
+			remove();
 	}
 
 	public override void render()
