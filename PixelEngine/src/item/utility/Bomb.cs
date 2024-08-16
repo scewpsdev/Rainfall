@@ -22,16 +22,13 @@ public class Bomb : Item
 		type = ItemType.Active;
 		stackable = true;
 
-		sprite = new Sprite(tileset, 1, 0);
+		value = 7;
 
 		attackDamage = 8;
 
-		//projectileItem = true;
-	}
+		sprite = new Sprite(tileset, 1, 0);
 
-	public override Item createNew()
-	{
-		return new Bomb();
+		//projectileItem = true;
 	}
 
 	public override bool use(Player player)

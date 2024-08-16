@@ -13,17 +13,14 @@ public class Skull : Item
 	{
 		displayName = "Skull";
 
-		sprite = new Sprite(tileset, 0, 0);
-
 		projectileItem = true;
 		breakOnHit = true;
 
 		attackDamage = 4;
-	}
 
-	public override Item createNew()
-	{
-		return new Skull();
+		value = 0.2f;
+
+		sprite = new Sprite(tileset, 0, 0);
 	}
 
 	public override bool use(Player player)

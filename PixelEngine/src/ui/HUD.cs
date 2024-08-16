@@ -6,13 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+struct HUDMessage
+{
+	public string msg;
+	public long timeSent;
+}
+
 public class HUD
 {
+	const float MESSAGE_SHOW_DURATION = 5.0f;
+	const float LEVEL_PROMPT_DURATION = 3.0f;
+
+
 	public static SpriteSheet tileset;
 
 	public static Sprite heartFull, heartHalf, heartEmpty;
 	public static Sprite armor, armorEmpty;
-	public static Sprite gems;
+	public static Sprite gem;
 
 	static HUD()
 	{
@@ -25,16 +35,78 @@ public class HUD
 		armor = new Sprite(tileset, 4, 0);
 		armorEmpty = new Sprite(tileset, 5, 0);
 
-		gems = new Sprite(tileset, 3, 0);
+		gem = new Sprite(tileset, 3, 0);
 	}
 
 
 	Player player;
 
+	List<HUDMessage> messages = new List<HUDMessage>();
+
+	long lastLevelSwitch = -1;
+	string levelName;
+
 
 	public HUD(Player player)
 	{
 		this.player = player;
+	}
+
+	public void showMessage(string msg)
+	{
+		messages.Add(new HUDMessage { msg = msg, timeSent = Time.currentTime });
+	}
+
+	public void onLevelSwitch(string name)
+	{
+		levelName = name;
+		lastLevelSwitch = Time.currentTime;
+	}
+
+	void renderMessages()
+	{
+		for (int i = 0; i < messages.Count; i++)
+		{
+			HUDMessage notif = messages[i];
+
+			float elapsed = (Time.currentTime - notif.timeSent) / 1e9f;
+			if (elapsed >= MESSAGE_SHOW_DURATION)
+			{
+				messages.RemoveAt(i);
+				i--;
+			}
+		}
+
+		for (int i = 0; i < messages.Count; i++)
+		{
+			HUDMessage notif = messages[i];
+
+			string msg = notif.msg;
+
+			int height = (int)Renderer.smallFont.size;
+			int x = 12;
+			int y = Renderer.UIHeight - 30 + (-messages.Count + i) * height;
+
+			float elapsed = (Time.currentTime - notif.timeSent) / 1e9f;
+			float alpha = elapsed < MESSAGE_SHOW_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - MESSAGE_SHOW_DURATION + 1) / 1);
+			uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
+
+			Renderer.DrawUITextBMP(x, y, msg, 1, color);
+		}
+	}
+
+	void renderPopup()
+	{
+		float elapsed = (Time.currentTime - lastLevelSwitch) / 1e9f;
+		if (lastLevelSwitch != -1 && elapsed < LEVEL_PROMPT_DURATION)
+		{
+			int width = Renderer.MeasureUIText(levelName, levelName.Length, 1).x;
+			float progress = elapsed / LEVEL_PROMPT_DURATION;
+			float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
+			float alpha = elapsed < 1 ? elapsed : elapsed > LEVEL_PROMPT_DURATION - 1 ? (1 - (elapsed - (LEVEL_PROMPT_DURATION - 1))) : 1;
+			uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
+			Renderer.DrawUIText(Renderer.UIWidth / 2 - width / 2, Renderer.UIHeight / 4 + (int)yanim, levelName, 1, color);
+		}
 	}
 
 	public void render()
@@ -84,7 +156,7 @@ public class HUD
 			int x = 6;
 			int y = 6 + 8 + 3;
 
-			Renderer.DrawUISprite(x, y, size, size, gems, false);
+			Renderer.DrawUISprite(x, y, size, size, gem, false);
 			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);
 		}
 
@@ -108,8 +180,11 @@ public class HUD
 			{
 				Renderer.DrawUISprite(x, y, size, size, player.quickItems[player.currentQuickItem].sprite);
 				if (player.quickItems[player.currentQuickItem].stackable && player.quickItems[player.currentQuickItem].stackSize > 1)
-					Renderer.DrawUITextBMP(x + size - size / 4, y + size - 22, player.quickItems[player.currentQuickItem].stackSize.ToString(), 1, 0xFFBBBBBB);
+					Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, player.quickItems[player.currentQuickItem].stackSize.ToString(), 1, 0xFFBBBBBB);
 			}
 		}
+
+		renderMessages();
+		renderPopup();
 	}
 }

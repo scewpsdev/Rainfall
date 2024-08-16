@@ -24,8 +24,9 @@ public abstract class Item
 	public ItemType type = ItemType.Tool;
 	public bool stackable = false;
 	public int stackSize = 1;
-	public float rarity = 1;
-	public float value = 1.0f;
+	public float value = 1;
+	public bool canDrop = true;
+	public bool canEquipMultiple = true;
 
 	public int attackDamage = 1;
 	public float attackRange = 1;
@@ -37,6 +38,7 @@ public abstract class Item
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
+	public Vector2 renderOffset = new Vector2(0.2f, 0.5f - 0.2f);
 
 	public int armor = 0;
 
@@ -55,7 +57,32 @@ public abstract class Item
 		id = (int)Hash.hash(name);
 	}
 
-	public abstract Item createNew();
+	public Item copy()
+	{
+		return (Item)MemberwiseClone();
+	}
+
+	public float rarity
+	{
+		get => MathF.Exp(-value * 0.02f);
+	}
+
+	public string rarityString
+	{
+		get
+		{
+			float r = rarity;
+			if (r >= 1.0f)
+				return "Garbage";
+			if (r >= 0.9f)
+				return "Common";
+			if (r >= 0.5f)
+				return "Uncommon";
+			if (r >= 0.1f)
+				return "Rare";
+			return "Exceedingly Rare";
+		}
+	}
 
 	public virtual bool use(Player player)
 	{
@@ -79,6 +106,10 @@ public abstract class Item
 	{
 	}
 
+	public virtual void render(Entity entity)
+	{
+	}
+
 
 	static List<Item> itemTypes = new List<Item>();
 	static Dictionary<string, int> nameMap = new Dictionary<string, int>();
@@ -94,19 +125,23 @@ public abstract class Item
 		InitType(new Arrow());
 		InitType(new Bomb());
 		InitType(new Dagger());
-		InitType(new Sword());
+		InitType(new Longsword());
 		InitType(new RopeItem());
 		InitType(new Pickaxe());
 		InitType(new Rock());
-		InitType(new Cloak());
-		InitType(new HealthPotion());
+		InitType(new WizardsCloak());
+		InitType(new PotionOfHealing());
 		InitType(new Boomerang());
-		InitType(new Stick());
+		InitType(new Quarterstaff());
 		InitType(new Spear());
 		InitType(new TorchItem());
-		InitType(new SpeedUpgrade());
-		InitType(new HealthUpgrade());
-		InitType(new Staff());
+		InitType(new RingOfSwiftness());
+		InitType(new RingOfVitality());
+		InitType(new MagicStaff());
+		InitType(new PotionOfMinorHealing());
+		InitType(new PotionOfGreaterHealing());
+		InitType(new PotionOfSupremeHealing());
+		InitType(new Lantern());
 	}
 
 	static void InitType(Item item)
@@ -122,15 +157,22 @@ public abstract class Item
 			passiveItems.Add(itemTypes.Count - 1);
 	}
 
-	public static Item GetRandomItem(ItemType type, Random random)
+	public static Item GetRandomItem(ItemType type, Random random, float minValue = 0, float maxvalue = float.MaxValue)
 	{
-		List<int> list = type == ItemType.Tool ? toolItems : type == ItemType.Active ? activeItems : passiveItems;
+		List<int> list = new List<int>(type == ItemType.Tool ? toolItems : type == ItemType.Active ? activeItems : passiveItems);
+
+		for (int i = 0; i < list.Count; i++)
+		{
+			Item item = itemTypes[list[i]];
+			if (item.value < minValue || item.value > maxvalue)
+				list.RemoveAt(i--);
+		}
 
 		float cumulativeRarity = 0;
 		foreach (int idx in list)
 		{
 			Item item = itemTypes[idx];
-			cumulativeRarity += item.rarity;
+			cumulativeRarity += item.canDrop ? item.rarity : 0;
 		}
 
 		float f = random.NextSingle() * cumulativeRarity;
@@ -138,7 +180,7 @@ public abstract class Item
 		foreach (int idx in list)
 		{
 			Item item = itemTypes[idx];
-			cumulativeRarity += item.rarity;
+			cumulativeRarity += item.canDrop ? item.rarity : 0;
 			if (f < cumulativeRarity)
 				return item;
 		}
@@ -147,7 +189,7 @@ public abstract class Item
 		return null;
 	}
 
-	public static Item CreateRandom(Random random)
+	public static Item CreateRandom(Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
 		float toolChance = 0.4f;
 		float activeChance = 0.4f;
@@ -156,15 +198,13 @@ public abstract class Item
 		Item item = null;
 
 		if (f < toolChance)
-			item = GetRandomItem(ItemType.Tool, random);
+			item = GetRandomItem(ItemType.Tool, random, minValue, maxValue);
 		else if (f < toolChance + activeChance)
-			item = GetRandomItem(ItemType.Active, random);
+			item = GetRandomItem(ItemType.Active, random, minValue, maxValue);
 		else
-			item = GetRandomItem(ItemType.Passive, random);
+			item = GetRandomItem(ItemType.Passive, random, minValue, maxValue);
 
-		item = item.createNew();
-
-		item.value = 1.0f / item.rarity * 10;
+		item = item.copy();
 
 		return item;
 	}

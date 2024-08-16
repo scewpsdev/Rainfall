@@ -38,6 +38,7 @@ public class Gem : Entity
 
 				//Player player = hits[i].entity as Player;
 				//player.money += value;
+
 				remove();
 
 				break;

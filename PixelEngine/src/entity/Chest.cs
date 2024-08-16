@@ -15,6 +15,7 @@ public class Chest : Entity, Interactable, Destructible
 
 	bool open = false;
 	Item[] items;
+	public int coins = 0;
 
 
 	public Chest(Item[] items, bool flipped = false)
@@ -65,6 +66,14 @@ public class Chest : Entity, Interactable, Destructible
 			GameState.instance.level.addEntity(obj, throwOrigin);
 		}
 		items = null;
+
+		for (int i = 0; i < coins; i++)
+		{
+			Coin coin = new Coin();
+			Vector2 spawnPosition = position + new Vector2(0, 0.5f) + Vector2.Rotate(Vector2.UnitX, i / (float)coins * 2 * MathF.PI) * 0.2f;
+			coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+			GameState.instance.level.addEntity(coin, spawnPosition);
+		}
 	}
 
 	public void interact(Player player)
@@ -83,6 +92,18 @@ public class Chest : Entity, Interactable, Destructible
 			bomb.ignite();
 			ItemEntity obj = new ItemEntity(bomb, null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);
+		}
+	}
+
+	public override void update()
+	{
+		TileType tile = TileType.Get(GameState.instance.level.getTile(position - new Vector2(0, 0.01f)));
+		if (!(tile != null && (tile.isSolid || tile.isPlatform)))
+		{
+			velocity.y += -10 * Time.deltaTime;
+
+			float displacement = velocity.y * Time.deltaTime;
+			position.y += displacement;
 		}
 	}
 

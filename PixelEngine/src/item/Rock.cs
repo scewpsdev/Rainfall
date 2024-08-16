@@ -13,17 +13,14 @@ public class Rock : Item
 	{
 		displayName = "Rock";
 
-		sprite = new Sprite(tileset, 4, 0);
-
 		projectileItem = true;
 		maxPierces = -1;
 
-		attackDamage = 4;
-	}
+		attackDamage = 2;
 
-	public override Item createNew()
-	{
-		return new Rock();
+		value = 1;
+
+		sprite = new Sprite(tileset, 4, 0);
 	}
 
 	public override bool use(Player player)

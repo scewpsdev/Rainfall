@@ -6,30 +6,34 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Sword : Item
+public class Dagger : Item
 {
-	public Sword()
-		: base("sword")
+	public Dagger()
+		: base("dagger")
 	{
-		displayName = "Sword";
+		displayName = "Dagger";
 
-		attackDamage = 4;
-		attackRange = 1.5f;
-		attackRate = 1.4f;
-		stab = false;
+		attackDamage = 1;
+		attackRange = 1.0f;
+		attackRate = 4;
 
-		sprite = new Sprite(tileset, 1, 1);
+		value = 3;
+
+		sprite = new Sprite(tileset, 2, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
-	}
 
-	public override Item createNew()
-	{
-		return new Sword();
+		projectileItem = true;
 	}
 
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
+		return true;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.throwItem(this);
 		return true;
 	}
 }

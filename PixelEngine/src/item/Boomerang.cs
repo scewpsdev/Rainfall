@@ -13,18 +13,15 @@ public class Boomerang : Item
 	{
 		displayName = "Boomerang";
 
-		sprite = new Sprite(tileset, 3, 1);
-	}
+		value = 20;
 
-	public override Item createNew()
-	{
-		return new Boomerang();
+		sprite = new Sprite(tileset, 3, 1);
 	}
 
 	public override bool use(Player player)
 	{
 		player.handItem = null;
-		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player), player.position + player.itemRenderOffset);
+		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player), player.position + renderOffset * new Vector2(player.direction, 1));
 		return true;
 	}
 }

@@ -52,9 +52,9 @@ void main()
 {
 	float textureID = v_texcoord0.z;
 	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), SampleTextureByID(textureID, v_texcoord0.xy), textureID > -0.5 ? 1.0 : 0.0);
-	textureColor.rgb *= v_color0.rgb;
+	textureColor *= v_color0;
 	
-	if (textureColor.a < 0.1)
+	if (textureColor.a < 0.01)
 		discard;
 	
 	vec3 normal = normalize(v_normal);
@@ -67,7 +67,7 @@ void main()
 	emissive = textureColor.rgb;
 	emissionStrength = max(v_color0.a - 1.0, 0.0);
 
-	gl_FragColor = vec4(textureColor.rgb, 1.0);
+	gl_FragColor = textureColor;
 
 	/*
 	gl_FragData[0] = vec4(v_position, 1);

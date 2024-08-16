@@ -27,21 +27,33 @@ public class Coin : Entity
 
 	public override void update()
 	{
-		Vector2 toPlayer = GameState.instance.player.position - position;
+		float followDistance = 2.0f;
+
+		Vector2 toPlayer = GameState.instance.player.position + GameState.instance.player.collider.center - position;
 		float distance = toPlayer.length;
-		if (distance < 4.0f)
+		if (distance < followDistance)
 		{
-			float speed = (1 - distance / 4.0f) * 1;
+			float speed = (1 - distance / followDistance) * 1;
 			velocity += speed * toPlayer / distance * 0.3f;
 		}
 		else
 		{
-			velocity = Vector2.Lerp(velocity, Vector2.Zero, 3.0f * Time.deltaTime);
+			velocity.x = MathHelper.Lerp(velocity.x, 0, 5 * Time.deltaTime);
+			velocity.y += -10 * Time.deltaTime;
 		}
 
 		Vector2 displacement = velocity * Time.deltaTime;
-		if (distance < 4.0f)
-			displacement += toPlayer.normalized * 3 * Time.deltaTime;
+		if (distance < followDistance)
+			displacement += toPlayer.normalized * 7 * Time.deltaTime;
+		else
+		{
+			HitData hit = GameState.instance.level.raycastTiles(position, velocity.normalized, velocity.length * Time.deltaTime);
+			if (hit != null)
+			{
+				velocity = Vector2.Zero;
+				displacement.y = MathF.Sign(displacement.y) * MathF.Min(MathF.Abs(displacement.y), hit.distance);
+			}
+		}
 		position += displacement;
 
 		if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
@@ -63,6 +75,6 @@ public class Coin : Entity
 	public override void render()
 	{
 		//Renderer.DrawSprite(position.x - 1.0f / 16, position.y - 1.0f / 16, 2 / 16.0f, 2 / 16.0f, null, false, 0xFFFFCC77);
-		Renderer.DrawSprite(position.x - 1.0f / 16, position.y - 1.0f / 16, 1 / 16.0f, 1 / 16.0f, null, false, color);
+		Renderer.DrawSprite(position.x, position.y, LAYER_FG, 1 / 16.0f, 1 / 16.0f, 0, null, false, color);
 	}
 }

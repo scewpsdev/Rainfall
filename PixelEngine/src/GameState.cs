@@ -100,13 +100,13 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		level = new Level(-1);
-		Level tutorial = new Level(-1);
+		level = new Level(-1, "");
+		Level tutorial = new Level(-1, "Tutorial");
 
 		int numFloors = 5;
 		Level[] floors = new Level[numFloors];
 		for (int i = 0; i < floors.Length; i++)
-			floors[i] = new Level(i);
+			floors[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
 		Door tutorialEntrance = new Door(level);
 		Door tutorialExit = new Door(level);
@@ -119,18 +119,23 @@ public class GameState : State
 		tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
 
-		level.addEntity(player = new Player(), new Vector2(2, 1));
+		level.addEntity(player = new Player(), new Vector2(16 + 2, 1));
 		level.addEntity(camera = new PlayerCamera(player));
 
-		level.addEntity(tutorialDoor, new Vector2(7.5f, 1));
-		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(7.5f, 3));
-		level.addEntity(tutorialExitDoor, new Vector2(7.5f, 5));
-		level.addEntity(dungeonDoor, new Vector2(4.5f, 1));
+		player.money = 3;
 
-		NPC npc = new NPC("abc");
-		npc.addShopItem(new Pickaxe(), Random.Shared);
-		npc.addShopItem(new HealthUpgrade(), Random.Shared);
-		level.addEntity(npc, new Vector2(6, 1));
+		level.addEntity(tutorialDoor, new Vector2(16 + 7.5f, 1));
+		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(16 + 7.5f, 3));
+		level.addEntity(tutorialExitDoor, new Vector2(16 + 7.5f, 5));
+		level.addEntity(dungeonDoor, new Vector2(16 + 4.5f, 1));
+
+		BuilderMerchant npc = new BuilderMerchant();
+		npc.addShopItem(new RopeItem());
+		npc.addShopItem(new Rock());
+		npc.addShopItem(new Bomb());
+		npc.addShopItem(new Lantern());
+		npc.direction = -1;
+		level.addEntity(npc, new Vector2(34, 3));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
@@ -142,7 +147,7 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText("Down to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
 		tutorial.addEntity(new TutorialText("Up to climb", 0xFFFFFFFF), new Vector2(43.5f, tutorial.height - 15));
 		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
-		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
+		tutorial.addEntity(new Chest(new Quarterstaff()), new Vector2(54, tutorial.height - 40));
 		tutorial.addEntity(new TutorialText("X to interact", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
 		tutorial.addEntity(new TutorialText("Down+X to drop", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37.5f));
 		tutorial.addEntity(new TutorialText("Y to attack", 0xFFFFFFFF), new Vector2(43, 19));
@@ -161,7 +166,7 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText("(:", 0xFFFFFFFF), new Vector2(121, 26.0f));
 		tutorial.addEntity(new SpikeTrap(), new Vector2(124.5f, 29.5f));
 		//tutorial.addEntity(new TutorialText("Ja man kann sie sehen", 0xFFFFFFFF), new Vector2(55, 25.5f));
-		tutorial.addEntity(new Chest(new HealthPotion(), new RopeItem()), new Vector2(43, 24));
+		tutorial.addEntity(new Chest(new PotionOfHealing(), new RopeItem()), new Vector2(43, 24));
 		tutorial.addEntity(new Rat(), new Vector2(42, 17));
 		tutorial.addEntity(new Snake(), new Vector2(50, 19));
 		tutorial.addEntity(new Spider(), new Vector2(48, 23));
@@ -173,12 +178,12 @@ public class GameState : State
 			lastLevel = floors[i];
 		}
 
-		Level finalRoom = new Level(-1);
+		Level finalRoom = new Level(-1, "Thanks for playing");
 		Door finalRoomEntrance = new Door(lastLevel, lastLevel.exit);
 		lastLevel.exit.destination = finalRoom;
 		lastLevel.exit.otherDoor = finalRoomEntrance;
 		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
-		finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
+		//finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
 		finalRoom.addEntity(new Spike(), new Vector2(10, 1));
 	}
 
@@ -229,6 +234,8 @@ public class GameState : State
 
 			level = newLevel;
 			newLevel = null;
+
+			player.hud.onLevelSwitch(level.name);
 		}
 
 		long beforeParticleUpdate = Time.timestamp;

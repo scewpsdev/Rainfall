@@ -63,7 +63,7 @@ public class BoomerangProjectile : Entity
 				drop();
 		}
 
-		rotation += 3 * Time.deltaTime;
+		rotation += 5 * Time.deltaTime;
 		rotation = (rotation + MathF.PI) % (MathF.PI * 2) - MathF.PI;
 
 		HitData hit = GameState.instance.level.sample(position, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
@@ -86,7 +86,9 @@ public class BoomerangProjectile : Entity
 			}
 			else
 			{
-				drop();
+				velocity.x *= -1;
+				hitEntities.Clear();
+				//drop();
 			}
 		}
 	}
@@ -97,3 +99,4 @@ public class BoomerangProjectile : Entity
 		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, 0, 1, 1, rotation, sprite, flipped);
 	}
 }
+

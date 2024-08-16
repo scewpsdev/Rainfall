@@ -6,27 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HealthPotion : Item
+public class PotionOfGreaterHealing : Item
 {
-	public HealthPotion()
-		: base("health_potion")
+	public PotionOfGreaterHealing()
+		: base("potion_of_greater_healing")
 	{
-		displayName = "Health Potion";
+		displayName = "Potion of Greater Healing";
 		type = ItemType.Active;
 		stackable = true;
 
 		sprite = new Sprite(tileset, 7, 0);
-	}
 
-	public override Item createNew()
-	{
-		return new HealthPotion();
+		//rarity = 20;
+		value = 70;
 	}
 
 	public override bool use(Player player)
 	{
 		if (player.health < player.maxHealth)
-			player.health++;
+			player.health = MathF.Min(player.health + 2, player.maxHealth);
 		return true;
 	}
 }

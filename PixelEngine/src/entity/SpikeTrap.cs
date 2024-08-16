@@ -70,6 +70,10 @@ internal class SpikeTrap : Entity, Hittable
 				}
 			}
 		}
+
+		TileType tile = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0.0f, 1.0f)));
+		if (tile == null)
+			falling = true;
 	}
 
 	public override void render()

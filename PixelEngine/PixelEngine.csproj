@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="res\level\" />
+    <Folder Include="src\item\upgrade\" />
   </ItemGroup>
 
   <ItemGroup>

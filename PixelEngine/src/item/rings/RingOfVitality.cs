@@ -6,20 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HealthUpgrade : Item
+public class RingOfVitality : Item
 {
-	public HealthUpgrade()
-		: base("health_upgrade")
+	public RingOfVitality()
+		: base("ring_of_vitality")
 	{
-		displayName = "Health Upgrade";
+		displayName = "Ring of Vitality";
 		type = ItemType.Passive;
 
 		sprite = new Sprite(tileset, 10, 0);
-	}
 
-	public override Item createNew()
-	{
-		return new HealthUpgrade();
+		value = 100;
+		//rarity = 20;
 	}
 
 	public override void onEquip(Player player)

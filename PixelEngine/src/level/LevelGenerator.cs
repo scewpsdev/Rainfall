@@ -452,9 +452,12 @@ public class LevelGenerator
 		float[] lootModifier = new float[width * height];
 		Array.Fill(lootModifier, 1.0f);
 
+		Vector2i entrancePosition = Vector2i.Zero;
+		Vector2i exitPosition = Vector2i.Zero;
+
 		if (lastLevel != null)
 		{
-			if (startingRoom.getFloorSpawn(level, random, out Vector2i entrancePosition))
+			if (startingRoom.getFloorSpawn(level, random, out entrancePosition))
 			{
 				level.entrance = new Door(lastLevel, lastLevel.exit);
 				lastLevel.exit.otherDoor = level.entrance;
@@ -470,7 +473,7 @@ public class LevelGenerator
 
 		//if (nextLevel != null)
 		{
-			if (exitRoom.getFloorSpawn(level, random, out Vector2i exitPosition))
+			if (exitRoom.getFloorSpawn(level, random, out exitPosition))
 			{
 				level.exit = new Door(nextLevel);
 				level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
@@ -496,22 +499,52 @@ public class LevelGenerator
 						lootModifier[x + y * width] = 3.0f;
 					}
 				}
+			}
+		}
 
+		// Builder Merchant
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			bool isDeadEnd = room.countConnectedDoorways() == 1;
+			if (isDeadEnd && room != startingRoom && room != exitRoom)
+			{
 				float npcChance = 0.2f;
 				if (random.NextSingle() < npcChance)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
-						NPC npc = new NPC("abc");
-						int numShopItems = MathHelper.RandomInt(1, 5, random);
-						for (int j = 0; j < numShopItems; j++)
-						{
-							Item item = Item.CreateRandom(random);
-							npc.addShopItem(item, random);
-						}
+						BuilderMerchant npc = new BuilderMerchant();
+						npc.populateShop(random);
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
 						objectFlags[npcPos.x + npcPos.y * width] = true;
+
+						break;
+					}
+				}
+			}
+		}
+
+		// Travelling Merchant
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			bool isDeadEnd = room.countConnectedDoorways() == 1;
+			if (isDeadEnd && room != startingRoom && room != exitRoom)
+			{
+				float npcChance = 0.025f;
+				if (random.NextSingle() < npcChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
+					{
+						TravellingMerchant npc = new TravellingMerchant();
+						npc.populateShop(random);
+						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
+
+						objectFlags[npcPos.x + npcPos.y * width] = true;
+
+						break;
 					}
 				}
 			}
@@ -554,9 +587,12 @@ public class LevelGenerator
 					if (down != null && !objectFlags[x + y * width])
 					{
 						float gemChance = up != null ? 0.04f : 0.01f;
+						gemChance *= 0.5f;
 						if (random.NextSingle() < gemChance)
 						{
-							level.addEntity(new Gem(10), new Vector2(x + 0.5f, y + 0.5f));
+							//int amount = MathHelper.RandomInt(3, 12, random);
+							int amount = 10;
+							level.addEntity(new Gem(amount), new Vector2(x + 0.5f, y + 0.5f));
 							objectFlags[x + y * width] = true;
 						}
 					}
@@ -596,7 +632,7 @@ public class LevelGenerator
 						TileType downDown = TileType.Get(level.getTile(x, y - 2));
 						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
 						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
-						if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null))
+						if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null) && x != entrancePosition.x)
 						{
 							float spikeTrapChance = 0.01f;
 							if (random.NextSingle() < spikeTrapChance)
@@ -641,7 +677,16 @@ public class LevelGenerator
 							else
 							{
 								Item item = Item.CreateRandom(random);
-								level.addEntity(new Chest([item], left != null && right == null), new Vector2(x + 0.5f, y));
+								Chest chest = new Chest([item], left != null && right == null);
+
+								float coinsChance = 0.1f;
+								if (random.NextSingle() < coinsChance)
+								{
+									int amount = MathHelper.RandomInt(3, 12, random);
+									chest.coins = amount;
+								}
+
+								level.addEntity(chest, new Vector2(x + 0.5f, y));
 								objectFlags[x + y * width] = true;
 							}
 						}
@@ -652,9 +697,9 @@ public class LevelGenerator
 						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
 						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
 
-						float distanceToEntrance = (new Vector2(x, y) + 0.5f - level.entrance.position).length;
+						float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
 
-						if ((distanceToEntrance > 8 || y < (int)level.entrance.position.y) && (downLeft != null || downRight != null))
+						if ((distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
 						{
 							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)
