@@ -18,7 +18,7 @@ public class Skull : Item
 
 		attackDamage = 4;
 
-		value = 0.2f;
+		value = 0.5f;
 
 		sprite = new Sprite(tileset, 0, 0);
 	}

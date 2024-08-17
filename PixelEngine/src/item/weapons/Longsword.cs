@@ -14,11 +14,11 @@ public class Longsword : Item
 		displayName = "Longsword";
 
 		attackDamage = 4;
-		attackRange = 1.5f;
+		attackRange = 1.2f;
 		attackRate = 1.4f;
 		stab = false;
 
-		value = 10;
+		value = 12;
 
 		sprite = new Sprite(tileset, 1, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));

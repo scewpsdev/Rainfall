@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class Spike : Entity
 {
+	int damage = 20;
+
 	Sprite sprite;
 
 
@@ -28,11 +30,11 @@ public class Spike : Entity
 			{
 				Hittable hittable = hits[i].entity as Hittable;
 				if (hits[i].entity.velocity.y < 0 && hits[i].entity.position.y - hits[i].entity.velocity.y * Time.deltaTime > position.y + 0.5f)
-					hittable.hit(1000, this);
+					hittable.hit(damage, this, null);
 			}
 		}
 
-		TileType tile = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0.5f, -0.5f)));
+		TileType tile = GameState.instance.level.getTile(position + new Vector2(0.5f, -0.5f));
 		if (tile == null)
 			remove();
 	}

@@ -97,7 +97,7 @@ public class Chest : Entity, Interactable, Destructible
 
 	public override void update()
 	{
-		TileType tile = TileType.Get(GameState.instance.level.getTile(position - new Vector2(0, 0.01f)));
+		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.01f));
 		if (!(tile != null && (tile.isSolid || tile.isPlatform)))
 		{
 			velocity.y += -10 * Time.deltaTime;

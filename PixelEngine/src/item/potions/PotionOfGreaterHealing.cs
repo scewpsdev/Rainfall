@@ -18,7 +18,7 @@ public class PotionOfGreaterHealing : Item
 		sprite = new Sprite(tileset, 7, 0);
 
 		//rarity = 20;
-		value = 70;
+		value = 80;
 	}
 
 	public override bool use(Player player)

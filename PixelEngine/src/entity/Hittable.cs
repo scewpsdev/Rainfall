@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 public interface Hittable
 {
-	void hit(float damage, Entity by);
+	void hit(float damage, Entity by, Item item);
 }

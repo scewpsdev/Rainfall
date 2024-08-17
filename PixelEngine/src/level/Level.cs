@@ -27,6 +27,8 @@ public class Level
 
 	public int width, height;
 	int[] tiles;
+	bool[] walkable;
+	public AStar astar;
 
 	public Door entrance;
 	public Door exit;
@@ -39,21 +41,7 @@ public class Level
 		this.floor = floor;
 		this.name = name;
 
-		width = 20;
-		height = 20;
-		tiles = new int[width * height];
-		Array.Fill(tiles, 0);
-
-		for (int y = 0; y < height; y++)
-		{
-			setTile(0, y, 2);
-			setTile(width - 1, y, 2);
-		}
-		for (int x = 0; x < width; x++)
-		{
-			setTile(x, 0, 2);
-			setTile(x, height - 1, 2);
-		}
+		resize(20, 20);
 	}
 
 	public void resize(int width, int height)
@@ -62,31 +50,36 @@ public class Level
 		this.height = height;
 		tiles = new int[width * height];
 		Array.Fill(tiles, 2);
+		walkable = new bool[width * height];
+		Array.Fill(walkable, false);
+
+		astar = new AStar(width, height, walkable);
 	}
 
-	public bool setTile(int x, int y, int tile)
+	public bool setTile(int x, int y, TileType tile)
 	{
 		if (x >= 0 && x < width && y >= 0 && y < height)
 		{
-			tiles[x + y * width] = tile;
+			tiles[x + y * width] = tile != null ? tile.id : 0;
+			walkable[x + y * width] = tile != null ? !tile.isSolid : true;
 			return true;
 		}
 		return false;
 	}
 
-	public int getTile(int x, int y)
+	public TileType getTile(int x, int y)
 	{
 		if (x >= 0 && x < width && y >= 0 && y < height)
-			return tiles[x + y * width];
-		return 0;
+			return TileType.Get(tiles[x + y * width]);
+		return null;
 	}
 
-	public int getTile(Vector2i v)
+	public TileType getTile(Vector2i v)
 	{
 		return getTile(v.x, v.y);
 	}
 
-	public int getTile(Vector2 v)
+	public TileType getTile(Vector2 v)
 	{
 		return getTile((Vector2i)Vector2.Floor(v));
 	}
@@ -158,7 +151,7 @@ public class Level
 				if (entities[i] is Hittable)
 				{
 					Hittable hittable = entities[i] as Hittable;
-					hittable.hit(1000, null);
+					hittable.hit(1000, null, null);
 				}
 				else if (entities[i] is Destructible)
 				{
@@ -186,17 +179,17 @@ public class Level
 		{
 			for (int x = 0; x < width; x++)
 			{
-				TileType tile = TileType.Get(getTile(x, y));
+				TileType tile = getTile(x, y);
 				if (tile != null && tile.visible)
 				{
 					if (tile.sprite != null)
 					{
 						Renderer.DrawSprite(x, y, 1.001f, 1.001f, tile.sprite, false, 0xFFFFFFFF);
 
-						TileType left = TileType.Get(getTile(x - 1, y));
-						TileType right = TileType.Get(getTile(x + 1, y));
-						TileType top = TileType.Get(getTile(x, y + 1));
-						TileType bottom = TileType.Get(getTile(x, y - 1));
+						TileType left = getTile(x - 1, y);
+						TileType right = getTile(x + 1, y);
+						TileType top = getTile(x, y + 1);
+						TileType bottom = getTile(x, y - 1);
 
 						if (left != tile && tile.left != null)
 							Renderer.DrawSprite(x - 1, y, 1, 1, tile.left, false, 0xFFFFFFFF);
@@ -232,7 +225,7 @@ public class Level
 			{
 				if (x < 0 || x >= width /*|| y < 0*/ || y >= height)
 					return true;
-				TileType tile = TileType.Get(getTile(x, y));
+				TileType tile = getTile(x, y);
 				if (tile != null)
 				{
 					if (!tile.isPlatform || tile.isPlatform && falling && !downInput && min.y - y - 1 > -0.25f)
@@ -348,15 +341,22 @@ public class Level
 		Vector2 dis = (pos - origin + 0.5f + rs * 0.5f) * ri;
 
 		Vector2i mm = Vector2i.Zero;
+		bool hit = false;
 		for (int i = 0; i < 128; i++)
 		{
-			TileType value = TileType.Get(getTile(pos.x, pos.y));
+			TileType value = getTile(pos.x, pos.y);
 			if (value != null && value.isSolid && !value.isPlatform)
+			{
+				hit = true;
 				break;
+			}
 			mm = new Vector2i(MathHelper.Step(dis.x, dis.y), MathHelper.Step(dis.y, dis.x));
 			dis += mm * rs * ri;
 			pos += mm * rs;
 		}
+
+		if (!hit)
+			return null;
 
 		Vector2 normal = (Vector2)(-mm * rs);
 		Vector2i tile = pos;
@@ -523,7 +523,7 @@ public class Level
 	public HitData sampleTiles(Vector2 position)
 	{
 		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
-		TileType tile = TileType.Get(getTile(tilePosition));
+		TileType tile = getTile(tilePosition);
 		if (tile != null && (tile.isSolid || tile.isPlatform))
 			return new HitData() { position = position };
 		return null;

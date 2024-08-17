@@ -22,7 +22,7 @@ public class Bomb : Item
 		type = ItemType.Active;
 		stackable = true;
 
-		value = 7;
+		value = 9;
 
 		attackDamage = 8;
 
@@ -60,7 +60,7 @@ public class Bomb : Item
 				{
 					float distance = (new Vector2(x, y) + 0.5f - tile).length;
 					if (distance < blastRadius)
-						GameState.instance.level.setTile(x, y, 0);
+						GameState.instance.level.setTile(x, y, null);
 				}
 			}
 
@@ -82,7 +82,7 @@ public class Bomb : Item
 							int damage = (int)MathF.Round((1 - distance / blastRadius) * attackDamage);
 
 							Hittable hittable = hits[i].entity as Hittable;
-							hittable.hit(damage, entity);
+							hittable.hit(damage, entity, this);
 						}
 						else if (hits[i].entity is Destructible && distance / blastRadius < 0.5f)
 						{

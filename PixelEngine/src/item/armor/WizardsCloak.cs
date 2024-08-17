@@ -15,7 +15,9 @@ public class WizardsCloak : Item
 
 		type = ItemType.Passive;
 
-		armor = 3;
+		armor = 2;
+
+		value = 5;
 
 		sprite = new Sprite(tileset, 5, 0);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/cloak.png", false), 0, 0, 16, 16);

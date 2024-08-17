@@ -13,13 +13,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\item\upgrade\**" />
+    <EmbeddedResource Remove="src\item\upgrade\**" />
+    <None Remove="src\item\upgrade\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="src\item\ItemType.cs" />
     <Compile Remove="src\level\LevelGenerator - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="res\level\" />
-    <Folder Include="src\item\upgrade\" />
   </ItemGroup>
 
   <ItemGroup>

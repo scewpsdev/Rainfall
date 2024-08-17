@@ -35,6 +35,7 @@ public abstract class Item
 	public float secondaryChargeTime = 0.5f;
 	public bool trigger = true;
 	public int maxPierces = 0;
+	public float knockback = 8.0f;
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
@@ -147,6 +148,7 @@ public abstract class Item
 		InitType(new PotionOfGreaterHealing());
 		InitType(new PotionOfSupremeHealing());
 		InitType(new Lantern());
+		InitType(new BarbarianHelmet());
 	}
 
 	static void InitType(Item item)
@@ -196,7 +198,7 @@ public abstract class Item
 
 	public static Item CreateRandom(Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
-		float toolChance = 0.4f;
+		float toolChance = 0.2f;
 		float activeChance = 0.4f;
 
 		float f = random.NextSingle();

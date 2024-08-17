@@ -27,7 +27,7 @@ public class Spring : Entity
 	public override void update()
 	{
 		Span<HitData> hits = new HitData[16];
-		int numHits = GameState.instance.level.overlap(position + new Vector2(-0.5f, 0), position + new Vector2(0.5f, 0.25f), hits, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
+		int numHits = GameState.instance.level.overlap(position + new Vector2(-0.5f, 0), position + new Vector2(0.5f, 0.25f), hits, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER | FILTER_ITEM);
 		for (int i = 0; i < numHits; i++)
 		{
 			if (hits[i].entity != null && hits[i].entity != this)
@@ -43,7 +43,7 @@ public class Spring : Entity
 			}
 		}
 
-		TileType tile = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0.0f, -0.5f)));
+		TileType tile = GameState.instance.level.getTile(position + new Vector2(0.0f, -0.5f));
 		if (tile == null)
 			remove();
 	}

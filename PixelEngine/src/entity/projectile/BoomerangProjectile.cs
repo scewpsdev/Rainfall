@@ -84,7 +84,7 @@ public class BoomerangProjectile : Entity
 				else if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(item.attackDamage, shooter);
+					hittable.hit(item.attackDamage, shooter, item);
 					hitEntities.Add(hit.entity);
 				}
 			}

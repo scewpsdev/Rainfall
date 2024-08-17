@@ -35,29 +35,29 @@ public class PickaxeSwingAction : AttackAction
 				if (InputManager.IsDown("Up"))
 				{
 					Vector2i pos = (Vector2i)Vector2.Floor(hitPosition + new Vector2(0, 1.5f));
-					TileType tile = TileType.Get(GameState.instance.level.getTile(pos));
+					TileType tile = GameState.instance.level.getTile(pos);
 					if (tile != null && tile.isSolid)
 					{
-						GameState.instance.level.setTile(pos.x, pos.y, 0);
+						GameState.instance.level.setTile(pos.x, pos.y, null);
 						//player.actions.cancelAction();
 					}
 				}
 				else
 				{
 					Vector2i pos = (Vector2i)Vector2.Floor(hitPosition + new Vector2(base.direction, 0.5f));
-					TileType tile = TileType.Get(GameState.instance.level.getTile(pos));
+					TileType tile = GameState.instance.level.getTile(pos);
 					if (tile != null && tile.isSolid)
 					{
-						GameState.instance.level.setTile(pos.x, pos.y, 0);
+						GameState.instance.level.setTile(pos.x, pos.y, null);
 						//player.actions.cancelAction();
 					}
 					else
 					{
 						pos = (Vector2i)Vector2.Floor(hitPosition + new Vector2(base.direction, -0.5f));
-						tile = TileType.Get(GameState.instance.level.getTile(pos));
+						tile = GameState.instance.level.getTile(pos);
 						if (tile != null && tile.isSolid)
 						{
-							GameState.instance.level.setTile(pos.x, pos.y, 0);
+							GameState.instance.level.setTile(pos.x, pos.y, null);
 							//player.actions.cancelAction();
 						}
 					}

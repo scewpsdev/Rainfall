@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 public abstract class Mob : Entity, Hittable
 {
 	const float SPRINT_MULTIPLIER = 1.8f;
-	const float DUCKED_MULTIPLIER = 0.8f;
 	const float STUN_DURATION = 0.4f;
 
 
@@ -18,26 +17,27 @@ public abstract class Mob : Entity, Hittable
 	public float jumpPower = 12;
 	public float gravity = -30;
 
-	public float itemDropChance = 0.1f;
+	public float itemDropChance = 0.05f;
 
 	public float health = 1;
-
 	public int damage = 1;
+	public bool canFly = false;
 
 	protected Sprite sprite;
-	protected SpriteAnimator animator;
+	public SpriteAnimator animator;
+	protected FloatRect rect = new FloatRect(-0.5f, 0.0f, 1, 1);
 	protected uint outline = 0;
 
 	protected AI ai;
 
 	public bool inputLeft, inputRight, inputUp, inputDown;
-	public bool inputSprint, inputDuck, inputJump;
+	public bool inputSprint, inputJump;
 
 	public int direction = 1;
 	float currentSpeed;
+	Vector2 impulseVelocity;
 	public bool isGrounded = false;
 	bool isSprinting = false;
-	bool isDucked = false;
 	bool isClimbing = false;
 	float distanceWalked = 0;
 	bool isStunned = false;
@@ -61,14 +61,28 @@ public abstract class Mob : Entity, Hittable
 	{
 	}
 
-	public void hit(float damage, Entity by)
+	public void hit(float damage, Entity by, Item item)
 	{
 		health -= damage;
 
 		if (health > 0)
+		{
 			stun();
+
+			if (by != null)
+			{
+				Vector2 enemyPosition = by.position;
+				if (by.collider != null)
+					enemyPosition += 0.5f * (by.collider.max + by.collider.min);
+				float knockbackStrength = item != null ? item.knockback : 8.0f;
+				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
+				addImpulse(knockback);
+			}
+		}
 		else
+		{
 			onDeath(by);
+		}
 
 		ai?.onHit(by);
 
@@ -99,6 +113,12 @@ public abstract class Mob : Entity, Hittable
 			stunTime = Time.currentTime;
 	}
 
+	public void addImpulse(Vector2 impulse)
+	{
+		impulseVelocity.x += impulse.x;
+		velocity.y += impulse.y;
+	}
+
 	void updateMovement()
 	{
 		Vector2 delta = Vector2.Zero;
@@ -111,6 +131,10 @@ public abstract class Mob : Entity, Hittable
 				delta.x--;
 			if (inputRight)
 				delta.x++;
+			if (inputUp)
+				delta.y++;
+			if (inputDown)
+				delta.y--;
 			if (isClimbing)
 			{
 				if (inputUp)
@@ -123,9 +147,6 @@ public abstract class Mob : Entity, Hittable
 			}
 
 			isSprinting = inputSprint;
-
-			isDucked = inputDuck;
-			collider.size.y = isDucked ? 0.5f : 1;
 
 			if (inputJump)
 			{
@@ -142,7 +163,7 @@ public abstract class Mob : Entity, Hittable
 			}
 		}
 
-		if (delta.x != 0)
+		if (delta.lengthSquared > 0)
 		{
 			//if (isGrounded)
 			{
@@ -151,19 +172,32 @@ public abstract class Mob : Entity, Hittable
 				else if (delta.x < 0)
 					direction = -1;
 
-				currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : isDucked ? DUCKED_MULTIPLIER * speed : speed;
+				currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : speed;
 				velocity.x = delta.x * currentSpeed;
+
+				if (canFly)
+					velocity.y = MathHelper.Lerp(velocity.y, delta.y * currentSpeed, 5 * Time.deltaTime);
 			}
 		}
 		else
 		{
 			//if (isGrounded)
 			velocity.x = 0.0f;
+			if (canFly)
+				velocity.y = 0.0f;
 		}
 
 		if (!isClimbing)
 		{
 			velocity.y += gravity * Time.deltaTime;
+
+			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
+			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
+				impulseVelocity.x = 0;
+			else if (velocity.x == 0)
+				impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
+			//impulseVelocity.x = impulseVelocity.x - velocity.x;
+			velocity += impulseVelocity;
 		}
 		else
 		{
@@ -180,7 +214,15 @@ public abstract class Mob : Entity, Hittable
 				isGrounded = true;
 
 			velocity.y = 0;
+			impulseVelocity.y = 0;
+			//impulseVelocity.x *= 0.5f;
 		}
+		if ((collisionFlags & Level.COLLISION_X) != 0)
+		{
+			impulseVelocity.x = 0;
+			impulseVelocity.y *= 0.5f;
+		}
+
 		position += displacement;
 		distanceWalked += MathF.Abs(displacement.x);
 
@@ -245,17 +287,12 @@ public abstract class Mob : Entity, Hittable
 		if (sprite != null)
 		{
 			if (hitMarker)
-				Renderer.DrawSpriteSolid(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
+				Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 			else
-				Renderer.DrawSprite(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, 0xFFFFFFFF);
+				Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 
 			if (outline != 0)
-				Renderer.DrawOutline(position.x - 0.5f, position.y, 0, 1, isDucked ? 0.5f : 1, 0, sprite, direction == -1, outline);
-		}
-
-		if (handItem != null)
-		{
-			Renderer.DrawSprite(position.x - 0.25f, position.y + (isDucked ? 0.5f : 1) + 0.5f - 0.25f, 0, 0.5f, 0.5f, null, 0, 0, 0, 0, 0xFF444444);
+				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
 		}
 	}
 }

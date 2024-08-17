@@ -10,6 +10,7 @@ internal class SpikeTrap : Entity, Hittable
 {
 	int damage = 5;
 	float gravity = -30;
+	float startVelocity = -5;
 
 	Sprite sprite;
 
@@ -27,7 +28,7 @@ internal class SpikeTrap : Entity, Hittable
 		sprite = new Sprite(TileType.tileset, 0, 4);
 	}
 
-	public void hit(float damage, Entity by)
+	public void hit(float damage, Entity by, Item item)
 	{
 		remove();
 	}
@@ -44,6 +45,7 @@ internal class SpikeTrap : Entity, Hittable
 			if (hit != null && hit.entity != null)
 			{
 				falling = true;
+				velocity.y = startVelocity;
 			}
 		}
 		else if (falling)
@@ -64,14 +66,14 @@ internal class SpikeTrap : Entity, Hittable
 					if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 					{
 						Hittable hittable = hit.entity as Hittable;
-						hittable.hit(damage, this);
+						hittable.hit(damage, this, null);
 						hitEntities.Add(hit.entity);
 					}
 				}
 			}
 		}
 
-		TileType tile = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0.0f, 1.0f)));
+		TileType tile = GameState.instance.level.getTile(position + new Vector2(0.0f, 1.0f));
 		if (tile == null)
 			falling = true;
 	}

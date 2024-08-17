@@ -52,12 +52,12 @@ public class PlayerCamera : Entity
 		target = player.position + new Vector2(0, 2);
 		if (player.inventoryOpen)
 			target += new Vector2(-width / 4, 0);
-		if (InputManager.IsDown("Down"))
+		if (InputManager.IsDown("Down") && player.currentLadder == null)
 		{
 			if (lastDownInput == -1)
 				lastDownInput = Time.currentTime;
-			if ((Time.currentTime - lastDownInput) / 1e9f > LOOK_DOWN_DELAY && player.currentLadder == null)
-				target += new Vector2(0, -height / 8 * 3);
+			if ((Time.currentTime - lastDownInput) / 1e9f > LOOK_DOWN_DELAY)
+				target += new Vector2(0, -height / 8 * 3 * (1 - MathF.Exp(-((Time.currentTime - lastDownInput) / 1e9f - LOOK_DOWN_DELAY))));
 		}
 		else
 		{

@@ -80,6 +80,7 @@ public class GameState : State
 
 	public GameState(string seed)
 	{
+		instance = this;
 		this.seed = seed;
 		reset();
 	}
@@ -168,8 +169,11 @@ public class GameState : State
 		//tutorial.addEntity(new TutorialText("Ja man kann sie sehen", 0xFFFFFFFF), new Vector2(55, 25.5f));
 		tutorial.addEntity(new Chest(new PotionOfHealing(), new Rope()), new Vector2(43, 24));
 		tutorial.addEntity(new Rat(), new Vector2(42, 17));
-		tutorial.addEntity(new Snake(), new Vector2(50, 19));
-		tutorial.addEntity(new Spider(), new Vector2(48, 23));
+		tutorial.addEntity(new Rat(), new Vector2(50, 19));
+		tutorial.addEntity(new Rat(), new Vector2(48, 23));
+		//tutorial.addEntity(new Snake(), new Vector2(50, 19));
+		//tutorial.addEntity(new Spider(), new Vector2(48, 23));
+		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
 
 		Level lastLevel = level;
 		for (int i = 0; i < floors.Length; i++)
@@ -189,7 +193,6 @@ public class GameState : State
 
 	public override void init()
 	{
-		instance = this;
 	}
 
 	public override void destroy()

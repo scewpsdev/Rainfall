@@ -16,7 +16,7 @@ public class Rock : Item
 		projectileItem = true;
 		maxPierces = -1;
 
-		attackDamage = 2;
+		attackDamage = 3;
 
 		value = 1;
 
