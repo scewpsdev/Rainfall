@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Rope : Entity, Climbable
+public class RopeEntity : Entity, Climbable
 {
 	public int height;
 
@@ -14,7 +14,7 @@ public class Rope : Entity, Climbable
 	Sprite topSprite, bottomSprite;
 
 
-	public Rope(int height)
+	public RopeEntity(int height)
 	{
 		this.height = height;
 

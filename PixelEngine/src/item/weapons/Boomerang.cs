@@ -13,6 +13,9 @@ public class Boomerang : Item
 	{
 		displayName = "Boomerang";
 
+		attackDamage = 2;
+		attackRange = 4;
+
 		value = 20;
 
 		sprite = new Sprite(tileset, 3, 1);
@@ -21,7 +24,7 @@ public class Boomerang : Item
 	public override bool use(Player player)
 	{
 		player.handItem = null;
-		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player), player.position + renderOffset * new Vector2(player.direction, 1));
+		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player, this), player.position + renderOffset * new Vector2(player.direction, 1));
 		return true;
 	}
 }
