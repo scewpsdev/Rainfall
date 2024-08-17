@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Torch : Entity, Interactable
+public class TorchEntity : Entity, Interactable
 {
 	Sprite sprite;
 	uint outline = 0;
 
 
-	public Torch()
+	public TorchEntity()
 	{
 		sprite = new Sprite(TileType.tileset, 1, 3);
 	}
@@ -24,7 +24,7 @@ public class Torch : Entity, Interactable
 
 	public void interact(Player player)
 	{
-		player.giveItem(new TorchItem());
+		player.giveItem(new Torch());
 		remove();
 	}
 

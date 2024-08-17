@@ -215,7 +215,7 @@ public class Player : Entity, Hittable
 		if (!invincible)
 		{
 			int totalArmor = getTotalArmor();
-			float armorAbsorption = totalArmor / (10.0f + totalArmor);
+			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
 
 			health -= damage;

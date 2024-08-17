@@ -130,7 +130,7 @@ public class GameState : State
 		level.addEntity(dungeonDoor, new Vector2(16 + 4.5f, 1));
 
 		BuilderMerchant npc = new BuilderMerchant();
-		npc.addShopItem(new RopeItem());
+		npc.addShopItem(new Rope());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Bomb());
 		npc.addShopItem(new Lantern());
@@ -166,7 +166,7 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText("(:", 0xFFFFFFFF), new Vector2(121, 26.0f));
 		tutorial.addEntity(new SpikeTrap(), new Vector2(124.5f, 29.5f));
 		//tutorial.addEntity(new TutorialText("Ja man kann sie sehen", 0xFFFFFFFF), new Vector2(55, 25.5f));
-		tutorial.addEntity(new Chest(new PotionOfHealing(), new RopeItem()), new Vector2(43, 24));
+		tutorial.addEntity(new Chest(new PotionOfHealing(), new Rope()), new Vector2(43, 24));
 		tutorial.addEntity(new Rat(), new Vector2(42, 17));
 		tutorial.addEntity(new Snake(), new Vector2(50, 19));
 		tutorial.addEntity(new Spider(), new Vector2(48, 23));

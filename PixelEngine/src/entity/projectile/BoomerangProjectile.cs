@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 
 public class BoomerangProjectile : Entity
 {
-	int damage = 2;
 	float speed = 12;
-	float range = 4;
+	float currentRange;
 
 	Entity shooter;
+	Boomerang item;
+
 	Sprite sprite;
 	int direction;
 	Vector2 startPosition;
@@ -20,10 +21,13 @@ public class BoomerangProjectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public BoomerangProjectile(int direction, Entity shooter)
+	public BoomerangProjectile(int direction, Entity shooter, Boomerang item)
 	{
 		this.direction = direction;
 		this.shooter = shooter;
+		this.item = item;
+
+		currentRange = item.attackRange;
 
 		velocity = new Vector2(direction * speed, 0);
 
@@ -44,7 +48,7 @@ public class BoomerangProjectile : Entity
 	public override void update()
 	{
 		float accSign = MathF.Sign(startPosition.x - position.x);
-		float acc = speed * speed / (2 * range) * accSign;
+		float acc = speed * speed / (2 * currentRange) * accSign;
 		float lastVelocityX = velocity.x;
 		velocity.x += acc * Time.deltaTime;
 		if (MathF.Sign(velocity.x) != MathF.Sign(lastVelocityX))
@@ -58,8 +62,8 @@ public class BoomerangProjectile : Entity
 		{
 			velocity.x /= 1.5f;
 			speed /= 1.5f;
-			range /= 1.5f;
-			if (range < 2)
+			currentRange /= 1.5f;
+			if (currentRange < 2)
 				drop();
 		}
 
@@ -80,7 +84,7 @@ public class BoomerangProjectile : Entity
 				else if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(damage, shooter);
+					hittable.hit(item.attackDamage, shooter);
 					hitEntities.Add(hit.entity);
 				}
 			}

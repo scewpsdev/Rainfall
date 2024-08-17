@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class RopeItem : Item
+public class Rope : Item
 {
-	public RopeItem()
+	public Rope()
 		: base("rope")
 	{
 		displayName = "Rope";
@@ -45,13 +45,13 @@ public class RopeItem : Item
 				if ((forward == null || !forward.isSolid) && (forwardBelow == null || !forwardBelow.isSolid))
 				{
 					Vector2i spawnTile = playerTile + new Vector2i(player.direction, 0);
-					GameState.instance.level.addEntity(new Rope(getRopeLength(spawnTile)), spawnTile + new Vector2(0.5f));
+					GameState.instance.level.addEntity(new RopeEntity(getRopeLength(spawnTile)), spawnTile + new Vector2(0.5f));
 					return true;
 				}
 			}
 			else
 			{
-				GameState.instance.level.addEntity(new Rope(getRopeLength(playerTile)), playerTile + new Vector2(0.5f));
+				GameState.instance.level.addEntity(new RopeEntity(getRopeLength(playerTile)), playerTile + new Vector2(0.5f));
 				return true;
 			}
 		}

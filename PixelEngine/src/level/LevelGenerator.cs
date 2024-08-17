@@ -651,7 +651,7 @@ public class LevelGenerator
 							float torchChance = 0.03f;
 							if (random.NextSingle() < torchChance)
 							{
-								level.addEntity(new Torch(), new Vector2(x + 0.5f, y + 0.5f));
+								level.addEntity(new TorchEntity(), new Vector2(x + 0.5f, y + 0.5f));
 								objectFlags[x + y * width] = true;
 							}
 						}

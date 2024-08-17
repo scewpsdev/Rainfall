@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class TorchItem : Item
+public class Torch : Item
 {
-	public TorchItem()
+	public Torch()
 		: base("torch")
 	{
 		displayName = "Torch";

@@ -67,6 +67,11 @@ public abstract class Item
 		get => MathF.Exp(-value * 0.02f);
 	}
 
+	public static float GetArmorAbsorption(int armor)
+	{
+		return armor / (10.0f + armor);
+	}
+
 	public string rarityString
 	{
 		get
@@ -126,7 +131,7 @@ public abstract class Item
 		InitType(new Bomb());
 		InitType(new Dagger());
 		InitType(new Longsword());
-		InitType(new RopeItem());
+		InitType(new Rope());
 		InitType(new Pickaxe());
 		InitType(new Rock());
 		InitType(new WizardsCloak());
@@ -134,7 +139,7 @@ public abstract class Item
 		InitType(new Boomerang());
 		InitType(new Quarterstaff());
 		InitType(new Spear());
-		InitType(new TorchItem());
+		InitType(new Torch());
 		InitType(new RingOfSwiftness());
 		InitType(new RingOfVitality());
 		InitType(new MagicStaff());
