@@ -22,7 +22,7 @@ public class BuilderMerchant : NPC
 
 	public override void populateShop(Random random)
 	{
-		int numShopItems = MathHelper.RandomInt(1, 5, random);
+		int numShopItems = MathHelper.RandomInt(1, 9, random);
 		for (int j = 0; j < numShopItems; j++)
 		{
 			Item item = Item.CreateRandom(random);

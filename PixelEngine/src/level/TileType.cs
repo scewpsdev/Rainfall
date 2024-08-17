@@ -26,12 +26,17 @@ public class TileType
 
 	public static SpriteSheet tileset;
 
+	public static TileType dummy;
+	public static TileType wall;
+	public static TileType platform;
+	public static TileType stone;
+
 	static TileType()
 	{
 		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/tiles.png", false), 16, 16);
 
-		AddTileType(new TileType() { name = "dummy", visible = false }); // dummy collider
-		AddTileType(new TileType()
+		AddTileType(dummy = new TileType() { name = "dummy", visible = false }); // dummy collider
+		AddTileType(wall = new TileType()
 		{
 			name = "wall",
 			color = 0xFFFFFFFF,
@@ -41,8 +46,8 @@ public class TileType
 			top = new Sprite(tileset, 4, 0),
 			bottom = new Sprite(tileset, 4, 2),
 		});
-		AddTileType(new TileType() { name = "platform", color = 0xFF4488AA, isPlatform = true, sprite = new Sprite(tileset, 1, 2) });
-		AddTileType(new TileType() { name = "stone_block", color = 0xFF333333, sprite = new Sprite(tileset, 1, 1) });
+		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, isPlatform = true, isSolid = false, sprite = new Sprite(tileset, 1, 2) });
+		AddTileType(stone = new TileType() { name = "stone_block", color = 0xFF333333, sprite = new Sprite(tileset, 1, 1) });
 	}
 
 	static void AddTileType(TileType type)

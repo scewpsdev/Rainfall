@@ -17,7 +17,7 @@ public class Dagger : Item
 		attackRange = 1.0f;
 		attackRate = 4;
 
-		value = 3;
+		value = 6;
 
 		sprite = new Sprite(tileset, 2, 1);
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));

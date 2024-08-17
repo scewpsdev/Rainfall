@@ -19,7 +19,7 @@ public class Arrow : Item
 		projectileItem = true;
 		maxPierces = 1;
 
-		value = 0.5f;
+		value = 1;
 
 		canDrop = false;
 	}

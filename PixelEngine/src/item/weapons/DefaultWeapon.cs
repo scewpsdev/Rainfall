@@ -17,6 +17,7 @@ public class DefaultWeapon : Item
 		attackDamage = 1;
 		attackRange = 0.8f;
 		attackRate = 5;
+		knockback = 5;
 
 		sprite = new Sprite(tileset, 0, 2);
 	}

@@ -18,7 +18,7 @@ public class PotionOfMinorHealing : Item
 		sprite = new Sprite(tileset, 7, 0);
 
 		//rarity = 0;
-		value = 5;
+		value = 10;
 	}
 
 	public override bool use(Player player)

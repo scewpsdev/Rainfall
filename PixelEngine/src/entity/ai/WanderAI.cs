@@ -25,12 +25,12 @@ public class WanderAI : AI
 		else if (walkDirection == -1)
 			mob.inputLeft = true;
 
-		TileType forwardTile = TileType.Get(GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, 0.5f)));
+		TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, 0.5f));
 		if (forwardTile != null)
 			walkDirection *= -1;
 		else
 		{
-			TileType forwardDownTile = TileType.Get(GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, -0.5f)));
+			TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, -0.5f));
 			if (forwardDownTile == null)
 				walkDirection *= -1;
 		}

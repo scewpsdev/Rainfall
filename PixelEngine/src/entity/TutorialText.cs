@@ -20,8 +20,7 @@ public class TutorialText : Entity
 
 	public override void render()
 	{
-		Vector2i pos = GameState.instance.camera.worldToScreen(position);
-		Vector2i size = Renderer.MeasureUITextBMP(text, text.Length, 1);
-		Renderer.DrawUITextBMP(pos.x - size.x / 2, pos.y - size.y / 2, text, 1, color);
+		Vector2 size = Renderer.MeasureWorldTextBMP(text, text.Length, 1.0f / 16);
+		Renderer.DrawWorldTextBMP(position.x - size.x / 2, position.y - size.y / 2, LAYER_BG, text, 1.0f / 16, color);
 	}
 }

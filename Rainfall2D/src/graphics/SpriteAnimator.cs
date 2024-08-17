@@ -14,7 +14,7 @@ namespace Rainfall
 		public Vector2i start;
 		public Vector2i delta;
 		public int length;
-		public int fps;
+		public float fps;
 		public bool looping;
 	}
 
@@ -35,7 +35,7 @@ namespace Rainfall
 		List<SpriteAnimationEvent> events = new List<SpriteAnimationEvent>();
 
 
-		public void addAnimation(string name, int x, int y, int dx, int dy, int length, int fps, bool looping)
+		public void addAnimation(string name, int x, int y, int dx, int dy, int length, float fps, bool looping)
 		{
 			animations.Add(new SpriteAnimation { name = name, start = new Vector2i(x, y), delta = new Vector2i(dx, dy), length = length, fps = fps, looping = looping });
 		}

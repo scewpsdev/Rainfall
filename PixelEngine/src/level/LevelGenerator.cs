@@ -176,16 +176,16 @@ public class LevelGenerator
 				switch (color)
 				{
 					case 0xFF000000:
-						level.setTile(x + xx, y + yy, 0);
+						level.setTile(x + xx, y + yy, null);
 						break;
 					case 0xFFFFFFFF:
-						level.setTile(x + xx, y + yy, 2);
+						level.setTile(x + xx, y + yy, TileType.wall);
 						break;
 					case 0xFF0000FF:
-						level.setTile(x + xx, y + yy, 3);
+						level.setTile(x + xx, y + yy, TileType.platform);
 						break;
 					case 0xFFFF00FF:
-						level.setTile(x + xx, y + yy, 1);
+						level.setTile(x + xx, y + yy, TileType.dummy);
 						//uint left = rooms[roomDef.x + xx - 1 + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
 						//uint right = rooms[roomDef.x + xx + 1 + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
 						uint left = roomDef.getTile(xx - 1, yy);
@@ -194,24 +194,24 @@ public class LevelGenerator
 						level.addEntity(new ArrowTrap(direction), new Vector2(x + xx, y + yy));
 						break;
 					case 0xFF00FF00:
-						level.setTile(x + xx, y + yy, 0);
+						level.setTile(x + xx, y + yy, null);
 						if (yy == room.set.height - 1 ||
 							(roomDef.getTile(xx, yy - 1) != 0xFF00FF00 && roomDef.getTile(xx, yy - 1) != 0xFF00FFFF))
 							level.addEntity(new Ladder(countLadderHeight(xx, yy, roomDef)), new Vector2(x + xx, y + yy));
 						break;
 					case 0xFFFF7F00:
-						level.setTile(x + xx, y + yy, 0);
+						level.setTile(x + xx, y + yy, null);
 						level.addEntity(new Spring(), new Vector2(x + xx + 0.5f, y + yy));
 						break;
 					case 0xFF00FFFF:
-						level.setTile(x + xx, y + yy, 3);
+						level.setTile(x + xx, y + yy, TileType.platform);
 						break;
 					case 0xFFFF0000:
-						level.setTile(x + xx, y + yy, 0);
+						level.setTile(x + xx, y + yy, null);
 						//level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
 						break;
 					default:
-						level.setTile(x + xx, y + yy, 0);
+						level.setTile(x + xx, y + yy, null);
 						break;
 				}
 			}
@@ -246,10 +246,10 @@ public class LevelGenerator
 				int x = this.x + (offset + i) % this.width;
 				for (int y = this.y + 1; y < this.y + this.height; y++)
 				{
-					if (y > 0 && level.getTile(x, y) == 0)
+					if (y > 0 && level.getTile(x, y) == null)
 					{
-						if (level.getTile(x, y - 1) == 0)
-							level.setTile(x, y - 1, 3);
+						if (level.getTile(x, y - 1) == null)
+							level.setTile(x, y - 1, TileType.platform);
 
 						pos = new Vector2i(x, y);
 						return true;
@@ -509,7 +509,7 @@ public class LevelGenerator
 			bool isDeadEnd = room.countConnectedDoorways() == 1;
 			if (isDeadEnd && room != startingRoom && room != exitRoom)
 			{
-				float npcChance = 0.2f;
+				float npcChance = 0.1f;
 				if (random.NextSingle() < npcChance)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
@@ -533,7 +533,7 @@ public class LevelGenerator
 			bool isDeadEnd = room.countConnectedDoorways() == 1;
 			if (isDeadEnd && room != startingRoom && room != exitRoom)
 			{
-				float npcChance = 0.025f;
+				float npcChance = 0.02f;
 				if (random.NextSingle() < npcChance)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
@@ -557,32 +557,32 @@ public class LevelGenerator
 				if (objectFlags[x + y * width])
 					continue;
 
-				TileType tile = TileType.Get(level.getTile(x, y));
+				TileType tile = level.getTile(x, y);
 
 				if (tile != null)
 				{
-					TileType up = TileType.Get(level.getTile(x, y + 1));
-					TileType down = TileType.Get(level.getTile(x, y - 1));
-					TileType left = TileType.Get(level.getTile(x - 1, y));
-					TileType right = TileType.Get(level.getTile(x + 1, y));
+					TileType up = level.getTile(x, y + 1);
+					TileType down = level.getTile(x, y - 1);
+					TileType left = level.getTile(x - 1, y);
+					TileType right = level.getTile(x + 1, y);
 
-					if (tile.isSolid && (left == null || right == null))
+					if (tile.isSolid && (left == null || right == null) && y != entrancePosition.y)
 					{
 						float arrowTrapChance = 0.001f;
 						if (random.NextSingle() < arrowTrapChance)
 						{
 							int direction = right == null ? 1 : left == null ? -1 : random.Next() % 2 * 2 - 1;
-							level.setTile(x, y, 1);
+							level.setTile(x, y, TileType.dummy);
 							level.addEntity(new ArrowTrap(new Vector2(direction, 0)), new Vector2(x, y));
 						}
 					}
 				}
 				else if (tile == null)
 				{
-					TileType up = TileType.Get(level.getTile(x, y + 1));
-					TileType down = TileType.Get(level.getTile(x, y - 1));
-					TileType left = TileType.Get(level.getTile(x - 1, y));
-					TileType right = TileType.Get(level.getTile(x + 1, y));
+					TileType up = level.getTile(x, y + 1);
+					TileType down = level.getTile(x, y - 1);
+					TileType left = level.getTile(x - 1, y);
+					TileType right = level.getTile(x + 1, y);
 
 					if (down != null && !objectFlags[x + y * width])
 					{
@@ -599,7 +599,7 @@ public class LevelGenerator
 
 					if (down != null && up == null && !objectFlags[x + y * width])
 					{
-						TileType upUp = TileType.Get(level.getTile(x, y + 2));
+						TileType upUp = level.getTile(x, y + 2);
 						if (upUp == null)
 						{
 							float springChance = 0.01f;
@@ -613,8 +613,8 @@ public class LevelGenerator
 
 					if (down != null && up == null && !objectFlags[x + y * width])
 					{
-						TileType upLeft = TileType.Get(level.getTile(x - 1, y + 1));
-						TileType upRight = TileType.Get(level.getTile(x + 1, y + 1));
+						TileType upLeft = level.getTile(x - 1, y + 1);
+						TileType upRight = level.getTile(x + 1, y + 1);
 
 						if (upLeft == null || upRight == null)
 						{
@@ -629,9 +629,10 @@ public class LevelGenerator
 
 					if (up != null && up.isSolid && !objectFlags[x + y * width])
 					{
-						TileType downDown = TileType.Get(level.getTile(x, y - 2));
-						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
-						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
+						TileType downDown = level.getTile(x, y - 2);
+						TileType downLeft = level.getTile(x - 1, y - 1);
+						TileType downRight = level.getTile(x + 1, y - 1);
+
 						if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null) && x != entrancePosition.x)
 						{
 							float spikeTrapChance = 0.01f;
@@ -645,7 +646,7 @@ public class LevelGenerator
 
 					if (down == null && up == null && !objectFlags[x + y * width])
 					{
-						TileType downDown = TileType.Get(level.getTile(x, y - 2));
+						TileType downDown = level.getTile(x, y - 2);
 						if (downDown != null)
 						{
 							float torchChance = 0.03f;
@@ -663,7 +664,6 @@ public class LevelGenerator
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
-						itemChance *= 2;
 						itemChance *= lootModifier[x + y * width];
 
 						if (random.NextSingle() < itemChance)
@@ -692,10 +692,10 @@ public class LevelGenerator
 						}
 					}
 
-					if (down != null && up == null && (left == null && right == null) && !objectFlags[x + y * width])
+					if ((left == null && right == null) && !objectFlags[x + y * width])
 					{
-						TileType downLeft = TileType.Get(level.getTile(x - 1, y - 1));
-						TileType downRight = TileType.Get(level.getTile(x + 1, y - 1));
+						TileType downLeft = level.getTile(x - 1, y - 1);
+						TileType downRight = level.getTile(x + 1, y - 1);
 
 						float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
 
@@ -704,27 +704,46 @@ public class LevelGenerator
 							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)
 							{
-								float enemyType = random.NextSingle();
-
-								Mob enemy;
-
-								if (enemyType > 0.666f)
-									enemy = new Snake();
-								else if (enemyType > 0.333f)
+								bool flyingEnemy = random.NextSingle() < 0.2f;
+								if (flyingEnemy)
 								{
-									float spiderType = random.NextSingle();
-									if (spiderType < 0.9f)
-										enemy = new Spider();
-									else
-										enemy = new GreenSpider();
+									if (down == null)
+									{
+										//float enemyType = random.NextSingle();
+
+										Mob enemy = new Bat();
+
+										level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
+										objectFlags[x + y * width] = true;
+									}
 								}
 								else
 								{
-									enemy = new Rat();
-								}
+									if (down != null && up == null)
+									{
+										float enemyType = random.NextSingle();
 
-								level.addEntity(enemy, new Vector2(x + 0.5f, y));
-								objectFlags[x + y * width] = true;
+										Mob enemy;
+
+										if (enemyType > 0.666f)
+											enemy = new Snake();
+										else if (enemyType > 0.333f)
+										{
+											float spiderType = random.NextSingle();
+											if (spiderType < 0.9f)
+												enemy = new Spider();
+											else
+												enemy = new GreenSpider();
+										}
+										else
+										{
+											enemy = new Rat();
+										}
+
+										level.addEntity(enemy, new Vector2(x + 0.5f, y));
+										objectFlags[x + y * width] = true;
+									}
+								}
 							}
 						}
 					}

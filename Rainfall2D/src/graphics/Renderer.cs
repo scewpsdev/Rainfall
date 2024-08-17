@@ -392,6 +392,27 @@ public static class Renderer
 		return new Vector2i(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
 	}
 
+	public static void DrawWorldTextBMP(float x, float y, float z, string text, float scale, uint color = 0xFFFFFFFF)
+	{
+		float cursor = 0;
+		for (int i = 0; i < text.Length; i++)
+		{
+			IntRect rect = smallFont.getCharacterRect(text[i]);
+			if (rect == null)
+				rect = smallFont.getCharacterRect('?');
+
+			FloatRect frect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy);
+			draws.Add(new SpriteDraw { position = new Vector3(x + cursor, y, z), size = rect.size * scale, texture = smallFont.texture, rect = frect, color = MathHelper.ARGBToVector(color) });
+
+			cursor += rect.size.x * scale;
+		}
+	}
+
+	public static Vector2 MeasureWorldTextBMP(string text, int length = -1, float scale = 1)
+	{
+		return new Vector2(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
+	}
+
 	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)
 	{
 		Renderer.projection = projection;

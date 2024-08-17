@@ -113,7 +113,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 						{
 							Hittable hittable = hit.entity as Hittable;
-							hittable.hit(damage, this);
+							hittable.hit(damage, this, item);
 							hitEntities.Add(hit.entity);
 
 							if (pierces < item.maxPierces || item.maxPierces == -1)

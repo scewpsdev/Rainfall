@@ -19,7 +19,7 @@ public class Quarterstaff : Item
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
-		value = 2;
+		value = 4;
 
 		sprite = new Sprite(tileset, 4, 1, 2, 1);
 		size = new Vector2(2, 1);

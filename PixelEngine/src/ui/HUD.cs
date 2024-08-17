@@ -16,6 +16,7 @@ public class HUD
 {
 	const float MESSAGE_SHOW_DURATION = 5.0f;
 	const float LEVEL_PROMPT_DURATION = 3.0f;
+	const float ITEM_NAME_DURATION = 3.0f;
 
 
 	public static SpriteSheet tileset;
@@ -46,6 +47,8 @@ public class HUD
 	long lastLevelSwitch = -1;
 	string levelName;
 
+	long lastItemSwitch = -1;
+
 
 	public HUD(Player player)
 	{
@@ -61,6 +64,11 @@ public class HUD
 	{
 		levelName = name;
 		lastLevelSwitch = Time.currentTime;
+	}
+
+	public void onItemSwitch()
+	{
+		lastItemSwitch = Time.currentTime;
 	}
 
 	void renderMessages()
@@ -181,6 +189,14 @@ public class HUD
 				Renderer.DrawUISprite(x, y, size, size, player.quickItems[player.currentQuickItem].sprite);
 				if (player.quickItems[player.currentQuickItem].stackable && player.quickItems[player.currentQuickItem].stackSize > 1)
 					Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, player.quickItems[player.currentQuickItem].stackSize.ToString(), 1, 0xFFBBBBBB);
+
+				float elapsed = (Time.currentTime - lastItemSwitch) / 1e9f;
+				if (elapsed < ITEM_NAME_DURATION)
+				{
+					float alpha = elapsed < ITEM_NAME_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - ITEM_NAME_DURATION + 1) / 1);
+					uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
+					Renderer.DrawUITextBMP(x + size + 5, y + 4, player.quickItems[player.currentQuickItem].displayName, 1, color);
+				}
 			}
 		}
 

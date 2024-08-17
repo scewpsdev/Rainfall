@@ -12,7 +12,7 @@ public class Player : Entity, Hittable
 	const float JUMP_BUFFER = 0.3f;
 	const float COYOTE_TIME = 0.2f;
 	const float SPRINT_MULTIPLIER = 1.8f;
-	const float DUCKED_MULTIPLIER = 0.8f;
+	const float DUCKED_MULTIPLIER = 0.6f;
 	const float MAX_FALL_SPEED = -15;
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
@@ -190,7 +190,7 @@ public class Player : Entity, Hittable
 		{
 			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.15f) : new Vector2(1, 0.15f)) * 14;
 		}
-		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.5f);
+		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.25f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
 		GameState.instance.level.addEntity(obj, throwOrigin);
 
@@ -209,7 +209,7 @@ public class Player : Entity, Hittable
 		return totalArmor;
 	}
 
-	public void hit(float damage, Entity by)
+	public void hit(float damage, Entity by, Item item)
 	{
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (!invincible)
@@ -225,7 +225,8 @@ public class Player : Entity, Hittable
 				Vector2 enemyPosition = by.position;
 				if (by.collider != null)
 					enemyPosition += 0.5f * (by.collider.max + by.collider.min);
-				Vector2 knockback = (position - enemyPosition).normalized * 4.0f;
+				float knockbackStrength = item != null ? item.knockback : 8.0f;
+				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
 				addImpulse(knockback);
 			}
 
@@ -307,8 +308,8 @@ public class Player : Entity, Hittable
 						delta.y++;
 					else
 					{
-						TileType tile = TileType.Get(GameState.instance.level.getTile(position));
-						TileType up = TileType.Get(GameState.instance.level.getTile(position + new Vector2(0, 0.2f)));
+						TileType tile = GameState.instance.level.getTile(position);
+						TileType up = GameState.instance.level.getTile(position + new Vector2(0, 0.2f));
 						if (tile != null && tile.isPlatform && up == null)
 						{
 							lastLadderJumpedFrom = currentLadder;
@@ -339,7 +340,7 @@ public class Player : Entity, Hittable
 			{
 				if (isClimbing)
 				{
-					velocity.y = InputManager.IsDown("Down") ? -0.5f * jumpPower : jumpPower;
+					velocity.y = InputManager.IsDown("Down") ? -jumpPower : jumpPower;
 					lastJumpInput = 0;
 					lastGrounded = 0;
 					lastLadderJumpedFrom = currentLadder;
@@ -359,7 +360,7 @@ public class Player : Entity, Hittable
 					{
 						if ((Time.currentTime - lastWallTouchRight) / 1e9f < COYOTE_TIME)
 						{
-							velocity.y = jumpPower * 0.7f;
+							velocity.y = jumpPower * 0.75f;
 							wallJumpVelocity = -wallJumpPower;
 							wallJumpFactor = 1.0f;
 							lastWallTouchRight = 0;
@@ -367,7 +368,7 @@ public class Player : Entity, Hittable
 
 						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
 						{
-							velocity.y = jumpPower * 0.7f;
+							velocity.y = jumpPower * 0.75f;
 							wallJumpVelocity = wallJumpPower;
 							wallJumpFactor = 1.0f;
 							lastWallTouchLeft = 0;
@@ -431,7 +432,7 @@ public class Player : Entity, Hittable
 			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, 2 * Time.deltaTime);
 			velocity.x = MathHelper.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
 
-			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 3 * Time.deltaTime);
+			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
 			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
 				impulseVelocity.x = 0;
 			else if (velocity.x == 0)
@@ -467,7 +468,7 @@ public class Player : Entity, Hittable
 
 			velocity.y = 0;
 			impulseVelocity.y = 0;
-			impulseVelocity.x *= 0.5f;
+			//impulseVelocity.x *= 0.5f;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{
@@ -498,6 +499,7 @@ public class Player : Entity, Hittable
 					{
 						currentQuickItem = (currentQuickItem + 1 + i) % quickItems.Length;
 						switched = true;
+						hud.onItemSwitch();
 						break;
 					}
 				}
@@ -531,7 +533,7 @@ public class Player : Entity, Hittable
 				if (hits[i].entity != null && hits[i].entity is Mob)
 				{
 					Mob mob = hits[i].entity as Mob;
-					hit(mob.damage, mob);
+					hit(mob.damage, mob, mob.handItem);
 				}
 			}
 
