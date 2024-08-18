@@ -30,7 +30,7 @@ public class Door : Entity, Interactable
 
 	public void onFocusEnter(Player player)
 	{
-		outline = 0x9FFFFFFF;
+		outline = OUTLINE_COLOR;
 	}
 
 	public void onFocusLeft(Player player)

@@ -14,20 +14,25 @@ public class RatNPC : NPC
 	{
 		displayName = "Jack";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/rat_npc.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant3.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
 		addVoiceLine("WOAH!");
-		addVoiceLine("You look...", "intense!");
-		addVoiceLine("Did you come to try some of my wondrous cheese?");
-		addVoiceLine("It's very exquisit, yes yes.");
+		addVoiceLine("You look... intense!");
+		addVoiceLine("Ah, you must be here to try some of my wondrous cheese?");
+		addVoiceLine("It's very exquisite, yes yes. Truly wunderbar.");
+		addVoiceLine("Very fine taste you have, little creature.");
 		addVoiceLine("I'll give you one for free, good?");
 	}
 
 	public override void populateShop(Random random)
 	{
+		Cheese wondrousCheese = new Cheese();
+		wondrousCheese.name = "wondrous_cheese";
+		wondrousCheese.displayName = "Wondrous Cheese";
+		addShopItem(wondrousCheese, 0);
 		addShopItem(new Cheese());
 	}
 }

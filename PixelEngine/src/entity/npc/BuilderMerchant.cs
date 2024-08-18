@@ -12,7 +12,7 @@ public class BuilderMerchant : NPC
 	public BuilderMerchant()
 		: base("builder_merchant")
 	{
-		displayName = "Builder Merchant";
+		displayName = "Builder";
 
 		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();

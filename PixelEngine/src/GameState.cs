@@ -131,17 +131,13 @@ public class GameState : State
 		level.addEntity(dungeonDoor, new Vector2(16 + 4.5f, 1));
 
 		BuilderMerchant npc = new BuilderMerchant();
+		npc.addShopItem(new Revolver(), 0);
 		npc.addShopItem(new Rope());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Bomb());
 		npc.addShopItem(new Lantern());
 		npc.direction = -1;
 		level.addEntity(npc, new Vector2(34, 3));
-
-		RatNPC rat = new RatNPC();
-		rat.populateShop(null);
-		rat.direction = 1;
-		level.addEntity(rat, new Vector2(41, 11));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
@@ -188,6 +184,13 @@ public class GameState : State
 		}
 
 		Level finalRoom = new Level(-1, "Thanks for playing");
+		for (int y = 1; y < finalRoom.height - 1; y++)
+		{
+			for (int x = 1; x < finalRoom.width - 1; x++)
+			{
+				finalRoom.setTile(x, y, null);
+			}
+		}
 		Door finalRoomEntrance = new Door(lastLevel, lastLevel.exit);
 		lastLevel.exit.destination = finalRoom;
 		lastLevel.exit.otherDoor = finalRoomEntrance;

@@ -21,8 +21,8 @@ public abstract class NPC : Mob, Interactable
 	int longestItemName = 80;
 	Sprite gem;
 
+	bool dialogueOpen = false;
 	List<VoiceLine> voiceLines = new List<VoiceLine>();
-	int currentVoiceLine = -1;
 
 
 	public NPC(string name)
@@ -45,7 +45,7 @@ public abstract class NPC : Mob, Interactable
 
 	public abstract void populateShop(Random random);
 
-	public void addShopItem(Item item)
+	public void addShopItem(Item item, int price = -1)
 	{
 		if (item.stackable)
 		{
@@ -59,7 +59,8 @@ public abstract class NPC : Mob, Interactable
 			}
 		}
 
-		int price = (int)MathF.Ceiling(item.value * (1 + tax));
+		if (price == -1)
+			price = (int)MathF.Ceiling(item.value * (1 + tax));
 		shopItems.Add(new Tuple<Item, int>(item, price));
 	}
 
@@ -73,14 +74,51 @@ public abstract class NPC : Mob, Interactable
 		return false;
 	}
 
-	public void addVoiceLine(params string[] lines)
+	public void addVoiceLine(string txt)
 	{
-		voiceLines.Add(new VoiceLine { lines = lines });
+		int maxWidth = 120 - 2 * 4;
+		int spaceWidth = Renderer.MeasureUITextBMP(" ").x;
+
+		string[] words = txt.Split(' ');
+
+		List<string> lines = new List<string>();
+		int currentLineWidth = 0;
+		StringBuilder currentLine = new StringBuilder();
+
+		for (int i = 0; i < words.Length; i++)
+		{
+			int wordWidth = Renderer.MeasureUITextBMP(words[i]).x;
+			if (currentLineWidth + spaceWidth + wordWidth > maxWidth)
+			{
+				lines.Add(currentLine.ToString());
+				currentLineWidth = 0;
+				currentLine.Clear();
+			}
+			if (i == words.Length - 1)
+			{
+				if (currentLineWidth > 0)
+					currentLine.Append(' ');
+				currentLine.Append(words[i]);
+				lines.Add(currentLine.ToString());
+			}
+			else
+			{
+				if (currentLineWidth > 0)
+				{
+					currentLine.Append(' ');
+					currentLineWidth += spaceWidth;
+				}
+				currentLine.Append(words[i]);
+				currentLineWidth += wordWidth;
+			}
+		}
+
+		voiceLines.Add(new VoiceLine { lines = lines.ToArray() });
 	}
 
 	public bool canInteract(Player player)
 	{
-		return !shopOpen && shopItems.Count > 0 && currentVoiceLine == -1;
+		return !shopOpen && !dialogueOpen && (shopItems.Count > 0 || voiceLines.Count > 0);
 	}
 
 	public float getRange()
@@ -92,7 +130,7 @@ public abstract class NPC : Mob, Interactable
 	{
 		if (voiceLines.Count > 0)
 		{
-			currentVoiceLine = 0;
+			openDialogue();
 		}
 		else if (!shopOpen)
 		{
@@ -106,7 +144,7 @@ public abstract class NPC : Mob, Interactable
 
 	public void onFocusEnter(Player player)
 	{
-		outline = 0x9FFFFFFF;
+		outline = OUTLINE_COLOR;
 	}
 
 	public void onFocusLeft(Player player)
@@ -126,17 +164,29 @@ public abstract class NPC : Mob, Interactable
 		GameState.instance.player.numOverlaysOpen--;
 	}
 
+	void openDialogue()
+	{
+		dialogueOpen = true;
+		GameState.instance.player.numOverlaysOpen++;
+	}
+
+	void closeDialogue()
+	{
+		dialogueOpen = false;
+		GameState.instance.player.numOverlaysOpen--;
+	}
+
 	public override void update()
 	{
 		Player player = GameState.instance.player;
 
-		if (shopOpen)
+		float maxDistance = 2;
+		if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
 		{
-			float maxDistance = 2;
-			if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
-			{
+			if (shopOpen)
 				closeShop();
-			}
+			if (dialogueOpen)
+				closeDialogue();
 		}
 
 		const float lookRange = 3;
@@ -229,15 +279,15 @@ public abstract class NPC : Mob, Interactable
 				y += lineHeight;
 			}
 		}
-		else if (currentVoiceLine >= 0)
+		else if (dialogueOpen)
 		{
-			VoiceLine voiceLine = voiceLines[currentVoiceLine];
+			VoiceLine voiceLine = voiceLines[0];
 
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			int lineHeight = 12;
 			int headerHeight = 12 + 1;
-			int width = 1 + lineHeight + 5 + longestItemName + 1;
+			int width = 120;
 			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 			int y = Math.Max(pos.y - height, 2);
@@ -254,8 +304,20 @@ public abstract class NPC : Mob, Interactable
 			for (int i = 0; i < voiceLine.lines.Length; i++)
 			{
 				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, 0xFF222222);
-				Renderer.DrawUITextBMP(x + 2, y, voiceLine.lines[i], 1, 0xFFAAAAAA);
+				Renderer.DrawUITextBMP(x + 4, y, voiceLine.lines[i], 1, 0xFFAAAAAA);
 				y += lineHeight;
+			}
+
+			if (InputManager.IsPressed("Interact"))
+			{
+				InputManager.ConsumeEvent("Interact");
+				voiceLines.RemoveAt(0);
+				if (voiceLines.Count == 0)
+				{
+					closeDialogue();
+					if (shopItems.Count > 0)
+						openShop();
+				}
 			}
 		}
 	}

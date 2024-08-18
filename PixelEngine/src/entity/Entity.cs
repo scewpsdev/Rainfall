@@ -20,6 +20,8 @@ public class Entity
 	public const float LAYER_BG = 0.1f;
 	public const float LAYER_FG = -0.1f;
 
+	public const uint OUTLINE_COLOR = 0x9FFFFFFF;
+
 
 	public Vector2 position;
 	public float rotation;

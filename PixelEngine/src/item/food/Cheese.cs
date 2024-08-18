@@ -11,7 +11,7 @@ public class Cheese : Item
 	public Cheese()
 		: base("cheese")
 	{
-		displayName = "Wondrous Cheese";
+		displayName = "Mouldy Cheese";
 		type = ItemType.Active;
 		stackable = true;
 		canDrop = false;
