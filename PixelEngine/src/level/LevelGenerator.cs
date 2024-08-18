@@ -225,6 +225,7 @@ public class LevelGenerator
 		public int x, y;
 		public int width, height;
 		public List<Doorway> doorways = new List<Doorway>();
+		public bool isMainPath = false;
 
 
 		public int countConnectedDoorways()
@@ -244,7 +245,7 @@ public class LevelGenerator
 			for (int i = 0; i < this.width; i++)
 			{
 				int x = this.x + (offset + i) % this.width;
-				for (int y = this.y + 1; y < this.y + this.height; y++)
+				for (int y = this.y; y < this.y + this.height; y++)
 				{
 					if (y > 0 && level.getTile(x, y) == null)
 					{
@@ -376,6 +377,8 @@ public class LevelGenerator
 					roomDefID = roomDefID,
 					set = defaultSet
 				};
+				room.isMainPath = true;
+
 				for (int i = 0; i < roomDef.doorDefs.Count; i++)
 				{
 					room.doorways.Add(new Doorway { room = room, doorDef = roomDef.doorDefs[i], otherDoorway = null, position = roomDef.doorDefs[i].position, direction = roomDef.doorDefs[i].direction });
@@ -406,6 +409,7 @@ public class LevelGenerator
 
 					if (room != null)
 					{
+						room.isMainPath = true;
 						lastRoom = room;
 						found = true;
 						break;
@@ -490,7 +494,7 @@ public class LevelGenerator
 		{
 			Room room = rooms[i];
 			bool isDeadEnd = room.countConnectedDoorways() == 1;
-			if (isDeadEnd && room != startingRoom && room != exitRoom)
+			if (isDeadEnd && !room.isMainPath)
 			{
 				for (int y = room.y; y < room.y + room.height; y++)
 				{
@@ -499,53 +503,66 @@ public class LevelGenerator
 						lootModifier[x + y * width] = 3.0f;
 					}
 				}
-			}
-		}
 
-		// Builder Merchant
-		for (int i = 0; i < rooms.Count; i++)
-		{
-			Room room = rooms[i];
-			bool isDeadEnd = room.countConnectedDoorways() == 1;
-			if (isDeadEnd && room != startingRoom && room != exitRoom)
-			{
-				float npcChance = 0.1f;
-				if (random.NextSingle() < npcChance)
+				float builderChance = 0.1f;
+				float travellerChance = 0.02f;
+				float ratChance = 0.02f;
+				float loganChance = 0.02f;
+
+				float f = random.NextSingle();
+
+				if (f < builderChance)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
 						BuilderMerchant npc = new BuilderMerchant();
 						npc.populateShop(random);
+						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
 						objectFlags[npcPos.x + npcPos.y * width] = true;
-
-						break;
 					}
 				}
-			}
-		}
-
-		// Travelling Merchant
-		for (int i = 0; i < rooms.Count; i++)
-		{
-			Room room = rooms[i];
-			bool isDeadEnd = room.countConnectedDoorways() == 1;
-			if (isDeadEnd && room != startingRoom && room != exitRoom)
-			{
-				float npcChance = 0.02f;
-				if (random.NextSingle() < npcChance)
+				else if (f < builderChance + travellerChance)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
 						TravellingMerchant npc = new TravellingMerchant();
 						npc.populateShop(random);
+						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
 						objectFlags[npcPos.x + npcPos.y * width] = true;
-
-						break;
 					}
+				}
+				else if (f < builderChance + travellerChance + ratChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
+					{
+						RatNPC npc = new RatNPC();
+						npc.populateShop(random);
+						npc.direction = random.Next() % 2 * 2 - 1;
+						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
+
+						objectFlags[npcPos.x + npcPos.y * width] = true;
+					}
+				}
+				else if (f < builderChance + travellerChance + ratChance + loganChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
+					{
+						Logan npc = new Logan();
+						npc.populateShop(random);
+						npc.direction = random.Next() % 2 * 2 - 1;
+						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
+
+						objectFlags[npcPos.x + npcPos.y * width] = true;
+					}
+				}
+				else
+				{
+					// blacksmith
+					// unlockable npcs
 				}
 			}
 		}
@@ -704,7 +721,7 @@ public class LevelGenerator
 							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)
 							{
-								bool flyingEnemy = random.NextSingle() < 0.2f;
+								bool flyingEnemy = random.NextSingle() < 0.25f;
 								if (flyingEnemy)
 								{
 									if (down == null)

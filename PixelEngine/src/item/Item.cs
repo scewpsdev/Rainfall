@@ -150,6 +150,7 @@ public abstract class Item
 		InitType(new Lantern());
 		InitType(new BarbarianHelmet());
 		InitType(new Cheese());
+		InitType(new Revolver());
 	}
 
 	static void InitType(Item item)
