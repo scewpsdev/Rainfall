@@ -103,6 +103,8 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
+
+		handItem = new MagicStaff();
 	}
 
 	public override void destroy()

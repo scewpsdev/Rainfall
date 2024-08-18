@@ -149,6 +149,7 @@ public abstract class Item
 		InitType(new PotionOfSupremeHealing());
 		InitType(new Lantern());
 		InitType(new BarbarianHelmet());
+		InitType(new Cheese());
 	}
 
 	static void InitType(Item item)
