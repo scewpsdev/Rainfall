@@ -20,6 +20,7 @@ public class Logan : NPC
 		animator.setAnimation("idle");
 
 		addVoiceLine("Mm, you seem quite lucid! A rare thing in these times.");
+		addVoiceLine("Buy my shit.");
 	}
 
 	public override void populateShop(Random random)
