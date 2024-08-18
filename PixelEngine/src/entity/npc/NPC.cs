@@ -7,18 +7,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+struct VoiceLine
+{
+	public string[] lines;
+}
+
 public abstract class NPC : Mob, Interactable
 {
 	bool shopOpen = false;
-
 	List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
-
 	protected float tax = 0.2f;
-
 	int longestItemName = 80;
-
 	Sprite gem;
+
+	List<VoiceLine> voiceLines = new List<VoiceLine>();
+	int currentVoiceLine = -1;
 
 
 	public NPC(string name)
@@ -69,9 +73,14 @@ public abstract class NPC : Mob, Interactable
 		return false;
 	}
 
+	public void addVoiceLine(params string[] lines)
+	{
+		voiceLines.Add(new VoiceLine { lines = lines });
+	}
+
 	public bool canInteract(Player player)
 	{
-		return !shopOpen && shopItems.Count > 0;
+		return !shopOpen && shopItems.Count > 0 && currentVoiceLine == -1;
 	}
 
 	public float getRange()
@@ -81,7 +90,11 @@ public abstract class NPC : Mob, Interactable
 
 	public void interact(Player player)
 	{
-		if (!shopOpen)
+		if (voiceLines.Count > 0)
+		{
+			currentVoiceLine = 0;
+		}
+		else if (!shopOpen)
 		{
 			openShop();
 		}
@@ -213,6 +226,35 @@ public abstract class NPC : Mob, Interactable
 					}
 				}
 
+				y += lineHeight;
+			}
+		}
+		else if (currentVoiceLine >= 0)
+		{
+			VoiceLine voiceLine = voiceLines[currentVoiceLine];
+
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+
+			int lineHeight = 12;
+			int headerHeight = 12 + 1;
+			int width = 1 + lineHeight + 5 + longestItemName + 1;
+			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight;
+			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
+			int y = Math.Max(pos.y - height, 2);
+
+			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+
+			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
+			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
+			y += headerHeight;
+
+			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4, null, false, 0xFF222222);
+			y += 4;
+
+			for (int i = 0; i < voiceLine.lines.Length; i++)
+			{
+				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, 0xFF222222);
+				Renderer.DrawUITextBMP(x + 2, y, voiceLine.lines[i], 1, 0xFFAAAAAA);
 				y += lineHeight;
 			}
 		}

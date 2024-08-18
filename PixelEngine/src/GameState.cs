@@ -138,6 +138,11 @@ public class GameState : State
 		npc.direction = -1;
 		level.addEntity(npc, new Vector2(34, 3));
 
+		RatNPC rat = new RatNPC();
+		rat.populateShop(null);
+		rat.direction = 1;
+		level.addEntity(rat, new Vector2(41, 11));
+
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
