@@ -203,7 +203,7 @@ public static class Renderer
 		});
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -223,7 +223,7 @@ public static class Renderer
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
-	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		DrawSprite(x, y, 0.0f, width, height, 0.0f, sprite, flipped, color);
 	}
@@ -411,6 +411,47 @@ public static class Renderer
 	public static Vector2 MeasureWorldTextBMP(string text, int length = -1, float scale = 1)
 	{
 		return new Vector2(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
+	}
+
+	public static string[] SplitMultilineText(string txt, int maxWidth)
+	{
+		int spaceWidth = MeasureUITextBMP(" ").x;
+
+		string[] words = txt.Split(' ');
+
+		List<string> lines = new List<string>();
+		int currentLineWidth = 0;
+		StringBuilder currentLine = new StringBuilder();
+
+		for (int i = 0; i < words.Length; i++)
+		{
+			int wordWidth = MeasureUITextBMP(words[i]).x;
+			if (currentLineWidth + spaceWidth + wordWidth > maxWidth)
+			{
+				lines.Add(currentLine.ToString());
+				currentLineWidth = 0;
+				currentLine.Clear();
+			}
+			if (i == words.Length - 1)
+			{
+				if (currentLineWidth > 0)
+					currentLine.Append(' ');
+				currentLine.Append(words[i]);
+				lines.Add(currentLine.ToString());
+			}
+			else
+			{
+				if (currentLineWidth > 0)
+				{
+					currentLine.Append(' ');
+					currentLineWidth += spaceWidth;
+				}
+				currentLine.Append(words[i]);
+				currentLineWidth += wordWidth;
+			}
+		}
+
+		return lines.ToArray();
 	}
 
 	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)

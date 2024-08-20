@@ -270,6 +270,14 @@ namespace Rainfall
 			return RandomPointOnSphere(Random.Shared);
 		}
 
+		public static Vector2 RandomPointInCircle(Random random)
+		{
+			float x = RandomGaussian(random);
+			float y = RandomGaussian(random);
+			Vector2 p = new Vector2(x, y);
+			return p;
+		}
+
 		public static Vector2 RandomPointOnCircle(Random random)
 		{
 			float x = RandomGaussian(random);

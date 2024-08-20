@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 public interface Hittable
 {
-	void hit(float damage, Entity by, Item item);
+	void hit(float damage, Entity by = null, Item item = null, bool triggerInvincibility = true);
 }

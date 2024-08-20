@@ -508,6 +508,7 @@ public class LevelGenerator
 				float travellerChance = 0.02f;
 				float ratChance = 0.02f;
 				float loganChance = 0.02f;
+				float fountainChance = 0.1f;
 
 				float f = random.NextSingle();
 
@@ -557,6 +558,30 @@ public class LevelGenerator
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
 						objectFlags[npcPos.x + npcPos.y * width] = true;
+					}
+				}
+				else if (f < builderChance + travellerChance + ratChance + loganChance + fountainChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i tile))
+					{
+						if (level.getTile(tile.x - 1, tile.y) == null && level.getTile(tile.x - 1, tile.y - 1) != null && level.getTile(tile.x - 1, tile.y + 1) == null && level.getTile(tile.x, tile.y + 1) == null)
+						{
+							Fountain fountain = new Fountain(random);
+							level.addEntity(fountain, (Vector2)tile);
+
+							objectFlags[tile.x + tile.y * width] = true;
+							objectFlags[tile.x - 1 + tile.y * width] = true;
+							objectFlags[tile.x + (tile.y + 1) * width] = true;
+							objectFlags[tile.x - 1 + (tile.y + 1) * width] = true;
+						}
+						else if (level.getTile(tile.x, tile.y + 1) == null)
+						{
+							Fountain fountain = new Fountain(random);
+							level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
+
+							objectFlags[tile.x + tile.y * width] = true;
+							objectFlags[tile.x + (tile.y + 1) * width] = true;
+						}
 					}
 				}
 				else

@@ -19,6 +19,7 @@ public abstract class NPC : Mob, Interactable
 	int selectedItem = 0;
 	protected float tax = 0.2f;
 	int longestItemName = 80;
+	int sidePanelHeight = 40;
 	Sprite gem;
 
 	bool dialogueOpen = false;
@@ -77,43 +78,8 @@ public abstract class NPC : Mob, Interactable
 	public void addVoiceLine(string txt)
 	{
 		int maxWidth = 120 - 2 * 4;
-		int spaceWidth = Renderer.MeasureUITextBMP(" ").x;
-
-		string[] words = txt.Split(' ');
-
-		List<string> lines = new List<string>();
-		int currentLineWidth = 0;
-		StringBuilder currentLine = new StringBuilder();
-
-		for (int i = 0; i < words.Length; i++)
-		{
-			int wordWidth = Renderer.MeasureUITextBMP(words[i]).x;
-			if (currentLineWidth + spaceWidth + wordWidth > maxWidth)
-			{
-				lines.Add(currentLine.ToString());
-				currentLineWidth = 0;
-				currentLine.Clear();
-			}
-			if (i == words.Length - 1)
-			{
-				if (currentLineWidth > 0)
-					currentLine.Append(' ');
-				currentLine.Append(words[i]);
-				lines.Add(currentLine.ToString());
-			}
-			else
-			{
-				if (currentLineWidth > 0)
-				{
-					currentLine.Append(' ');
-					currentLineWidth += spaceWidth;
-				}
-				currentLine.Append(words[i]);
-				currentLineWidth += wordWidth;
-			}
-		}
-
-		voiceLines.Add(new VoiceLine { lines = lines.ToArray() });
+		string[] lines = Renderer.SplitMultilineText(txt, maxWidth);
+		voiceLines.Add(new VoiceLine { lines = lines });
 	}
 
 	public bool canInteract(Player player)
@@ -213,7 +179,9 @@ public abstract class NPC : Mob, Interactable
 
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
-			int width = 1 + lineHeight + 5 + longestItemName + 1;
+			int sidePanelWidth = 80;
+			int shopWidth = 1 + lineHeight + 5 + longestItemName + 1;
+			int width = shopWidth + 1 + sidePanelWidth;
 			int height = headerHeight + shopItems.Count * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 			int y = Math.Max(pos.y - height, 2);
@@ -234,14 +202,14 @@ public abstract class NPC : Mob, Interactable
 				Item item = shopItems[i].Item1;
 				int price = shopItems[i].Item2;
 
-				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
+				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
 				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
-				string name = (item.stackable ? item.stackSize.ToString() + "x " : "") + item.displayName;
+				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 
 				string quantity = price.ToString();
 				bool canAfford = GameState.instance.player.money >= price;
-				Renderer.DrawUITextBMP(x + width - 1 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, canAfford ? 0xFFAAAAAA : 0xFFAA3333);
+				Renderer.DrawUITextBMP(x + shopWidth - 1 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, canAfford ? 0xFFAAAAAA : 0xFFAA3333);
 
 				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
 
@@ -277,6 +245,67 @@ public abstract class NPC : Mob, Interactable
 				}
 
 				y += lineHeight;
+			}
+
+			// Item info panel
+			{
+				y = Math.Max(pos.y - height, 2) + headerHeight;
+
+				Item item = shopItems[selectedItem].Item1;
+
+				Renderer.DrawUISprite(x + shopWidth, y - 1, sidePanelWidth + 2, Math.Max(shopItems.Count * lineHeight, sidePanelHeight) + 2, null, false, 0xFFAAAAAA);
+				Renderer.DrawUISprite(x + shopWidth + 1, y, sidePanelWidth, Math.Max(shopItems.Count * lineHeight, sidePanelHeight), null, false, 0xFF222222);
+
+				y += 4;
+				string[] nameLines = Renderer.SplitMultilineText(item.displayName, sidePanelWidth);
+				foreach (string line in nameLines)
+				{
+					Renderer.DrawUITextBMP(x + shopWidth + 1 + sidePanelWidth / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFFAAAAAA);
+					y += Renderer.smallFont.size;
+				}
+				y++;
+
+				string rarityString = item.rarityString;
+				string itemTypeStr = item.type == ItemType.Weapon ? "Weapon" : item.type == ItemType.Active ? "Consumable" : "Passive Item";
+				string description = rarityString + " " + itemTypeStr;
+				string[] descriptionLines = Renderer.SplitMultilineText(description, sidePanelWidth);
+				foreach (string line in descriptionLines)
+				{
+					Renderer.DrawUITextBMP(x + shopWidth + 1 + sidePanelWidth / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFF666666);
+					y += Renderer.smallFont.size;
+				}
+				y += 4;
+
+				void drawLeft(string str, uint color = 0xFFAAAAAA)
+				{
+					if (str == null)
+						str = "???";
+					Renderer.DrawUITextBMP(x + shopWidth + 1 + 4, y, str, 1, color);
+				}
+				void drawRight(string str, uint color = 0xFFAAAAAA)
+				{
+					if (str == null)
+						str = "???";
+					int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
+					Renderer.DrawUITextBMP(x + shopWidth + 1 + sidePanelWidth - textWidth - 1, y, str, 1, color);
+				}
+
+				if (item.type == ItemType.Weapon)
+				{
+					drawLeft("Attack");
+					drawRight(item.attackDamage.ToString("0.0"));
+					y += Renderer.smallFont.size + 1;
+
+					//drawLeft("Reach");
+					//drawRight(item.attackRange.ToString("0.0"));
+					//y += Renderer.smallFont.size + 1;
+
+					//drawLeft("Knockback");
+					//drawRight(item.knockback.ToString("0.0"));
+					//y += Renderer.smallFont.size + 1;
+				}
+
+				sidePanelHeight = y - (Math.Max(pos.y - height, 2) + headerHeight);
 			}
 		}
 		else if (dialogueOpen)

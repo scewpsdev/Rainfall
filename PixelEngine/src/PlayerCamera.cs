@@ -57,7 +57,7 @@ public class PlayerCamera : Entity
 			if (lastDownInput == -1)
 				lastDownInput = Time.currentTime;
 			if ((Time.currentTime - lastDownInput) / 1e9f > LOOK_DOWN_DELAY)
-				target += new Vector2(0, -height / 8 * 3 * (1 - MathF.Exp(-((Time.currentTime - lastDownInput) / 1e9f - LOOK_DOWN_DELAY))));
+				target += new Vector2(0, -height / 8 * 3 * (1 - MathF.Exp(-((Time.currentTime - lastDownInput) / 1e9f - LOOK_DOWN_DELAY) * 2.0f)));
 		}
 		else
 		{

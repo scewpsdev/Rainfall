@@ -25,7 +25,12 @@ public class Logan : NPC
 
 	public override void populateShop(Random random)
 	{
-		addShopItem(new MagicStaff());
-		addShopItem(new PotionOfGreaterHealing());
+		int numShopItems = MathHelper.RandomInt(1, 5, random);
+		for (int i = 0; i < numShopItems; i++)
+		{
+			Item item = Item.CreateRandom(random, 30);
+			if (item.stackable || !hasShopItem(item.name))
+				addShopItem(item);
+		}
 	}
 }

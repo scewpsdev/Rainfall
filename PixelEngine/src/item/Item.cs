@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public enum ItemType
 {
-	Tool,
+	Weapon,
 	Active,
 	Passive,
 }
@@ -21,14 +21,15 @@ public abstract class Item
 	public int id;
 	public string name;
 	public string displayName = "???";
-	public ItemType type = ItemType.Tool;
+	public ItemType type = ItemType.Weapon;
 	public bool stackable = false;
 	public int stackSize = 1;
 	public float value = 1;
 	public bool canDrop = true;
 	public bool canEquipMultiple = true;
+	public int level = 0;
 
-	public int attackDamage = 1;
+	public float attackDamage = 1;
 	public float attackRange = 1;
 	public float attackAngle = MathF.PI;
 	public float attackRate = 2.0f;
@@ -73,6 +74,11 @@ public abstract class Item
 		return armor / (10.0f + armor);
 	}
 
+	public string fullDisplayName
+	{
+		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName + (level > 0 ? " +" + level : "");
+	}
+
 	public string rarityString
 	{
 		get
@@ -88,6 +94,16 @@ public abstract class Item
 				return "Rare";
 			return "Exceedingly Rare";
 		}
+	}
+
+	public virtual void setLevel(int level)
+	{
+		this.level = level;
+	}
+
+	public void upgrade(int amount = 1)
+	{
+		setLevel(level + amount);
 	}
 
 	public virtual bool use(Player player)
@@ -151,6 +167,7 @@ public abstract class Item
 		InitType(new BarbarianHelmet());
 		InitType(new Cheese());
 		InitType(new Revolver());
+		InitType(new Stick());
 	}
 
 	static void InitType(Item item)
@@ -158,7 +175,7 @@ public abstract class Item
 		itemTypes.Add(item);
 		nameMap.Add(item.name, itemTypes.Count - 1);
 
-		if (item.type == ItemType.Tool)
+		if (item.type == ItemType.Weapon)
 			toolItems.Add(itemTypes.Count - 1);
 		else if (item.type == ItemType.Active)
 			activeItems.Add(itemTypes.Count - 1);
@@ -166,14 +183,14 @@ public abstract class Item
 			passiveItems.Add(itemTypes.Count - 1);
 	}
 
-	public static Item GetRandomItem(ItemType type, Random random, float minValue = 0, float maxvalue = float.MaxValue)
+	public static Item GetRandomItem(ItemType type, Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
-		List<int> list = new List<int>(type == ItemType.Tool ? toolItems : type == ItemType.Active ? activeItems : passiveItems);
+		List<int> list = new List<int>(type == ItemType.Weapon ? toolItems : type == ItemType.Active ? activeItems : passiveItems);
 
 		for (int i = 0; i < list.Count; i++)
 		{
 			Item item = itemTypes[list[i]];
-			if (item.value < minValue || item.value > maxvalue)
+			if (item.value < minValue || item.value > maxValue)
 				list.RemoveAt(i--);
 		}
 
@@ -207,7 +224,7 @@ public abstract class Item
 		Item item = null;
 
 		if (f < toolChance)
-			item = GetRandomItem(ItemType.Tool, random, minValue, maxValue);
+			item = GetRandomItem(ItemType.Weapon, random, minValue, maxValue);
 		else if (f < toolChance + activeChance)
 			item = GetRandomItem(ItemType.Active, random, minValue, maxValue);
 		else

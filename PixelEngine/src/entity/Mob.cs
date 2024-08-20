@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ public abstract class Mob : Entity, Hittable
 	public float gravity = -30;
 
 	public float itemDropChance = 0.05f;
+	public float coinDropChance = 0.05f;
 
 	public float health = 1;
 	public int damage = 1;
@@ -61,7 +63,7 @@ public abstract class Mob : Entity, Hittable
 	{
 	}
 
-	public void hit(float damage, Entity by, Item item)
+	public void hit(float damage, Entity by, Item item, bool triggerInvincibility)
 	{
 		health -= damage;
 
@@ -102,6 +104,17 @@ public abstract class Mob : Entity, Hittable
 			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
 			ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);
+		}
+		if (Random.Shared.NextSingle() < coinDropChance)
+		{
+			int amount = MathHelper.RandomInt(3, 15);
+			for (int i = 0; i < amount; i++)
+			{
+				Coin coin = new Coin();
+				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
+				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+				GameState.instance.level.addEntity(coin, spawnPosition);
+			}
 		}
 
 		remove();

@@ -130,6 +130,8 @@ public class GameState : State
 		level.addEntity(tutorialExitDoor, new Vector2(16 + 7.5f, 5));
 		level.addEntity(dungeonDoor, new Vector2(16 + 4.5f, 1));
 
+		level.addEntity(new Fountain(FountainEffect.Poison), new Vector2(16 + 1.5f, 1));
+
 		BuilderMerchant npc = new BuilderMerchant();
 		npc.addShopItem(new Revolver(), 0);
 		npc.addShopItem(new Rope());
