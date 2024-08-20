@@ -172,6 +172,7 @@ public abstract class Item
 		InitType(new ScrollOfTeleportation());
 		InitType(new ScrollOfMonsterCreation());
 		InitType(new ScrollOfEarth());
+		InitType(new RingOfTears());
 	}
 
 	static void InitType(Item item)

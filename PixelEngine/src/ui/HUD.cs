@@ -151,7 +151,7 @@ public class HUD
 		{
 			int size = 8;
 			int padding = 3;
-			int x = 6 + player.maxHealth * (size + padding) + 4 + i * (size + padding);
+			int x = 6 + (int)MathF.Round(player.maxHealth) * (size + padding) + 4 + i * (size + padding);
 			int y = 6;
 
 			Renderer.DrawUISprite(x, y, size, size, armorEmpty);
