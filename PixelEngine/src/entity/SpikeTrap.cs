@@ -33,6 +33,12 @@ internal class SpikeTrap : Entity, Hittable
 		remove();
 	}
 
+	public void trigger()
+	{
+		falling = true;
+		velocity.y = startVelocity;
+	}
+
 	public override void update()
 	{
 		if (hitGround)
@@ -44,8 +50,7 @@ internal class SpikeTrap : Entity, Hittable
 			HitData hit = GameState.instance.level.raycast(position, new Vector2(0, -1), 10, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM);
 			if (hit != null && hit.entity != null)
 			{
-				falling = true;
-				velocity.y = startVelocity;
+				trigger();
 			}
 		}
 		else if (falling)
@@ -74,8 +79,10 @@ internal class SpikeTrap : Entity, Hittable
 		}
 
 		TileType tile = GameState.instance.level.getTile(position + new Vector2(0.0f, 1.0f));
-		if (tile == null)
-			falling = true;
+		if (tile == null && !falling)
+		{
+			trigger();
+		}
 	}
 
 	public override void render()

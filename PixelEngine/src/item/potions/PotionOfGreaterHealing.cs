@@ -15,16 +15,18 @@ public class PotionOfGreaterHealing : Item
 		type = ItemType.Active;
 		stackable = true;
 
-		sprite = new Sprite(tileset, 7, 0);
-
 		//rarity = 20;
 		value = 80;
+
+		sprite = new Sprite(tileset, 7, 0);
 	}
 
 	public override bool use(Player player)
 	{
-		if (player.health < player.maxHealth)
+		if (player.health < player.maxHealth - 0.1f)
 			player.health = MathF.Min(player.health + 2, player.maxHealth);
+		else
+			player.health = player.maxHealth = player.maxHealth + 1;
 		return true;
 	}
 }

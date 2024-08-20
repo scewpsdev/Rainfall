@@ -27,13 +27,13 @@ public class Coin : Entity
 
 	public override void update()
 	{
-		float followDistance = 2.0f;
+		float followDistance = 3.0f;
 
 		Vector2 toPlayer = GameState.instance.player.position + GameState.instance.player.collider.center - position;
 		float distance = toPlayer.length;
 		if (distance < followDistance)
 		{
-			float speed = (1 - distance / followDistance) * 1;
+			float speed = (1 - distance / followDistance * 0.5f) * 1;
 			velocity += speed * toPlayer / distance * 0.3f;
 		}
 		else
