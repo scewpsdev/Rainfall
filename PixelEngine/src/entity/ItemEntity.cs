@@ -15,7 +15,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public int ricochets = 0;
 	int pierces = 0;
-	int damage;
+	float damage;
 
 	float rotationVelocity = 0;
 
@@ -84,7 +84,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 		ricochets++;
 		if (damage > 0)
-			damage--;
+			damage = MathF.Max(damage - 1, 0);
 		if (damage == 0)
 			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 20;
 	}
@@ -146,7 +146,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 		Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 		int direction = GameState.instance.player.position.x < position.x ? 1 : -1;
 
-		string name = (item.stackable ? item.stackSize.ToString() + "x " : "") + item.displayName;
+		string name = item.fullDisplayName;
 		string rarityString = item.rarityString;
 
 		int lineHeight = 16;
@@ -161,7 +161,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 		Renderer.DrawUISprite(x + 1, y, lineHeight, lineHeight, item.sprite);
 		Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 
-		Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + lineHeight, rarityString, 1, 0xFF888888);
+		Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + lineHeight, rarityString, 1, 0xFF666666);
 	}
 
 	public override void render()

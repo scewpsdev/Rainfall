@@ -134,7 +134,8 @@ public class HUD
 			if (i < player.health)
 			{
 				float fraction = MathF.Min(player.health - i, 1);
-				fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
+				//fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
+				fraction = MathF.Floor(fraction * 8) / 8.0f;
 				//Renderer.DrawUISprite(x, y, size, size, heartFull);
 				Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), heartFull.spriteSheet.texture, heartFull.position.x, heartFull.position.y + (int)(heartFull.size.y * (1 - fraction)), heartFull.size.x, (int)(heartFull.size.y * fraction));
 			}

@@ -56,6 +56,8 @@ public class Player : Entity, Hittable
 
 	public int money = 0;
 
+	List<StatusEffect> statusEffects = new List<StatusEffect>();
+
 	long lastHit = -10000000000;
 	public long deathTime = -1;
 	long stunTime = -1;
@@ -111,7 +113,7 @@ public class Player : Entity, Hittable
 
 	public bool giveItem(Item item)
 	{
-		if (item.type == ItemType.Tool)
+		if (item.type == ItemType.Weapon)
 		{
 			if (handItem != null)
 			{
@@ -198,6 +200,12 @@ public class Player : Entity, Hittable
 			handItem = null;
 	}
 
+	public void addImpulse(Vector2 impulse)
+	{
+		impulseVelocity.x += impulse.x;
+		velocity.y += impulse.y;
+	}
+
 	public int getTotalArmor()
 	{
 		int totalArmor = 0;
@@ -209,7 +217,7 @@ public class Player : Entity, Hittable
 		return totalArmor;
 	}
 
-	public void hit(float damage, Entity by, Item item)
+	public void hit(float damage, Entity by = null, Item item = null, bool triggerInvincibility = true)
 	{
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (!invincible)
@@ -236,7 +244,8 @@ public class Player : Entity, Hittable
 				deathTime = Time.currentTime;
 			}
 
-			lastHit = Time.currentTime;
+			if (triggerInvincibility)
+				lastHit = Time.currentTime;
 		}
 	}
 
@@ -244,12 +253,6 @@ public class Player : Entity, Hittable
 	{
 		isStunned = true;
 		stunTime = Time.currentTime;
-	}
-
-	public void addImpulse(Vector2 impulse)
-	{
-		impulseVelocity.x += impulse.x;
-		velocity.y += impulse.y;
 	}
 
 	void onDeath(Entity by)
@@ -279,6 +282,12 @@ public class Player : Entity, Hittable
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
+	}
+
+	public void addStatusEffect(StatusEffect effect)
+	{
+		statusEffects.Add(effect);
+		effect.init(this);
 	}
 
 	void updateMovement()
@@ -641,6 +650,15 @@ public class Player : Entity, Hittable
 		}
 	}
 
+	void updateStatus()
+	{
+		for (int i = 0; i < statusEffects.Count; i++)
+		{
+			if (!statusEffects[i].update(this))
+				statusEffects.RemoveAt(i--);
+		}
+	}
+
 	void updateAnimation()
 	{
 		if (isAlive)
@@ -712,6 +730,7 @@ public class Player : Entity, Hittable
 	{
 		updateMovement();
 		updateActions();
+		updateStatus();
 		updateAnimation();
 	}
 
@@ -782,6 +801,11 @@ public class Player : Entity, Hittable
 			{
 				if (passiveItems[i] != null)
 					passiveItems[i].render(this);
+			}
+
+			for (int i = 0; i < statusEffects.Count; i++)
+			{
+				statusEffects[i].render(this);
 			}
 
 			if (isStunned)
