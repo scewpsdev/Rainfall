@@ -14,7 +14,7 @@ public class Torch : Item
 		displayName = "Torch";
 
 		attackDamage = 1;
-		attackRange = 1.5f;
+		attackRange = 1.0f;
 		attackRate = 3.0f;
 		stab = false;
 

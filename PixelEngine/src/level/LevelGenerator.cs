@@ -564,24 +564,10 @@ public class LevelGenerator
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i tile))
 					{
-						if (level.getTile(tile.x - 1, tile.y) == null && level.getTile(tile.x - 1, tile.y - 1) != null && level.getTile(tile.x - 1, tile.y + 1) == null && level.getTile(tile.x, tile.y + 1) == null)
-						{
-							Fountain fountain = new Fountain(random);
-							level.addEntity(fountain, (Vector2)tile);
+						Fountain fountain = new Fountain(random);
+						level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
 
-							objectFlags[tile.x + tile.y * width] = true;
-							objectFlags[tile.x - 1 + tile.y * width] = true;
-							objectFlags[tile.x + (tile.y + 1) * width] = true;
-							objectFlags[tile.x - 1 + (tile.y + 1) * width] = true;
-						}
-						else if (level.getTile(tile.x, tile.y + 1) == null)
-						{
-							Fountain fountain = new Fountain(random);
-							level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
-
-							objectFlags[tile.x + tile.y * width] = true;
-							objectFlags[tile.x + (tile.y + 1) * width] = true;
-						}
+						objectFlags[tile.x + tile.y * width] = true;
 					}
 				}
 				else

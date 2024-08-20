@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "Input.h"
+#include "vector/Math.h"
 
 #include "bgfx/common/imgui/vs_ocornut_imgui.bin.h"
 #include "bgfx/common/imgui/fs_ocornut_imgui.bin.h"
@@ -341,7 +342,7 @@ void ImGuiLayerBeginFrame()
 	int64_t now = Application_GetTimestamp();
 	int64_t frameTime = now - m_last;
 	m_last = now;
-	io.DeltaTime = frameTime / 1e9f;
+	io.DeltaTime = fmaxf(frameTime / 1e9f, 0.004f);
 
 	ImGui::NewFrame();
 	ImGuizmo::BeginFrame();

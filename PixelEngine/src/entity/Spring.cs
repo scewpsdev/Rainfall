@@ -37,6 +37,8 @@ public class Spring : Entity
 					hits[i].entity.velocity.y = MathF.Max(-hits[i].entity.velocity.y, STRENGTH);
 					if (hits[i].entity is Mob)
 						((Mob)hits[i].entity).isGrounded = true;
+					if (hits[i].entity is Player)
+						((Player)hits[i].entity).currentLadder = null;
 
 					lastActive = Time.currentTime;
 				}

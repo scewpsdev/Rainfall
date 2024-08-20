@@ -30,7 +30,7 @@ public class Fountain : Entity, Interactable
 	public Fountain(FountainEffect effect)
 	{
 		this.effect = effect;
-		sprite = new Sprite(TileType.tileset, 0, 6, 2, 2);
+		sprite = new Sprite(TileType.tileset, 2, 6);
 	}
 
 	public Fountain(Random random)
@@ -41,11 +41,6 @@ public class Fountain : Entity, Interactable
 	public bool canInteract(Player player)
 	{
 		return !consumed;
-	}
-
-	public float getRange()
-	{
-		return 1.5f;
 	}
 
 	public void onFocusEnter(Player player)
@@ -78,7 +73,7 @@ public class Fountain : Entity, Interactable
 				player.hud.showMessage("The water is scalding hot.");
 				break;
 			case FountainEffect.Poison:
-				player.addStatusEffect(new PoisonEffect(2, 15));
+				player.addStatusEffect(new PoisonEffect(2, 32));
 				player.hud.showMessage("The water burns on your tongue.");
 				break;
 		}
@@ -87,9 +82,9 @@ public class Fountain : Entity, Interactable
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 1, position.y, 2, 2, sprite);
+		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, sprite);
 
 		if (outline != 0)
-			Renderer.DrawOutline(position.x - 1, position.y, 2, 2, sprite, false, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, 1, 1, sprite, false, outline);
 	}
 }

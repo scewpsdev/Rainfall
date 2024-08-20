@@ -228,11 +228,9 @@ public class Player : Entity, Hittable
 
 			health -= damage;
 
-			if (by != null)
+			if (by != null && by.collider != null)
 			{
-				Vector2 enemyPosition = by.position;
-				if (by.collider != null)
-					enemyPosition += 0.5f * (by.collider.max + by.collider.min);
+				Vector2 enemyPosition = by.position + by.collider.center;
 				float knockbackStrength = item != null ? item.knockback : 8.0f;
 				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
 				addImpulse(knockback);
@@ -277,6 +275,8 @@ public class Player : Entity, Hittable
 			interactableInFocus.onFocusLeft(this);
 			interactableInFocus = null;
 		}
+
+		statusEffects.Clear();
 
 		actions.cancelAllActions();
 
@@ -524,13 +524,13 @@ public class Player : Entity, Hittable
 					{
 						Item copy = item.copy();
 						copy.stackSize = 1;
-						copy.use(this);
-						item.stackSize--;
+						if (copy.use(this))
+							item.stackSize--;
 					}
 					else
 					{
-						item.use(this);
-						quickItems[currentQuickItem] = null;
+						if (item.use(this))
+							quickItems[currentQuickItem] = null;
 					}
 				}
 			}
@@ -602,17 +602,17 @@ public class Player : Entity, Hittable
 								InputManager.ConsumeEvent("Attack");
 								handItem.use(this);
 							}
+							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
+							{
+								handItem.useSecondary(this);
+								lastItemUseDown = -1;
+							}
 						}
 						else
 						{
 							if (actions.currentAction == null)
 								handItem.use(this);
 						}
-					}
-					else if (InputManager.IsDown("Attack") && lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
-					{
-						handItem.useSecondary(this);
-						lastItemUseDown = -1;
 					}
 
 					if (InputManager.IsPressed("Interact"))

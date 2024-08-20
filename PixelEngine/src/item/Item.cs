@@ -160,14 +160,18 @@ public abstract class Item
 		InitType(new RingOfSwiftness());
 		InitType(new RingOfVitality());
 		InitType(new MagicStaff());
-		InitType(new PotionOfMinorHealing());
 		InitType(new PotionOfGreaterHealing());
-		InitType(new PotionOfSupremeHealing());
 		InitType(new Lantern());
 		InitType(new BarbarianHelmet());
 		InitType(new Cheese());
 		InitType(new Revolver());
 		InitType(new Stick());
+		InitType(new BlankPaper());
+		InitType(new ScrollOfWeaponEnchantment());
+		InitType(new ScrollOfArmorEnchantment());
+		InitType(new ScrollOfTeleportation());
+		InitType(new ScrollOfMonsterCreation());
+		InitType(new ScrollOfEarth());
 	}
 
 	static void InitType(Item item)

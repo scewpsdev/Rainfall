@@ -304,6 +304,15 @@ public abstract class NPC : Mob, Interactable
 					//drawRight(item.knockback.ToString("0.0"));
 					//y += Renderer.smallFont.size + 1;
 				}
+				else if (item.type == ItemType.Passive)
+				{
+					if (item.armor > 0)
+					{
+						drawLeft("Defense");
+						drawRight(item.armor.ToString());
+						y += Renderer.smallFont.size + 1;
+					}
+				}
 
 				sidePanelHeight = y - (Math.Max(pos.y - height, 2) + headerHeight);
 			}
@@ -322,6 +331,16 @@ public abstract class NPC : Mob, Interactable
 			int y = Math.Max(pos.y - height, 2);
 
 			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+
+			// speech bubble thingy
+			for (int i = 0; i < 5; i++)
+			{
+				int xx = pos.x + 4;
+				int yy = y + height + i;
+				int ww = 5 - i;
+
+				Renderer.DrawUISprite(xx, yy, ww, 1, null, false, 0xFF222222);
+			}
 
 			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
 			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);

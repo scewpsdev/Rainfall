@@ -15,10 +15,10 @@ public class PotionOfHealing : Item
 		type = ItemType.Active;
 		stackable = true;
 
-		sprite = new Sprite(tileset, 7, 0);
-
 		//rarity = 10;
 		value = 25;
+
+		sprite = new Sprite(tileset, 7, 0);
 	}
 
 	public override bool use(Player player)
