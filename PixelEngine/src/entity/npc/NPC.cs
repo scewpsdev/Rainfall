@@ -248,6 +248,7 @@ public abstract class NPC : Mob, Interactable
 			}
 
 			// Item info panel
+			if (shopItems.Count > 0)
 			{
 				y = Math.Max(pos.y - height, 2) + headerHeight;
 

@@ -75,16 +75,16 @@ public class BoomerangProjectile : Entity
 		{
 			if (hit.entity != null)
 			{
+				Player player = shooter as Player;
 				if (hit.entity == shooter)
 				{
-					Player player = hit.entity as Player;
 					player.handItem = new Boomerang();
 					remove();
 				}
 				else if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(item.attackDamage, shooter, item);
+					hittable.hit(item.attackDamage * player.attack, shooter, item);
 					hitEntities.Add(hit.entity);
 				}
 			}

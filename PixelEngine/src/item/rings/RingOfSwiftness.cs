@@ -17,11 +17,15 @@ public class RingOfSwiftness : Item
 		sprite = new Sprite(tileset, 9, 0);
 
 		value = 100;
-		//rarity = 20;
 	}
 
 	public override void onEquip(Player player)
 	{
 		player.speed++;
+	}
+
+	public override void onUnequip(Player player)
+	{
+		player.speed--;
 	}
 }

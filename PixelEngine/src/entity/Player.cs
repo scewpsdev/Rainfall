@@ -24,6 +24,12 @@ public class Player : Entity, Hittable
 	public float jumpPower = 10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
+	public float attack = 1.0f;
+
+	public float maxHealth = 3;
+	public float health = 3;
+
+	public int money = 0;
 
 	public int direction = 1;
 	float currentSpeed;
@@ -50,11 +56,6 @@ public class Player : Entity, Hittable
 	long lastWallTouchRight = -10000000000;
 	long lastWallTouchLeft = -10000000000;
 	long lastItemUseDown = -1;
-
-	public int maxHealth = 3;
-	public float health = 3;
-
-	public int money = 0;
 
 	List<StatusEffect> statusEffects = new List<StatusEffect>();
 

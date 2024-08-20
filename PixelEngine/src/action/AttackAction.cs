@@ -42,7 +42,7 @@ public class AttackAction : EntityAction
 				if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))
 				{
 					Hittable hittable = hits[i].entity as Hittable;
-					hittable.hit(weapon.attackDamage, player, weapon);
+					hittable.hit(weapon.attackDamage * player.attack, player, weapon);
 					hitEntities.Add(hits[i].entity);
 				}
 			}
