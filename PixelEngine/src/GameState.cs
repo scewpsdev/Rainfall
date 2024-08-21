@@ -141,6 +141,7 @@ public class GameState : State
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Rope());
 		npc.addShopItem(new Bomb());
+		npc.addShopItem(new RingOfSwiftness(), 0);
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
 

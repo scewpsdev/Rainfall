@@ -48,9 +48,16 @@ public class InventoryUI
 
 	public void render()
 	{
-		if (InputManager.IsPressed("Inventory") && player.numOverlaysOpen == 0)
+		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory"))
 		{
-			player.inventoryOpen = !player.inventoryOpen;
+			InputManager.ConsumeEvent("Inventory");
+			player.inventoryOpen = true;
+			selectedItem = 0;
+		}
+		else if (player.inventoryOpen && InputManager.IsPressed("Inventory"))
+		{
+			InputManager.ConsumeEvent("Inventory");
+			player.inventoryOpen = false;
 		}
 
 		if (player.inventoryOpen)
@@ -81,7 +88,7 @@ public class InventoryUI
 			int width = shopWidth + 1 + sidePanelWidth;
 			int height = headerHeight + sellItems.Count * lineHeight;
 			int x = Renderer.UIWidth / 2 - width / 2;
-			int y = Renderer.UIHeight / 2 - Math.Max(height, headerHeight + sidePanelHeight) / 2;
+			int y = Math.Min(50, Renderer.UIHeight / 2 - Math.Max(height, headerHeight + sidePanelHeight) / 2);
 			int top = y;
 
 			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
@@ -107,9 +114,9 @@ public class InventoryUI
 					Item item = sellItems[i];
 
 					Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-					Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
+					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite);
 					string name = item.fullDisplayName;
-					Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
+					Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 
 					/*
 					if (selected && InputManager.IsPressed("Interact"))

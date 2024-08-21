@@ -212,7 +212,7 @@ public abstract class NPC : Mob, Interactable
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 			VoiceLine voiceLine = voiceLines[0];
 
-			int lineHeight = 12;
+			int lineHeight = 8;
 			int headerHeight = 12 + 1;
 			int width = 120;
 			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight;
@@ -340,7 +340,7 @@ public abstract class NPC : Mob, Interactable
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
-			int shopWidth = Math.Max(120, 1 + lineHeight + 5 + longestItemName + 1);
+			int shopWidth = Math.Max(120, 1 + 16 + 5 + longestItemName + 1);
 			int width = shopWidth + 1 + sidePanelWidth;
 			int height = headerHeight + shopItems.Count * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
@@ -368,9 +368,9 @@ public abstract class NPC : Mob, Interactable
 				int price = shopItems[i].Item2;
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
+				Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite);
 				string name = item.fullDisplayName;
-				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
+				Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 
 				string quantity = price.ToString();
 				bool canAfford = GameState.instance.player.money >= price;

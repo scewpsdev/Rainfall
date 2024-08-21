@@ -23,8 +23,8 @@ public class PlayerCamera : Entity
 
 	public Vector2i worldToScreen(Vector2 pos)
 	{
-		int x = (int)(MathHelper.Remap(pos.x, position.x - 0.5f * width, position.x + 0.5f * width, 0, 1) * Renderer.UIWidth);
-		int y = (int)(MathHelper.Remap(pos.y, position.y - 0.5f * height, position.y + 0.5f * height, 1, 0) * Renderer.UIHeight);
+		int x = (int)MathF.Round(MathHelper.Remap(pos.x, position.x - 0.5f * width, position.x + 0.5f * width, 0, 1) * Renderer.UIWidth);
+		int y = (int)MathF.Round(MathHelper.Remap(pos.y, position.y - 0.5f * height, position.y + 0.5f * height, 1, 0) * Renderer.UIHeight);
 		return new Vector2i(x, y);
 	}
 
