@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Stick : Item
 {
 	public Stick()
-		: base("stick")
+		: base("stick", ItemType.Weapon)
 	{
 		displayName = "Stick";
 
@@ -23,7 +23,6 @@ public class Stick : Item
 
 		sprite = new Sprite(tileset, 13, 1);
 		size = new Vector2(1, 1);
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
 	public override bool use(Player player)

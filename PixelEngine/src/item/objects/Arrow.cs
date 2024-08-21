@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 public class Arrow : Item
 {
 	public Arrow()
-		: base("arrow")
+		: base("arrow", ItemType.Weapon)
 	{
 		displayName = "Arrow";
-
-		sprite = new Sprite(tileset, 2, 0);
 
 		attackDamage = 4;
 		projectileItem = true;
@@ -21,7 +19,7 @@ public class Arrow : Item
 
 		value = 1;
 
-		canDrop = false;
+		sprite = new Sprite(tileset, 2, 0);
 	}
 
 	public override bool use(Player player)

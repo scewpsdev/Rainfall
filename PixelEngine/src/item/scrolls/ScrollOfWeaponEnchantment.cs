@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 public class ScrollOfWeaponEnchantment : Item
 {
 	public ScrollOfWeaponEnchantment()
-		: base("scroll_enchant_weapon")
+		: base("scroll_enchant_weapon", ItemType.Scroll)
 	{
-		type = ItemType.Active;
 		displayName = "Scroll of Weapon Enchantment";
 
 		value = 13;

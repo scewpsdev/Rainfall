@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Torch : Item
 {
 	public Torch()
-		: base("torch")
+		: base("torch", ItemType.Weapon)
 	{
 		displayName = "Torch";
 

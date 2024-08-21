@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class MagicStaff : Item
 {
 	public MagicStaff()
-		: base("magic_staff")
+		: base("magic_staff", ItemType.Staff)
 	{
 		displayName = "Magic Staff";
 

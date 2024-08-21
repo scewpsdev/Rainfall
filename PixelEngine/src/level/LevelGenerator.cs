@@ -516,8 +516,7 @@ public class LevelGenerator
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
-						BuilderMerchant npc = new BuilderMerchant();
-						npc.populateShop(random);
+						BuilderMerchant npc = new BuilderMerchant(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
@@ -528,8 +527,7 @@ public class LevelGenerator
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
-						TravellingMerchant npc = new TravellingMerchant();
-						npc.populateShop(random);
+						TravellingMerchant npc = new TravellingMerchant(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
@@ -541,7 +539,6 @@ public class LevelGenerator
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
 						RatNPC npc = new RatNPC();
-						npc.populateShop(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
@@ -552,8 +549,7 @@ public class LevelGenerator
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
-						Logan npc = new Logan();
-						npc.populateShop(random);
+						Logan npc = new Logan(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 
@@ -615,7 +611,7 @@ public class LevelGenerator
 					if (down != null && !objectFlags[x + y * width])
 					{
 						float gemChance = up != null ? 0.04f : 0.01f;
-						gemChance *= 0.5f;
+						gemChance *= 0.25f;
 						if (random.NextSingle() < gemChance)
 						{
 							//int amount = MathHelper.RandomInt(3, 12, random);

@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 public class ScrollOfMonsterCreation : Item
 {
 	public ScrollOfMonsterCreation()
-		: base("scroll_create_monster")
+		: base("scroll_create_monster", ItemType.Scroll)
 	{
-		type = ItemType.Active;
 		displayName = "Scroll of Monster Creation";
 
 		value = 9;
@@ -78,6 +77,6 @@ public class ScrollOfMonsterCreation : Item
 			GameState.instance.level.addEntity(monster, new Vector2(tile.x + 0.5f, tile.y + 0.5f) - monster.collider.center);
 		}
 		player.hud.showMessage("The air fizzles.");
-		return false;
+		return true;
 	}
 }

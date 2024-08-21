@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Quarterstaff : Item
 {
 	public Quarterstaff()
-		: base("quarterstaff")
+		: base("quarterstaff", ItemType.Weapon)
 	{
 		displayName = "Quarterstaff";
 
@@ -23,7 +23,6 @@ public class Quarterstaff : Item
 
 		sprite = new Sprite(tileset, 4, 1, 2, 1);
 		size = new Vector2(2, 1);
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
 	public override bool use(Player player)

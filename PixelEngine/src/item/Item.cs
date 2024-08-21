@@ -1,7 +1,9 @@
 ﻿using Rainfall;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,8 +11,16 @@ using System.Threading.Tasks;
 public enum ItemType
 {
 	Weapon,
-	Active,
-	Passive,
+	Armor,
+	Potion,
+	Ring,
+	Staff,
+	Scroll,
+	Food,
+	Gem,
+	Utility,
+
+	Count
 }
 
 public abstract class Item
@@ -18,16 +28,15 @@ public abstract class Item
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
 
 
-	public int id;
 	public string name;
+	public ItemType type;
 	public string displayName = "???";
-	public ItemType type = ItemType.Weapon;
+	public string description = null;
 	public bool stackable = false;
 	public int stackSize = 1;
 	public float value = 1;
 	public bool canDrop = true;
 	public bool canEquipMultiple = true;
-	public int level = 0;
 
 	public float attackDamage = 1;
 	public float attackRange = 1;
@@ -53,15 +62,35 @@ public abstract class Item
 	// modifiers
 
 
-	public Item(string name)
+	public Item(string name, ItemType type)
 	{
 		this.name = name;
-		id = (int)Hash.hash(name);
+		this.type = type;
 	}
 
 	public Item copy()
 	{
 		return (Item)MemberwiseClone();
+	}
+
+	public int id
+	{
+		get => (int)Hash.hash(name);
+	}
+
+	public bool isHandItem
+	{
+		get => type == ItemType.Weapon || type == ItemType.Staff;
+	}
+
+	public bool isActiveItem
+	{
+		get => type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
+	}
+
+	public bool isPassiveItem
+	{
+		get => type == ItemType.Armor || type == ItemType.Ring;
 	}
 
 	public float rarity
@@ -76,7 +105,7 @@ public abstract class Item
 
 	public string fullDisplayName
 	{
-		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName + (level > 0 ? " +" + level : "");
+		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName;
 	}
 
 	public string rarityString
@@ -94,16 +123,6 @@ public abstract class Item
 				return "Rare";
 			return "Exceedingly Rare";
 		}
-	}
-
-	public virtual void setLevel(int level)
-	{
-		this.level = level;
-	}
-
-	public void upgrade(int amount = 1)
-	{
-		setLevel(level + amount);
 	}
 
 	public virtual bool use(Player player)
@@ -136,13 +155,16 @@ public abstract class Item
 	static List<Item> itemTypes = new List<Item>();
 	static Dictionary<string, int> nameMap = new Dictionary<string, int>();
 
-	static List<int> toolItems = new List<int>();
-	static List<int> activeItems = new List<int>();
-	static List<int> passiveItems = new List<int>();
+	static Dictionary<ItemType, List<int>> typeLists = new Dictionary<ItemType, List<int>>();
 
 
 	public static void InitTypes()
 	{
+		for (int i = 0; i < (int)ItemType.Count; i++)
+		{
+			typeLists.Add((ItemType)i, new List<int>());
+		}
+
 		InitType(new Skull());
 		InitType(new Arrow());
 		InitType(new Bomb());
@@ -173,24 +195,19 @@ public abstract class Item
 		InitType(new ScrollOfMonsterCreation());
 		InitType(new ScrollOfEarth());
 		InitType(new RingOfTears());
+		InitType(new Sapphire());
 	}
 
 	static void InitType(Item item)
 	{
 		itemTypes.Add(item);
 		nameMap.Add(item.name, itemTypes.Count - 1);
-
-		if (item.type == ItemType.Weapon)
-			toolItems.Add(itemTypes.Count - 1);
-		else if (item.type == ItemType.Active)
-			activeItems.Add(itemTypes.Count - 1);
-		else if (item.type == ItemType.Passive)
-			passiveItems.Add(itemTypes.Count - 1);
+		typeLists[item.type].Add(itemTypes.Count - 1);
 	}
 
-	public static Item GetRandomItem(ItemType type, Random random, float minValue = 0, float maxValue = float.MaxValue)
+	public static Item CreateRandom(ItemType type, Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
-		List<int> list = new List<int>(type == ItemType.Weapon ? toolItems : type == ItemType.Active ? activeItems : passiveItems);
+		List<int> list = new List<int>(typeLists[type]);
 
 		for (int i = 0; i < list.Count; i++)
 		{
@@ -213,30 +230,46 @@ public abstract class Item
 			Item item = itemTypes[idx];
 			cumulativeRarity += item.canDrop ? item.rarity : 0;
 			if (f < cumulativeRarity)
-				return item;
+				return item.copy();
 		}
 
-		Debug.Assert(false);
 		return null;
 	}
 
 	public static Item CreateRandom(Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
-		float toolChance = 0.2f;
-		float activeChance = 0.4f;
+		float[] distribution = [
+			0.14f, // Weapon
+			0.14f, // Armor
+			0.18f, // Potion
+			0.04f, // Ring
+			0.06f, // Staff
+			0.18f, // Scroll
+			0.1f, // Food
+			0.08f, // Gem
+			0.08f, // Utility
+		];
 
 		float f = random.NextSingle();
-		Item item = null;
 
-		if (f < toolChance)
-			item = GetRandomItem(ItemType.Weapon, random, minValue, maxValue);
-		else if (f < toolChance + activeChance)
-			item = GetRandomItem(ItemType.Active, random, minValue, maxValue);
-		else
-			item = GetRandomItem(ItemType.Passive, random, minValue, maxValue);
+		float r = 0;
+		for (int i = 0; i < (int)ItemType.Count; i++)
+		{
+			r += distribution[i];
+			if (f < r)
+			{
+				Item item = CreateRandom((ItemType)i, random, minValue, maxValue);
+				if (item != null)
+					return item.copy();
+				else
+				{
+					f = random.NextSingle();
+					r = 0;
+					i = -1;
+				}
+			}
+		}
 
-		item = item.copy();
-
-		return item;
+		return null;
 	}
 }

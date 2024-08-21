@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 public class Rope : Item
 {
 	public Rope()
-		: base("rope")
+		: base("rope", ItemType.Utility)
 	{
 		displayName = "Rope";
-		type = ItemType.Active;
 		stackable = true;
 
 		value = 1;

@@ -9,20 +9,26 @@ using System.Threading.Tasks;
 public class RingOfVitality : Item
 {
 	public RingOfVitality()
-		: base("ring_of_vitality")
+		: base("ring_of_vitality", ItemType.Ring)
 	{
 		displayName = "Ring of Vitality";
-		type = ItemType.Passive;
 
-		sprite = new Sprite(tileset, 10, 0);
+		description = "Increases maximum health by 1";
 
 		value = 100;
-		//rarity = 20;
+
+		sprite = new Sprite(tileset, 10, 0);
 	}
 
 	public override void onEquip(Player player)
 	{
 		player.health++;
 		player.maxHealth++;
+	}
+
+	public override void onUnequip(Player player)
+	{
+		player.health--;
+		player.maxHealth--;
 	}
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Boomerang : Item
 {
 	public Boomerang()
-		: base("boomerang")
+		: base("boomerang", ItemType.Weapon)
 	{
 		displayName = "Boomerang";
 

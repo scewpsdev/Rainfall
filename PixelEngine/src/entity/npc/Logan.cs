@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class Logan : NPC
 {
-	public Logan()
+	public Logan(Random random)
 		: base("logan")
 	{
 		displayName = "Big Fat Logan";
@@ -21,16 +21,7 @@ public class Logan : NPC
 
 		addVoiceLine("Mm, you seem quite lucid! A rare thing in these times.");
 		addVoiceLine("Buy my shit.");
-	}
 
-	public override void populateShop(Random random)
-	{
-		int numShopItems = MathHelper.RandomInt(1, 5, random);
-		for (int i = 0; i < numShopItems; i++)
-		{
-			Item item = Item.CreateRandom(random, 30);
-			if (item.stackable || !hasShopItem(item.name))
-				addShopItem(item);
-		}
+		populateShop(random, 5, ItemType.Potion, ItemType.Ring, ItemType.Staff, ItemType.Scroll);
 	}
 }

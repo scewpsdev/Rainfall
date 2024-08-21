@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 public class BlankPaper : Item
 {
 	public BlankPaper()
-		: base("scroll_blank")
+		: base("scroll_blank", ItemType.Scroll)
 	{
-		type = ItemType.Active;
 		displayName = "Blank Paper";
 
 		value = 3;

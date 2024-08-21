@@ -20,6 +20,8 @@ public class RunStats
 	public bool active = true;
 
 	public Entity killedBy;
+	public long endedTime = -1;
+	public bool hasWon = false;
 
 
 	public RunStats(string seed)
@@ -41,6 +43,7 @@ public class RunStats
 		{
 			int result = 0;
 
+			result += hasWon ? 5000 : 0;
 			result += floor * 1000;
 			result += kills * 200;
 			result += chestsOpened * 17;
@@ -120,26 +123,26 @@ public class GameState : State
 		tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
 
-		level.addEntity(player = new Player(), new Vector2(16 + 2, 1));
+		level.addEntity(player = new Player(), new Vector2(15 + 2, 1));
 		level.addEntity(camera = new PlayerCamera(player));
 
 		player.money = 3;
 
-		level.addEntity(tutorialDoor, new Vector2(16 + 7.5f, 1));
-		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(16 + 7.5f, 3));
-		level.addEntity(tutorialExitDoor, new Vector2(16 + 7.5f, 5));
-		level.addEntity(dungeonDoor, new Vector2(16 + 4.5f, 1));
+		level.addEntity(tutorialDoor, new Vector2(15 + 7.5f, 1));
+		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 7.5f, 3));
+		level.addEntity(tutorialExitDoor, new Vector2(15 + 7.5f, 5));
+		level.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 1));
 
-		level.addEntity(new Fountain(Random.Shared), new Vector2(5.5f, 4));
+		level.addEntity(new Fountain(Random.Shared), new Vector2(33.5f, 3));
 
-		BuilderMerchant npc = new BuilderMerchant();
+		BuilderMerchant npc = new BuilderMerchant(Random.Shared);
+		npc.clearShop();
 		npc.addShopItem(new Revolver(), 0);
-		npc.addShopItem(new Rope());
 		npc.addShopItem(new Rock());
+		npc.addShopItem(new Rope());
 		npc.addShopItem(new Bomb());
-		npc.addShopItem(new Lantern());
-		npc.direction = -1;
-		level.addEntity(npc, new Vector2(34, 3));
+		npc.direction = 1;
+		level.addEntity(npc, new Vector2(4.5f, 3));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
@@ -197,8 +200,8 @@ public class GameState : State
 		lastLevel.exit.destination = finalRoom;
 		lastLevel.exit.otherDoor = finalRoomEntrance;
 		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
+		finalRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
 		//finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
-		finalRoom.addEntity(new Spike(), new Vector2(10, 1));
 	}
 
 	public override void init()
@@ -271,7 +274,7 @@ public class GameState : State
 	{
 		level.render();
 
-		if (!player.isAlive && (Time.currentTime - player.deathTime) / 1e9f >= GAME_OVER_SCREEN_DELAY)
+		if (run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY)
 		{
 			GameOverScreen.Render();
 

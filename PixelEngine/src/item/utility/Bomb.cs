@@ -16,10 +16,9 @@ public class Bomb : Item
 
 
 	public Bomb()
-		: base("bomb")
+		: base("bomb", ItemType.Utility)
 	{
 		displayName = "Bomb";
-		type = ItemType.Active;
 		stackable = true;
 
 		value = 9;

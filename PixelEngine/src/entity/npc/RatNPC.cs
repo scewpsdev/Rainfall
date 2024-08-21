@@ -25,10 +25,7 @@ public class RatNPC : NPC
 		addVoiceLine("It's very exquisite, yes yes. Truly wunderbar.");
 		addVoiceLine("Very fine taste you have, little creature.");
 		addVoiceLine("I'll give you one for free, good?");
-	}
 
-	public override void populateShop(Random random)
-	{
 		Cheese wondrousCheese = new Cheese();
 		wondrousCheese.name = "wondrous_cheese";
 		wondrousCheese.displayName = "Wondrous Cheese";
