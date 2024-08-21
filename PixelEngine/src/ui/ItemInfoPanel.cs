@@ -32,20 +32,18 @@ public static class ItemInfoPanel
 			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFF666666);
 			y += Renderer.smallFont.size;
 		}
-		y++;
+		y += 4;
 
 		if (item.description != null)
 		{
 			string[] descriptionLines = Renderer.SplitMultilineText(item.description, width);
 			foreach (string line in descriptionLines)
 			{
-				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFF666666);
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFFAAAAAA);
 				y += Renderer.smallFont.size;
 			}
-			y++;
+			y += 4;
 		}
-
-		y += 3;
 
 		void drawLeft(string str, uint color = 0xFFAAAAAA)
 		{

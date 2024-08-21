@@ -36,7 +36,8 @@ public class HealEffect : StatusEffect
 		if (elapsed >= duration)
 			sinceLastFrame -= elapsed - duration;
 		float heal = amount * sinceLastFrame / duration;
-		player.health += heal;
+		if (player.health < player.maxHealth)
+			player.health += heal;
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}
