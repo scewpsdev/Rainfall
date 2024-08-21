@@ -9,13 +9,11 @@ using System.Threading.Tasks;
 public class PotionOfHealing : Item
 {
 	public PotionOfHealing()
-		: base("potion_of_healing")
+		: base("potion_of_healing", ItemType.Potion)
 	{
 		displayName = "Potion of Healing";
-		type = ItemType.Active;
 		stackable = true;
 
-		//rarity = 10;
 		value = 25;
 
 		sprite = new Sprite(tileset, 7, 0);

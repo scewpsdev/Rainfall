@@ -25,9 +25,10 @@ public static class GameOverScreen
 		y += 10;
 
 		{
-			string caption = "YOU DIED";
+			string caption = game.run.hasWon ? "VICTORY" : "YOU DIED";
+			uint color = game.run.hasWon ? 0xFFCCAA66 : 0xFFAA3333;
 			int captionWidth = Renderer.MeasureUIText(caption, caption.Length, 1).x;
-			Renderer.DrawUIText(x + width / 2 - captionWidth / 2, y, caption, 1, 0xFFAA3333);
+			Renderer.DrawUIText(x + width / 2 - captionWidth / 2, y, caption, 1, color);
 			y += 7;
 		}
 
@@ -84,7 +85,7 @@ public static class GameOverScreen
 		*/
 
 		drawLeft("Killed by ");
-		drawRight(game.run.killedBy != null ? game.run.killedBy.displayName : "The Void");
+		drawRight(game.run.hasWon ? "---" : game.run.killedBy != null ? game.run.killedBy.displayName : "The Void");
 		y += lineHeight;
 
 		drawLeft("Floor");

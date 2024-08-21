@@ -17,10 +17,9 @@ public class Lantern : Item
 
 
 	public Lantern()
-		: base("lantern")
+		: base("lantern", ItemType.Armor)
 	{
 		displayName = "Lantern";
-		type = ItemType.Passive;
 
 		value = 10;
 

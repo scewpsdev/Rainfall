@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 public class BarbarianHelmet : Item
 {
 	public BarbarianHelmet()
-		: base("barbarian_helmet")
+		: base("barbarian_helmet", ItemType.Armor)
 	{
 		displayName = "Barbarian Helmet";
-
-		type = ItemType.Passive;
 
 		armor = 4;
 

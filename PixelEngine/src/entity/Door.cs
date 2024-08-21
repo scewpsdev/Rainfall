@@ -10,6 +10,7 @@ public class Door : Entity, Interactable
 {
 	public Level destination;
 	public Door otherDoor;
+	public bool finalExit = false;
 
 	Sprite sprite;
 	uint outline = 0;
@@ -25,7 +26,14 @@ public class Door : Entity, Interactable
 
 	public void interact(Player player)
 	{
-		GameState.instance.switchLevel(destination, otherDoor);
+		if (finalExit)
+		{
+			GameState.instance.run.endedTime = Time.currentTime;
+			GameState.instance.run.hasWon = true;
+			GameState.instance.run.active = false;
+		}
+		else
+			GameState.instance.switchLevel(destination, otherDoor);
 	}
 
 	public void onFocusEnter(Player player)

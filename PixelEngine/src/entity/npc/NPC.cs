@@ -2,10 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
 
+
+enum NPCState
+{
+	None = 0,
+
+	Dialogue,
+	Menu,
+	Shop,
+	SellMenu,
+}
 
 struct VoiceLine
 {
@@ -14,16 +26,22 @@ struct VoiceLine
 
 public abstract class NPC : Mob, Interactable
 {
-	bool shopOpen = false;
-	List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
+	NPCState state = NPCState.None;
+	Player player;
+
+	List<VoiceLine> voiceLines = new List<VoiceLine>();
+
+	int selectedOption = 0;
+
+	protected bool buysItems = false;
+
+	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
 	protected float tax = 0.2f;
 	int longestItemName = 80;
 	int sidePanelHeight = 40;
-	Sprite gem;
 
-	bool dialogueOpen = false;
-	List<VoiceLine> voiceLines = new List<VoiceLine>();
+	Sprite gem;
 
 
 	public NPC(string name)
@@ -34,17 +52,25 @@ public abstract class NPC : Mob, Interactable
 
 	public override void destroy()
 	{
-		if (shopOpen)
-			closeShop();
+		closeScreen();
 	}
 
 	public override void onLevelSwitch()
 	{
-		if (shopOpen)
-			closeShop();
+		closeScreen();
 	}
 
-	public abstract void populateShop(Random random);
+	protected void populateShop(Random random, int maxItems, params ItemType[] types)
+	{
+		int numItems = MathHelper.RandomInt(1, maxItems, random);
+		for (int i = 0; i < numItems; i++)
+		{
+			ItemType type = types[random.Next() % types.Length];
+			Item item = Item.CreateRandom(type, random);
+			if (item.stackable || !hasShopItem(item.name))
+				addShopItem(item);
+		}
+	}
 
 	public void addShopItem(Item item, int price = -1)
 	{
@@ -61,7 +87,7 @@ public abstract class NPC : Mob, Interactable
 		}
 
 		if (price == -1)
-			price = (int)MathF.Ceiling(item.value * (1 + tax));
+			price = (int)MathF.Round(item.value * (1 + tax));
 		shopItems.Add(new Tuple<Item, int>(item, price));
 	}
 
@@ -75,6 +101,11 @@ public abstract class NPC : Mob, Interactable
 		return false;
 	}
 
+	public void clearShop()
+	{
+		shopItems.Clear();
+	}
+
 	public void addVoiceLine(string txt)
 	{
 		int maxWidth = 120 - 2 * 4;
@@ -84,7 +115,7 @@ public abstract class NPC : Mob, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return !shopOpen && !dialogueOpen && (shopItems.Count > 0 || voiceLines.Count > 0);
+		return state == NPCState.None && (shopItems.Count > 0 || voiceLines.Count > 0 || buysItems);
 	}
 
 	public float getRange()
@@ -94,17 +125,16 @@ public abstract class NPC : Mob, Interactable
 
 	public void interact(Player player)
 	{
+		openScreen();
+		this.player = player;
+
 		if (voiceLines.Count > 0)
 		{
-			openDialogue();
-		}
-		else if (!shopOpen)
-		{
-			openShop();
+			state = NPCState.Dialogue;
 		}
 		else
 		{
-			Debug.Assert(false);
+			initMenu();
 		}
 	}
 
@@ -118,28 +148,40 @@ public abstract class NPC : Mob, Interactable
 		outline = 0;
 	}
 
-	void openShop()
+	void openScreen()
 	{
-		shopOpen = true;
-		GameState.instance.player.numOverlaysOpen++;
+		if (state == NPCState.None)
+		{
+			state = voiceLines.Count > 0 ? NPCState.Dialogue : NPCState.Menu;
+			GameState.instance.player.numOverlaysOpen++;
+		}
 	}
 
-	void closeShop()
+	void closeScreen()
 	{
-		shopOpen = false;
-		GameState.instance.player.numOverlaysOpen--;
+		if (state != NPCState.None)
+		{
+			state = NPCState.None;
+			GameState.instance.player.numOverlaysOpen--;
+		}
 	}
 
-	void openDialogue()
+	void initMenu()
 	{
-		dialogueOpen = true;
-		GameState.instance.player.numOverlaysOpen++;
+		state = NPCState.Menu;
+		selectedOption = 0;
 	}
 
-	void closeDialogue()
+	void initShop()
 	{
-		dialogueOpen = false;
-		GameState.instance.player.numOverlaysOpen--;
+		state = NPCState.Shop;
+		selectedItem = 0;
+	}
+
+	void initSellMenu()
+	{
+		state = NPCState.SellMenu;
+		selectedItem = 0;
 	}
 
 	public override void update()
@@ -149,10 +191,7 @@ public abstract class NPC : Mob, Interactable
 		float maxDistance = 2;
 		if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
 		{
-			if (shopOpen)
-				closeShop();
-			if (dialogueOpen)
-				closeDialogue();
+			closeScreen();
 		}
 
 		const float lookRange = 3;
@@ -168,161 +207,10 @@ public abstract class NPC : Mob, Interactable
 	{
 		base.render();
 
-		if (shopOpen)
+		if (state == NPCState.Dialogue)
 		{
-			if (InputManager.IsPressed("Down"))
-				selectedItem = (selectedItem + 1) % shopItems.Count;
-			if (InputManager.IsPressed("Up"))
-				selectedItem = (selectedItem + shopItems.Count - 1) % shopItems.Count;
-
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
-			int lineHeight = 16;
-			int headerHeight = 12 + 1;
-			int sidePanelWidth = 80;
-			int shopWidth = 1 + lineHeight + 5 + longestItemName + 1;
-			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + shopItems.Count * lineHeight;
-			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			int y = Math.Max(pos.y - height, 2);
-
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-
-			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
-			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x + width - 1 - gem.width, y + 2, gem.width, gem.height, gem);
-			string moneyStr = GameState.instance.player.money.ToString();
-			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
-			y += headerHeight;
-
-			for (int i = 0; i < shopItems.Count; i++)
-			{
-				bool selected = selectedItem == i;
-
-				Item item = shopItems[i].Item1;
-				int price = shopItems[i].Item2;
-
-				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
-				string name = item.fullDisplayName;
-				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
-
-				string quantity = price.ToString();
-				bool canAfford = GameState.instance.player.money >= price;
-				Renderer.DrawUITextBMP(x + shopWidth - 1 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, canAfford ? 0xFFAAAAAA : 0xFFAA3333);
-
-				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
-
-				if (i == selectedItem && InputManager.IsPressed("Interact") && canAfford)
-				{
-					InputManager.ConsumeEvent("Interact");
-
-					if (item.stackable && item.stackSize > 1)
-					{
-						Item copy = item.copy();
-						copy.stackSize = 1;
-						if (GameState.instance.player.giveItem(copy))
-						{
-							GameState.instance.player.money -= price;
-							item.stackSize--;
-						}
-					}
-					else
-					{
-						if (GameState.instance.player.giveItem(item))
-						{
-							GameState.instance.player.money -= price;
-
-							shopItems.RemoveAt(i);
-							i--;
-
-							if (selectedItem == shopItems.Count)
-								selectedItem--;
-							if (shopItems.Count == 0)
-								closeShop();
-						}
-					}
-				}
-
-				y += lineHeight;
-			}
-
-			// Item info panel
-			if (shopItems.Count > 0)
-			{
-				y = Math.Max(pos.y - height, 2) + headerHeight;
-
-				Item item = shopItems[selectedItem].Item1;
-
-				Renderer.DrawUISprite(x + shopWidth, y - 1, sidePanelWidth + 2, Math.Max(shopItems.Count * lineHeight, sidePanelHeight) + 2, null, false, 0xFFAAAAAA);
-				Renderer.DrawUISprite(x + shopWidth + 1, y, sidePanelWidth, Math.Max(shopItems.Count * lineHeight, sidePanelHeight), null, false, 0xFF222222);
-
-				y += 4;
-				string[] nameLines = Renderer.SplitMultilineText(item.displayName, sidePanelWidth);
-				foreach (string line in nameLines)
-				{
-					Renderer.DrawUITextBMP(x + shopWidth + 1 + sidePanelWidth / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFFAAAAAA);
-					y += Renderer.smallFont.size;
-				}
-				y++;
-
-				string rarityString = item.rarityString;
-				string itemTypeStr = item.type == ItemType.Weapon ? "Weapon" : item.type == ItemType.Active ? "Consumable" : "Passive Item";
-				string description = rarityString + " " + itemTypeStr;
-				string[] descriptionLines = Renderer.SplitMultilineText(description, sidePanelWidth);
-				foreach (string line in descriptionLines)
-				{
-					Renderer.DrawUITextBMP(x + shopWidth + 1 + sidePanelWidth / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFF666666);
-					y += Renderer.smallFont.size;
-				}
-				y += 4;
-
-				void drawLeft(string str, uint color = 0xFFAAAAAA)
-				{
-					if (str == null)
-						str = "???";
-					Renderer.DrawUITextBMP(x + shopWidth + 1 + 4, y, str, 1, color);
-				}
-				void drawRight(string str, uint color = 0xFFAAAAAA)
-				{
-					if (str == null)
-						str = "???";
-					int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
-					Renderer.DrawUITextBMP(x + shopWidth + 1 + sidePanelWidth - textWidth - 1, y, str, 1, color);
-				}
-
-				if (item.type == ItemType.Weapon)
-				{
-					drawLeft("Attack");
-					drawRight(item.attackDamage.ToString("0.0"));
-					y += Renderer.smallFont.size + 1;
-
-					//drawLeft("Reach");
-					//drawRight(item.attackRange.ToString("0.0"));
-					//y += Renderer.smallFont.size + 1;
-
-					//drawLeft("Knockback");
-					//drawRight(item.knockback.ToString("0.0"));
-					//y += Renderer.smallFont.size + 1;
-				}
-				else if (item.type == ItemType.Passive)
-				{
-					if (item.armor > 0)
-					{
-						drawLeft("Defense");
-						drawRight(item.armor.ToString());
-						y += Renderer.smallFont.size + 1;
-					}
-				}
-
-				sidePanelHeight = y - (Math.Max(pos.y - height, 2) + headerHeight);
-			}
-		}
-		else if (dialogueOpen)
-		{
 			VoiceLine voiceLine = voiceLines[0];
-
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			int lineHeight = 12;
 			int headerHeight = 12 + 1;
@@ -363,11 +251,273 @@ public abstract class NPC : Mob, Interactable
 				voiceLines.RemoveAt(0);
 				if (voiceLines.Count == 0)
 				{
-					closeDialogue();
-					if (shopItems.Count > 0)
-						openShop();
+					initMenu();
 				}
 			}
+		}
+		else if (state == NPCState.Menu)
+		{
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+
+			int lineHeight = 12;
+			int headerHeight = 12 + 1;
+			int width = 120;
+			int numOptions = (shopItems.Count > 0 ? 1 : 0) + (buysItems && player.numTotalItems > 0 ? 1 : 0) + 1;
+			int height = headerHeight + numOptions * lineHeight;
+			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
+			int y = Math.Max(pos.y - height, 2);
+
+			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+
+			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
+			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
+			y += headerHeight;
+
+			string[] options = new string[numOptions];
+			if (shopItems.Count > 0)
+			{
+				options[0] = "Buy";
+				if (buysItems && player.numTotalItems > 0)
+				{
+					options[1] = "Sell";
+					options[2] = "Quit";
+				}
+				else
+				{
+					options[1] = "Quit";
+				}
+			}
+			else if (buysItems && player.numTotalItems > 0)
+			{
+				options[0] = "Sell";
+				options[1] = "Quit";
+			}
+			else
+			{
+				options[0] = "Quit";
+			}
+
+			if (InputManager.IsPressed("Down"))
+				selectedOption = (selectedOption + 1) % options.Length;
+			if (InputManager.IsPressed("Up"))
+				selectedOption = (selectedOption + options.Length - 1) % options.Length;
+
+			for (int i = 0; i < options.Length; i++)
+			{
+				bool selected = selectedOption == i;
+
+				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
+				Renderer.DrawUITextBMP(x + 4, y + 2, options[i], 1, 0xFFAAAAAA);
+
+				if (selected && InputManager.IsPressed("Interact"))
+				{
+					InputManager.ConsumeEvent("Interact");
+
+					if (options[i] == "Buy")
+					{
+						initShop();
+					}
+					else if (options[i] == "Sell")
+					{
+						initSellMenu();
+					}
+					//else if (options[i] == "Talk")
+					//	; // TODO
+					else if (options[i] == "Quit")
+						closeScreen();
+				}
+
+				y += lineHeight;
+			}
+
+			if (InputManager.IsPressed("UIBack"))
+				closeScreen();
+		}
+		else if (state == NPCState.Shop)
+		{
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+
+			int lineHeight = 16;
+			int headerHeight = 12 + 1;
+			int sidePanelWidth = 80;
+			int shopWidth = Math.Max(120, 1 + lineHeight + 5 + longestItemName + 1);
+			int width = shopWidth + 1 + sidePanelWidth;
+			int height = headerHeight + shopItems.Count * lineHeight;
+			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
+			int y = Math.Max(pos.y - height, 2);
+
+			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+
+			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
+			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
+			Renderer.DrawUISprite(x + width - 1 - gem.width, y + 2, gem.width, gem.height, gem);
+			string moneyStr = GameState.instance.player.money.ToString();
+			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
+			y += headerHeight;
+
+			if (InputManager.IsPressed("Down"))
+				selectedItem = (selectedItem + 1) % shopItems.Count;
+			if (InputManager.IsPressed("Up"))
+				selectedItem = (selectedItem + shopItems.Count - 1) % shopItems.Count;
+
+			for (int i = 0; i < shopItems.Count; i++)
+			{
+				bool selected = selectedItem == i;
+
+				Item item = shopItems[i].Item1;
+				int price = shopItems[i].Item2;
+
+				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
+				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
+				string name = item.fullDisplayName;
+				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
+
+				string quantity = price.ToString();
+				bool canAfford = GameState.instance.player.money >= price;
+				Renderer.DrawUITextBMP(x + shopWidth - 4 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, canAfford ? 0xFFAAAAAA : 0xFFAA3333);
+
+				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
+
+				if (selected && canAfford && InputManager.IsPressed("Interact"))
+				{
+					InputManager.ConsumeEvent("Interact");
+
+					if (item.stackable && item.stackSize > 1)
+					{
+						Item copy = item.copy();
+						copy.stackSize = 1;
+						if (GameState.instance.player.giveItem(copy))
+						{
+							GameState.instance.player.money -= price;
+							item.stackSize--;
+						}
+					}
+					else
+					{
+						if (GameState.instance.player.giveItem(item))
+						{
+							GameState.instance.player.money -= price;
+
+							shopItems.RemoveAt(i);
+							i--;
+
+							if (selectedItem == shopItems.Count)
+								selectedItem--;
+							if (shopItems.Count == 0)
+								initMenu();
+						}
+					}
+				}
+
+				y += lineHeight;
+			}
+
+			// Item info panel
+			if (shopItems.Count > 0)
+			{
+				sidePanelHeight = ItemInfoPanel.Render(shopItems[selectedItem].Item1, x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(shopItems.Count * lineHeight, sidePanelHeight));
+			}
+
+			if (InputManager.IsPressed("UIBack"))
+				initMenu();
+		}
+		else if (state == NPCState.SellMenu)
+		{
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+
+			List<Item> sellItems = new List<Item>();
+			if (player.handItem != null)
+				sellItems.Add(player.handItem);
+			for (int i = 0; i < player.quickItems.Length; i++)
+			{
+				if (player.quickItems[i] != null)
+					sellItems.Add(player.quickItems[i]);
+			}
+			for (int i = 0; i < player.passiveItems.Length; i++)
+			{
+				if (player.passiveItems[i] != null)
+					sellItems.Add(player.passiveItems[i]);
+			}
+
+			int lineHeight = 16;
+			int headerHeight = 12 + 1;
+			int sidePanelWidth = 80;
+			int shopWidth = Math.Max(120, 1 + lineHeight + 5 + longestItemName + 1);
+			int width = shopWidth + 1 + sidePanelWidth;
+			int height = headerHeight + sellItems.Count * lineHeight;
+			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
+			int y = Math.Max(pos.y - height, 2);
+
+			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+
+			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
+			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
+			Renderer.DrawUISprite(x + width - 1 - gem.width, y + 2, gem.width, gem.height, gem);
+			string moneyStr = GameState.instance.player.money.ToString();
+			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
+			y += headerHeight;
+
+			if (InputManager.IsPressed("Down"))
+				selectedItem = (selectedItem + 1) % sellItems.Count;
+			if (InputManager.IsPressed("Up"))
+				selectedItem = (selectedItem + sellItems.Count - 1) % sellItems.Count;
+
+			for (int i = 0; i < sellItems.Count; i++)
+			{
+				bool selected = selectedItem == i;
+
+				Item item = sellItems[i];
+				int price = (int)MathF.Round(item.value);
+
+				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
+				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
+				string name = item.fullDisplayName;
+				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
+
+				string quantity = price.ToString();
+				Renderer.DrawUITextBMP(x + shopWidth - 1 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, 0xFFAAAAAA);
+
+				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
+
+				if (selected && InputManager.IsPressed("Interact"))
+				{
+					InputManager.ConsumeEvent("Interact");
+
+					if (item.stackable && item.stackSize > 1)
+					{
+						item.stackSize--;
+						Item copy = item.copy();
+						copy.stackSize = 1;
+						addShopItem(copy);
+						GameState.instance.player.money += price;
+					}
+					else
+					{
+						if (GameState.instance.player.removeItem(item))
+						{
+							addShopItem(item);
+							GameState.instance.player.money += price;
+							sellItems.RemoveAt(i--);
+
+							if (selectedItem == sellItems.Count)
+								selectedItem--;
+							if (sellItems.Count == 0)
+								initMenu();
+						}
+					}
+				}
+
+				y += lineHeight;
+			}
+
+			// Item info panel
+			if (sellItems.Count > 0)
+			{
+				sidePanelHeight = ItemInfoPanel.Render(sellItems[selectedItem], x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(sellItems.Count * lineHeight, sidePanelHeight));
+			}
+
+			if (InputManager.IsPressed("UIBack"))
+				initMenu();
 		}
 	}
 }

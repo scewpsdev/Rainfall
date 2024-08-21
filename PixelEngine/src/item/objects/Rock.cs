@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Rock : Item
 {
 	public Rock()
-		: base("rock")
+		: base("rock", ItemType.Weapon)
 	{
 		displayName = "Rock";
 

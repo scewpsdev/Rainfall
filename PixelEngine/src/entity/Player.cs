@@ -60,7 +60,6 @@ public class Player : Entity, Hittable
 	List<StatusEffect> statusEffects = new List<StatusEffect>();
 
 	long lastHit = -10000000000;
-	public long deathTime = -1;
 	long stunTime = -1;
 
 	public ActionQueue actions;
@@ -125,7 +124,31 @@ public class Player : Entity, Hittable
 			handItem.onEquip(this);
 			return true;
 		}
-		else if (item.type == ItemType.Active)
+		else if (item.isPassiveItem)
+		{
+			if (!item.canEquipMultiple)
+			{
+				for (int i = 0; i < passiveItems.Length; i++)
+				{
+					if (passiveItems[i] != null && passiveItems[i].name == item.name)
+					{
+						throwItem(passiveItems[i], true);
+						break;
+					}
+				}
+			}
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] == null)
+				{
+					passiveItems[i] = item;
+					passiveItems[i].onEquip(this);
+					return true;
+				}
+			}
+			return false;
+		}
+		else // if (item.isActiveItem)
 		{
 			if (item.stackable)
 			{
@@ -150,33 +173,41 @@ public class Player : Entity, Hittable
 			}
 			return false;
 		}
+	}
+
+	public bool removeItem(Item item)
+	{
+		if (handItem == item)
+		{
+			handItem.onUnequip(this);
+			handItem = null;
+			return true;
+		}
 		else
 		{
-			if (!item.canEquipMultiple)
+			for (int i = 0; i < quickItems.Length; i++)
 			{
-				for (int i = 0; i < passiveItems.Length; i++)
+				if (quickItems[i] == item)
 				{
-					if (passiveItems[i] != null && passiveItems[i].name == item.name)
-					{
-						throwItem(passiveItems[i], true);
-						break;
-					}
+					quickItems[i].onUnequip(this);
+					quickItems[i] = null;
+					return true;
 				}
 			}
 			for (int i = 0; i < passiveItems.Length; i++)
 			{
-				if (passiveItems[i] == null)
+				if (passiveItems[i] == item)
 				{
-					passiveItems[i] = item;
-					passiveItems[i].onEquip(this);
+					passiveItems[i].onUnequip(this);
+					passiveItems[i] = null;
 					return true;
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 
-	public void throwItem(Item item, bool shortThrow = false)
+	public void throwItem(Item item, bool shortThrow = false, bool farThrow = false)
 	{
 		Vector2 itemVelocity = velocity;
 		if (InputManager.IsDown("Up"))
@@ -191,7 +222,7 @@ public class Player : Entity, Hittable
 		}
 		else
 		{
-			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.15f) : new Vector2(1, 0.15f)) * 14;
+			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, 0.15f) : farThrow ? new Vector2(2, 0.15f) : new Vector2(1, 0.15f)) * 14;
 		}
 		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.25f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
@@ -199,6 +230,44 @@ public class Player : Entity, Hittable
 
 		if (item == handItem)
 			handItem = null;
+		else
+		{
+			for (int i = 0; i < quickItems.Length; i++)
+			{
+				if (quickItems[i] == item)
+				{
+					quickItems[i] = null;
+					break;
+				}
+			}
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] == item)
+				{
+					passiveItems[i] = null;
+					break;
+				}
+			}
+		}
+	}
+
+	public int numTotalItems
+	{
+		get
+		{
+			int result = handItem != null ? 1 : 0;
+			for (int i = 0; i < quickItems.Length; i++)
+			{
+				if (quickItems[i] != null)
+					result++;
+			}
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null)
+					result++;
+			}
+			return result;
+		}
 	}
 
 	public void addImpulse(Vector2 impulse)
@@ -240,7 +309,6 @@ public class Player : Entity, Hittable
 			if (health <= 0)
 			{
 				onDeath(by);
-				deathTime = Time.currentTime;
 			}
 
 			if (triggerInvincibility)
@@ -283,6 +351,7 @@ public class Player : Entity, Hittable
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
+		GameState.instance.run.endedTime = Time.currentTime;
 	}
 
 	public void addStatusEffect(StatusEffect effect)

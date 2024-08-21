@@ -50,8 +50,8 @@ public class PlayerCamera : Entity
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
 		target = player.position + new Vector2(0, 2);
-		if (player.inventoryOpen)
-			target += new Vector2(-width / 4, 0);
+		//if (player.inventoryOpen)
+		//	target += new Vector2(-width / 4, 0);
 		if (InputManager.IsDown("Down") && player.currentLadder == null)
 		{
 			if (lastDownInput == -1)

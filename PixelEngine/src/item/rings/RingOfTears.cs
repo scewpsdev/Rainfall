@@ -12,14 +12,15 @@ public class RingOfTears : Item
 
 
 	public RingOfTears()
-		: base("ring_of_tears")
+		: base("ring_of_tears", ItemType.Ring)
 	{
 		displayName = "Ring of Tears";
-		type = ItemType.Passive;
 
-		sprite = new Sprite(tileset, 10, 2);
+		description = "Increases attack when health is low";
 
 		value = 110;
+
+		sprite = new Sprite(tileset, 10, 2);
 	}
 
 	void activate(Player player)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Pickaxe : Item
 {
 	public Pickaxe()
-		: base("pickaxe")
+		: base("pickaxe", ItemType.Weapon)
 	{
 		displayName = "Pickaxe";
 

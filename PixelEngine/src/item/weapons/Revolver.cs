@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 public class Revolver : Item
 {
 	public Revolver()
-		: base("revolver")
+		: base("revolver", ItemType.Weapon)
 	{
 		displayName = "Revolver";
 
 		attackRate = 10.0f;
-		trigger = false;
+		//trigger = false;
 
 		attackDamage = 1;
 

@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 public class ScrollOfArmorEnchantment : Item
 {
 	public ScrollOfArmorEnchantment()
-		: base("scroll_enchant_armor")
+		: base("scroll_enchant_armor", ItemType.Scroll)
 	{
-		type = ItemType.Active;
 		displayName = "Scroll of Armor Enchantment";
 
 		value = 22;
@@ -24,7 +23,7 @@ public class ScrollOfArmorEnchantment : Item
 		bool wasUsed = false;
 		for (int i = 0; i < player.passiveItems.Length; i++)
 		{
-			if (player.passiveItems[i].armor > 0)
+			if (player.passiveItems[i] != null && player.passiveItems[i].armor > 0)
 			{
 				player.passiveItems[i].armor++;
 				wasUsed = true;

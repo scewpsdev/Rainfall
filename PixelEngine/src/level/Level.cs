@@ -146,7 +146,7 @@ public class Level
 		{
 			entities[i].update();
 
-			if (entities[i].position.y < 0)
+			if (entities[i].position.y < -1)
 			{
 				if (entities[i] is Hittable)
 				{

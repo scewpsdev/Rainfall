@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class BuilderMerchant : NPC
 {
-	public BuilderMerchant()
+	public BuilderMerchant(Random random)
 		: base("builder_merchant")
 	{
 		displayName = "Builder";
@@ -18,16 +18,15 @@ public class BuilderMerchant : NPC
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
-	}
 
-	public override void populateShop(Random random)
-	{
-		int numShopItems = MathHelper.RandomInt(1, 9, random);
-		for (int i = 0; i < numShopItems; i++)
+		tax = 0.5f;
+		buysItems = true;
+
+		populateShop(random, 9, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility);
+
+		for (int i = 0; i < shopItems.Count; i++)
 		{
-			Item item = Item.CreateRandom(random);
-			if (item.stackable || !hasShopItem(item.name))
-				addShopItem(item);
+			Console.WriteLine(shopItems[i].Item1.name);
 		}
 	}
 }

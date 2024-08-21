@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 public class DefaultWeapon : Item
 {
 	public static readonly DefaultWeapon instance = new DefaultWeapon();
-	
+
 
 	public DefaultWeapon()
-		: base("default_weapon")
+		: base("default_weapon", ItemType.Weapon)
 	{
 		attackDamage = 1;
 		attackRange = 0.8f;

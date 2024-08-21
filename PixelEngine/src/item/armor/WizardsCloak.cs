@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 public class WizardsCloak : Item
 {
 	public WizardsCloak()
-		: base("wizards_cloak")
+		: base("wizards_cloak", ItemType.Armor)
 	{
 		displayName = "Wizard's Cloak";
-
-		type = ItemType.Passive;
 
 		armor = 2;
 

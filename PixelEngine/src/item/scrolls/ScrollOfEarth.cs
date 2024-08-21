@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 public class ScrollOfEarth : Item
 {
 	public ScrollOfEarth()
-		: base("scroll_earth")
+		: base("scroll_earth", ItemType.Scroll)
 	{
-		type = ItemType.Active;
 		displayName = "Scroll of Earth";
 
 		value = 8;

@@ -17,7 +17,7 @@ public class Gem : Entity
 	{
 		this.value = value;
 
-		sprite = new Sprite(Item.tileset, 3, 0);
+		sprite = new Sprite(TileType.tileset, 2, 0);
 	}
 
 	public override void update()
@@ -31,7 +31,7 @@ public class Gem : Entity
 				for (int j = 0; j < value; j++)
 				{
 					Coin coin = new Coin();
-					Vector2 spawnPosition = position + Vector2.Rotate(Vector2.UnitX, j / (float)value * 2 * MathF.PI) * 0.2f;
+					Vector2 spawnPosition = position + MathHelper.RandomVector2(-0.5f, 0.5f, Random.Shared);
 					coin.velocity = (spawnPosition - position).normalized * 4;
 					GameState.instance.level.addEntity(coin, spawnPosition);
 				}

@@ -9,17 +9,15 @@ using System.Threading.Tasks;
 public class Cheese : Item
 {
 	public Cheese()
-		: base("cheese")
+		: base("cheese", ItemType.Food)
 	{
 		displayName = "Mouldy Cheese";
-		type = ItemType.Active;
 		stackable = true;
-		canDrop = false;
+		//canDrop = false;
+
+		value = 8;
 
 		sprite = new Sprite(tileset, 13, 0);
-
-		//rarity = 0;
-		value = 8;
 	}
 
 	public override bool use(Player player)

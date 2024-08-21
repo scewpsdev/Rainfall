@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 public class ScrollOfTeleportation : Item
 {
 	public ScrollOfTeleportation()
-		: base("scroll_teleport")
+		: base("scroll_teleport", ItemType.Scroll)
 	{
-		type = ItemType.Active;
 		displayName = "Scroll of Teleportation";
 
 		value = 7;
