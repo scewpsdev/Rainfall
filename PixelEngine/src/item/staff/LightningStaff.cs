@@ -6,26 +6,26 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class MagicStaff : Item
+public class LightningStaff : Item
 {
-	public MagicStaff()
-		: base("staff_magic", ItemType.Staff)
+	public LightningStaff()
+		: base("staff_lightning", ItemType.Staff)
 	{
-		displayName = "Magic Staff";
+		displayName = "Lightning Staff";
 
-		attackRate = 2.0f;
+		attackRate = 10.0f;
 		trigger = false;
 
 		attackDamage = 2;
 
 		value = 30;
 
-		sprite = new Sprite(tileset, 8, 1);
+		sprite = new Sprite(tileset, 8, 2);
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new SpellCastAction(this));
+		player.actions.queueAction(new LightningCastAction(this));
 		return true;
 	}
 }

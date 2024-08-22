@@ -63,7 +63,7 @@ public abstract class Mob : Entity, Hittable
 	{
 	}
 
-	public void hit(float damage, Entity by, Item item, bool triggerInvincibility)
+	public void hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility)
 	{
 		health -= damage;
 

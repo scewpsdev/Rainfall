@@ -196,6 +196,7 @@ public abstract class Item
 		InitType(new ScrollOfEarth());
 		InitType(new RingOfTears());
 		InitType(new Sapphire());
+		InitType(new LightningStaff());
 	}
 
 	static void InitType(Item item)
