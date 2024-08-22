@@ -65,7 +65,7 @@ public class Fountain : Entity, Interactable
 				player.hud.showMessage("You feel refreshed.");
 				break;
 			case FountainEffect.Regenerate:
-				player.addStatusEffect(new HealEffect(2, 5));
+				player.addStatusEffect(new HealEffect(1, 5));
 				player.hud.showMessage("You feel your strength returning.");
 				break;
 			case FountainEffect.Damage:
@@ -73,7 +73,7 @@ public class Fountain : Entity, Interactable
 				player.hud.showMessage("The water is scalding hot.");
 				break;
 			case FountainEffect.Poison:
-				player.addStatusEffect(new PoisonEffect(2, 32));
+				player.addStatusEffect(new PoisonEffect(1, 16));
 				player.hud.showMessage("The water burns on your tongue.");
 				break;
 		}

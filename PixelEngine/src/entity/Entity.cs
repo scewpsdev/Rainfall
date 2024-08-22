@@ -12,6 +12,7 @@ public class Entity
 	public const uint FILTER_PLAYER = 1 << 1;
 	public const uint FILTER_MOB = 1 << 2;
 	public const uint FILTER_ITEM = 1 << 3;
+	public const uint FILTER_PROJECTILE = 1 << 4;
 
 	public const float LAYER_DEFAULT = 0.0f;
 	public const float LAYER_PLAYER_ARMOR = -0.005f;

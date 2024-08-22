@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 public class PoisonEffect : StatusEffect
 {
-	// very hacky, remove later
-	static readonly Entity poisonEntity = new Entity() { displayName = "Poison" };
-
-
 	float amount;
 	float duration;
 
@@ -38,7 +34,7 @@ public class PoisonEffect : StatusEffect
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
 		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
 		float heal = amount * sinceLastFrame / duration;
-		player.hit(heal, poisonEntity, null, false);
+		player.hit(heal, null, null, "Poison", false);
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}

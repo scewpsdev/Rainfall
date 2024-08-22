@@ -105,6 +105,8 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
+
+		handItem = new LightningStaff();
 	}
 
 	public override void destroy()
@@ -113,7 +115,7 @@ public class Player : Entity, Hittable
 
 	public bool giveItem(Item item)
 	{
-		if (item.type == ItemType.Weapon)
+		if (item.isHandItem)
 		{
 			if (handItem != null)
 			{
@@ -287,7 +289,7 @@ public class Player : Entity, Hittable
 		return totalArmor;
 	}
 
-	public void hit(float damage, Entity by = null, Item item = null, bool triggerInvincibility = true)
+	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (!invincible)
