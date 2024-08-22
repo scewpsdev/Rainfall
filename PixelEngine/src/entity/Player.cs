@@ -105,8 +105,6 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
-
-		handItem = new LightningStaff();
 	}
 
 	public override void destroy()

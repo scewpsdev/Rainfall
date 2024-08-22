@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 public class LightningProjectile : Entity
 {
+	const float LIFETIME = 1.0f;
+
+
 	float speed = 200;
 	int maxRicochets = 3;
 	float maxDistance = 10;
@@ -18,7 +21,10 @@ public class LightningProjectile : Entity
 	Sprite sprite;
 	Sprite trailHoriz, trailDiag;
 
-	List<Vector2> cornerPoints = new List<Vector2>();
+	bool active = true;
+	long endTime;
+
+	List<Vector3> cornerPoints = new List<Vector3>();
 	Vector2 direction;
 
 	int ricochets = 0;
@@ -47,11 +53,22 @@ public class LightningProjectile : Entity
 
 	public override void init()
 	{
-		cornerPoints.Add(position);
+		cornerPoints.Add(new Vector3(position, Time.currentTime / 1e9f));
+
+		endTime = Time.currentTime;
 	}
 
 	public override void update()
 	{
+		if (!active)
+		{
+			if (Time.currentTime / 1e9f - cornerPoints[0].z >= LIFETIME)
+				remove();
+			return;
+		}
+
+		endTime = Time.currentTime;
+
 		Vector2 lastPosition = position;
 
 		Vector2 displacement = velocity * Time.deltaTime;
@@ -59,7 +76,7 @@ public class LightningProjectile : Entity
 		distance += displacement.length;
 
 		if (distance >= maxDistance)
-			remove();
+			active = false;
 
 		rotation = MathF.Atan2(velocity.y, velocity.x);
 
@@ -82,10 +99,9 @@ public class LightningProjectile : Entity
 			else
 			{
 				if (ricochets >= maxRicochets)
-					remove();
+					active = false;
 				else
 				{
-					cornerPoints.Add(position);
 					Vector2 reflected = Vector2.Reflect(velocity, hit.normal);
 					if (Vector2.Dot(velocity.normalized, hit.normal) < -0.9f)
 					{
@@ -93,9 +109,10 @@ public class LightningProjectile : Entity
 						deviation = MathF.Sign(deviation) * (1 - MathF.Pow(MathF.Abs(deviation), 2));
 						reflected = Vector2.Rotate(reflected, MathF.PI * 0.25f * deviation);
 					}
-					position -= displacement;
+					position = lastPosition + velocity.normalized * hit.distance * 0.99f;
 					velocity = reflected;
-					position += velocity * Time.deltaTime;
+					//position += velocity * Time.deltaTime;
+					cornerPoints.Add(new Vector3(position, Time.currentTime / 1e9f));
 					ricochets++;
 				}
 			}
@@ -104,27 +121,34 @@ public class LightningProjectile : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false);
+		if (active)
+			Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false);
 
 		for (int i = 0; i < cornerPoints.Count; i++)
 		{
-			Vector2 start = cornerPoints[i];
-			Vector2 end = i < cornerPoints.Count - 1 ? cornerPoints[i + 1] : position;
-			Vector2 direction = (end - start).normalized;
+			Vector3 start = cornerPoints[i];
+			Vector3 end = i < cornerPoints.Count - 1 ? cornerPoints[i + 1] : new Vector3(position, endTime / 1e9f);
+			Vector2 direction = (end - start).xy.normalized;
 			float angle = direction.angle;
 			float length = (end - start).length;
 
 			for (int j = 0; j < (int)MathF.Ceiling(length); j++)
 			{
 				float fraction = MathF.Min(length - j, 1);
-				Matrix transform = Matrix.CreateTranslation(start.x + direction.x * j, start.y + direction.y * j, 0) * Matrix.CreateRotation(Vector3.UnitZ, angle) * Matrix.CreateScale(fraction, 1, 1) * Matrix.CreateTranslation(0.5f, 0.0f, 0.0f);
+				Matrix transform = Matrix.CreateTranslation(start.x + direction.x * j, start.y + direction.y * j, 0.0f) * Matrix.CreateRotation(Vector3.UnitZ, angle) * Matrix.CreateScale(fraction, 1, 1) * Matrix.CreateTranslation(0.5f, 0.0f, 0.0f);
 
 				int u0 = trailHoriz.position.x;
 				int v0 = trailHoriz.position.y;
 				int w = (int)MathF.Round(fraction * trailHoriz.size.x);
 				int h = trailHoriz.size.y;
 
-				Renderer.DrawSprite(1, 1, transform, trailHoriz.spriteSheet.texture, u0, v0, w, h);
+				float progress = (j + 0.5f) / MathF.Ceiling(length);
+				float startTime = MathHelper.Lerp(start.z, end.z, progress);
+				float elapsed = Time.currentTime / 1e9f - startTime;
+				float alpha = MathF.Exp(-elapsed * 3.0f);
+				uint color = MathHelper.ColorAlpha(0xFFFFFFFF, alpha);
+
+				Renderer.DrawSprite(1, 1, transform, trailHoriz.spriteSheet.texture, u0, v0, w, h, color, true);
 			}
 		}
 	}

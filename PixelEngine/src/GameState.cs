@@ -133,7 +133,7 @@ public class GameState : State
 		level.addEntity(tutorialExitDoor, new Vector2(15 + 7.5f, 5));
 		level.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 1));
 
-		level.addEntity(new Fountain(Random.Shared), new Vector2(33.5f, 3));
+		level.addEntity(new Fountain(FountainEffect.None), new Vector2(33.5f, 3));
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared);
 		npc.clearShop();
@@ -141,7 +141,6 @@ public class GameState : State
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Rope());
 		npc.addShopItem(new Bomb());
-		npc.addShopItem(new RingOfSwiftness(), 0);
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
 

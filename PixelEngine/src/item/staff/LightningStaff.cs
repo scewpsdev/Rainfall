@@ -13,8 +13,8 @@ public class LightningStaff : Item
 	{
 		displayName = "Lightning Staff";
 
-		attackRate = 10.0f;
-		trigger = false;
+		attackRate = 4;
+		//trigger = false;
 
 		attackDamage = 2;
 

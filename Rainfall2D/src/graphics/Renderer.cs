@@ -82,8 +82,10 @@ public static class Renderer
 	static List<LightDraw> lightDraws = new List<LightDraw>();
 
 	static SpriteBatch spriteBatch;
+	static SpriteBatch additiveBatch;
 	static Shader spriteShader;
 	static List<SpriteDraw> draws = new List<SpriteDraw>();
+	static List<SpriteDraw> additiveDraws = new List<SpriteDraw>();
 	static List<SpriteDraw> verticalDraws = new List<SpriteDraw>();
 
 	static SpriteBatch uiBatch;
@@ -162,6 +164,7 @@ public static class Renderer
 		lightingShader = Resource.GetShader("res/shaders/lighting/lighting.vsh", "res/shaders/lighting/lighting.fsh");
 
 		spriteBatch = new SpriteBatch(graphics);
+		additiveBatch = new SpriteBatch(graphics);
 		spriteShader = Resource.GetShader("res/shaders/sprite/sprite.vsh", "res/shaders/sprite/sprite.fsh");
 
 		uiBatch = new SpriteBatch(graphics);
@@ -240,10 +243,10 @@ public static class Renderer
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
-	public static void DrawSprite(float width, float height, Matrix transform, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float width, float height, Matrix transform, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF, bool additive = false)
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		draws.Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
 	public static void DrawSprite(float width, float height, Matrix transform, Sprite sprite, uint color = 0xFFFFFFFF)
@@ -485,10 +488,10 @@ public static class Renderer
 			v0 += 0.0001f;
 			u1 -= 0.0001f;
 			v1 -= 0.0001f;
-			if (draws[i].useTransform)
+			if (draw.useTransform)
 			{
 				spriteBatch.draw(
-					draw.size.x, draw.size.y,
+					draw.size.x, draw.size.y, 0.0f - i / (float)draws.Count * 0.0001f,
 					draw.transform,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
@@ -497,7 +500,7 @@ public static class Renderer
 			else
 			{
 				spriteBatch.draw(
-					draw.position.x, draw.position.y, draw.position.z,
+					draw.position.x, draw.position.y, draw.position.z - i / (float)draws.Count * 0.0001f,
 					draw.size.x, draw.size.y,
 					draw.rotation,
 					draw.texture, uint.MaxValue,
@@ -525,6 +528,45 @@ public static class Renderer
 			graphics.setBlendState(BlendState.Alpha);
 
 			spriteBatch.submitDrawCall(i, spriteShader);
+		}
+
+		additiveBatch.begin(additiveDraws.Count);
+		for (int i = 0; i < additiveDraws.Count; i++)
+		{
+			SpriteDraw draw = additiveDraws[i];
+			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+			u0 += 0.0001f;
+			v0 += 0.0001f;
+			u1 -= 0.0001f;
+			v1 -= 0.0001f;
+			if (draw.useTransform)
+			{
+				additiveBatch.draw(
+					draw.size.x, draw.size.y, 0.0f - i / (float)additiveDraws.Count * 0.0001f,
+					draw.transform,
+					draw.texture, uint.MaxValue,
+					u0, v0, u1, v1,
+					draw.color, draw.solid ? 0.0f : 1.0f);
+			}
+			else
+			{
+				additiveBatch.draw(
+					draw.position.x, draw.position.y, draw.position.z - i / (float)additiveDraws.Count * 0.0001f,
+					draw.size.x, draw.size.y,
+					draw.rotation,
+					draw.texture, uint.MaxValue,
+					u0, v0, u1, v1,
+					draw.color, draw.solid ? 0.0f : 1.0f);
+			}
+		}
+		additiveBatch.end();
+
+		for (int i = 0; i < additiveBatch.getNumDrawCalls(); i++)
+		{
+			graphics.setCullState(CullState.None);
+			graphics.setBlendState(BlendState.Additive);
+
+			additiveBatch.submitDrawCall(i, spriteShader);
 		}
 
 		lineRenderer.begin(lineDraws.Count);
@@ -720,6 +762,7 @@ public static class Renderer
 		UIPass();
 
 		draws.Clear();
+		additiveDraws.Clear();
 		verticalDraws.Clear();
 		uiDraws.Clear();
 		textDraws.Clear();

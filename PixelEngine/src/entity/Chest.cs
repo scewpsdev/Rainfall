@@ -112,6 +112,6 @@ public class Chest : Entity, Interactable, Destructible
 		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, open ? openSprite : sprite, flipped);
 
 		if (outline != 0)
-			Renderer.DrawOutline(position.x - 0.5f, position.y, 0, 1, 1, 0, open ? openSprite : sprite, flipped, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BGBG, 1, 1, 0, open ? openSprite : sprite, flipped, outline);
 	}
 }
