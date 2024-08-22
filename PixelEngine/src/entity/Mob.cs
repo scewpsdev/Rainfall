@@ -305,7 +305,7 @@ public abstract class Mob : Entity, Hittable
 				Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 
 			if (outline != 0)
-				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
+				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
 		}
 	}
 }

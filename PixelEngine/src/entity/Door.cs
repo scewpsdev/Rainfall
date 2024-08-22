@@ -51,6 +51,6 @@ public class Door : Entity, Interactable
 		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite, false, 0xFFFFFFFF);
 
 		if (outline != 0)
-			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite, false, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BGBG, 1, 1, 0, sprite, false, outline);
 	}
 }

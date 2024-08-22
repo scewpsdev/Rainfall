@@ -430,17 +430,17 @@ namespace Rainfall
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float width, float height, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
+		public void draw(float width, float height, float z, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
 		{
 			float x0 = -0.5f * width;
 			float x1 = 0.5f * width;
 			float y0 = -0.5f * height;
 			float y1 = 0.5f * height;
 
-			Vector3 vertex0 = new Vector3(x0, y0, 0);
-			Vector3 vertex1 = new Vector3(x1, y0, 0);
-			Vector3 vertex2 = new Vector3(x1, y1, 0);
-			Vector3 vertex3 = new Vector3(x0, y1, 0);
+			Vector3 vertex0 = new Vector3(x0, y0, z);
+			Vector3 vertex1 = new Vector3(x1, y0, z);
+			Vector3 vertex2 = new Vector3(x1, y1, z);
+			Vector3 vertex3 = new Vector3(x0, y1, z);
 
 			vertex0 = transform * vertex0;
 			vertex1 = transform * vertex1;

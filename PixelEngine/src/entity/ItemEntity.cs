@@ -196,11 +196,11 @@ public class ItemEntity : Entity, Interactable, Destructible
 			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
 			flipped = false;
 		}
-		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
+		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_DEFAULT, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 
 		if (outline != 0 && velocity.lengthSquared < 1)
 		{
-			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_PLAYER_ITEM, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
+			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_BGBG, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
 			renderTooltip();
 		}
