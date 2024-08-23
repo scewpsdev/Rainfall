@@ -46,6 +46,7 @@ public abstract class Item
 	public bool trigger = true;
 	public int maxPierces = 0;
 	public float knockback = 8.0f;
+	public float manaCost = 0;
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
@@ -197,6 +198,10 @@ public abstract class Item
 		InitType(new RingOfTears());
 		InitType(new Sapphire());
 		InitType(new LightningStaff());
+		InitType(new Bread());
+		InitType(new PotionOfEnergy());
+		InitType(new Apple());
+		InitType(new GoldenApple());
 	}
 
 	static void InitType(Item item)
@@ -242,11 +247,11 @@ public abstract class Item
 		float[] distribution = [
 			0.14f, // Weapon
 			0.14f, // Armor
-			0.18f, // Potion
+			0.1f, // Potion
 			0.04f, // Ring
 			0.06f, // Staff
 			0.18f, // Scroll
-			0.1f, // Food
+			0.18f, // Food
 			0.08f, // Gem
 			0.08f, // Utility
 		];

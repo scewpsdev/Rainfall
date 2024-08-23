@@ -215,7 +215,7 @@ public abstract class NPC : Mob, Interactable
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
 			int width = 120;
-			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight;
+			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight + 2;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 			int y = Math.Max(pos.y - height, 2);
 
@@ -340,7 +340,7 @@ public abstract class NPC : Mob, Interactable
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
-			int shopWidth = Math.Max(120, 1 + 16 + 5 + longestItemName + 1);
+			int shopWidth = Math.Max(120, 1 + 16 + 5 + longestItemName + 4);
 			int width = shopWidth + 1 + sidePanelWidth;
 			int height = headerHeight + shopItems.Count * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);

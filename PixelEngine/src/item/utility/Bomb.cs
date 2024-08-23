@@ -47,7 +47,7 @@ public class Bomb : Item
 		if (useTime != -1 && entity is ItemEntity)
 		{
 			ItemEntity itemEntity = entity as ItemEntity;
-			itemEntity.color = 0xFFFFBB00;
+			itemEntity.color = (int)((Time.currentTime - useTime) / 1e9f * 20) % 2 == 1 ? 0xFFFFBB99 : 0xFFFFFFFF;
 		}
 
 		if (useTime != -1 && (Time.currentTime - useTime) / 1e9f >= fuseTime)

@@ -11,6 +11,10 @@ public class StatusEffect
 	{
 	}
 
+	public virtual void destroy(Player player)
+	{
+	}
+
 	public virtual bool update(Player player)
 	{
 		return true;

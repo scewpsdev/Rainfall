@@ -17,6 +17,7 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
+	const float MANA_RECHARGE_RATE = 0.06f;
 
 
 	public float speed = 6;
@@ -28,6 +29,9 @@ public class Player : Entity, Hittable
 
 	public float maxHealth = 3;
 	public float health = 3;
+
+	public float maxMana = 2;
+	public float mana = 2;
 
 	public int money = 0;
 
@@ -296,7 +300,7 @@ public class Player : Entity, Hittable
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
 
-			health -= damage;
+			health = MathF.Max(health - damage, 0);
 
 			if (by != null && by.collider != null)
 			{
@@ -352,6 +356,11 @@ public class Player : Entity, Hittable
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
 		GameState.instance.run.endedTime = Time.currentTime;
+	}
+
+	public void consumeMana(float amount)
+	{
+		mana = MathF.Max(mana - amount, 0);
 	}
 
 	public void addStatusEffect(StatusEffect effect)
@@ -722,10 +731,16 @@ public class Player : Entity, Hittable
 
 	void updateStatus()
 	{
+		if (mana < maxMana)
+			mana = MathF.Min(mana + MANA_RECHARGE_RATE * Time.deltaTime, maxMana);
+
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
 			if (!statusEffects[i].update(this))
+			{
+				statusEffects[i].destroy(this);
 				statusEffects.RemoveAt(i--);
+			}
 		}
 	}
 

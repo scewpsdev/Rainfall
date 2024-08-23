@@ -100,7 +100,7 @@ public abstract class Mob : Entity, Hittable
 		{
 			Item item = Item.CreateRandom(Random.Shared);
 
-			Vector2 itemVelocity = new Vector2(0, 1) * 8;
+			Vector2 itemVelocity = new Vector2(0, 0.5f) * 8;
 			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
 			ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);

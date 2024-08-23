@@ -14,6 +14,7 @@ public enum FountainEffect
 	Regenerate,
 	Damage,
 	Poison,
+	Mana,
 
 	Count
 }
@@ -61,7 +62,7 @@ public class Fountain : Entity, Interactable
 				player.hud.showMessage("It tastes bland.");
 				break;
 			case FountainEffect.Heal:
-				player.health += Random.Shared.NextSingle() * 2;
+				player.health = MathF.Min(player.health + Random.Shared.NextSingle() * 2, player.maxHealth);
 				player.hud.showMessage("You feel refreshed.");
 				break;
 			case FountainEffect.Regenerate:
@@ -75,6 +76,10 @@ public class Fountain : Entity, Interactable
 			case FountainEffect.Poison:
 				player.addStatusEffect(new PoisonEffect(1, 16));
 				player.hud.showMessage("The water burns on your tongue.");
+				break;
+			case FountainEffect.Mana:
+				player.mana = MathF.Min(player.mana + Random.Shared.NextSingle() * 2, player.maxMana);
+				player.hud.showMessage("You feel energy flow through you.");
 				break;
 		}
 		consumed = true;

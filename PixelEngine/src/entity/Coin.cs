@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Coin : Entity
 {
-	const float COLLECT_DELAY = 0.5f;
+	const float COLLECT_DELAY = 0.2f;
 
 	uint color;
 
@@ -59,16 +59,12 @@ public class Coin : Entity
 
 		if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
 		{
-			HitData[] hits = new HitData[16];
-			int numHits = GameState.instance.level.overlap(position - 0.25f, position + 0.25f, hits, FILTER_PLAYER);
-			for (int i = 0; i < numHits; i++)
+			HitData hit = GameState.instance.level.sample(position, FILTER_PLAYER);
+			if (hit != null && hit.entity != null && hit.entity is Player)
 			{
-				if (hits[i].entity != null && hits[i].entity is Player)
-				{
-					Player player = hits[i].entity as Player;
-					player.money++;
-					remove();
-				}
+				Player player = hit.entity as Player;
+				player.money++;
+				remove();
 			}
 		}
 	}
