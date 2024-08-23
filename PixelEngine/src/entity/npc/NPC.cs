@@ -215,7 +215,7 @@ public abstract class NPC : Mob, Interactable
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
 			int width = 120;
-			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight + 2;
+			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight + 4;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 			int y = Math.Max(pos.y - height, 2);
 
@@ -235,7 +235,7 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
-			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4, null, false, 0xFF222222);
+			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
 			y += 4;
 
 			for (int i = 0; i < voiceLine.lines.Length; i++)

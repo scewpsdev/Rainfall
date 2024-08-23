@@ -568,6 +568,17 @@ public class LevelGenerator
 				}
 				else
 				{
+					if (random.NextSingle() < 0.2f)
+					{
+						if (room.getFloorSpawn(level, random, out Vector2i tile))
+						{
+							Chest chest = new Chest(Item.CreateRandom(random));
+							level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
+
+							objectFlags[tile.x + tile.y * width] = true;
+						}
+					}
+
 					// blacksmith
 					// unlockable npcs
 				}
@@ -749,7 +760,9 @@ public class LevelGenerator
 
 										Mob enemy;
 
-										if (enemyType > 0.666f)
+										if (enemyType > 0.9f)
+											enemy = new Bob();
+										else if (enemyType > 0.666f)
 											enemy = new Snake();
 										else if (enemyType > 0.333f)
 										{
