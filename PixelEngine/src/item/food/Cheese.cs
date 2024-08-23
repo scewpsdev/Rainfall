@@ -11,7 +11,7 @@ public class Cheese : Item
 	public Cheese()
 		: base("cheese", ItemType.Food)
 	{
-		displayName = "Mouldy Cheese";
+		displayName = "Cheese";
 		stackable = true;
 		//canDrop = false;
 
@@ -22,8 +22,9 @@ public class Cheese : Item
 
 	public override bool use(Player player)
 	{
-		if (player.health < player.maxHealth)
-			player.health = MathF.Min(player.health + 0.5f, player.maxHealth);
+		player.addStatusEffect(new HealEffect(0.5f, 5));
+		//if (player.health < player.maxHealth)
+		//	player.health = MathF.Min(player.health + 0.5f, player.maxHealth);
 		return true;
 	}
 }

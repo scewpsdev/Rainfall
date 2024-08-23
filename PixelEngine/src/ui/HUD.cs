@@ -23,6 +23,7 @@ public class HUD
 
 	public static Sprite heartFull, heartHalf, heartEmpty;
 	public static Sprite armor, armorEmpty;
+	public static Sprite mana, manaEmpty;
 	public static Sprite gem;
 
 	static HUD()
@@ -32,6 +33,9 @@ public class HUD
 		heartFull = new Sprite(tileset, 0, 0);
 		heartHalf = new Sprite(tileset, 1, 0);
 		heartEmpty = new Sprite(tileset, 2, 0);
+
+		mana = new Sprite(tileset, 6, 0);
+		manaEmpty = new Sprite(tileset, 7, 0);
 
 		armor = new Sprite(tileset, 4, 0);
 		armorEmpty = new Sprite(tileset, 5, 0);
@@ -134,15 +138,13 @@ public class HUD
 			if (i < player.health)
 			{
 				float fraction = MathF.Min(player.health - i, 1);
-				//fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
 				fraction = MathF.Floor(fraction * 8) / 8.0f;
-				//Renderer.DrawUISprite(x, y, size, size, heartFull);
 				Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), heartFull.spriteSheet.texture, heartFull.position.x, heartFull.position.y + (int)(heartFull.size.y * (1 - fraction)), heartFull.size.x, (int)(heartFull.size.y * fraction));
 			}
-			//else if (i == player.health / 2 && player.health % 2 == 1)
-			//	Renderer.DrawUISprite(x, y, size, size, heartHalf);
 			else
+			{
 				Renderer.DrawUISprite(x, y, size, size, heartEmpty);
+			}
 		}
 
 		// Armor
@@ -160,10 +162,31 @@ public class HUD
 			Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), armor.spriteSheet.texture, armor.position.x, armor.position.y + (int)(armor.size.y * (1 - fraction)), armor.size.x, (int)(armor.size.y * fraction));
 		}
 
+		// Mana
+		for (int i = 0; i < player.maxMana; i++)
+		{
+			int size = 8;
+			int padding = 3;
+			int x = 6 + i * (size + padding);
+			int y = 6 + 8 + 3;
+
+			Renderer.DrawUISprite(x, y, size, size, manaEmpty);
+			if (i < player.mana)
+			{
+				float fraction = MathF.Min(player.mana - i, 1);
+				fraction = MathF.Floor(fraction * 8) / 8.0f;
+				Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), mana.spriteSheet.texture, mana.position.x, mana.position.y + (int)(heartFull.size.y * (1 - fraction)), heartFull.size.x, (int)(mana.size.y * fraction));
+			}
+			else
+			{
+				Renderer.DrawUISprite(x, y, size, size, manaEmpty);
+			}
+		}
+
 		{ // Gems
 			int size = 8;
 			int x = 6;
-			int y = 6 + 8 + 3;
+			int y = 6 + 8 + 3 + 8 + 3;
 
 			Renderer.DrawUISprite(x, y, size, size, gem, false);
 			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);

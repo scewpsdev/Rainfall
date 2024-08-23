@@ -51,7 +51,7 @@ public class ParticleEffect : Entity
 		position = follow.position + offset;
 
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
-		int shouldBeEmitted = (int)(elapsed / duration * numParticles);
+		int shouldBeEmitted = Math.Min((int)(elapsed / duration * numParticles), numParticles);
 		if (shouldBeEmitted > particlesEmitted)
 		{
 			int amount = shouldBeEmitted - particlesEmitted;
@@ -78,7 +78,7 @@ public class ParticleEffect : Entity
 				particles[i] = particle;
 		}
 
-		if (elapsed >= duration && particlesEmitted == numParticles && particles.Count == 0)
+		if (elapsed >= duration && particlesEmitted >= numParticles && particles.Count == 0)
 			remove();
 	}
 

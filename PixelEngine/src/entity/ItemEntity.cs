@@ -10,7 +10,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 public class ItemEntity : Entity, Interactable, Destructible
 {
-	public float gravity = -30;
+	public float gravity = -20;
 	public float bounciness = 0.5f;
 
 	public int ricochets = 0;

@@ -60,7 +60,7 @@ public class Chest : Entity, Interactable, Destructible
 	{
 		for (int i = 0; i < items.Length; i++)
 		{
-			Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 1) * 8;
+			Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
 			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
 			ItemEntity obj = new ItemEntity(items[i], null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);

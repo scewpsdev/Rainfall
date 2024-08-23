@@ -206,7 +206,7 @@ public static class Renderer
 		});
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF, bool additive = false)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -223,7 +223,7 @@ public static class Renderer
 			}
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
 	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
@@ -231,10 +231,10 @@ public static class Renderer
 		DrawSprite(x, y, 0.0f, width, height, 0.0f, sprite, flipped, color);
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF, bool additive = false)
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
 	}
 
 	public static void DrawSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)

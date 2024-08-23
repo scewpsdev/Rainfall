@@ -19,7 +19,7 @@ public class LightningProjectile : Entity
 	Item item;
 
 	Sprite sprite;
-	Sprite trailHoriz, trailDiag;
+	Sprite trail, trailFade;
 
 	bool active = true;
 	long endTime;
@@ -47,8 +47,8 @@ public class LightningProjectile : Entity
 		velocity = direction * speed;
 
 		sprite = new Sprite(Item.tileset, 9, 2);
-		trailHoriz = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 2, 0);
-		trailDiag = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 3, 0);
+		trail = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 2, 0);
+		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 3, 0);
 	}
 
 	public override void init()
@@ -137,10 +137,12 @@ public class LightningProjectile : Entity
 				float fraction = MathF.Min(length - j, 1);
 				Matrix transform = Matrix.CreateTranslation(start.x + direction.x * j, start.y + direction.y * j, 0.0f) * Matrix.CreateRotation(Vector3.UnitZ, angle) * Matrix.CreateScale(fraction, 1, 1) * Matrix.CreateTranslation(0.5f, 0.0f, 0.0f);
 
-				int u0 = trailHoriz.position.x;
-				int v0 = trailHoriz.position.y;
-				int w = (int)MathF.Round(fraction * trailHoriz.size.x);
-				int h = trailHoriz.size.y;
+				Sprite sprite = i < cornerPoints.Count - 1 || j < (int)MathF.Ceiling(length) - 1 ? trail : trailFade;
+
+				int u0 = sprite.position.x;
+				int v0 = sprite.position.y;
+				int w = (int)MathF.Round(fraction * sprite.size.x);
+				int h = sprite.size.y;
 
 				float progress = (j + 0.5f) / MathF.Ceiling(length);
 				float startTime = MathHelper.Lerp(start.z, end.z, progress);
@@ -148,7 +150,7 @@ public class LightningProjectile : Entity
 				float alpha = MathF.Exp(-elapsed * 3.0f);
 				uint color = MathHelper.ColorAlpha(0xFFFFFFFF, alpha);
 
-				Renderer.DrawSprite(1, 1, transform, trailHoriz.spriteSheet.texture, u0, v0, w, h, color, true);
+				Renderer.DrawSprite(1, 1, transform, sprite.spriteSheet.texture, u0, v0, w, h, color, true);
 			}
 		}
 	}
