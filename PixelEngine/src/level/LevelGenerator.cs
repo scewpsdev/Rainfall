@@ -760,9 +760,10 @@ public class LevelGenerator
 
 										Mob enemy;
 
-										if (enemyType > 0.9f)
-											enemy = new Bob();
-										else if (enemyType > 0.666f)
+										//if (enemyType > 0.9f)
+										//	enemy = new Bob();
+										//else 
+										if (enemyType > 0.666f)
 											enemy = new Snake();
 										else if (enemyType > 0.333f)
 										{

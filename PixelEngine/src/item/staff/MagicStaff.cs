@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class MagicStaff : Item
 {
-	int charges = 17;
+	int charges = 17000;
 
 
 	public MagicStaff()

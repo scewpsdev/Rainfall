@@ -23,10 +23,5 @@ public class BuilderMerchant : NPC
 		buysItems = true;
 
 		populateShop(random, 9, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility);
-
-		for (int i = 0; i < shopItems.Count; i++)
-		{
-			Console.WriteLine(shopItems[i].Item1.name);
-		}
 	}
 }

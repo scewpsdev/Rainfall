@@ -30,8 +30,8 @@ public class PlayerCamera : Entity
 
 	public override void update()
 	{
-		width = 320 / 16.0f;
-		scale = (int)MathF.Ceiling(Display.width / width / 16.0f);
+		width = 1920 / 5.0f / 16.0f;
+		scale = (int)MathF.Round(Display.width / width / 16.0f);
 		width = Display.width / (float)scale / 16.0f;
 		height = width / Display.aspectRatio;
 

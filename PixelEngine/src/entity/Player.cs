@@ -411,7 +411,9 @@ public class Player : Entity, Hittable
 					delta.y--;
 			}
 
+#if DEBUG
 			isSprinting = InputManager.IsDown("Sprint");
+#endif
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;

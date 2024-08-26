@@ -14,6 +14,7 @@ public class WizardsCloak : Item
 		displayName = "Wizard's Cloak";
 
 		armor = 2;
+		canEquipMultiple = false;
 
 		value = 5;
 

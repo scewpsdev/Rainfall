@@ -134,6 +134,7 @@ public class HUD
 			int x = 6 + i * (size + padding);
 			int y = 6;
 
+			Renderer.DrawUIOutline(x, y, size, size, heartEmpty, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, heartEmpty);
 			if (i < player.health)
 			{
@@ -156,6 +157,7 @@ public class HUD
 			int x = 6 + (int)MathF.Round(player.maxHealth) * (size + padding) + 4 + i * (size + padding);
 			int y = 6;
 
+			Renderer.DrawUIOutline(x, y, size, size, armorEmpty, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, armorEmpty);
 			float fraction = MathF.Min(totalArmor / 10.0f - i, 1);
 			fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
@@ -170,6 +172,7 @@ public class HUD
 			int x = 6 + i * (size + padding);
 			int y = 6 + 8 + 3;
 
+			Renderer.DrawUIOutline(x, y, size, size, manaEmpty, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, manaEmpty);
 			if (i < player.mana)
 			{
@@ -188,6 +191,7 @@ public class HUD
 			int x = 6;
 			int y = 6 + 8 + 3 + 8 + 3;
 
+			Renderer.DrawUIOutline(x, y, size, size, gem, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, gem, false);
 			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);
 		}
