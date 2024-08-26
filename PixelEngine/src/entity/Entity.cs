@@ -15,11 +15,12 @@ public class Entity
 	public const uint FILTER_PROJECTILE = 1 << 4;
 
 	public const float LAYER_DEFAULT = 0.0f;
+	public const float LAYER_BGBG = 0.2f;
+	public const float LAYER_BG = 0.1f;
+	public const float LAYER_INTERACTABLE = 0.05f;
+	public const float LAYER_PLAYER_BG = 0.01f;
 	public const float LAYER_PLAYER_ARMOR = -0.005f;
 	public const float LAYER_PLAYER_ITEM = -0.01f;
-	public const float LAYER_PLAYER_BG = 0.01f;
-	public const float LAYER_BG = 0.1f;
-	public const float LAYER_BGBG = 0.2f;
 	public const float LAYER_FG = -0.1f;
 
 	public const uint OUTLINE_COLOR = 0xBFFFFFFF;

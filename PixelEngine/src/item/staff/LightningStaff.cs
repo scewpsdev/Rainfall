@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class LightningStaff : Item
 {
-	int charges = 8;
+	int charges = 8000;
 
 
 	public LightningStaff()

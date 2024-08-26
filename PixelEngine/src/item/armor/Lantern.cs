@@ -22,7 +22,6 @@ public class Lantern : Item
 		displayName = "Lantern";
 
 		value = 10;
-
 		canEquipMultiple = false;
 
 		sprite = new Sprite(tileset, 10, 1);

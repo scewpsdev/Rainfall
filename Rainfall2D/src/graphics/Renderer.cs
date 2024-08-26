@@ -40,6 +40,7 @@ public static class Renderer
 		public Texture texture;
 		public FloatRect rect;
 		public uint color;
+		public bool solid;
 	}
 
 	struct TextDraw
@@ -116,7 +117,7 @@ public static class Renderer
 		Renderer.graphics = graphics;
 
 		// pixel perfect correction
-		int scale = (int)MathF.Ceiling(Display.width / 320);
+		int scale = (int)MathF.Round(Display.width / (1920 / 5.0f));
 		UIWidth = (int)(Display.width / (float)scale);
 		UIHeight = (int)(UIWidth / Display.aspectRatio);
 
@@ -185,10 +186,9 @@ public static class Renderer
 	public static void Resize(int width, int height)
 	{
 		// pixel perfect correction
-		int scale = (int)MathF.Ceiling(Display.width / 320);
+		int scale = (int)MathF.Round(Display.width / (1920 / 5.0f));
 		UIWidth = (int)(Display.width / (float)scale);
 		UIHeight = (int)(UIWidth / Display.aspectRatio);
-		Console.WriteLine(UIWidth + "," + UIHeight);
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);
@@ -276,15 +276,15 @@ public static class Renderer
 
 	public static void DrawOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)
 	{
-		DrawSpriteSolid(x - 1.0f / 16.0f, y, z, width, height, rotation, sprite, flipped, color);
-		DrawSpriteSolid(x + 1.0f / 16.0f, y, z, width, height, rotation, sprite, flipped, color);
-		DrawSpriteSolid(x, y - 1.0f / 16.0f, z, width, height, rotation, sprite, flipped, color);
-		DrawSpriteSolid(x, y + 1.0f / 16.0f, z, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x - 1.0f / 16.0f, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x + 1.0f / 16.0f, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x, y - 1.0f / 16.0f, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x, y + 1.0f / 16.0f, z + 0.00001f, width, height, rotation, sprite, flipped, color);
 	}
 
 	public static void DrawOutline(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
-		DrawOutline(x, y, 0, width, height, 0, sprite, flipped, color);
+		DrawOutline(x, y, 0.00001f, width, height, 0, sprite, flipped, color);
 	}
 
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
@@ -363,6 +363,40 @@ public static class Renderer
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color });
+	}
+
+	public static void DrawUISpriteSolid(int x, int y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+			if (flipped)
+			{
+				float tmp = u0;
+				u0 = u1;
+				u1 = tmp;
+			}
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
+	}
+
+	public static void DrawUISpriteSolid(int x, int y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	{
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color, solid = true });
+	}
+
+	public static void DrawUIOutline(int x, int y, int width, int height, Sprite sprite, bool flipped, uint color)
+	{
+		DrawUISpriteSolid(x - 1, y, width, height, sprite, flipped, color);
+		DrawUISpriteSolid(x + 1, y, width, height, sprite, flipped, color);
+		DrawUISpriteSolid(x, y - 1, width, height, sprite, flipped, color);
+		DrawUISpriteSolid(x, y + 1, width, height, sprite, flipped, color);
 	}
 
 	public static void DrawUIText(int x, int y, string text, int size, uint color = 0xFFFFFFFF)
@@ -708,7 +742,7 @@ public static class Renderer
 				0.0f,
 				texture, uint.MaxValue,
 				u0, v0, u1, v1,
-				MathHelper.ARGBToVector(draw.color), 1.0f);
+				MathHelper.ARGBToVector(draw.color), draw.solid ? 0.0f : 1.0f);
 		}
 		uiBatch.end();
 

@@ -137,7 +137,9 @@ public class GameState : State
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared);
 		npc.clearShop();
+#if DEBUG
 		npc.addShopItem(new Revolver(), 0);
+#endif
 		npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Rope());
