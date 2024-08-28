@@ -20,7 +20,7 @@ public class LightningStaff : Item
 		trigger = false;
 
 		attackDamage = 2;
-		manaCost = 0.25f;
+		manaCost = 0.35f;
 
 		value = 30;
 

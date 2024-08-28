@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -96,9 +97,14 @@ namespace Rainfall
 			return new Vector4(a.x * b, a.y * b, a.z * b, a.w * b);
 		}
 
-		public static Vector4 operator+(Vector4 a, Vector4 b)
+		public static Vector4 operator +(Vector4 a, Vector4 b)
 		{
 			return new Vector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+		}
+
+		public static implicit operator Vector4(uint argb)
+		{
+			return MathHelper.ARGBToVector(argb);
 		}
 	}
 }

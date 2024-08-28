@@ -122,7 +122,7 @@ public class LightningProjectile : Entity
 	public override void render()
 	{
 		if (active)
-			Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false);
+			Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
 
 		for (int i = 0; i < cornerPoints.Count; i++)
 		{
@@ -148,7 +148,7 @@ public class LightningProjectile : Entity
 				float startTime = MathHelper.Lerp(start.z, end.z, progress);
 				float elapsed = Time.currentTime / 1e9f - startTime;
 				float alpha = MathF.Exp(-elapsed * 3.0f);
-				uint color = MathHelper.ColorAlpha(0xFFFFFFFF, alpha);
+				Vector4 color = new Vector4(3, 3, 3, alpha);
 
 				Renderer.DrawSprite(1, 1, transform, sprite.spriteSheet.texture, u0, v0, w, h, color, true);
 			}

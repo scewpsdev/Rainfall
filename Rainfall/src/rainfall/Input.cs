@@ -559,8 +559,8 @@ namespace Rainfall
 	[StructLayout(LayoutKind.Sequential)]
 	unsafe struct GamepadState
 	{
-		fixed byte buttons[15];
-		fixed float axes[6];
+		public fixed byte buttons[15];
+		public fixed float axes[6];
 
 
 		internal bool IsButtonDown(GamepadButton button)
@@ -673,6 +673,50 @@ namespace Rainfall
 		public static bool IsGamepadButtonReleased(GamepadButton button)
 		{
 			return !gamepadCurrent.IsButtonDown(button) && gamepadLast.IsButtonDown(button);
+		}
+
+		public static Vector2 GamepadAxis
+		{
+			get
+			{
+				unsafe
+				{
+					return new Vector2(gamepadCurrent.axes[0], gamepadCurrent.axes[1]);
+				}
+			}
+		}
+
+		public static Vector2 GamepadAxisRight
+		{
+			get
+			{
+				unsafe
+				{
+					return new Vector2(gamepadCurrent.axes[2], gamepadCurrent.axes[3]);
+				}
+			}
+		}
+
+		public static float GamepadTriggerLeft
+		{
+			get
+			{
+				unsafe
+				{
+					return gamepadCurrent.axes[4];
+				}
+			}
+		}
+
+		public static float GamepadTriggerRight
+		{
+			get
+			{
+				unsafe
+				{
+					return gamepadCurrent.axes[5];
+				}
+			}
 		}
 
 		public static void ConsumeKeyEvent(KeyCode key)

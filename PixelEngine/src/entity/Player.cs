@@ -371,7 +371,7 @@ public class Player : Entity, Hittable
 
 	void updateMovement()
 	{
-		Vector2 delta = Vector2.Zero;
+		Vector2 delta = Input.GamepadAxis;
 
 		if (isStunned)
 		{
@@ -578,7 +578,7 @@ public class Player : Entity, Hittable
 
 	void updateActions()
 	{
-		if (isAlive)
+		if (isAlive && GameState.instance.run.active)
 		{
 			if (InputManager.IsPressed("SwitchItem"))
 			{
@@ -883,23 +883,25 @@ public class Player : Entity, Hittable
 					Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, 1, 1, 0, DefaultWeapon.instance.sprite, action.direction == -1);
 				}
 			}
-
-			for (int i = 0; i < passiveItems.Length; i++)
-			{
-				if (passiveItems[i] != null)
-					passiveItems[i].render(this);
-			}
-
-			for (int i = 0; i < statusEffects.Count; i++)
-			{
-				statusEffects[i].render(this);
-			}
-
-			if (isStunned)
-			{
-				Renderer.DrawSprite(position.x - 0.5f, position.y + 1.0f, 1, 1, stunnedIcon, false);
-			}
 		}
+
+		for (int i = 0; i < statusEffects.Count; i++)
+		{
+			statusEffects[i].render(this);
+		}
+
+		for (int i = 0; i < passiveItems.Length; i++)
+		{
+			if (passiveItems[i] != null)
+				passiveItems[i].render(this);
+		}
+
+		if (isStunned)
+		{
+			Renderer.DrawSprite(position.x - 0.5f, position.y + 1.0f, 1, 1, stunnedIcon, false);
+		}
+
+		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 9);
 
 		if (GameState.instance.run.active)
 		{

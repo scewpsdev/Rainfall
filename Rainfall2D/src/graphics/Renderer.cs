@@ -108,6 +108,12 @@ public static class Renderer
 	static Matrix projection, view;
 	static float left, right, bottom, top;
 
+	public static Vector3 ambientLight = Vector3.Zero;
+	public static Vector3 vignetteColor = new Vector3(0.0f);
+	public static float vignetteFalloff = 0.37f; // default value: 0.37f
+	public static float bloomStrength = 0.1f;
+	public static float bloomFalloff = 4.0f;
+
 	public static int UIHeight;
 	public static int UIWidth;
 
@@ -206,7 +212,7 @@ public static class Renderer
 		});
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF, bool additive = false)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, Vector4 color, bool additive = false)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -223,30 +229,50 @@ public static class Renderer
 			}
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
 	}
 
-	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped)
+	{
+		DrawSprite(x, y, z, width, height, rotation, sprite, flipped, Vector4.One);
+	}
+
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite)
+	{
+		DrawSprite(x, y, z, width, height, rotation, sprite, false, Vector4.One, false);
+	}
+
+	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped, Vector4 color)
 	{
 		DrawSprite(x, y, 0.0f, width, height, 0.0f, sprite, flipped, color);
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF, bool additive = false)
+	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite, bool flipped)
 	{
-		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		DrawSprite(x, y, 0.0f, width, height, 0.0f, sprite, flipped, Vector4.One);
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	public static void DrawSprite(float x, float y, float width, float height, Sprite sprite)
 	{
-		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		DrawSprite(x, y, width, height, sprite, false, Vector4.One);
 	}
 
-	public static void DrawSprite(float width, float height, Matrix transform, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF, bool additive = false)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, Vector4 color, bool additive)
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		(additive ? additiveDraws : draws).Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = color });
+	}
+
+	public static void DrawSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, Vector4 color)
+	{
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
+		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = color });
+	}
+
+	public static void DrawSprite(float width, float height, Matrix transform, Texture texture, int u0, int v0, int w, int h, Vector4 color, bool additive = false)
+	{
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = texture, rect = rect, color = color });
 	}
 
 	public static void DrawSprite(float width, float height, Matrix transform, Sprite sprite, uint color = 0xFFFFFFFF)
@@ -399,14 +425,14 @@ public static class Renderer
 		DrawUISpriteSolid(x, y + 1, width, height, sprite, flipped, color);
 	}
 
-	public static void DrawUIText(int x, int y, string text, int size, uint color = 0xFFFFFFFF)
+	public static void DrawUIText(int x, int y, string text, int size = 1, uint color = 0xFFFFFFFF)
 	{
 		textDraws.Add(new TextDraw { position = new Vector2i(x, y), text = text, size = size, color = color });
 	}
 
-	public static Vector2i MeasureUIText(string text, int length, int scale)
+	public static Vector2i MeasureUIText(string text, int length = -1, int scale = 1)
 	{
-		return new Vector2i(font.measureText(text, length) * scale, (int)(font.size * scale));
+		return new Vector2i(font.measureText(text, length != -1 ? length : text.Length) * scale, (int)(font.size * scale));
 	}
 
 	public static void DrawUITextBMP(int x, int y, string text, int size, uint color = 0xFFFFFFFF)
@@ -624,7 +650,7 @@ public static class Renderer
 			return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
 		});
 
-		for (int it = 0; it < (lightDraws.Count + 15) / 16; it++)
+		for (int it = 0; it < Math.Max((lightDraws.Count + 15) / 16, 1); it++)
 		{
 			int offset = it * 16;
 
@@ -636,6 +662,7 @@ public static class Renderer
 			graphics.setTexture(lightingShader, "s_frame", 0, gbuffer.getAttachmentTexture(0));
 
 			graphics.setUniform(lightingShader, "u_cameraBounds", new Vector4(left, right, bottom, top));
+			graphics.setUniform(lightingShader, "u_ambientLight", it == 0 ? new Vector4(ambientLight, 0.0f) : Vector4.Zero);
 
 			Vector4[] lightPositions = new Vector4[16];
 			Vector4[] lightColors = new Vector4[16];
@@ -711,9 +738,8 @@ public static class Renderer
 		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 1, lighting.getAttachmentTexture(0));
 		graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 2, bloomUpsampleChain[0].getAttachmentTexture(0));
 
-		Vector3 vignetteColor = new Vector3(0.0f);
-		float vignetteFalloff = 0.37f; // default value: 0.37f
 		graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
+		graphics.setUniform(compositeShader, "u_bloomSettings", new Vector4(bloomStrength, bloomFalloff, 0, 0));
 
 		graphics.setVertexBuffer(quad);
 		graphics.draw(compositeShader);

@@ -245,12 +245,12 @@ public abstract class Item
 	public static Item CreateRandom(Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
 		float[] distribution = [
-			0.14f, // Weapon
+			0.2f, // Weapon
 			0.14f, // Armor
 			0.1f, // Potion
 			0.04f, // Ring
 			0.06f, // Staff
-			0.18f, // Scroll
+			0.12f, // Scroll
 			0.18f, // Food
 			0.08f, // Gem
 			0.08f, // Utility

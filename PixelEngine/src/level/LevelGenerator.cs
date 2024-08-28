@@ -350,8 +350,8 @@ public class LevelGenerator
 
 		random = new Random((int)Hash.hash(seed) + floor);
 
-		int width = 50;
-		int height = 40;
+		int width = MathHelper.RandomInt(24, 150, random);
+		int height = 3200 / width;
 		level.resize(width, height);
 
 		List<Room> rooms = new List<Room>();
@@ -508,6 +508,7 @@ public class LevelGenerator
 				float travellerChance = 0.02f;
 				float ratChance = 0.02f;
 				float loganChance = 0.02f;
+				float blacksmithChance = 0.08f;
 				float fountainChance = 0.1f;
 
 				float f = random.NextSingle();
@@ -556,7 +557,18 @@ public class LevelGenerator
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance + ratChance + loganChance + fountainChance)
+				else if (f < builderChance + travellerChance + ratChance + loganChance + blacksmithChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
+					{
+						Blacksmith npc = new Blacksmith(random);
+						npc.direction = random.Next() % 2 * 2 - 1;
+						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
+
+						objectFlags[npcPos.x + npcPos.y * width] = true;
+					}
+				}
+				else if (f < builderChance + travellerChance + ratChance + loganChance + blacksmithChance + fountainChance)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i tile))
 					{
@@ -788,6 +800,9 @@ public class LevelGenerator
 				}
 			}
 		}
+
+		bool darkLevel = random.Next() % 2 == 0;
+		level.ambientLight = darkLevel ? new Vector3(0.001f) : new Vector3(1.0f);
 	}
 
 	public void generateLobby(Level level)

@@ -50,5 +50,7 @@ public class Lantern : Item
 			Renderer.DrawSprite(player.position.x - 0.5f, player.position.y, Entity.LAYER_PLAYER_BG, 1, 1, 0.0f, stick, player.direction == -1);
 			Renderer.DrawSprite(player.position.x - player.direction * 0.25f - 0.5f, player.position.y + 0.75f - 0.5f, Entity.LAYER_PLAYER_BG, 1, 1, rotation, lanternMini, false);
 		}
+
+		Renderer.DrawLight(entity.position + new Vector2(0, 0.5f), new Vector3(1.0f, 0.8f, 0.5f) * 2, 12);
 	}
 }

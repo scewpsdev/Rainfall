@@ -16,7 +16,7 @@ public class Revolver : Item
 		attackRate = 10.0f;
 		//trigger = false;
 
-		attackDamage = 1;
+		attackDamage = 20;
 
 		value = 1000;
 		canDrop = false;
