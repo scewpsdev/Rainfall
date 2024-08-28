@@ -3,20 +3,19 @@ $input v_texcoord0
 #include "../bgfx/common.shader"
 
 
-#define BLOOM_STRENGTH 0.1
-#define BLOOM_FALLOFF 4.0
-
-
 SAMPLER2D(s_color, 0);
 SAMPLER2D(s_lighting, 1);
 SAMPLER2D(s_bloom, 2);
 
 uniform vec4 u_vignetteColor;
+uniform vec4 u_bloomSettings;
+#define bloomStrength u_bloomSettings[0]
+#define bloomFalloff u_bloomSettings[1]
 
 
 vec3 ThreshholdBloom(vec3 bloom)
 {
-	return bloom * (1.0 - exp(-RGBToLuminance(bloom) * BLOOM_FALLOFF));
+	return bloom * (1.0 - exp(-RGBToLuminance(bloom) * bloomFalloff));
 	//return bloom;
 }
 
@@ -59,12 +58,12 @@ void main()
 	hdr.rgb *= hdr.a;
 	vec3 lighting = texture2D(s_lighting, v_texcoord0).rgb;
 	vec3 bloom = texture2D(s_bloom, v_texcoord0).rgb;
-	vec3 color = hdr.rgb + ThreshholdBloom(bloom) * BLOOM_STRENGTH;
+	vec3 color = hdr.rgb + ThreshholdBloom(bloom) * bloomStrength;
 
 	vec3 final = linearToSRGB(color) * linearToSRGB(lighting);
 	final = Vignette(final, v_texcoord0);
 	final = Dither(final, v_texcoord0);
 
 	gl_FragColor = vec4(final, 1.0);
-	gl_FragColor = vec4(linearToSRGB(hdr.rgb), 1.0);
+	//gl_FragColor = vec4(linearToSRGB(hdr.rgb), 1.0);
 }

@@ -84,6 +84,6 @@ public class PlayerCamera : Entity
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix view = getTransform().inverted;
 
-		Renderer.SetCamera(projection, view, -0.5f * width, 0.5f * width, -0.5f * height, 0.5f * height);
+		Renderer.SetCamera(projection, view, position.x - 0.5f * width, position.x + 0.5f * width, position.y - 0.5f * height, position.y + 0.5f * height);
 	}
 }

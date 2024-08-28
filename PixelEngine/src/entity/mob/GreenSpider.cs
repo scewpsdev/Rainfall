@@ -21,6 +21,8 @@ public class GreenSpider : Mob
 
 		health = 6;
 
+		itemDropChance = 0.8f;
+
 		ai = new SpiderAI
 		{
 			aggroRange = 12,

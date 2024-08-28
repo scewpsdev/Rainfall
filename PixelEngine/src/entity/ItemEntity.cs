@@ -204,5 +204,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 			renderTooltip();
 		}
+
+		item.render(this);
 	}
 }

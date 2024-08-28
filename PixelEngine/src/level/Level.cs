@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,6 +35,8 @@ public class Level
 	public Door exit;
 
 	public List<Entity> entities = new List<Entity>();
+
+	public Vector3 ambientLight = new Vector3(1.0f);
 
 
 	public Level(int floor, string name)
@@ -175,6 +178,10 @@ public class Level
 
 	public void render()
 	{
+		Renderer.ambientLight = ambientLight;
+		Renderer.bloomStrength = 0.01f;
+		Renderer.vignetteFalloff = 0.1f;
+
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)

@@ -6,6 +6,7 @@ $input v_texcoord0
 SAMPLER2D(s_frame, 0);
 
 uniform vec4 u_cameraBounds;
+uniform vec4 u_ambientLight;
 uniform vec4 u_lightPositions[16];
 uniform vec4 u_lightColors[16];
 
@@ -14,7 +15,7 @@ void main()
 {
 	vec2 worldPosition = vec2(mix(u_cameraBounds.x, u_cameraBounds.y, v_texcoord0.x), mix(u_cameraBounds.z, u_cameraBounds.w, 1 - v_texcoord0.y));
 	
-	vec3 light;
+	vec3 light = vec3(0, 0, 0);
 	for (int i = 0; i < 16; i++)
 	{
 		vec2 lightPosition = u_lightPositions[i].xy;
@@ -22,10 +23,11 @@ void main()
 		float radius = u_lightPositions[i].z;
 		float attenuation = 1.0 - clamp(distance / radius, 0.0, 1.0);
 		attenuation = pow(attenuation, 3.0);
-		//float attenuation = 1 / (1.0 + distance * distance * distance);
 		vec3 lighting = u_lightColors[i].rgb * attenuation;
 		light += lighting;
 	}
+
+	light += u_ambientLight.rgb;
 
 	//light += 0.01;
 	//light = linearToSRGB(light) * 0.9 + 0.1;

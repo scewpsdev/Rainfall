@@ -143,6 +143,7 @@ public class GameState : State
 		npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Rope());
+		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));

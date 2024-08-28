@@ -12,6 +12,7 @@ enum MainMenuScreen
 {
 	Main,
 	CustomRunSettings,
+	Credits,
 }
 
 public class MainMenuState : State
@@ -35,7 +36,7 @@ public class MainMenuState : State
 			"Daily Run",
 			"Custom Run",
 			"Options",
-			"About",
+			"Credits",
 			"Quit"
 		];
 
@@ -44,7 +45,7 @@ public class MainMenuState : State
 			true,
 			true,
 			false,
-			false,
+			true,
 			true
 		];
 
@@ -96,8 +97,8 @@ public class MainMenuState : State
 
 						break;
 
-					case 4: // About
-
+					case 4: // Credits
+						screen = MainMenuScreen.Credits;
 						break;
 
 					case 5: // Quit
@@ -127,6 +128,50 @@ public class MainMenuState : State
 		Renderer.DrawUITextBMP(x, Renderer.UIHeight / 2 - Renderer.smallFont.size / 2, customRunSeedStr.ToString() + "_", 1, 0xFFFFFFFF);
 	}
 
+	void credits()
+	{
+		int x = 100;
+		int y = 60;
+
+		void drawLine(string str)
+		{
+			Renderer.DrawUITextBMP(x, y, str, 1);
+			y += Renderer.smallFont.size + 2;
+		}
+
+		void back()
+		{
+			y -= Renderer.smallFont.size + 2;
+		}
+
+		void drawLineRight(string str)
+		{
+			Renderer.DrawUITextBMP(Renderer.UIWidth - x - Renderer.MeasureUITextBMP(str).x, y, str, 1);
+			y += Renderer.smallFont.size + 2;
+		}
+
+		string title = "Test Title";
+		Renderer.DrawUIText(Renderer.UIWidth / 2 - Renderer.MeasureUIText(title).x / 2, 30, title);
+
+		drawLine("A Game by Scewps");
+		drawLine("");
+		drawLine("Libraries:");
+		back();
+		drawLineRight("GLFW");
+		drawLineRight("BGFX");
+		drawLineRight("Soloud");
+		drawLine("");
+		drawLine("Software");
+		back();
+		drawLineRight("Visual Studio");
+		drawLineRight("Aseprite");
+		drawLineRight("OneNote");
+		drawLine("");
+		drawLine("Playtesters:");
+		back();
+		drawLineRight("Godebob");
+	}
+
 	public override void onCharEvent(byte length, uint value)
 	{
 		if (screen == MainMenuScreen.CustomRunSettings)
@@ -146,6 +191,11 @@ public class MainMenuState : State
 			if (key == KeyCode.Esc && modifiers == KeyModifier.None && down)
 				screen = MainMenuScreen.Main;
 		}
+		else if (screen == MainMenuScreen.Credits)
+		{
+			if ((key == KeyCode.Backspace || key == KeyCode.Q) && modifiers == KeyModifier.None && down)
+				screen = MainMenuScreen.Main;
+		}
 	}
 
 	public override void draw(GraphicsDevice graphics)
@@ -154,5 +204,7 @@ public class MainMenuState : State
 			mainScreen();
 		else if (screen == MainMenuScreen.CustomRunSettings)
 			customRun();
+		else if (screen == MainMenuScreen.Credits)
+			credits();
 	}
 }

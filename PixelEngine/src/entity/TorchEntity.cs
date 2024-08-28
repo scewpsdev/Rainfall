@@ -44,5 +44,7 @@ public class TorchEntity : Entity, Interactable
 
 		if (outline != 0)
 			Renderer.DrawOutline(position.x - 0.5f, position.y - 0.5f, 1, 1, sprite, false, outline);
+
+		Renderer.DrawLight(position, new Vector3(1.0f, 0.9f, 0.7f) * 1, 6);
 	}
 }

@@ -30,4 +30,9 @@ public class Torch : Item
 		player.actions.queueAction(new AttackAction(this));
 		return true;
 	}
+
+	public override void render(Entity entity)
+	{
+		Renderer.DrawLight(entity.position, new Vector3(1.0f, 0.9f, 0.7f) * 1, 6);
+	}
 }
