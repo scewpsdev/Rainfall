@@ -24,7 +24,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 	List<Entity> hitEntities = new List<Entity>();
 
 	public Item item;
-	public uint color = 0xFFFFFFFF;
+	public Vector4 color = Vector4.One;
 	uint outline = 0;
 
 
