@@ -52,12 +52,14 @@ public class InventoryUI
 		{
 			InputManager.ConsumeEvent("Inventory");
 			player.inventoryOpen = true;
+			player.numOverlaysOpen++;
 			selectedItem = 0;
 		}
 		else if (player.inventoryOpen && InputManager.IsPressed("Inventory"))
 		{
 			InputManager.ConsumeEvent("Inventory");
 			player.inventoryOpen = false;
+			player.numOverlaysOpen--;
 		}
 
 		if (player.inventoryOpen)

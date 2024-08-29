@@ -694,7 +694,7 @@ public class LevelGenerator
 						}
 					}
 
-					if (down == null && up == null && !objectFlags[x + y * width])
+					if (darkLevel && down == null && up == null && !objectFlags[x + y * width])
 					{
 						TileType downDown = level.getTile(x, y - 2);
 						if (downDown != null)

@@ -72,6 +72,7 @@ public class Player : Entity, Hittable
 	public Climbable currentLadder = null;
 	Climbable lastLadderJumpedFrom = null;
 
+	public SortedList<ItemType, Item> items = new SortedList<ItemType, Item>();
 	public Item handItem = null;
 	public Item[] quickItems = new Item[4];
 	public int currentQuickItem = 0;
@@ -627,7 +628,7 @@ public class Player : Entity, Hittable
 				}
 			}
 
-			if (!isStunned)
+			if (!isStunned && numOverlaysOpen == 0)
 			{
 				Interactable interactable = isAlive ? GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f), this) : null;
 				if (interactableInFocus != null && interactableInFocus != interactable)
@@ -698,7 +699,7 @@ public class Player : Entity, Hittable
 
 					if (InputManager.IsPressed("Interact"))
 					{
-						if (isDucked && numOverlaysOpen == 0)
+						if (isDucked)
 						{
 							InputManager.ConsumeEvent("Interact");
 							throwItem(handItem, true);

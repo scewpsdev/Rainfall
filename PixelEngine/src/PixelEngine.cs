@@ -1,7 +1,7 @@
 ﻿#if DEBUG
 #define COMPILE_RESOURCES
 #else
-#define COMPILE_RESOURCES
+//#define COMPILE_RESOURCES
 #endif
 
 
@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection.Emit;
 using System.Reflection;
+using static System.Formats.Asn1.AsnWriter;
 
 
 public class PixelEngine : Game
@@ -38,7 +39,10 @@ public class PixelEngine : Game
 	{
 		Display.windowTitle = ASSEMBLY_NAME;
 
-		Renderer.Init(graphics, Display.width, Display.height);
+		float w = 1920 / 5.0f / 16.0f;
+		int scale = (int)MathF.Round(Display.width / w / 16.0f);
+		scale = 1;
+		Renderer.Init(graphics, Display.width / scale, Display.height / scale);
 
 		Physics.Init();
 		Audio.Init();
@@ -61,7 +65,10 @@ public class PixelEngine : Game
 
 	protected override void onViewportSizeEvent(int width, int height)
 	{
-		Renderer.Resize(width, height);
+		float w = 1920 / 5.0f / 16.0f;
+		int scale = (int)MathF.Round(Display.width / w / 16.0f);
+		scale = 1;
+		Renderer.Resize(width / scale, height / scale);
 	}
 
 	public void pushState(State state)
