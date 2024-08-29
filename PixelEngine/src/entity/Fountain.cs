@@ -85,6 +85,13 @@ public class Fountain : Entity, Interactable
 		consumed = true;
 	}
 
+	public override void update()
+	{
+		TileType tile = GameState.instance.level.getTile(position + new Vector2(0.5f, -0.5f));
+		if (tile == null)
+			remove();
+	}
+
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, sprite);

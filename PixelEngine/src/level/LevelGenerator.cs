@@ -351,8 +351,11 @@ public class LevelGenerator
 		random = new Random((int)Hash.hash(seed) + floor);
 
 		int width = MathHelper.RandomInt(24, 150, random);
-		int height = 3200 / width;
+		int height = (floor == 5 ? 4500 : 3200) / width;
 		level.resize(width, height);
+
+		bool darkLevel = floor == 2 || floor == 3;
+		level.ambientLight = darkLevel ? new Vector3(0.001f) : new Vector3(1.0f);
 
 		List<Room> rooms = new List<Room>();
 
@@ -800,9 +803,6 @@ public class LevelGenerator
 				}
 			}
 		}
-
-		bool darkLevel = random.Next() % 2 == 0;
-		level.ambientLight = darkLevel ? new Vector3(0.001f) : new Vector3(1.0f);
 	}
 
 	public void generateLobby(Level level)
