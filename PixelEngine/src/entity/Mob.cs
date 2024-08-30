@@ -42,7 +42,7 @@ public abstract class Mob : Entity, Hittable
 	bool isSprinting = false;
 	bool isClimbing = false;
 	float distanceWalked = 0;
-	bool isStunned = false;
+	public bool isStunned = false;
 	long stunTime = -1;
 
 	Climbable currentLadder = null;

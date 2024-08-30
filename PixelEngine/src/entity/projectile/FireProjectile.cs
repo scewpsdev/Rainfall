@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class MagicProjectile : Entity
+public class FireProjectile : Entity
 {
 	float speed = 2;
 	float maxSpeed = 20;
@@ -26,7 +26,7 @@ public class MagicProjectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item)
+	public FireProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item)
 	{
 		this.direction = direction;
 		this.offset = offset;
@@ -47,7 +47,7 @@ public class MagicProjectile : Entity
 				damage *= (shooter as Player).attack;
 		}
 
-		sprite = new Sprite(Item.tileset, 9, 1);
+		sprite = new Sprite(Item.tileset, 1, 2);
 	}
 
 	public override void update()
@@ -92,6 +92,6 @@ public class MagicProjectile : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
+		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(2.0f));
 	}
 }

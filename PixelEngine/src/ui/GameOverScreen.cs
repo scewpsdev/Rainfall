@@ -96,8 +96,12 @@ public static class GameOverScreen
 		drawRight(game.run.kills.ToString());
 		y += lineHeight;
 
-		drawLeft("Steps taken");
-		drawRight(game.run.stepsTaken.ToString());
+		drawLeft("Hits taken");
+		drawRight(game.run.hitsTaken.ToString());
+		y += lineHeight;
+
+		drawLeft("Steps walked");
+		drawRight(game.run.stepsWalked.ToString());
 		y += lineHeight;
 
 		/*

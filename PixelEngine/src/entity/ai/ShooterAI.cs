@@ -6,32 +6,33 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class SnakeAI : AI
+public class ShooterAI : AI
 {
 	enum AIState
 	{
 		Default,
 		Charge,
-		Dash,
+		Attack,
 		Cooldown,
 	}
 
 
-	public float aggroRange = 4.0f;
-	public float loseRange = 5.0f;
-	public float loseTime = 3.0f;
-	public float dashChargeTime = 0.5f;
-	public float dashCooldownTime = 1.0f;
-	float dashDuration = 0.3f;
-	float dashSpeedMultiplier = 3;
+	public float aggroRange = 7.0f;
+	public float loseRange = 9.0f;
+	public float loseTime = 4.0f;
+	public float attackTriggerDistance = 6.0f;
+	public float attackChargeTime = 0.5f;
+	public float attackDuration = 1.0f;
+	public float attackCooldownTime = 0.5f;
 
 	AIState state = AIState.Charge;
 	int walkDirection = 1;
 	int dashDirection;
 
 	long chargeTime;
-	long dashTime;
+	long attackTime;
 	long cooldownTime;
+	int projectilesFired = 0;
 
 	Entity target;
 	long targetLastSeen = -1;
@@ -58,7 +59,7 @@ public class SnakeAI : AI
 		{
 			mob.animator.setAnimation("idle");
 
-			if (distance < 2.0f)
+			if (distance < attackTriggerDistance)
 			{
 				state = AIState.Charge;
 				chargeTime = Time.currentTime;
@@ -67,31 +68,45 @@ public class SnakeAI : AI
 		}
 		if (state == AIState.Charge)
 		{
-			mob.animator.setAnimation("idle");
+			mob.animator.setAnimation("charge");
 
-			if ((Time.currentTime - chargeTime) / 1e9f > dashChargeTime)
+			if ((Time.currentTime - chargeTime) / 1e9f > attackChargeTime)
 			{
-				state = AIState.Dash;
-				dashTime = Time.currentTime;
-				mob.speed *= dashSpeedMultiplier;
+				state = AIState.Attack;
+				attackTime = Time.currentTime;
+				projectilesFired = 0;
+			}
+
+			if (mob.isStunned)
+			{
+				state = AIState.Default;
 			}
 		}
-		if (state == AIState.Dash)
+		if (state == AIState.Attack)
 		{
 			mob.animator.setAnimation("attack");
 
-			if ((Time.currentTime - dashTime) / 1e9f > dashDuration)
+			if ((Time.currentTime - attackTime) / 1e9f > attackDuration)
 			{
 				state = AIState.Cooldown;
 				cooldownTime = Time.currentTime;
-				mob.speed /= dashSpeedMultiplier;
+				projectilesFired = -1;
+			}
+			else
+			{
+				int projectilesShouldveFired = (int)MathF.Ceiling((Time.currentTime - attackTime) / 1e9f / attackDuration * 3);
+				if (projectilesFired < projectilesShouldveFired)
+				{
+					projectilesFired++;
+					((Gandalf)mob).shootProjectile();
+				}
 			}
 		}
 		if (state == AIState.Cooldown)
 		{
 			mob.animator.setAnimation("idle");
 
-			if ((Time.currentTime - cooldownTime) / 1e9f > dashCooldownTime)
+			if ((Time.currentTime - cooldownTime) / 1e9f > attackCooldownTime)
 			{
 				state = AIState.Default;
 			}
@@ -104,7 +119,7 @@ public class SnakeAI : AI
 			else
 				mob.inputRight = true;
 		}
-		else if (state == AIState.Dash)
+		else if (state == AIState.Attack)
 		{
 			if (dashDirection == -1)
 				mob.inputLeft = true;
