@@ -202,6 +202,7 @@ public abstract class Item
 		InitType(new PotionOfEnergy());
 		InitType(new Apple());
 		InitType(new GoldenApple());
+		InitType(new Chainmail());
 	}
 
 	static void InitType(Item item)

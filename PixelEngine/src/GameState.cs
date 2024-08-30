@@ -15,7 +15,8 @@ public class RunStats
 	public int floor = 0;
 	public int kills = 0;
 	public int chestsOpened = 0;
-	public int stepsTaken = 0;
+	public int stepsWalked = 0;
+	public int hitsTaken = 0;
 
 	public bool active = true;
 
@@ -47,7 +48,8 @@ public class RunStats
 			result += floor * 1000;
 			result += kills * 200;
 			result += chestsOpened * 17;
-			result += stepsTaken * 5;
+			result += stepsWalked * 5;
+			result += (int)MathF.Exp(-hitsTaken * 0.2f);
 
 			return result;
 		}
@@ -147,6 +149,8 @@ public class GameState : State
 		npc.addShopItem(new Bomb());
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
+
+		level.addEntity(new Gandalf(), new Vector2(6.5f, 3));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);

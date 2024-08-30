@@ -294,6 +294,9 @@ public class Player : Entity, Hittable
 
 	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
+		if (!isAlive)
+			return;
+
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (!invincible)
 		{
@@ -302,6 +305,8 @@ public class Player : Entity, Hittable
 			damage *= 1 - armorAbsorption;
 
 			health = MathF.Max(health - damage, 0);
+
+			GameState.instance.run.hitsTaken++;
 
 			if (by != null && by.collider != null)
 			{
@@ -811,7 +816,7 @@ public class Player : Entity, Hittable
 
 	void onStep()
 	{
-		GameState.instance.run.stepsTaken++;
+		GameState.instance.run.stepsWalked++;
 	}
 
 	public override void update()

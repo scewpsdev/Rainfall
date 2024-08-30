@@ -171,6 +171,7 @@ public class MainMenuState : State
 		back();
 		drawLineRight("Godebob");
 		drawLineRight("Lenee");
+		drawLineRight("Tojota");
 	}
 
 	public override void onCharEvent(byte length, uint value)
