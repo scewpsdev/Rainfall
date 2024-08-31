@@ -125,9 +125,9 @@ public static class InputManager
 
 	static void TryGetButton(string value, ref MouseButton button)
 	{
-		if (value.Length == 2 && value[0] == 'M' && value[1] >= '0' && value[1] <= '9')
+		if (StringUtils.StartsWith(value, "Mouse") && value[value.Length - 1] >= '0' && value[value.Length - 1] <= '9')
 		{
-			int buttonID = value[1] - '0' - 1;
+			int buttonID = value[value.Length - 1] - '0' - 1;
 			button = MouseButton.Left + buttonID;
 		}
 	}

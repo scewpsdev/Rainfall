@@ -11,22 +11,25 @@ public class BatAI : AI
 	public float aggroRange = 8.0f;
 	public float loseRange = 12.0f;
 	public float loseTime = 3.0f;
+	float shootCooldown = 1.0f;
 
-	Mob mob;
+	public bool preferVerticalMovement = true;
+	public bool canShoot = false;
+
 	int walkDirection = 1;
-
 	Entity target;
 	long targetLastSeen = -1;
+	long lastShot = -1;
 
 	List<Vector2i> currentPath = new List<Vector2i>();
 
 
 	public BatAI(Mob mob)
+		: base(mob)
 	{
-		this.mob = mob;
 	}
 
-	public void onHit(Entity by)
+	public override void onHit(Entity by)
 	{
 		if (target == null)
 			setTarget(by);
@@ -48,16 +51,12 @@ public class BatAI : AI
 	bool updatePath(Vector2i currentTile, Vector2i targetTile)
 	{
 		currentPath.Clear();
-		return GameState.instance.level.astar.run(currentTile, targetTile, currentPath);
+		return GameState.instance.level.astar.run(currentTile, targetTile, currentPath, preferVerticalMovement);
 	}
 
 	void updateTargetFollow()
 	{
-		Vector2 toPlayer = target.position + target.collider.center - mob.position;
-		float distance = toPlayer.length;
-
-		HitData hit = GameState.instance.level.raycastTiles(mob.position, toPlayer.normalized, distance + 0.1f);
-		if (hit == null)
+		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
 			targetLastSeen = Time.currentTime;
 
 		Vector2i currentTile = (Vector2i)Vector2.Floor(mob.position);
@@ -86,24 +85,18 @@ public class BatAI : AI
 				mob.inputUp = true;
 		}
 
-		/*
-		TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, 0.0f));
-		TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, mob.collider.max.y + 0.05f));
-		TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, mob.collider.min.y - 0.05f));
-		bool forwardBlocked = forwardTile != null && forwardTile.isSolid || forwardUpTile != null && forwardUpTile.isSolid || forwardDownTile != null && forwardDownTile.isSolid;
+		if (canShoot && distance < 3.0f && target.position.y < mob.position.y - 0.1f)
+		{
+			if (lastShot == -1 || (Time.currentTime - lastShot) / 1e9f > shootCooldown)
+			{
+				Vector2 offset = Vector2.Zero;
+				Vector2 direction = (toTarget + new Vector2(mob.direction, 0) * 0.1f).normalized;
+				FireProjectile projectile = new FireProjectile(direction, mob.velocity, offset, mob, null);
+				GameState.instance.level.addEntity(projectile, mob.position);
 
-		float xdelta = target.position.x + target.collider.center.x - mob.position.x;
-		float ydelta = target.position.y + 0.5f - mob.position.y;
-
-		if (xdelta < 0)
-			mob.inputLeft = true;
-		else if (xdelta > 0)
-			mob.inputRight = true;
-		if (ydelta < 0 && (MathF.Abs(ydelta) > MathF.Abs(xdelta) || forwardBlocked))
-			mob.inputDown = true;
-		else if (ydelta > 0 && (MathF.Abs(ydelta) > MathF.Abs(xdelta) || forwardBlocked))
-			mob.inputUp = true;
-		*/
+				lastShot = Time.currentTime;
+			}
+		}
 	}
 
 	void updatePatrol()
@@ -121,7 +114,7 @@ public class BatAI : AI
 			mob.inputLeft = true;
 	}
 
-	public void update(Mob mob)
+	public override void update()
 	{
 		mob.inputRight = false;
 		mob.inputLeft = false;
@@ -130,14 +123,12 @@ public class BatAI : AI
 
 		if (target == null)
 		{
-			Player player = GameState.instance.player;
-			Vector2 toPlayer = player.position + player.collider.center - mob.position;
-			float distance = toPlayer.length;
-			if (distance < aggroRange)
+			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				HitData hit = GameState.instance.level.raycastTiles(mob.position, toPlayer.normalized, distance + 0.1f);
-				if (hit == null)
-					setTarget(player);
+				if (distance < aggroRange)
+				{
+					setTarget(GameState.instance.player);
+				}
 			}
 		}
 

@@ -15,14 +15,14 @@ public class Cheese : Item
 		stackable = true;
 		//canDrop = false;
 
-		value = 8;
+		value = 12;
 
 		sprite = new Sprite(tileset, 13, 0);
 	}
 
 	public override bool use(Player player)
 	{
-		player.addStatusEffect(new HealEffect(0.5f, 5));
+		player.addStatusEffect(new HealEffect(1.5f, 5));
 		//if (player.health < player.maxHealth)
 		//	player.health = MathF.Min(player.health + 0.5f, player.maxHealth);
 		return true;

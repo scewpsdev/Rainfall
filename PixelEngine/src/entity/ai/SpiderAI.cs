@@ -17,7 +17,10 @@ public class SpiderAI : AI
 
 	public float aggroRange = 8.0f;
 	public float loseRange = 12.0f;
+	public float loseTime = 6.0f;
 	public float jumpChargeTime = 2.0f;
+	float jumpSpeed = 4;
+	float chargeSpeed = 0.3f;
 
 	AIState state = AIState.Charge;
 	int walkDirection;
@@ -25,16 +28,25 @@ public class SpiderAI : AI
 	long lastAirTime;
 
 	Player target;
+	long targetLastSeen = -1;
 
 
-	public void onHit(Entity by)
+	public SpiderAI(Mob mob)
+		: base(mob)
+	{
+	}
+
+	public override void onHit(Entity by)
 	{
 		if (target == null && by is Player)
 			target = by as Player;
 	}
 
-	void updateTargetFollow(Mob mob)
+	void updateTargetFollow()
 	{
+		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
+			targetLastSeen = Time.currentTime;
+
 		if (!mob.isGrounded)
 			lastAirTime = Time.currentTime;
 
@@ -42,13 +54,20 @@ public class SpiderAI : AI
 		{
 			state = AIState.Jump;
 			walkDirection = target.position.x > mob.position.x ? 1 : target.position.x < mob.position.x ? -1 : 0;
+			mob.speed = jumpSpeed;
 		}
 		else if (state == AIState.Jump && mob.isGrounded)
+		{
 			state = AIState.Charge;
+			mob.speed = chargeSpeed;
+		}
 
 		if (state == AIState.Charge)
 		{
-			;
+			if (walkDirection == 1)
+				mob.inputRight = true;
+			else if (walkDirection == -1)
+				mob.inputLeft = true;
 		}
 		else if (state == AIState.Jump)
 		{
@@ -61,7 +80,7 @@ public class SpiderAI : AI
 		}
 	}
 
-	public void update(Mob mob)
+	public override void update()
 	{
 		mob.inputRight = false;
 		mob.inputLeft = false;
@@ -69,26 +88,26 @@ public class SpiderAI : AI
 
 		if (target == null)
 		{
-			Player player = GameState.instance.player;
-			Vector2 toPlayer = player.position + player.collider.center - mob.position - new Vector2(0, 0.5f);
-			float distance = toPlayer.length;
-			if (distance < aggroRange)
+			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				HitData hit = GameState.instance.level.raycastTiles(mob.position + new Vector2(0, 0.5f), toPlayer.normalized, distance + 0.1f);
-				if (hit == null)
-					target = player;
+				if (distance < aggroRange)
+				{
+					target = GameState.instance.player;
+				}
 			}
 		}
 
 		if (target != null)
 		{
-			if ((target.position - mob.position).lengthSquared > loseRange * loseRange)
+			if ((target.position - mob.position).lengthSquared > loseRange * loseRange ||
+				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime)
 			{
 				target = null;
+				targetLastSeen = -1;
 			}
 		}
 
 		if (target != null)
-			updateTargetFollow(mob);
+			updateTargetFollow();
 	}
 }

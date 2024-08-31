@@ -20,5 +20,7 @@ public class TravellingMerchant : NPC
 		animator.setAnimation("idle");
 
 		populateShop(random, 5, ItemType.Weapon, ItemType.Armor, ItemType.Ring, ItemType.Gem);
+
+		buysItems = true;
 	}
 }

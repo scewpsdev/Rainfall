@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 internal class SpikeTrap : Entity, Hittable
 {
-	int damage = 5;
-	float gravity = -30;
+	int damage = 2;
+	float gravity = -20;
 	float startVelocity = -5;
 
 	Sprite sprite;

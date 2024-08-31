@@ -23,7 +23,7 @@ public class GreenSpider : Mob
 
 		itemDropChance = 0.8f;
 
-		ai = new SpiderAI
+		ai = new SpiderAI(this)
 		{
 			aggroRange = 12,
 			loseRange = 15,

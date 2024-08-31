@@ -49,7 +49,7 @@ public class RunStats
 			result += kills * 200;
 			result += chestsOpened * 17;
 			result += stepsWalked * 5;
-			result += (int)MathF.Exp(-hitsTaken * 0.2f);
+			result += (int)(MathF.Exp(-hitsTaken * 0.2f) * duration);
 
 			return result;
 		}
@@ -65,6 +65,8 @@ public class GameState : State
 
 
 	public static GameState instance;
+
+	public bool isPaused = false;
 
 	long particleUpdateDelta;
 	long animationUpdateDelta;
@@ -150,7 +152,7 @@ public class GameState : State
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
 
-		level.addEntity(new Gandalf(), new Vector2(6.5f, 3));
+		level.addEntity(new OrangeBat(), new Vector2(6.5f, 5));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
@@ -233,6 +235,19 @@ public class GameState : State
 
 	public override void update()
 	{
+		if (!isPaused && InputManager.IsPressed("UIQuit") && player.numOverlaysOpen == 0)
+		{
+			isPaused = true;
+			PauseMenu.OnPause();
+		}
+		else if (isPaused && InputManager.IsPressed("UIQuit"))
+		{
+			isPaused = false;
+			PauseMenu.OnUnpause();
+		}
+		if (isPaused)
+			return;
+
 		run.update();
 
 		if (newLevel != null)
@@ -288,6 +303,11 @@ public class GameState : State
 
 			if (InputManager.IsPressed("Interact"))
 				reset();
+		}
+
+		if (isPaused)
+		{
+			PauseMenu.Render(this);
 		}
 	}
 

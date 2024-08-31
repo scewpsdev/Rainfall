@@ -493,9 +493,18 @@ public class LevelGenerator
 			}
 		}
 
-		for (int i = 0; i < rooms.Count; i++)
+		float builderChance = 0.1f;
+		float travellerChance = 0.02f;
+		float ratChance = 0.02f;
+		float loganChance = 0.02f;
+		float blacksmithChance = 0.08f;
+		float fountainChance = 0.1f;
+
+		List<Room> roomSpawnList = new List<Room>(rooms);
+		MathHelper.ShuffleList(roomSpawnList, random);
+		for (int i = 0; i < roomSpawnList.Count; i++)
 		{
-			Room room = rooms[i];
+			Room room = roomSpawnList[i];
 			bool isDeadEnd = room.countConnectedDoorways() == 1;
 			if (isDeadEnd && !room.isMainPath)
 			{
@@ -507,13 +516,6 @@ public class LevelGenerator
 					}
 				}
 
-				float builderChance = 0.1f;
-				float travellerChance = 0.02f;
-				float ratChance = 0.02f;
-				float loganChance = 0.02f;
-				float blacksmithChance = 0.08f;
-				float fountainChance = 0.1f;
-
 				float f = random.NextSingle();
 
 				if (f < builderChance)
@@ -523,7 +525,7 @@ public class LevelGenerator
 						BuilderMerchant npc = new BuilderMerchant(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
-
+						builderChance = 0;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
@@ -534,7 +536,7 @@ public class LevelGenerator
 						TravellingMerchant npc = new TravellingMerchant(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
-
+						travellerChance = 0;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
@@ -545,7 +547,7 @@ public class LevelGenerator
 						RatNPC npc = new RatNPC();
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
-
+						ratChance = 0;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
@@ -556,7 +558,7 @@ public class LevelGenerator
 						Logan npc = new Logan(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
-
+						loganChance = 0;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
@@ -567,7 +569,7 @@ public class LevelGenerator
 						Blacksmith npc = new Blacksmith(random);
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
-
+						blacksmithChance = 0;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
@@ -759,9 +761,13 @@ public class LevelGenerator
 								{
 									if (down == null)
 									{
-										//float enemyType = random.NextSingle();
+										Mob enemy;
 
-										Mob enemy = new Bat();
+										float batType = random.NextSingle();
+										if (batType < 0.9f)
+											enemy = new Bat();
+										else
+											enemy = new OrangeBat();
 
 										level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
 										objectFlags[x + y * width] = true;
@@ -778,7 +784,9 @@ public class LevelGenerator
 										//if (enemyType > 0.9f)
 										//	enemy = new Bob();
 										//else 
-										if (enemyType > 0.666f)
+										if (enemyType > 0.95f)
+											enemy = new Gandalf();
+										else if (enemyType > 0.666f)
 											enemy = new Snake();
 										else if (enemyType > 0.333f)
 										{

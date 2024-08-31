@@ -23,18 +23,9 @@ public class Gandalf : Mob
 
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
 
-		ai = new ShooterAI();
+		ai = new GandalfAI(this);
 
 		health = 5;
 		speed = 2;
-	}
-
-	public void shootProjectile()
-	{
-		Vector2 position = this.position + new Vector2(0.0f, 0.3f);
-		Vector2 offset = new Vector2(direction * 0.5f, 0.3f);
-		GameState.instance.level.addEntity(new FireProjectile(new Vector2(direction, 0), velocity, offset, this, null), position);
-
-		GameState.instance.level.addEntity(new MagicProjectileCastEffect(this), position + offset);
 	}
 }
