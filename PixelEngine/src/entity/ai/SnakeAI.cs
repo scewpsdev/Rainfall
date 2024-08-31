@@ -24,8 +24,9 @@ public class SnakeAI : AI
 	public float dashCooldownTime = 1.0f;
 	float dashDuration = 0.3f;
 	float dashSpeedMultiplier = 3;
+	float dashTriggerDistance = 2;
 
-	AIState state = AIState.Charge;
+	AIState state = AIState.Default;
 	int walkDirection = 1;
 	int dashDirection;
 
@@ -37,28 +38,43 @@ public class SnakeAI : AI
 	long targetLastSeen = -1;
 
 
-	public void onHit(Entity by)
+	public SnakeAI(Mob mob)
+		: base(mob)
+	{
+	}
+
+	public override void onHit(Entity by)
 	{
 		if (target == null)
 			target = by;
 	}
 
-	void updateTargetFollow(Mob mob)
+	void beginDash()
 	{
-		walkDirection = target.position.x < mob.position.x ? -1 : 1;
+		state = AIState.Dash;
+		dashTime = Time.currentTime;
+		mob.speed *= dashSpeedMultiplier;
+	}
 
-		Vector2 toPlayer = target.position + target.collider.center - mob.position;
-		float distance = toPlayer.length;
+	void endDash()
+	{
+		state = AIState.Cooldown;
+		cooldownTime = Time.currentTime;
+		mob.speed /= dashSpeedMultiplier;
+	}
 
-		HitData hit = GameState.instance.level.raycastTiles(mob.position, toPlayer.normalized, distance + 0.1f);
-		if (hit == null)
+	void updateTargetFollow()
+	{
+		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
 			targetLastSeen = Time.currentTime;
 
 		if (state == AIState.Default)
 		{
 			mob.animator.setAnimation("idle");
 
-			if (distance < 2.0f)
+			walkDirection = target.position.x < mob.position.x ? -1 : 1;
+
+			if (distance < dashTriggerDistance)
 			{
 				state = AIState.Charge;
 				chargeTime = Time.currentTime;
@@ -70,22 +86,14 @@ public class SnakeAI : AI
 			mob.animator.setAnimation("idle");
 
 			if ((Time.currentTime - chargeTime) / 1e9f > dashChargeTime)
-			{
-				state = AIState.Dash;
-				dashTime = Time.currentTime;
-				mob.speed *= dashSpeedMultiplier;
-			}
+				beginDash();
 		}
 		if (state == AIState.Dash)
 		{
 			mob.animator.setAnimation("attack");
 
 			if ((Time.currentTime - dashTime) / 1e9f > dashDuration)
-			{
-				state = AIState.Cooldown;
-				cooldownTime = Time.currentTime;
-				mob.speed /= dashSpeedMultiplier;
-			}
+				endDash();
 		}
 		if (state == AIState.Cooldown)
 		{
@@ -99,6 +107,21 @@ public class SnakeAI : AI
 
 		if (state == AIState.Default)
 		{
+			HitData forwardTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, 0.5f));
+			if (forwardTile != null)
+			{
+				walkDirection *= -1;
+			}
+			else
+			{
+				HitData forwardDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -0.5f));
+				HitData forwardDownDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -1.5f));
+				if (forwardDownTile == null /*&& forwardDownDownTile == null*/)
+				{
+					walkDirection *= -1;
+				}
+			}
+
 			if (walkDirection == -1)
 				mob.inputLeft = true;
 			else
@@ -111,24 +134,9 @@ public class SnakeAI : AI
 			else
 				mob.inputRight = true;
 		}
-
-		HitData forwardTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, 0.5f));
-		if (forwardTile != null)
-		{
-			walkDirection *= -1;
-		}
-		else
-		{
-			HitData forwardDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -0.5f));
-			HitData forwardDownDownTile = GameState.instance.level.sampleTiles(mob.position + new Vector2(0.4f * walkDirection, -1.5f));
-			if (forwardDownTile == null /*&& forwardDownDownTile == null*/)
-			{
-				walkDirection *= -1;
-			}
-		}
 	}
 
-	void updatePatrol(Mob mob)
+	void updatePatrol()
 	{
 		mob.animator.setAnimation("idle");
 
@@ -148,7 +156,7 @@ public class SnakeAI : AI
 		}
 	}
 
-	public void update(Mob mob)
+	public override void update()
 	{
 		mob.inputRight = false;
 		mob.inputLeft = false;
@@ -156,14 +164,12 @@ public class SnakeAI : AI
 
 		if (target == null)
 		{
-			Player player = GameState.instance.player;
-			Vector2 toPlayer = player.position + player.collider.center - mob.position - new Vector2(0, 0.5f);
-			float distance = toPlayer.length;
-			if (distance < aggroRange)
+			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				HitData hit = GameState.instance.level.raycastTiles(mob.position + new Vector2(0, 0.5f), toPlayer.normalized, distance + 0.1f);
-				if (hit == null)
-					target = player;
+				if (distance < aggroRange)
+				{
+					target = GameState.instance.player;
+				}
 			}
 		}
 
@@ -172,14 +178,16 @@ public class SnakeAI : AI
 			if ((target.position - mob.position).lengthSquared > loseRange * loseRange ||
 				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime)
 			{
+				if (state == AIState.Dash)
+					endDash();
 				target = null;
 				targetLastSeen = -1;
 			}
 		}
 
 		if (target != null)
-			updateTargetFollow(mob);
+			updateTargetFollow();
 		else
-			updatePatrol(mob);
+			updatePatrol();
 	}
 }

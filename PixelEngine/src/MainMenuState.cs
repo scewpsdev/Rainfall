@@ -49,67 +49,43 @@ public class MainMenuState : State
 			true
 		];
 
-		int linePadding = 3;
-
-		if (InputManager.IsPressed("Down"))
+		int selection = UIElements.FullscreenMenu(labels, enabled, ref currentButton);
+		if (selection != -1)
 		{
-			do
+			switch (selection)
 			{
-				currentButton = (currentButton + 1) % labels.Length;
-			} while (!enabled[currentButton]);
-		}
-		if (InputManager.IsPressed("Up"))
-		{
-			do
-			{
-				currentButton = (currentButton + labels.Length - 1) % labels.Length;
-			} while (!enabled[currentButton]);
-		}
+				case 0: // Play
+					PixelEngine.instance.pushState(new GameState(null));
+					break;
 
-		for (int i = 0; i < labels.Length; i++)
-		{
-			string txt = labels[i];
-			Vector2i size = Renderer.MeasureUITextBMP(txt, txt.Length, 1);
-			uint color = enabled[i] ? (i == currentButton ? 0xFFFFFFFF : 0xFF666666) : 0xFF333333;
-			Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 2 - size.y / 2 + i * (size.y + linePadding), txt, 1, color);
+				case 1: // Daily Run
+					DateTime today = DateTime.Today;
+					int day = today.DayOfYear;
+					int year = today.Year;
+					uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
+					PixelEngine.instance.pushState(new GameState(seed.ToString()));
+					break;
 
-			if (i == currentButton && InputManager.IsPressed("Interact"))
-			{
-				switch (i)
-				{
-					case 0: // Play
-						PixelEngine.instance.pushState(new GameState(null));
-						break;
+				case 2: // Custom Run
+					screen = MainMenuScreen.CustomRunSettings;
+					break;
 
-					case 1: // Daily Run
-						DateTime today = DateTime.Today;
-						int day = today.DayOfYear;
-						int year = today.Year;
-						uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
-						PixelEngine.instance.pushState(new GameState(seed.ToString()));
-						break;
+				case 3: // Options
 
-					case 2: // Custom Run
-						screen = MainMenuScreen.CustomRunSettings;
-						break;
+					break;
 
-					case 3: // Options
+				case 4: // Credits
+					screen = MainMenuScreen.Credits;
+					break;
 
-						break;
+				case 5: // Quit
+					PixelEngine.instance.popState();
+					PixelEngine.instance.terminate();
+					break;
 
-					case 4: // Credits
-						screen = MainMenuScreen.Credits;
-						break;
-
-					case 5: // Quit
-						PixelEngine.instance.popState();
-						PixelEngine.instance.terminate();
-						break;
-
-					default:
-						Debug.Assert(false);
-						break;
-				}
+				default:
+					Debug.Assert(false);
+					break;
 			}
 		}
 	}
@@ -155,6 +131,16 @@ public class MainMenuState : State
 
 		drawLine("A Game by Scewps");
 		drawLine("");
+		drawLine("With help from:");
+		back();
+		drawLineRight("Tojota");
+		drawLine("");
+		drawLine("Playtesters:");
+		back();
+		drawLineRight("Godebob");
+		drawLineRight("Lenee");
+		drawLineRight("Tojota");
+		drawLine("");
 		drawLine("Libraries:");
 		back();
 		drawLineRight("GLFW");
@@ -166,12 +152,6 @@ public class MainMenuState : State
 		drawLineRight("Visual Studio");
 		drawLineRight("Aseprite");
 		drawLineRight("OneNote");
-		drawLine("");
-		drawLine("Playtesters:");
-		back();
-		drawLineRight("Godebob");
-		drawLineRight("Lenee");
-		drawLineRight("Tojota");
 	}
 
 	public override void onCharEvent(byte length, uint value)

@@ -10,6 +10,8 @@ public class RingOfTears : Item
 {
 	bool active = false;
 
+	float buff = 0.5f;
+
 
 	public RingOfTears()
 		: base("ring_of_tears", ItemType.Ring)
@@ -25,12 +27,20 @@ public class RingOfTears : Item
 
 	void activate(Player player)
 	{
-		player.attack *= 1.5f;
+		player.attack *= 1 + buff;
+		active = true;
 	}
 
 	void deactivate(Player player)
 	{
-		player.attack /= 1.5f;
+		player.attack /= 1 + buff;
+		active = false;
+	}
+
+	public override void onUnequip(Player player)
+	{
+		if (active)
+			deactivate(player);
 	}
 
 	public override void update(Entity entity)

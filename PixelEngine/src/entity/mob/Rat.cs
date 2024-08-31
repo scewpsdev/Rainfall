@@ -17,7 +17,7 @@ public class Rat : Mob
 
 		collider = new FloatRect(-0.4f, 0, 0.8f, 0.55f);
 
-		ai = new WanderAI();
+		ai = new WanderAI(this);
 
 		health = 4;
 	}

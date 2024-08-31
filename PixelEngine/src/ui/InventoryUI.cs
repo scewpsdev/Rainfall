@@ -27,9 +27,9 @@ public class InventoryUI
 			Renderer.DrawUISprite(x, y, size, size, item.sprite);
 	}
 
-	public static void DrawInventory(int x, int y, int width, int height, Player player)
+	public static void DrawEquipment(int x, int y, int width, int height, Player player)
 	{
-		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
+		//Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
 
 		int handItemSlotSize = 16 * 2;
 		drawItemSlot(x + 16, y + 16, handItemSlotSize, 2, player.handItem);

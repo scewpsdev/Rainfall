@@ -14,14 +14,14 @@ public class Bread : Item
 		displayName = "Bread";
 		stackable = true;
 
-		value = 12;
+		value = 8;
 
 		sprite = new Sprite(tileset, 7, 2);
 	}
 
 	public override bool use(Player player)
 	{
-		player.addStatusEffect(new HealEffect(0.75f, 5));
+		player.addStatusEffect(new HealEffect(1, 5));
 		return true;
 	}
 }

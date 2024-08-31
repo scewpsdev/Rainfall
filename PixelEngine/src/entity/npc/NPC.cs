@@ -163,13 +163,13 @@ public abstract class NPC : Mob, Interactable
 		{
 			state = NPCState.None;
 			GameState.instance.player.numOverlaysOpen--;
+			selectedOption = 0;
 		}
 	}
 
 	void initMenu()
 	{
 		state = NPCState.Menu;
-		selectedOption = 0;
 	}
 
 	void initShop()
@@ -188,7 +188,7 @@ public abstract class NPC : Mob, Interactable
 	{
 		Player player = GameState.instance.player;
 
-		float maxDistance = 2;
+		float maxDistance = 1.8f;
 		if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
 		{
 			closeScreen();
@@ -254,6 +254,9 @@ public abstract class NPC : Mob, Interactable
 					initMenu();
 				}
 			}
+
+			if (InputManager.IsPressed("UIBack"))
+				closeScreen();
 		}
 		else if (state == NPCState.Menu)
 		{
@@ -297,37 +300,21 @@ public abstract class NPC : Mob, Interactable
 				options[0] = "Quit";
 			}
 
-			if (InputManager.IsPressed("Down"))
-				selectedOption = (selectedOption + 1) % options.Length;
-			if (InputManager.IsPressed("Up"))
-				selectedOption = (selectedOption + options.Length - 1) % options.Length;
-
-			for (int i = 0; i < options.Length; i++)
+			int option = UIElements.WindowMenu(options, ref selectedOption, x, y, width, lineHeight);
+			if (option != -1)
 			{
-				bool selected = selectedOption == i;
-
-				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUITextBMP(x + 4, y + 2, options[i], 1, 0xFFAAAAAA);
-
-				if (selected && InputManager.IsPressed("Interact"))
+				if (options[option] == "Buy")
 				{
-					InputManager.ConsumeEvent("Interact");
-
-					if (options[i] == "Buy")
-					{
-						initShop();
-					}
-					else if (options[i] == "Sell")
-					{
-						initSellMenu();
-					}
-					//else if (options[i] == "Talk")
-					//	; // TODO
-					else if (options[i] == "Quit")
-						closeScreen();
+					initShop();
 				}
-
-				y += lineHeight;
+				else if (options[option] == "Sell")
+				{
+					initSellMenu();
+				}
+				//else if (options[i] == "Talk")
+				//	; // TODO
+				else if (options[option] == "Quit")
+					closeScreen();
 			}
 
 			if (InputManager.IsPressed("UIBack"))
@@ -362,6 +349,9 @@ public abstract class NPC : Mob, Interactable
 
 			for (int i = 0; i < shopItems.Count; i++)
 			{
+				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
+					selectedItem = i;
+
 				bool selected = selectedItem == i;
 
 				Item item = shopItems[i].Item1;
@@ -378,9 +368,12 @@ public abstract class NPC : Mob, Interactable
 
 				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
 
-				if (selected && canAfford && InputManager.IsPressed("Interact"))
+				if (selected && canAfford && (InputManager.IsPressed("Interact") || Input.IsMouseButtonPressed(MouseButton.Left)))
 				{
-					InputManager.ConsumeEvent("Interact");
+					if (InputManager.IsPressed("Interact"))
+						InputManager.ConsumeEvent("Interact");
+					if (Input.IsMouseButtonPressed(MouseButton.Left))
+						Input.ConsumeMouseButtonEvent(MouseButton.Left);
 
 					if (item.stackable && item.stackSize > 1)
 					{
@@ -464,6 +457,8 @@ public abstract class NPC : Mob, Interactable
 
 			for (int i = 0; i < sellItems.Count; i++)
 			{
+				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
+					selectedItem = i;
 				bool selected = selectedItem == i;
 
 				Item item = sellItems[i];
@@ -479,9 +474,12 @@ public abstract class NPC : Mob, Interactable
 
 				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
 
-				if (selected && InputManager.IsPressed("Interact"))
+				if (selected && (InputManager.IsPressed("Interact") || Input.IsMouseButtonPressed(MouseButton.Left)))
 				{
-					InputManager.ConsumeEvent("Interact");
+					if (InputManager.IsPressed("Interact"))
+						InputManager.ConsumeEvent("Interact");
+					if (Input.IsMouseButtonPressed(MouseButton.Left))
+						Input.ConsumeMouseButtonEvent(MouseButton.Left);
 
 					if (item.stackable && item.stackSize > 1)
 					{

@@ -10,6 +10,7 @@ public class FireProjectile : Entity
 {
 	float speed = 2;
 	float maxSpeed = 20;
+	public float gravity = 0;
 	float acceleration = 30;
 	int maxRicochets = 0;
 	float damage = 1;
@@ -55,6 +56,7 @@ public class FireProjectile : Entity
 		velocity += velocity.normalized * acceleration * Time.deltaTime;
 		if (velocity.length > maxSpeed)
 			velocity = velocity.normalized * maxSpeed;
+		velocity.y += gravity * Time.deltaTime;
 
 		Vector2 displacement = velocity * Time.deltaTime;
 		position += displacement;
@@ -63,7 +65,7 @@ public class FireProjectile : Entity
 
 		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
 
-		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit != null)
 		{
 			if (hit.entity != null)

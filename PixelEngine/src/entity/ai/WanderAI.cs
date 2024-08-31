@@ -11,11 +11,12 @@ public class WanderAI : AI
 	int walkDirection = 1;
 
 
-	public void onHit(Entity by)
+	public WanderAI(Mob mob)
+		: base(mob)
 	{
 	}
 
-	public void update(Mob mob)
+	public override void update()
 	{
 		mob.inputRight = false;
 		mob.inputLeft = false;

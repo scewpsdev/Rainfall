@@ -240,7 +240,7 @@ public class AStar
 		}
 	}
 
-	public bool run(Vector2i start, Vector2i destination, List<Vector2i> path)
+	public bool run(Vector2i start, Vector2i destination, List<Vector2i> path, bool preferVerticalMovement = false)
 	{
 		grid.reset();
 		openList.reset();
@@ -274,14 +274,28 @@ public class AStar
 				return true;
 			}
 
-			if (current.position.x > 0 && isWalkable(current.position + Vector2i.Left))
-				ProcessNode(current.position + Vector2i.Left, current.gcost + getWalkCost(current.position + Vector2i.Left), destination, current, openList, closedList, grid);
-			if (current.position.x < grid.width - 1 && isWalkable(current.position + Vector2i.Right))
-				ProcessNode(current.position + Vector2i.Right, current.gcost + getWalkCost(current.position + Vector2i.Right), destination, current, openList, closedList, grid);
-			if (current.position.y > 0 && isWalkable(current.position + Vector2i.Down))
-				ProcessNode(current.position + Vector2i.Down, current.gcost + getWalkCost(current.position + Vector2i.Down), destination, current, openList, closedList, grid);
-			if (current.position.y < grid.height - 1 && isWalkable(current.position + Vector2i.Up))
-				ProcessNode(current.position + Vector2i.Up, current.gcost + getWalkCost(current.position + Vector2i.Up), destination, current, openList, closedList, grid);
+			if (preferVerticalMovement)
+			{
+				if (current.position.y > 0 && isWalkable(current.position + Vector2i.Down))
+					ProcessNode(current.position + Vector2i.Down, current.gcost + getWalkCost(current.position + Vector2i.Down), destination, current, openList, closedList, grid);
+				if (current.position.y < grid.height - 1 && isWalkable(current.position + Vector2i.Up))
+					ProcessNode(current.position + Vector2i.Up, current.gcost + getWalkCost(current.position + Vector2i.Up), destination, current, openList, closedList, grid);
+				if (current.position.x > 0 && isWalkable(current.position + Vector2i.Left))
+					ProcessNode(current.position + Vector2i.Left, current.gcost + getWalkCost(current.position + Vector2i.Left), destination, current, openList, closedList, grid);
+				if (current.position.x < grid.width - 1 && isWalkable(current.position + Vector2i.Right))
+					ProcessNode(current.position + Vector2i.Right, current.gcost + getWalkCost(current.position + Vector2i.Right), destination, current, openList, closedList, grid);
+			}
+			else
+			{
+				if (current.position.x > 0 && isWalkable(current.position + Vector2i.Left))
+					ProcessNode(current.position + Vector2i.Left, current.gcost + getWalkCost(current.position + Vector2i.Left), destination, current, openList, closedList, grid);
+				if (current.position.x < grid.width - 1 && isWalkable(current.position + Vector2i.Right))
+					ProcessNode(current.position + Vector2i.Right, current.gcost + getWalkCost(current.position + Vector2i.Right), destination, current, openList, closedList, grid);
+				if (current.position.y > 0 && isWalkable(current.position + Vector2i.Down))
+					ProcessNode(current.position + Vector2i.Down, current.gcost + getWalkCost(current.position + Vector2i.Down), destination, current, openList, closedList, grid);
+				if (current.position.y < grid.height - 1 && isWalkable(current.position + Vector2i.Up))
+					ProcessNode(current.position + Vector2i.Up, current.gcost + getWalkCost(current.position + Vector2i.Up), destination, current, openList, closedList, grid);
+			}
 		}
 
 		return false;

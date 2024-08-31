@@ -115,6 +115,37 @@ public static class GameOverScreen
 		*/
 	}
 
+	static void RenderPlayer(int x, int y, int width, int height)
+	{
+		Player player = GameState.instance.player;
+
+		int size = 2 * 16;
+		int xx = x + width / 2 - size / 2;
+		int yy = y + size * 3 / 4;
+		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
+
+		player.animator.setAnimation("idle");
+
+		player.animator.update(player.sprite);
+		Renderer.DrawUISprite(xx, yy, size, size, player.sprite);
+
+		for (int i = 0; i < player.passiveItems.Length; i++)
+		{
+			if (player.passiveItems[i] != null && player.passiveItems[i].ingameSprite != null)
+			{
+				player.animator.update(player.passiveItems[i].ingameSprite);
+				Renderer.DrawUISprite(xx, yy, size, size, player.passiveItems[i].ingameSprite);
+			}
+		}
+
+		if (player.handItem != null)
+		{
+			int w = (int)MathF.Round(player.handItem.size.x * size);
+			int h = (int)MathF.Round(player.handItem.size.y * size);
+			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
+		}
+	}
+
 	public static void Render()
 	{
 		int x = 16;
@@ -125,7 +156,10 @@ public static class GameOverScreen
 
 		int padding = 8;
 
+		int playerViewHeight = (height - 2 * padding) * 3 / 8;
+
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
-		InventoryUI.DrawInventory(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding, GameState.instance.player);
+		RenderPlayer(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, playerViewHeight);
+		InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
 	}
 }

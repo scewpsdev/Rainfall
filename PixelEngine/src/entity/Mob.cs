@@ -18,11 +18,12 @@ public abstract class Mob : Entity, Hittable
 	public float jumpPower = 12;
 	public float gravity = -30;
 
-	public float itemDropChance = 0.05f;
-	public float coinDropChance = 0.05f;
+	public float itemDropChance = 0.1f;
+	public float coinDropChance = 0.1f;
 
 	public float health = 1;
 	public int damage = 1;
+	public bool canClimb = false;
 	public bool canFly = false;
 
 	protected Sprite sprite;
@@ -245,22 +246,25 @@ public abstract class Mob : Entity, Hittable
 
 	void updateActions()
 	{
-		Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
-		if (currentLadder == null)
+		if (canClimb)
 		{
-			if (hoveredLadder != null && inputUp)
+			Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
+			if (currentLadder == null)
 			{
-				currentLadder = hoveredLadder;
-				isClimbing = true;
-				velocity = Vector2.Zero;
+				if (hoveredLadder != null && inputUp)
+				{
+					currentLadder = hoveredLadder;
+					isClimbing = true;
+					velocity = Vector2.Zero;
+				}
 			}
-		}
-		else
-		{
-			if (hoveredLadder == null)
+			else
 			{
-				currentLadder = null;
-				isClimbing = false;
+				if (hoveredLadder == null)
+				{
+					currentLadder = null;
+					isClimbing = false;
+				}
 			}
 		}
 
@@ -286,7 +290,7 @@ public abstract class Mob : Entity, Hittable
 	public override void update()
 	{
 		if (ai != null)
-			ai.update(this);
+			ai.update();
 
 		updateMovement();
 		updateActions();

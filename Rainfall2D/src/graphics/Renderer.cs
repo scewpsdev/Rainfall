@@ -455,6 +455,12 @@ public static class Renderer
 		return new Vector2i(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
 	}
 
+	public static bool IsHovered(int x, int y, int width, int height)
+	{
+		Vector2i cursorPos = Input.cursorPosition * new Vector2i(UIWidth, UIHeight) / Display.viewportSize;
+		return cursorPos.x >= x && cursorPos.x < x + width && cursorPos.y >= y && cursorPos.y < y + height;
+	}
+
 	public static void DrawWorldTextBMP(float x, float y, float z, string text, float scale, uint color = 0xFFFFFFFF)
 	{
 		float cursor = 0;
@@ -544,10 +550,6 @@ public static class Renderer
 		{
 			SpriteDraw draw = draws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
-			u0 += 0.0001f;
-			v0 += 0.0001f;
-			u1 -= 0.0001f;
-			v1 -= 0.0001f;
 			if (draw.useTransform)
 			{
 				spriteBatch.draw(
@@ -595,10 +597,6 @@ public static class Renderer
 		{
 			SpriteDraw draw = additiveDraws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
-			u0 += 0.0001f;
-			v0 += 0.0001f;
-			u1 -= 0.0001f;
-			v1 -= 0.0001f;
 			if (draw.useTransform)
 			{
 				additiveBatch.draw(

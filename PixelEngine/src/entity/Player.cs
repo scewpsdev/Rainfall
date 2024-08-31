@@ -17,7 +17,7 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
-	const float MANA_RECHARGE_RATE = 0.06f;
+	const float MANA_RECHARGE_RATE = 0.05f;
 
 
 	public float speed = 6;
@@ -52,8 +52,8 @@ public class Player : Entity, Hittable
 
 	Sprite stunnedIcon;
 
-	Sprite sprite;
-	SpriteAnimator animator;
+	public Sprite sprite;
+	public SpriteAnimator animator;
 
 	long lastJumpInput = -10000000000;
 	long lastGrounded = -10000000000;
@@ -355,6 +355,8 @@ public class Player : Entity, Hittable
 			interactableInFocus = null;
 		}
 
+		for (int i = 0; i < statusEffects.Count; i++)
+			statusEffects[i].destroy(this);
 		statusEffects.Clear();
 
 		actions.cancelAllActions();
@@ -418,7 +420,7 @@ public class Player : Entity, Hittable
 			}
 
 #if DEBUG
-			isSprinting = InputManager.IsDown("Sprint");
+			isSprinting = Input.IsKeyDown(KeyCode.Shift);
 #endif
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
@@ -744,7 +746,7 @@ public class Player : Entity, Hittable
 
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
-			if (!statusEffects[i].update(this))
+			if (!statusEffects[i].update(this) && isAlive)
 			{
 				statusEffects[i].destroy(this);
 				statusEffects.RemoveAt(i--);
@@ -843,8 +845,12 @@ public class Player : Entity, Hittable
 
 			for (int i = 0; i < passiveItems.Length; i++)
 			{
-				if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
-					Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, 0xFFFFFFFF);
+				if (passiveItems[i] != null)
+				{
+					if (passiveItems[i].ingameSprite != null)
+						Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, 0xFFFFFFFF);
+					passiveItems[i].render(this);
+				}
 			}
 
 			if (isAlive && handItem != null)
@@ -854,31 +860,14 @@ public class Player : Entity, Hittable
 					if (actions.currentAction is AttackAction)
 					{
 						AttackAction action = actions.currentAction as AttackAction;
-						/*
-						if (handItem.stab)
-						{
-							float xoffset = action.currentRange * action.direction;
-							Renderer.DrawSprite(position.x - ((action.direction + 1) / 2 * handItem.size.x) + xoffset, position.y - 0.2f, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, action.direction == -1);
-						}
-						else
-						{
-						*/
 						Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, LAYER_PLAYER_ITEM) * action.currentTransform;
 						Renderer.DrawSprite(handItem.size.x, handItem.size.y, weaponTransform, handItem.sprite);
-
-						//Vector2 offset = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * 0.5f * action.direction;
-						//Renderer.DrawSprite(position.x - (handItem.size.x - 0.5f) + itemRenderOffset.x * handItem.size.x + offset.x, position.y - 0.5f + itemRenderOffset.y + offset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, rotation, handItem.sprite, action.direction == -1);
-						//}
 					}
 					else
 					{
 						Renderer.DrawSprite(position.x - 0.5f * handItem.size.x + handItem.renderOffset.x * direction, position.y - 0.5f + handItem.renderOffset.y, LAYER_PLAYER_ITEM, handItem.size.x, handItem.size.y, 0, handItem.sprite, direction == -1);
 					}
 				}
-
-				/*
-				Renderer.DrawSprite(position.x - 0.25f, position.y + (isDucked ? 0.5f : 1) + 0.5f - 0.25f, 0, 0.5f, 0.5f, null, 0, 0, 0, 0, 0xFF444444);
-				*/
 			}
 			else
 			{
@@ -894,12 +883,6 @@ public class Player : Entity, Hittable
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
 			statusEffects[i].render(this);
-		}
-
-		for (int i = 0; i < passiveItems.Length; i++)
-		{
-			if (passiveItems[i] != null)
-				passiveItems[i].render(this);
 		}
 
 		if (isStunned)

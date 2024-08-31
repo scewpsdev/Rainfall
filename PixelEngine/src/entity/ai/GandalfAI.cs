@@ -6,58 +6,61 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class AdvancedAI : AI
+public class GandalfAI : AI
 {
 	enum AIState
 	{
 		Default,
 		Charge,
-		Dash,
+		Attack,
 		Cooldown,
 	}
 
 
-	public float aggroRange = 6.0f;
+	public float aggroRange = 7.0f;
 	public float loseRange = 9.0f;
-	public float loseTime = 3.0f;
-	public float dashChargeTime = 0.4f;
-	public float dashCooldownTime = 5.0f / 6;
-	float dashDuration = 0.3f;
+	public float loseTime = 4.0f;
+	public float attackTriggerDistance = 6.0f;
+	public float attackChargeTime = 0.5f;
+	public float attackDuration = 1.0f;
+	public float attackCooldownTime = 0.5f;
 
-	AIState state = AIState.Charge;
+	AIState state = AIState.Default;
 	int walkDirection = 1;
 	int dashDirection;
 
 	long chargeTime;
-	long dashTime;
+	long attackTime;
 	long cooldownTime;
+	int projectilesFired = 0;
 
 	Entity target;
 	long targetLastSeen = -1;
 
 
-	public void onHit(Entity by)
+	public GandalfAI(Mob mob)
+		: base(mob)
+	{
+	}
+
+	public override void onHit(Entity by)
 	{
 		if (target == null)
 			target = by;
 	}
 
-	void updateTargetFollow(Mob mob)
+	void updateTargetFollow()
 	{
-		walkDirection = target.position.x < mob.position.x ? -1 : 1;
-
-		Vector2 toPlayer = target.position + target.collider.center - mob.position;
-		float distance = toPlayer.length;
-
-		HitData hit = GameState.instance.level.raycastTiles(mob.position, toPlayer.normalized, distance + 0.1f);
-		if (hit == null)
+		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
 			targetLastSeen = Time.currentTime;
 
 		if (state == AIState.Default)
 		{
-			mob.animator.setAnimation("run");
+			mob.animator.setAnimation("idle");
 
-			if (distance < 2.0f)
+			walkDirection = target.position.x < mob.position.x ? -1 : 1;
+
+			if (distance < attackTriggerDistance)
 			{
 				state = AIState.Charge;
 				chargeTime = Time.currentTime;
@@ -68,29 +71,48 @@ public class AdvancedAI : AI
 		{
 			mob.animator.setAnimation("charge");
 
-			if ((Time.currentTime - chargeTime) / 1e9f > dashChargeTime)
+			if ((Time.currentTime - chargeTime) / 1e9f > attackChargeTime)
 			{
-				state = AIState.Dash;
-				dashTime = Time.currentTime;
-				mob.speed *= 3;
+				state = AIState.Attack;
+				attackTime = Time.currentTime;
+				projectilesFired = 0;
+			}
+
+			if (mob.isStunned)
+			{
+				state = AIState.Default;
 			}
 		}
-		if (state == AIState.Dash)
+		if (state == AIState.Attack)
 		{
 			mob.animator.setAnimation("attack");
 
-			if ((Time.currentTime - dashTime) / 1e9f > dashDuration)
+			if ((Time.currentTime - attackTime) / 1e9f > attackDuration)
 			{
 				state = AIState.Cooldown;
 				cooldownTime = Time.currentTime;
-				mob.speed /= 3;
+				projectilesFired = -1;
+			}
+			else
+			{
+				int projectilesShouldveFired = (int)MathF.Ceiling((Time.currentTime - attackTime) / 1e9f / attackDuration * 3);
+				if (projectilesFired < projectilesShouldveFired)
+				{
+					projectilesFired++;
+
+					Vector2 position = mob.position + new Vector2(0.0f, 0.3f);
+					Vector2 offset = new Vector2(mob.direction * 0.5f, 0.3f);
+					Vector2 direction = toTarget;
+					GameState.instance.level.addEntity(new FireProjectile(direction, mob.velocity, offset, mob, null), position);
+					GameState.instance.level.addEntity(new MagicProjectileCastEffect(mob), position + offset);
+				}
 			}
 		}
 		if (state == AIState.Cooldown)
 		{
-			mob.animator.setAnimation("cooldown");
+			mob.animator.setAnimation("idle");
 
-			if ((Time.currentTime - cooldownTime) / 1e9f > dashCooldownTime)
+			if ((Time.currentTime - cooldownTime) / 1e9f > attackCooldownTime)
 			{
 				state = AIState.Default;
 			}
@@ -103,7 +125,7 @@ public class AdvancedAI : AI
 			else
 				mob.inputRight = true;
 		}
-		else if (state == AIState.Dash)
+		else if (state == AIState.Attack)
 		{
 			if (dashDirection == -1)
 				mob.inputLeft = true;
@@ -127,7 +149,7 @@ public class AdvancedAI : AI
 		}
 	}
 
-	void updatePatrol(Mob mob)
+	void updatePatrol()
 	{
 		mob.animator.setAnimation("idle");
 
@@ -147,7 +169,7 @@ public class AdvancedAI : AI
 		}
 	}
 
-	public void update(Mob mob)
+	public override void update()
 	{
 		mob.inputRight = false;
 		mob.inputLeft = false;
@@ -155,14 +177,12 @@ public class AdvancedAI : AI
 
 		if (target == null)
 		{
-			Player player = GameState.instance.player;
-			Vector2 toPlayer = player.position + player.collider.center - mob.position - new Vector2(0, 0.5f);
-			float distance = toPlayer.length;
-			if (distance < aggroRange)
+			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				HitData hit = GameState.instance.level.raycastTiles(mob.position + new Vector2(0, 0.5f), toPlayer.normalized, distance + 0.1f);
-				if (hit == null)
-					target = player;
+				if (distance < aggroRange)
+				{
+					target = GameState.instance.player;
+				}
 			}
 		}
 
@@ -177,8 +197,8 @@ public class AdvancedAI : AI
 		}
 
 		if (target != null)
-			updateTargetFollow(mob);
+			updateTargetFollow();
 		else
-			updatePatrol(mob);
+			updatePatrol();
 	}
 }
