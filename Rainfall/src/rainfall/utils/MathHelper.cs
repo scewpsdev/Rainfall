@@ -135,9 +135,18 @@ namespace Rainfall
 			return new Vector3(rr, gg, bb);
 		}
 
+		public static Vector3 LinearToSRGB(Vector3 color)
+		{
+			float gamma = 2.2f;
+			float r = MathF.Pow(color.x, 1.0f / gamma);
+			float g = MathF.Pow(color.y, 1.0f / gamma);
+			float b = MathF.Pow(color.z, 1.0f / gamma);
+			return new Vector3(r, g, b);
+		}
+
 		public static uint ColorAlpha(uint color, float alpha)
 		{
-			byte a = (byte)(alpha * 255);
+			byte a = (byte)(alpha * ((color & 0xFF000000u) >> 24));
 			color = (color & 0x00FFFFFFu) | (uint)(a << 24);
 			return color;
 		}

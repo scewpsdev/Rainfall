@@ -27,6 +27,6 @@ public class Revolver : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new RevolverShootAction(this));
-		return true;
+		return false;
 	}
 }

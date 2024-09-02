@@ -22,20 +22,26 @@ class InputBinding
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonDown(gamepadButton);
 	}
 
-	public bool isPressed()
+	public bool isPressed(bool consume)
 	{
-		return key != KeyCode.None && Input.IsKeyPressed(key)
+		bool result = key != KeyCode.None && Input.IsKeyPressed(key)
 			|| button != MouseButton.None && Input.IsMouseButtonPressed(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonPressed(gamepadButton)
 			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove);
+		if (result && consume)
+			consumeEvent();
+		return result;
 	}
 
-	public bool isReleased()
+	public bool isReleased(bool consume)
 	{
-		return key != KeyCode.None && Input.IsKeyReleased(key)
+		bool result = key != KeyCode.None && Input.IsKeyReleased(key)
 			|| button != MouseButton.None && Input.IsMouseButtonReleased(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonReleased(gamepadButton)
 			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove);
+		if (result && consume)
+			consumeEvent();
+		return result;
 	}
 
 	public void consumeEvent()
@@ -46,6 +52,8 @@ class InputBinding
 			Input.ConsumeMouseButtonEvent(button);
 		if (gamepadButton != GamepadButton.None)
 			Input.ConsumeGamepadButtonEvent(gamepadButton);
+		if (scrollDelta != 0)
+			Input.ConsumeScrollEvent();
 	}
 }
 
@@ -163,17 +171,17 @@ public static class InputManager
 		return false;
 	}
 
-	public static bool IsPressed(string name)
+	public static bool IsPressed(string name, bool consume = false)
 	{
 		if (bindings.ContainsKey(name))
-			return bindings[name].isPressed();
+			return bindings[name].isPressed(consume);
 		return false;
 	}
 
-	public static bool IsReleased(string name)
+	public static bool IsReleased(string name, bool consume = false)
 	{
 		if (bindings.ContainsKey(name))
-			return bindings[name].isReleased();
+			return bindings[name].isReleased(consume);
 		return false;
 	}
 

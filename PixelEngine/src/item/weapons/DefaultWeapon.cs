@@ -21,4 +21,10 @@ public class DefaultWeapon : Item
 
 		sprite = new Sprite(tileset, 0, 2);
 	}
+
+	public override bool use(Player player)
+	{
+		player.actions.queueAction(new AttackAction(this));
+		return false;
+	}
 }

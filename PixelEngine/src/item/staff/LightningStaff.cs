@@ -29,16 +29,12 @@ public class LightningStaff : Item
 
 	public override bool use(Player player)
 	{
-		if (charges > 0)
+		if (charges > 0 && player.mana >= manaCost)
 		{
-			if (player.mana >= manaCost)
-			{
-				player.actions.queueAction(new LightningCastAction(this));
-				player.consumeMana(manaCost);
-				charges--;
-				return true;
-			}
+			player.actions.queueAction(new LightningCastAction(this));
+			player.consumeMana(manaCost);
+			charges--;
 		}
-		return false;
+		return charges == 0;
 	}
 }

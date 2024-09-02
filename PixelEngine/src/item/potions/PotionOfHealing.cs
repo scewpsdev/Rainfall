@@ -22,7 +22,7 @@ public class PotionOfHealing : Item
 	public override bool use(Player player)
 	{
 		if (player.health < player.maxHealth)
-			player.health = MathF.Min(player.health + 1, player.maxHealth);
+			player.health = MathF.Min(player.health + 1.5f, player.maxHealth);
 		return true;
 	}
 }

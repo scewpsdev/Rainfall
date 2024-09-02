@@ -18,6 +18,7 @@ public class Player : Entity, Hittable
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
 	const float MANA_RECHARGE_RATE = 0.05f;
+	const float MANA_KILL_REWARD = 0.25f;
 
 
 	public float speed = 6;
@@ -72,10 +73,11 @@ public class Player : Entity, Hittable
 	public Climbable currentLadder = null;
 	Climbable lastLadderJumpedFrom = null;
 
-	public SortedList<ItemType, Item> items = new SortedList<ItemType, Item>();
+	public TupleList<ItemType, Item> items = new TupleList<ItemType, Item>();
 	public Item handItem = null;
-	public Item[] quickItems = new Item[4];
-	public int currentQuickItem = 0;
+	public Item offhandItem = null;
+	public Item[] activeItems = new Item[4];
+	public int selectedActiveItem = 0;
 	public Item[] passiveItems = new Item[4];
 
 	public HUD hud;
@@ -116,20 +118,33 @@ public class Player : Entity, Hittable
 	{
 	}
 
-	public bool giveItem(Item item)
+	public bool equipItem(Item item)
 	{
 		if (item.isHandItem)
 		{
 			if (handItem != null)
 			{
 				handItem.onUnequip(this);
-				throwItem(handItem, true);
+				handItem = null;
 			}
 			handItem = item;
 			handItem.onEquip(this);
 			return true;
 		}
-		else if (item.isPassiveItem)
+		if (item.isActiveItem)
+		{
+			for (int i = 0; i < activeItems.Length; i++)
+			{
+				if (activeItems[i] == null)
+				{
+					activeItems[i] = item;
+					activeItems[i].onEquip(this);
+					return true;
+				}
+			}
+			return false;
+		}
+		if (item.isPassiveItem)
 		{
 			if (!item.canEquipMultiple)
 			{
@@ -137,7 +152,7 @@ public class Player : Entity, Hittable
 				{
 					if (passiveItems[i] != null && passiveItems[i].name == item.name)
 					{
-						throwItem(passiveItems[i], true);
+						unequipItem(passiveItems[i]);
 						break;
 					}
 				}
@@ -153,34 +168,12 @@ public class Player : Entity, Hittable
 			}
 			return false;
 		}
-		else // if (item.isActiveItem)
-		{
-			if (item.stackable)
-			{
-				for (int i = 0; i < quickItems.Length; i++)
-				{
-					if (quickItems[i] != null && quickItems[i].id == item.id)
-					{
-						quickItems[i].stackSize += item.stackSize;
-						quickItems[i].onEquip(this);
-						return true;
-					}
-				}
-			}
-			for (int i = 0; i < quickItems.Length; i++)
-			{
-				if (quickItems[i] == null)
-				{
-					quickItems[i] = item;
-					quickItems[i].onEquip(this);
-					return true;
-				}
-			}
-			return false;
-		}
+
+		Debug.Assert(false);
+		return false;
 	}
 
-	public bool removeItem(Item item)
+	public bool unequipItem(Item item)
 	{
 		if (handItem == item)
 		{
@@ -188,28 +181,121 @@ public class Player : Entity, Hittable
 			handItem = null;
 			return true;
 		}
-		else
+		for (int i = 0; i < activeItems.Length; i++)
 		{
-			for (int i = 0; i < quickItems.Length; i++)
+			if (activeItems[i] == item)
 			{
-				if (quickItems[i] == item)
+				activeItems[i].onUnequip(this);
+				activeItems[i] = null;
+				if (selectedActiveItem == i)
 				{
-					quickItems[i].onUnequip(this);
-					quickItems[i] = null;
-					return true;
+					for (int j = 0; j < activeItems.Length; j++)
+					{
+						if (activeItems[(selectedActiveItem + 1 + j) % activeItems.Length] != null)
+						{
+							selectedActiveItem = (selectedActiveItem + 1 + j) % activeItems.Length;
+							hud.onItemSwitch();
+							break;
+						}
+					}
 				}
+				return true;
 			}
-			for (int i = 0; i < passiveItems.Length; i++)
+		}
+		for (int i = 0; i < passiveItems.Length; i++)
+		{
+			if (passiveItems[i] == item)
 			{
-				if (passiveItems[i] == item)
-				{
-					passiveItems[i].onUnequip(this);
-					passiveItems[i] = null;
-					return true;
-				}
+				passiveItems[i].onUnequip(this);
+				passiveItems[i] = null;
+				return true;
 			}
 		}
 		return false;
+	}
+
+	public void giveItem(Item item)
+	{
+		if (item.stackable)
+		{
+			for (int i = 0; i < items.Count; i++)
+			{
+				if (items[i].Item2.id == item.id)
+				{
+					items[i].Item2.stackSize += item.stackSize;
+					return;
+				}
+			}
+		}
+
+		items.Add(item.type, item);
+		items.Sort();
+
+		if (item.isHandItem && handItem == null)
+			equipItem(item);
+		else if (item.isActiveItem && numActiveItems < activeItems.Length)
+			equipItem(item);
+		else if (item.isPassiveItem && numPassiveItems < passiveItems.Length)
+			equipItem(item);
+	}
+
+	public void removeItem(Item item)
+	{
+		unequipItem(item);
+		items.Remove(item.type, item);
+	}
+
+	public bool isActiveItem(Item item)
+	{
+		for (int i = 0; i < activeItems.Length; i++)
+		{
+			if (activeItems[i] == item)
+				return true;
+		}
+		return false;
+	}
+
+	public bool isPassiveItem(Item item)
+	{
+		for (int i = 0; i < passiveItems.Length; i++)
+		{
+			if (passiveItems[i] == item)
+				return true;
+		}
+		return false;
+	}
+
+	public int numActiveItems
+	{
+		get
+		{
+			int result = 0;
+			for (int i = 0; i < activeItems.Length; i++)
+			{
+				if (activeItems[i] != null)
+					result++;
+			}
+			return result;
+		}
+	}
+
+	public int numPassiveItems
+	{
+		get
+		{
+			int result = 0;
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null)
+					result++;
+			}
+			return result;
+		}
+	}
+
+	public int numTotalEquippedItems
+	{
+		get => (handItem != null ? 1 : 0) + (offhandItem != null ? 1 : 0) + numActiveItems + numPassiveItems;
 	}
 
 	public void throwItem(Item item, bool shortThrow = false, bool farThrow = false)
@@ -232,47 +318,6 @@ public class Player : Entity, Hittable
 		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.25f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
 		GameState.instance.level.addEntity(obj, throwOrigin);
-
-		if (item == handItem)
-			handItem = null;
-		else
-		{
-			for (int i = 0; i < quickItems.Length; i++)
-			{
-				if (quickItems[i] == item)
-				{
-					quickItems[i] = null;
-					break;
-				}
-			}
-			for (int i = 0; i < passiveItems.Length; i++)
-			{
-				if (passiveItems[i] == item)
-				{
-					passiveItems[i] = null;
-					break;
-				}
-			}
-		}
-	}
-
-	public int numTotalItems
-	{
-		get
-		{
-			int result = handItem != null ? 1 : 0;
-			for (int i = 0; i < quickItems.Length; i++)
-			{
-				if (quickItems[i] != null)
-					result++;
-			}
-			for (int i = 0; i < passiveItems.Length; i++)
-			{
-				if (passiveItems[i] != null)
-					result++;
-			}
-			return result;
-		}
 	}
 
 	public void addImpulse(Vector2 impulse)
@@ -318,7 +363,7 @@ public class Player : Entity, Hittable
 
 			if (health <= 0)
 			{
-				onDeath(by);
+				onDeath(by, byName);
 			}
 
 			if (triggerInvincibility)
@@ -332,7 +377,7 @@ public class Player : Entity, Hittable
 		stunTime = Time.currentTime;
 	}
 
-	void onDeath(Entity by)
+	void onDeath(Entity by, string byName)
 	{
 		if (handItem != null)
 		{
@@ -363,6 +408,7 @@ public class Player : Entity, Hittable
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
+		GameState.instance.run.killedByName = by != null ? by.displayName : byName;
 		GameState.instance.run.endedTime = Time.currentTime;
 	}
 
@@ -375,6 +421,13 @@ public class Player : Entity, Hittable
 	{
 		statusEffects.Add(effect);
 		effect.init(this);
+	}
+
+	public void onKill(Mob mob)
+	{
+		GameState.instance.run.kills++;
+		if (mana < maxMana)
+			mana = MathF.Min(mana + MANA_KILL_REWARD, maxMana);
 	}
 
 	void updateMovement()
@@ -584,6 +637,30 @@ public class Player : Entity, Hittable
 		rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
 	}
 
+	public bool useActiveItem(Item item)
+	{
+		if (item.stackable && item.stackSize > 1)
+		{
+			Item copy = item.copy();
+			copy.stackSize = 1;
+			if (copy.use(this))
+			{
+				item.stackSize--;
+				return true;
+			}
+		}
+		else
+		{
+			if (item.use(this))
+			{
+				removeItem(item);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	void updateActions()
 	{
 		if (isAlive && GameState.instance.run.active)
@@ -591,37 +668,23 @@ public class Player : Entity, Hittable
 			if (InputManager.IsPressed("SwitchItem"))
 			{
 				bool switched = false;
-				for (int i = 0; i < quickItems.Length; i++)
+				for (int i = 0; i < activeItems.Length; i++)
 				{
-					if (quickItems[(currentQuickItem + 1 + i) % quickItems.Length] != null)
+					if (activeItems[(selectedActiveItem + 1 + i) % activeItems.Length] != null)
 					{
-						currentQuickItem = (currentQuickItem + 1 + i) % quickItems.Length;
+						selectedActiveItem = (selectedActiveItem + 1 + i) % activeItems.Length;
 						switched = true;
 						hud.onItemSwitch();
 						break;
 					}
 				}
 				if (!switched)
-					currentQuickItem = (currentQuickItem + 1) % quickItems.Length;
+					selectedActiveItem = (selectedActiveItem + 1) % activeItems.Length;
 			}
 			if (InputManager.IsPressed("UseItem"))
 			{
-				Item item = quickItems[currentQuickItem];
-				if (item != null)
-				{
-					if (item.stackable && item.stackSize > 1)
-					{
-						Item copy = item.copy();
-						copy.stackSize = 1;
-						if (copy.use(this))
-							item.stackSize--;
-					}
-					else
-					{
-						if (item.use(this))
-							quickItems[currentQuickItem] = null;
-					}
-				}
+				if (activeItems[selectedActiveItem] != null)
+					useActiveItem(activeItems[selectedActiveItem]);
 			}
 
 			Span<HitData> hits = new HitData[16];
@@ -689,7 +752,8 @@ public class Player : Entity, Hittable
 							if (InputManager.IsPressed("Attack"))
 							{
 								InputManager.ConsumeEvent("Attack");
-								handItem.use(this);
+								if (handItem.use(this))
+									removeItem(handItem);
 							}
 							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
 							{
@@ -700,7 +764,10 @@ public class Player : Entity, Hittable
 						else
 						{
 							if (actions.currentAction == null)
-								handItem.use(this);
+							{
+								if (handItem.use(this))
+									removeItem(handItem);
+							}
 						}
 					}
 
@@ -710,6 +777,7 @@ public class Player : Entity, Hittable
 						{
 							InputManager.ConsumeEvent("Interact");
 							throwItem(handItem, true);
+							removeItem(handItem);
 						}
 					}
 				}
@@ -718,16 +786,16 @@ public class Player : Entity, Hittable
 					if (InputManager.IsPressed("Attack"))
 					{
 						InputManager.ConsumeEvent("Attack");
-						actions.queueAction(new AttackAction(DefaultWeapon.instance));
+						DefaultWeapon.instance.use(this);
 					}
 				}
 			}
 
 			handItem?.update(this);
-			for (int i = 0; i < quickItems.Length; i++)
+			for (int i = 0; i < activeItems.Length; i++)
 			{
-				if (quickItems[i] != null)
-					quickItems[i].update(this);
+				if (activeItems[i] != null)
+					activeItems[i].update(this);
 			}
 			for (int i = 0; i < passiveItems.Length; i++)
 			{

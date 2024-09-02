@@ -6,16 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Sapphire : Item
+public class Diamond : Item
 {
-	public Sapphire()
-		: base("sapphire", ItemType.Gem)
+	public Diamond()
+		: base("diamond", ItemType.Gem)
 	{
-		displayName = "Sapphire";
+		displayName = "Diamond";
 		stackable = true;
 
-		value = 40;
+		value = 80;
 
-		sprite = new Sprite(tileset, 0, 3);
+		sprite = new Sprite(tileset, 3, 0);
 	}
 }

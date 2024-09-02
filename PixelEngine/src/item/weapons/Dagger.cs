@@ -13,7 +13,7 @@ public class Dagger : Item
 	{
 		displayName = "Dagger";
 
-		attackDamage = 1;
+		attackDamage = 1.5f;
 		attackRange = 1.0f;
 		attackRate = 4;
 
@@ -27,7 +27,7 @@ public class Dagger : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
-		return true;
+		return false;
 	}
 
 	public override bool useSecondary(Player player)

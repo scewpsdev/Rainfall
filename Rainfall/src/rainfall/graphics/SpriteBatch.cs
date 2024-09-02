@@ -93,11 +93,6 @@ namespace Rainfall
 				v1 = tmp;
 			}
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
-
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);
 			Vector2 uv2 = new Vector2(u1, v0);
@@ -194,11 +189,6 @@ namespace Rainfall
 				v0 = v1;
 				v1 = tmp;
 			}
-
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
 
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);
@@ -327,11 +317,6 @@ namespace Rainfall
 				v1 = tmp;
 			}
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
-
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);
 			Vector2 uv2 = new Vector2(u1, v0);
@@ -399,11 +384,6 @@ namespace Rainfall
 			Vector3 normal2 = new Vector3(c * hw - s * hh, s * hw + c * hh, 0.0f);
 			Vector3 normal3 = new Vector3(c * -hw - s * hh, s * -hw + c * hh, 0.0f);
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
-
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);
 			Vector2 uv2 = new Vector2(u1, v0);
@@ -466,11 +446,6 @@ namespace Rainfall
 			vertex1 = transform * vertex1;
 			vertex2 = transform * vertex2;
 			vertex3 = transform * vertex3;
-
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
 
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);

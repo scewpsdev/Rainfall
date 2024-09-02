@@ -13,10 +13,17 @@ public class InventoryUI
 	int selectedItem = 0;
 	int sidePanelHeight = 40;
 
+	Sprite weaponSprite, shieldSprite, armorSprite, bagSprite;
+
 
 	public InventoryUI(Player player)
 	{
 		this.player = player;
+
+		weaponSprite = new Sprite(HUD.tileset, 0, 2, 2, 2);
+		shieldSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
+		armorSprite = new Sprite(HUD.tileset, 6, 4, 2, 2);
+		bagSprite = new Sprite(HUD.tileset, 2, 4, 2, 2);
 	}
 
 	static void drawItemSlot(int x, int y, int size, int border, Item item)
@@ -38,57 +45,45 @@ public class InventoryUI
 		int ypadding = 4;
 		int slotSize = 24;
 
-		for (int i = 0; i < player.quickItems.Length; i++)
-			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding, slotSize, 2, player.quickItems[i]);
+		for (int i = 0; i < player.activeItems.Length; i++)
+			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding, slotSize, 2, player.activeItems[i]);
 
 		for (int i = 0; i < player.passiveItems.Length; i++)
 			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding + slotSize + ypadding, slotSize, 2, player.passiveItems[i]);
 
 	}
 
+	void openScreen()
+	{
+		player.inventoryOpen = true;
+		player.numOverlaysOpen++;
+		selectedItem = 0;
+	}
+
+	void closeScreen()
+	{
+		player.inventoryOpen = false;
+		player.numOverlaysOpen--;
+	}
+
 	public void render()
 	{
-		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory"))
+		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory", true))
+			openScreen();
+		else if (player.inventoryOpen)
 		{
-			InputManager.ConsumeEvent("Inventory");
-			player.inventoryOpen = true;
-			player.numOverlaysOpen++;
-			selectedItem = 0;
-		}
-		else if (player.inventoryOpen && InputManager.IsPressed("Inventory"))
-		{
-			InputManager.ConsumeEvent("Inventory");
-			player.inventoryOpen = false;
-			player.numOverlaysOpen--;
+			if (InputManager.IsPressed("Inventory", true) || InputManager.IsPressed("UIQuit", true) || InputManager.IsPressed("UIBack", true))
+				closeScreen();
 		}
 
 		if (player.inventoryOpen)
 		{
-			if (InputManager.IsPressed("UIQuit") || InputManager.IsPressed("UIBack"))
-			{
-				player.inventoryOpen = false;
-			}
-
-			List<Item> sellItems = new List<Item>();
-			if (player.handItem != null)
-				sellItems.Add(player.handItem);
-			for (int i = 0; i < player.quickItems.Length; i++)
-			{
-				if (player.quickItems[i] != null)
-					sellItems.Add(player.quickItems[i]);
-			}
-			for (int i = 0; i < player.passiveItems.Length; i++)
-			{
-				if (player.passiveItems[i] != null)
-					sellItems.Add(player.passiveItems[i]);
-			}
-
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
 			int shopWidth = 150;
 			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + sellItems.Count * lineHeight;
+			int height = headerHeight + player.items.Count * lineHeight;
 			int x = Renderer.UIWidth / 2 - width / 2;
 			int y = Math.Min(50, Renderer.UIHeight / 2 - Math.Max(height, headerHeight + sidePanelHeight) / 2);
 			int top = y;
@@ -102,59 +97,73 @@ public class InventoryUI
 			Renderer.DrawUITextBMP(x + width - 1 - HUD.gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
-			if (sellItems.Count > 0)
+			if (player.items.Count > 0)
 			{
 				if (InputManager.IsPressed("Down"))
-					selectedItem = (selectedItem + 1) % sellItems.Count;
+					selectedItem = (selectedItem + 1) % player.items.Count;
 				if (InputManager.IsPressed("Up"))
-					selectedItem = (selectedItem + sellItems.Count - 1) % sellItems.Count;
+					selectedItem = (selectedItem + player.items.Count - 1) % player.items.Count;
 
-				for (int i = 0; i < sellItems.Count; i++)
+				for (int i = 0; i < player.items.Count; i++)
 				{
+					if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
+						selectedItem = i;
+
 					bool selected = selectedItem == i;
 
-					Item item = sellItems[i];
+					Item item = player.items[i].Item2;
 
 					Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
 					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite);
 					string name = item.fullDisplayName;
 					Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 
-					/*
-					if (selected && InputManager.IsPressed("Interact"))
+					if (player.handItem == item)
+						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, weaponSprite);
+					else if (player.offhandItem == item)
+						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, shieldSprite);
+					else if (player.isActiveItem(item))
+						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, bagSprite);
+					else if (player.isPassiveItem(item))
+						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, armorSprite);
+
+					if (selected && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left)))
 					{
-						InputManager.ConsumeEvent("Interact");
+						if (Input.IsMouseButtonPressed(MouseButton.Left))
+							Input.ConsumeMouseButtonEvent(MouseButton.Left);
 
-						if (item.stackable && item.stackSize > 1)
+						if (item.isHandItem)
 						{
-							item.stackSize--;
-							Item copy = item.copy();
-							copy.stackSize = 1;
-							addShopItem(copy);
-							GameState.instance.player.money += price;
+							if (player.handItem == item)
+								player.unequipItem(item);
+							else
+								player.equipItem(item);
 						}
-						else
+						else if (item.isActiveItem)
 						{
-							if (GameState.instance.player.removeItem(item))
+							if (player.useActiveItem(item))
 							{
-								addShopItem(item);
-								GameState.instance.player.money += price;
-								sellItems.RemoveAt(i--);
+								i--;
 
-								if (selectedItem == sellItems.Count)
+								if (selectedItem == player.items.Count)
 									selectedItem--;
-								if (sellItems.Count == 0)
-									initMenu();
 							}
 						}
+						else if (item.isPassiveItem)
+						{
+							if (player.isPassiveItem(item))
+								player.unequipItem(item);
+							else
+								player.equipItem(item);
+						}
 					}
-					*/
 
 					y += lineHeight;
 				}
 
 				// Item info panel
-				sidePanelHeight = ItemInfoPanel.Render(sellItems[selectedItem], x + shopWidth + 1, top + headerHeight, sidePanelWidth, Math.Max(sellItems.Count * lineHeight, sidePanelHeight));
+				if (player.items.Count > 0)
+					sidePanelHeight = ItemInfoPanel.Render(player.items[selectedItem].Item2, x + shopWidth + 1, top + headerHeight, sidePanelWidth, Math.Max(player.items.Count * lineHeight, sidePanelHeight));
 			}
 		}
 	}

@@ -29,16 +29,12 @@ public class MagicStaff : Item
 
 	public override bool use(Player player)
 	{
-		if (charges > 0)
+		if (charges > 0 && player.mana >= manaCost)
 		{
-			if (player.mana >= manaCost)
-			{
-				player.actions.queueAction(new SpellCastAction(this));
-				player.consumeMana(manaCost);
-				charges--;
-				return true;
-			}
+			player.actions.queueAction(new SpellCastAction(this));
+			player.consumeMana(manaCost);
+			charges--;
 		}
-		return false;
+		return charges == 0;
 	}
 }

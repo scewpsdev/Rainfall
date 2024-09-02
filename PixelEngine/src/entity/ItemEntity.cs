@@ -50,11 +50,9 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public void interact(Player player)
 	{
-		if (player.giveItem(item))
-		{
-			player.hud.showMessage("Picked up " + item.displayName);
-			remove();
-		}
+		player.giveItem(item);
+		player.hud.showMessage("Picked up " + item.displayName);
+		remove();
 	}
 
 	public void onFocusEnter(Player player)

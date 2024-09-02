@@ -21,9 +21,7 @@ public class RatNPC : NPC
 
 		addVoiceLine("WOAH!");
 		addVoiceLine("You look... intense!");
-		addVoiceLine("Ah, you must be here to try some of my wondrous cheese?");
-		addVoiceLine("It's very exquisite, yes yes. Truly wunderbar.");
-		addVoiceLine("Very fine taste you have, little creature.");
+		addVoiceLine("Ah, you must be here to try some of my wondrous cheese? Yes, yes.");
 		addVoiceLine("I'll give you one for free, good?");
 
 		Cheese wondrousCheese = new Cheese();

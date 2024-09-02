@@ -23,5 +23,6 @@ public class Logan : NPC
 		addVoiceLine("Buy my shit.");
 
 		populateShop(random, 5, ItemType.Potion, ItemType.Ring, ItemType.Staff, ItemType.Scroll);
+		buysItems = true;
 	}
 }

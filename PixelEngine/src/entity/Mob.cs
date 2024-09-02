@@ -19,7 +19,7 @@ public abstract class Mob : Entity, Hittable
 	public float gravity = -30;
 
 	public float itemDropChance = 0.1f;
-	public float coinDropChance = 0.1f;
+	public float coinDropChance = 0.2f;
 
 	public float health = 1;
 	public int damage = 1;
@@ -95,7 +95,10 @@ public abstract class Mob : Entity, Hittable
 	void onDeath(Entity by)
 	{
 		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player)
-			GameState.instance.run.kills++;
+		{
+			Player player = by as Player;
+			player.onKill(this);
+		}
 
 		if (Random.Shared.NextSingle() < itemDropChance)
 		{
@@ -108,7 +111,7 @@ public abstract class Mob : Entity, Hittable
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = MathHelper.RandomInt(3, 15);
+			int amount = MathHelper.RandomInt(1, 8);
 			for (int i = 0; i < amount; i++)
 			{
 				Coin coin = new Coin();

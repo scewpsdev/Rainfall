@@ -743,6 +743,11 @@ namespace Rainfall
 				gamepadLast.InternalClearButton(button);
 		}
 
+		public static void ConsumeScrollEvent()
+		{
+			mouseLast.z = mouseCurrent.z;
+		}
+
 		public static bool mouseLocked
 		{
 			get { return _mouseLocked; }
