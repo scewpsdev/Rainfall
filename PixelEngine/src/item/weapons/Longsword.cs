@@ -27,6 +27,6 @@ public class Longsword : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this));
-		return true;
+		return false;
 	}
 }

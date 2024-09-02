@@ -221,6 +221,12 @@ public static class Renderer
 			v0 = sprite.uv0.y;
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
+
+			u0 += 0.00001f;
+			v0 += 0.00001f;
+			u1 -= 0.00001f;
+			v1 -= 0.00001f;
+
 			if (flipped)
 			{
 				float tmp = u0;
@@ -289,6 +295,12 @@ public static class Renderer
 			v0 = sprite.uv0.y;
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
+
+			u0 += 0.00001f;
+			v0 += 0.00001f;
+			u1 -= 0.00001f;
+			v1 -= 0.00001f;
+
 			if (flipped)
 			{
 				float tmp = u0;

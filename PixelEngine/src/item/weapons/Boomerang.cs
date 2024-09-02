@@ -23,7 +23,6 @@ public class Boomerang : Item
 
 	public override bool use(Player player)
 	{
-		player.handItem = null;
 		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player, this), player.position + renderOffset * new Vector2(player.direction, 1));
 		return true;
 	}

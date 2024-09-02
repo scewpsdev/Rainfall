@@ -12,7 +12,7 @@ public class TravellingMerchant : NPC
 	public TravellingMerchant(Random random)
 		: base("travelling_merchant")
 	{
-		displayName = "Traveller";
+		displayName = "Siko";
 
 		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant2.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();

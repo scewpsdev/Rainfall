@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class MagicProjectileCastEffect : Entity
+public class FireProjectileCastEffect : Entity
 {
 	Sprite sprite;
 
@@ -18,11 +18,11 @@ public class MagicProjectileCastEffect : Entity
 	long startTime;
 
 
-	public MagicProjectileCastEffect(Entity follow = null)
+	public FireProjectileCastEffect(Entity follow = null)
 	{
 		this.follow = follow;
 
-		sprite = new Sprite(effectsTileset, 1, 1);
+		sprite = new Sprite(effectsTileset, 0, 1);
 	}
 
 	public override void init()

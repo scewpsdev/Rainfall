@@ -20,7 +20,7 @@ public class SpiderAI : AI
 	public float loseTime = 6.0f;
 	public float jumpChargeTime = 2.0f;
 	float jumpSpeed = 4;
-	float chargeSpeed = 0.3f;
+	float chargeSpeed = 0.5f;
 
 	AIState state = AIState.Charge;
 	int walkDirection;
@@ -50,16 +50,22 @@ public class SpiderAI : AI
 		if (!mob.isGrounded)
 			lastAirTime = Time.currentTime;
 
-		if (state == AIState.Charge && (Time.currentTime - lastAirTime) / 1e9f > jumpChargeTime)
+		if (state == AIState.Charge)
 		{
-			state = AIState.Jump;
 			walkDirection = target.position.x > mob.position.x ? 1 : target.position.x < mob.position.x ? -1 : 0;
-			mob.speed = jumpSpeed;
+			if ((Time.currentTime - lastAirTime) / 1e9f > jumpChargeTime)
+			{
+				state = AIState.Jump;
+				mob.speed = jumpSpeed;
+			}
 		}
-		else if (state == AIState.Jump && mob.isGrounded)
+		else if (state == AIState.Jump)
 		{
-			state = AIState.Charge;
-			mob.speed = chargeSpeed;
+			if (mob.isGrounded)
+			{
+				state = AIState.Charge;
+				mob.speed = chargeSpeed;
+			}
 		}
 
 		if (state == AIState.Charge)

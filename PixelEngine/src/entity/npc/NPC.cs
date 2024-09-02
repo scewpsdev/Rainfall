@@ -255,7 +255,7 @@ public abstract class NPC : Mob, Interactable
 				}
 			}
 
-			if (InputManager.IsPressed("UIBack"))
+			if (InputManager.IsPressed("UIBack", true))
 				closeScreen();
 		}
 		else if (state == NPCState.Menu)
@@ -265,7 +265,7 @@ public abstract class NPC : Mob, Interactable
 			int lineHeight = 12;
 			int headerHeight = 12 + 1;
 			int width = 120;
-			int numOptions = (shopItems.Count > 0 ? 1 : 0) + (buysItems && player.numTotalItems > 0 ? 1 : 0) + 1;
+			int numOptions = (shopItems.Count > 0 ? 1 : 0) + (buysItems && player.items.Count > 0 ? 1 : 0) + 1;
 			int height = headerHeight + numOptions * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 			int y = Math.Max(pos.y - height, 2);
@@ -280,7 +280,7 @@ public abstract class NPC : Mob, Interactable
 			if (shopItems.Count > 0)
 			{
 				options[0] = "Buy";
-				if (buysItems && player.numTotalItems > 0)
+				if (buysItems && player.items.Count > 0)
 				{
 					options[1] = "Sell";
 					options[2] = "Quit";
@@ -290,7 +290,7 @@ public abstract class NPC : Mob, Interactable
 					options[1] = "Quit";
 				}
 			}
-			else if (buysItems && player.numTotalItems > 0)
+			else if (buysItems && player.items.Count > 0)
 			{
 				options[0] = "Sell";
 				options[1] = "Quit";
@@ -317,7 +317,7 @@ public abstract class NPC : Mob, Interactable
 					closeScreen();
 			}
 
-			if (InputManager.IsPressed("UIBack"))
+			if (InputManager.IsPressed("UIBack", true))
 				closeScreen();
 		}
 		else if (state == NPCState.Shop)
@@ -379,26 +379,22 @@ public abstract class NPC : Mob, Interactable
 					{
 						Item copy = item.copy();
 						copy.stackSize = 1;
-						if (GameState.instance.player.giveItem(copy))
-						{
-							GameState.instance.player.money -= price;
-							item.stackSize--;
-						}
+						GameState.instance.player.giveItem(copy);
+						GameState.instance.player.money -= price;
+						item.stackSize--;
 					}
 					else
 					{
-						if (GameState.instance.player.giveItem(item))
-						{
-							GameState.instance.player.money -= price;
+						GameState.instance.player.giveItem(item);
+						GameState.instance.player.money -= price;
 
-							shopItems.RemoveAt(i);
-							i--;
+						shopItems.RemoveAt(i);
+						i--;
 
-							if (selectedItem == shopItems.Count)
-								selectedItem--;
-							if (shopItems.Count == 0)
-								initMenu();
-						}
+						if (selectedItem == shopItems.Count)
+							selectedItem--;
+						if (shopItems.Count == 0)
+							initMenu();
 					}
 				}
 
@@ -411,33 +407,19 @@ public abstract class NPC : Mob, Interactable
 				sidePanelHeight = ItemInfoPanel.Render(shopItems[selectedItem].Item1, x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(shopItems.Count * lineHeight, sidePanelHeight));
 			}
 
-			if (InputManager.IsPressed("UIBack"))
+			if (InputManager.IsPressed("UIBack", true))
 				initMenu();
 		}
 		else if (state == NPCState.SellMenu)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
-			List<Item> sellItems = new List<Item>();
-			if (player.handItem != null)
-				sellItems.Add(player.handItem);
-			for (int i = 0; i < player.quickItems.Length; i++)
-			{
-				if (player.quickItems[i] != null)
-					sellItems.Add(player.quickItems[i]);
-			}
-			for (int i = 0; i < player.passiveItems.Length; i++)
-			{
-				if (player.passiveItems[i] != null)
-					sellItems.Add(player.passiveItems[i]);
-			}
-
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
 			int shopWidth = Math.Max(120, 1 + lineHeight + 5 + longestItemName + 1);
 			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + sellItems.Count * lineHeight;
+			int height = headerHeight + player.items.Count * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 			int y = Math.Max(pos.y - height, 2);
 
@@ -451,17 +433,17 @@ public abstract class NPC : Mob, Interactable
 			y += headerHeight;
 
 			if (InputManager.IsPressed("Down"))
-				selectedItem = (selectedItem + 1) % sellItems.Count;
+				selectedItem = (selectedItem + 1) % player.items.Count;
 			if (InputManager.IsPressed("Up"))
-				selectedItem = (selectedItem + sellItems.Count - 1) % sellItems.Count;
+				selectedItem = (selectedItem + player.items.Count - 1) % player.items.Count;
 
-			for (int i = 0; i < sellItems.Count; i++)
+			for (int i = 0; i < player.items.Count; i++)
 			{
 				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
 					selectedItem = i;
 				bool selected = selectedItem == i;
 
-				Item item = sellItems[i];
+				Item item = player.items[i].Item2;
 				int price = (int)MathF.Round(item.value);
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
@@ -491,17 +473,15 @@ public abstract class NPC : Mob, Interactable
 					}
 					else
 					{
-						if (GameState.instance.player.removeItem(item))
-						{
-							addShopItem(item);
-							GameState.instance.player.money += price;
-							sellItems.RemoveAt(i--);
+						GameState.instance.player.removeItem(item);
+						addShopItem(item);
+						GameState.instance.player.money += price;
+						i--;
 
-							if (selectedItem == sellItems.Count)
-								selectedItem--;
-							if (sellItems.Count == 0)
-								initMenu();
-						}
+						if (selectedItem == player.items.Count)
+							selectedItem--;
+						if (player.items.Count == 0)
+							initMenu();
 					}
 				}
 
@@ -509,12 +489,10 @@ public abstract class NPC : Mob, Interactable
 			}
 
 			// Item info panel
-			if (sellItems.Count > 0)
-			{
-				sidePanelHeight = ItemInfoPanel.Render(sellItems[selectedItem], x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(sellItems.Count * lineHeight, sidePanelHeight));
-			}
+			if (player.items.Count > 0)
+				sidePanelHeight = ItemInfoPanel.Render(player.items[selectedItem].Item2, x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(player.items.Count * lineHeight, sidePanelHeight));
 
-			if (InputManager.IsPressed("UIBack"))
+			if (InputManager.IsPressed("UIBack", true))
 				initMenu();
 		}
 	}

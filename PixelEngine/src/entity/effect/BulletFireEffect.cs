@@ -22,7 +22,7 @@ public class BulletFireEffect : Entity
 	{
 		this.follow = follow;
 
-		sprite = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 1, 0);
+		sprite = new Sprite(effectsTileset, 1, 0);
 	}
 
 	public override void init()

@@ -9,7 +9,7 @@ public class PlayerCamera : Entity
 	Player player;
 	Vector2 target;
 
-	float width, height;
+	public float width, height;
 	int scale;
 
 	long lastDownInput = -1;
@@ -52,6 +52,10 @@ public class PlayerCamera : Entity
 		target = player.position + new Vector2(0, 2);
 		//if (player.inventoryOpen)
 		//	target += new Vector2(-width / 4, 0);
+
+		target.x = MathHelper.Clamp(target.x, x0, x1);
+		target.y = MathHelper.Clamp(target.y, y0, y1);
+
 		if (InputManager.IsDown("Down") && player.currentLadder == null)
 		{
 			if (lastDownInput == -1)
@@ -63,9 +67,6 @@ public class PlayerCamera : Entity
 		{
 			lastDownInput = -1;
 		}
-
-		target.x = MathHelper.Clamp(target.x, x0, x1);
-		target.y = MathHelper.Clamp(target.y, y0, y1);
 
 		position = Vector2.Lerp(position, target, 5 * Time.deltaTime);
 
@@ -84,6 +85,26 @@ public class PlayerCamera : Entity
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix view = getTransform().inverted;
 
-		Renderer.SetCamera(projection, view, position.x - 0.5f * width, position.x + 0.5f * width, position.y - 0.5f * height, position.y + 0.5f * height);
+		Renderer.SetCamera(projection, view, left, right, bottom, top);
+	}
+
+	public float left
+	{
+		get => position.x - 0.5f * width;
+	}
+
+	public float right
+	{
+		get => position.x + 0.5f * width;
+	}
+
+	public float bottom
+	{
+		get => position.y - 0.5f * height;
+	}
+
+	public float top
+	{
+		get => position.y + 0.5f * height;
 	}
 }

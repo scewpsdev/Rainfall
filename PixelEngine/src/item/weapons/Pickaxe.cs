@@ -26,6 +26,6 @@ public class Pickaxe : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new PickaxeSwingAction(this));
-		return true;
+		return false;
 	}
 }

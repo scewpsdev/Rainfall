@@ -13,12 +13,13 @@ public class LightningProjectile : Entity
 
 	float speed = 200;
 	int maxRicochets = 3;
-	float maxDistance = 10;
+	float maxDistance = 25;
 
 	Entity shooter;
 	Item item;
 
 	Sprite sprite;
+	Texture lightning;
 	Sprite trail, trailFade;
 
 	bool active = true;
@@ -47,6 +48,7 @@ public class LightningProjectile : Entity
 		velocity = direction * speed;
 
 		sprite = new Sprite(Item.tileset, 9, 2);
+		lightning = Resource.GetTexture("res/sprites/lightning.png", false);
 		trail = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 2, 0);
 		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 3, 0);
 	}
@@ -75,6 +77,8 @@ public class LightningProjectile : Entity
 		position += displacement;
 		distance += displacement.length;
 
+		Vector2 tangent = new Vector2(displacement.y, -displacement.x).normalized;
+
 		if (distance >= maxDistance)
 			active = false;
 
@@ -83,6 +87,10 @@ public class LightningProjectile : Entity
 		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
 
 		HitData hit = GameState.instance.level.raycast(lastPosition, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		if (hit == null)
+			hit = GameState.instance.level.raycast(lastPosition + tangent * 0.1f, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		if (hit == null)
+			hit = GameState.instance.level.raycast(lastPosition - tangent * 0.1f, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit != null)
 		{
 			if (hit.entity != null)
@@ -121,8 +129,8 @@ public class LightningProjectile : Entity
 
 	public override void render()
 	{
-		if (active)
-			Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
+		//if (active)
+		//	Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
 
 		for (int i = 0; i < cornerPoints.Count; i++)
 		{
@@ -131,7 +139,28 @@ public class LightningProjectile : Entity
 			Vector2 direction = (end - start).xy.normalized;
 			float angle = direction.angle;
 			float length = (end - start).length;
+			Vector2 center = (start.xy + end.xy) * 0.5f;
 
+			for (int j = 0; j < 3; j++)
+			{
+				uint seed = (uint)(i * 19 + j);// (uint)(Time.currentTime / 100000000);
+				uint h = Hash.hash(seed);
+				int u0 = (int)(h % lightning.width);
+				int width = (int)(length * lightning.height);
+
+				uint colorSelection = h % 3;
+				Vector4 color = MathHelper.ARGBToVector(colorSelection == 0 ? 0xFF5b98ff : colorSelection == 1 ? 0xFF6edcff : 0xFFd6eeff);
+
+				float startTime = MathHelper.Lerp(start.z, end.z, 0.5f);
+				float elapsed = Time.currentTime / 1e9f - startTime;
+				color.w *= MathF.Exp(-elapsed * 10);
+
+				color.w *= MathF.Exp(-j);
+
+				Renderer.DrawSprite(center.x - 0.5f * length, center.y - 0.5f, 0, length, 1, angle, lightning, u0, 0, width, lightning.height, color, true);
+			}
+
+			/*
 			for (int j = 0; j < (int)MathF.Ceiling(length); j++)
 			{
 				float fraction = MathF.Min(length - j, 1);
@@ -152,6 +181,7 @@ public class LightningProjectile : Entity
 
 				Renderer.DrawSprite(1, 1, transform, sprite.spriteSheet.texture, u0, v0, w, h, color, true);
 			}
+			*/
 		}
 	}
 }

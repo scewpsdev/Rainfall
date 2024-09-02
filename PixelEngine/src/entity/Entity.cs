@@ -25,6 +25,13 @@ public class Entity
 
 	public const uint OUTLINE_COLOR = 0xBFFFFFFF;
 
+	public static readonly SpriteSheet effectsTileset;
+
+	static Entity()
+	{
+		effectsTileset = new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16);
+	}
+
 
 	public Vector2 position;
 	public float rotation;

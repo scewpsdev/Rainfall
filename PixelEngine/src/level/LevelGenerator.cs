@@ -499,6 +499,7 @@ public class LevelGenerator
 		float loganChance = 0.02f;
 		float blacksmithChance = 0.08f;
 		float fountainChance = 0.1f;
+		float coinsChance = 0.1f;
 
 		List<Room> roomSpawnList = new List<Room>(rooms);
 		MathHelper.ShuffleList(roomSpawnList, random);
@@ -583,14 +584,35 @@ public class LevelGenerator
 						objectFlags[tile.x + tile.y * width] = true;
 					}
 				}
+				else if (f < builderChance + travellerChance + ratChance + loganChance + blacksmithChance + fountainChance + coinsChance)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i tile))
+					{
+						int amount = 10;
+						level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
+
+						objectFlags[tile.x + tile.y * width] = true;
+					}
+				}
 				else
 				{
-					if (random.NextSingle() < 0.2f)
+					if (random.NextSingle() < 0.65f)
 					{
 						if (room.getFloorSpawn(level, random, out Vector2i tile))
 						{
-							Chest chest = new Chest(Item.CreateRandom(random));
-							level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
+							Item item = Item.CreateRandom(random);
+							if (random.NextSingle() < 1 - MathF.Exp(-item.value))
+							{
+								TileType left = level.getTile(tile + new Vector2i(-1, 0));
+								TileType right = level.getTile(tile + new Vector2i(1, 0));
+								Chest chest = new Chest([item], left != null && right == null);
+								level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
+							}
+							else
+							{
+								ItemEntity itemEntity = new ItemEntity(item);
+								level.addEntity(itemEntity, tile + 0.5f);
+							}
 
 							objectFlags[tile.x + tile.y * width] = true;
 						}
@@ -720,6 +742,7 @@ public class LevelGenerator
 
 						if (random.NextSingle() < itemChance)
 						{
+							// TODO mimic
 							float scamChestChance = 0.02f;
 							if (random.NextSingle() < scamChestChance)
 							{
@@ -729,16 +752,25 @@ public class LevelGenerator
 							else
 							{
 								Item item = Item.CreateRandom(random);
-								Chest chest = new Chest([item], left != null && right == null);
 
-								float coinsChance = 0.1f;
-								if (random.NextSingle() < coinsChance)
+								if (random.NextSingle() < 1 - MathF.Exp(-item.value))
 								{
-									int amount = MathHelper.RandomInt(3, 12, random);
-									chest.coins = amount;
+									Chest chest = new Chest([item], left != null && right == null);
+									level.addEntity(chest, new Vector2(x + 0.5f, y));
+
+									float chestCoinsChance = 0.1f;
+									if (random.NextSingle() < chestCoinsChance)
+									{
+										int amount = MathHelper.RandomInt(3, 12, random);
+										chest.coins = amount;
+									}
+								}
+								else
+								{
+									ItemEntity itemEntity = new ItemEntity(item);
+									level.addEntity(itemEntity, new Vector2(x + 0.5f, y + 0.5f));
 								}
 
-								level.addEntity(chest, new Vector2(x + 0.5f, y));
 								objectFlags[x + y * width] = true;
 							}
 						}
