@@ -37,7 +37,8 @@ public abstract class NPC : Mob, Interactable
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
-	protected float tax = 0.2f;
+	protected float saleTax = 0.2f;
+	protected float buyTax = 0.0f;
 	int longestItemName = 80;
 	int sidePanelHeight = 40;
 
@@ -87,7 +88,7 @@ public abstract class NPC : Mob, Interactable
 		}
 
 		if (price == -1)
-			price = (int)MathF.Round(item.value * (1 + tax));
+			price = (int)MathF.Round(item.value * (1 + saleTax));
 		shopItems.Add(new Tuple<Item, int>(item, price));
 	}
 

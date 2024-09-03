@@ -19,7 +19,7 @@ public class Blacksmith : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		tax = 0.2f;
+		saleTax = 0.2f;
 		buysItems = true;
 
 		addVoiceLine("Mmh.");

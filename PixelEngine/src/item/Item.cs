@@ -42,6 +42,7 @@ public abstract class Item
 	public float attackRange = 1;
 	public float attackAngle = MathF.PI;
 	public float attackRate = 2.0f;
+	public float attackCooldown = 1.0f;
 	public float secondaryChargeTime = 0.5f;
 	public bool trigger = true;
 	public int maxPierces = 0;

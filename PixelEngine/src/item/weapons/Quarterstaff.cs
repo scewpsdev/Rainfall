@@ -16,6 +16,9 @@ public class Quarterstaff : Item
 		attackDamage = 1;
 		attackRange = 1.2f;
 		attackRate = 2;
+		stab = false;
+		attackAngle = MathF.PI * 2;
+		attackCooldown = 0.5f;
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 

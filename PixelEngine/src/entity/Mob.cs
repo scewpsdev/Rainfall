@@ -96,7 +96,11 @@ public abstract class Mob : Entity, Hittable
 	{
 		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player)
 		{
-			Player player = by as Player;
+			Player player = null;
+			if (by is Player)
+				player = by as Player;
+			else if (by is ItemEntity)
+				player = ((ItemEntity)by).thrower as Player;
 			player.onKill(this);
 		}
 

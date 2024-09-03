@@ -51,7 +51,7 @@ public class AttackAction : EntityAction
 
 	public float currentProgress
 	{
-		get => MathF.Min(elapsedTime / duration * 2, 1);
+		get => MathF.Min(elapsedTime / duration + elapsedTime / duration * weapon.attackCooldown, 1);
 	}
 
 	public bool inDamageWindow
