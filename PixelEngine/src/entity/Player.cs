@@ -17,7 +17,7 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
-	const float MANA_RECHARGE_RATE = 0.05f;
+	const float MANA_RECHARGE_RATE = 0.02f;
 	const float MANA_KILL_REWARD = 0.25f;
 
 
@@ -757,7 +757,8 @@ public class Player : Entity, Hittable
 							}
 							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
 							{
-								handItem.useSecondary(this);
+								if (handItem.useSecondary(this))
+									removeItem(handItem);
 								lastItemUseDown = -1;
 							}
 						}
@@ -958,7 +959,7 @@ public class Player : Entity, Hittable
 			Renderer.DrawSprite(position.x - 0.5f, position.y + 1.0f, 1, 1, stunnedIcon, false);
 		}
 
-		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 9);
+		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
 
 		if (GameState.instance.run.active)
 		{

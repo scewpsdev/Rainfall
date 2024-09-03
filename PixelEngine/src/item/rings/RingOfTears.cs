@@ -49,9 +49,9 @@ public class RingOfTears : Item
 		{
 			Player player = entity as Player;
 
-			if (player.health <= 1.0f && !active)
+			if (player.health <= 1.1f && !active)
 				activate(player);
-			else if (player.health > 1.0f && active)
+			else if (player.health > 1.1f && active)
 				deactivate(player);
 		}
 	}
