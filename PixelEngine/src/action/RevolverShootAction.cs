@@ -13,8 +13,8 @@ public class RevolverShootAction : EntityAction
 	public List<Entity> hitEntities = new List<Entity>();
 
 
-	public RevolverShootAction(Item weapon)
-		: base("revolver_shoot")
+	public RevolverShootAction(Item weapon, bool mainHand)
+		: base("revolver_shoot", mainHand)
 	{
 		duration = 1.0f / weapon.attackRate;
 

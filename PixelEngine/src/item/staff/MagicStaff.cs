@@ -31,7 +31,7 @@ public class MagicStaff : Item
 	{
 		if (charges > 0 && player.mana >= manaCost)
 		{
-			player.actions.queueAction(new SpellCastAction(this));
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this));
 			player.consumeMana(manaCost);
 			charges--;
 		}

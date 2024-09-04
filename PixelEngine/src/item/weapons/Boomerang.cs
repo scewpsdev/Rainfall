@@ -19,11 +19,12 @@ public class Boomerang : Item
 		value = 20;
 
 		sprite = new Sprite(tileset, 3, 1);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)
 	{
-		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player, this), player.position + renderOffset * new Vector2(player.direction, 1));
+		GameState.instance.level.addEntity(new BoomerangProjectile(player.direction, player, this), player.position + new Vector2(renderOffset.x * player.direction, 0.5f + renderOffset.y));
 		return true;
 	}
 }

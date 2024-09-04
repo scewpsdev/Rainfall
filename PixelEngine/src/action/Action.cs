@@ -30,6 +30,10 @@ public class EntityAction
 	public readonly string type;
 
 	public string animation;
+	public bool mainHand;
+
+	public float speedMultiplier = 1.0f;
+
 	public Model animationSet;
 	public bool rootMotion = false;
 	public float animationTransitionDuration = 0.1f;
@@ -54,9 +58,10 @@ public class EntityAction
 	bool staminaConsumed = false;
 
 
-	public EntityAction(string type)
+	public EntityAction(string type, bool mainHand = true)
 	{
 		this.type = type;
+		this.mainHand = mainHand;
 	}
 
 	protected void addSoundEffect(ActionSfx sfx)
@@ -99,6 +104,11 @@ public class EntityAction
 
 	public virtual void onFinished(Player player)
 	{
+	}
+
+	public virtual Matrix getItemTransform()
+	{
+		return Matrix.Identity;
 	}
 
 	public bool hasStarted

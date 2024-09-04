@@ -21,11 +21,12 @@ public class Pickaxe : Item
 		value = 15;
 
 		sprite = new Sprite(tileset, 0, 1);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new PickaxeSwingAction(this));
+		player.actions.queueAction(new PickaxeSwingAction(this, player.handItem == this));
 		return false;
 	}
 }

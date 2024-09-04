@@ -12,8 +12,8 @@ public class PickaxeSwingAction : AttackAction
 	bool hit = false;
 
 
-	public PickaxeSwingAction(Item weapon)
-		: base(weapon)
+	public PickaxeSwingAction(Item weapon, bool mainHand)
+		: base(weapon, mainHand)
 	{
 	}
 

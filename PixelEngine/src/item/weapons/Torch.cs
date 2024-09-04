@@ -27,7 +27,7 @@ public class Torch : Item
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this));
 		return false;
 	}
 

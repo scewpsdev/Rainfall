@@ -24,7 +24,7 @@ public class DefaultWeapon : Item
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this));
+		player.actions.queueAction(new AttackAction(this, true));
 		return false;
 	}
 }

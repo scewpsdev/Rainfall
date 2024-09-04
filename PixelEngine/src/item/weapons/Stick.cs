@@ -23,11 +23,12 @@ public class Stick : Item
 
 		sprite = new Sprite(tileset, 13, 1);
 		size = new Vector2(1, 1);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this));
 		return false;
 	}
 }

@@ -369,8 +369,14 @@ public class LevelGenerator
 			{
 				int roomDefID = random.Next() % defaultSet.roomDefs.Count;
 				RoomDef roomDef = defaultSet.roomDefs[roomDefID];
-				int startingRoomX = random.Next() % (width - roomDef.width);
-				int startingRoomY = random.Next() % (height - roomDef.height);
+				while (roomDef.height > height || roomDef.width > width)
+				{
+					roomDefID = random.Next() % defaultSet.roomDefs.Count;
+					roomDef = defaultSet.roomDefs[roomDefID];
+				}
+
+				int startingRoomX = random.Next() % Math.Max(width - roomDef.width, 1);
+				int startingRoomY = random.Next() % Math.Max(height - roomDef.height, 1);
 				Room room = new Room
 				{
 					x = startingRoomX,
@@ -498,8 +504,9 @@ public class LevelGenerator
 		float ratChance = 0.02f;
 		float loganChance = 0.02f;
 		float blacksmithChance = 0.08f;
+		float tinkererChance = 0.05f;
 		float fountainChance = 0.1f;
-		float coinsChance = 0.1f;
+		float coinsChance = 0.05f;
 
 		List<Room> roomSpawnList = new List<Room>(rooms);
 		MathHelper.ShuffleList(roomSpawnList, random);
@@ -518,8 +525,10 @@ public class LevelGenerator
 				}
 
 				float f = random.NextSingle();
+				float r = 0.0f;
 
-				if (f < builderChance)
+				r += builderChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
@@ -527,10 +536,13 @@ public class LevelGenerator
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 						builderChance = 0;
+						f = 1;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance)
+
+				r += travellerChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
@@ -538,10 +550,13 @@ public class LevelGenerator
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 						travellerChance = 0;
+						f = 1;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance + ratChance)
+
+				r += ratChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
@@ -549,10 +564,13 @@ public class LevelGenerator
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 						ratChance = 0;
+						f = 1;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance + ratChance + loganChance)
+
+				r += loganChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
@@ -560,10 +578,13 @@ public class LevelGenerator
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 						loganChance = 0;
+						f = 1;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance + ratChance + loganChance + blacksmithChance)
+
+				r += blacksmithChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i npcPos))
 					{
@@ -571,30 +592,50 @@ public class LevelGenerator
 						npc.direction = random.Next() % 2 * 2 - 1;
 						level.addEntity(npc, new Vector2(npcPos.x + 0.5f, npcPos.y));
 						blacksmithChance = 0;
+						f = 1;
 						objectFlags[npcPos.x + npcPos.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance + ratChance + loganChance + blacksmithChance + fountainChance)
+
+				r += tinkererChance;
+				if (f < r)
+				{
+					if (room.getFloorSpawn(level, random, out Vector2i tile))
+					{
+						Tinkerer npc = new Tinkerer(random);
+						npc.direction = random.Next() % 2 * 2 - 1;
+						level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+						tinkererChance = 0;
+						f = 1;
+						objectFlags[tile.x + tile.y * width] = true;
+					}
+				}
+
+				r += fountainChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i tile))
 					{
 						Fountain fountain = new Fountain(random);
 						level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
-
+						f = 1;
 						objectFlags[tile.x + tile.y * width] = true;
 					}
 				}
-				else if (f < builderChance + travellerChance + ratChance + loganChance + blacksmithChance + fountainChance + coinsChance)
+
+				r += coinsChance;
+				if (f < r)
 				{
 					if (room.getFloorSpawn(level, random, out Vector2i tile))
 					{
 						int amount = 10;
 						level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
-
+						f = 1;
 						objectFlags[tile.x + tile.y * width] = true;
 					}
 				}
-				else
+
+				if (f != 1)
 				{
 					if (random.NextSingle() < 0.65f)
 					{
@@ -738,6 +779,7 @@ public class LevelGenerator
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
+						itemChance *= 0.5f;
 						itemChance *= lootModifier[x + y * width];
 
 						if (random.NextSingle() < itemChance)
@@ -758,10 +800,10 @@ public class LevelGenerator
 									Chest chest = new Chest([item], left != null && right == null);
 									level.addEntity(chest, new Vector2(x + 0.5f, y));
 
-									float chestCoinsChance = 0.1f;
+									float chestCoinsChance = 0.08f;
 									if (random.NextSingle() < chestCoinsChance)
 									{
-										int amount = MathHelper.RandomInt(3, 12, random);
+										int amount = MathHelper.RandomInt(2, 10, random);
 										chest.coins = amount;
 									}
 								}

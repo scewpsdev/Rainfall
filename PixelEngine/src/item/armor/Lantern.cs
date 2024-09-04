@@ -21,6 +21,7 @@ public class Lantern : Item
 	{
 		displayName = "Lantern";
 
+		armor = 1;
 		value = 10;
 		canEquipMultiple = false;
 

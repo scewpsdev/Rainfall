@@ -213,10 +213,12 @@ public abstract class Mob : Entity, Hittable
 			velocity.y += gravity * Time.deltaTime;
 
 			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
-			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
+			if (MathF.Abs(impulseVelocity.x) < 0.01f)
 				impulseVelocity.x = 0;
-			else if (velocity.x == 0)
-				impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
+			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
+				velocity.x = 0;
+			//else if (velocity.x == 0)
+			//	impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
 			//impulseVelocity.x = impulseVelocity.x - velocity.x;
 			velocity += impulseVelocity;
 		}

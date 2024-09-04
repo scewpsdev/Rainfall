@@ -131,7 +131,7 @@ public class GameState : State
 		level.addEntity(player = new Player(), new Vector2(15 + 2, 1));
 		level.addEntity(camera = new PlayerCamera(player));
 
-		player.money = 3;
+		player.money = 4;
 
 		level.addEntity(tutorialDoor, new Vector2(15 + 7.5f, 1));
 		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 7.5f, 3));
@@ -146,12 +146,15 @@ public class GameState : State
 		npc.addShopItem(new Revolver(), 0);
 #endif
 		npc.addShopItem(new Stick());
+		npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Rope());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
+
+		//level.addEntity(new Tinkerer(Random.Shared), new Vector2(6.5f, 3));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);

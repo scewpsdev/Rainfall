@@ -22,11 +22,12 @@ public class Revolver : Item
 		canDrop = false;
 
 		sprite = new Sprite(tileset, 14, 0);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new RevolverShootAction(this));
+		player.actions.queueAction(new RevolverShootAction(this, player.handItem == this));
 		return false;
 	}
 }

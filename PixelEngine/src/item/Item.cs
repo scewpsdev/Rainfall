@@ -11,14 +11,15 @@ using System.Threading.Tasks;
 public enum ItemType
 {
 	Weapon,
+	Shield,
 	Armor,
 	Food,
 	Potion,
 	Ring,
 	Staff,
 	Scroll,
-	Gem,
 	Utility,
+	Gem,
 
 	Count
 }
@@ -44,6 +45,8 @@ public abstract class Item
 	public float attackRate = 2.0f;
 	public float attackCooldown = 1.0f;
 	public float secondaryChargeTime = 0.5f;
+	public float blockDuration = 0.7f;
+	public float damageReflect = 0.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
 	public float knockback = 8.0f;
@@ -51,7 +54,7 @@ public abstract class Item
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
-	public Vector2 renderOffset = new Vector2(0.2f, 0.5f - 0.2f);
+	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
 
 	public int armor = 0;
 
@@ -85,6 +88,11 @@ public abstract class Item
 		get => type == ItemType.Weapon || type == ItemType.Staff;
 	}
 
+	public bool isSecondaryItem
+	{
+		get => type == ItemType.Shield;
+	}
+
 	public bool isActiveItem
 	{
 		get => type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
@@ -97,7 +105,7 @@ public abstract class Item
 
 	public float rarity
 	{
-		get => MathF.Exp(-value * 0.03f);
+		get => MathF.Exp(-value * 0.04f);
 	}
 
 	public static float GetArmorAbsorption(int armor)
@@ -204,10 +212,14 @@ public abstract class Item
 		InitType(new Apple());
 		InitType(new GoldenApple());
 		InitType(new Chainmail());
+		InitType(new LeatherArmor());
 		InitType(new Diamond());
 		InitType(new Emerald());
 		InitType(new Ruby());
 		InitType(new ScrollOfWeaponWeightlessness());
+		InitType(new IronShield());
+		InitType(new ThornShield());
+		InitType(new Scimitar());
 	}
 
 	static void InitType(Item item)
@@ -251,7 +263,8 @@ public abstract class Item
 	public static Item CreateRandom(Random random, float minValue = 0, float maxValue = float.MaxValue)
 	{
 		float[] distribution = [
-			0.2f, // Weapon
+			0.15f, // Weapon
+			0.05f, // Shield
 			0.14f, // Armor
 			0.18f, // Food
 			0.1f, // Potion

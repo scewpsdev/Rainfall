@@ -13,8 +13,8 @@ public class LightningCastAction : EntityAction
 	public List<Entity> hitEntities = new List<Entity>();
 
 
-	public LightningCastAction(Item weapon)
-		: base("lightning_cast")
+	public LightningCastAction(Item weapon, bool mainHand)
+		: base("lightning_cast", mainHand)
 	{
 		duration = 1.0f / weapon.attackRate;
 
