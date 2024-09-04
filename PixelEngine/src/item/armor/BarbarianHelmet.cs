@@ -13,7 +13,7 @@ public class BarbarianHelmet : Item
 	{
 		displayName = "Barbarian Helmet";
 
-		armor = 4;
+		armor = 5;
 		canEquipMultiple = false;
 
 		value = 12;

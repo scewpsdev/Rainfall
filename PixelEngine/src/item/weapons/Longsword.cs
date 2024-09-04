@@ -21,12 +21,13 @@ public class Longsword : Item
 		value = 12;
 
 		sprite = new Sprite(tileset, 1, 1);
+		renderOffset.x = 0.2f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this));
 		return false;
 	}
 }

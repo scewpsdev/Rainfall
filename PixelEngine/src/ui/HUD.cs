@@ -150,7 +150,7 @@ public class HUD
 
 		// Armor
 		int totalArmor = player.getTotalArmor();
-		for (int i = 0; i < (int)MathF.Ceiling(totalArmor / 3.0f); i++)
+		for (int i = 0; i < (int)MathF.Ceiling(totalArmor / 4.0f); i++)
 		{
 			int size = 8;
 			int padding = 3;
@@ -159,7 +159,7 @@ public class HUD
 
 			Renderer.DrawUIOutline(x, y, size, size, armorEmpty, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, armorEmpty);
-			float fraction = MathF.Min(totalArmor / 10.0f - i, 1);
+			float fraction = MathF.Min(totalArmor / 4.0f - i, 1);
 			fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
 			Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), armor.spriteSheet.texture, armor.position.x, armor.position.y + (int)(armor.size.y * (1 - fraction)), armor.size.x, (int)(armor.size.y * fraction));
 		}

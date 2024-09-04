@@ -22,11 +22,12 @@ public class Dagger : Item
 		value = 6;
 
 		sprite = new Sprite(tileset, 2, 1);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this));
 		return false;
 	}
 

@@ -11,7 +11,7 @@ public class LeatherArmor : Item
 	public LeatherArmor()
 		: base("leather_armor", ItemType.Armor)
 	{
-		displayName = "Chainmail";
+		displayName = "Leather Armor";
 
 		armor = 2;
 		canEquipMultiple = false;
@@ -19,6 +19,6 @@ public class LeatherArmor : Item
 		value = 8;
 
 		sprite = new Sprite(tileset, 2, 2);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/chainmail.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/leather_armor.png", false), 0, 0, 16, 16);
 	}
 }

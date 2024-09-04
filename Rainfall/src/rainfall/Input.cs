@@ -650,9 +650,12 @@ namespace Rainfall
 			return mouseCurrent.IsButtonDown(button);
 		}
 
-		public static bool IsMouseButtonPressed(MouseButton button)
+		public static bool IsMouseButtonPressed(MouseButton button, bool consume = false)
 		{
-			return mouseCurrent.IsButtonDown(button) && !mouseLast.IsButtonDown(button);
+			bool result = mouseCurrent.IsButtonDown(button) && !mouseLast.IsButtonDown(button);
+			if (result && consume)
+				ConsumeMouseButtonEvent(button);
+			return result;
 		}
 
 		public static bool IsMouseButtonReleased(MouseButton button)

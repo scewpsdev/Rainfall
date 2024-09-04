@@ -37,6 +37,8 @@ public class LightningProjectile : Entity
 
 	public LightningProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item item)
 	{
+		displayName = "Lightning";
+
 		this.direction = direction;
 		this.offset = offset;
 		this.shooter = shooter;
@@ -99,7 +101,7 @@ public class LightningProjectile : Entity
 				if (/*hit.entity != shooter &&*/ hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(item.attackDamage * player.attack, shooter, item);
+					hittable.hit(item.attackDamage * player.attack, shooter, item, displayName);
 					hitEntities.Add(hit.entity);
 					//remove();
 				}

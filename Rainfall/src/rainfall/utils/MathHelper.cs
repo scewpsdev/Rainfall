@@ -100,9 +100,9 @@ namespace Rainfall
 			return t * t * (3.0f - 2.0f * t);
 		}
 
-		public static void Swap(ref float a, ref float b)
+		public static void Swap<T>(ref T a, ref T b)
 		{
-			float tmp = a;
+			T tmp = a;
 			a = b;
 			b = tmp;
 		}

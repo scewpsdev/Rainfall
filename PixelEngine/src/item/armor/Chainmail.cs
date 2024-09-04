@@ -13,7 +13,7 @@ public class Chainmail : Item
 	{
 		displayName = "Chainmail";
 
-		armor = 2;
+		armor = 3;
 		canEquipMultiple = false;
 
 		value = 8;

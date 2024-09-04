@@ -31,7 +31,7 @@ public class LightningStaff : Item
 	{
 		if (charges > 0 && player.mana >= manaCost)
 		{
-			player.actions.queueAction(new LightningCastAction(this));
+			player.actions.queueAction(new LightningCastAction(this, player.handItem == this));
 			player.consumeMana(manaCost);
 			charges--;
 		}

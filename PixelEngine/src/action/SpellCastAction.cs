@@ -13,8 +13,8 @@ public class SpellCastAction : EntityAction
 	public List<Entity> hitEntities = new List<Entity>();
 
 
-	public SpellCastAction(Item weapon)
-		: base("spell_cast")
+	public SpellCastAction(Item weapon, bool mainHand)
+		: base("spell_cast", mainHand)
 	{
 		duration = 1.0f / weapon.attackRate;
 

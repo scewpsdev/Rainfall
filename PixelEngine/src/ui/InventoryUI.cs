@@ -127,34 +127,64 @@ public class InventoryUI
 					else if (player.isPassiveItem(item))
 						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, armorSprite);
 
-					if (selected && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left)))
+					if (selected)
 					{
-						if (Input.IsMouseButtonPressed(MouseButton.Left))
-							Input.ConsumeMouseButtonEvent(MouseButton.Left);
-
 						if (item.isHandItem)
 						{
-							if (player.handItem == item)
-								player.unequipItem(item);
-							else
-								player.equipItem(item);
-						}
-						else if (item.isActiveItem)
-						{
-							if (player.useActiveItem(item))
+							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 							{
-								i--;
-
-								if (selectedItem == player.items.Count)
-									selectedItem--;
+								if (player.handItem == item)
+									player.unequipItem(item);
+								else
+								{
+									if (player.offhandItem == item)
+										player.unequipItem(item);
+									player.equipHandItem(item);
+								}
 							}
 						}
-						else if (item.isPassiveItem)
+						if (item.isSecondaryItem)
 						{
-							if (player.isPassiveItem(item))
-								player.unequipItem(item);
-							else
-								player.equipItem(item);
+							if (InputManager.IsPressed("Attack", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
+							{
+								if (player.offhandItem == item)
+									player.unequipItem(item);
+								else
+								{
+									if (player.handItem == item)
+										player.unequipItem(item);
+									player.equipOffhandItem(item);
+								}
+							}
+						}
+						if (item.isActiveItem)
+						{
+							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+							{
+								if (player.isActiveItem(item))
+									player.unequipItem(item);
+								else
+									player.equipItem(item);
+								/*
+								if (player.useActiveItem(item))
+								{
+									i--;
+
+									if (selectedItem == player.items.Count)
+										selectedItem--;
+								}
+								*/
+							}
+						}
+						if (item.isPassiveItem)
+						{
+							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+							{
+								if (player.isPassiveItem(item))
+									player.unequipItem(item);
+								else
+									player.equipItem(item);
+							}
 						}
 					}
 
