@@ -26,6 +26,8 @@ public class HUD
 	public static Sprite mana, manaEmpty;
 	public static Sprite gem;
 
+	public static Sprite crosshair;
+
 	static HUD()
 	{
 		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/ui.png", false), 8, 8);
@@ -41,6 +43,8 @@ public class HUD
 		armorEmpty = new Sprite(tileset, 5, 0);
 
 		gem = new Sprite(tileset, 3, 0);
+
+		crosshair = new Sprite(tileset, 0, 1);
 	}
 
 
@@ -124,7 +128,10 @@ public class HUD
 	public void render()
 	{
 		if (player.numOverlaysOpen > 0)
+		{
+			Input.cursorMode = CursorMode.Normal;
 			return;
+		}
 
 		// Health
 		for (int i = 0; i < player.maxHealth; i++)
@@ -226,8 +233,8 @@ public class HUD
 			int x = 12 + 32 + 16;
 			int y = Renderer.UIHeight - 12 - size;
 
-			float alpha = player.position.y < GameState.instance.camera.bottom + 0.15f * GameState.instance.camera.height &&
-				player.position.x < GameState.instance.camera.left + 0.4f * GameState.instance.camera.width
+			float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
+				player.position.x < GameState.instance.camera.left + 0.5f * GameState.instance.camera.width
 				? 0.2f : 1.0f;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
@@ -285,5 +292,11 @@ public class HUD
 
 		renderMessages();
 		renderPopup();
+
+		// Crosshair
+		{
+			Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+			Input.cursorMode = CursorMode.Hidden;
+		}
 	}
 }

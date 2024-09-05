@@ -131,7 +131,7 @@ bool captureFrame = false;
 
 int fpsCap;
 int vsync;
-bool mouseLocked = false;
+CursorMode cursorMode = CursorMode::Normal;
 
 int64_t currentFrame = 0;
 int64_t delta = 0;
@@ -1234,12 +1234,8 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 
 			case MessageType::MouseLock:
 			{
-				if (msg->value)
-					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-				else
-					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-				mouseLocked = msg->value;
+				glfwSetInputMode(window, GLFW_CURSOR, msg->value == (int)CursorMode::Normal ? GLFW_CURSOR_NORMAL : msg->value == (int)CursorMode::Hidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_DISABLED);
+				cursorMode = (CursorMode)msg->value;
 			}
 			break;
 			}
@@ -1349,10 +1345,10 @@ RFAPI bool Application_GetGamepadState(int gamepad, GLFWgamepadstate* state)
 	return glfwGetGamepadState(gamepad, state);
 }
 
-RFAPI void Application_SetMouseLock(bool locked)
+RFAPI void Application_SetCursorMode(CursorMode mode)
 {
 	Message* msg = BX_NEW(Application_GetAllocator(), Message)(MessageType::MouseLock);
-	msg->value = locked;
+	msg->value = (int)mode;
 	messageQueue.push(msg);
 }
 
@@ -1427,9 +1423,9 @@ RFAPI void Application_SetFpsCap(int fpsCap)
 	messageQueue.push(msg);
 }
 
-RFAPI bool Application_IsMouseLocked()
+RFAPI CursorMode Application_GetCursorMode()
 {
-	return mouseLocked;
+	return cursorMode;
 }
 
 RFAPI void Application_GetMonitorSize(int* outWidth, int* outHeight)

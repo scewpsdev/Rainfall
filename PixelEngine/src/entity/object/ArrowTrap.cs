@@ -28,7 +28,7 @@ public class ArrowTrap : Entity
 	{
 		if (hasAmmo)
 		{
-			HitData hit = GameState.instance.level.raycast(position + new Vector2(0.5f) + direction, direction, RANGE, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM);
+			HitData hit = GameState.instance.level.raycast(position + new Vector2(0.5f) + direction, direction, RANGE, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM | FILTER_PROJECTILE);
 			if (hit != null)
 			{
 				if (hit.entity != null)

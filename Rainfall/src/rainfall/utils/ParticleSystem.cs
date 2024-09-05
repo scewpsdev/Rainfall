@@ -115,6 +115,28 @@ namespace Rainfall
 		}
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct ParticleData
+	{
+		public byte _active;
+		public Vector3 position;
+		public float rotation;
+		public Vector3 velocity;
+		public float rotationVelocity;
+		public float size;
+		public float lifetime;
+		public float animationFrame;
+		public Vector4 color;
+
+		public long birthTime;
+
+		public bool active
+		{
+			get => _active != 0;
+			set { _active = (byte)(value ? 1 : 0); }
+		}
+	}
+
 	public unsafe class ParticleSystem
 	{
 		static List<ParticleSystem> particleSystems = new List<ParticleSystem>();
@@ -208,6 +230,11 @@ namespace Rainfall
 			get => Native.ParticleSystem.ParticleSystem_GetNumParticles(handle);
 		}
 
+		public unsafe ParticleData* data
+		{
+			get => Native.ParticleSystem.ParticleSystem_GetParticleData(handle);
+		}
+
 		public bool hasFinished
 		{
 			get => Native.ParticleSystem.ParticleSystem_HasFinished(handle) != 0;
@@ -239,6 +266,9 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern unsafe int ParticleSystem_GetNumParticles(ParticleSystemData* system);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern unsafe ParticleData* ParticleSystem_GetParticleData(ParticleSystemData* system);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern unsafe byte ParticleSystem_HasFinished(ParticleSystemData* system);

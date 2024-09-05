@@ -14,9 +14,10 @@ public class ThornShield : Item
 		displayName = "Thorn Shield";
 
 		armor = 3;
-		damageReflect = 0.5f;
-
+		damageReflect = 1.0f;
 		value = 45;
+
+		isSecondaryItem = true;
 
 		sprite = new Sprite(tileset, 4, 3);
 		renderOffset.x = 0.2f;

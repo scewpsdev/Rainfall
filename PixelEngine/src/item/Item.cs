@@ -24,6 +24,17 @@ public enum ItemType
 	Count
 }
 
+public enum ArmorSlot
+{
+	Helmet,
+	Body,
+	Gloves,
+	Boots,
+	Back,
+
+	Count
+}
+
 public abstract class Item
 {
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
@@ -37,7 +48,8 @@ public abstract class Item
 	public int stackSize = 1;
 	public float value = 1;
 	public bool canDrop = true;
-	public bool canEquipMultiple = true;
+	public bool isSecondaryItem = false;
+	public ArmorSlot armorSlot;
 
 	public float attackDamage = 1;
 	public float attackRange = 1;
@@ -86,11 +98,6 @@ public abstract class Item
 	public bool isHandItem
 	{
 		get => type == ItemType.Weapon || type == ItemType.Staff;
-	}
-
-	public bool isSecondaryItem
-	{
-		get => type == ItemType.Shield;
 	}
 
 	public bool isActiveItem
@@ -153,6 +160,10 @@ public abstract class Item
 	{
 	}
 
+	public virtual void onEntityBreak(ItemEntity entity)
+	{
+	}
+
 	public virtual void update(Entity entity)
 	{
 	}
@@ -211,7 +222,7 @@ public abstract class Item
 		InitType(new PotionOfEnergy());
 		InitType(new Apple());
 		InitType(new GoldenApple());
-		InitType(new Chainmail());
+		InitType(new ChainmailHood());
 		InitType(new LeatherArmor());
 		InitType(new Diamond());
 		InitType(new Emerald());
@@ -220,6 +231,7 @@ public abstract class Item
 		InitType(new IronShield());
 		InitType(new ThornShield());
 		InitType(new Scimitar());
+		InitType(new WizardsHood());
 	}
 
 	static void InitType(Item item)

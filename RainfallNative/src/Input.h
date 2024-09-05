@@ -149,6 +149,13 @@ enum class KeyModifier : uint8_t
 	RightMeta = 1 << 7,
 };
 
+enum class CursorMode : int
+{
+	Normal,
+	Hidden,
+	Disabled,
+};
+
 enum class GamepadButton : int
 {
 	A,

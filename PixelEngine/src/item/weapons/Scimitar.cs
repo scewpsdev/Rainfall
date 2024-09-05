@@ -13,7 +13,7 @@ public class Scimitar : Item
 	{
 		displayName = "Scimitar";
 
-		attackDamage = 2;
+		attackDamage = 1.5f;
 		attackRange = 1.2f;
 		attackRate = 2.0f;
 		stab = false;

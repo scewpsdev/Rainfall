@@ -14,7 +14,7 @@ public class BarbarianHelmet : Item
 		displayName = "Barbarian Helmet";
 
 		armor = 5;
-		canEquipMultiple = false;
+		armorSlot = ArmorSlot.Helmet;
 
 		value = 12;
 

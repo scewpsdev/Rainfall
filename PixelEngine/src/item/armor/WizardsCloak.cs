@@ -14,11 +14,11 @@ public class WizardsCloak : Item
 		displayName = "Wizard's Cloak";
 
 		armor = 2;
-		canEquipMultiple = false;
+		armorSlot = ArmorSlot.Body;
 
 		value = 5;
 
 		sprite = new Sprite(tileset, 5, 0);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/cloak.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/wizards_cloak.png", false), 0, 0, 16, 16);
 	}
 }

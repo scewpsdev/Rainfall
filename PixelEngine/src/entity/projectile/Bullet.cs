@@ -31,6 +31,7 @@ public class Bullet : Entity
 		this.item = item;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
+		filterGroup = FILTER_PROJECTILE;
 
 		velocity = direction * speed;
 		if (MathF.Sign(velocity.x) == MathF.Sign(startVelocity.x) && MathF.Abs(startVelocity.x) > MathF.Abs(velocity.x))

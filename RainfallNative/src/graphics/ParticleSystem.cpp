@@ -272,6 +272,11 @@ RFAPI int ParticleSystem_GetNumParticles(ParticleSystem* system)
 	return system->numParticles;
 }
 
+RFAPI Particle* ParticleSystem_GetParticleData(ParticleSystem* system)
+{
+	return system->particles;
+}
+
 RFAPI bool ParticleSystem_HasFinished(ParticleSystem* system)
 {
 	if (system->emissionRate > 0)

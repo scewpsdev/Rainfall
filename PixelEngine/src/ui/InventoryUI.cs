@@ -21,9 +21,9 @@ public class InventoryUI
 		this.player = player;
 
 		weaponSprite = new Sprite(HUD.tileset, 0, 2, 2, 2);
-		shieldSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
-		armorSprite = new Sprite(HUD.tileset, 6, 4, 2, 2);
-		bagSprite = new Sprite(HUD.tileset, 2, 4, 2, 2);
+		shieldSprite = new Sprite(HUD.tileset, 2, 2, 2, 2);
+		bagSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
+		armorSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
 	}
 
 	static void drawItemSlot(int x, int y, int size, int border, Item item)
@@ -122,10 +122,16 @@ public class InventoryUI
 						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, weaponSprite);
 					else if (player.offhandItem == item)
 						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, shieldSprite);
-					else if (player.isActiveItem(item))
+					else if (player.isActiveItem(item, out int activeSlot))
+					{
 						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, bagSprite);
-					else if (player.isPassiveItem(item))
+						Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (activeSlot + 1).ToString(), 1, 0xFF505050);
+					}
+					else if (player.isPassiveItem(item, out int passiveSlot))
+					{
 						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, armorSprite);
+						Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (passiveSlot + 1).ToString(), 1, 0xFF505050);
+					}
 
 					if (selected)
 					{
@@ -161,7 +167,7 @@ public class InventoryUI
 						{
 							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 							{
-								if (player.isActiveItem(item))
+								if (player.isActiveItem(item, out _))
 									player.unequipItem(item);
 								else
 									player.equipItem(item);
@@ -180,7 +186,7 @@ public class InventoryUI
 						{
 							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 							{
-								if (player.isPassiveItem(item))
+								if (player.isPassiveItem(item, out _))
 									player.unequipItem(item);
 								else
 									player.equipItem(item);

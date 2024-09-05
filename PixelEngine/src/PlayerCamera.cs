@@ -28,6 +28,13 @@ public class PlayerCamera : Entity
 		return new Vector2i(x, y);
 	}
 
+	public Vector2 screenToWorld(Vector2i pos)
+	{
+		float x = MathHelper.Remap((pos.x + 0.5f) / Display.width, 0, 1, position.x - 0.5f * width, position.x + 0.5f * width);
+		float y = MathHelper.Remap((pos.y + 0.5f) / Display.height, 1, 0, position.y - 0.5f * height, position.y + 0.5f * height);
+		return new Vector2(x, y);
+	}
+
 	public override void update()
 	{
 		width = 1920 / 5.0f / 16.0f;
@@ -49,7 +56,7 @@ public class PlayerCamera : Entity
 		float y0 = 0.0f + 0.5f * height;
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
-		target = player.position + new Vector2(0, 2);
+		target = player.position + player.collider.center + player.lookDirection * 0.15f;
 		//if (player.inventoryOpen)
 		//	target += new Vector2(-width / 4, 0);
 
@@ -68,7 +75,7 @@ public class PlayerCamera : Entity
 			lastDownInput = -1;
 		}
 
-		position = Vector2.Lerp(position, target, 5 * Time.deltaTime);
+		position = Vector2.Lerp(position, target, 8 * Time.deltaTime);
 
 		if (x1 > x0)
 			position.x = MathHelper.Clamp(position.x, x0, x1);

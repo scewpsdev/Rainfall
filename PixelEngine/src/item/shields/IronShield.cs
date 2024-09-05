@@ -14,8 +14,9 @@ public class IronShield : Item
 		displayName = "Iron Shield";
 
 		armor = 3;
-
 		value = 25;
+
+		isSecondaryItem = true;
 
 		sprite = new Sprite(tileset, 3, 3);
 		renderOffset.x = 0.2f;

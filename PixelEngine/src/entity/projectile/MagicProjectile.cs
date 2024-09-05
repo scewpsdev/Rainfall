@@ -34,6 +34,7 @@ public class MagicProjectile : Entity
 		this.item = item;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
+		filterGroup = FILTER_PROJECTILE;
 
 		velocity = direction * speed;
 		if (MathF.Sign(velocity.x) == MathF.Sign(startVelocity.x) && MathF.Abs(startVelocity.x) > MathF.Abs(velocity.x))
@@ -93,5 +94,6 @@ public class MagicProjectile : Entity
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
+		Renderer.DrawLight(position, new Vector3(0.5f, 1.0f, 1.0f) * 3, 3.0f);
 	}
 }

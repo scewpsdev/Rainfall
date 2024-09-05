@@ -36,6 +36,8 @@ public class RevolverShootAction : EntityAction
 			direction.x += player.direction;
 		direction = direction.normalized;
 
+		direction = player.lookDirection.normalized;
+
 		Vector2 position = player.position + new Vector2(player.direction * 0.6f, 0.3f);
 		Vector2 offset = new Vector2(0.0f, 0.1f);
 

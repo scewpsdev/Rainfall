@@ -156,6 +156,13 @@ namespace Rainfall
 		RightMeta = 1 << 7,
 	}
 
+	public enum CursorMode : int
+	{
+		Normal,
+		Hidden,
+		Disabled,
+	}
+
 	public enum GamepadButton
 	{
 		None = -1,
@@ -585,7 +592,7 @@ namespace Rainfall
 		static MouseState mouseCurrent, mouseLast;
 		static GamepadState gamepadCurrent, gamepadLast;
 
-		static bool _mouseLocked = false;
+		static CursorMode _cursorMode = CursorMode.Normal;
 
 		static bool mouseJustLocked = false;
 
@@ -751,14 +758,15 @@ namespace Rainfall
 			mouseLast.z = mouseCurrent.z;
 		}
 
-		public static bool mouseLocked
+		public static CursorMode cursorMode
 		{
-			get { return _mouseLocked; }
+			get { return _cursorMode; }
 			set
 			{
-				Native.Application.Application_SetMouseLock(value);
-				_mouseLocked = value;
-				mouseJustLocked = true;
+				Application.Application_SetCursorMode(value);
+				_cursorMode = value;
+				if (value == CursorMode.Disabled)
+					mouseJustLocked = true;
 			}
 		}
 

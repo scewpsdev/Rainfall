@@ -14,7 +14,7 @@ public class Ruby : Item
 		displayName = "Ruby";
 		stackable = true;
 
-		value = 60;
+		value = 30;
 
 		sprite = new Sprite(tileset, 2, 3);
 	}

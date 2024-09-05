@@ -23,7 +23,7 @@ public class Lantern : Item
 
 		armor = 1;
 		value = 10;
-		canEquipMultiple = false;
+		armorSlot = ArmorSlot.Back;
 
 		sprite = new Sprite(tileset, 10, 1);
 

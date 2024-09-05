@@ -21,6 +21,7 @@ public class Torch : Item
 		value = 2;
 
 		canDrop = false;
+		isSecondaryItem = true;
 
 		sprite = new Sprite(tileset, 8, 0);
 	}

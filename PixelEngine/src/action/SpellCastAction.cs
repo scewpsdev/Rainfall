@@ -39,6 +39,8 @@ public class SpellCastAction : EntityAction
 		Vector2 position = player.position + new Vector2(0.0f, 0.3f);
 		Vector2 offset = new Vector2(player.direction * 0.5f, 0.3f);
 
+		direction = player.lookDirection.normalized;
+
 		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, weapon), position);
 
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);

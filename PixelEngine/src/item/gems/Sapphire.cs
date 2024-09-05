@@ -14,7 +14,7 @@ public class Sapphire : Item
 		displayName = "Sapphire";
 		stackable = true;
 
-		value = 40;
+		value = 25;
 
 		sprite = new Sprite(tileset, 0, 3);
 	}

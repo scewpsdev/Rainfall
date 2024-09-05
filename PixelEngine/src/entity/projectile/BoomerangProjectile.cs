@@ -15,21 +15,25 @@ public class BoomerangProjectile : Entity
 	Boomerang item;
 
 	Sprite sprite;
-	int direction;
+	Vector2 direction;
 	Vector2 startPosition;
 
 	List<Entity> hitEntities = new List<Entity>();
+	long throwTime;
 
 
-	public BoomerangProjectile(int direction, Entity shooter, Boomerang item)
+	public BoomerangProjectile(Vector2 direction, Vector2 startVelocity, Entity shooter, Boomerang item)
 	{
 		this.direction = direction;
 		this.shooter = shooter;
 		this.item = item;
 
+		collider = new FloatRect(-0.2f, -0.2f, 0.4f, 0.4f);
+		filterGroup = FILTER_PROJECTILE;
+
 		currentRange = item.attackRange;
 
-		velocity = new Vector2(direction * speed, 0);
+		velocity = direction * speed + 0.5f * MathF.Max(Vector2.Dot(direction, startVelocity.normalized), 0) * startVelocity;
 
 		sprite = new Sprite(Item.tileset, 3, 1);
 	}
@@ -37,6 +41,7 @@ public class BoomerangProjectile : Entity
 	public override void init()
 	{
 		startPosition = position - velocity.normalized * 0.001f;
+		throwTime = Time.currentTime;
 	}
 
 	void drop()
@@ -47,20 +52,20 @@ public class BoomerangProjectile : Entity
 
 	public override void update()
 	{
-		float accSign = MathF.Sign(startPosition.x - position.x);
-		float acc = speed * speed / (2 * currentRange) * accSign;
-		float lastVelocityX = velocity.x;
-		velocity.x += acc * Time.deltaTime;
-		if (MathF.Sign(velocity.x) != MathF.Sign(lastVelocityX))
+		Vector2 accSign = (startPosition - position).normalized;
+		Vector2 acc = speed * speed / (2 * currentRange) * accSign;
+		Vector2 lastVelocityX = velocity;
+		velocity += acc * Time.deltaTime;
+		if (Vector2.Dot(velocity, lastVelocityX) < 0)
 			hitEntities.Clear();
 
 		Vector2 displacement = velocity * Time.deltaTime;
 		position += displacement;
 
-		float newAccSign = MathF.Sign(startPosition.x - position.x);
-		if (newAccSign != accSign)
+		Vector2 newAccSign = (startPosition - position).normalized;
+		if (Vector2.Dot(newAccSign, accSign) < 0)
 		{
-			velocity.x /= 1.5f;
+			velocity /= 1.5f;
 			speed /= 1.5f;
 			currentRange /= 1.5f;
 			if (currentRange < 2)
@@ -70,36 +75,50 @@ public class BoomerangProjectile : Entity
 		rotation += 5 * Time.deltaTime;
 		rotation = (rotation + MathF.PI) % (MathF.PI * 2) - MathF.PI;
 
-		HitData hit = GameState.instance.level.sample(position, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit != null)
+		HitData tileHit = GameState.instance.level.sampleTiles(position);
+		if (tileHit != null)
 		{
+			velocity *= -1;
+			hitEntities.Clear();
+			//drop();
+		}
+
+		HitData[] hits = new HitData[16];
+		int numHits = GameState.instance.level.overlap(position - 0.2f, position + 0.2f, hits, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		for (int i = 0; i < numHits; i++)
+		{
+			HitData hit = hits[i];
 			if (hit.entity != null)
 			{
 				Player player = shooter as Player;
 				if (hit.entity == shooter)
 				{
-					player.handItem = new Boomerang();
-					remove();
+					if (player != null && (Time.currentTime - throwTime) / 1e9f > 0.1f)
+					{
+						player.handItem = new Boomerang();
+						remove();
+					}
 				}
 				else if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(item.attackDamage * player.attack, shooter, item);
+					float dmg = item.attackDamage;
+					if (player != null)
+						dmg *= player.attack;
+					hittable.hit(dmg, shooter, item);
 					hitEntities.Add(hit.entity);
 				}
 			}
 			else
 			{
-				velocity.x *= -1;
-				hitEntities.Clear();
-				//drop();
+				Debug.Assert(false);
 			}
 		}
 	}
 
 	public override void render()
 	{
-		bool flipped = direction == -1;
+		bool flipped = direction.x < 0;
 		Renderer.DrawSprite(position.x - 0.5f, position.y - 0.5f, 0, 1, 1, rotation, sprite, flipped);
 	}
 }
