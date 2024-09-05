@@ -90,6 +90,7 @@ public class GameState : State
 	{
 		instance = this;
 		this.seed = seed;
+
 		reset();
 	}
 

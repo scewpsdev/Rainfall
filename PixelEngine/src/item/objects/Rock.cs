@@ -25,7 +25,7 @@ public class Rock : Item
 
 	public override bool use(Player player)
 	{
-		player.throwItem(this);
+		player.throwItem(this, player.lookDirection.normalized);
 		return true;
 	}
 }

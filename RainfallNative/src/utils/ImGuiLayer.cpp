@@ -627,7 +627,7 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	bool mouseLocked = Application_IsMouseLocked();
+	bool mouseLocked = Application_GetCursorMode() != CursorMode::Normal;
 	bool imguiHovered = ImGui::IsAnyItemActive() || ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByPopup);
 
 	switch (ev->type)

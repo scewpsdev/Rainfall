@@ -45,8 +45,8 @@ public class BlockAction : EntityAction
 		get => progress >= 1;
 	}
 
-	public override Matrix getItemTransform()
+	public override Matrix getItemTransform(Player player)
 	{
-		return Matrix.CreateTranslation(progress * 0.5f - 0.5f, 0, 0) * Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		return Matrix.CreateTranslation((player.getWeaponOrigin(mainHand).x + progress * 0.5f) * player.direction, player.getWeaponOrigin(mainHand).y, 0) * Matrix.CreateRotation(Vector3.Up, MathF.PI);
 	}
 }

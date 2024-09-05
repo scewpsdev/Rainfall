@@ -80,6 +80,8 @@ public abstract class Mob : Entity, Hittable
 				float knockbackStrength = item != null ? item.knockback : 8.0f;
 				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
 				addImpulse(knockback);
+
+				GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
 			}
 		}
 		else

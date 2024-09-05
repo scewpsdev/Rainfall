@@ -98,7 +98,7 @@ namespace Rainfall.Native
 		internal static extern byte Application_GetGamepadState(int gamepad, out GamepadState state);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Application_SetMouseLock(bool locked);
+		internal static extern void Application_SetCursorMode(CursorMode mode);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Application_SetMousePosition(int x, int y);
@@ -129,6 +129,9 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Application_SetFpsCap(int fpsCap);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern CursorMode Application_GetCursorMode();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int Application_GetMonitorSize(out int width, out int height);

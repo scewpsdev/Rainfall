@@ -113,13 +113,15 @@ public class LightningProjectile : Entity
 				else
 				{
 					Vector2 reflected = Vector2.Reflect(velocity, hit.normal);
+					/*
 					if (Vector2.Dot(velocity.normalized, hit.normal) < -0.9f)
 					{
 						float deviation = MathHelper.RandomFloat(-1, 1);
 						deviation = MathF.Sign(deviation) * (1 - MathF.Pow(MathF.Abs(deviation), 2));
 						reflected = Vector2.Rotate(reflected, MathF.PI * 0.25f * deviation);
 					}
-					position = lastPosition + velocity.normalized * hit.distance * 0.99f;
+					*/
+					position = lastPosition + velocity.normalized * (hit.distance - 0.1f) + reflected.normalized * 0.1f;
 					velocity = reflected;
 					//position += velocity * Time.deltaTime;
 					cornerPoints.Add(new Vector3(position, Time.currentTime / 1e9f));
@@ -143,6 +145,10 @@ public class LightningProjectile : Entity
 			float length = (end - start).length;
 			Vector2 center = (start.xy + end.xy) * 0.5f;
 
+			float startTime = MathHelper.Lerp(start.z, end.z, 0.5f);
+			float elapsed = Time.currentTime / 1e9f - startTime;
+			float fade = MathF.Exp(-elapsed * 10);
+
 			for (int j = 0; j < 3; j++)
 			{
 				uint seed = (uint)(i * 19 + j);// (uint)(Time.currentTime / 100000000);
@@ -153,14 +159,15 @@ public class LightningProjectile : Entity
 				uint colorSelection = h % 3;
 				Vector4 color = MathHelper.ARGBToVector(colorSelection == 0 ? 0xFF5b98ff : colorSelection == 1 ? 0xFF6edcff : 0xFFd6eeff);
 
-				float startTime = MathHelper.Lerp(start.z, end.z, 0.5f);
-				float elapsed = Time.currentTime / 1e9f - startTime;
-				color.w *= MathF.Exp(-elapsed * 10);
-
+				color.w *= fade;
 				color.w *= MathF.Exp(-j);
 
 				Renderer.DrawSprite(center.x - 0.5f * length, center.y - 0.5f, 0, length, 1, angle, lightning, u0, 0, width, lightning.height, color, true);
 			}
+
+			Renderer.DrawLight(start.xy, new Vector3(0.5f, 0.9f, 1.0f) * 3 * fade, 0.5f * length);
+			if (i == cornerPoints.Count - 1)
+				Renderer.DrawLight(end.xy, new Vector3(0.5f, 0.9f, 1.0f) * 3 * fade, 0.5f * length);
 
 			/*
 			for (int j = 0; j < (int)MathF.Ceiling(length); j++)

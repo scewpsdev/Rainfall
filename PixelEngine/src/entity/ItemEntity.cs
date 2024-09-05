@@ -130,7 +130,10 @@ public class ItemEntity : Entity, Interactable, Destructible
 					if (hit.entity == null || hit.entity != null && hit.entity != this)
 					{
 						if (item.breakOnHit && velocity.lengthSquared > 1)
+						{
+							item.onEntityBreak(this);
 							remove();
+						}
 					}
 				}
 			}

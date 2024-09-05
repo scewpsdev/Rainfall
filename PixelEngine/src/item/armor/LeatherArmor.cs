@@ -14,7 +14,7 @@ public class LeatherArmor : Item
 		displayName = "Leather Armor";
 
 		armor = 2;
-		canEquipMultiple = false;
+		armorSlot = ArmorSlot.Body;
 
 		value = 8;
 

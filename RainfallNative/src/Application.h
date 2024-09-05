@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Rainfall.h"
+#include "Input.h"
 
 #include <stdint.h>
 
@@ -23,7 +24,7 @@ RFAPI float Application_GetMS();
 RFAPI int64_t Application_GetMemoryUsage();
 RFAPI int Application_GetNumAllocations();
 
-RFAPI bool Application_IsMouseLocked();
+RFAPI CursorMode Application_GetCursorMode();
 
 inline float Application_GetDelta()
 {

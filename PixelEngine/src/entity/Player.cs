@@ -37,6 +37,7 @@ public class Player : Entity, Hittable
 	public int money = 0;
 
 	public int direction = 1;
+	public Vector2 lookDirection = Vector2.Zero;
 	float currentSpeed;
 	Vector2 impulseVelocity;
 	float wallJumpVelocity;
@@ -78,7 +79,7 @@ public class Player : Entity, Hittable
 	public Item offhandItem = null;
 	public Item[] activeItems = new Item[4];
 	public int selectedActiveItem = 0;
-	public Item[] passiveItems = new Item[4];
+	public Item[] passiveItems = new Item[(int)ArmorSlot.Count];
 
 	public Item blockingItem = null;
 
@@ -163,25 +164,12 @@ public class Player : Entity, Hittable
 		}
 		if (item.isPassiveItem)
 		{
-			if (!item.canEquipMultiple)
+			int slotIdx = (int)item.armorSlot;
+			if (passiveItems[slotIdx] == null)
 			{
-				for (int i = 0; i < passiveItems.Length; i++)
-				{
-					if (passiveItems[i] != null && passiveItems[i].name == item.name)
-					{
-						unequipItem(passiveItems[i]);
-						break;
-					}
-				}
-			}
-			for (int i = 0; i < passiveItems.Length; i++)
-			{
-				if (passiveItems[i] == null)
-				{
-					passiveItems[i] = item;
-					passiveItems[i].onEquip(this);
-					return true;
-				}
+				passiveItems[slotIdx] = item;
+				passiveItems[slotIdx].onEquip(this);
+				return true;
 			}
 			return false;
 		}
@@ -292,30 +280,38 @@ public class Player : Entity, Hittable
 			return true;
 		if (offhandItem == item)
 			return true;
-		if (isActiveItem(item))
+		if (isActiveItem(item, out _))
 			return true;
-		if (isPassiveItem(item))
+		if (isPassiveItem(item, out _))
 			return true;
 		return false;
 	}
 
-	public bool isActiveItem(Item item)
+	public bool isActiveItem(Item item, out int slot)
 	{
 		for (int i = 0; i < activeItems.Length; i++)
 		{
 			if (activeItems[i] == item)
+			{
+				slot = i;
 				return true;
+			}
 		}
+		slot = -1;
 		return false;
 	}
 
-	public bool isPassiveItem(Item item)
+	public bool isPassiveItem(Item item, out int slot)
 	{
 		for (int i = 0; i < passiveItems.Length; i++)
 		{
 			if (passiveItems[i] == item)
+			{
+				slot = i;
 				return true;
+			}
 		}
+		slot = -1;
 		return false;
 	}
 
@@ -374,6 +370,16 @@ public class Player : Entity, Hittable
 		GameState.instance.level.addEntity(obj, throwOrigin);
 	}
 
+	public void throwItem(Item item, Vector2 direction)
+	{
+		Vector2 itemVelocity = velocity + direction * 14;
+		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
+			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
+		Vector2 throwOrigin = position + collider.center;
+		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
+		GameState.instance.level.addEntity(obj, throwOrigin);
+	}
+
 	public void addImpulse(Vector2 impulse)
 	{
 		impulseVelocity.x += impulse.x;
@@ -417,7 +423,7 @@ public class Player : Entity, Hittable
 				if (blockingItem.damageReflect > 0)
 					mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
 
-				GameState.instance.level.addEntity(new ParryEffect(this), position + getWeaponOrigin(((BlockAction)actions.currentAction).mainHand));
+				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 			}
 		}
 		else
@@ -492,6 +498,8 @@ public class Player : Entity, Hittable
 		GameState.instance.run.killedBy = by;
 		GameState.instance.run.killedByName = by != null ? by.displayName : byName;
 		GameState.instance.run.endedTime = Time.currentTime;
+
+		Input.cursorMode = CursorMode.Normal;
 	}
 
 	public void consumeMana(float amount)
@@ -557,7 +565,7 @@ public class Player : Entity, Hittable
 			}
 
 #if DEBUG
-			isSprinting = Input.IsKeyDown(KeyCode.Shift);
+			isSprinting = Input.IsKeyDown(KeyCode.Ctrl);
 #endif
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
@@ -631,28 +639,27 @@ public class Player : Entity, Hittable
 
 		if (delta.x != 0)
 		{
-			//if (isGrounded)
-			{
-				if (delta.x > 0)
-					direction = 1;
-				else if (delta.x < 0)
-					direction = -1;
+			//if (delta.x > 0)
+			//	direction = 1;
+			//else if (delta.x < 0)
+			//	direction = -1;
 
-				currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : isDucked ? DUCKED_MULTIPLIER * speed : speed;
-				if (actions.currentAction != null)
-					currentSpeed *= actions.currentAction.speedMultiplier;
-				velocity.x = delta.x * currentSpeed;
-			}
+			currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : isDucked ? DUCKED_MULTIPLIER * speed : speed;
+			if (actions.currentAction != null)
+				currentSpeed *= actions.currentAction.speedMultiplier;
+			velocity.x = delta.x * currentSpeed;
 
 			isMoving = true;
 		}
 		else
 		{
-			//if (isGrounded)
 			velocity.x = 0.0f;
 
 			isMoving = false;
 		}
+
+		lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - (position + collider.center);
+		direction = Math.Sign(lookDirection.x);
 
 		if (!isClimbing)
 		{
@@ -1022,7 +1029,7 @@ public class Player : Entity, Hittable
 
 	public Vector2 getWeaponOrigin(bool mainHand)
 	{
-		return new Vector2(mainHand ? 4 / 16.0f : -8 / 16.0f, mainHand ? 5 / 16.0f : 4 / 16.0f);
+		return new Vector2(mainHand ? 4 / 16.0f : -8 / 16.0f, mainHand ? 5 / 16.0f : 5 / 16.0f);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
@@ -1034,36 +1041,21 @@ public class Player : Entity, Hittable
 
 		if (item == null)
 			item = DefaultWeapon.instance;
-		//if (item != null)
+
+		if (item.sprite != null)
 		{
-			if (item.sprite != null)
+			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
 			{
-				if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
-				{
-					Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, layer)
-						* Matrix.CreateRotation(Vector3.UnitY, direction == -1 ? MathF.PI : 0)
-						* Matrix.CreateTranslation(0, getWeaponOrigin(mainHand).y, 0)
-						* actions.currentAction.getItemTransform();
-					Renderer.DrawSprite(item.size.x, item.size.y, weaponTransform, item.sprite, color);
-				}
-				else
-				{
-					if (item != DefaultWeapon.instance)
-						Renderer.DrawSprite(position.x - 0.5f * item.size.x + (item.renderOffset.x + getWeaponOrigin(mainHand).x) * direction, position.y - 0.5f + getWeaponOrigin(mainHand).y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
-				}
+				Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, layer)
+					* actions.currentAction.getItemTransform(this);
+				Renderer.DrawSprite(item.size.x, item.size.y, weaponTransform, item.sprite, color);
+			}
+			else
+			{
+				if (item != DefaultWeapon.instance)
+					Renderer.DrawSprite(position.x - 0.5f * item.size.x + (item.renderOffset.x + getWeaponOrigin(mainHand).x) * direction, position.y - 0.5f + getWeaponOrigin(mainHand).y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 			}
 		}
-		/*
-		else
-		{
-			if (actions.currentAction is AttackAction && ((AttackAction)actions.currentAction).weapon == DefaultWeapon.instance && mainHand)
-			{
-				AttackAction action = actions.currentAction as AttackAction;
-				float xoffset = (action.currentRange - 0.5f) * action.direction;
-				Renderer.DrawSprite(position.x - 0.5f + xoffset, position.y - 0.5f + getWeaponOrigin(mainHand).y, layer, 1, 1, 0, DefaultWeapon.instance.sprite, action.direction == -1, color);
-			}
-		}
-		*/
 	}
 
 	public override void render()

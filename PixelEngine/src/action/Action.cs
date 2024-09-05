@@ -106,9 +106,14 @@ public class EntityAction
 	{
 	}
 
-	public virtual Matrix getItemTransform()
+	public virtual Matrix getItemTransform(Player player)
 	{
-		return Matrix.Identity;
+		Vector2 position = player.getWeaponOrigin(mainHand);
+		Item item = mainHand ? player.handItem : player.offhandItem;
+		if (item != null)
+			position += item.renderOffset;
+		return Matrix.CreateRotation(Vector3.UnitY, player.direction == -1 ? MathF.PI : 0)
+			* Matrix.CreateTranslation(position.x, position.y, 0);
 	}
 
 	public bool hasStarted

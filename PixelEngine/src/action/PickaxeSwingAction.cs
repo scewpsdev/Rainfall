@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class PickaxeSwingAction : AttackAction
 {
-	Vector2 hitPosition;
+	Vector2 startPosition;
 	bool hit = false;
 
 
@@ -21,7 +21,7 @@ public class PickaxeSwingAction : AttackAction
 	{
 		base.onStarted(player);
 
-		hitPosition = player.position;
+		startPosition = player.position;
 	}
 
 	public override void update(Player player)
@@ -34,7 +34,7 @@ public class PickaxeSwingAction : AttackAction
 			{
 				if (InputManager.IsDown("Up"))
 				{
-					Vector2i pos = (Vector2i)Vector2.Floor(hitPosition + new Vector2(0, 1.5f));
+					Vector2i pos = (Vector2i)Vector2.Floor(startPosition + new Vector2(0, 1.5f));
 					TileType tile = GameState.instance.level.getTile(pos);
 					if (tile != null && tile.isSolid)
 					{
@@ -44,7 +44,7 @@ public class PickaxeSwingAction : AttackAction
 				}
 				else
 				{
-					Vector2i pos = (Vector2i)Vector2.Floor(hitPosition + new Vector2(base.direction, 0.5f));
+					Vector2i pos = (Vector2i)Vector2.Floor(startPosition + direction + new Vector2(0, 0.5f));
 					TileType tile = GameState.instance.level.getTile(pos);
 					if (tile != null && tile.isSolid)
 					{
@@ -53,7 +53,7 @@ public class PickaxeSwingAction : AttackAction
 					}
 					else
 					{
-						pos = (Vector2i)Vector2.Floor(hitPosition + new Vector2(base.direction, -0.5f));
+						pos = (Vector2i)Vector2.Floor(startPosition + direction + new Vector2(0, -0.5f));
 						tile = GameState.instance.level.getTile(pos);
 						if (tile != null && tile.isSolid)
 						{

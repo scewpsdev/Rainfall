@@ -24,7 +24,7 @@ public class Arrow : Item
 
 	public override bool use(Player player)
 	{
-		player.throwItem(this, false);
+		player.throwItem(this, player.lookDirection.normalized);
 		return true;
 	}
 }
