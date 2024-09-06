@@ -35,6 +35,11 @@ public class ParticleEffect : Entity
 		system.setTransform(Matrix.CreateTranslation(position.x, position.y, 0), true);
 	}
 
+	public override void destroy()
+	{
+		ParticleSystem.Destroy(system);
+	}
+
 	public override unsafe void update()
 	{
 		if (follow != null)
@@ -67,7 +72,7 @@ public class ParticleEffect : Entity
 		{
 			ParticleData particle = systemData[i];
 			if (particle.active)
-				Renderer.DrawSprite(particle.position.x, particle.position.y, 1.0f / 16, 1.0f / 16, null, false, particle.color);
+				Renderer.DrawSprite(particle.position.x, particle.position.y, LAYER_BG, 1.0f / 16, 1.0f / 16, particle.rotation, null, false, particle.color);
 		}
 	}
 }

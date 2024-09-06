@@ -27,6 +27,8 @@ public class Fountain : Entity, Interactable
 	Sprite sprite;
 	uint outline = 0;
 
+	ParticleEffect particles;
+
 
 	public Fountain(FountainEffect effect)
 	{
@@ -37,6 +39,16 @@ public class Fountain : Entity, Interactable
 	public Fountain(Random random)
 		: this((FountainEffect)(random.Next() % (int)FountainEffect.Count))
 	{
+	}
+
+	public override void init()
+	{
+		GameState.instance.level.addEntity(particles = Effects.CreateFountainEffect(), position);
+	}
+
+	public override void destroy()
+	{
+		particles.remove();
 	}
 
 	public bool canInteract(Player player)
@@ -83,6 +95,12 @@ public class Fountain : Entity, Interactable
 				break;
 		}
 		consumed = true;
+
+		unsafe
+		{
+			particles.system.handle->emissionRate = 0;
+			particles = null;
+		}
 	}
 
 	public override void update()
