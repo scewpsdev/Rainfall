@@ -160,15 +160,39 @@ public class Player : Entity, Hittable
 					return true;
 				}
 			}
-			return false;
+
+			unequipItem(activeItems[activeItems.Length - 1]);
+			activeItems[activeItems.Length - 1] = item;
+			activeItems[activeItems.Length - 1].onEquip(this);
+			return true;
 		}
 		if (item.isPassiveItem)
 		{
-			int slotIdx = (int)item.armorSlot;
-			if (passiveItems[slotIdx] == null)
+			if (item.type == ItemType.Armor)
 			{
+				int slotIdx = (int)item.armorSlot;
+				if (passiveItems[slotIdx] != null)
+					unequipItem(passiveItems[slotIdx]);
+
 				passiveItems[slotIdx] = item;
 				passiveItems[slotIdx].onEquip(this);
+				return true;
+			}
+			else if (item.type == ItemType.Ring)
+			{
+				for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
+				{
+					if (passiveItems[i] == null)
+					{
+						passiveItems[i] = item;
+						passiveItems[i].onEquip(this);
+						return true;
+					}
+				}
+
+				unequipItem(passiveItems[(int)ArmorSlot.Ring2]);
+				passiveItems[(int)ArmorSlot.Ring2] = item;
+				passiveItems[(int)ArmorSlot.Ring2].onEquip(this);
 				return true;
 			}
 			return false;
@@ -248,7 +272,7 @@ public class Player : Entity, Hittable
 			equipOffhandItem(item);
 		else if (item.isActiveItem && numActiveItems < activeItems.Length)
 			equipItem(item);
-		else if (item.isPassiveItem && numPassiveItems < passiveItems.Length)
+		else if (item.isPassiveItem && canEquipPassiveItem(item))
 			equipItem(item);
 	}
 
@@ -346,6 +370,29 @@ public class Player : Entity, Hittable
 	public int numTotalEquippedItems
 	{
 		get => (handItem != null ? 1 : 0) + (offhandItem != null ? 1 : 0) + numActiveItems + numPassiveItems;
+	}
+
+	public bool canEquipPassiveItem(Item item)
+	{
+		if (item.type == ItemType.Armor)
+		{
+			int slotIdx = (int)item.armorSlot;
+			return passiveItems[slotIdx] == null;
+		}
+		else if (item.type == ItemType.Ring)
+		{
+			for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
+			{
+				if (passiveItems[i] == null)
+					return true;
+			}
+			return false;
+		}
+		else
+		{
+			Debug.Assert(false);
+			return false;
+		}
 	}
 
 	public void throwItem(Item item, bool shortThrow = false, bool farThrow = false)

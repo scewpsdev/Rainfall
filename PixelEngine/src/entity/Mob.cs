@@ -26,9 +26,9 @@ public abstract class Mob : Entity, Hittable
 	public bool canClimb = false;
 	public bool canFly = false;
 
-	protected Sprite sprite;
+	public Sprite sprite;
 	public SpriteAnimator animator;
-	protected FloatRect rect = new FloatRect(-0.5f, 0.0f, 1, 1);
+	public FloatRect rect = new FloatRect(-0.5f, 0.0f, 1, 1);
 	protected uint outline = 0;
 
 	protected AI ai;
@@ -38,7 +38,7 @@ public abstract class Mob : Entity, Hittable
 
 	public int direction = 1;
 	float currentSpeed;
-	Vector2 impulseVelocity;
+	public Vector2 impulseVelocity;
 	public bool isGrounded = false;
 	bool isSprinting = false;
 	bool isClimbing = false;
@@ -68,21 +68,21 @@ public abstract class Mob : Entity, Hittable
 	{
 		health -= damage;
 
+		if (by != null)
+		{
+			Vector2 enemyPosition = by.position;
+			if (by.collider != null)
+				enemyPosition += 0.5f * (by.collider.max + by.collider.min);
+			float knockbackStrength = item != null ? item.knockback : 8.0f;
+			Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
+			addImpulse(knockback);
+
+			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+		}
+
 		if (health > 0)
 		{
 			stun();
-
-			if (by != null)
-			{
-				Vector2 enemyPosition = by.position;
-				if (by.collider != null)
-					enemyPosition += 0.5f * (by.collider.max + by.collider.min);
-				float knockbackStrength = item != null ? item.knockback : 8.0f;
-				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
-				addImpulse(knockback);
-
-				GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
-			}
 		}
 		else
 		{
@@ -126,6 +126,8 @@ public abstract class Mob : Entity, Hittable
 				GameState.instance.level.addEntity(coin, spawnPosition);
 			}
 		}
+
+		GameState.instance.level.addEntity(new MobCorpse(this), position);
 
 		remove();
 	}
@@ -251,6 +253,7 @@ public abstract class Mob : Entity, Hittable
 		position += displacement;
 		distanceWalked += MathF.Abs(displacement.x);
 
+		// why is this here?
 		float rotationDst = direction == 1 ? 0 : MathF.PI;
 		rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
 	}
@@ -300,6 +303,9 @@ public abstract class Mob : Entity, Hittable
 
 	public override void update()
 	{
+		if (!isAlive)
+			return;
+
 		if (ai != null)
 			ai.update();
 
@@ -315,12 +321,17 @@ public abstract class Mob : Entity, Hittable
 		if (sprite != null)
 		{
 			if (hitMarker)
-				Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
+				Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 			else
-				Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
+				Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 
 			if (outline != 0)
 				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
 		}
+	}
+
+	public bool isAlive
+	{
+		get => health > 0;
 	}
 }

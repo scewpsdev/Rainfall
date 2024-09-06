@@ -23,6 +23,7 @@ public class Entity
 	public const float LAYER_PLAYER_ITEM_MAIN = 0.01f;
 	public const float LAYER_PLAYER_ITEM_SECONDARY = -0.01f;
 	public const float LAYER_FG = -0.1f;
+	public const float LAYER_TILE = -0.5f;
 
 	public const uint OUTLINE_COLOR = 0xBFFFFFFF;
 

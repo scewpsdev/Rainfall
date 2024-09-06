@@ -212,6 +212,30 @@ public static class Renderer
 		});
 	}
 
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipX, bool flipY, Vector4 color, bool additive)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+
+			u0 += 0.00001f;
+			v0 += 0.00001f;
+			u1 -= 0.00001f;
+			v1 -= 0.00001f;
+
+			if (flipX)
+				MathHelper.Swap(ref u0, ref u1);
+			if (flipY)
+				MathHelper.Swap(ref v0, ref v1);
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+	}
+
 	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, Vector4 color, bool additive = false)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -228,11 +252,7 @@ public static class Renderer
 			v1 -= 0.00001f;
 
 			if (flipped)
-			{
-				float tmp = u0;
-				u0 = u1;
-				u1 = tmp;
-			}
+				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
 		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
@@ -302,11 +322,7 @@ public static class Renderer
 			v1 -= 0.00001f;
 
 			if (flipped)
-			{
-				float tmp = u0;
-				u0 = u1;
-				u1 = tmp;
-			}
+				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
 		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color), solid = true });
@@ -334,12 +350,9 @@ public static class Renderer
 			v0 = sprite.uv0.y;
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
+
 			if (flipped)
-			{
-				float tmp = u0;
-				u0 = u1;
-				u1 = tmp;
-			}
+				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
 		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, rotation = rotation, color = MathHelper.ARGBToVector(color) });
@@ -386,12 +399,9 @@ public static class Renderer
 			v0 = sprite.uv0.y;
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
+
 			if (flipped)
-			{
-				float tmp = u0;
-				u0 = u1;
-				u1 = tmp;
-			}
+				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
@@ -412,12 +422,9 @@ public static class Renderer
 			v0 = sprite.uv0.y;
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
+
 			if (flipped)
-			{
-				float tmp = u0;
-				u0 = u1;
-				u1 = tmp;
-			}
+				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
