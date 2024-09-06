@@ -13,7 +13,11 @@ public class Rat : Mob
 	{
 		displayName = "Rat";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/rat.png", false));
+		sprite = new Sprite(Resource.GetTexture("res/sprites/rat.png", false), 0, 0, 16, 16);
+		animator = new SpriteAnimator();
+		animator.addAnimation("idle", 0, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("dead", 1 * 16, 0, 16, 0, 1, 1, true);
+		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.4f, 0, 0.8f, 0.55f);
 

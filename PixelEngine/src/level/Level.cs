@@ -191,7 +191,7 @@ public class Level
 				{
 					if (tile.sprite != null)
 					{
-						Renderer.DrawSprite(x, y, 1.001f, 1.001f, tile.sprite, false, 0xFFFFFFFF);
+						Renderer.DrawSprite(x, y, Entity.LAYER_TILE, 1.001f, 1.001f, 0, tile.sprite, false, 0xFFFFFFFF);
 
 						TileType left = getTile(x - 1, y);
 						TileType right = getTile(x + 1, y);
@@ -199,13 +199,13 @@ public class Level
 						TileType bottom = getTile(x, y - 1);
 
 						if (left != tile && tile.left != null)
-							Renderer.DrawSprite(x - 1, y, 1, 1, tile.left, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x - 1, y, Entity.LAYER_TILE, 1, 1, 0, tile.left, false, 0xFFFFFFFF);
 						if (right != tile && tile.right != null)
-							Renderer.DrawSprite(x + 1, y, 1, 1, tile.right, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x + 1, y, Entity.LAYER_TILE, 1, 1, 0, tile.right, false, 0xFFFFFFFF);
 						if (top != tile && tile.top != null)
-							Renderer.DrawSprite(x, y + 1, 1, 1, tile.top, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x, y + 1, Entity.LAYER_TILE, 1, 1, 0, tile.top, false, 0xFFFFFFFF);
 						if (bottom != tile && tile.bottom != null)
-							Renderer.DrawSprite(x, y - 1, 1, 1, tile.bottom, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x, y - 1, Entity.LAYER_TILE, 1, 1, 0, tile.bottom, false, 0xFFFFFFFF);
 					}
 					else
 					{

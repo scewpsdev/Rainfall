@@ -31,6 +31,8 @@ public enum ArmorSlot
 	Gloves,
 	Boots,
 	Back,
+	Ring1,
+	Ring2,
 
 	Count
 }
