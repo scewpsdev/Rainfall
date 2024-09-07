@@ -117,15 +117,6 @@ public class Player : Entity, Hittable
 		inventoryUI = new InventoryUI(this);
 
 		giveItem(new TravellingCloak());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Bomb());
-		giveItem(new Longbow());
 	}
 
 	public override void destroy()

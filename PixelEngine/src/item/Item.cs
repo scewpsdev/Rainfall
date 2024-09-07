@@ -242,6 +242,7 @@ public abstract class Item
 		InitType(new TravellingCloak());
 		InitType(new Shortbow());
 		InitType(new Longbow());
+		InitType(new AutomaticCrossbow());
 	}
 
 	static void InitType(Item item)
