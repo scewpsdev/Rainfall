@@ -192,7 +192,8 @@ public class EditorInstance
 		}
 
 		Renderer.Begin();
-		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(EditorUI.currentViewportSize.x / EditorUI.currentViewportSize.y), Camera.NEAR, Camera.FAR);
+		float aspect = EditorUI.currentViewportSize.x / EditorUI.currentViewportSize.y;
+		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(aspect), Camera.FOV, aspect, Camera.NEAR, Camera.FAR);
 
 		Renderer.DrawEnvironmentMap(environmentMap, 0.1f);
 

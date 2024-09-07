@@ -17,7 +17,7 @@ public partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Particles", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			for (int i = 0; i < entity.data.particles.Count; i++)
+			for (int i = 0; i < entity.data.particles.Length; i++)
 			{
 				ParticleSystemData particles = entity.data.particles[i];
 
@@ -470,7 +470,8 @@ public partial class EditorUI
 				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##particles_remove" + i))
 				{
-					entity.data.particles.RemoveAt(i--);
+					ArrayUtils.RemoveAt(entity.data.particles, i--);
+					//entity.data.particles.RemoveAt(i--);
 					instance.notifyEdit();
 					ImGui.SetCursorPos(cursorPos);
 					continue;
@@ -485,8 +486,8 @@ public partial class EditorUI
 			if (ImGui.Button("Add Particle Effect"))
 			{
 				ParticleSystemData particles = new ParticleSystemData(0) { transform = entity.getModelMatrix() };
-				//particles.name = entity.newParticleName();
-				entity.data.particles.Add(particles);
+				ArrayUtils.Add(entity.data.particles, particles);
+				//entity.data.particles.Add(particles);
 				instance.notifyEdit();
 			}
 

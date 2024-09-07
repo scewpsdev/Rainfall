@@ -25,7 +25,7 @@ public class ParryEffect : Entity
 		sprite = new Sprite(effectsTileset, 2, 0);
 	}
 
-	public override void init()
+	public override void init(Level level)
 	{
 		startTime = Time.currentTime;
 		if (follow != null)

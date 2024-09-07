@@ -31,7 +31,7 @@ public class InventoryUI
 		Renderer.DrawUISprite(x, y, size, size, null, false, 0xFF333333);
 		Renderer.DrawUISprite(x + border, y + border, size - 2 * border, size - 2 * border, null, false, 0xFF111111);
 		if (item != null)
-			Renderer.DrawUISprite(x, y, size, size, item.sprite);
+			Renderer.DrawUISprite(x, y, size, size, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 	}
 
 	public static void DrawEquipment(int x, int y, int width, int height, Player player)
@@ -114,7 +114,7 @@ public class InventoryUI
 					Item item = player.items[i].Item2;
 
 					Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite);
+					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 					string name = item.fullDisplayName;
 					Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 

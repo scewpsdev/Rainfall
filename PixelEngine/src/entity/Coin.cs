@@ -21,7 +21,7 @@ public class Coin : Entity
 		color = MathHelper.VectorToARGB(new Vector4(MathHelper.ARGBToVector(0xFFCCAA66).xyz * MathHelper.RandomVector3(0.8f, 1.5f), 1.0f));
 	}
 
-	public override void init()
+	public override void init(Level level)
 	{
 		spawnTime = Time.currentTime;
 	}
@@ -64,6 +64,10 @@ public class Coin : Entity
 			{
 				Player player = hit.entity as Player;
 				player.money++;
+
+				if (Random.Shared.NextSingle() < 0.4f)
+					GameState.instance.level.addEntity(Effects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
+
 				remove();
 			}
 		}

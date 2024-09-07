@@ -41,9 +41,9 @@ public class Fountain : Entity, Interactable
 	{
 	}
 
-	public override void init()
+	public override unsafe void init(Level level)
 	{
-		GameState.instance.level.addEntity(particles = Effects.CreateFountainEffect(), position);
+		level.addEntity(particles = Effects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
 	}
 
 	public override void destroy()
@@ -82,7 +82,7 @@ public class Fountain : Entity, Interactable
 				player.hud.showMessage("You feel your strength returning.");
 				break;
 			case FountainEffect.Damage:
-				player.hit(Random.Shared.NextSingle() * 2, this, null);
+				player.hit(Random.Shared.NextSingle() * 2, this, null, "Boiling Water");
 				player.hud.showMessage("The water is scalding hot.");
 				break;
 			case FountainEffect.Poison:
@@ -98,8 +98,7 @@ public class Fountain : Entity, Interactable
 
 		unsafe
 		{
-			particles.system.handle->emissionRate = 0;
-			particles = null;
+			particles.systems[0].handle->emissionRate = 0;
 		}
 	}
 

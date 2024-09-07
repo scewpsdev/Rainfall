@@ -193,49 +193,29 @@ public unsafe class RainfallEditor : Game
 		}
 	}
 
-	static string RelativePath(string path, string root)
-	{
-		if (path == null)
-			return null;
-		if (root == null)
-			return path;
-		root = Path.GetDirectoryName(root);
-		return Path.GetRelativePath(root, path);
-	}
-
-	static string AbsolutePath(string path, string root)
-	{
-		if (path == null)
-			return null;
-		if (root == null)
-			return path;
-		root = Path.GetDirectoryName(root);
-		return root + "/" + path;
-	}
-
 	public static List<SceneFormat.EntityData> ToEntityData(EditorInstance instance)
 	{
 		List<SceneFormat.EntityData> entities = new List<SceneFormat.EntityData>(instance.entities.Count);
 		for (int i = 0; i < instance.entities.Count; i++)
 		{
 			SceneFormat.EntityData entityData = instance.entities[i].data;
-			entityData.modelPath = RelativePath(entityData.modelPath, instance.path);
+			entityData.modelPath = StringUtils.RelativePath(entityData.modelPath, instance.path);
 			entityData.colliders = new List<SceneFormat.ColliderData>(entityData.colliders);
 			entityData.lights = new List<SceneFormat.LightData>(entityData.lights);
-			entityData.particles = new List<ParticleSystemData>(entityData.particles);
+			entityData.particles = ArrayUtils.Copy(entityData.particles);
 
 			for (int j = 0; j < entityData.colliders.Count; j++)
 			{
 				SceneFormat.ColliderData collider = entityData.colliders[j];
 				if ((collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh) && collider.meshColliderPath != null)
-					collider.meshColliderPath = RelativePath(collider.meshColliderPath, instance.path);
+					collider.meshColliderPath = StringUtils.RelativePath(collider.meshColliderPath, instance.path);
 				entityData.colliders[j] = collider;
 			}
-			for (int j = 0; j < entityData.particles.Count; j++)
+			for (int j = 0; j < entityData.particles.Length; j++)
 			{
 				ParticleSystemData particles = entityData.particles[j];
-				if (particles.textureAtlasPath != null)
-					StringUtils.WriteString(particles.textureAtlasPath, RelativePath(new string((sbyte*)particles.textureAtlasPath), instance.path));
+				if (particles.textureAtlasPath[0] != 0)
+					StringUtils.WriteString(particles.textureAtlasPath, StringUtils.RelativePath(new string((sbyte*)particles.textureAtlasPath), instance.path));
 				entityData.particles[j] = particles;
 			}
 
@@ -253,22 +233,22 @@ public unsafe class RainfallEditor : Game
 		{
 			Entity entity = new Entity(entities[i].name, entities[i].id);
 			entity.data = entities[i];
-			entity.data.modelPath = AbsolutePath(entity.data.modelPath, instance.path);
+			entity.data.modelPath = StringUtils.AbsolutePath(entity.data.modelPath, instance.path);
 			entity.data.colliders = new List<SceneFormat.ColliderData>(entities[i].colliders);
 			entity.data.lights = new List<SceneFormat.LightData>(entities[i].lights);
-			entity.data.particles = new List<ParticleSystemData>(entities[i].particles);
+			entity.data.particles = ArrayUtils.Copy(entities[i].particles);
 			for (int j = 0; j < entity.data.colliders.Count; j++)
 			{
 				SceneFormat.ColliderData collider = entity.data.colliders[j];
 				if ((collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh) && collider.meshColliderPath != null)
-					collider.meshColliderPath = AbsolutePath(collider.meshColliderPath, instance.path);
+					collider.meshColliderPath = StringUtils.AbsolutePath(collider.meshColliderPath, instance.path);
 				entity.data.colliders[j] = collider;
 			}
-			for (int j = 0; j < entity.data.particles.Count; j++)
+			for (int j = 0; j < entity.data.particles.Length; j++)
 			{
 				ParticleSystemData particles = entity.data.particles[j];
-				if (particles.textureAtlasPath != null)
-					StringUtils.WriteString(particles.textureAtlasPath, AbsolutePath(new string((sbyte*)particles.textureAtlasPath), instance.path));
+				if (particles.textureAtlasPath[0] != 0)
+					StringUtils.WriteString(particles.textureAtlasPath, StringUtils.AbsolutePath(new string((sbyte*)particles.textureAtlasPath), instance.path));
 				entity.data.particles[j] = particles;
 			}
 

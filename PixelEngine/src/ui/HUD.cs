@@ -44,7 +44,7 @@ public class HUD
 
 		gem = new Sprite(tileset, 3, 0);
 
-		crosshair = new Sprite(tileset, 0, 1);
+		crosshair = new Sprite(tileset, 0, 4, 2, 2);
 	}
 
 
@@ -210,7 +210,8 @@ public class HUD
 			int padding = 1;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.1f * GameState.instance.camera.height &&
-				player.position.x < GameState.instance.camera.left + 0.2f * GameState.instance.camera.width
+				player.position.x < GameState.instance.camera.left + 0.2f * GameState.instance.camera.width ||
+				Input.cursorPosition.x < 0.5f * Display.width && Input.cursorPosition.y > 0.9f * Display.height
 				? 0.2f : 1.0f;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
@@ -234,7 +235,8 @@ public class HUD
 			int y = Renderer.UIHeight - 12 - size;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
-				player.position.x < GameState.instance.camera.left + 0.5f * GameState.instance.camera.width
+				player.position.x < GameState.instance.camera.left + 0.5f * GameState.instance.camera.width ||
+				Input.cursorPosition.x < 0.5f * Display.width && Input.cursorPosition.y > 0.75f * Display.height
 				? 0.2f : 1.0f;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);

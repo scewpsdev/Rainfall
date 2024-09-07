@@ -147,10 +147,11 @@ public class GameState : State
 		npc.addShopItem(new Revolver(), 0);
 #endif
 		npc.addShopItem(new Stick());
-		npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
-		npc.addShopItem(new Rope());
+		//npc.addShopItem(new Rope());
 		npc.addShopItem(new Torch());
+		npc.addShopItem(new Bomb());
+		npc.addShopItem(new Bomb());
 		npc.addShopItem(new Bomb());
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
@@ -217,6 +218,11 @@ public class GameState : State
 		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
 		finalRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
 		//finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
+
+		for (int i = 0; i < level.entities.Count; i++)
+		{
+			level.entities[i].onLevelSwitch(false);
+		}
 	}
 
 	public override void init()
@@ -259,7 +265,7 @@ public class GameState : State
 		{
 			for (int i = 0; i < level.entities.Count; i++)
 			{
-				level.entities[i].onLevelSwitch();
+				level.entities[i].onLevelSwitch(true);
 			}
 
 			cachedLevels.Add(level);
@@ -279,11 +285,16 @@ public class GameState : State
 			level = newLevel;
 			newLevel = null;
 
+			for (int i = 0; i < level.entities.Count; i++)
+			{
+				level.entities[i].onLevelSwitch(false);
+			}
+
 			player.hud.onLevelSwitch(level.name);
 		}
 
 		long beforeParticleUpdate = Time.timestamp;
-		ParticleSystem.Update(Vector3.Zero);
+		//ParticleSystem.Update(Vector3.Zero);
 		long afterParticleUpdate = Time.timestamp;
 		particleUpdateDelta = afterParticleUpdate - beforeParticleUpdate;
 

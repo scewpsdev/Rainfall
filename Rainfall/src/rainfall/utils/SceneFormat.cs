@@ -148,7 +148,7 @@ public static class SceneFormat
 		public Dictionary<string, ColliderData> boneColliders = null;
 
 		public List<LightData> lights;
-		public List<ParticleSystemData> particles;
+		public ParticleSystemData[] particles;
 
 		public EntityData(string name, uint id)
 		{
@@ -163,7 +163,7 @@ public static class SceneFormat
 			colliders = new List<ColliderData>();
 
 			lights = new List<LightData>();
-			particles = new List<ParticleSystemData>();
+			//particles = new List<ParticleSystemData>();
 		}
 
 		public unsafe void load(string directory)
@@ -180,7 +180,7 @@ public static class SceneFormat
 					collider.meshCollider = Resource.GetModel(directory + "/" + collider.meshColliderPath);
 				colliders[i] = collider;
 			}
-			for (int i = 0; i < particles.Count; i++)
+			for (int i = 0; i < particles.Length; i++)
 			{
 				ParticleSystemData system = particles[i];
 				if (system.textureAtlasPath[0] != 0)
@@ -256,7 +256,7 @@ public static class SceneFormat
 		obj.addArray("lights", lights);
 
 		DatArray particles = new DatArray();
-		for (int i = 0; i < entity.particles.Count; i++)
+		for (int i = 0; i < entity.particles.Length; i++)
 		{
 			ParticleSystemData particleData = entity.particles[i];
 
@@ -294,7 +294,7 @@ public static class SceneFormat
 			}
 
 			particle.addVector4("color", particleData.color);
-			particle.addBoolean("additive", particleData.additive != 0);
+			particle.addBoolean("additive", particleData.additive);
 			particle.addNumber("emissiveIntensity", particleData.emissiveIntensity);
 			particle.addNumber("lightInfluence", particleData.lightInfluence);
 
@@ -442,6 +442,7 @@ public static class SceneFormat
 
 		if (obj.getArray("particles", out DatArray particles))
 		{
+			entity.particles = new ParticleSystemData[particles.size];
 			for (int i = 0; i < particles.size; i++)
 			{
 				DatObject particle = particles[i].obj;
@@ -483,7 +484,7 @@ public static class SceneFormat
 				particle.getVector4("color", out particleData.color);
 				if (particle.getBoolean("additive", out bool additive))
 				{
-					particleData.additive = (byte)(additive ? 1 : 0);
+					particleData.additive = additive;
 
 					// for compatibility reasons
 					if (additive)
@@ -530,7 +531,7 @@ public static class SceneFormat
 					}
 				}
 
-				entity.particles.Add(particleData);
+				entity.particles[i] = particleData;
 			}
 		}
 

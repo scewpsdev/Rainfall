@@ -28,9 +28,9 @@ namespace Rainfall
 	public class SpriteAnimator
 	{
 		List<SpriteAnimation> animations = new List<SpriteAnimation>();
-		string currentAnimation = null;
+		public string currentAnimation = null;
 		long startTime = 0;
-		int lastFrameIdx = -1;
+		public int lastFrameIdx = -1;
 
 		List<SpriteAnimationEvent> events = new List<SpriteAnimationEvent>();
 

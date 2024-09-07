@@ -22,7 +22,6 @@ public class Stick : Item
 		value = 1;
 
 		sprite = new Sprite(tileset, 13, 1);
-		size = new Vector2(1, 1);
 		renderOffset.x = 0.2f;
 	}
 

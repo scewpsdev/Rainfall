@@ -25,7 +25,7 @@ public class FireProjectileCastEffect : Entity
 		sprite = new Sprite(effectsTileset, 0, 1);
 	}
 
-	public override void init()
+	public override void init(Level level)
 	{
 		startTime = Time.currentTime;
 		if (follow != null)

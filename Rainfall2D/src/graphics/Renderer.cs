@@ -68,7 +68,7 @@ public static class Renderer
 
 	const int BLOOM_CHAIN_LENGTH = 6;
 
-	static GraphicsDevice graphics;
+	public static GraphicsDevice graphics;
 
 	static RenderTarget gbuffer;
 	static RenderTarget lighting;
@@ -80,6 +80,7 @@ public static class Renderer
 
 	static VertexBuffer quad;
 	static Shader lightingShader;
+	static Shader lightMaskShader;
 	static List<LightDraw> lightDraws = new List<LightDraw>();
 
 	static SpriteBatch spriteBatch;
@@ -109,10 +110,14 @@ public static class Renderer
 	static float left, right, bottom, top;
 
 	public static Vector3 ambientLight = Vector3.Zero;
+	public static Texture lightMask = null;
+	public static FloatRect lightMaskRect = null;
+
 	public static Vector3 vignetteColor = new Vector3(0.0f);
 	public static float vignetteFalloff = 0.37f; // default value: 0.37f
 	public static float bloomStrength = 0.1f;
 	public static float bloomFalloff = 4.0f;
+
 
 	public static int UIHeight;
 	public static int UIWidth;
@@ -169,6 +174,7 @@ public static class Renderer
 		});
 
 		lightingShader = Resource.GetShader("res/shaders/lighting/lighting.vsh", "res/shaders/lighting/lighting.fsh");
+		lightMaskShader = Resource.GetShader("res/shaders/lighting/light_mask.vsh", "res/shaders/lighting/light_mask.fsh");
 
 		spriteBatch = new SpriteBatch(graphics);
 		additiveBatch = new SpriteBatch(graphics);
@@ -699,6 +705,24 @@ public static class Renderer
 			graphics.setUniform(lightingShader.getUniform("u_lightColors", UniformType.Vector4, 16), lightColors);
 
 			graphics.draw(lightingShader);
+		}
+
+		if (lightMask != null)
+		{
+			graphics.resetState();
+			graphics.setPass((int)RenderPass.Lighting);
+
+			graphics.setRenderTarget(lighting);
+			graphics.setBlendState(BlendState.Alpha);
+			//graphics.setDepthTest(DepthTest.None);
+
+			graphics.setVertexBuffer(quad);
+
+			graphics.setTexture(lightMaskShader, "s_lightMask", 0, lightMask);
+			graphics.setUniform(lightMaskShader, "u_lightMaskRect", new Vector4(lightMaskRect.position, lightMaskRect.size));
+			graphics.setUniform(lightMaskShader, "u_cameraBounds", new Vector4(left, right, bottom, top));
+
+			graphics.draw(lightMaskShader);
 		}
 	}
 

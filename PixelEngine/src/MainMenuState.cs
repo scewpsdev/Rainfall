@@ -49,7 +49,7 @@ public class MainMenuState : State
 			true
 		];
 
-		int selection = UIElements.FullscreenMenu(labels, enabled, ref currentButton);
+		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton);
 		if (selection != -1)
 		{
 			switch (selection)

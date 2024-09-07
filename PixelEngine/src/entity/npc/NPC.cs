@@ -59,7 +59,7 @@ public abstract class NPC : Mob, Interactable
 		closeScreen();
 	}
 
-	public override void onLevelSwitch()
+	public override void onLevelSwitch(bool other)
 	{
 		closeScreen();
 	}
@@ -305,7 +305,7 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
-			int option = UIElements.WindowMenu(options.ToArray(), ref selectedOption, x, y, width, lineHeight);
+			int option = WindowMenu.Render(options.ToArray(), ref selectedOption, x, y, width, lineHeight);
 			if (option != -1)
 			{
 				if (options[option] == "Buy")
@@ -367,7 +367,7 @@ public abstract class NPC : Mob, Interactable
 				int price = shopItems[i].Item2;
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite);
+				Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 
@@ -451,7 +451,7 @@ public abstract class NPC : Mob, Interactable
 				int price = (int)MathF.Round(item.value);
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
+				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 
@@ -530,7 +530,7 @@ public abstract class NPC : Mob, Interactable
 				Item item = craftingItems[i].Item2;
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite);
+				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 

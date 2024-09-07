@@ -27,6 +27,8 @@ public class Entity
 	public bool showDebugColliders;
 	public bool[] showDebugBoneColliders;
 
+	GCHandle particlesHandle;
+
 
 	public Entity(string name)
 	{
@@ -61,16 +63,20 @@ public class Entity
 			data.colliders[i] = collider;
 		}
 
-		for (int i = 0; i < data.particles.Count; i++)
+		for (int i = 0; i < data.particles.Length; i++)
 		{
 			ParticleSystemData particleData = data.particles[i];
 			byte* textureAtlasPath = particleData.textureAtlasPath;
-			if (textureAtlasPath != null)
+			if (textureAtlasPath[0] != 0)
 				particleData.textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(new string((sbyte*)particleData.textureAtlasPath))).handle;
 			else
 				particleData.textureAtlas = ushort.MaxValue;
 			data.particles[i] = particleData;
 		}
+
+		if (particlesHandle.IsAllocated)
+			particlesHandle.Free();
+		particlesHandle = GCHandle.Alloc(data.particles, GCHandleType.Pinned);
 	}
 
 	public void init()
@@ -86,7 +92,7 @@ public class Entity
 		Matrix transform = getModelMatrix();
 
 		bool restartEffect = true;
-		for (int i = 0; i < data.particles.Count; i++)
+		for (int i = 0; i < data.particles.Length; i++)
 		{
 			ParticleSystemData particles = data.particles[i];
 			if (Rainfall.Native.ParticleSystem.ParticleSystem_HasFinished(&particles) == 0)
@@ -96,7 +102,7 @@ public class Entity
 			}
 		}
 
-		for (int i = 0; i < data.particles.Count; i++)
+		for (int i = 0; i < data.particles.Length; i++)
 		{
 			ParticleSystemData particleData = data.particles[i];
 			if (restartEffect)
@@ -137,10 +143,10 @@ public class Entity
 			}
 		}
 
-		for (int i = 0; i < data.particles.Count; i++)
+		ParticleSystemData* particlesPtr = (ParticleSystemData*)particlesHandle.AddrOfPinnedObject();
+		for (int i = 0; i < data.particles.Length; i++)
 		{
-			ParticleSystemData particleData = data.particles[i];
-			Renderer3D_DrawParticleSystem(&particleData);
+			Renderer3D_DrawParticleSystem(&particlesPtr[i]);
 		}
 	}
 

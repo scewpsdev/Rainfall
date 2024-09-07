@@ -13,8 +13,9 @@ public class MobCorpse : Entity
 	int direction;
 
 	float gravity;
-	Vector2 impulseVelocity;
-	bool isGrounded;
+	bool isGrounded = false;
+
+	bool particlesEmitted = false;
 
 
 	public MobCorpse(Mob mob)
@@ -23,12 +24,12 @@ public class MobCorpse : Entity
 		rect = mob.rect;
 		direction = mob.direction;
 
-		velocity = mob.velocity;
-		impulseVelocity = mob.impulseVelocity;
+		velocity = mob.velocity + mob.impulseVelocity;
 
 		collider = mob.collider;
+		filterGroup = FILTER_DECORATION;
 
-		velocity.y = 5;
+		velocity.y = MathF.Max(velocity.y, 5);
 		gravity = -30;
 
 		mob.animator.setAnimation("dead");
@@ -40,14 +41,7 @@ public class MobCorpse : Entity
 		velocity.y += gravity * Time.deltaTime;
 
 		if (isGrounded)
-			velocity.x = MathHelper.Lerp(velocity.x, 0, 5 * Time.deltaTime);
-
-		impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
-		if (MathF.Abs(impulseVelocity.x) < 0.01f)
-			impulseVelocity.x = 0;
-		if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
-			velocity.x = 0;
-		velocity += impulseVelocity;
+			velocity.x = MathHelper.Lerp(velocity.x, 0, 4 * Time.deltaTime);
 
 		Vector2 displacement = velocity * Time.deltaTime;
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, false);
@@ -56,13 +50,17 @@ public class MobCorpse : Entity
 		{
 			if (velocity.y < 0)
 				isGrounded = true;
-			velocity.y = 0;
-			impulseVelocity.y = 0;
+			velocity.y = -0.5f * velocity.y;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{
-			impulseVelocity.x = 0;
-			impulseVelocity.y *= 0.5f;
+			velocity.x = -0.5f * velocity.x;
+		}
+
+		if (isGrounded && !particlesEmitted)
+		{
+			GameState.instance.level.addEntity(Effects.CreateDeathEffect(this, MathF.Sign(velocity.x)), position);
+			particlesEmitted = true;
 		}
 
 		position += displacement;

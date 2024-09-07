@@ -124,8 +124,14 @@ public static class GameOverScreen
 		int yy = y + size * 3 / 4;
 		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
 
-		player.animator.setAnimation("idle");
+		if (player.handItem != null)
+		{
+			int w = (int)MathF.Round(player.handItem.size.x * size);
+			int h = (int)MathF.Round(player.handItem.size.y * size);
+			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(true).x + player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(true).y + player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
+		}
 
+		player.animator.setAnimation("idle");
 		player.animator.update(player.sprite);
 		Renderer.DrawUISprite(xx, yy, size, size, player.sprite);
 
@@ -134,15 +140,15 @@ public static class GameOverScreen
 			if (player.passiveItems[i] != null && player.passiveItems[i].ingameSprite != null)
 			{
 				player.animator.update(player.passiveItems[i].ingameSprite);
-				Renderer.DrawUISprite(xx, yy, size, size, player.passiveItems[i].ingameSprite);
+				Renderer.DrawUISprite(xx, yy, size, size, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
 			}
 		}
 
-		if (player.handItem != null)
+		if (player.offhandItem != null)
 		{
-			int w = (int)MathF.Round(player.handItem.size.x * size);
-			int h = (int)MathF.Round(player.handItem.size.y * size);
-			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
+			int w = (int)MathF.Round(player.offhandItem.size.x * size);
+			int h = (int)MathF.Round(player.offhandItem.size.y * size);
+			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(false).x + player.offhandItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(false).y + player.offhandItem.renderOffset.y * size), w, h, player.offhandItem.sprite);
 		}
 	}
 
