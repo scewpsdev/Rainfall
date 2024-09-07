@@ -55,7 +55,7 @@ public class LightningProjectile : Entity
 		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 3, 0);
 	}
 
-	public override void init()
+	public override void init(Level level)
 	{
 		cornerPoints.Add(new Vector3(position, Time.currentTime / 1e9f));
 

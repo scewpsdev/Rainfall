@@ -25,7 +25,7 @@ public static class ItemInfoPanel
 
 		string rarityString = item.rarityString;
 		string itemTypeStr = item.type.ToString();
-		string itemInfo = rarityString + " " + itemTypeStr;
+		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + itemTypeStr;
 		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width);
 		foreach (string line in itemInfoLines)
 		{

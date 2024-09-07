@@ -23,6 +23,7 @@ namespace Rainfall
 		static Dictionary<string, string> texts = new Dictionary<string, string>();
 		static Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 		static Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
+		static Dictionary<ushort, Texture> textureIdMap = new Dictionary<ushort, Texture>();
 		static Dictionary<string, Cubemap> cubemaps = new Dictionary<string, Cubemap>();
 		static Dictionary<string, IntPtr> scenes = new Dictionary<string, IntPtr>();
 		static Dictionary<string, FontData> fonts = new Dictionary<string, FontData>();
@@ -236,16 +237,27 @@ namespace Rainfall
 
 		public static Texture GetTexture(string path, ulong flags = 0)
 		{
-			if (textures.ContainsKey(path))
-				return textures[path];
-			Texture texture = CreateTexture(path, flags);
+			if (textures.TryGetValue(path, out Texture texture))
+				return texture;
+			texture = CreateTexture(path, flags);
 			textures.Add(path, texture);
+			textureIdMap.Add(texture.handle, texture);
 			return texture;
 		}
 
 		public static Texture GetTexture(string path, bool linear)
 		{
 			return GetTexture(path, linear ? 0 : (uint)SamplerFlags.Point);
+		}
+
+		public static Texture GetTextureByHandle(ushort handle)
+		{
+			if (textureIdMap.TryGetValue(handle, out Texture value))
+				return value;
+			//Texture texture = new Texture(handle, info);
+			//textureIdMap.Add(handle, texture);
+			//return texture;
+			return null;
 		}
 
 		/*

@@ -94,7 +94,8 @@ namespace Rainfall
 		public byte linearFiltering;
 
 		public Vector4 color = Vector4.One;
-		public byte additive;
+		public byte _additive;
+		public bool additive { get => _additive != 0; set { _additive = (byte)(value ? 1 : 0); } }
 		public float emissiveIntensity;
 		public float lightInfluence = 1;
 
@@ -112,6 +113,7 @@ namespace Rainfall
 
 		public ParticleSystemData(int _)
 		{
+			textureAtlasPath[0] = 0;
 		}
 	}
 
@@ -220,7 +222,7 @@ namespace Rainfall
 		{
 		}
 
-		void update()
+		public void update()
 		{
 			Native.ParticleSystem.ParticleSystem_Update(handle);
 		}

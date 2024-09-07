@@ -15,6 +15,7 @@ namespace Rainfall
 		Default,
 		Alpha,
 		Additive,
+		Multiply,
 	}
 
 	public enum DepthTest

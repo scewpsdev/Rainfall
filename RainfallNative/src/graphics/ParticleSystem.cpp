@@ -179,7 +179,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 		for (int i = 0; i < system->numBursts; i++)
 		{
 			ParticleBurst* burst = &system->bursts[i];
-			if (elapsed > burst->time && burst->emitted < burst->count)
+			if (elapsed >= burst->time && burst->emitted < burst->count)
 			{
 				int shouldEmitted = burst->duration > 0 ? (int)(fminf((elapsed - burst->time) / burst->duration, 1.0f) * burst->count) : burst->count;
 				int delta = shouldEmitted - burst->emitted;

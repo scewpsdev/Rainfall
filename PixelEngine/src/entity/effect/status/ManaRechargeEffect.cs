@@ -29,9 +29,9 @@ public class ManaRechargeEffect : StatusEffect
 		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, ), player.position + new Vector2(0, 0.5f));
 
 		ParticleEffect effect = new ParticleEffect(player, "res/effects/regenerate.rfs");
-		effect.system.handle->color = MathHelper.ARGBToVector(0xFF758FFF);
-		effect.system.handle->bursts[0].duration = duration;
-		effect.system.handle->bursts[0].count = (int)(amount * 8);
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
+		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
 
 		GameState.instance.level.addEntity(effect, player.position + new Vector2(0, 0.5f));
 	}

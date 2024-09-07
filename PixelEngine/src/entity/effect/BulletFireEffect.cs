@@ -25,7 +25,7 @@ public class BulletFireEffect : Entity
 		sprite = new Sprite(effectsTileset, 1, 0);
 	}
 
-	public override void init()
+	public override void init(Level level)
 	{
 		startTime = Time.currentTime;
 		if (follow != null)

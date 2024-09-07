@@ -18,19 +18,21 @@ public class ItemEntity : Entity, Interactable, Destructible
 	float damage;
 
 	float rotationVelocity = 0;
+	bool flipped;
 
 	public Entity thrower = null;
 	long throwTime;
 	List<Entity> hitEntities = new List<Entity>();
 
 	public Item item;
-	public Vector4 color = Vector4.One;
+	public Vector4 color;
 	uint outline = 0;
 
 
 	public ItemEntity(Item item, Entity thrower = null, Vector2 velocity = default)
 	{
 		this.item = item;
+		this.color = item.spriteColor;
 
 		displayName = item.displayName;
 
@@ -67,24 +69,45 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	void onHit(bool x, bool y)
 	{
-		if (!x && !y)
-			return;
+		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity * Time.deltaTime);
 
 		if (x)
 		{
+			position.x -= velocity.x * Time.deltaTime;
 			velocity.x = -velocity.x * bounciness;
 		}
 		else if (y)
 		{
+			position.y -= velocity.y * Time.deltaTime;
 			velocity.y = -velocity.y * bounciness;
 			velocity.x *= bounciness;
 		}
 
-		ricochets++;
 		if (damage > 0)
 			damage = MathF.Max(damage - 1, 0);
 		if (damage == 0)
 			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 20;
+
+		if (velocity.lengthSquared > 1)
+		{
+			TileType tile = GameState.instance.level.getTile(pos);
+			if (tile != null)
+			{
+				Vector2 normal = new Vector2(x ? MathF.Sign(velocity.x) : 0, y ? MathF.Sign(velocity.y) : 0);
+				uint color = tile.particleColor;
+				GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, color), position + velocity.normalized * 0.01f);
+			}
+		}
+
+		if (item.breakOnHit && velocity.lengthSquared > 1 && ricochets >= item.maxRicochets)
+		{
+			item.onEntityBreak(this);
+			remove();
+		}
+		else
+		{
+			ricochets++;
+		}
 	}
 
 	public override void update()
@@ -95,7 +118,46 @@ public class ItemEntity : Entity, Interactable, Destructible
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement);
 		position += displacement;
 
-		onHit((collisionFlags & Level.COLLISION_X) != 0, (collisionFlags & Level.COLLISION_Y) != 0);
+		{
+			bool collidesX = (collisionFlags & Level.COLLISION_X) != 0;
+			bool collidesY = (collisionFlags & Level.COLLISION_Y) != 0;
+			if (collidesX || collidesY)
+			{
+				hitEntities.Clear();
+				onHit(collidesX, collidesY);
+			}
+		}
+
+		flipped = false;
+		if (item.projectileItem && damage > 0 && thrower != null)
+		{
+			if (velocity.lengthSquared > 0.1f)
+			{
+				rotation = MathF.Atan2(velocity.y, velocity.x);
+				//flipped = velocity.x < 0;
+			}
+		}
+		else if (item.projectileItem && damage == 0)
+		{
+			// Tumble
+			if (velocity.lengthSquared > 0.25f)
+			{
+				rotation += rotationVelocity * Time.deltaTime;
+				flipped = false;
+			}
+			else
+			{
+				if (MathF.Abs(rotation) < 0.5f * MathF.PI)
+					rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
+				else
+					rotation = MathHelper.LerpAngle(rotation, MathF.PI, 5 * Time.deltaTime);
+			}
+		}
+		else
+		{
+			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
+			flipped = false;
+		}
 
 		if (damage > 0 && item.projectileItem && thrower != null)
 		{
@@ -119,16 +181,13 @@ public class ItemEntity : Entity, Interactable, Destructible
 							else
 							{
 								damage = 0;
-								onHit(MathF.Abs(hit.normal.x) > 0.5f, MathF.Abs(hit.normal.y) > 0.5f);
+								bool collidesX = MathF.Abs(hit.normal.x) > 0.5f;
+								bool collidesY = MathF.Abs(hit.normal.y) > 0.5f;
+								if (collidesX || collidesY)
+									onHit(collidesX, collidesY);
 							}
 						}
-					}
 
-					if (hit.entity == null)
-						hitEntities.Clear();
-
-					if (hit.entity == null || hit.entity != null && hit.entity != this)
-					{
 						if (item.breakOnHit && velocity.lengthSquared > 1)
 						{
 							item.onEntityBreak(this);
@@ -167,39 +226,9 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public override void render()
 	{
-		bool flipped = false;
-		if (item.projectileItem && damage > 0 && thrower != null)
-		{
-			if (velocity.lengthSquared > 0.1f)
-			{
-				rotation = MathF.Atan2(velocity.y, velocity.x);
-				//flipped = velocity.x < 0;
-			}
-		}
-		else if (item.projectileItem && damage == 0)
-		{
-			// Tumble
-			if (velocity.lengthSquared > 0.1f)
-			{
-				rotation += rotationVelocity * Time.deltaTime;
-				flipped = false;
-			}
-			else
-			{
-				if (MathF.Abs(rotation) < 0.5f * MathF.PI)
-					rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
-				else
-					rotation = MathHelper.LerpAngle(rotation, MathF.PI, 5 * Time.deltaTime);
-			}
-		}
-		else
-		{
-			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
-			flipped = false;
-		}
 		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 
-		if (outline != 0 && velocity.lengthSquared < 1)
+		if (outline != 0 && velocity.lengthSquared < 1 && GameState.instance.player.velocity.lengthSquared < 0.01f)
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 

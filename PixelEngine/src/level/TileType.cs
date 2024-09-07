@@ -17,6 +17,7 @@ public class TileType
 	public bool isPlatform = false;
 
 	public uint color = 0xFFFF00FF;
+	public uint particleColor = 0xFFFFFFFF;
 	public Sprite sprite = null;
 	public Sprite left, right, top, bottom;
 
@@ -40,14 +41,15 @@ public class TileType
 		{
 			name = "wall",
 			color = 0xFFFFFFFF,
+			particleColor = 0xFF5c4637,
 			sprite = new Sprite(tileset, 4, 1),
 			left = new Sprite(tileset, 3, 1),
 			right = new Sprite(tileset, 5, 1),
 			top = new Sprite(tileset, 4, 0),
 			bottom = new Sprite(tileset, 4, 2),
 		});
-		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, isPlatform = true, isSolid = false, sprite = new Sprite(tileset, 1, 2) });
-		AddTileType(stone = new TileType() { name = "stone_block", color = 0xFF333333, sprite = new Sprite(tileset, 1, 1) });
+		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprite = new Sprite(tileset, 1, 2) });
+		AddTileType(stone = new TileType() { name = "stone_block", color = 0xFF333333, particleColor = 0xFF50504c, sprite = new Sprite(tileset, 1, 1) });
 	}
 
 	static void AddTileType(TileType type)

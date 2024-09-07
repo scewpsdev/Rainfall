@@ -270,6 +270,26 @@ public static class StringUtils
 		return path;
 	}
 
+	public static string RelativePath(string path, string root)
+	{
+		if (path == null)
+			return null;
+		if (root == null)
+			return path;
+		root = Path.GetDirectoryName(root);
+		return Path.GetRelativePath(root, path);
+	}
+
+	public static string AbsolutePath(string path, string root)
+	{
+		if (path == null)
+			return null;
+		if (root == null)
+			return path;
+		root = Path.GetDirectoryName(root);
+		return root + "/" + path;
+	}
+
 	public static void MemoryString(Span<byte> str, long mem)
 	{
 		if (mem >= 1 << 30)

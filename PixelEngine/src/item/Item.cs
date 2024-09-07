@@ -51,6 +51,7 @@ public abstract class Item
 	public float value = 1;
 	public bool canDrop = true;
 	public bool isSecondaryItem = false;
+	public bool twoHanded = false;
 	public ArmorSlot armorSlot;
 
 	public float attackDamage = 1;
@@ -63,6 +64,7 @@ public abstract class Item
 	public float damageReflect = 0.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
+	public int maxRicochets = 0;
 	public float knockback = 8.0f;
 	public float manaCost = 0;
 
@@ -76,7 +78,9 @@ public abstract class Item
 	public bool breakOnHit = false;
 
 	public Sprite sprite = null;
+	public Vector4 spriteColor = Vector4.One;
 	public Sprite ingameSprite = null;
+	public Vector4 ingameSpriteColor = Vector4.One;
 
 	// modifiers
 
@@ -234,6 +238,10 @@ public abstract class Item
 		InitType(new ThornShield());
 		InitType(new Scimitar());
 		InitType(new WizardsHood());
+		InitType(new Greatsword());
+		InitType(new TravellingCloak());
+		InitType(new Shortbow());
+		InitType(new Longbow());
 	}
 
 	static void InitType(Item item)

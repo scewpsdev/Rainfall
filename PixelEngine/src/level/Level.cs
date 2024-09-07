@@ -30,6 +30,9 @@ public class Level
 	int[] tiles;
 	bool[] walkable;
 	public AStar astar;
+	byte[] lightmapData;
+
+	Texture lightmap;
 
 	public Door entrance;
 	public Door exit;
@@ -57,6 +60,42 @@ public class Level
 		Array.Fill(walkable, false);
 
 		astar = new AStar(width, height, walkable);
+
+		lightmapData = new byte[(width + 1) * (height + 1)];
+		if (lightmap != null)
+			Renderer.graphics.destroyTexture(lightmap);
+		lightmap = Renderer.graphics.createTexture(width + 1, height + 1, TextureFormat.R8, (ulong)SamplerFlags.Clamp);
+	}
+
+	public unsafe void updateLightmap(int x0, int y0, int w, int h)
+	{
+		int x1 = x0 + w - 1;
+		int y1 = y0 + h - 1;
+
+		x0 = Math.Max(x0, 0);
+		y0 = Math.Max(y0, 0);
+		x1 = Math.Min(x1, width - 1);
+		y1 = Math.Min(y1, height - 1);
+
+		for (int y = y0; y <= y1; y++)
+		{
+			for (int x = x0; x <= x1; x++)
+			{
+				TileType t0 = getTile(x - 1, y - 1);
+				TileType t1 = getTile(x, y - 1);
+				TileType t2 = getTile(x - 1, y);
+				TileType t3 = getTile(x, y);
+				byte value = 0;
+				if ((t0 == null || !t0.isSolid) && x > 0 && y > 0) value += 64;
+				if ((t1 == null || !t1.isSolid) && y > 0) value += 64;
+				if ((t2 == null || !t2.isSolid) && x > 0) value += 64;
+				if ((t3 == null || !t3.isSolid)) value += 63;
+				lightmapData[(x - x0) + (y - y0) * w] = value;
+			}
+		}
+
+		fixed (void* data = lightmapData)
+			Renderer.graphics.setTextureData(lightmap, x0, y0, w, h, Renderer.graphics.createVideoMemory(data, w * h));
 	}
 
 	public bool setTile(int x, int y, TileType tile)
@@ -114,7 +153,7 @@ public class Level
 		entities.Add(entity);
 
 		if (init)
-			entity.init();
+			entity.init(this);
 	}
 
 	public void addEntity(Entity entity, Vector2 position, bool init = true)
@@ -181,6 +220,9 @@ public class Level
 		Renderer.ambientLight = ambientLight;
 		Renderer.bloomStrength = 0.01f;
 		Renderer.vignetteFalloff = 0.1f;
+
+		Renderer.lightMask = lightmap;
+		Renderer.lightMaskRect = new FloatRect(-0.5f, -0.5f, width + 1, height + 1);
 
 		for (int y = 0; y < height; y++)
 		{

@@ -39,6 +39,7 @@ public class PickaxeSwingAction : AttackAction
 					if (tile != null && tile.isSolid)
 					{
 						GameState.instance.level.setTile(pos.x, pos.y, null);
+						GameState.instance.level.updateLightmap(pos.x, pos.y, 1, 1);
 						//player.actions.cancelAction();
 					}
 				}
@@ -49,6 +50,7 @@ public class PickaxeSwingAction : AttackAction
 					if (tile != null && tile.isSolid)
 					{
 						GameState.instance.level.setTile(pos.x, pos.y, null);
+						GameState.instance.level.updateLightmap(pos.x, pos.y, 1, 1);
 						//player.actions.cancelAction();
 					}
 					else
@@ -58,6 +60,7 @@ public class PickaxeSwingAction : AttackAction
 						if (tile != null && tile.isSolid)
 						{
 							GameState.instance.level.setTile(pos.x, pos.y, null);
+							GameState.instance.level.updateLightmap(pos.x, pos.y, 1, 1);
 							//player.actions.cancelAction();
 						}
 					}

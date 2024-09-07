@@ -38,7 +38,7 @@ public class BoomerangProjectile : Entity
 		sprite = new Sprite(Item.tileset, 3, 1);
 	}
 
-	public override void init()
+	public override void init(Level level)
 	{
 		startPosition = position - velocity.normalized * 0.001f;
 		throwTime = Time.currentTime;

@@ -9,7 +9,7 @@ colliders = [  ]
 lights = [  ]
 particles = [ {
 name = "Particles"
-lifetime = 1
+lifetime = 1.8600000143051147
 size = 0.10000000149011612
 follow = 0
 emissionRate = 7.800000190734863
@@ -17,7 +17,7 @@ spawnShape = Point
 spawnOffset = [ 0, 0, 0 ]
 gravity = -5
 drag = 0
-startVelocity = [ 0, 3.740000009536743, 0 ]
+startVelocity = [ 0, 2.5399999618530273, 0 ]
 radialVelocity = 0
 startRotation = 0
 rotationSpeed = 0
@@ -32,7 +32,7 @@ randomRotationSpeed = 0
 randomLifetime = 0
 velocityNoise = 0
 colorAnimStart = [ 0, 0.572549045085907, 1, 1 ]
-colorAnimEnd = [ 0.6409265995025635, 0.8465138673782349, 1, 1 ]
+colorAnimEnd = [ 0.6872587203979492, 0.8663185834884644, 1, 0 ]
 } ]
 } ]
 selectedEntity = "2092063177"

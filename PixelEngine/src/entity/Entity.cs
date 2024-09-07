@@ -13,6 +13,7 @@ public class Entity
 	public const uint FILTER_MOB = 1 << 2;
 	public const uint FILTER_ITEM = 1 << 3;
 	public const uint FILTER_PROJECTILE = 1 << 4;
+	public const uint FILTER_DECORATION = 1 << 5;
 
 	public const float LAYER_DEFAULT = 0.0f;
 	public const float LAYER_BGBG = 0.2f;
@@ -20,10 +21,10 @@ public class Entity
 	public const float LAYER_INTERACTABLE = -0.05f;
 	public const float LAYER_PLAYER_BG = 0.02f;
 	public const float LAYER_PLAYER_ARMOR = -0.005f;
-	public const float LAYER_PLAYER_ITEM_MAIN = 0.01f;
-	public const float LAYER_PLAYER_ITEM_SECONDARY = -0.01f;
-	public const float LAYER_FG = -0.1f;
-	public const float LAYER_TILE = -0.5f;
+	public const float LAYER_PLAYER_ITEM_MAIN = -0.01f;
+	public const float LAYER_PLAYER_ITEM_SECONDARY = 0.01f;
+	public const float LAYER_FG = -0.2f;
+	public const float LAYER_TILE = -0.1f;
 
 	public const uint OUTLINE_COLOR = 0xBFFFFFFF;
 
@@ -49,7 +50,7 @@ public class Entity
 	public string displayName;
 
 
-	public virtual void init()
+	public virtual void init(Level level)
 	{
 	}
 
@@ -65,7 +66,7 @@ public class Entity
 	{
 	}
 
-	public virtual void onLevelSwitch()
+	public virtual void onLevelSwitch(bool other)
 	{
 	}
 
@@ -74,8 +75,8 @@ public class Entity
 		removed = true;
 	}
 
-	public Matrix getTransform()
+	public Matrix getTransform(Vector2 offset = default)
 	{
-		return Matrix.CreateTransform(new Vector3(position, 0), Quaternion.FromAxisAngle(Vector3.UnitZ, rotation));
+		return Matrix.CreateTransform(new Vector3(position + offset, 0), Quaternion.FromAxisAngle(Vector3.UnitZ, rotation));
 	}
 }

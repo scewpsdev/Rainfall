@@ -73,6 +73,7 @@ enum class BlendState
 	Default,
 	Alpha,
 	Additive,
+	Multiply,
 
 	Count
 };

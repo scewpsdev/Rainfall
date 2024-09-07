@@ -76,6 +76,14 @@ namespace Rainfall
 			this.w = zw.y;
 		}
 
+		public Vector4(Vector2 xy, Vector2 zw)
+		{
+			this.x = xy.x;
+			this.y = xy.y;
+			this.z = zw.x;
+			this.w = zw.y;
+		}
+
 		public Vector3 xyz
 		{
 			get { return new Vector3(x, y, z); }

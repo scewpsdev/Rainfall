@@ -18,7 +18,7 @@ public class Player : Entity, Hittable
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
 	const float MANA_RECHARGE_RATE = 0.02f;
-	const float MANA_KILL_REWARD = 0.25f;
+	const float MANA_KILL_REWARD = 0.4f;
 
 
 	public float speed = 6;
@@ -115,6 +115,17 @@ public class Player : Entity, Hittable
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
+
+		giveItem(new TravellingCloak());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Bomb());
+		giveItem(new Longbow());
 	}
 
 	public override void destroy()
@@ -130,6 +141,10 @@ public class Player : Entity, Hittable
 		}
 		handItem = item;
 		handItem.onEquip(this);
+
+		if (item.twoHanded && offhandItem != null)
+			unequipItem(offhandItem);
+
 		return true;
 	}
 
@@ -142,6 +157,10 @@ public class Player : Entity, Hittable
 		}
 		offhandItem = item;
 		offhandItem.onEquip(this);
+
+		if (handItem != null && handItem.twoHanded)
+			unequipItem(handItem);
+
 		return true;
 	}
 
@@ -266,9 +285,9 @@ public class Player : Entity, Hittable
 		items.Add(item.type, item);
 		items.Sort();
 
-		if (item.isHandItem && handItem == null)
+		if (item.isHandItem && handItem == null && (offhandItem == null || !item.twoHanded))
 			equipHandItem(item);
-		else if (item.isSecondaryItem && offhandItem == null)
+		else if (item.isSecondaryItem && offhandItem == null && (handItem == null || !handItem.twoHanded))
 			equipOffhandItem(item);
 		else if (item.isActiveItem && numActiveItems < activeItems.Length)
 			equipItem(item);
@@ -512,12 +531,14 @@ public class Player : Entity, Hittable
 		if (handItem != null)
 		{
 			Item handItemCopy = handItem.copy();
-			throwItem(handItemCopy);
+			Vector2 direction = new Vector2(0, 1) + MathHelper.RandomVector2(-0.5f, 0.5f);
+			throwItem(handItemCopy, direction);
 		}
 		if (offhandItem != null)
 		{
 			Item offhandItemCopy = offhandItem.copy();
-			throwItem(offhandItemCopy);
+			Vector2 direction = new Vector2(0, 1) + MathHelper.RandomVector2(-0.5f, 0.5f);
+			throwItem(offhandItemCopy, direction);
 		}
 
 		for (int i = 0; i < passiveItems.Length; i++)
@@ -543,7 +564,7 @@ public class Player : Entity, Hittable
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
-		GameState.instance.run.killedByName = by != null ? by.displayName : byName;
+		GameState.instance.run.killedByName = by != null && by.displayName != null ? by.displayName : byName;
 		GameState.instance.run.endedTime = Time.currentTime;
 
 		Input.cursorMode = CursorMode.Normal;
@@ -630,7 +651,7 @@ public class Player : Entity, Hittable
 			{
 				if (isClimbing)
 				{
-					velocity.y = InputManager.IsDown("Down") ? -jumpPower : jumpPower;
+					velocity.y = InputManager.IsDown("Down") ? -0.5f * jumpPower : jumpPower;
 					lastJumpInput = 0;
 					lastGrounded = 0;
 					lastLadderJumpedFrom = currentLadder;
@@ -753,6 +774,8 @@ public class Player : Entity, Hittable
 		{
 			if (fallDistance >= FALL_DAMAGE_DISTANCE)
 				stun();
+			if (velocity.y < -10)
+				onLand();
 
 			if (velocity.y < 0)
 				isGrounded = true;
@@ -1059,6 +1082,17 @@ public class Player : Entity, Hittable
 	void onStep()
 	{
 		GameState.instance.run.stepsWalked++;
+
+		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
+		if (tile != null)
+			GameState.instance.level.addEntity(Effects.CreateStepEffect(tile.particleColor, MathHelper.RandomInt(2, 4)), position);
+	}
+
+	void onLand()
+	{
+		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
+		if (tile != null)
+			GameState.instance.level.addEntity(Effects.CreateStepEffect(tile.particleColor, MathHelper.RandomInt(4, 8)), position);
 	}
 
 	public override void update()
@@ -1076,7 +1110,19 @@ public class Player : Entity, Hittable
 
 	public Vector2 getWeaponOrigin(bool mainHand)
 	{
-		return new Vector2(mainHand ? 4 / 16.0f : -8 / 16.0f, mainHand ? 5 / 16.0f : 5 / 16.0f);
+		int frame = (animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length; // sway
+		Vector2i animOffset = Vector2i.Zero;
+		if (animator.currentAnimation == "idle")
+			animOffset.y = -frame / 2;
+		else if (animator.currentAnimation == "run")
+			animOffset.y = frame % 4 - frame % 4 / 3 * 2;
+		else if (animator.currentAnimation == "jump")
+			animOffset = new Vector2i(1, 2);
+		else if (animator.currentAnimation == "fall")
+			animOffset.y = 2;
+		else if (animator.currentAnimation == "stun")
+			animOffset.y = -2;
+		return new Vector2(!mainHand ? 4 / 16.0f : -3 / 16.0f + animOffset.x / 16.0f, !mainHand ? 5 / 16.0f : 4 / 16.0f + animOffset.y / 16.0f);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
@@ -1119,7 +1165,7 @@ public class Player : Entity, Hittable
 				if (passiveItems[i] != null)
 				{
 					if (passiveItems[i].ingameSprite != null)
-						Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, 0xFFFFFFFF);
+						Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 					passiveItems[i].render(this);
 				}
 			}

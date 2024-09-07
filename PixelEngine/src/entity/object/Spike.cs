@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class Spike : Entity
 {
-	int damage = 2;
-
 	Sprite sprite;
 
 
@@ -31,7 +29,7 @@ public class Spike : Entity
 				Hittable hittable = hits[i].entity as Hittable;
 				if (hits[i].entity.velocity.y < 0 && hits[i].entity.position.y - hits[i].entity.velocity.y * Time.deltaTime > position.y + 0.5f)
 				{
-					float damage = -hits[i].entity.velocity.y * 0.2f;
+					float damage = -hits[i].entity.velocity.y * 0.3f;
 					hittable.hit(damage, this, null);
 				}
 			}

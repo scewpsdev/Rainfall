@@ -118,10 +118,10 @@ namespace Rainfall
 
 		public static uint VectorToARGB(Vector4 v)
 		{
-			byte r = (byte)(MathF.Min(v.x * 255, 255));
-			byte g = (byte)(MathF.Min(v.y * 255, 255));
-			byte b = (byte)(MathF.Min(v.z * 255, 255));
-			byte a = (byte)(MathF.Min(v.w * 255, 255));
+			byte r = (byte)MathF.Min(v.x * 255, 255);
+			byte g = (byte)MathF.Min(v.y * 255, 255);
+			byte b = (byte)MathF.Min(v.z * 255, 255);
+			byte a = (byte)MathF.Min(v.w * 255, 255);
 			uint color = (uint)((a << 24) | (r << 16) | (g << 8) | b);
 			return color;
 		}
@@ -135,6 +135,16 @@ namespace Rainfall
 			return new Vector3(rr, gg, bb);
 		}
 
+		public static Vector3 SRGBToLinear(Vector3 color)
+		{
+			return SRGBToLinear(color.x, color.y, color.z);
+		}
+
+		public static Vector4 SRGBToLinear(Vector4 color)
+		{
+			return new Vector4(SRGBToLinear(color.x, color.y, color.z), color.w);
+		}
+
 		public static Vector3 LinearToSRGB(Vector3 color)
 		{
 			float gamma = 2.2f;
@@ -142,6 +152,11 @@ namespace Rainfall
 			float g = MathF.Pow(color.y, 1.0f / gamma);
 			float b = MathF.Pow(color.z, 1.0f / gamma);
 			return new Vector3(r, g, b);
+		}
+
+		public static Vector4 LinearToSRGB(Vector4 color)
+		{
+			return new Vector4(LinearToSRGB(color.xyz), color.w);
 		}
 
 		public static uint ColorAlpha(uint color, float alpha)
