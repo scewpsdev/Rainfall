@@ -7,29 +7,30 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Shortbow : Item
+public class AutomaticCrossbow : Item
 {
-	public Shortbow()
-		: base("shortbow", ItemType.Weapon)
+	public AutomaticCrossbow()
+		: base("automatic_crossbow", ItemType.Weapon)
 	{
-		displayName = "Shortbow";
+		displayName = "Automatic Crossbow";
 
-		attackDamage = 1;
-		attackRate = 2.0f;
+		attackDamage = 0.8f;
+		attackRate = 7;
 		attackRange = 30; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 
-		value = 15;
+		value = 96;
 
-		sprite = new Sprite(tileset, 9, 3);
+		sprite = new Sprite(tileset, 12, 3);
+		renderOffset.x = 0.5f;
 	}
 
 	public override bool use(Player player)
 	{
 		//if (player.numArrows > 0)
 		{
-			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
+			player.actions.queueAction(new GunShootAction(this, player.handItem == this));
 			//player.numArrows--;
 			return false;
 		}

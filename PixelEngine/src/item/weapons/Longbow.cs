@@ -33,7 +33,6 @@ public class Longbow : Item
 		//if (player.numArrows > 0)
 		{
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
-			player.consumeMana(manaCost);
 			//player.numArrows--;
 			return false;
 		}
