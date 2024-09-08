@@ -224,9 +224,14 @@ public class Level
 		Renderer.lightMask = lightmap;
 		Renderer.lightMaskRect = new FloatRect(-0.5f, -0.5f, width + 1, height + 1);
 
-		for (int y = 0; y < height; y++)
+		int x0 = (int)MathF.Floor(GameState.instance.camera.left);
+		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom);
+		int x1 = (int)MathF.Floor(GameState.instance.camera.right);
+		int y1 = (int)MathF.Floor(GameState.instance.camera.top);
+
+		for (int y = y0; y <= y1; y++)
 		{
-			for (int x = 0; x < width; x++)
+			for (int x = x0; x <= x1; x++)
 			{
 				TileType tile = getTile(x, y);
 				if (tile != null && tile.visible)
