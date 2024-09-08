@@ -32,7 +32,11 @@ public class BatAI : AI
 	public override void onHit(Entity by)
 	{
 		if (target == null)
+		{
+			if (by is ItemEntity)
+				by = ((ItemEntity)by).thrower;
 			setTarget(by);
+		}
 	}
 
 	void setTarget(Entity newTarget)

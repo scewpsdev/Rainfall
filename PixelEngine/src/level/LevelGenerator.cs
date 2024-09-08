@@ -247,7 +247,9 @@ public class LevelGenerator
 				int x = this.x + (offset + i) % this.width;
 				for (int y = this.y; y < this.y + this.height; y++)
 				{
-					if (y > 0 && level.getTile(x, y) == null && !objectFlags[x + y * level.width] && level.getTile(x, y + 1) == null)
+					if (objectFlags[x + y * level.width])
+						break;
+					if (y > 0 && level.getTile(x, y) == null && level.getTile(x, y + 1) == null)
 					{
 						if (level.getTile(x, y - 1) == null)
 							level.setTile(x, y - 1, TileType.platform);

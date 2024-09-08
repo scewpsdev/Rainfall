@@ -20,9 +20,9 @@ public class AutomaticCrossbow : Item
 		knockback = 2.0f;
 		trigger = false;
 
-		value = 96;
+		value = 132;
 
-		sprite = new Sprite(tileset, 12, 3);
+		sprite = new Sprite(tileset, 14, 3);
 		renderOffset.x = 0.5f;
 	}
 

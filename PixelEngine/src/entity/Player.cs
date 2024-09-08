@@ -1113,7 +1113,7 @@ public class Player : Entity, Hittable
 			animOffset.y = 2;
 		else if (animator.currentAnimation == "stun")
 			animOffset.y = -2;
-		return new Vector2(!mainHand ? 4 / 16.0f : -3 / 16.0f + animOffset.x / 16.0f, !mainHand ? 5 / 16.0f : 4 / 16.0f + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 4 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
