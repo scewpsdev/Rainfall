@@ -46,7 +46,11 @@ public class GandalfAI : AI
 	public override void onHit(Entity by)
 	{
 		if (target == null)
+		{
+			if (by is ItemEntity)
+				by = ((ItemEntity)by).thrower;
 			target = by;
+		}
 	}
 
 	void updateTargetFollow()

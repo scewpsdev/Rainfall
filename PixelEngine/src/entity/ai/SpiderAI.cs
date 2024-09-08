@@ -27,7 +27,7 @@ public class SpiderAI : AI
 
 	long lastAirTime;
 
-	Player target;
+	Entity target;
 	long targetLastSeen = -1;
 
 
@@ -38,8 +38,12 @@ public class SpiderAI : AI
 
 	public override void onHit(Entity by)
 	{
-		if (target == null && by is Player)
-			target = by as Player;
+		if (target == null)
+		{
+			if (by is ItemEntity)
+				by = ((ItemEntity)by).thrower;
+			target = by;
+		}
 	}
 
 	void updateTargetFollow()

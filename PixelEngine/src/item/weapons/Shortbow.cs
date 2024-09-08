@@ -16,11 +16,11 @@ public class Shortbow : Item
 
 		attackDamage = 1;
 		attackRate = 2.0f;
-		attackRange = 30; // arrow speed
+		attackRange = 20; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 
-		value = 15;
+		value = 32;
 
 		sprite = new Sprite(tileset, 9, 3);
 	}

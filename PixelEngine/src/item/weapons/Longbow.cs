@@ -17,11 +17,11 @@ public class Longbow : Item
 		attackDamage = 3;
 		attackRate = 0.7f;
 		attackRange = 50; // arrow speed
-		knockback = 10.0f;
+		knockback = 8.0f;
 		trigger = false;
 		twoHanded = true;
 
-		value = 42;
+		value = 56;
 
 		sprite = new Sprite(tileset, 10, 3, 2, 1);
 		size = new Vector2(2, 1);

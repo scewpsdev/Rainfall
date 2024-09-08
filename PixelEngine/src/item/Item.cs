@@ -243,6 +243,7 @@ public abstract class Item
 		InitType(new Shortbow());
 		InitType(new Longbow());
 		InitType(new AutomaticCrossbow());
+		InitType(new Crossbow());
 	}
 
 	static void InitType(Item item)
@@ -277,7 +278,12 @@ public abstract class Item
 			Item item = itemTypes[idx];
 			cumulativeRarity += item.canDrop ? item.rarity : 0;
 			if (f < cumulativeRarity)
-				return item.copy();
+			{
+				Item newItem = item.copy();
+				if (newItem.name == "arrow")
+					newItem.stackSize = MathHelper.RandomInt(1, 7, random);
+				return newItem;
+			}
 		}
 
 		return null;

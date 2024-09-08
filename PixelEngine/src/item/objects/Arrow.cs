@@ -13,7 +13,7 @@ public class Arrow : Item
 	{
 		displayName = "Arrow";
 
-		attackDamage = 4;
+		attackDamage = 2;
 		projectileItem = true;
 		maxPierces = 1;
 

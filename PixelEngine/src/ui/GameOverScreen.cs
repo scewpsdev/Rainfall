@@ -124,11 +124,11 @@ public static class GameOverScreen
 		int yy = y + size * 3 / 4;
 		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
 
-		if (player.handItem != null)
+		if (player.offhandItem != null)
 		{
-			int w = (int)MathF.Round(player.handItem.size.x * size);
-			int h = (int)MathF.Round(player.handItem.size.y * size);
-			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(true).x + player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(true).y + player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
+			int w = (int)MathF.Round(player.offhandItem.size.x * size);
+			int h = (int)MathF.Round(player.offhandItem.size.y * size);
+			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(false).x * size + player.offhandItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(false).y + player.offhandItem.renderOffset.y * size), w, h, player.offhandItem.sprite);
 		}
 
 		player.animator.setAnimation("idle");
@@ -144,11 +144,11 @@ public static class GameOverScreen
 			}
 		}
 
-		if (player.offhandItem != null)
+		if (player.handItem != null)
 		{
-			int w = (int)MathF.Round(player.offhandItem.size.x * size);
-			int h = (int)MathF.Round(player.offhandItem.size.y * size);
-			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(false).x + player.offhandItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(false).y + player.offhandItem.renderOffset.y * size), w, h, player.offhandItem.sprite);
+			int w = (int)MathF.Round(player.handItem.size.x * size);
+			int h = (int)MathF.Round(player.handItem.size.y * size);
+			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(true).x * size + player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(true).y * size + player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
 		}
 	}
 

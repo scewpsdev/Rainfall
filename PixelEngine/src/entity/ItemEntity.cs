@@ -69,7 +69,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	void onHit(bool x, bool y)
 	{
-		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity * Time.deltaTime);
+		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity * Time.deltaTime * 2);
 
 		if (x)
 		{
