@@ -23,6 +23,7 @@ public class Crossbow : Item
 		knockback = 12.0f;
 		trigger = true;
 		secondaryChargeTime = 1.0f;
+		requiredAmmo = "arrow";
 
 		value = 96;
 
@@ -49,8 +50,12 @@ public class Crossbow : Item
 	{
 		if (!loaded)
 		{
-			// check arrow
-			loaded = true;
+			Item arrows = player.getItem(requiredAmmo);
+			if (arrows != null)
+			{
+				player.removeItemSingle(arrows);
+				loaded = true;
+			}
 		}
 		return false;
 	}

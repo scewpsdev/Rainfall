@@ -33,7 +33,7 @@ public class Dagger : Item
 
 	public override bool useSecondary(Player player)
 	{
-		player.throwItem(this, false, true);
+		player.throwItem(this, player.lookDirection.normalized);
 		return true;
 	}
 }

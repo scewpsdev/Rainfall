@@ -53,7 +53,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 	public void interact(Player player)
 	{
 		player.giveItem(item);
-		player.hud.showMessage("Picked up " + item.displayName);
+		player.hud.showMessage("Picked up " + item.fullDisplayName);
 		remove();
 	}
 
@@ -95,7 +95,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 			{
 				Vector2 normal = new Vector2(x ? MathF.Sign(velocity.x) : 0, y ? MathF.Sign(velocity.y) : 0);
 				uint color = tile.particleColor;
-				GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, color), position + velocity.normalized * 0.01f);
+				GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(color).xyz), position + velocity.normalized * 0.01f);
 			}
 		}
 
@@ -232,7 +232,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
-			renderTooltip();
+			//renderTooltip();
 		}
 
 		item.render(this);

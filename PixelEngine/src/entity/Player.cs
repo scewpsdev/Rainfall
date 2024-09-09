@@ -116,7 +116,7 @@ public class Player : Entity, Hittable
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
-		giveItem(new TravellingCloak());
+		giveItem(new MagicStaff());
 	}
 
 	public override void destroy()
@@ -306,6 +306,16 @@ public class Player : Entity, Hittable
 			removeItem(item);
 			return item;
 		}
+	}
+
+	public Item getItem(string name)
+	{
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (items[i].Item2.name == name)
+				return items[i].Item2;
+		}
+		return null;
 	}
 
 	public bool isEquipped(Item item)
@@ -915,7 +925,7 @@ public class Player : Entity, Hittable
 							{
 								InputManager.ConsumeEvent("Attack");
 								if (handItem.use(this))
-									removeItem(handItem);
+									removeItemSingle(handItem);
 							}
 							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
 							{
@@ -1076,14 +1086,14 @@ public class Player : Entity, Hittable
 
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
 		if (tile != null)
-			GameState.instance.level.addEntity(Effects.CreateStepEffect(tile.particleColor, MathHelper.RandomInt(2, 4)), position);
+			GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(2, 4), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
 	}
 
 	void onLand()
 	{
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
 		if (tile != null)
-			GameState.instance.level.addEntity(Effects.CreateStepEffect(tile.particleColor, MathHelper.RandomInt(4, 8)), position);
+			GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(4, 8), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
 	}
 
 	public override void update()
@@ -1121,7 +1131,7 @@ public class Player : Entity, Hittable
 		if (!isAlive)
 			return;
 
-		uint color = 0xFFFFFFFF; // mainHand ? 0xFFFFFFFF : 0xFF7F7F7F;
+		uint color = mainHand ? 0xFFFFFFFF : 0xFF7F7F7F;
 
 		if (item == null)
 			item = DefaultWeapon.instance;

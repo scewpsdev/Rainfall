@@ -19,6 +19,7 @@ public enum ItemType
 	Staff,
 	Scroll,
 	Utility,
+	Ammo,
 	Gem,
 
 	Count
@@ -67,6 +68,7 @@ public abstract class Item
 	public int maxRicochets = 0;
 	public float knockback = 8.0f;
 	public float manaCost = 0;
+	public string requiredAmmo = null;
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
@@ -103,7 +105,7 @@ public abstract class Item
 
 	public bool isHandItem
 	{
-		get => type == ItemType.Weapon || type == ItemType.Staff;
+		get => type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
 	}
 
 	public bool isActiveItem
@@ -244,6 +246,7 @@ public abstract class Item
 		InitType(new Longbow());
 		InitType(new AutomaticCrossbow());
 		InitType(new Crossbow());
+		InitType(new BrokenSword());
 	}
 
 	static void InitType(Item item)
@@ -251,6 +254,21 @@ public abstract class Item
 		itemTypes.Add(item);
 		nameMap.Add(item.name, itemTypes.Count - 1);
 		typeLists[item.type].Add(itemTypes.Count - 1);
+	}
+
+	public static Item GetItemPrototype(string name)
+	{
+		if (nameMap.TryGetValue(name, out int idx))
+			return itemTypes[idx];
+		return null;
+	}
+
+	public static List<Item> GetItemPrototypesOfType(ItemType type)
+	{
+		List<Item> items = new List<Item>(typeLists[type].Count);
+		foreach (int idx in typeLists[type])
+			items.Add(itemTypes[idx]);
+		return items;
 	}
 
 	public static Item CreateRandom(ItemType type, Random random, float minValue = 0, float maxValue = float.MaxValue)
@@ -289,21 +307,8 @@ public abstract class Item
 		return null;
 	}
 
-	public static Item CreateRandom(Random random, float minValue = 0, float maxValue = float.MaxValue)
+	public static Item[] CreateRandom(Random random, float[] distribution, float minValue = 0, float maxValue = float.MaxValue)
 	{
-		float[] distribution = [
-			0.15f, // Weapon
-			0.05f, // Shield
-			0.14f, // Armor
-			0.18f, // Food
-			0.1f, // Potion
-			0.04f, // Ring
-			0.06f, // Staff
-			0.12f, // Scroll
-			0.08f, // Gem
-			0.08f, // Utility
-		];
-
 		float f = random.NextSingle();
 
 		float r = 0;
@@ -314,7 +319,19 @@ public abstract class Item
 			{
 				Item item = CreateRandom((ItemType)i, random, minValue, maxValue);
 				if (item != null)
-					return item.copy();
+				{
+					item = item.copy();
+					if (item.requiredAmmo != null)
+					{
+						Item ammo = GetItemPrototype(item.requiredAmmo).copy();
+						ammo.stackSize = MathHelper.RandomInt(1, 7, random);
+						return [item, ammo];
+					}
+					else
+					{
+						return [item];
+					}
+				}
 				else
 				{
 					f = random.NextSingle();

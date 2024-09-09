@@ -28,11 +28,12 @@ public class AutomaticCrossbow : Item
 
 	public override bool use(Player player)
 	{
-		//if (player.numArrows > 0)
+		Item arrows = player.getItem("arrow");
+		if (arrows != null)
 		{
 			player.actions.queueAction(new GunShootAction(this, player.handItem == this));
-			//player.numArrows--;
-			return false;
+			player.removeItemSingle(arrows);
 		}
+		return false;
 	}
 }

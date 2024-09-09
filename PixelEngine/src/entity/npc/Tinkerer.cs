@@ -23,7 +23,7 @@ public class Tinkerer : NPC
 		buysItems = true;
 		canCraft = true;
 
-		populateShop(random, 9, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility);
+		populateShop(random, 9, 15, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public override Item craftItem(Item item1, Item item2)

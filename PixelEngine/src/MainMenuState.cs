@@ -140,6 +140,7 @@ public class MainMenuState : State
 		drawLineRight("Godebob");
 		drawLineRight("Lenee");
 		drawLineRight("Tojota");
+		drawLineRight("SovereignsGreed");
 		drawLine("");
 		drawLine("Libraries:");
 		back();

@@ -20,6 +20,7 @@ public class Longbow : Item
 		knockback = 8.0f;
 		trigger = false;
 		twoHanded = true;
+		requiredAmmo = "arrow";
 
 		value = 56;
 
@@ -30,11 +31,12 @@ public class Longbow : Item
 
 	public override bool use(Player player)
 	{
-		//if (player.numArrows > 0)
+		Item arrows = player.getItem(requiredAmmo);
+		if (arrows != null)
 		{
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
-			//player.numArrows--;
-			return false;
+			player.removeItemSingle(arrows);
 		}
+		return false;
 	}
 }

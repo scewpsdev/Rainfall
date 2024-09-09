@@ -42,6 +42,12 @@ public class Bomb : Item
 		useTime = Time.currentTime;
 	}
 
+	public Bomb cook()
+	{
+		useTime = 1;
+		return this;
+	}
+
 	void explode(Entity entity)
 	{
 		int x0 = (int)MathF.Floor(entity.position.x - blastRadius);
@@ -61,7 +67,7 @@ public class Bomb : Item
 		GameState.instance.level.updateLightmap(x0, y0, x1 - x0 + 1, y1 - y0 + 1);
 
 		Span<HitData> hits = new HitData[16];
-		int numHits = GameState.instance.level.overlap(tile - (float)blastRadius, tile + (float)blastRadius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM | Entity.FILTER_DEFAULT);
+		int numHits = GameState.instance.level.overlap(tile - blastRadius, tile + blastRadius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM | Entity.FILTER_DEFAULT);
 		for (int i = 0; i < numHits; i++)
 		{
 			if (hits[i].entity != null)
@@ -99,6 +105,9 @@ public class Bomb : Item
 
 	public override void update(Entity entity)
 	{
+		if (useTime == 1) // cooking
+			useTime = Time.currentTime;
+
 		if (useTime != -1 && entity is ItemEntity)
 		{
 			ItemEntity itemEntity = entity as ItemEntity;

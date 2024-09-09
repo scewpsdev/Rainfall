@@ -514,7 +514,7 @@ public class Level
 		Vector2 hitNormal = hit != null ? hit.normal : Vector2.Zero;
 		for (int i = 0; i < entities.Count; i++)
 		{
-			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0)
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
 			{
 				Vector2 min = entities[i].position + entities[i].collider.min;
 				Vector2 max = entities[i].position + entities[i].collider.max;
@@ -541,7 +541,7 @@ public class Level
 		int numHits = 0;
 		for (int i = 0; i < entities.Count; i++)
 		{
-			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0)
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
 			{
 				Vector2 min = entities[i].position + entities[i].collider.min;
 				Vector2 max = entities[i].position + entities[i].collider.max;
@@ -560,7 +560,7 @@ public class Level
 		int numHits = 0;
 		for (int i = 0; i < entities.Count; i++)
 		{
-			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0)
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
 			{
 				Vector2 min = entities[i].position + entities[i].collider.min;
 				Vector2 max = entities[i].position + entities[i].collider.max;
@@ -590,7 +590,7 @@ public class Level
 			return hit;
 		for (int i = 0; i < entities.Count; i++)
 		{
-			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0)
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
 			{
 				Vector2 min = entities[i].position + entities[i].collider.min;
 				Vector2 max = entities[i].position + entities[i].collider.max;

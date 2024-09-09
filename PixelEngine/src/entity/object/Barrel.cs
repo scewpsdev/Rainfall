@@ -6,54 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Chest : Entity, Interactable, Destructible
+public class Barrel : Entity, Hittable
 {
 	Sprite sprite;
-	Sprite openSprite;
-	uint outline = 0;
-	bool flipped;
 
-	bool open = false;
 	Item[] items;
 	public int coins = 0;
 
 
-	public Chest(Item[] items, bool flipped = false)
+	public Barrel(params Item[] items)
 	{
 		this.items = items;
 
-		sprite = new Sprite(TileType.tileset, 0, 0);
-		openSprite = new Sprite(TileType.tileset, 1, 0);
+		sprite = new Sprite(TileType.tileset, 3, 0);
 
-		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
-
-		this.flipped = flipped;
-	}
-
-	public Chest(params Item[] items)
-		: this(items, false)
-	{
-	}
-
-	public void onDestroyed(Entity entity, Item item)
-	{
-		if (!open && items != null)
-			dropItems();
-	}
-
-	public bool canInteract(Player player)
-	{
-		return !open;
-	}
-
-	public void onFocusEnter(Player player)
-	{
-		outline = OUTLINE_COLOR;
-	}
-
-	public void onFocusLeft(Player player)
-	{
-		outline = 0;
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 	}
 
 	void dropItems()
@@ -76,13 +43,12 @@ public class Chest : Entity, Interactable, Destructible
 		}
 	}
 
-	public void interact(Player player)
+	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
-		open = true;
-		GameState.instance.run.chestsOpened++;
-
-		Debug.Assert(items != null);
-		dropItems();
+		if (items != null)
+			dropItems();
+		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(), position);
+		remove();
 	}
 
 	public override void update()
@@ -99,9 +65,6 @@ public class Chest : Entity, Interactable, Destructible
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, open ? openSprite : sprite, flipped);
-
-		if (outline != 0)
-			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, open ? openSprite : sprite, flipped, outline);
+		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite);
 	}
 }
