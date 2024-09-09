@@ -77,7 +77,8 @@ public abstract class Item
 	public int armor = 0;
 
 	public bool projectileItem = false;
-	public bool breakOnHit = false;
+	public bool breakOnWallHit = false;
+	public bool breakOnEnemyHit = false;
 
 	public Sprite sprite = null;
 	public Vector4 spriteColor = Vector4.One;

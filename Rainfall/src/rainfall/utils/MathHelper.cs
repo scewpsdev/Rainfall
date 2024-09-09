@@ -100,6 +100,11 @@ namespace Rainfall
 			return t * t * (3.0f - 2.0f * t);
 		}
 
+		public static float Fract(float f)
+		{
+			return f - MathF.Floor(f);
+		}
+
 		public static void Swap<T>(ref T a, ref T b)
 		{
 			T tmp = a;

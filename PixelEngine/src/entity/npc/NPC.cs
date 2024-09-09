@@ -74,8 +74,8 @@ public abstract class NPC : Mob, Interactable
 			List<Item> items = Item.GetItemPrototypesOfType(type);
 			items.Sort((Item item1, Item item2) =>
 			{
-				float r1 = item1.value;
-				float r2 = item2.value;
+				float r1 = MathF.Abs(item1.value - value);
+				float r2 = MathF.Abs(item2.value - value);
 				return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
 			});
 			Item item = items[0];

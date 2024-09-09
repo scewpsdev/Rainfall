@@ -218,6 +218,7 @@ public class GameState : State
 		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
 		finalRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
 		//finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
+		finalRoom.updateLightmap(0, 0, finalRoom.width, finalRoom.height);
 
 		for (int i = 0; i < level.entities.Count; i++)
 		{

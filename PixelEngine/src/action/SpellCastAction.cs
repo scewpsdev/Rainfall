@@ -37,7 +37,7 @@ public class SpellCastAction : EntityAction
 		direction = direction.normalized;
 
 		Vector2 position = player.position + new Vector2(0.0f, 0.3f);
-		Vector2 offset = new Vector2(player.direction * 0.5f, 0.3f);
+		Vector2 offset = new Vector2(player.direction * 0.5f, 0.1f);
 
 		direction = player.lookDirection.normalized;
 

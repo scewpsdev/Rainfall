@@ -116,7 +116,10 @@ public class Player : Entity, Hittable
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
-		giveItem(new MagicStaff());
+#if DEBUG
+		giveItem(new Shortbow());
+		giveItem(new Arrow() { stackSize = 16 });
+#endif
 	}
 
 	public override void destroy()
@@ -630,7 +633,18 @@ public class Player : Entity, Hittable
 					}
 				}
 				if (InputManager.IsDown("Down"))
+				{
 					delta.y--;
+				}
+			}
+			else
+			{
+				if (InputManager.IsDown("Down"))
+				{
+					TileType tile = GameState.instance.level.getTile(position);
+					if (tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
+						position.y = MathF.Floor(position.y) + 0.74f;
+				}
 			}
 
 #if DEBUG
@@ -927,7 +941,7 @@ public class Player : Entity, Hittable
 								if (handItem.use(this))
 									removeItemSingle(handItem);
 							}
-							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime)
+							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime && (Time.currentTime - lastItemUseDown) / 1e9f < handItem.secondaryChargeTime + 1)
 							{
 								if (handItem.useSecondary(this))
 									removeItem(handItem);

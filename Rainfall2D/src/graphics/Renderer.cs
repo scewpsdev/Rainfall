@@ -107,6 +107,7 @@ public static class Renderer
 	public static PixelFont smallFont;
 
 	static Matrix projection, view;
+	static float cameraX, cameraY;
 	static float left, right, bottom, top;
 
 	public static Vector3 ambientLight = Vector3.Zero;
@@ -206,16 +207,46 @@ public static class Renderer
 			graphics.destroyRenderTarget(gbuffer);
 		if (lighting != null)
 			graphics.destroyRenderTarget(lighting);
+		if (bloomDownsampleChain != null)
+		{
+			for (int i = 0; i < bloomDownsampleChain.Length; i++)
+				graphics.destroyRenderTarget(bloomDownsampleChain[i]);
+		}
+		if (bloomUpsampleChain != null)
+		{
+			for (int i = 0; i < bloomUpsampleChain.Length; i++)
+				graphics.destroyRenderTarget(bloomUpsampleChain[i]);
+		}
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(width, height, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
-			new RenderTargetAttachment(width, height, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(width, height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
+
+		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
+		{
+			int exp = (int)Math.Pow(2, i + 1);
+			int w = UIWidth / exp;
+			int h = UIHeight / exp;
+
+			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
+			{
+				new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
+			});
+
+			if (i < BLOOM_CHAIN_LENGTH - 1)
+			{
+				bloomUpsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
+				{
+					new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
+				});
+			}
+		}
 	}
 
 	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipX, bool flipY, Vector4 color, bool additive)
@@ -552,14 +583,16 @@ public static class Renderer
 		return lines.ToArray();
 	}
 
-	public static void SetCamera(Matrix projection, Matrix view, float left, float right, float bottom, float top)
+	public static void SetCamera(Matrix projection, Matrix view, float x, float y, float width, float height)
 	{
 		Renderer.projection = projection;
 		Renderer.view = view;
-		Renderer.left = left;
-		Renderer.right = right;
-		Renderer.bottom = bottom;
-		Renderer.top = top;
+		Renderer.cameraX = x;
+		Renderer.cameraY = y;
+		Renderer.left = x - 0.5f * width;
+		Renderer.right = x + 0.5f * width;
+		Renderer.bottom = y - 0.5f * height;
+		Renderer.top = y + 0.5f * height;
 	}
 
 	public static void Begin()
@@ -581,6 +614,10 @@ public static class Renderer
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
 			if (draw.useTransform)
 			{
+				// pixel perfect correction
+				draw.transform.m30 = MathF.Round(draw.transform.m30 * 16) / 16;
+				draw.transform.m31 = MathF.Round(draw.transform.m31 * 16) / 16;
+
 				spriteBatch.draw(
 					draw.size.x, draw.size.y, 0.0f - i / (float)draws.Count * 0.001f,
 					draw.transform,
@@ -590,6 +627,10 @@ public static class Renderer
 			}
 			else
 			{
+				// pixel perfect correction
+				draw.position.x = MathF.Round(draw.position.x * 16) / 16;
+				draw.position.y = MathF.Round(draw.position.y * 16) / 16;
+
 				spriteBatch.draw(
 					draw.position.x, draw.position.y, draw.position.z - i / (float)draws.Count * 0.001f,
 					draw.size.x, draw.size.y,
@@ -778,6 +819,10 @@ public static class Renderer
 
 		graphics.setDepthTest(DepthTest.None);
 		graphics.setCullState(CullState.ClockWise);
+
+		float cameraFractX = cameraX * 16 - MathF.Round(cameraX * 16);
+		float cameraFractY = cameraY * 16 - MathF.Round(cameraY * 16);
+		graphics.setUniform(compositeShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, cameraFractX, cameraFractY));
 
 		graphics.setTexture(compositeShader.getUniform("s_albedo", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
 		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 1, lighting.getAttachmentTexture(0));

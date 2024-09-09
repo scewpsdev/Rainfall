@@ -13,9 +13,10 @@ public class Arrow : Item
 	{
 		displayName = "Arrow";
 
-		attackDamage = 0.5f;
+		attackDamage = 1;
 		projectileItem = true;
-		maxPierces = 1;
+		//maxPierces = 1;
+		breakOnEnemyHit = true;
 		stackable = true;
 
 		value = 1;
