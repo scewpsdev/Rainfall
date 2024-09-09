@@ -95,7 +95,9 @@ public class BoomerangProjectile : Entity
 				{
 					if (player != null && (Time.currentTime - throwTime) / 1e9f > 0.1f)
 					{
-						player.handItem = new Boomerang();
+						Boomerang boomerang = new Boomerang();
+						player.giveItem(boomerang);
+						player.equipHandItem(boomerang);
 						remove();
 					}
 				}

@@ -345,6 +345,56 @@ public class LevelGenerator
 		return null;
 	}
 
+	void spawnItem(int x, int y, Level level, bool[] objectFlags)
+	{
+		float chestChance = 0.3f;
+		float barrelChance = 0.6f;
+
+		float scamChestChance = 0.02f;
+		bool scam = random.NextSingle() < scamChestChance;
+
+		float f = random.NextSingle();
+		if (f < chestChance)
+		{
+			TileType left = level.getTile(x - 1, y);
+			TileType right = level.getTile(x + 1, y);
+			Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.chest);
+			Chest chest = new Chest(items, left != null && right == null);
+			level.addEntity(chest, new Vector2(x + 0.5f, y));
+
+			float chestCoinsChance = 0.03f;
+			if (random.NextSingle() < chestCoinsChance)
+			{
+				int amount = MathHelper.RandomInt(10, 20, random);
+				chest.coins = amount;
+			}
+		}
+		else if (f < chestChance + barrelChance)
+		{
+			Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.barrel);
+			Barrel barrel = new Barrel(items);
+			level.addEntity(barrel, new Vector2(x + 0.5f, y));
+
+			float barrelCoinsChance = 0.08f;
+			if (random.NextSingle() < barrelCoinsChance)
+			{
+				int amount = MathHelper.RandomInt(1, 6, random);
+				barrel.coins = amount;
+			}
+		}
+		else
+		{
+			Item[] items = Item.CreateRandom(random, DropRates.ground);
+			foreach (Item item in items)
+			{
+				ItemEntity itemEntity = new ItemEntity(item);
+				level.addEntity(itemEntity, new Vector2(x + 0.5f, y + 0.5f));
+			}
+		}
+
+		objectFlags[x + y * level.width] = true;
+	}
+
 	public unsafe void run(string seed, int floor, Level level, Level nextLevel, Level lastLevel)
 	{
 		this.seed = seed;
@@ -644,21 +694,7 @@ public class LevelGenerator
 					{
 						if (room.getFloorSpawn(level, random, objectFlags, out Vector2i tile))
 						{
-							Item item = Item.CreateRandom(random);
-							if (random.NextSingle() < 1 - MathF.Exp(-item.value))
-							{
-								TileType left = level.getTile(tile + new Vector2i(-1, 0));
-								TileType right = level.getTile(tile + new Vector2i(1, 0));
-								Chest chest = new Chest([item], left != null && right == null);
-								level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
-							}
-							else
-							{
-								ItemEntity itemEntity = new ItemEntity(item);
-								level.addEntity(itemEntity, tile + 0.5f);
-							}
-
-							objectFlags[tile.x + tile.y * width] = true;
+							spawnItem(tile.x, tile.y, level, objectFlags);
 						}
 					}
 
@@ -782,42 +818,22 @@ public class LevelGenerator
 							up != null ? 0.005f :
 							(left != null || right != null) ? 0.005f :
 							0.002f;
-						itemChance *= 0.5f;
+						itemChance *= 0.25f;
 						itemChance *= lootModifier[x + y * width];
 
 						if (random.NextSingle() < itemChance)
 						{
-							// TODO mimic
-							float scamChestChance = 0.02f;
-							if (random.NextSingle() < scamChestChance)
-							{
-								level.addEntity(new Chest(null, left != null && right == null), new Vector2(x + 0.5f, y));
-								objectFlags[x + y * width] = true;
-							}
-							else
-							{
-								Item item = Item.CreateRandom(random);
+							spawnItem(x, y, level, objectFlags);
+						}
+					}
 
-								if (random.NextSingle() < 1 - MathF.Exp(-item.value))
-								{
-									Chest chest = new Chest([item], left != null && right == null);
-									level.addEntity(chest, new Vector2(x + 0.5f, y));
-
-									float chestCoinsChance = 0.08f;
-									if (random.NextSingle() < chestCoinsChance)
-									{
-										int amount = MathHelper.RandomInt(2, 10, random);
-										chest.coins = amount;
-									}
-								}
-								else
-								{
-									ItemEntity itemEntity = new ItemEntity(item);
-									level.addEntity(itemEntity, new Vector2(x + 0.5f, y + 0.5f));
-								}
-
-								objectFlags[x + y * width] = true;
-							}
+					if (down != null && !objectFlags[x + y * width])
+					{
+						float barrelChance = 0.03f;
+						if (random.NextSingle() < barrelChance)
+						{
+							level.addEntity(new Barrel(), new Vector2(x + 0.5f, y));
+							objectFlags[x + y * width] = true;
 						}
 					}
 

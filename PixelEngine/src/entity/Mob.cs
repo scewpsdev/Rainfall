@@ -108,12 +108,15 @@ public abstract class Mob : Entity, Hittable
 
 		if (Random.Shared.NextSingle() < itemDropChance)
 		{
-			Item item = Item.CreateRandom(Random.Shared);
+			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob);
 
-			Vector2 itemVelocity = new Vector2(0, 0.5f) * 8;
-			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
-			ItemEntity obj = new ItemEntity(item, null, itemVelocity);
-			GameState.instance.level.addEntity(obj, throwOrigin);
+			foreach (Item item in items)
+			{
+				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
+				GameState.instance.level.addEntity(obj, throwOrigin);
+			}
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{

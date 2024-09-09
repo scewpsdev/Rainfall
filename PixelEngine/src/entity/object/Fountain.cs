@@ -90,7 +90,8 @@ public class Fountain : Entity, Interactable
 				player.hud.showMessage("The water burns on your tongue.");
 				break;
 			case FountainEffect.Mana:
-				player.mana = MathF.Min(player.mana + Random.Shared.NextSingle() * 2, player.maxMana);
+				//player.mana = MathF.Min(player.mana + Random.Shared.NextSingle() * 2, player.maxMana);
+				player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 4));
 				player.hud.showMessage("You feel energy flow through you.");
 				break;
 		}

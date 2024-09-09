@@ -25,6 +25,7 @@ public class MagicStaff : Item
 		value = 30;
 
 		sprite = new Sprite(tileset, 8, 1);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)

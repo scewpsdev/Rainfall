@@ -36,23 +36,31 @@ public static unsafe class Effects
 		return new ExplosionEffect();
 	}
 
-	public static ParticleEffect CreateImpactEffect(Vector2 normal, float strength, uint color)
+	public static ParticleEffect CreateImpactEffect(Vector2 normal, float strength, Vector3 color)
 	{
 		ParticleEffect effect = new ParticleEffect(null, "res/effects/impact.rfs");
 		effect.systems[0].handle->startVelocity = new Vector3(normal * strength * 0.15f, 0);
 		effect.systems[0].handle->bursts[0].count = (int)MathF.Ceiling(strength * 0.5f);
-		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(color).xyz;
-		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(color).xyz;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
+		effect.collision = true;
 		return effect;
 	}
 
-	public static ParticleEffect CreateStepEffect(uint color, int count)
+	public static ParticleEffect CreateStepEffect(int count, Vector3 color)
 	{
 		ParticleEffect effect = new ParticleEffect(null, "res/effects/impact.rfs");
 		effect.systems[0].handle->startVelocity = new Vector3(0, 2, 0);
 		effect.systems[0].handle->bursts[0].count = count;
-		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(color).xyz;
-		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(color).xyz;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
+		return effect;
+	}
+
+	public static ParticleEffect CreateDestroyWoodEffect()
+	{
+		ParticleEffect effect = new ParticleEffect(null, "res/effects/destroy_wood.rfs");
+		effect.collision = true;
 		return effect;
 	}
 

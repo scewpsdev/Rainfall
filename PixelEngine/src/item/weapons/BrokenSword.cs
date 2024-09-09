@@ -6,23 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Longsword : Item
+public class BrokenSword : Item
 {
-	public Longsword()
-		: base("longsword", ItemType.Weapon)
+	public BrokenSword()
+		: base("broken_sword", ItemType.Weapon)
 	{
-		displayName = "Longsword";
+		displayName = "Broken Sword";
 
-		attackDamage = 4;
-		attackRange = 1.2f;
-		attackRate = 1.4f;
+		attackDamage = 0.8f;
+		attackRange = 1;
+		attackRate = 2;
 		stab = false;
 
-		value = 20;
+		value = 2;
 
-		sprite = new Sprite(tileset, 1, 1);
+		sprite = new Sprite(tileset, 15, 3);
 		renderOffset.x = 0.2f;
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
 	public override bool use(Player player)

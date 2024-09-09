@@ -26,7 +26,7 @@ RFAPI int64_t Application_GetTimestamp()
 	LARGE_INTEGER m_high_perf_timer_freq;
 	QueryPerformanceFrequency(&m_high_perf_timer_freq);
 
-	return (t.QuadPart - appStartTime.QuadPart) * 1000000000 / m_high_perf_timer_freq.QuadPart;
+	return (t.QuadPart - appStartTime.QuadPart) * (1000000000 / m_high_perf_timer_freq.QuadPart);
 }
 
 RFAPI void Application_SleepFor(int millis)

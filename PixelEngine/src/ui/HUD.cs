@@ -215,6 +215,7 @@ public class HUD
 				? 0.2f : 1.0f;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
+			uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
 
 			Renderer.DrawUISprite(x - padding, y - padding, 2 * size + 3 * padding, size + 2 * padding, null, false, frameColor);
 
@@ -224,7 +225,25 @@ public class HUD
 
 			Renderer.DrawUISprite(x + size + padding, y, size, size, null, false, bgColor);
 			if (player.handItem != null)
+			{
 				Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.sprite);
+				if (player.handItem.stackable && player.handItem.stackSize > 1)
+					Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
+
+				if (player.handItem.requiredAmmo != null)
+				{
+					Renderer.DrawUISprite(x + size + padding - 1, y - padding - size - 1, size + 2, size + 2, null, false, frameColor);
+					Renderer.DrawUISprite(x + size + padding, y - padding - size, size, size, null, false, bgColor);
+
+					Item ammo = player.getItem(player.handItem.requiredAmmo);
+					if (ammo != null)
+					{
+						Renderer.DrawUISprite(x + size + padding, y - padding - size, size, size, ammo.sprite);
+						if (ammo.stackable && ammo.stackSize > 1)
+							Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y - padding - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
+					}
+				}
+			}
 		}
 
 		{ // Quick item

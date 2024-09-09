@@ -19,6 +19,7 @@ public class Shortbow : Item
 		attackRange = 20; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
+		requiredAmmo = "arrow";
 
 		value = 32;
 
@@ -27,11 +28,12 @@ public class Shortbow : Item
 
 	public override bool use(Player player)
 	{
-		//if (player.numArrows > 0)
+		Item arrows = player.getItem(requiredAmmo);
+		if (arrows != null)
 		{
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
-			//player.numArrows--;
-			return false;
+			player.removeItemSingle(arrows);
 		}
+		return false;
 	}
 }

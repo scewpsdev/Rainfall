@@ -25,6 +25,7 @@ public class LightningStaff : Item
 		value = 30;
 
 		sprite = new Sprite(tileset, 8, 2);
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)

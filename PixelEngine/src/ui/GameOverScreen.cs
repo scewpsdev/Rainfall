@@ -128,7 +128,7 @@ public static class GameOverScreen
 		{
 			int w = (int)MathF.Round(player.offhandItem.size.x * size);
 			int h = (int)MathF.Round(player.offhandItem.size.y * size);
-			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(false).x * size + player.offhandItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(false).y + player.offhandItem.renderOffset.y * size), w, h, player.offhandItem.sprite);
+			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(false).x * size + player.offhandItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(false).y * size + player.offhandItem.renderOffset.y * size), w, h, player.offhandItem.sprite);
 		}
 
 		player.animator.setAnimation("idle");

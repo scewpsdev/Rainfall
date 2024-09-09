@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -74,13 +75,18 @@ public class MagicProjectile : Entity
 					Hittable hittable = hit.entity as Hittable;
 					hittable.hit(damage, shooter, item);
 					hitEntities.Add(hit.entity);
+
+					GameState.instance.level.addEntity(Effects.CreateImpactEffect(hit.normal, velocity.length, MathHelper.ARGBToVector(0xFF99eeee).xyz * 2), position - displacement);
 					remove();
 				}
 			}
 			else
 			{
 				if (ricochets >= maxRicochets)
+				{
+					GameState.instance.level.addEntity(Effects.CreateImpactEffect(hit.normal, velocity.length, MathHelper.ARGBToVector(0xFF99eeee).xyz * 2), position - displacement);
 					remove();
+				}
 				else
 				{
 					velocity = Vector2.Reflect(velocity, hit.normal);
@@ -94,6 +100,6 @@ public class MagicProjectile : Entity
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
-		Renderer.DrawLight(position, new Vector3(0.5f, 1.0f, 1.0f) * 3, 3.0f);
+		Renderer.DrawLight(position, MathHelper.ARGBToVector(0xFF99eeee).xyz * 3, 4);
 	}
 }

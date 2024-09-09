@@ -64,15 +64,23 @@ public abstract class NPC : Mob, Interactable
 		closeScreen();
 	}
 
-	protected void populateShop(Random random, int maxItems, params ItemType[] types)
+	protected void populateShop(Random random, int maxItems, float meanValue, params ItemType[] types)
 	{
 		int numItems = MathHelper.RandomInt(1, maxItems, random);
 		for (int i = 0; i < numItems; i++)
 		{
 			ItemType type = types[random.Next() % types.Length];
-			Item item = Item.CreateRandom(type, random);
+			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) / 3, meanValue * 0.25f);
+			List<Item> items = Item.GetItemPrototypesOfType(type);
+			items.Sort((Item item1, Item item2) =>
+			{
+				float r1 = item1.value;
+				float r2 = item2.value;
+				return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
+			});
+			Item item = items[0];
 			if (item.stackable || !hasShopItem(item.name))
-				addShopItem(item);
+				addShopItem(item.copy());
 		}
 	}
 
