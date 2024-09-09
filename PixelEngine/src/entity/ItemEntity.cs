@@ -99,7 +99,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 			}
 		}
 
-		if (item.breakOnHit && velocity.lengthSquared > 1 && ricochets >= item.maxRicochets)
+		if (item.breakOnWallHit && velocity.lengthSquared > 1 && ricochets >= item.maxRicochets)
 		{
 			item.onEntityBreak(this);
 			remove();
@@ -188,7 +188,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 							}
 						}
 
-						if (item.breakOnHit && velocity.lengthSquared > 1)
+						if (item.breakOnEnemyHit && velocity.lengthSquared > 1)
 						{
 							item.onEntityBreak(this);
 							remove();

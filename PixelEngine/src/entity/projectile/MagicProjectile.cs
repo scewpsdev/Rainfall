@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 public class MagicProjectile : Entity
 {
 	float speed = 2;
-	float maxSpeed = 20;
-	float acceleration = 30;
+	float maxSpeed = 40;
+	float acceleration = 50;
 	int maxRicochets = 0;
 	float damage = 1;
 

@@ -34,6 +34,6 @@ public class Torch : Item
 
 	public override void render(Entity entity)
 	{
-		Renderer.DrawLight(entity.position, new Vector3(1.0f, 0.8f, 0.5f) * 1, 9);
+		Renderer.DrawLight(entity.position, new Vector3(1.0f, 0.9f, 0.7f) * 1, 9);
 	}
 }

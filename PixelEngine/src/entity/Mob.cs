@@ -7,6 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+struct StuckProjectile
+{
+	public Sprite sprite;
+	public Vector2 relativePosition;
+	public Vector2 direction;
+	public bool flipped;
+}
+
 public abstract class Mob : Entity, Hittable
 {
 	const float SPRINT_MULTIPLIER = 1.8f;
@@ -52,6 +60,8 @@ public abstract class Mob : Entity, Hittable
 
 	long lastHit = -1;
 
+	List<StuckProjectile> stuckProjectiles = new List<StuckProjectile>();
+
 
 	public Mob(string name)
 	{
@@ -78,6 +88,20 @@ public abstract class Mob : Entity, Hittable
 			addImpulse(knockback);
 
 			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+
+			if (item != null && item.projectileItem)
+			{
+				Vector2 relativePosition = new Vector2(MathHelper.Clamp(by.position.x - position.x, collider.min.x, collider.max.x), MathHelper.Clamp(by.position.y - position.y, collider.min.y, collider.max.y));
+				Vector2 projectileDirection = by.velocity.normalized;
+				bool flipped = by.velocity.x < 0;
+				if (direction == -1)
+				{
+					relativePosition.x *= -1;
+					projectileDirection.x *= -1;
+					flipped = !flipped;
+				}
+				stuckProjectiles.Add(new StuckProjectile { sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, flipped = flipped });
+			}
 		}
 
 		if (health > 0)
@@ -330,6 +354,12 @@ public abstract class Mob : Entity, Hittable
 
 			if (outline != 0)
 				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
+
+			for (int i = 0; i < stuckProjectiles.Count; i++)
+			{
+				StuckProjectile projectile = stuckProjectiles[i];
+				Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, projectile.direction.angle, projectile.sprite, direction == -1);
+			}
 		}
 	}
 

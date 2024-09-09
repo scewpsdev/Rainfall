@@ -29,7 +29,7 @@ public class BowShootAction : EntityAction
 
 		Arrow arrow = new Arrow();
 		//arrow.breakOnHit = Random.Shared.Next() % 5 > 0;
-		arrow.breakOnHit = true;
+		arrow.breakOnWallHit = true;
 		//arrow.maxRicochets = 1;
 		arrow.attackDamage = weapon.attackDamage;
 		arrow.knockback = weapon.knockback;

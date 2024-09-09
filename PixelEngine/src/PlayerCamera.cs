@@ -136,9 +136,10 @@ public class PlayerCamera : Entity
 	public override void render()
 	{
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
-		Matrix view = getTransform(currentScreenShake).inverted;
+		Matrix transform = getTransform(currentScreenShake);
+		Matrix view = transform.inverted;
 
-		Renderer.SetCamera(projection, view, left, right, bottom, top);
+		Renderer.SetCamera(projection, view, position.x, position.y, width, height);
 	}
 
 	public float left

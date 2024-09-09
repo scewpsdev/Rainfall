@@ -14,7 +14,7 @@ public class Skull : Item
 		displayName = "Skull";
 
 		projectileItem = true;
-		breakOnHit = true;
+		breakOnWallHit = true;
 
 		attackDamage = 4;
 
