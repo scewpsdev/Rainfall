@@ -14,13 +14,16 @@ public class AutomaticCrossbow : Item
 	{
 		displayName = "Automatic Crossbow";
 
+		description = "slaps";
+
 		attackDamage = 0.8f;
 		attackRate = 7;
 		attackRange = 30; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
+		requiredAmmo = "arrow";
 
-		value = 132;
+		value = 82;
 
 		sprite = new Sprite(tileset, 14, 3);
 		renderOffset.x = 0.5f;

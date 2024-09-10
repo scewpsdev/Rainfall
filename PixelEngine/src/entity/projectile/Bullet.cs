@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Bullet : Entity
 {
-	float speed = 20;
+	float speed = 50;
 	int maxRicochets = 0;
 
 	Entity shooter;

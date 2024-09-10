@@ -115,7 +115,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 		velocity.y += gravity * Time.deltaTime;
 
 		Vector2 displacement = velocity * Time.deltaTime;
-		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement);
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, true);
 		position += displacement;
 
 		{

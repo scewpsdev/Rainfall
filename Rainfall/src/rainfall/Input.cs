@@ -408,7 +408,7 @@ namespace Rainfall
 		}
 	}
 
-	struct MouseState
+	public struct MouseState
 	{
 		public int x;
 		public int y;
@@ -589,7 +589,7 @@ namespace Rainfall
 	public static class Input
 	{
 		static KeyState keysCurrent, keysLast;
-		static MouseState mouseCurrent, mouseLast;
+		public static MouseState mouseCurrent, mouseLast;
 		static GamepadState gamepadCurrent, gamepadLast;
 
 		static CursorMode _cursorMode = CursorMode.Normal;

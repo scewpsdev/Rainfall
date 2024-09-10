@@ -156,7 +156,7 @@ public class GameState : State
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
 
-		//level.addEntity(new Tinkerer(Random.Shared), new Vector2(6.5f, 3));
+		//level.addEntity(new RatNPC(), new Vector2(6.5f, 3));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);

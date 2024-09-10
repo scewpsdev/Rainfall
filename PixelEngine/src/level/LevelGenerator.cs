@@ -132,6 +132,7 @@ public class LevelGenerator
 	int floor;
 
 	Random random;
+	Simplex simplex;
 
 	RoomDefSet defaultSet;
 	RoomDefSet miscSet;
@@ -159,7 +160,7 @@ public class LevelGenerator
 		return result;
 	}
 
-	void placeRoom(Room room, Level level)
+	void placeRoom(Room room, Level level, Simplex simplex)
 	{
 		int x = room.x;
 		int y = room.y;
@@ -179,7 +180,8 @@ public class LevelGenerator
 						level.setTile(x + xx, y + yy, null);
 						break;
 					case 0xFFFFFFFF:
-						level.setTile(x + xx, y + yy, TileType.wall);
+						float type = simplex.sample2f(xx * 0.1f, yy * 0.1f);
+						level.setTile(x + xx, y + yy, type > -0.2f ? TileType.wall : TileType.stone);
 						break;
 					case 0xFF0000FF:
 						level.setTile(x + xx, y + yy, TileType.platform);
@@ -401,6 +403,7 @@ public class LevelGenerator
 		this.floor = floor;
 
 		random = new Random((int)Hash.hash(seed) + floor);
+		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
 		int width = MathHelper.RandomInt(24, 150, random);
 		int height = (floor == 5 ? 4500 : 3200) / width;
@@ -508,7 +511,7 @@ public class LevelGenerator
 		for (int i = 0; i < rooms.Count; i++)
 		{
 			Room room = rooms[i];
-			placeRoom(room, level);
+			placeRoom(room, level, simplex);
 		}
 
 		bool[] objectFlags = new bool[width * height];
@@ -829,7 +832,7 @@ public class LevelGenerator
 
 					if (down != null && !objectFlags[x + y * width])
 					{
-						float barrelChance = 0.03f;
+						float barrelChance = 0.02f;
 						if (random.NextSingle() < barrelChance)
 						{
 							level.addEntity(new Barrel(), new Vector2(x + 0.5f, y));
@@ -913,6 +916,8 @@ public class LevelGenerator
 		RoomDef def = specialSet.roomDefs[0];
 		level.resize(def.width, def.height);
 
+		simplex = new Simplex();
+
 		Room room = new Room
 		{
 			x = 0,
@@ -923,7 +928,7 @@ public class LevelGenerator
 			set = specialSet
 		};
 
-		placeRoom(room, level);
+		placeRoom(room, level, simplex);
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}
@@ -933,6 +938,8 @@ public class LevelGenerator
 		RoomDef def = specialSet.roomDefs[1];
 		level.resize(def.width, def.height);
 
+		simplex = new Simplex();
+
 		Room room = new Room
 		{
 			x = 0,
@@ -943,7 +950,7 @@ public class LevelGenerator
 			set = specialSet
 		};
 
-		placeRoom(room, level);
+		placeRoom(room, level, simplex);
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

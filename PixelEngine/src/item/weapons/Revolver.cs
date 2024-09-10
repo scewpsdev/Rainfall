@@ -22,7 +22,7 @@ public class Revolver : Item
 		canDrop = false;
 
 		sprite = new Sprite(tileset, 14, 0);
-		//renderOffset.x = 0.2f;
+		renderOffset.x = 0.3f;
 	}
 
 	public override bool use(Player player)
