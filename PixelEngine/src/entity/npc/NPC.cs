@@ -19,17 +19,38 @@ enum NPCState
 	CraftingMenu,
 }
 
-struct VoiceLine
+enum DialogueEffect : int
 {
-	public string[] lines;
+	None = 0,
+	Shaking,
+	Quivering,
+	Dancing,
+	Restless,
+}
+
+struct DialogueLine
+{
+	public string[] words;
+}
+
+struct Dialogue
+{
+	public DialogueLine[] lines;
 }
 
 public abstract class NPC : Mob, Interactable
 {
+	const int DEFAULT_DIALOGUE_SPEED = 15;
+
+
 	NPCState state = NPCState.None;
 	protected Player player;
 
-	List<VoiceLine> voiceLines = new List<VoiceLine>();
+	List<Dialogue> voiceLines = new List<Dialogue>();
+	long lastCharacterTime;
+	int currentCharacter = 0;
+	bool dialogueFinished = false;
+	int dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
 
 	int selectedOption = 0;
 
@@ -46,6 +67,8 @@ public abstract class NPC : Mob, Interactable
 	Item craftingItem1, craftingItem2;
 
 	Sprite gem;
+
+	Simplex simplex = new Simplex();
 
 
 	public NPC(string name)
@@ -122,7 +145,35 @@ public abstract class NPC : Mob, Interactable
 	{
 		int maxWidth = 120 - 2 * 4;
 		string[] lines = Renderer.SplitMultilineText(txt, maxWidth);
-		voiceLines.Add(new VoiceLine { lines = lines });
+		Dialogue dialogue;
+		dialogue.lines = new DialogueLine[lines.Length];
+		for (int i = 0; i < lines.Length; i++)
+		{
+			DialogueLine line;
+			line.words = lines[i].Split(' ');
+			/*
+			for (int j = 0; j < line.words.Length; j++)
+			{
+				string word = line.words[j];
+				for (int k = 0; k < word.Length; k++)
+				{
+					char c = word[i];
+					if (c == '\\' && k < word.Length - 1)
+					{
+
+						k++;
+					}
+				}
+				if (word.Length >= 3 && word[0] == '\\')
+				{
+					line.effects[j] = (DialogueEffect)(word[1] - '0');
+					line.words[j] = word.Substring(2);
+				}
+			}
+			*/
+			dialogue.lines[i] = line;
+		}
+		voiceLines.Add(dialogue);
 	}
 
 	public virtual Item craftItem(Item item1, Item item2)
@@ -149,7 +200,7 @@ public abstract class NPC : Mob, Interactable
 
 		if (voiceLines.Count > 0)
 		{
-			state = NPCState.Dialogue;
+			initDialogue();
 		}
 		else
 		{
@@ -184,6 +235,15 @@ public abstract class NPC : Mob, Interactable
 			GameState.instance.player.numOverlaysOpen--;
 			selectedOption = 0;
 		}
+	}
+
+	void initDialogue()
+	{
+		state = NPCState.Dialogue;
+		lastCharacterTime = Time.currentTime;
+		currentCharacter = 0;
+		dialogueFinished = false;
+		dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
 	}
 
 	void initMenu()
@@ -239,7 +299,7 @@ public abstract class NPC : Mob, Interactable
 		if (state == NPCState.Dialogue)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-			VoiceLine voiceLine = voiceLines[0];
+			Dialogue voiceLine = voiceLines[0];
 
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
@@ -267,21 +327,103 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
 			y += 4;
 
+			if (Time.currentTime - lastCharacterTime > 1e9 / (dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 3 ? 8 : 1)))
+			{
+				currentCharacter++;
+				lastCharacterTime = Time.currentTime;
+			}
+
+			DialogueEffect dialogueEffect = DialogueEffect.None;
+
+			int characterIdx = 0;
+			int spaceWidth = Renderer.MeasureUITextBMP(' ').x;
 			for (int i = 0; i < voiceLine.lines.Length; i++)
 			{
 				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, 0xFF222222);
-				Renderer.DrawUITextBMP(x + 4, y, voiceLine.lines[i], 1, 0xFFAAAAAA);
+
+				if (characterIdx > currentCharacter)
+					break;
+
+				int cursor = 0;
+				for (int j = 0; j < voiceLine.lines[i].words.Length; j++)
+				{
+					if (characterIdx > currentCharacter)
+						break;
+
+					string word = voiceLine.lines[i].words[j];
+
+					for (int k = 0; k < word.Length; k++)
+					{
+						if (characterIdx > currentCharacter)
+							break;
+
+						while (k < word.Length - 1 && word[k] == '\\')
+						{
+							if (characterIdx == currentCharacter)
+							{
+								if (word[k + 1] >= '1' && word[k + 1] <= '9')
+									dialogueSpeed = DEFAULT_DIALOGUE_SPEED + (word[k + 1] - '5') * 3;
+								else if (word[k + 1] == '0')
+									dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
+							}
+							if (word[k + 1] >= 'a' && word[k + 1] <= 'z')
+								dialogueEffect = (DialogueEffect)(word[k + 1] - 'a' + 1);
+							else if (word[k + 1] == '0')
+								dialogueEffect = DialogueEffect.None;
+							k += 2;
+							continue;
+						}
+						if (k >= word.Length)
+							continue;
+
+						Vector2i offset = Vector2i.Zero;
+						if (dialogueEffect == DialogueEffect.Shaking)
+						{
+							float elapsed = Time.currentTime / 1e9f * 10;
+							float amplitude = 2;
+							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k * 1000), simplex.sample1f(-elapsed - k * 1000)) * amplitude);
+						}
+						else if (dialogueEffect == DialogueEffect.Quivering)
+						{
+							float elapsed = Time.currentTime / 1e9f * 4;
+							float amplitude = 1;
+							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k * 1000), simplex.sample1f(-elapsed - k * 1000)) * amplitude);
+						}
+						else if (dialogueEffect == DialogueEffect.Dancing)
+						{
+							float elapsed = Time.currentTime / 1e9f * 1;
+							float amplitude = 2;
+							offset = (Vector2i)Vector2.Round(new Vector2(0, simplex.sample1f(elapsed + k)) * amplitude);
+						}
+						else if (dialogueEffect == DialogueEffect.Restless)
+						{
+							float elapsed = Time.currentTime / 1e9f * 0.5f;
+							float amplitude = 1;
+							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k), simplex.sample1f(-elapsed - k)) * amplitude);
+						}
+
+						cursor += Renderer.DrawUITextBMP(x + 4 + cursor + offset.x, y + offset.y, word[k], 1, 0xFFAAAAAA);
+						characterIdx++;
+
+						if (k == word.Length - 1 && j == voiceLine.lines[i].words.Length - 1 && i == voiceLine.lines.Length - 1)
+							dialogueFinished = true;
+					}
+
+					cursor += spaceWidth;
+				}
+
 				y += lineHeight;
 			}
 
-			if (InputManager.IsPressed("Interact"))
+			if (dialogueFinished && InputManager.IsPressed("Interact", true))
 			{
-				InputManager.ConsumeEvent("Interact");
 				voiceLines.RemoveAt(0);
+				lastCharacterTime = Time.currentTime;
+				currentCharacter = 0;
+				dialogueFinished = false;
+				dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
 				if (voiceLines.Count == 0)
-				{
 					initMenu();
-				}
 			}
 
 			if (InputManager.IsPressed("UIBack", true))

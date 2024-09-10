@@ -74,13 +74,21 @@ namespace Rainfall2D
 		public int measureText(string text, int length)
 		{
 			int cursor = 0;
-			for (int i = 0; i < text.Length; i++)
+			for (int i = 0; i < length; i++)
 			{
-				IntRect rect = getCharacterRect(text[i]);
-				if (rect == null)
-					rect = getCharacterRect('?');
+				char c = text[i];
+				if (c != '\\')
+				{
+					IntRect rect = getCharacterRect(text[i]);
+					if (rect == null)
+						rect = getCharacterRect('?');
 
-				cursor += rect.size.x;
+					cursor += rect.size.x;
+				}
+				else
+				{
+					i++;
+				}
 			}
 			return cursor;
 		}

@@ -44,7 +44,7 @@ public class HUD
 
 		gem = new Sprite(tileset, 3, 0);
 
-		crosshair = new Sprite(tileset, 0, 4, 2, 2);
+		crosshair = new Sprite(tileset, 2, 4, 1, 1);
 	}
 
 
@@ -316,7 +316,7 @@ public class HUD
 
 		// Crosshair
 		{
-			Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+			//Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
 			Input.cursorMode = CursorMode.Hidden;
 		}
 	}

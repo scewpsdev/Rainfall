@@ -57,7 +57,7 @@ public class AttackAction : EntityAction
 
 	public bool inDamageWindow
 	{
-		get => elapsedTime / duration * 2 < 1.5f;
+		get => elapsedTime / duration + elapsedTime / duration * weapon.attackCooldown < 1 + 0.5f * weapon.attackCooldown;
 	}
 
 	public float currentRange
@@ -67,7 +67,7 @@ public class AttackAction : EntityAction
 
 	public float currentAngle
 	{
-		get => weapon.stab ? startAngle : startAngle + (1 - currentProgress) * weapon.attackAngle - 0.25f * MathF.PI;
+		get => weapon.stab ? startAngle : startAngle + (1 - currentProgress) * weapon.attackAngle + weapon.attackAngleOffset;
 	}
 
 	public override Matrix getItemTransform(Player player)

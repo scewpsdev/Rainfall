@@ -58,6 +58,7 @@ public abstract class Item
 	public float attackDamage = 1;
 	public float attackRange = 1;
 	public float attackAngle = MathF.PI;
+	public float attackAngleOffset = -0.25f * MathF.PI;
 	public float attackRate = 2.0f;
 	public float attackCooldown = 1.0f;
 	public float secondaryChargeTime = 0.5f;
@@ -248,6 +249,8 @@ public abstract class Item
 		InitType(new AutomaticCrossbow());
 		InitType(new Crossbow());
 		InitType(new BrokenSword());
+		InitType(new HuntersRing());
+		InitType(new WoodenMallet());
 	}
 
 	static void InitType(Item item)
@@ -300,7 +303,7 @@ public abstract class Item
 			{
 				Item newItem = item.copy();
 				if (newItem.name == "arrow")
-					newItem.stackSize = MathHelper.RandomInt(1, 7, random);
+					newItem.stackSize = MathHelper.RandomInt(1, 12, random);
 				return newItem;
 			}
 		}
@@ -325,7 +328,7 @@ public abstract class Item
 					if (item.requiredAmmo != null)
 					{
 						Item ammo = GetItemPrototype(item.requiredAmmo).copy();
-						ammo.stackSize = MathHelper.RandomInt(1, 7, random);
+						ammo.stackSize = MathHelper.RandomInt(3, 20, random);
 						return [item, ammo];
 					}
 					else

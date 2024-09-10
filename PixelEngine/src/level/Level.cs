@@ -236,9 +236,10 @@ public class Level
 				TileType tile = getTile(x, y);
 				if (tile != null && tile.visible)
 				{
-					if (tile.sprite != null)
+					if (tile.sprites != null)
 					{
-						Renderer.DrawSprite(x, y, Entity.LAYER_TILE, 1.001f, 1.001f, 0, tile.sprite, false, 0xFFFFFFFF);
+						uint h = Hash.combine(Hash.hash(x), Hash.hash(y));
+						Renderer.DrawSprite(x, y, Entity.LAYER_TILE, 1.001f, 1.001f, 0, tile.sprites[h % tile.sprites.Length], false, 0xFFFFFFFF);
 
 						TileType left = getTile(x - 1, y);
 						TileType right = getTile(x + 1, y);
@@ -246,13 +247,13 @@ public class Level
 						TileType bottom = getTile(x, y - 1);
 
 						if (left != tile && tile.left != null)
-							Renderer.DrawSprite(x - 1, y, Entity.LAYER_TILE, 1, 1, 0, tile.left, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x - 1, y, Entity.LAYER_TILE, 1, 1, 0, tile.left[h % tile.left.Length], false, 0xFFFFFFFF);
 						if (right != tile && tile.right != null)
-							Renderer.DrawSprite(x + 1, y, Entity.LAYER_TILE, 1, 1, 0, tile.right, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x + 1, y, Entity.LAYER_TILE, 1, 1, 0, tile.right[h % tile.right.Length], false, 0xFFFFFFFF);
 						if (top != tile && tile.top != null)
-							Renderer.DrawSprite(x, y + 1, Entity.LAYER_TILE, 1, 1, 0, tile.top, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x, y + 1, Entity.LAYER_TILE, 1, 1, 0, tile.top[h % tile.top.Length], false, 0xFFFFFFFF);
 						if (bottom != tile && tile.bottom != null)
-							Renderer.DrawSprite(x, y - 1, Entity.LAYER_TILE, 1, 1, 0, tile.bottom, false, 0xFFFFFFFF);
+							Renderer.DrawSprite(x, y - 1, Entity.LAYER_TILE, 1, 1, 0, tile.bottom[h % tile.bottom.Length], false, 0xFFFFFFFF);
 					}
 					else
 					{

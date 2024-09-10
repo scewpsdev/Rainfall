@@ -24,7 +24,7 @@ public class MobCorpse : Entity
 		rect = mob.rect;
 		direction = mob.direction;
 
-		velocity = mob.velocity + mob.impulseVelocity;
+		velocity = mob.velocity * 0.0f + mob.impulseVelocity;
 
 		collider = mob.collider;
 		filterGroup = FILTER_DECORATION;

@@ -19,10 +19,10 @@ public class RatNPC : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		addVoiceLine("WOAH!");
-		addVoiceLine("You look... intense!");
-		addVoiceLine("Ah, you must be here to try some of my wondrous cheese? Yes, yes.");
-		addVoiceLine("I'll give you one for free, good?");
+		addVoiceLine("\\aWOAH!");
+		addVoiceLine("\\3You look... \\5\\bintense!");
+		addVoiceLine("Ah, you must be here to try some of my \\cwondrous cheese?");
+		addVoiceLine("Yes, yes. That must be it. I'll give you one for free, good?");
 
 		Cheese wondrousCheese = new Cheese();
 		wondrousCheese.name = "wondrous_cheese";

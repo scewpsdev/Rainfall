@@ -39,6 +39,11 @@ namespace Rainfall
 			get => MathF.Sqrt(x * x + y * y);
 		}
 
+		public Vector2 normalized
+		{
+			get => this / length;
+		}
+
 		public override string ToString()
 		{
 			return x.ToString(CultureInfo.InvariantCulture) + "," + y.ToString(CultureInfo.InvariantCulture);

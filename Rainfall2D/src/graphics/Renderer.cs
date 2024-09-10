@@ -506,14 +506,39 @@ public static class Renderer
 		}
 	}
 
+	public static int DrawUITextBMP(int x, int y, char c, int size = 1, uint color = 0xFFFFFFFF)
+	{
+		IntRect rect = smallFont.getCharacterRect(c);
+		if (rect == null)
+			rect = smallFont.getCharacterRect('?');
+
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+
+		return rect.size.x;
+	}
+
 	public static Vector2i MeasureUITextBMP(string text, int length = -1, int scale = 1)
 	{
 		return new Vector2i(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
 	}
 
+	public static Vector2i MeasureUITextBMP(char c)
+	{
+		return smallFont.getCharacterRect(c).size;
+	}
+
 	public static Vector2i cursorPosition
 	{
 		get => Input.cursorPosition * new Vector2i(UIWidth, UIHeight) / Display.viewportSize;
+	}
+
+	public static Vector2i cursorMove
+	{
+		get
+		{
+			Vector2i lastCursorPos = new Vector2i(Input.mouseLast.x, Input.mouseLast.y) * new Vector2i(UIWidth, UIHeight) / Display.viewportSize;
+			return cursorPosition - lastCursorPos;
+		}
 	}
 
 	public static bool IsHovered(int x, int y, int width, int height)
@@ -554,7 +579,8 @@ public static class Renderer
 
 		for (int i = 0; i < words.Length; i++)
 		{
-			int wordWidth = MeasureUITextBMP(words[i]).x;
+			string word = words[i];
+			int wordWidth = MeasureUITextBMP(word).x;
 			if (currentLineWidth + spaceWidth + wordWidth > maxWidth)
 			{
 				lines.Add(currentLine.ToString());
@@ -565,7 +591,7 @@ public static class Renderer
 			{
 				if (currentLineWidth > 0)
 					currentLine.Append(' ');
-				currentLine.Append(words[i]);
+				currentLine.Append(word);
 				lines.Add(currentLine.ToString());
 			}
 			else
@@ -575,7 +601,7 @@ public static class Renderer
 					currentLine.Append(' ');
 					currentLineWidth += spaceWidth;
 				}
-				currentLine.Append(words[i]);
+				currentLine.Append(word);
 				currentLineWidth += wordWidth;
 			}
 		}

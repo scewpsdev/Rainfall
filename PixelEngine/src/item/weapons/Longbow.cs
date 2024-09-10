@@ -22,7 +22,7 @@ public class Longbow : Item
 		twoHanded = true;
 		requiredAmmo = "arrow";
 
-		value = 56;
+		value = 48;
 
 		sprite = new Sprite(tileset, 10, 3, 2, 1);
 		size = new Vector2(2, 1);

@@ -37,6 +37,7 @@ public class Player : Entity, Hittable
 	public int money = 0;
 
 	public int direction = 1;
+	public Vector2i aimPosition;
 	public Vector2 lookDirection = Vector2.Zero;
 	float currentSpeed;
 	Vector2 impulseVelocity;
@@ -53,6 +54,7 @@ public class Player : Entity, Hittable
 	bool isStunned = false;
 
 	Sprite stunnedIcon;
+	Sprite aimIndicator;
 
 	public Sprite sprite;
 	public SpriteAnimator animator;
@@ -112,13 +114,13 @@ public class Player : Entity, Hittable
 		animator.addAnimationEvent("run", 7, onStep);
 
 		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
+		aimIndicator = new Sprite(HUD.tileset, 3, 4);
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
 #if DEBUG
-		giveItem(new Shortbow());
-		giveItem(new Arrow() { stackSize = 16 });
+		giveItem(new WoodenMallet());
 #endif
 	}
 
@@ -741,8 +743,39 @@ public class Player : Entity, Hittable
 			isMoving = false;
 		}
 
-		lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - (position + collider.center);
-		direction = Math.Sign(lookDirection.x);
+		/*
+		if (Renderer.cursorMove != Vector2i.Zero && numOverlaysOpen == 0)
+		{
+			aimPosition += Renderer.cursorMove * (Vector2.Dot((Vector2)Renderer.cursorMove, (Vector2)aimPosition) < 0 ? 2 : 1);
+			if (aimPosition == Vector2i.Zero)
+				aimPosition += Renderer.cursorMove;
+			aimPosition.x = MathHelper.Clamp(aimPosition.x, -20, 20);
+			aimPosition.y = MathHelper.Clamp(aimPosition.y, -20, 20);
+			if (aimPosition.length > 1)
+				aimPosition = (Vector2i)Vector2.Round(aimPosition.normalized);
+
+			float currentAngle = lookDirection.angle;
+			float dstAngle = (aimPosition * new Vector2i(1, -1)).normalized.angle;
+			float angle = MathHelper.LerpAngle(currentAngle, dstAngle, 50 * Time.deltaTime);
+			lookDirection = Vector2.Rotate(Vector2.UnitX, angle);
+			direction = Math.Sign(lookDirection.x);
+		}
+		*/
+
+		if (numOverlaysOpen == 0)
+		{
+			float maxCursorDistance = handItem != null ? handItem.attackRange * 2 : 1.8f;
+			Vector2i playerScreenPos = GameState.instance.camera.worldToScreen(position + collider.center);
+			if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
+			{
+				Vector2i newCursorPos = playerScreenPos + (Vector2i)Vector2.Round((Renderer.cursorPosition - playerScreenPos).normalized * maxCursorDistance * 16);
+				Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+			}
+			lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - (position + collider.center);
+			if (lookDirection.length > maxCursorDistance)
+				lookDirection = lookDirection.normalized * maxCursorDistance;
+			direction = Math.Sign(lookDirection.x);
+		}
 
 		if (!isClimbing)
 		{
@@ -1187,6 +1220,14 @@ public class Player : Entity, Hittable
 
 			renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
 			renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+		}
+
+		// Aim indicator
+		if (isAlive)
+		{
+			Vector2 indicatorPosition = GameState.instance.camera.screenToWorld(Input.cursorPosition);
+			Matrix transform = Matrix.CreateTranslation(position.x + lookDirection.x, position.y + collider.center.y + lookDirection.y, LAYER_FG) * Matrix.CreateRotation(Vector3.UnitZ, lookDirection.angle);
+			Renderer.DrawSprite(0.5f, 0.5f, transform, aimIndicator);
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)

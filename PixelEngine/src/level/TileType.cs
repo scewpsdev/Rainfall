@@ -18,8 +18,8 @@ public class TileType
 
 	public uint color = 0xFFFF00FF;
 	public uint particleColor = 0xFFFFFFFF;
-	public Sprite sprite = null;
-	public Sprite left, right, top, bottom;
+	public Sprite[] sprites = null;
+	public Sprite[] left, right, top, bottom;
 
 
 	static List<TileType> tileTypes = new List<TileType>();
@@ -42,14 +42,24 @@ public class TileType
 			name = "wall",
 			color = 0xFFFFFFFF,
 			particleColor = 0xFF5c4637,
-			sprite = new Sprite(tileset, 4, 1),
-			left = new Sprite(tileset, 3, 1),
-			right = new Sprite(tileset, 5, 1),
-			top = new Sprite(tileset, 4, 0),
-			bottom = new Sprite(tileset, 4, 2),
+			sprites = [new Sprite(tileset, 4, 1), new Sprite(tileset, 9, 1), new Sprite(tileset, 10, 1), new Sprite(tileset, 11, 1), new Sprite(tileset, 12, 1)],
+			left = [new Sprite(tileset, 3, 1)],
+			right = [new Sprite(tileset, 5, 1)],
+			top = [new Sprite(tileset, 4, 0), new Sprite(tileset, 9, 0), new Sprite(tileset, 10, 0), new Sprite(tileset, 11, 0), new Sprite(tileset, 12, 0)],
+			bottom = [new Sprite(tileset, 4, 2), new Sprite(tileset, 9, 2), new Sprite(tileset, 10, 2), new Sprite(tileset, 11, 2), new Sprite(tileset, 12, 2)],
 		});
-		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprite = new Sprite(tileset, 1, 2) });
-		AddTileType(stone = new TileType() { name = "stone_block", color = 0xFF333333, particleColor = 0xFF50504c, sprite = new Sprite(tileset, 1, 1) });
+		AddTileType(stone = new TileType()
+		{
+			name = "stone_block",
+			color = 0xFF333333,
+			particleColor = 0xFF50504c,
+			sprites = [new Sprite(tileset, 4, 4), new Sprite(tileset, 9, 4), new Sprite(tileset, 10, 4), new Sprite(tileset, 11, 4), new Sprite(tileset, 12, 4)],
+			left = [new Sprite(tileset, 3, 4)],
+			right = [new Sprite(tileset, 5, 4)],
+			top = [new Sprite(tileset, 4, 3), new Sprite(tileset, 9, 3), new Sprite(tileset, 10, 3), new Sprite(tileset, 11, 3), new Sprite(tileset, 12, 3)],
+			bottom = [new Sprite(tileset, 4, 5), new Sprite(tileset, 9, 5), new Sprite(tileset, 10, 5), new Sprite(tileset, 11, 5), new Sprite(tileset, 12, 5)],
+		});
+		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 2)] });
 	}
 
 	static void AddTileType(TileType type)
