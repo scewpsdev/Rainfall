@@ -12,8 +12,9 @@ enum RenderPass
 {
 	Geometry,
 	Lighting,
+	Composite,
 	Bloom,
-	Composite = Bloom + 11,
+	UI = Bloom + 11,
 
 	Count
 }
@@ -37,6 +38,7 @@ public static class Renderer
 	{
 		public Vector2i position;
 		public Vector2i size;
+		public float rotation;
 		public Texture texture;
 		public FloatRect rect;
 		public uint color;
@@ -72,11 +74,13 @@ public static class Renderer
 
 	static RenderTarget gbuffer;
 	static RenderTarget lighting;
+	static RenderTarget composite;
 	static RenderTarget[] bloomDownsampleChain;
 	static RenderTarget[] bloomUpsampleChain;
 	static Shader bloomDownsampleShader;
 	static Shader bloomUpsampleShader;
 	static Shader compositeShader;
+	static Shader blitShader;
 
 	static VertexBuffer quad;
 	static Shader lightingShader;
@@ -135,12 +139,17 @@ public static class Renderer
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(width, height, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
-			new RenderTargetAttachment(width, height, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(width, height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+		});
+		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
+		{
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
 		});
 
 		bloomDownsampleChain = new RenderTarget[BLOOM_CHAIN_LENGTH];
@@ -168,6 +177,7 @@ public static class Renderer
 		bloomDownsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vsh", "res/shaders/bloom/bloom_downsample.fsh");
 		bloomUpsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vsh", "res/shaders/bloom/bloom_upsample.fsh");
 		compositeShader = Resource.GetShader("res/shaders/composite/composite.vsh", "res/shaders/composite/composite.fsh");
+		blitShader = Resource.GetShader("res/shaders/final/final.vsh", "res/shaders/final/final.fsh");
 
 		quad = graphics.createVertexBuffer(graphics.createVideoMemory(new float[] { -3, -1, 1, -1, 1, 3 }), new VertexElement[]
 		{
@@ -221,11 +231,16 @@ public static class Renderer
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+		});
+		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
+		{
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
 		});
 
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
@@ -444,6 +459,20 @@ public static class Renderer
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
 	}
 
+	public static void DrawUISprite(int x, int y, int width, int height, float rotation, Sprite sprite, uint color = 0xFFFFFFFF)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+	}
+
 	public static void DrawUISprite(int x, int y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
@@ -491,7 +520,7 @@ public static class Renderer
 		return new Vector2i(font.measureText(text, length != -1 ? length : text.Length) * scale, (int)(font.size * scale));
 	}
 
-	public static void DrawUITextBMP(int x, int y, string text, int size, uint color = 0xFFFFFFFF)
+	public static void DrawUITextBMP(int x, int y, string text, int size = 1, uint color = 0xFFFFFFFF)
 	{
 		int cursor = 0;
 		for (int i = 0; i < text.Length; i++)
@@ -645,7 +674,7 @@ public static class Renderer
 				draw.transform.m31 = MathF.Round(draw.transform.m31 * 16) / 16;
 
 				spriteBatch.draw(
-					draw.size.x, draw.size.y, 0.0f - i / (float)draws.Count * 0.001f,
+					draw.size.x, draw.size.y, 0.0f - i / (float)draws.Count * 0.0001f,
 					draw.transform,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
@@ -658,7 +687,7 @@ public static class Renderer
 				draw.position.y = MathF.Round(draw.position.y * 16) / 16;
 
 				spriteBatch.draw(
-					draw.position.x, draw.position.y, draw.position.z - i / (float)draws.Count * 0.001f,
+					draw.position.x, draw.position.y, draw.position.z - i / (float)draws.Count * 0.0001f,
 					draw.size.x, draw.size.y,
 					draw.rotation,
 					draw.texture, uint.MaxValue,
@@ -695,22 +724,30 @@ public static class Renderer
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
 			if (draw.useTransform)
 			{
+				// pixel perfect correction
+				draw.transform.m30 = MathF.Round(draw.transform.m30 * 16) / 16;
+				draw.transform.m31 = MathF.Round(draw.transform.m31 * 16) / 16;
+
 				additiveBatch.draw(
 					draw.size.x, draw.size.y, 0.0f - i / (float)additiveDraws.Count * 0.0001f,
 					draw.transform,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
-					draw.color, draw.solid ? 0.0f : 1.0f);
+					draw.color, draw.solid ? 0.0f : 1.0f, true);
 			}
 			else
 			{
+				// pixel perfect correction
+				draw.position.x = MathF.Round(draw.position.x * 16) / 16;
+				draw.position.y = MathF.Round(draw.position.y * 16) / 16;
+
 				additiveBatch.draw(
 					draw.position.x, draw.position.y, draw.position.z - i / (float)additiveDraws.Count * 0.0001f,
 					draw.size.x, draw.size.y,
 					draw.rotation,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
-					draw.color, draw.solid ? 0.0f : 1.0f);
+					draw.color, draw.solid ? 0.0f : 1.0f, true);
 			}
 		}
 		additiveBatch.end();
@@ -750,6 +787,7 @@ public static class Renderer
 
 			graphics.setRenderTarget(lighting);
 			graphics.setBlendState(BlendState.Additive);
+			graphics.setDepthTest(DepthTest.None);
 
 			graphics.setVertexBuffer(quad);
 
@@ -781,7 +819,7 @@ public static class Renderer
 
 			graphics.setRenderTarget(lighting);
 			graphics.setBlendState(BlendState.Alpha);
-			//graphics.setDepthTest(DepthTest.None);
+			graphics.setDepthTest(DepthTest.None);
 
 			graphics.setVertexBuffer(quad);
 
@@ -791,6 +829,24 @@ public static class Renderer
 
 			graphics.draw(lightMaskShader);
 		}
+	}
+
+	static void CompositePass()
+	{
+		graphics.resetState();
+		graphics.setPass((int)RenderPass.Composite);
+
+		graphics.setRenderTarget(composite);
+
+		graphics.setDepthTest(DepthTest.None);
+		graphics.setCullState(CullState.ClockWise);
+
+		graphics.setTexture(compositeShader.getUniform("s_albedo", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
+		graphics.setTexture(compositeShader.getUniform("s_material", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
+		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 2, lighting.getAttachmentTexture(0));
+
+		graphics.setVertexBuffer(quad);
+		graphics.draw(compositeShader);
 	}
 
 	static void BloomDownsample(int idx, Texture texture, RenderTarget target)
@@ -822,7 +878,7 @@ public static class Renderer
 
 	static void PostProcessingPass()
 	{
-		BloomDownsample(0, gbuffer.getAttachmentTexture(0), bloomDownsampleChain[0]);
+		BloomDownsample(0, composite.getAttachmentTexture(0), bloomDownsampleChain[0]);
 		BloomDownsample(1, bloomDownsampleChain[0].getAttachmentTexture(0), bloomDownsampleChain[1]);
 		BloomDownsample(2, bloomDownsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[2]);
 		BloomDownsample(3, bloomDownsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[3]);
@@ -836,10 +892,10 @@ public static class Renderer
 		BloomUpsample(4, bloomUpsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[0].getAttachmentTexture(0), bloomUpsampleChain[0]);
 	}
 
-	static void CompositePass()
+	static void BlitPass()
 	{
 		graphics.resetState();
-		graphics.setPass((int)RenderPass.Composite);
+		graphics.setPass((int)RenderPass.UI);
 
 		graphics.setRenderTarget(null);
 
@@ -848,23 +904,22 @@ public static class Renderer
 
 		float cameraFractX = cameraX * 16 - MathF.Round(cameraX * 16);
 		float cameraFractY = cameraY * 16 - MathF.Round(cameraY * 16);
-		graphics.setUniform(compositeShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, cameraFractX, cameraFractY));
+		graphics.setUniform(blitShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, cameraFractX, cameraFractY));
 
-		graphics.setTexture(compositeShader.getUniform("s_albedo", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
-		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 1, lighting.getAttachmentTexture(0));
-		graphics.setTexture(compositeShader.getUniform("s_bloom", UniformType.Sampler), 2, bloomUpsampleChain[0].getAttachmentTexture(0));
+		graphics.setTexture(blitShader.getUniform("s_frame", UniformType.Sampler), 0, composite.getAttachmentTexture(0));
+		graphics.setTexture(blitShader.getUniform("s_bloom", UniformType.Sampler), 1, bloomUpsampleChain[0].getAttachmentTexture(0));
 
-		graphics.setUniform(compositeShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
-		graphics.setUniform(compositeShader, "u_bloomSettings", new Vector4(bloomStrength, bloomFalloff, 0, 0));
+		graphics.setUniform(blitShader, "u_vignetteColor", new Vector4(vignetteColor, vignetteFalloff));
+		graphics.setUniform(blitShader, "u_bloomSettings", new Vector4(bloomStrength, bloomFalloff, 0, 0));
 
 		graphics.setVertexBuffer(quad);
-		graphics.draw(compositeShader);
+		graphics.draw(blitShader);
 	}
 
 	static void UIPass()
 	{
 		graphics.resetState();
-		graphics.setPass((int)RenderPass.Composite);
+		graphics.setPass((int)RenderPass.UI);
 		graphics.setRenderTarget(null);
 
 		graphics.setViewTransform(Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f), Matrix.Identity);
@@ -881,7 +936,7 @@ public static class Renderer
 			uiBatch.draw(
 				draw.position.x, UIHeight - draw.position.y - draw.size.y, 0.0f,
 				draw.size.x, draw.size.y,
-				0.0f,
+				draw.rotation,
 				texture, uint.MaxValue,
 				u0, v0, u1, v1,
 				MathHelper.ARGBToVector(draw.color), draw.solid ? 0.0f : 1.0f);
@@ -933,8 +988,9 @@ public static class Renderer
 	{
 		GeometryPass();
 		LightingPass();
-		PostProcessingPass();
 		CompositePass();
+		PostProcessingPass();
+		BlitPass();
 		UIPass();
 
 		draws.Clear();

@@ -14,6 +14,7 @@ struct PosOffsetTexcoordColorVertex
 {
 	float x, y, z;
 	float nx, ny, nz;
+	float lightingMask;
 	float u, v;
 	float textureID;
 	float mask;
@@ -28,7 +29,7 @@ struct PosOffsetTexcoordColorVertex
 		if (!initialized)
 		{
 			initialized = true;
-			layout.begin().add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float).add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float).add(bgfx::Attrib::TexCoord0, 4, bgfx::AttribType::Float).add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float).end();
+			layout.begin().add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float).add(bgfx::Attrib::Normal, 4, bgfx::AttribType::Float).add(bgfx::Attrib::TexCoord0, 4, bgfx::AttribType::Float).add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float).end();
 		}
 	}
 };
@@ -143,7 +144,7 @@ static int FindTextureInSameDrawCall(const List<DrawCall2D>& drawCalls, const Li
 }
 
 void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3,
-	float nx0, float ny0, float nz0, float nx1, float ny1, float nz1, float nx2, float ny2, float nz2, float nx3, float ny3, float nz3,
+	float nx0, float ny0, float nz0, float nx1, float ny1, float nz1, float nx2, float ny2, float nz2, float nx3, float ny3, float nz3, float lightingMask,
 	float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3,
 	float r, float g, float b, float a, float mask,
 	uint16_t texture, uint32_t flags)
@@ -188,6 +189,7 @@ void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, flo
 	vertex->nx = nx0;
 	vertex->ny = ny0;
 	vertex->nz = nz0;
+	vertex->lightingMask = lightingMask;
 	vertex->u = u0;
 	vertex->v = v0;
 	vertex->textureID = (float)textureIdx;
@@ -204,6 +206,7 @@ void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, flo
 	vertex->nx = nx1;
 	vertex->ny = ny1;
 	vertex->nz = nz1;
+	vertex->lightingMask = lightingMask;
 	vertex->u = u1;
 	vertex->v = v1;
 	vertex->textureID = (float)textureIdx;
@@ -220,6 +223,7 @@ void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, flo
 	vertex->nx = nx2;
 	vertex->ny = ny2;
 	vertex->nz = nz2;
+	vertex->lightingMask = lightingMask;
 	vertex->u = u2;
 	vertex->v = v2;
 	vertex->textureID = (float)textureIdx;
@@ -236,6 +240,7 @@ void SpriteBatch::processDrawCommand(float x0, float y0, float z0, float x1, flo
 	vertex->nx = nx3;
 	vertex->ny = ny3;
 	vertex->nz = nz3;
+	vertex->lightingMask = lightingMask;
 	vertex->u = u3;
 	vertex->v = v3;
 	vertex->textureID = (float)textureIdx;
@@ -292,13 +297,13 @@ RFAPI void SpriteBatch_SubmitDrawCall(SpriteBatch* batch, int idx, int pass, Sha
 
 RFAPI void SpriteBatch_Draw(SpriteBatch* batch,
 	float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3,
-	float nx0, float ny0, float nz0, float nx1, float ny1, float nz1, float nx2, float ny2, float nz2, float nx3, float ny3, float nz3,
+	float nx0, float ny0, float nz0, float nx1, float ny1, float nz1, float nx2, float ny2, float nz2, float nx3, float ny3, float nz3, float lightingMask,
 	float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3,
 	float r, float g, float b, float a, float mask,
 	uint16_t texture, uint32_t textureFlags)
 {
 	batch->processDrawCommand(x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3,
-		nx0, ny0, nz0, nx1, ny1, nz1, nx2, ny2, nz2, nx3, ny3, nz3,
+		nx0, ny0, nz0, nx1, ny1, nz1, nx2, ny2, nz2, nx3, ny3, nz3, lightingMask,
 		u0, v0, u1, v1, u2, v2, u3, v3,
 		r, g, b, a, mask,
 		texture, textureFlags);

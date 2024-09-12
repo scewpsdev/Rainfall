@@ -131,6 +131,7 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, i
 			normal3.x,
 			normal3.y,
 			normal3.z,
+			1.0f,
 			uv0.x,
 			uv0.y,
 			uv1.x,

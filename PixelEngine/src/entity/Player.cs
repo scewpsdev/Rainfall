@@ -54,7 +54,6 @@ public class Player : Entity, Hittable
 	bool isStunned = false;
 
 	Sprite stunnedIcon;
-	Sprite aimIndicator;
 
 	public Sprite sprite;
 	public SpriteAnimator animator;
@@ -114,13 +113,14 @@ public class Player : Entity, Hittable
 		animator.addAnimationEvent("run", 7, onStep);
 
 		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
-		aimIndicator = new Sprite(HUD.tileset, 3, 4);
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
 #if DEBUG
 		giveItem(new WoodenMallet());
+		giveItem(new MagicStaff());
+		giveItem(new LightningStaff());
 #endif
 	}
 
@@ -764,16 +764,43 @@ public class Player : Entity, Hittable
 
 		if (numOverlaysOpen == 0)
 		{
-			float maxCursorDistance = handItem != null ? handItem.attackRange * 2 : 1.8f;
-			Vector2i playerScreenPos = GameState.instance.camera.worldToScreen(position + collider.center);
-			if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
+			Vector2 controllerAim = Input.GamepadAxisRight;
+			if (controllerAim.lengthSquared > 0.25f)
+				lookDirection = controllerAim;
+
+			if (Input.cursorHasMoved)
 			{
-				Vector2i newCursorPos = playerScreenPos + (Vector2i)Vector2.Round((Renderer.cursorPosition - playerScreenPos).normalized * maxCursorDistance * 16);
-				Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+				if (GameSettings.aimMode == AimMode.Directional)
+				{
+					float maxCursorDistance = handItem != null ? handItem.attackRange * 2 : 1.8f;
+					Vector2i playerScreenPos = new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
+					if (MathF.Abs(Renderer.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 ||
+						MathF.Abs(Renderer.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16)
+					{
+						int x = Math.Clamp(Renderer.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16));
+						int y = Math.Clamp(Renderer.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16));
+						Vector2i newCursorPos = new Vector2i(x, y);
+						Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+					}
+					/*
+					if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
+					{
+						Vector2i newCursorPos = playerScreenPos + (Vector2i)Vector2.Round((Renderer.cursorPosition - playerScreenPos).normalized * maxCursorDistance * 16);
+						Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+					}
+					*/
+					lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - GameState.instance.camera.screenToWorld(Display.viewportSize / 2); // (position + collider.center);
+					if (MathF.Abs(lookDirection.x) > maxCursorDistance)
+						lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
+					if (MathF.Abs(lookDirection.y) > maxCursorDistance)
+						lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
+				}
+				else
+				{
+					lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - (position + collider.center);
+				}
 			}
-			lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - (position + collider.center);
-			if (lookDirection.length > maxCursorDistance)
-				lookDirection = lookDirection.normalized * maxCursorDistance;
+
 			direction = Math.Sign(lookDirection.x);
 		}
 
@@ -1149,6 +1176,8 @@ public class Player : Entity, Hittable
 		updateActions();
 		updateStatus();
 		updateAnimation();
+
+		Input.cursorMode = CursorMode.Hidden;
 	}
 
 	public bool isAlive
@@ -1220,14 +1249,6 @@ public class Player : Entity, Hittable
 
 			renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
 			renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
-		}
-
-		// Aim indicator
-		if (isAlive)
-		{
-			Vector2 indicatorPosition = GameState.instance.camera.screenToWorld(Input.cursorPosition);
-			Matrix transform = Matrix.CreateTranslation(position.x + lookDirection.x, position.y + collider.center.y + lookDirection.y, LAYER_FG) * Matrix.CreateRotation(Vector3.UnitZ, lookDirection.angle);
-			Renderer.DrawSprite(0.5f, 0.5f, transform, aimIndicator);
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)

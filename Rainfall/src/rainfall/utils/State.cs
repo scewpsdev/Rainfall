@@ -31,6 +31,14 @@ public class State
 	{
 	}
 
+	public virtual void onMouseButtonEvent(MouseButton button, bool down)
+	{
+	}
+
+	public virtual void onGamepadButtonEvent(GamepadButton button, bool down)
+	{
+	}
+
 	public virtual void onCharEvent(byte length, uint value)
 	{
 	}

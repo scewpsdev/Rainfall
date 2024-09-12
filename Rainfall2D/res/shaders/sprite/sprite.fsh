@@ -59,5 +59,7 @@ void main()
 	if (textureColor.a < 0.01)
 		discard;
 	
-	gl_FragColor = SRGBToLinear(textureColor);
+	float lightingMask = v_normal.w;
+	gl_FragData[0] = SRGBToLinear(textureColor);
+	gl_FragData[1] = vec4(lightingMask, 0, 0, 1);
 }

@@ -43,7 +43,11 @@ internal class SpikeTrap : Entity, Hittable
 	{
 		if (hitGround)
 		{
-			velocity.y = 0;
+			if (velocity.y < -2)
+			{
+				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Up, MathF.Abs(velocity.y), MathHelper.ARGBToVector(0xFF47362a).xyz), position);
+				velocity.y = 0;
+			}
 		}
 		else if (!falling)
 		{
@@ -51,6 +55,7 @@ internal class SpikeTrap : Entity, Hittable
 			if (hit != null && hit.entity != null)
 			{
 				trigger();
+				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Down, 8, MathHelper.ARGBToVector(0xFF47362a).xyz), position);
 			}
 		}
 		else if (falling)

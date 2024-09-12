@@ -12,14 +12,14 @@ public static class FullscreenMenu
 	{
 		int linePadding = 3;
 
-		if (InputManager.IsPressed("Down", true))
+		if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
 		{
 			do
 			{
 				currentButton = (currentButton + 1) % labels.Length;
 			} while (!enabled[currentButton]);
 		}
-		if (InputManager.IsPressed("Up", true))
+		if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 		{
 			do
 			{
@@ -41,7 +41,7 @@ public static class FullscreenMenu
 			uint color = enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF666666) : 0xFF333333;
 			Renderer.DrawUITextBMP(x, y, txt, 1, color);
 
-			if (selected && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
+			if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 				return i;
 		}
 

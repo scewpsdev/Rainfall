@@ -54,8 +54,8 @@ public class TileType
 			color = 0xFF333333,
 			particleColor = 0xFF50504c,
 			sprites = [new Sprite(tileset, 4, 4), new Sprite(tileset, 9, 4), new Sprite(tileset, 10, 4), new Sprite(tileset, 11, 4), new Sprite(tileset, 12, 4)],
-			left = [new Sprite(tileset, 3, 4)],
-			right = [new Sprite(tileset, 5, 4)],
+			left = [new Sprite(tileset, 3, 4), new Sprite(tileset, 13, 3), new Sprite(tileset, 13, 4), new Sprite(tileset, 13, 5)],
+			right = [new Sprite(tileset, 5, 4), new Sprite(tileset, 15, 3), new Sprite(tileset, 15, 4), new Sprite(tileset, 15, 5)],
 			top = [new Sprite(tileset, 4, 3), new Sprite(tileset, 9, 3), new Sprite(tileset, 10, 3), new Sprite(tileset, 11, 3), new Sprite(tileset, 12, 3)],
 			bottom = [new Sprite(tileset, 4, 5), new Sprite(tileset, 9, 5), new Sprite(tileset, 10, 5), new Sprite(tileset, 11, 5), new Sprite(tileset, 12, 5)],
 		});

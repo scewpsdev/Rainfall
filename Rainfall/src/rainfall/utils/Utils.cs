@@ -18,5 +18,12 @@ namespace Rainfall
 			}
 			return default;
 		}
+
+		public static int RunCommand(string file, string args)
+		{
+			System.Diagnostics.Process process = System.Diagnostics.Process.Start(file, args);
+			process.WaitForExit();
+			return process.ExitCode;
+		}
 	}
 }

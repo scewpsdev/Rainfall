@@ -27,6 +27,7 @@ public class HUD
 	public static Sprite gem;
 
 	public static Sprite crosshair;
+	public static Sprite aimIndicator;
 
 	static HUD()
 	{
@@ -45,6 +46,7 @@ public class HUD
 		gem = new Sprite(tileset, 3, 0);
 
 		crosshair = new Sprite(tileset, 2, 4, 1, 1);
+		aimIndicator = new Sprite(tileset, 3, 4);
 	}
 
 
@@ -211,7 +213,7 @@ public class HUD
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.1f * GameState.instance.camera.height &&
 				player.position.x < GameState.instance.camera.left + 0.2f * GameState.instance.camera.width ||
-				Input.cursorPosition.x < 0.5f * Display.width && Input.cursorPosition.y > 0.9f * Display.height
+				Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.9f * Display.height
 				? 0.2f : 1.0f;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
@@ -254,8 +256,8 @@ public class HUD
 			int y = Renderer.UIHeight - 12 - size;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
-				player.position.x < GameState.instance.camera.left + 0.5f * GameState.instance.camera.width ||
-				Input.cursorPosition.x < 0.5f * Display.width && Input.cursorPosition.y > 0.75f * Display.height
+				player.position.x < GameState.instance.camera.left + 0.45f * GameState.instance.camera.width ||
+				Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.75f * Display.height
 				? 0.2f : 1.0f;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
@@ -314,10 +316,17 @@ public class HUD
 		renderMessages();
 		renderPopup();
 
-		// Crosshair
+		// Aim Direction
+		// Aim indicator
+		if (player.isAlive && GameSettings.aimMode == AimMode.Directional)
 		{
-			//Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
-			Input.cursorMode = CursorMode.Hidden;
+			Vector2i pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
+			Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
+		}
+		// Crosshair
+		else if (player.isAlive && GameSettings.aimMode == AimMode.Crosshair)
+		{
+			Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
 		}
 	}
 }

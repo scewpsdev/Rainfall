@@ -49,7 +49,7 @@ public class PixelEngine : Game
 
 		Item.InitTypes();
 
-		InputManager.Init();
+		InputManager.LoadBindings();
 
 		pushState(new MainMenuState());
 	}
@@ -91,14 +91,29 @@ public class PixelEngine : Game
 			state.onKeyEvent(key, modifiers, down);
 	}
 
+	protected override void onMouseButtonEvent(MouseButton button, bool down)
+	{
+		if (stateMachine.TryPeek(out State state))
+			state.onMouseButtonEvent(button, down);
+	}
+
 	protected override void onCharEvent(byte length, uint value)
 	{
 		if (stateMachine.TryPeek(out State state))
 			state.onCharEvent(length, value);
 	}
 
-	public override void update()
+	public override unsafe void update()
 	{
+		for (int i = 0; i < 15; i++)
+		{
+			if (Input.gamepadCurrent.buttons[i] != Input.gamepadLast.buttons[i])
+			{
+				if (stateMachine.TryPeek(out State _state))
+					_state.onGamepadButtonEvent((GamepadButton)i, Input.gamepadCurrent.buttons[i] != 0);
+			}
+		}
+
 		if (Input.IsKeyPressed(KeyCode.F11) || ImGui.IsKeyPressed(KeyCode.F11, false))
 			Display.ToggleFullscreen();
 		if (Input.IsKeyPressed(KeyCode.F10) || ImGui.IsKeyPressed(KeyCode.F10, false))
@@ -185,12 +200,6 @@ public class PixelEngine : Game
 		process.WaitForExit();
 	}
 
-	static void RunCommand(string file, string args)
-	{
-		System.Diagnostics.Process process = System.Diagnostics.Process.Start(file, args);
-		process.WaitForExit();
-	}
-
 	public static void Main(string[] args)
 	{
 #if COMPILE_RESOURCES
@@ -204,8 +213,8 @@ public class PixelEngine : Game
 		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
 		CompileFolder("D:\\Dev\\Rainfall\\Rainfall2D", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
 
-		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
-		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 #endif
 
 		LaunchParams launchParams = new LaunchParams(args);

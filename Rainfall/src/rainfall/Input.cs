@@ -178,10 +178,10 @@ namespace Rainfall
 		Guide = 8,
 		ThumbL = 9,
 		ThumbR = 10,
-		DPadUp = 11,
-		DPadRight = 12,
-		DPadDown = 13,
-		DPadLeft = 14,
+		Up = 11,
+		Right = 12,
+		Down = 13,
+		Left = 14,
 
 		Count
 	}
@@ -564,7 +564,7 @@ namespace Rainfall
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	unsafe struct GamepadState
+	public unsafe struct GamepadState
 	{
 		public fixed byte buttons[15];
 		public fixed float axes[6];
@@ -590,7 +590,7 @@ namespace Rainfall
 	{
 		static KeyState keysCurrent, keysLast;
 		public static MouseState mouseCurrent, mouseLast;
-		static GamepadState gamepadCurrent, gamepadLast;
+		public static GamepadState gamepadCurrent, gamepadLast;
 
 		static CursorMode _cursorMode = CursorMode.Normal;
 

@@ -20,7 +20,7 @@ public class SpiderAI : AI
 	public float loseTime = 6.0f;
 	public float jumpChargeTime = 2.0f;
 	float jumpSpeed = 4;
-	float chargeSpeed = 0.5f;
+	float chargeSpeed = 0.25f;
 
 	AIState state = AIState.Charge;
 	int walkDirection;

@@ -832,10 +832,18 @@ public class LevelGenerator
 
 					if (down != null && !objectFlags[x + y * width])
 					{
-						float barrelChance = 0.02f;
+						float barrelChance = MathF.Max(simplex.sample2f(x * 0.03f, y * 0.03f) * 0.3f - 0.1f, 0);
 						if (random.NextSingle() < barrelChance)
 						{
-							level.addEntity(new Barrel(), new Vector2(x + 0.5f, y));
+							float explosiveBarrel = 0.1f;
+							if (random.NextSingle() < explosiveBarrel)
+							{
+								level.addEntity(new ExplosiveBarrel(), new Vector2(x + 0.5f, y));
+							}
+							else
+							{
+								level.addEntity(new Barrel(), new Vector2(x + 0.5f, y));
+							}
 							objectFlags[x + y * width] = true;
 						}
 					}

@@ -99,9 +99,9 @@ public class InventoryUI
 
 			if (player.items.Count > 0)
 			{
-				if (InputManager.IsPressed("Down"))
+				if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
 					selectedItem = (selectedItem + 1) % player.items.Count;
-				if (InputManager.IsPressed("Up"))
+				if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 					selectedItem = (selectedItem + player.items.Count - 1) % player.items.Count;
 
 				for (int i = 0; i < player.items.Count; i++)
@@ -137,7 +137,7 @@ public class InventoryUI
 					{
 						if (item.isHandItem)
 						{
-							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+							if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 							{
 								if (player.handItem == item)
 									player.unequipItem(item);
@@ -151,7 +151,7 @@ public class InventoryUI
 						}
 						if (item.isSecondaryItem)
 						{
-							if (InputManager.IsPressed("Attack", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
+							if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 							{
 								if (player.offhandItem == item)
 									player.unequipItem(item);
@@ -165,26 +165,25 @@ public class InventoryUI
 						}
 						if (item.isActiveItem)
 						{
-							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+							if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 							{
 								if (player.isActiveItem(item, out _))
 									player.unequipItem(item);
 								else
 									player.equipItem(item);
-								/*
+							}
+							if (InputManager.IsPressed("UIConfirm2", true))
 								if (player.useActiveItem(item))
 								{
 									i--;
-
 									if (selectedItem == player.items.Count)
 										selectedItem--;
 								}
-								*/
-							}
+
 						}
 						if (item.isPassiveItem)
 						{
-							if (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+							if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 							{
 								if (player.isPassiveItem(item, out _))
 									player.unequipItem(item);
