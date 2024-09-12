@@ -39,7 +39,7 @@ internal class DungeonGame : Game
 	{
 		Display.windowTitle = ASSEMBLY_NAME;
 
-		InputManager.Init();
+		InputManager.LoadBindings();
 		GraphicsManager.Init();
 
 		Renderer.Init(Display.width, Display.height, graphics);

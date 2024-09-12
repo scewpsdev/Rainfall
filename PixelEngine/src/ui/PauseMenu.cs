@@ -6,8 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+enum PauseMenuState
+{
+	Selection,
+	Options,
+}
+
 public static class PauseMenu
 {
+	static PauseMenuState state = PauseMenuState.Selection;
 	static int currentButton = 0;
 
 
@@ -19,45 +26,75 @@ public static class PauseMenu
 
 	public static void OnUnpause()
 	{
+		if (state == PauseMenuState.Options)
+			OptionsMenu.OnClose();
+	}
+
+	public static void OnKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
+	{
+		if (state == PauseMenuState.Options)
+			OptionsMenu.OnKeyEvent(key, modifiers, down);
+	}
+
+	public static void OnMouseButtonEvent(MouseButton button, bool down)
+	{
+		if (state == PauseMenuState.Options)
+			OptionsMenu.OnMouseButtonEvent(button, down);
+	}
+
+	public static void OnGamepadButtonEvent(GamepadButton button, bool down)
+	{
+		if (state == PauseMenuState.Options)
+			OptionsMenu.OnGamepadButtonEvent(button, down);
 	}
 
 	public static void Render(GameState game)
 	{
 		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0x7F000000);
 
-		string[] labels = [
-			"Resume",
-			"Options",
-			"Quit"
-		];
-
-		bool[] enabled = [
-			true,
-			false,
-			true
-		];
-
-		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton);
-		if (selection != -1)
+		if (state == PauseMenuState.Selection)
 		{
-			switch (selection)
+			string[] labels = [
+				"Resume",
+				"Options",
+				"Quit"
+			];
+
+			bool[] enabled = [
+				true,
+				true,
+				true
+			];
+
+			int selection = FullscreenMenu.Render(labels, enabled, ref currentButton);
+			if (selection != -1)
 			{
-				case 0: // Resume
-					game.isPaused = false;
-					OnUnpause();
-					break;
+				switch (selection)
+				{
+					case 0: // Resume
+						game.isPaused = false;
+						OnUnpause();
+						break;
 
-				case 1: // Options
-					break;
+					case 1: // Options
+						state = PauseMenuState.Options;
+						OptionsMenu.OnOpen();
+						break;
 
-				case 2: // Quit
-					PixelEngine.instance.popState();
-					break;
+					case 2: // Quit
+						PixelEngine.instance.popState();
+						break;
 
-				default:
-					Debug.Assert(false);
-					break;
+					default:
+						Debug.Assert(false);
+						break;
+				}
 			}
+		}
+		else if (state == PauseMenuState.Options)
+		{
+			if (!OptionsMenu.Render())
+				state = PauseMenuState.Selection;
 		}
 	}
 }

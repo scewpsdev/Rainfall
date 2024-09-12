@@ -162,18 +162,18 @@ public class GameState : State
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
 		tutorial.addEntity(tutorialExit, new Vector2(41, 24));
-		tutorial.addEntity(new TutorialText("Arrow Keys to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
-		tutorial.addEntity(new TutorialText("C to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 5));
+		tutorial.addEntity(new TutorialText("WASD to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Jump").ToString() + " to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 4.5f));
 		tutorial.addEntity(new TutorialText("Hold to jump higher", 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 2));
 		tutorial.addEntity(new TutorialText("Down to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
 		tutorial.addEntity(new TutorialText("Up to climb", 0xFFFFFFFF), new Vector2(43.5f, tutorial.height - 15));
 		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
 		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
-		tutorial.addEntity(new TutorialText("X to interact", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37));
-		tutorial.addEntity(new TutorialText("Down+X to drop", 0xFFFFFFFF), new Vector2(52, tutorial.height - 37.5f));
-		tutorial.addEntity(new TutorialText("Y to attack", 0xFFFFFFFF), new Vector2(43, 19));
-		tutorial.addEntity(new TutorialText("F to use item", 0xFFFFFFFF), new Vector2(43, 26));
-		tutorial.addEntity(new TutorialText("V to switch item", 0xFFFFFFFF), new Vector2(43, 25.5f));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString() + " to interact", 0xFFFFFFFF), new Vector2(50, tutorial.height - 36.5f));
+		tutorial.addEntity(new TutorialText("Down+" + InputManager.GetBinding("Interact").ToString() + " to drop", 0xFFFFFFFF), new Vector2(50, tutorial.height - 37.0f));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), new Vector2(46, 21));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("UseItem").ToString() + " to use item", 0xFFFFFFFF), new Vector2(43, 26));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), new Vector2(43, 25.5f));
 
 		// Gode meme
 		/*
@@ -243,6 +243,24 @@ public class GameState : State
 	{
 		this.newLevel = newLevel;
 		this.newLevelDoor = door;
+	}
+
+	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
+	{
+		if (isPaused)
+			PauseMenu.OnKeyEvent(key, modifiers, down);
+	}
+
+	public override void onMouseButtonEvent(MouseButton button, bool down)
+	{
+		if (isPaused)
+			PauseMenu.OnMouseButtonEvent(button, down);
+	}
+
+	public override void onGamepadButtonEvent(GamepadButton button, bool down)
+	{
+		if (isPaused)
+			PauseMenu.OnGamepadButtonEvent(button, down);
 	}
 
 	public override void update()

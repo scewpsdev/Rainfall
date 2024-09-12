@@ -46,7 +46,7 @@ namespace Rainfall
 			Native.SpriteBatch.SpriteBatch_SubmitDrawCall(handle, idx, graphics.currentPass, shader.handle);
 		}
 
-		public void drawVertical(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
+		public void drawVertical(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3, bool additive = false)
 		{
 			float x0 = -rotationCenter.x;
 			float y0 = -rotationCenter.y;
@@ -122,6 +122,7 @@ namespace Rainfall
 				normal3.x,
 				normal3.y,
 				normal3.z,
+				additive ? 0 : 1,
 				uv0.x,
 				uv0.y,
 				uv1.x,
@@ -138,12 +139,12 @@ namespace Rainfall
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void drawVertical(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		public void drawVertical(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, bool additive = false)
 		{
-			drawVertical(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
+			drawVertical(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, additive);
 		}
 
-		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
+		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3, bool additive = false)
 		{
 			float x0 = -rotationCenter.x;
 			float y0 = -rotationCenter.y;
@@ -219,6 +220,7 @@ namespace Rainfall
 				normal3.x,
 				normal3.y,
 				normal3.z,
+				additive ? 0 : 1,
 				uv0.x,
 				uv0.y,
 				uv1.x,
@@ -235,7 +237,7 @@ namespace Rainfall
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, bool horizontal, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3)
+		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, bool horizontal, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3, bool additive = false)
 		{
 			float x0 = -rotationCenter.x;
 			float y0 = -rotationCenter.y;
@@ -347,6 +349,7 @@ namespace Rainfall
 				normal3.x,
 				normal3.y,
 				normal3.z,
+				additive ? 0 : 1,
 				uv0.x,
 				uv0.y,
 				uv1.x,
@@ -363,12 +366,12 @@ namespace Rainfall
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
+		public void draw(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask, bool additive = false)
 		{
-			draw(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, mask, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
+			draw(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, mask, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, additive);
 		}
 
-		public void drawBillboard(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
+		public void drawBillboard(float x, float y, float z, float width, float height, float rotation, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask, bool additive = false)
 		{
 			Vector3 vertex0 = new Vector3(x, y, z);
 			Vector3 vertex1 = new Vector3(x + width, y, z);
@@ -414,6 +417,7 @@ namespace Rainfall
 				normal3.x,
 				normal3.y,
 				normal3.z,
+				additive ? 0 : 1,
 				uv0.x,
 				uv0.y,
 				uv1.x,
@@ -430,7 +434,7 @@ namespace Rainfall
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 
-		public void draw(float width, float height, float z, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
+		public void draw(float width, float height, float z, Matrix transform, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask, bool additive = false)
 		{
 			float x0 = -0.5f * width;
 			float x1 = 0.5f * width;
@@ -481,6 +485,7 @@ namespace Rainfall
 				normal3.x,
 				normal3.y,
 				normal3.z,
+				additive ? 0 : 1,
 				uv0.x,
 				uv0.y,
 				uv1.x,

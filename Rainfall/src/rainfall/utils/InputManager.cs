@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 
-class InputBinding
+public class InputBinding
 {
 	public KeyCode key = KeyCode.None;
 	public MouseButton button = MouseButton.None;
@@ -55,6 +56,22 @@ class InputBinding
 		if (scrollDelta != 0)
 			Input.ConsumeScrollEvent();
 	}
+
+	public override string ToString()
+	{
+		StringBuilder result = new StringBuilder();
+		result.Append("[ ");
+		if (key != KeyCode.None)
+			result.Append(key.ToString());
+		if (button != MouseButton.None)
+			result.Append((result.Length > 2 ? " / " : "") + "Mouse " + button.ToString());
+		if (gamepadButton != GamepadButton.None)
+			result.Append((result.Length > 2 ? " / " : "") + "Gamepad " + gamepadButton.ToString());
+		if (scrollDelta != 0)
+			result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Down" : "Up"));
+		result.Append(" ]");
+		return result.ToString();
+	}
 }
 
 public static class InputManager
@@ -71,7 +88,7 @@ public static class InputManager
 	static Dictionary<string, InputBinding> bindings = new Dictionary<string, InputBinding>();
 
 
-	public static void Init()
+	public static void LoadBindings()
 	{
 		foreach (KeyCode key in Enum.GetValues<KeyCode>())
 		{
@@ -79,7 +96,7 @@ public static class InputManager
 		}
 		foreach (MouseButton button in Enum.GetValues<MouseButton>())
 		{
-			buttons.Add(button.ToString(), button);
+			buttons.Add("Mouse" + button.ToString(), button);
 		}
 		foreach (GamepadButton button in Enum.GetValues<GamepadButton>())
 		{
@@ -133,11 +150,8 @@ public static class InputManager
 
 	static void TryGetButton(string value, ref MouseButton button)
 	{
-		if (StringUtils.StartsWith(value, "Mouse") && value[value.Length - 1] >= '0' && value[value.Length - 1] <= '9')
-		{
-			int buttonID = value[value.Length - 1] - '0' - 1;
-			button = MouseButton.Left + buttonID;
-		}
+		if (buttons.ContainsKey(value))
+			button = buttons[value];
 	}
 
 	static void TryGetGamepadButton(string value, ref GamepadButton button)
@@ -154,14 +168,41 @@ public static class InputManager
 			scroll = -1;
 	}
 
-	static void AddBinding(string name, KeyCode key)
+	public static void SaveBindings()
 	{
-		bindings.Add(name, new InputBinding() { key = key });
+		FileStream stream = File.Open(INPUT_BINDINGS_FILE, FileMode.OpenOrCreate);
+		DatFile bindingsFile = new DatFile();
+
+		foreach (var pair in bindings)
+		{
+			InputBinding binding = pair.Value;
+			List<DatValue> values = new List<DatValue>();
+			if (binding.key != KeyCode.None)
+				values.Add(new DatValue(binding.key.ToString(), DatValueType.Identifier));
+			if (binding.button != MouseButton.None)
+				values.Add(new DatValue("Mouse" + binding.button.ToString(), DatValueType.Identifier));
+			if (binding.gamepadButton != GamepadButton.None)
+				values.Add(new DatValue("Gamepad" + binding.gamepadButton.ToString(), DatValueType.Identifier));
+			if (binding.scrollDelta != 0)
+				values.Add(new DatValue(binding.scrollDelta == 1 ? "ScrollDown" : "ScrollUp", DatValueType.Identifier));
+			bindingsFile.addField(new DatField(pair.Key, new DatValue(new DatArray(values.ToArray()))));
+		}
+
+		bindingsFile.serialize(stream);
+		stream.Close();
+
+#if DEBUG
+		Utils.RunCommand("xcopy", "/y \"" + INPUT_BINDINGS_FILE + "\" \"..\\..\\..\\\"");
+#endif
+
+		Console.WriteLine("Saved bindings");
 	}
 
-	static void AddBinding(string name, MouseButton button = MouseButton.None, KeyCode key = KeyCode.None, GamepadButton gamepadButton = GamepadButton.None, int scrollDelta = 0)
+	public static InputBinding GetBinding(string name)
 	{
-		bindings.Add(name, new InputBinding() { button = button, key = key, gamepadButton = gamepadButton, scrollDelta = scrollDelta });
+		if (bindings.TryGetValue(name, out InputBinding binding))
+			return binding;
+		return null;
 	}
 
 	public static bool IsDown(string name)

@@ -12,6 +12,7 @@ enum MainMenuScreen
 {
 	Main,
 	CustomRunSettings,
+	Options,
 	Credits,
 }
 
@@ -44,7 +45,7 @@ public class MainMenuState : State
 			true,
 			true,
 			true,
-			false,
+			true,
 			true,
 			true
 		];
@@ -71,7 +72,8 @@ public class MainMenuState : State
 					break;
 
 				case 3: // Options
-
+					screen = MainMenuScreen.Options;
+					OptionsMenu.OnOpen();
 					break;
 
 				case 4: // Credits
@@ -102,6 +104,12 @@ public class MainMenuState : State
 		Renderer.DrawUISprite(x - 2, y - 2, width + 4, height + 4, null, false, 0xFFAAAAAA);
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFF000000);
 		Renderer.DrawUITextBMP(x, Renderer.UIHeight / 2 - Renderer.smallFont.size / 2, customRunSeedStr.ToString() + "_", 1, 0xFFFFFFFF);
+	}
+
+	void options()
+	{
+		if (!OptionsMenu.Render())
+			screen = MainMenuScreen.Main;
 	}
 
 	void credits()
@@ -171,13 +179,33 @@ public class MainMenuState : State
 				customRunSeedStr.Remove(customRunSeedStr.Length - 1, 1);
 			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
 				PixelEngine.instance.pushState(new GameState(customRunSeedStr.ToString()));
-			if (key == KeyCode.Esc && modifiers == KeyModifier.None && down)
+			if (InputManager.IsPressed("UIQuit", true))
 				screen = MainMenuScreen.Main;
+		}
+		else if (screen == MainMenuScreen.Options)
+		{
+			OptionsMenu.OnKeyEvent(key, modifiers, down);
 		}
 		else if (screen == MainMenuScreen.Credits)
 		{
-			if ((key == KeyCode.Backspace || key == KeyCode.Q) && modifiers == KeyModifier.None && down)
+			if (InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true))
 				screen = MainMenuScreen.Main;
+		}
+	}
+
+	public override void onMouseButtonEvent(MouseButton button, bool down)
+	{
+		if (screen == MainMenuScreen.Options)
+		{
+			OptionsMenu.OnMouseButtonEvent(button, down);
+		}
+	}
+
+	public override void onGamepadButtonEvent(GamepadButton button, bool down)
+	{
+		if (screen == MainMenuScreen.Options)
+		{
+			OptionsMenu.OnGamepadButtonEvent(button, down);
 		}
 	}
 
@@ -187,6 +215,8 @@ public class MainMenuState : State
 			mainScreen();
 		else if (screen == MainMenuScreen.CustomRunSettings)
 			customRun();
+		else if (screen == MainMenuScreen.Options)
+			options();
 		else if (screen == MainMenuScreen.Credits)
 			credits();
 	}

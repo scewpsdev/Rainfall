@@ -18,7 +18,7 @@ public class Barrel : Entity, Hittable
 	{
 		this.items = items;
 
-		sprite = new Sprite(TileType.tileset, 3, 0);
+		sprite = new Sprite(TileType.tileset, 0, 1);
 
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 	}
@@ -43,12 +43,17 @@ public class Barrel : Entity, Hittable
 		}
 	}
 
-	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	void breakBarrel()
 	{
 		if (items != null)
 			dropItems();
-		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(), position);
+		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF675051), position);
 		remove();
+	}
+
+	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	{
+		breakBarrel();
 	}
 
 	public override void update()
@@ -60,6 +65,13 @@ public class Barrel : Entity, Hittable
 
 			float displacement = velocity.y * Time.deltaTime;
 			position.y += displacement;
+		}
+		else
+		{
+			if (MathF.Abs(velocity.y) > 10)
+				breakBarrel();
+
+			velocity.y = 0;
 		}
 	}
 

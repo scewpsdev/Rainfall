@@ -35,7 +35,7 @@ void main()
 	float result = 0;
 	for (int i = 0; i < 16; i++)
 	{
-		result += texture2D(s_lightMask, v_texcoord0 + texelSize * StratifiedPoisson(i) * 1.5).r;
+		result += texture2D(s_lightMask, v_texcoord0 + texelSize * StratifiedPoisson(i) * 0.5).r;
 	}
 	result /= 16.0;
 	

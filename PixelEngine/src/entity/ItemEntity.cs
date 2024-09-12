@@ -99,7 +99,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 			}
 		}
 
-		if (item.breakOnWallHit && velocity.lengthSquared > 1 && ricochets >= item.maxRicochets)
+		if (item.breakOnWallHit && velocity.lengthSquared > 4 && ricochets >= item.maxRicochets)
 		{
 			item.onEntityBreak(this);
 			remove();
