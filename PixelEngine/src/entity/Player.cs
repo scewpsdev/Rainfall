@@ -118,9 +118,8 @@ public class Player : Entity, Hittable
 		inventoryUI = new InventoryUI(this);
 
 #if DEBUG
-		giveItem(new WoodenMallet());
-		giveItem(new MagicStaff());
-		giveItem(new LightningStaff());
+		giveItem(new Backpack());
+		giveItem(new StaffOfIllumination());
 #endif
 	}
 
@@ -442,9 +441,9 @@ public class Player : Entity, Hittable
 		GameState.instance.level.addEntity(obj, throwOrigin);
 	}
 
-	public void throwItem(Item item, Vector2 direction)
+	public void throwItem(Item item, Vector2 direction, float speed = 14)
 	{
-		Vector2 itemVelocity = velocity + direction * 14;
+		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
 		Vector2 throwOrigin = position + collider.center;
@@ -773,14 +772,14 @@ public class Player : Entity, Hittable
 				if (GameSettings.aimMode == AimMode.Directional)
 				{
 					float maxCursorDistance = handItem != null ? handItem.attackRange * 2 : 1.8f;
-					Vector2i playerScreenPos = new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
-					if (MathF.Abs(Renderer.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 ||
-						MathF.Abs(Renderer.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16)
+					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
+					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * GameState.instance.camera.scale ||
+						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * GameState.instance.camera.scale)
 					{
-						int x = Math.Clamp(Renderer.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16));
-						int y = Math.Clamp(Renderer.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16));
+						int x = Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * GameState.instance.camera.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * GameState.instance.camera.scale));
+						int y = Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * GameState.instance.camera.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * GameState.instance.camera.scale));
 						Vector2i newCursorPos = new Vector2i(x, y);
-						Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+						Input.cursorPosition = newCursorPos; // * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
 					}
 					/*
 					if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)

@@ -17,9 +17,6 @@ public class GandalfAI : AI
 	}
 
 
-	public float aggroRange = 7.0f;
-	public float loseRange = 9.0f;
-	public float loseTime = 4.0f;
 	public float attackTriggerDistance = 6.0f;
 	public float attackChargeTime = 0.5f;
 	public float attackDuration = 1.0f;
@@ -34,13 +31,15 @@ public class GandalfAI : AI
 	long cooldownTime;
 	int projectilesFired = 0;
 
-	Entity target;
 	long targetLastSeen = -1;
 
 
 	public GandalfAI(Mob mob)
 		: base(mob)
 	{
+		aggroRange = 7.0f;
+		loseRange = 9.0f;
+		loseTime = 4.0f;
 	}
 
 	public override void onHit(Entity by)

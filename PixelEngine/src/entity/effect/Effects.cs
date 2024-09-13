@@ -31,9 +31,13 @@ public static unsafe class Effects
 		return effect;
 	}
 
-	public static ParticleEffect CreateExplosionEffect()
+	public static ParticleEffect CreateExplosionEffect(int size)
 	{
-		return new ExplosionEffect();
+		ExplosionEffect effect = new ExplosionEffect();
+		effect.systems[0].handle->radialVelocity = size * 10;
+		effect.systems[1].handle->radialVelocity = size * 10;
+		effect.systems[0].handle->bursts[0].count = size * 6;
+		return effect;
 	}
 
 	public static ParticleEffect CreateImpactEffect(Vector2 normal, float strength, Vector3 color)
@@ -128,7 +132,7 @@ public static unsafe class Effects
 		}
 
 		// sound
-		GameState.instance.level.addEntity(CreateExplosionEffect(), position);
+		GameState.instance.level.addEntity(CreateExplosionEffect((int)MathF.Round(radius)), position);
 		GameState.instance.camera.addScreenShake(position, 2.0f, 3.0f);
 	}
 }

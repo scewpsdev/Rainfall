@@ -68,7 +68,7 @@ public class InputBinding
 		if (gamepadButton != GamepadButton.None)
 			result.Append((result.Length > 2 ? " / " : "") + "Gamepad " + gamepadButton.ToString());
 		if (scrollDelta != 0)
-			result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Down" : "Up"));
+			result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Up" : "Down"));
 		result.Append(" ]");
 		return result.ToString();
 	}
@@ -184,7 +184,7 @@ public static class InputManager
 			if (binding.gamepadButton != GamepadButton.None)
 				values.Add(new DatValue("Gamepad" + binding.gamepadButton.ToString(), DatValueType.Identifier));
 			if (binding.scrollDelta != 0)
-				values.Add(new DatValue(binding.scrollDelta == 1 ? "ScrollDown" : "ScrollUp", DatValueType.Identifier));
+				values.Add(new DatValue(binding.scrollDelta == 1 ? "ScrollUp" : "ScrollDown", DatValueType.Identifier));
 			bindingsFile.addField(new DatField(pair.Key, new DatValue(new DatArray(values.ToArray()))));
 		}
 

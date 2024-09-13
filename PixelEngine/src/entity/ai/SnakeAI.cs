@@ -17,9 +17,6 @@ public class SnakeAI : AI
 	}
 
 
-	public float aggroRange = 4.0f;
-	public float loseRange = 5.0f;
-	public float loseTime = 3.0f;
 	public float dashChargeTime = 0.5f;
 	public float dashCooldownTime = 1.0f;
 	float dashDuration = 0.3f;
@@ -34,13 +31,15 @@ public class SnakeAI : AI
 	long dashTime;
 	long cooldownTime;
 
-	Entity target;
 	long targetLastSeen = -1;
 
 
 	public SnakeAI(Mob mob)
 		: base(mob)
 	{
+		aggroRange = 4.0f;
+		loseRange = 5.0f;
+		loseTime = 3.0f;
 	}
 
 	public override void onHit(Entity by)

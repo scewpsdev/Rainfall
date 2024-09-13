@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class ExplosiveBarrel : Entity, Hittable
 {
 	float fuseTime = 0.5f;
-	float blastRadius = 2.5f;
+	float blastRadius = 3.0f;
 	float damage = 8;
 
 	Sprite sprite;

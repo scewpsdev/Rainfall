@@ -12,6 +12,7 @@ struct StuckProjectile
 	public Sprite sprite;
 	public Vector2 relativePosition;
 	public Vector2 direction;
+	public float rotationOffset;
 	public bool flipped;
 }
 
@@ -39,7 +40,7 @@ public abstract class Mob : Entity, Hittable
 	public FloatRect rect = new FloatRect(-0.5f, 0.0f, 1, 1);
 	protected uint outline = 0;
 
-	protected AI ai;
+	public AI ai;
 
 	public bool inputLeft, inputRight, inputUp, inputDown;
 	public bool inputSprint, inputJump;
@@ -89,18 +90,20 @@ public abstract class Mob : Entity, Hittable
 
 			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
 
-			if (item != null && item.projectileItem)
+			if (item != null && item.projectileItem && item.breakOnEnemyHit)
 			{
 				Vector2 relativePosition = new Vector2(MathHelper.Clamp(by.position.x - position.x, collider.min.x, collider.max.x), MathHelper.Clamp(by.position.y - position.y, collider.min.y, collider.max.y));
 				Vector2 projectileDirection = by.velocity.normalized;
+				float rotationOffset = item.projectileRotationOffset;
 				bool flipped = by.velocity.x < 0;
 				if (direction == -1)
 				{
 					relativePosition.x *= -1;
 					projectileDirection.x *= -1;
+					rotationOffset *= -1;
 					flipped = !flipped;
 				}
-				stuckProjectiles.Add(new StuckProjectile { sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, flipped = flipped });
+				stuckProjectiles.Add(new StuckProjectile { sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, rotationOffset = rotationOffset, flipped = flipped });
 			}
 		}
 
@@ -358,7 +361,7 @@ public abstract class Mob : Entity, Hittable
 			for (int i = 0; i < stuckProjectiles.Count; i++)
 			{
 				StuckProjectile projectile = stuckProjectiles[i];
-				Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, projectile.direction.angle, projectile.sprite, direction == -1);
+				Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, projectile.direction.angle + projectile.rotationOffset, projectile.sprite, direction == -1);
 			}
 		}
 	}

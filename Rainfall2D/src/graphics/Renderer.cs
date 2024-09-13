@@ -133,9 +133,9 @@ public static class Renderer
 		Renderer.graphics = graphics;
 
 		// pixel perfect correction
-		int scale = (int)MathF.Round(Display.width / (1920 / 5.0f));
-		UIWidth = (int)(Display.width / (float)scale);
-		UIHeight = (int)(UIWidth / Display.aspectRatio);
+		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
+		UIHeight = (int)MathF.Ceiling(Display.width / (float)scale / Display.aspectRatio);
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -157,8 +157,8 @@ public static class Renderer
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
 		{
 			int exp = (int)Math.Pow(2, i + 1);
-			int w = Display.viewportSize.x / exp;
-			int h = Display.viewportSize.y / exp;
+			int w = width / exp;
+			int h = height / exp;
 
 			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 			{
@@ -209,9 +209,9 @@ public static class Renderer
 	public static void Resize(int width, int height)
 	{
 		// pixel perfect correction
-		int scale = (int)MathF.Round(Display.width / (1920 / 5.0f));
-		UIWidth = (int)(Display.width / (float)scale);
-		UIHeight = (int)(UIWidth / Display.aspectRatio);
+		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
+		UIHeight = (int)MathF.Ceiling(Display.width / (float)scale / Display.aspectRatio);
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);
@@ -246,8 +246,8 @@ public static class Renderer
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
 		{
 			int exp = (int)Math.Pow(2, i + 1);
-			int w = UIWidth / exp;
-			int h = UIHeight / exp;
+			int w = width / exp;
+			int h = height / exp;
 
 			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 			{

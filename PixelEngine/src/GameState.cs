@@ -151,8 +151,7 @@ public class GameState : State
 		//npc.addShopItem(new Rope());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
-		npc.addShopItem(new Bomb());
-		npc.addShopItem(new Bomb());
+		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
 
@@ -265,12 +264,12 @@ public class GameState : State
 
 	public override void update()
 	{
-		if (!isPaused && InputManager.IsPressed("UIQuit") && player.numOverlaysOpen == 0)
+		if (!isPaused && InputManager.IsPressed("UIQuit", true) && player.numOverlaysOpen == 0)
 		{
 			isPaused = true;
 			PauseMenu.OnPause();
 		}
-		else if (isPaused && InputManager.IsPressed("UIQuit"))
+		else if (isPaused && InputManager.IsPressed("UIQuit", true))
 		{
 			isPaused = false;
 			PauseMenu.OnUnpause();
@@ -342,7 +341,11 @@ public class GameState : State
 
 		if (isPaused)
 		{
-			PauseMenu.Render(this);
+			if (!PauseMenu.Render(this))
+			{
+				isPaused = false;
+				PauseMenu.OnUnpause();
+			}
 		}
 	}
 

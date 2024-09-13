@@ -46,7 +46,7 @@ internal class SpikeTrap : Entity, Hittable
 			if (velocity.y < -2)
 			{
 				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Up, MathF.Abs(velocity.y), MathHelper.ARGBToVector(0xFF47362a).xyz), position);
-				velocity.y = 0;
+				//velocity.y = 0;
 			}
 		}
 		else if (!falling)
@@ -67,16 +67,23 @@ internal class SpikeTrap : Entity, Hittable
 				hitGround = true;
 
 			HitData[] hits = new HitData[16];
-			int numHits = GameState.instance.level.overlap(position + new Vector2(-0.25f, -0.3f), position + new Vector2(0.25f, 0.0f), hits, FILTER_PLAYER | FILTER_MOB);
+			int numHits = GameState.instance.level.overlap(position + new Vector2(-0.25f, -0.3f), position + new Vector2(0.25f, 0.0f), hits, FILTER_PLAYER | FILTER_MOB | FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				HitData hit = hits[i];
-				if (hit.entity != null)
+				if (hit.entity != null && !hitEntities.Contains(hit.entity))
 				{
-					if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
+					if (hit.entity is Hittable)
 					{
 						Hittable hittable = hit.entity as Hittable;
 						hittable.hit(damage, this, null);
+						hitEntities.Add(hit.entity);
+					}
+					else if (hit.entity is Destructible)
+					{
+						Destructible destructible = hit.entity as Destructible;
+						destructible.onDestroyed(this, null);
+						hit.entity.remove();
 						hitEntities.Add(hit.entity);
 					}
 				}

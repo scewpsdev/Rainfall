@@ -51,6 +51,9 @@ public abstract class Item
 	public int stackSize = 1;
 	public float value = 1;
 	public bool canDrop = true;
+	public bool isHandItem;
+	public bool isActiveItem;
+	public bool isPassiveItem;
 	public bool isSecondaryItem = false;
 	public bool twoHanded = false;
 	public ArmorSlot armorSlot;
@@ -74,10 +77,13 @@ public abstract class Item
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
+	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
 
 	public int armor = 0;
 
 	public bool projectileItem = false;
+	public float projectileRotationOffset = 0.0f;
+	public bool projectileSticks = false;
 	public bool breakOnWallHit = false;
 	public bool breakOnEnemyHit = false;
 
@@ -93,6 +99,10 @@ public abstract class Item
 	{
 		this.name = name;
 		this.type = type;
+
+		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
+		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
+		isPassiveItem = type == ItemType.Armor || type == ItemType.Ring;
 	}
 
 	public Item copy()
@@ -103,21 +113,6 @@ public abstract class Item
 	public int id
 	{
 		get => (int)Hash.hash(name);
-	}
-
-	public bool isHandItem
-	{
-		get => type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
-	}
-
-	public bool isActiveItem
-	{
-		get => type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
-	}
-
-	public bool isPassiveItem
-	{
-		get => type == ItemType.Armor || type == ItemType.Ring;
 	}
 
 	public float rarity
@@ -251,6 +246,10 @@ public abstract class Item
 		InitType(new BrokenSword());
 		InitType(new HuntersRing());
 		InitType(new WoodenMallet());
+		InitType(new ScrollOfMonsterTaming());
+		InitType(new Backpack());
+		InitType(new ThrowingKnife());
+		InitType(new StaffOfIllumination());
 	}
 
 	static void InitType(Item item)
@@ -304,6 +303,8 @@ public abstract class Item
 				Item newItem = item.copy();
 				if (newItem.name == "arrow")
 					newItem.stackSize = MathHelper.RandomInt(1, 12, random);
+				else if (newItem.name == "throwing_knife")
+					newItem.stackSize = MathHelper.RandomInt(1, 6, random);
 				return newItem;
 			}
 		}

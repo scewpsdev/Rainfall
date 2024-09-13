@@ -28,46 +28,26 @@ public class Tinkerer : NPC
 
 	public override Item craftItem(Item item1, Item item2)
 	{
-		item1 = player.removeItemSingle(item1);
-		item2 = player.removeItemSingle(item2);
+		float combinedValue = item1.value + item2.value;
 
-		if (item1.type > item2.type)
-			MathHelper.Swap(ref item1, ref item2);
+		Item craftedItem = null;
+
+		bool hasName(string name) => item1.name == name || item2.name == name;
+		bool hasType(ItemType type) => item2.type == type || item2.type == type;
 
 		Random random = new Random((int)Hash.combine((uint)item1.id, (uint)item2.id));
-		float value = item1.value + item2.value;
 
-		for (int i = 0; i < 100; i++)
+		// do crafting
+		if (hasName("stick") && hasType(ItemType.Gem))
+			craftedItem = Item.CreateRandom(ItemType.Staff, random, combinedValue * 0.8f, combinedValue * 1.2f);
+		if (hasName("scroll_blank") && hasType(ItemType.Gem))
+			craftedItem = Item.CreateRandom(ItemType.Scroll, random, combinedValue * 0.8f, combinedValue * 1.2f);
+
+		if (craftedItem != null)
 		{
-			Item item = null;
-
-			if (item1.id == item2.id)
-			{
-				item = Item.CreateRandom(item1.type, random, value, value * 1.5f);
-				// return buffed item
-			}
-			else if (item1.type == item2.type)
-			{
-				item = Item.CreateRandom(item1.type, random, value, 1.5f * value);
-			}
-			else
-			{
-				if (item2.type == ItemType.Gem)
-				{
-					item = Item.CreateRandom(item1.type, random, value, 1.5f * value);
-				}
-				else
-				{
-					item = Item.CreateRandom(item1.type, random, value, 1.5f * value);
-				}
-			}
-
-			if (item != null)
-				return item;
-			value *= 0.9f;
+			player.removeItemSingle(item1);
+			player.removeItemSingle(item2);
 		}
-
-		Debug.Assert(false);
-		return new Emerald();
+		return craftedItem;
 	}
 }
