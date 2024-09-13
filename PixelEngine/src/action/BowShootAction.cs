@@ -34,7 +34,6 @@ public class BowShootAction : EntityAction
 		arrow.attackDamage = weapon.attackDamage;
 		arrow.knockback = weapon.knockback;
 		ItemEntity entity = new ItemEntity(arrow, player, velocity);
-		entity.collider = new FloatRect(-1.0f / 16, -1.0f / 16, 2.0f / 16, 2.0f / 16);
 		entity.bounciness = 0.3f;
 		GameState.instance.level.addEntity(entity, position);
 	}

@@ -18,7 +18,7 @@ public class PlayerCamera : Entity
 	Vector2 target;
 
 	public float width, height;
-	int scale;
+	public int scale;
 
 	long lastDownInput = -1;
 
@@ -56,8 +56,7 @@ public class PlayerCamera : Entity
 
 	public override void update()
 	{
-		width = 1920 / 5.0f / 16.0f;
-		scale = (int)MathF.Round(Display.width / width / 16.0f);
+		scale = (int)MathF.Round(Display.width / 1920.0f * 5);
 		width = Display.width / (float)scale / 16.0f;
 		height = width / Display.aspectRatio;
 
@@ -140,6 +139,8 @@ public class PlayerCamera : Entity
 	{
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix transform = getTransform(currentScreenShake);
+		transform.m30 = MathF.Round(transform.m30 * 16) / 16;
+		transform.m31 = MathF.Round(transform.m31 * 16) / 16;
 		Matrix view = transform.inverted;
 
 		Renderer.SetCamera(projection, view, position.x, position.y, width, height);

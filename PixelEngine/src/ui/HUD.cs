@@ -207,8 +207,8 @@ public class HUD
 
 		{ // Hand items
 			int size = 16;
-			int x = 12;
-			int y = Renderer.UIHeight - 12 - size;
+			int x = 4;
+			int y = Renderer.UIHeight - 4 - size;
 			int padding = 1;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.1f * GameState.instance.camera.height &&
@@ -252,8 +252,8 @@ public class HUD
 			int size = 16;
 			int width = player.activeItems.Length * (size + 1) + 1;
 			int height = size + 2;
-			int x = 12 + 32 + 16;
-			int y = Renderer.UIHeight - 12 - size;
+			int x = 4 + 32 + 16;
+			int y = Renderer.UIHeight - 4 - size;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
 				player.position.x < GameState.instance.camera.left + 0.45f * GameState.instance.camera.width ||

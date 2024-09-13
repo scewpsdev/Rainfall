@@ -8,16 +8,12 @@ using System.Threading.Tasks;
 
 public class BatAI : AI
 {
-	public float aggroRange = 8.0f;
-	public float loseRange = 12.0f;
-	public float loseTime = 3.0f;
 	float shootCooldown = 1.0f;
 
 	public bool preferVerticalMovement = true;
 	public bool canShoot = false;
 
 	int walkDirection = 1;
-	Entity target;
 	long targetLastSeen = -1;
 	long lastShot = -1;
 
@@ -27,6 +23,9 @@ public class BatAI : AI
 	public BatAI(Mob mob)
 		: base(mob)
 	{
+		aggroRange = 8.0f;
+		loseRange = 12.0f;
+		loseTime = 3.0f;
 	}
 
 	public override void onHit(Entity by)

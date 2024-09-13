@@ -16,6 +16,8 @@ public class ItemEntity : Entity, Interactable, Destructible
 	public int ricochets = 0;
 	int pierces = 0;
 	float damage;
+	bool stuck = false;
+	Vector2i stuckTile;
 
 	float rotationVelocity = 0;
 	bool flipped;
@@ -36,7 +38,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 		displayName = item.displayName;
 
-		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+		collider = item.collider;
 		filterGroup = FILTER_ITEM;
 
 		damage = item.attackDamage;
@@ -71,16 +73,26 @@ public class ItemEntity : Entity, Interactable, Destructible
 	{
 		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity * Time.deltaTime * 2);
 
-		if (x)
+		if (item.projectileSticks)
 		{
-			position.x -= velocity.x * Time.deltaTime;
-			velocity.x = -velocity.x * bounciness;
+			stuck = true;
+			stuckTile = pos;
+			velocity = Vector2.Zero;
+			//damage = 0;
 		}
-		else if (y)
+		else
 		{
-			position.y -= velocity.y * Time.deltaTime;
-			velocity.y = -velocity.y * bounciness;
-			velocity.x *= bounciness;
+			if (x)
+			{
+				position.x -= velocity.x * Time.deltaTime;
+				velocity.x = -velocity.x * bounciness;
+			}
+			else if (y)
+			{
+				position.y -= velocity.y * Time.deltaTime;
+				velocity.y = -velocity.y * bounciness;
+				velocity.x *= bounciness;
+			}
 		}
 
 		if (damage > 0)
@@ -112,6 +124,15 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	public override void update()
 	{
+		if (stuck)
+		{
+			TileType tile = GameState.instance.level.getTile(stuckTile.x, stuckTile.y);
+			if (tile == null || !tile.isSolid)
+				stuck = false;
+			else
+				return;
+		}
+
 		velocity.y += gravity * Time.deltaTime;
 
 		Vector2 displacement = velocity * Time.deltaTime;
@@ -131,9 +152,9 @@ public class ItemEntity : Entity, Interactable, Destructible
 		flipped = false;
 		if (item.projectileItem && damage > 0 && thrower != null)
 		{
-			if (velocity.lengthSquared > 0.1f)
+			if (velocity.lengthSquared > 1.0f)
 			{
-				rotation = MathF.Atan2(velocity.y, velocity.x);
+				rotation = MathF.Atan2(velocity.y, velocity.x) + item.projectileRotationOffset;
 				//flipped = velocity.x < 0;
 			}
 		}
@@ -176,22 +197,24 @@ public class ItemEntity : Entity, Interactable, Destructible
 							hittable.hit(damage, this, item);
 							hitEntities.Add(hit.entity);
 
-							if (pierces < item.maxPierces || item.maxPierces == -1)
-								pierces++;
+							if (item.breakOnEnemyHit && velocity.lengthSquared > 1)
+							{
+								item.onEntityBreak(this);
+								remove();
+							}
 							else
 							{
-								damage = 0;
-								bool collidesX = MathF.Abs(hit.normal.x) > 0.5f;
-								bool collidesY = MathF.Abs(hit.normal.y) > 0.5f;
-								if (collidesX || collidesY)
-									onHit(collidesX, collidesY);
+								if (pierces < item.maxPierces || item.maxPierces == -1)
+									pierces++;
+								else
+								{
+									damage = 0;
+									bool collidesX = MathF.Abs(hit.normal.x) > 0.5f;
+									bool collidesY = MathF.Abs(hit.normal.y) > 0.5f;
+									if (collidesX || collidesY)
+										onHit(collidesX, collidesY);
+								}
 							}
-						}
-
-						if (item.breakOnEnemyHit && velocity.lengthSquared > 1)
-						{
-							item.onEntityBreak(this);
-							remove();
 						}
 					}
 				}

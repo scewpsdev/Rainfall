@@ -558,7 +558,7 @@ public class LevelGenerator
 		float travellerChance = MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f);
 		float ratChance = 0.02f;
 		float loganChance = MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f);
-		float blacksmithChance = MathHelper.Remap(floor, 1, 3, 0.08f, 0.02f);
+		float blacksmithChance = MathHelper.Remap(floor, 1, 3, 0.1f, 0.02f);
 		float tinkererChance = MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f);
 		float fountainChance = 1; // MathHelper.Remap(floor, 1, 3, 0.05f, 0.15f);
 		float coinsChance = MathHelper.Remap(floor, 1, 3, 0.05f, 0.02f);

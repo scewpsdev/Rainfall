@@ -48,7 +48,7 @@ public static class PauseMenu
 			OptionsMenu.OnGamepadButtonEvent(button, down);
 	}
 
-	public static void Render(GameState game)
+	public static bool Render(GameState game)
 	{
 		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0x7F000000);
 
@@ -90,11 +90,16 @@ public static class PauseMenu
 						break;
 				}
 			}
+
+			if (InputManager.IsPressed("UIBack", true))
+				return false;
 		}
 		else if (state == PauseMenuState.Options)
 		{
 			if (!OptionsMenu.Render())
 				state = PauseMenuState.Selection;
 		}
+
+		return true;
 	}
 }

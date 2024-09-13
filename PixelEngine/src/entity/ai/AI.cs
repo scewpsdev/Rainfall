@@ -10,6 +10,12 @@ public abstract class AI
 {
 	protected Mob mob;
 
+	public float aggroRange = 4.0f;
+	public float loseRange = 5.0f;
+	public float loseTime = 3.0f;
+
+	public Entity target = null;
+
 
 	protected AI(Mob mob)
 	{

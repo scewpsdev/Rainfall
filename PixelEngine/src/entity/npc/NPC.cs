@@ -59,7 +59,7 @@ public abstract class NPC : Mob, Interactable
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
-	protected float saleTax = 0.2f;
+	protected float saleTax = 0.1f;
 	protected float buyTax = 0.0f;
 	int longestItemName = 80;
 	int sidePanelHeight = 40;
@@ -93,7 +93,7 @@ public abstract class NPC : Mob, Interactable
 		for (int i = 0; i < numItems; i++)
 		{
 			ItemType type = types[random.Next() % types.Length];
-			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) / 3, meanValue * 0.25f);
+			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) / 3, meanValue * 0.1f);
 			List<Item> items = Item.GetItemPrototypesOfType(type);
 			items.Sort((Item item1, Item item2) =>
 			{
@@ -104,6 +104,8 @@ public abstract class NPC : Mob, Interactable
 			Item item = items[0];
 			if (item.stackable || !hasShopItem(item.name))
 				addShopItem(item.copy());
+			else
+				i--;
 		}
 	}
 
@@ -178,9 +180,7 @@ public abstract class NPC : Mob, Interactable
 
 	public virtual Item craftItem(Item item1, Item item2)
 	{
-		item1 = player.removeItemSingle(item1);
-		item2 = player.removeItemSingle(item2);
-		return new BlankPaper();
+		return null;
 	}
 
 	public bool canInteract(Player player)
@@ -699,7 +699,14 @@ public abstract class NPC : Mob, Interactable
 					{
 						craftingItem2 = item;
 						Item craftedItem = craftItem(craftingItem1, craftingItem2);
-						GameState.instance.level.addEntity(new ItemEntity(craftedItem, this, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
+						if (craftedItem != null)
+						{
+							GameState.instance.level.addEntity(new ItemEntity(craftedItem, this, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
+						}
+						else
+						{
+							player.hud.showMessage("Could not craft anything out of " + craftingItem1.displayName + " and " + craftingItem2.displayName + ".");
+						}
 						craftingItem1 = null;
 						craftingItem2 = null;
 						closeScreen();

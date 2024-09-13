@@ -15,9 +15,6 @@ public class SpiderAI : AI
 	}
 
 
-	public float aggroRange = 8.0f;
-	public float loseRange = 12.0f;
-	public float loseTime = 6.0f;
 	public float jumpChargeTime = 2.0f;
 	float jumpSpeed = 4;
 	float chargeSpeed = 0.25f;
@@ -27,13 +24,15 @@ public class SpiderAI : AI
 
 	long lastAirTime;
 
-	Entity target;
 	long targetLastSeen = -1;
 
 
 	public SpiderAI(Mob mob)
 		: base(mob)
 	{
+		aggroRange = 8.0f;
+		loseRange = 12.0f;
+		loseTime = 6.0f;
 	}
 
 	public override void onHit(Entity by)
