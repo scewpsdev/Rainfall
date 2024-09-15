@@ -40,6 +40,17 @@ public static unsafe class Effects
 		return effect;
 	}
 
+	public static ParticleEffect CreateImpactEffect(Vector2 normal, float velocity, int count, Vector3 color)
+	{
+		ParticleEffect effect = new ParticleEffect(null, "res/effects/impact.rfs");
+		effect.systems[0].handle->startVelocity = new Vector3(normal * velocity, 0);
+		effect.systems[0].handle->bursts[0].count = count;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
+		effect.collision = true;
+		return effect;
+	}
+
 	public static ParticleEffect CreateImpactEffect(Vector2 normal, float strength, Vector3 color)
 	{
 		ParticleEffect effect = new ParticleEffect(null, "res/effects/impact.rfs");

@@ -40,7 +40,7 @@ public class Crossbow : Item
 	{
 		if (loaded)
 		{
-			player.actions.queueAction(new GunShootAction(this, player.handItem == this));
+			player.actions.queueAction(new CrossbowShootAction(this, player.handItem == this));
 			loaded = false;
 		}
 		return false;
@@ -51,6 +51,11 @@ public class Crossbow : Item
 		if (!loaded)
 		{
 			Item arrows = player.getItem(requiredAmmo);
+			if (player.unlimitedArrows && arrows == null)
+			{
+				arrows = new Arrow();
+				player.giveItem(arrows);
+			}
 			if (arrows != null)
 			{
 				player.removeItemSingle(arrows);

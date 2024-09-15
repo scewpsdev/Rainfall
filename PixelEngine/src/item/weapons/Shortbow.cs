@@ -29,6 +29,11 @@ public class Shortbow : Item
 	public override bool use(Player player)
 	{
 		Item arrows = player.getItem(requiredAmmo);
+		if (player.unlimitedArrows && arrows == null)
+		{
+			arrows = new Arrow();
+			player.giveItem(arrows);
+		}
 		if (arrows != null)
 		{
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));

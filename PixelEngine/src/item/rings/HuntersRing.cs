@@ -20,29 +20,13 @@ public class HuntersRing : Item
 		sprite = new Sprite(tileset, 0, 4);
 	}
 
-	public override void update(Entity entity)
-	{
-		if (entity is Player)
-		{
-			Player player = entity as Player;
-			Item arrows = player.getItem("arrow");
-			if (arrows == null)
-				player.giveItem(new Arrow() { stackSize = 3 });
-			else
-			{
-				if (arrows.stackSize < 3)
-					arrows.stackSize = 3;
-			}
-		}
-	}
-
 	public override void onEquip(Player player)
 	{
-		player.speed++;
+		player.unlimitedArrows = true;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.speed--;
+		player.unlimitedArrows = false;
 	}
 }

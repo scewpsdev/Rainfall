@@ -31,7 +31,7 @@ public abstract class Mob : Entity, Hittable
 	public float coinDropChance = 0.2f;
 
 	public float health = 1;
-	public int damage = 1;
+	public float damage = 1;
 	public bool canClimb = false;
 	public bool canFly = false;
 
@@ -95,13 +95,14 @@ public abstract class Mob : Entity, Hittable
 				Vector2 relativePosition = new Vector2(MathHelper.Clamp(by.position.x - position.x, collider.min.x, collider.max.x), MathHelper.Clamp(by.position.y - position.y, collider.min.y, collider.max.y));
 				Vector2 projectileDirection = by.velocity.normalized;
 				float rotationOffset = item.projectileRotationOffset;
-				bool flipped = by.velocity.x < 0;
+				bool flipped = false;
 				if (direction == -1)
 				{
 					relativePosition.x *= -1;
 					projectileDirection.x *= -1;
 					rotationOffset *= -1;
-					flipped = !flipped;
+					if (item.projectileSpins && by.velocity.x < 0)
+						flipped = !flipped;
 				}
 				stuckProjectiles.Add(new StuckProjectile { sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, rotationOffset = rotationOffset, flipped = flipped });
 			}
@@ -157,7 +158,7 @@ public abstract class Mob : Entity, Hittable
 			}
 		}
 
-		GameState.instance.level.addEntity(new MobCorpse(this), position);
+		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, rect, direction, velocity, impulseVelocity, collider, 0xFF7F7F7F), position);
 
 		remove();
 	}
@@ -361,7 +362,7 @@ public abstract class Mob : Entity, Hittable
 			for (int i = 0; i < stuckProjectiles.Count; i++)
 			{
 				StuckProjectile projectile = stuckProjectiles[i];
-				Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, projectile.direction.angle + projectile.rotationOffset, projectile.sprite, direction == -1);
+				Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, (projectile.direction.angle + projectile.rotationOffset) * direction, projectile.sprite, direction == -1);
 			}
 		}
 	}
