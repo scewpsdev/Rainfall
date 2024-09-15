@@ -17,7 +17,7 @@ public class SpellCastAction : EntityAction
 	public SpellCastAction(Item weapon, bool mainHand, Spell spell)
 		: base("spell_cast", mainHand)
 	{
-		duration = 1.0f / weapon.attackRate;
+		duration = 1000;
 
 		this.weapon = weapon;
 		this.spell = spell;
@@ -25,6 +25,8 @@ public class SpellCastAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
+		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+
 		spell.cast(player, weapon);
 	}
 

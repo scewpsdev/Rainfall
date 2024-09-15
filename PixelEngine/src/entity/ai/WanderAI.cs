@@ -21,6 +21,8 @@ public class WanderAI : AI
 		mob.inputRight = false;
 		mob.inputLeft = false;
 
+		mob.animator.setAnimation("run");
+
 		if (walkDirection == 1)
 			mob.inputRight = true;
 		else if (walkDirection == -1)

@@ -865,7 +865,7 @@ public class LevelGenerator
 							float enemyChance = 0.1f;
 							if (random.NextSingle() < enemyChance)
 							{
-								bool flyingEnemy = random.NextSingle() < 0.25f;
+								bool flyingEnemy = random.NextSingle() < 0.15f;
 								if (flyingEnemy)
 								{
 									if (down == null)
@@ -884,7 +884,7 @@ public class LevelGenerator
 								}
 								else
 								{
-									if (down != null && up == null)
+									if (down != null && up == null && left == null && right == null)
 									{
 										float enemyType = random.NextSingle();
 
@@ -897,6 +897,8 @@ public class LevelGenerator
 											enemy = new Gandalf();
 										else if (enemyType > 0.9f)
 											enemy = new SkeletonArcher();
+										else if (enemyType > 0.85f)
+											enemy = new Golem();
 										else if (enemyType > 0.6f)
 											enemy = new Snake();
 										else if (enemyType > 0.3f)

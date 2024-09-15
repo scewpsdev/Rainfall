@@ -16,13 +16,15 @@ public class RevolverShootAction : EntityAction
 	public RevolverShootAction(Item weapon, bool mainHand)
 		: base("revolver_shoot", mainHand)
 	{
-		duration = 1.0f / weapon.attackRate;
+		duration = 1000;
 
 		this.weapon = weapon;
 	}
 
 	public override void onStarted(Player player)
 	{
+		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+
 		Vector2 direction = Vector2.Zero;
 		if (InputManager.IsDown("Up"))
 			direction.y++;

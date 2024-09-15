@@ -85,6 +85,7 @@ public class Player : Entity, Hittable
 	public Item[] passiveItems = new Item[(int)ArmorSlot.Count];
 
 	public Item blockingItem = null;
+	public bool unlimitedArrows = false;
 
 	public HUD hud;
 	InventoryUI inventoryUI;
@@ -289,7 +290,7 @@ public class Player : Entity, Hittable
 		items.Add(item.type, item);
 		items.Sort();
 
-		if (item.isHandItem && handItem == null && (offhandItem == null || !item.twoHanded))
+		if ((item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
 			equipHandItem(item);
 		else if (item.isSecondaryItem && offhandItem == null && (handItem == null || !handItem.twoHanded))
 			equipOffhandItem(item);
@@ -513,6 +514,8 @@ public class Player : Entity, Hittable
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
 
+			health -= damage;
+
 			GameState.instance.run.hitsTaken++;
 
 			if (by != null && by.collider != null)
@@ -574,6 +577,8 @@ public class Player : Entity, Hittable
 		statusEffects.Clear();
 
 		actions.cancelAllActions();
+
+		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, passiveItems), position);
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
@@ -801,7 +806,7 @@ public class Player : Entity, Hittable
 			{
 				if (GameSettings.aimMode == AimMode.Directional)
 				{
-					float maxCursorDistance = handItem != null ? handItem.attackRange * 2 : 1.8f;
+					float maxCursorDistance = handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
 					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
 					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * GameState.instance.camera.scale ||
 						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * GameState.instance.camera.scale)
@@ -830,7 +835,10 @@ public class Player : Entity, Hittable
 				}
 			}
 
-			direction = Math.Sign(lookDirection.x);
+			if (actions.currentAction != null)
+				direction = Math.Sign(lookDirection.x);
+			else if (delta.x != 0)
+				direction = MathF.Sign(delta.x);
 		}
 
 		if (!isClimbing)
@@ -1208,12 +1216,12 @@ public class Player : Entity, Hittable
 
 	public override void update()
 	{
-		Audio.UpdateListener(new Vector3(position, 3), Quaternion.Identity);
-
 		updateMovement();
 		updateActions();
 		updateStatus();
 		updateAnimation();
+
+		Audio.UpdateListener(new Vector3(position, 3), Quaternion.Identity);
 
 		Input.cursorMode = CursorMode.Hidden;
 	}
@@ -1268,6 +1276,9 @@ public class Player : Entity, Hittable
 
 	public override void render()
 	{
+		if (!isAlive)
+			return;
+
 		bool invincible = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
 

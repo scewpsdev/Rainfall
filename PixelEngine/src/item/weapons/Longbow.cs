@@ -25,6 +25,7 @@ public class Longbow : Item
 		value = 48;
 
 		sprite = new Sprite(tileset, 10, 3, 2, 1);
+		icon = new Sprite(tileset.texture, 10 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
 	}
@@ -32,6 +33,11 @@ public class Longbow : Item
 	public override bool use(Player player)
 	{
 		Item arrows = player.getItem(requiredAmmo);
+		if (player.unlimitedArrows && arrows == null)
+		{
+			arrows = new Arrow();
+			player.giveItem(arrows);
+		}
 		if (arrows != null)
 		{
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));

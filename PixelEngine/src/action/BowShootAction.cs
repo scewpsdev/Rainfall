@@ -16,13 +16,15 @@ public class BowShootAction : EntityAction
 	public BowShootAction(Item weapon, bool mainHand)
 		: base("bow_shoot", mainHand)
 	{
-		duration = 1.0f / weapon.attackRate;
+		duration = 1000;
 
 		this.weapon = weapon;
 	}
 
 	public override void onStarted(Player player)
 	{
+		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 position = player.position + player.collider.center + direction * 0.25f;
 		Vector2 velocity = direction * weapon.attackRange;

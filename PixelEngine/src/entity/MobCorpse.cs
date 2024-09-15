@@ -9,8 +9,12 @@ using System.Threading.Tasks;
 public class MobCorpse : Entity
 {
 	Sprite sprite;
+	SpriteAnimator animator;
 	FloatRect rect;
 	int direction;
+	uint color;
+
+	Item[] passiveItems;
 
 	float gravity;
 	bool isGrounded = false;
@@ -18,22 +22,22 @@ public class MobCorpse : Entity
 	bool particlesEmitted = false;
 
 
-	public MobCorpse(Mob mob)
+	public MobCorpse(Sprite sprite, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, uint color, Item[] passiveItems = null)
 	{
-		sprite = mob.sprite;
-		rect = mob.rect;
-		direction = mob.direction;
+		this.sprite = sprite;
+		this.animator = animator;
+		this.rect = rect;
+		this.direction = direction;
+		this.color = color;
+		this.passiveItems = passiveItems;
 
-		velocity = mob.velocity * 0.0f + mob.impulseVelocity;
+		this.velocity = velocity * 0.0f + impulseVelocity;
 
-		collider = mob.collider;
+		this.collider = collider;
 		filterGroup = FILTER_DECORATION;
 
-		velocity.y = MathF.Max(velocity.y, 5);
+		this.velocity.y = MathF.Max(this.velocity.y, 5);
 		gravity = -30;
-
-		mob.animator.setAnimation("dead");
-		mob.animator.update(mob.sprite);
 	}
 
 	public override void update()
@@ -50,7 +54,7 @@ public class MobCorpse : Entity
 		{
 			if (velocity.y < 0)
 				isGrounded = true;
-			velocity.y = -0.5f * velocity.y;
+			velocity.y = 0.0f;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{
@@ -64,10 +68,39 @@ public class MobCorpse : Entity
 		}
 
 		position += displacement;
+
+
+		if (animator.getAnimation("dead_falling") != null && !isGrounded)
+			animator.setAnimation("dead_falling");
+		else
+			animator.setAnimation("dead");
+		animator.update(sprite);
+		if (passiveItems != null)
+		{
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+				{
+					animator.update(passiveItems[i].ingameSprite);
+					passiveItems[i].ingameSprite.position *= passiveItems[i].ingameSpriteSize;
+				}
+			}
+		}
 	}
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFF7F7F7F);
+		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, color);
+
+		if (passiveItems != null)
+		{
+			for (int i = 0; i < passiveItems.Length; i++)
+			{
+				if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+				{
+					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+				}
+			}
+		}
 	}
 }

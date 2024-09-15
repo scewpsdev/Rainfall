@@ -16,6 +16,12 @@ namespace Rainfall
 		public int length;
 		public float fps;
 		public bool looping;
+
+		public float duration
+		{
+			get => length / fps;
+			set { fps = length / value; }
+		}
 	}
 
 	public class SpriteAnimationEvent

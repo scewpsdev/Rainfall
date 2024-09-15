@@ -78,6 +78,7 @@ public class GameState : State
 	public RunStats run;
 	string seed = null;
 
+	public Level[] floors;
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
 
@@ -119,7 +120,7 @@ public class GameState : State
 		Level tutorial = new Level(-1, "Tutorial");
 
 		int numFloors = 5;
-		Level[] floors = new Level[numFloors];
+		floors = new Level[numFloors];
 		for (int i = 0; i < floors.Length; i++)
 			floors[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
@@ -160,7 +161,7 @@ public class GameState : State
 		npc.direction = 1;
 		level.addEntity(npc, new Vector2(4.5f, 3));
 
-		//level.addEntity(new RatNPC(), new Vector2(6.5f, 3));
+		//level.addEntity(new Golem(), new Vector2(20, 1));
 
 		generator.generateLobby(level);
 		generator.generateTutorial(tutorial);
@@ -208,6 +209,22 @@ public class GameState : State
 			lastLevel = floors[i];
 		}
 
+		Level bossRoom = new Level(-1, null);
+		for (int y = 1; y < bossRoom.height - 1; y++)
+		{
+			for (int x = 1; x < bossRoom.width - 1; x++)
+			{
+				bossRoom.setTile(x, y, null);
+			}
+		}
+		Door bossRoomEntrance = new Door(lastLevel, lastLevel.exit);
+		lastLevel.exit.destination = bossRoom;
+		lastLevel.exit.otherDoor = bossRoomEntrance;
+		bossRoom.addEntity(bossRoomEntrance, new Vector2(3, 1));
+		bossRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
+		bossRoom.updateLightmap(0, 0, bossRoom.width, bossRoom.height);
+
+		/*
 		Level finalRoom = new Level(-1, "Thanks for playing");
 		for (int y = 1; y < finalRoom.height - 1; y++)
 		{
@@ -223,6 +240,7 @@ public class GameState : State
 		finalRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
 		//finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
 		finalRoom.updateLightmap(0, 0, finalRoom.width, finalRoom.height);
+		*/
 
 		for (int i = 0; i < level.entities.Count; i++)
 		{

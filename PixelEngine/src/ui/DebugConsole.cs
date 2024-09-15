@@ -38,10 +38,29 @@ public static class DebugConsole
 				{
 					Vector2 position = GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection
 						: GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
-					GameState.instance.level.addEntity(new ItemEntity(item.copy()), position);
+					int count = 1;
+					if (args.Length >= 2 && int.TryParse(args[1], out int _count))
+						count = _count;
+					Item copy = item.copy();
+					copy.stackSize = count;
+					GameState.instance.level.addEntity(new ItemEntity(copy), position);
 					return "Spawned item " + args[0] + " in position" + position.ToString();
 				}
 				return "No item of type " + args[0];
+			}
+		}
+		if (cmd == "set_floor")
+		{
+			if (args.Length > 0)
+			{
+				if (int.TryParse(args[0], out int floor))
+				{
+					if (floor >= 1 && floor <= GameState.instance.floors.Length)
+					{
+						Level level = GameState.instance.floors[floor - 1];
+						GameState.instance.switchLevel(level, level.entrance);
+					}
+				}
 			}
 		}
 
