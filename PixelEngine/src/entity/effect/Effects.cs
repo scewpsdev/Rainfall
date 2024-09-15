@@ -87,20 +87,21 @@ public static unsafe class Effects
 		int x1 = (int)MathF.Floor(position.x + radius);
 		int y0 = (int)MathF.Floor(position.y - radius);
 		int y1 = (int)MathF.Floor(position.y + radius);
-		Vector2i tile = (Vector2i)Vector2.Round(position);
+		Vector2i pos = (Vector2i)Vector2.Round(position);
 		for (int y = y0; y <= y1; y++)
 		{
 			for (int x = x0; x <= x1; x++)
 			{
+				TileType tile = GameState.instance.level.getTile(x, y);
 				float distance = (new Vector2(x, y) + 0.5f - position).length - 0.5f;
-				if (distance < radius)
+				if (distance < radius && tile != null && tile.destructible)
 					GameState.instance.level.setTile(x, y, null);
 			}
 		}
 		GameState.instance.level.updateLightmap(x0, y0, x1 - x0 + 1, y1 - y0 + 1);
 
 		Span<HitData> hits = new HitData[16];
-		int numHits = GameState.instance.level.overlap(tile - radius, tile + radius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM | Entity.FILTER_DEFAULT);
+		int numHits = GameState.instance.level.overlap(pos - radius, pos + radius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER | Entity.FILTER_ITEM | Entity.FILTER_DEFAULT);
 		for (int i = 0; i < numHits; i++)
 		{
 			if (hits[i].entity != null)
@@ -109,10 +110,10 @@ public static unsafe class Effects
 					continue;
 
 				Vector2 center = hits[i].entity.position + 0.5f * (hits[i].entity.collider.min + hits[i].entity.collider.max);
-				float distance = (center - tile).length;
+				float distance = (center - pos).length;
 				if (distance < radius)
 				{
-					hits[i].entity.velocity += (center - tile).normalized * (1 - distance / radius) * 30;
+					hits[i].entity.velocity += (center - pos).normalized * (1 - distance / radius) * 30;
 
 					if (hits[i].entity is Hittable)
 					{

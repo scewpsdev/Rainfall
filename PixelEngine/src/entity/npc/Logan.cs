@@ -22,7 +22,12 @@ public class Logan : NPC
 		addVoiceLine("Mm, you seem quite lucid! A \\drare\\0 thing in these times.");
 		addVoiceLine("\\cBuy my shit.");
 
-		populateShop(random, 5, 80, ItemType.Potion, ItemType.Ring, ItemType.Staff, ItemType.Scroll);
+		populateShop(random, 2, 5, 80, ItemType.Potion, ItemType.Ring, ItemType.Staff, ItemType.Scroll);
 		buysItems = true;
+	}
+
+	public Logan()
+		: this(Random.Shared)
+	{
 	}
 }

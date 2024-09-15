@@ -17,6 +17,9 @@ public class Spear : Item
 		attackRange = 2.0f;
 		attackRate = 1.6f;
 
+		projectileItem = true;
+		projectileSticks = true;
+
 		value = 8;
 
 		sprite = new Sprite(tileset, 6, 1, 2, 1);
@@ -28,5 +31,11 @@ public class Spear : Item
 	{
 		player.actions.queueAction(new AttackAction(this, player.handItem == this));
 		return false;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.throwItem(this, player.lookDirection.normalized);
+		return true;
 	}
 }

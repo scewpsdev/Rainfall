@@ -87,13 +87,13 @@ public abstract class NPC : Mob, Interactable
 		closeScreen();
 	}
 
-	protected void populateShop(Random random, int maxItems, float meanValue, params ItemType[] types)
+	protected void populateShop(Random random, int minItems, int maxItems, float meanValue, params ItemType[] types)
 	{
-		int numItems = MathHelper.RandomInt(1, maxItems, random);
+		int numItems = MathHelper.RandomInt(minItems, maxItems, random);
 		for (int i = 0; i < numItems; i++)
 		{
 			ItemType type = types[random.Next() % types.Length];
-			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) / 3, meanValue * 0.1f);
+			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) / 1.0f, meanValue * 0.1f);
 			List<Item> items = Item.GetItemPrototypesOfType(type);
 			items.Sort((Item item1, Item item2) =>
 			{
@@ -517,7 +517,7 @@ public abstract class NPC : Mob, Interactable
 				int price = shopItems[i].Item2;
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+				Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 
@@ -601,14 +601,29 @@ public abstract class NPC : Mob, Interactable
 				int price = (int)MathF.Round(item.value);
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 
 				string quantity = price.ToString();
-				Renderer.DrawUITextBMP(x + shopWidth - 1 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, 0xFFAAAAAA);
+				Renderer.DrawUITextBMP(x + shopWidth - 1 - 16 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, 0xFFf4d16b);
 
-				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
+				if (player.handItem == item)
+					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, InventoryUI.weaponSprite);
+				else if (player.offhandItem == item)
+					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, InventoryUI.shieldSprite);
+				else if (player.isActiveItem(item, out int activeSlot))
+				{
+					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, InventoryUI.bagSprite);
+					Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (activeSlot + 1).ToString(), 1, 0xFF505050);
+				}
+				else if (player.isPassiveItem(item, out int passiveSlot))
+				{
+					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, item.type == ItemType.Ring ? InventoryUI.ringSprite : InventoryUI.armorSprite);
+					Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Length - 2 : 0)).ToString(), 1, 0xFF505050);
+				}
+
+				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + 16 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
 
 				if (selected && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 				{
@@ -680,7 +695,7 @@ public abstract class NPC : Mob, Interactable
 				Item item = craftingItems[i].Item2;
 
 				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 				string name = item.fullDisplayName;
 				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 
@@ -702,14 +717,16 @@ public abstract class NPC : Mob, Interactable
 						if (craftedItem != null)
 						{
 							GameState.instance.level.addEntity(new ItemEntity(craftedItem, this, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
+							craftingItem1 = null;
+							craftingItem2 = null;
+							closeScreen();
 						}
 						else
 						{
 							player.hud.showMessage("Could not craft anything out of " + craftingItem1.displayName + " and " + craftingItem2.displayName + ".");
+							craftingItem1 = null;
+							craftingItem2 = null;
 						}
-						craftingItem1 = null;
-						craftingItem2 = null;
-						closeScreen();
 					}
 				}
 

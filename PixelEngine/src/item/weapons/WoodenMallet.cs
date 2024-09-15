@@ -13,10 +13,9 @@ public class WoodenMallet : Item
 	{
 		displayName = "Wooden Mallet";
 
-		attackDamage = 3;
-		attackRange = 1.8f;
-		attackRate = 1.0f;
-		knockback = 10;
+		attackDamage = 2;
+		attackRange = 1.2f;
+		attackRate = 1.1f;
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 2.5f;
@@ -25,8 +24,9 @@ public class WoodenMallet : Item
 		value = 28;
 
 		sprite = new Sprite(tileset, 1, 4, 2, 1);
+		icon = new Sprite(tileset.texture, 1 * 16 + 12, 4 * 16, 16, 16);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.7f;
+		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)

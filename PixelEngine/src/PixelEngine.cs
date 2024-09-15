@@ -48,6 +48,7 @@ public class PixelEngine : Game
 		Audio.Init();
 
 		Item.InitTypes();
+		EntityType.InitTypes();
 
 		InputManager.LoadBindings();
 
@@ -116,8 +117,13 @@ public class PixelEngine : Game
 
 		if (Input.IsKeyPressed(KeyCode.F11) || ImGui.IsKeyPressed(KeyCode.F11, false))
 			Display.ToggleFullscreen();
+
+#if DEBUG
 		if (Input.IsKeyPressed(KeyCode.F10) || ImGui.IsKeyPressed(KeyCode.F10, false))
 			debugStats = !debugStats;
+#endif
+
+		Audio.Update();
 
 		if (stateMachine.TryPeek(out State state))
 			state.update();

@@ -44,8 +44,8 @@ public class PlayerCamera : Entity
 
 	public Vector2 screenToWorld(Vector2i pos)
 	{
-		float x = MathHelper.Remap((pos.x + 0.5f) / Display.width, 0, 1, position.x - 0.5f * width, position.x + 0.5f * width);
-		float y = MathHelper.Remap((pos.y + 0.5f) / Display.height, 1, 0, position.y - 0.5f * height, position.y + 0.5f * height);
+		float x = MathHelper.Remap((pos.x + 0.5f) / Renderer.UIWidth, 0, 1, position.x - 0.5f * width, position.x + 0.5f * width);
+		float y = MathHelper.Remap((pos.y + 0.5f) / Renderer.UIHeight, 1, 0, position.y - 0.5f * height, position.y + 0.5f * height);
 		return new Vector2(x, y);
 	}
 
@@ -99,9 +99,9 @@ public class PlayerCamera : Entity
 		if (player.numOverlaysOpen == 0)
 		{
 			//Vector2 aimDirection = new Vector2(player.lookDirection.x, screenToWorld(Renderer.cursorPosition).y - position.y);
-			Vector2 aimDirection = screenToWorld(Input.cursorPosition) - position;
+			Vector2 aimDirection = screenToWorld(Renderer.cursorPosition) - position;
 			if (GameSettings.aimMode == AimMode.Directional)
-				;//target += aimDirection * 0.3f;
+				target += aimDirection * 0.1f;
 			else
 				target += aimDirection * 0.2f;
 		}

@@ -101,7 +101,7 @@ public class LightningProjectile : Entity
 				if (/*hit.entity != shooter &&*/ hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(item.attackDamage * player.attack, shooter, item, displayName);
+					hittable.hit(item.attackDamage * player.attackDamageModifier, shooter, item, displayName);
 					hitEntities.Add(hit.entity);
 					//remove();
 				}
@@ -157,7 +157,7 @@ public class LightningProjectile : Entity
 				int width = (int)(length * lightning.height);
 
 				uint colorSelection = h % 3;
-				Vector4 color = MathHelper.ARGBToVector(colorSelection == 0 ? 0xFF5b98ff : colorSelection == 1 ? 0xFF6edcff : 0xFFd6eeff);
+				Vector4 color = MathHelper.ARGBToVector(colorSelection == 0 ? 0xFF5b98ff : colorSelection == 1 ? 0xFF6edcff : 0xFFd6eeff) * new Vector4(1.5f);
 
 				color.w *= fade;
 				color.w *= MathF.Exp(-j);

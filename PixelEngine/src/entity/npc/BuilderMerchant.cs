@@ -22,6 +22,11 @@ public class BuilderMerchant : NPC
 		saleTax = 0.2f;
 		buysItems = true;
 
-		populateShop(random, 9, 15, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 9, 15, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
+	}
+
+	public BuilderMerchant()
+		: this(Random.Shared)
+	{
 	}
 }

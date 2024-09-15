@@ -67,6 +67,8 @@ public class GameState : State
 
 	public static GameState instance;
 
+	public bool consoleOpen = false;
+
 	public bool isPaused = false;
 
 	long particleUpdateDelta;
@@ -84,6 +86,9 @@ public class GameState : State
 
 	public Player player;
 	public PlayerCamera camera;
+
+	Sound ambientSound;
+	uint ambientSource;
 
 
 	public GameState(string seed)
@@ -223,6 +228,10 @@ public class GameState : State
 		{
 			level.entities[i].onLevelSwitch(false);
 		}
+
+		ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
+		ambientSource = Audio.PlayBackground(ambientSound);
+		Audio.SetSourceLooping(ambientSource, true);
 	}
 
 	public override void init()
@@ -231,6 +240,8 @@ public class GameState : State
 
 	public override void destroy()
 	{
+		Audio.StopSource(ambientSource);
+
 		level.destroy();
 		for (int i = 0; i < cachedLevels.Count; i++)
 		{
@@ -246,8 +257,29 @@ public class GameState : State
 
 	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
 	{
-		if (isPaused)
+#if DEBUG
+		if (key == KeyCode.Semicolon && modifiers == KeyModifier.None && down)
+		{
+			consoleOpen = !consoleOpen;
+			Input.ConsumeKeyEvent(key);
+		}
+#endif
+		if (consoleOpen)
+		{
+			DebugConsole.OnKeyEvent(key, modifiers, down);
+			Input.ConsumeKeyEvent(key);
+		}
+		else if (isPaused)
 			PauseMenu.OnKeyEvent(key, modifiers, down);
+	}
+
+	public override void onCharEvent(byte length, uint value)
+	{
+		char c = (char)value;
+		if (c == 'ö')
+			return;
+		if (consoleOpen)
+			DebugConsole.OnCharEvent(c);
 	}
 
 	public override void onMouseButtonEvent(MouseButton button, bool down)
@@ -347,6 +379,9 @@ public class GameState : State
 				PauseMenu.OnUnpause();
 			}
 		}
+
+		if (consoleOpen)
+			DebugConsole.Render();
 	}
 
 	public override void drawDebugStats(int y, byte color, GraphicsDevice graphics)

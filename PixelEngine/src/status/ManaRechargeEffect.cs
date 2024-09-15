@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class PoisonEffect : StatusEffect
+public class ManaRechargeEffect : StatusEffect
 {
 	float amount;
 	float duration;
@@ -15,7 +15,8 @@ public class PoisonEffect : StatusEffect
 	long lastUpdate;
 
 
-	public PoisonEffect(float amount, float duration)
+	public ManaRechargeEffect(float amount, float duration)
+		: base("mana_recharge", new Sprite(tileset, 2, 0))
 	{
 		this.amount = amount;
 		this.duration = duration;
@@ -26,11 +27,11 @@ public class PoisonEffect : StatusEffect
 
 	public override unsafe void init(Player player)
 	{
-		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 16), duration, 5.0f, 0.25f, 0xFFAFAF2A), player.position + new Vector2(0, 0.5f));
+		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, ), player.position + new Vector2(0, 0.5f));
 
 		ParticleEffect effect = new ParticleEffect(player, "res/effects/regenerate.rfs");
-		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFFAFAF2A).xyz;
-		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFFAFAF2A).xyz;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
 
@@ -41,8 +42,11 @@ public class PoisonEffect : StatusEffect
 	{
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
 		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
-		float heal = amount * sinceLastFrame / duration;
-		player.hit(heal, null, null, "Poison", false);
+		if (elapsed >= duration)
+			sinceLastFrame -= elapsed - duration;
+		float charge = amount * sinceLastFrame / duration;
+		if (player.mana < player.maxMana)
+			player.mana += charge;
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}

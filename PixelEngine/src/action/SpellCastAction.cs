@@ -27,4 +27,15 @@ public class SpellCastAction : EntityAction
 	{
 		spell.cast(player, weapon);
 	}
+
+	public override Matrix getItemTransform(Player player)
+	{
+		Vector2 position = player.getWeaponOrigin(mainHand);
+		Item item = mainHand ? player.handItem : player.offhandItem;
+		if (item != null)
+			position += item.renderOffset;
+		return Matrix.CreateRotation(Vector3.UnitY, player.direction == -1 ? MathF.PI : 0)
+			* Matrix.CreateTranslation(position.x, position.y, 0)
+			* Matrix.CreateRotation(Vector3.UnitZ, 1 - (elapsedTime / duration) * 0.75f);
+	}
 }

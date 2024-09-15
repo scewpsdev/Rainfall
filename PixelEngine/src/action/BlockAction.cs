@@ -47,6 +47,6 @@ public class BlockAction : EntityAction
 
 	public override Matrix getItemTransform(Player player)
 	{
-		return Matrix.CreateTranslation((player.getWeaponOrigin(mainHand).x + progress * 0.5f) * player.direction, player.getWeaponOrigin(mainHand).y, 0) * Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		return Matrix.CreateTranslation((player.getWeaponOrigin(mainHand).x + progress * 0.5f - 0.25f) * player.direction, player.getWeaponOrigin(mainHand).y, 0);
 	}
 }

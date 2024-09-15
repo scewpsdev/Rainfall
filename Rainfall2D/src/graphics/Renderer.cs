@@ -149,7 +149,7 @@ public static class Renderer
 		});
 		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
 
 		bloomDownsampleChain = new RenderTarget[BLOOM_CHAIN_LENGTH];
@@ -240,7 +240,7 @@ public static class Renderer
 		});
 		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
 
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
@@ -251,14 +251,14 @@ public static class Renderer
 
 			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 			{
-				new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
+				new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Clamp)
 			});
 
 			if (i < BLOOM_CHAIN_LENGTH - 1)
 			{
 				bloomUpsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 				{
-					new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.UClamp | (uint)SamplerFlags.VClamp)
+					new RenderTargetAttachment(w, h, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Clamp)
 				});
 			}
 		}
@@ -479,6 +479,23 @@ public static class Renderer
 		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color });
 	}
 
+	public static void DrawUISpriteCutout(int x, int y, Sprite sprite, int width, int height, int uoffset = 0, int voffset = 0, uint color = 0xFFFFFFFF)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			uoffset = Math.Min(uoffset, (sprite.width - width) / 2);
+			voffset = Math.Min(voffset, (sprite.height - height) / 2);
+
+			u0 = sprite.uv0.x + ((sprite.width - width) / 2 + uoffset) / (float)sprite.spriteSheet.texture.width;
+			v0 = sprite.uv0.y + ((sprite.height - height) / 2 + voffset) / (float)sprite.spriteSheet.texture.height;
+			u1 = sprite.uv1.x - ((sprite.width - width) / 2 - uoffset) / (float)sprite.spriteSheet.texture.width;
+			v1 = sprite.uv1.y - ((sprite.height - height) / 2 - voffset) / (float)sprite.spriteSheet.texture.height;
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+	}
+
 	public static void DrawUISpriteSolid(int x, int y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -554,6 +571,11 @@ public static class Renderer
 	public static Vector2i MeasureUITextBMP(char c)
 	{
 		return smallFont.getCharacterRect(c).size;
+	}
+
+	public static Vector2i size
+	{
+		get => new Vector2i(UIWidth, UIHeight);
 	}
 
 	public static Vector2i cursorPosition
@@ -929,10 +951,17 @@ public static class Renderer
 		{
 			UIDraw draw = uiDraws[i];
 			Texture texture = draw.texture;
+
 			float u0 = draw.rect.min.x;
 			float v0 = draw.rect.min.y;
 			float u1 = draw.rect.max.x;
 			float v1 = draw.rect.max.y;
+
+			u0 += 0.00001f;
+			v0 += 0.00001f;
+			u1 -= 0.00001f;
+			v1 -= 0.00001f;
+
 			uiBatch.draw(
 				draw.position.x, UIHeight - draw.position.y - draw.size.y, 0.0f,
 				draw.size.x, draw.size.y,

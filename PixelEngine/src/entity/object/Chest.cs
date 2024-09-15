@@ -35,6 +35,11 @@ public class Chest : Entity, Interactable, Destructible
 	{
 	}
 
+	public Chest()
+		: this(null, false)
+	{
+	}
+
 	public void onDestroyed(Entity entity, Item item)
 	{
 		if (!open && items != null)

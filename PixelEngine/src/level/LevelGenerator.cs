@@ -180,7 +180,7 @@ public class LevelGenerator
 						level.setTile(x + xx, y + yy, null);
 						break;
 					case 0xFFFFFFFF:
-						float type = simplex.sample2f(xx * 0.1f, yy * 0.1f);
+						float type = simplex.sample2f(xx * 0.05f, yy * 0.05f);
 						level.setTile(x + xx, y + yy, type > -0.2f ? TileType.wall : TileType.stone);
 						break;
 					case 0xFF0000FF:
@@ -806,7 +806,7 @@ public class LevelGenerator
 						TileType downDown = level.getTile(x, y - 2);
 						if (downDown != null)
 						{
-							float torchChance = 0.03f;
+							float torchChance = 0.01f;
 							if (random.NextSingle() < torchChance)
 							{
 								level.addEntity(new TorchEntity(), new Vector2(x + 0.5f, y + 0.5f));
@@ -842,7 +842,12 @@ public class LevelGenerator
 							}
 							else
 							{
-								level.addEntity(new Barrel(), new Vector2(x + 0.5f, y));
+								Item[] items = null;
+								float itemChance = 0.01f;
+								if (random.NextSingle() < itemChance)
+									items = Item.CreateRandom(random, DropRates.barrel);
+
+								level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
 							}
 							objectFlags[x + y * width] = true;
 						}
@@ -890,9 +895,11 @@ public class LevelGenerator
 										//else 
 										if (enemyType > 0.95f)
 											enemy = new Gandalf();
-										else if (enemyType > 0.666f)
+										else if (enemyType > 0.9f)
+											enemy = new SkeletonArcher();
+										else if (enemyType > 0.6f)
 											enemy = new Snake();
-										else if (enemyType > 0.333f)
+										else if (enemyType > 0.3f)
 										{
 											float spiderType = random.NextSingle();
 											if (spiderType < 0.9f)

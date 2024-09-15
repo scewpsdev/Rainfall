@@ -17,7 +17,6 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_DAMAGE_DISTANCE = 8;
-	const float MANA_RECHARGE_RATE = 0.02f;
 	const float MANA_KILL_REWARD = 0.4f;
 
 
@@ -26,7 +25,7 @@ public class Player : Entity, Hittable
 	public float jumpPower = 10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
-	public float attack = 1.0f;
+	public float manaRechargeRate = 0.02f;
 
 	public float maxHealth = 3;
 	public float health = 3;
@@ -35,6 +34,9 @@ public class Player : Entity, Hittable
 	public float mana = 2;
 
 	public int money = 0;
+
+	public float attackDamageModifier = 1.0f;
+	public float attackSpeedModifier = 1.0f;
 
 	public int direction = 1;
 	public Vector2i aimPosition;
@@ -64,7 +66,7 @@ public class Player : Entity, Hittable
 	long lastWallTouchLeft = -10000000000;
 	long lastItemUseDown = -1;
 
-	List<StatusEffect> statusEffects = new List<StatusEffect>();
+	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
 	long lastHit = -10000000000;
 	long stunTime = -1;
@@ -88,6 +90,9 @@ public class Player : Entity, Hittable
 	InventoryUI inventoryUI;
 	public int numOverlaysOpen = 0;
 	public bool inventoryOpen = false;
+
+	Sound[] stepSound;
+	Sound landSound;
 
 
 	public Player()
@@ -117,9 +122,13 @@ public class Player : Entity, Hittable
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
+		stepSound = [
+			Resource.GetSound("res/sounds/step1.ogg"),
+			Resource.GetSound("res/sounds/step2.ogg")
+		];
+		landSound = Resource.GetSound("res/sounds/land.ogg");
+
 #if DEBUG
-		giveItem(new Backpack());
-		giveItem(new StaffOfIllumination());
 #endif
 	}
 
@@ -441,7 +450,7 @@ public class Player : Entity, Hittable
 		GameState.instance.level.addEntity(obj, throwOrigin);
 	}
 
-	public void throwItem(Item item, Vector2 direction, float speed = 14)
+	public ItemEntity throwItem(Item item, Vector2 direction, float speed = 14)
 	{
 		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
@@ -449,6 +458,7 @@ public class Player : Entity, Hittable
 		Vector2 throwOrigin = position + collider.center;
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
 		GameState.instance.level.addEntity(obj, throwOrigin);
+		return obj;
 	}
 
 	public void addImpulse(Vector2 impulse)
@@ -503,8 +513,6 @@ public class Player : Entity, Hittable
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
 
-			health = MathF.Max(health - damage, 0);
-
 			GameState.instance.run.hitsTaken++;
 
 			if (by != null && by.collider != null)
@@ -551,7 +559,7 @@ public class Player : Entity, Hittable
 			if (passiveItems[i] != null && passiveItems[i].ingameSprite == null)
 			{
 				passiveItems[i].onUnequip(this);
-				passiveItems[i] = null;
+				//passiveItems[i] = null;
 			}
 		}
 
@@ -584,6 +592,28 @@ public class Player : Entity, Hittable
 	{
 		statusEffects.Add(effect);
 		effect.init(this);
+	}
+
+	public void removeStatusEffect(string name)
+	{
+		for (int i = 0; i < statusEffects.Count; i++)
+		{
+			if (statusEffects[i].name == name)
+			{
+				statusEffects.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	public bool hasStatusEffect(string name)
+	{
+		for (int i = 0; i < statusEffects.Count; i++)
+		{
+			if (statusEffects[i].name == name)
+				return true;
+		}
+		return false;
 	}
 
 	public void onKill(Mob mob)
@@ -761,7 +791,7 @@ public class Player : Entity, Hittable
 		}
 		*/
 
-		if (numOverlaysOpen == 0)
+		if (isAlive && numOverlaysOpen == 0)
 		{
 			Vector2 controllerAim = Input.GamepadAxisRight;
 			if (controllerAim.lengthSquared > 0.25f)
@@ -788,7 +818,7 @@ public class Player : Entity, Hittable
 						Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
 					}
 					*/
-					lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - GameState.instance.camera.screenToWorld(Display.viewportSize / 2); // (position + collider.center);
+					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - GameState.instance.camera.screenToWorld(Renderer.size / 2); // (position + collider.center);
 					if (MathF.Abs(lookDirection.x) > maxCursorDistance)
 						lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
 					if (MathF.Abs(lookDirection.y) > maxCursorDistance)
@@ -796,7 +826,7 @@ public class Player : Entity, Hittable
 				}
 				else
 				{
-					lookDirection = GameState.instance.camera.screenToWorld(Input.cursorPosition) - (position + collider.center);
+					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - (position + collider.center);
 				}
 			}
 
@@ -1079,7 +1109,7 @@ public class Player : Entity, Hittable
 	void updateStatus()
 	{
 		if (mana < maxMana)
-			mana = MathF.Min(mana + MANA_RECHARGE_RATE * Time.deltaTime, maxMana);
+			mana = MathF.Min(mana + manaRechargeRate * Time.deltaTime, maxMana);
 
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
@@ -1149,7 +1179,10 @@ public class Player : Entity, Hittable
 		for (int i = 0; i < passiveItems.Length; i++)
 		{
 			if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+			{
 				animator.update(passiveItems[i].ingameSprite);
+				passiveItems[i].ingameSprite.position *= passiveItems[i].ingameSpriteSize;
+			}
 		}
 	}
 
@@ -1160,6 +1193,8 @@ public class Player : Entity, Hittable
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
 		if (tile != null)
 			GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(2, 4), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+
+		Audio.PlayOrganic(stepSound, new Vector3(position, 0));
 	}
 
 	void onLand()
@@ -1167,10 +1202,14 @@ public class Player : Entity, Hittable
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
 		if (tile != null)
 			GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(4, 8), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+
+		Audio.PlayOrganic(landSound, new Vector3(position, 0));
 	}
 
 	public override void update()
 	{
+		Audio.UpdateListener(new Vector3(position, 3), Quaternion.Identity);
+
 		updateMovement();
 		updateActions();
 		updateStatus();
@@ -1234,14 +1273,18 @@ public class Player : Entity, Hittable
 
 		if (show)
 		{
-			Renderer.DrawSprite(position.x - 0.5f, position.y, 1, isDucked ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
+			Vector2 snappedPosition = position;
+			snappedPosition.x = MathF.Round(snappedPosition.x * 16) / 16;
+			snappedPosition.y = MathF.Round(snappedPosition.y * 16) / 16;
+
+			Renderer.DrawSprite(snappedPosition.x - 0.5f, snappedPosition.y, 1, isDucked ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
 
 			for (int i = 0; i < passiveItems.Length; i++)
 			{
 				if (passiveItems[i] != null)
 				{
 					if (passiveItems[i].ingameSprite != null)
-						Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_PLAYER_ARMOR, 1, isDucked ? 0.5f : 1, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+						Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 					passiveItems[i].render(this);
 				}
 			}

@@ -25,6 +25,7 @@ public class HUD
 	public static Sprite armor, armorEmpty;
 	public static Sprite mana, manaEmpty;
 	public static Sprite gem;
+	public static Sprite staffCharge;
 
 	public static Sprite crosshair;
 	public static Sprite aimIndicator;
@@ -44,6 +45,8 @@ public class HUD
 		armorEmpty = new Sprite(tileset, 5, 0);
 
 		gem = new Sprite(tileset, 3, 0);
+
+		staffCharge = new Sprite(tileset, 6, 1);
 
 		crosshair = new Sprite(tileset, 2, 4, 1, 1);
 		aimIndicator = new Sprite(tileset, 3, 4);
@@ -157,7 +160,7 @@ public class HUD
 			}
 		}
 
-		// Armor
+		/*
 		int totalArmor = player.getTotalArmor();
 		for (int i = 0; i < (int)MathF.Ceiling(totalArmor / 4.0f); i++)
 		{
@@ -172,6 +175,7 @@ public class HUD
 			fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
 			Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), armor.spriteSheet.texture, armor.position.x, armor.position.y + (int)(armor.size.y * (1 - fraction)), armor.size.x, (int)(armor.size.y * fraction));
 		}
+		*/
 
 		// Mana
 		for (int i = 0; i < player.maxMana; i++)
@@ -205,6 +209,37 @@ public class HUD
 			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);
 		}
 
+		// Armor
+		int totalArmor = player.getTotalArmor();
+		if (totalArmor > 0)
+		{
+			int size = 8;
+			int x = 6;
+			int y = 6 + 8 + 3 + 8 + 3 + 8 + 3;
+
+			Renderer.DrawUIOutline(x, y, size, size, armor, false, 0x5F000000);
+			Renderer.DrawUISprite(x, y, size, size, armor, false);
+			Renderer.DrawUITextBMP(x + size + 3, y, totalArmor.ToString(), 1);
+		}
+
+		{ // Status effects
+			int size = 8;
+			int x = 6 + (totalArmor > 0 ? 8 + 3 + 8 + 3 : 0);
+			int y = 6 + 8 + 3 + 8 + 3 + 8 + 3;
+
+			for (int i = 0; i < player.statusEffects.Count; i++)
+			{
+				StatusEffect effect = player.statusEffects[i];
+				uint color = effect.positiveEffect ? 0xFF777777 : 0xFF886666;
+
+				Renderer.DrawUISprite(x, y, size + 2, size + 2, null, false, color);
+				Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
+				Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, effect.icon, effect.iconColor);
+
+				x += effect.icon.width + 3;
+			}
+		}
+
 		{ // Hand items
 			int size = 16;
 			int x = 4;
@@ -228,7 +263,7 @@ public class HUD
 			Renderer.DrawUISprite(x + size + padding, y, size, size, null, false, bgColor);
 			if (player.handItem != null)
 			{
-				Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.sprite);
+				Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.getIcon());
 				if (player.handItem.stackable && player.handItem.stackSize > 1)
 					Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
 
@@ -244,6 +279,11 @@ public class HUD
 						if (ammo.stackable && ammo.stackSize > 1)
 							Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y - padding - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
 					}
+				}
+				else if (player.handItem.type == ItemType.Staff)
+				{
+					Renderer.DrawUISprite(x + size + padding - 1, y - padding - size + 4, 8, 8, staffCharge);
+					Renderer.DrawUITextBMP(x + size + padding + 8, y - padding - size / 2 - Renderer.smallFont.size / 2, player.handItem.staffCharges.ToString(), 1, txtColor);
 				}
 			}
 		}

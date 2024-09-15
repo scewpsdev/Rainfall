@@ -27,14 +27,16 @@ public class RingOfTears : Item
 
 	void activate(Player player)
 	{
-		player.attack *= 1 + buff;
+		player.attackDamageModifier *= 1 + buff;
 		active = true;
+		player.addStatusEffect(new AttackModifier());
 	}
 
 	void deactivate(Player player)
 	{
-		player.attack /= 1 + buff;
+		player.attackDamageModifier /= 1 + buff;
 		active = false;
+		player.removeStatusEffect("attack_modifier");
 	}
 
 	public override void onUnequip(Player player)

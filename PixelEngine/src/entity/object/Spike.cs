@@ -27,9 +27,9 @@ public class Spike : Entity
 			if (hits[i].entity != null && hits[i].entity != this && hits[i].entity is Hittable)
 			{
 				Hittable hittable = hits[i].entity as Hittable;
-				if (hits[i].entity.velocity.y < 0 && hits[i].entity.position.y - hits[i].entity.velocity.y * Time.deltaTime > position.y + 0.5f)
+				if (hits[i].entity.velocity.y < -0.1f && hits[i].entity.position.y - hits[i].entity.velocity.y * Time.deltaTime > position.y + 0.5f)
 				{
-					float damage = MathF.Max(MathF.Abs(hits[i].entity.velocity.y) * 0.3f, 0.1f);
+					float damage = MathF.Abs(hits[i].entity.velocity.y) * 0.4f;
 					hittable.hit(damage, this, null);
 				}
 			}

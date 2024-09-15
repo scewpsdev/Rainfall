@@ -10,7 +10,7 @@ public class BatAI : AI
 {
 	float shootCooldown = 1.0f;
 
-	public bool preferVerticalMovement = true;
+	public bool preferVerticalMovement = false;
 	public bool canShoot = false;
 
 	int walkDirection = 1;
@@ -72,7 +72,7 @@ public class BatAI : AI
 			return;
 		}
 
-		if (currentPath.Count > 0)
+		if (currentPath.Count > (canShoot ? 3 : 0))
 		{
 			Vector2i nextTile = currentPath.Count > 1 ? currentPath[1] : currentPath[0];
 			float xdelta = nextTile.x + 0.5f - mob.position.x;

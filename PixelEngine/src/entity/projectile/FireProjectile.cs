@@ -46,7 +46,7 @@ public class FireProjectile : Entity
 		{
 			damage = item.attackDamage;
 			if (shooter is Player)
-				damage *= (shooter as Player).attack;
+				damage *= (shooter as Player).attackDamageModifier;
 		}
 
 		sprite = new Sprite(Item.tileset, 1, 2);

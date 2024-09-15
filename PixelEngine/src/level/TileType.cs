@@ -15,6 +15,7 @@ public class TileType
 	public bool visible = true;
 	public bool isSolid = true;
 	public bool isPlatform = false;
+	public bool destructible = false;
 
 	public uint color = 0xFFFF00FF;
 	public uint particleColor = 0xFFFFFFFF;
@@ -47,6 +48,7 @@ public class TileType
 			right = [new Sprite(tileset, 5, 1)],
 			top = [new Sprite(tileset, 4, 0), new Sprite(tileset, 9, 0), new Sprite(tileset, 10, 0), new Sprite(tileset, 11, 0), new Sprite(tileset, 12, 0)],
 			bottom = [new Sprite(tileset, 4, 2), new Sprite(tileset, 9, 2), new Sprite(tileset, 10, 2), new Sprite(tileset, 11, 2), new Sprite(tileset, 12, 2)],
+			destructible = true
 		});
 		AddTileType(stone = new TileType()
 		{

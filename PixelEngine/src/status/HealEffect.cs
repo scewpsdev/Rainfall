@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class ManaRechargeEffect : StatusEffect
+public class HealEffect : StatusEffect
 {
 	float amount;
 	float duration;
@@ -15,7 +15,8 @@ public class ManaRechargeEffect : StatusEffect
 	long lastUpdate;
 
 
-	public ManaRechargeEffect(float amount, float duration)
+	public HealEffect(float amount, float duration)
+		: base("heal", new Sprite(tileset, 0, 0))
 	{
 		this.amount = amount;
 		this.duration = duration;
@@ -26,11 +27,11 @@ public class ManaRechargeEffect : StatusEffect
 
 	public override unsafe void init(Player player)
 	{
-		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, ), player.position + new Vector2(0, 0.5f));
+		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, 0xFFFF4D40), player.position + new Vector2(0, 0.5f));
 
 		ParticleEffect effect = new ParticleEffect(player, "res/effects/regenerate.rfs");
-		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
-		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFFFF4D40).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFFFF4D40).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
 
@@ -43,9 +44,9 @@ public class ManaRechargeEffect : StatusEffect
 		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
 		if (elapsed >= duration)
 			sinceLastFrame -= elapsed - duration;
-		float charge = amount * sinceLastFrame / duration;
-		if (player.mana < player.maxMana)
-			player.mana += charge;
+		float heal = amount * sinceLastFrame / duration;
+		if (player.health < player.maxHealth)
+			player.health += heal;
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}

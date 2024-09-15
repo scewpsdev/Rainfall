@@ -78,9 +78,13 @@ public class BoomerangProjectile : Entity
 		HitData tileHit = GameState.instance.level.sampleTiles(position);
 		if (tileHit != null)
 		{
-			velocity *= -1;
-			hitEntities.Clear();
-			//drop();
+			TileType tile = GameState.instance.level.getTile(tileHit.tile);
+			if (tile != null && tile.isSolid)
+			{
+				velocity *= -1;
+				hitEntities.Clear();
+				//drop();
+			}
 		}
 
 		HitData[] hits = new HitData[16];
@@ -106,7 +110,7 @@ public class BoomerangProjectile : Entity
 					Hittable hittable = hit.entity as Hittable;
 					float dmg = item.attackDamage;
 					if (player != null)
-						dmg *= player.attack;
+						dmg *= player.attackDamageModifier;
 					hittable.hit(dmg, shooter, item);
 					hitEntities.Add(hit.entity);
 				}

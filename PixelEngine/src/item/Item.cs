@@ -70,9 +70,11 @@ public abstract class Item
 	public bool trigger = true;
 	public int maxPierces = 0;
 	public int maxRicochets = 0;
-	public float knockback = 8.0f;
+	public float knockback = 4.0f;
 	public float manaCost = 0;
 	public string requiredAmmo = null;
+	public int staffCharges = 0;
+	public int maxStaffCharges = 0;
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
@@ -84,12 +86,15 @@ public abstract class Item
 	public bool projectileItem = false;
 	public float projectileRotationOffset = 0.0f;
 	public bool projectileSticks = false;
+	public bool projectileSpins = false;
 	public bool breakOnWallHit = false;
 	public bool breakOnEnemyHit = false;
 
 	public Sprite sprite = null;
+	public Sprite icon = null;
 	public Vector4 spriteColor = Vector4.One;
 	public Sprite ingameSprite = null;
+	public int ingameSpriteSize = 1;
 	public Vector4 ingameSpriteColor = Vector4.One;
 
 	// modifiers
@@ -137,14 +142,21 @@ public abstract class Item
 			float r = rarity;
 			if (r >= 1.0f)
 				return "Garbage";
-			if (r >= 0.9f)
-				return "Common";
 			if (r >= 0.5f)
-				return "Uncommon";
+				return "Common";
 			if (r >= 0.1f)
+				return "Uncommon";
+			if (r >= 0.02f)
 				return "Rare";
 			return "Exceedingly Rare";
 		}
+	}
+
+	public Sprite getIcon()
+	{
+		if (icon == null)
+			icon = new Sprite(sprite.spriteSheet, (sprite.position.x + sprite.size.x / 2) / sprite.spriteSheet.spriteSize.x, sprite.position.y / sprite.spriteSheet.spriteSize.y, 1, 1);
+		return icon;
 	}
 
 	public virtual bool use(Player player)
@@ -250,6 +262,15 @@ public abstract class Item
 		InitType(new Backpack());
 		InitType(new ThrowingKnife());
 		InitType(new StaffOfIllumination());
+		InitType(new Halberd());
+		InitType(new WizardsHat());
+		InitType(new RingOfDexterity());
+		InitType(new Greathammer());
+		InitType(new MoonBlossom());
+		InitType(new MoonFruit());
+		InitType(new Rapier());
+		InitType(new Handaxe());
+		InitType(new Greataxe());
 	}
 
 	static void InitType(Item item)
@@ -305,6 +326,8 @@ public abstract class Item
 					newItem.stackSize = MathHelper.RandomInt(1, 12, random);
 				else if (newItem.name == "throwing_knife")
 					newItem.stackSize = MathHelper.RandomInt(1, 6, random);
+				if (newItem.type == ItemType.Staff)
+					newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
 				return newItem;
 			}
 		}

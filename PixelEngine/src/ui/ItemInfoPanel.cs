@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rainfall;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,10 @@ public static class ItemInfoPanel
 		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF222222);
 
 		y += 4;
+
+		Renderer.DrawUISprite(x + width / 2 - item.sprite.width / 2, y, item.sprite.width, item.sprite.height, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+		y += item.sprite.height + 1;
+
 		string[] nameLines = Renderer.SplitMultilineText(item.displayName, width);
 		foreach (string line in nameLines)
 		{

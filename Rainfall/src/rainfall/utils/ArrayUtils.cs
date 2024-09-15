@@ -35,4 +35,13 @@ public static class ArrayUtils
 		Array.Copy(arr, idx + 1, newArr, idx, arr.Length - idx - 1);
 		return newArr;
 	}
+
+	public static T[] Slice<T>(T[] arr, int index, int count = -1)
+	{
+		if (count == -1)
+			count = arr.Length - index;
+		T[] newArr = new T[count];
+		Array.Copy(arr, index, newArr, 0, count);
+		return newArr;
+	}
 }
