@@ -19,7 +19,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 	bool stuck = false;
 	Vector2i stuckTile;
 
-	float rotationVelocity = 0;
+	public float rotationVelocity = 0;
 	bool flipped;
 
 	public Entity thrower = null;
@@ -71,7 +71,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 
 	void onHit(bool x, bool y)
 	{
-		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity * Time.deltaTime * 2);
+		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity.normalized * collider.size);
 
 		if (item.projectileSticks)
 		{
@@ -154,7 +154,15 @@ public class ItemEntity : Entity, Interactable, Destructible
 		{
 			if (velocity.lengthSquared > 1.0f)
 			{
-				rotation = MathF.Atan2(velocity.y, velocity.x) + item.projectileRotationOffset;
+				if (item.projectileSpins)
+				{
+					flipped = velocity.x < 0;
+					rotation += (flipped ? -1 : 1) * rotationVelocity * Time.deltaTime;
+				}
+				else
+				{
+					rotation = MathF.Atan2(velocity.y, velocity.x) + item.projectileRotationOffset;
+				}
 				//flipped = velocity.x < 0;
 			}
 		}

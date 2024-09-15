@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class Backpack : Item
 {
-	int numSlots = 3;
+	int numSlots = 4;
 
 
 	public Backpack()
@@ -17,6 +17,8 @@ public class Backpack : Item
 	{
 		displayName = "Backpack";
 		armorSlot = ArmorSlot.Back;
+
+		description = "Increases inventory space by 4";
 
 		armor = 1;
 		value = 50;

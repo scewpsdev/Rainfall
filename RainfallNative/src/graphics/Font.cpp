@@ -79,6 +79,11 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, i
 		stbtt_aligned_quad quad;
 		stbtt_GetBakedQuad((const stbtt_bakedchar*)this->characters, this->atlasWidth, this->atlasHeight, charIndex, &xpos, &ypos, &quad, 1);
 
+		quad.s0 += 0.00001f;
+		quad.t0 += 0.00001f;
+		quad.s1 -= 0.00001f;
+		quad.t1 -= 0.00001f;
+
 		float width = (quad.x1 - quad.x0) * textScale;
 		float height = (quad.y1 - quad.y0) * textScale;
 

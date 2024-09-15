@@ -18,6 +18,7 @@ public class Dagger : Item
 		attackRate = 4;
 
 		projectileItem = true;
+		projectileSticks = true;
 
 		value = 6;
 

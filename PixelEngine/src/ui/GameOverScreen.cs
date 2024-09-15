@@ -158,7 +158,9 @@ public static class GameOverScreen
 		int y = 16;
 		int width = Renderer.UIWidth - 2 * 16;
 		int height = Renderer.UIHeight - 2 * 16;
-		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
+		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF555555);
+		Renderer.DrawUISprite(x + 2, y + 2, width / 2 - 4, height - 4, null, false, 0xFF111111);
+		Renderer.DrawUISprite(x + width / 2, y + 2, width / 2 - 2, height - 4, null, false, 0xFF111111);
 
 		int padding = 8;
 

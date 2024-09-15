@@ -46,7 +46,7 @@ public class MagicProjectile : Entity
 		{
 			damage = item.attackDamage;
 			if (shooter is Player)
-				damage *= (shooter as Player).attack;
+				damage *= (shooter as Player).attackDamageModifier;
 		}
 
 		sprite = new Sprite(Item.tileset, 9, 1);
@@ -99,7 +99,7 @@ public class MagicProjectile : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f), true);
+		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(1.5f), true);
 		Renderer.DrawLight(position, MathHelper.ARGBToVector(0xFF99eeee).xyz * 3, 4);
 	}
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 public class Tinkerer : NPC
 {
 	public Tinkerer(Random random)
-		: base("tinkerer_merchant")
+		: base("tinkerer")
 	{
 		displayName = "Tinker";
 
@@ -23,7 +23,12 @@ public class Tinkerer : NPC
 		buysItems = true;
 		canCraft = true;
 
-		populateShop(random, 9, 15, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 9, 15, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
+	}
+
+	public Tinkerer()
+		: this(Random.Shared)
+	{
 	}
 
 	public override Item craftItem(Item item1, Item item2)

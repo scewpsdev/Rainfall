@@ -8,49 +8,64 @@ using System.Threading.Tasks;
 
 public class InventoryUI
 {
+	public static Sprite weaponSprite, shieldSprite, armorSprite, bagSprite, ringSprite;
+
+	static InventoryUI()
+	{
+		weaponSprite = new Sprite(HUD.tileset, 0, 2, 2, 2);
+		shieldSprite = new Sprite(HUD.tileset, 2, 2, 2, 2);
+		bagSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
+		armorSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
+		ringSprite = new Sprite(HUD.tileset, 6, 4, 2, 2);
+	}
+
+
 	Player player;
 
 	int selectedItem = 0;
 	int sidePanelHeight = 40;
 
-	Sprite weaponSprite, shieldSprite, armorSprite, bagSprite;
-
 
 	public InventoryUI(Player player)
 	{
 		this.player = player;
-
-		weaponSprite = new Sprite(HUD.tileset, 0, 2, 2, 2);
-		shieldSprite = new Sprite(HUD.tileset, 2, 2, 2, 2);
-		bagSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
-		armorSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
 	}
 
-	static void drawItemSlot(int x, int y, int size, int border, Item item)
+	static void drawItemSlot(int x, int y, int size, Item item)
 	{
-		Renderer.DrawUISprite(x, y, size, size, null, false, 0xFF333333);
-		Renderer.DrawUISprite(x + border, y + border, size - 2 * border, size - 2 * border, null, false, 0xFF111111);
+		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, 0xFF333333);
+		Renderer.DrawUISprite(x, y, size, size, null, false, 0xFF111111);
 		if (item != null)
-			Renderer.DrawUISprite(x, y, size, size, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+			Renderer.DrawUISprite(x, y, size, size, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 	}
 
 	public static void DrawEquipment(int x, int y, int width, int height, Player player)
 	{
-		//Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
-
-		int handItemSlotSize = 16 * 2;
-		drawItemSlot(x + 16, y + 16, handItemSlotSize, 2, player.handItem);
-
-		int xpadding = 2;
+		int xpadding = 4;
 		int ypadding = 4;
-		int slotSize = 24;
+		int slotSize = 16;
 
+		y += 16;
+
+		Renderer.DrawUISprite(x, y, 16, 16, shieldSprite);
+		Renderer.DrawUISprite(x, y, 16, 16, weaponSprite);
+		drawItemSlot(x + 16 + 2, y, slotSize, player.offhandItem);
+		drawItemSlot(x + 16 + 2 + slotSize + xpadding, y, slotSize, player.handItem);
+		y += slotSize + ypadding;
+
+		Renderer.DrawUISprite(x, y, 16, 16, bagSprite);
 		for (int i = 0; i < player.activeItems.Length; i++)
-			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding, slotSize, 2, player.activeItems[i]);
+			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.activeItems[i]);
+		y += slotSize + ypadding;
 
-		for (int i = 0; i < player.passiveItems.Length; i++)
-			drawItemSlot(x + 16 + i * (slotSize + xpadding), y + 16 + handItemSlotSize + ypadding + slotSize + ypadding, slotSize, 2, player.passiveItems[i]);
+		Renderer.DrawUISprite(x, y, 16, 16, armorSprite);
+		for (int i = 0; i < player.passiveItems.Length - 2; i++)
+			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.passiveItems[i]);
+		y += slotSize + ypadding;
 
+		Renderer.DrawUISprite(x, y, 16, 16, ringSprite);
+		for (int i = 0; i < 2; i++)
+			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.passiveItems[player.passiveItems.Length - 2 + i]);
 	}
 
 	void openScreen()
@@ -114,7 +129,7 @@ public class InventoryUI
 					Item item = player.items[i].Item2;
 
 					Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 					string name = item.fullDisplayName;
 					Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
 
@@ -129,8 +144,8 @@ public class InventoryUI
 					}
 					else if (player.isPassiveItem(item, out int passiveSlot))
 					{
-						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, armorSprite);
-						Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (passiveSlot + 1).ToString(), 1, 0xFF505050);
+						Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, item.type == ItemType.Ring ? ringSprite : armorSprite);
+						Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Length - 2 : 0)).ToString(), 1, 0xFF505050);
 					}
 
 					if (selected)

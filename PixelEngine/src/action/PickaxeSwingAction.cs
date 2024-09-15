@@ -36,7 +36,7 @@ public class PickaxeSwingAction : AttackAction
 				{
 					Vector2i pos = (Vector2i)Vector2.Floor(startPosition + new Vector2(0, 1.5f));
 					TileType tile = GameState.instance.level.getTile(pos);
-					if (tile != null && tile.isSolid)
+					if (tile != null && tile.isSolid && tile.destructible)
 					{
 						GameState.instance.level.setTile(pos.x, pos.y, null);
 						GameState.instance.level.updateLightmap(pos.x, pos.y, 1, 1);
@@ -47,7 +47,7 @@ public class PickaxeSwingAction : AttackAction
 				{
 					Vector2i pos = (Vector2i)Vector2.Floor(startPosition + direction + new Vector2(0, 0.5f));
 					TileType tile = GameState.instance.level.getTile(pos);
-					if (tile != null && tile.isSolid)
+					if (tile != null && tile.isSolid && tile.destructible)
 					{
 						GameState.instance.level.setTile(pos.x, pos.y, null);
 						GameState.instance.level.updateLightmap(pos.x, pos.y, 1, 1);
@@ -57,7 +57,7 @@ public class PickaxeSwingAction : AttackAction
 					{
 						pos = (Vector2i)Vector2.Floor(startPosition + direction + new Vector2(0, -0.5f));
 						tile = GameState.instance.level.getTile(pos);
-						if (tile != null && tile.isSolid)
+						if (tile != null && tile.isSolid && tile.destructible)
 						{
 							GameState.instance.level.setTile(pos.x, pos.y, null);
 							GameState.instance.level.updateLightmap(pos.x, pos.y, 1, 1);

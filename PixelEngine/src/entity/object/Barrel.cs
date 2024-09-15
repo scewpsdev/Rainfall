@@ -23,6 +23,11 @@ public class Barrel : Entity, Hittable
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 	}
 
+	public Barrel()
+		: this(null)
+	{
+	}
+
 	void dropItems()
 	{
 		for (int i = 0; i < items.Length; i++)

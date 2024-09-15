@@ -46,6 +46,7 @@ public class Gem : Entity
 		{
 			if (hits[i].entity != null && hits[i].entity is Player)
 			{
+				spawnCoins();
 				remove();
 				break;
 			}

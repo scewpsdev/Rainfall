@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 public class MagicStaff : Item
 {
-	int charges = 17000;
-
-
 	public MagicStaff()
 		: base("staff_magic", ItemType.Staff)
 	{
@@ -22,6 +19,8 @@ public class MagicStaff : Item
 
 		attackDamage = 1;
 		manaCost = 0.1f;
+		staffCharges = 28;
+		maxStaffCharges = 28;
 
 		value = 30;
 
@@ -31,12 +30,12 @@ public class MagicStaff : Item
 
 	public override bool use(Player player)
 	{
-		if (charges > 0 && player.mana >= manaCost)
+		if (staffCharges > 0 && player.mana >= manaCost)
 		{
 			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new MagicProjectileSpell()));
 			player.consumeMana(manaCost);
-			charges--;
+			staffCharges--;
 		}
-		return charges == 0;
+		return staffCharges == 0;
 	}
 }

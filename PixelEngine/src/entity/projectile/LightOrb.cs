@@ -64,7 +64,7 @@ public class LightOrb : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(1.0f), true);
+		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(1.2f), true);
 		Renderer.DrawLight(position, MathHelper.ARGBToVector(0xFFffecb5).xyz * 4, 10);
 	}
 }

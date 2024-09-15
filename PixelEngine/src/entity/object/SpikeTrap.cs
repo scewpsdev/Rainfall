@@ -46,7 +46,7 @@ internal class SpikeTrap : Entity, Hittable
 			if (velocity.y < -2)
 			{
 				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Up, MathF.Abs(velocity.y), MathHelper.ARGBToVector(0xFF47362a).xyz), position);
-				//velocity.y = 0;
+				velocity.y = 0;
 			}
 		}
 		else if (!falling)
@@ -71,7 +71,7 @@ internal class SpikeTrap : Entity, Hittable
 			for (int i = 0; i < numHits; i++)
 			{
 				HitData hit = hits[i];
-				if (hit.entity != null && !hitEntities.Contains(hit.entity))
+				if (hit.entity != null && hit.entity != this && !hitEntities.Contains(hit.entity))
 				{
 					if (hit.entity is Hittable)
 					{

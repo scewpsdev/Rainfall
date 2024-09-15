@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 public class StaffOfIllumination : Item
 {
-	int charges = 17000;
-
-
 	public StaffOfIllumination()
 		: base("staff_light", ItemType.Staff)
 	{
@@ -22,6 +19,8 @@ public class StaffOfIllumination : Item
 
 		attackDamage = 0;
 		manaCost = 0.5f;
+		staffCharges = 10;
+		maxStaffCharges = 10;
 
 		value = 26;
 
@@ -31,13 +30,13 @@ public class StaffOfIllumination : Item
 
 	public override bool use(Player player)
 	{
-		if (charges > 0 && player.mana >= manaCost)
+		if (staffCharges > 0 && player.mana >= manaCost)
 		{
 			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightOrbSpell()));
 			player.consumeMana(manaCost);
-			charges--;
+			staffCharges--;
 		}
-		return charges == 0;
+		return staffCharges == 0;
 	}
 
 	public override void render(Entity entity)

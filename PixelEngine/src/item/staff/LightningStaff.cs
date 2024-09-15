@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 public class LightningStaff : Item
 {
-	int charges = 8000;
-
-
 	public LightningStaff()
 		: base("staff_lightning", ItemType.Staff)
 	{
@@ -21,6 +18,8 @@ public class LightningStaff : Item
 
 		attackDamage = 2;
 		manaCost = 0.35f;
+		staffCharges = 8;
+		maxStaffCharges = 8;
 
 		value = 30;
 
@@ -30,12 +29,12 @@ public class LightningStaff : Item
 
 	public override bool use(Player player)
 	{
-		if (charges > 0 && player.mana >= manaCost)
+		if (staffCharges > 0 && player.mana >= manaCost)
 		{
 			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightningSpell()));
 			player.consumeMana(manaCost);
-			charges--;
+			staffCharges--;
 		}
-		return charges == 0;
+		return staffCharges == 0;
 	}
 }

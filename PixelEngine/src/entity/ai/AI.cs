@@ -32,6 +32,12 @@ public abstract class AI
 
 	protected bool canSeeEntity(Entity entity, out Vector2 toTarget, out float distance)
 	{
+		if (entity is not Player)
+		{
+			Console.WriteLine(entity);
+			Console.WriteLine(entity.name);
+			Debug.Assert(false);
+		}
 		Vector2 toEntity = entity.position + entity.collider.center - (mob.position + mob.collider.center);
 		toTarget = toEntity / toEntity.length;
 		distance = toEntity.length;
