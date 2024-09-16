@@ -68,9 +68,9 @@ public static class DebugConsole
 			{
 				if (int.TryParse(args[0], out int floor))
 				{
-					if (floor >= 1 && floor <= GameState.instance.floors.Length)
+					if (floor >= 1 && floor <= GameState.instance.areaCaves.Length)
 					{
-						Level level = GameState.instance.floors[floor - 1];
+						Level level = GameState.instance.areaCaves[floor - 1];
 						GameState.instance.switchLevel(level, level.entrance.position);
 					}
 				}

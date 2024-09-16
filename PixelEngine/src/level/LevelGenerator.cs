@@ -397,7 +397,7 @@ public class LevelGenerator
 		objectFlags[x + y * level.width] = true;
 	}
 
-	public unsafe void run(string seed, int floor, bool dark, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel)
+	public unsafe void generateCaves(string seed, int floor, bool dark, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance)
 	{
 		this.seed = seed;
 		this.floor = floor;
@@ -405,7 +405,7 @@ public class LevelGenerator
 		random = new Random((int)Hash.hash(seed) + floor);
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
-		int width = MathHelper.RandomInt(24, 150, random);
+		int width = MathHelper.RandomInt(30, 150, random);
 		int height = (floor == 5 ? 4500 : 3200) / width;
 		level.resize(width, height);
 
@@ -541,8 +541,8 @@ public class LevelGenerator
 		if (spawnStartingRoom)
 		{
 			entrancePosition = new Vector2i(startingRoom.x + 12, startingRoom.y + 3);
-			level.entrance = new Door(lastLevel, lastLevel.exit);
-			lastLevel.exit.otherDoor = level.entrance;
+			level.entrance = new Door(lastLevel, entrance);
+			entrance.otherDoor = level.entrance;
 			level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
 
 			objectFlags[entrancePosition.x + entrancePosition.y * width] = true;
@@ -553,8 +553,8 @@ public class LevelGenerator
 			{
 				if (startingRoom.getFloorSpawn(level, random, objectFlags, out entrancePosition))
 				{
-					level.entrance = new Door(lastLevel, lastLevel.exit);
-					lastLevel.exit.otherDoor = level.entrance;
+					level.entrance = new Door(lastLevel, entrance);
+					entrance.otherDoor = level.entrance;
 					level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
 
 					objectFlags[entrancePosition.x + entrancePosition.y * width] = true;
@@ -580,7 +580,7 @@ public class LevelGenerator
 			exitPosition = new Vector2i(exitRoom.x, exitRoom.y) + new Vector2i(23, 1);
 			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
-			Golem boss = new Golem();
+			GolemBoss boss = new GolemBoss();
 			boss.itemDropChance = 1;
 			level.addEntity(boss, new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(11, 1));
 

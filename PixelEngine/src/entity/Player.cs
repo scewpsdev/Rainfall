@@ -17,7 +17,7 @@ public class Player : Entity, Hittable
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_STUN_DISTANCE = 6;
-	const float FALL_DAMAGE_DISTANCE = 8;
+	const float FALL_DAMAGE_DISTANCE = 10;
 	const float MANA_KILL_REWARD = 0.4f;
 
 

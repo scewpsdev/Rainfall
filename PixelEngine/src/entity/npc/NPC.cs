@@ -277,7 +277,7 @@ public abstract class NPC : Mob, Interactable
 	{
 		Player player = GameState.instance.player;
 
-		float maxDistance = 1.8f;
+		float maxDistance = getRange();
 		if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
 		{
 			closeScreen();
