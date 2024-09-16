@@ -271,6 +271,7 @@ public abstract class Item
 		InitType(new Rapier());
 		InitType(new Handaxe());
 		InitType(new Greataxe());
+		InitType(new Amogus());
 	}
 
 	static void InitType(Item item)

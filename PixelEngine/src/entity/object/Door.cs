@@ -33,7 +33,7 @@ public class Door : Entity, Interactable
 			GameState.instance.run.active = false;
 		}
 		else
-			GameState.instance.switchLevel(destination, otherDoor);
+			GameState.instance.switchLevel(destination, otherDoor.position);
 	}
 
 	public void onFocusEnter(Player player)

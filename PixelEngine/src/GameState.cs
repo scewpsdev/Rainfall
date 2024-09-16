@@ -78,12 +78,13 @@ public class GameState : State
 	public RunStats run;
 	string seed = null;
 
+	public Level hub;
 	public Level[] floors;
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
 
 	Level newLevel = null;
-	Door newLevelDoor = null;
+	Vector2 newLevelSpawnPosition;
 
 	public Player player;
 	public PlayerCamera camera;
@@ -116,7 +117,7 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		level = new Level(-1, "");
+		hub = new Level(-1, "The Glade");
 		Level tutorial = new Level(-1, "Tutorial");
 
 		int numFloors = 5;
@@ -124,28 +125,28 @@ public class GameState : State
 		for (int i = 0; i < floors.Length; i++)
 			floors[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
-		Door tutorialEntrance = new Door(level);
-		Door tutorialExit = new Door(level);
+		Door tutorialEntrance = new Door(hub);
+		Door tutorialExit = new Door(hub);
 
 		Door tutorialDoor = new Door(tutorial, tutorialEntrance);
 		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
 		Door dungeonDoor = new Door(floors[0]);
-		level.exit = dungeonDoor;
+		hub.exit = dungeonDoor;
 
 		tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
 
-		level.addEntity(player = new Player(), new Vector2(15 + 2, 1));
-		level.addEntity(camera = new PlayerCamera(player));
+		player = new Player();
+		camera = new PlayerCamera(player);
 
 		player.money = 4;
 
-		level.addEntity(tutorialDoor, new Vector2(15 + 7.5f, 1));
-		level.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 7.5f, 3));
-		level.addEntity(tutorialExitDoor, new Vector2(15 + 7.5f, 5));
-		level.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 1));
+		hub.addEntity(tutorialDoor, new Vector2(15 + 16 + 7.5f, 2));
+		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 16 + 7.5f, 4));
+		hub.addEntity(tutorialExitDoor, new Vector2(15 + 16 + 7.5f, 6));
+		hub.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 4));
 
-		level.addEntity(new Fountain(FountainEffect.Mana), new Vector2(33.5f, 3));
+		hub.addEntity(new Fountain(FountainEffect.Mana), new Vector2(31.5f, 2));
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared);
 		npc.clearShop();
@@ -159,11 +160,11 @@ public class GameState : State
 		npc.addShopItem(new Bomb());
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
-		level.addEntity(npc, new Vector2(4.5f, 3));
+		hub.addEntity(npc, new Vector2(6.5f, 2));
 
-		//level.addEntity(new Golem(), new Vector2(20, 1));
+		//hub.addEntity(new Golem(), new Vector2(20, 1));
 
-		generator.generateLobby(level);
+		generator.generateLobby(hub);
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
 		tutorial.addEntity(tutorialExit, new Vector2(41, 24));
@@ -202,13 +203,26 @@ public class GameState : State
 		//tutorial.addEntity(new Spider(), new Vector2(48, 23));
 		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
 
-		Level lastLevel = level;
+		Level lastLevel = hub;
 		for (int i = 0; i < floors.Length; i++)
 		{
-			generator.run(run.seed, i, floors[i], i < floors.Length - 1 ? floors[i + 1] : null, lastLevel);
+			bool darkLevel = i == 2 || i == 3;
+			bool startingRoom = i == 0;
+			bool _bossRoom = i == floors.Length - 1;
+			level = floors[i];
+			generator.run(run.seed, i, darkLevel, startingRoom, _bossRoom, floors[i], i < floors.Length - 1 ? floors[i + 1] : null, lastLevel);
 			lastLevel = floors[i];
 		}
 
+		Door hubDungeonDoor1 = new Door(lastLevel, lastLevel.exit);
+		hub.addEntity(hubDungeonDoor1, new Vector2(8, 19));
+		lastLevel.exit.destination = hub;
+		lastLevel.exit.otherDoor = hubDungeonDoor1;
+
+		Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)));
+		hub.addEntity(hubMerchant2, new Vector2(30.5f, 19));
+
+		/*
 		Level bossRoom = new Level(-1, null);
 		for (int y = 1; y < bossRoom.height - 1; y++)
 		{
@@ -223,6 +237,7 @@ public class GameState : State
 		bossRoom.addEntity(bossRoomEntrance, new Vector2(3, 1));
 		bossRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
 		bossRoom.updateLightmap(0, 0, bossRoom.width, bossRoom.height);
+		*/
 
 		/*
 		Level finalRoom = new Level(-1, "Thanks for playing");
@@ -242,10 +257,16 @@ public class GameState : State
 		finalRoom.updateLightmap(0, 0, finalRoom.width, finalRoom.height);
 		*/
 
-		for (int i = 0; i < level.entities.Count; i++)
+		level = null;
+		switchLevel(hub, new Vector2(10, 2));
+
+		/*
+		level = hub;
+		for (int i = 0; i < hub.entities.Count; i++)
 		{
-			level.entities[i].onLevelSwitch(false);
+			hub.entities[i].onLevelSwitch(false);
 		}
+		*/
 
 		ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
 		ambientSource = Audio.PlayBackground(ambientSound);
@@ -267,10 +288,10 @@ public class GameState : State
 		}
 	}
 
-	public void switchLevel(Level newLevel, Door door)
+	public void switchLevel(Level newLevel, Vector2 spawnPosition)
 	{
 		this.newLevel = newLevel;
-		this.newLevelDoor = door;
+		this.newLevelSpawnPosition = spawnPosition;
 	}
 
 	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
@@ -279,6 +300,10 @@ public class GameState : State
 		if (key == KeyCode.Semicolon && modifiers == KeyModifier.None && down)
 		{
 			consoleOpen = !consoleOpen;
+			if (consoleOpen)
+				DebugConsole.OnOpen();
+			else
+				DebugConsole.OnClose();
 			Input.ConsumeKeyEvent(key);
 		}
 #endif
@@ -331,18 +356,21 @@ public class GameState : State
 
 		if (newLevel != null)
 		{
-			for (int i = 0; i < level.entities.Count; i++)
+			if (level != null)
 			{
-				level.entities[i].onLevelSwitch(true);
-			}
+				for (int i = 0; i < level.entities.Count; i++)
+				{
+					level.entities[i].onLevelSwitch(true);
+				}
 
-			cachedLevels.Add(level);
-			level.removeEntity(player);
-			level.removeEntity(camera);
+				cachedLevels.Add(level);
+				level.removeEntity(player);
+				level.removeEntity(camera);
+			}
 
 			if (cachedLevels.Contains(newLevel))
 				cachedLevels.Remove(newLevel);
-			newLevel.addEntity(player, newLevelDoor.position, false);
+			newLevel.addEntity(player, newLevelSpawnPosition, false);
 			newLevel.addEntity(camera, false);
 
 			camera.position = player.position;

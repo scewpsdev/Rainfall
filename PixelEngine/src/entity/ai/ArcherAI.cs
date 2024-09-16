@@ -40,16 +40,6 @@ public class ArcherAI : AI
 		loseTime = 4.0f;
 	}
 
-	public override void onHit(Entity by)
-	{
-		if (target == null)
-		{
-			if (by is ItemEntity)
-				by = ((ItemEntity)by).thrower;
-			target = by;
-		}
-	}
-
 	void updateTargetFollow()
 	{
 		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
@@ -173,7 +163,7 @@ public class ArcherAI : AI
 		{
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange)
+				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.5f * aggroRange)
 				{
 					target = GameState.instance.player;
 				}

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class LightningStaff : Item
 {
 	public LightningStaff()
-		: base("staff_lightning", ItemType.Staff)
+		: base("lightning_staff", ItemType.Staff)
 	{
 		displayName = "Lightning Staff";
 

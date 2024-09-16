@@ -15,18 +15,24 @@ public class Rapier : Item
 
 		attackDamage = 1.5f;
 		attackRange = 1.5f;
-		attackRate = 2;
+		attackRate = 2.5f;
 		attackCooldown = 2;
 
 		value = 8;
 
 		sprite = new Sprite(tileset, 14, 4);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.4f;
 	}
 
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this, player.handItem == this));
+		return false;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.actions.queueAction(new BlockAction(this, player.handItem == this));
 		return false;
 	}
 }

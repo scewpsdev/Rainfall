@@ -397,7 +397,7 @@ public class LevelGenerator
 		objectFlags[x + y * level.width] = true;
 	}
 
-	public unsafe void run(string seed, int floor, Level level, Level nextLevel, Level lastLevel)
+	public unsafe void run(string seed, int floor, bool dark, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel)
 	{
 		this.seed = seed;
 		this.floor = floor;
@@ -409,8 +409,7 @@ public class LevelGenerator
 		int height = (floor == 5 ? 4500 : 3200) / width;
 		level.resize(width, height);
 
-		bool darkLevel = floor == 2 || floor == 3;
-		level.ambientLight = darkLevel ? new Vector3(0.001f) : new Vector3(1.0f);
+		level.ambientLight = dark ? new Vector3(0.001f) : new Vector3(1.0f);
 
 		List<Room> rooms = new List<Room>();
 
@@ -420,14 +419,30 @@ public class LevelGenerator
 		Room lastRoom = null;
 		while (true)
 		{
-			if (lastRoom == null) // Starting room
+			if (lastRoom == null) // First room
 			{
-				int roomDefID = random.Next() % defaultSet.roomDefs.Count;
-				RoomDef roomDef = defaultSet.roomDefs[roomDefID];
-				while (roomDef.height > height || roomDef.width > width)
+				int roomDefID;
+				RoomDef roomDef;
+
+				if (spawnStartingRoom)
+				{
+					roomDefID = 0;
+					roomDef = specialSet.roomDefs[0];
+				}
+				else if (spawnBossRoom)
+				{
+					roomDefID = 1;
+					roomDef = specialSet.roomDefs[1];
+				}
+				else
 				{
 					roomDefID = random.Next() % defaultSet.roomDefs.Count;
 					roomDef = defaultSet.roomDefs[roomDefID];
+					while (roomDef.height > height || roomDef.width > width)
+					{
+						roomDefID = random.Next() % defaultSet.roomDefs.Count;
+						roomDef = defaultSet.roomDefs[roomDefID];
+					}
 				}
 
 				int startingRoomX = random.Next() % Math.Max(width - roomDef.width, 1);
@@ -439,7 +454,7 @@ public class LevelGenerator
 					width = roomDef.width,
 					height = roomDef.height,
 					roomDefID = roomDefID,
-					set = defaultSet
+					set = roomDef.set
 				};
 				room.isMainPath = true;
 
@@ -448,8 +463,6 @@ public class LevelGenerator
 					room.doorways.Add(new Doorway { room = room, doorDef = roomDef.doorDefs[i], otherDoorway = null, position = roomDef.doorDefs[i].position, direction = roomDef.doorDefs[i].direction });
 				}
 				rooms.Add(room);
-
-				startingRoom = room;
 
 				lastRoom = room;
 			}
@@ -480,12 +493,14 @@ public class LevelGenerator
 					}
 				}
 				if (!found)
-				{
-					exitRoom = rooms[rooms.Count - 1];
 					break;
-				}
 			}
 		}
+
+		if (spawnBossRoom)
+			rooms.Reverse();
+		startingRoom = rooms[0];
+		exitRoom = rooms[rooms.Count - 1];
 
 		// Spawn special rooms
 		for (int k = 0; k < 2; k++)
@@ -523,23 +538,55 @@ public class LevelGenerator
 		Vector2i entrancePosition = Vector2i.Zero;
 		Vector2i exitPosition = Vector2i.Zero;
 
-		if (lastLevel != null)
+		if (spawnStartingRoom)
 		{
-			if (startingRoom.getFloorSpawn(level, random, objectFlags, out entrancePosition))
-			{
-				level.entrance = new Door(lastLevel, lastLevel.exit);
-				lastLevel.exit.otherDoor = level.entrance;
-				level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
+			entrancePosition = new Vector2i(startingRoom.x + 12, startingRoom.y + 3);
+			level.entrance = new Door(lastLevel, lastLevel.exit);
+			lastLevel.exit.otherDoor = level.entrance;
+			level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
 
-				objectFlags[entrancePosition.x + entrancePosition.y * width] = true;
-			}
-			else
+			objectFlags[entrancePosition.x + entrancePosition.y * width] = true;
+		}
+		else
+		{
+			if (lastLevel != null)
 			{
-				Debug.Assert(false);
+				if (startingRoom.getFloorSpawn(level, random, objectFlags, out entrancePosition))
+				{
+					level.entrance = new Door(lastLevel, lastLevel.exit);
+					lastLevel.exit.otherDoor = level.entrance;
+					level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
+
+					objectFlags[entrancePosition.x + entrancePosition.y * width] = true;
+				}
+				else
+				{
+					Debug.Assert(false);
+				}
 			}
 		}
 
-		//if (nextLevel != null)
+		if (spawnBossRoom)
+		{
+			for (int y = exitRoom.y; y < exitRoom.y + exitRoom.height; y++)
+			{
+				for (int x = exitRoom.x; x < exitRoom.x + exitRoom.width; x++)
+				{
+					objectFlags[x + y * width] = true;
+				}
+			}
+
+			level.exit = new Door(nextLevel);
+			exitPosition = new Vector2i(exitRoom.x, exitRoom.y) + new Vector2i(23, 1);
+			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
+
+			Golem boss = new Golem();
+			boss.itemDropChance = 1;
+			level.addEntity(boss, new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(11, 1));
+
+			level.addEntity(new BossGate(boss), new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(21.5f, 1));
+		}
+		else
 		{
 			if (exitRoom.getFloorSpawn(level, random, objectFlags, out exitPosition))
 			{
@@ -801,7 +848,7 @@ public class LevelGenerator
 						}
 					}
 
-					if (darkLevel && down == null && up == null && !objectFlags[x + y * width])
+					if (dark && down == null && up == null && !objectFlags[x + y * width])
 					{
 						TileType downDown = level.getTile(x, y - 2);
 						if (downDown != null)
@@ -843,7 +890,7 @@ public class LevelGenerator
 							else
 							{
 								Item[] items = null;
-								float itemChance = 0.01f;
+								float itemChance = 0.05f;
 								if (random.NextSingle() < itemChance)
 									items = Item.CreateRandom(random, DropRates.barrel);
 
@@ -930,7 +977,7 @@ public class LevelGenerator
 
 	public void generateLobby(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[0];
+		RoomDef def = specialSet.roomDefs[2];
 		level.resize(def.width, def.height);
 
 		simplex = new Simplex();
@@ -952,7 +999,7 @@ public class LevelGenerator
 
 	public void generateTutorial(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[1];
+		RoomDef def = specialSet.roomDefs[3];
 		level.resize(def.width, def.height);
 
 		simplex = new Simplex();

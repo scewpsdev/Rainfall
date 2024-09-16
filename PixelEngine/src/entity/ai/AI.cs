@@ -28,6 +28,13 @@ public abstract class AI
 
 	public virtual void onHit(Entity by)
 	{
+		if (target == null)
+		{
+			if (by is ItemEntity)
+				by = ((ItemEntity)by).thrower;
+			if (by is Player || by is Mob)
+				target = by;
+		}
 	}
 
 	protected bool canSeeEntity(Entity entity, out Vector2 toTarget, out float distance)

@@ -110,7 +110,7 @@ public static class OptionsMenu
 
 	static void DrawInput(int x, int y, InputBinding binding, bool awaitingInput, bool selected)
 	{
-		string item = awaitingInput ? "..." : binding.ToString();
+		string item = awaitingInput ? "..." : binding.ToStringElaborate();
 
 		if (selected)
 			item = "< " + item;

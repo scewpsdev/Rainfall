@@ -596,6 +596,8 @@ namespace Rainfall
 
 		static bool mouseJustLocked = false;
 
+		public static bool gamepadConnected = false;
+
 
 		internal static void OnKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
 		{
@@ -626,6 +628,14 @@ namespace Rainfall
 				mouseLast.z = z;
 				mouseJustLocked = false;
 			}
+		}
+
+		internal static void OnGamepadEvent(int gamepad, int ev)
+		{
+			if (ev == 0x00040001) // gamepad connected
+				gamepadConnected = true;
+			else if (ev == 0x00040002) // gamepad disconnected
+				gamepadConnected = false;
 		}
 
 		internal static void Update()

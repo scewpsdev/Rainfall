@@ -135,7 +135,7 @@ public static class Renderer
 		// pixel perfect correction
 		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
 		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
-		UIHeight = (int)MathF.Ceiling(Display.width / (float)scale / Display.aspectRatio);
+		UIHeight = (int)MathF.Ceiling(Display.height / (float)scale);
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -211,12 +211,14 @@ public static class Renderer
 		// pixel perfect correction
 		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
 		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
-		UIHeight = (int)MathF.Ceiling(Display.width / (float)scale / Display.aspectRatio);
+		UIHeight = (int)MathF.Ceiling(Display.height / (float)scale);
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);
 		if (lighting != null)
 			graphics.destroyRenderTarget(lighting);
+		if (composite != null)
+			graphics.destroyRenderTarget(composite);
 		if (bloomDownsampleChain != null)
 		{
 			for (int i = 0; i < bloomDownsampleChain.Length; i++)
@@ -274,10 +276,10 @@ public static class Renderer
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
+			//u0 += 0.00001f;
+			//v0 += 0.00001f;
+			//u1 -= 0.00001f;
+			//v1 -= 0.00001f;
 
 			if (flipX)
 				MathHelper.Swap(ref u0, ref u1);
@@ -298,10 +300,10 @@ public static class Renderer
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
+			//u0 += 0.00001f;
+			//v0 += 0.00001f;
+			//u1 -= 0.00001f;
+			//v1 -= 0.00001f;
 
 			if (flipped)
 				MathHelper.Swap(ref u0, ref u1);
@@ -368,10 +370,10 @@ public static class Renderer
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
+			//u0 += 0.00001f;
+			//v0 += 0.00001f;
+			//u1 -= 0.00001f;
+			//v1 -= 0.00001f;
 
 			if (flipped)
 				MathHelper.Swap(ref u0, ref u1);
@@ -944,7 +946,8 @@ public static class Renderer
 		graphics.setPass((int)RenderPass.UI);
 		graphics.setRenderTarget(null);
 
-		graphics.setViewTransform(Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f), Matrix.Identity);
+		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		graphics.setViewTransform(Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f), Matrix.CreateScale(UIWidth * scale / (float)Display.width, UIHeight * scale / (float)Display.height, 1));
 
 		uiBatch.begin(uiDraws.Count);
 		for (int i = 0; i < uiDraws.Count; i++)
@@ -957,10 +960,10 @@ public static class Renderer
 			float u1 = draw.rect.max.x;
 			float v1 = draw.rect.max.y;
 
-			u0 += 0.00001f;
-			v0 += 0.00001f;
-			u1 -= 0.00001f;
-			v1 -= 0.00001f;
+			//u0 += 0.00001f;
+			//v0 += 0.00001f;
+			//u1 -= 0.00001f;
+			//v1 -= 0.00001f;
 
 			uiBatch.draw(
 				draw.position.x, UIHeight - draw.position.y - draw.size.y, 0.0f,

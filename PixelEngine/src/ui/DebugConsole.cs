@@ -11,6 +11,19 @@ public static class DebugConsole
 	static StringBuilder line = new StringBuilder();
 	static List<string> history = new List<string>();
 	static List<string> responses = new List<string>();
+	static int currentHistoryIdx = 0;
+
+	public static void OnOpen()
+	{
+		line.Clear();
+		currentHistoryIdx = 0;
+		InputManager.inputEnabled = false;
+	}
+
+	public static void OnClose()
+	{
+		InputManager.inputEnabled = true;
+	}
 
 	static string RunCommand(string cmd, string[] args)
 	{
@@ -58,7 +71,7 @@ public static class DebugConsole
 					if (floor >= 1 && floor <= GameState.instance.floors.Length)
 					{
 						Level level = GameState.instance.floors[floor - 1];
-						GameState.instance.switchLevel(level, level.entrance);
+						GameState.instance.switchLevel(level, level.entrance.position);
 					}
 				}
 			}
@@ -110,17 +123,19 @@ public static class DebugConsole
 			string response = RunCommand(cmd, args);
 			responses.Add(response);
 			line.Clear();
+			currentHistoryIdx = 0;
 		}
 		if (key == KeyCode.Esc && modifiers == KeyModifier.None && down)
 		{
-			line.Clear();
 			GameState.instance.consoleOpen = false;
+			OnClose();
 		}
 		if (key == KeyCode.Up && modifiers == KeyModifier.None && down && history.Count > 0)
 		{
 			line.Clear();
-			line.Append(history[history.Count - 1]);
+			line.Append(history[history.Count - 1 - currentHistoryIdx++]);
 		}
+		Input.ConsumeKeyEvent(key);
 	}
 
 	public static void OnCharEvent(char c)
