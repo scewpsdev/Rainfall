@@ -79,7 +79,8 @@ public class GameState : State
 	string seed = null;
 
 	public Level hub;
-	public Level[] floors;
+	public Level[] areaCaves;
+	Level[] areaMines;
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
 
@@ -120,18 +121,11 @@ public class GameState : State
 		hub = new Level(-1, "The Glade");
 		Level tutorial = new Level(-1, "Tutorial");
 
-		int numFloors = 5;
-		floors = new Level[numFloors];
-		for (int i = 0; i < floors.Length; i++)
-			floors[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
-
 		Door tutorialEntrance = new Door(hub);
 		Door tutorialExit = new Door(hub);
 
 		Door tutorialDoor = new Door(tutorial, tutorialEntrance);
 		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
-		Door dungeonDoor = new Door(floors[0]);
-		hub.exit = dungeonDoor;
 
 		tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
@@ -144,7 +138,6 @@ public class GameState : State
 		hub.addEntity(tutorialDoor, new Vector2(15 + 16 + 7.5f, 2));
 		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 16 + 7.5f, 4));
 		hub.addEntity(tutorialExitDoor, new Vector2(15 + 16 + 7.5f, 6));
-		hub.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 4));
 
 		hub.addEntity(new Fountain(FountainEffect.Mana), new Vector2(31.5f, 2));
 
@@ -203,24 +196,63 @@ public class GameState : State
 		//tutorial.addEntity(new Spider(), new Vector2(48, 23));
 		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
 
-		Level lastLevel = hub;
-		for (int i = 0; i < floors.Length; i++)
+
+		// Cave area
 		{
-			bool darkLevel = i == 2 || i == 3;
-			bool startingRoom = i == 0;
-			bool _bossRoom = i == floors.Length - 1;
-			level = floors[i];
-			generator.run(run.seed, i, darkLevel, startingRoom, _bossRoom, floors[i], i < floors.Length - 1 ? floors[i + 1] : null, lastLevel);
-			lastLevel = floors[i];
+			int numFloors = 5;
+			areaCaves = new Level[numFloors];
+			for (int i = 0; i < areaCaves.Length; i++)
+				areaCaves[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
+
+			Door dungeonDoor = new Door(areaCaves[0]);
+			hub.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 4));
+
+			Level lastLevel = hub;
+			Door lastDoor = dungeonDoor;
+			for (int i = 0; i < areaCaves.Length; i++)
+			{
+				bool darkLevel = i == 2 || i == 3;
+				bool startingRoom = i == 0;
+				bool bossRoom = i == areaCaves.Length - 1;
+				level = areaCaves[i];
+				generator.generateCaves(run.seed, i, darkLevel, startingRoom, bossRoom, areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
+				lastLevel = areaCaves[i];
+				lastDoor = areaCaves[i].exit;
+			}
+
+			Door hubDungeonExit1 = new Door(lastLevel, lastLevel.exit);
+			hub.addEntity(hubDungeonExit1, new Vector2(8, 19));
+			lastLevel.exit.destination = hub;
+			lastLevel.exit.otherDoor = hubDungeonExit1;
+
+			Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)));
+			hub.addEntity(hubMerchant2, new Vector2(30.5f, 19));
 		}
 
-		Door hubDungeonDoor1 = new Door(lastLevel, lastLevel.exit);
-		hub.addEntity(hubDungeonDoor1, new Vector2(8, 19));
-		lastLevel.exit.destination = hub;
-		lastLevel.exit.otherDoor = hubDungeonDoor1;
+		// Mines area
+		{
+			int numMinesFloors = 3;
+			areaMines = new Level[numMinesFloors];
+			for (int i = 0; i < areaMines.Length; i++)
+				areaMines[i] = new Level(i, "Mines " + StringUtils.ToRoman(i + 1));
 
-		Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)));
-		hub.addEntity(hubMerchant2, new Vector2(30.5f, 19));
+			Door hubDungeonEntrance2 = new Door(areaMines[0]);
+			hub.addEntity(hubDungeonEntrance2, new Vector2(39.5f, 21));
+
+			Level lastLevel = hub;
+			Door lastDoor = hubDungeonEntrance2;
+			for (int i = 0; i < areaMines.Length; i++)
+			{
+				bool darkLevel = false;
+				bool startingRoom = false;
+				bool bossRoom = i == areaMines.Length - 1;
+				level = areaMines[i];
+				generator.generateCaves(run.seed, areaMines.Length + i, darkLevel, startingRoom, bossRoom, areaMines[i], i < areaMines.Length - 1 ? areaMines[i + 1] : null, lastLevel, lastDoor);
+				lastLevel = areaMines[i];
+				lastDoor = areaMines[i].exit;
+			}
+		}
+
 
 		/*
 		Level bossRoom = new Level(-1, null);

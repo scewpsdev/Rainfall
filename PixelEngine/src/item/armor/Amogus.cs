@@ -17,6 +17,7 @@ public class Amogus : Item
 
 		armor = 5;
 		armorSlot = ArmorSlot.Body;
+		canDrop = false;
 
 		value = 25;
 

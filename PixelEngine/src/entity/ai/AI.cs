@@ -39,7 +39,7 @@ public abstract class AI
 
 	protected bool canSeeEntity(Entity entity, out Vector2 toTarget, out float distance)
 	{
-		if (entity is not Player)
+		if (entity is not Player && entity is not Mob)
 		{
 			Console.WriteLine(entity);
 			Console.WriteLine(entity.name);
