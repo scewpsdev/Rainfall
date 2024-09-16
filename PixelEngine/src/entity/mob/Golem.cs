@@ -35,5 +35,7 @@ public class Golem : Mob
 		damage = 1.5f;
 		jumpPower = 7;
 		gravity = -16;
+
+		itemDropChance = 0.8f;
 	}
 }

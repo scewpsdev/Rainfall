@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Bullet : Entity
 {
-	float speed = 50;
+	float speed = 100;
 	int maxRicochets = 0;
 
 	Entity shooter;
@@ -19,6 +19,8 @@ public class Bullet : Entity
 
 	int ricochets = 0;
 	Vector2 offset;
+
+	Vector2 lastPosition;
 
 	List<Entity> hitEntities = new List<Entity>();
 
@@ -41,8 +43,14 @@ public class Bullet : Entity
 		sprite = new Sprite(Item.tileset, 15, 0);
 	}
 
+	public override void init(Level level)
+	{
+		lastPosition = position;
+	}
+
 	public override void update()
 	{
+		lastPosition = position;
 		Vector2 displacement = velocity * Time.deltaTime;
 		position += displacement;
 
@@ -80,6 +88,7 @@ public class Bullet : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false);
+		//Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false);
+		Renderer.DrawLine(new Vector3(lastPosition, 0), new Vector3(position, 0), 0xFFeedda3);
 	}
 }

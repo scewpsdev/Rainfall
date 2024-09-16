@@ -15,7 +15,7 @@ struct HUDMessage
 public class HUD
 {
 	const float MESSAGE_SHOW_DURATION = 5.0f;
-	const float LEVEL_PROMPT_DURATION = 3.0f;
+	const float LEVEL_PROMPT_DURATION = 4.5f;
 	const float ITEM_NAME_DURATION = 3.0f;
 
 
@@ -119,12 +119,12 @@ public class HUD
 	void renderPopup()
 	{
 		float elapsed = (Time.currentTime - lastLevelSwitch) / 1e9f;
-		if (lastLevelSwitch != -1 && elapsed < LEVEL_PROMPT_DURATION)
+		if (lastLevelSwitch != -1 && elapsed < LEVEL_PROMPT_DURATION && levelName != null)
 		{
 			int width = Renderer.MeasureUIText(levelName, levelName.Length, 1).x;
 			float progress = elapsed / LEVEL_PROMPT_DURATION;
 			float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
-			float alpha = elapsed < 1 ? elapsed : elapsed > LEVEL_PROMPT_DURATION - 1 ? (1 - (elapsed - (LEVEL_PROMPT_DURATION - 1))) : 1;
+			float alpha = elapsed < 1 ? elapsed : elapsed > LEVEL_PROMPT_DURATION - 2 ? (1 - 0.5f * (elapsed - (LEVEL_PROMPT_DURATION - 2))) : 1;
 			uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
 			Renderer.DrawUIText(Renderer.UIWidth / 2 - width / 2, Renderer.UIHeight / 4 + (int)yanim, levelName, 1, color);
 		}

@@ -35,16 +35,6 @@ public class SpiderAI : AI
 		loseTime = 6.0f;
 	}
 
-	public override void onHit(Entity by)
-	{
-		if (target == null)
-		{
-			if (by is ItemEntity)
-				by = ((ItemEntity)by).thrower;
-			target = by;
-		}
-	}
-
 	void updateTargetFollow()
 	{
 		if (canSeeEntity(target, out Vector2 toTarget, out float distance))

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class PotionOfEnergy : Item
 {
 	public PotionOfEnergy()
-		: base("potion_energy", ItemType.Potion)
+		: base("potion_of_energy", ItemType.Potion)
 	{
 		displayName = "Potion of Energy";
 		stackable = true;

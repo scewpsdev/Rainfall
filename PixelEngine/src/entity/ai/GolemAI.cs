@@ -41,18 +41,8 @@ public class GolemAI : AI
 		: base(mob)
 	{
 		aggroRange = 6.0f;
-		loseRange = 8.0f;
+		loseRange = 10.0f;
 		loseTime = 3.0f;
-	}
-
-	public override void onHit(Entity by)
-	{
-		if (target == null)
-		{
-			if (by is ItemEntity)
-				by = ((ItemEntity)by).thrower;
-			target = by;
-		}
 	}
 
 	void beginDash()
@@ -171,7 +161,8 @@ public class GolemAI : AI
 			mob.inputLeft = true;
 
 		TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 0.5f));
-		if (forwardTile != null)
+		TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 1.5f));
+		if (forwardTile != null || forwardUpTile != null)
 			walkDirection *= -1;
 		else
 		{
@@ -191,7 +182,7 @@ public class GolemAI : AI
 		{
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange)
+				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.5f * aggroRange)
 				{
 					target = GameState.instance.player;
 				}

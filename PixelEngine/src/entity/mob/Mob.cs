@@ -163,10 +163,10 @@ public abstract class Mob : Entity, Hittable
 		remove();
 	}
 
-	public void stun()
+	public void stun(float stunDuration = 1)
 	{
 		if (stunTime == -1 || (Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
-			stunTime = Time.currentTime;
+			stunTime = Time.currentTime + (long)((stunDuration - 1) * STUN_DURATION * 1e9f);
 	}
 
 	public void addImpulse(Vector2 impulse)

@@ -28,16 +28,6 @@ public class BatAI : AI
 		loseTime = 3.0f;
 	}
 
-	public override void onHit(Entity by)
-	{
-		if (target == null)
-		{
-			if (by is ItemEntity)
-				by = ((ItemEntity)by).thrower;
-			setTarget(by);
-		}
-	}
-
 	void setTarget(Entity newTarget)
 	{
 		if (newTarget != null && target == null)

@@ -20,8 +20,6 @@ public class PlayerCamera : Entity
 	public float width, height;
 	public int scale;
 
-	long lastDownInput = -1;
-
 	Simplex simplex;
 	List<ScreenShakeData> screenShakes = new List<ScreenShakeData>();
 	Vector2 currentScreenShake;
@@ -57,8 +55,8 @@ public class PlayerCamera : Entity
 	public override void update()
 	{
 		scale = (int)MathF.Round(Display.width / 1920.0f * 5);
-		width = Display.width / (float)scale / 16.0f;
-		height = width / Display.aspectRatio;
+		width = Renderer.UIWidth / 16.0f; // Display.width / (float)scale / 16.0f;
+		height = Renderer.UIHeight / 16.0f; // Display.height / (float)scale / 16.0f;
 
 		//height = 1080 / 4.0f / 16.0f;
 

@@ -31,7 +31,7 @@ public class MobCorpse : Entity
 		this.color = color;
 		this.passiveItems = passiveItems;
 
-		this.velocity = velocity * 0.0f + impulseVelocity;
+		this.velocity = velocity * 0.5f + impulseVelocity;
 
 		this.collider = collider;
 		filterGroup = FILTER_DECORATION;

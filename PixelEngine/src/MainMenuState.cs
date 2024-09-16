@@ -115,7 +115,7 @@ public class MainMenuState : State
 	void credits()
 	{
 		int x = 100;
-		int y = 60;
+		int y = 15;
 
 		void drawLine(string str)
 		{
@@ -135,7 +135,8 @@ public class MainMenuState : State
 		}
 
 		string title = "Test Title";
-		Renderer.DrawUIText(Renderer.UIWidth / 2 - Renderer.MeasureUIText(title).x / 2, 30, title);
+		Renderer.DrawUIText(Renderer.UIWidth / 2 - Renderer.MeasureUIText(title).x / 2, y, title);
+		y += 25;
 
 		drawLine("A Game by Scewps");
 		drawLine("");

@@ -81,6 +81,7 @@ namespace Rainfall
 
 		static void Game_OnGamepadEvent(int gamepad, int ev)
 		{
+			Input.OnGamepadEvent(gamepad, ev);
 			instance.onGamepadEvent(gamepad, ev);
 		}
 

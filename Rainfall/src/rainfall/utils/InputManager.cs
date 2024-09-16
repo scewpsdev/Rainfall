@@ -18,17 +18,17 @@ public class InputBinding
 
 	public bool isDown()
 	{
-		return key != KeyCode.None && Input.IsKeyDown(key)
+		return InputManager.inputEnabled && (key != KeyCode.None && Input.IsKeyDown(key)
 			|| button != MouseButton.None && Input.IsMouseButtonDown(button)
-			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonDown(gamepadButton);
+			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonDown(gamepadButton));
 	}
 
 	public bool isPressed(bool consume)
 	{
-		bool result = key != KeyCode.None && Input.IsKeyPressed(key)
+		bool result = InputManager.inputEnabled && (key != KeyCode.None && Input.IsKeyPressed(key)
 			|| button != MouseButton.None && Input.IsMouseButtonPressed(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonPressed(gamepadButton)
-			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove);
+			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove));
 		if (result && consume)
 			consumeEvent();
 		return result;
@@ -36,10 +36,10 @@ public class InputBinding
 
 	public bool isReleased(bool consume)
 	{
-		bool result = key != KeyCode.None && Input.IsKeyReleased(key)
+		bool result = InputManager.inputEnabled && (key != KeyCode.None && Input.IsKeyReleased(key)
 			|| button != MouseButton.None && Input.IsMouseButtonReleased(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonReleased(gamepadButton)
-			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove);
+			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove));
 		if (result && consume)
 			consumeEvent();
 		return result;
@@ -58,6 +58,26 @@ public class InputBinding
 	}
 
 	public override string ToString()
+	{
+		StringBuilder result = new StringBuilder();
+		if (Input.gamepadConnected)
+		{
+			if (gamepadButton != GamepadButton.None)
+				result.Append((result.Length > 2 ? " / " : "") + "Gamepad " + gamepadButton.ToString());
+		}
+		else
+		{
+			if (key != KeyCode.None)
+				result.Append(key.ToString());
+			if (button != MouseButton.None)
+				result.Append((result.Length > 2 ? " / " : "") + "Mouse " + button.ToString());
+			if (scrollDelta != 0)
+				result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Up" : "Down"));
+		}
+		return result.ToString();
+	}
+
+	public string ToStringElaborate()
 	{
 		StringBuilder result = new StringBuilder();
 		result.Append("[ ");
@@ -86,6 +106,8 @@ public static class InputManager
 	static Dictionary<string, GamepadButton> gamepadButtons = new Dictionary<string, GamepadButton>();
 
 	static Dictionary<string, InputBinding> bindings = new Dictionary<string, InputBinding>();
+
+	public static bool inputEnabled = true;
 
 
 	public static void LoadBindings()
@@ -170,7 +192,7 @@ public static class InputManager
 
 	public static void SaveBindings()
 	{
-		FileStream stream = File.Open(INPUT_BINDINGS_FILE, FileMode.OpenOrCreate);
+		FileStream stream = File.Open(INPUT_BINDINGS_FILE, FileMode.Create);
 		DatFile bindingsFile = new DatFile();
 
 		foreach (var pair in bindings)

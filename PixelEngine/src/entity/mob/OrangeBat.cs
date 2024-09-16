@@ -18,6 +18,8 @@ public class OrangeBat : Mob
 		speed = 1.2f;
 		canFly = true;
 
+		itemDropChance = 0.8f;
+
 		ai = new BatAI(this)
 		{
 			preferVerticalMovement = false,

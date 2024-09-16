@@ -16,6 +16,7 @@ public class Player : Entity, Hittable
 	const float MAX_FALL_SPEED = -15;
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
+	const float FALL_STUN_DISTANCE = 6;
 	const float FALL_DAMAGE_DISTANCE = 8;
 	const float MANA_KILL_REWARD = 0.4f;
 
@@ -290,7 +291,7 @@ public class Player : Entity, Hittable
 		items.Add(item.type, item);
 		items.Sort();
 
-		if ((item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
+		if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
 			equipHandItem(item);
 		else if (item.isSecondaryItem && offhandItem == null && (handItem == null || !handItem.twoHanded))
 			equipOffhandItem(item);
@@ -500,7 +501,7 @@ public class Player : Entity, Hittable
 			if (by is Mob)
 			{
 				Mob mob = by as Mob;
-				mob.stun();
+				mob.stun(3);
 				mob.addImpulse(new Vector2(direction, 0.1f) * 8);
 				if (blockingItem.damageReflect > 0)
 					mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
@@ -884,8 +885,13 @@ public class Player : Entity, Hittable
 		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
 		{
-			if (fallDistance >= FALL_DAMAGE_DISTANCE)
+			if (fallDistance >= FALL_STUN_DISTANCE)
 				stun();
+			if (fallDistance >= FALL_DAMAGE_DISTANCE)
+			{
+				float dmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.1f;
+				hit(dmg, null, null, null, false);
+			}
 			if (velocity.y < -10)
 				onLand();
 
@@ -1020,12 +1026,12 @@ public class Player : Entity, Hittable
 
 				if (handItem != null)
 				{
-					if (InputManager.IsDown("Attack"))
+					if (offhandItem == null && InputManager.IsPressed("Attack2"))
 					{
 						if (lastItemUseDown == -1)
 							lastItemUseDown = Time.currentTime;
 					}
-					if (InputManager.IsReleased("Attack"))
+					if (InputManager.IsReleased("Attack2"))
 						lastItemUseDown = -1;
 
 					if (InputManager.IsDown("Attack"))
@@ -1038,12 +1044,6 @@ public class Player : Entity, Hittable
 								if (handItem.use(this))
 									removeItemSingle(handItem);
 							}
-							else if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime && (Time.currentTime - lastItemUseDown) / 1e9f < handItem.secondaryChargeTime + 1)
-							{
-								if (handItem.useSecondary(this))
-									removeItem(handItem);
-								lastItemUseDown = -1;
-							}
 						}
 						else
 						{
@@ -1053,6 +1053,12 @@ public class Player : Entity, Hittable
 									removeItem(handItem);
 							}
 						}
+					}
+					if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime && (Time.currentTime - lastItemUseDown) / 1e9f < handItem.secondaryChargeTime + 1)
+					{
+						if (handItem.useSecondary(this))
+							removeItem(handItem);
+						lastItemUseDown = -1;
 					}
 
 					if (InputManager.IsPressed("Interact"))
