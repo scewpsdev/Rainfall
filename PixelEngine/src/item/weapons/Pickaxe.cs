@@ -18,7 +18,7 @@ public class Pickaxe : Item
 		attackRate = 3.0f;
 		stab = false;
 
-		value = 15;
+		value = 27;
 
 		sprite = new Sprite(tileset, 0, 1);
 		renderOffset.x = 0.2f;

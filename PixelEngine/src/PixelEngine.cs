@@ -226,8 +226,8 @@ public class PixelEngine : Game
 		LaunchParams launchParams = new LaunchParams(args);
 		launchParams.fpsCap = 120;
 #if DEBUG
-		launchParams.width = 1280; //1536; // 384 *4 1280;
-		launchParams.height = 720; //864; // 216 * 4  720;
+		launchParams.width = 1600; //1280;
+		launchParams.height = 900; //720;
 		launchParams.maximized = false;
 #else
 		launchParams.width = 1600;

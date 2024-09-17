@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Greatsword : Item
+public class Zweihander : Item
 {
-	public Greatsword()
-		: base("greatsword", ItemType.Weapon)
+	public Zweihander()
+		: base("zweihander", ItemType.Weapon)
 	{
-		displayName = "Greatsword";
+		displayName = "Zweihander";
 
 		attackDamage = 5;
 		attackRange = 1.8f;
@@ -22,7 +22,7 @@ public class Greatsword : Item
 		value = 48;
 
 		sprite = new Sprite(tileset, 7, 3, 2, 1);
-		icon = new Sprite(tileset.texture, 7 * 16, 3 * 16, 16, 16);
+		icon = new Sprite(tileset.texture, 7 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));

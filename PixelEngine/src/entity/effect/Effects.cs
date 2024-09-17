@@ -120,7 +120,7 @@ public static unsafe class Effects
 				if (hits[i].entity == fromEntity)
 					continue;
 
-				Vector2 center = hits[i].entity.position + 0.5f * (hits[i].entity.collider.min + hits[i].entity.collider.max);
+				Vector2 center = hits[i].entity.position + hits[i].entity.collider.center;
 				float distance = (center - pos).length;
 				if (distance < radius)
 				{

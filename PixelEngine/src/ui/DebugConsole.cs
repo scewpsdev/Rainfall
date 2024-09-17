@@ -34,8 +34,7 @@ public static class DebugConsole
 				Entity entity = EntityType.CreateInstance(args[0]);
 				if (entity != null)
 				{
-					Vector2 position = GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection
-						: GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
+					Vector2 position = GameState.instance.player.position + Vector2.Up; //GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection : GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
 					GameState.instance.level.addEntity(entity, position);
 					return "Spawned entity in position " + position.ToString();
 				}
@@ -49,8 +48,7 @@ public static class DebugConsole
 				Item item = Item.GetItemPrototype(args[0]);
 				if (item != null)
 				{
-					Vector2 position = GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection
-						: GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
+					Vector2 position = GameState.instance.player.position + Vector2.Up; //GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection : GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
 					int count = 1;
 					if (args.Length >= 2 && int.TryParse(args[1], out int _count))
 						count = _count;
@@ -66,12 +64,17 @@ public static class DebugConsole
 		{
 			if (args.Length > 0)
 			{
-				if (int.TryParse(args[0], out int floor))
+				string areaName = args[0].Substring(0, args[0].Length - 1);
+				if (int.TryParse(args[0].Substring(args[0].Length - 1), out int floor))
 				{
-					if (floor >= 1 && floor <= GameState.instance.areaCaves.Length)
+					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "mines" ? GameState.instance.areaMines : null;
+					if (area != null)
 					{
-						Level level = GameState.instance.areaCaves[floor - 1];
-						GameState.instance.switchLevel(level, level.entrance.position);
+						if (floor >= 1 && floor <= area.Length)
+						{
+							Level level = area[floor - 1];
+							GameState.instance.switchLevel(level, level.entrance.position);
+						}
 					}
 				}
 			}

@@ -258,7 +258,31 @@ public class HUD
 
 			Renderer.DrawUISprite(x, y, size, size, null, false, bgColor);
 			if (player.offhandItem != null)
+			{
 				Renderer.DrawUISprite(x, y, size, size, player.offhandItem.sprite);
+
+				if (player.offhandItem.stackable && player.offhandItem.stackSize > 1)
+					Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.offhandItem.stackSize.ToString(), 1, txtColor);
+
+				if (player.offhandItem.requiredAmmo != null)
+				{
+					Renderer.DrawUISprite(x + size + padding - 1, y - padding - size - 1, size + 2, size + 2, null, false, frameColor);
+					Renderer.DrawUISprite(x + size + padding, y - padding - size, size, size, null, false, bgColor);
+
+					Item ammo = player.getItem(player.offhandItem.requiredAmmo);
+					if (ammo != null)
+					{
+						Renderer.DrawUISprite(x + size + padding, y - padding - size, size, size, ammo.sprite);
+						if (ammo.stackable && ammo.stackSize > 1)
+							Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y - padding - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
+					}
+				}
+				else if (player.offhandItem.type == ItemType.Staff)
+				{
+					Renderer.DrawUISprite(x + size + padding - 1, y - padding - size + 4, 8, 8, staffCharge);
+					Renderer.DrawUITextBMP(x + size + padding + 8, y - padding - size / 2 - Renderer.smallFont.size / 2, player.offhandItem.staffCharges.ToString(), 1, txtColor);
+				}
+			}
 
 			Renderer.DrawUISprite(x + size + padding, y, size, size, null, false, bgColor);
 			if (player.handItem != null)

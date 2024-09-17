@@ -249,7 +249,7 @@ public abstract class Item
 		InitType(new ThornShield());
 		InitType(new Scimitar());
 		InitType(new WizardsHood());
-		InitType(new Greatsword());
+		InitType(new Zweihander());
 		InitType(new TravellingCloak());
 		InitType(new Shortbow());
 		InitType(new Longbow());
@@ -306,6 +306,7 @@ public abstract class Item
 			if (item.value < minValue || item.value > maxValue)
 				list.RemoveAt(i--);
 		}
+		MathHelper.ShuffleList(list, random);
 
 		float cumulativeRarity = 0;
 		foreach (int idx in list)

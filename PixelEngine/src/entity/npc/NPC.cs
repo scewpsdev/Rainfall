@@ -102,7 +102,7 @@ public abstract class NPC : Mob, Interactable
 				return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
 			});
 			Item item = items[0];
-			if (item.stackable || !hasShopItem(item.name))
+			if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
 				addShopItem(item.copy());
 			else
 				i--;
@@ -501,9 +501,9 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
-			if (InputManager.IsPressed("Down"))
+			if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
 				selectedItem = (selectedItem + 1) % shopItems.Count;
-			if (InputManager.IsPressed("Up"))
+			if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 				selectedItem = (selectedItem + shopItems.Count - 1) % shopItems.Count;
 
 			for (int i = 0; i < shopItems.Count; i++)
@@ -586,9 +586,9 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
-			if (InputManager.IsPressed("Down"))
+			if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
 				selectedItem = (selectedItem + 1) % player.items.Count;
-			if (InputManager.IsPressed("Up"))
+			if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 				selectedItem = (selectedItem + player.items.Count - 1) % player.items.Count;
 
 			for (int i = 0; i < player.items.Count; i++)
@@ -681,9 +681,9 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
-			if (InputManager.IsPressed("Down"))
+			if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
 				selectedItem = (selectedItem + 1) % craftingItems.Count;
-			if (InputManager.IsPressed("Up"))
+			if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 				selectedItem = (selectedItem + craftingItems.Count - 1) % craftingItems.Count;
 
 			for (int i = 0; i < craftingItems.Count; i++)
@@ -726,6 +726,7 @@ public abstract class NPC : Mob, Interactable
 							player.hud.showMessage("Could not craft anything out of " + craftingItem1.displayName + " and " + craftingItem2.displayName + ".");
 							craftingItem1 = null;
 							craftingItem2 = null;
+							closeScreen();
 						}
 					}
 				}
