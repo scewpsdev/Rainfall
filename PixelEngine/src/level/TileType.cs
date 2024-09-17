@@ -29,7 +29,7 @@ public class TileType
 	public static SpriteSheet tileset;
 
 	public static TileType dummy;
-	public static TileType wall;
+	public static TileType dirt;
 	public static TileType platform;
 	public static TileType stone;
 
@@ -38,7 +38,7 @@ public class TileType
 		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/tiles.png", false), 16, 16);
 
 		AddTileType(dummy = new TileType() { name = "dummy", visible = false }); // dummy collider
-		AddTileType(wall = new TileType()
+		AddTileType(dirt = new TileType()
 		{
 			name = "wall",
 			color = 0xFFFFFFFF,

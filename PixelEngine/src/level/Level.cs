@@ -50,12 +50,13 @@ public class Level
 		resize(20, 20);
 	}
 
-	public void resize(int width, int height)
+	public void resize(int width, int height, TileType fillTile = null)
 	{
 		this.width = width;
 		this.height = height;
 		tiles = new int[width * height];
-		Array.Fill(tiles, 2);
+		if (fillTile != null)
+			Array.Fill(tiles, fillTile.id);
 		walkable = new bool[width * height];
 		Array.Fill(walkable, false);
 

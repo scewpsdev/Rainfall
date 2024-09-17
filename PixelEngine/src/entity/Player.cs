@@ -676,7 +676,7 @@ public class Player : Entity, Hittable
 			}
 			else
 			{
-				if (InputManager.IsDown("Down"))
+				if (isDucked)
 				{
 					TileType tile = GameState.instance.level.getTile(position);
 					if (tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)

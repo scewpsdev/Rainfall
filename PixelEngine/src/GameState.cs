@@ -80,7 +80,7 @@ public class GameState : State
 
 	public Level hub;
 	public Level[] areaCaves;
-	Level[] areaMines;
+	public Level[] areaMines;
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
 
@@ -247,7 +247,7 @@ public class GameState : State
 				bool startingRoom = false;
 				bool bossRoom = i == areaMines.Length - 1;
 				level = areaMines[i];
-				generator.generateCaves(run.seed, areaMines.Length + i, darkLevel, startingRoom, bossRoom, areaMines[i], i < areaMines.Length - 1 ? areaMines[i + 1] : null, lastLevel, lastDoor);
+				generator.generateMines(run.seed, areaMines.Length + i, darkLevel, startingRoom, bossRoom, areaMines[i], i < areaMines.Length - 1 ? areaMines[i + 1] : null, lastLevel, lastDoor);
 				lastLevel = areaMines[i];
 				lastDoor = areaMines[i].exit;
 			}

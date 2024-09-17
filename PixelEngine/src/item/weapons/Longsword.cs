@@ -13,7 +13,7 @@ public class Longsword : Item
 	{
 		displayName = "Longsword";
 
-		attackDamage = 4;
+		attackDamage = 3;
 		attackRange = 1.2f;
 		attackRate = 1.4f;
 		stab = false;

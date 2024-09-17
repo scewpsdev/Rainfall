@@ -38,6 +38,7 @@ public static class EntityType
 		InitType<Spring>("spring");
 		InitType<TorchEntity>("torch");
 		InitType<Coin>("coin");
+		InitType<Minecart>("minecart");
 	}
 
 	static void InitType<T>(string name) where T : Entity, new()
