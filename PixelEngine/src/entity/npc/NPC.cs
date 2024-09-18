@@ -1,4 +1,5 @@
-﻿using Rainfall;
+﻿using Microsoft.VisualBasic.FileIO;
+using Rainfall;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -278,7 +279,7 @@ public abstract class NPC : Mob, Interactable
 		Player player = GameState.instance.player;
 
 		float maxDistance = getRange();
-		if (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance)
+		if (state != NPCState.None && (InputManager.IsPressed("UIQuit") || (player.position - position).lengthSquared > maxDistance * maxDistance))
 		{
 			closeScreen();
 		}
@@ -442,20 +443,8 @@ public abstract class NPC : Mob, Interactable
 
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
-			int lineHeight = 12;
-			int headerHeight = 12 + 1;
-			int width = 120;
-			int height = headerHeight + options.Count * lineHeight;
-			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			int y = Math.Max(pos.y - height, 2);
+			int option = InteractableMenu.Render(pos, displayName, options, out bool closed, ref selectedOption);
 
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-
-			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
-			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
-			y += headerHeight;
-
-			int option = WindowMenu.Render(options.ToArray(), ref selectedOption, x, y, width, lineHeight);
 			if (option != -1)
 			{
 				if (options[option] == "Buy")
@@ -476,7 +465,7 @@ public abstract class NPC : Mob, Interactable
 					closeScreen();
 			}
 
-			if (InputManager.IsPressed("UIBack", true))
+			if (closed)
 				closeScreen();
 		}
 		else if (state == NPCState.Shop)

@@ -272,6 +272,9 @@ public abstract class Item
 		InitType(new Handaxe());
 		InitType(new Greataxe());
 		InitType(new Amogus());
+		InitType(new GlassBottle());
+		InitType(new BottleOfWater());
+		InitType(new PoisonVial());
 	}
 
 	static void InitType(Item item)

@@ -30,6 +30,7 @@ public static class EntityType
 		InitType<Tinkerer>("tinkerer");
 		InitType<TravellingMerchant>("travelling_merchant");
 
+		InitType<Fountain>("fountain");
 		InitType<Barrel>("barrel");
 		InitType<Chest>("chest");
 		InitType<ExplosiveBarrel>("explosive_barrel");

@@ -583,7 +583,7 @@ public class Player : Entity, Hittable
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
-		GameState.instance.run.killedByName = by != null && by.displayName != null ? by.displayName : byName;
+		GameState.instance.run.killedByName = byName != null ? byName : by != null && by.displayName != null ? by.displayName : "???";
 		GameState.instance.run.endedTime = Time.currentTime;
 
 		Input.cursorMode = CursorMode.Normal;
