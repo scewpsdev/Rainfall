@@ -890,7 +890,7 @@ public class Player : Entity, Hittable
 			if (fallDistance >= FALL_DAMAGE_DISTANCE)
 			{
 				float dmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.1f;
-				hit(dmg, null, null, null, false);
+				hit(dmg, null, null, "Fall Damage", false);
 			}
 			if (velocity.y < -10)
 				onLand();

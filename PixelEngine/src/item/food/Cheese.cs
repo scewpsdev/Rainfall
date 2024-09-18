@@ -22,7 +22,7 @@ public class Cheese : Item
 
 	public override bool use(Player player)
 	{
-		player.addStatusEffect(new HealEffect(1.5f, 5));
+		player.addStatusEffect(new HealStatusEffect(1.5f, 5));
 		//if (player.health < player.maxHealth)
 		//	player.health = MathF.Min(player.health + 0.5f, player.maxHealth);
 		return true;

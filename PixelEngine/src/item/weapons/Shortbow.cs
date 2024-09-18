@@ -20,6 +20,7 @@ public class Shortbow : Item
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";
+		isSecondaryItem = true;
 
 		value = 32;
 

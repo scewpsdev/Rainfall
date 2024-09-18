@@ -6,25 +6,37 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class PoisonVial : Item
+public class PoisonEffect : PotionEffect
+{
+	float amount;
+	float duration;
+
+	public PoisonEffect(float amount = 1, float duration = 16)
+		: base("Poison", 3, new Sprite(Item.tileset, 5, 5))
+	{
+		this.amount = amount;
+		this.duration = duration;
+	}
+
+	public override void apply(Player player, Potion potion)
+	{
+		player.addStatusEffect(new PoisonStatusEffect(amount, duration));
+		player.hud.showMessage("The water burns on your tongue.");
+	}
+}
+
+public class PoisonVial : Potion
 {
 	public PoisonVial()
-		: base("poison_vial", ItemType.Potion)
+		: base("poison_vial")
 	{
+		addEffect(new PoisonEffect());
+
 		displayName = "Poison Vial";
 		stackable = true;
 		value = 11;
 		canDrop = false;
 
 		sprite = new Sprite(tileset, 5, 5);
-	}
-
-	public override bool use(Player player)
-	{
-		player.addStatusEffect(new PoisonEffect(1, 16));
-		player.hud.showMessage("The water burns on your tongue.");
-		player.removeItemSingle(this);
-		player.giveItem(new GlassBottle());
-		return false;
 	}
 }

@@ -107,9 +107,9 @@ public class InventoryUI
 
 			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
 			Renderer.DrawUITextBMP(x + 2, y + 2, "Inventory", 1, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x + width - 1 - HUD.gem.width, y + 2, HUD.gem.width, HUD.gem.height, HUD.gem);
+			Renderer.DrawUISprite(x + width - 1 - HUD.gold.width, y + 2, HUD.gold.width, HUD.gold.height, HUD.gold);
 			string moneyStr = GameState.instance.player.money.ToString();
-			Renderer.DrawUITextBMP(x + width - 1 - HUD.gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
+			Renderer.DrawUITextBMP(x + width - 1 - HUD.gold.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
 			y += headerHeight;
 
 			if (player.items.Count > 0)
