@@ -275,6 +275,7 @@ public abstract class Item
 		InitType(new GlassBottle());
 		InitType(new BottleOfWater());
 		InitType(new PoisonVial());
+		InitType(new PotionOfTeleport());
 	}
 
 	static void InitType(Item item)

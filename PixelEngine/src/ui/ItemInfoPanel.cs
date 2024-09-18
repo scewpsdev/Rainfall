@@ -85,6 +85,15 @@ public static class ItemInfoPanel
 			y += Renderer.smallFont.size + 1;
 		}
 
+		if (item.type == ItemType.Potion)
+		{
+			Potion potion = item as Potion;
+			for (int i = 0; i < potion.effects.Count; i++)
+			{
+				drawLeft(potion.effects[i].name + " effect");
+			}
+		}
+
 		return y - top;
 	}
 }

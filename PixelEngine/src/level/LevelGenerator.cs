@@ -590,6 +590,8 @@ public class LevelGenerator
 
 	void spawnRoomObject(List<Room> roomList, float chance, bool allowMultiple, Action<Vector2i, Random> spawnFunc)
 	{
+		MathHelper.ShuffleList(roomList, random);
+
 		for (int i = 0; i < roomList.Count; i++)
 		{
 			Room room = roomList[i];
@@ -666,7 +668,6 @@ public class LevelGenerator
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
 		List<Room> deadEnds = new List<Room>(rooms);
-		MathHelper.ShuffleList(deadEnds, random);
 		for (int i = 0; i < deadEnds.Count; i++)
 		{
 			Room room = deadEnds[i];

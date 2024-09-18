@@ -6,17 +6,44 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class BottleOfWater : Item
+public class WaterEffect : PotionEffect
+{
+	public bool boiling;
+
+	public WaterEffect(bool boiling = false)
+		: base("Water", 1, new Sprite(Item.tileset, 4, 5))
+	{
+		this.boiling = boiling;
+	}
+
+	public override void apply(Player player, Potion potion)
+	{
+		if (boiling)
+		{
+			player.hit(Random.Shared.NextSingle() * 2, null, potion, "Boiling Water");
+			player.hud.showMessage("The water is scalding hot.");
+		}
+		else
+		{
+			player.hud.showMessage("It tastes bland.");
+		}
+	}
+}
+
+public class BottleOfWater : Potion
 {
 	const float COOLDOWN_TIME = 20;
 
-	public bool boiling = false;
-
+	bool boiling;
 	long startTime = -1;
 
-	public BottleOfWater()
-		: base("bottle_of_water", ItemType.Potion)
+	public BottleOfWater(bool boiling)
+		: base("bottle_of_water")
 	{
+		this.boiling = boiling;
+
+		addEffect(new WaterEffect(boiling));
+
 		displayName = "Bottle of Water";
 		stackable = true;
 		value = 3;
@@ -25,20 +52,9 @@ public class BottleOfWater : Item
 		sprite = new Sprite(tileset, 4, 5);
 	}
 
-	public override bool use(Player player)
+	public BottleOfWater()
+		: this(false)
 	{
-		if (boiling)
-		{
-			player.hit(Random.Shared.NextSingle() * 2, null, this, "Boiling Water");
-			player.hud.showMessage("The water is scalding hot.");
-		}
-		else
-		{
-			player.hud.showMessage("It tastes bland.");
-		}
-		player.removeItemSingle(this);
-		player.giveItem(new GlassBottle());
-		return false;
 	}
 
 	public override void update(Entity entity)

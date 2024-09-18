@@ -24,7 +24,7 @@ public class HUD
 	public static Sprite heartFull, heartHalf, heartEmpty;
 	public static Sprite armor, armorEmpty;
 	public static Sprite mana, manaEmpty;
-	public static Sprite gem;
+	public static Sprite gold;
 	public static Sprite staffCharge;
 
 	public static Sprite crosshair;
@@ -44,7 +44,7 @@ public class HUD
 		armor = new Sprite(tileset, 4, 0);
 		armorEmpty = new Sprite(tileset, 5, 0);
 
-		gem = new Sprite(tileset, 3, 0);
+		gold = new Sprite(tileset, 3, 0);
 
 		staffCharge = new Sprite(tileset, 6, 1);
 
@@ -204,8 +204,8 @@ public class HUD
 			int x = 6;
 			int y = 6 + 8 + 3 + 8 + 3;
 
-			Renderer.DrawUIOutline(x, y, size, size, gem, false, 0x5F000000);
-			Renderer.DrawUISprite(x, y, size, size, gem, false);
+			Renderer.DrawUIOutline(x, y, size, size, gold, false, 0x5F000000);
+			Renderer.DrawUISprite(x, y, size, size, gold, false);
 			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);
 		}
 

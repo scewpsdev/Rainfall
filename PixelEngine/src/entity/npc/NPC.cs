@@ -3,6 +3,7 @@ using Rainfall;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
@@ -75,7 +76,7 @@ public abstract class NPC : Mob, Interactable
 	public NPC(string name)
 		: base(name)
 	{
-		gem = HUD.gem;
+		gem = HUD.gold;
 	}
 
 	public override void destroy()
@@ -472,6 +473,50 @@ public abstract class NPC : Mob, Interactable
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
+			List<Item> items = new List<Item>(shopItems.Count);
+			List<int> prices = new List<int>(shopItems.Count);
+			for (int i = 0; i < shopItems.Count; i++)
+			{
+				items.Add(shopItems[i].Item1);
+				prices.Add(shopItems[i].Item2);
+			}
+
+			int choice = ItemSelector.Render(pos, displayName, items, prices, player.money, null, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				Item item = items[choice];
+				int price = prices[choice];
+				bool canAfford = player.money >= price;
+
+				if (canAfford)
+				{
+					if (item.stackable && item.stackSize > 1)
+					{
+						Item copy = item.copy();
+						copy.stackSize = 1;
+						GameState.instance.player.giveItem(copy);
+						GameState.instance.player.money -= price;
+						item.stackSize--;
+					}
+					else
+					{
+						GameState.instance.player.giveItem(item);
+						GameState.instance.player.money -= price;
+
+						shopItems.RemoveAt(choice);
+
+						if (selectedItem == shopItems.Count)
+							selectedItem--;
+						if (shopItems.Count == 0)
+							initMenu();
+					}
+				}
+			}
+
+			if (closed)
+				initMenu();
+
+			/*
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
@@ -552,15 +597,55 @@ public abstract class NPC : Mob, Interactable
 
 			if (InputManager.IsPressed("UIBack", true))
 				initMenu();
+			*/
 		}
 		else if (state == NPCState.SellMenu)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
+			List<Item> items = new List<Item>(player.items.Count);
+			List<int> prices = new List<int>(player.items.Count);
+			for (int i = 0; i < player.items.Count; i++)
+			{
+				items.Add(player.items[i].Item2);
+				prices.Add((int)MathF.Round(player.items[i].Item2.value));
+			}
+
+			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, out bool closed, ref selectedItem);
+			if (itemIdx != -1)
+			{
+				Item item = items[itemIdx];
+				int price = prices[itemIdx];
+
+				if (item.stackable && item.stackSize > 1)
+				{
+					item.stackSize--;
+					Item copy = item.copy();
+					copy.stackSize = 1;
+					addShopItem(copy);
+					GameState.instance.player.money += price;
+				}
+				else
+				{
+					GameState.instance.player.removeItem(item);
+					addShopItem(item);
+					GameState.instance.player.money += price;
+
+					if (selectedItem == player.items.Count)
+						selectedItem--;
+					if (player.items.Count == 0)
+						initMenu();
+				}
+			}
+
+			if (closed)
+				initMenu();
+
+			/*
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
-			int shopWidth = Math.Max(120, 1 + lineHeight + 5 + longestItemName + 1);
+			int shopWidth = Math.Max(120, 1 + 16 + 5 + longestItemName + 1);
 			int width = shopWidth + 1 + sidePanelWidth;
 			int height = headerHeight + player.items.Count * lineHeight;
 			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
@@ -647,11 +732,53 @@ public abstract class NPC : Mob, Interactable
 
 			if (InputManager.IsPressed("UIBack", true))
 				initMenu();
+			*/
 		}
 		else if (state == NPCState.CraftingMenu)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
+			List<Item> items = new List<Item>(player.items.Count);
+			for (int i = 0; i < player.items.Count; i++)
+				items.Add(player.items[i].Item2);
+
+			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", items, null, -1, player, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				Item item = items[choice];
+
+				if (craftingItem1 == null)
+				{
+					craftingItem1 = item;
+					craftingItems.Remove(item.type, item);
+					if (selectedItem == craftingItems.Count)
+						selectedItem--;
+				}
+				else if (craftingItem2 == null)
+				{
+					craftingItem2 = item;
+					Item craftedItem = craftItem(craftingItem1, craftingItem2);
+					if (craftedItem != null)
+					{
+						GameState.instance.level.addEntity(new ItemEntity(craftedItem, this, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
+						craftingItem1 = null;
+						craftingItem2 = null;
+						closeScreen();
+					}
+					else
+					{
+						player.hud.showMessage("Could not craft anything out of " + craftingItem1.displayName + " and " + craftingItem2.displayName + ".");
+						craftingItem1 = null;
+						craftingItem2 = null;
+						closeScreen();
+					}
+				}
+			}
+
+			if (closed)
+				initMenu();
+
+			/*
 			int lineHeight = 16;
 			int headerHeight = 12 + 1;
 			int sidePanelWidth = 80;
@@ -729,6 +856,7 @@ public abstract class NPC : Mob, Interactable
 
 			if (InputManager.IsPressed("UIBack", true))
 				initMenu();
+			*/
 		}
 	}
 }

@@ -13,6 +13,7 @@ public class GlassBottle : Item
 	{
 		displayName = "Glass Bottle";
 		stackable = true;
+		canDrop = false;
 
 		value = 2;
 

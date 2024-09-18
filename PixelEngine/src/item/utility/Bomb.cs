@@ -50,7 +50,7 @@ public class Bomb : Item
 
 	void explode(Entity entity)
 	{
-		Effects.Explode(entity.position, blastRadius, attackDamage, entity, this);
+		SpellEffects.Explode(entity.position, blastRadius, attackDamage, entity, this);
 	}
 
 	public override void update(Entity entity)

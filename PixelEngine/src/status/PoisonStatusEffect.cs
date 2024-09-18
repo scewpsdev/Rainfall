@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HealEffect : StatusEffect
+public class PoisonStatusEffect : StatusEffect
 {
 	float amount;
 	float duration;
@@ -15,11 +15,13 @@ public class HealEffect : StatusEffect
 	long lastUpdate;
 
 
-	public HealEffect(float amount, float duration)
-		: base("heal", new Sprite(tileset, 0, 0))
+	public PoisonStatusEffect(float amount, float duration)
+		: base("poison", new Sprite(tileset, 1, 0))
 	{
 		this.amount = amount;
 		this.duration = duration;
+
+		positiveEffect = false;
 
 		startTime = Time.currentTime;
 		lastUpdate = Time.currentTime;
@@ -27,11 +29,11 @@ public class HealEffect : StatusEffect
 
 	public override unsafe void init(Player player)
 	{
-		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, 0xFFFF4D40), player.position + new Vector2(0, 0.5f));
+		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 16), duration, 5.0f, 0.25f, 0xFFAFAF2A), player.position + new Vector2(0, 0.5f));
 
 		ParticleEffect effect = new ParticleEffect(player, "res/effects/regenerate.rfs");
-		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFFFF4D40).xyz;
-		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFFFF4D40).xyz;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFFAFAF2A).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
 
@@ -42,11 +44,8 @@ public class HealEffect : StatusEffect
 	{
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
 		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
-		if (elapsed >= duration)
-			sinceLastFrame -= elapsed - duration;
 		float heal = amount * sinceLastFrame / duration;
-		if (player.health < player.maxHealth)
-			player.health += heal;
+		player.hit(heal, null, null, "Poison", false);
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}

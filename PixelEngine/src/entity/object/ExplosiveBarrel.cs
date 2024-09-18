@@ -39,7 +39,7 @@ public class ExplosiveBarrel : Entity, Hittable
 
 	void explode()
 	{
-		Effects.Explode(position, blastRadius, damage, this, null);
+		SpellEffects.Explode(position, blastRadius, damage, this, null);
 		remove();
 	}
 
