@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 public class PotionOfGreaterHealing : Item
 {
+	public float healAmount = 2.0f;
+
 	public PotionOfGreaterHealing()
 		: base("potion_of_greater_healing", ItemType.Potion)
 	{
 		displayName = "Potion of Greater Healing";
-		stackable = true;
+		//stackable = true;
 
 		value = 80;
 
@@ -22,9 +24,11 @@ public class PotionOfGreaterHealing : Item
 	public override bool use(Player player)
 	{
 		if (player.health < player.maxHealth - 0.1f)
-			player.health = MathF.Min(player.health + 2, player.maxHealth);
+			player.health = MathF.Min(player.health + healAmount, player.maxHealth);
 		else
-			player.health = player.maxHealth = player.maxHealth + 1;
-		return true;
+			player.health = ++player.maxHealth;
+		player.removeItemSingle(this);
+		player.giveItem(new GlassBottle());
+		return false;
 	}
 }
