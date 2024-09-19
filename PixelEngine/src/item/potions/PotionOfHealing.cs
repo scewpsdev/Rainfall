@@ -18,16 +18,21 @@ public class HealEffect : PotionEffect
 		this.duration = duration;
 	}
 
-	public override void apply(Player player, Potion potion)
+	public override void apply(Entity entity, Potion potion)
 	{
-		if (player.health < player.maxHealth - 0.1f)
-			player.addStatusEffect(new HealStatusEffect(amount, duration));
-		else
-			player.health = player.maxHealth = player.maxHealth + MathF.Round(0.5f * amount);
-		if (Random.Shared.NextSingle() < 0.5f)
-			player.hud.showMessage("You feel refreshed.");
-		else
-			player.hud.showMessage("You feel your strength returning.");
+		if (entity is StatusEffectReceiver)
+		{
+			StatusEffectReceiver receiver = entity as StatusEffectReceiver;
+			receiver.addStatusEffect(new HealStatusEffect(amount, duration));
+		}
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			if (Random.Shared.NextSingle() < 0.5f)
+				player.hud.showMessage("You feel refreshed.");
+			else
+				player.hud.showMessage("You feel your strength returning.");
+		}
 	}
 }
 

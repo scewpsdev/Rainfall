@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,10 +19,18 @@ public class PoisonEffect : PotionEffect
 		this.duration = duration;
 	}
 
-	public override void apply(Player player, Potion potion)
+	public override void apply(Entity entity, Potion potion)
 	{
-		player.addStatusEffect(new PoisonStatusEffect(amount, duration));
-		player.hud.showMessage("The water burns on your tongue.");
+		if (entity is StatusEffectReceiver)
+		{
+			StatusEffectReceiver receiver = entity as StatusEffectReceiver;
+			receiver.addStatusEffect(new PoisonStatusEffect(amount, duration));
+		}
+		else if (entity is Player)
+		{
+			Player player = entity as Player;
+			player.hud.showMessage("The water burns on your tongue.");
+		}
 	}
 }
 

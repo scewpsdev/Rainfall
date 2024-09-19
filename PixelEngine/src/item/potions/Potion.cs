@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 public class Potion : Item
 {
 	public List<PotionEffect> effects = new List<PotionEffect>();
+	bool throwable = false;
+
 
 	public Potion(string name)
 		: base(name, ItemType.Potion)
@@ -21,6 +23,15 @@ public class Potion : Item
 	public Potion()
 		: this("mixed_potion")
 	{
+	}
+
+	public void makeThrowable()
+	{
+		value++;
+		displayName = "Throwable " + displayName;
+		breakOnWallHit = true;
+		breakOnEnemyHit = true;
+		throwable = true;
 	}
 
 	public void addEffect(PotionEffect effect)
@@ -37,10 +48,47 @@ public class Potion : Item
 
 	public override bool use(Player player)
 	{
-		foreach (PotionEffect effect in effects)
-			effect.apply(player, this);
-		player.removeItemSingle(this);
-		player.giveItem(new GlassBottle());
-		return false;
+		if (throwable)
+		{
+			player.throwItem(this, player.lookDirection);
+			return true;
+		}
+		else
+		{
+			foreach (PotionEffect effect in effects)
+				effect.apply(player, this);
+			player.removeItemSingle(this);
+			player.giveItem(new GlassBottle());
+			return false;
+		}
+	}
+
+	public override void onEntityBreak(ItemEntity entity)
+	{
+		float radius = 2.5f;
+		HitData[] hits = new HitData[16];
+		int numHits = GameState.instance.level.overlap(entity.position - radius, entity.position + radius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER);
+		for (int i = 0; i < numHits; i++)
+		{
+			if (hits[i].entity != null && hits[i].entity != entity)
+			{
+				if (hits[i].entity is Mob)
+				{
+					Mob mob = hits[i].entity as Mob;
+					for (int j = 0; j < effects.Count; j++)
+					{
+						effects[j].apply(mob, null);
+					}
+				}
+				else if (hits[i].entity is Player)
+				{
+					Player player = hits[i].entity as Player;
+					for (int j = 0; j < effects.Count; j++)
+					{
+						effects[j].apply(player, null);
+					}
+				}
+			}
+		}
 	}
 }

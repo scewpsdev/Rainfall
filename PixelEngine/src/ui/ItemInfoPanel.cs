@@ -91,6 +91,7 @@ public static class ItemInfoPanel
 			for (int i = 0; i < potion.effects.Count; i++)
 			{
 				drawLeft(potion.effects[i].name + " effect");
+				y += Renderer.smallFont.size;
 			}
 		}
 

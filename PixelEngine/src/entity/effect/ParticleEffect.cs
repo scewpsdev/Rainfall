@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 public class ParticleEffect : Entity
 {
-	Entity follow;
-	Vector2 offset;
+	public Entity follow;
+	public Vector2 offset;
 
 	public ParticleSystem[] systems;
 	public Texture[] textureAtlases;
 	public bool collision = false;
+	public float layer = LAYER_BG;
 
 
 	public unsafe ParticleEffect(Entity follow, string file)
@@ -58,12 +59,15 @@ public class ParticleEffect : Entity
 	public override unsafe void update()
 	{
 		if (follow != null)
+		{
 			position = follow.position + offset;
+			rotation = follow.rotation;
+		}
 
 		bool hasFinished = true;
 		for (int i = 0; i < systems.Length; i++)
 		{
-			systems[i].setTransform(Matrix.CreateTranslation(position.x, position.y, 0), true);
+			systems[i].setTransform(Matrix.CreateTranslation(position.x, position.y, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation), true);
 			systems[i].update();
 
 			if (collision)
@@ -101,6 +105,7 @@ public class ParticleEffect : Entity
 				if (particle.active)
 				{
 					float size = particle.size / 0.1f / 16;
+					size = MathF.Max(size, 1.0f / 16);
 					int u0 = 0, v0 = 0, w = 1, h = 1;
 					if (textureAtlases[j] != null)
 					{
@@ -110,7 +115,7 @@ public class ParticleEffect : Entity
 						u0 = (frameIdx % systems[j].handle->atlasSize.x) * w;
 						v0 = (frameIdx / systems[j].handle->atlasSize.x) * h;
 					}
-					Renderer.DrawSprite(particle.position.x - 0.5f * size, particle.position.y - 0.5f * size, LAYER_BG, size, size, particle.rotation, textureAtlases[j], u0, v0, w, h, particle.color, systems[j].handle->additive);
+					Renderer.DrawSprite(particle.position.x - 0.5f * size, particle.position.y - 0.5f * size, layer, size, size, particle.rotation, textureAtlases[j], u0, v0, w, h, particle.color, systems[j].handle->additive);
 				}
 			}
 		}

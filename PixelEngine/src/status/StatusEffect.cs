@@ -28,20 +28,20 @@ public class StatusEffect
 		this.icon = icon;
 	}
 
-	public virtual void init(Player player)
+	public virtual void init(Entity entity)
 	{
 	}
 
-	public virtual void destroy(Player player)
+	public virtual void destroy(Entity entity)
 	{
 	}
 
-	public virtual bool update(Player player)
+	public virtual bool update(Entity entity)
 	{
 		return true;
 	}
 
-	public virtual void render(Player player)
+	public virtual void render(Entity entity)
 	{
 	}
 }

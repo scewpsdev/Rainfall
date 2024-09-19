@@ -11,10 +11,23 @@ public class TorchEntity : Entity, Interactable
 	Sprite sprite;
 	uint outline = 0;
 
+	ParticleEffect particles;
+
 
 	public TorchEntity()
 	{
 		sprite = new Sprite(TileType.tileset, 1, 3);
+	}
+
+	public override void init(Level level)
+	{
+		GameState.instance.level.addEntity(particles = new ParticleEffect(this, "res/effects/torch.rfs"), position + new Vector2(0, 0.25f));
+		particles.layer = LAYER_DEFAULT - 0.01f;
+	}
+
+	public override void destroy()
+	{
+		particles.remove();
 	}
 
 	public bool canInteract(Player player)

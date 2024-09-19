@@ -25,28 +25,33 @@ public class ManaRechargeEffect : StatusEffect
 		lastUpdate = Time.currentTime;
 	}
 
-	public override unsafe void init(Player player)
+	public override unsafe void init(Entity entity)
 	{
 		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, ), player.position + new Vector2(0, 0.5f));
 
-		ParticleEffect effect = new ParticleEffect(player, "res/effects/regenerate.rfs");
+		ParticleEffect effect = new ParticleEffect(entity, "res/effects/regenerate.rfs");
 		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFF758FFF).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
 
-		GameState.instance.level.addEntity(effect, player.position + new Vector2(0, 0.5f));
+		GameState.instance.level.addEntity(effect, entity.position + new Vector2(0, 0.5f));
 	}
 
-	public override bool update(Player player)
+	public override bool update(Entity entity)
 	{
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
 		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
 		if (elapsed >= duration)
 			sinceLastFrame -= elapsed - duration;
 		float charge = amount * sinceLastFrame / duration;
-		if (player.mana < player.maxMana)
-			player.mana += charge;
+
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			if (player.mana < player.maxMana)
+				player.mana += charge;
+		}
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}

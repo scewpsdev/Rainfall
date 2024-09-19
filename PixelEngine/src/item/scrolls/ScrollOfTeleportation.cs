@@ -20,7 +20,7 @@ public class ScrollOfTeleportation : Item
 
 	public override bool use(Player player)
 	{
-		SpellEffects.TeleportPlayer(player);
+		SpellEffects.TeleportEntity(player);
 		return true;
 	}
 }

@@ -19,5 +19,5 @@ public abstract class PotionEffect
 		this.sprite = sprite;
 	}
 
-	public abstract void apply(Player player, Potion potion);
+	public abstract void apply(Entity entity, Potion potion);
 }

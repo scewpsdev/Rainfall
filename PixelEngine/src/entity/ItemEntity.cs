@@ -30,6 +30,8 @@ public class ItemEntity : Entity, Interactable, Destructible
 	public Vector4 color;
 	uint outline = 0;
 
+	ParticleEffect particles;
+
 
 	public ItemEntity(Item item, Entity thrower = null, Vector2 velocity = default)
 	{
@@ -46,6 +48,18 @@ public class ItemEntity : Entity, Interactable, Destructible
 		this.thrower = thrower;
 		this.velocity = velocity;
 		throwTime = Time.currentTime;
+	}
+
+	public override void init(Level level)
+	{
+		if (item.particleEffect != null)
+			GameState.instance.level.addEntity(particles = new ParticleEffect(this, item.particleEffect), position + item.particlesOffset);
+	}
+
+	public override void destroy()
+	{
+		if (particles != null)
+			particles.remove();
 	}
 
 	public void onDestroyed(Entity entity, Item item)
@@ -111,7 +125,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 			}
 		}
 
-		if (item.breakOnWallHit && velocity.lengthSquared > 4 && ricochets >= item.maxRicochets)
+		if (item.breakOnWallHit && velocity.lengthSquared > 4 && ricochets >= item.maxRicochets && thrower != null)
 		{
 			item.onEntityBreak(this);
 			remove();
@@ -205,7 +219,7 @@ public class ItemEntity : Entity, Interactable, Destructible
 							hittable.hit(damage, this, item);
 							hitEntities.Add(hit.entity);
 
-							if (item.breakOnEnemyHit && velocity.lengthSquared > 1)
+							if (item.breakOnEnemyHit && velocity.lengthSquared > 4 && thrower != null)
 							{
 								item.onEntityBreak(this);
 								remove();
