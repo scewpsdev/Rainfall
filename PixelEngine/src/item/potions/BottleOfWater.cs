@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,16 +17,28 @@ public class WaterEffect : PotionEffect
 		this.boiling = boiling;
 	}
 
-	public override void apply(Player player, Potion potion)
+	public override void apply(Entity entity, Potion potion)
 	{
 		if (boiling)
 		{
-			player.hit(Random.Shared.NextSingle() * 2, null, potion, "Boiling Water");
-			player.hud.showMessage("The water is scalding hot.");
+			if (entity is Hittable)
+			{
+				Hittable hittable = entity as Hittable;
+				hittable.hit(Random.Shared.NextSingle() * 2, null, potion, "Boiling Water");
+			}
+			if (entity is Player)
+			{
+				Player player = entity as Player;
+				player.hud.showMessage("The water is scalding hot.");
+			}
 		}
 		else
 		{
-			player.hud.showMessage("It tastes bland.");
+			if (entity is Player)
+			{
+				Player player = entity as Player;
+				player.hud.showMessage("It tastes bland.");
+			}
 		}
 	}
 }

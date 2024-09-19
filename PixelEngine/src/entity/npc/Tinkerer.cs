@@ -33,21 +33,7 @@ public class Tinkerer : NPC
 
 	public override Item craftItem(Item item1, Item item2)
 	{
-		float combinedValue = item1.value + item2.value;
-
-		Item craftedItem = null;
-
-		bool hasName(string name) => item1.name == name || item2.name == name;
-		bool hasType(ItemType type) => item2.type == type || item2.type == type;
-
-		Random random = new Random((int)Hash.combine((uint)item1.id, (uint)item2.id));
-
-		// do crafting
-		if (hasName("stick") && hasType(ItemType.Gem))
-			craftedItem = Item.CreateRandom(ItemType.Staff, random, combinedValue * 0.8f, combinedValue * 1.2f);
-		if (hasName("scroll_blank") && hasType(ItemType.Gem))
-			craftedItem = Item.CreateRandom(ItemType.Scroll, random, combinedValue * 0.8f, combinedValue * 1.2f);
-
+		Item craftedItem = Crafting.CraftItem(item1, item2);
 		if (craftedItem != null)
 		{
 			player.removeItemSingle(item1);

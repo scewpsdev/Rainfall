@@ -64,7 +64,7 @@ public static class SpellEffects
 		GameState.instance.camera.addScreenShake(position, 2.0f, 3.0f);
 	}
 
-	public static void TeleportPlayer(Player player)
+	public static void TeleportEntity(Entity entity)
 	{
 		for (int i = 0; i < 1000; i++)
 		{
@@ -73,11 +73,15 @@ public static class SpellEffects
 			TileType tile = GameState.instance.level.getTile(x, y);
 			if (tile == null || !tile.isSolid)
 			{
-				player.position = new Vector2(x + 0.5f, y + 0.5f) - player.collider.center;
+				entity.position = new Vector2(x + 0.5f, y + 0.5f) - entity.collider.center;
 				break;
 			}
 		}
 
-		player.hud.showMessage("Everything around you starts spinning.");
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			player.hud.showMessage("Everything around you starts spinning.");
+		}
 	}
 }

@@ -13,9 +13,9 @@ public class TeleportEffect : PotionEffect
 	{
 	}
 
-	public override void apply(Player player, Potion potion)
+	public override void apply(Entity entity, Potion potion)
 	{
-		SpellEffects.TeleportPlayer(player);
+		SpellEffects.TeleportEntity(entity);
 	}
 }
 

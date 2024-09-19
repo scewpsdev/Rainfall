@@ -70,7 +70,7 @@ public class InputBinding
 			if (key != KeyCode.None)
 				result.Append(key.ToString());
 			if (button != MouseButton.None)
-				result.Append((result.Length > 2 ? " / " : "") + "Mouse " + button.ToString());
+				result.Append((result.Length > 2 ? " / " : "") + "M" + ((int)button).ToString());
 			if (scrollDelta != 0)
 				result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Up" : "Down"));
 		}
@@ -84,7 +84,7 @@ public class InputBinding
 		if (key != KeyCode.None)
 			result.Append(key.ToString());
 		if (button != MouseButton.None)
-			result.Append((result.Length > 2 ? " / " : "") + "Mouse " + button.ToString());
+			result.Append((result.Length > 2 ? " / " : "") + "M" + ((int)button).ToString());
 		if (gamepadButton != GamepadButton.None)
 			result.Append((result.Length > 2 ? " / " : "") + "Gamepad " + gamepadButton.ToString());
 		if (scrollDelta != 0)
@@ -118,7 +118,7 @@ public static class InputManager
 		}
 		foreach (MouseButton button in Enum.GetValues<MouseButton>())
 		{
-			buttons.Add("Mouse" + button.ToString(), button);
+			buttons.Add("M" + ((int)button).ToString(), button);
 		}
 		foreach (GamepadButton button in Enum.GetValues<GamepadButton>())
 		{
@@ -202,7 +202,7 @@ public static class InputManager
 			if (binding.key != KeyCode.None)
 				values.Add(new DatValue(binding.key.ToString(), DatValueType.Identifier));
 			if (binding.button != MouseButton.None)
-				values.Add(new DatValue("Mouse" + binding.button.ToString(), DatValueType.Identifier));
+				values.Add(new DatValue("M" + ((int)binding.button).ToString(), DatValueType.Identifier));
 			if (binding.gamepadButton != GamepadButton.None)
 				values.Add(new DatValue("Gamepad" + binding.gamepadButton.ToString(), DatValueType.Identifier));
 			if (binding.scrollDelta != 0)

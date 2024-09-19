@@ -35,6 +35,13 @@ public static class DebugConsole
 				if (entity != null)
 				{
 					Vector2 position = GameState.instance.player.position; //GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection : GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
+					if (args.Length == 3)
+					{
+						if (float.TryParse(args[1], out float x))
+							position.x = x;
+						if (float.TryParse(args[2], out float y))
+							position.y = y;
+					}
 					GameState.instance.level.addEntity(entity, position);
 					return "Spawned entity in position " + position.ToString();
 				}
@@ -76,6 +83,23 @@ public static class DebugConsole
 							GameState.instance.switchLevel(level, level.entrance.position);
 						}
 					}
+				}
+			}
+		}
+		if (cmd == "craft_item")
+		{
+			if (args.Length == 2)
+			{
+				Item item1 = Item.GetItemPrototype(args[0]);
+				Item item2 = Item.GetItemPrototype(args[1]);
+				if (item1 != null && item2 != null)
+				{
+					Item craftedItem = Crafting.CraftItem(item1, item2);
+
+					Vector2 position = GameState.instance.player.position + Vector2.Up;
+					GameState.instance.level.addEntity(new ItemEntity(craftedItem), position);
+
+					GameState.instance.player.hud.showMessage("Crafted item " + craftedItem.displayName + " from " + item1.displayName + " and " + item2.displayName);
 				}
 			}
 		}

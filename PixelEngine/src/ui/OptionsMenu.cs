@@ -132,7 +132,7 @@ public static class OptionsMenu
 		if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 			selectedOption = (selectedOption + options.Length - 1) % options.Length;
 
-		const int maxOptions = 15;
+		const int maxOptions = 14;
 		if (selectedOption >= currentScroll + maxOptions)
 			currentScroll = selectedOption - maxOptions + 1;
 		else if (selectedOption >= 0 && selectedOption < currentScroll)

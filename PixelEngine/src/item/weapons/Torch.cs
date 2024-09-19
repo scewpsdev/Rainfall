@@ -24,6 +24,9 @@ public class Torch : Item
 		isSecondaryItem = true;
 
 		sprite = new Sprite(tileset, 8, 0);
+		particleEffect = "res/effects/torch.rfs";
+		particlesOffset = new Vector2(0.25f, 0.25f);
+		renderOffset.x = 0.3f;
 	}
 
 	public override bool use(Player player)

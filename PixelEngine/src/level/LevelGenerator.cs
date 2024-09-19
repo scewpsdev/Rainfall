@@ -628,6 +628,60 @@ public class LevelGenerator
 		}
 	}
 
+	void lockDeadEnds(List<Room> deadEnds, List<Room> mainRooms)
+	{
+		foreach (Room room in deadEnds)
+		{
+			Vector2i doorPosition = Vector2i.Zero;
+			for (int i = 0; i < room.doorways.Count; i++)
+			{
+				if (room.doorways[i].otherDoorway != null)
+				{
+					doorPosition = new Vector2i(room.x, room.y) + room.doorways[i].position;
+					break;
+				}
+			}
+
+			if (doorPosition.x == room.x || doorPosition.x == room.x + room.width - 1)
+			{
+				TileType up = level.getTile(doorPosition.x, doorPosition.y + 1);
+				TileType down = level.getTile(doorPosition.x, doorPosition.y - 1);
+
+				if (up != null && up.isSolid && down != null && down.isSolid)
+				{
+					float lockedChance = 0.5f;
+					if (random.NextSingle() < lockedChance)
+					{
+						Debug.Assert(doorPosition != Vector2i.Zero);
+
+						Room keyRoom = mainRooms[random.Next() % mainRooms.Count];
+						if (keyRoom.getFloorSpawn(level, random, objectFlags, out Vector2i keySpawn))
+						{
+							Item key = new IronKey();
+							float chestChance = 0.2f;
+							float barrelChance = 0.4f;
+							float f = random.NextSingle();
+							if (f < chestChance)
+								level.addEntity(new Chest(key), keySpawn + new Vector2(0.5f, 0));
+							else if (f < chestChance + barrelChance)
+								level.addEntity(new Barrel(key), keySpawn + new Vector2(0.5f, 0));
+							else
+								level.addEntity(new ItemEntity(key), keySpawn + 0.5f);
+
+							level.addEntity(new IronDoor(key), doorPosition + new Vector2(0.5f, 0));
+						}
+						else
+						{
+							Debug.Assert(false);
+						}
+
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	public void generateCaves(string seed, int floor, bool dark, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance)
 	{
 		this.seed = seed;
@@ -667,12 +721,18 @@ public class LevelGenerator
 
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
-		List<Room> deadEnds = new List<Room>(rooms);
-		for (int i = 0; i < deadEnds.Count; i++)
+		List<Room> deadEnds = new List<Room>();
+		List<Room> mainRooms = new List<Room>();
+		for (int i = 0; i < rooms.Count; i++)
 		{
-			Room room = deadEnds[i];
-			bool isDeadEnd = room.countConnectedDoorways() == 1;
-			if (isDeadEnd && !room.isMainPath)
+			Room room = rooms[i];
+			bool isDeadEnd = room.countConnectedDoorways() == 1 && !room.isMainPath;
+			if (isDeadEnd)
+				deadEnds.Add(room);
+			else if (room.isMainPath)
+				mainRooms.Add(room);
+
+			if (isDeadEnd)
 			{
 				for (int y = room.y; y < room.y + room.height; y++)
 				{
@@ -682,12 +742,11 @@ public class LevelGenerator
 					}
 				}
 			}
-			else
-			{
-				deadEnds.RemoveAt(i--);
-			}
 		}
+		MathHelper.ShuffleList(deadEnds, random);
+		MathHelper.ShuffleList(mainRooms, random);
 
+		lockDeadEnds(deadEnds, mainRooms);
 
 
 		// Starting weapon
@@ -1042,13 +1101,18 @@ public class LevelGenerator
 
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
-		List<Room> deadEnds = new List<Room>(rooms);
-		MathHelper.ShuffleList(deadEnds, random);
-		for (int i = 0; i < deadEnds.Count; i++)
+		List<Room> deadEnds = new List<Room>();
+		List<Room> mainRooms = new List<Room>();
+		for (int i = 0; i < rooms.Count; i++)
 		{
-			Room room = deadEnds[i];
-			bool isDeadEnd = room.countConnectedDoorways() == 1;
-			if (isDeadEnd && !room.isMainPath)
+			Room room = rooms[i];
+			bool isDeadEnd = room.countConnectedDoorways() == 1 && !room.isMainPath;
+			if (isDeadEnd)
+				deadEnds.Add(room);
+			else if (room.isMainPath)
+				mainRooms.Add(room);
+
+			if (isDeadEnd)
 			{
 				for (int y = room.y; y < room.y + room.height; y++)
 				{
@@ -1058,24 +1122,22 @@ public class LevelGenerator
 					}
 				}
 			}
-			else
-			{
-				deadEnds.RemoveAt(i--);
-			}
 		}
+		MathHelper.ShuffleList(deadEnds, random);
+		MathHelper.ShuffleList(mainRooms, random);
 
 
-		// rock tiles
-		// rails
-		// minecarts (lootable?)
-		// wood constructions
-		// ladders and stairs
-		// oil lamps
-		// boulders
-		// ores, coal, gems, pickaxes
-		// miner enemies throwing pickaxes and rocks
-		// minable rocks (drop ores and gems)
-		// explodable tnt
+		// [X] rock tiles
+		// [ ] rails
+		// [ ] minecarts (lootable?)
+		// [ ] wood constructions
+		// [ ] ladders and stairs
+		// [ ] oil lamps
+		// [ ] boulders
+		// [ ] ores, coal, gems, pickaxes
+		// [ ] miner enemies throwing pickaxes and rocks
+		// [ ] minable rocks (drop ores and gems)
+		// [ ] explodable tnt
 
 
 		// Coins
@@ -1102,22 +1164,6 @@ public class LevelGenerator
 				if (random.NextSingle() < minecartChance)
 				{
 					level.addEntity(new Minecart(), new Vector2(x + 0.5f, y));
-					objectFlags[x + y * width] = true;
-				}
-			}
-		});
-
-		// Arrow trap
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
-		{
-			if (tile != null && tile.isSolid && (left == null || right == null) && y != entrancePosition.y)
-			{
-				float arrowTrapChance = 0.001f;
-				if (random.NextSingle() < arrowTrapChance)
-				{
-					int direction = right == null ? 1 : left == null ? -1 : random.Next() % 2 * 2 - 1;
-					level.setTile(x, y, TileType.dummy);
-					level.addEntity(new ArrowTrap(new Vector2(direction, 0)), new Vector2(x, y));
 					objectFlags[x + y * width] = true;
 				}
 			}

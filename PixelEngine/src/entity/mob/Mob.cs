@@ -16,7 +16,7 @@ struct StuckProjectile
 	public bool flipped;
 }
 
-public abstract class Mob : Entity, Hittable
+public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 {
 	const float SPRINT_MULTIPLIER = 1.8f;
 	const float STUN_DURATION = 0.4f;
@@ -59,6 +59,8 @@ public abstract class Mob : Entity, Hittable
 
 	public Item handItem = null;
 
+	public List<StatusEffect> statusEffects = new List<StatusEffect>();
+
 	long lastHit = -1;
 
 	List<StuckProjectile> stuckProjectiles = new List<StuckProjectile>();
@@ -75,7 +77,7 @@ public abstract class Mob : Entity, Hittable
 	{
 	}
 
-	public void hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility)
+	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
 		health -= damage;
 
@@ -108,7 +110,7 @@ public abstract class Mob : Entity, Hittable
 			}
 		}
 
-		if (health > 0)
+		if (health > 0 && damage > 0.1f)
 		{
 			stun();
 		}
@@ -119,7 +121,8 @@ public abstract class Mob : Entity, Hittable
 
 		ai?.onHit(by);
 
-		lastHit = Time.currentTime;
+		if ((Time.currentTime - lastHit) / 1e9f > 0.2f)
+			lastHit = Time.currentTime;
 	}
 
 	void onDeath(Entity by)
@@ -158,6 +161,10 @@ public abstract class Mob : Entity, Hittable
 			}
 		}
 
+		for (int i = 0; i < statusEffects.Count; i++)
+			statusEffects[i].destroy(this);
+		statusEffects.Clear();
+
 		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, rect, direction, velocity, impulseVelocity, collider, 0xFF7F7F7F), position);
 
 		remove();
@@ -167,6 +174,17 @@ public abstract class Mob : Entity, Hittable
 	{
 		if (stunTime == -1 || (Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
 			stunTime = Time.currentTime + (long)((stunDuration - 1) * STUN_DURATION * 1e9f);
+	}
+
+	public void addStatusEffect(StatusEffect effect)
+	{
+		statusEffects.Add(effect);
+		effect.init(this);
+	}
+
+	public void heal(float amount)
+	{
+		health += amount;
 	}
 
 	public void addImpulse(Vector2 impulse)
@@ -343,6 +361,15 @@ public abstract class Mob : Entity, Hittable
 		updateMovement();
 		updateActions();
 		updateAnimation();
+
+		for (int i = 0; i < statusEffects.Count; i++)
+		{
+			if (!statusEffects[i].update(this) && isAlive)
+			{
+				statusEffects[i].destroy(this);
+				statusEffects.RemoveAt(i--);
+			}
+		}
 	}
 
 	public override void render()
@@ -358,6 +385,11 @@ public abstract class Mob : Entity, Hittable
 
 			if (outline != 0)
 				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
+
+			for (int i = 0; i < statusEffects.Count; i++)
+			{
+				statusEffects[i].render(this);
+			}
 
 			for (int i = 0; i < stuckProjectiles.Count; i++)
 			{

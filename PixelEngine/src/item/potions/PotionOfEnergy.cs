@@ -18,11 +18,20 @@ public class ManaEffect : PotionEffect
 		this.duration = duration;
 	}
 
-	public override void apply(Player player, Potion potion)
+	public override void apply(Entity entity, Potion potion)
 	{
-		if (player.mana < player.maxMana)
-			player.addStatusEffect(new ManaRechargeEffect(amount, 4));
-		player.hud.showMessage("You feel energy flow through you.");
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			if (player.mana < player.maxMana)
+				player.addStatusEffect(new ManaRechargeEffect(amount, 4));
+			player.hud.showMessage("You feel energy flow through you.");
+		}
+		else if (entity is Mob)
+		{
+			Mob mob = entity as Mob;
+			mob.addStatusEffect(new ManaRechargeEffect(amount, 4));
+		}
 	}
 }
 

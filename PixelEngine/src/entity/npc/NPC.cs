@@ -63,12 +63,12 @@ public abstract class NPC : Mob, Interactable
 	int selectedItem = 0;
 	protected float saleTax = 0.1f;
 	protected float buyTax = 0.0f;
-	int longestItemName = 80;
-	int sidePanelHeight = 40;
-	TupleList<ItemType, Item> craftingItems = new TupleList<ItemType, Item>();
+	//int longestItemName = 80;
+	//int sidePanelHeight = 40;
+	List<Item> craftingItems = new List<Item>();
 	Item craftingItem1, craftingItem2;
 
-	Sprite gem;
+	//Sprite gem;
 
 	Simplex simplex = new Simplex();
 
@@ -76,7 +76,7 @@ public abstract class NPC : Mob, Interactable
 	public NPC(string name)
 		: base(name)
 	{
-		gem = HUD.gold;
+		//gem = HUD.gold;
 	}
 
 	public override void destroy()
@@ -272,7 +272,8 @@ public abstract class NPC : Mob, Interactable
 		craftingItem1 = null;
 		craftingItem2 = null;
 		craftingItems.Clear();
-		craftingItems.AddRange(player.items);
+		for (int i = 0; i < player.items.Count; i++)
+			craftingItems.Add(player.items[i].Item2);
 	}
 
 	public override void update()
@@ -738,19 +739,15 @@ public abstract class NPC : Mob, Interactable
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
-			List<Item> items = new List<Item>(player.items.Count);
-			for (int i = 0; i < player.items.Count; i++)
-				items.Add(player.items[i].Item2);
-
-			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", items, null, -1, player, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
-				Item item = items[choice];
+				Item item = craftingItems[choice];
 
 				if (craftingItem1 == null)
 				{
 					craftingItem1 = item;
-					craftingItems.Remove(item.type, item);
+					craftingItems.Remove(item);
 					if (selectedItem == craftingItems.Count)
 						selectedItem--;
 				}
@@ -760,7 +757,7 @@ public abstract class NPC : Mob, Interactable
 					Item craftedItem = craftItem(craftingItem1, craftingItem2);
 					if (craftedItem != null)
 					{
-						GameState.instance.level.addEntity(new ItemEntity(craftedItem, this, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
+						GameState.instance.level.addEntity(new ItemEntity(craftedItem, null, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
 						craftingItem1 = null;
 						craftingItem2 = null;
 						closeScreen();

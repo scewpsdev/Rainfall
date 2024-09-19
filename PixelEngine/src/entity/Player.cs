@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Player : Entity, Hittable
+public class Player : Entity, Hittable, StatusEffectReceiver
 {
 	const float JUMP_BUFFER = 0.3f;
 	const float COYOTE_TIME = 0.2f;
@@ -85,6 +85,8 @@ public class Player : Entity, Hittable
 	public int selectedActiveItem = 0;
 	public Item[] passiveItems = new Item[(int)ArmorSlot.Count];
 
+	ParticleEffect handParticles, offhandParticles;
+
 	public Item blockingItem = null;
 	public bool unlimitedArrows = false;
 
@@ -143,10 +145,17 @@ public class Player : Entity, Hittable
 		if (handItem != null)
 		{
 			handItem.onUnequip(this);
+			if (handParticles != null)
+			{
+				handParticles.remove();
+				handParticles = null;
+			}
 			handItem = null;
 		}
 		handItem = item;
 		handItem.onEquip(this);
+		if (handItem.particleEffect != null)
+			GameState.instance.level.addEntity(handParticles = new ParticleEffect(null, handItem.particleEffect), position + handItem.particlesOffset);
 
 		if (item.twoHanded && offhandItem != null)
 			unequipItem(offhandItem);
@@ -159,10 +168,17 @@ public class Player : Entity, Hittable
 		if (offhandItem != null)
 		{
 			offhandItem.onUnequip(this);
+			if (offhandParticles != null)
+			{
+				offhandParticles.remove();
+				offhandParticles = null;
+			}
 			offhandItem = null;
 		}
 		offhandItem = item;
 		offhandItem.onEquip(this);
+		if (offhandItem.particleEffect != null)
+			GameState.instance.level.addEntity(offhandParticles = new ParticleEffect(null, offhandItem.particleEffect), position + offhandItem.particlesOffset);
 
 		if (handItem != null && handItem.twoHanded)
 			unequipItem(handItem);
@@ -232,12 +248,22 @@ public class Player : Entity, Hittable
 		if (handItem == item)
 		{
 			handItem.onUnequip(this);
+			if (handParticles != null)
+			{
+				handParticles.remove();
+				handParticles = null;
+			}
 			handItem = null;
 			return true;
 		}
 		if (offhandItem == item)
 		{
 			offhandItem.onUnequip(this);
+			if (offhandParticles != null)
+			{
+				offhandParticles.remove();
+				offhandParticles = null;
+			}
 			offhandItem = null;
 			return true;
 		}
@@ -331,6 +357,16 @@ public class Player : Entity, Hittable
 				return items[i].Item2;
 		}
 		return null;
+	}
+
+	public bool hasItem(Item item)
+	{
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (items[i].Item2 == item)
+				return true;
+		}
+		return false;
 	}
 
 	public bool isEquipped(Item item)
@@ -598,6 +634,11 @@ public class Player : Entity, Hittable
 	{
 		statusEffects.Add(effect);
 		effect.init(this);
+	}
+
+	public void heal(float amount)
+	{
+		health = MathF.Min(health + amount, maxHealth);
 	}
 
 	public void removeStatusEffect(string name)
@@ -1260,6 +1301,7 @@ public class Player : Entity, Hittable
 			return;
 
 		uint color = mainHand ? 0xFFFFFFFF : 0xFF7F7F7F;
+		ParticleEffect particles = mainHand ? handParticles : offhandParticles;
 
 		if (item == null)
 			item = DefaultWeapon.instance;
@@ -1271,11 +1313,18 @@ public class Player : Entity, Hittable
 				Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, layer)
 					* actions.currentAction.getItemTransform(this);
 				Renderer.DrawSprite(item.size.x, item.size.y, weaponTransform, item.sprite, color);
+				if (particles != null)
+					particles.position = weaponTransform.translation.xy + item.particlesOffset * new Vector2i(direction, 1);
 			}
 			else
 			{
 				if (item != DefaultWeapon.instance)
-					Renderer.DrawSprite(position.x - 0.5f * item.size.x + (item.renderOffset.x + getWeaponOrigin(mainHand).x) * direction, position.y - 0.5f + getWeaponOrigin(mainHand).y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
+				{
+					Vector2 weaponPosition = new Vector2(position.x + (item.renderOffset.x + getWeaponOrigin(mainHand).x) * direction, position.y + getWeaponOrigin(mainHand).y);
+					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
+					if (particles != null)
+						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+				}
 			}
 		}
 	}
@@ -1303,6 +1352,14 @@ public class Player : Entity, Hittable
 					if (passiveItems[i].ingameSprite != null)
 						Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 					passiveItems[i].render(this);
+				}
+			}
+
+			for (int i = 0; i < activeItems.Length; i++)
+			{
+				if (activeItems[i] != null)
+				{
+					activeItems[i].render(this);
 				}
 			}
 

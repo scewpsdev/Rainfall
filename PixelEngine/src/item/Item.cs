@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -57,6 +58,7 @@ public abstract class Item
 	public bool isSecondaryItem = false;
 	public bool twoHanded = false;
 	public ArmorSlot armorSlot;
+	public bool identified = true;
 
 	public float attackDamage = 1;
 	public float attackRange = 1;
@@ -96,6 +98,9 @@ public abstract class Item
 	public Sprite ingameSprite = null;
 	public int ingameSpriteSize = 1;
 	public Vector4 ingameSpriteColor = Vector4.One;
+
+	public string particleEffect = null;
+	public Vector2 particlesOffset = Vector2.Zero;
 
 	// modifiers
 
@@ -167,6 +172,11 @@ public abstract class Item
 	public virtual bool useSecondary(Player player)
 	{
 		return false;
+	}
+
+	public void identify()
+	{
+		identified = true;
 	}
 
 	public virtual void onEquip(Player player)
@@ -276,6 +286,10 @@ public abstract class Item
 		InitType(new BottleOfWater());
 		InitType(new PoisonVial());
 		InitType(new PotionOfTeleport());
+		InitType(new ScrollOfIdentify());
+		InitType(new Potion());
+		InitType(new IronKey());
+		InitType(new Lockpick());
 	}
 
 	static void InitType(Item item)

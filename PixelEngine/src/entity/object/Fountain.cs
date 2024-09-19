@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,7 +32,6 @@ public class Fountain : Entity, Interactable
 {
 	FountainEffect effect = FountainEffect.None;
 	List<PotionEffect> potionEffects = new List<PotionEffect>();
-	bool consumed = false;
 
 	Sprite sprite;
 	uint outline = 0;
@@ -96,7 +96,11 @@ public class Fountain : Entity, Interactable
 
 	public override void destroy()
 	{
-		particles.remove();
+		if (particles != null)
+		{
+			particles.remove();
+			particles = null;
+		}
 
 		if (state != FountainState.None)
 			closeScreen();
@@ -104,7 +108,8 @@ public class Fountain : Entity, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return !consumed;
+		//return !consumed;
+		return true;
 	}
 
 	public void onFocusEnter(Player player)
@@ -174,9 +179,13 @@ public class Fountain : Entity, Interactable
 		{
 			potionEffects[i].apply(player, null);
 		}
+		potionEffects.Clear();
 
-		consumed = true;
-		particles.systems[0].handle->emissionRate = 0;
+		if (particles != null)
+		{
+			particles.remove();
+			particles = null;
+		}
 	}
 
 	unsafe bool fillBottle()
@@ -186,10 +195,16 @@ public class Fountain : Entity, Interactable
 		Potion potion = new Potion();
 		foreach (PotionEffect effect in potionEffects)
 			potion.addEffect(effect);
+		potionEffects.Clear();
+
 		GameState.instance.level.addEntity(new ItemEntity(potion), position + Vector2.Up);
 
-		consumed = true;
-		particles.systems[0].handle->emissionRate = 0;
+		if (particles != null)
+		{
+			particles.remove();
+			particles = null;
+		}
+
 		return true;
 	}
 
@@ -209,8 +224,12 @@ public class Fountain : Entity, Interactable
 				return false;
 		}
 
-		consumed = true;
-		particles.systems[0].handle->emissionRate = 0;
+		potionEffects.Clear();
+		if (particles != null)
+		{
+			particles.remove();
+			particles = null;
+		}
 
 		return true;
 	}
@@ -220,7 +239,81 @@ public class Fountain : Entity, Interactable
 		Potion p = potion as Potion;
 		potionEffects.AddRange(p.effects);
 
+		if (particles == null)
+			GameState.instance.level.addEntity(particles = Effects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
+
 		// alchemy?
+	}
+
+	void useItem(Item item, Player player)
+	{
+		if (item.name == "glass_bottle")
+		{
+			if (fillBottle())
+			{
+				player.removeItemSingle(item);
+				player.hud.showMessage("You fill up the glass bottle.");
+			}
+		}
+		else if (item.name == "blank_paper")
+		{
+			if (dipScroll())
+				player.hud.showMessage("The paper fully soaks up the liquid.");
+			else
+				player.hud.showMessage("The paper turns to mush.");
+			player.removeItemSingle(item);
+		}
+		else if (item.type == ItemType.Potion)
+		{
+			pourPotion(item);
+			player.removeItemSingle(item);
+			player.giveItem(new GlassBottle());
+			player.hud.showMessage("You pour the potion into the fountain.");
+		}
+		else if (item.type == ItemType.Scroll)
+		{
+			if (item.name == "scroll_of_identify")
+			{
+				switch (effect)
+				{
+					case FountainEffect.None:
+						player.hud.showMessage("This fountain contains water.");
+						break;
+					case FountainEffect.Heal:
+						player.hud.showMessage("This fountain heals you.");
+						break;
+					case FountainEffect.Regenerate:
+						player.hud.showMessage("This fountain heals you slowly.");
+						break;
+					case FountainEffect.Damage:
+						player.hud.showMessage("This fountain contains boiling water.");
+						break;
+					case FountainEffect.Poison:
+						player.hud.showMessage("This fountain contains poison.");
+						break;
+					case FountainEffect.Mana:
+						player.hud.showMessage("This fountain recharges your energy.");
+						break;
+					case FountainEffect.Teleport:
+						player.hud.showMessage("This fountain contains teleport solution.");
+						break;
+					default:
+						Debug.Assert(false);
+						break;
+				}
+				player.removeItemSingle(item);
+				closeScreen();
+			}
+		}
+		else
+		{
+			player.hud.showMessage("Nothing happens.");
+			/*
+			item = player.removeItemSingle(item);
+			sunkenItems.Add(item);
+			player.hud.showMessage("You threw " + item.displayName + " into the fountain.");
+			*/
+		}
 	}
 
 	public override void render()
@@ -235,7 +328,8 @@ public class Fountain : Entity, Interactable
 		if (state == FountainState.Menu)
 		{
 			List<string> options = new List<string>();
-			options.Add("Drink");
+			if (potionEffects.Count > 0)
+				options.Add("Drink");
 			if (player.items.Count > 0)
 				options.Add("Use item");
 			options.Add("Walk away");
@@ -276,41 +370,8 @@ public class Fountain : Entity, Interactable
 			if (choice != -1)
 			{
 				Item item = items[choice];
-
-				if (item.name == "glass_bottle")
-				{
-					if (fillBottle())
-					{
-						player.removeItemSingle(item);
-						player.hud.showMessage("You fill up the glass bottle.");
-					}
-				}
-				else if (item.name == "blank_paper")
-				{
-					if (dipScroll())
-						player.hud.showMessage("The paper fully soaks up the liquid.");
-					else
-						player.hud.showMessage("The paper turns to mush.");
-					player.removeItemSingle(item);
-				}
-				else if (item.type == ItemType.Potion)
-				{
-					pourPotion(item);
-					player.removeItemSingle(item);
-					player.hud.showMessage("You pour the potion into the fountain.");
-				}
-				else
-				{
-					player.hud.showMessage("Nothing happens.");
-					/*
-					item = player.removeItemSingle(item);
-					sunkenItems.Add(item);
-					player.hud.showMessage("You threw " + item.displayName + " into the fountain.");
-					*/
-				}
-
-				if (consumed)
-					closeScreen();
+				useItem(item, player);
+				closeScreen();
 			}
 
 			if (closed)
