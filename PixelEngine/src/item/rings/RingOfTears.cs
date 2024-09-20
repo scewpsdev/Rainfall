@@ -57,4 +57,10 @@ public class RingOfTears : Item
 				deactivate(player);
 		}
 	}
+
+	public override void upgrade(Player player)
+	{
+		base.upgrade(player);
+		buff += 0.1f;
+	}
 }

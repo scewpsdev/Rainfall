@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class HealEffect : PotionEffect
 {
-	float amount;
+	public float amount;
 	float duration;
 
 	public HealEffect(float amount = 1.5f, float duration = 2)
@@ -45,6 +45,7 @@ public class PotionOfHealing : Potion
 
 		displayName = "Potion of Healing";
 		//stackable = true;
+		canDrop = true;
 
 		value = 25;
 
@@ -54,5 +55,11 @@ public class PotionOfHealing : Potion
 	public PotionOfHealing()
 		: this(1.5f)
 	{
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		(effects[0] as HealEffect).amount += 0.5f;
 	}
 }

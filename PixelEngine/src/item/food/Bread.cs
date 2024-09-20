@@ -21,7 +21,7 @@ public class Bread : Item
 
 	public override bool use(Player player)
 	{
-		player.addStatusEffect(new HealStatusEffect(1, 5));
+		player.addStatusEffect(new HealStatusEffect(1 + upgradeLevel * 0.5f, 5));
 		return true;
 	}
 }

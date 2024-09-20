@@ -20,7 +20,7 @@ public class MoonFruit : Item
 
 	public override bool use(Player player)
 	{
-		player.maxMana++;
+		player.maxMana += 1 + upgradeLevel;
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 3.0f));
 		return true;
 	}

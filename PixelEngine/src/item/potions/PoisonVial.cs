@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class PoisonEffect : PotionEffect
 {
-	float amount;
+	public float amount;
 	float duration;
 
 	public PoisonEffect(float amount = 1, float duration = 16)
@@ -44,8 +44,14 @@ public class PoisonVial : Potion
 		displayName = "Poison Vial";
 		stackable = true;
 		value = 11;
-		canDrop = false;
+		canDrop = true;
 
 		sprite = new Sprite(tileset, 5, 5);
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		(effects[0] as PoisonEffect).amount++;
 	}
 }

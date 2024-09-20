@@ -28,4 +28,10 @@ public class Rock : Item
 		player.throwItem(this, player.lookDirection.normalized);
 		return true;
 	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		attackDamage++;
+	}
 }

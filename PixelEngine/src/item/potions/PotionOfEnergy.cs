@@ -44,9 +44,16 @@ public class PotionOfEnergy : Potion
 
 		displayName = "Potion of Energy";
 		stackable = true;
+		canDrop = true;
 
 		value = 25;
 
 		sprite = new Sprite(tileset, 6, 2);
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		(effects[0] as ManaEffect).amount++;
 	}
 }

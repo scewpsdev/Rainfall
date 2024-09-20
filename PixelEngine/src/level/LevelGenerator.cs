@@ -654,6 +654,11 @@ public class LevelGenerator
 					{
 						Debug.Assert(doorPosition != Vector2i.Zero);
 
+						if (room.getFloorSpawn(level, random, objectFlags, out Vector2i pos))
+						{
+							spawnItem(pos.x, pos.y, level, random, objectFlags);
+						}
+
 						Room keyRoom = mainRooms[random.Next() % mainRooms.Count];
 						if (keyRoom.getFloorSpawn(level, random, objectFlags, out Vector2i keySpawn))
 						{

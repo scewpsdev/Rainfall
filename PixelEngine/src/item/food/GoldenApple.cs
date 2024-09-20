@@ -21,8 +21,8 @@ public class GoldenApple : Item
 
 	public override bool use(Player player)
 	{
-		player.addStatusEffect(new HealStatusEffect(player.maxHealth, 12));
-		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 5));
+		player.addStatusEffect(new HealStatusEffect(player.maxHealth, 12 / (1 + upgradeLevel)));
+		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 5 / (1 + upgradeLevel)));
 		return true;
 	}
 }

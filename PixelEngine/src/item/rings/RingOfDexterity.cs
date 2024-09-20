@@ -21,13 +21,13 @@ public class RingOfDexterity : Item
 
 	public override void onEquip(Player player)
 	{
-		player.attackSpeedModifier *= 1.2f;
+		player.attackSpeedModifier *= 1.2f + 0.2f * upgradeLevel;
 		player.addStatusEffect(new AttackSpeedModifier());
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.attackSpeedModifier /= 1.2f;
+		player.attackSpeedModifier /= 1.2f + 0.2f * upgradeLevel;
 		player.removeStatusEffect("attack_speed_modifier");
 	}
 }

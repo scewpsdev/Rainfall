@@ -25,7 +25,9 @@ public class ScrollOfArmorEnchantment : Item
 		{
 			if (player.passiveItems[i] != null && player.passiveItems[i].armor > 0)
 			{
-				player.passiveItems[i].armor++;
+				player.passiveItems[i].onUnequip(player);
+				player.passiveItems[i].upgrade(player);
+				player.passiveItems[i].onEquip(player);
 				wasUsed = true;
 			}
 		}

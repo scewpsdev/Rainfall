@@ -21,7 +21,7 @@ public class Apple : Item
 
 	public override bool use(Player player)
 	{
-		player.addStatusEffect(new HealStatusEffect(0.5f, 5));
+		player.addStatusEffect(new HealStatusEffect(0.5f + upgradeLevel * 0.5f, 5));
 		return true;
 	}
 }

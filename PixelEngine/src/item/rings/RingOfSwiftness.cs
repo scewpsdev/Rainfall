@@ -22,13 +22,13 @@ public class RingOfSwiftness : Item
 
 	public override void onEquip(Player player)
 	{
-		player.speed++;
+		player.speed += 1.0f + 0.5f * upgradeLevel;
 		player.addStatusEffect(new SpeedModifier());
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.speed--;
+		player.speed -= 1.0f + 0.5f * upgradeLevel;
 		player.removeStatusEffect("speed_modifier");
 	}
 }

@@ -18,6 +18,7 @@ public class Potion : Item
 		displayName = "Mixed potion";
 		value = 2;
 		sprite = new Sprite(tileset, 4, 5);
+		canDrop = false;
 	}
 
 	public Potion()

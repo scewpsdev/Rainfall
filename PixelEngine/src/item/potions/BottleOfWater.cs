@@ -60,7 +60,7 @@ public class BottleOfWater : Potion
 		displayName = "Bottle of Water";
 		stackable = true;
 		value = 3;
-		canDrop = false;
+		canDrop = true;
 
 		sprite = new Sprite(tileset, 4, 5);
 	}

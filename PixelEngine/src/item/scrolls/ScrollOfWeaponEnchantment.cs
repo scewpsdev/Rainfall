@@ -22,7 +22,9 @@ public class ScrollOfWeaponEnchantment : Item
 	{
 		if (player.handItem != null)
 		{
-			player.handItem.attackDamage++;
+			player.handItem.onUnequip(player);
+			player.handItem.upgrade(player);
+			player.handItem.onEquip(player);
 			player.hud.showMessage("Your weapon shimmers lightly.");
 		}
 		else

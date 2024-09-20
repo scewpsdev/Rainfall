@@ -40,4 +40,10 @@ public class Skull : Item
 			GameState.instance.level.addEntity(coin, spawnPosition);
 		}
 	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		attackDamage++;
+	}
 }

@@ -25,7 +25,7 @@ public class MoonBlossom : Item
 	{
 		if (player.handItem != null && player.handItem.type == ItemType.Staff)
 		{
-			player.handItem.staffCharges = player.handItem.maxStaffCharges;
+			player.handItem.staffCharges = (int)MathF.Ceiling(player.handItem.maxStaffCharges * (1 + 0.5f * upgradeLevel));
 			return true;
 		}
 		return false;
