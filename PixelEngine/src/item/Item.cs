@@ -50,7 +50,7 @@ public abstract class Item
 	public string description = null;
 	public bool stackable = false;
 	public int stackSize = 1;
-	public float value = 1;
+	public int value = 1;
 	public bool canDrop = true;
 	public bool isHandItem;
 	public bool isActiveItem;
@@ -102,7 +102,7 @@ public abstract class Item
 	public string particleEffect = null;
 	public Vector2 particlesOffset = Vector2.Zero;
 
-	// modifiers
+	public int upgradeLevel = 0;
 
 
 	public Item(string name, ItemType type)
@@ -137,7 +137,7 @@ public abstract class Item
 
 	public string fullDisplayName
 	{
-		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName;
+		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName + (upgradeLevel > 0 ? " + " + upgradeLevel : "");
 	}
 
 	public string rarityString
@@ -164,6 +164,22 @@ public abstract class Item
 		return icon;
 	}
 
+	public void identify()
+	{
+		identified = true;
+	}
+
+	public virtual void upgrade(Player player)
+	{
+		Debug.Assert(!player.isEquipped(this));
+		upgradeLevel++;
+		value = Math.Max(value * 5 / 4, value + 1);
+		if (type == ItemType.Weapon || type == ItemType.Staff)
+			attackDamage++;
+		else if (type == ItemType.Armor || type == ItemType.Shield)
+			armor++;
+	}
+
 	public virtual bool use(Player player)
 	{
 		return false;
@@ -172,11 +188,6 @@ public abstract class Item
 	public virtual bool useSecondary(Player player)
 	{
 		return false;
-	}
-
-	public void identify()
-	{
-		identified = true;
 	}
 
 	public virtual void onEquip(Player player)
