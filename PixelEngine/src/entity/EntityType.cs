@@ -22,6 +22,7 @@ public static class EntityType
 		InitType<Spider>("spider");
 		InitType<Golem>("golem");
 		InitType<GolemBoss>("golem_boss");
+		InitType<Leprechaun>("leprechaun");
 
 		InitType<Blacksmith>("blacksmith");
 		InitType<BuilderMerchant>("builder_merchant");

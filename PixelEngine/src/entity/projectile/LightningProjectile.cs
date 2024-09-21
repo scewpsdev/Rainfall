@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 
 public class LightningProjectile : Entity
@@ -97,13 +98,16 @@ public class LightningProjectile : Entity
 		{
 			if (hit.entity != null)
 			{
-				Player player = shooter as Player;
-				if (/*hit.entity != shooter &&*/ hit.entity is Hittable && !hitEntities.Contains(hit.entity))
+				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
+					float damage = item.attackDamage;
+					if (hit.entity is Player)
+						damage *= (hit.entity as Player).attackDamageModifier;
+
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(item.attackDamage * player.attackDamageModifier, shooter, item, displayName);
+					hittable.hit(damage, this, item);
 					hitEntities.Add(hit.entity);
-					//remove();
+					remove();
 				}
 			}
 			else

@@ -23,7 +23,7 @@ public class Quarterstaff : Item
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
-		value = 4;
+		value = 9;
 
 		sprite = new Sprite(tileset, 4, 1, 2, 1);
 		size = new Vector2(2, 1);
@@ -33,6 +33,12 @@ public class Quarterstaff : Item
 	public override bool use(Player player)
 	{
 		player.actions.queueAction(new AttackAction(this, player.handItem == this));
+		return false;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.actions.queueAction(new BlockAction(this, player.handItem == this));
 		return false;
 	}
 }

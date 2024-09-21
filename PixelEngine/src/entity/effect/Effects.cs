@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,5 +92,22 @@ public static unsafe class Effects
 	public static AnimatedEffect CreateCoinBlinkEffect()
 	{
 		return new AnimatedEffect(Resource.GetTexture("res/sprites/coin_collect.png", false), 15);
+	}
+
+	public static ParticleEffect CreatePotionExplodeEffect(Vector3 color)
+	{
+		ParticleEffect effect = new ParticleEffect(null, "res/effects/potion_explode.rfs");
+		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
+		effect.collision = true;
+		return effect;
+	}
+
+	public static ParticleEffect CreateConsumableUseEffect(Entity entity, int direction, uint color)
+	{
+		ParticleEffect effect = new ParticleEffect(entity, "res/effects/consumable_use.rfs");
+		effect.systems[0].handle->color = color;
+		effect.systems[0].handle->startVelocity.x *= direction;
+		return effect;
 	}
 }

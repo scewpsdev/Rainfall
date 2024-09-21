@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Chest : Entity, Interactable, Destructible
+public class Chest : Entity, Interactable, Hittable
 {
 	Sprite sprite;
 	Sprite openSprite;
@@ -40,10 +40,20 @@ public class Chest : Entity, Interactable, Destructible
 	{
 	}
 
-	public void onDestroyed(Entity entity, Item item)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
-		if (!open && items != null)
-			dropItems();
+		if (by != null && byName == "Explosion")
+		{
+			float distance = (by.position - (position + collider.center)).length;
+			if (distance < 1.5f)
+			{
+				if (!open && items != null)
+					dropItems();
+				remove();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public bool canInteract(Player player)

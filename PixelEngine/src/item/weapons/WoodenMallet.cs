@@ -13,7 +13,7 @@ public class WoodenMallet : Item
 	{
 		displayName = "Wooden Mallet";
 
-		attackDamage = 2;
+		attackDamage = 3;
 		attackRange = 1.2f;
 		attackRate = 1.1f;
 		stab = false;

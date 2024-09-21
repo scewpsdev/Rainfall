@@ -6,15 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class BoomerangProjectile : Entity
+public class BoomerangProjectile : Projectile
 {
 	float speed = 12;
+
 	float currentRange;
 
-	Entity shooter;
-	Boomerang item;
-
-	Sprite sprite;
 	Vector2 direction;
 	Vector2 startPosition;
 
@@ -23,13 +20,11 @@ public class BoomerangProjectile : Entity
 
 
 	public BoomerangProjectile(Vector2 direction, Vector2 startVelocity, Entity shooter, Boomerang item)
+		: base(Vector2.Zero, startVelocity, Vector2.Zero, shooter, item)
 	{
 		this.direction = direction;
-		this.shooter = shooter;
-		this.item = item;
 
 		collider = new FloatRect(-0.2f, -0.2f, 0.4f, 0.4f);
-		filterGroup = FILTER_PROJECTILE;
 
 		currentRange = item.attackRange;
 
@@ -105,13 +100,14 @@ public class BoomerangProjectile : Entity
 						remove();
 					}
 				}
-				else if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
+				else if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
+					float damage = item.attackDamage;
+					if (hit.entity is Player)
+						damage *= (hit.entity as Player).attackDamageModifier;
+
 					Hittable hittable = hit.entity as Hittable;
-					float dmg = item.attackDamage;
-					if (player != null)
-						dmg *= player.attackDamageModifier;
-					hittable.hit(dmg, shooter, item);
+					hittable.hit(damage, shooter, item);
 					hitEntities.Add(hit.entity);
 				}
 			}

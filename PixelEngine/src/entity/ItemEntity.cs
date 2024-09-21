@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 
-public class ItemEntity : Entity, Interactable, Destructible
+public class ItemEntity : Entity, Interactable, Hittable
 {
 	public float gravity = -20;
 	public float bounciness = 0.5f;
@@ -53,17 +53,13 @@ public class ItemEntity : Entity, Interactable, Destructible
 	public override void init(Level level)
 	{
 		if (item.particleEffect != null)
-			GameState.instance.level.addEntity(particles = new ParticleEffect(this, item.particleEffect), position + item.particlesOffset);
+			GameState.instance.level.addEntity(particles = new ParticleEffect(this, item.particleEffect) { layer = LAYER_INTERACTABLE - 0.01f }, position + item.particlesOffset);
 	}
 
 	public override void destroy()
 	{
 		if (particles != null)
 			particles.remove();
-	}
-
-	public void onDestroyed(Entity entity, Item item)
-	{
 	}
 
 	public void interact(Player player)
@@ -81,6 +77,23 @@ public class ItemEntity : Entity, Interactable, Destructible
 	public void onFocusLeft(Player player)
 	{
 		outline = 0;
+	}
+
+	public bool hit(float damage, Entity by = null, Item _item = null, string byName = null, bool triggerInvincibility = true)
+	{
+		if (by is Projectile)
+		{
+			if (item.breakOnWallHit)
+			{
+				onHit(true, true);
+			}
+			else
+			{
+				velocity += by.velocity;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	void onHit(bool x, bool y)

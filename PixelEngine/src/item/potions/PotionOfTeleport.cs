@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class TeleportEffect : PotionEffect
 {
 	public TeleportEffect()
-		: base("Teleport", 9, new Sprite(Item.tileset, 6, 5))
+		: base("Teleport", 9, new Sprite(Item.tileset, 6, 5), 0xFFabb6bd)
 	{
 	}
 

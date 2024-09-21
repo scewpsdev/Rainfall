@@ -11,12 +11,12 @@ public static class DebugConsole
 	static StringBuilder line = new StringBuilder();
 	static List<string> history = new List<string>();
 	static List<string> responses = new List<string>();
-	static int currentHistoryIdx = 0;
+	static int currentHistoryIdx = -1;
 
 	public static void OnOpen()
 	{
 		line.Clear();
-		currentHistoryIdx = 0;
+		currentHistoryIdx = -1;
 		InputManager.inputEnabled = false;
 	}
 
@@ -150,7 +150,7 @@ public static class DebugConsole
 			string response = RunCommand(cmd, args);
 			responses.Add(response);
 			line.Clear();
-			currentHistoryIdx = 0;
+			currentHistoryIdx = -1;
 		}
 		if (key == KeyCode.Esc && modifiers == KeyModifier.None && down)
 		{
@@ -159,8 +159,22 @@ public static class DebugConsole
 		}
 		if (key == KeyCode.Up && modifiers == KeyModifier.None && down && history.Count > 0)
 		{
-			line.Clear();
-			line.Append(history[history.Count - 1 - currentHistoryIdx++]);
+			if (currentHistoryIdx < history.Count - 1)
+			{
+				currentHistoryIdx++;
+				line.Clear();
+				line.Append(history[history.Count - 1 - currentHistoryIdx]);
+			}
+		}
+		else if (key == KeyCode.Down && modifiers == KeyModifier.None && down && history.Count > 0)
+		{
+			if (currentHistoryIdx >= 0)
+			{
+				currentHistoryIdx--;
+				line.Clear();
+				if (currentHistoryIdx >= 0)
+					line.Append(history[history.Count - 1 - currentHistoryIdx]);
+			}
 		}
 		Input.ConsumeKeyEvent(key);
 	}

@@ -22,9 +22,9 @@ public class PotionOfGreaterHealing : Potion
 		sprite = new Sprite(tileset, 7, 0);
 	}
 
-	public override void upgrade()
+	public override void upgrade(Player player)
 	{
-		base.upgrade();
+		base.upgrade(player);
 		(effects[0] as HealEffect).amount += 0.5f;
 	}
 }

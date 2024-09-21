@@ -5,6 +5,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 
 public class Golem : Mob
@@ -23,19 +24,19 @@ public class Golem : Mob
 		animator.addAnimation("attack", 10 * 48, 0, 48, 0, 2, 6, false);
 		animator.addAnimation("cooldown", 12 * 48, 0, 48, 0, 1, 1, false);
 		animator.addAnimation("dead", 13 * 48, 0, 48, 0, 1, 1, true);
+		animator.addAnimation("dead_falling", 14 * 48, 0, 48, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 2.0f);
 		rect = new FloatRect(-1.5f, 0, 3, 3);
 
-		ai = new GolemAI(this);
-
 		health = 15;
 		speed = 0.7f;
 		damage = 1.5f;
-		jumpPower = 7;
-		gravity = -16;
-
+		jumpPower = 10;
+		gravity = -20;
 		itemDropChance = 0.8f;
+
+		ai = new GolemAI(this);
 	}
 }

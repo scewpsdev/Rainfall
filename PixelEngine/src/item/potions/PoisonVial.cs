@@ -13,7 +13,7 @@ public class PoisonEffect : PotionEffect
 	float duration;
 
 	public PoisonEffect(float amount = 1, float duration = 16)
-		: base("Poison", 3, new Sprite(Item.tileset, 5, 5))
+		: base("Poison", 3, new Sprite(Item.tileset, 5, 5), 0xFFAFAF2A)
 	{
 		this.amount = amount;
 		this.duration = duration;
@@ -26,7 +26,7 @@ public class PoisonEffect : PotionEffect
 			StatusEffectReceiver receiver = entity as StatusEffectReceiver;
 			receiver.addStatusEffect(new PoisonStatusEffect(amount, duration));
 		}
-		else if (entity is Player)
+		if (entity is Player)
 		{
 			Player player = entity as Player;
 			player.hud.showMessage("The water burns on your tongue.");
@@ -49,9 +49,9 @@ public class PoisonVial : Potion
 		sprite = new Sprite(tileset, 5, 5);
 	}
 
-	public override void upgrade()
+	public override void upgrade(Player player)
 	{
-		base.upgrade();
+		base.upgrade(player);
 		(effects[0] as PoisonEffect).amount++;
 	}
 }

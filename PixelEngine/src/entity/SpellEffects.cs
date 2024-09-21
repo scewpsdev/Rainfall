@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,12 +50,6 @@ public static class SpellEffects
 						Hittable hittable = hits[i].entity as Hittable;
 						hittable.hit(dmg, fromEntity, fromItem, "Explosion");
 					}
-					else if (hits[i].entity is Destructible && distance / radius < 0.5f)
-					{
-						Destructible destructible = hits[i].entity as Destructible;
-						destructible.onDestroyed(fromEntity, fromItem);
-						hits[i].entity.remove();
-					}
 				}
 			}
 		}
@@ -64,16 +59,21 @@ public static class SpellEffects
 		GameState.instance.camera.addScreenShake(position, 2.0f, 3.0f);
 	}
 
-	public static void TeleportEntity(Entity entity)
+	public static void TeleportEntity(Entity entity, bool onGround = false, Vector2 center = default, float maxRange = 1000)
 	{
 		for (int i = 0; i < 1000; i++)
 		{
-			int x = MathHelper.RandomInt(3, GameState.instance.level.width - 4);
-			int y = MathHelper.RandomInt(3, GameState.instance.level.height - 4);
+			int x0 = Math.Max(3, (int)(center.x - maxRange));
+			int x1 = Math.Min(GameState.instance.level.width - 4, (int)(center.x + maxRange));
+			int y0 = Math.Max(3, (int)(center.y - maxRange));
+			int y1 = Math.Min(GameState.instance.level.height - 4, (int)(center.y + maxRange));
+			int x = MathHelper.RandomInt(x0, x1);
+			int y = MathHelper.RandomInt(y0, y1);
 			TileType tile = GameState.instance.level.getTile(x, y);
-			if (tile == null || !tile.isSolid)
+			TileType down = GameState.instance.level.getTile(x, y - 1);
+			if ((tile == null || !tile.isSolid) && (!onGround || down != null && down.isSolid))
 			{
-				entity.position = new Vector2(x + 0.5f, y + 0.5f) - entity.collider.center;
+				entity.position = new Vector2(x + 0.5f, y);
 				break;
 			}
 		}

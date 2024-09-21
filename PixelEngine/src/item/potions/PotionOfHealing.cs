@@ -12,7 +12,7 @@ public class HealEffect : PotionEffect
 	float duration;
 
 	public HealEffect(float amount = 1.5f, float duration = 2)
-		: base("Healing", 23, new Sprite(Item.tileset, 7, 0))
+		: base("Healing", 23, new Sprite(Item.tileset, 7, 0), 0xFFFF4D40)
 	{
 		this.amount = amount;
 		this.duration = duration;
@@ -57,9 +57,9 @@ public class PotionOfHealing : Potion
 	{
 	}
 
-	public override void upgrade()
+	public override void upgrade(Player player)
 	{
-		base.upgrade();
+		base.upgrade(player);
 		(effects[0] as HealEffect).amount += 0.5f;
 	}
 }

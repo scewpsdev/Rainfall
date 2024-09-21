@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public abstract class AI
 {
-	protected Mob mob;
+	public Mob mob;
 
 	public float aggroRange = 4.0f;
 	public float loseRange = 5.0f;
@@ -35,6 +35,10 @@ public abstract class AI
 			if (by is Player || by is Mob)
 				target = by;
 		}
+	}
+
+	public virtual void onAttacked(Entity e)
+	{
 	}
 
 	protected bool canSeeEntity(Entity entity, out Vector2 toTarget, out float distance)

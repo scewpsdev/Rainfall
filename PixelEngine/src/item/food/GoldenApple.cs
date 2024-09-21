@@ -23,6 +23,7 @@ public class GoldenApple : Item
 	{
 		player.addStatusEffect(new HealStatusEffect(player.maxHealth, 12 / (1 + upgradeLevel)));
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 5 / (1 + upgradeLevel)));
+		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFe3b85c), player.position);
 		return true;
 	}
 }

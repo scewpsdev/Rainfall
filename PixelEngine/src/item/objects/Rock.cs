@@ -29,9 +29,9 @@ public class Rock : Item
 		return true;
 	}
 
-	public override void upgrade()
+	public override void upgrade(Player player)
 	{
-		base.upgrade();
+		base.upgrade(player);
 		attackDamage++;
 	}
 }

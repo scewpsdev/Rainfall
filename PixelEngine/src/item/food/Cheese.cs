@@ -13,7 +13,6 @@ public class Cheese : Item
 	{
 		displayName = "Cheese";
 		stackable = true;
-		//canDrop = false;
 
 		value = 12;
 
@@ -23,8 +22,7 @@ public class Cheese : Item
 	public override bool use(Player player)
 	{
 		player.addStatusEffect(new HealStatusEffect(1.5f + upgradeLevel * 0.5f, 5));
-		//if (player.health < player.maxHealth)
-		//	player.health = MathF.Min(player.health + 0.5f, player.maxHealth);
+		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFe9dd78), player.position);
 		return true;
 	}
 }
