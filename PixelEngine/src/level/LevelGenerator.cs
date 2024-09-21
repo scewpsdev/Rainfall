@@ -134,6 +134,7 @@ class Room
 	public int width, height;
 	public List<Doorway> doorways = new List<Doorway>();
 	public bool isMainPath = false;
+	public bool hasObject = false;
 
 
 	public int countConnectedDoorways()
@@ -280,6 +281,17 @@ public class LevelGenerator
 						level.setTile(x + xx, y + yy, null);
 						break;
 				}
+			}
+		}
+
+		for (int i = 0; i < room.doorways.Count; i++)
+		{
+			Doorway doorway = room.doorways[i];
+			if (doorway.otherDoorway == null)
+			{
+				int xx = room.x + doorway.position.x;
+				int yy = room.y + doorway.position.y;
+				level.setTile(xx, yy, getTileFunc(xx, yy));
 			}
 		}
 	}
@@ -591,6 +603,15 @@ public class LevelGenerator
 	void spawnRoomObject(List<Room> roomList, float chance, bool allowMultiple, Action<Vector2i, Random> spawnFunc)
 	{
 		MathHelper.ShuffleList(roomList, random);
+		roomList.Sort((Room room1, Room room2) =>
+		{
+			if (!room1.hasObject && room2.hasObject)
+				return -1;
+			else if (room1.hasObject && !room2.hasObject)
+				return 1;
+			else
+				return 0;
+		});
 
 		for (int i = 0; i < roomList.Count; i++)
 		{
@@ -601,6 +622,7 @@ public class LevelGenerator
 				{
 					spawnFunc(tile, random);
 					objectFlags[tile.x + tile.y * level.width] = true;
+					room.hasObject = true;
 					if (!allowMultiple)
 						break;
 				}
@@ -632,6 +654,9 @@ public class LevelGenerator
 	{
 		foreach (Room room in deadEnds)
 		{
+			if (!room.hasObject)
+				continue;
+
 			Vector2i doorPosition = Vector2i.Zero;
 			for (int i = 0; i < room.doorways.Count; i++)
 			{
@@ -719,7 +744,7 @@ public class LevelGenerator
 		{
 			placeRoom(rooms[i], level, (int x, int y) =>
 			{
-				float type = simplex.sample2f(x * 0.03f, y * 0.03f);
+				float type = simplex.sample2f(x * 0.05f, y * 0.05f);
 				return type > -0.2f ? TileType.dirt : TileType.stone;
 			});
 		}
@@ -1041,6 +1066,8 @@ public class LevelGenerator
 									enemy = new SkeletonArcher();
 								else if (enemyType > 0.85f && upUp == null)
 									enemy = new Golem();
+								else if (enemyType > 0.8f)
+									enemy = new Leprechaun();
 								else if (enemyType > 0.6f)
 									enemy = new Snake();
 								else if (enemyType > 0.3f)
@@ -1168,7 +1195,8 @@ public class LevelGenerator
 				float minecartChance = 0.01f;
 				if (random.NextSingle() < minecartChance)
 				{
-					level.addEntity(new Minecart(), new Vector2(x + 0.5f, y));
+					Item[] items = Item.CreateRandom(random, DropRates.barrel);
+					level.addEntity(new Minecart(items), new Vector2(x + 0.5f, y));
 					objectFlags[x + y * width] = true;
 				}
 			}
@@ -1363,6 +1391,8 @@ public class LevelGenerator
 									enemy = new SkeletonArcher();
 								else if (enemyType > 0.85f)
 									enemy = new Golem();
+								else if (enemyType > 0.8f)
+									enemy = new Leprechaun();
 								else if (enemyType > 0.6f)
 									enemy = new Snake();
 								else if (enemyType > 0.3f)

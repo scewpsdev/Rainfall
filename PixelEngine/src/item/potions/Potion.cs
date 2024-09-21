@@ -15,7 +15,7 @@ public class Potion : Item
 	public Potion(string name)
 		: base(name, ItemType.Potion)
 	{
-		displayName = "Mixed potion";
+		displayName = "Potion";
 		value = 2;
 		sprite = new Sprite(tileset, 4, 5);
 		canDrop = false;
@@ -91,5 +91,12 @@ public class Potion : Item
 				}
 			}
 		}
+
+		Vector3 color = Vector3.Zero;
+		for (int i = 0; i < effects.Count; i++)
+			color += MathHelper.ARGBToVector(effects[i].color).xyz;
+		color /= effects.Count;
+
+		GameState.instance.level.addEntity(Effects.CreatePotionExplodeEffect(color), entity.position);
 	}
 }

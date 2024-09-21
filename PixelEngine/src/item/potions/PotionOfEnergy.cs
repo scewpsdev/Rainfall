@@ -12,7 +12,7 @@ public class ManaEffect : PotionEffect
 	public float duration;
 
 	public ManaEffect(float amount = 2, float duration = 4)
-		: base("Energy", 23, new Sprite(Item.tileset, 6, 2))
+		: base("Energy", 23, new Sprite(Item.tileset, 6, 2), 0xFF758FFF)
 	{
 		this.amount = amount;
 		this.duration = duration;
@@ -51,9 +51,9 @@ public class PotionOfEnergy : Potion
 		sprite = new Sprite(tileset, 6, 2);
 	}
 
-	public override void upgrade()
+	public override void upgrade(Player player)
 	{
-		base.upgrade();
+		base.upgrade(player);
 		(effects[0] as ManaEffect).amount++;
 	}
 }

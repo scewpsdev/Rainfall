@@ -14,6 +14,8 @@ public class Coin : Entity
 
 	long spawnTime;
 
+	public Entity target;
+
 
 	public Coin()
 	{
@@ -24,53 +26,73 @@ public class Coin : Entity
 	public override void init(Level level)
 	{
 		spawnTime = Time.currentTime;
+		target = GameState.instance.player;
 	}
 
 	public override void update()
 	{
 		float followDistance = 3.0f;
 
-		Vector2 toPlayer = GameState.instance.player.position + GameState.instance.player.collider.center - position;
-		float distance = toPlayer.length;
-		if (distance < followDistance)
+		Vector2 displacement = velocity * Time.deltaTime;
+
+		if (target != null)
 		{
-			float speed = (1 - distance / followDistance * 0.5f) * 1;
-			velocity += speed * toPlayer / distance * 0.3f;
+			Vector2 toTarget = target.position + target.collider.center - position;
+			float distance = toTarget.length;
+			if (distance < followDistance && !target.removed)
+			{
+				float speed = (1 - distance / followDistance * 0.5f) * 1;
+				velocity += speed * toTarget / distance * 0.3f;
+				displacement += toTarget.normalized * 7 * Time.deltaTime;
+
+				if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
+				{
+					HitData hit = GameState.instance.level.sample(position, FILTER_PLAYER | FILTER_MOB);
+					if (hit != null && hit.entity == target)
+					{
+						if (hit.entity is Player)
+							(target as Player).money++;
+						else if (hit.entity is Leprechaun)
+							(target as Leprechaun).money++;
+
+						if (Random.Shared.NextSingle() < 0.4f)
+							GameState.instance.level.addEntity(Effects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
+
+						remove();
+					}
+				}
+			}
+			else
+			{
+				target = null;
+			}
 		}
-		else
+		if (target == null)
 		{
 			velocity.x = MathHelper.Lerp(velocity.x, 0, 5 * Time.deltaTime);
 			velocity.y += -10 * Time.deltaTime;
-		}
 
-		Vector2 displacement = velocity * Time.deltaTime;
-		if (distance < followDistance)
-			displacement += toPlayer.normalized * 7 * Time.deltaTime;
-		else
-		{
+			HitData[] hits = new HitData[4];
+			int numHits = GameState.instance.level.overlap(position - followDistance, position + followDistance, hits, FILTER_PLAYER | FILTER_MOB);
+			for (int i = 0; i < numHits; i++)
+			{
+				if (hits[i].entity is Player || hits[i].entity is Leprechaun)
+				{
+					target = hits[i].entity;
+					break;
+				}
+			}
+
 			HitData hit = GameState.instance.level.raycastTiles(position, velocity.normalized, velocity.length * Time.deltaTime);
 			if (hit != null)
 			{
 				velocity = Vector2.Zero;
+				//displacement = MathF.Min(displacement.length, hit.distance) * displacement.normalized;
 				displacement.y = MathF.Sign(displacement.y) * MathF.Min(MathF.Abs(displacement.y), hit.distance);
 			}
 		}
+
 		position += displacement;
-
-		if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
-		{
-			HitData hit = GameState.instance.level.sample(position, FILTER_PLAYER);
-			if (hit != null && hit.entity != null && hit.entity is Player)
-			{
-				Player player = hit.entity as Player;
-				player.money++;
-
-				if (Random.Shared.NextSingle() < 0.4f)
-					GameState.instance.level.addEntity(Effects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
-
-				remove();
-			}
-		}
 	}
 
 	public override void render()

@@ -56,9 +56,10 @@ public class Barrel : Entity, Hittable
 		remove();
 	}
 
-	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
 		breakBarrel();
+		return true;
 	}
 
 	public override void update()

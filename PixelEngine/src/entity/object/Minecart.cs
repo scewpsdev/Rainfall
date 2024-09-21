@@ -9,14 +9,21 @@ using System.Threading.Tasks;
 public class Minecart : Entity, Interactable
 {
 	Sprite sprite;
+	Item[] items;
 	bool looted = false;
 
 	uint outline = 0;
 
 
-	public Minecart()
+	public Minecart(params Item[] items)
 	{
+		this.items = items;
 		sprite = new Sprite(TileType.tileset, 0, 8, 2, 1);
+	}
+
+	public Minecart()
+		: this(Item.CreateRandom(Random.Shared, DropRates.barrel))
+	{
 	}
 
 	public bool canInteract(Player player)
@@ -41,7 +48,8 @@ public class Minecart : Entity, Interactable
 
 	public void interact(Player player)
 	{
-		GameState.instance.level.addEntity(new ItemEntity(new Diamond(), null, Vector2.Up * 4), position + new Vector2(0, 1));
+		for (int i = 0; i < items.Length; i++)
+			GameState.instance.level.addEntity(new ItemEntity(items[i], null, Vector2.Up * 4), position + new Vector2(MathHelper.RandomFloat(-1, 1), 1));
 		looted = true;
 	}
 

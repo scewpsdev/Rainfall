@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class ScrollOfMonsterTaming : Item
 {
 	public ScrollOfMonsterTaming()
-		: base("scroll_tame_monster", ItemType.Scroll)
+		: base("scroll_of_monster_taming", ItemType.Scroll)
 	{
 		displayName = "Scroll of Monster Taming";
 

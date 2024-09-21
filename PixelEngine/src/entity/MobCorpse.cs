@@ -13,6 +13,7 @@ public class MobCorpse : Entity
 	FloatRect rect;
 	int direction;
 	uint color;
+	bool renderLight;
 
 	Item[] passiveItems;
 
@@ -22,13 +23,14 @@ public class MobCorpse : Entity
 	bool particlesEmitted = false;
 
 
-	public MobCorpse(Sprite sprite, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, uint color, Item[] passiveItems = null)
+	public MobCorpse(Sprite sprite, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, uint color, bool renderLight = false, Item[] passiveItems = null)
 	{
 		this.sprite = sprite;
 		this.animator = animator;
 		this.rect = rect;
 		this.direction = direction;
 		this.color = color;
+		this.renderLight = renderLight;
 		this.passiveItems = passiveItems;
 
 		this.velocity = velocity * 0.5f + impulseVelocity;
@@ -101,6 +103,11 @@ public class MobCorpse : Entity
 					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 			}
+		}
+
+		if (renderLight)
+		{
+			Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
 		}
 	}
 }

@@ -47,9 +47,4 @@ public class RevolverShootAction : EntityAction
 
 		GameState.instance.level.addEntity(new BulletFireEffect(player), position + offset);
 	}
-
-	public override void update(Player player)
-	{
-		base.update(player);
-	}
 }

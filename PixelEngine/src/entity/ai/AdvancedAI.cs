@@ -1,0 +1,209 @@
+﻿using Rainfall;
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
+
+
+public class AIAction
+{
+	public AdvancedAI ai;
+	public string animation;
+	public float duration;
+	public float chargeTime;
+	public float cooldownTime;
+	public float walkSpeed;
+	public Func<AIAction, Vector2, float, bool> requirementsMet;
+	public Action<AIAction> onStarted;
+	public Func<AIAction, float, bool> onAction;
+	public Action<AIAction> onFinished;
+}
+
+public class AdvancedAI : AI
+{
+	enum AIState
+	{
+		Default,
+		Action,
+		Charge,
+		Cooldown,
+	}
+
+
+	AIState state = AIState.Default;
+	public int walkDirection = 1;
+
+	float walkSpeed;
+
+	List<AIAction> actions = new List<AIAction>();
+	AIAction currentAction = null;
+
+	long chargeTime;
+	long actionTime;
+	long cooldownTime;
+	int actionDirection;
+
+	long targetLastSeen = -1;
+
+
+	public AdvancedAI(Mob mob)
+		: base(mob)
+	{
+		aggroRange = 6.0f;
+		loseRange = 10.0f;
+		loseTime = 3.0f;
+
+		walkSpeed = mob.speed;
+	}
+
+	public AIAction addAction(string animation, float duration, float chargeTime, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, bool> onAction = null, Action<AIAction> onFinished = null)
+	{
+		AIAction action = new AIAction { ai = this, animation = animation, duration = duration, chargeTime = chargeTime, cooldownTime = cooldownTime, walkSpeed = walkSpeed, requirementsMet = requirementsMet, onStarted = onStarted, onAction = onAction, onFinished = onFinished };
+		actions.Add(action);
+		return action;
+	}
+
+	void beginAction()
+	{
+		state = AIState.Action;
+		actionTime = Time.currentTime;
+		mob.speed = currentAction.walkSpeed;
+		if (currentAction.onStarted != null)
+			currentAction.onStarted(currentAction);
+	}
+
+	void endAction()
+	{
+		if (currentAction.onFinished != null)
+			currentAction.onFinished(currentAction);
+		state = AIState.Cooldown;
+		cooldownTime = Time.currentTime;
+		mob.speed = walkSpeed;
+	}
+
+	void updateTargetFollow()
+	{
+		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
+			targetLastSeen = Time.currentTime;
+
+		if (state == AIState.Default)
+		{
+			mob.animator.setAnimation("run");
+
+			walkDirection = target.position.x < mob.position.x ? -1 : 1;
+
+			List<AIAction> possibleActions = new List<AIAction>();
+			foreach (AIAction action in actions)
+			{
+				if (action.requirementsMet(action, toTarget, distance))
+					possibleActions.Add(action);
+			}
+
+			if (possibleActions.Count > 0)
+			{
+				currentAction = possibleActions[Random.Shared.Next() % possibleActions.Count];
+				state = AIState.Charge;
+				chargeTime = Time.currentTime;
+				actionDirection = walkDirection;
+			}
+		}
+		if (state == AIState.Charge)
+		{
+			mob.animator.setAnimation("charge");
+
+			if ((Time.currentTime - chargeTime) / 1e9f >= currentAction.chargeTime)
+				beginAction();
+		}
+		if (state == AIState.Action)
+		{
+			mob.animator.setAnimation(currentAction.animation);
+
+			float elapsed = (Time.currentTime - actionTime) / 1e9f;
+			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed) || elapsed >= currentAction.duration)
+				endAction();
+		}
+		if (state == AIState.Cooldown)
+		{
+			mob.animator.setAnimation("cooldown");
+
+			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
+			{
+				state = AIState.Default;
+				currentAction = null;
+			}
+		}
+
+		if (state == AIState.Default)
+		{
+			if (walkDirection == -1)
+				mob.inputLeft = true;
+			else
+				mob.inputRight = true;
+		}
+		else if (state == AIState.Action)
+		{
+			if (actionDirection == -1)
+				mob.inputLeft = true;
+			else if (actionDirection == 1)
+				mob.inputRight = true;
+		}
+	}
+
+	void updatePatrol()
+	{
+		mob.animator.setAnimation("run");
+
+		if (walkDirection == 1)
+			mob.inputRight = true;
+		else if (walkDirection == -1)
+			mob.inputLeft = true;
+
+		TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 0.5f));
+		TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 1.5f));
+		if (forwardTile != null || forwardUpTile != null)
+			walkDirection *= -1;
+		else
+		{
+			TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, -0.5f));
+			if (forwardDownTile == null)
+				walkDirection *= -1;
+		}
+	}
+
+	public override void update()
+	{
+		mob.inputRight = false;
+		mob.inputLeft = false;
+		mob.inputJump = false;
+
+		if (target == null)
+		{
+			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
+			{
+				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.5f * aggroRange)
+				{
+					target = GameState.instance.player;
+				}
+			}
+		}
+
+		if (target != null)
+		{
+			bool targetLost = (target.position - mob.position).lengthSquared > loseRange * loseRange ||
+				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime;
+			if (targetLost && state == AIState.Default)
+			{
+				target = null;
+				targetLastSeen = -1;
+			}
+		}
+
+		if (target != null)
+			updateTargetFollow();
+		else
+			updatePatrol();
+	}
+}

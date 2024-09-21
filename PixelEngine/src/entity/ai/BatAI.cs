@@ -84,7 +84,7 @@ public class BatAI : AI
 			{
 				Vector2 offset = Vector2.Zero;
 				Vector2 direction = (toTarget + new Vector2(mob.direction, 0) * 0.1f).normalized;
-				FireProjectile projectile = new FireProjectile(direction, mob.velocity, offset, mob, null);
+				FireProjectile projectile = new FireProjectile(direction, mob.velocity, offset, mob);
 				GameState.instance.level.addEntity(projectile, mob.position);
 
 				lastShot = Time.currentTime;

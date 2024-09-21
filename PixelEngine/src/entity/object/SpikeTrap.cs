@@ -28,9 +28,10 @@ internal class SpikeTrap : Entity, Hittable
 		sprite = new Sprite(TileType.tileset, 0, 4);
 	}
 
-	public void hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility)
+	public bool hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility)
 	{
 		remove();
+		return true;
 	}
 
 	public void trigger()
@@ -77,13 +78,6 @@ internal class SpikeTrap : Entity, Hittable
 					{
 						Hittable hittable = hit.entity as Hittable;
 						hittable.hit(damage, this, null);
-						hitEntities.Add(hit.entity);
-					}
-					else if (hit.entity is Destructible)
-					{
-						Destructible destructible = hit.entity as Destructible;
-						destructible.onDestroyed(this, null);
-						hit.entity.remove();
 						hitEntities.Add(hit.entity);
 					}
 				}

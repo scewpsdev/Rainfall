@@ -142,6 +142,8 @@ public class SnakeAI : AI
 
 		if (target == null)
 		{
+			if (state == AIState.Dash)
+				endDash();
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
 				if (distance < aggroRange)

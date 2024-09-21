@@ -22,6 +22,7 @@ public class MoonFruit : Item
 	{
 		player.maxMana += 1 + upgradeLevel;
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 3.0f));
+		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);
 		return true;
 	}
 }

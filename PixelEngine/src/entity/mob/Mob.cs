@@ -77,7 +77,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 	}
 
-	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
 		health -= damage;
 
@@ -123,9 +123,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		if ((Time.currentTime - lastHit) / 1e9f > 0.2f)
 			lastHit = Time.currentTime;
+
+		return true;
 	}
 
-	void onDeath(Entity by)
+	public virtual void onDeath(Entity by)
 	{
 		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player)
 		{

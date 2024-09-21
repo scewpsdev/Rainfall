@@ -8,63 +8,31 @@ using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 
-public class LightOrb : Entity
+public class LightOrb : Projectile
 {
-	float speed = 5;
-	float acceleration = -1;
-	float rotationSpeed = 1.0f;
+	const float speed = 5;
 
-	Entity shooter;
-	Item item;
-
-	Sprite sprite;
-	Vector2 direction;
-
-	Vector2 offset;
-
-	List<Entity> hitEntities = new List<Entity>();
-
-
-	public LightOrb(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item)
+	public LightOrb(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter)
+		: base(direction * speed, startVelocity, offset, shooter, null)
 	{
-		this.direction = direction;
-		this.offset = offset;
-		this.shooter = shooter;
-		this.item = item;
-
-		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
-		filterGroup = FILTER_PROJECTILE;
-
-		velocity = direction * speed;
-		if (MathF.Sign(velocity.x) == MathF.Sign(startVelocity.x) && MathF.Abs(startVelocity.x) > MathF.Abs(velocity.x))
-			velocity.x = startVelocity.x;
+		acceleration = -1;
+		rotationSpeed = 1.0f;
+		damage = 0;
+		maxRicochets = 1000;
 
 		sprite = new Sprite(Item.tileset, 6, 4);
+		spriteColor = new Vector4(1.2f);
+		additive = true;
 	}
 
-	public override void update()
+	public override void onHit(Vector2 normal)
 	{
-		velocity += velocity.normalized * acceleration * Time.deltaTime;
-
-		Vector2 displacement = velocity * Time.deltaTime;
-		position += displacement;
-
-		rotation += rotationSpeed * Time.deltaTime;
-
-		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
-
-		HitData hit = GameState.instance.level.raycastTiles(position - displacement, displacement.normalized, displacement.length);
-		if (hit != null)
-		{
-			velocity = Vector2.Reflect(velocity, hit.normal);
-			velocity *= 0.7f;
-			position += velocity * 0.01f;
-		}
+		velocity *= 0.7f;
 	}
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(1.2f), true);
+		base.render();
 		Renderer.DrawLight(position, MathHelper.ARGBToVector(0xFFffecb5).xyz * 4, 10);
 	}
 }

@@ -196,11 +196,6 @@ public class Level
 					Hittable hittable = entities[i] as Hittable;
 					hittable.hit(1000, null, null);
 				}
-				else if (entities[i] is Destructible)
-				{
-					Destructible destructible = entities[i] as Destructible;
-					destructible.onDestroyed(null, null);
-				}
 				entities[i].remove();
 			}
 

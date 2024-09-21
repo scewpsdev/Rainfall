@@ -11,18 +11,27 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 {
 	const float JUMP_BUFFER = 0.3f;
 	const float COYOTE_TIME = 0.2f;
+#if DEBUG
 	const float SPRINT_MULTIPLIER = 1.8f;
+#else
+	const float SPRINT_MULTIPLIER = 1.5f;
+#endif
 	const float DUCKED_MULTIPLIER = 0.6f;
 	const float MAX_FALL_SPEED = -15;
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
-	const float FALL_STUN_DISTANCE = 6;
+	const float FALL_STUN_DISTANCE = 8;
 	const float FALL_DAMAGE_DISTANCE = 10;
 	const float MANA_KILL_REWARD = 0.4f;
+#if DEBUG
+	const float SPRINT_MANA_COST = 0.0f;
+#else
+	const float SPRINT_MANA_COST = 1.0f;
+#endif
 
 
 	public float speed = 6;
-	public float climbingSpeed = 4;
+	public float climbingSpeed = 6;
 	public float jumpPower = 10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
@@ -490,6 +499,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public ItemEntity throwItem(Item item, Vector2 direction, float speed = 14)
 	{
+		direction = direction.normalized;
 		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
@@ -521,14 +531,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return totalArmor;
 	}
 
-	public void hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
 		if (!isAlive)
-			return;
+			return false;
 
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (invincible)
 		{
+			return false;
 		}
 		else if (blockingItem != null && ((BlockAction)actions.currentAction).isBlocking)
 		{
@@ -544,6 +555,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 			}
+
+			return false;
 		}
 		else
 		{
@@ -570,6 +583,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (triggerInvincibility)
 				lastHit = Time.currentTime;
+
+			return true;
 		}
 	}
 
@@ -615,7 +630,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		actions.cancelAllActions();
 
-		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, passiveItems), position);
+		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, true, passiveItems), position);
 
 		GameState.instance.run.active = false;
 		GameState.instance.run.killedBy = by;
@@ -725,9 +740,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-#if DEBUG
-			isSprinting = Input.IsKeyDown(KeyCode.Ctrl);
-#endif
+			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.5f);
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
@@ -1024,7 +1037,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (hits[i].entity != null && hits[i].entity is Mob)
 				{
 					Mob mob = hits[i].entity as Mob;
-					hit(mob.damage, mob, mob.handItem);
+					if (hit(mob.damage, mob, mob.handItem))
+					{
+						if (mob.ai != null)
+							mob.ai.onAttacked(this);
+					}
 				}
 			}
 
@@ -1052,6 +1069,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down")) && lastLadderJumpedFrom == null)
 					{
 						currentLadder = hoveredLadder;
+						impulseVelocity = Vector2.Zero;
 						isClimbing = true;
 						velocity = Vector2.Zero;
 					}
@@ -1163,7 +1181,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	void updateStatus()
 	{
-		if (mana < maxMana)
+		if (isSprinting)
+			consumeMana(SPRINT_MANA_COST * Time.deltaTime);
+		else if (mana < maxMana)
 			mana = MathF.Min(mana + manaRechargeRate * Time.deltaTime, maxMana);
 
 		for (int i = 0; i < statusEffects.Count; i++)
@@ -1314,7 +1334,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					* actions.currentAction.getItemTransform(this);
 				Renderer.DrawSprite(item.size.x, item.size.y, weaponTransform, item.sprite, color);
 				if (particles != null)
+				{
 					particles.position = weaponTransform.translation.xy + item.particlesOffset * new Vector2i(direction, 1);
+					particles.layer = layer - 0.01f;
+				}
 			}
 			else
 			{
@@ -1323,7 +1346,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					Vector2 weaponPosition = new Vector2(position.x + (item.renderOffset.x + getWeaponOrigin(mainHand).x) * direction, position.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 					if (particles != null)
+					{
 						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+						particles.layer = layer - 0.01f;
+					}
 				}
 			}
 		}
@@ -1345,6 +1371,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			Renderer.DrawSprite(snappedPosition.x - 0.5f, snappedPosition.y, 1, isDucked ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
 
+			if (handItem != null)
+				handItem.render(this);
+			if (offhandItem != null)
+				offhandItem.render(this);
 			for (int i = 0; i < passiveItems.Length; i++)
 			{
 				if (passiveItems[i] != null)
@@ -1354,7 +1384,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					passiveItems[i].render(this);
 				}
 			}
-
 			for (int i = 0; i < activeItems.Length; i++)
 			{
 				if (activeItems[i] != null)

@@ -155,7 +155,7 @@ public class GameState : State
 		npc.direction = 1;
 		hub.addEntity(npc, new Vector2(6.5f, 2));
 
-		//hub.addEntity(new Golem(), new Vector2(20, 1));
+		//hub.addEntity(new Golem(), new Vector2(20, 5));
 
 		generator.generateLobby(hub);
 		generator.generateTutorial(tutorial);

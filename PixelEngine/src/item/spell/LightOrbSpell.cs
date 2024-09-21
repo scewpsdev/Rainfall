@@ -15,7 +15,7 @@ public class LightOrbSpell : Spell
 
 		Vector2 direction = player.lookDirection.normalized;
 
-		GameState.instance.level.addEntity(new LightOrb(direction, player.velocity, offset, player, staff), position);
+		GameState.instance.level.addEntity(new LightOrb(direction, player.velocity, offset, player), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 	}
 }

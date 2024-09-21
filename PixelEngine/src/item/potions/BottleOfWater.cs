@@ -12,7 +12,7 @@ public class WaterEffect : PotionEffect
 	public bool boiling;
 
 	public WaterEffect(bool boiling = false)
-		: base("Water", 1, new Sprite(Item.tileset, 4, 5))
+		: base("Water", 1, new Sprite(Item.tileset, 4, 5), 0xFF7fa6c4)
 	{
 		this.boiling = boiling;
 	}

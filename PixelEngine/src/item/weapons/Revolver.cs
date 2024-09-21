@@ -30,4 +30,14 @@ public class Revolver : Item
 		player.actions.queueAction(new RevolverShootAction(this, player.handItem == this));
 		return false;
 	}
+
+	public override void render(Entity entity)
+	{
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			if (player.actions.currentAction != null && player.actions.currentAction is RevolverShootAction && player.actions.currentAction.elapsedTime < 0.1f)
+				Renderer.DrawLight(player.position + new Vector2(0, 0.5f), Vector3.One * 3, 6.0f);
+		}
+	}
 }

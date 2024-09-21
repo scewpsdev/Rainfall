@@ -96,7 +96,7 @@ public class GandalfAI : AI
 					Vector2 position = mob.position + new Vector2(0.0f, 0.3f);
 					Vector2 offset = new Vector2(mob.direction * 0.5f, 0.3f);
 					Vector2 direction = toTarget;
-					GameState.instance.level.addEntity(new FireProjectile(direction, mob.velocity, offset, mob, null), position);
+					GameState.instance.level.addEntity(new FireProjectile(direction, mob.velocity, offset, mob), position);
 					GameState.instance.level.addEntity(new FireProjectileCastEffect(mob), position + offset);
 				}
 			}
