@@ -16,15 +16,15 @@ public class Entity
 	public const uint FILTER_DECORATION = 1 << 5;
 
 	public const float LAYER_DEFAULT = 0.0f;
-	public const float LAYER_BGBG = 0.2f;
-	public const float LAYER_BG = 0.1f;
-	public const float LAYER_INTERACTABLE = -0.05f;
-	public const float LAYER_PLAYER_BG = 0.02f;
-	public const float LAYER_PLAYER_ARMOR = -0.005f;
-	public const float LAYER_PLAYER_ITEM_MAIN = -0.01f;
-	public const float LAYER_PLAYER_ITEM_SECONDARY = 0.01f;
-	public const float LAYER_FG = -0.2f;
-	public const float LAYER_TILE = -0.1f;
+	public const float LAYER_BGBG = 0.02f;
+	public const float LAYER_BG = 0.01f;
+	public const float LAYER_INTERACTABLE = -0.005f;
+	public const float LAYER_PLAYER_BG = 0.002f;
+	public const float LAYER_PLAYER_ARMOR = -0.0005f;
+	public const float LAYER_PLAYER_ITEM_MAIN = -0.001f;
+	public const float LAYER_PLAYER_ITEM_SECONDARY = 0.001f;
+	public const float LAYER_FG = -0.02f;
+	public const float LAYER_TILE = -0.01f;
 
 	public const uint OUTLINE_COLOR = 0xBFFFFFFF;
 

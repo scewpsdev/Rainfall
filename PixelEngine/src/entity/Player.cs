@@ -24,9 +24,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float FALL_DAMAGE_DISTANCE = 10;
 	const float MANA_KILL_REWARD = 0.4f;
 #if DEBUG
-	const float SPRINT_MANA_COST = 1.0f;
+	const float SPRINT_MANA_COST = 0.5f;
 #else
-	const float SPRINT_MANA_COST = 1.0f;
+	const float SPRINT_MANA_COST = 0.5f;
 #endif
 
 

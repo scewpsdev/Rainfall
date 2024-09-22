@@ -41,6 +41,8 @@ public class Level
 
 	public Texture bg = null;
 	public Vector3 ambientLight = new Vector3(1.0f);
+	public Vector3 fogColor = new Vector3(0.0f);
+	public float fogFalloff = 0.2f;
 	public Sound ambientSound = null;
 
 

@@ -790,7 +790,18 @@ public class LevelGenerator
 		{
 			TileType left = GameState.instance.level.getTile(tile.x - 1, tile.y);
 			TileType right = GameState.instance.level.getTile(tile.x + 1, tile.y);
-			Item[] items = [Item.CreateRandom(ItemType.Weapon, random)];
+			Item item = Item.CreateRandom(ItemType.Weapon, random);
+			Item[] items;
+			if (item.requiredAmmo != null)
+			{
+				Item ammo = Item.GetItemPrototype(item.requiredAmmo).copy();
+				ammo.stackSize = MathHelper.RandomInt(20, 36, random);
+				items = [item, ammo];
+			}
+			else
+			{
+				items = [item];
+			}
 			Chest chest = new Chest(items, left != null && right == null);
 			level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1826,7 +1837,7 @@ public class LevelGenerator
 		level.updateLightmap(0, 0, width, height);
 	}
 
-	public void generateLobby(Level level)
+	public void generateHub(Level level)
 	{
 		RoomDef def = specialSet.roomDefs[2];
 		level.resize(def.width, def.height);
@@ -1842,6 +1853,10 @@ public class LevelGenerator
 		};
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
+
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/bg.png", false), 1), new Vector2(room.width * 0.5f, room.height * 0.5f));
+
+		level.fogFalloff = 1.0f;
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

@@ -124,11 +124,11 @@ public class GameState : State
 		hub = new Level(-1, "Cliffside");
 		Level tutorial = new Level(-1, "Tutorial");
 
-		Door tutorialEntrance = new Door(hub, null, true);
-		Door tutorialExit = new Door(hub, null, true);
+		Door tutorialEntrance = new Door(hub, null);
+		Door tutorialExit = new Door(hub, null);
 
-		Door tutorialDoor = new Door(tutorial, tutorialEntrance, true);
-		Door tutorialExitDoor = new Door(tutorial, tutorialExit, true);
+		Door tutorialDoor = new Door(tutorial, tutorialEntrance);
+		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
 
 		tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
@@ -143,6 +143,15 @@ public class GameState : State
 		hub.addEntity(tutorialExitDoor, new Vector2(15 + 16 + 7.5f, 6));
 
 		hub.addEntity(new Fountain(FountainEffect.Mana), new Vector2(31.5f, 2));
+
+		for (int i = 0; i < GlobalSave.highscores.Length; i++)
+		{
+			string[] label = i == 0 ? ["Highest Score:", GlobalSave.highscores[i].score.ToString()] :
+				i == 1 ? ["Fastest Time:", GlobalSave.highscores[i].time.ToString()] :
+				i == 2 ? ["Most kills:", GlobalSave.highscores[i].kills.ToString()] :
+				i == 3 ? ["Longest Run:", GlobalSave.highscores[i].time.ToString()] : ["???"];
+			hub.addEntity(new HighscoreDummy(GlobalSave.highscores[i], label), new Vector2(57.5f + i * 5, 3));
+		}
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared);
 		npc.clearShop();
@@ -160,7 +169,7 @@ public class GameState : State
 
 		//hub.addEntity(new Golem(), new Vector2(20, 5));
 
-		generator.generateLobby(hub);
+		generator.generateHub(hub);
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
 		tutorial.addEntity(tutorialExit, new Vector2(41, 24));
@@ -207,8 +216,11 @@ public class GameState : State
 			for (int i = 0; i < areaCaves.Length; i++)
 				areaCaves[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
-			Door dungeonDoor = new Door(areaCaves[0]);
+			Door dungeonDoor = new Door(areaCaves[0], null, true);
 			hub.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 4));
+
+			hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
+			hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
 			Level lastLevel = hub;
 			Door lastDoor = dungeonDoor;
@@ -223,7 +235,7 @@ public class GameState : State
 				lastDoor = areaCaves[i].exit;
 			}
 
-			Door hubDungeonExit1 = new Door(lastLevel, lastLevel.exit);
+			Door hubDungeonExit1 = new Door(lastLevel, lastLevel.exit, true);
 			hub.addEntity(hubDungeonExit1, new Vector2(8, 19));
 			lastLevel.exit.destination = hub;
 			lastLevel.exit.otherDoor = hubDungeonExit1;
@@ -239,7 +251,8 @@ public class GameState : State
 			for (int i = 0; i < areaGardens.Length; i++)
 				areaGardens[i] = new Level(i, i < numGardensFloors - 1 ? "Lushlands " + StringUtils.ToRoman(i + 1) : "The Glade");
 
-			Door hubDungeonEntrance2 = new Door(areaGardens[0]);
+			// TODO different sprite for 2nd level entrance
+			Door hubDungeonEntrance2 = new Door(areaGardens[0], null, true);
 			hub.addEntity(hubDungeonEntrance2, new Vector2(39.5f, 21));
 
 			Level lastLevel = hub;
