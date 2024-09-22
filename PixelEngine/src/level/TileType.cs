@@ -32,6 +32,9 @@ public class TileType
 	public static TileType dirt;
 	public static TileType platform;
 	public static TileType stone;
+	public static TileType path;
+	public static TileType grass;
+
 
 	static TileType()
 	{
@@ -60,6 +63,28 @@ public class TileType
 			right = [new Sprite(tileset, 5, 4), new Sprite(tileset, 15, 3), new Sprite(tileset, 15, 4), new Sprite(tileset, 15, 5)],
 			top = [new Sprite(tileset, 4, 3), new Sprite(tileset, 9, 3), new Sprite(tileset, 10, 3), new Sprite(tileset, 11, 3), new Sprite(tileset, 12, 3)],
 			bottom = [new Sprite(tileset, 4, 5), new Sprite(tileset, 9, 5), new Sprite(tileset, 10, 5), new Sprite(tileset, 11, 5), new Sprite(tileset, 12, 5)],
+		});
+		AddTileType(path = new TileType()
+		{
+			name = "stone_path",
+			color = 0xFF333333,
+			particleColor = 0xFF838dad,
+			sprites = [new Sprite(tileset, 4, 7)],
+			left = [new Sprite(tileset, 3, 7)],
+			right = [new Sprite(tileset, 5, 7)],
+			top = [new Sprite(tileset, 4, 6)],
+			bottom = [new Sprite(tileset, 4, 8)],
+		});
+		AddTileType(grass = new TileType()
+		{
+			name = "grass",
+			color = 0xFF333333,
+			particleColor = 0xFF678343,
+			sprites = [new Sprite(tileset, 4, 10)],
+			left = [new Sprite(tileset, 3, 10)],
+			right = [new Sprite(tileset, 5, 10)],
+			top = [new Sprite(tileset, 4, 9)],
+			bottom = [new Sprite(tileset, 4, 11)],
 		});
 		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 2)] });
 	}

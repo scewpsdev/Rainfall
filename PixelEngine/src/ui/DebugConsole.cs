@@ -67,6 +67,24 @@ public static class DebugConsole
 				return "No item of type " + args[0];
 			}
 		}
+		if (cmd == "give_item")
+		{
+			if (args.Length > 0)
+			{
+				Item item = Item.GetItemPrototype(args[0]);
+				if (item != null)
+				{
+					int count = 1;
+					if (args.Length >= 2 && int.TryParse(args[1], out int _count))
+						count = _count;
+					Item copy = item.copy();
+					copy.stackSize = count;
+					GameState.instance.player.giveItem(copy);
+					return "Given item " + args[0];
+				}
+				return "No item of type " + args[0];
+			}
+		}
 		if (cmd == "set_floor")
 		{
 			if (args.Length > 0)
@@ -74,7 +92,7 @@ public static class DebugConsole
 				string areaName = args[0].Substring(0, args[0].Length - 1);
 				if (int.TryParse(args[0].Substring(args[0].Length - 1), out int floor))
 				{
-					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "mines" ? GameState.instance.areaMines : null;
+					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "mines" ? GameState.instance.areaMines : areaName == "gardens" ? GameState.instance.areaGardens : null;
 					if (area != null)
 					{
 						if (floor >= 1 && floor <= area.Length)

@@ -80,6 +80,7 @@ public class GameState : State
 
 	public Level hub;
 	public Level[] areaCaves;
+	public Level[] areaGardens;
 	public Level[] areaMines;
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
@@ -91,6 +92,9 @@ public class GameState : State
 	public PlayerCamera camera;
 
 	uint ambientSource;
+
+	public Mob currentBoss;
+	public float currentBossMaxHealth;
 
 
 	public GameState(string seed)
@@ -117,14 +121,14 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		hub = new Level(-1, "The Glade");
+		hub = new Level(-1, "Cliffside");
 		Level tutorial = new Level(-1, "Tutorial");
 
-		Door tutorialEntrance = new Door(hub);
-		Door tutorialExit = new Door(hub);
+		Door tutorialEntrance = new Door(hub, null, true);
+		Door tutorialExit = new Door(hub, null, true);
 
-		Door tutorialDoor = new Door(tutorial, tutorialEntrance);
-		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
+		Door tutorialDoor = new Door(tutorial, tutorialEntrance, true);
+		Door tutorialExitDoor = new Door(tutorial, tutorialExit, true);
 
 		tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
@@ -228,6 +232,30 @@ public class GameState : State
 			hub.addEntity(hubMerchant2, new Vector2(30.5f, 19));
 		}
 
+		// The Glade
+		{
+			int numGardensFloors = 3;
+			areaGardens = new Level[numGardensFloors];
+			for (int i = 0; i < areaGardens.Length; i++)
+				areaGardens[i] = new Level(i, i < numGardensFloors - 1 ? "Lushlands " + StringUtils.ToRoman(i + 1) : "The Glade");
+
+			Door hubDungeonEntrance2 = new Door(areaGardens[0]);
+			hub.addEntity(hubDungeonEntrance2, new Vector2(39.5f, 21));
+
+			Level lastLevel = hub;
+			Door lastDoor = hubDungeonEntrance2;
+			for (int i = 0; i < areaGardens.Length; i++)
+			{
+				bool startingRoom = false;
+				bool bossRoom = i == areaGardens.Length - 1;
+				level = areaGardens[i];
+				generator.generateGardens(run.seed, areaGardens.Length + i, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
+				lastLevel = areaGardens[i];
+				lastDoor = areaGardens[i].exit;
+			}
+		}
+
+		/*
 		// Mines area
 		{
 			int numMinesFloors = 3;
@@ -251,6 +279,7 @@ public class GameState : State
 				lastDoor = areaMines[i].exit;
 			}
 		}
+		*/
 
 
 		/*

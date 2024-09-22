@@ -14,6 +14,13 @@ public class ParticleEffect : Entity
 	public ParticleSystem[] systems;
 	public Texture[] textureAtlases;
 	public bool collision = false;
+
+	public bool oscillateEmissionRate = false;
+	public float oscillateFreq = 2.0f;
+	public float oscillateAmplitude = 0.9f;
+	float[] emissionRates;
+	Simplex simplex;
+
 	public float layer = LAYER_BG;
 
 
@@ -29,6 +36,7 @@ public class ParticleEffect : Entity
 
 		systems = new ParticleSystem[entityData.particles.Length];
 		textureAtlases = new Texture[entityData.particles.Length];
+		emissionRates = new float[entityData.particles.Length];
 		for (int i = 0; i < entityData.particles.Length; i++)
 		{
 			ParticleSystem system = ParticleSystem.Create(Matrix.Identity, 250);
@@ -37,9 +45,11 @@ public class ParticleEffect : Entity
 
 			if (system.handle->textureAtlasPath[0] != 0)
 				textureAtlases[i] = Resource.GetTexture(StringUtils.AbsolutePath(new string((sbyte*)system.handle->textureAtlasPath), file), false);
+
+			emissionRates[i] = system.handle->emissionRate;
 		}
 
-
+		simplex = new Simplex((uint)Time.currentTime, 3);
 	}
 
 	public override void init(Level level)
@@ -67,6 +77,12 @@ public class ParticleEffect : Entity
 		bool hasFinished = true;
 		for (int i = 0; i < systems.Length; i++)
 		{
+			if (oscillateEmissionRate)
+			{
+				float value = simplex.sample1f(Time.currentTime / 1e9f * oscillateFreq) * oscillateAmplitude;
+				systems[i].handle->emissionRate = emissionRates[i] * (1 + value);
+			}
+
 			systems[i].setTransform(Matrix.CreateTranslation(position.x, position.y, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation), true);
 			systems[i].update();
 

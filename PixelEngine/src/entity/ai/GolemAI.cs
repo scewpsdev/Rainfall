@@ -24,6 +24,8 @@ public class GolemAI : AdvancedAI
 		loseRange = 10.0f;
 		loseTime = 3.0f;
 
+		patrol = false;
+
 		AIAction attack = addAction("attack", dashDistance / dashSpeed, dashChargeTime, dashCooldownTime, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
 		attack.onStarted = (AIAction action) =>
 		{

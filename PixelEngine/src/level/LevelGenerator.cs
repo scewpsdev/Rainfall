@@ -187,6 +187,7 @@ public class LevelGenerator
 	RoomDefSet miscSet;
 	RoomDefSet specialSet;
 	RoomDefSet cavesSet;
+	RoomDefSet gardensSet;
 	RoomDefSet minesSet;
 
 	string seed;
@@ -209,6 +210,7 @@ public class LevelGenerator
 		miscSet = new RoomDefSet("res/level/rooms_misc.png");
 		specialSet = new RoomDefSet("res/level/rooms_special.png");
 		cavesSet = new RoomDefSet("res/level/rooms_caves.png");
+		gardensSet = new RoomDefSet("res/level/level2/rooms2.png");
 		minesSet = new RoomDefSet("res/level/rooms_mines.png");
 	}
 
@@ -581,8 +583,9 @@ public class LevelGenerator
 			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
 			GolemBoss boss = new GolemBoss();
+			boss.isBoss = true;
 			boss.itemDropChance = 1;
-			level.addEntity(boss, new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(11, 1));
+			level.addEntity(boss, new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(11, 2));
 
 			level.addEntity(new BossGate(boss), new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(21.5f, 1));
 		}
@@ -959,6 +962,406 @@ public class LevelGenerator
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
 			if (dark && tile == null && down == null && up == null)
+			{
+				TileType downDown = level.getTile(x, y - 2);
+				if (downDown != null)
+				{
+					float torchChance = 0.01f;
+					if (random.NextSingle() < torchChance)
+					{
+						level.addEntity(new TorchEntity(), new Vector2(x + 0.5f, y + 0.5f));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Item
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null)
+			{
+				float itemChance = up != null && (left != null || right != null) ? 0.02f :
+					up != null ? 0.005f :
+					(left != null || right != null) ? 0.005f :
+					0.002f;
+				itemChance *= 0.25f;
+				itemChance *= lootModifier[x + y * width];
+
+				if (random.NextSingle() < itemChance)
+				{
+					spawnItem(x, y, level, random, objectFlags);
+				}
+			}
+		});
+
+		// Barrel
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null)
+			{
+				float barrelChance = MathF.Max(simplex.sample2f(x * 0.03f, y * 0.03f) * 0.3f - 0.1f, 0);
+				if (random.NextSingle() < barrelChance)
+				{
+					float explosiveBarrel = 0.1f;
+					if (random.NextSingle() < explosiveBarrel)
+					{
+						level.addEntity(new ExplosiveBarrel(), new Vector2(x + 0.5f, y));
+					}
+					else
+					{
+						Item[] items = null;
+						float itemChance = 0.05f;
+						if (random.NextSingle() < itemChance)
+							items = Item.CreateRandom(random, DropRates.barrel);
+
+						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
+					}
+					objectFlags[x + y * width] = true;
+				}
+			}
+		});
+
+		// Enemy
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && (left == null && right == null) && !objectFlags[x + y * width])
+			{
+				TileType downLeft = level.getTile(x - 1, y - 1);
+				TileType downRight = level.getTile(x + 1, y - 1);
+
+				float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
+
+				if ((distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
+				{
+					float enemyChance = 0.1f;
+					if (random.NextSingle() < enemyChance)
+					{
+						bool flyingEnemy = random.NextSingle() < 0.15f;
+						if (flyingEnemy)
+						{
+							if (down == null)
+							{
+								Mob enemy;
+
+								float batType = random.NextSingle();
+								if (batType < 0.9f)
+									enemy = new Bat();
+								else
+									enemy = new OrangeBat();
+
+								level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
+								objectFlags[x + y * width] = true;
+							}
+						}
+						else
+						{
+							TileType upUp = level.getTile(x, y + 2);
+							if (down != null && up == null && left == null && right == null)
+							{
+								float enemyType = random.NextSingle();
+
+								Mob enemy;
+
+								//if (enemyType > 0.9f)
+								//	enemy = new Bob();
+								//else 
+								if (enemyType > 0.95f)
+									enemy = new Gandalf();
+								else if (enemyType > 0.9f)
+									enemy = new SkeletonArcher();
+								else if (enemyType > 0.85f && upUp == null)
+									enemy = new Golem();
+								else if (enemyType > 0.8f)
+									enemy = new Leprechaun();
+								else if (enemyType > 0.6f)
+									enemy = new Snake();
+								else if (enemyType > 0.3f)
+								{
+									float spiderType = random.NextSingle();
+									if (spiderType < 0.9f)
+										enemy = new Spider();
+									else
+										enemy = new GreenSpider();
+								}
+								else
+								{
+									enemy = new Rat();
+								}
+
+								level.addEntity(enemy, new Vector2(x + 0.5f, y));
+								objectFlags[x + y * width] = true;
+							}
+						}
+					}
+				}
+			}
+		});
+
+		level.updateLightmap(0, 0, width, height);
+	}
+
+	public void generateGardens(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance)
+	{
+		this.seed = seed;
+		this.floor = floor;
+		this.level = level;
+		this.nextLevel = nextLevel;
+		this.lastLevel = lastLevel;
+		this.entrance = entrance;
+
+		random = new Random((int)Hash.hash(seed) + floor);
+		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+
+		int width = MathHelper.RandomInt(30, 150, random);
+		int height = (floor == 5 ? 4500 : 3200) / width;
+
+		level.resize(width, height, TileType.dirt);
+		level.ambientLight = new Vector3(1.5f);
+		level.ambientSound = Resource.GetSound("res/level/level2/ambience2.ogg");
+		level.bg = Resource.GetTexture("res/level/level2/bg.png", false);
+
+		objectFlags = new bool[width * height];
+		Array.Fill(objectFlags, false);
+
+		lootModifier = new float[width * height];
+		Array.Fill(lootModifier, 1.0f);
+
+		rooms.Clear();
+		generateMainRooms(gardensSet, spawnStartingRoom, spawnBossRoom, out Room startingRoom, out Room exitRoom);
+		generateExtraRooms(gardensSet);
+
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			int x = room.x;
+			int y = room.y;
+			int w = room.width;
+			int h = room.height;
+			RoomDef roomDef = room.set.roomDefs[room.roomDefID];
+
+			for (int yy = 0; yy < h; yy++)
+			{
+				for (int xx = 0; xx < w; xx++)
+				{
+					uint color = roomDef.getTile(xx, yy);
+					if (color != 0xFF000000)
+						level.setTile(x + xx, y + yy, TileType.dummy);
+					else
+						level.setTile(x + xx, y + yy, null);
+				}
+			}
+
+			placeRoom(rooms[i], level, (int x, int y) =>
+			{
+				TileType left = level.getTile(x - 1, y);
+				TileType right = level.getTile(x + 1, y);
+				TileType down = level.getTile(x, y - 1);
+				TileType up = level.getTile(x, y + 1);
+
+				bool edgeTile = /*left == null || right == null || down == null ||*/ up == null;
+				float type = simplex.sample2f(x * 0.05f, y * 0.05f);
+				return edgeTile ? (type > -0.3f ? TileType.grass : TileType.path) : TileType.dirt;
+			});
+		}
+
+		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
+
+		List<Room> deadEnds = new List<Room>();
+		List<Room> mainRooms = new List<Room>();
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			bool isDeadEnd = room.countConnectedDoorways() == 1 && !room.isMainPath;
+			if (isDeadEnd)
+				deadEnds.Add(room);
+			else if (room.isMainPath)
+				mainRooms.Add(room);
+
+			if (isDeadEnd)
+			{
+				for (int y = room.y; y < room.y + room.height; y++)
+				{
+					for (int x = room.x; x < room.x + room.width; x++)
+					{
+						lootModifier[x + y * width] = 3.0f;
+					}
+				}
+			}
+		}
+		MathHelper.ShuffleList(deadEnds, random);
+		MathHelper.ShuffleList(mainRooms, random);
+
+		lockDeadEnds(deadEnds, mainRooms);
+
+
+		// Builder merchant
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
+		{
+			BuilderMerchant npc = new BuilderMerchant(random);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Traveller merchant
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			TravellingMerchant npc = new TravellingMerchant(random);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Rat NPC
+		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
+		{
+			RatNPC npc = new RatNPC();
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Logan
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			Logan npc = new Logan(random);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Blacksmith
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
+		{
+			Blacksmith npc = new Blacksmith(random);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Tinkerer
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			Tinkerer npc = new Tinkerer(random);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Fountain
+		spawnRoomObject(deadEnds, 1, false, (Vector2i tile, Random random) =>
+		{
+			Fountain fountain = new Fountain(random);
+			level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Coins
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.05f, 0.02f), true, (Vector2i tile, Random random) =>
+		{
+			int amount = MathHelper.RandomInt(2, 10, random);
+			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
+		});
+
+		// Items
+		spawnRoomObject(deadEnds, 0.65f, false, (Vector2i tile, Random random) =>
+		{
+			spawnItem(tile.x, tile.y, level, random, objectFlags);
+		});
+
+
+
+
+		// Arrow trap
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile != null && tile.isSolid && (left == null || right == null) && y != entrancePosition.y)
+			{
+				float arrowTrapChance = 0.001f;
+				if (random.NextSingle() < arrowTrapChance)
+				{
+					int direction = right == null ? 1 : left == null ? -1 : random.Next() % 2 * 2 - 1;
+					level.setTile(x, y, TileType.dummy);
+					level.addEntity(new ArrowTrap(new Vector2(direction, 0)), new Vector2(x, y));
+					objectFlags[x + y * width] = true;
+				}
+			}
+		});
+
+		// Moneh
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null)
+			{
+				float gemChance = up != null ? 0.04f : 0.01f;
+				gemChance *= 0.25f;
+				if (random.NextSingle() < gemChance)
+				{
+					//int amount = MathHelper.RandomInt(3, 12, random);
+					int amount = 10;
+					level.addEntity(new Gem(amount), new Vector2(x + 0.5f, y + 0.5f));
+					objectFlags[x + y * width] = true;
+				}
+			}
+		});
+
+		// Spring
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && up == null)
+			{
+				TileType upUp = level.getTile(x, y + 2);
+				if (upUp == null)
+				{
+					float springChance = 0.01f;
+					if (random.NextSingle() < springChance)
+					{
+						level.addEntity(new Spring(), new Vector2(x + 0.5f, y));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Spike
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && up == null)
+			{
+				TileType upLeft = level.getTile(x - 1, y + 1);
+				TileType upRight = level.getTile(x + 1, y + 1);
+
+				if (upLeft == null && left == null || upRight == null && right == null)
+				{
+					float spikeChance = 0.015f;
+					if (random.NextSingle() < spikeChance)
+					{
+						level.addEntity(new Spike(), new Vector2(x, y));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Spike Trap
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && up != null && up.isSolid)
+			{
+				TileType downDown = level.getTile(x, y - 2);
+				TileType downLeft = level.getTile(x - 1, y - 1);
+				TileType downRight = level.getTile(x + 1, y - 1);
+
+				if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null) && x != entrancePosition.x)
+				{
+					float spikeTrapChance = 0.01f;
+					if (random.NextSingle() < spikeTrapChance)
+					{
+						level.addEntity(new SpikeTrap(), new Vector2(x + 0.5f, y + 0.5f));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Torch
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down == null && up == null)
 			{
 				TileType downDown = level.getTile(x, y - 2);
 				if (downDown != null)

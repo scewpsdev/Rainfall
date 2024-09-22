@@ -99,7 +99,7 @@ public abstract class Item
 	public int ingameSpriteSize = 1;
 	public Vector4 ingameSpriteColor = Vector4.One;
 
-	public string particleEffect = null;
+	public bool hasParticleEffect = false;
 	public Vector2 particlesOffset = Vector2.Zero;
 
 	public int upgradeLevel = 0;
@@ -208,6 +208,11 @@ public abstract class Item
 
 	public virtual void render(Entity entity)
 	{
+	}
+
+	public virtual ParticleEffect createParticleEffect(Entity entity)
+	{
+		return null;
 	}
 
 

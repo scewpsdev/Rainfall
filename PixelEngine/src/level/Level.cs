@@ -39,6 +39,7 @@ public class Level
 
 	public List<Entity> entities = new List<Entity>();
 
+	public Texture bg = null;
 	public Vector3 ambientLight = new Vector3(1.0f);
 	public Sound ambientSound = null;
 
@@ -220,6 +221,9 @@ public class Level
 
 		Renderer.lightMask = lightmap;
 		Renderer.lightMaskRect = new FloatRect(-0.5f, -0.5f, width + 1, height + 1);
+
+		if (bg != null)
+			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9f, GameState.instance.camera.width, GameState.instance.camera.height, bg, 0, 0, bg.width, bg.height, new Vector4(1.0f));
 
 		int x0 = (int)MathF.Floor(GameState.instance.camera.left);
 		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom);

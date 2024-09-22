@@ -37,6 +37,7 @@ public class AdvancedAI : AI
 
 	AIState state = AIState.Default;
 	public int walkDirection = 1;
+	public bool patrol = true;
 
 	float walkSpeed;
 	FloatRect collider;
@@ -61,6 +62,12 @@ public class AdvancedAI : AI
 
 		walkSpeed = mob.speed;
 		collider = mob.collider;
+	}
+
+	public override void onDeath()
+	{
+		if (GameState.instance.currentBoss == mob)
+			GameState.instance.currentBoss = null;
 	}
 
 	public AIAction addAction(string animation, float duration, float chargeTime, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, bool> onAction = null, Action<AIAction> onFinished = null)
@@ -162,22 +169,29 @@ public class AdvancedAI : AI
 
 	void updatePatrol()
 	{
-		mob.animator.setAnimation("run");
+		if (patrol)
+		{
+			mob.animator.setAnimation("run");
 
-		if (walkDirection == 1)
-			mob.inputRight = true;
-		else if (walkDirection == -1)
-			mob.inputLeft = true;
+			if (walkDirection == 1)
+				mob.inputRight = true;
+			else if (walkDirection == -1)
+				mob.inputLeft = true;
 
-		TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 0.5f));
-		TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 1.5f));
-		if (forwardTile != null || forwardUpTile != null)
-			walkDirection *= -1;
+			TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 0.5f));
+			TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 1.5f));
+			if (forwardTile != null || forwardUpTile != null)
+				walkDirection *= -1;
+			else
+			{
+				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, -0.5f));
+				if (forwardDownTile == null)
+					walkDirection *= -1;
+			}
+		}
 		else
 		{
-			TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, -0.5f));
-			if (forwardDownTile == null)
-				walkDirection *= -1;
+			mob.animator.setAnimation("idle");
 		}
 	}
 
@@ -194,9 +208,14 @@ public class AdvancedAI : AI
 
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.5f * aggroRange)
+				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < (mob.isBoss ? aggroRange : 0.5f * aggroRange))
 				{
 					target = GameState.instance.player;
+					if (mob.isBoss)
+					{
+						GameState.instance.currentBoss = mob;
+						GameState.instance.currentBossMaxHealth = mob.health;
+					}
 				}
 			}
 		}
@@ -205,7 +224,7 @@ public class AdvancedAI : AI
 		{
 			bool targetLost = (target.position - mob.position).lengthSquared > loseRange * loseRange ||
 				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime;
-			if (targetLost && state == AIState.Default)
+			if (targetLost && state == AIState.Default && !mob.isBoss)
 			{
 				target = null;
 				targetLastSeen = -1;

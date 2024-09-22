@@ -21,7 +21,7 @@ public class IronDoor : Entity, Interactable
 		this.key = key;
 
 		sprite = new Sprite(TileType.tileset, 2, 8);
-		frameSprite = new Sprite(TileType.tileset, 3, 8);
+		frameSprite = new Sprite(TileType.tileset, 2, 9);
 	}
 
 	public IronDoor()
