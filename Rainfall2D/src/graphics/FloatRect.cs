@@ -35,7 +35,7 @@ namespace Rainfall
 		{
 			get => position + size;
 		}
-		
+
 		public Vector2 center
 		{
 			get => new Vector2(position.x + 0.5f * size.x, position.y + 0.5f * size.y);

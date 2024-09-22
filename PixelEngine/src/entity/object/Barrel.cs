@@ -13,6 +13,8 @@ public class Barrel : Entity, Hittable
 	Item[] items;
 	public int coins = 0;
 
+	Sound breakSound;
+
 
 	public Barrel(params Item[] items)
 	{
@@ -21,6 +23,8 @@ public class Barrel : Entity, Hittable
 		sprite = new Sprite(TileType.tileset, 0, 1);
 
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
+
+		breakSound = Resource.GetSound("res/sounds/break_wood.ogg");
 	}
 
 	public Barrel()
@@ -53,6 +57,7 @@ public class Barrel : Entity, Hittable
 		if (items != null)
 			dropItems();
 		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF675051), position);
+		Audio.PlayOrganic(breakSound, new Vector3(position, 0));
 		remove();
 	}
 

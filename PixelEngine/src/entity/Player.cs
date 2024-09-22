@@ -78,6 +78,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
+	long startTime;
 	long lastHit = -10000000000;
 	long stunTime = -1;
 
@@ -143,6 +144,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 #if DEBUG
 #endif
+	}
+
+	public override void init(Level level)
+	{
+		startTime = Time.currentTime;
 	}
 
 	public override void destroy()
@@ -968,8 +974,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//TileType below = TileType.Get(GameState.instance.level.getTile((Vector2i)Vector2.Floor(position - new Vector2(0, 0.1f))));
 		//isGrounded = below != null && below.isSolid;
 
-		float rotationDst = direction == 1 ? 0 : MathF.PI;
-		rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
+		// why was this here again? idk
+		//float rotationDst = direction == 1 ? 0 : MathF.PI;
+		//rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
 	}
 
 	public bool useActiveItem(Item item)
@@ -1211,6 +1218,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (isMoving)
 					{
 						animator.setAnimation("run");
+						animator.startTime = startTime;
 					}
 					else
 					{
@@ -1288,7 +1296,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateStatus();
 		updateAnimation();
 
-		Audio.UpdateListener(new Vector3(position, 3), Quaternion.Identity);
+		Audio.UpdateListener(new Vector3(position, 1), Quaternion.Identity);
 
 		Input.cursorMode = CursorMode.Hidden;
 	}

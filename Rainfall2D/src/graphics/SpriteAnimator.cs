@@ -35,7 +35,7 @@ namespace Rainfall
 	{
 		List<SpriteAnimation> animations = new List<SpriteAnimation>();
 		public string currentAnimation = null;
-		long startTime = 0;
+		public long startTime = 0;
 		public int lastFrameIdx = -1;
 
 		List<SpriteAnimationEvent> events = new List<SpriteAnimationEvent>();

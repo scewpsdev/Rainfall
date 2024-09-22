@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class LeprechaunAI : AdvancedAI
 {
 	const float teleportTriggerDistance = 2.0f;
-	const float teleportChargeTime = 0.5f;
+	const float teleportChargeTime = 0.0f;
 	const float teleportCooldownTime = 0.5f;
 
 
@@ -40,6 +40,7 @@ public class LeprechaunAI : AdvancedAI
 		});
 		teleport.onStarted = (AIAction action) =>
 		{
+			GameState.instance.level.addEntity(Effects.CreateTeleportEffect(mob, 0xFF4b692f), mob.position);
 			SpellEffects.TeleportEntity(mob, true, target.position, aggroRange);
 		};
 	}

@@ -90,7 +90,6 @@ public class GameState : State
 	public Player player;
 	public PlayerCamera camera;
 
-	Sound ambientSound;
 	uint ambientSource;
 
 
@@ -299,10 +298,6 @@ public class GameState : State
 			hub.entities[i].onLevelSwitch(false);
 		}
 		*/
-
-		ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
-		ambientSource = Audio.PlayBackground(ambientSound);
-		Audio.SetSourceLooping(ambientSource, true);
 	}
 
 	public override void init()
@@ -419,6 +414,14 @@ public class GameState : State
 			}
 
 			player.hud.onLevelSwitch(level.name);
+
+			if (ambientSource != 0)
+			{
+				Audio.FadeoutSource(ambientSource, 10);
+				ambientSource = 0;
+			}
+			if (level.ambientSound != null)
+				ambientSource = Audio.PlayBackground(level.ambientSound, 1, 1, true, 10);
 		}
 
 		long beforeParticleUpdate = Time.timestamp;

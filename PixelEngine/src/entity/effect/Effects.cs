@@ -108,6 +108,16 @@ public static unsafe class Effects
 		ParticleEffect effect = new ParticleEffect(entity, "res/effects/consumable_use.rfs");
 		effect.systems[0].handle->color = color;
 		effect.systems[0].handle->startVelocity.x *= direction;
+		effect.systems[0].handle->spawnOffset.x *= direction;
+		return effect;
+	}
+
+	public static ParticleEffect CreateTeleportEffect(Entity entity, uint color)
+	{
+		ParticleEffect effect = new ParticleEffect(entity, "res/effects/teleport.rfs");
+		effect.systems[0].handle->startVelocity = new Vector3(entity.velocity, 0);
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(color).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(color).xyz;
 		return effect;
 	}
 }
