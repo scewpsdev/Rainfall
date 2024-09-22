@@ -49,7 +49,7 @@ public class HUD
 		staffCharge = new Sprite(tileset, 6, 1);
 
 		crosshair = new Sprite(tileset, 2, 4, 1, 1);
-		aimIndicator = new Sprite(tileset, 3, 4);
+		aimIndicator = new Sprite(tileset, 3, 4, 2, 2);
 	}
 
 
@@ -391,6 +391,15 @@ public class HUD
 		else if (player.isAlive && GameSettings.aimMode == AimMode.Crosshair)
 		{
 			Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+		}
+
+		if (GameState.instance.currentBoss != null)
+		{
+			int width = Renderer.UIWidth - 40;
+			int height = 4;
+			Renderer.DrawUISprite(20 - 1, Renderer.UIHeight - 32 - height - 1, width + 2, height + 2, 0, null, 0xFFAAAAAA);
+			Renderer.DrawUISprite(20, Renderer.UIHeight - 32 - height, width, height, 0, null, 0xFF111111);
+			Renderer.DrawUISprite(20, Renderer.UIHeight - 32 - height, (int)MathF.Ceiling(GameState.instance.currentBoss.health / GameState.instance.currentBossMaxHealth * width), height, 0, null, 0xFF983a2e);
 		}
 	}
 }

@@ -37,6 +37,10 @@ public abstract class AI
 		}
 	}
 
+	public virtual void onDeath()
+	{
+	}
+
 	public virtual void onAttacked(Entity e)
 	{
 	}

@@ -32,6 +32,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public float health = 1;
 	public float damage = 1;
+	public bool isBoss = false;
+
 	public bool canClimb = false;
 	public bool canFly = false;
 
@@ -138,6 +140,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				player = ((ItemEntity)by).thrower as Player;
 			player.onKill(this);
 		}
+
+		if (ai != null)
+			ai.onDeath();
 
 		if (Random.Shared.NextSingle() < itemDropChance)
 		{

@@ -12,7 +12,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float JUMP_BUFFER = 0.3f;
 	const float COYOTE_TIME = 0.2f;
 #if DEBUG
-	const float SPRINT_MULTIPLIER = 1.8f;
+	const float SPRINT_MULTIPLIER = 1.5f;
 #else
 	const float SPRINT_MULTIPLIER = 1.5f;
 #endif
@@ -24,7 +24,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float FALL_DAMAGE_DISTANCE = 10;
 	const float MANA_KILL_REWARD = 0.4f;
 #if DEBUG
-	const float SPRINT_MANA_COST = 0.0f;
+	const float SPRINT_MANA_COST = 1.0f;
 #else
 	const float SPRINT_MANA_COST = 1.0f;
 #endif
@@ -169,8 +169,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		handItem = item;
 		handItem.onEquip(this);
-		if (handItem.particleEffect != null)
-			GameState.instance.level.addEntity(handParticles = new ParticleEffect(null, handItem.particleEffect), position + handItem.particlesOffset);
+		if (handItem.hasParticleEffect)
+			GameState.instance.level.addEntity(handParticles = handItem.createParticleEffect(null), position + handItem.particlesOffset);
 
 		if (item.twoHanded && offhandItem != null)
 			unequipItem(offhandItem);
@@ -192,8 +192,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		offhandItem = item;
 		offhandItem.onEquip(this);
-		if (offhandItem.particleEffect != null)
-			GameState.instance.level.addEntity(offhandParticles = new ParticleEffect(null, offhandItem.particleEffect), position + offhandItem.particlesOffset);
+		if (offhandItem.hasParticleEffect)
+			GameState.instance.level.addEntity(offhandParticles = offhandItem.createParticleEffect(null), position + offhandItem.particlesOffset);
 
 		if (handItem != null && handItem.twoHanded)
 			unequipItem(handItem);

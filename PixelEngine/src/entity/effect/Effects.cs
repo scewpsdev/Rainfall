@@ -120,4 +120,11 @@ public static unsafe class Effects
 		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(color).xyz;
 		return effect;
 	}
+
+	public static ParticleEffect CreateTorchEffect(Entity entity)
+	{
+		ParticleEffect effect = new ParticleEffect(entity, "res/effects/torch.rfs");
+		effect.oscillateEmissionRate = true;
+		return effect;
+	}
 }

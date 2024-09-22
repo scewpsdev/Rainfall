@@ -52,8 +52,12 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 	public override void init(Level level)
 	{
-		if (item.particleEffect != null)
-			GameState.instance.level.addEntity(particles = new ParticleEffect(this, item.particleEffect) { layer = LAYER_INTERACTABLE - 0.01f }, position + item.particlesOffset);
+		if (item.hasParticleEffect)
+		{
+			particles = item.createParticleEffect(this);
+			particles.layer = LAYER_INTERACTABLE - 0.01f;
+			GameState.instance.level.addEntity(particles, position + item.particlesOffset);
+		}
 	}
 
 	public override void destroy()

@@ -21,7 +21,7 @@ public class TorchEntity : Entity, Interactable
 
 	public override void init(Level level)
 	{
-		GameState.instance.level.addEntity(particles = new ParticleEffect(this, "res/effects/torch.rfs"), position + new Vector2(0, 0.25f));
+		GameState.instance.level.addEntity(particles = Effects.CreateTorchEffect(this), position + new Vector2(0, 0.25f));
 		particles.layer = LAYER_DEFAULT - 0.01f;
 	}
 
