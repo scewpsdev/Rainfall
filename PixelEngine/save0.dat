@@ -1,0 +1,34 @@
+highscores = [
+	{
+		score = 69420,
+		time = 1,
+		kills = 0,
+		items0 = [3066057946, 1751301209],
+		items1 = [0, 0, 0, 0],
+		items2 = [0, 1596944642, 0, 0, 0]
+	},
+	{
+		score = 1,
+		time = 123,
+		kills = 0,
+		items0 = [0, 0],
+		items1 = [0, 0, 0, 0],
+		items2 = [0, 0, 0, 0, 0]
+	},
+	{
+		score = 1,
+		time = 1,
+		kills = 21,
+		items0 = [0, 0],
+		items1 = [0, 0, 0, 0],
+		items2 = [0, 0, 0, 0, 0]
+	},
+	{
+		score = 1,
+		time = 123123,
+		kills = 0,
+		items0 = [0, 0],
+		items1 = [0, 0, 0, 0],
+		items2 = [0, 0, 0, 0, 0]
+	}
+]

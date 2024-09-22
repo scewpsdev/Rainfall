@@ -64,6 +64,11 @@ namespace Rainfall
 			get => (int)Math.Round(number);
 		}
 
+		public uint uinteger
+		{
+			get => (uint)Math.Round(number);
+		}
+
 		public string stringContent
 		{
 			get => str.Substring(1, str.Length - 2);

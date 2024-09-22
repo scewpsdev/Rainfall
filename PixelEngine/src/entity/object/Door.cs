@@ -17,13 +17,13 @@ public class Door : Entity, Interactable
 	uint outline = 0;
 
 
-	public Door(Level destination, Door otherDoor = null, bool small = false)
+	public Door(Level destination, Door otherDoor = null, bool big = false)
 	{
 		this.destination = destination;
 		this.otherDoor = otherDoor;
 
-		sprite = small ? new Sprite(TileType.tileset, 2, 2) : new Sprite(TileType.tileset, 0, 9, 2, 2);
-		rect = small ? new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f) : new FloatRect(-1.0f, 0.0f, 2.0f, 2.0f);
+		sprite = big ? new Sprite(TileType.tileset, 0, 9, 2, 2) : new Sprite(TileType.tileset, 2, 2);
+		rect = big ? new FloatRect(-1.0f, 0.0f, 2.0f, 2.0f) : new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
 	}
 
 	public void interact(Player player)

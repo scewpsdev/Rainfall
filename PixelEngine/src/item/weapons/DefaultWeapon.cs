@@ -15,7 +15,7 @@ public class DefaultWeapon : Item
 		: base("default_weapon", ItemType.Weapon)
 	{
 		attackDamage = 1;
-		attackRange = 0.8f;
+		attackRange = 1.0f;
 		attackRate = 5;
 		knockback = 5;
 

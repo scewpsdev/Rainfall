@@ -171,7 +171,6 @@ public abstract class Item
 
 	public virtual void upgrade(Player player)
 	{
-		Debug.Assert(!player.isEquipped(this));
 		upgradeLevel++;
 		value = Math.Max(value * 5 / 4, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
@@ -218,6 +217,7 @@ public abstract class Item
 
 	static List<Item> itemTypes = new List<Item>();
 	static Dictionary<string, int> nameMap = new Dictionary<string, int>();
+	static Dictionary<uint, int> hashMap = new Dictionary<uint, int>();
 
 	static Dictionary<ItemType, List<int>> typeLists = new Dictionary<ItemType, List<int>>();
 
@@ -312,12 +312,20 @@ public abstract class Item
 	{
 		itemTypes.Add(item);
 		nameMap.Add(item.name, itemTypes.Count - 1);
+		hashMap.Add(Hash.hash(item.name), itemTypes.Count - 1);
 		typeLists[item.type].Add(itemTypes.Count - 1);
 	}
 
 	public static Item GetItemPrototype(string name)
 	{
 		if (nameMap.TryGetValue(name, out int idx))
+			return itemTypes[idx];
+		return null;
+	}
+
+	public static Item GetItemPrototype(uint h)
+	{
+		if (hashMap.TryGetValue(h, out int idx))
 			return itemTypes[idx];
 		return null;
 	}
@@ -359,9 +367,9 @@ public abstract class Item
 			{
 				Item newItem = item.copy();
 				if (newItem.name == "arrow")
-					newItem.stackSize = MathHelper.RandomInt(1, 12, random);
+					newItem.stackSize = MathHelper.RandomInt(1, 35, random);
 				else if (newItem.name == "throwing_knife")
-					newItem.stackSize = MathHelper.RandomInt(1, 6, random);
+					newItem.stackSize = MathHelper.RandomInt(1, 10, random);
 				if (newItem.type == ItemType.Staff)
 					newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
 				return newItem;
