@@ -15,6 +15,9 @@ public class AttackAction : EntityAction
 
 	public List<Entity> hitEntities = new List<Entity>();
 
+	bool soundPlayed = false;
+	Sound attackSound, hitSound;
+
 
 	public AttackAction(Item weapon, bool stab, bool mainHand)
 		: base("attack", mainHand)
@@ -23,6 +26,9 @@ public class AttackAction : EntityAction
 		this.stab = stab;
 
 		duration = 1000;
+
+		attackSound = Resource.GetSound("res/sounds/punch.ogg");
+		hitSound = Resource.GetSound("res/sounds/punch_hit.ogg");
 	}
 
 	public AttackAction(Item weapon, bool mainHand)
@@ -57,10 +63,21 @@ public class AttackAction : EntityAction
 					{
 						hitEntities.Add(hits[i].entity);
 
-						float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
-						player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower);
+						Audio.Play(hitSound, new Vector3(player.position, 0));
+
+						if (!player.isGrounded)
+						{
+							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
+							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower);
+						}
 					}
 				}
+			}
+
+			if (!soundPlayed)
+			{
+				Audio.PlayOrganic(attackSound, new Vector3(player.position, 0), 1, weapon.attackRate * 0.5f);
+				soundPlayed = true;
 			}
 		}
 	}

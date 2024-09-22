@@ -16,6 +16,8 @@ public class AIAction
 	public float chargeTime;
 	public float cooldownTime;
 	public float walkSpeed;
+	public FloatRect actionCollider;
+
 	public Func<AIAction, Vector2, float, bool> requirementsMet;
 	public Action<AIAction> onStarted;
 	public Func<AIAction, float, bool> onAction;
@@ -37,6 +39,7 @@ public class AdvancedAI : AI
 	public int walkDirection = 1;
 
 	float walkSpeed;
+	FloatRect collider;
 
 	List<AIAction> actions = new List<AIAction>();
 	AIAction currentAction = null;
@@ -57,6 +60,7 @@ public class AdvancedAI : AI
 		loseTime = 3.0f;
 
 		walkSpeed = mob.speed;
+		collider = mob.collider;
 	}
 
 	public AIAction addAction(string animation, float duration, float chargeTime, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, bool> onAction = null, Action<AIAction> onFinished = null)
@@ -98,7 +102,7 @@ public class AdvancedAI : AI
 			List<AIAction> possibleActions = new List<AIAction>();
 			foreach (AIAction action in actions)
 			{
-				if (action.requirementsMet(action, toTarget, distance))
+				if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation)) % 2 == 0)
 					possibleActions.Add(action);
 			}
 
@@ -108,6 +112,8 @@ public class AdvancedAI : AI
 				state = AIState.Charge;
 				chargeTime = Time.currentTime;
 				actionDirection = walkDirection;
+				if (currentAction.actionCollider != null)
+					mob.collider = currentAction.actionCollider;
 			}
 		}
 		if (state == AIState.Charge)
@@ -131,6 +137,8 @@ public class AdvancedAI : AI
 
 			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
 			{
+				if (currentAction.actionCollider != null)
+					mob.collider = collider;
 				state = AIState.Default;
 				currentAction = null;
 			}
@@ -181,6 +189,9 @@ public class AdvancedAI : AI
 
 		if (target == null)
 		{
+			if (state == AIState.Action)
+				endAction();
+
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
 				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.5f * aggroRange)

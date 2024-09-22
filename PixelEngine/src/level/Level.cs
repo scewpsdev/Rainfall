@@ -40,6 +40,7 @@ public class Level
 	public List<Entity> entities = new List<Entity>();
 
 	public Vector3 ambientLight = new Vector3(1.0f);
+	public Sound ambientSound = null;
 
 
 	public Level(int floor, string name)

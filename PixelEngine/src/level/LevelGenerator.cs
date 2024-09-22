@@ -284,6 +284,7 @@ public class LevelGenerator
 			}
 		}
 
+		/*
 		for (int i = 0; i < room.doorways.Count; i++)
 		{
 			Doorway doorway = room.doorways[i];
@@ -294,6 +295,7 @@ public class LevelGenerator
 				level.setTile(xx, yy, getTileFunc(xx, yy));
 			}
 		}
+		*/
 	}
 
 	bool fitRoom(Vector2i position, Vector2i size, List<Room> rooms, int width, int height)
@@ -729,6 +731,7 @@ public class LevelGenerator
 
 		level.resize(width, height, TileType.dirt);
 		level.ambientLight = dark ? new Vector3(0.001f) : new Vector3(1.0f);
+		level.ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);

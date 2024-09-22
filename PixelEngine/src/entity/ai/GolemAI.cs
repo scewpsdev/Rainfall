@@ -36,6 +36,7 @@ public class GolemAI : AdvancedAI
 				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Up, 6, 40, MathHelper.ARGBToVector(tile.particleColor).xyz), mob.position + mob.direction * Vector2.Right);
 			GameState.instance.camera.addScreenShake(mob.position + mob.direction * Vector2.Right, 1, 3);
 		};
+		attack.actionCollider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
 
 		AIAction jumpAttack = addAction("jump", 100, 0, 0, jumpAttackSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
 		jumpAttack.onStarted = (AIAction action) =>

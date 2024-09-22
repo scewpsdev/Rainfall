@@ -17,6 +17,9 @@ public class Chest : Entity, Interactable, Hittable
 	Item[] items;
 	public int coins = 0;
 
+	Sound[] openSound;
+	Sound closeSound;
+
 
 	public Chest(Item[] items, bool flipped = false)
 	{
@@ -28,6 +31,12 @@ public class Chest : Entity, Interactable, Hittable
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
 
 		this.flipped = flipped;
+
+		openSound = [
+			Resource.GetSound("res/sounds/chest_open1.ogg"),
+			Resource.GetSound("res/sounds/chest_open2.ogg"),
+		];
+		closeSound = Resource.GetSound("res/sounds/chest_close.ogg");
 	}
 
 	public Chest(params Item[] items)
@@ -98,6 +107,8 @@ public class Chest : Entity, Interactable, Hittable
 
 		Debug.Assert(items != null);
 		dropItems();
+
+		Audio.Play(openSound, new Vector3(position, 0));
 	}
 
 	public override void update()

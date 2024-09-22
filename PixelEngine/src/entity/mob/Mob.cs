@@ -305,8 +305,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		distanceWalked += MathF.Abs(displacement.x);
 
 		// why is this here?
-		float rotationDst = direction == 1 ? 0 : MathF.PI;
-		rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
+		// lol idk just found this in player too wtf
+		//float rotationDst = direction == 1 ? 0 : MathF.PI;
+		//rotation = MathHelper.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
 	}
 
 	void updateActions()

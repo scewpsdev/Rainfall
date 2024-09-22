@@ -116,7 +116,7 @@ public static class Renderer
 
 	public static Vector3 ambientLight = Vector3.Zero;
 	public static Texture lightMask = null;
-	public static FloatRect lightMaskRect = null;
+	public static FloatRect lightMaskRect;
 
 	public static Vector3 vignetteColor = new Vector3(0.0f);
 	public static float vignetteFalloff = 0.37f; // default value: 0.37f
