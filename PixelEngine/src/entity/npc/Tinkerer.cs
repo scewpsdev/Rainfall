@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 
 public class Tinkerer : NPC
 {
-	public Tinkerer(Random random)
+	public Tinkerer(Random random, Level level)
 		: base("tinkerer")
 	{
 		displayName = "Tinker";
@@ -23,11 +24,11 @@ public class Tinkerer : NPC
 		buysItems = true;
 		canCraft = true;
 
-		populateShop(random, 3, 9, 15, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 9, level.lootValue, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public Tinkerer()
-		: this(Random.Shared)
+		: this(Random.Shared, GameState.instance.level)
 	{
 	}
 

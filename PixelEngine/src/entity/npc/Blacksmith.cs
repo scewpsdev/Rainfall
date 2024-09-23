@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class Blacksmith : NPC
 {
-	public Blacksmith(Random random)
+	public Blacksmith(Random random, Level level)
 		: base("blacksmith")
 	{
 		displayName = "Blacksmith";
@@ -24,11 +24,11 @@ public class Blacksmith : NPC
 
 		addVoiceLine("Mmh.");
 
-		populateShop(random, 2, 8, 12, ItemType.Weapon, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 2, 8, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Ammo);
 	}
 
 	public Blacksmith()
-		: this(Random.Shared)
+		: this(Random.Shared, GameState.instance.level)
 	{
 	}
 }

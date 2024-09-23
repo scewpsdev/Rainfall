@@ -142,6 +142,11 @@ namespace Rainfall
 			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y)))));
 		}
 
+		public void addVector2ui(string name, uint a, uint b)
+		{
+			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(a), new DatValue(b)))));
+		}
+
 		public void addVector3(string name, Vector3 v)
 		{
 			fields.Add(new DatField(name, new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y), new DatValue(v.z)))));
@@ -576,6 +581,15 @@ namespace Rainfall
 			StreamWriter writer = new StreamWriter(stream);
 			serializeObjectContent(root, writer);
 			writer.Close();
+		}
+
+		public void serialize(string path)
+		{
+			FileStream stream = File.Open(path, FileMode.Create);
+			StreamWriter writer = new StreamWriter(stream);
+			serializeObjectContent(root, writer);
+			writer.Close();
+			stream.Close();
 		}
 
 		public DatFile(string src, string path)

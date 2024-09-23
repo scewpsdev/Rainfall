@@ -2,22 +2,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 
 public static class GameOverScreen
 {
-	static string TimeToString(float time)
-	{
-		int millis = (int)(time * 1000) % 1000;
-		int seconds = (int)time % 60;
-		int minutes = (int)time / 60 % 60;
-		int hours = (int)time / 60 / 60;
+	static UIParticleEffect scoreRecordParticles;
+	static UIParticleEffect floorRecordParticles;
+	static UIParticleEffect timeRecordParticles;
+	static UIParticleEffect killRecordParticles;
+	static bool particlesEmitted;
 
-		string result = hours.ToString() + ":" + minutes.ToString("00") + ":" + seconds.ToString("00") + "." + millis.ToString("000") + " s";
-		return result;
+	public static void Init()
+	{
+		particlesEmitted = false;
+	}
+
+	public static void Destroy()
+	{
+		scoreRecordParticles?.remove();
+		scoreRecordParticles = null;
+		floorRecordParticles?.remove();
+		floorRecordParticles = null;
+		timeRecordParticles?.remove();
+		timeRecordParticles = null;
+		killRecordParticles?.remove();
+		killRecordParticles = null;
 	}
 
 	static void RenderRunStats(GameState game, int x, int y, int width, int height)
@@ -51,15 +62,33 @@ public static class GameOverScreen
 		}
 
 		drawLeft("Score");
-		drawRight(game.run.score.ToString());
+		drawRight(game.run.score.ToString(), game.run.scoreRecord ? RunStats.recordColors[0] : 0xFFAAAAAA);
+		if (game.run.scoreRecord && scoreRecordParticles == null && !particlesEmitted)
+		{
+			GameState.instance.level.addEntity(scoreRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[0]), new Vector2(x + width - 8, y + 4));
+			scoreRecordParticles.removeCallbacks.Add(() =>
+			{
+				scoreRecordParticles = null;
+			});
+		}
+		y += lineHeight;
+
+		drawLeft("Floor");
+		drawRight((game.run.floor + 1).ToString(), game.run.floorRecord ? RunStats.recordColors[1] : 0xFFAAAAAA);
+		if (game.run.floorRecord && floorRecordParticles == null && !particlesEmitted)
+		{
+			GameState.instance.level.addEntity(floorRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[1]), new Vector2(x + width - 8, y + 4));
+			floorRecordParticles.removeCallbacks.Add(() => { floorRecordParticles = null; });
+		}
 		y += lineHeight;
 
 		drawLeft("Time");
-		drawRight(TimeToString(game.run.duration));
-		y += lineHeight;
-
-		drawLeft("Seed");
-		drawRight(game.run.seed.ToString());
+		drawRight(StringUtils.TimeToString(game.run.duration), game.run.timeRecord ? RunStats.recordColors[2] : 0xFFAAAAAA);
+		if (game.run.timeRecord && timeRecordParticles == null && !particlesEmitted)
+		{
+			GameState.instance.level.addEntity(timeRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[2]), new Vector2(x + width - 8, y + 4));
+			timeRecordParticles.removeCallbacks.Add(() => { timeRecordParticles = null; });
+		}
 		y += lineHeight;
 
 		/*
@@ -84,16 +113,19 @@ public static class GameOverScreen
 		y += lineHeight;
 		*/
 
+		drawLeft("Enemies killed");
+		drawRight(game.run.kills.ToString(), game.run.killRecord ? RunStats.recordColors[3] : 0xFFAAAAAA);
+		if (game.run.killRecord && killRecordParticles == null && !particlesEmitted)
+		{
+			GameState.instance.level.addEntity(killRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[3]), new Vector2(x + width - 8, y + 4));
+			killRecordParticles.removeCallbacks.Add(() => { killRecordParticles = null; });
+		}
+		y += lineHeight;
+
+		y += lineHeight;
+
 		drawLeft("Killed by ");
 		drawRight(game.run.hasWon ? "---" : game.run.killedByName != null ? game.run.killedByName : "The Void");
-		y += lineHeight;
-
-		drawLeft("Floor");
-		drawRight((game.run.floor + 1).ToString());
-		y += lineHeight;
-
-		drawLeft("Enemies killed");
-		drawRight(game.run.kills.ToString());
 		y += lineHeight;
 
 		drawLeft("Hits taken");
@@ -102,6 +134,10 @@ public static class GameOverScreen
 
 		drawLeft("Steps walked");
 		drawRight(game.run.stepsWalked.ToString());
+		y += lineHeight;
+
+		drawLeft("Seed");
+		drawRight(game.run.seed.ToString());
 		y += lineHeight;
 
 		/*
@@ -113,6 +149,8 @@ public static class GameOverScreen
 		drawRight("0");
 		y += lineHeight;
 		*/
+
+		particlesEmitted = true;
 	}
 
 	static void RenderPlayer(int x, int y, int width, int height)
@@ -169,5 +207,10 @@ public static class GameOverScreen
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
 		RenderPlayer(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, playerViewHeight);
 		InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
+
+		scoreRecordParticles?.render();
+		floorRecordParticles?.render();
+		timeRecordParticles?.render();
+		killRecordParticles?.render();
 	}
 }

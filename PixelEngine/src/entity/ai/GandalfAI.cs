@@ -172,7 +172,7 @@ public class GandalfAI : AI
 		{
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.5f * aggroRange)
+				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < 0.2f * aggroRange)
 				{
 					target = GameState.instance.player;
 				}

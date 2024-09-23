@@ -31,7 +31,9 @@ public abstract class AI
 		if (target == null)
 		{
 			if (by is ItemEntity)
-				by = ((ItemEntity)by).thrower;
+				by = (by as ItemEntity).thrower;
+			if (by is Projectile)
+				by = (by as Projectile).shooter;
 			if (by is Player || by is Mob)
 				target = by;
 		}

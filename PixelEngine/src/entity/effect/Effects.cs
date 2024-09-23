@@ -127,4 +127,12 @@ public static unsafe class Effects
 		effect.oscillateEmissionRate = true;
 		return effect;
 	}
+
+	public static UIParticleEffect CreateRecordUIEffect(uint color)
+	{
+		UIParticleEffect effect = new UIParticleEffect(null, "res/effects/ui_record.rfs");
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(color).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(color).xyz;
+		return effect;
+	}
 }

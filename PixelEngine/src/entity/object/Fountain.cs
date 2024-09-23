@@ -190,8 +190,6 @@ public class Fountain : Entity, Interactable
 
 	unsafe bool fillBottle()
 	{
-		Player player = GameState.instance.player;
-
 		Potion potion = new Potion();
 		foreach (PotionEffect effect in potionEffects)
 			potion.addEffect(effect);
@@ -210,8 +208,6 @@ public class Fountain : Entity, Interactable
 
 	unsafe bool dipScroll()
 	{
-		Player player = GameState.instance.player;
-
 		switch (effect)
 		{
 			case FountainEffect.Mana:
@@ -249,10 +245,13 @@ public class Fountain : Entity, Interactable
 	{
 		if (item.name == "glass_bottle")
 		{
-			if (fillBottle())
+			if (potionEffects.Count > 0)
 			{
-				player.removeItemSingle(item);
-				player.hud.showMessage("You fill up the glass bottle.");
+				if (fillBottle())
+				{
+					player.removeItemSingle(item);
+					player.hud.showMessage("You fill up the glass bottle.");
+				}
 			}
 		}
 		else if (item.name == "blank_paper")

@@ -65,11 +65,14 @@ public class AttackAction : EntityAction
 
 						Audio.Play(hitSound, new Vector3(player.position, 0));
 
+						/*
 						if (!player.isGrounded)
 						{
 							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
 							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower);
 						}
+						*/
+						player.addImpulse(-direction * 4);
 					}
 				}
 			}

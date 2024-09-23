@@ -49,9 +49,9 @@ public class PoisonVial : Potion
 		sprite = new Sprite(tileset, 5, 5);
 	}
 
-	public override void upgrade(Player player)
+	public override void upgrade()
 	{
-		base.upgrade(player);
+		base.upgrade();
 		(effects[0] as PoisonEffect).amount++;
 	}
 }

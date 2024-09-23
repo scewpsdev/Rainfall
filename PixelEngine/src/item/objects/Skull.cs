@@ -19,6 +19,7 @@ public class Skull : Item
 		attackDamage = 4;
 
 		value = 2;
+		upgradable = false;
 
 		sprite = new Sprite(tileset, 0, 0);
 	}
@@ -41,9 +42,9 @@ public class Skull : Item
 		}
 	}
 
-	public override void upgrade(Player player)
+	public override void upgrade()
 	{
-		base.upgrade(player);
+		base.upgrade();
 		attackDamage++;
 	}
 }

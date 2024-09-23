@@ -22,7 +22,7 @@ public class Minecart : Entity, Interactable
 	}
 
 	public Minecart()
-		: this(Item.CreateRandom(Random.Shared, DropRates.barrel))
+		: this(Item.CreateRandom(Random.Shared, DropRates.barrel, GameState.instance.level.lootValue))
 	{
 	}
 

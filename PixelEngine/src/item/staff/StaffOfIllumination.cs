@@ -18,7 +18,7 @@ public class StaffOfIllumination : Item
 		isSecondaryItem = true;
 
 		attackDamage = 0;
-		manaCost = 0.5f;
+		//manaCost = 0.5f;
 		staffCharges = 10;
 		maxStaffCharges = 10;
 

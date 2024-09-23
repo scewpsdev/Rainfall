@@ -62,9 +62,9 @@ public class PotionOfHealing : Potion
 	{
 	}
 
-	public override void upgrade(Player player)
+	public override void upgrade()
 	{
-		base.upgrade(player);
+		base.upgrade();
 		(effects[0] as HealEffect).amount += 0.5f;
 	}
 }

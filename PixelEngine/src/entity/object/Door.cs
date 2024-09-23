@@ -29,11 +29,7 @@ public class Door : Entity, Interactable
 	public void interact(Player player)
 	{
 		if (finalExit)
-		{
-			GameState.instance.run.endedTime = Time.currentTime;
-			GameState.instance.run.hasWon = true;
-			GameState.instance.run.active = false;
-		}
+			GameState.instance.stopRun(true);
 		else
 			GameState.instance.switchLevel(destination, otherDoor.position);
 	}

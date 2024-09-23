@@ -89,7 +89,7 @@ public class SpiderAI : AI
 		{
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange)
+				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < (mob.isBoss ? aggroRange : 0.5f * aggroRange))
 				{
 					target = GameState.instance.player;
 				}

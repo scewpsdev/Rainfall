@@ -21,9 +21,13 @@ public class MainMenuState : State
 	MainMenuScreen screen = MainMenuScreen.Main;
 	int currentButton = 0;
 
+	Sprite splash, splashSmall;
+
 
 	public MainMenuState()
 	{
+		splash = new Sprite(Resource.GetTexture("res/sprites/splash.png", false), 0, 0, 256, 64);
+		splashSmall = new Sprite(Resource.GetTexture("res/sprites/splash.png", false), 0, 64, 256, 32);
 	}
 
 	public override void update()
@@ -32,6 +36,8 @@ public class MainMenuState : State
 
 	void mainScreen()
 	{
+		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splash.width / 2, 64 - splash.height / 2, splash.width, splash.height, 0, splash, 0xFF888888);
+
 		string[] labels = [
 			"Play",
 			"Daily Run",
@@ -114,8 +120,10 @@ public class MainMenuState : State
 
 	void credits()
 	{
+		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splashSmall.width / 2, 10, splashSmall.width, splashSmall.height, 0, splashSmall, 0xFF888888);
+
 		int x = 100;
-		int y = 15;
+		int y = 55;
 
 		void drawLine(string str)
 		{
@@ -133,10 +141,6 @@ public class MainMenuState : State
 			Renderer.DrawUITextBMP(Renderer.UIWidth - x - Renderer.MeasureUITextBMP(str).x, y, str, 1);
 			y += Renderer.smallFont.size + 2;
 		}
-
-		string title = "Test Title";
-		Renderer.DrawUIText(Renderer.UIWidth / 2 - Renderer.MeasureUIText(title).x / 2, y, title);
-		y += 25;
 
 		drawLine("A Game by Scewps");
 		drawLine("");

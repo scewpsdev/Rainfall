@@ -20,9 +20,9 @@ public static class Crafting
 
 		// do crafting
 		if (hasName("stick") != null && hasType(ItemType.Gem) != null)
-			craftedItem = Item.CreateRandom(ItemType.Staff, random, combinedValue * 0.8f, combinedValue * 1.2f);
+			craftedItem = Item.CreateRandom(ItemType.Staff, random, combinedValue);
 		if (hasName("scroll_blank") != null && hasType(ItemType.Gem) != null)
-			craftedItem = Item.CreateRandom(ItemType.Scroll, random, combinedValue * 0.8f, combinedValue * 1.2f);
+			craftedItem = Item.CreateRandom(ItemType.Scroll, random, combinedValue);
 		if (hasType(ItemType.Potion) != null && hasName("rope") != null)
 		{
 			Potion potion = hasType(ItemType.Potion).copy() as Potion;

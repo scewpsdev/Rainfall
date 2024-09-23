@@ -95,7 +95,8 @@ public abstract class NPC : Mob, Interactable
 		for (int i = 0; i < numItems; i++)
 		{
 			ItemType type = types[random.Next() % types.Length];
-			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) / 1.0f, meanValue * 0.1f);
+			/*
+			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random), 0.0f);
 			List<Item> items = Item.GetItemPrototypesOfType(type);
 			items.Sort((Item item1, Item item2) =>
 			{
@@ -104,6 +105,8 @@ public abstract class NPC : Mob, Interactable
 				return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
 			});
 			Item item = items[0];
+			*/
+			Item item = Item.CreateRandom(type, random, meanValue);
 			if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
 				addShopItem(item.copy());
 			else
@@ -330,7 +333,7 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
 			y += 4;
 
-			if (Time.currentTime - lastCharacterTime > 1e9 / (dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 3 ? 8 : 1)))
+			if (Time.currentTime - lastCharacterTime > 1e9 / (dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 3 ? 12 : 1)))
 			{
 				currentCharacter++;
 				lastCharacterTime = Time.currentTime;
