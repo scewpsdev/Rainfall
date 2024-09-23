@@ -60,8 +60,16 @@ public static class DebugConsole
 					if (args.Length >= 2 && int.TryParse(args[1], out int _count))
 						count = _count;
 					Item copy = item.copy();
-					copy.stackSize = count;
-					GameState.instance.level.addEntity(new ItemEntity(copy), position);
+					if (copy.stackable)
+					{
+						copy.stackSize = count;
+						GameState.instance.level.addEntity(new ItemEntity(copy), position);
+					}
+					else
+					{
+						for (int i = 0; i < count; i++)
+							GameState.instance.level.addEntity(new ItemEntity(copy), position);
+					}
 					return "Spawned item " + args[0] + " in position" + position.ToString();
 				}
 				return "No item of type " + args[0];
@@ -78,8 +86,16 @@ public static class DebugConsole
 					if (args.Length >= 2 && int.TryParse(args[1], out int _count))
 						count = _count;
 					Item copy = item.copy();
-					copy.stackSize = count;
-					GameState.instance.player.giveItem(copy);
+					if (copy.stackable)
+					{
+						copy.stackSize = count;
+						GameState.instance.player.giveItem(copy);
+					}
+					else
+					{
+						for (int i = 0; i < count; i++)
+							GameState.instance.player.giveItem(copy);
+					}
 					return "Given item " + args[0];
 				}
 				return "No item of type " + args[0];

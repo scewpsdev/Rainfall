@@ -12,12 +12,14 @@ public class HighscoreDummy : Entity
 	Sprite sprite;
 
 	string[] label;
+	uint color;
 
 
-	public HighscoreDummy(RunData data, string[] label)
+	public HighscoreDummy(RunData data, string[] label, uint color)
 	{
 		this.data = data;
 		this.label = label;
+		this.color = color;
 		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
 	}
 
@@ -58,7 +60,7 @@ public class HighscoreDummy : Entity
 		for (int i = 0; i < label.Length; i++)
 		{
 			float width = Renderer.MeasureWorldTextBMP(label[i], -1, 1.0f / 16).x;
-			Renderer.DrawWorldTextBMP(position.x - 0.5f * width, position.y + 3 + (label.Length - i - 1) * 0.5f, 0, label[i], 1.0f / 16, 0xFFAAAAAA);
+			Renderer.DrawWorldTextBMP(position.x - 0.5f * width + 0.01f, position.y + 3 + (label.Length - i - 1) * 0.5f, 0, label[i], 1.0f / 16, i < label.Length - 1 ? 0xFFAAAAAA : color);
 		}
 	}
 }

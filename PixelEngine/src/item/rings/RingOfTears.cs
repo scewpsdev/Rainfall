@@ -58,9 +58,9 @@ public class RingOfTears : Item
 		}
 	}
 
-	public override void upgrade(Player player)
+	public override void upgrade()
 	{
-		base.upgrade(player);
+		base.upgrade();
 		buff += 0.1f;
 	}
 }

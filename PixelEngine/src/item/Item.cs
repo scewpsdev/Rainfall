@@ -102,6 +102,7 @@ public abstract class Item
 	public bool hasParticleEffect = false;
 	public Vector2 particlesOffset = Vector2.Zero;
 
+	public bool upgradable = false;
 	public int upgradeLevel = 0;
 
 
@@ -113,6 +114,8 @@ public abstract class Item
 		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
 		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Ring;
+
+		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Armor;
 	}
 
 	public Item copy()
@@ -120,9 +123,9 @@ public abstract class Item
 		return (Item)MemberwiseClone();
 	}
 
-	public int id
+	public uint id
 	{
-		get => (int)Hash.hash(name);
+		get => Hash.hash(name);
 	}
 
 	public float rarity
@@ -137,7 +140,7 @@ public abstract class Item
 
 	public string fullDisplayName
 	{
-		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName + (upgradeLevel > 0 ? " + " + upgradeLevel : "");
+		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName + (upgradeLevel > 0 ? " +" + upgradeLevel : "");
 	}
 
 	public string rarityString
@@ -169,10 +172,10 @@ public abstract class Item
 		identified = true;
 	}
 
-	public virtual void upgrade(Player player)
+	public virtual void upgrade()
 	{
 		upgradeLevel++;
-		value = Math.Max(value * 5 / 4, value + 1);
+		value = Math.Max(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
 			attackDamage++;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
@@ -338,15 +341,38 @@ public abstract class Item
 		return items;
 	}
 
-	public static Item CreateRandom(ItemType type, Random random, float minValue = 0, float maxValue = float.MaxValue)
+	public static Item CreateRandom(ItemType type, Random random, float meanValue)
 	{
+		float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.5f, 0.0f);
+		List<Item> items = GetItemPrototypesOfType(type);
+		items.Sort((Item item1, Item item2) =>
+		{
+			float r1 = MathF.Abs(item1.value - value);
+			float r2 = MathF.Abs(item2.value - value);
+			return r1 > r2 || !item1.canDrop ? 1 : r1 < r2 || !item2.canDrop ? -1 : 0;
+		});
+		Item item = items[0];
+		Item newItem = item.copy();
+		while (newItem.value < meanValue * 0.5f && newItem.upgradable)
+			newItem.upgrade();
+		while (newItem.stackable && newItem.value * (newItem.stackSize + 1) < meanValue)
+			newItem.stackSize++;
+		//if (newItem.name == "arrow")
+		//	newItem.stackSize = MathHelper.RandomInt(1, 35, random);
+		//else if (newItem.name == "throwing_knife")
+		//	newItem.stackSize = MathHelper.RandomInt(1, 10, random);
+		if (newItem.type == ItemType.Staff)
+			newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
+		return newItem;
+
+		/*
 		List<int> list = new List<int>(typeLists[type]);
 
 		for (int i = 0; i < list.Count; i++)
 		{
 			Item item = itemTypes[list[i]];
-			if (item.value < minValue || item.value > maxValue)
-				list.RemoveAt(i--);
+			//if (item.value < minValue || item.value > maxValue)
+			//	list.RemoveAt(i--);
 		}
 		MathHelper.ShuffleList(list, random);
 
@@ -377,9 +403,10 @@ public abstract class Item
 		}
 
 		return null;
+		*/
 	}
 
-	public static Item[] CreateRandom(Random random, float[] distribution, float minValue = 0, float maxValue = float.MaxValue)
+	public static Item[] CreateRandom(Random random, float[] distribution, float meanValue)
 	{
 		float f = random.NextSingle();
 
@@ -389,7 +416,7 @@ public abstract class Item
 			r += distribution[i];
 			if (f < r)
 			{
-				Item item = CreateRandom((ItemType)i, random, minValue, maxValue);
+				Item item = CreateRandom((ItemType)i, random, meanValue);
 				if (item != null)
 				{
 					item = item.copy();

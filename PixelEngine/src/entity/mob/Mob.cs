@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 struct StuckProjectile
 {
+	public string item;
 	public Sprite sprite;
 	public Vector2 relativePosition;
 	public Vector2 direction;
@@ -108,7 +109,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 					if (item.projectileSpins && by.velocity.x < 0)
 						flipped = !flipped;
 				}
-				stuckProjectiles.Add(new StuckProjectile { sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, rotationOffset = rotationOffset, flipped = flipped });
+				stuckProjectiles.Add(new StuckProjectile { item = item.name, sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, rotationOffset = rotationOffset, flipped = flipped });
 			}
 		}
 
@@ -146,13 +147,24 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		if (Random.Shared.NextSingle() < itemDropChance)
 		{
-			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob);
+			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
 
 			foreach (Item item in items)
 			{
 				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
 				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
 				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
+				GameState.instance.level.addEntity(obj, throwOrigin);
+			}
+		}
+		for (int i = 0; i < stuckProjectiles.Count; i++)
+		{
+			float dropChance = 0.2f;
+			if (Random.Shared.NextSingle() < dropChance)
+			{
+				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+				ItemEntity obj = new ItemEntity(Item.GetItemPrototype(stuckProjectiles[i].item).copy(), null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
 			}
 		}

@@ -302,7 +302,7 @@ public class LevelGenerator
 
 	bool fitRoom(Vector2i position, Vector2i size, List<Room> rooms, int width, int height)
 	{
-		if (position.x < 0 || position.x + size.x > width || position.y < 0 || position.y + size.y > height)
+		if (position.x < 1 || position.x + size.x > width - 1 || position.y < 0 || position.y + size.y > height - 1)
 			return false;
 		for (int i = 0; i < rooms.Count; i++)
 		{
@@ -385,7 +385,7 @@ public class LevelGenerator
 		{
 			TileType left = level.getTile(x - 1, y);
 			TileType right = level.getTile(x + 1, y);
-			Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.chest);
+			Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.chest, level.lootValue);
 			Chest chest = new Chest(items, left != null && right == null);
 			level.addEntity(chest, new Vector2(x + 0.5f, y));
 
@@ -398,7 +398,7 @@ public class LevelGenerator
 		}
 		else if (f < chestChance + barrelChance)
 		{
-			Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.barrel);
+			Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.barrel, level.lootValue);
 			Barrel barrel = new Barrel(items);
 			level.addEntity(barrel, new Vector2(x + 0.5f, y));
 
@@ -411,7 +411,7 @@ public class LevelGenerator
 		}
 		else
 		{
-			Item[] items = Item.CreateRandom(random, DropRates.ground);
+			Item[] items = Item.CreateRandom(random, DropRates.ground, level.lootValue);
 			foreach (Item item in items)
 			{
 				ItemEntity itemEntity = new ItemEntity(item);
@@ -717,6 +717,16 @@ public class LevelGenerator
 		}
 	}
 
+	Room getRoom(int x, int y)
+	{
+		foreach (Room room in rooms)
+		{
+			if (x >= room.x && x < room.x + room.width && y >= room.y && y < room.y + room.height)
+				return room;
+		}
+		return null;
+	}
+
 	public void generateCaves(string seed, int floor, bool dark, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance)
 	{
 		this.seed = seed;
@@ -790,7 +800,7 @@ public class LevelGenerator
 		{
 			TileType left = GameState.instance.level.getTile(tile.x - 1, tile.y);
 			TileType right = GameState.instance.level.getTile(tile.x + 1, tile.y);
-			Item item = Item.CreateRandom(ItemType.Weapon, random);
+			Item item = Item.CreateRandom(ItemType.Weapon, random, level.lootValue);
 			Item[] items;
 			if (item.requiredAmmo != null)
 			{
@@ -809,7 +819,7 @@ public class LevelGenerator
 		// Builder merchant
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
 		{
-			BuilderMerchant npc = new BuilderMerchant(random);
+			BuilderMerchant npc = new BuilderMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -817,7 +827,7 @@ public class LevelGenerator
 		// Traveller merchant
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
-			TravellingMerchant npc = new TravellingMerchant(random);
+			TravellingMerchant npc = new TravellingMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -833,7 +843,7 @@ public class LevelGenerator
 		// Logan
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
-			Logan npc = new Logan(random);
+			Logan npc = new Logan(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -841,7 +851,7 @@ public class LevelGenerator
 		// Blacksmith
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
 		{
-			Blacksmith npc = new Blacksmith(random);
+			Blacksmith npc = new Blacksmith(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -849,7 +859,7 @@ public class LevelGenerator
 		// Tinkerer
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
-			Tinkerer npc = new Tinkerer(random);
+			Tinkerer npc = new Tinkerer(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1024,7 +1034,7 @@ public class LevelGenerator
 						Item[] items = null;
 						float itemChance = 0.05f;
 						if (random.NextSingle() < itemChance)
-							items = Item.CreateRandom(random, DropRates.barrel);
+							items = Item.CreateRandom(random, DropRates.barrel, level.lootValue);
 
 						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
 					}
@@ -1036,7 +1046,7 @@ public class LevelGenerator
 		// Enemy
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
-			if (tile == null && (left == null && right == null) && !objectFlags[x + y * width])
+			if (tile == null && (left == null && right == null) && !objectFlags[x + y * width] && getRoom(x, y) != startingRoom)
 			{
 				TileType downLeft = level.getTile(x - 1, y - 1);
 				TileType downRight = level.getTile(x + 1, y - 1);
@@ -1209,7 +1219,7 @@ public class LevelGenerator
 		// Builder merchant
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
 		{
-			BuilderMerchant npc = new BuilderMerchant(random);
+			BuilderMerchant npc = new BuilderMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1217,7 +1227,7 @@ public class LevelGenerator
 		// Traveller merchant
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
-			TravellingMerchant npc = new TravellingMerchant(random);
+			TravellingMerchant npc = new TravellingMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1233,7 +1243,7 @@ public class LevelGenerator
 		// Logan
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
-			Logan npc = new Logan(random);
+			Logan npc = new Logan(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1241,7 +1251,7 @@ public class LevelGenerator
 		// Blacksmith
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
 		{
-			Blacksmith npc = new Blacksmith(random);
+			Blacksmith npc = new Blacksmith(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1249,7 +1259,7 @@ public class LevelGenerator
 		// Tinkerer
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
-			Tinkerer npc = new Tinkerer(random);
+			Tinkerer npc = new Tinkerer(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
@@ -1424,7 +1434,7 @@ public class LevelGenerator
 						Item[] items = null;
 						float itemChance = 0.05f;
 						if (random.NextSingle() < itemChance)
-							items = Item.CreateRandom(random, DropRates.barrel);
+							items = Item.CreateRandom(random, DropRates.barrel, level.lootValue);
 
 						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
 					}
@@ -1612,7 +1622,7 @@ public class LevelGenerator
 				float minecartChance = 0.01f;
 				if (random.NextSingle() < minecartChance)
 				{
-					Item[] items = Item.CreateRandom(random, DropRates.barrel);
+					Item[] items = Item.CreateRandom(random, DropRates.barrel, level.lootValue);
 					level.addEntity(new Minecart(items), new Vector2(x + 0.5f, y));
 					objectFlags[x + y * width] = true;
 				}
@@ -1750,7 +1760,7 @@ public class LevelGenerator
 						Item[] items = null;
 						float itemChance = 0.05f;
 						if (random.NextSingle() < itemChance)
-							items = Item.CreateRandom(random, DropRates.barrel);
+							items = Item.CreateRandom(random, DropRates.barrel, level.lootValue);
 
 						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
 					}

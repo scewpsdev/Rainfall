@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class BuilderMerchant : NPC
 {
-	public BuilderMerchant(Random random)
+	public BuilderMerchant(Random random, Level level)
 		: base("builder_merchant")
 	{
 		displayName = "John";
@@ -22,11 +22,11 @@ public class BuilderMerchant : NPC
 		saleTax = 0.2f;
 		buysItems = true;
 
-		populateShop(random, 3, 9, 15, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 9, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public BuilderMerchant()
-		: this(Random.Shared)
+		: this(Random.Shared, GameState.instance.level)
 	{
 	}
 }

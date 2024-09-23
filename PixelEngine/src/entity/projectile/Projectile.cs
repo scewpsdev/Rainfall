@@ -15,7 +15,7 @@ public class Projectile : Entity
 	protected int maxRicochets = 0;
 	protected float damage = 1;
 
-	protected Entity shooter;
+	public Entity shooter;
 	protected Item item;
 
 	protected Sprite sprite;

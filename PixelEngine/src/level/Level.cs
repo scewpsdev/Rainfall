@@ -23,8 +23,9 @@ public class Level
 	public const int COLLISION_Y = 1 << 1;
 
 
-	public int floor;
 	public string name;
+	public int floor;
+	public float lootValue;
 
 	public int width, height;
 	int[] tiles;
@@ -50,6 +51,8 @@ public class Level
 	{
 		this.floor = floor;
 		this.name = name;
+
+		lootValue = 5 + Math.Max(floor, 0) * 5;
 
 		resize(20, 20);
 	}

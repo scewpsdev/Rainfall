@@ -331,4 +331,15 @@ public static class StringUtils
 		if (number >= 1) return "I" + ToRoman(number - 1);
 		return "";
 	}
+
+	public static string TimeToString(float time)
+	{
+		int millis = (int)(time * 1000) % 1000;
+		int seconds = (int)time % 60;
+		int minutes = (int)time / 60 % 60;
+		int hours = (int)time / 60 / 60;
+
+		string result = hours.ToString() + ":" + minutes.ToString("00") + ":" + seconds.ToString("00") + "." + millis.ToString("000") + " s";
+		return result;
+	}
 }

@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 
 public class TravellingMerchant : NPC
 {
-	public TravellingMerchant(Random random)
+	public TravellingMerchant(Random random, Level level)
 		: base("travelling_merchant")
 	{
 		displayName = "Siko";
@@ -19,13 +20,13 @@ public class TravellingMerchant : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		populateShop(random, 1, 5, 120, ItemType.Weapon, ItemType.Armor, ItemType.Ring, ItemType.Gem);
+		populateShop(random, 1, 5, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Ring, ItemType.Gem);
 
 		buysItems = true;
 	}
 
 	public TravellingMerchant()
-		: this(Random.Shared)
+		: this(Random.Shared, GameState.instance.level)
 	{
 	}
 }

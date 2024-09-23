@@ -19,6 +19,7 @@ public class Rock : Item
 		attackDamage = 4;
 
 		value = 1;
+		upgradable = false;
 
 		sprite = new Sprite(tileset, 4, 0);
 	}
@@ -29,9 +30,9 @@ public class Rock : Item
 		return true;
 	}
 
-	public override void upgrade(Player player)
+	public override void upgrade()
 	{
-		base.upgrade(player);
+		base.upgrade();
 		attackDamage++;
 	}
 }

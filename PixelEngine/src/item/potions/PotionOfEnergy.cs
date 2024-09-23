@@ -51,9 +51,9 @@ public class PotionOfEnergy : Potion
 		sprite = new Sprite(tileset, 6, 2);
 	}
 
-	public override void upgrade(Player player)
+	public override void upgrade()
 	{
-		base.upgrade(player);
+		base.upgrade();
 		(effects[0] as ManaEffect).amount++;
 	}
 }

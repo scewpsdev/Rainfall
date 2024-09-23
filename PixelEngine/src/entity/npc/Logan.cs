@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 
 public class Logan : NPC
 {
-	public Logan(Random random)
+	public Logan(Random random, Level level)
 		: base("logan")
 	{
 		displayName = "Big Fat Logan";
@@ -22,12 +23,12 @@ public class Logan : NPC
 		addVoiceLine("Mm, you seem quite lucid! A \\drare\\0 thing in these times.");
 		addVoiceLine("\\cBuy my shit.");
 
-		populateShop(random, 2, 5, 80, ItemType.Potion, ItemType.Ring, ItemType.Staff, ItemType.Scroll);
+		populateShop(random, 2, 5, level.lootValue, ItemType.Potion, ItemType.Ring, ItemType.Staff, ItemType.Scroll);
 		buysItems = true;
 	}
 
 	public Logan()
-		: this(Random.Shared)
+		: this(Random.Shared, GameState.instance.level)
 	{
 	}
 }

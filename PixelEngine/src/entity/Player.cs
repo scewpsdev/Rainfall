@@ -332,10 +332,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		items.Add(item.type, item);
 		items.Sort();
 
-		if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
-			equipHandItem(item);
-		else if (item.isSecondaryItem && offhandItem == null && (handItem == null || !handItem.twoHanded))
+		if (item.isSecondaryItem && offhandItem == null && (handItem == null || !handItem.twoHanded))
 			equipOffhandItem(item);
+		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
+			equipHandItem(item);
 		else if (item.isActiveItem && numActiveItems < activeItems.Length)
 			equipItem(item);
 		else if (item.isPassiveItem && canEquipPassiveItem(item))
@@ -638,10 +638,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, true, passiveItems), position);
 
-		GameState.instance.run.active = false;
-		GameState.instance.run.killedBy = by;
-		GameState.instance.run.killedByName = byName != null ? byName : by != null && by.displayName != null ? by.displayName : "???";
-		GameState.instance.run.endedTime = Time.currentTime;
+		GameState.instance.stopRun(false, by, byName != null ? byName : by != null && by.displayName != null ? by.displayName : "???");
 
 		Input.cursorMode = CursorMode.Normal;
 	}

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 public class RunStats
 {
+	public static readonly uint[] recordColors = [0xFFd0be69, 0xFF6cb859, 0xFF5f81cf, 0xFFb15848];
+
 	public string seed;
 	public float duration = 0.0f;
 	public int floor = 0;
@@ -19,21 +21,24 @@ public class RunStats
 	public int hitsTaken = 0;
 
 	public bool active = true;
+	public bool isCustomRun = false;
 
 	public Entity killedBy;
 	public string killedByName;
 	public long endedTime = -1;
 	public bool hasWon = false;
+	public bool scoreRecord, floorRecord, timeRecord, killRecord;
 
 
-	public RunStats(string seed)
+	public RunStats(string seed, bool isCustomRun)
 	{
 		this.seed = seed;
+		this.isCustomRun = isCustomRun;
 	}
 
-	public void update()
+	public void update(bool paused)
 	{
-		if (active)
+		if (active && !paused)
 		{
 			duration += Time.deltaTime;
 		}
@@ -117,7 +122,7 @@ public class GameState : State
 		cachedLevels.Clear();
 
 		//run = new RunStats(12345678);
-		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString());
+		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString(), seed != null);
 
 		LevelGenerator generator = new LevelGenerator();
 
@@ -146,14 +151,21 @@ public class GameState : State
 
 		for (int i = 0; i < GlobalSave.highscores.Length; i++)
 		{
-			string[] label = i == 0 ? ["Highest Score:", GlobalSave.highscores[i].score.ToString()] :
-				i == 1 ? ["Fastest Time:", GlobalSave.highscores[i].time.ToString()] :
-				i == 2 ? ["Most kills:", GlobalSave.highscores[i].kills.ToString()] :
-				i == 3 ? ["Longest Run:", GlobalSave.highscores[i].time.ToString()] : ["???"];
-			hub.addEntity(new HighscoreDummy(GlobalSave.highscores[i], label), new Vector2(57.5f + i * 5, 3));
+			Vector2 position = new Vector2(57.5f + i * 5, 2);
+			hub.addEntity(new Pedestal(), position);
+
+			if (GlobalSave.highscores[i].score > 0)
+			{
+				string[] label = i == 0 ? ["Highest Score:", GlobalSave.highscores[i].score.ToString()] :
+					i == 1 ? ["Highest Floor:", GlobalSave.highscores[i].floor != -1 ? (GlobalSave.highscores[i].floor + 1).ToString() : "???"] :
+					i == 2 ? ["Fastest Time:", GlobalSave.highscores[i].time != -1 ? StringUtils.TimeToString(GlobalSave.highscores[i].time) : "???"] :
+					i == 3 ? ["Most kills:", GlobalSave.highscores[i].kills.ToString()] : ["???"];
+				uint color = RunStats.recordColors[i];
+				hub.addEntity(new HighscoreDummy(GlobalSave.highscores[i], label, color), position + Vector2.Up);
+			}
 		}
 
-		BuilderMerchant npc = new BuilderMerchant(Random.Shared);
+		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
 		npc.clearShop();
 #if DEBUG
 		npc.addShopItem(new Revolver(), 0);
@@ -209,10 +221,12 @@ public class GameState : State
 		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
 
 
+		int numCaveFloors = 5;
+		int numGardenFloors = 3;
+
 		// Cave area
 		{
-			int numFloors = 5;
-			areaCaves = new Level[numFloors];
+			areaCaves = new Level[numCaveFloors];
 			for (int i = 0; i < areaCaves.Length; i++)
 				areaCaves[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
@@ -240,16 +254,15 @@ public class GameState : State
 			lastLevel.exit.destination = hub;
 			lastLevel.exit.otherDoor = hubDungeonExit1;
 
-			Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)));
+			Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)), hub);
 			hub.addEntity(hubMerchant2, new Vector2(30.5f, 19));
 		}
 
 		// The Glade
 		{
-			int numGardensFloors = 3;
-			areaGardens = new Level[numGardensFloors];
+			areaGardens = new Level[numGardenFloors];
 			for (int i = 0; i < areaGardens.Length; i++)
-				areaGardens[i] = new Level(i, i < numGardensFloors - 1 ? "Lushlands " + StringUtils.ToRoman(i + 1) : "The Glade");
+				areaGardens[i] = new Level(numCaveFloors + i, i < numGardenFloors - 1 ? "Lushlands " + StringUtils.ToRoman(i + 1) : "The Glade");
 
 			// TODO different sprite for 2nd level entrance
 			Door hubDungeonEntrance2 = new Door(areaGardens[0], null, true);
@@ -262,10 +275,12 @@ public class GameState : State
 				bool startingRoom = false;
 				bool bossRoom = i == areaGardens.Length - 1;
 				level = areaGardens[i];
-				generator.generateGardens(run.seed, areaGardens.Length + i, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
+				generator.generateGardens(run.seed, i, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
 				lastLevel = areaGardens[i];
 				lastDoor = areaGardens[i].exit;
 			}
+
+			lastDoor.finalExit = true;
 		}
 
 		/*
@@ -363,6 +378,18 @@ public class GameState : State
 		this.newLevelSpawnPosition = spawnPosition;
 	}
 
+	public void stopRun(bool hasWon, Entity killedBy = null, string killedByName = null)
+	{
+		run.active = false;
+		run.endedTime = Time.currentTime;
+		run.hasWon = hasWon;
+		run.killedBy = killedBy;
+		run.killedByName = killedByName;
+
+		GlobalSave.OnRunFinished(run);
+		GameOverScreen.Init();
+	}
+
 	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
 	{
 #if DEBUG
@@ -421,7 +448,7 @@ public class GameState : State
 		if (isPaused)
 			return;
 
-		run.update();
+		run.update(isPaused);
 
 		if (newLevel != null)
 		{
@@ -491,7 +518,10 @@ public class GameState : State
 			GameOverScreen.Render();
 
 			if (InputManager.IsPressed("Interact"))
+			{
+				GameOverScreen.Destroy();
 				reset();
+			}
 		}
 
 		if (isPaused)
