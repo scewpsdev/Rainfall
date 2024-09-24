@@ -26,6 +26,8 @@ public class MagicStaff : Item
 
 		sprite = new Sprite(tileset, 8, 1);
 		renderOffset.x = 0.2f;
+
+		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
 	public override bool use(Player player)
@@ -34,6 +36,7 @@ public class MagicStaff : Item
 		{
 			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new MagicProjectileSpell()));
 			player.consumeMana(manaCost);
+			base.use(player);
 			staffCharges--;
 		}
 		return staffCharges == 0;

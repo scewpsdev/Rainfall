@@ -107,6 +107,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	Sound[] stepSound;
 	Sound landSound;
+	Sound[] ladderSound;
 
 
 	public Player()
@@ -123,24 +124,24 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 12, true);
 		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 4, true);
+		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 6, true);
 		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("dead_falling", 17 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("stun", 18 * 16, 0, 16, 0, 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
+		animator.addAnimationEvent("climb", 0, onClimbStep);
+		animator.addAnimationEvent("climb", 1, onClimbStep);
 
 		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
-		stepSound = [
-			Resource.GetSound("res/sounds/step1.ogg"),
-			Resource.GetSound("res/sounds/step2.ogg")
-		];
+		stepSound = Resource.GetSounds("res/sounds/step", 6);
 		landSound = Resource.GetSound("res/sounds/land.ogg");
+		ladderSound = Resource.GetSounds("res/sounds/step_wood", 3);
 
 #if DEBUG
 #endif
@@ -172,6 +173,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (handItem.hasParticleEffect)
 			GameState.instance.level.addEntity(handParticles = handItem.createParticleEffect(null), position + handItem.particlesOffset);
 
+		if (item.equipSound != null)
+			Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
+
 		if (item.twoHanded && offhandItem != null)
 			unequipItem(offhandItem);
 
@@ -195,6 +199,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (offhandItem.hasParticleEffect)
 			GameState.instance.level.addEntity(offhandParticles = offhandItem.createParticleEffect(null), position + offhandItem.particlesOffset);
 
+		if (item.equipSound != null)
+			Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
+
 		if (handItem != null && handItem.twoHanded)
 			unequipItem(handItem);
 
@@ -213,6 +220,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					activeItems[i] = item;
 					activeItems[i].onEquip(this);
+					if (item.equipSound != null)
+						Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
 					return true;
 				}
 			}
@@ -232,6 +241,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 				passiveItems[slotIdx] = item;
 				passiveItems[slotIdx].onEquip(this);
+				if (item.equipSound != null)
+					Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
 				return true;
 			}
 			else if (item.type == ItemType.Ring)
@@ -512,6 +523,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		Vector2 throwOrigin = position + collider.center;
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
 		GameState.instance.level.addEntity(obj, throwOrigin);
+		Audio.PlayOrganic(Resource.GetSound("res/sounds/swing3.ogg"), new Vector3(position, 0));
 		return obj;
 	}
 
@@ -1227,6 +1239,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (isClimbing)
 					{
 						animator.setAnimation("climb");
+						animator.getAnimation("climb").fps = velocity.y != 0 ? 6 : 0;
 					}
 					else
 					{
@@ -1286,6 +1299,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		Audio.PlayOrganic(landSound, new Vector3(position, 0));
 	}
 
+	void onClimbStep()
+	{
+		if (velocity.y != 0)
+			Audio.PlayOrganic(ladderSound, new Vector3(position, 0));
+	}
+
 	public override void update()
 	{
 		updateMovement();
@@ -1293,7 +1312,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateStatus();
 		updateAnimation();
 
-		Audio.UpdateListener(new Vector3(position, 1), Quaternion.Identity);
+		Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
+		Audio.SetGlobalVolume(10.0f);
 
 		Input.cursorMode = CursorMode.Hidden;
 	}

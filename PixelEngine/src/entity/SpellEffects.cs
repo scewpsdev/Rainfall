@@ -57,6 +57,8 @@ public static class SpellEffects
 		// sound
 		GameState.instance.level.addEntity(Effects.CreateExplosionEffect((int)MathF.Round(radius)), position);
 		GameState.instance.camera.addScreenShake(position, 2.0f, 3.0f);
+
+		Audio.PlayOrganic(Resource.GetSound("res/sounds/explosion.ogg"), new Vector3(position, 0));
 	}
 
 	public static void TeleportEntity(Entity entity, bool onGround = false, Vector2 center = default, float maxRange = 1000)

@@ -64,11 +64,14 @@ public class ItemEntity : Entity, Interactable, Hittable
 	{
 		if (particles != null)
 			particles.remove();
+		item.onDestroy(this);
 	}
 
 	public void interact(Player player)
 	{
 		player.giveItem(item);
+		if (item.pickupSound != null)
+			Audio.PlayOrganic(item.pickupSound, new Vector3(position, 0), 3);
 		player.hud.showMessage("Picked up " + item.fullDisplayName);
 		remove();
 	}
@@ -235,6 +238,9 @@ public class ItemEntity : Entity, Interactable, Hittable
 							Hittable hittable = hit.entity as Hittable;
 							hittable.hit(damage, this, item);
 							hitEntities.Add(hit.entity);
+
+							if (item.hitSound != null)
+								Audio.PlayOrganic(item.hitSound, new Vector3(position, 0));
 
 							if (item.breakOnEnemyHit && velocity.lengthSquared > 4 && thrower != null)
 							{

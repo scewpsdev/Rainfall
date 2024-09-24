@@ -43,6 +43,21 @@ public abstract class Item
 {
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
 
+	public static Sound[] weaponHit = Resource.GetSounds("res/sounds/hit_weapon", 6);
+	public static Sound[] woodHit = Resource.GetSounds("res/sounds/hit_wood", 6);
+
+	public static Sound[] defaultPickup = [Resource.GetSound("res/sounds/pickup.ogg")];
+	public static Sound[] weaponPickup = Resource.GetSounds("res/sounds/pickup_weapon", 2);
+	public static Sound[] potionPickup = [Resource.GetSound("res/sounds/pickup_potion.ogg")];
+
+	public static Sound[] lightEquip = [Resource.GetSound("res/sounds/equip_light.ogg")];
+	public static Sound[] mediumEquip = [Resource.GetSound("res/sounds/equip_medium.ogg")];
+	public static Sound[] heavyEquip = [Resource.GetSound("res/sounds/equip_heavy.ogg")];
+	public static Sound[] ringEquip = [Resource.GetSound("res/sounds/equip_ring.ogg")];
+
+	public static Sound[] weaponUse = Resource.GetSounds("res/sounds/swing", 3);
+	public static Sound[] potionUse = [Resource.GetSound("res/sounds/use_potion.ogg")];
+
 
 	public string name;
 	public ItemType type;
@@ -105,6 +120,11 @@ public abstract class Item
 	public bool upgradable = false;
 	public int upgradeLevel = 0;
 
+	public Sound[] useSound;
+	public Sound[] hitSound;
+	public Sound[] pickupSound;
+	public Sound[] equipSound;
+
 
 	public Item(string name, ItemType type)
 	{
@@ -116,6 +136,11 @@ public abstract class Item
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Ring;
 
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Armor;
+
+		useSound = type == ItemType.Weapon ? weaponUse : type == ItemType.Potion ? potionUse : null;
+		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
+		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
+		equipSound = type == ItemType.Ring ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 	}
 
 	public Item copy()
@@ -184,6 +209,8 @@ public abstract class Item
 
 	public virtual bool use(Player player)
 	{
+		if (useSound != null)
+			Audio.PlayOrganic(useSound, new Vector3(player.position, 0));
 		return false;
 	}
 
@@ -197,6 +224,10 @@ public abstract class Item
 	}
 
 	public virtual void onUnequip(Player player)
+	{
+	}
+
+	public virtual void onDestroy(ItemEntity entity)
 	{
 	}
 
@@ -273,7 +304,7 @@ public abstract class Item
 		InitType(new Diamond());
 		InitType(new Emerald());
 		InitType(new Ruby());
-		InitType(new ScrollOfWeaponWeightlessness());
+		InitType(new ScrollOfDexterity());
 		InitType(new IronShield());
 		InitType(new ThornShield());
 		InitType(new Scimitar());

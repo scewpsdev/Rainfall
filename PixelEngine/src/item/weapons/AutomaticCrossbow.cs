@@ -27,6 +27,9 @@ public class AutomaticCrossbow : Item
 
 		sprite = new Sprite(tileset, 14, 3);
 		renderOffset.x = 0.5f;
+
+		//useSound = [Resource.GetSound("res/sounds/bow_shoot.ogg")];
+		useSound = Resource.GetSounds("res/sounds/crossbow", 6);
 	}
 
 	public override bool use(Player player)
@@ -39,6 +42,7 @@ public class AutomaticCrossbow : Item
 		}
 		if (arrows != null)
 		{
+			base.use(player);
 			player.actions.queueAction(new CrossbowShootAction(this, player.handItem == this));
 			player.removeItemSingle(arrows);
 		}

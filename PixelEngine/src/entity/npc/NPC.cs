@@ -68,6 +68,8 @@ public abstract class NPC : Mob, Interactable
 	List<Item> craftingItems = new List<Item>();
 	Item craftingItem1, craftingItem2;
 
+	Sound[] tradeSound;
+
 	//Sprite gem;
 
 	Simplex simplex = new Simplex();
@@ -77,6 +79,8 @@ public abstract class NPC : Mob, Interactable
 		: base(name)
 	{
 		//gem = HUD.gold;
+
+		tradeSound = Resource.GetSounds("res/sounds/trade", 12);
 	}
 
 	public override void destroy()
@@ -514,6 +518,8 @@ public abstract class NPC : Mob, Interactable
 						if (shopItems.Count == 0)
 							initMenu();
 					}
+
+					Audio.Play(tradeSound, new Vector3(position, 0));
 				}
 			}
 
@@ -640,6 +646,8 @@ public abstract class NPC : Mob, Interactable
 					if (player.items.Count == 0)
 						initMenu();
 				}
+
+				Audio.Play(tradeSound, new Vector3(position, 0));
 			}
 
 			if (closed)

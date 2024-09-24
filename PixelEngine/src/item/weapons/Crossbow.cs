@@ -11,6 +11,8 @@ public class Crossbow : Item
 {
 	bool loaded = false;
 
+	Sound reloadSound;
+
 
 	public Crossbow()
 		: base("crossbow", ItemType.Weapon)
@@ -29,6 +31,9 @@ public class Crossbow : Item
 
 		sprite = new Sprite(tileset, 12, 3);
 		renderOffset.x = 0.5f;
+
+		useSound = Resource.GetSounds("res/sounds/crossbow", 6);
+		reloadSound = Resource.GetSound("res/sounds/crossbow_reload.ogg");
 	}
 
 	public override void update(Entity entity)
@@ -40,6 +45,7 @@ public class Crossbow : Item
 	{
 		if (loaded)
 		{
+			base.use(player);
 			player.actions.queueAction(new CrossbowShootAction(this, player.handItem == this));
 			loaded = false;
 		}
@@ -60,6 +66,7 @@ public class Crossbow : Item
 			{
 				player.removeItemSingle(arrows);
 				loaded = true;
+				Audio.PlayOrganic(reloadSound, new Vector3(player.position, 0));
 			}
 		}
 		return false;

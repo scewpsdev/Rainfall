@@ -16,6 +16,8 @@ public class Door : Entity, Interactable
 	FloatRect rect;
 	uint outline = 0;
 
+	Sound openSound;
+
 
 	public Door(Level destination, Door otherDoor = null, bool big = false)
 	{
@@ -24,6 +26,8 @@ public class Door : Entity, Interactable
 
 		sprite = big ? new Sprite(TileType.tileset, 0, 9, 2, 2) : new Sprite(TileType.tileset, 2, 2);
 		rect = big ? new FloatRect(-1.0f, 0.0f, 2.0f, 2.0f) : new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
+
+		openSound = Resource.GetSound("res/sounds/chest_close.ogg");
 	}
 
 	public void interact(Player player)
@@ -32,6 +36,8 @@ public class Door : Entity, Interactable
 			GameState.instance.stopRun(true);
 		else
 			GameState.instance.switchLevel(destination, otherDoor.position);
+		//Audio.PlayOrganic(openSound, new Vector3(position, 0));
+		Audio.PlayBackground(openSound, 0.1f);
 	}
 
 	public void onFocusEnter(Player player)

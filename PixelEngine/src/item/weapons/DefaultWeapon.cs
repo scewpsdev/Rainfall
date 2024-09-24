@@ -16,10 +16,12 @@ public class DefaultWeapon : Item
 	{
 		attackDamage = 1;
 		attackRange = 1.0f;
-		attackRate = 5;
+		attackRate = 4;
 		knockback = 5;
 
 		sprite = new Sprite(tileset, 0, 2);
+
+		hitSound = [Resource.GetSound("res/sounds/punch_hit.ogg")];
 	}
 
 	public override bool use(Player player)

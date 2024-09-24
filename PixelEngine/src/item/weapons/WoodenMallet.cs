@@ -15,7 +15,7 @@ public class WoodenMallet : Item
 
 		attackDamage = 3;
 		attackRange = 1.2f;
-		attackRate = 1.1f;
+		attackRate = 1.3f;
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 2.5f;

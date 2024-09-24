@@ -322,5 +322,13 @@ namespace Rainfall
 			sounds.Add(path, sound);
 			return sound;
 		}
+
+		public static Sound[] GetSounds(string path, int count)
+		{
+			Sound[] sounds = new Sound[count];
+			for (int i = 0; i < count; i++)
+				sounds[i] = GetSound(path + (i + 1) + ".ogg");
+			return sounds;
+		}
 	}
 }

@@ -146,8 +146,6 @@ public class PixelEngine : Game
 			drawDebugStats();
 		else
 			drawVersion();
-
-		Audio.Update();
 	}
 
 	void drawVersion()

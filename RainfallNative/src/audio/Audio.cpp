@@ -44,6 +44,11 @@ RFAPI void Audio_Update()
 	soloud.update3dAudio();
 }
 
+RFAPI void Audio_SetGlobalVolume(float volume)
+{
+	soloud.setGlobalVolume(volume);
+}
+
 RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3& forward, const Vector3& up)
 {
 	soloud.set3dListenerParameters(position.x, position.y, position.z, forward.x, forward.y, forward.z, up.x, up.y, up.z);

@@ -490,7 +490,7 @@ public class GameState : State
 				ambientSource = 0;
 			}
 			if (level.ambientSound != null)
-				ambientSource = Audio.PlayBackground(level.ambientSound, 1, 1, true, 10);
+				ambientSource = Audio.PlayBackground(level.ambientSound, 0.1f, 1, true, 10);
 		}
 
 		long beforeParticleUpdate = Time.timestamp;
