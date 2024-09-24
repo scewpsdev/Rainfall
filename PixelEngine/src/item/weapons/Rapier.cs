@@ -18,7 +18,7 @@ public class Rapier : Item
 		attackRate = 2.5f;
 		attackCooldown = 2;
 
-		value = 8;
+		value = 14;
 
 		sprite = new Sprite(tileset, 14, 4);
 		renderOffset.x = 0.4f;

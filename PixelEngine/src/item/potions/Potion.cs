@@ -56,6 +56,7 @@ public class Potion : Item
 		}
 		else
 		{
+			base.use(player);
 			foreach (PotionEffect effect in effects)
 				effect.apply(player, this);
 			player.removeItemSingle(this);

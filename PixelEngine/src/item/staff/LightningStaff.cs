@@ -25,12 +25,15 @@ public class LightningStaff : Item
 
 		sprite = new Sprite(tileset, 8, 2);
 		renderOffset.x = 0.2f;
+
+		useSound = Resource.GetSounds("res/sounds/lightning", 4);
 	}
 
 	public override bool use(Player player)
 	{
 		if (staffCharges > 0 && player.mana >= manaCost)
 		{
+			base.use(player);
 			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightningSpell()));
 			player.consumeMana(manaCost);
 			staffCharges--;

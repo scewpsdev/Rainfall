@@ -30,6 +30,11 @@ namespace Rainfall
 			Native.Audio.Audio_Update();
 		}
 
+		public static void SetGlobalVolume(float volume)
+		{
+			Native.Audio.Audio_SetGlobalVolume(volume);
+		}
+
 		public static void UpdateListener(Vector3 position, Quaternion rotation)
 		{
 			Native.Audio.Audio_ListenerUpdateTransform(position, rotation.forward, rotation.up);
@@ -60,6 +65,11 @@ namespace Rainfall
 		public static uint PlayBackground(Sound sound, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
 		{
 			return Native.Audio.Audio_PlayBackground(sound.handle, gain, pitch, (byte)(looping ? 1 : 0), fadein);
+		}
+
+		public static void SetSourcePosition(uint source, Vector3 position)
+		{
+			Native.Audio.Audio_SourceSetPosition(source, position);
 		}
 
 		public static void SetSourceGain(uint source, float gain)

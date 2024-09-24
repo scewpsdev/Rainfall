@@ -13,12 +13,12 @@ public class Longsword : Item
 	{
 		displayName = "Longsword";
 
-		attackDamage = 3;
+		attackDamage = 2.5f;
 		attackRange = 1.2f;
 		attackRate = 1.4f;
 		stab = false;
 
-		value = 20;
+		value = 16;
 
 		sprite = new Sprite(tileset, 1, 1);
 		renderOffset.x = 0.2f;

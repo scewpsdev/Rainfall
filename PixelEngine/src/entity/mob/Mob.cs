@@ -19,6 +19,9 @@ struct StuckProjectile
 
 public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 {
+	static Sound[] mobHit = Resource.GetSounds("res/sounds/flesh", 4);
+
+
 	const float SPRINT_MULTIPLIER = 1.8f;
 	const float STUN_DURATION = 0.4f;
 
@@ -62,6 +65,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public Item handItem = null;
 
+	public Sound[] hitSound = mobHit;
+
 	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
 	long lastHit = -1;
@@ -83,6 +88,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
 		health -= damage;
+
+		if (hitSound != null)
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
 
 		if (by != null)
 		{

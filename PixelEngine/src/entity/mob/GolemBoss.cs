@@ -25,7 +25,7 @@ public class GolemBoss : Mob
 		animator.addAnimation("dead", 13 * 64, 0, 64, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 2.0f);
+		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.8f);
 		rect = new FloatRect(-2, 0, 4, 4);
 
 		ai = new GolemAI(this);

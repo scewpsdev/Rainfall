@@ -13,9 +13,9 @@ public class Quarterstaff : Item
 	{
 		displayName = "Quarterstaff";
 
-		attackDamage = 1;
+		attackDamage = 1.4f;
 		attackRange = 1.2f;
-		attackRate = 2;
+		attackRate = 3;
 		stab = false;
 		attackAngle = MathF.PI * 2;
 		attackCooldown = 0.5f;
@@ -28,6 +28,8 @@ public class Quarterstaff : Item
 		sprite = new Sprite(tileset, 4, 1, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
+
+		hitSound = woodHit;
 	}
 
 	public override bool use(Player player)

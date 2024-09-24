@@ -13,17 +13,19 @@ public class Dagger : Item
 	{
 		displayName = "Dagger";
 
-		attackDamage = 1.5f;
+		attackDamage = 1;
 		attackRange = 1.0f;
 		attackRate = 4;
 
 		projectileItem = true;
 		projectileSticks = true;
 
-		value = 6;
+		value = 4;
 
 		sprite = new Sprite(tileset, 2, 1);
 		renderOffset.x = 0.2f;
+
+		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
 	}
 
 	public override bool use(Player player)

@@ -28,6 +28,8 @@ public class Longbow : Item
 		icon = new Sprite(tileset.texture, 10 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
+
+		useSound = [Resource.GetSound("res/sounds/bow_shoot.ogg")];
 	}
 
 	public override bool use(Player player)
@@ -40,6 +42,7 @@ public class Longbow : Item
 		}
 		if (arrows != null)
 		{
+			base.use(player);
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
 			player.removeItemSingle(arrows);
 		}

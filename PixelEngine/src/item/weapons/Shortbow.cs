@@ -25,6 +25,8 @@ public class Shortbow : Item
 		value = 32;
 
 		sprite = new Sprite(tileset, 9, 3);
+
+		useSound = [Resource.GetSound("res/sounds/bow_shoot.ogg")];
 	}
 
 	public override bool use(Player player)
@@ -37,6 +39,7 @@ public class Shortbow : Item
 		}
 		if (arrows != null)
 		{
+			base.use(player);
 			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
 			player.removeItemSingle(arrows);
 		}

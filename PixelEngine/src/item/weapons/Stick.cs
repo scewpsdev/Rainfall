@@ -14,7 +14,7 @@ public class Stick : Item
 		displayName = "Stick";
 
 		attackDamage = 1;
-		attackRange = 1.0f;
+		attackRange = 1.2f;
 		attackRate = 2;
 		stab = false;
 		//attackAngle = MathF.PI * 0.7f;
@@ -24,6 +24,8 @@ public class Stick : Item
 
 		sprite = new Sprite(tileset, 13, 1);
 		renderOffset.x = 0.2f;
+
+		hitSound = woodHit;
 	}
 
 	public override bool use(Player player)

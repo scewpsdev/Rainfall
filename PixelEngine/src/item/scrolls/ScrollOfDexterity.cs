@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class ScrollOfWeaponWeightlessness : Item
+public class ScrollOfDexterity : Item
 {
-	public ScrollOfWeaponWeightlessness()
-		: base("scroll_weapon_weightlessness", ItemType.Scroll)
+	public ScrollOfDexterity()
+		: base("scroll_of_dexterity", ItemType.Scroll)
 	{
-		displayName = "Scroll of Weapon Weightlessness";
+		displayName = "Scroll of Dexterity";
 
 		value = 13;
 
