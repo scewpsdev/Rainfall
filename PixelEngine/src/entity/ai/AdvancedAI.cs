@@ -51,6 +51,7 @@ public class AdvancedAI : AI
 	int actionDirection;
 
 	long targetLastSeen = -1;
+	Vector2 targetPosition;
 
 
 	public AdvancedAI(Mob mob)
@@ -97,19 +98,24 @@ public class AdvancedAI : AI
 
 	void updateTargetFollow()
 	{
+		bool canSeeTarget = false;
 		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
+		{
 			targetLastSeen = Time.currentTime;
+			targetPosition = mob.position + mob.collider.center + toTarget * distance;
+			canSeeTarget = true;
+		}
 
 		if (state == AIState.Default)
 		{
 			mob.animator.setAnimation("run");
 
-			walkDirection = target.position.x < mob.position.x ? -1 : 1;
+			walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
 
 			List<AIAction> possibleActions = new List<AIAction>();
 			foreach (AIAction action in actions)
 			{
-				if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation)) % 2 == 0)
+				if (canSeeTarget && action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation)) % 2 == 0)
 					possibleActions.Add(action);
 			}
 

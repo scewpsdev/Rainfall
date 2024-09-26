@@ -61,7 +61,7 @@ public abstract class NPC : Mob, Interactable
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
-	protected float saleTax = 0.1f;
+	protected float saleTax = 0.3f;
 	protected float buyTax = 0.0f;
 	//int longestItemName = 80;
 	//int sidePanelHeight = 40;
@@ -88,7 +88,7 @@ public abstract class NPC : Mob, Interactable
 		closeScreen();
 	}
 
-	public override void onLevelSwitch(bool other)
+	public override void onLevelSwitch(Level newLevel)
 	{
 		closeScreen();
 	}
@@ -96,9 +96,30 @@ public abstract class NPC : Mob, Interactable
 	protected void populateShop(Random random, int minItems, int maxItems, float meanValue, params ItemType[] types)
 	{
 		int numItems = MathHelper.RandomInt(minItems, maxItems, random);
+
+		float[] distribution = new float[DropRates.shop.Length];
+		float cumulativeRate = 0;
+		for (int i = 0; i < types.Length; i++)
+		{
+			float rate = DropRates.shop[(int)types[i]];
+			distribution[(int)types[i]] = rate;
+			cumulativeRate += rate;
+		}
+		for (int i = 0; i < distribution.Length; i++)
+			distribution[i] /= cumulativeRate;
+
 		for (int i = 0; i < numItems; i++)
 		{
-			ItemType type = types[random.Next() % types.Length];
+			Item[] items = Item.CreateRandom(random, distribution, meanValue);
+			for (int j = 0; j < items.Length; j++)
+			{
+				Item item = items[j];
+				if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
+					addShopItem(item.copy());
+				else
+					i--;
+			}
+
 			/*
 			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random), 0.0f);
 			List<Item> items = Item.GetItemPrototypesOfType(type);
@@ -110,21 +131,27 @@ public abstract class NPC : Mob, Interactable
 			});
 			Item item = items[0];
 			*/
+			/*
+			ItemType type = types[random.Next() % types.Length];
 			Item item = Item.CreateRandom(type, random, meanValue);
 			if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
 				addShopItem(item.copy());
 			else
 				i--;
+			*/
 		}
 	}
 
 	public void addShopItem(Item item, int price = -1)
 	{
+		if (price == -1)
+			price = (int)MathF.Round(item.value * (1 + saleTax));
+
 		if (item.stackable)
 		{
 			for (int i = 0; i < shopItems.Count; i++)
 			{
-				if (shopItems[i].Item1.name == item.name)
+				if (shopItems[i].Item1.name == item.name && shopItems[i].Item2 == price)
 				{
 					shopItems[i].Item1.stackSize++;
 					return;
@@ -132,8 +159,6 @@ public abstract class NPC : Mob, Interactable
 			}
 		}
 
-		if (price == -1)
-			price = (int)MathF.Round(item.value * (1 + saleTax));
 		shopItems.Add(new Tuple<Item, int>(item, price));
 	}
 
@@ -337,7 +362,9 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
 			y += 4;
 
-			if (Time.currentTime - lastCharacterTime > 1e9 / (dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 3 ? 12 : 1)))
+			float characterFreq = dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 2 ? 12 : 1);
+			int numChars = (int)((Time.currentTime - lastCharacterTime) / 1e9f * characterFreq);
+			for (int i = 0; i < numChars; i++)
 			{
 				currentCharacter++;
 				lastCharacterTime = Time.currentTime;
@@ -489,7 +516,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add(shopItems[i].Item2);
 			}
 
-			int choice = ItemSelector.Render(pos, displayName, items, prices, player.money, null, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, displayName, items, prices, player.money, null, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = items[choice];
@@ -621,7 +648,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add((int)MathF.Round(player.items[i].Item2.value));
 			}
 
-			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, out bool closed, ref selectedItem);
+			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, true, out bool secondary, out bool closed, ref selectedItem);
 			if (itemIdx != -1)
 			{
 				Item item = items[itemIdx];
@@ -750,7 +777,7 @@ public abstract class NPC : Mob, Interactable
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
-			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = craftingItems[choice];

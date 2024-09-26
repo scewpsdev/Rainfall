@@ -19,10 +19,10 @@ public class BuilderMerchant : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		saleTax = 0.2f;
+		saleTax = 0.4f;
 		buysItems = true;
 
-		populateShop(random, 3, 9, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 1, 4, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public BuilderMerchant()

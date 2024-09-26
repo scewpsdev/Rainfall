@@ -19,13 +19,15 @@ public class Lantern : Item
 
 
 	public Lantern()
-		: base("lantern", ItemType.Armor)
+		: base("lantern", ItemType.Utility)
 	{
 		displayName = "Lantern";
 
 		armor = 1;
 		value = 10;
 		armorSlot = ArmorSlot.Back;
+		isActiveItem = false;
+		isPassiveItem = true;
 
 		sprite = new Sprite(tileset, 10, 1);
 

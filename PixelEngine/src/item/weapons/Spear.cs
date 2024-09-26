@@ -35,7 +35,7 @@ public class Spear : Item
 
 	public override bool useSecondary(Player player)
 	{
-		player.throwItem(this, player.lookDirection.normalized);
+		player.throwItem(this, player.lookDirection.normalized, 25);
 		return true;
 	}
 }

@@ -50,7 +50,7 @@ public static class PauseMenu
 
 	public static bool Render(GameState game)
 	{
-		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0x7F000000);
+		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0xAF000000);
 
 		if (state == PauseMenuState.Selection)
 		{
@@ -92,7 +92,10 @@ public static class PauseMenu
 			}
 
 			if (InputManager.IsPressed("UIBack", true))
+			{
+				Audio.PlayBackground(UISound.uiBack);
 				return false;
+			}
 		}
 		else if (state == PauseMenuState.Options)
 		{

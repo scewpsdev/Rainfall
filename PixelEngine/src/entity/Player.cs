@@ -35,7 +35,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float jumpPower = 10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
-	public float manaRechargeRate = 0.02f;
+	public float manaRechargeRate = 0.03f;
 
 	public float maxHealth = 3;
 	public float health = 3;
@@ -299,6 +299,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				activeItems[i].onUnequip(this);
 				activeItems[i] = null;
+				/*
 				if (selectedActiveItem == i)
 				{
 					for (int j = 0; j < activeItems.Length; j++)
@@ -311,6 +312,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 					}
 				}
+				*/
 				return true;
 			}
 		}
@@ -527,6 +529,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return obj;
 	}
 
+	public void clearInventory()
+	{
+		for (int i = 0; i < items.Count; i++)
+			removeItem(items[i--].Item2);
+	}
+
 	public void addImpulse(Vector2 impulse)
 	{
 		impulseVelocity.x += impulse.x;
@@ -563,15 +571,21 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			// play sound
 			// play particle effect
-			if (by is Mob)
+			Mob mob = by as Mob;
+			if (by is Projectile)
 			{
-				Mob mob = by as Mob;
+				Projectile p = by as Projectile;
+				mob = p.shooter as Mob;
+			}
+			if (mob != null)
+			{
 				mob.stun(3);
 				mob.addImpulse(new Vector2(direction, 0.1f) * 8);
 				if (blockingItem.damageReflect > 0)
 					mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
 
 				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
+				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
 			}
 
 			return false;
@@ -750,7 +764,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (isDucked)
 				{
 					TileType tile = GameState.instance.level.getTile(position);
-					if (tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
+					if (position.x - MathF.Floor(position.x) > -collider.position.x && MathF.Ceiling(position.x) - position.x > collider.position.x + collider.size.x &&
+						tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
 						position.y = MathF.Floor(position.y) + 0.74f;
 				}
 			}
@@ -874,7 +889,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (Input.cursorHasMoved)
 			{
-				if (GameSettings.aimMode == AimMode.Directional)
+				if (Settings.game.aimMode == AimMode.Directional)
 				{
 					float maxCursorDistance = handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
 					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
@@ -904,12 +919,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - (position + collider.center);
 				}
 			}
-
-			if (actions.currentAction != null)
-				direction = Math.Sign(lookDirection.x);
-			else if (delta.x != 0)
-				direction = MathF.Sign(delta.x);
 		}
+
+		if (actions.currentAction != null)
+			direction = Math.Sign(lookDirection.x);
+		else if (delta.x != 0)
+			direction = MathF.Sign(delta.x);
 
 		if (!isClimbing)
 		{
@@ -1086,6 +1101,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					{
 						currentLadder = hoveredLadder;
 						impulseVelocity = Vector2.Zero;
+						wallJumpFactor = 0;
 						isClimbing = true;
 						velocity = Vector2.Zero;
 					}
@@ -1313,9 +1329,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateAnimation();
 
 		Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
-		Audio.SetGlobalVolume(10.0f);
+		Audio.Set3DVolume(10.0f);
 
-		Input.cursorMode = CursorMode.Hidden;
+		if (numOverlaysOpen == 0)
+			Input.cursorMode = CursorMode.Hidden;
 	}
 
 	public bool isAlive

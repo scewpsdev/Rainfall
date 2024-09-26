@@ -185,7 +185,10 @@ public class MainMenuState : State
 			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
 				PixelEngine.instance.pushState(new GameState(customRunSeedStr.ToString()));
 			if (InputManager.IsPressed("UIQuit", true))
+			{
 				screen = MainMenuScreen.Main;
+				Audio.PlayBackground(UISound.uiBack);
+			}
 		}
 		else if (screen == MainMenuScreen.Options)
 		{
@@ -194,7 +197,10 @@ public class MainMenuState : State
 		else if (screen == MainMenuScreen.Credits)
 		{
 			if (InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true))
+			{
 				screen = MainMenuScreen.Main;
+				Audio.PlayBackground(UISound.uiBack);
+			}
 		}
 	}
 

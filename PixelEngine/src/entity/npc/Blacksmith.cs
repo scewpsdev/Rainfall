@@ -24,7 +24,7 @@ public class Blacksmith : NPC
 
 		addVoiceLine("Mmh.");
 
-		populateShop(random, 2, 8, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 1, 4, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 
 	public Blacksmith()

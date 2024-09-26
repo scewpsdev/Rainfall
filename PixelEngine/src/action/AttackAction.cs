@@ -107,7 +107,8 @@ public class AttackAction : EntityAction
 		bool flip = direction.x < 0;
 		Matrix weaponTransform = Matrix.CreateTranslation(0, player.getWeaponOrigin(mainHand).y, 0)
 			* Matrix.CreateRotation(Vector3.UnitZ, rotation)
-			* Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0);
+			* Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0)
+			* Matrix.CreateRotation(Vector3.UnitZ, weapon.attackRotationOffset);
 		if (flip)
 			weaponTransform = Matrix.CreateRotation(Vector3.UnitY, MathF.PI) * weaponTransform;
 		return weaponTransform;

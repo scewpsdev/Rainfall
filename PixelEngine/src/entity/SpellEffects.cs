@@ -38,7 +38,7 @@ public static class SpellEffects
 					continue;
 
 				Vector2 center = hits[i].entity.position + hits[i].entity.collider.center;
-				float distance = (center - pos).length;
+				float distance = (center - pos).length - hits[i].entity.collider.size.length * 0.5f;
 				if (distance < radius)
 				{
 					hits[i].entity.velocity += (center - pos).normalized * (1 - distance / radius) * 30;

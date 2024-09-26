@@ -1,7 +1,9 @@
-﻿using Rainfall.Native;
+﻿using Rainfall;
+using Rainfall.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,7 +34,12 @@ namespace Rainfall
 
 		public static void SetGlobalVolume(float volume)
 		{
-			Native.Audio.Audio_SetGlobalVolume(volume);
+			Audio_SetGlobalVolume(volume);
+		}
+
+		public static void Set3DVolume(float volume)
+		{
+			Audio_Set3DVolume(volume);
 		}
 
 		public static void UpdateListener(Vector3 position, Quaternion rotation)
@@ -67,6 +74,21 @@ namespace Rainfall
 			return Native.Audio.Audio_PlayBackground(sound.handle, gain, pitch, (byte)(looping ? 1 : 0), fadein);
 		}
 
+		public static void PlayBackground(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
+		{
+			PlayBackground(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, looping, fadein);
+		}
+
+		public static void Stop(uint source)
+		{
+			Native.Audio.Audio_SourceStop(source);
+		}
+
+		public static void SetPaused(uint source, bool paused)
+		{
+			Native.Audio.Audio_SourceSetPaused(source, (byte)(paused ? 1 : 0));
+		}
+
 		public static void SetSourcePosition(uint source, Vector3 position)
 		{
 			Native.Audio.Audio_SourceSetPosition(source, position);
@@ -92,6 +114,16 @@ namespace Rainfall
 			Native.Audio.Audio_SourceFadeout(source, time);
 		}
 
+		public static void FadeoutVolume(uint source, float time)
+		{
+			Native.Audio.Audio_SourceFadeoutVolume(source, time);
+		}
+
+		public static void FadeinVolume(uint source, float time)
+		{
+			Native.Audio.Audio_SourceFadeinVolume(source, time);
+		}
+
 		public static void SetEffect(AudioEffect effect)
 		{
 			if (effect == AudioEffect.Reverb)
@@ -99,5 +131,11 @@ namespace Rainfall
 			else
 				Native.Audio.Audio_SetEffectNone();
 		}
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SetGlobalVolume(float volume);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_Set3DVolume(float volume);
 	}
 }

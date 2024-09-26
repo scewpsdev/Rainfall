@@ -33,12 +33,15 @@ public class Level
 	public AStar astar;
 	byte[] lightmapData;
 
+	public List<Room> rooms;
+
 	Texture lightmap;
 
 	public Door entrance;
 	public Door exit;
 
 	public List<Entity> entities = new List<Entity>();
+	Dictionary<uint, Vector2i> markers = new Dictionary<uint, Vector2i>();
 
 	public Texture bg = null;
 	public Vector3 ambientLight = new Vector3(1.0f);
@@ -73,6 +76,19 @@ public class Level
 		if (lightmap != null)
 			Renderer.graphics.destroyTexture(lightmap);
 		lightmap = Renderer.graphics.createTexture(width + 1, height + 1, TextureFormat.R8, (ulong)SamplerFlags.Clamp);
+	}
+
+	public void addMarker(uint id, int x, int y)
+	{
+		markers.Add(id, new Vector2i(x, y));
+	}
+
+	public Vector2i getMarker(uint id)
+	{
+		if (markers.TryGetValue(id, out Vector2i pos))
+			return pos;
+		Debug.Assert(false);
+		return Vector2i.Zero;
 	}
 
 	public unsafe void updateLightmap(int x0, int y0, int w, int h)
@@ -161,7 +177,10 @@ public class Level
 		entities.Add(entity);
 
 		if (init)
+		{
+			entity.level = this;
 			entity.init(this);
+		}
 	}
 
 	public void addEntity(Entity entity, Vector2 position, bool init = true)
@@ -216,6 +235,22 @@ public class Level
 				i--;
 			}
 		}
+
+		if (rooms != null)
+		{
+			for (int i = 0; i < rooms.Count; i++)
+			{
+				int x0 = rooms[i].x;
+				int x1 = rooms[i].x + rooms[i].width - 1;
+				int y0 = rooms[i].y;
+				int y1 = rooms[i].y + rooms[i].height - 1;
+
+				Vector2i playerTile = (Vector2i)Vector2.Floor(GameState.instance.player.position + new Vector2(0, 0.5f));
+
+				if (playerTile.x >= x0 && playerTile.x <= x1 && playerTile.y >= y0 && playerTile.y <= y1)
+					rooms[i].explored = true;
+			}
+		}
 	}
 
 	public void render()
@@ -228,7 +263,9 @@ public class Level
 		Renderer.lightMaskRect = new FloatRect(-0.5f, -0.5f, width + 1, height + 1);
 
 		if (bg != null)
-			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9f, GameState.instance.camera.width, GameState.instance.camera.height, bg, 0, 0, bg.width, bg.height, new Vector4(1.0f));
+			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, bg, 0, 0, bg.width, bg.height, new Vector4(1));
+		else
+			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, 0, null, false, new Vector4(fogColor, 1));
 
 		int x0 = (int)MathF.Floor(GameState.instance.camera.left);
 		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom);

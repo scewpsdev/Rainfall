@@ -49,6 +49,11 @@ RFAPI void Audio_SetGlobalVolume(float volume)
 	soloud.setGlobalVolume(volume);
 }
 
+RFAPI void Audio_Set3DVolume(float volume)
+{
+	defaultBus.setVolume(volume);
+}
+
 RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3& forward, const Vector3& up)
 {
 	soloud.set3dListenerParameters(position.x, position.y, position.z, forward.x, forward.y, forward.z, up.x, up.y, up.z);
@@ -95,6 +100,11 @@ RFAPI void Audio_SourceStop(uint32_t source)
 	soloud.stop(source);
 }
 
+RFAPI void Audio_SourceSetPaused(uint32_t source, bool paused)
+{
+	soloud.setPause(source, paused);
+}
+
 RFAPI void Audio_SourcePause(uint32_t source)
 {
 	soloud.setPause(source, true);
@@ -114,6 +124,16 @@ RFAPI void Audio_SourceFadeout(uint32_t source, float time)
 {
 	soloud.fadeVolume(source, 0.0f, time);
 	soloud.scheduleStop(source, time);
+}
+
+RFAPI void Audio_SourceFadeoutVolume(uint32_t source, float time)
+{
+	soloud.fadeVolume(source, 0.0f, time);
+}
+
+RFAPI void Audio_SourceFadeinVolume(uint32_t source, float time)
+{
+	soloud.fadeVolume(source, 1.0f, time);
 }
 
 RFAPI void Audio_SourceSetPosition(uint32_t source, const Vector3& position)

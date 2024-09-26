@@ -31,6 +31,7 @@ public class ParallaxObject : Entity
 
 		float z = 0.9f + 0.01f * layer;
 
-		Renderer.DrawSprite(position.x + xoffset - 0.5f * width, position.y + yoffset - 0.5f * height, z, width, height, 0, sprite, false, new Vector4(color, 1));
+		Renderer.DrawSprite(position.x + xoffset - 0.5f * width, position.y + yoffset - 0.5f * height, z, width, height, 0, sprite, false, Vector4.One);
+		Renderer.DrawSpriteSolid(position.x + xoffset - 0.5f * width, position.y + yoffset - 0.5f * height, z - 0.001f, width, height, 0, sprite, false, MathHelper.VectorToARGB(new Vector4(GameState.instance.level.fogColor, 1 - fog)));
 	}
 }

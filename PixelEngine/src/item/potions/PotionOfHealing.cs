@@ -49,7 +49,7 @@ public class PotionOfHealing : Potion
 		addEffect(new HealEffect(amount));
 
 		displayName = "Potion of Healing";
-		//stackable = true;
+		stackable = true;
 		canDrop = true;
 
 		value = 25;

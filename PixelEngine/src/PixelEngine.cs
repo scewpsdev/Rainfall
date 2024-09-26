@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection.Emit;
 using System.Reflection;
-using static System.Formats.Asn1.AsnWriter;
 
 
 public class PixelEngine : Game
@@ -50,6 +49,7 @@ public class PixelEngine : Game
 		Item.InitTypes();
 		EntityType.InitTypes();
 
+		Settings.Load();
 		InputManager.LoadBindings();
 
 		GlobalSave.Load();

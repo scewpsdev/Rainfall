@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 
-struct DoorDef
+public struct DoorDef
 {
 	public Vector2i position;
 	public Vector2i direction;
 }
 
-struct RoomDef
+public struct RoomDef
 {
 	public int id;
 	public RoomDefSet set;
@@ -39,7 +39,7 @@ struct RoomDef
 	}
 }
 
-class RoomDefSet
+public class RoomDefSet
 {
 	public uint[] rooms;
 	public TextureInfo roomsInfo;
@@ -126,7 +126,7 @@ class RoomDefSet
 	}
 }
 
-class Room
+public class Room
 {
 	public int roomDefID;
 	public RoomDefSet set;
@@ -135,6 +135,8 @@ class Room
 	public List<Doorway> doorways = new List<Doorway>();
 	public bool isMainPath = false;
 	public bool hasObject = false;
+
+	public bool explored = false;
 
 
 	public int countConnectedDoorways()
@@ -171,9 +173,15 @@ class Room
 		pos = Vector2i.Zero;
 		return false;
 	}
+
+	public bool containsEntity(Entity entity)
+	{
+		return entity.position.x >= x + 0.5f && entity.position.x <= x + width - 0.5f &&
+			entity.position.y >= y + 0.5f && entity.position.y <= y + height - 0.5f;
+	}
 }
 
-class Doorway
+public class Doorway
 {
 	public Room room;
 	public DoorDef doorDef;
@@ -199,7 +207,7 @@ public class LevelGenerator
 	Level lastLevel, nextLevel;
 	Door entrance;
 
-	List<Room> rooms = new List<Room>();
+	List<Room> rooms;
 
 	bool[] objectFlags;
 	float[] lootModifier;
@@ -228,7 +236,7 @@ public class LevelGenerator
 		return result;
 	}
 
-	void placeRoom(Room room, Level level, Func<int, int, TileType> getTileFunc)
+	void placeRoom(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null)
 	{
 		int x = room.x;
 		int y = room.y;
@@ -249,6 +257,9 @@ public class LevelGenerator
 						break;
 					case 0xFFFFFFFF:
 						level.setTile(x + xx, y + yy, getTileFunc(x + xx, y + yy));
+						break;
+					case 0xFF7F7F7F:
+						level.setTile(x + xx, y + yy, getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone);
 						break;
 					case 0xFF0000FF:
 						level.setTile(x + xx, y + yy, TileType.platform);
@@ -281,6 +292,8 @@ public class LevelGenerator
 						break;
 					default:
 						level.setTile(x + xx, y + yy, null);
+						if ((color | 0x0000FF00) == 0xFFFFFFFF) // marker
+							level.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);
 						break;
 				}
 			}
@@ -453,8 +466,10 @@ public class LevelGenerator
 					}
 				}
 
-				int startingRoomX = random.Next() % Math.Max(level.width - roomDef.width, 1);
-				int startingRoomY = random.Next() % Math.Max(level.height - roomDef.height, 1);
+				Debug.Assert(level.width - roomDef.width - 6 >= 0 && level.height - roomDef.height - 6 >= 0);
+
+				int startingRoomX = random.Next() % Math.Max(level.width - roomDef.width - 6, 1) + 3;
+				int startingRoomY = random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
 				Room room = new Room
 				{
 					x = startingRoomX,
@@ -507,6 +522,7 @@ public class LevelGenerator
 
 		if (spawnBossRoom)
 			rooms.Reverse();
+		Debug.Assert(rooms.Count > 1);
 		startingRoom = rooms[0];
 		exitRoom = rooms[rooms.Count - 1];
 	}
@@ -582,12 +598,12 @@ public class LevelGenerator
 			exitPosition = new Vector2i(exitRoom.x, exitRoom.y) + new Vector2i(23, 1);
 			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
-			GolemBoss boss = new GolemBoss();
-			boss.isBoss = true;
-			boss.itemDropChance = 1;
-			level.addEntity(boss, new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(11, 2));
+			if (level.getTile(exitPosition.x - 1, exitPosition.y) == null)
+				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
+			if (level.getTile(exitPosition.x + 1, exitPosition.y) == null)
+				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
 
-			level.addEntity(new BossGate(boss), new Vector2i(exitRoom.x, exitRoom.y) + new Vector2(21.5f, 1));
+			level.addEntity(new BossRoom(exitRoom));
 		}
 		else
 		{
@@ -595,6 +611,11 @@ public class LevelGenerator
 			{
 				level.exit = new Door(nextLevel);
 				level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
+
+				if (level.getTile(exitPosition.x - 1, exitPosition.y) == null)
+					level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
+				if (level.getTile(exitPosition.x + 1, exitPosition.y) == null)
+					level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
 
 				objectFlags[exitPosition.x + exitPosition.y * level.width] = true;
 			}
@@ -738,13 +759,17 @@ public class LevelGenerator
 
 		random = new Random((int)Hash.hash(seed) + floor);
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+		rooms = new List<Room>();
 
-		int width = MathHelper.RandomInt(30, 150, random);
+		int width = MathHelper.RandomInt(32, 150, random);
 		int height = (floor == 5 ? 4500 : 3200) / width;
 
 		level.resize(width, height, TileType.dirt);
+		level.rooms = rooms;
 		level.ambientLight = dark ? new Vector3(0.001f) : new Vector3(1.0f);
 		level.ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
+		level.fogFalloff = 0.04f;
+		level.fogColor = new Vector3(0.1f);
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
@@ -1134,7 +1159,7 @@ public class LevelGenerator
 		random = new Random((int)Hash.hash(seed) + floor);
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
-		int width = MathHelper.RandomInt(30, 150, random);
+		int width = MathHelper.RandomInt(32, 150, random);
 		int height = (floor == 5 ? 4500 : 3200) / width;
 
 		level.resize(width, height, TileType.dirt);
