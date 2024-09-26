@@ -18,6 +18,7 @@ public static class FullscreenMenu
 			{
 				currentButton = (currentButton + 1) % labels.Length;
 			} while (!enabled[currentButton]);
+			Audio.PlayBackground(UISound.uiClick);
 		}
 		if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
 		{
@@ -25,6 +26,7 @@ public static class FullscreenMenu
 			{
 				currentButton = (currentButton + labels.Length - 1) % labels.Length;
 			} while (!enabled[currentButton]);
+			Audio.PlayBackground(UISound.uiClick);
 		}
 
 		for (int i = 0; i < labels.Length; i++)
@@ -34,15 +36,21 @@ public static class FullscreenMenu
 			int x = Renderer.UIWidth / 2 - size.x / 2;
 			int y = Renderer.UIHeight / 2 - size.y / 2 + i * (size.y + linePadding);
 
-			if (Renderer.IsHovered(x, y, size.x, size.y) && Input.cursorHasMoved)
+			if (Renderer.IsHovered(x, y, size.x, size.y) && Input.cursorHasMoved && currentButton != i)
+			{
 				currentButton = i;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			bool selected = currentButton == i;
 
-			uint color = enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF666666) : 0xFF333333;
+			uint color = enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF999999) : 0xFF444444;
 			Renderer.DrawUITextBMP(x, y, txt, 1, color);
 
 			if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
+			{
+				Audio.PlayBackground(UISound.uiConfirm);
 				return i;
+			}
 		}
 
 		return -1;

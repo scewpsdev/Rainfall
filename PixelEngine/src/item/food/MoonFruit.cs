@@ -16,10 +16,13 @@ public class MoonFruit : Item
 		value = 72;
 
 		sprite = new Sprite(tileset, 13, 4);
+
+		useSound = [Resource.GetSound("res/sounds/eat.ogg")];
 	}
 
 	public override bool use(Player player)
 	{
+		base.use(player);
 		player.maxMana += 1 + upgradeLevel;
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 3.0f));
 		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);

@@ -30,7 +30,7 @@ class InputOption : Option
 
 public static class OptionsMenu
 {
-	static string[] tabs = { "General", "Controls", "Graphics" };
+	static string[] tabs = { "General", "Graphics", "Controls" };
 	static int selectedTab = 0;
 	static int selectedOption = -1;
 	static int currentScroll = 0;
@@ -38,13 +38,16 @@ public static class OptionsMenu
 	static Option awaitingInputOption;
 
 	static Option[] generalOptions;
-	static Option[] controlOptions;
 	static Option[] graphicsOptions;
+	static Option[] controlOptions;
 
 	static OptionsMenu()
 	{
 		generalOptions = [
-			new Option {name = "Aim Mode", items = ["Directional", "Crosshair"], callback = (string str) => { GameSettings.aimMode = Utils.ParseEnum<AimMode>(str); } },
+			new Option {name = "Aim Mode", items = ["Directional", "Crosshair"], selectedItem = (int)AimMode.Directional, callback = (string str) => { Settings.game.aimMode = Utils.ParseEnum<AimMode>(str); } },
+		];
+		graphicsOptions = [
+			new Option {name = "Bloom", items = ["On", "Off"], selectedItem = Renderer.bloomEnabled ? 0 : 1, callback = (string str) => { Renderer.bloomEnabled = str == "On"; } },
 		];
 		controlOptions = [
 			new InputOption("Left", "Move Left"),
@@ -67,9 +70,6 @@ public static class OptionsMenu
 			new InputOption("UIUp", "Menu Up"),
 			new InputOption("UIDown", "Menu Down"),
 		];
-		graphicsOptions = [
-
-		];
 	}
 
 	public static void OnOpen()
@@ -82,6 +82,7 @@ public static class OptionsMenu
 	public static void OnClose()
 	{
 		awaitingInputOption = null;
+		Settings.Save();
 		InputManager.SaveBindings();
 	}
 
@@ -128,9 +129,15 @@ public static class OptionsMenu
 	static void UpdateOptions(Option[] options)
 	{
 		if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
+		{
 			selectedOption = (selectedOption + 1) % options.Length;
+			Audio.PlayBackground(UISound.uiClick);
+		}
 		if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
+		{
 			selectedOption = (selectedOption + options.Length - 1) % options.Length;
+			Audio.PlayBackground(UISound.uiClick);
+		}
 
 		const int maxOptions = 14;
 		if (selectedOption >= currentScroll + maxOptions)
@@ -151,11 +158,13 @@ public static class OptionsMenu
 				{
 					option.selectedItem = (option.selectedItem + 1) % option.items.Length;
 					option.callback(option.items[option.selectedItem]);
+					Audio.PlayBackground(UISound.uiSwitch);
 				}
 				if (selected && (InputManager.IsPressed("Left", true) || InputManager.IsPressed("UILeft", true)))
 				{
 					option.selectedItem = (option.selectedItem + option.items.Length - 1) % option.items.Length;
 					option.callback(option.items[option.selectedItem]);
+					Audio.PlayBackground(UISound.uiSwitch);
 				}
 
 				DrawSelection(Renderer.UIWidth / 2 - 160, y, option.items, option.selectedItem, selected);
@@ -165,6 +174,7 @@ public static class OptionsMenu
 				if (selected && awaitingInputOption == null && InputManager.IsPressed("UIConfirm", true))
 				{
 					awaitingInputOption = option;
+					Audio.PlayBackground(UISound.uiSwitch);
 				}
 
 				DrawInput(Renderer.UIWidth / 2 - 160, y, option.input, awaitingInputOption == option, selected);
@@ -217,14 +227,14 @@ public static class OptionsMenu
 		UpdateOptions(generalOptions);
 	}
 
-	static void Controls()
-	{
-		UpdateOptions(controlOptions);
-	}
-
 	static void Graphics()
 	{
 		UpdateOptions(graphicsOptions);
+	}
+
+	static void Controls()
+	{
+		UpdateOptions(controlOptions);
 	}
 
 	public static bool Render()
@@ -244,35 +254,51 @@ public static class OptionsMenu
 		if (selectedOption == -1)
 		{
 			if (InputManager.IsPressed("UILeft", true))
+			{
 				selectedTab = (selectedTab + tabs.Length - 1) % tabs.Length;
+				currentScroll = 0;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("UIRight", true))
+			{
 				selectedTab = (selectedTab + 1) % tabs.Length;
+				currentScroll = 0;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("UIDown", true))
+			{
 				selectedOption = 0;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("UIBack", true))
 			{
 				OnClose();
+				Audio.PlayBackground(UISound.uiBack);
 				return false;
 			}
 		}
 		else
 		{
 			if (InputManager.IsPressed("UIBack", true))
+			{
 				selectedOption = -1;
+				Audio.PlayBackground(UISound.uiBack);
+			}
 		}
 
 		if (awaitingInputOption == null && InputManager.IsPressed("UIQuit", true))
 		{
 			OnClose();
+			Audio.PlayBackground(UISound.uiBack);
 			return false;
 		}
 
 		if (selectedTab == 0) // General
 			General();
-		else if (selectedTab == 1) // Controls
-			Controls();
-		else if (selectedTab == 2) // Graphics
+		else if (selectedTab == 1) // Graphics
 			Graphics();
+		else if (selectedTab == 2) // Controls
+			Controls();
 
 		return true;
 	}

@@ -123,6 +123,8 @@ public static class Renderer
 	public static float bloomStrength = 0.1f;
 	public static float bloomFalloff = 4.0f;
 
+	public static bool bloomEnabled = true;
+	public static bool vignetteEnabled = true;
 
 	public static int UIHeight;
 	public static int UIWidth;
@@ -203,7 +205,7 @@ public static class Renderer
 		fontData = Resource.GetFontData("res/fonts/dpcomic.ttf");
 		font = fontData.createFont(14, false);
 
-		smallFont = new PixelFont("res/fonts/font.png");
+		smallFont = new PixelFont("res/fonts/font2.png");
 	}
 
 	public static void Resize(int width, int height)
@@ -902,18 +904,28 @@ public static class Renderer
 
 	static void PostProcessingPass()
 	{
-		BloomDownsample(0, composite.getAttachmentTexture(0), bloomDownsampleChain[0]);
-		BloomDownsample(1, bloomDownsampleChain[0].getAttachmentTexture(0), bloomDownsampleChain[1]);
-		BloomDownsample(2, bloomDownsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[2]);
-		BloomDownsample(3, bloomDownsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[3]);
-		BloomDownsample(4, bloomDownsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[4]);
-		BloomDownsample(5, bloomDownsampleChain[4].getAttachmentTexture(0), bloomDownsampleChain[5]);
+		if (bloomEnabled)
+		{
+			BloomDownsample(0, composite.getAttachmentTexture(0), bloomDownsampleChain[0]);
+			BloomDownsample(1, bloomDownsampleChain[0].getAttachmentTexture(0), bloomDownsampleChain[1]);
+			BloomDownsample(2, bloomDownsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[2]);
+			BloomDownsample(3, bloomDownsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[3]);
+			BloomDownsample(4, bloomDownsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[4]);
+			BloomDownsample(5, bloomDownsampleChain[4].getAttachmentTexture(0), bloomDownsampleChain[5]);
 
-		BloomUpsample(0, bloomDownsampleChain[5].getAttachmentTexture(0), bloomDownsampleChain[4].getAttachmentTexture(0), bloomUpsampleChain[4]);
-		BloomUpsample(1, bloomUpsampleChain[4].getAttachmentTexture(0), bloomDownsampleChain[3].getAttachmentTexture(0), bloomUpsampleChain[3]);
-		BloomUpsample(2, bloomUpsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[2].getAttachmentTexture(0), bloomUpsampleChain[2]);
-		BloomUpsample(3, bloomUpsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[1].getAttachmentTexture(0), bloomUpsampleChain[1]);
-		BloomUpsample(4, bloomUpsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[0].getAttachmentTexture(0), bloomUpsampleChain[0]);
+			BloomUpsample(0, bloomDownsampleChain[5].getAttachmentTexture(0), bloomDownsampleChain[4].getAttachmentTexture(0), bloomUpsampleChain[4]);
+			BloomUpsample(1, bloomUpsampleChain[4].getAttachmentTexture(0), bloomDownsampleChain[3].getAttachmentTexture(0), bloomUpsampleChain[3]);
+			BloomUpsample(2, bloomUpsampleChain[3].getAttachmentTexture(0), bloomDownsampleChain[2].getAttachmentTexture(0), bloomUpsampleChain[2]);
+			BloomUpsample(3, bloomUpsampleChain[2].getAttachmentTexture(0), bloomDownsampleChain[1].getAttachmentTexture(0), bloomUpsampleChain[1]);
+			BloomUpsample(4, bloomUpsampleChain[1].getAttachmentTexture(0), bloomDownsampleChain[0].getAttachmentTexture(0), bloomUpsampleChain[0]);
+		}
+		else
+		{
+			graphics.resetState();
+			graphics.setPass((int)RenderPass.Bloom);
+
+			graphics.setRenderTarget(bloomUpsampleChain[0], true);
+		}
 	}
 
 	static void BlitPass()

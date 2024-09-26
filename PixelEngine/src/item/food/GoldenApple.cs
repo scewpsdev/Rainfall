@@ -17,10 +17,13 @@ public class GoldenApple : Item
 		value = 50;
 
 		sprite = new Sprite(tileset, 4, 2);
+
+		useSound = [Resource.GetSound("res/sounds/eat.ogg")];
 	}
 
 	public override bool use(Player player)
 	{
+		base.use(player);
 		player.addStatusEffect(new HealStatusEffect(player.maxHealth, 8 / (1 + upgradeLevel)));
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 8 / (1 + upgradeLevel)));
 		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFe3b85c), player.position);

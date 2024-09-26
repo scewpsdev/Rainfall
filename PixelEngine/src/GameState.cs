@@ -69,6 +69,8 @@ public class GameState : State
 
 	const float GAME_OVER_SCREEN_DELAY = 2.0f;
 
+	const float LEVEL_FADE = 0.5f;
+
 
 	public static GameState instance;
 
@@ -92,6 +94,7 @@ public class GameState : State
 
 	Level newLevel = null;
 	Vector2 newLevelSpawnPosition;
+	long levelSwitchTime = -1;
 
 	public Player player;
 	public PlayerCamera camera;
@@ -141,7 +144,10 @@ public class GameState : State
 		player = new Player();
 		camera = new PlayerCamera(player);
 
-		player.money = 4;
+		player.money = 8;
+
+		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
+		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
 		hub.addEntity(tutorialDoor, new Vector2(15 + 16 + 7.5f, 2));
 		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 16 + 7.5f, 4));
@@ -184,19 +190,30 @@ public class GameState : State
 		generator.generateHub(hub);
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
-		tutorial.addEntity(tutorialExit, new Vector2(41, 24));
+		tutorial.addEntity(tutorialExit, (Vector2)tutorial.getMarker(01));
+
 		tutorial.addEntity(new TutorialText("WASD to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Jump").ToString() + " to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 4.5f));
 		tutorial.addEntity(new TutorialText("Hold to jump higher", 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 2));
 		tutorial.addEntity(new TutorialText("Down to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
-		tutorial.addEntity(new TutorialText("Up to climb", 0xFFFFFFFF), new Vector2(43.5f, tutorial.height - 15));
-		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), new Vector2(18, tutorial.height - 56));
-		tutorial.addEntity(new Chest(new Stick()), new Vector2(54, tutorial.height - 40));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString() + " to interact", 0xFFFFFFFF), new Vector2(50, tutorial.height - 36.5f));
-		tutorial.addEntity(new TutorialText("Down+" + InputManager.GetBinding("Interact").ToString() + " to drop", 0xFFFFFFFF), new Vector2(50, tutorial.height - 37.0f));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), new Vector2(46, 21));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("UseItem").ToString() + " to use item", 0xFFFFFFFF), new Vector2(43, 26));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), new Vector2(43, 25.5f));
+		tutorial.addEntity(new TutorialText("Up to climb", 0xFFFFFFFF), new Vector2(42, tutorial.height - 15));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Sprint").ToString() + " to sprint", 0xFFFFFFFF), (Vector2)tutorial.getMarker(04));
+
+		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), (Vector2)tutorial.getMarker(02));
+
+		tutorial.addEntity(new Chest(new Stick()), (Vector2)tutorial.getMarker(03));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString() + " to interact", 0xFFFFFFFF), (Vector2)tutorial.getMarker(03) + new Vector2(0, 3.5f));
+		tutorial.addEntity(new TutorialText("Down+" + InputManager.GetBinding("Interact").ToString() + " to drop", 0xFFFFFFFF), (Vector2)tutorial.getMarker(03) + new Vector2(0, 3));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), (Vector2)tutorial.getMarker(03) + new Vector2(-9, 6));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("UseItem").ToString() + " to use item", 0xFFFFFFFF), (Vector2)tutorial.getMarker(05) + new Vector2(0, 2));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), (Vector2)tutorial.getMarker(05) + new Vector2(0, 1.5f));
+		tutorial.addEntity(new Chest(new PotionOfHealing(), new Bomb() { stackSize = 20 }), (Vector2)tutorial.getMarker(05));
+
+		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(06));
+		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(07));
+		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(08));
+
+		tutorial.addEntity(new ItemGate(), (Vector2)tutorial.getMarker(09));
 
 		// Gode meme
 		/*
@@ -212,10 +229,6 @@ public class GameState : State
 		tutorial.addEntity(new SpikeTrap(), new Vector2(124.5f, 29.5f));
 		*/
 
-		tutorial.addEntity(new Chest(new PotionOfHealing(), new Rope()), new Vector2(43, 24));
-		tutorial.addEntity(new Rat(), new Vector2(42, 17));
-		tutorial.addEntity(new Rat(), new Vector2(50, 19));
-		tutorial.addEntity(new Rat(), new Vector2(48, 23));
 		//tutorial.addEntity(new Snake(), new Vector2(50, 19));
 		//tutorial.addEntity(new Spider(), new Vector2(48, 23));
 		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
@@ -233,9 +246,6 @@ public class GameState : State
 			Door dungeonDoor = new Door(areaCaves[0], null, true);
 			hub.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 4));
 
-			hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
-			hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
-
 			Level lastLevel = hub;
 			Door lastDoor = dungeonDoor;
 			for (int i = 0; i < areaCaves.Length; i++)
@@ -245,6 +255,10 @@ public class GameState : State
 				bool bossRoom = i == areaCaves.Length - 1;
 				level = areaCaves[i];
 				generator.generateCaves(run.seed, i, darkLevel, startingRoom, bossRoom, areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
+
+				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
+				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
+
 				lastLevel = areaCaves[i];
 				lastDoor = areaCaves[i].exit;
 			}
@@ -347,6 +361,7 @@ public class GameState : State
 
 		level = null;
 		switchLevel(hub, new Vector2(10, 2));
+		levelSwitchTime = -1;
 
 		/*
 		level = hub;
@@ -376,6 +391,7 @@ public class GameState : State
 	{
 		this.newLevel = newLevel;
 		this.newLevelSpawnPosition = spawnPosition;
+		levelSwitchTime = Time.currentTime;
 	}
 
 	public void stopRun(bool hasWon, Entity killedBy = null, string killedByName = null)
@@ -450,19 +466,20 @@ public class GameState : State
 
 		run.update(isPaused);
 
-		if (newLevel != null)
+		if (newLevel != null && (Time.currentTime - levelSwitchTime) / 1e9f >= LEVEL_FADE)
 		{
 			if (level != null)
 			{
 				for (int i = 0; i < level.entities.Count; i++)
-				{
-					level.entities[i].onLevelSwitch(true);
-				}
+					level.entities[i].onLevelSwitch(newLevel);
 
 				cachedLevels.Add(level);
 				level.removeEntity(player);
 				level.removeEntity(camera);
 			}
+
+			for (int i = 0; i < newLevel.entities.Count; i++)
+				newLevel.entities[i].onLevelSwitch(newLevel);
 
 			if (cachedLevels.Contains(newLevel))
 				cachedLevels.Remove(newLevel);
@@ -476,11 +493,6 @@ public class GameState : State
 
 			level = newLevel;
 			newLevel = null;
-
-			for (int i = 0; i < level.entities.Count; i++)
-			{
-				level.entities[i].onLevelSwitch(false);
-			}
 
 			player.hud.onLevelSwitch(level.name);
 
@@ -513,12 +525,20 @@ public class GameState : State
 	{
 		level.render();
 
+		if ((Time.currentTime - levelSwitchTime) / 1e9f < 2 * LEVEL_FADE)
+		{
+			float fade = 1 - MathF.Abs(1 - (Time.currentTime - levelSwitchTime) / 1e9f / LEVEL_FADE);
+			uint color = MathHelper.ColorAlpha(0xFF000000, fade);
+			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, color);
+		}
+
 		if (run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY)
 		{
 			GameOverScreen.Render();
 
 			if (InputManager.IsPressed("Interact"))
 			{
+				Audio.PlayBackground(UISound.uiConfirm2);
 				GameOverScreen.Destroy();
 				reset();
 			}

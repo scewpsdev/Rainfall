@@ -13,16 +13,25 @@ public class TorchEntity : Entity, Interactable
 
 	ParticleEffect particles;
 
+	Sound idleSound;
+	uint source;
+
 
 	public TorchEntity()
 	{
 		sprite = new Sprite(TileType.tileset, 1, 3);
+
+		idleSound = Resource.GetSound("res/sounds/torch.ogg");
 	}
 
 	public override void init(Level level)
 	{
 		GameState.instance.level.addEntity(particles = Effects.CreateTorchEffect(this), position + new Vector2(0, 0.25f));
 		particles.layer = LAYER_DEFAULT - 0.01f;
+
+		source = Audio.Play(idleSound, new Vector3(position, 0));
+		Audio.SetPaused(source, true);
+		Audio.SetSourceLooping(source, true);
 	}
 
 	public override void destroy()
@@ -49,6 +58,12 @@ public class TorchEntity : Entity, Interactable
 	public void onFocusLeft(Player player)
 	{
 		outline = 0;
+	}
+
+	public override void onLevelSwitch(Level newLevel)
+	{
+		if (source != 0)
+			Audio.SetPaused(source, newLevel != level);
 	}
 
 	public override void render()

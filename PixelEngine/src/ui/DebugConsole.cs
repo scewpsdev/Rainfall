@@ -85,16 +85,16 @@ public static class DebugConsole
 					int count = 1;
 					if (args.Length >= 2 && int.TryParse(args[1], out int _count))
 						count = _count;
-					Item copy = item.copy();
-					if (copy.stackable)
+					if (item.stackable)
 					{
+						Item copy = item.copy();
 						copy.stackSize = count;
 						GameState.instance.player.giveItem(copy);
 					}
 					else
 					{
 						for (int i = 0; i < count; i++)
-							GameState.instance.player.giveItem(copy);
+							GameState.instance.player.giveItem(item.copy());
 					}
 					return "Given item " + args[0];
 				}

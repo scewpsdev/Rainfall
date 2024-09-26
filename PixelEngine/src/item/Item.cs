@@ -44,6 +44,7 @@ public abstract class Item
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
 
 	public static Sound[] weaponHit = Resource.GetSounds("res/sounds/hit_weapon", 6);
+	public static Sound[] parryHit = [Resource.GetSound("res/sounds/parry.ogg")];
 	public static Sound[] woodHit = Resource.GetSounds("res/sounds/hit_wood", 6);
 
 	public static Sound[] defaultPickup = [Resource.GetSound("res/sounds/pickup.ogg")];
@@ -96,6 +97,7 @@ public abstract class Item
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
+	public float attackRotationOffset = 0.0f;
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
 
 	public int armor = 0;
@@ -122,6 +124,7 @@ public abstract class Item
 
 	public Sound[] useSound;
 	public Sound[] hitSound;
+	public Sound[] blockSound;
 	public Sound[] pickupSound;
 	public Sound[] equipSound;
 
@@ -139,6 +142,7 @@ public abstract class Item
 
 		useSound = type == ItemType.Weapon ? weaponUse : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
+		blockSound = type == ItemType.Weapon ? parryHit : weaponHit;
 		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
 		equipSound = type == ItemType.Ring ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 	}
@@ -340,6 +344,9 @@ public abstract class Item
 		InitType(new Potion());
 		InitType(new IronKey());
 		InitType(new Lockpick());
+		InitType(new AmethystRing());
+		InitType(new AssassinsDagger());
+		InitType(new RoyalGreatsword());
 	}
 
 	static void InitType(Item item)
@@ -376,12 +383,30 @@ public abstract class Item
 	{
 		float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.5f, 0.0f);
 		List<Item> items = GetItemPrototypesOfType(type);
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (!items[i].canDrop)
+				items.RemoveAt(i--);
+		}
 		items.Sort((Item item1, Item item2) =>
 		{
 			float r1 = MathF.Abs(item1.value - value);
 			float r2 = MathF.Abs(item2.value - value);
-			return r1 > r2 || !item1.canDrop ? 1 : r1 < r2 || !item2.canDrop ? -1 : 0;
+			return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
 		});
+		for (int j = 0; j < 5; j++)
+		{
+			for (int i = items.Count - 2; i >= 0; i--)
+			{
+				if (random.NextSingle() < 0.5f)
+				{
+					// swap
+					Item tmp = items[i];
+					items[i] = items[i + 1];
+					items[i + 1] = tmp;
+				}
+			}
+		}
 		Item item = items[0];
 		Item newItem = item.copy();
 		while (newItem.value < meanValue * 0.5f && newItem.upgradable)

@@ -17,10 +17,13 @@ public class Bread : Item
 		value = 8;
 
 		sprite = new Sprite(tileset, 7, 2);
+
+		useSound = [Resource.GetSound("res/sounds/eat.ogg")];
 	}
 
 	public override bool use(Player player)
 	{
+		base.use(player);
 		player.addStatusEffect(new HealStatusEffect(1 + upgradeLevel * 0.5f, 5));
 		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFF967b4b), player.position);
 		return true;

@@ -15,6 +15,8 @@ public class Spring : Entity
 	Sprite sprite;
 	Sprite activeSprite;
 
+	Sound useSound;
+
 	long lastActive = -1;
 
 
@@ -22,6 +24,8 @@ public class Spring : Entity
 	{
 		sprite = new Sprite(TileType.tileset, 0, 5);
 		activeSprite = new Sprite(TileType.tileset, 1, 5);
+
+		useSound = Resource.GetSound("res/sounds/spring.ogg");
 	}
 
 	public override void update()
@@ -39,6 +43,8 @@ public class Spring : Entity
 						((Mob)hits[i].entity).isGrounded = true;
 					if (hits[i].entity is Player)
 						((Player)hits[i].entity).currentLadder = null;
+
+					Audio.Play(useSound, new Vector3(position, 0));
 
 					lastActive = Time.currentTime;
 				}

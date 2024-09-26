@@ -26,9 +26,15 @@ public static class InteractableMenu
 
 		int option = -1;
 		if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
+		{
 			selectedOption = (selectedOption + 1) % options.Count;
+			Audio.PlayBackground(UISound.uiClick);
+		}
 		if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
+		{
 			selectedOption = (selectedOption + options.Count - 1) % options.Count;
+			Audio.PlayBackground(UISound.uiClick);
+		}
 
 		for (int i = 0; i < options.Count; i++)
 		{
@@ -43,6 +49,7 @@ public static class InteractableMenu
 			if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 			{
 				option = i;
+				Audio.PlayBackground(UISound.uiConfirm2);
 				break;
 			}
 
@@ -50,6 +57,8 @@ public static class InteractableMenu
 		}
 
 		closed = InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true);
+		if (closed)
+			Audio.PlayBackground(UISound.uiBack);
 		return option;
 	}
 }

@@ -11,7 +11,7 @@ public class ThrowingKnife : Item
 	float speed = 24;
 
 	public ThrowingKnife()
-		: base("throwing_knife", ItemType.Weapon)
+		: base("throwing_knife", ItemType.Ammo)
 	{
 		displayName = "Throwing Knife";
 

@@ -38,6 +38,9 @@ public class Fountain : Entity, Interactable
 
 	ParticleEffect particles;
 
+	Sound idleSound;
+	uint source;
+
 	FountainState state = FountainState.None;
 	int selectedOption = 0;
 	int selectedItem = 0;
@@ -49,6 +52,8 @@ public class Fountain : Entity, Interactable
 		displayName = "Fountain";
 
 		sprite = new Sprite(TileType.tileset, 2, 6);
+
+		idleSound = Resource.GetSound("res/sounds/fountain.ogg");
 
 		switch (effect)
 		{
@@ -68,7 +73,7 @@ public class Fountain : Entity, Interactable
 				potionEffects.Add(new PoisonEffect(1, 16));
 				break;
 			case FountainEffect.Mana:
-				potionEffects.Add(new ManaEffect(2, 4));
+				potionEffects.Add(new ManaEffect(4, 20));
 				break;
 			case FountainEffect.Teleport:
 				potionEffects.Add(new TeleportEffect());
@@ -92,6 +97,10 @@ public class Fountain : Entity, Interactable
 	public override unsafe void init(Level level)
 	{
 		level.addEntity(particles = Effects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
+
+		source = Audio.Play(idleSound, new Vector3(position, 0));
+		Audio.SetPaused(source, true);
+		Audio.SetSourceLooping(source, true);
 	}
 
 	public override void destroy()
@@ -100,6 +109,11 @@ public class Fountain : Entity, Interactable
 		{
 			particles.remove();
 			particles = null;
+		}
+		if (source != 0)
+		{
+			Audio.FadeoutSource(source, 1);
+			source = 0;
 		}
 
 		if (state != FountainState.None)
@@ -156,6 +170,12 @@ public class Fountain : Entity, Interactable
 		return 1;
 	}
 
+	public override void onLevelSwitch(Level newLevel)
+	{
+		if (source != 0)
+			Audio.SetPaused(source, newLevel != level);
+	}
+
 	public override void update()
 	{
 		Player player = GameState.instance.player;
@@ -186,6 +206,11 @@ public class Fountain : Entity, Interactable
 			particles.remove();
 			particles = null;
 		}
+		if (source != 0)
+		{
+			Audio.FadeoutSource(source, 1);
+			source = 0;
+		}
 	}
 
 	unsafe bool fillBottle()
@@ -201,6 +226,11 @@ public class Fountain : Entity, Interactable
 		{
 			particles.remove();
 			particles = null;
+		}
+		if (source != 0)
+		{
+			Audio.FadeoutSource(source, 1);
+			source = 0;
 		}
 
 		return true;
@@ -221,10 +251,16 @@ public class Fountain : Entity, Interactable
 		}
 
 		potionEffects.Clear();
+
 		if (particles != null)
 		{
 			particles.remove();
 			particles = null;
+		}
+		if (source != 0)
+		{
+			Audio.FadeoutSource(source, 1);
+			source = 0;
 		}
 
 		return true;
@@ -237,6 +273,12 @@ public class Fountain : Entity, Interactable
 
 		if (particles == null)
 			GameState.instance.level.addEntity(particles = Effects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
+
+		if (source == 0)
+		{
+			source = Audio.Play(idleSound, new Vector3(position, 0));
+			Audio.SetSourceLooping(source, true);
+		}
 
 		// alchemy?
 	}
@@ -365,7 +407,7 @@ public class Fountain : Entity, Interactable
 			for (int i = 0; i < player.items.Count; i++)
 				items.Add(player.items[i].Item2);
 
-			int choice = ItemSelector.Render(pos, "Use item", items, null, -1, player, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, "Use item", items, null, -1, player, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = items[choice];

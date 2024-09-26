@@ -39,6 +39,7 @@ public class Entity
 	public Vector2 position;
 	public float rotation;
 	public Vector2 velocity;
+	public Level level;
 
 	public bool removed { get; private set; } = false;
 	public List<Action> removeCallbacks = new List<Action>();
@@ -66,7 +67,7 @@ public class Entity
 	{
 	}
 
-	public virtual void onLevelSwitch(bool other)
+	public virtual void onLevelSwitch(Level newLevel)
 	{
 	}
 

@@ -94,11 +94,11 @@ public class PlayerCamera : Entity
 		}
 		*/
 
-		if (player.numOverlaysOpen == 0)
+		if (player.numOverlaysOpen == 0 || player.numOverlaysOpen == 1 && player.inventoryOpen)
 		{
 			//Vector2 aimDirection = new Vector2(player.lookDirection.x, screenToWorld(Renderer.cursorPosition).y - position.y);
 			Vector2 aimDirection = screenToWorld(Renderer.cursorPosition) - position;
-			if (GameSettings.aimMode == AimMode.Directional)
+			if (Settings.game.aimMode == AimMode.Directional)
 				target += aimDirection * 0.1f;
 			else
 				target += aimDirection * 0.2f;

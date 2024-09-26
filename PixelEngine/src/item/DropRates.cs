@@ -21,6 +21,19 @@ public static class DropRates
 		0.11f, // Ammo
 		0.05f, // Gem
 	};
+	public static readonly float[] shop = new float[(int)ItemType.Count] {
+		0.1f, // Weapon
+		0.04f, // Shield
+		0.14f, // Armor
+		0.15f, // Food
+		0.1f, // Potion
+		0.03f, // Ring
+		0.09f, // Staff
+		0.09f, // Scroll
+		0.1f, // Utility
+		0.11f, // Ammo
+		0.05f, // Gem
+	};
 	public static readonly float[] chest = new float[(int)ItemType.Count] {
 		0.2f, // Weapon
 		0.04f, // Shield
@@ -77,6 +90,7 @@ public static class DropRates
 	static DropRates()
 	{
 		CheckDropRates(defaultDroprates);
+		CheckDropRates(shop);
 		CheckDropRates(chest);
 		CheckDropRates(barrel);
 		CheckDropRates(ground);

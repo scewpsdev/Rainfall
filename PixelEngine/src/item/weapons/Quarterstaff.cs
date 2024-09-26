@@ -20,6 +20,7 @@ public class Quarterstaff : Item
 		attackAngle = MathF.PI * 2;
 		attackCooldown = 0.5f;
 		twoHanded = true;
+		secondaryChargeTime = 0.3f;
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
@@ -30,11 +31,19 @@ public class Quarterstaff : Item
 		renderOffset.x = 0.2f;
 
 		hitSound = woodHit;
+		blockSound = woodHit;
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
+		bool anim = stab;
+		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction)
+		{
+			AttackAction attack = player.actions.currentAction as AttackAction;
+			if (attack.weapon == this)
+				anim = !attack.stab;
+		}
+		player.actions.queueAction(new AttackAction(this, anim, player.handItem == this));
 		return false;
 	}
 

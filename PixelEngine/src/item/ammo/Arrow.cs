@@ -32,6 +32,8 @@ public class Arrow : Item
 	{
 		Item arrow = player.removeItemSingle(this);
 		player.throwItem(arrow, player.lookDirection.normalized);
+		arrow.attackDamage = 0.5f;
+		arrow.knockback = 2.0f;
 		return false;
 	}
 }

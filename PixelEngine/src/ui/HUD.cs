@@ -62,6 +62,8 @@ public class HUD
 
 	long lastItemSwitch = -1;
 
+	bool flipItems = false;
+
 
 	public HUD(Player player)
 	{
@@ -240,16 +242,24 @@ public class HUD
 			}
 		}
 
+		if (player.position.y < GameState.instance.camera.bottom + 0.2f * GameState.instance.camera.height ||
+			player.position.y < GameState.instance.camera.bottom + 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y < -0.5f)
+			flipItems = true;
+		else if (player.position.y > GameState.instance.camera.top - 0.2f * GameState.instance.camera.height ||
+			player.position.y > GameState.instance.camera.top - 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y > 0.5f)
+			flipItems = false;
+
 		{ // Hand items
 			int size = 16;
-			int x = 4;
-			int y = Renderer.UIHeight - 4 - size;
+			int x = Renderer.UIWidth / 2 - 80; // 4;
+			int y = flipItems ? 4 : Renderer.UIHeight - 4 - size;
 			int padding = 1;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.1f * GameState.instance.camera.height &&
 				player.position.x < GameState.instance.camera.left + 0.2f * GameState.instance.camera.width ||
 				Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.9f * Display.height
 				? 0.2f : 1.0f;
+			alpha = 1;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
 			uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
@@ -314,34 +324,35 @@ public class HUD
 
 		{ // Quick item
 			int size = 16;
-			int width = player.activeItems.Length * (size + 1) + 1;
-			int height = size + 2;
-			int x = 4 + 32 + 16;
-			int y = Renderer.UIHeight - 4 - size;
+			int width = player.activeItems.Length * (size + 1) - 1;
+			int height = size;
+			int x = Renderer.UIWidth / 2 - (4 * (size + 1)) / 2; // 4 + 32 + 16;
+			int y = flipItems ? 4 : Renderer.UIHeight - 4 - size;
 
 			float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
 				player.position.x < GameState.instance.camera.left + 0.45f * GameState.instance.camera.width ||
 				Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.75f * Display.height
 				? 0.2f : 1.0f;
+			alpha = 1;
 			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
 			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
 			uint selectionColor = MathHelper.ColorAlpha(0xFF777777, alpha);
 			uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
 
-			Renderer.DrawUISprite(x, y, width, height, null, false, frameColor);
+			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, frameColor);
 
 			for (int i = 0; i < player.activeItems.Length; i++)
 			{
-				int xx = x + 1 + i * (size + 1);
-				int yy = y + 1;
+				int xx = x + i * (size + 1);
+				int yy = y;
 
 				Renderer.DrawUISprite(xx, yy, size, size, null, false, bgColor);
 			}
 
 			for (int i = 0; i < player.activeItems.Length; i++)
 			{
-				int xx = x + 1 + i * (size + 1);
-				int yy = y + 1;
+				int xx = x + i * (size + 1);
+				int yy = y;
 
 				if (player.activeItems[i] != null)
 				{
@@ -382,13 +393,13 @@ public class HUD
 
 		// Aim Direction
 		// Aim indicator
-		if (player.isAlive && GameSettings.aimMode == AimMode.Directional)
+		if (player.isAlive && Settings.game.aimMode == AimMode.Directional)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
 			Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
 		}
 		// Crosshair
-		else if (player.isAlive && GameSettings.aimMode == AimMode.Crosshair)
+		else if (player.isAlive && Settings.game.aimMode == AimMode.Crosshair)
 		{
 			Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
 		}

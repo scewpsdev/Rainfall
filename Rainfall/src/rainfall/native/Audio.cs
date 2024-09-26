@@ -20,9 +20,6 @@ namespace Rainfall.Native
 		internal static extern void Audio_Update();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Audio_SetGlobalVolume(float volume);
-
-		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_ListenerUpdateTransform(Vector3 position, Vector3 forward, Vector3 up);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -35,6 +32,9 @@ namespace Rainfall.Native
 		internal static extern void Audio_SourceStop(uint source);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceSetPaused(uint source, byte paused);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourcePause(uint source);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -45,6 +45,12 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceFadeout(uint source, float time);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceFadeoutVolume(uint source, float time);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceFadeinVolume(uint source, float time);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceSetPosition(uint source, Vector3 position);
