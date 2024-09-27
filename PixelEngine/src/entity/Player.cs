@@ -108,6 +108,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	Sound[] stepSound;
 	Sound landSound;
 	Sound[] ladderSound;
+	Sound[] hitSound;
 
 
 	public Player()
@@ -142,6 +143,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		stepSound = Resource.GetSounds("res/sounds/step", 6);
 		landSound = Resource.GetSound("res/sounds/land.ogg");
 		ladderSound = Resource.GetSounds("res/sounds/step_wood", 3);
+		hitSound = Resource.GetSounds("res/sounds/flesh", 4);
 
 #if DEBUG
 #endif
@@ -473,12 +475,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public bool canEquipPassiveItem(Item item)
 	{
-		if (item.type == ItemType.Armor)
-		{
-			int slotIdx = (int)item.armorSlot;
-			return passiveItems[slotIdx] == null;
-		}
-		else if (item.type == ItemType.Ring)
+		if (item.type == ItemType.Ring)
 		{
 			for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
 			{
@@ -489,8 +486,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		else
 		{
-			Debug.Assert(false);
-			return false;
+			int slotIdx = (int)item.armorSlot;
+			return passiveItems[slotIdx] == null;
 		}
 	}
 
@@ -600,9 +597,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			GameState.instance.run.hitsTaken++;
 
+			Vector2 enemyPosition = by.position + (by.collider != null ? by.collider.center : Vector2.Zero);
 			if (by != null && by.collider != null)
 			{
-				Vector2 enemyPosition = by.position + by.collider.center;
 				float knockbackStrength = item != null ? item.knockback : 8.0f;
 				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
 				addImpulse(knockback);
@@ -612,6 +609,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				onDeath(by, byName);
 			}
+
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
+
+			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
 
 			if (triggerInvincibility)
 				lastHit = Time.currentTime;

@@ -80,7 +80,7 @@ public static class ItemInfoPanel
 		}
 		else if (item.type == ItemType.Armor)
 		{
-			drawLeft("Defense");
+			drawLeft("Armor");
 			drawRight(item.armor.ToString());
 			y += Renderer.smallFont.size + 1;
 		}

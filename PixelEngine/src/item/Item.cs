@@ -28,6 +28,8 @@ public enum ItemType
 
 public enum ArmorSlot
 {
+	None = -1,
+
 	Helmet,
 	Body,
 	Gloves,
@@ -73,7 +75,7 @@ public abstract class Item
 	public bool isPassiveItem;
 	public bool isSecondaryItem = false;
 	public bool twoHanded = false;
-	public ArmorSlot armorSlot;
+	public ArmorSlot armorSlot = ArmorSlot.None;
 	public bool identified = true;
 
 	public float attackDamage = 1;
@@ -106,6 +108,7 @@ public abstract class Item
 	public float projectileRotationOffset = 0.0f;
 	public bool projectileSticks = false;
 	public bool projectileSpins = false;
+	public bool projectileAims = false;
 	public bool breakOnWallHit = false;
 	public bool breakOnEnemyHit = false;
 

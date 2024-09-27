@@ -15,6 +15,8 @@ public class Arrow : Item
 
 		attackDamage = 1;
 		projectileItem = true;
+		projectileAims = true;
+		projectileSticks = true;
 		//maxPierces = 1;
 		breakOnEnemyHit = true;
 		stackable = true;

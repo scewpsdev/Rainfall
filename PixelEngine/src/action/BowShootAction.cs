@@ -26,7 +26,7 @@ public class BowShootAction : EntityAction
 		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
 
 		Vector2 direction = player.lookDirection.normalized;
-		Vector2 position = player.position + player.collider.center + direction * 0.25f;
+		Vector2 position = player.position + new Vector2(player.direction * 0.5f, 0.5f) + direction * 0.25f;
 		Vector2 velocity = direction * weapon.attackRange;
 
 		Arrow arrow = new Arrow();

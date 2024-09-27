@@ -447,13 +447,13 @@ public class LevelGenerator
 
 				if (spawnStartingRoom)
 				{
-					roomDefID = 0;
-					roomDef = specialSet.roomDefs[0];
+					roomDefID = 1;
+					roomDef = specialSet.roomDefs[roomDefID];
 				}
 				else if (spawnBossRoom)
 				{
-					roomDefID = 1;
-					roomDef = specialSet.roomDefs[1];
+					roomDefID = 2;
+					roomDef = specialSet.roomDefs[roomDefID];
 				}
 				else
 				{
@@ -466,7 +466,7 @@ public class LevelGenerator
 					}
 				}
 
-				Debug.Assert(level.width - roomDef.width - 6 >= 0 && level.height - roomDef.height - 6 >= 0);
+				Debug.Assert(level.width - roomDef.width - 6 >= 0 && level.height - roomDef.height >= 0);
 
 				int startingRoomX = random.Next() % Math.Max(level.width - roomDef.width - 6, 1) + 3;
 				int startingRoomY = random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
@@ -762,7 +762,7 @@ public class LevelGenerator
 		rooms = new List<Room>();
 
 		int width = MathHelper.RandomInt(32, 150, random);
-		int height = (floor == 5 ? 4500 : 3200) / width;
+		int height = Math.Max((floor == 5 ? 4500 : 3200) / width, 12);
 
 		level.resize(width, height, TileType.dirt);
 		level.rooms = rooms;
@@ -1874,7 +1874,7 @@ public class LevelGenerator
 
 	public void generateHub(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[2];
+		RoomDef def = specialSet.roomDefs[4];
 		level.resize(def.width, def.height);
 
 		Room room = new Room
@@ -1898,7 +1898,7 @@ public class LevelGenerator
 
 	public void generateTutorial(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[3];
+		RoomDef def = specialSet.roomDefs[0];
 		level.resize(def.width, def.height);
 
 		Room room = new Room
