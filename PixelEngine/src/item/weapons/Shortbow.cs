@@ -15,8 +15,8 @@ public class Shortbow : Item
 		displayName = "Shortbow";
 
 		attackDamage = 1;
-		attackRate = 2.0f;
-		attackRange = 20; // arrow speed
+		attackRate = 3.0f;
+		attackRange = 30; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";

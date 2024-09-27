@@ -49,7 +49,7 @@ public class PoisonStatusEffect : StatusEffect
 		{
 			Hittable hittable = entity as Hittable;
 			if (hittable is not Player)
-				heal *= 3;
+				heal *= 10;
 			hittable.hit(heal, null, null, "Poison", false);
 		}
 		lastUpdate = Time.currentTime;

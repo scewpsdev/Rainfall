@@ -18,6 +18,7 @@ public class Spear : Item
 		attackRate = 1.6f;
 
 		projectileItem = true;
+		projectileAims = true;
 		projectileSticks = true;
 
 		value = 8;

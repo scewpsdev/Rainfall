@@ -129,7 +129,7 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		hub = new Level(-1, "Cliffside");
+		hub = new Level(-1, "Memoria Tree");
 		Level tutorial = new Level(-1, "Tutorial");
 
 		Door tutorialEntrance = new Door(hub, null);
@@ -146,18 +146,20 @@ public class GameState : State
 
 		player.money = 8;
 
+		generator.generateHub(hub);
+
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
-		hub.addEntity(tutorialDoor, new Vector2(15 + 16 + 7.5f, 2));
-		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(15 + 16 + 7.5f, 4));
-		hub.addEntity(tutorialExitDoor, new Vector2(15 + 16 + 7.5f, 6));
+		hub.addEntity(tutorialDoor, hub.getMarker(11) + new Vector2(10.5f, 0));
+		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), hub.getMarker(11) + new Vector2(10.5f, 2));
+		hub.addEntity(tutorialExitDoor, hub.getMarker(11) + new Vector2(10.5f, 5));
 
-		hub.addEntity(new Fountain(FountainEffect.Mana), new Vector2(31.5f, 2));
+		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(5, 0));
 
 		for (int i = 0; i < GlobalSave.highscores.Length; i++)
 		{
-			Vector2 position = new Vector2(57.5f + i * 5, 2);
+			Vector2 position = new Vector2(101 + i * 5, 24);
 			hub.addEntity(new Pedestal(), position);
 
 			if (GlobalSave.highscores[i].score > 0)
@@ -187,7 +189,6 @@ public class GameState : State
 
 		//hub.addEntity(new Golem(), new Vector2(20, 5));
 
-		generator.generateHub(hub);
 		generator.generateTutorial(tutorial);
 		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
 		tutorial.addEntity(tutorialExit, (Vector2)tutorial.getMarker(01));
@@ -244,7 +245,7 @@ public class GameState : State
 				areaCaves[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
 			Door dungeonDoor = new Door(areaCaves[0], null, true);
-			hub.addEntity(dungeonDoor, new Vector2(15 + 4.5f, 4));
+			hub.addEntity(dungeonDoor, (Vector2)hub.getMarker(11));
 
 			Level lastLevel = hub;
 			Door lastDoor = dungeonDoor;
@@ -264,12 +265,12 @@ public class GameState : State
 			}
 
 			Door hubDungeonExit1 = new Door(lastLevel, lastLevel.exit, true);
-			hub.addEntity(hubDungeonExit1, new Vector2(8, 19));
+			hub.addEntity(hubDungeonExit1, (Vector2)hub.getMarker(12));
 			lastLevel.exit.destination = hub;
 			lastLevel.exit.otherDoor = hubDungeonExit1;
 
 			Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)), hub);
-			hub.addEntity(hubMerchant2, new Vector2(30.5f, 19));
+			hub.addEntity(hubMerchant2, (Vector2)hub.getMarker(12) + new Vector2(-12, 1));
 		}
 
 		// The Glade
@@ -280,7 +281,7 @@ public class GameState : State
 
 			// TODO different sprite for 2nd level entrance
 			Door hubDungeonEntrance2 = new Door(areaGardens[0], null, true);
-			hub.addEntity(hubDungeonEntrance2, new Vector2(39.5f, 21));
+			hub.addEntity(hubDungeonEntrance2, (Vector2)hub.getMarker(13));
 
 			Level lastLevel = hub;
 			Door lastDoor = hubDungeonEntrance2;
@@ -360,7 +361,7 @@ public class GameState : State
 		*/
 
 		level = null;
-		switchLevel(hub, new Vector2(10, 2));
+		switchLevel(hub, (Vector2)hub.getMarker(10));
 		levelSwitchTime = -1;
 
 		/*

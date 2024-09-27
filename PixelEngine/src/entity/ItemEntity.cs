@@ -107,6 +107,27 @@ public class ItemEntity : Entity, Interactable, Hittable
 	{
 		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity.normalized * collider.size);
 
+		if (velocity.lengthSquared > 1)
+		{
+			TileType tile = GameState.instance.level.getTile(pos);
+			if (tile != null)
+			{
+				Vector2 normal = new Vector2(x ? MathF.Sign(velocity.x) : 0, y ? MathF.Sign(velocity.y) : 0);
+				uint color = tile.particleColor;
+				GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(color).xyz), position + velocity.normalized * 0.01f);
+			}
+		}
+
+		if (item.breakOnWallHit && velocity.lengthSquared > 4 && ricochets >= item.maxRicochets && thrower != null)
+		{
+			item.onEntityBreak(this);
+			remove();
+		}
+		else
+		{
+			ricochets++;
+		}
+
 		if (item.projectileSticks)
 		{
 			stuck = true;
@@ -129,31 +150,10 @@ public class ItemEntity : Entity, Interactable, Hittable
 			}
 		}
 
-		if (damage > 0)
+		if (item.projectileItem && damage > 0)
 			damage = MathF.Max(damage - 1, 0);
-		if (damage == 0)
-			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 20;
-
-		if (velocity.lengthSquared > 1)
-		{
-			TileType tile = GameState.instance.level.getTile(pos);
-			if (tile != null)
-			{
-				Vector2 normal = new Vector2(x ? MathF.Sign(velocity.x) : 0, y ? MathF.Sign(velocity.y) : 0);
-				uint color = tile.particleColor;
-				GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(color).xyz), position + velocity.normalized * 0.01f);
-			}
-		}
-
-		if (item.breakOnWallHit && velocity.lengthSquared > 4 && ricochets >= item.maxRicochets && thrower != null)
-		{
-			item.onEntityBreak(this);
-			remove();
-		}
-		else
-		{
-			ricochets++;
-		}
+		if ((item.projectileItem && damage == 0 || !item.projectileItem) && velocity.lengthSquared > 4)
+			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
 	}
 
 	public override void update()
@@ -193,14 +193,14 @@ public class ItemEntity : Entity, Interactable, Hittable
 					flipped = velocity.x < 0;
 					rotation += (flipped ? -1 : 1) * rotationVelocity * Time.deltaTime;
 				}
-				else
+				else if (item.projectileAims)
 				{
 					rotation = MathF.Atan2(velocity.y, velocity.x) + item.projectileRotationOffset;
 				}
 				//flipped = velocity.x < 0;
 			}
 		}
-		else if (item.projectileItem && damage == 0)
+		else //if (item.projectileItem && damage == 0 && thrower != null)
 		{
 			// Tumble
 			if (velocity.lengthSquared > 0.25f)
@@ -210,29 +210,32 @@ public class ItemEntity : Entity, Interactable, Hittable
 			}
 			else
 			{
-				if (MathF.Abs(rotation) < 0.5f * MathF.PI)
+				if (MathF.Abs(rotation % (MathF.PI * 2)) < 0.5f * MathF.PI)
 					rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
 				else
 					rotation = MathHelper.LerpAngle(rotation, MathF.PI, 5 * Time.deltaTime);
 			}
 		}
+		/*
 		else
 		{
 			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
 			flipped = false;
 		}
+		*/
 
 		if (damage > 0 && item.projectileItem && thrower != null)
 		{
-			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, 0.5f, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
+			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, velocity.length * Time.deltaTime, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
 			if (hit != null)
 			{
-				bool skipHit = hit.entity == thrower && (Time.currentTime - throwTime) / 1e9f < 1.0f;
+				bool skipHit = hit.entity == thrower && (Time.currentTime - throwTime) / 1e9f < 0.1f;
 
 				if (!skipHit)
 				{
 					if (hit.entity != null && hit.entity != this)
 					{
+						Console.WriteLine(hit.entity);
 						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 						{
 							Hittable hittable = hit.entity as Hittable;

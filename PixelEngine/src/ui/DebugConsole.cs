@@ -122,18 +122,26 @@ public static class DebugConsole
 		}
 		if (cmd == "craft_item")
 		{
-			if (args.Length == 2)
+			if (args.Length >= 2)
 			{
 				Item item1 = Item.GetItemPrototype(args[0]);
 				Item item2 = Item.GetItemPrototype(args[1]);
 				if (item1 != null && item2 != null)
 				{
-					Item craftedItem = Crafting.CraftItem(item1, item2);
+					int count = 1;
+					if (args.Length >= 3 && int.TryParse(args[2], out int _count))
+						count = _count;
 
-					Vector2 position = GameState.instance.player.position + Vector2.Up;
-					GameState.instance.level.addEntity(new ItemEntity(craftedItem), position);
+					Item craftedItem = null;
+					for (int i = 0; i < count; i++)
+					{
+						craftedItem = Crafting.CraftItem(item1, item2);
 
-					GameState.instance.player.hud.showMessage("Crafted item " + craftedItem.displayName + " from " + item1.displayName + " and " + item2.displayName);
+						Vector2 position = GameState.instance.player.position + Vector2.Up;
+						GameState.instance.level.addEntity(new ItemEntity(craftedItem), position);
+					}
+
+					GameState.instance.player.hud.showMessage("Crafted " + (count > 1 ? count.ToString() + "x " : "") + "item " + craftedItem.displayName + " from " + item1.displayName + " and " + item2.displayName);
 				}
 			}
 		}

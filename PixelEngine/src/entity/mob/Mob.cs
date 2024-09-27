@@ -90,7 +90,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		health -= damage;
 
 		if (hitSound != null)
-			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
 
 		if (by != null)
 		{
@@ -103,10 +103,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
 
-			if (item != null && item.projectileItem && item.breakOnEnemyHit)
+			if (item != null && item.projectileItem && item.projectileSticks && item.breakOnEnemyHit)
 			{
 				Vector2 relativePosition = new Vector2(MathHelper.Clamp(by.position.x - position.x, collider.min.x, collider.max.x), MathHelper.Clamp(by.position.y - position.y, collider.min.y, collider.max.y));
-				Vector2 projectileDirection = by.velocity.normalized;
+				Vector2 projectileDirection = (by.velocity.normalized + MathHelper.RandomVector2(-1, 1) * 0.1f).normalized;
 				float rotationOffset = item.projectileRotationOffset;
 				bool flipped = false;
 				if (direction == -1)
@@ -121,9 +121,12 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
-		if (health > 0 && damage > 0.1f)
+		if (health > 0)
 		{
-			stun();
+			if (damage > 0.1f)
+			{
+				stun();
+			}
 		}
 		else
 		{

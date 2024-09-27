@@ -55,7 +55,7 @@ public class Level
 		this.floor = floor;
 		this.name = name;
 
-		lootValue = 5 + Math.Max(floor, 0) * 5;
+		lootValue = Math.Max(floor, 0) * 5;
 
 		resize(20, 20);
 	}
