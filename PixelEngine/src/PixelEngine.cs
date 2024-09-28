@@ -52,8 +52,6 @@ public class PixelEngine : Game
 		Settings.Load();
 		InputManager.LoadBindings();
 
-		GlobalSave.Load();
-
 		pushState(new MainMenuState());
 	}
 

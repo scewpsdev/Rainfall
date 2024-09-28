@@ -761,8 +761,8 @@ public class LevelGenerator
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 		rooms = new List<Room>();
 
-		int width = MathHelper.RandomInt(32, 150, random);
-		int height = Math.Max((floor == 5 ? 4500 : 3200) / width, 12);
+		int width = floor == 0 ? MathHelper.RandomInt(80, 150, random) :  MathHelper.RandomInt(32, 150, random);
+		int height = Math.Max((floor == 4 ? 4500 : 3200) / width, 12);
 
 		level.resize(width, height, TileType.dirt);
 		level.rooms = rooms;

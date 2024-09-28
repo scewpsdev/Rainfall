@@ -597,25 +597,31 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			GameState.instance.run.hitsTaken++;
 
-			Vector2 enemyPosition = by.position + (by.collider != null ? by.collider.center : Vector2.Zero);
-			if (by != null && by.collider != null)
-			{
-				float knockbackStrength = item != null ? item.knockback : 8.0f;
-				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
-				addImpulse(knockback);
-			}
-
 			if (health <= 0)
 			{
 				onDeath(by, byName);
 			}
 
-			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
+			if (by != null)
+			{
+				Vector2 enemyPosition = by.position + (by.collider != null ? by.collider.center : Vector2.Zero);
 
-			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+				if (by.collider != null)
+				{
+					float knockbackStrength = item != null ? item.knockback : 8.0f;
+					Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
+					addImpulse(knockback);
+				}
+
+				if (triggerInvincibility)
+					GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+			}
 
 			if (triggerInvincibility)
+			{
+				Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
 				lastHit = Time.currentTime;
+			}
 
 			return true;
 		}

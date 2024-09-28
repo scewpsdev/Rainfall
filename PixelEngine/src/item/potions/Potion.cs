@@ -31,6 +31,7 @@ public class Potion : Item
 		value++;
 		displayName = "Throwable " + displayName;
 		projectileItem = true;
+		projectileSpins = true;
 		breakOnWallHit = true;
 		breakOnEnemyHit = true;
 		throwable = true;

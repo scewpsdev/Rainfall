@@ -18,21 +18,20 @@ public struct RunData
 	public Item[] passiveItems;
 }
 
-public static class GlobalSave
+public static class SaveFile
 {
-	const string path = "save0.dat";
-
 	public static RunData[] highscores;
 
 
-	public static void Load()
+	public static void Load(int saveID)
 	{
 #if DEBUG
-		if (false)
+		if (saveID != 2)
 #else
 		if (File.Exists(path))
 #endif
 		{
+			string path = "save" + saveID + ".dat";
 			DatFile dat = new DatFile(File.ReadAllText(path), path);
 			DatArray highscoresDat = dat.getField("highscores").array;
 			highscores = new RunData[highscoresDat.size];
@@ -53,7 +52,7 @@ public static class GlobalSave
 				highscores[i].passiveItems = new Item[4];
 			}
 
-			Save();
+			Save(saveID);
 		}
 	}
 
@@ -83,34 +82,34 @@ public static class GlobalSave
 		return data;
 	}
 
-	public static void OnRunFinished(RunStats run)
+	public static void OnRunFinished(RunStats run, int saveID)
 	{
 		if (!run.isCustomRun)
 		{
 			if (run.score > highscores[0].score)
 			{
-				HighscoreRun(run, 0);
+				HighscoreRun(run, 0, saveID);
 				run.scoreRecord = true;
 			}
 			if (run.floor > highscores[1].floor)
 			{
-				HighscoreRun(run, 1);
+				HighscoreRun(run, 1, saveID);
 				run.floorRecord = true;
 			}
 			if (run.hasWon && (run.duration < highscores[2].time || highscores[2].time == -1))
 			{
-				HighscoreRun(run, 2);
+				HighscoreRun(run, 2, saveID);
 				run.timeRecord = true;
 			}
 			if (run.kills > highscores[3].kills)
 			{
-				HighscoreRun(run, 3);
+				HighscoreRun(run, 3, saveID);
 				run.killRecord = true;
 			}
 		}
 	}
 
-	static void HighscoreRun(RunStats run, int idx)
+	static void HighscoreRun(RunStats run, int idx, int saveID)
 	{
 		Player player = GameState.instance.player;
 
@@ -131,10 +130,10 @@ public static class GlobalSave
 		for (int i = 0; i < player.passiveItems.Length; i++)
 			highscores[idx].passiveItems[i] = player.passiveItems[i] != null ? player.passiveItems[i].copy() : null;
 
-		Save();
+		Save(saveID);
 	}
 
-	public static void Save()
+	public static void Save(int saveID)
 	{
 		DatFile file = new DatFile();
 
@@ -166,6 +165,8 @@ public static class GlobalSave
 		}
 
 		file.addArray("highscores", new DatArray(highscoresDat));
+
+		string path = "save" + saveID + ".dat";
 		file.serialize(path);
 
 #if DEBUG

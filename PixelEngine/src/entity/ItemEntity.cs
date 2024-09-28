@@ -128,7 +128,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 			ricochets++;
 		}
 
-		if (item.projectileSticks)
+		if (item.projectileSticks && thrower != null)
 		{
 			stuck = true;
 			stuckTile = pos;
