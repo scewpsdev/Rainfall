@@ -62,13 +62,27 @@ public class InventoryUI
 		y += slotSize + ypadding;
 
 		Renderer.DrawUISprite(x, y, 16, 16, armorSprite);
-		for (int i = 0; i < player.passiveItems.Length - 2; i++)
-			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.passiveItems[i]);
+		for (int i = 0; i < (int)ArmorSlot.Count; i++)
+		{
+			if (player.getArmorItem((ArmorSlot)i, out int slot))
+				drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.passiveItems[slot]);
+			else
+				drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, null);
+		}
 		y += slotSize + ypadding;
 
 		Renderer.DrawUISprite(x, y, 16, 16, ringSprite);
-		for (int i = 0; i < 2; i++)
-			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.passiveItems[player.passiveItems.Length - 2 + i]);
+		{
+			int xx = x + 16 + 2;
+			for (int i = 0; i < player.passiveItems.Count; i++)
+			{
+				if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+				{
+					drawItemSlot(xx, y, slotSize, player.passiveItems[i]);
+					xx += slotSize + xpadding;
+				}
+			}
+		}
 	}
 
 	void openScreen()
@@ -107,7 +121,7 @@ public class InventoryUI
 
 			List<Item> items = new List<Item>();
 			for (int i = 0; i < player.items.Count; i++)
-				items.Add(player.items[i].Item2);
+				items.Add(player.items[i]);
 			int choice = ItemSelector.Render(10, 50, "Inventory", items, null, player.money, player, false, out bool secondary, out bool closed, ref selectedItem);
 
 			if (choice != -1)

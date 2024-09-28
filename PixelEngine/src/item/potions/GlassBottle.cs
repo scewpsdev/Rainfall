@@ -17,6 +17,8 @@ public class GlassBottle : Item
 
 		value = 2;
 
+		isActiveItem = false;
+
 		sprite = new Sprite(tileset, 3, 5);
 	}
 }

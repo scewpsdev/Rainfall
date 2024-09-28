@@ -405,7 +405,7 @@ public class Fountain : Entity, Interactable
 
 			List<Item> items = new List<Item>(player.items.Count);
 			for (int i = 0; i < player.items.Count; i++)
-				items.Add(player.items[i].Item2);
+				items.Add(player.items[i]);
 
 			int choice = ItemSelector.Render(pos, "Use item", items, null, -1, player, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)

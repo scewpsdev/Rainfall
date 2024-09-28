@@ -21,9 +21,9 @@ public class ScrollOfArmorEnchantment : Item
 	public override bool use(Player player)
 	{
 		bool wasUsed = false;
-		for (int i = 0; i < player.passiveItems.Length; i++)
+		for (int i = 0; i < player.passiveItems.Count; i++)
 		{
-			if (player.passiveItems[i] != null && player.passiveItems[i].armor > 0)
+			if (player.passiveItems[i].armor > 0)
 			{
 				player.passiveItems[i].onUnequip(player);
 				player.passiveItems[i].upgrade();

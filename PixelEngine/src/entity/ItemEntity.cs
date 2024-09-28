@@ -184,7 +184,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		}
 
 		flipped = false;
-		if (item.projectileItem && damage > 0 && thrower != null)
+		if (item.projectileItem && thrower != null)
 		{
 			if (velocity.lengthSquared > 1.0f)
 			{
@@ -235,7 +235,6 @@ public class ItemEntity : Entity, Interactable, Hittable
 				{
 					if (hit.entity != null && hit.entity != this)
 					{
-						Console.WriteLine(hit.entity);
 						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
 						{
 							Hittable hittable = hit.entity as Hittable;

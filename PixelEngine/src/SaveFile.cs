@@ -126,9 +126,9 @@ public static class SaveFile
 		for (int i = 0; i < player.activeItems.Length; i++)
 			highscores[idx].activeItems[i] = player.activeItems[i] != null ? player.activeItems[i].copy() : null;
 
-		highscores[idx].passiveItems = new Item[player.passiveItems.Length];
-		for (int i = 0; i < player.passiveItems.Length; i++)
-			highscores[idx].passiveItems[i] = player.passiveItems[i] != null ? player.passiveItems[i].copy() : null;
+		highscores[idx].passiveItems = new Item[player.passiveItems.Count];
+		for (int i = 0; i < player.passiveItems.Count; i++)
+			highscores[idx].passiveItems[i] = player.passiveItems[i].copy();
 
 		Save(saveID);
 	}

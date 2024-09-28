@@ -53,6 +53,13 @@ public class HUD
 	}
 
 
+	const uint frameColor = 0xFF444444;
+	const uint frameSelectedColor = 0xFF777777;
+	const uint bgColor = 0xFF111111;
+	const uint bgSelectedColor = 0xFF333333;
+	const uint txtColor = 0xFFBBBBBB;
+
+
 	Player player;
 
 	List<HUDMessage> messages = new List<HUDMessage>();
@@ -61,8 +68,6 @@ public class HUD
 	string levelName;
 
 	long lastItemSwitch = -1;
-
-	bool flipItems = false;
 
 
 	public HUD(Player player)
@@ -132,15 +137,8 @@ public class HUD
 		}
 	}
 
-	public void render()
+	void ___renderHealth()
 	{
-		if (player.numOverlaysOpen > 0)
-		{
-			Input.cursorMode = CursorMode.Normal;
-			return;
-		}
-
-		// Health
 		for (int i = 0; i < player.maxHealth; i++)
 		{
 			int size = 8;
@@ -161,25 +159,30 @@ public class HUD
 				Renderer.DrawUISprite(x, y, size, size, heartEmpty);
 			}
 		}
+	}
 
-		/*
-		int totalArmor = player.getTotalArmor();
-		for (int i = 0; i < (int)MathF.Ceiling(totalArmor / 4.0f); i++)
-		{
-			int size = 8;
-			int padding = 3;
-			int x = 6 + (int)MathF.Round(player.maxHealth) * (size + padding) + 4 + i * (size + padding);
-			int y = 6;
+	void renderHealth()
+	{
+		int width = (int)MathF.Round(player.maxHealth * 20);
+		int height = 7;
+		int x = Renderer.UIWidth / 2 - 8 - 2 - width;
+		int y = Renderer.UIHeight - 4 - 16 - 4 - height;
 
-			Renderer.DrawUIOutline(x, y, size, size, armorEmpty, false, 0x5F000000);
-			Renderer.DrawUISprite(x, y, size, size, armorEmpty);
-			float fraction = MathF.Min(totalArmor / 4.0f - i, 1);
-			fraction = MathF.Floor(fraction * 7) / 8.0f + 0.125f;
-			Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), armor.spriteSheet.texture, armor.position.x, armor.position.y + (int)(armor.size.y * (1 - fraction)), armor.size.x, (int)(armor.size.y * fraction));
-		}
-		*/
+		Renderer.DrawUISprite(x - 1, y, width + 2, height, null, false, frameColor);
+		Renderer.DrawUISprite(x, y - 1, width, height + 2, null, false, frameColor);
 
-		// Mana
+		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
+
+		int barWidth = (int)MathF.Round(player.health * 20);
+		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF841e1e);
+		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFFd84343);
+
+		string countTxt = ((int)(player.health * 10)).ToString() + "/" + ((int)(player.maxHealth * 10)).ToString();
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
+	}
+
+	void ___renderMana()
+	{
 		for (int i = 0; i < player.maxMana; i++)
 		{
 			int size = 8;
@@ -200,18 +203,53 @@ public class HUD
 				Renderer.DrawUISprite(x, y, size, size, manaEmpty);
 			}
 		}
+	}
 
-		{ // Gems
-			int size = 8;
-			int x = 6;
-			int y = 6 + 8 + 3 + 8 + 3;
+	void renderMana()
+	{
+		int width = (int)MathF.Round(player.maxMana * 20);
+		int height = 7;
+		int x = Renderer.UIWidth / 2 + 8 + 1;
+		int y = Renderer.UIHeight - 4 - 16 - 4 - height;
 
-			Renderer.DrawUIOutline(x, y, size, size, gold, false, 0x5F000000);
-			Renderer.DrawUISprite(x, y, size, size, gold, false);
-			Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);
-		}
+		Renderer.DrawUISprite(x - 1, y, width + 2, height, null, false, frameColor);
+		Renderer.DrawUISprite(x, y - 1, width, height + 2, null, false, frameColor);
 
-		// Armor
+		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
+
+		int barWidth = (int)MathF.Round(player.mana * 20);
+		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF4d4195);
+		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFF6555c8);
+
+		string countTxt = ((int)(player.mana * 10)).ToString() + "/" + ((int)(player.maxMana * 10)).ToString();
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
+	}
+
+	void ___renderMoney()
+	{
+		int size = 8;
+		int x = 6;
+		int y = 6 + 8 + 3 + 8 + 3;
+
+		Renderer.DrawUIOutline(x, y, size, size, gold, false, 0x5F000000);
+		Renderer.DrawUISprite(x, y, size, size, gold, false);
+		Renderer.DrawUITextBMP(x + size + 3, y, player.money.ToString(), 1);
+	}
+
+	void renderMoney()
+	{
+		int size = 8;
+		int x = Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8;
+		int y = Renderer.UIHeight - 4 - 16 + 5;
+
+		Renderer.DrawUISprite(x, y, size, size, gold, false);
+
+		string moneyStr = player.money.ToString();
+		Renderer.DrawUITextBMP(x - 3 - Renderer.MeasureUITextBMP(moneyStr).x, y, moneyStr, 1, 0xFFd2b459);
+	}
+
+	void ___renderArmor()
+	{
 		int totalArmor = player.getTotalArmor();
 		if (totalArmor > 0)
 		{
@@ -223,170 +261,354 @@ public class HUD
 			Renderer.DrawUISprite(x, y, size, size, armor, false);
 			Renderer.DrawUITextBMP(x + size + 3, y, totalArmor.ToString(), 1);
 		}
+	}
 
-		{ // Status effects
+	void renderArmor()
+	{
+		int totalArmor = player.getTotalArmor();
+		if (totalArmor > 0)
+		{
 			int size = 8;
-			int x = 6 + (totalArmor > 0 ? 8 + 3 + 8 + 3 : 0);
-			int y = 6 + 8 + 3 + 8 + 3 + 8 + 3;
+			int x = Renderer.UIWidth / 2 - 8 - 8 - 1;
+			int y = Renderer.UIHeight - 4 - 16 - 12 - 12;
 
-			for (int i = 0; i < player.statusEffects.Count; i++)
+			Renderer.DrawUISprite(x, y, size, size, armor, false);
+
+			string armorStr = totalArmor.ToString();
+			Renderer.DrawUITextBMP(x - 3 - Renderer.MeasureUITextBMP(armorStr).x, y, armorStr, 1, 0xFF5481da);
+		}
+	}
+
+	void ___renderStatusEffects()
+	{
+		int totalArmor = player.getTotalArmor();
+
+		int size = 8;
+		int x = 6 + (totalArmor > 0 ? 8 + 3 + 8 + 3 : 0);
+		int y = 6 + 8 + 3 + 8 + 3 + 8 + 3;
+
+		for (int i = 0; i < player.statusEffects.Count; i++)
+		{
+			StatusEffect effect = player.statusEffects[i];
+			uint color = effect.positiveEffect ? 0xFF777777 : 0xFF886666;
+
+			Renderer.DrawUISprite(x, y, size + 2, size + 2, null, false, color);
+			Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
+			Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, effect.icon, effect.iconColor);
+
+			x += effect.icon.width + 3;
+		}
+	}
+
+	void renderStatusEffects()
+	{
+		int size = 8;
+		int x = Renderer.UIWidth / 2 + 8;
+		int y = Renderer.UIHeight - 4 - 16 - 12 - 12;
+
+		for (int i = 0; i < player.statusEffects.Count; i++)
+		{
+			StatusEffect effect = player.statusEffects[i];
+			uint color = effect.positiveEffect ? 0xFF777777 : 0xFF886666;
+
+			Renderer.DrawUISprite(x, y, size + 2, size + 2, null, false, color);
+			Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
+			Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, effect.icon, effect.iconColor);
+
+			x += effect.icon.width + 3;
+		}
+	}
+
+	void ___renderHandItems(bool flipItems)
+	{
+		int size = 16;
+		int x = Renderer.UIWidth / 2 - 80; // 4;
+		int y = flipItems ? 4 : Renderer.UIHeight - 4 - size;
+		int padding = 1;
+
+		float alpha = player.position.y < GameState.instance.camera.bottom + 0.1f * GameState.instance.camera.height &&
+			player.position.x < GameState.instance.camera.left + 0.2f * GameState.instance.camera.width ||
+			Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.9f * Display.height
+			? 0.2f : 1.0f;
+		alpha = 1;
+		uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
+		uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
+		uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
+
+		Renderer.DrawUISprite(x - padding, y - padding, 2 * size + 3 * padding, size + 2 * padding, null, false, frameColor);
+
+		Renderer.DrawUISprite(x, y, size, size, null, false, bgColor);
+		if (player.offhandItem != null)
+		{
+			Renderer.DrawUISprite(x, y, size, size, player.offhandItem.sprite);
+
+			if (player.offhandItem.stackable && player.offhandItem.stackSize > 1)
+				Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.offhandItem.stackSize.ToString(), 1, txtColor);
+
+			if (player.offhandItem.requiredAmmo != null)
 			{
-				StatusEffect effect = player.statusEffects[i];
-				uint color = effect.positiveEffect ? 0xFF777777 : 0xFF886666;
+				Renderer.DrawUISprite(x - 1, y + (flipItems ? -1 : 1) * (-padding - size) - 1, size + 2, size + 2, null, false, frameColor);
+				Renderer.DrawUISprite(x, y + (flipItems ? -1 : 1) * (-padding - size), size, size, null, false, bgColor);
 
-				Renderer.DrawUISprite(x, y, size + 2, size + 2, null, false, color);
-				Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, effect.icon, effect.iconColor);
-
-				x += effect.icon.width + 3;
+				Item ammo = player.getItem(player.offhandItem.requiredAmmo);
+				if (ammo != null)
+				{
+					Renderer.DrawUISprite(x, y + (flipItems ? -1 : 1) * (-padding - size), size, size, ammo.sprite);
+					if (ammo.stackable && ammo.stackSize > 1)
+						Renderer.DrawUITextBMP(x + size - size / 4, y + (flipItems ? -1 : 1) * (-padding - size) + size - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
+				}
+			}
+			else if (player.offhandItem.type == ItemType.Staff)
+			{
+				Renderer.DrawUISprite(x - 1, y + (flipItems ? -1 : 1) * (-padding - size) + 4, 8, 8, staffCharge);
+				Renderer.DrawUITextBMP(x + 8, y + (flipItems ? -1 : 1) * (-padding - size) + size / 2 - Renderer.smallFont.size / 2, player.offhandItem.staffCharges.ToString(), 1, txtColor);
 			}
 		}
 
+		Renderer.DrawUISprite(x + size + padding, y, size, size, null, false, bgColor);
+		if (player.handItem != null)
+		{
+			Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.getIcon());
+			if (player.handItem.stackable && player.handItem.stackSize > 1)
+				Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
+
+			if (player.handItem.requiredAmmo != null)
+			{
+				Renderer.DrawUISprite(x + size + padding - 1, y + (flipItems ? -1 : 1) * (-padding - size) - 1, size + 2, size + 2, null, false, frameColor);
+				Renderer.DrawUISprite(x + size + padding, y + (flipItems ? -1 : 1) * (-padding - size), size, size, null, false, bgColor);
+
+				Item ammo = player.getItem(player.handItem.requiredAmmo);
+				if (ammo != null)
+				{
+					Renderer.DrawUISprite(x + size + padding, y + (flipItems ? -1 : 1) * (-padding - size), size, size, ammo.sprite);
+					if (ammo.stackable && ammo.stackSize > 1)
+						Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + (flipItems ? -1 : 1) * (-padding - size) + size - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
+				}
+			}
+			else if (player.handItem.type == ItemType.Staff)
+			{
+				Renderer.DrawUISprite(x + size + padding - 1, y + (flipItems ? -1 : 1) * (-padding - size) + 4, 8, 8, staffCharge);
+				Renderer.DrawUITextBMP(x + size + padding + 8, y + (flipItems ? -1 : 1) * (-padding - size) + size / 2 - Renderer.smallFont.size / 2, player.handItem.staffCharges.ToString(), 1, txtColor);
+			}
+		}
+	}
+
+	void renderHandItems()
+	{
+		int size = 16;
+		int x = Renderer.UIWidth / 2 - 2 * (16 + 1) - 8; // 80; // 4;
+		int y = Renderer.UIHeight - 4 - size;
+
+		Renderer.DrawUISprite(x, y + 1, size, size - 2, null, false, frameColor);
+		Renderer.DrawUISprite(x + 1, y, size - 2, size, null, false, frameColor);
+		Renderer.DrawUISprite(x + 1, y + 1, size - 2, size - 2, null, false, bgColor);
+
+		Renderer.DrawUISprite(x + size + 1, y + 1, size, size - 2, null, false, frameColor);
+		Renderer.DrawUISprite(x + size + 1 + 1, y, size - 2, size, null, false, frameColor);
+		Renderer.DrawUISprite(x + size + 1 + 1, y + 1, size - 2, size - 2, null, false, bgColor);
+
+		if (player.offhandItem != null)
+		{
+			Renderer.DrawUISprite(x, y, size, size, player.offhandItem.sprite);
+
+			if (player.offhandItem.stackable && player.offhandItem.stackSize > 1)
+				Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, player.offhandItem.stackSize.ToString(), 1, txtColor);
+
+			if (player.offhandItem.requiredAmmo != null)
+			{
+				Renderer.DrawUISprite(x - 1, y - 1 - size - 1, size + 2, size + 2, null, false, frameColor);
+				Renderer.DrawUISprite(x, y - 1 - size, size, size, null, false, bgColor);
+
+				Item ammo = player.getItem(player.offhandItem.requiredAmmo);
+				if (ammo != null)
+				{
+					Renderer.DrawUISprite(x, y + -1 - size, size, size, ammo.sprite);
+					if (ammo.stackable && ammo.stackSize > 1)
+						Renderer.DrawUITextBMP(x + size - size / 4, y - 1 - size + size - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
+				}
+			}
+			else if (player.offhandItem.type == ItemType.Staff)
+			{
+				Renderer.DrawUISprite(x - 1, y + -1 - size + 4, 8, 8, staffCharge);
+				Renderer.DrawUITextBMP(x + 8, y - 1 - size + size / 2 - Renderer.smallFont.size / 2, player.offhandItem.staffCharges.ToString(), 1, txtColor);
+			}
+		}
+
+		if (player.handItem != null)
+		{
+			Renderer.DrawUISprite(x + size + 1, y, size, size, player.handItem.getIcon());
+			if (player.handItem.stackable && player.handItem.stackSize > 1)
+				Renderer.DrawUITextBMP(x + size + 1 + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
+
+			if (player.handItem.requiredAmmo != null)
+			{
+				Renderer.DrawUISprite(x + size + 1 - 1, y - 1 - size - 1, size + 2, size + 2, null, false, frameColor);
+				Renderer.DrawUISprite(x + size + 1, y - 1 - size, size, size, null, false, bgColor);
+
+				Item ammo = player.getItem(player.handItem.requiredAmmo);
+				if (ammo != null)
+				{
+					Renderer.DrawUISprite(x + size + 1, y - 1 - size, size, size, ammo.sprite);
+					if (ammo.stackable && ammo.stackSize > 1)
+						Renderer.DrawUITextBMP(x + size + 1 + size - size / 4, y - 1 - size + size - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
+				}
+			}
+			else if (player.handItem.type == ItemType.Staff)
+			{
+				Renderer.DrawUISprite(x + size + 1 - 1, y - 1 - size + 4, 8, 8, staffCharge);
+				Renderer.DrawUITextBMP(x + size + 1 + 8, y - 1 - size + size / 2 - Renderer.smallFont.size / 2, player.handItem.staffCharges.ToString(), 1, txtColor);
+			}
+		}
+	}
+
+	void ___renderQuickItems(bool flipItems)
+	{
+		int size = 16;
+		int width = player.activeItems.Length * (size + 1) - 1;
+		int height = size;
+		int x = Renderer.UIWidth / 2 - (4 * (size + 1)) / 2; // 4 + 32 + 16;
+		int y = flipItems ? 4 : Renderer.UIHeight - 4 - size;
+
+		float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
+			player.position.x < GameState.instance.camera.left + 0.45f * GameState.instance.camera.width ||
+			Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.75f * Display.height
+			? 0.2f : 1.0f;
+		alpha = 1;
+		uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
+		uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
+		uint selectionColor = MathHelper.ColorAlpha(0xFF777777, alpha);
+		uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
+
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, frameColor);
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = x + i * (size + 1);
+			int yy = y;
+
+			Renderer.DrawUISprite(xx, yy, size, size, null, false, bgColor);
+		}
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = x + i * (size + 1);
+			int yy = y;
+
+			if (player.activeItems[i] != null)
+			{
+				Renderer.DrawUISprite(xx, yy, size, size, player.activeItems[i].sprite);
+			}
+
+			if (player.selectedActiveItem == i)
+			{
+				Renderer.DrawUISprite(xx - 2, yy - 2, size + 4, 2, null, false, selectionColor);
+				Renderer.DrawUISprite(xx - 2, yy + size, size + 4, 2, null, false, selectionColor);
+				Renderer.DrawUISprite(xx - 2, yy, 2, size, null, false, selectionColor);
+				Renderer.DrawUISprite(xx + size, yy, 2, size, null, false, selectionColor);
+			}
+
+			if (player.activeItems[i] != null)
+			{
+				if (player.activeItems[i].stackable && player.activeItems[i].stackSize > 1)
+					Renderer.DrawUITextBMP(xx + size - size / 4, yy + size - Renderer.smallFont.size + 2, player.activeItems[i].stackSize.ToString(), 1, txtColor);
+			}
+		}
+
+		if (player.activeItems[player.selectedActiveItem] != null)
+		{
+			float elapsed = (Time.currentTime - lastItemSwitch) / 1e9f;
+			if (elapsed < ITEM_NAME_DURATION)
+			{
+				float txtAlpha = elapsed < ITEM_NAME_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - ITEM_NAME_DURATION + 1) / 1);
+				uint color = MathHelper.ColorAlpha(txtColor, txtAlpha);
+				string txt = player.activeItems[player.selectedActiveItem].displayName;
+				Vector2i txtSize = Renderer.MeasureUITextBMP(txt);
+				Renderer.DrawUITextBMP(x + width + 6, y + size / 2 - txtSize.y / 2, txt, 1, color);
+			}
+		}
+	}
+
+	void renderQuickItems()
+	{
+		int size = 16;
+		int width = player.activeItems.Length * (size + 1) - 1;
+		int height = size;
+		int x = Renderer.UIWidth / 2 + 8; // - (4 * (size + 1)) / 2; // 4 + 32 + 16;
+		int y = Renderer.UIHeight - 4 - size;
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = x + i * (size + 1);
+			int yy = y;
+
+			Renderer.DrawUISprite(xx + 1, yy, size - 2, size, null, false, frameColor);
+			Renderer.DrawUISprite(xx, yy + 1, size, size - 2, null, false, frameColor);
+			Renderer.DrawUISprite(xx + 1, yy + 1, size - 2, size - 2, null, false, player.selectedActiveItem == i ? bgSelectedColor : bgColor);
+		}
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = x + i * (size + 1);
+			int yy = y;
+
+			if (player.activeItems[i] != null)
+			{
+				Renderer.DrawUISprite(xx, yy, size, size, player.activeItems[i].sprite);
+			}
+
+			if (player.selectedActiveItem == i)
+			{
+				Renderer.DrawUISprite(xx, yy, size, 1, null, false, frameSelectedColor);
+				Renderer.DrawUISprite(xx, yy + size - 1, size, 1, null, false, frameSelectedColor);
+				Renderer.DrawUISprite(xx, yy + 1, 1, size - 2, null, false, frameSelectedColor);
+				Renderer.DrawUISprite(xx + size - 1, yy + 1, 1, size - 2, null, false, frameSelectedColor);
+			}
+
+			if (player.activeItems[i] != null)
+			{
+				if (player.activeItems[i].stackable && player.activeItems[i].stackSize > 1)
+					Renderer.DrawUITextBMP(xx + size - size / 4, yy + size - Renderer.smallFont.size + 2, player.activeItems[i].stackSize.ToString(), 1, txtColor);
+			}
+		}
+
+		if (player.activeItems[player.selectedActiveItem] != null)
+		{
+			float elapsed = (Time.currentTime - lastItemSwitch) / 1e9f;
+			if (elapsed < ITEM_NAME_DURATION)
+			{
+				float txtAlpha = elapsed < ITEM_NAME_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - ITEM_NAME_DURATION + 1) / 1);
+				uint color = MathHelper.ColorAlpha(txtColor, txtAlpha);
+				string txt = player.activeItems[player.selectedActiveItem].displayName;
+				Vector2i txtSize = Renderer.MeasureUITextBMP(txt);
+				Renderer.DrawUITextBMP(x + width + 6, y + size / 2 - txtSize.y / 2, txt, 1, color);
+			}
+		}
+	}
+
+	public void render()
+	{
+		if (player.numOverlaysOpen > 0)
+		{
+			Input.cursorMode = CursorMode.Normal;
+			return;
+		}
+
+		renderHealth();
+		renderMana();
+		renderMoney();
+		renderArmor();
+		renderStatusEffects();
+		renderHandItems();
+		renderQuickItems();
+
+		/*
 		if (player.position.y < GameState.instance.camera.bottom + 0.2f * GameState.instance.camera.height ||
 			player.position.y < GameState.instance.camera.bottom + 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y < -0.5f)
 			flipItems = true;
 		else if (player.position.y > GameState.instance.camera.top - 0.2f * GameState.instance.camera.height ||
 			player.position.y > GameState.instance.camera.top - 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y > 0.5f)
 			flipItems = false;
-
-		{ // Hand items
-			int size = 16;
-			int x = Renderer.UIWidth / 2 - 80; // 4;
-			int y = flipItems ? 4 : Renderer.UIHeight - 4 - size;
-			int padding = 1;
-
-			float alpha = player.position.y < GameState.instance.camera.bottom + 0.1f * GameState.instance.camera.height &&
-				player.position.x < GameState.instance.camera.left + 0.2f * GameState.instance.camera.width ||
-				Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.9f * Display.height
-				? 0.2f : 1.0f;
-			alpha = 1;
-			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
-			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
-			uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
-
-			Renderer.DrawUISprite(x - padding, y - padding, 2 * size + 3 * padding, size + 2 * padding, null, false, frameColor);
-
-			Renderer.DrawUISprite(x, y, size, size, null, false, bgColor);
-			if (player.offhandItem != null)
-			{
-				Renderer.DrawUISprite(x, y, size, size, player.offhandItem.sprite);
-
-				if (player.offhandItem.stackable && player.offhandItem.stackSize > 1)
-					Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.offhandItem.stackSize.ToString(), 1, txtColor);
-
-				if (player.offhandItem.requiredAmmo != null)
-				{
-					Renderer.DrawUISprite(x - 1, y + (flipItems ? -1 : 1) * (-padding - size) - 1, size + 2, size + 2, null, false, frameColor);
-					Renderer.DrawUISprite(x, y + (flipItems ? -1 : 1) * (-padding - size), size, size, null, false, bgColor);
-
-					Item ammo = player.getItem(player.offhandItem.requiredAmmo);
-					if (ammo != null)
-					{
-						Renderer.DrawUISprite(x, y + (flipItems ? -1 : 1) * (-padding - size), size, size, ammo.sprite);
-						if (ammo.stackable && ammo.stackSize > 1)
-							Renderer.DrawUITextBMP(x + size - size / 4, y + (flipItems ? -1 : 1) * (-padding - size) + size - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
-					}
-				}
-				else if (player.offhandItem.type == ItemType.Staff)
-				{
-					Renderer.DrawUISprite(x - 1, y + (flipItems ? -1 : 1) * (-padding - size) + 4, 8, 8, staffCharge);
-					Renderer.DrawUITextBMP(x + 8, y + (flipItems ? -1 : 1) * (-padding - size) + size / 2 - Renderer.smallFont.size / 2, player.offhandItem.staffCharges.ToString(), 1, txtColor);
-				}
-			}
-
-			Renderer.DrawUISprite(x + size + padding, y, size, size, null, false, bgColor);
-			if (player.handItem != null)
-			{
-				Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.getIcon());
-				if (player.handItem.stackable && player.handItem.stackSize > 1)
-					Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
-
-				if (player.handItem.requiredAmmo != null)
-				{
-					Renderer.DrawUISprite(x + size + padding - 1, y + (flipItems ? -1 : 1) * (-padding - size) - 1, size + 2, size + 2, null, false, frameColor);
-					Renderer.DrawUISprite(x + size + padding, y + (flipItems ? -1 : 1) * (-padding - size), size, size, null, false, bgColor);
-
-					Item ammo = player.getItem(player.handItem.requiredAmmo);
-					if (ammo != null)
-					{
-						Renderer.DrawUISprite(x + size + padding, y + (flipItems ? -1 : 1) * (-padding - size), size, size, ammo.sprite);
-						if (ammo.stackable && ammo.stackSize > 1)
-							Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + (flipItems ? -1 : 1) * (-padding - size) + size - Renderer.smallFont.size + 2, ammo.stackSize.ToString(), 1, txtColor);
-					}
-				}
-				else if (player.handItem.type == ItemType.Staff)
-				{
-					Renderer.DrawUISprite(x + size + padding - 1, y + (flipItems ? -1 : 1) * (-padding - size) + 4, 8, 8, staffCharge);
-					Renderer.DrawUITextBMP(x + size + padding + 8, y + (flipItems ? -1 : 1) * (-padding - size) + size / 2 - Renderer.smallFont.size / 2, player.handItem.staffCharges.ToString(), 1, txtColor);
-				}
-			}
-		}
-
-		{ // Quick item
-			int size = 16;
-			int width = player.activeItems.Length * (size + 1) - 1;
-			int height = size;
-			int x = Renderer.UIWidth / 2 - (4 * (size + 1)) / 2; // 4 + 32 + 16;
-			int y = flipItems ? 4 : Renderer.UIHeight - 4 - size;
-
-			float alpha = player.position.y < GameState.instance.camera.bottom + 0.25f * GameState.instance.camera.height &&
-				player.position.x < GameState.instance.camera.left + 0.45f * GameState.instance.camera.width ||
-				Input.cursorPosition.x < 0.45f * Display.width && Input.cursorPosition.y > 0.75f * Display.height
-				? 0.2f : 1.0f;
-			alpha = 1;
-			uint frameColor = MathHelper.ColorAlpha(0xFF555555, alpha);
-			uint bgColor = MathHelper.ColorAlpha(0xFF222222, alpha);
-			uint selectionColor = MathHelper.ColorAlpha(0xFF777777, alpha);
-			uint txtColor = MathHelper.ColorAlpha(0xFFBBBBBB, alpha);
-
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, frameColor);
-
-			for (int i = 0; i < player.activeItems.Length; i++)
-			{
-				int xx = x + i * (size + 1);
-				int yy = y;
-
-				Renderer.DrawUISprite(xx, yy, size, size, null, false, bgColor);
-			}
-
-			for (int i = 0; i < player.activeItems.Length; i++)
-			{
-				int xx = x + i * (size + 1);
-				int yy = y;
-
-				if (player.activeItems[i] != null)
-				{
-					Renderer.DrawUISprite(xx, yy, size, size, player.activeItems[i].sprite);
-				}
-
-				if (player.selectedActiveItem == i)
-				{
-					Renderer.DrawUISprite(xx - 2, yy - 2, size + 4, 2, null, false, selectionColor);
-					Renderer.DrawUISprite(xx - 2, yy + size, size + 4, 2, null, false, selectionColor);
-					Renderer.DrawUISprite(xx - 2, yy, 2, size, null, false, selectionColor);
-					Renderer.DrawUISprite(xx + size, yy, 2, size, null, false, selectionColor);
-				}
-
-				if (player.activeItems[i] != null)
-				{
-					if (player.activeItems[i].stackable && player.activeItems[i].stackSize > 1)
-						Renderer.DrawUITextBMP(xx + size - size / 4, yy + size - Renderer.smallFont.size + 2, player.activeItems[i].stackSize.ToString(), 1, txtColor);
-				}
-			}
-
-			if (player.activeItems[player.selectedActiveItem] != null)
-			{
-				float elapsed = (Time.currentTime - lastItemSwitch) / 1e9f;
-				if (elapsed < ITEM_NAME_DURATION)
-				{
-					float txtAlpha = elapsed < ITEM_NAME_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - ITEM_NAME_DURATION + 1) / 1);
-					uint color = MathHelper.ColorAlpha(txtColor, txtAlpha);
-					string txt = player.activeItems[player.selectedActiveItem].displayName;
-					Vector2i txtSize = Renderer.MeasureUITextBMP(txt);
-					Renderer.DrawUITextBMP(x + width + 6, y + size / 2 - txtSize.y / 2, txt, 1, color);
-				}
-			}
-		}
+		*/
 
 		renderMessages();
 		renderPopup();

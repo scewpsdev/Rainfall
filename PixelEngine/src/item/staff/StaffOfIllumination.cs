@@ -22,7 +22,7 @@ public class StaffOfIllumination : Item
 		staffCharges = 10;
 		maxStaffCharges = 10;
 
-		value = 26;
+		value = 19;
 
 		sprite = new Sprite(tileset, 5, 4);
 		renderOffset.x = 0.2f;

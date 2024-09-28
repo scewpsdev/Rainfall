@@ -14,6 +14,7 @@ public class ParticleEffect : Entity
 	public ParticleSystem[] systems;
 	public Texture[] textureAtlases;
 	public bool collision = false;
+	public bool bounce = false;
 
 	public bool oscillateEmissionRate = false;
 	public float oscillateFreq = 2.0f;
@@ -95,7 +96,19 @@ public class ParticleEffect : Entity
 					if (particle.active)
 					{
 						if (GameState.instance.level.sampleTiles(particle.position.xy) != null)
-							particle.active = false;
+						{
+							if (bounce)
+							{
+								if (MathF.Abs(particle.velocity.x) > MathF.Abs(particle.velocity.y))
+									particle.velocity.x *= -0.5f;
+								else
+									particle.velocity.y *= -0.5f;
+							}
+							else
+							{
+								particle.active = false;
+							}
+						}
 					}
 					systemData[j] = particle;
 				}

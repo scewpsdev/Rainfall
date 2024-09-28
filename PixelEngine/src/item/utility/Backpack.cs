@@ -18,7 +18,7 @@ public class Backpack : Item
 		displayName = "Backpack";
 		armorSlot = ArmorSlot.Back;
 
-		description = "Increases inventory space by 4";
+		description = "+4 inventory space";
 
 		armor = 1;
 		value = 50;

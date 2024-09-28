@@ -18,6 +18,8 @@ static handle reverbBusSource;
 
 static FreeverbFilter reverb;
 
+static float _3dVolume = 1.0f;
+
 
 RFAPI void Audio_Init()
 {
@@ -51,7 +53,7 @@ RFAPI void Audio_SetGlobalVolume(float volume)
 
 RFAPI void Audio_Set3DVolume(float volume)
 {
-	defaultBus.setVolume(volume);
+	_3dVolume = volume;
 }
 
 RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3& forward, const Vector3& up)
@@ -79,7 +81,7 @@ RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, const Vector3& position, flo
 	soloud.setRelativePlaySpeed(source, pitch);
 	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
 	soloud.set3dSourceMinMaxDistance(source, 1, 500);
-	soloud.fadeVolume(source, gain, 0.0001f);
+	soloud.fadeVolume(source, gain * _3dVolume, 0.0001f);
 	soloud.setPause(source, false);
 
 	if (reverbBusSource != 0)

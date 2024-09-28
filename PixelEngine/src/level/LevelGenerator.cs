@@ -598,9 +598,9 @@ public class LevelGenerator
 			exitPosition = new Vector2i(exitRoom.x, exitRoom.y) + new Vector2i(23, 1);
 			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
-			if (level.getTile(exitPosition.x - 1, exitPosition.y) == null)
+			if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
 				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
-			if (level.getTile(exitPosition.x + 1, exitPosition.y) == null)
+			if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
 				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
 
 			level.addEntity(new BossRoom(exitRoom));
@@ -612,9 +612,9 @@ public class LevelGenerator
 				level.exit = new Door(nextLevel);
 				level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
-				if (level.getTile(exitPosition.x - 1, exitPosition.y) == null)
+				if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
 					level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
-				if (level.getTile(exitPosition.x + 1, exitPosition.y) == null)
+				if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
 					level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
 
 				objectFlags[exitPosition.x + exitPosition.y * level.width] = true;
@@ -761,7 +761,7 @@ public class LevelGenerator
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 		rooms = new List<Room>();
 
-		int width = floor == 0 ? MathHelper.RandomInt(80, 150, random) :  MathHelper.RandomInt(32, 150, random);
+		int width = floor == 0 ? MathHelper.RandomInt(80, 150, random) : MathHelper.RandomInt(32, 150, random);
 		int height = Math.Max((floor == 4 ? 4500 : 3200) / width, 12);
 
 		level.resize(width, height, TileType.dirt);
@@ -1160,7 +1160,7 @@ public class LevelGenerator
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
 		int width = MathHelper.RandomInt(32, 150, random);
-		int height = (floor == 5 ? 4500 : 3200) / width;
+		int height = Math.Max(3200 / width, 12);
 
 		level.resize(width, height, TileType.dirt);
 		level.ambientLight = new Vector3(1.5f);

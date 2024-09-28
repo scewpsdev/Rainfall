@@ -20,7 +20,8 @@ public static unsafe class Effects
 	public static ParticleEffect CreateFountainEffect()
 	{
 		ParticleEffect effect = new ParticleEffect(null, "res/effects/fountain2.rfs");
-		//effect.collision = true;
+		effect.collision = true;
+		effect.bounce = true;
 		return effect;
 	}
 

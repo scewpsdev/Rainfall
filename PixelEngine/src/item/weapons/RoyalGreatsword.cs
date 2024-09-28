@@ -21,8 +21,9 @@ public class RoyalGreatsword : Item
 
 		value = 102;
 
-		sprite = new Sprite(tileset, 10, 5, 3, 1);
-		size = new Vector2(3, 1);
+		sprite = new Sprite(tileset, 10, 5, 2, 1);
+		icon = new Sprite(tileset, 10.5f, 5);
+		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}

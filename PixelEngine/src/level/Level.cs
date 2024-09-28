@@ -135,8 +135,13 @@ public class Level
 
 	public TileType getTile(int x, int y)
 	{
-		if (x >= 0 && x < width && y >= 0 && y < height)
+		if (x >= 0 && x < width && y < height)
+		{
+			if (y < 0)
+				return null;
+			y = Math.Max(y, 0);
 			return TileType.Get(tiles[x + y * width]);
+		}
 		return null;
 	}
 
@@ -215,7 +220,7 @@ public class Level
 		{
 			entities[i].update();
 
-			if (entities[i].position.y < -1)
+			if (entities[i].position.y < -6)
 			{
 				if (entities[i] is Hittable)
 				{
@@ -395,6 +400,8 @@ public class Level
 			{
 				Interactable interactable = entities[i] as Interactable;
 				Vector2 p = entities[i].position;
+				if (entities[i].collider != null)
+					p += entities[i].collider.center;
 				Vector2 delta = p - position;
 				float d2 = Vector2.Dot(delta, delta);
 				if (interactable.canInteract(player) && d2 < interactable.getRange() * interactable.getRange())

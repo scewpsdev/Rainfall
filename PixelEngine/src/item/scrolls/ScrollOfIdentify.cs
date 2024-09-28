@@ -36,7 +36,7 @@ public class ScrollOfIdentify : Item
 				Vector2i pos = GameState.instance.camera.worldToScreen(entity.position + new Vector2(0, 1));
 				List<Item> items = new List<Item>();
 				for (int i = 0; i < player.items.Count; i++)
-					items.Add(player.items[i].Item2);
+					items.Add(player.items[i]);
 				int choice = ItemSelector.Render(pos, "Identify item", items, null, -1, player, true, out bool secondary, out bool closed, ref selectedItem);
 				if (choice != -1)
 				{
