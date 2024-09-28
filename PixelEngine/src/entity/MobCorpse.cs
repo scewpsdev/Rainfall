@@ -15,7 +15,7 @@ public class MobCorpse : Entity
 	uint color;
 	bool renderLight;
 
-	Item[] passiveItems;
+	List<Item> passiveItems;
 
 	float gravity;
 	bool isGrounded = false;
@@ -23,7 +23,7 @@ public class MobCorpse : Entity
 	bool particlesEmitted = false;
 
 
-	public MobCorpse(Sprite sprite, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, uint color, bool renderLight = false, Item[] passiveItems = null)
+	public MobCorpse(Sprite sprite, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, uint color, bool renderLight = false, List<Item> passiveItems = null)
 	{
 		this.sprite = sprite;
 		this.animator = animator;
@@ -79,9 +79,9 @@ public class MobCorpse : Entity
 		animator.update(sprite);
 		if (passiveItems != null)
 		{
-			for (int i = 0; i < passiveItems.Length; i++)
+			for (int i = 0; i < passiveItems.Count; i++)
 			{
-				if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+				if (passiveItems[i].ingameSprite != null)
 				{
 					animator.update(passiveItems[i].ingameSprite);
 					passiveItems[i].ingameSprite.position *= passiveItems[i].ingameSpriteSize;
@@ -96,9 +96,9 @@ public class MobCorpse : Entity
 
 		if (passiveItems != null)
 		{
-			for (int i = 0; i < passiveItems.Length; i++)
+			for (int i = 0; i < passiveItems.Count; i++)
 			{
-				if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+				if (passiveItems[i].ingameSprite != null)
 				{
 					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}

@@ -70,11 +70,11 @@ public static class ItemSelector
 			Item item = items[i];
 
 			Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-			Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
+			Renderer.DrawUISprite(x + 1, y, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 			string name = item.fullDisplayName;
 			Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
 
-			int lineWidth = Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5;
+			int lineWidth = Renderer.MeasureUITextBMP(name).x + 5;
 
 			if (prices != null)
 			{
@@ -102,11 +102,14 @@ public static class ItemSelector
 				else if (player.isPassiveItem(item, out int passiveSlot))
 				{
 					Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, item.type == ItemType.Ring ? InventoryUI.ringSprite : InventoryUI.armorSprite);
-					Renderer.DrawUITextBMP(x + shopWidth - 3 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Length - 2 : 0)).ToString(), 1, 0xFF505050);
+					if (passiveSlot != -1)
+						Renderer.DrawUITextBMP(x + shopWidth - 3 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Count - 2 : 0)).ToString(), 1, 0xFF505050);
 				}
 
 				lineWidth += 16;
 			}
+
+			lineWidth += 3;
 
 			longestLineWidth = Math.Max(longestLineWidth, lineWidth);
 

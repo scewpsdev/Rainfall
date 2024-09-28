@@ -135,7 +135,7 @@ public static class Renderer
 		Renderer.graphics = graphics;
 
 		// pixel perfect correction
-		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		int scale = (int)MathF.Round(Display.width / 1920.0f * 4);
 		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
 		UIHeight = (int)MathF.Ceiling(Display.height / (float)scale);
 
@@ -211,7 +211,7 @@ public static class Renderer
 	public static void Resize(int width, int height)
 	{
 		// pixel perfect correction
-		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		int scale = (int)MathF.Round(Display.width / 1920.0f * 4);
 		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
 		UIHeight = (int)MathF.Ceiling(Display.height / (float)scale);
 
@@ -958,7 +958,7 @@ public static class Renderer
 		graphics.setPass((int)RenderPass.UI);
 		graphics.setRenderTarget(null);
 
-		int scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		int scale = (int)MathF.Round(Display.width / 1920.0f * 4);
 		graphics.setViewTransform(Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f), Matrix.CreateScale(UIWidth * scale / (float)Display.width, UIHeight * scale / (float)Display.height, 1));
 
 		uiBatch.begin(uiDraws.Count);

@@ -466,8 +466,6 @@ public class GameState : State
 			isPaused = false;
 			PauseMenu.OnUnpause();
 		}
-		if (isPaused)
-			return;
 
 		run.update(isPaused);
 
@@ -510,20 +508,23 @@ public class GameState : State
 				ambientSource = Audio.PlayBackground(level.ambientSound, 0.1f, 1, true, 10);
 		}
 
-		long beforeParticleUpdate = Time.timestamp;
-		//ParticleSystem.Update(Vector3.Zero);
-		long afterParticleUpdate = Time.timestamp;
-		particleUpdateDelta = afterParticleUpdate - beforeParticleUpdate;
+		if (!isPaused && newLevel == null)
+		{
+			long beforeParticleUpdate = Time.timestamp;
+			//ParticleSystem.Update(Vector3.Zero);
+			long afterParticleUpdate = Time.timestamp;
+			particleUpdateDelta = afterParticleUpdate - beforeParticleUpdate;
 
-		long beforeAnimationUpdate = Time.timestamp;
-		Animator.Update(Matrix.Identity);
-		long afterAnimationUpdate = Time.timestamp;
-		animationUpdateDelta = afterAnimationUpdate - beforeAnimationUpdate;
+			long beforeAnimationUpdate = Time.timestamp;
+			Animator.Update(Matrix.Identity);
+			long afterAnimationUpdate = Time.timestamp;
+			animationUpdateDelta = afterAnimationUpdate - beforeAnimationUpdate;
 
-		long beforeEntityUpdate = Time.timestamp;
-		level.update();
-		long afterEntityUpdate = Time.timestamp;
-		entityUpdateDelta = afterEntityUpdate - beforeEntityUpdate;
+			long beforeEntityUpdate = Time.timestamp;
+			level.update();
+			long afterEntityUpdate = Time.timestamp;
+			entityUpdateDelta = afterEntityUpdate - beforeEntityUpdate;
+		}
 	}
 
 	public override void draw(GraphicsDevice graphics)

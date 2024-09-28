@@ -305,7 +305,7 @@ public abstract class NPC : Mob, Interactable
 		craftingItem2 = null;
 		craftingItems.Clear();
 		for (int i = 0; i < player.items.Count; i++)
-			craftingItems.Add(player.items[i].Item2);
+			craftingItems.Add(player.items[i]);
 	}
 
 	public override void update()
@@ -644,8 +644,8 @@ public abstract class NPC : Mob, Interactable
 			List<int> prices = new List<int>(player.items.Count);
 			for (int i = 0; i < player.items.Count; i++)
 			{
-				items.Add(player.items[i].Item2);
-				prices.Add((int)MathF.Round(player.items[i].Item2.value));
+				items.Add(player.items[i]);
+				prices.Add((int)MathF.Round(player.items[i].value));
 			}
 
 			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, true, out bool secondary, out bool closed, ref selectedItem);

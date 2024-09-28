@@ -26,9 +26,13 @@ public class BowShootAction : EntityAction
 		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
 
 		Vector2 direction = player.lookDirection.normalized;
-		Vector2 position = player.position + new Vector2(player.direction * 0.5f, 0.5f) + direction * 0.25f;
-		Vector2 velocity = direction * weapon.attackRange;
+		Vector2 position = player.position + player.collider.center;
+		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
 
+		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon);
+		GameState.instance.level.addEntity(projectile, position);
+
+		/*
 		Arrow arrow = new Arrow();
 		//arrow.breakOnHit = Random.Shared.Next() % 5 > 0;
 		arrow.breakOnWallHit = true;
@@ -38,6 +42,7 @@ public class BowShootAction : EntityAction
 		ItemEntity entity = new ItemEntity(arrow, player, velocity);
 		entity.bounciness = 0.3f;
 		GameState.instance.level.addEntity(entity, position);
+		*/
 	}
 
 	public override Matrix getItemTransform(Player player)

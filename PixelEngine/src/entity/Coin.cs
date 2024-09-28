@@ -10,7 +10,7 @@ public class Coin : Entity
 {
 	const float COLLECT_DELAY = 0.2f;
 
-	uint color;
+	Vector4 color;
 
 	long spawnTime;
 
@@ -22,7 +22,8 @@ public class Coin : Entity
 	public Coin()
 	{
 		//color = MathHelper.VectorToARGB(new Vector4(MathHelper.ARGBToVector(0xFF66AAAA).xyz * MathHelper.RandomVector3(0.8f, 1.5f), 1.0f));
-		color = MathHelper.VectorToARGB(new Vector4(MathHelper.ARGBToVector(0xFFCCAA66).xyz * MathHelper.RandomVector3(0.8f, 1.5f), 1.0f));
+		color = new Vector4(MathHelper.ARGBToVector(0xFFCCAA66).xyz * MathHelper.RandomVector3(0.8f, 1.5f), 1.0f);
+		collider = new FloatRect(-0.5f / 16, -0.5f / 16, 1.0f / 16, 1.0f / 16);
 
 		collectSound = Resource.GetSounds("res/sounds/coin", 6);
 	}
@@ -35,7 +36,9 @@ public class Coin : Entity
 
 	public override void update()
 	{
-		float followDistance = 3.0f;
+		float followDistance = GameState.instance.player.coinCollectDistance;
+		if (target != null && target is Player)
+			followDistance = (target as Player).coinCollectDistance;
 
 		Vector2 displacement = velocity * Time.deltaTime;
 
@@ -98,12 +101,19 @@ public class Coin : Entity
 			}
 		}
 
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement);
+		if ((collisionFlags & Level.COLLISION_X) != 0)
+			velocity.x = 0;
+		if ((collisionFlags & Level.COLLISION_Y) != 0)
+			velocity.y = 0;
+
 		position += displacement;
 	}
 
 	public override void render()
 	{
 		//Renderer.DrawSprite(position.x - 1.0f / 16, position.y - 1.0f / 16, 2 / 16.0f, 2 / 16.0f, null, false, 0xFFFFCC77);
-		Renderer.DrawSprite(position.x, position.y, LAYER_FG, 1 / 16.0f, 1 / 16.0f, 0, null, false, color);
+		float brightness = 1 + MathF.Sin(Time.currentTime / 1e9f * 80 + position.x + position.y) * 0.5f;
+		Renderer.DrawSprite(position.x, position.y, LAYER_FG, 1 / 16.0f, 1 / 16.0f, 0, null, false, color * new Vector4(brightness, brightness, brightness, 1));
 	}
 }

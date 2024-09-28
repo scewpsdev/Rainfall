@@ -54,7 +54,7 @@ public class PlayerCamera : Entity
 
 	public override void update()
 	{
-		scale = (int)MathF.Round(Display.width / 1920.0f * 5);
+		scale = (int)MathF.Round(Display.width / 1920.0f * 4);
 		width = Renderer.UIWidth / 16.0f; // Display.width / (float)scale / 16.0f;
 		height = Renderer.UIHeight / 16.0f; // Display.height / (float)scale / 16.0f;
 
@@ -69,7 +69,7 @@ public class PlayerCamera : Entity
 
 		float x0 = 0.0f + 0.5f * width;
 		float x1 = GameState.instance.level.width - 0.5f * width;
-		float y0 = 0.0f + 0.5f * height;
+		float y0 = 0.0f; // + 0.5f * height;
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
 		target = player.position + player.collider.center;

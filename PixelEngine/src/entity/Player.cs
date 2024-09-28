@@ -36,6 +36,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float gravity = -22;
 	public float wallJumpPower = 10;
 	public float manaRechargeRate = 0.03f;
+	public float coinCollectDistance = 1.0f;
 
 	public float maxHealth = 3;
 	public float health = 3;
@@ -88,12 +89,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Climbable currentLadder = null;
 	Climbable lastLadderJumpedFrom = null;
 
-	public TupleList<ItemType, Item> items = new TupleList<ItemType, Item>();
+	public List<Item> items = new List<Item>();
 	public Item handItem = null;
 	public Item offhandItem = null;
 	public Item[] activeItems = new Item[4];
 	public int selectedActiveItem = 0;
-	public Item[] passiveItems = new Item[(int)ArmorSlot.Count];
+	public List<Item> passiveItems = new List<Item>();
 
 	ParticleEffect handParticles, offhandParticles;
 
@@ -235,19 +236,39 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		if (item.isPassiveItem)
 		{
-			if (item.type == ItemType.Armor)
+			if (item.armorSlot != ArmorSlot.None)
 			{
-				int slotIdx = (int)item.armorSlot;
-				if (passiveItems[slotIdx] != null)
-					unequipItem(passiveItems[slotIdx]);
-
-				passiveItems[slotIdx] = item;
-				passiveItems[slotIdx].onEquip(this);
-				if (item.equipSound != null)
-					Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
-				return true;
+				for (int i = 0; i < passiveItems.Count; i++)
+				{
+					if (passiveItems[i].armorSlot == item.armorSlot)
+					{
+						unequipItem(passiveItems[i]);
+						break;
+					}
+				}
 			}
-			else if (item.type == ItemType.Ring)
+
+			passiveItems.Add(item);
+			passiveItems.Sort((Item item1, Item item2) =>
+			{
+				int getScore(Item item) => item.isActiveItem && !item.isSecondaryItem ? 1 :
+					item.isActiveItem ? 2 :
+					item.isSecondaryItem ? 3 :
+					item.isActiveItem ? 4 :
+					item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
+					item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
+				int score1 = getScore(item1);
+				int score2 = getScore(item2);
+				return score1 > score2 ? -1 : score1 < score2 ? 1 : 0;
+			});
+
+			item.onEquip(this);
+			if (item.equipSound != null)
+				Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
+
+			return true;
+
+			if (item.type == ItemType.Ring)
 			{
 				for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
 				{
@@ -262,6 +283,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				unequipItem(passiveItems[(int)ArmorSlot.Ring2]);
 				passiveItems[(int)ArmorSlot.Ring2] = item;
 				passiveItems[(int)ArmorSlot.Ring2].onEquip(this);
+				return true;
+			}
+			else
+			{
+				int slotIdx = (int)item.armorSlot;
+				if (passiveItems[slotIdx] != null)
+					unequipItem(passiveItems[slotIdx]);
+
+				passiveItems[slotIdx] = item;
+				passiveItems[slotIdx].onEquip(this);
+				if (item.equipSound != null)
+					Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
 				return true;
 			}
 			return false;
@@ -318,12 +351,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				return true;
 			}
 		}
-		for (int i = 0; i < passiveItems.Length; i++)
+		for (int i = 0; i < passiveItems.Count; i++)
 		{
 			if (passiveItems[i] == item)
 			{
 				passiveItems[i].onUnequip(this);
-				passiveItems[i] = null;
+				passiveItems.RemoveAt(i);
 				return true;
 			}
 		}
@@ -336,18 +369,30 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			for (int i = 0; i < items.Count; i++)
 			{
-				if (items[i].Item2.id == item.id)
+				if (items[i].id == item.id)
 				{
-					items[i].Item2.stackSize += item.stackSize;
+					items[i].stackSize += item.stackSize;
 					return;
 				}
 			}
 		}
 
-		items.Add(item.type, item);
-		items.Sort();
+		items.Add(item);
+		//items.Sort((a, b) => a.type.CompareTo(b.type));
+		items.Sort((Item item1, Item item2) =>
+		{
+			int getScore(Item item) => item.isActiveItem && !item.isSecondaryItem ? 1 :
+				item.isActiveItem ? 2 :
+				item.isSecondaryItem ? 3 :
+				item.isActiveItem ? 4 :
+				item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
+				item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
+			int score1 = getScore(item1);
+			int score2 = getScore(item2);
+			return score1 > score2 ? -1 : score1 < score2 ? 1 : 0;
+		});
 
-		if (item.isSecondaryItem && offhandItem == null && (handItem == null || !handItem.twoHanded))
+		if (item.isSecondaryItem && handItem != null && !handItem.twoHanded && offhandItem == null)
 			equipOffhandItem(item);
 		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
 			equipHandItem(item);
@@ -360,7 +405,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void removeItem(Item item)
 	{
 		unequipItem(item);
-		items.Remove(item.type, item);
+		items.Remove(item);
 	}
 
 	public Item removeItemSingle(Item item)
@@ -383,8 +428,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		for (int i = 0; i < items.Count; i++)
 		{
-			if (items[i].Item2.name == name)
-				return items[i].Item2;
+			if (items[i].name == name)
+				return items[i];
 		}
 		return null;
 	}
@@ -393,7 +438,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		for (int i = 0; i < items.Count; i++)
 		{
-			if (items[i].Item2 == item)
+			if (items[i] == item)
 				return true;
 		}
 		return false;
@@ -428,15 +473,32 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public bool isPassiveItem(Item item, out int slot)
 	{
-		for (int i = 0; i < passiveItems.Length; i++)
+		for (int i = 0; i < passiveItems.Count; i++)
 		{
 			if (passiveItems[i] == item)
 			{
-				slot = i;
+				if (item.armorSlot != ArmorSlot.None)
+					slot = i;
+				else
+					slot = -1;
 				return true;
 			}
 		}
 		slot = -1;
+		return false;
+	}
+
+	public bool getArmorItem(ArmorSlot slot, out int slotIdx)
+	{
+		for (int i = 0; i < passiveItems.Count; i++)
+		{
+			if (passiveItems[i].armorSlot == slot)
+			{
+				slotIdx = i;
+				return true;
+			}
+		}
+		slotIdx = -1;
 		return false;
 	}
 
@@ -454,12 +516,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 	}
 
-	public int numPassiveItems
+	public int numPassiveItems => passiveItems.Count;
+	/*
 	{
 		get
 		{
 			int result = 0;
-			for (int i = 0; i < passiveItems.Length; i++)
+			for (int i = 0; i < passiveItems.Count; i++)
 			{
 				if (passiveItems[i] != null)
 					result++;
@@ -467,6 +530,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return result;
 		}
 	}
+	*/
 
 	public int numTotalEquippedItems
 	{
@@ -475,6 +539,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public bool canEquipPassiveItem(Item item)
 	{
+		if (item.armorSlot != ArmorSlot.None)
+		{
+			for (int i = 0; i < passiveItems.Count; i++)
+			{
+				if (passiveItems[i].armorSlot == item.armorSlot)
+					return false;
+			}
+		}
+		return true;
+
 		if (item.type == ItemType.Ring)
 		{
 			for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
@@ -513,14 +587,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		GameState.instance.level.addEntity(obj, throwOrigin);
 	}
 
-	public ItemEntity throwItem(Item item, Vector2 direction, float speed = 14)
+	public ItemEntity throwItem(Item item, Vector2 direction, float speed = 14, bool throws = true)
 	{
 		direction = direction.normalized;
 		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
 		Vector2 throwOrigin = position + collider.center;
-		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
+		ItemEntity obj = new ItemEntity(item, throws ? this : null, itemVelocity);
+		if (item.projectileSpins)
+			obj.rotationVelocity = MathF.PI * MathHelper.RandomFloat(-5, 5);
 		GameState.instance.level.addEntity(obj, throwOrigin);
 		Audio.PlayOrganic(Resource.GetSound("res/sounds/swing3.ogg"), new Vector3(position, 0));
 		return obj;
@@ -529,7 +605,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void clearInventory()
 	{
 		for (int i = 0; i < items.Count; i++)
-			removeItem(items[i--].Item2);
+			removeItem(items[i--]);
 	}
 
 	public void addImpulse(Vector2 impulse)
@@ -546,10 +622,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (activeItems[i] != null)
 				totalArmor += activeItems[i].armor;
 		}
-		for (int i = 0; i < passiveItems.Length; i++)
+		for (int i = 0; i < passiveItems.Count; i++)
 		{
-			if (passiveItems[i] != null)
-				totalArmor += passiveItems[i].armor;
+			totalArmor += passiveItems[i].armor;
 		}
 		return totalArmor;
 	}
@@ -602,6 +677,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				onDeath(by, byName);
 			}
 
+			if (triggerInvincibility || health <= 0)
+				Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
+
 			if (by != null)
 			{
 				Vector2 enemyPosition = by.position + (by.collider != null ? by.collider.center : Vector2.Zero);
@@ -618,10 +696,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			if (triggerInvincibility)
-			{
-				Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
 				lastHit = Time.currentTime;
-			}
 
 			return true;
 		}
@@ -631,6 +706,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		isStunned = true;
 		stunTime = Time.currentTime;
+		addStatusEffect(new StunStatus(STUN_DURATION));
 	}
 
 	void onDeath(Entity by, string byName)
@@ -639,18 +715,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			Item handItemCopy = handItem.copy();
 			Vector2 direction = new Vector2(0, 1) + MathHelper.RandomVector2(-0.5f, 0.5f);
-			throwItem(handItemCopy, direction);
+			throwItem(handItemCopy, direction, 14, false);
 		}
 		if (offhandItem != null)
 		{
 			Item offhandItemCopy = offhandItem.copy();
 			Vector2 direction = new Vector2(0, 1) + MathHelper.RandomVector2(-0.5f, 0.5f);
-			throwItem(offhandItemCopy, direction);
+			throwItem(offhandItemCopy, direction, 14, false);
 		}
 
-		for (int i = 0; i < passiveItems.Length; i++)
+		for (int i = 0; i < passiveItems.Count; i++)
 		{
-			if (passiveItems[i] != null && passiveItems[i].ingameSprite == null)
+			//if (passiveItems[i] != null && passiveItems[i].ingameSprite == null)
 			{
 				passiveItems[i].onUnequip(this);
 				//passiveItems[i] = null;
@@ -777,7 +853,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.5f);
+			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.5f) && delta.lengthSquared > 0;
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
@@ -1085,7 +1161,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (!isStunned && numOverlaysOpen == 0)
 			{
-				Interactable interactable = isAlive ? GameState.instance.level.getInteractable(position + new Vector2(0, 0.5f), this) : null;
+				Interactable interactable = isAlive ? GameState.instance.level.getInteractable(position + collider.center, this) : null;
 				if (interactableInFocus != null && interactableInFocus != interactable)
 					interactableInFocus.onFocusLeft(this);
 				if (interactable != null && interactable != interactableInFocus)
@@ -1104,7 +1180,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
 				if (currentLadder == null)
 				{
-					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down")) && lastLadderJumpedFrom == null)
+					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down")) && lastLadderJumpedFrom != hoveredLadder)
 					{
 						currentLadder = hoveredLadder;
 						impulseVelocity = Vector2.Zero;
@@ -1208,10 +1284,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (activeItems[i] != null)
 					activeItems[i].update(this);
 			}
-			for (int i = 0; i < passiveItems.Length; i++)
+			for (int i = 0; i < passiveItems.Count; i++)
 			{
-				if (passiveItems[i] != null)
-					passiveItems[i].update(this);
+				passiveItems[i].update(this);
 			}
 
 			actions.update();
@@ -1292,9 +1367,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		animator.update(sprite);
 
-		for (int i = 0; i < passiveItems.Length; i++)
+		for (int i = 0; i < passiveItems.Count; i++)
 		{
-			if (passiveItems[i] != null && passiveItems[i].ingameSprite != null)
+			if (passiveItems[i].ingameSprite != null)
 			{
 				animator.update(passiveItems[i].ingameSprite);
 				passiveItems[i].ingameSprite.position *= passiveItems[i].ingameSpriteSize;
@@ -1336,7 +1411,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateAnimation();
 
 		Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
-		Audio.Set3DVolume(10.0f);
+		Audio.Set3DVolume(3.0f);
 
 		if (numOverlaysOpen == 0)
 			Input.cursorMode = CursorMode.Hidden;
@@ -1424,14 +1499,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				handItem.render(this);
 			if (offhandItem != null)
 				offhandItem.render(this);
-			for (int i = 0; i < passiveItems.Length; i++)
+			for (int i = 0; i < passiveItems.Count; i++)
 			{
-				if (passiveItems[i] != null)
-				{
-					if (passiveItems[i].ingameSprite != null)
-						Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
-					passiveItems[i].render(this);
-				}
+				if (passiveItems[i].ingameSprite != null)
+					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+				passiveItems[i].render(this);
 			}
 			for (int i = 0; i < activeItems.Length; i++)
 			{
@@ -1448,11 +1520,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
 			statusEffects[i].render(this);
-		}
-
-		if (isStunned)
-		{
-			Renderer.DrawSprite(position.x - 0.5f, position.y + 1.0f, 1, 1, stunnedIcon, false);
 		}
 
 		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);

@@ -132,13 +132,19 @@ public static class DebugConsole
 					if (args.Length >= 3 && int.TryParse(args[2], out int _count))
 						count = _count;
 
-					Item craftedItem = null;
-					for (int i = 0; i < count; i++)
-					{
-						craftedItem = Crafting.CraftItem(item1, item2);
+					Item craftedItem = Crafting.CraftItem(item1, item2);
 
-						Vector2 position = GameState.instance.player.position + Vector2.Up;
-						GameState.instance.level.addEntity(new ItemEntity(craftedItem), position);
+					Vector2 position = GameState.instance.player.position + Vector2.Up;
+					GameState.instance.level.addEntity(new ItemEntity(craftedItem), position);
+
+					if (craftedItem.stackable)
+						craftedItem.stackSize = count;
+					else
+					{
+						for (int i = 1; i < count; i++)
+						{
+							GameState.instance.level.addEntity(new ItemEntity(craftedItem.copy()), position);
+						}
 					}
 
 					GameState.instance.player.hud.showMessage("Crafted " + (count > 1 ? count.ToString() + "x " : "") + "item " + craftedItem.displayName + " from " + item1.displayName + " and " + item2.displayName);

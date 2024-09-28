@@ -173,12 +173,13 @@ public static class GameOverScreen
 		player.animator.update(player.sprite);
 		Renderer.DrawUISprite(xx, yy, size, size, player.sprite);
 
-		for (int i = 0; i < player.passiveItems.Length; i++)
+		for (int i = 0; i < player.passiveItems.Count; i++)
 		{
 			if (player.passiveItems[i] != null && player.passiveItems[i].ingameSprite != null)
 			{
+				int ss = size * player.passiveItems[i].ingameSpriteSize;
 				player.animator.update(player.passiveItems[i].ingameSprite);
-				Renderer.DrawUISprite(xx, yy, size, size, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
+				Renderer.DrawUISprite(xx - (ss - size) / 2, yy - (ss - size), ss, ss, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
 			}
 		}
 

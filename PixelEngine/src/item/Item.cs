@@ -207,7 +207,7 @@ public abstract class Item
 	public virtual void upgrade()
 	{
 		upgradeLevel++;
-		value = Math.Max(value * 3 / 2, value + 1);
+		value *= 2;
 		if (type == ItemType.Weapon || type == ItemType.Staff)
 			attackDamage *= 1.3f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
@@ -350,6 +350,7 @@ public abstract class Item
 		InitType(new AmethystRing());
 		InitType(new AssassinsDagger());
 		InitType(new RoyalGreatsword());
+		InitType(new Magnet());
 	}
 
 	static void InitType(Item item)

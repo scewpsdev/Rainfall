@@ -11,6 +11,10 @@ public class Potion : Item
 	public List<PotionEffect> effects = new List<PotionEffect>();
 	bool throwable = false;
 
+	public float spillRadius = 3.0f;
+
+	Sound[] breakSound;
+
 
 	public Potion(string name)
 		: base(name, ItemType.Potion)
@@ -19,6 +23,8 @@ public class Potion : Item
 		value = 2;
 		sprite = new Sprite(tileset, 4, 5);
 		canDrop = false;
+
+		breakSound = Resource.GetSounds("res/sounds/break_bottle", 3);
 	}
 
 	public Potion()
@@ -69,9 +75,8 @@ public class Potion : Item
 
 	public override void onEntityBreak(ItemEntity entity)
 	{
-		float radius = 2.5f;
 		HitData[] hits = new HitData[16];
-		int numHits = GameState.instance.level.overlap(entity.position - radius, entity.position + radius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER);
+		int numHits = GameState.instance.level.overlap(entity.position - spillRadius, entity.position + spillRadius, hits, Entity.FILTER_MOB | Entity.FILTER_PLAYER);
 		for (int i = 0; i < numHits; i++)
 		{
 			if (hits[i].entity != null && hits[i].entity != entity)
@@ -101,5 +106,8 @@ public class Potion : Item
 		color /= effects.Count;
 
 		GameState.instance.level.addEntity(Effects.CreatePotionExplodeEffect(color), entity.position);
+		GameState.instance.level.addEntity(new PotionExplodeEffect(spillRadius, color), entity.position);
+
+		Audio.PlayOrganic(breakSound, new Vector3(entity.position, 0), 3);
 	}
 }
