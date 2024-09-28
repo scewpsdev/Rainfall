@@ -74,14 +74,8 @@ public class GameState : State
 
 	public static GameState instance;
 
-	public bool consoleOpen = false;
 
-	public bool isPaused = false;
-
-	long particleUpdateDelta;
-	long animationUpdateDelta;
-	long entityUpdateDelta;
-
+	public int saveID;
 	public RunStats run;
 	string seed = null;
 
@@ -104,11 +98,21 @@ public class GameState : State
 	public Mob currentBoss;
 	public float currentBossMaxHealth;
 
+	public bool isPaused = false;
+	public bool consoleOpen = false;
 
-	public GameState(string seed)
+	long particleUpdateDelta;
+	long animationUpdateDelta;
+	long entityUpdateDelta;
+
+
+	public GameState(int saveID, string seed)
 	{
-		instance = this;
+		this.saveID = saveID;
 		this.seed = seed;
+		instance = this;
+
+		SaveFile.Load(saveID);
 
 		reset();
 	}
@@ -157,19 +161,19 @@ public class GameState : State
 
 		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(5, 0));
 
-		for (int i = 0; i < GlobalSave.highscores.Length; i++)
+		for (int i = 0; i < SaveFile.highscores.Length; i++)
 		{
 			Vector2 position = new Vector2(101 + i * 5, 24);
 			hub.addEntity(new Pedestal(), position);
 
-			if (GlobalSave.highscores[i].score > 0)
+			if (SaveFile.highscores[i].score > 0)
 			{
-				string[] label = i == 0 ? ["Highest Score:", GlobalSave.highscores[i].score.ToString()] :
-					i == 1 ? ["Highest Floor:", GlobalSave.highscores[i].floor != -1 ? (GlobalSave.highscores[i].floor + 1).ToString() : "???"] :
-					i == 2 ? ["Fastest Time:", GlobalSave.highscores[i].time != -1 ? StringUtils.TimeToString(GlobalSave.highscores[i].time) : "???"] :
-					i == 3 ? ["Most kills:", GlobalSave.highscores[i].kills.ToString()] : ["???"];
+				string[] label = i == 0 ? ["Highest Score:", SaveFile.highscores[i].score.ToString()] :
+					i == 1 ? ["Highest Floor:", SaveFile.highscores[i].floor != -1 ? (SaveFile.highscores[i].floor + 1).ToString() : "???"] :
+					i == 2 ? ["Fastest Time:", SaveFile.highscores[i].time != -1 ? StringUtils.TimeToString(SaveFile.highscores[i].time) : "???"] :
+					i == 3 ? ["Most kills:", SaveFile.highscores[i].kills.ToString()] : ["???"];
 				uint color = RunStats.recordColors[i];
-				hub.addEntity(new HighscoreDummy(GlobalSave.highscores[i], label, color), position + Vector2.Up);
+				hub.addEntity(new HighscoreDummy(SaveFile.highscores[i], label, color), position + Vector2.Up);
 			}
 		}
 
@@ -403,7 +407,7 @@ public class GameState : State
 		run.killedBy = killedBy;
 		run.killedByName = killedByName;
 
-		GlobalSave.OnRunFinished(run);
+		SaveFile.OnRunFinished(run, saveID);
 		GameOverScreen.Init();
 	}
 

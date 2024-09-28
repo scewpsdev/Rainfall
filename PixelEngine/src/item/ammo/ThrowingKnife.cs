@@ -19,6 +19,7 @@ public class ThrowingKnife : Item
 		projectileItem = true;
 		projectileRotationOffset = -0.25f * MathF.PI;
 		projectileSticks = true;
+		projectileAims = true;
 		breakOnEnemyHit = true;
 		stackable = true;
 		isHandItem = false;

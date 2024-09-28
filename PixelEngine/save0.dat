@@ -1,18 +1,18 @@
 highscores = [ {
-score = 1348
+score = 1935
 floor = 1
-time = 57.24285125732422
-kills = 0
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0 ]
+time = 57.33693313598633
+kills = 3
+items0 = [ 310045746, 0 ]
+items1 = [ 2697664425, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0, 0, 0, 0 ]
 }, {
-score = 1348
+score = 1935
 floor = 1
-time = 57.24285125732422
-kills = 0
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0 ]
+time = 57.33693313598633
+kills = 3
+items0 = [ 310045746, 0 ]
+items1 = [ 2697664425, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0, 0, 0, 0 ]
 }, {
 score = 0
@@ -23,11 +23,11 @@ items0 = [ 0, 0 ]
 items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0, 0 ]
-items2 = [ 0, 0, 0, 0 ]
+score = 1935
+floor = 1
+time = 57.33693313598633
+kills = 3
+items0 = [ 310045746, 0 ]
+items1 = [ 2697664425, 0, 0, 0 ]
+items2 = [ 0, 0, 0, 0, 0, 0, 0 ]
 } ]

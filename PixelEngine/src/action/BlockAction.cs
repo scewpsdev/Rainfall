@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 
 public class BlockAction : EntityAction
 {
 	public Item shield;
-	public int direction;
+	Vector2 direction;
 
 	public List<Entity> hitEntities = new List<Entity>();
 
@@ -26,7 +25,7 @@ public class BlockAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		direction = player.direction;
+		direction = player.lookDirection.normalized;
 		player.blockingItem = shield;
 	}
 
@@ -47,9 +46,13 @@ public class BlockAction : EntityAction
 
 	public override Matrix getItemTransform(Player player)
 	{
-		return Matrix.CreateTranslation(progress * 0.5f * player.direction, 0, 0)
-			* Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x * player.direction, player.getWeaponOrigin(mainHand).y, 0)
+		Matrix shieldTransform = Matrix.CreateTranslation(progress * 0.5f, 0, 0)
+			* Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, player.getWeaponOrigin(mainHand).y, 0)
 			* (shield.type == ItemType.Weapon ? Matrix.CreateRotation(Vector3.UnitZ, MathF.PI * 0.5f) * Matrix.CreateTranslation(shield.renderOffset.x, 0, 0) : Matrix.Identity)
 			;
+		bool flip = direction.x < 0;
+		if (flip)
+			shieldTransform = Matrix.CreateRotation(Vector3.UnitY, MathF.PI) * shieldTransform;
+		return shieldTransform;
 	}
 }

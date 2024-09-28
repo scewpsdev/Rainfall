@@ -37,6 +37,8 @@ public static class Settings
 	{
 		LoadGameSettings();
 		LoadGraphicsSettings();
+
+		OptionsMenu.Init();
 	}
 
 	static void LoadGameSettings()

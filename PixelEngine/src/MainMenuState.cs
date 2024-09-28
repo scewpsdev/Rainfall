@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 enum MainMenuScreen
 {
 	Main,
+	SaveSelect,
 	CustomRunSettings,
 	Options,
 	Credits,
@@ -40,8 +41,8 @@ public class MainMenuState : State
 
 		string[] labels = [
 			"Play",
-			"Daily Run",
-			"Custom Run",
+			//"Daily Run",
+			//"Custom Run",
 			"Options",
 			"Credits",
 			"Quit"
@@ -49,8 +50,8 @@ public class MainMenuState : State
 
 		bool[] enabled = [
 			true,
-			true,
-			true,
+			//true,
+			//true,
 			true,
 			true,
 			true
@@ -62,31 +63,34 @@ public class MainMenuState : State
 			switch (selection)
 			{
 				case 0: // Play
-					PixelEngine.instance.pushState(new GameState(null));
+					screen = MainMenuScreen.SaveSelect;
+					currentButton = 0;
 					break;
 
+					/*
 				case 1: // Daily Run
 					DateTime today = DateTime.Today;
 					int day = today.DayOfYear;
 					int year = today.Year;
 					uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
-					PixelEngine.instance.pushState(new GameState(seed.ToString()));
+					//PixelEngine.instance.pushState(new GameState(seed.ToString()));
 					break;
 
 				case 2: // Custom Run
 					screen = MainMenuScreen.CustomRunSettings;
 					break;
+					*/
 
-				case 3: // Options
+				case 1: // Options
 					screen = MainMenuScreen.Options;
 					OptionsMenu.OnOpen();
 					break;
 
-				case 4: // Credits
+				case 2: // Credits
 					screen = MainMenuScreen.Credits;
 					break;
 
-				case 5: // Quit
+				case 3: // Quit
 					PixelEngine.instance.popState();
 					PixelEngine.instance.terminate();
 					break;
@@ -95,6 +99,23 @@ public class MainMenuState : State
 					Debug.Assert(false);
 					break;
 			}
+		}
+	}
+
+	void saveSelect()
+	{
+		string[] labels = [
+			"File 1",
+			"File 2",
+			"File 3",
+		];
+		bool[] enabled = [true, true, true];
+
+		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton);
+		if (selection != -1)
+		{
+			screen = MainMenuScreen.Main;
+			PixelEngine.instance.pushState(new GameState(selection, null));
 		}
 	}
 
@@ -178,12 +199,20 @@ public class MainMenuState : State
 
 	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
 	{
-		if (screen == MainMenuScreen.CustomRunSettings)
+		if (screen == MainMenuScreen.SaveSelect)
+		{
+			if (InputManager.IsPressed("UIQuit", true) || InputManager.IsPressed("UIBack", true))
+			{
+				screen = MainMenuScreen.Main;
+				Audio.PlayBackground(UISound.uiBack);
+			}
+		}
+		else if (screen == MainMenuScreen.CustomRunSettings)
 		{
 			if (key == KeyCode.Backspace && modifiers == KeyModifier.None && down && customRunSeedStr.Length > 0)
 				customRunSeedStr.Remove(customRunSeedStr.Length - 1, 1);
-			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
-				PixelEngine.instance.pushState(new GameState(customRunSeedStr.ToString()));
+			//if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
+			//	PixelEngine.instance.pushState(new GameState(customRunSeedStr.ToString()));
 			if (InputManager.IsPressed("UIQuit", true))
 			{
 				screen = MainMenuScreen.Main;
@@ -224,6 +253,8 @@ public class MainMenuState : State
 	{
 		if (screen == MainMenuScreen.Main)
 			mainScreen();
+		else if (screen == MainMenuScreen.SaveSelect)
+			saveSelect();
 		else if (screen == MainMenuScreen.CustomRunSettings)
 			customRun();
 		else if (screen == MainMenuScreen.Options)

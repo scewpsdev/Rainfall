@@ -209,7 +209,7 @@ public abstract class Item
 		upgradeLevel++;
 		value = Math.Max(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
-			attackDamage++;
+			attackDamage *= 1.3f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
 			armor++;
 	}
@@ -384,7 +384,7 @@ public abstract class Item
 
 	public static Item CreateRandom(ItemType type, Random random, float meanValue)
 	{
-		float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.5f, 0.0f);
+		float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.25f, 0.0f);
 		List<Item> items = GetItemPrototypesOfType(type);
 		for (int i = 0; i < items.Count; i++)
 		{
