@@ -24,7 +24,7 @@ public class Bomb : Item
 		displayName = "Bomb";
 		stackable = true;
 
-		value = 4;
+		value = 5;
 
 		attackDamage = 8;
 

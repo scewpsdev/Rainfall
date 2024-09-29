@@ -13,7 +13,7 @@ public class LeatherArmor : Item
 	{
 		displayName = "Leather Armor";
 
-		armor = 2;
+		armor = 4;
 		armorSlot = ArmorSlot.Body;
 
 		value = 8;

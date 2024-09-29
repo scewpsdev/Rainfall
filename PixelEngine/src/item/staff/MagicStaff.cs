@@ -19,26 +19,46 @@ public class MagicStaff : Item
 
 		attackDamage = 1;
 		//manaCost = 0.1f;
-		staffCharges = 28;
-		maxStaffCharges = 28;
+		staffCharges = 0;
 
-		value = 30;
+		value = 17;
 
-		sprite = new Sprite(tileset, 8, 1);
+		sprite = new Sprite(tileset, 2, 6);
 		renderOffset.x = 0.2f;
 
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
+	public override void update(Entity entity)
+	{
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			Spell spell = player.activeItems[player.selectedActiveItem] as Spell;
+			if (spell != null)
+			{
+				attackRate = spell.attackRate;
+				trigger = spell.trigger;
+				attackDamage = spell.attackDamage;
+			}
+		}
+	}
+
+	public override void onEquip(Player player)
+	{
+		player.manaRechargeRate *= 3;
+	}
+
+	public override void onUnequip(Player player)
+	{
+		player.manaRechargeRate /= 3;
+	}
+
 	public override bool use(Player player)
 	{
-		if (staffCharges > 0 && player.mana >= manaCost)
-		{
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new MagicProjectileSpell()));
-			player.consumeMana(manaCost);
-			base.use(player);
-			staffCharges--;
-		}
-		return staffCharges == 0;
+		Spell spell = player.activeItems[player.selectedActiveItem] as Spell;
+		if (spell != null)
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell));
+		return false;
 	}
 }

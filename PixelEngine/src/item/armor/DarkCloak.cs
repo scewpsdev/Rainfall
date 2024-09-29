@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class WizardsCloak : Item
+public class DarkCloak : Item
 {
-	public WizardsCloak()
-		: base("wizards_cloak", ItemType.Armor)
+	public DarkCloak()
+		: base("dark_cloak", ItemType.Armor)
 	{
-		displayName = "Wizard's Cloak";
+		displayName = "Dark Cloak";
 
 		armor = 1;
 		armorSlot = ArmorSlot.Body;
@@ -19,9 +19,8 @@ public class WizardsCloak : Item
 		value = 5;
 
 		sprite = new Sprite(tileset, 5, 0);
-		spriteColor = 0xFF874774;
+		spriteColor = 0xFF2e2739;
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/cloak.png", false), 0, 0, 16, 16);
-		ingameSpriteColor = 0xFF874774;
-		//ingameSpriteColor = 0xFF676898;
+		ingameSpriteColor = 0xFF2e2739;
 	}
 }

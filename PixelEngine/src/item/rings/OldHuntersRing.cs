@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HuntersRing : Item
+public class OldHuntersRing : Item
 {
-	public HuntersRing()
-		: base("hunters_ring", ItemType.Ring)
+	public OldHuntersRing()
+		: base("old_hunters_ring", ItemType.Ring)
 	{
-		displayName = "Hunter's Ring";
+		displayName = "Old Hunter's Ring";
 
 		description = "Unlimited arrows";
 

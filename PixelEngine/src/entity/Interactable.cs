@@ -11,6 +11,6 @@ public interface Interactable
 	public void interact(Player player);
 	public bool canInteract(Player player) { return true; }
 	public float getRange() { return 1; }
-	public void onFocusEnter(Player player) { }
-	public void onFocusLeft(Player player) { }
+	public void onFocusEnter(Player player);
+	public void onFocusLeft(Player player);
 }

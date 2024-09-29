@@ -19,6 +19,7 @@ public enum ItemType
 	Ring,
 	Staff,
 	Scroll,
+	Spell,
 	Utility,
 	Ammo,
 	Gem,
@@ -138,16 +139,18 @@ public abstract class Item
 		this.type = type;
 
 		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
-		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
+		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Spell || type == ItemType.Food || type == ItemType.Utility;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Ring;
 
-		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Armor;
+		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor;
 
 		useSound = type == ItemType.Weapon ? weaponUse : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
 		blockSound = type == ItemType.Weapon ? parryHit : weaponHit;
 		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
 		equipSound = type == ItemType.Ring ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
+
+		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 4 : type == ItemType.Spell ? 1 : 4;
 	}
 
 	public Item copy()
@@ -286,7 +289,7 @@ public abstract class Item
 		InitType(new Torch());
 		InitType(new RingOfSwiftness());
 		InitType(new RingOfVitality());
-		InitType(new MagicStaff());
+		InitType(new ProjectileStaff());
 		InitType(new PotionOfGreaterHealing());
 		InitType(new Lantern());
 		InitType(new BarbarianHelmet());
@@ -323,7 +326,7 @@ public abstract class Item
 		InitType(new AutomaticCrossbow());
 		InitType(new Crossbow());
 		InitType(new BrokenSword());
-		InitType(new HuntersRing());
+		InitType(new OldHuntersRing());
 		InitType(new WoodenMallet());
 		InitType(new ScrollOfMonsterTaming());
 		InitType(new Backpack());
@@ -351,6 +354,12 @@ public abstract class Item
 		InitType(new AssassinsDagger());
 		InitType(new RoyalGreatsword());
 		InitType(new Magnet());
+		InitType(new MagicProjectileSpell());
+		InitType(new MagicStaff());
+		InitType(new LightningSpell());
+		InitType(new LightOrbSpell());
+		InitType(new DarkHood());
+		InitType(new DarkCloak());
 	}
 
 	static void InitType(Item item)

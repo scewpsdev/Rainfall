@@ -8,6 +8,23 @@ using System.Threading.Tasks;
 
 public class MagicProjectileSpell : Spell
 {
+	public MagicProjectileSpell()
+		: base("magic_arrow_spell")
+	{
+		displayName = "Magic Arrow";
+
+		value = 14;
+
+		attackDamage = 0.7f;
+		attackRate = 3;
+		manaCost = 0.1f;
+		trigger = false;
+
+		sprite = new Sprite(tileset, 0, 6);
+
+		useSound = Resource.GetSounds("res/sounds/cast", 3);
+	}
+
 	public override void cast(Player player, Item staff)
 	{
 		Vector2 position = player.position + new Vector2(0.0f, 0.3f);
