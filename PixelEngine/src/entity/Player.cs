@@ -163,14 +163,27 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		if (handItem != null)
 		{
+			/*
 			handItem.onUnequip(this);
 			if (handParticles != null)
 			{
 				handParticles.remove();
 				handParticles = null;
 			}
+			*/
+			throwItem(handItem, true);
+			removeItem(handItem);
 			handItem = null;
 		}
+
+		//if (item.twoHanded && offhandItem != null)
+		//	unequipItem(offhandItem);
+		if (item.twoHanded && offhandItem != null)
+		{
+			throwItem(offhandItem, true);
+			removeItem(offhandItem);
+		}
+
 		handItem = item;
 		handItem.onEquip(this);
 		if (handItem.hasParticleEffect)
@@ -179,9 +192,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (item.equipSound != null)
 			Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
 
-		if (item.twoHanded && offhandItem != null)
-			unequipItem(offhandItem);
-
 		return true;
 	}
 
@@ -189,14 +199,27 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		if (offhandItem != null)
 		{
+			/*
 			offhandItem.onUnequip(this);
 			if (offhandParticles != null)
 			{
 				offhandParticles.remove();
 				offhandParticles = null;
 			}
+			*/
+			throwItem(offhandItem, true);
+			removeItem(offhandItem);
 			offhandItem = null;
 		}
+
+		//if (handItem != null && handItem.twoHanded)
+		//	unequipItem(handItem);
+		if (handItem != null && handItem.twoHanded)
+		{
+			throwItem(handItem);
+			removeItem(handItem);
+		}
+
 		offhandItem = item;
 		offhandItem.onEquip(this);
 		if (offhandItem.hasParticleEffect)
@@ -204,9 +227,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (item.equipSound != null)
 			Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
-
-		if (handItem != null && handItem.twoHanded)
-			unequipItem(handItem);
 
 		return true;
 	}
@@ -242,7 +262,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					if (passiveItems[i].armorSlot == item.armorSlot)
 					{
-						unequipItem(passiveItems[i]);
+						throwItem(passiveItems[i], true);
+						removeItem(passiveItems[i]);
 						break;
 					}
 				}
@@ -392,13 +413,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? -1 : score1 < score2 ? 1 : 0;
 		});
 
-		if (item.isSecondaryItem && handItem != null && !handItem.twoHanded && offhandItem == null)
+		if (item.isSecondaryItem && handItem != null /*&& !handItem.twoHanded && offhandItem == null*/)
 			equipOffhandItem(item);
-		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && handItem == null && (offhandItem == null || !item.twoHanded))
+		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
 			equipHandItem(item);
 		else if (item.isActiveItem && numActiveItems < activeItems.Length)
 			equipItem(item);
-		else if (item.isPassiveItem && canEquipPassiveItem(item))
+		else if (item.isPassiveItem /*&& canEquipPassiveItem(item)*/)
 			equipItem(item);
 	}
 
@@ -1130,18 +1151,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (!switched)
 					selectedActiveItem = (selectedActiveItem + 1) % activeItems.Length;
 			}
-			for (int i = 0; i < Math.Min(activeItems.Length, 10); i++)
-			{
-				if (Input.IsKeyPressed(KeyCode.Key1 + i))
-				{
-					selectedActiveItem = i;
-					hud.onItemSwitch();
-				}
-			}
 			if (InputManager.IsPressed("UseItem"))
 			{
 				if (activeItems[selectedActiveItem] != null)
 					useActiveItem(activeItems[selectedActiveItem]);
+			}
+			for (int i = 0; i < Math.Min(activeItems.Length, 9); i++)
+			{
+				if (Input.IsKeyPressed(KeyCode.Key1 + i))
+				{
+					if (activeItems[i] != null)
+						useActiveItem(activeItems[i]);
+				}
 			}
 
 			Span<HitData> hits = new HitData[16];

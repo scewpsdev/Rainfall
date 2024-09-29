@@ -32,7 +32,7 @@ public class Potion : Item
 	{
 	}
 
-	public void makeThrowable()
+	public Item makeThrowable()
 	{
 		value++;
 		displayName = "Throwable " + displayName;
@@ -41,6 +41,7 @@ public class Potion : Item
 		breakOnWallHit = true;
 		breakOnEnemyHit = true;
 		throwable = true;
+		return this;
 	}
 
 	public void addEffect(PotionEffect effect)

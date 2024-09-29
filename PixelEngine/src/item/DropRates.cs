@@ -9,14 +9,15 @@ using System.Threading.Tasks;
 public static class DropRates
 {
 	public static readonly float[] defaultDroprates = new float[(int)ItemType.Count] {
-		0.14f, // Weapon
+		0.12f, // Weapon
 		0.03f, // Shield
-		0.14f, // Armor
+		0.12f, // Armor
 		0.15f, // Food
 		0.1f, // Potion
 		0.03f, // Ring
 		0.06f, // Staff
 		0.09f, // Scroll
+		0.04f,  // Spell
 		0.1f, // Utility
 		0.11f, // Ammo
 		0.05f, // Gem
@@ -24,25 +25,27 @@ public static class DropRates
 	public static readonly float[] shop = new float[(int)ItemType.Count] {
 		0.1f, // Weapon
 		0.04f, // Shield
-		0.14f, // Armor
-		0.15f, // Food
+		0.12f, // Armor
+		0.12f, // Food
 		0.1f, // Potion
 		0.03f, // Ring
-		0.09f, // Staff
+		0.11f, // Staff
 		0.09f, // Scroll
+		0.07f,  // Spell
 		0.1f, // Utility
 		0.11f, // Ammo
-		0.05f, // Gem
+		0.01f, // Gem
 	};
 	public static readonly float[] chest = new float[(int)ItemType.Count] {
-		0.2f, // Weapon
+		0.18f, // Weapon
 		0.04f, // Shield
-		0.18f, // Armor
-		0.05f, // Food
+		0.16f, // Armor
+		0.04f, // Food
 		0.12f, // Potion
 		0.05f, // Ring
 		0.08f, // Staff
 		0.11f, // Scroll
+		0.05f,  // Spell
 		0.06f, // Utility
 		0.07f, // Ammo
 		0.04f, // Gem
@@ -56,19 +59,21 @@ public static class DropRates
 		0.03f, // Ring
 		0.04f, // Staff
 		0.08f, // Scroll
+		0.01f,  // Spell
 		0.13f, // Utility
 		0.11f, // Ammo
-		0.05f, // Gem
+		0.04f, // Gem
 	};
 	public static readonly float[] ground = new float[(int)ItemType.Count] {
 		0.05f, // Weapon
 		0.01f, // Shield
 		0.05f, // Armor
-		0.2f, // Food
+		0.19f, // Food
 		0.1f, // Potion
 		0.01f, // Ring
 		0.02f, // Staff
 		0.06f, // Scroll
+		0.01f,  // Spell
 		0.3f, // Utility
 		0.2f, // Ammo
 		0.0f, // Gem
@@ -81,7 +86,8 @@ public static class DropRates
 		0.1f, // Potion
 		0.03f, // Ring
 		0.06f, // Staff
-		0.09f, // Scroll
+		0.05f, // Scroll
+		0.04f,  // Spell
 		0.1f, // Utility
 		0.11f, // Ammo
 		0.05f, // Gem

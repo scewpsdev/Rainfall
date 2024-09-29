@@ -119,15 +119,14 @@ public class InventoryUI
 		{
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
 
-			List<Item> items = new List<Item>();
-			for (int i = 0; i < player.items.Count; i++)
-				items.Add(player.items[i]);
+			List<Item> items = player.items;
 			int choice = ItemSelector.Render(10, 50, "Inventory", items, null, player.money, player, false, out bool secondary, out bool closed, ref selectedItem);
 
 			if (choice != -1)
 			{
 				Item item = items[choice];
 
+				/*
 				if (item.isHandItem && !secondary)
 				{
 					if (player.handItem == item)
@@ -150,6 +149,7 @@ public class InventoryUI
 						player.equipOffhandItem(item);
 					}
 				}
+				*/
 				if (item.isActiveItem)
 				{
 					if (!secondary)
@@ -159,7 +159,7 @@ public class InventoryUI
 						else
 							player.equipItem(item);
 					}
-					if (secondary)
+					else
 					{
 						if (player.useActiveItem(item))
 						{
@@ -168,12 +168,34 @@ public class InventoryUI
 						}
 					}
 				}
+				/*
 				if (item.isPassiveItem && !secondary)
 				{
 					if (player.isPassiveItem(item, out _))
 						player.unequipItem(item);
 					else
 						player.equipItem(item);
+				}
+				*/
+				if ((item.isHandItem || item.isPassiveItem) && !secondary)
+				{
+					player.throwItem(item, true);
+					player.removeItem(item);
+					if (choice <= selectedItem)
+						selectedItem--;
+				}
+				if (item.isHandItem && item.isSecondaryItem && secondary)
+				{
+					if (item == player.handItem)
+					{
+						player.unequipItem(item);
+						player.equipOffhandItem(item);
+					}
+					else if (item == player.offhandItem)
+					{
+						player.unequipItem(item);
+						player.equipHandItem(item);
+					}
 				}
 			}
 

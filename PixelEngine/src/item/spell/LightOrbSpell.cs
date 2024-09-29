@@ -8,6 +8,21 @@ using System.Threading.Tasks;
 
 public class LightOrbSpell : Spell
 {
+	public LightOrbSpell()
+		: base("illumination_spell")
+	{
+		displayName = "Illumination";
+
+		value = 8;
+
+		attackRate = 1;
+		attackDamage = 0;
+		manaCost = 0.5f;
+		trigger = false;
+
+		sprite = new Sprite(tileset, 4, 6);
+	}
+
 	public override void cast(Player player, Item staff)
 	{
 		Vector2 position = player.position + new Vector2(0.0f, 0.3f);

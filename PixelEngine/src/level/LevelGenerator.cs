@@ -176,7 +176,7 @@ public class Room
 
 	public bool containsEntity(Entity entity)
 	{
-		return entity.position.x >= x + 0.5f && entity.position.x <= x + width - 0.5f &&
+		return entity.position.x >= x + 1 && entity.position.x <= x + width - 1 &&
 			entity.position.y >= y + 0.5f && entity.position.y <= y + height - 0.5f;
 	}
 }
