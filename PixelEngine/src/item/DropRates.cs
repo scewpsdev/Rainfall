@@ -29,11 +29,11 @@ public static class DropRates
 		0.12f, // Food
 		0.1f, // Potion
 		0.03f, // Ring
-		0.11f, // Staff
+		0.1f, // Staff
 		0.09f, // Scroll
-		0.07f,  // Spell
+		0.1f,  // Spell
 		0.1f, // Utility
-		0.11f, // Ammo
+		0.09f, // Ammo
 		0.01f, // Gem
 	};
 	public static readonly float[] chest = new float[(int)ItemType.Count] {

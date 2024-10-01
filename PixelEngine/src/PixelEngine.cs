@@ -29,6 +29,10 @@ public class PixelEngine : Game
 	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(PixelEngine))?.GetName().Name;
 
 
+	const int idealScale = 5;
+	public int scale;
+	public int width, height;
+
 	public bool debugStats = false;
 
 	Stack<State> stateMachine = new Stack<State>();
@@ -38,10 +42,12 @@ public class PixelEngine : Game
 	{
 		Display.windowTitle = ASSEMBLY_NAME;
 
-		float w = 1920 / 5.0f / 16.0f;
-		int scale = (int)MathF.Round(Display.width / w / 16.0f);
-		scale = 1;
-		Renderer.Init(graphics, Display.width / scale, Display.height / scale);
+		// pixel perfect correction
+		scale = (int)MathF.Round(Display.width / 1920.0f * idealScale);
+		width = (int)MathF.Ceiling(Display.width / (float)scale);
+		height = (int)MathF.Ceiling(Display.height / (float)scale);
+
+		Renderer.Init(graphics, width, height);
 
 		Physics.Init();
 		Audio.Init();
@@ -64,12 +70,14 @@ public class PixelEngine : Game
 		Physics.Shutdown();
 	}
 
-	protected override void onViewportSizeEvent(int width, int height)
+	protected override void onViewportSizeEvent(int newWidth, int newHeight)
 	{
-		float w = 1920 / 5.0f / 16.0f;
-		int scale = (int)MathF.Round(Display.width / w / 16.0f);
-		scale = 1;
-		Renderer.Resize(width / scale, height / scale);
+		// pixel perfect correction
+		scale = (int)MathF.Round(newWidth / 1920.0f * idealScale);
+		width = (int)MathF.Ceiling(newWidth / (float)scale);
+		height = (int)MathF.Ceiling(newHeight / (float)scale);
+
+		Renderer.Resize(width, height);
 	}
 
 	public void pushState(State state)

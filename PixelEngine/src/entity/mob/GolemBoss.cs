@@ -29,6 +29,7 @@ public class GolemBoss : Mob
 		rect = new FloatRect(-2, 0, 4, 4);
 
 		ai = new GolemAI(this);
+		ai.loseRange = 100;
 
 		health = 22;
 		speed = 2.0f;
