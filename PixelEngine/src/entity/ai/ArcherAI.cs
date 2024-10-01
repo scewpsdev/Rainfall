@@ -31,6 +31,8 @@ public class ArcherAI : AI
 
 	long targetLastSeen = -1;
 
+	Sound shootSound;
+
 
 	public ArcherAI(Mob mob)
 		: base(mob)
@@ -38,6 +40,8 @@ public class ArcherAI : AI
 		aggroRange = 12.0f;
 		loseRange = 15.0f;
 		loseTime = 4.0f;
+
+		shootSound = Resource.GetSound("res/sounds/bow_shoot.ogg");
 	}
 
 	void updateTargetFollow()
@@ -78,8 +82,10 @@ public class ArcherAI : AI
 			mob.animator.setAnimation("idle");
 
 			Vector2 position = mob.position + new Vector2(0, 0.5f);
-			Vector2 direction = toTarget;
-			Vector2 velocity = direction * 20;
+
+			float gravity = -20;
+			float xspeed = 10;
+			Vector2 velocity = ProjectileTrajectory.Calculate(toTarget.x * distance, toTarget.y * distance, xspeed, gravity);
 
 			Arrow arrow = new Arrow();
 			arrow.breakOnWallHit = true;
@@ -88,6 +94,8 @@ public class ArcherAI : AI
 			ItemEntity entity = new ItemEntity(arrow, mob, velocity);
 			entity.bounciness = 0.3f;
 			GameState.instance.level.addEntity(entity, position);
+
+			Audio.PlayOrganic(shootSound, new Vector3(mob.position, 0));
 
 			state = AIState.Cooldown;
 			cooldownTime = Time.currentTime;

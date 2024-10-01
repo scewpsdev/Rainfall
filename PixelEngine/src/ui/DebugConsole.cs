@@ -101,25 +101,6 @@ public static class DebugConsole
 				return "No item of type " + args[0];
 			}
 		}
-		if (cmd == "set_floor")
-		{
-			if (args.Length > 0)
-			{
-				string areaName = args[0].Substring(0, args[0].Length - 1);
-				if (int.TryParse(args[0].Substring(args[0].Length - 1), out int floor))
-				{
-					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "mines" ? GameState.instance.areaMines : areaName == "gardens" ? GameState.instance.areaGardens : null;
-					if (area != null)
-					{
-						if (floor >= 1 && floor <= area.Length)
-						{
-							Level level = area[floor - 1];
-							GameState.instance.switchLevel(level, level.entrance.position);
-						}
-					}
-				}
-			}
-		}
 		if (cmd == "craft_item")
 		{
 			if (args.Length >= 2)
@@ -148,6 +129,38 @@ public static class DebugConsole
 					}
 
 					GameState.instance.player.hud.showMessage("Crafted " + (count > 1 ? count.ToString() + "x " : "") + "item " + craftedItem.displayName + " from " + item1.displayName + " and " + item2.displayName);
+				}
+			}
+		}
+		if (cmd == "set_floor")
+		{
+			if (args.Length > 0)
+			{
+				string areaName = args[0].Substring(0, args[0].Length - 1);
+				if (int.TryParse(args[0].Substring(args[0].Length - 1), out int floor))
+				{
+					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "mines" ? GameState.instance.areaMines : areaName == "gardens" ? GameState.instance.areaGardens : null;
+					if (area != null)
+					{
+						if (floor >= 1 && floor <= area.Length)
+						{
+							Level level = area[floor - 1];
+							GameState.instance.switchLevel(level, level.entrance.position);
+						}
+					}
+				}
+			}
+		}
+		if (cmd == "teleport")
+		{
+			if (args.Length >= 2)
+			{
+				if (float.TryParse(args[0], out float x))
+				{
+					if (float.TryParse(args[1], out float y))
+					{
+						GameState.instance.player.position = new Vector2(x, y);
+					}
 				}
 			}
 		}

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 
 public class ItemEntity : Entity, Interactable, Hittable
@@ -15,7 +14,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 	public int ricochets = 0;
 	int pierces = 0;
-	float damage;
+	public float damage;
 	bool stuck = false;
 	Vector2i stuckTile;
 
@@ -302,7 +301,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
-			//renderTooltip();
+			renderTooltip();
 		}
 
 		item.render(this);

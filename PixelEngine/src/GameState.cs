@@ -155,30 +155,32 @@ public class GameState : State
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
-		hub.addEntity(tutorialDoor, hub.getMarker(11) + new Vector2(10.5f, 0));
-		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), hub.getMarker(11) + new Vector2(10.5f, 2));
-		hub.addEntity(tutorialExitDoor, hub.getMarker(11) + new Vector2(10.5f, 5));
+		hub.addEntity(tutorialDoor, new Vector2(43.5f + 13, 23));
+		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(43.5f + 13, 25));
+		hub.addEntity(tutorialExitDoor, new Vector2(43.5f + 13, 28));
 
-		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(5, 0));
+		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(7, 0));
 
-		hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-5, 0));
-		hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-8, 0));
-		hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), new PoisonVial().makeThrowable()), hub.getMarker(10) + new Vector2(-11, 0));
-		hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-14, 0));
-		hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-17, 0));
+		//hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-8, 0));
+		//hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-11, 0));
+		//hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), new PoisonVial().makeThrowable()), hub.getMarker(10) + new Vector2(-14, 0));
+		//hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-17, 0));
+		//hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-20, 0));
 
 #if DEBUG
-		hub.addEntity(new ArmorStand("Dev", 1, new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()), hub.getMarker(10) + new Vector2(-2, 0));
+		hub.addEntity(new ArmorStand("Dev", 1, new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()), hub.getMarker(10) + new Vector2(-5, 0));
 #endif
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
 		npc.clearShop();
+		npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
-		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-23, 0));
+		npc.buysItems = false;
+		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-26 + 13, 0));
 
 		for (int i = 0; i < SaveFile.highscores.Length; i++)
 		{
@@ -296,8 +298,9 @@ public class GameState : State
 			{
 				bool startingRoom = false;
 				bool bossRoom = i == areaGardens.Length - 1;
+				int floor = numCaveFloors + i;
 				level = areaGardens[i];
-				generator.generateGardens(run.seed, i, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
+				generator.generateGardens(run.seed, floor, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
 				lastLevel = areaGardens[i];
 				lastDoor = areaGardens[i].exit;
 			}
@@ -400,6 +403,12 @@ public class GameState : State
 		this.newLevel = newLevel;
 		this.newLevelSpawnPosition = spawnPosition;
 		levelSwitchTime = Time.currentTime;
+	}
+
+	public void moveEntityToLevel(Entity entity, Level newLevel)
+	{
+		entity.level.removeEntity(entity);
+		newLevel.addEntity(entity, false);
 	}
 
 	public void stopRun(bool hasWon, Entity killedBy = null, string killedByName = null)
@@ -511,7 +520,7 @@ public class GameState : State
 				ambientSource = Audio.PlayBackground(level.ambientSound, 0.1f, 1, true, 10);
 		}
 
-		if (!isPaused && newLevel == null)
+		if (!isPaused && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
 		{
 			long beforeParticleUpdate = Time.timestamp;
 			//ParticleSystem.Update(Vector3.Zero);

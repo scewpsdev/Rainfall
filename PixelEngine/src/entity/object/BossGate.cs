@@ -67,7 +67,7 @@ public class BossGate : Entity
 			open();
 
 			// update hub area
-			GameState.instance.hub.addEntity(new Ladder(17), new Vector2(4, 2));
+			GameState.instance.hub.addEntity(new Ladder(15), new Vector2(87, 23));
 		}
 	}
 

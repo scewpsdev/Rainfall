@@ -24,8 +24,6 @@ public class ArmorStand : Entity, Interactable
 		sprite = new Sprite(TileType.tileset, 2, 10);
 
 		this.items.AddRange(items);
-		for (int i = 0; i < items.Length; i++)
-			items[i].value = 0;
 	}
 
 	public ArmorStand()
@@ -35,15 +33,16 @@ public class ArmorStand : Entity, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return items.Count > 0 && player.money >= cost;
+		return items.Count > 0; // && player.money >= cost;
 	}
 
 	public void interact(Player player)
 	{
+		player.clearInventory();
 		for (int i = 0; i < items.Count; i++)
 			player.giveItem(items[i]);
 		items.Clear();
-		player.money -= cost;
+		player.money = Math.Max(player.money - cost, 0);
 	}
 
 	public void onFocusEnter(Player player)

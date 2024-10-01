@@ -21,7 +21,7 @@ public class Snake : Mob
 		animator.addAnimation("dead", 3 * 16, 0, 16, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.3f, 0, 0.6f, 0.8f);
+		collider = new FloatRect(-0.3f, 0, 0.6f, 1.0f);
 
 		ai = new SnakeAI(this);
 

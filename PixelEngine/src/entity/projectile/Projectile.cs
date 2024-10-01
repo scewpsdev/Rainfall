@@ -70,6 +70,8 @@ public class Projectile : Entity
 		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
 
 		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		if (hit == null)
+			hit = GameState.instance.level.sweep(position - displacement, collider, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit != null)
 		{
 			if (hit.entity != null)

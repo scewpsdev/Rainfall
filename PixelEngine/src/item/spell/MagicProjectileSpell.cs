@@ -15,8 +15,8 @@ public class MagicProjectileSpell : Spell
 
 		value = 14;
 
-		attackDamage = 0.7f;
-		attackRate = 3;
+		attackDamage = 0.8f;
+		attackRate = 2.5f;
 		manaCost = 0.1f;
 		trigger = false;
 
@@ -32,7 +32,7 @@ public class MagicProjectileSpell : Spell
 
 		Vector2 direction = player.lookDirection.normalized;
 
-		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, staff), position);
+		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, staff, this), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 	}
 }

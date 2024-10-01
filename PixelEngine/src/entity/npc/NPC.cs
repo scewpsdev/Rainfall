@@ -19,6 +19,7 @@ enum NPCState
 	Shop,
 	SellMenu,
 	CraftingMenu,
+	UpgradeMenu,
 }
 
 enum DialogueEffect : int
@@ -56,8 +57,9 @@ public abstract class NPC : Mob, Interactable
 
 	int selectedOption = 0;
 
-	protected bool buysItems = false;
+	public bool buysItems = false;
 	protected bool canCraft = false;
+	protected bool canUpgrade = false;
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
@@ -68,7 +70,11 @@ public abstract class NPC : Mob, Interactable
 	List<Item> craftingItems = new List<Item>();
 	Item craftingItem1, craftingItem2;
 
+	List<Item> upgradeItems = new List<Item>();
+	List<int> upgradePrices = new List<int>();
+
 	Sound[] tradeSound;
+	Sound upgradeSound;
 
 	//Sprite gem;
 
@@ -81,6 +87,7 @@ public abstract class NPC : Mob, Interactable
 		//gem = HUD.gold;
 
 		tradeSound = Resource.GetSounds("res/sounds/trade", 12);
+		upgradeSound = Resource.GetSound("res/sounds/upgrade.ogg");
 	}
 
 	public override void destroy()
@@ -308,6 +315,21 @@ public abstract class NPC : Mob, Interactable
 			craftingItems.Add(player.items[i]);
 	}
 
+	void initUpgradeMenu()
+	{
+		state = NPCState.UpgradeMenu;
+		selectedItem = 0;
+		upgradeItems.Clear();
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].upgradable)
+			{
+				upgradeItems.Add(player.items[i]);
+				upgradePrices.Add(player.items[i].upgradePrice);
+			}
+		}
+	}
+
 	public override void update()
 	{
 		Player player = GameState.instance.player;
@@ -475,6 +497,8 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Sell");
 			if (canCraft && player.items.Count >= 2)
 				options.Add("Craft");
+			if (canUpgrade && player.items.Count >= 1)
+				options.Add("Upgrade");
 			options.Add("Quit");
 
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
@@ -494,6 +518,10 @@ public abstract class NPC : Mob, Interactable
 				else if (options[option] == "Craft")
 				{
 					initCraftingMenu();
+				}
+				else if (options[option] == "Upgrade")
+				{
+					initUpgradeMenu();
 				}
 				//else if (options[i] == "Talk")
 				//	; // TODO
@@ -521,30 +549,28 @@ public abstract class NPC : Mob, Interactable
 			{
 				Item item = items[choice];
 				int price = prices[choice];
-				bool canAfford = player.money >= price;
 
-				if (canAfford)
+				if (item.stackable && item.stackSize > 1 && !InputManager.IsDown("Sprint") && player.money >= price)
 				{
-					if (item.stackable && item.stackSize > 1)
-					{
-						Item copy = item.copy();
-						copy.stackSize = 1;
-						GameState.instance.player.giveItem(copy);
-						GameState.instance.player.money -= price;
-						item.stackSize--;
-					}
-					else
-					{
-						GameState.instance.player.giveItem(item);
-						GameState.instance.player.money -= price;
+					Item copy = item.copy();
+					copy.stackSize = 1;
+					GameState.instance.player.giveItem(copy);
+					GameState.instance.player.money -= price;
+					item.stackSize--;
 
-						shopItems.RemoveAt(choice);
+					Audio.Play(tradeSound, new Vector3(position, 0));
+				}
+				else if (player.money >= price * item.stackSize)
+				{
+					GameState.instance.player.giveItem(item);
+					GameState.instance.player.money -= price * item.stackSize;
 
-						if (selectedItem == shopItems.Count)
-							selectedItem--;
-						if (shopItems.Count == 0)
-							initMenu();
-					}
+					shopItems.RemoveAt(choice);
+
+					if (selectedItem == shopItems.Count)
+						selectedItem--;
+					if (shopItems.Count == 0)
+						initMenu();
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
 				}
@@ -654,7 +680,7 @@ public abstract class NPC : Mob, Interactable
 				Item item = items[itemIdx];
 				int price = prices[itemIdx];
 
-				if (item.stackable && item.stackSize > 1)
+				if (item.stackable && item.stackSize > 1 && !InputManager.IsDown("Sprint"))
 				{
 					item.stackSize--;
 					Item copy = item.copy();
@@ -666,7 +692,7 @@ public abstract class NPC : Mob, Interactable
 				{
 					GameState.instance.player.removeItem(item);
 					addShopItem(item);
-					GameState.instance.player.money += price;
+					GameState.instance.player.money += price * item.stackSize;
 
 					if (selectedItem == player.items.Count)
 						selectedItem--;
@@ -892,6 +918,23 @@ public abstract class NPC : Mob, Interactable
 			if (InputManager.IsPressed("UIBack", true))
 				initMenu();
 			*/
+		}
+		else if (state == NPCState.UpgradeMenu)
+		{
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+
+			int choice = ItemSelector.Render(pos, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				Item item = upgradeItems[choice];
+				item.upgrade();
+				player.money -= upgradePrices[choice];
+				upgradePrices[choice] = item.upgradePrice;
+				Audio.Play(upgradeSound, new Vector3(position, 0));
+			}
+
+			if (closed)
+				initMenu();
 		}
 	}
 }

@@ -9,16 +9,18 @@ using System.Threading.Tasks;
 public class BowShootAction : EntityAction
 {
 	Item weapon;
+	Item arrow;
 
 	public List<Entity> hitEntities = new List<Entity>();
 
 
-	public BowShootAction(Item weapon, bool mainHand)
+	public BowShootAction(Item weapon, Item arrow, bool mainHand)
 		: base("bow_shoot", mainHand)
 	{
 		duration = 1000;
 
 		this.weapon = weapon;
+		this.arrow = arrow;
 	}
 
 	public override void onStarted(Player player)
@@ -29,7 +31,7 @@ public class BowShootAction : EntityAction
 		Vector2 position = player.position + player.collider.center;
 		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
 
-		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon);
+		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon, arrow);
 		GameState.instance.level.addEntity(projectile, position);
 
 		/*

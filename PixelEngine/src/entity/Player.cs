@@ -85,7 +85,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public ActionQueue actions;
 
-	Interactable interactableInFocus = null;
+	public Interactable interactableInFocus = null;
 	public Climbable currentLadder = null;
 	Climbable lastLadderJumpedFrom = null;
 
@@ -159,6 +159,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 	}
 
+	public override void onLevelSwitch(Level newLevel)
+	{
+		if (handParticles != null)
+			GameState.instance.moveEntityToLevel(handParticles, newLevel);
+		if (offhandParticles != null)
+			GameState.instance.moveEntityToLevel(offhandParticles, newLevel);
+	}
+
 	public bool equipHandItem(Item item)
 	{
 		if (handItem != null)
@@ -171,9 +179,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				handParticles = null;
 			}
 			*/
-			throwItem(handItem, true);
-			removeItem(handItem);
-			handItem = null;
+			if (handItem.isSecondaryItem && !item.twoHanded)
+			{
+				Item _item = handItem;
+				unequipItem(_item);
+				equipOffhandItem(_item);
+			}
+			else
+			{
+				throwItem(handItem, true);
+				removeItem(handItem);
+			}
 		}
 
 		//if (item.twoHanded && offhandItem != null)
@@ -216,7 +232,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//	unequipItem(handItem);
 		if (handItem != null && handItem.twoHanded)
 		{
-			throwItem(handItem);
+			throwItem(handItem, true);
 			removeItem(handItem);
 		}
 
@@ -1063,7 +1079,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		Vector2 displacement = velocity * Time.deltaTime;
 
-		if (!isGrounded && displacement.y < 0)
+		if (!isGrounded && !isClimbing && displacement.y < 0)
 			fallDistance += -displacement.y;
 		else
 			fallDistance = 0;
@@ -1300,6 +1316,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			handItem?.update(this);
+			offhandItem?.update(this);
 			for (int i = 0; i < activeItems.Length; i++)
 			{
 				if (activeItems[i] != null)
@@ -1457,7 +1474,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = 2;
 		else if (animator.currentAnimation == "stun")
 			animOffset.y = -2;
-		return new Vector2((!mainHand ? 4 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 2 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)

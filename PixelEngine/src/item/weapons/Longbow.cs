@@ -43,8 +43,8 @@ public class Longbow : Item
 		if (arrows != null)
 		{
 			base.use(player);
-			player.actions.queueAction(new BowShootAction(this, player.handItem == this));
-			player.removeItemSingle(arrows);
+			Item arrow = player.removeItemSingle(arrows);
+			player.actions.queueAction(new BowShootAction(this, arrow, player.handItem == this));
 		}
 		return false;
 	}

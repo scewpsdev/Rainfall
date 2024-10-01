@@ -25,13 +25,13 @@ public static class SaveFile
 
 	public static void Load(int saveID)
 	{
+		string path = "save" + saveID + ".dat";
 #if DEBUG
 		if (saveID != 2)
 #else
 		if (File.Exists(path))
 #endif
 		{
-			string path = "save" + saveID + ".dat";
 			DatFile dat = new DatFile(File.ReadAllText(path), path);
 			DatArray highscoresDat = dat.getField("highscores").array;
 			highscores = new RunData[highscoresDat.size];

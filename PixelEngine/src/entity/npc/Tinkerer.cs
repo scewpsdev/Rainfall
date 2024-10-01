@@ -24,7 +24,7 @@ public class Tinkerer : NPC
 		buysItems = true;
 		canCraft = true;
 
-		populateShop(random, 1, 7, level.lootValue, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 9, level.lootValue, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public Tinkerer()

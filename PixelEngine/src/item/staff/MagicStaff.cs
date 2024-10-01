@@ -17,14 +17,14 @@ public class MagicStaff : Item
 		trigger = false;
 		isSecondaryItem = true;
 
-		attackDamage = 1;
-		//manaCost = 0.1f;
+		attackDamage = 1.0f;
+		manaCost = 0.0f;
 		staffCharges = 0;
 
 		value = 17;
 
 		sprite = new Sprite(tileset, 2, 6);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.4f;
 
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
@@ -39,19 +39,19 @@ public class MagicStaff : Item
 			{
 				attackRate = spell.attackRate;
 				trigger = spell.trigger;
-				attackDamage = spell.attackDamage;
+				//attackDamage = spell.attackDamage;
 			}
 		}
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.manaRechargeRate *= 3;
+		player.manaRechargeRate *= 2;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.manaRechargeRate /= 3;
+		player.manaRechargeRate /= 2;
 	}
 
 	public override bool use(Player player)

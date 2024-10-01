@@ -32,7 +32,7 @@ public class LightningSpell : Spell
 
 		Vector2 direction = player.lookDirection.normalized;
 
-		GameState.instance.level.addEntity(new LightningProjectile(direction, Vector2.Zero, player, staff), position + offset);
+		GameState.instance.level.addEntity(new LightningProjectile(direction, Vector2.Zero, player, staff, this), position + offset);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 	}
 }
