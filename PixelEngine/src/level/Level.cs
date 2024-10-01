@@ -717,6 +717,25 @@ public class Level
 		return null;
 	}
 
+	public int sweepNoBlock(Vector2 origin, FloatRect rect, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)
+	{
+		int numHits = 0;
+		for (int i = 0; i < entities.Count; i++)
+		{
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
+			{
+				Vector2 min = entities[i].position + entities[i].collider.min;
+				Vector2 max = entities[i].position + entities[i].collider.max;
+				if (sweepAABBs(origin + rect.min, origin + rect.max, direction * range, min, max, out float distance, out Vector2 normal))
+				{
+					if (numHits < hits.Length && distance < range)
+						hits[numHits++] = new HitData() { entity = entities[i], distance = distance, normal = normal };
+				}
+			}
+		}
+		return numHits;
+	}
+
 	public int overlap(Vector2 bmin, Vector2 bmax, Span<HitData> hits, uint filterMask = 1)
 	{
 		int numHits = 0;

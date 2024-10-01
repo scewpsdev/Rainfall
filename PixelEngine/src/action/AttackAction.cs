@@ -50,7 +50,7 @@ public class AttackAction : EntityAction
 			Vector2 origin = player.position + new Vector2(0, player.getWeaponOrigin(mainHand).y);
 			Vector2 direction = new Vector2(MathF.Cos(currentAngle) * MathF.Sign(this.direction.x), MathF.Sin(currentAngle));
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.raycastNoBlock(origin, direction, currentRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
+			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f), direction, currentRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))

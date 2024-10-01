@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -424,8 +425,9 @@ public class HUD
 			}
 			else if (player.offhandItem.type == ItemType.Staff && player.offhandItem.maxStaffCharges > 0)
 			{
-				Renderer.DrawUISprite(x - 1, y + -1 - size + 4, 8, 8, staffCharge);
-				Renderer.DrawUITextBMP(x + 8, y - 1 - size + size / 2 - Renderer.smallFont.size / 2, player.offhandItem.staffCharges.ToString(), 1, txtColor);
+				Renderer.DrawUISprite(Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8 - 32 - 32, Renderer.UIHeight - 4 - 16 + 4, 8, 8, staffCharge);
+				string countStr = player.offhandItem.staffCharges.ToString();
+				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8 - 32 - 32 - 2 - Renderer.MeasureUITextBMP(countStr).x, Renderer.UIHeight - 4 - 16 + 5, countStr, 1, txtColor);
 			}
 		}
 
@@ -445,8 +447,9 @@ public class HUD
 			}
 			else if (player.handItem.type == ItemType.Staff && player.handItem.maxStaffCharges > 0)
 			{
-				Renderer.DrawUISprite(x + size + 1 - 1, y - 1 - size + 4, 8, 8, staffCharge);
-				Renderer.DrawUITextBMP(x + size + 1 + 8, y - 1 - size + size / 2 - Renderer.smallFont.size / 2, player.handItem.staffCharges.ToString(), 1, txtColor);
+				Renderer.DrawUISprite(Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8 - 32, Renderer.UIHeight - 4 - 16 + 4, 8, 8, staffCharge);
+				string countStr = player.handItem.staffCharges.ToString();
+				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8 - 32 - 2 - Renderer.MeasureUITextBMP(countStr).x, Renderer.UIHeight - 4 - 16 + 5, countStr, 1, txtColor);
 			}
 		}
 	}

@@ -14,7 +14,7 @@ public class Dagger : Item
 		displayName = "Dagger";
 
 		attackDamage = 1;
-		attackRange = 0.6f;
+		attackRange = 1.0f;
 		attackRate = 4;
 
 		projectileItem = true;

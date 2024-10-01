@@ -721,7 +721,7 @@ public class LevelGenerator
 
 				if (up != null && up.isSolid && down != null && down.isSolid)
 				{
-					float lockedChance = 0.5f;
+					float lockedChance = 0.25f;
 					if (random.NextSingle() < lockedChance)
 					{
 						Debug.Assert(doorPosition != Vector2i.Zero);
@@ -749,7 +749,7 @@ public class LevelGenerator
 						}
 						else
 						{
-							Debug.Assert(false);
+							//Debug.Assert(false);
 						}
 
 						break;
@@ -1170,7 +1170,7 @@ public class LevelGenerator
 		level.updateLightmap(0, 0, width, height);
 	}
 
-	void spawnEnemy(int x, int y)
+	void spawnEnemy(int x, int y, int floor)
 	{
 		TileType up = level.getTile(x, y + 1);
 		TileType down = level.getTile(x, y - 1);
@@ -1210,7 +1210,7 @@ public class LevelGenerator
 					enemy = new Gandalf();
 				else if (enemyType > 0.9f)
 					enemy = new SkeletonArcher();
-				else if (enemyType > 0.85f && upUp == null)
+				else if (enemyType > 0.85f && upUp == null && floor >= 4)
 					enemy = new Golem();
 				else if (enemyType > 0.8f)
 					enemy = new Leprechaun();
@@ -1341,7 +1341,7 @@ public class LevelGenerator
 					float enemyChance = 0.2f;
 					if (random.NextSingle() < enemyChance)
 					{
-						spawnEnemy(pos.x, pos.y);
+						spawnEnemy(pos.x, pos.y, floor);
 					}
 				}
 			}
@@ -1593,7 +1593,7 @@ public class LevelGenerator
 					float enemyChance = 0.1f;
 					if (random.NextSingle() < enemyChance)
 					{
-						spawnEnemy(x, y);
+						spawnEnemy(x, y, floor);
 					}
 				}
 			}

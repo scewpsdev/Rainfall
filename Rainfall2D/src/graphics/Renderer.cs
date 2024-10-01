@@ -3,6 +3,7 @@ using Rainfall2D;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Formats.Asn1.AsnWriter;
@@ -134,10 +135,8 @@ public static class Renderer
 	{
 		Renderer.graphics = graphics;
 
-		// pixel perfect correction
-		int scale = (int)MathF.Round(Display.width / 1920.0f * 4);
-		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
-		UIHeight = (int)MathF.Ceiling(Display.height / (float)scale);
+		UIWidth = width;
+		UIHeight = height;
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -159,8 +158,8 @@ public static class Renderer
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
 		{
 			int exp = (int)Math.Pow(2, i + 1);
-			int w = width / exp;
-			int h = height / exp;
+			int w = Display.width / exp;
+			int h = Display.height / exp;
 
 			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 			{
@@ -210,10 +209,8 @@ public static class Renderer
 
 	public static void Resize(int width, int height)
 	{
-		// pixel perfect correction
-		int scale = (int)MathF.Round(Display.width / 1920.0f * 4);
-		UIWidth = (int)MathF.Ceiling(Display.width / (float)scale);
-		UIHeight = (int)MathF.Ceiling(Display.height / (float)scale);
+		UIWidth = width;
+		UIHeight = height;
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);
@@ -250,8 +247,8 @@ public static class Renderer
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
 		{
 			int exp = (int)Math.Pow(2, i + 1);
-			int w = width / exp;
-			int h = height / exp;
+			int w = Display.width / exp;
+			int h = Display.height / exp;
 
 			bloomDownsampleChain[i] = graphics.createRenderTarget(new RenderTargetAttachment[]
 			{
@@ -611,7 +608,7 @@ public static class Renderer
 				rect = smallFont.getCharacterRect('?');
 
 			FloatRect frect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy);
-			draws.Add(new SpriteDraw { position = new Vector3(x + cursor, y, z), size = rect.size * scale, texture = smallFont.texture, rect = frect, color = MathHelper.ARGBToVector(color) });
+			draws.Add(new SpriteDraw { position = new Vector3(x + cursor + 0.001f, y, z), size = rect.size * scale, texture = smallFont.texture, rect = frect, color = MathHelper.ARGBToVector(color) });
 
 			cursor += rect.size.x * scale;
 		}
@@ -958,8 +955,11 @@ public static class Renderer
 		graphics.setPass((int)RenderPass.UI);
 		graphics.setRenderTarget(null);
 
-		int scale = (int)MathF.Round(Display.width / 1920.0f * 4);
-		graphics.setViewTransform(Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f), Matrix.CreateScale(UIWidth * scale / (float)Display.width, UIHeight * scale / (float)Display.height, 1));
+		int scale = (int)MathF.Round(Display.width / (float)UIWidth);
+		graphics.setViewTransform(
+			Matrix.CreateOrthographic(0, UIWidth, 0, UIHeight, 1.0f, -1.0f),
+			Matrix.CreateScale(UIWidth * scale / (float)Display.width, UIHeight * scale / (float)Display.height, 1)
+		);
 
 		uiBatch.begin(uiDraws.Count);
 		for (int i = 0; i < uiDraws.Count; i++)

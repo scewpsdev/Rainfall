@@ -212,7 +212,7 @@ public abstract class Item
 		upgradeLevel++;
 		value *= 2;
 		if (type == ItemType.Weapon || type == ItemType.Staff)
-			attackDamage *= 1.3f;
+			attackDamage *= 1.34f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
 			armor++;
 	}
@@ -270,7 +270,7 @@ public abstract class Item
 			if (player.interactableInFocus != null && player.interactableInFocus is ItemEntity)
 			{
 				ItemEntity itemEntity = player.interactableInFocus as ItemEntity;
-				if (itemEntity.item.name == requiredAmmo)
+				if (itemEntity.velocity.lengthSquared < 4 && itemEntity.item.name == requiredAmmo)
 					itemEntity.interact(player);
 			}
 		}

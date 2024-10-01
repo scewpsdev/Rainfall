@@ -32,7 +32,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public float speed = 6;
 	public float climbingSpeed = 6;
-	public float jumpPower = 10.5f;
+	public float jumpPower = 10.5f; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
 	public float manaRechargeRate = 0.03f;
@@ -1013,11 +1013,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					float maxCursorDistance = handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
 					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
-					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * GameState.instance.camera.scale ||
-						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * GameState.instance.camera.scale)
+					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * PixelEngine.instance.scale ||
+						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * PixelEngine.instance.scale)
 					{
-						int x = Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * GameState.instance.camera.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * GameState.instance.camera.scale));
-						int y = Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * GameState.instance.camera.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * GameState.instance.camera.scale));
+						int x = Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * PixelEngine.instance.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * PixelEngine.instance.scale));
+						int y = Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * PixelEngine.instance.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * PixelEngine.instance.scale));
 						Vector2i newCursorPos = new Vector2i(x, y);
 						Input.cursorPosition = newCursorPos; // * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
 					}
