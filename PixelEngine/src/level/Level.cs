@@ -55,7 +55,7 @@ public class Level
 		this.floor = floor;
 		this.name = name;
 
-		lootValue = Math.Max(floor, 0) * 5;
+		lootValue = Math.Max(floor, 0) * 10;
 
 		resize(20, 20);
 	}
@@ -180,12 +180,10 @@ public class Level
 	public void addEntity(Entity entity, bool init = true)
 	{
 		entities.Add(entity);
+		entity.level = this;
 
 		if (init)
-		{
-			entity.level = this;
 			entity.init(this);
-		}
 	}
 
 	public void addEntity(Entity entity, Vector2 position, bool init = true)
@@ -272,6 +270,13 @@ public class Level
 		else
 			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, 0, null, false, new Vector4(fogColor, 1));
 
+
+		for (int i = 0; i < entities.Count; i++)
+		{
+			entities[i].render();
+		}
+
+
 		int x0 = (int)MathF.Floor(GameState.instance.camera.left);
 		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom);
 		int x1 = (int)MathF.Floor(GameState.instance.camera.right);
@@ -305,14 +310,10 @@ public class Level
 					}
 					else
 					{
-						Renderer.DrawSprite(x, y, 0, 1.001f, 1.001f, null, 0, 0, 0, 0, tile.color);
+						Renderer.DrawSprite(x, y, Entity.LAYER_TILE, 1.001f, 1.001f, null, 0, 0, 0, 0, tile.color);
 					}
 				}
 			}
-		}
-		for (int i = 0; i < entities.Count; i++)
-		{
-			entities[i].render();
 		}
 	}
 
@@ -331,7 +332,7 @@ public class Level
 				TileType tile = getTile(x, y);
 				if (tile != null)
 				{
-					if (!tile.isPlatform || tile.isPlatform && falling && !downInput && min.y - y - 1 > -0.25f)
+					if (tile.isSolid || tile.isPlatform && falling && !downInput && min.y - y - 1 > -0.25f)
 						return true;
 				}
 			}
@@ -604,6 +605,116 @@ public class Level
 			}
 		}
 		return numHits;
+	}
+
+	// https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
+	bool sweepAABBs(Vector2 min0, Vector2 max0, Vector2 velocity, Vector2 min1, Vector2 max1, out float distance, out Vector2 normal)
+	{
+		Vector2 invEntry;
+		Vector2 invExit;
+
+		if (velocity.x > 0)
+		{
+			invEntry.x = min1.x - max0.x;
+			invExit.x = max1.x - min0.x;
+		}
+		else
+		{
+			invEntry.x = max1.x - min0.x;
+			invExit.x = min1.x - max0.x;
+		}
+		if (velocity.y > 0)
+		{
+			invEntry.y = min1.y - max0.y;
+			invExit.y = max1.y - min0.y;
+		}
+		else
+		{
+			invEntry.y = max1.y - min0.y;
+			invExit.y = min1.y - max0.y;
+		}
+
+		Vector2 entry;
+		Vector2 exit;
+
+		if (velocity.x == 0)
+		{
+			entry.x = float.NegativeInfinity;
+			exit.x = float.PositiveInfinity;
+		}
+		else
+		{
+			entry.x = invEntry.x / velocity.x;
+			exit.x = invExit.x / velocity.x;
+		}
+		if (velocity.y == 0)
+		{
+			entry.y = float.NegativeInfinity;
+			exit.y = float.PositiveInfinity;
+		}
+		else
+		{
+			entry.y = invEntry.y / velocity.y;
+			exit.y = invExit.y / velocity.y;
+		}
+
+		float entryTime = MathF.Max(entry.x, entry.y);
+		float exitTime = MathF.Min(exit.x, exit.y);
+
+		if (entryTime > exitTime || entry.x < 0 && entry.y < 0 || entry.x > 1 || entry.y > 1)
+		{
+			normal = Vector2.Zero;
+			distance = -1;
+			return false;
+		}
+		else
+		{
+			if (entry.x > entry.y)
+			{
+				if (invEntry.x < 0)
+					normal = new Vector2(1, 0);
+				else
+					normal = new Vector2(-1, 0);
+			}
+			else
+			{
+				if (invEntry.y < 0)
+					normal = new Vector2(0, 1);
+				else
+					normal = new Vector2(0, -1);
+			}
+		}
+
+		distance = velocity.length * entryTime;
+		return entryTime <= 1;
+	}
+
+	public HitData sweep(Vector2 origin, FloatRect rect, Vector2 direction, float range, uint filterMask = 1)
+	{
+		Entity hitEntity = null;
+		float hitDistance = range;
+		Vector2 hitNormal = Vector2.Zero;
+		for (int i = 0; i < entities.Count; i++)
+		{
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
+			{
+				Vector2 min = entities[i].position + entities[i].collider.min;
+				Vector2 max = entities[i].position + entities[i].collider.max;
+				if (sweepAABBs(origin + rect.min, origin + rect.max, direction * range, min, max, out float distance, out Vector2 normal))
+				{
+					if (distance < hitDistance)
+					{
+						hitEntity = entities[i];
+						hitDistance = distance;
+						hitNormal = normal;
+					}
+				}
+			}
+		}
+
+		if (hitDistance != range)
+			return new HitData() { distance = hitDistance, entity = hitEntity, normal = hitNormal };
+		return null;
 	}
 
 	public int overlap(Vector2 bmin, Vector2 bmax, Span<HitData> hits, uint filterMask = 1)

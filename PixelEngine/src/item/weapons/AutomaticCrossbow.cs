@@ -16,14 +16,15 @@ public class AutomaticCrossbow : Item
 
 		description = "slaps";
 
-		attackDamage = 1;
+		attackDamage = 0.7f;
 		attackRate = 7;
 		attackRange = 40; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";
+		twoHanded = true;
 
-		value = 82;
+		value = 130;
 
 		sprite = new Sprite(tileset, 14, 3);
 		renderOffset.x = 0.5f;
@@ -43,8 +44,8 @@ public class AutomaticCrossbow : Item
 		if (arrows != null)
 		{
 			base.use(player);
-			player.actions.queueAction(new CrossbowShootAction(this, player.handItem == this));
-			player.removeItemSingle(arrows);
+			Item arrow = player.removeItemSingle(arrows);
+			player.actions.queueAction(new CrossbowShootAction(this, arrow, player.handItem == this));
 		}
 		return false;
 	}

@@ -17,7 +17,7 @@ public class LightningStaff : Item
 		trigger = false;
 
 		attackDamage = 2;
-		//manaCost = 0.25f;
+		manaCost = 0.0f;
 		staffCharges = 8;
 		maxStaffCharges = 8;
 

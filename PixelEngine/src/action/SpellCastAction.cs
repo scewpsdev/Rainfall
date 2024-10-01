@@ -31,7 +31,7 @@ public class SpellCastAction : EntityAction
 		{
 			spell.cast(player, weapon);
 
-			player.consumeMana(spell.manaCost);
+			player.consumeMana(spell.manaCost * weapon.manaCost);
 
 			if (spell.useSound != null)
 				Audio.PlayOrganic(spell.useSound, new Vector3(player.position, 0));
@@ -44,8 +44,9 @@ public class SpellCastAction : EntityAction
 		Item item = mainHand ? player.handItem : player.offhandItem;
 		if (item != null)
 			position += item.renderOffset;
+		float progress = MathF.Min(elapsedTime / duration * 1.5f, 1);
 		return Matrix.CreateRotation(Vector3.UnitY, player.direction == -1 ? MathF.PI : 0)
 			* Matrix.CreateTranslation(position.x, position.y, 0)
-			* Matrix.CreateRotation(Vector3.UnitZ, 1 - (elapsedTime / duration) * 0.75f);
+			* Matrix.CreateRotation(Vector3.UnitZ, (player.lookDirection * new Vector2(player.direction, 1)).angle + MathHelper.Lerp(MathF.PI * 0.75f, -0.25f * MathF.PI, progress));
 	}
 }

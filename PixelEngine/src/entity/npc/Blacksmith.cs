@@ -21,10 +21,11 @@ public class Blacksmith : NPC
 
 		saleTax = 0.2f;
 		buysItems = true;
+		canUpgrade = true;
 
 		addVoiceLine("Mmh.");
 
-		populateShop(random, 1, 4, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 2, 5, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 
 	public Blacksmith()

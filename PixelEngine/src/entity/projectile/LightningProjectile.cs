@@ -17,7 +17,8 @@ public class LightningProjectile : Entity
 	float maxDistance = 25;
 
 	Entity shooter;
-	Item item;
+	Item staff;
+	Item spell;
 
 	Sprite sprite;
 	Texture lightning;
@@ -36,14 +37,15 @@ public class LightningProjectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public LightningProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item item)
+	public LightningProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item staff, Item spell)
 	{
 		displayName = "Lightning";
 
 		this.direction = direction;
 		this.offset = offset;
 		this.shooter = shooter;
-		this.item = item;
+		this.staff = staff;
+		this.spell = spell;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
 		filterGroup = FILTER_PROJECTILE;
@@ -100,12 +102,12 @@ public class LightningProjectile : Entity
 			{
 				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
-					float damage = item.attackDamage;
+					float damage = spell.attackDamage * staff.attackDamage;
 					if (hit.entity is Player)
 						damage *= (hit.entity as Player).attackDamageModifier;
 
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(damage, this, item);
+					hittable.hit(damage, this, spell);
 					hitEntities.Add(hit.entity);
 					remove();
 				}

@@ -177,14 +177,14 @@ public class InventoryUI
 						player.equipItem(item);
 				}
 				*/
-				if ((item.isHandItem || item.isPassiveItem) && !secondary)
+				if ((item.isHandItem || item.isPassiveItem) && secondary)
 				{
 					player.throwItem(item, true);
 					player.removeItem(item);
 					if (choice <= selectedItem)
 						selectedItem--;
 				}
-				if (item.isHandItem && item.isSecondaryItem && secondary)
+				if (item.isHandItem && item.isSecondaryItem && !secondary)
 				{
 					if (item == player.handItem)
 					{
@@ -197,6 +197,8 @@ public class InventoryUI
 						player.equipHandItem(item);
 					}
 				}
+
+				selectedItem = Math.Min(selectedItem, items.Count - 1);
 			}
 
 			// Item info panel

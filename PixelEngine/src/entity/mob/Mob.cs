@@ -32,7 +32,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float gravity = -30;
 
 	public float itemDropChance = 0.1f;
-	public float coinDropChance = 0.5f;
+	public float coinDropChance = 0.2f;
 
 	public float health = 1;
 	public float damage = 1;
@@ -181,7 +181,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = MathHelper.RandomInt(1, 4);
+			int amount = MathHelper.RandomInt(1, 10);
 			for (int i = 0; i < amount; i++)
 			{
 				Coin coin = new Coin();

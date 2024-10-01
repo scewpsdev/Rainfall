@@ -217,6 +217,23 @@ public abstract class Item
 			armor++;
 	}
 
+	public int upgradePrice
+	{
+		get
+		{
+			if (type == ItemType.Weapon || type == ItemType.Staff)
+			{
+				float dps = attackDamage * attackRate;
+				return (int)(dps * 10 * (1 + upgradeLevel * 0.5f));
+			}
+			else if (type == ItemType.Armor)
+			{
+				return (int)(armor * 10 + (1 + upgradeLevel * 0.5f));
+			}
+			return value * 2;
+		}
+	}
+
 	public virtual bool use(Player player)
 	{
 		if (useSound != null)
@@ -247,6 +264,16 @@ public abstract class Item
 
 	public virtual void update(Entity entity)
 	{
+		if (entity is Player)
+		{
+			Player player = entity as Player;
+			if (player.interactableInFocus != null && player.interactableInFocus is ItemEntity)
+			{
+				ItemEntity itemEntity = player.interactableInFocus as ItemEntity;
+				if (itemEntity.item.name == requiredAmmo)
+					itemEntity.interact(player);
+			}
+		}
 	}
 
 	public virtual void render(Entity entity)
@@ -394,7 +421,7 @@ public abstract class Item
 
 	public static Item CreateRandom(ItemType type, Random random, float meanValue)
 	{
-		float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.25f, 0.0f);
+		float value = meanValue * MathF.Pow(2, MathHelper.RandomGaussian(random) * 0.5f); // MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.25f, 0.0f);
 		List<Item> items = GetItemPrototypesOfType(type);
 		for (int i = 0; i < items.Count; i++)
 		{
@@ -424,8 +451,11 @@ public abstract class Item
 		Item newItem = item.copy();
 		while (newItem.value < meanValue * 0.5f && newItem.upgradable)
 			newItem.upgrade();
-		while (newItem.stackable && newItem.value * (newItem.stackSize + 1) < meanValue)
-			newItem.stackSize++;
+		while (newItem.stackable && newItem.value * newItem.stackSize < 0.5f * meanValue)
+		{
+			int difference = (int)(meanValue / newItem.value - newItem.stackSize);
+			newItem.stackSize += MathHelper.RandomInt(1, difference, random);
+		}
 		//if (newItem.name == "arrow")
 		//	newItem.stackSize = MathHelper.RandomInt(1, 35, random);
 		//else if (newItem.name == "throwing_knife")
@@ -488,7 +518,6 @@ public abstract class Item
 				Item item = CreateRandom((ItemType)i, random, meanValue);
 				if (item != null)
 				{
-					item = item.copy();
 					if (item.requiredAmmo != null)
 					{
 						Item ammo = GetItemPrototype(item.requiredAmmo).copy();

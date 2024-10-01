@@ -20,7 +20,7 @@ public class TravellingMerchant : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		populateShop(random, 1, 5, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Ring, ItemType.Gem);
+		populateShop(random, 2, 6, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Ring, ItemType.Gem);
 
 		buysItems = true;
 	}

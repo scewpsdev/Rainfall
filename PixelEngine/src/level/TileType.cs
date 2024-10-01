@@ -15,7 +15,9 @@ public class TileType
 	public bool visible = true;
 	public bool isSolid = true;
 	public bool isPlatform = false;
+	public bool isLiquid = false;
 	public bool destructible = false;
+	public bool breaksArrows = false;
 
 	public uint color = 0xFFFF00FF;
 	public uint particleColor = 0xFFFFFFFF;
@@ -34,6 +36,7 @@ public class TileType
 	public static TileType stone;
 	public static TileType path;
 	public static TileType grass;
+	public static TileType water;
 
 
 	static TileType()
@@ -46,16 +49,18 @@ public class TileType
 			name = "wall",
 			color = 0xFFFFFFFF,
 			particleColor = 0xFF5c4637,
+			destructible = true,
 			sprites = [new Sprite(tileset, 4, 1), new Sprite(tileset, 9, 1), new Sprite(tileset, 10, 1), new Sprite(tileset, 11, 1), new Sprite(tileset, 12, 1)],
 			left = [new Sprite(tileset, 3, 1)],
 			right = [new Sprite(tileset, 5, 1)],
 			top = [new Sprite(tileset, 4, 0), new Sprite(tileset, 9, 0), new Sprite(tileset, 10, 0), new Sprite(tileset, 11, 0), new Sprite(tileset, 12, 0)],
 			bottom = [new Sprite(tileset, 4, 2), new Sprite(tileset, 9, 2), new Sprite(tileset, 10, 2), new Sprite(tileset, 11, 2), new Sprite(tileset, 12, 2)],
-			destructible = true
 		});
+		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 2)] });
 		AddTileType(stone = new TileType()
 		{
 			name = "stone_block",
+			breaksArrows = true,
 			color = 0xFF333333,
 			particleColor = 0xFF50504c,
 			sprites = [new Sprite(tileset, 4, 4), new Sprite(tileset, 9, 4), new Sprite(tileset, 10, 4), new Sprite(tileset, 11, 4), new Sprite(tileset, 12, 4)],
@@ -86,7 +91,16 @@ public class TileType
 			top = [new Sprite(tileset, 4, 9)],
 			bottom = [new Sprite(tileset, 4, 11)],
 		});
-		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 2)] });
+		AddTileType(water = new TileType()
+		{
+			name = "water",
+			color = 0xFF007FFF,
+			isSolid = false,
+			isLiquid = true,
+			breaksArrows = true,
+			particleColor = 0xFF007FFF,
+			sprites = [new Sprite(tileset, 4, 13)]
+		});
 	}
 
 	static void AddTileType(TileType type)

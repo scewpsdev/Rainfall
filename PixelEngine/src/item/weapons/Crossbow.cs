@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class Crossbow : Item
 {
-	bool loaded = false;
+	Item loadedArrow = null;
 
 	Sound reloadSound;
 
@@ -38,23 +38,24 @@ public class Crossbow : Item
 
 	public override void update(Entity entity)
 	{
-		sprite.position.x = (loaded ? 13 : 12) * sprite.spriteSheet.spriteSize.x;
+		base.update(entity);
+		sprite.position.x = (loadedArrow != null ? 13 : 12) * sprite.spriteSheet.spriteSize.x;
 	}
 
 	public override bool use(Player player)
 	{
-		if (loaded)
+		if (loadedArrow != null)
 		{
 			base.use(player);
-			player.actions.queueAction(new CrossbowShootAction(this, player.handItem == this));
-			loaded = false;
+			player.actions.queueAction(new CrossbowShootAction(this, loadedArrow, player.handItem == this));
+			loadedArrow = null;
 		}
 		return false;
 	}
 
 	public override bool useSecondary(Player player)
 	{
-		if (!loaded)
+		if (loadedArrow == null)
 		{
 			Item arrows = player.getItem(requiredAmmo);
 			if (player.unlimitedArrows && arrows == null)
@@ -64,8 +65,7 @@ public class Crossbow : Item
 			}
 			if (arrows != null)
 			{
-				player.removeItemSingle(arrows);
-				loaded = true;
+				loadedArrow = player.removeItemSingle(arrows);
 				Audio.PlayOrganic(reloadSound, new Vector3(player.position, 0));
 			}
 		}

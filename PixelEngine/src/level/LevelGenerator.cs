@@ -136,6 +136,8 @@ public class Room
 	public bool isMainPath = false;
 	public bool hasObject = false;
 
+	public List<Vector2i> spawnLocations = new List<Vector2i>();
+
 	public bool explored = false;
 
 
@@ -160,7 +162,7 @@ public class Room
 			{
 				if (objectFlags[x + y * level.width])
 					break;
-				if (y > 0 && level.getTile(x, y) == null && level.getTile(x, y + 1) == null)
+				if (y > 0 && level.getTile(x, y) == null && (level.getTile(x, y - 1) == null || level.getTile(x, y - 1).isSolid) && level.getTile(x, y + 1) == null)
 				{
 					if (level.getTile(x, y - 1) == null)
 						level.setTile(x, y - 1, TileType.platform);
@@ -217,7 +219,7 @@ public class LevelGenerator
 	{
 		miscSet = new RoomDefSet("res/level/rooms_misc.png");
 		specialSet = new RoomDefSet("res/level/rooms_special.png");
-		cavesSet = new RoomDefSet("res/level/rooms_caves.png");
+		cavesSet = new RoomDefSet("res/level/level1/rooms1.png");
 		gardensSet = new RoomDefSet("res/level/level2/rooms2.png");
 		minesSet = new RoomDefSet("res/level/rooms_mines.png");
 	}
@@ -289,6 +291,13 @@ public class LevelGenerator
 					case 0xFFFF0000:
 						level.setTile(x + xx, y + yy, null);
 						//level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
+						break;
+					case 0xFF007fff:
+						level.setTile(x + xx, y + yy, TileType.water);
+						break;
+					case 0xFF00cf5f:
+						room.spawnLocations.Add(new Vector2i(xx, yy));
+						level.setTile(x + xx, y + yy, null);
 						break;
 					default:
 						level.setTile(x + xx, y + yy, null);
@@ -385,9 +394,9 @@ public class LevelGenerator
 		return null;
 	}
 
-	void spawnItem(int x, int y, Level level, Random random, bool[] objectFlags)
+	void spawnItem(int x, int y)
 	{
-		float chestChance = 0.3f;
+		float chestChance = 0.1f;
 		float barrelChance = 0.6f;
 
 		float scamChestChance = 0.02f;
@@ -599,9 +608,15 @@ public class LevelGenerator
 			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
 			if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
+			{
 				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
+				objectFlags[exitPosition.x - 1 + exitPosition.y * level.width] = true;
+			}
 			if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
+			{
 				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
+				objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
+			}
 
 			level.addEntity(new BossRoom(exitRoom));
 		}
@@ -613,9 +628,15 @@ public class LevelGenerator
 				level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
 				if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
+				{
 					level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
+					objectFlags[exitPosition.x - 1 + exitPosition.y * level.width] = true;
+				}
 				if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
+				{
 					level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
+					objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
+				}
 
 				objectFlags[exitPosition.x + exitPosition.y * level.width] = true;
 			}
@@ -628,22 +649,22 @@ public class LevelGenerator
 
 	void spawnRoomObject(List<Room> roomList, float chance, bool allowMultiple, Action<Vector2i, Random> spawnFunc)
 	{
-		MathHelper.ShuffleList(roomList, random);
-		roomList.Sort((Room room1, Room room2) =>
+		if (random.NextSingle() < chance)
 		{
-			if (!room1.hasObject && room2.hasObject)
-				return -1;
-			else if (room1.hasObject && !room2.hasObject)
-				return 1;
-			else
-				return 0;
-		});
-
-		for (int i = 0; i < roomList.Count; i++)
-		{
-			Room room = roomList[i];
-			if (random.NextSingle() < chance)
+			MathHelper.ShuffleList(roomList, random);
+			roomList.Sort((Room room1, Room room2) =>
 			{
+				if (!room1.hasObject && room2.hasObject)
+					return -1;
+				else if (room1.hasObject && !room2.hasObject)
+					return 1;
+				else
+					return 0;
+			});
+
+			for (int i = 0; i < roomList.Count; i++)
+			{
+				Room room = roomList[i];
 				if (room.getFloorSpawn(level, random, objectFlags, out Vector2i tile))
 				{
 					spawnFunc(tile, random);
@@ -707,7 +728,7 @@ public class LevelGenerator
 
 						if (room.getFloorSpawn(level, random, objectFlags, out Vector2i pos))
 						{
-							spawnItem(pos.x, pos.y, level, random, objectFlags);
+							spawnItem(pos.x, pos.y);
 						}
 
 						Room keyRoom = mainRooms[random.Next() % mainRooms.Count];
@@ -761,7 +782,7 @@ public class LevelGenerator
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 		rooms = new List<Room>();
 
-		int width = floor == 0 ? MathHelper.RandomInt(80, 150, random) : MathHelper.RandomInt(32, 150, random);
+		int width = spawnStartingRoom ? MathHelper.RandomInt(80, 150, random) : MathHelper.RandomInt(32, 150, random);
 		int height = Math.Max((floor == 4 ? 4500 : 3200) / width, 12);
 
 		level.resize(width, height, TileType.dirt);
@@ -814,10 +835,6 @@ public class LevelGenerator
 				}
 			}
 		}
-		MathHelper.ShuffleList(deadEnds, random);
-		MathHelper.ShuffleList(mainRooms, random);
-
-		lockDeadEnds(deadEnds, mainRooms);
 
 
 		// Starting weapon
@@ -906,8 +923,14 @@ public class LevelGenerator
 		// Items
 		spawnRoomObject(deadEnds, 0.65f, false, (Vector2i tile, Random random) =>
 		{
-			spawnItem(tile.x, tile.y, level, random, objectFlags);
+			spawnItem(tile.x, tile.y);
 		});
+
+
+		MathHelper.ShuffleList(deadEnds, random);
+		MathHelper.ShuffleList(mainRooms, random);
+
+		lockDeadEnds(deadEnds, mainRooms);
 
 
 
@@ -1036,7 +1059,7 @@ public class LevelGenerator
 
 				if (random.NextSingle() < itemChance)
 				{
-					spawnItem(x, y, level, random, objectFlags);
+					spawnItem(x, y);
 				}
 			}
 		});
@@ -1046,7 +1069,7 @@ public class LevelGenerator
 		{
 			if (tile == null && down != null)
 			{
-				float barrelChance = MathF.Max(simplex.sample2f(x * 0.03f, y * 0.03f) * 0.3f - 0.1f, 0);
+				float barrelChance = MathF.Max(simplex.sample2f(x * 0.03f, y * 0.03f) * 0.3f - 0.15f, 0);
 				if (random.NextSingle() < barrelChance)
 				{
 					float explosiveBarrel = 0.1f;
@@ -1057,7 +1080,7 @@ public class LevelGenerator
 					else
 					{
 						Item[] items = null;
-						float itemChance = 0.05f;
+						float itemChance = 0.1f;
 						if (random.NextSingle() < itemChance)
 							items = Item.CreateRandom(random, DropRates.barrel, level.lootValue);
 
@@ -1147,6 +1170,71 @@ public class LevelGenerator
 		level.updateLightmap(0, 0, width, height);
 	}
 
+	void spawnEnemy(int x, int y)
+	{
+		TileType up = level.getTile(x, y + 1);
+		TileType down = level.getTile(x, y - 1);
+		TileType left = level.getTile(x - 1, y);
+		TileType right = level.getTile(x + 1, y);
+
+		bool flyingEnemy = random.NextSingle() < 0.15f;
+		if (flyingEnemy)
+		{
+			if (down == null)
+			{
+				Mob enemy;
+
+				float batType = random.NextSingle();
+				if (batType < 0.9f)
+					enemy = new Bat();
+				else
+					enemy = new OrangeBat();
+
+				level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
+				objectFlags[x + y * level.width] = true;
+			}
+		}
+		else
+		{
+			TileType upUp = level.getTile(x, y + 2);
+			if (down != null && up == null && left == null && right == null)
+			{
+				float enemyType = random.NextSingle();
+
+				Mob enemy;
+
+				//if (enemyType > 0.9f)
+				//	enemy = new Bob();
+				//else 
+				if (enemyType > 0.95f)
+					enemy = new Gandalf();
+				else if (enemyType > 0.9f)
+					enemy = new SkeletonArcher();
+				else if (enemyType > 0.85f && upUp == null)
+					enemy = new Golem();
+				else if (enemyType > 0.8f)
+					enemy = new Leprechaun();
+				else if (enemyType > 0.6f)
+					enemy = new Snake();
+				else if (enemyType > 0.3f)
+				{
+					float spiderType = random.NextSingle();
+					if (spiderType < 0.9f)
+						enemy = new Spider();
+					else
+						enemy = new GreenSpider();
+				}
+				else
+				{
+					enemy = new Rat();
+				}
+
+				level.addEntity(enemy, new Vector2(x + 0.5f, y));
+				objectFlags[x + y * level.width] = true;
+			}
+		}
+	}
+
 	public void generateGardens(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance)
 	{
 		this.seed = seed;
@@ -1159,11 +1247,11 @@ public class LevelGenerator
 		random = new Random((int)Hash.hash(seed) + floor);
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
-		int width = MathHelper.RandomInt(32, 150, random);
-		int height = Math.Max(3200 / width, 12);
+		int width = MathHelper.RandomInt(60, 220, random);
+		int height = Math.Max(150 * 50 / width, 30);
 
 		level.resize(width, height, TileType.dirt);
-		level.ambientLight = new Vector3(1.5f);
+		level.ambientLight = new Vector3(1.0f);
 		level.ambientSound = Resource.GetSound("res/level/level2/ambience2.ogg");
 		level.bg = Resource.GetTexture("res/level/level2/bg.png", false);
 
@@ -1235,11 +1323,29 @@ public class LevelGenerator
 				}
 			}
 		}
-		MathHelper.ShuffleList(deadEnds, random);
-		MathHelper.ShuffleList(mainRooms, random);
 
-		lockDeadEnds(deadEnds, mainRooms);
 
+		foreach (Room room in rooms)
+		{
+			foreach (Vector2i spawnLocation in room.spawnLocations)
+			{
+				Vector2i pos = new Vector2i(room.x, room.y) + spawnLocation;
+
+				float itemChance = 0.1f;
+				if (random.NextSingle() < itemChance)
+				{
+					spawnItem(pos.x, pos.y);
+				}
+				else
+				{
+					float enemyChance = 0.2f;
+					if (random.NextSingle() < enemyChance)
+					{
+						spawnEnemy(pos.x, pos.y);
+					}
+				}
+			}
+		}
 
 		// Builder merchant
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
@@ -1306,10 +1412,14 @@ public class LevelGenerator
 		// Items
 		spawnRoomObject(deadEnds, 0.65f, false, (Vector2i tile, Random random) =>
 		{
-			spawnItem(tile.x, tile.y, level, random, objectFlags);
+			spawnItem(tile.x, tile.y);
 		});
 
 
+		MathHelper.ShuffleList(deadEnds, random);
+		MathHelper.ShuffleList(mainRooms, random);
+
+		lockDeadEnds(deadEnds, mainRooms);
 
 
 		// Arrow trap
@@ -1436,7 +1546,7 @@ public class LevelGenerator
 
 				if (random.NextSingle() < itemChance)
 				{
-					spawnItem(x, y, level, random, objectFlags);
+					spawnItem(x, y);
 				}
 			}
 		});
@@ -1483,62 +1593,7 @@ public class LevelGenerator
 					float enemyChance = 0.1f;
 					if (random.NextSingle() < enemyChance)
 					{
-						bool flyingEnemy = random.NextSingle() < 0.15f;
-						if (flyingEnemy)
-						{
-							if (down == null)
-							{
-								Mob enemy;
-
-								float batType = random.NextSingle();
-								if (batType < 0.9f)
-									enemy = new Bat();
-								else
-									enemy = new OrangeBat();
-
-								level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
-								objectFlags[x + y * width] = true;
-							}
-						}
-						else
-						{
-							TileType upUp = level.getTile(x, y + 2);
-							if (down != null && up == null && left == null && right == null)
-							{
-								float enemyType = random.NextSingle();
-
-								Mob enemy;
-
-								//if (enemyType > 0.9f)
-								//	enemy = new Bob();
-								//else 
-								if (enemyType > 0.95f)
-									enemy = new Gandalf();
-								else if (enemyType > 0.9f)
-									enemy = new SkeletonArcher();
-								else if (enemyType > 0.85f && upUp == null)
-									enemy = new Golem();
-								else if (enemyType > 0.8f)
-									enemy = new Leprechaun();
-								else if (enemyType > 0.6f)
-									enemy = new Snake();
-								else if (enemyType > 0.3f)
-								{
-									float spiderType = random.NextSingle();
-									if (spiderType < 0.9f)
-										enemy = new Spider();
-									else
-										enemy = new GreenSpider();
-								}
-								else
-								{
-									enemy = new Rat();
-								}
-
-								level.addEntity(enemy, new Vector2(x + 0.5f, y));
-								objectFlags[x + y * width] = true;
-							}
-						}
+						spawnEnemy(x, y);
 					}
 				}
 			}
@@ -1634,7 +1689,7 @@ public class LevelGenerator
 		// Items
 		spawnRoomObject(deadEnds, 0.65f, false, (Vector2i tile, Random random) =>
 		{
-			spawnItem(tile.x, tile.y, level, random, objectFlags);
+			spawnItem(tile.x, tile.y);
 		});
 
 
@@ -1762,7 +1817,7 @@ public class LevelGenerator
 
 				if (random.NextSingle() < itemChance)
 				{
-					spawnItem(x, y, level, random, objectFlags);
+					spawnItem(x, y);
 				}
 			}
 		});

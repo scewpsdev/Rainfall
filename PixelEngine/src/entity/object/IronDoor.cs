@@ -16,12 +16,17 @@ public class IronDoor : Entity, Interactable
 	bool open = false;
 	float openProgress = 0.0f;
 
+	Sound unlockSound;
+
+
 	public IronDoor(Item key)
 	{
 		this.key = key;
 
 		sprite = new Sprite(TileType.tileset, 2, 8);
 		frameSprite = new Sprite(TileType.tileset, 2, 9);
+
+		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
 	}
 
 	public IronDoor()
@@ -95,8 +100,11 @@ public class IronDoor : Entity, Interactable
 	{
 		this.open = open;
 
-		Vector2i tile = (Vector2i)Vector2.Round(position);
+		Vector2i tile = (Vector2i)Vector2.Floor(position + new Vector2(0, 0.5f));
 		GameState.instance.level.setTile(tile.x, tile.y, open ? null : TileType.dummy);
+
+		if (open)
+			Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
 	}
 
 	public override void update()
