@@ -387,6 +387,8 @@ public abstract class Item
 		InitType(new LightOrbSpell());
 		InitType(new DarkHood());
 		InitType(new DarkCloak());
+		InitType(new WizardsLegacy());
+		InitType(new SleightOfHand());
 	}
 
 	static void InitType(Item item)
@@ -515,6 +517,9 @@ public abstract class Item
 			r += distribution[i];
 			if (f < r)
 			{
+				if (distribution == DropRates.chest)
+					Console.WriteLine((ItemType)i);
+
 				Item item = CreateRandom((ItemType)i, random, meanValue);
 				if (item != null)
 				{

@@ -18,7 +18,7 @@ public class MagicStaff : Item
 		isSecondaryItem = true;
 
 		attackDamage = 1.0f;
-		manaCost = 0.0f;
+		manaCost = 1.0f;
 		staffCharges = 0;
 
 		value = 17;

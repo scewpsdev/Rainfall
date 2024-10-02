@@ -89,6 +89,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		health -= damage;
 
+		if (damage >= 1)
+			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
+
 		if (hitSound != null && (triggerInvincibility || health <= 0))
 			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
 
@@ -181,7 +184,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = MathHelper.RandomInt(1, 10);
+			int amount = MathHelper.RandomInt(3, 10);
 			for (int i = 0; i < amount; i++)
 			{
 				Coin coin = new Coin();

@@ -27,11 +27,13 @@ public class SpellCastAction : EntityAction
 	{
 		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
 
-		if (player.mana >= spell.manaCost)
+		float manaCost = spell.manaCost * weapon.manaCost * player.manaCostModifier;
+
+		if (player.mana >= manaCost)
 		{
 			spell.cast(player, weapon);
 
-			player.consumeMana(spell.manaCost * weapon.manaCost);
+			player.consumeMana(manaCost);
 
 			if (spell.useSound != null)
 				Audio.PlayOrganic(spell.useSound, new Vector3(player.position, 0));

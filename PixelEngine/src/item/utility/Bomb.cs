@@ -27,6 +27,7 @@ public class Bomb : Item
 		value = 5;
 
 		attackDamage = 8;
+		knockback = 20;
 
 		sprite = new Sprite(tileset, 1, 0);
 

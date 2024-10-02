@@ -18,6 +18,7 @@ public class MagicProjectileSpell : Spell
 		attackDamage = 0.8f;
 		attackRate = 2.5f;
 		manaCost = 0.1f;
+		knockback = 1.0f;
 		trigger = false;
 
 		sprite = new Sprite(tileset, 0, 6);

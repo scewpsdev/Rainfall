@@ -23,7 +23,7 @@ namespace Rainfall
 	{
 		public readonly DatValueType type;
 
-		public readonly double number;
+		//public readonly double number;
 		public readonly string str;
 		public readonly string identifier;
 		public readonly DatObject obj;
@@ -33,7 +33,19 @@ namespace Rainfall
 		public DatValue(double number)
 		{
 			type = DatValueType.Number;
-			this.number = number;
+			this.str = number.ToString();
+		}
+
+		public DatValue(long number)
+		{
+			type = DatValueType.Number;
+			this.str = number.ToString();
+		}
+
+		public DatValue(ulong number)
+		{
+			type = DatValueType.Number;
+			this.str = number.ToString();
 		}
 
 		public DatValue(string str, DatValueType type)
@@ -59,14 +71,19 @@ namespace Rainfall
 			this.array = array;
 		}
 
+		public double number
+		{
+			get => double.Parse(str);
+		}
+
 		public int integer
 		{
-			get => (int)Math.Round(number);
+			get => int.Parse(str);
 		}
 
 		public uint uinteger
 		{
-			get => (uint)Math.Round(number);
+			get => uint.Parse(str);
 		}
 
 		public string stringContent

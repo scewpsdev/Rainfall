@@ -456,12 +456,12 @@ public class LevelGenerator
 
 				if (spawnStartingRoom)
 				{
-					roomDefID = 1;
+					roomDefID = 2;
 					roomDef = specialSet.roomDefs[roomDefID];
 				}
 				else if (spawnBossRoom)
 				{
-					roomDefID = 2;
+					roomDefID = 3;
 					roomDef = specialSet.roomDefs[roomDefID];
 				}
 				else
@@ -1103,9 +1103,12 @@ public class LevelGenerator
 
 				if ((distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
 				{
-					float enemyChance = 0.1f;
+					float enemyChance = 0.2f;
 					if (random.NextSingle() < enemyChance)
 					{
+						spawnEnemy(x, y, floor);
+
+						/*
 						bool flyingEnemy = random.NextSingle() < 0.15f;
 						if (flyingEnemy)
 						{
@@ -1162,6 +1165,7 @@ public class LevelGenerator
 								objectFlags[x + y * width] = true;
 							}
 						}
+						*/
 					}
 				}
 			}
@@ -1212,7 +1216,7 @@ public class LevelGenerator
 					enemy = new SkeletonArcher();
 				else if (enemyType > 0.85f && upUp == null && floor >= 4)
 					enemy = new Golem();
-				else if (enemyType > 0.8f)
+				else if (enemyType > 0.8f && floor >= 5)
 					enemy = new Leprechaun();
 				else if (enemyType > 0.6f)
 					enemy = new Snake();
@@ -1590,7 +1594,7 @@ public class LevelGenerator
 
 				if ((distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
 				{
-					float enemyChance = 0.1f;
+					float enemyChance = 0.2f;
 					if (random.NextSingle() < enemyChance)
 					{
 						spawnEnemy(x, y, floor);
@@ -1929,7 +1933,7 @@ public class LevelGenerator
 
 	public void generateHub(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[4];
+		RoomDef def = specialSet.roomDefs[5];
 		level.resize(def.width, def.height);
 
 		Room room = new Room
@@ -1953,7 +1957,7 @@ public class LevelGenerator
 
 	public void generateTutorial(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[0];
+		RoomDef def = specialSet.roomDefs[1];
 		level.resize(def.width, def.height);
 
 		Room room = new Room
@@ -1967,6 +1971,26 @@ public class LevelGenerator
 		};
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
+
+		level.updateLightmap(0, 0, def.width, def.height);
+	}
+
+	public void generateCliffside(Level level)
+	{
+		RoomDef def = specialSet.roomDefs[0];
+		level.resize(def.width, def.height);
+
+		Room room = new Room
+		{
+			x = 0,
+			y = 0,
+			width = def.width,
+			height = def.height,
+			roomDefID = def.id,
+			set = specialSet
+		};
+
+		placeRoom(room, level, (int x, int y) => TileType.stone);
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

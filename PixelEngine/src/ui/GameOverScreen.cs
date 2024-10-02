@@ -179,6 +179,7 @@ public static class GameOverScreen
 			{
 				int ss = size * player.passiveItems[i].ingameSpriteSize;
 				player.animator.update(player.passiveItems[i].ingameSprite);
+				player.passiveItems[i].ingameSprite.position *= player.passiveItems[i].ingameSpriteSize;
 				Renderer.DrawUISprite(xx - (ss - size) / 2, yy - (ss - size), ss, ss, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
 			}
 		}
@@ -208,6 +209,11 @@ public static class GameOverScreen
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
 		RenderPlayer(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, playerViewHeight);
 		InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
+
+		scoreRecordParticles?.update();
+		floorRecordParticles?.update();
+		timeRecordParticles?.update();
+		killRecordParticles?.update();
 
 		scoreRecordParticles?.render();
 		floorRecordParticles?.render();

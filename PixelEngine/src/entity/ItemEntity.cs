@@ -234,7 +234,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 				{
 					if (hit.entity != null && hit.entity != this)
 					{
-						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity))
+						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity) && velocity.lengthSquared > 4 * 4)
 						{
 							Hittable hittable = hit.entity as Hittable;
 							hittable.hit(damage, this, item);
@@ -243,7 +243,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 							if (item.hitSound != null)
 								Audio.PlayOrganic(item.hitSound, new Vector3(position, 0));
 
-							if (item.breakOnEnemyHit && velocity.lengthSquared > 4 && thrower != null)
+							if (item.breakOnEnemyHit && velocity.lengthSquared > 4 * 4 && thrower != null)
 							{
 								item.onEntityBreak(this);
 								remove();
