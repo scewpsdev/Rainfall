@@ -15,6 +15,7 @@ public class LightningStaff : Item
 
 		attackRate = 2;
 		trigger = false;
+		isSecondaryItem = true;
 
 		attackDamage = 2;
 		manaCost = 0.0f;

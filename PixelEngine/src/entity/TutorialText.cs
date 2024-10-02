@@ -21,6 +21,6 @@ public class TutorialText : Entity
 	public override void render()
 	{
 		Vector2i size = Renderer.MeasureUITextBMP(text);
-		Renderer.DrawWorldTextBMP(position.x - size.x / 2 / 16.0f, position.y - size.y / 2 / 16.0f, LAYER_FG, text, 1.0f / 16, color);
+		Renderer.DrawWorldTextBMP(position.x - size.x / 2 / 16.0f, position.y - size.y / 2 / 16.0f, LAYER_FGFG, text, 1.0f / 16, color);
 	}
 }

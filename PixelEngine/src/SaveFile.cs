@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -18,42 +19,71 @@ public struct RunData
 	public Item[] passiveItems;
 }
 
-public static class SaveFile
+public class SaveFile
 {
-	public static RunData[] highscores;
+	public static readonly uint FLAG_TUTORIAL_FINISHED = Hash.hash("tutorial_finished");
 
 
-	public static void Load(int saveID)
+	public int id;
+	public string path;
+
+	public RunData[] highscores;
+	public HashSet<uint> flags = new HashSet<uint>();
+
+	public bool hasFlag(uint flag)
 	{
-		string path = "save" + saveID + ".dat";
+		return flags.Contains(flag);
+	}
+
+	public void setFlag(uint flag)
+	{
+		flags.Add(flag);
+	}
+
+
+	public static SaveFile Load(int saveID)
+	{
+		string path = "save" + (saveID + 1) + ".dat";
+		SaveFile save = new SaveFile() { id = saveID, path = path };
+
 #if DEBUG
-		if (saveID != 2)
+		if (File.Exists(path) && saveID != 2)
 #else
 		if (File.Exists(path))
 #endif
 		{
 			DatFile dat = new DatFile(File.ReadAllText(path), path);
+
+			DatArray flagsDat = dat.getField("flags")?.array;
+			if (flagsDat != null)
+			{
+				for (int i = 0; i < flagsDat.size; i++)
+					save.flags.Add(flagsDat[i].uinteger);
+			}
+
 			DatArray highscoresDat = dat.getField("highscores").array;
-			highscores = new RunData[highscoresDat.size];
+			save.highscores = new RunData[highscoresDat.size];
 			for (int i = 0; i < highscoresDat.size; i++)
-				highscores[i] = LoadRun(highscoresDat[i].obj);
+				save.highscores[i] = LoadRun(highscoresDat[i].obj);
 		}
 		else
 		{
-			highscores = new RunData[4];
-			for (int i = 0; i < highscores.Length; i++)
+			save.highscores = new RunData[4];
+			for (int i = 0; i < save.highscores.Length; i++)
 			{
-				highscores[i].score = 0;
-				highscores[i].floor = -1;
-				highscores[i].time = -1;
-				highscores[i].kills = 0;
-				highscores[i].handItems = new Item[2];
-				highscores[i].activeItems = new Item[5];
-				highscores[i].passiveItems = new Item[4];
+				save.highscores[i].score = 0;
+				save.highscores[i].floor = -1;
+				save.highscores[i].time = -1;
+				save.highscores[i].kills = 0;
+				save.highscores[i].handItems = new Item[2];
+				save.highscores[i].activeItems = new Item[5];
+				save.highscores[i].passiveItems = new Item[4];
 			}
 
-			Save(saveID);
+			Save(save);
 		}
+
+		return save;
 	}
 
 	static RunData LoadRun(DatObject run)
@@ -82,97 +112,105 @@ public static class SaveFile
 		return data;
 	}
 
-	public static void OnRunFinished(RunStats run, int saveID)
+	public static void OnRunFinished(RunStats run, SaveFile save)
 	{
 		if (!run.isCustomRun)
 		{
-			if (run.score > highscores[0].score)
+			if (run.score > save.highscores[0].score)
 			{
-				HighscoreRun(run, 0, saveID);
+				HighscoreRun(run, 0, save);
 				run.scoreRecord = true;
 			}
-			if (run.floor > highscores[1].floor)
+			if (run.floor > save.highscores[1].floor)
 			{
-				HighscoreRun(run, 1, saveID);
+				HighscoreRun(run, 1, save);
 				run.floorRecord = true;
 			}
-			if (run.hasWon && (run.duration < highscores[2].time || highscores[2].time == -1))
+			if (run.hasWon && (run.duration < save.highscores[2].time || save.highscores[2].time == -1))
 			{
-				HighscoreRun(run, 2, saveID);
+				HighscoreRun(run, 2, save);
 				run.timeRecord = true;
 			}
-			if (run.kills > highscores[3].kills)
+			if (run.kills > save.highscores[3].kills)
 			{
-				HighscoreRun(run, 3, saveID);
+				HighscoreRun(run, 3, save);
 				run.killRecord = true;
 			}
 		}
 	}
 
-	static void HighscoreRun(RunStats run, int idx, int saveID)
+	static void HighscoreRun(RunStats run, int idx, SaveFile save)
 	{
 		Player player = GameState.instance.player;
 
-		highscores[idx].score = run.score;
-		highscores[idx].floor = run.floor;
-		highscores[idx].time = run.duration;
-		highscores[idx].kills = run.kills;
+		save.highscores[idx].score = run.score;
+		save.highscores[idx].floor = run.floor;
+		save.highscores[idx].time = run.duration;
+		save.highscores[idx].kills = run.kills;
 
-		highscores[idx].handItems = new Item[2];
-		highscores[idx].handItems[0] = player.handItem != null ? player.handItem.copy() : null;
-		highscores[idx].handItems[1] = player.offhandItem != null ? player.offhandItem.copy() : null;
+		save.highscores[idx].handItems = new Item[2];
+		save.highscores[idx].handItems[0] = player.handItem != null ? player.handItem.copy() : null;
+		save.highscores[idx].handItems[1] = player.offhandItem != null ? player.offhandItem.copy() : null;
 
-		highscores[idx].activeItems = new Item[player.activeItems.Length];
+		save.highscores[idx].activeItems = new Item[player.activeItems.Length];
 		for (int i = 0; i < player.activeItems.Length; i++)
-			highscores[idx].activeItems[i] = player.activeItems[i] != null ? player.activeItems[i].copy() : null;
+			save.highscores[idx].activeItems[i] = player.activeItems[i] != null ? player.activeItems[i].copy() : null;
 
-		highscores[idx].passiveItems = new Item[player.passiveItems.Count];
+		save.highscores[idx].passiveItems = new Item[player.passiveItems.Count];
 		for (int i = 0; i < player.passiveItems.Count; i++)
-			highscores[idx].passiveItems[i] = player.passiveItems[i].copy();
+			save.highscores[idx].passiveItems[i] = player.passiveItems[i].copy();
 
-		Save(saveID);
+		Save(save);
 	}
 
-	public static void Save(int saveID)
+	public static void Save(SaveFile save)
 	{
 		DatFile file = new DatFile();
 
-		DatValue[] highscoresDat = new DatValue[highscores.Length];
-		for (int i = 0; i < highscores.Length; i++)
+		{
+			DatValue[] flags = new DatValue[save.flags.Count];
+			int i = 0;
+			foreach (uint flag in save.flags)
+			{
+				flags[i++] = new DatValue(flag);
+			}
+			file.addArray("flags", new DatArray(flags));
+		}
+
+		DatValue[] highscoresDat = new DatValue[save.highscores.Length];
+		for (int i = 0; i < save.highscores.Length; i++)
 		{
 			DatObject run = new DatObject();
-			run.addInteger("score", highscores[i].score);
-			run.addInteger("floor", highscores[i].floor);
-			run.addNumber("time", highscores[i].time);
-			run.addInteger("kills", highscores[i].kills);
+			run.addInteger("score", save.highscores[i].score);
+			run.addInteger("floor", save.highscores[i].floor);
+			run.addNumber("time", save.highscores[i].time);
+			run.addInteger("kills", save.highscores[i].kills);
 
-			DatValue[] items0 = new DatValue[highscores[i].handItems.Length];
-			for (int j = 0; j < highscores[i].handItems.Length; j++)
-				items0[j] = new DatValue(highscores[i].handItems[j] != null ? highscores[i].handItems[j].id : 0);
+			DatValue[] items0 = new DatValue[save.highscores[i].handItems.Length];
+			for (int j = 0; j < save.highscores[i].handItems.Length; j++)
+				items0[j] = new DatValue(save.highscores[i].handItems[j] != null ? save.highscores[i].handItems[j].id : 0);
 			run.addArray("items0", new DatArray(items0));
 
-			DatValue[] items1 = new DatValue[highscores[i].activeItems.Length];
-			for (int j = 0; j < highscores[i].activeItems.Length; j++)
-				items1[j] = new DatValue(highscores[i].activeItems[j] != null ? highscores[i].activeItems[j].id : 0);
+			DatValue[] items1 = new DatValue[save.highscores[i].activeItems.Length];
+			for (int j = 0; j < save.highscores[i].activeItems.Length; j++)
+				items1[j] = new DatValue(save.highscores[i].activeItems[j] != null ? save.highscores[i].activeItems[j].id : 0);
 			run.addArray("items1", new DatArray(items1));
 
-			DatValue[] items2 = new DatValue[highscores[i].passiveItems.Length];
-			for (int j = 0; j < highscores[i].passiveItems.Length; j++)
-				items2[j] = new DatValue(highscores[i].passiveItems[j] != null ? highscores[i].passiveItems[j].id : 0);
+			DatValue[] items2 = new DatValue[save.highscores[i].passiveItems.Length];
+			for (int j = 0; j < save.highscores[i].passiveItems.Length; j++)
+				items2[j] = new DatValue(save.highscores[i].passiveItems[j] != null ? save.highscores[i].passiveItems[j].id : 0);
 			run.addArray("items2", new DatArray(items2));
 
 			highscoresDat[i] = new DatValue(run);
 		}
-
 		file.addArray("highscores", new DatArray(highscoresDat));
 
-		string path = "save" + saveID + ".dat";
-		file.serialize(path);
+		file.serialize(save.path);
 
 #if DEBUG
-		Utils.RunCommand("xcopy", "/y \"" + path + "\" \"..\\..\\..\\\"");
+		Utils.RunCommand("xcopy", "/y \"" + save.path + "\" \"..\\..\\..\\\"");
 #endif
 
-		Console.WriteLine("Saved global save");
+		Console.WriteLine("Saved file " + save.id);
 	}
 }

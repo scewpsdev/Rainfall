@@ -48,6 +48,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public float attackDamageModifier = 1.0f;
 	public float attackSpeedModifier = 1.0f;
+	public float manaCostModifier = 1.0f;
 
 	public int direction = 1;
 	public Vector2i aimPosition;
@@ -116,7 +117,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		actions = new ActionQueue(this);
 
-		collider = new FloatRect(-0.2f, 0, 0.4f, 0.75f);
+		collider = new FloatRect(-0.1f, 0, 0.2f, 0.75f);
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);

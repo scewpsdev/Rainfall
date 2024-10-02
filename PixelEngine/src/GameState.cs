@@ -75,11 +75,13 @@ public class GameState : State
 	public static GameState instance;
 
 
-	public int saveID;
+	SaveFile save;
 	public RunStats run;
 	string seed = null;
 
 	public Level hub;
+	public Level tutorial;
+	public Level cliffside;
 	public Level[] areaCaves;
 	public Level[] areaGardens;
 	public Level[] areaMines;
@@ -108,11 +110,10 @@ public class GameState : State
 
 	public GameState(int saveID, string seed)
 	{
-		this.saveID = saveID;
 		this.seed = seed;
 		instance = this;
 
-		SaveFile.Load(saveID);
+		save = SaveFile.Load(saveID);
 
 		reset();
 	}
@@ -133,16 +134,17 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		hub = new Level(-1, "Memoria Tree");
-		Level tutorial = new Level(-1, "Tutorial");
+		hub = new Level(-1, "Memory Tree");
+		tutorial = new Level(-1, "Tutorial");
+		cliffside = new Level(-1, "Cliffside");
 
-		Door tutorialEntrance = new Door(hub, null);
+		Door tutorialEntrance = new Door(cliffside, null);
 		Door tutorialExit = new Door(hub, null);
 
-		Door tutorialDoor = new Door(tutorial, tutorialEntrance);
+		//Door tutorialDoor = new Door(tutorial, tutorialEntrance);
 		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
 
-		tutorialEntrance.otherDoor = tutorialDoor;
+		//tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
 
 		player = new Player();
@@ -155,17 +157,17 @@ public class GameState : State
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
-		hub.addEntity(tutorialDoor, new Vector2(43.5f + 13, 23));
-		hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(43.5f + 13, 25));
+		//hub.addEntity(tutorialDoor, new Vector2(43.5f + 13, 23));
+		//hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(43.5f + 13, 25));
 		hub.addEntity(tutorialExitDoor, new Vector2(43.5f + 13, 28));
 
 		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(7, 0));
 
-		//hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-8, 0));
-		//hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-11, 0));
-		//hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), new PoisonVial().makeThrowable()), hub.getMarker(10) + new Vector2(-14, 0));
-		//hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-17, 0));
-		//hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-20, 0));
+		hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-8, 0));
+		hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-11, 0));
+		hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), new PoisonVial().makeThrowable()), hub.getMarker(10) + new Vector2(-14, 0));
+		hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-17, 0));
+		hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-20, 0));
 
 #if DEBUG
 		hub.addEntity(new ArmorStand("Dev", 1, new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()), hub.getMarker(10) + new Vector2(-5, 0));
@@ -182,24 +184,24 @@ public class GameState : State
 		npc.buysItems = false;
 		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-26 + 13, 0));
 
-		for (int i = 0; i < SaveFile.highscores.Length; i++)
+		for (int i = 0; i < save.highscores.Length; i++)
 		{
 			Vector2 position = new Vector2(101 + i * 5, 24);
 			hub.addEntity(new Pedestal(), position);
 
-			if (SaveFile.highscores[i].score > 0)
+			if (save.highscores[i].score > 0)
 			{
-				string[] label = i == 0 ? ["Highest Score:", SaveFile.highscores[i].score.ToString()] :
-					i == 1 ? ["Highest Floor:", SaveFile.highscores[i].floor != -1 ? (SaveFile.highscores[i].floor + 1).ToString() : "???"] :
-					i == 2 ? ["Fastest Time:", SaveFile.highscores[i].time != -1 ? StringUtils.TimeToString(SaveFile.highscores[i].time) : "???"] :
-					i == 3 ? ["Most kills:", SaveFile.highscores[i].kills.ToString()] : ["???"];
+				string[] label = i == 0 ? ["Highest Score:", save.highscores[i].score.ToString()] :
+					i == 1 ? ["Highest Floor:", save.highscores[i].floor != -1 ? (save.highscores[i].floor + 1).ToString() : "???"] :
+					i == 2 ? ["Fastest Time:", save.highscores[i].time != -1 ? StringUtils.TimeToString(save.highscores[i].time) : "???"] :
+					i == 3 ? ["Most kills:", save.highscores[i].kills.ToString()] : ["???"];
 				uint color = RunStats.recordColors[i];
-				hub.addEntity(new HighscoreDummy(SaveFile.highscores[i], label, color), position + Vector2.Up);
+				hub.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);
 			}
 		}
 
 		generator.generateTutorial(tutorial);
-		tutorial.addEntity(tutorialEntrance, new Vector2(4, tutorial.height - 5));
+		tutorial.addEntity(tutorialEntrance, (Vector2)tutorial.getMarker(33));
 		tutorial.addEntity(tutorialExit, (Vector2)tutorial.getMarker(01));
 
 		tutorial.addEntity(new TutorialText("WASD to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
@@ -217,13 +219,25 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), (Vector2)tutorial.getMarker(03) + new Vector2(-9, 6));
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("UseItem").ToString() + " to use item", 0xFFFFFFFF), (Vector2)tutorial.getMarker(05) + new Vector2(0, 2));
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), (Vector2)tutorial.getMarker(05) + new Vector2(0, 1.5f));
-		tutorial.addEntity(new Chest(new PotionOfHealing(), new Bomb() { stackSize = 20 }), (Vector2)tutorial.getMarker(05));
+		tutorial.addEntity(new Chest(new PotionOfHealing(), new Bomb() { stackSize = 200 }), (Vector2)tutorial.getMarker(05));
 
 		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(06));
 		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(07));
 		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(08));
 
 		tutorial.addEntity(new ItemGate(), (Vector2)tutorial.getMarker(09));
+
+
+		// Cliffside
+		{
+			Door cliffTutorialDoor = new Door(tutorial, tutorialEntrance);
+			tutorialEntrance.otherDoor = cliffTutorialDoor;
+
+			generator.generateCliffside(cliffside);
+			cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.getMarker(32));
+
+			
+		}
 
 		// Gode meme
 		/*
@@ -273,6 +287,12 @@ public class GameState : State
 				lastDoor = areaCaves[i].exit;
 			}
 
+			Door cliffDungeonExit1 = new Door(lastLevel, lastLevel.exit, true);
+			cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.getMarker(35));
+			lastLevel.exit.destination = cliffside;
+			lastLevel.exit.otherDoor = cliffDungeonExit1;
+
+			/*
 			Door hubDungeonExit1 = new Door(lastLevel, lastLevel.exit, true);
 			hub.addEntity(hubDungeonExit1, (Vector2)hub.getMarker(12));
 			lastLevel.exit.destination = hub;
@@ -280,6 +300,7 @@ public class GameState : State
 
 			Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)), hub);
 			hub.addEntity(hubMerchant2, (Vector2)hub.getMarker(12) + new Vector2(-12, 1));
+			*/
 		}
 
 		// The Glade
@@ -288,12 +309,16 @@ public class GameState : State
 			for (int i = 0; i < areaGardens.Length; i++)
 				areaGardens[i] = new Level(numCaveFloors + i, i < numGardenFloors - 1 ? "Lushlands " + StringUtils.ToRoman(i + 1) : "The Glade");
 
-			// TODO different sprite for 2nd level entrance
+			/*
 			Door hubDungeonEntrance2 = new Door(areaGardens[0], null, true);
 			hub.addEntity(hubDungeonEntrance2, (Vector2)hub.getMarker(13));
+			*/
 
-			Level lastLevel = hub;
-			Door lastDoor = hubDungeonEntrance2;
+			Door cliffDungeonEntrance2 = new Door(areaGardens[0], null, true);
+			cliffside.addEntity(cliffDungeonEntrance2, (Vector2)cliffside.getMarker(37));
+
+			Level lastLevel = cliffside;
+			Door lastDoor = cliffDungeonEntrance2;
 			for (int i = 0; i < areaGardens.Length; i++)
 			{
 				bool startingRoom = false;
@@ -370,9 +395,19 @@ public class GameState : State
 		finalRoom.updateLightmap(0, 0, finalRoom.width, finalRoom.height);
 		*/
 
-		level = null;
-		switchLevel(hub, (Vector2)hub.getMarker(10));
-		levelSwitchTime = -1;
+
+		if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
+		{
+			level = null;
+			switchLevel(hub, (Vector2)hub.getMarker(10));
+			levelSwitchTime = -1;
+		}
+		else
+		{
+			level = null;
+			switchLevel(cliffside, (Vector2)cliffside.getMarker(34));
+			levelSwitchTime = -1;
+		}
 
 		/*
 		level = hub;
@@ -389,6 +424,8 @@ public class GameState : State
 
 	public override void destroy()
 	{
+		SaveFile.Save(save);
+
 		Audio.StopSource(ambientSource);
 
 		level.destroy();
@@ -400,6 +437,9 @@ public class GameState : State
 
 	public void switchLevel(Level newLevel, Vector2 spawnPosition)
 	{
+		if (level == tutorial && newLevel == hub)
+			save.setFlag(SaveFile.FLAG_TUTORIAL_FINISHED);
+
 		this.newLevel = newLevel;
 		this.newLevelSpawnPosition = spawnPosition;
 		levelSwitchTime = Time.currentTime;
@@ -419,7 +459,7 @@ public class GameState : State
 		run.killedBy = killedBy;
 		run.killedByName = killedByName;
 
-		SaveFile.OnRunFinished(run, saveID);
+		SaveFile.OnRunFinished(run, save);
 		GameOverScreen.Init();
 	}
 

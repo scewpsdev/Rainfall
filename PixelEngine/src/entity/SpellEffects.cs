@@ -21,9 +21,14 @@ public static class SpellEffects
 			for (int x = x0; x <= x1; x++)
 			{
 				TileType tile = GameState.instance.level.getTile(x, y);
-				float distance = (new Vector2(x, y) + 0.5f - position).length - 0.5f;
-				if (distance < radius && tile != null && tile.destructible)
-					GameState.instance.level.setTile(x, y, null);
+				Vector2 tileCenter = new Vector2(x, y) + 0.5f;
+				HitData hit = GameState.instance.level.raycastTilesDestructible(position, (tileCenter - position).normalized, (tileCenter - position).length);
+				if (hit == null)
+				{
+					float distance = (tileCenter - position).length - 0.5f;
+					if (distance < radius && tile != null && tile.destructible)
+						GameState.instance.level.setTile(x, y, null);
+				}
 			}
 		}
 		GameState.instance.level.updateLightmap(x0, y0, x1 - x0 + 1, y1 - y0 + 1);
@@ -41,14 +46,18 @@ public static class SpellEffects
 				float distance = (center - pos).length - hits[i].entity.collider.size.length * 0.5f;
 				if (distance < radius)
 				{
-					hits[i].entity.velocity += (center - pos).normalized * (1 - distance / radius) * 30;
-
-					if (hits[i].entity is Hittable)
+					HitData hit = GameState.instance.level.raycastTilesDestructible(position, (center - position).normalized, (center - position).length);
+					if (hit == null)
 					{
-						float dmg = (1 - distance / radius) * damage;
+						hits[i].entity.velocity += (center - pos).normalized * (1 - distance / radius) * 30;
 
-						Hittable hittable = hits[i].entity as Hittable;
-						hittable.hit(dmg, fromEntity, fromItem, "Explosion");
+						if (hits[i].entity is Hittable)
+						{
+							float dmg = (1 - distance / radius) * damage;
+
+							Hittable hittable = hits[i].entity as Hittable;
+							hittable.hit(dmg, fromEntity, fromItem, "Explosion");
+						}
 					}
 				}
 			}

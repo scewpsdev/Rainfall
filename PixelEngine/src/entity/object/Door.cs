@@ -52,7 +52,7 @@ public class Door : Entity, Interactable
 		outline = 0;
 	}
 
-	public float getRange() => 2;
+	public float getRange() => 1;
 
 	public override void render()
 	{

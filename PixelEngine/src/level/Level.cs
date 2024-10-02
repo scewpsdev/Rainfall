@@ -477,6 +477,49 @@ public class Level
 		return new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile };
 	}
 
+	public HitData raycastTilesDestructible(Vector2 origin, Vector2 direction, float range)
+	{
+		if (direction.x == 0)
+			direction.x = 0.00001f;
+		if (direction.y == 0)
+			direction.y = 0.00001f;
+
+		Vector2i pos = (Vector2i)Vector2.Floor(origin);
+		Vector2 ri = 1.0f / direction;
+		Vector2i rs = Vector2.Sign(direction);
+		Vector2 dis = (pos - origin + 0.5f + rs * 0.5f) * ri;
+
+		Vector2i mm = Vector2i.Zero;
+		bool hit = false;
+		for (int i = 0; i < 128; i++)
+		{
+			TileType value = getTile(pos.x, pos.y);
+			if (value != null && !value.destructible)
+			{
+				hit = true;
+				break;
+			}
+			mm = new Vector2i(MathHelper.Step(dis.x, dis.y), MathHelper.Step(dis.y, dis.x));
+			dis += mm * rs * ri;
+			pos += mm * rs;
+		}
+
+		if (!hit)
+			return null;
+
+		Vector2 normal = (Vector2)(-mm * rs);
+		Vector2i tile = pos;
+
+		// intersect the cube	
+		Vector2 mini = (pos - origin + 0.5f - 0.5f * rs) * ri;
+		float distance = MathF.Max(mini.x, mini.y);
+
+		if (distance > range)
+			return null;
+
+		return new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile };
+	}
+
 	bool hitBoundingBox(Vector2 origin, Vector2 direction, Vector2 minB, Vector2 maxB, out Vector2 position, out float distance, out Vector2 normal)
 	{
 		position = origin;
@@ -661,7 +704,7 @@ public class Level
 		float entryTime = MathF.Max(entry.x, entry.y);
 		float exitTime = MathF.Min(exit.x, exit.y);
 
-		if (entryTime > exitTime || entry.x < 0 && entry.y < 0 || entry.x > 1 || entry.y > 1)
+		if (entryTime > exitTime || /*entry.x < 0 && entry.y < 0 &&*/ exit.x < 0 || exit.y < 0 || entry.x > 1 || entry.y > 1)
 		{
 			normal = Vector2.Zero;
 			distance = -1;
