@@ -159,30 +159,30 @@ public class GameState : State
 
 		//hub.addEntity(tutorialDoor, new Vector2(43.5f + 13, 23));
 		//hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(43.5f + 13, 25));
-		hub.addEntity(tutorialExitDoor, new Vector2(43.5f + 13, 28));
+		hub.addEntity(tutorialExitDoor, new Vector2(43.5f, 28));
 
 		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(7, 0));
 
-		hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-8, 0));
-		hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-11, 0));
-		hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), new PoisonVial().makeThrowable()), hub.getMarker(10) + new Vector2(-14, 0));
-		hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-17, 0));
-		hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-20, 0));
+		hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-7, 0));
+		hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-10, 0));
+		hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), (new PoisonVial() { stackSize = 3 }).makeThrowable()), hub.getMarker(10) + new Vector2(-13, 0));
+		hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-16, 0));
+		hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-19, 0));
 
 #if DEBUG
-		hub.addEntity(new ArmorStand("Dev", 1, new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()), hub.getMarker(10) + new Vector2(-5, 0));
+		hub.addEntity(new ArmorStand("Dev", 1, new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()), hub.getMarker(10) + new Vector2(-4, 0));
 #endif
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
 		npc.clearShop();
-		npc.addShopItem(new Stick());
+		//npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
 		npc.buysItems = false;
-		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-26 + 13, 0));
+		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-26, 0));
 
 		for (int i = 0; i < save.highscores.Length; i++)
 		{
@@ -236,7 +236,7 @@ public class GameState : State
 			generator.generateCliffside(cliffside);
 			cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.getMarker(32));
 
-			
+
 		}
 
 		// Gode meme

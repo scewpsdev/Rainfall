@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class AmethystRing : Item
 {
 	public AmethystRing()
-		: base("amethyst_ring", ItemType.Ring)
+		: base("amethyst_ring", ItemType.Relic)
 	{
 		displayName = "Amethyst Ring";
 

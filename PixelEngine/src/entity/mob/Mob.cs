@@ -33,9 +33,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public float itemDropChance = 0.1f;
 	public float coinDropChance = 0.2f;
+	public float relicDropChance = 0.0f;
 
 	public float health = 1;
 	public float damage = 1;
+	public float poise = 0.1f;
 	public bool isBoss = false;
 
 	public bool canClimb = false;
@@ -126,7 +128,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		if (health > 0)
 		{
-			if (damage > 0.1f)
+			if (damage >= poise)
 			{
 				stun();
 			}
@@ -146,13 +148,15 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public virtual void onDeath(Entity by)
 	{
-		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player)
+		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player || by is Projectile && ((Projectile)by).shooter is Player)
 		{
 			Player player = null;
 			if (by is Player)
 				player = by as Player;
 			else if (by is ItemEntity)
 				player = ((ItemEntity)by).thrower as Player;
+			else if (by is Projectile)
+				player = ((Projectile)by).shooter as Player;
 			player.onKill(this);
 		}
 
@@ -192,6 +196,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
 				GameState.instance.level.addEntity(coin, spawnPosition);
 			}
+		}
+		if (Random.Shared.NextSingle() < relicDropChance)
+		{
+			GameState.instance.level.addEntity(new RelicOffer(), position);
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)

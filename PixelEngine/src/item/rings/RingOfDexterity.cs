@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class RingOfDexterity : Item
 {
 	public RingOfDexterity()
-		: base("ring_of_dexterity", ItemType.Ring)
+		: base("ring_of_dexterity", ItemType.Relic)
 	{
 		displayName = "Ring of Dexterity";
 

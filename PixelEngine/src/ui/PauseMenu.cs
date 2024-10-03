@@ -21,6 +21,7 @@ public static class PauseMenu
 	public static void OnPause()
 	{
 		currentButton = 0;
+		state = PauseMenuState.Selection;
 		Input.cursorMode = CursorMode.Normal;
 	}
 

@@ -859,7 +859,7 @@ public class LevelGenerator
 		});
 
 		// Builder merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
 		{
 			BuilderMerchant npc = new BuilderMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -867,7 +867,7 @@ public class LevelGenerator
 		});
 
 		// Traveller merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			TravellingMerchant npc = new TravellingMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -883,7 +883,7 @@ public class LevelGenerator
 		});
 
 		// Logan
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			Logan npc = new Logan(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -891,7 +891,7 @@ public class LevelGenerator
 		});
 
 		// Blacksmith
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, floor == 3 ? 1 : MathHelper.Remap(floor, 1, 5, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
 		{
 			Blacksmith npc = new Blacksmith(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -899,7 +899,7 @@ public class LevelGenerator
 		});
 
 		// Tinkerer
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			Tinkerer npc = new Tinkerer(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -914,7 +914,7 @@ public class LevelGenerator
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.05f, 0.02f), true, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.05f, 0.02f), true, (Vector2i tile, Random random) =>
 		{
 			int amount = MathHelper.RandomInt(2, 10, random);
 			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
@@ -1352,7 +1352,7 @@ public class LevelGenerator
 		}
 
 		// Builder merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
 		{
 			BuilderMerchant npc = new BuilderMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1360,7 +1360,7 @@ public class LevelGenerator
 		});
 
 		// Traveller merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			TravellingMerchant npc = new TravellingMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1376,7 +1376,7 @@ public class LevelGenerator
 		});
 
 		// Logan
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			Logan npc = new Logan(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1384,7 +1384,7 @@ public class LevelGenerator
 		});
 
 		// Blacksmith
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
 		{
 			Blacksmith npc = new Blacksmith(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1392,7 +1392,7 @@ public class LevelGenerator
 		});
 
 		// Tinkerer
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			Tinkerer npc = new Tinkerer(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1407,7 +1407,7 @@ public class LevelGenerator
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 3, 0.05f, 0.02f), true, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.05f, 0.02f), true, (Vector2i tile, Random random) =>
 		{
 			int amount = MathHelper.RandomInt(2, 10, random);
 			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));

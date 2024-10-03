@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class RingOfSwiftness : Item
 {
 	public RingOfSwiftness()
-		: base("ring_of_swiftness", ItemType.Ring)
+		: base("ring_of_swiftness", ItemType.Relic)
 	{
 		displayName = "Ring of Swiftness";
 

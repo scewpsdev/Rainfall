@@ -306,7 +306,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			return true;
 
-			if (item.type == ItemType.Ring)
+			if (item.type == ItemType.Relic)
 			{
 				for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
 				{
@@ -587,7 +587,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		return true;
 
-		if (item.type == ItemType.Ring)
+		if (item.type == ItemType.Relic)
 		{
 			for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
 			{
@@ -891,7 +891,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.5f) && delta.lengthSquared > 0;
+			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
@@ -1128,9 +1128,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		if (item.stackable && item.stackSize > 1)
 		{
-			Item copy = item.copy();
-			copy.stackSize = 1;
-			if (copy.use(this))
+			//Item copy = item.copy();
+			//copy.stackSize = 1;
+			//if (copy.use(this))
+			if (item.use(this))
 			{
 				item.stackSize--;
 				return true;

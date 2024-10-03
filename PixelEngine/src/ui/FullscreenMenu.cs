@@ -43,8 +43,17 @@ public static class FullscreenMenu
 			}
 			bool selected = currentButton == i;
 
-			uint color = enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF999999) : 0xFF444444;
-			Renderer.DrawUITextBMP(x, y, txt, 1, color);
+			uint color = enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF777777) : 0xFF444444;
+			uint bgColor = 0xFF444444;
+			if (selected)
+			{
+				Renderer.DrawUITextBMP(x, y, txt, 1, color);
+			}
+			else
+			{
+				Renderer.DrawUITextBMP(x, y, txt, 1, bgColor);
+				Renderer.DrawUITextBMP(x, y - 1, txt, 1, color);
+			}
 
 			if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 			{

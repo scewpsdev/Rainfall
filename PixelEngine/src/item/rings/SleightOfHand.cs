@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class SleightOfHand : Item
 {
 	public SleightOfHand()
-		: base("sleight_of_hand", ItemType.Ring)
+		: base("sleight_of_hand", ItemType.Relic)
 	{
 		displayName = "Sleight of Hand";
 		description = "Increases attack rate by 15%";

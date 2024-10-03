@@ -16,7 +16,7 @@ public enum ItemType
 	Armor,
 	Food,
 	Potion,
-	Ring,
+	Relic,
 	Staff,
 	Scroll,
 	Spell,
@@ -140,7 +140,7 @@ public abstract class Item
 
 		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
 		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Spell || type == ItemType.Food || type == ItemType.Utility;
-		isPassiveItem = type == ItemType.Armor || type == ItemType.Ring;
+		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor;
 
@@ -148,7 +148,7 @@ public abstract class Item
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
 		blockSound = type == ItemType.Weapon ? parryHit : weaponHit;
 		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
-		equipSound = type == ItemType.Ring ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
+		equipSound = type == ItemType.Relic ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 
 		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 4 : type == ItemType.Spell ? 1 : 4;
 	}

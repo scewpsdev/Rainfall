@@ -56,7 +56,6 @@ public class PixelEngine : Game
 		EntityType.InitTypes();
 
 		Settings.Load();
-		InputManager.LoadBindings();
 
 		pushState(new MainMenuState());
 	}
@@ -236,8 +235,8 @@ public class PixelEngine : Game
 		launchParams.height = 900; //720;
 		launchParams.maximized = false;
 #else
-		launchParams.width = 1600;
-		launchParams.height = 900;
+		launchParams.width = 1280;
+		launchParams.height = 720;
 		//launchParams.maximized = false;
 		launchParams.fullscreen = true;
 #endif

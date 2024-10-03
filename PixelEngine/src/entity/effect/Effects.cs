@@ -49,7 +49,7 @@ public static unsafe class Effects
 		effect.systems[0].handle->bursts[0].count = count;
 		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
-		effect.collision = true;
+		//effect.collision = true;
 		effect.bounce = true;
 		return effect;
 	}
@@ -62,7 +62,7 @@ public static unsafe class Effects
 		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
 		effect.systems[0].handle->lifetime *= 0.5f;
-		effect.collision = true;
+		//effect.collision = true;
 		effect.bounce = true;
 		return effect;
 	}

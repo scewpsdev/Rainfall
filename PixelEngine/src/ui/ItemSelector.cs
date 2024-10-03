@@ -101,9 +101,9 @@ public static class ItemSelector
 				}
 				else if (player.isPassiveItem(item, out int passiveSlot))
 				{
-					Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, item.type == ItemType.Ring ? InventoryUI.ringSprite : InventoryUI.armorSprite);
+					Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, item.type == ItemType.Relic ? InventoryUI.ringSprite : InventoryUI.armorSprite);
 					if (passiveSlot != -1)
-						Renderer.DrawUITextBMP(x + shopWidth - 3 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Count - 2 : 0)).ToString(), 1, 0xFF505050);
+						Renderer.DrawUITextBMP(x + shopWidth - 3 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Relic ? player.passiveItems.Count - 2 : 0)).ToString(), 1, 0xFF505050);
 				}
 
 				lineWidth += 16;

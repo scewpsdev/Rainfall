@@ -31,11 +31,13 @@ public class GolemBoss : Mob
 		ai = new GolemAI(this);
 		ai.loseRange = 100;
 
-		health = 22;
+		health = 30;
+		poise = 4;
 		speed = 2.0f;
 		damage = 1.5f;
 		jumpPower = 11;
 		gravity = -20;
 		itemDropChance = 1;
+		relicDropChance = 1;
 	}
 }
