@@ -19,6 +19,7 @@ public class Dagger : Item
 
 		projectileItem = true;
 		projectileSticks = true;
+		projectileAims = true;
 
 		value = 4;
 
@@ -36,7 +37,7 @@ public class Dagger : Item
 
 	public override bool useSecondary(Player player)
 	{
-		player.throwItem(this, player.lookDirection.normalized);
+		player.throwItem(this, player.lookDirection.normalized, 25);
 		return true;
 	}
 }

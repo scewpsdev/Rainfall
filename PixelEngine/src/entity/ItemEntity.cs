@@ -28,6 +28,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 	public Item item;
 	public Vector4 color;
 	uint outline = 0;
+	int sidePanelHeight = 40;
 
 	ParticleEffect particles;
 
@@ -43,6 +44,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 		filterGroup = FILTER_ITEM;
 
 		damage = item.attackDamage;
+		if (item.type == ItemType.Weapon)
+			damage *= 3;
 
 		this.thrower = thrower;
 		this.velocity = velocity;
@@ -297,11 +300,16 @@ public class ItemEntity : Entity, Interactable, Hittable
 	{
 		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 
-		if (outline != 0 && velocity.lengthSquared < 1 && GameState.instance.player.velocity.lengthSquared < 0.01f)
+		if (outline != 0 && velocity.lengthSquared < 4 && GameState.instance.player.velocity.lengthSquared < 4.0f)
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
-			renderTooltip();
+			int sidePanelWidth = 80;
+			int x = Renderer.UIWidth - 10 - sidePanelWidth;
+			int y = 50;
+			sidePanelHeight = ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight);
+
+			//renderTooltip();
 		}
 
 		item.render(this);

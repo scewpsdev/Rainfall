@@ -104,7 +104,10 @@ public class IronDoor : Entity, Interactable
 		GameState.instance.level.setTile(tile.x, tile.y, open ? null : TileType.dummy);
 
 		if (open)
+		{
+			key = null;
 			Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
+		}
 	}
 
 	public override void update()
@@ -116,7 +119,7 @@ public class IronDoor : Entity, Interactable
 	public override void render()
 	{
 		if (outline != 0)
-			Renderer.DrawOutline(position.x - 0.5f + openProgress, position.y, LAYER_BG, 1 - openProgress, 1, 0, sprite, false, outline);
+			Renderer.DrawOutline(position.x - 0.5f + openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite, false, outline);
 
 		Renderer.DrawSprite(position.x - 0.5f + openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite);
 		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, frameSprite);

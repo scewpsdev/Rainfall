@@ -178,7 +178,7 @@ public class HUD
 		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF841e1e);
 		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFFd84343);
 
-		string countTxt = ((int)MathF.Ceiling(player.health * 10)).ToString() + "/" + ((int)(player.maxHealth * 10)).ToString();
+		string countTxt = ((int)MathF.Floor(player.health * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxHealth * 10)).ToString();
 		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
 	}
 
@@ -222,7 +222,7 @@ public class HUD
 		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF4d4195);
 		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFF6555c8);
 
-		string countTxt = ((int)MathF.Round(player.mana * 10)).ToString() + "/" + ((int)(player.maxMana * 10)).ToString();
+		string countTxt = ((int)MathF.Floor(player.mana * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxMana * 10)).ToString();
 		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
 	}
 

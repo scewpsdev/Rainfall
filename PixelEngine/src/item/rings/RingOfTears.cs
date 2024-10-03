@@ -14,7 +14,7 @@ public class RingOfTears : Item
 
 
 	public RingOfTears()
-		: base("ring_of_tears", ItemType.Ring)
+		: base("ring_of_tears", ItemType.Relic)
 	{
 		displayName = "Ring of Tears";
 

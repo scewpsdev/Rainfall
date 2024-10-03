@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class WizardsLegacy : Item
 {
 	public WizardsLegacy()
-		: base("wizards_legacy", ItemType.Ring)
+		: base("wizards_legacy", ItemType.Relic)
 	{
 		displayName = "Wizard's Legacy";
 		description = "Reduces mana cost of spells by 20%";

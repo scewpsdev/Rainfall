@@ -70,6 +70,18 @@ public static class ItemInfoPanel
 			drawRight(item.attackDamage.ToString("0.0"));
 			y += Renderer.smallFont.size + 1;
 
+			drawLeft("Speed");
+			drawRight(item.attackRate.ToString("0.0"));
+			y += Renderer.smallFont.size + 1;
+
+			drawLeft("Knockback");
+			drawRight(item.knockback.ToString("0.0"));
+			y += Renderer.smallFont.size + 1;
+
+			drawLeft("Reach");
+			drawRight(item.attackRange.ToString("0.0"));
+			y += Renderer.smallFont.size + 1;
+
 			//drawLeft("Reach");
 			//drawRight(item.attackRange.ToString("0.0"));
 			//y += Renderer.smallFont.size + 1;

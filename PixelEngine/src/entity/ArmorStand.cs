@@ -93,7 +93,7 @@ public class ArmorStand : Entity, Interactable
 			}
 		}
 
-		if (label != null)
+		if (label != null && outline != 0)
 		{
 			Renderer.DrawWorldTextBMP(position.x - Renderer.MeasureWorldTextBMP(label).x / 2 / 16, position.y + 2.5f, 0, label, 1.0f / 16, 0xFFAAAAAA);
 		}

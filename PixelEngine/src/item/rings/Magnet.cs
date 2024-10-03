@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Magnet : Item
 {
 	public Magnet()
-		: base("magnet", ItemType.Ring)
+		: base("magnet", ItemType.Relic)
 	{
 		displayName = "Magnet";
 

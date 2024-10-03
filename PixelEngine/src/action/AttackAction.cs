@@ -16,7 +16,7 @@ public class AttackAction : EntityAction
 
 	public List<Entity> hitEntities = new List<Entity>();
 
-	bool soundPlayed = false;
+	public bool soundPlayed = false;
 
 
 	public AttackAction(Item weapon, bool stab, bool mainHand)

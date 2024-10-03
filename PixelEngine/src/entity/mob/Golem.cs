@@ -31,11 +31,13 @@ public class Golem : Mob
 		rect = new FloatRect(-1.5f, 0, 3, 3);
 
 		health = 15;
+		poise = 3;
 		speed = 0.7f;
 		damage = 1.5f;
 		jumpPower = 10;
 		gravity = -20;
 		itemDropChance = 0.8f;
+		relicDropChance = 0.5f;
 
 		ai = new GolemAI(this);
 	}

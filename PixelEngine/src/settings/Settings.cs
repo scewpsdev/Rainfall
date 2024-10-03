@@ -37,6 +37,7 @@ public static class Settings
 	{
 		LoadGameSettings();
 		LoadGraphicsSettings();
+		InputManager.LoadBindings();
 
 		OptionsMenu.Init();
 	}

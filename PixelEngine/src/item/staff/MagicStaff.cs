@@ -16,6 +16,7 @@ public class MagicStaff : Item
 		attackRate = 4;
 		trigger = false;
 		isSecondaryItem = true;
+		secondaryChargeTime = 0;
 
 		attackDamage = 1.0f;
 		manaCost = 1.0f;
@@ -59,6 +60,12 @@ public class MagicStaff : Item
 		Spell spell = player.activeItems[player.selectedActiveItem] as Spell;
 		if (spell != null)
 			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell));
+		return false;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.actions.queueAction(new AttackAction(this, player.handItem == this) { soundPlayed = true });
 		return false;
 	}
 }
