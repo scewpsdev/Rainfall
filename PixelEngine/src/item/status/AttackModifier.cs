@@ -18,7 +18,7 @@ public class AttackModifier : StatusEffect
 	{
 		this.strength = strength;
 		this.renderAura = renderAura;
-		buffSprite = new Sprite(Entity.effectsTileset, 0, 1);
+		buffSprite = new Sprite(Entity.effectsTileset, 2, 2, 2, 2);
 	}
 
 	public override void render(Entity entity)
@@ -26,7 +26,7 @@ public class AttackModifier : StatusEffect
 		if (renderAura)
 		{
 			Vector2 center = entity.position + entity.collider.center;
-			float animation = 1 + MathF.Sin(Time.currentTime / 1e9f * 50) * 0.2f;
+			float animation = 1.5f + MathF.Sin(Time.currentTime / 1e9f * 50) * 0.2f;
 			float size = MathF.Ceiling(entity.collider.size.x) * animation;
 			float alpha = 1 - MathF.Exp(-(strength - 1) * 1.0f);
 			uint color = 0xFFFFFFFF; // 0xFFd5a58f;

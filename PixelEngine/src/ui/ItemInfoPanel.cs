@@ -21,7 +21,7 @@ public static class ItemInfoPanel
 		Renderer.DrawUISprite(x + width / 2 - item.sprite.width / 2, y, item.sprite.width, item.sprite.height, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 		y += item.sprite.height + 1;
 
-		string[] nameLines = Renderer.SplitMultilineText(item.displayName, width);
+		string[] nameLines = Renderer.SplitMultilineText(item.fullDisplayName, width);
 		foreach (string line in nameLines)
 		{
 			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFFAAAAAA);
@@ -118,7 +118,7 @@ public static class ItemInfoPanel
 			drawLeft("ARM");
 			drawRight(item.armor);
 			if (compareItem != null && compareItem.type == ItemType.Armor)
-				drawComparison(compareItem.armor, item.armor);
+				drawComparison(item.armor, compareItem.armor);
 			y += Renderer.smallFont.size + 1;
 		}
 

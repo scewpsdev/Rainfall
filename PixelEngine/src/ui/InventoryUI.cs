@@ -120,7 +120,7 @@ public class InventoryUI
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
 
 			List<Item> items = player.items;
-			int choice = ItemSelector.Render(10, 50, "Inventory", items, null, player.money, player, false, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(10, 50, "Inventory", items, null, player.money, player, false, null, out bool secondary, out bool closed, ref selectedItem);
 
 			if (choice != -1)
 			{

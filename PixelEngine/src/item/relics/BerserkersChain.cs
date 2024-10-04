@@ -41,7 +41,7 @@ public class BerserkersChain : Item
 		float preDmg = damageMultiplier;
 
 		int lastBuffLevel = buffLevel;
-		buffLevel += 3;
+		buffLevel = Math.Min(buffLevel + 3, (2 - 1) * 20 + threshhold);
 		if (buffLevel > threshhold && lastBuffLevel <= threshhold)
 			onActivate(player);
 
@@ -70,22 +70,20 @@ public class BerserkersChain : Item
 		{
 			Player player = entity as Player;
 
-			if ((Time.currentTime - lastTick) / 1e9f > 6)
+			if ((Time.currentTime - lastTick) / 1e9f > 5)
 			{
 				lastTick = Time.currentTime;
 
 				float preDmg = damageMultiplier;
 
 				int lastBuffLevel = buffLevel;
-				int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 10);
+				int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 5);
 				buffLevel = Math.Max(buffLevel - cooldown, 0);
 				if (buffLevel <= threshhold && lastBuffLevel > threshhold)
 					onDeactivate(player);
 
 				float postDmg = damageMultiplier;
 				player.attackDamageModifier *= postDmg / preDmg;
-
-				Console.WriteLine(buffLevel);
 			}
 
 			if (modifier != null)
