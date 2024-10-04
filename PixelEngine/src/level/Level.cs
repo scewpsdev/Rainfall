@@ -279,8 +279,8 @@ public class Level
 
 		int x0 = (int)MathF.Floor(GameState.instance.camera.left);
 		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom);
-		int x1 = (int)MathF.Floor(GameState.instance.camera.right);
-		int y1 = (int)MathF.Floor(GameState.instance.camera.top);
+		int x1 = (int)MathF.Ceiling(GameState.instance.camera.right);
+		int y1 = (int)MathF.Ceiling(GameState.instance.camera.top);
 
 		for (int y = y0; y <= y1; y++)
 		{

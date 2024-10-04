@@ -157,7 +157,7 @@ public static class GameOverScreen
 	{
 		Player player = GameState.instance.player;
 
-		int size = 2 * 16;
+		int size = 16;
 		int xx = x + width / 2 - size / 2;
 		int yy = y + size * 3 / 4;
 		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
@@ -204,11 +204,17 @@ public static class GameOverScreen
 
 		int padding = 8;
 
-		int playerViewHeight = (height - 2 * padding) * 3 / 8;
+		int playerViewHeight = 32; // (height - 2 * padding) * 2 / 8;
 
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
 		RenderPlayer(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, playerViewHeight);
 		InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
+
+		string prompt1 = InputManager.GetBinding("UIConfirm").ToString() + " to quick restart";
+		Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt1).x / 2, y + height - padding - 12 - Renderer.MeasureUITextBMP(prompt1).y, prompt1);
+
+		string prompt2 = InputManager.GetBinding("UIConfirm2").ToString() + " to return to hub";
+		Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt2).x / 2, y + height - padding - Renderer.MeasureUITextBMP(prompt2).y, prompt2);
 
 		scoreRecordParticles?.update();
 		floorRecordParticles?.update();

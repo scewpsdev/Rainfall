@@ -15,6 +15,7 @@ public abstract class AI
 	public float loseTime = 3.0f;
 
 	public Entity target = null;
+	public bool canSeeTarget = false;
 
 
 	protected AI(Mob mob)

@@ -45,16 +45,6 @@ public class MagicStaff : Item
 		}
 	}
 
-	public override void onEquip(Player player)
-	{
-		player.manaRechargeRate *= 2;
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.manaRechargeRate /= 2;
-	}
-
 	public override bool use(Player player)
 	{
 		Spell spell = player.activeItems[player.selectedActiveItem] as Spell;

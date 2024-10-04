@@ -118,7 +118,7 @@ public class GameState : State
 		reset();
 	}
 
-	void reset()
+	void reset(StartingClass startingClass = null)
 	{
 		level?.destroy();
 		level = null;
@@ -163,15 +163,17 @@ public class GameState : State
 
 		hub.addEntity(new Fountain(FountainEffect.Mana), hub.getMarker(11) + new Vector2(7, 0));
 
-		hub.addEntity(new ArmorStand("Barbarian", 8, new LeatherArmor(), new Handaxe()), hub.getMarker(10) + new Vector2(-7, 0));
-		hub.addEntity(new ArmorStand("Hunter", 8, new Shortbow(), new Arrow() { stackSize = 50 }), hub.getMarker(10) + new Vector2(-10, 0));
-		hub.addEntity(new ArmorStand("Thief", 8, new Dagger(), new DarkHood(), new DarkCloak(), (new PoisonVial() { stackSize = 3 }).makeThrowable()), hub.getMarker(10) + new Vector2(-13, 0));
-		hub.addEntity(new ArmorStand("Wizard", 8, new MagicStaff(), new MagicProjectileSpell(), new WizardsHood(), new WizardsCloak()), hub.getMarker(10) + new Vector2(-16, 0));
-		hub.addEntity(new ArmorStand("Fool", 1, new Stick()), hub.getMarker(10) + new Vector2(-19, 0));
+		ArmorStand barbarianClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
 
 #if DEBUG
-		hub.addEntity(new ArmorStand("Dev", 1, new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()), hub.getMarker(10) + new Vector2(-4, 0));
+		hub.addEntity(devClass = new ArmorStand(StartingClass.dev), hub.getMarker(10) + new Vector2(-2, 0));
 #endif
+
+		hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.getMarker(10) + new Vector2(-4, 0));
+		hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter), hub.getMarker(10) + new Vector2(-6, 0));
+		hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.getMarker(10) + new Vector2(-8, 0));
+		hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard), hub.getMarker(10) + new Vector2(-10, 0));
+		hub.addEntity(foolClass = new ArmorStand(StartingClass.fool), hub.getMarker(10) + new Vector2(-12, 0));
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
 		npc.clearShop();
@@ -182,7 +184,7 @@ public class GameState : State
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
 		npc.buysItems = false;
-		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-26, 0));
+		hub.addEntity(npc, (Vector2)hub.getMarker(10) + new Vector2(-20, 0));
 
 		for (int i = 0; i < save.highscores.Length; i++)
 		{
@@ -221,9 +223,9 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), (Vector2)tutorial.getMarker(05) + new Vector2(0, 1.5f));
 		tutorial.addEntity(new Chest(new PotionOfHealing(), new Bomb() { stackSize = 200 }), (Vector2)tutorial.getMarker(05));
 
-		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(06));
-		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(07));
-		tutorial.addEntity(new Rat(), (Vector2)tutorial.getMarker(08));
+		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0, relicDropChance = 0 }, (Vector2)tutorial.getMarker(06));
+		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0, relicDropChance = 0 }, (Vector2)tutorial.getMarker(07));
+		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0, relicDropChance = 0 }, (Vector2)tutorial.getMarker(08));
 
 		tutorial.addEntity(new ItemGate(), (Vector2)tutorial.getMarker(09));
 
@@ -396,7 +398,14 @@ public class GameState : State
 		*/
 
 
-		if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
+		if (startingClass != null)
+		{
+			level = null;
+			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
+			player.setStartingClass(startingClass);
+			levelSwitchTime = -1;
+		}
+		else if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
 		{
 			level = null;
 			switchLevel(hub, (Vector2)hub.getMarker(10));
@@ -594,7 +603,13 @@ public class GameState : State
 		{
 			GameOverScreen.Render();
 
-			if (InputManager.IsPressed("Interact"))
+			if (InputManager.IsPressed("UIConfirm"))
+			{
+				Audio.PlayBackground(UISound.uiConfirm2);
+				GameOverScreen.Destroy();
+				reset(player.startingClass);
+			}
+			if (InputManager.IsPressed("UIConfirm2"))
 			{
 				Audio.PlayBackground(UISound.uiConfirm2);
 				GameOverScreen.Destroy();

@@ -138,7 +138,7 @@ public class ParticleEffect : Entity
 					int u0 = 0, v0 = 0, w = 1, h = 1;
 					if (textureAtlases[j] != null)
 					{
-						int frameIdx = (int)particle.animationFrame;
+						int frameIdx = (int)(particle.animationFrame * systems[j].handle->atlasSize.x * systems[j].handle->atlasSize.y);
 						w = textureAtlases[j].width / systems[j].handle->atlasSize.x;
 						h = textureAtlases[j].height / systems[j].handle->atlasSize.y;
 						u0 = (frameIdx % systems[j].handle->atlasSize.x) * w;

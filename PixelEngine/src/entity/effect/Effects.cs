@@ -132,6 +132,13 @@ public static unsafe class Effects
 		return effect;
 	}
 
+	public static ParticleEffect CreateCriticalEffect()
+	{
+		ParticleEffect effect = new ParticleEffect(null, "res/effects/critical.rfs") { layer = Entity.LAYER_FG };
+		effect.systems[0].handle->color = 0xFFff3e24;
+		return effect;
+	}
+
 	public static UIParticleEffect CreateRecordUIEffect(uint color)
 	{
 		UIParticleEffect effect = new UIParticleEffect(null, "res/effects/ui_record.rfs");

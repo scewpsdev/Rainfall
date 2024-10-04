@@ -29,7 +29,7 @@ public class LeprechaunAI : AdvancedAI
 		{
 			mob.inputJump = true;
 		};
-		jump.onAction = (AIAction action, float elapsed) =>
+		jump.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
 		{
 			return !(!mob.inputJump && mob.isGrounded);
 		};

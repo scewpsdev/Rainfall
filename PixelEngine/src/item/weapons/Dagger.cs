@@ -15,16 +15,18 @@ public class Dagger : Item
 
 		attackDamage = 1;
 		attackRange = 1.0f;
-		attackRate = 4;
+		attackRate = 3;
+		criticalChance = 0.1f;
 
 		projectileItem = true;
 		projectileSticks = true;
-		projectileAims = true;
+		//projectileAims = true;
+		projectileSpins = true;
 
 		value = 4;
 
-		sprite = new Sprite(tileset, 2, 1);
-		renderOffset.x = 0.2f;
+		sprite = new Sprite(tileset, 8, 6);
+		renderOffset.x = 0.3f;
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
 	}
@@ -37,7 +39,8 @@ public class Dagger : Item
 
 	public override bool useSecondary(Player player)
 	{
-		player.throwItem(this, player.lookDirection.normalized, 25);
+		ItemEntity entity = player.throwItem(this, player.lookDirection.normalized, 20);
+		entity.rotationVelocity = -MathF.PI * 5;
 		return true;
 	}
 }

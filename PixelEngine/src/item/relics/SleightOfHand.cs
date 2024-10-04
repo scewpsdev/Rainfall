@@ -14,6 +14,7 @@ public class SleightOfHand : Item
 		displayName = "Sleight of Hand";
 		description = "Increases attack rate by 15%";
 		stackable = true;
+		tumbles = false;
 
 		value = 35;
 

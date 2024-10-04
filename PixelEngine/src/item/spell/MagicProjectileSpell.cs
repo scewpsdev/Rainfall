@@ -16,7 +16,7 @@ public class MagicProjectileSpell : Spell
 		value = 14;
 
 		attackDamage = 0.8f;
-		attackRate = 2.5f;
+		attackRate = 3;
 		manaCost = 0.1f;
 		knockback = 1.0f;
 		trigger = false;

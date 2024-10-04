@@ -32,7 +32,7 @@ public class Skull : Item
 
 	public override void onEntityBreak(ItemEntity entity)
 	{
-		int numCoins = MathHelper.RandomInt((int)MathF.Round(value / 2), (int)MathF.Round(value * 1.5f));
+		int numCoins = MathHelper.RandomInt(1, 6); // MathHelper.RandomInt((int)MathF.Round(value / 2), (int)MathF.Round(value * 1.5f));
 		for (int i = 0; i < numCoins; i++)
 		{
 			Coin coin = new Coin();

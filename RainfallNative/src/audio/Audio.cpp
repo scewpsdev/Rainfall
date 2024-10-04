@@ -15,6 +15,7 @@ static Soloud soloud;
 static Bus defaultBus;
 static Bus reverbBus;
 static handle reverbBusSource;
+static bool reverbEnabled = false;
 
 static FreeverbFilter reverb;
 
@@ -33,6 +34,8 @@ RFAPI void Audio_Init()
 	// otherwise sound attenuation will glitch for the first frame of playing (yikes)
 	//defaultBus.set3dAttenuation(SoLoud::AudioSource::INVERSE_DISTANCE, 10);
 	soloud.play(defaultBus);
+
+	reverbBusSource = soloud.play(reverbBus);
 }
 
 RFAPI void Audio_Shutdown()
@@ -84,7 +87,8 @@ RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, const Vector3& position, flo
 	soloud.fadeVolume(source, gain * _3dVolume, 0.0001f);
 	soloud.setPause(source, false);
 
-	if (reverbBusSource != 0)
+	//if (reverbBusSource != 0)
+	if (reverbEnabled)
 	{
 		handle reverbSource = reverbBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0, true);
 		soloud.setRelativePlaySpeed(reverbSource, pitch);
@@ -165,11 +169,13 @@ RFAPI void Audio_SoundSetSingleInstance(AudioSource* sound, bool singleInstance)
 
 RFAPI void Audio_SetEffectNone()
 {
-	soloud.stop(reverbBusSource);
-	reverbBusSource = 0;
+	reverbEnabled = false;
+	//soloud.stop(reverbBusSource);
+	//reverbBusSource = 0;
 }
 
 RFAPI void Audio_SetEffectReverb()
 {
-	reverbBusSource = soloud.play(reverbBus);
+	reverbEnabled = true;
+	//reverbBusSource = soloud.play(reverbBus);
 }

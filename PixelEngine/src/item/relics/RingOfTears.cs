@@ -11,6 +11,7 @@ public class RingOfTears : Item
 	bool active = false;
 
 	float buff = 0.5f;
+	AttackModifier modifier;
 
 
 	public RingOfTears()
@@ -29,14 +30,15 @@ public class RingOfTears : Item
 	{
 		player.attackDamageModifier *= 1 + buff;
 		active = true;
-		player.addStatusEffect(new AttackModifier());
+		player.addStatusEffect(modifier = new AttackModifier(1 + buff));
 	}
 
 	void deactivate(Player player)
 	{
 		player.attackDamageModifier /= 1 + buff;
 		active = false;
-		player.removeStatusEffect("attack_modifier");
+		player.removeStatusEffect(modifier);
+		modifier = null;
 	}
 
 	public override void onUnequip(Player player)

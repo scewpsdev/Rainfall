@@ -37,6 +37,7 @@ public class GolemBoss : Mob
 		damage = 1.5f;
 		jumpPower = 11;
 		gravity = -20;
+		awareness = 1;
 		itemDropChance = 1;
 		relicDropChance = 1;
 	}

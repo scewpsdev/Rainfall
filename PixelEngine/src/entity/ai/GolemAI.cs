@@ -26,7 +26,7 @@ public class GolemAI : AdvancedAI
 
 		patrol = false;
 
-		AIAction attack = addAction("attack", dashDistance / dashSpeed, dashChargeTime, dashCooldownTime, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
+		AIAction attack = addAction("attack", dashDistance / dashSpeed, dashChargeTime, dashCooldownTime, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance && mob.ai.canSeeTarget);
 		attack.onStarted = (AIAction action) =>
 		{
 			action.ai.mob.animator.getAnimation("attack").duration = action.duration;
@@ -40,12 +40,12 @@ public class GolemAI : AdvancedAI
 		};
 		attack.actionCollider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
 
-		AIAction jumpAttack = addAction("jump", 100, 0, 0, jumpAttackSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
+		AIAction jumpAttack = addAction("jump", 100, 0, 0, jumpAttackSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance && mob.ai.canSeeTarget);
 		jumpAttack.onStarted = (AIAction action) =>
 		{
 			mob.inputJump = true;
 		};
-		jumpAttack.onAction = (AIAction action, float elapsed) =>
+		jumpAttack.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
 		{
 			return !(!mob.inputJump && mob.isGrounded);
 		};
@@ -60,7 +60,7 @@ public class GolemAI : AdvancedAI
 		{
 			mob.inputJump = true;
 		};
-		jump.onAction = (AIAction action, float elapsed) =>
+		jump.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
 		{
 			return !(!mob.inputJump && mob.isGrounded);
 		};

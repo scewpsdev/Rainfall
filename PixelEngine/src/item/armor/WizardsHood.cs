@@ -19,9 +19,9 @@ public class WizardsHood : Item
 		value = 5;
 
 		sprite = new Sprite(tileset, 6, 3);
-		spriteColor = 0xFF874774;
+		spriteColor = 0xFF4c358f; // 0xFF874774;
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/hood.png", false), 0, 0, 16, 16);
-		ingameSpriteColor = 0xFF874774;
+		ingameSpriteColor = 0xFF4c358f; // 0xFF874774;
 		//ingameSpriteColor = 0xFF676898;
 	}
 }

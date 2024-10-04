@@ -20,7 +20,7 @@ public class AIAction
 
 	public Func<AIAction, Vector2, float, bool> requirementsMet;
 	public Action<AIAction> onStarted;
-	public Func<AIAction, float, bool> onAction;
+	public Func<AIAction, float, Vector2, bool> onAction;
 	public Action<AIAction> onFinished;
 }
 
@@ -71,11 +71,30 @@ public class AdvancedAI : AI
 			GameState.instance.currentBoss = null;
 	}
 
-	public AIAction addAction(string animation, float duration, float chargeTime, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, bool> onAction = null, Action<AIAction> onFinished = null)
+	public AIAction addAction(string animation, float duration, float chargeTime, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, Vector2, bool> onAction = null, Action<AIAction> onFinished = null)
 	{
 		AIAction action = new AIAction { ai = this, animation = animation, duration = duration, chargeTime = chargeTime, cooldownTime = cooldownTime, walkSpeed = walkSpeed, requirementsMet = requirementsMet, onStarted = onStarted, onAction = onAction, onFinished = onFinished };
 		actions.Add(action);
 		return action;
+	}
+
+	public AIAction addJumpAction()
+	{
+		AIAction jump = addAction("jump", 100, 0, 0, walkSpeed, (AIAction action, Vector2 toTarget, float targetDistance) =>
+		{
+			TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f));
+			TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 1.5f));
+			return forwardTile != null && forwardUpTile == null;
+		});
+		jump.onStarted = (AIAction action) =>
+		{
+			mob.inputJump = true;
+		};
+		jump.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
+		{
+			return !(!mob.inputJump && mob.isGrounded);
+		};
+		return jump;
 	}
 
 	void beginAction()
@@ -98,7 +117,7 @@ public class AdvancedAI : AI
 
 	void updateTargetFollow()
 	{
-		bool canSeeTarget = false;
+		canSeeTarget = false;
 		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
 		{
 			targetLastSeen = Time.currentTime;
@@ -115,7 +134,7 @@ public class AdvancedAI : AI
 			List<AIAction> possibleActions = new List<AIAction>();
 			foreach (AIAction action in actions)
 			{
-				if (canSeeTarget && action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation)) % 2 == 0)
+				if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation) + Hash.hash(action.duration)) % 2 == 0)
 					possibleActions.Add(action);
 			}
 
@@ -141,7 +160,7 @@ public class AdvancedAI : AI
 			mob.animator.setAnimation(currentAction.animation);
 
 			float elapsed = (Time.currentTime - actionTime) / 1e9f;
-			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed) || elapsed >= currentAction.duration)
+			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed, toTarget * distance) || elapsed >= currentAction.duration || mob.isStunned)
 				endAction();
 		}
 		if (state == AIState.Cooldown)
@@ -184,13 +203,21 @@ public class AdvancedAI : AI
 			else if (walkDirection == -1)
 				mob.inputLeft = true;
 
-			TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 0.5f));
-			TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, 1.5f));
-			if (forwardTile != null || forwardUpTile != null)
+			bool hitsWall = false;
+			for (int i = 0; i < (int)MathF.Round(mob.collider.max.y); i++)
+			{
+				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
+				if (forwardTile != null && forwardTile.isSolid)
+				{
+					hitsWall = true;
+					break;
+				}
+			}
+			if (hitsWall)
 				walkDirection *= -1;
 			else
 			{
-				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(1.0f * walkDirection, -0.5f));
+				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, -0.5f));
 				if (forwardDownTile == null)
 					walkDirection *= -1;
 			}
@@ -214,7 +241,9 @@ public class AdvancedAI : AI
 
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < (mob.isBoss ? aggroRange : 0.25f * aggroRange))
+				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+				float effectiveAwareness = mob.awareness * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < effectiveAwareness * effectiveAggroRange)
 				{
 					target = GameState.instance.player;
 					if (mob.isBoss)

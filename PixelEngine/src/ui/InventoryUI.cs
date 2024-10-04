@@ -198,7 +198,7 @@ public class InventoryUI
 					}
 				}
 
-				selectedItem = Math.Clamp(selectedItem, 0, items.Count - 1);
+				selectedItem = Math.Max(Math.Min(selectedItem, items.Count - 1), 0);
 			}
 
 			// Item info panel

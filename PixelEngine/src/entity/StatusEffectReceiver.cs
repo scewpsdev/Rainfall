@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 
 public interface StatusEffectReceiver
 {
-	void addStatusEffect(StatusEffect effect);
+	StatusEffect addStatusEffect(StatusEffect effect);
 	void heal(float amount);
 }
