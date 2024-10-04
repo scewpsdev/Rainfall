@@ -305,25 +305,28 @@ public class ItemEntity : Entity, Interactable, Hittable
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
-			int sidePanelWidth = 80;
-			int x = Renderer.UIWidth - 10 - sidePanelWidth;
-			int y = 50;
-
-			Item compareItem = null;
-
-			if (item.isSecondaryItem && player.handItem == null  /*&& !handItem.twoHanded && offhandItem == null*/)
-				compareItem = player.offhandItem;
-			else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
-				compareItem = player.handItem;
-			else if (item.isPassiveItem && item.armorSlot != ArmorSlot.None)
+			if (player.numOverlaysOpen == 0)
 			{
-				if (player.getArmorItem(item.armorSlot, out int slotIdx))
-					compareItem = player.passiveItems[slotIdx];
+				int sidePanelWidth = 80;
+				int x = Renderer.UIWidth - 10 - sidePanelWidth;
+				int y = 50;
+
+				Item compareItem = null;
+
+				if (item.isSecondaryItem && player.handItem == null  /*&& !handItem.twoHanded && offhandItem == null*/)
+					compareItem = player.offhandItem;
+				else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
+					compareItem = player.handItem;
+				else if (item.isPassiveItem && item.armorSlot != ArmorSlot.None)
+				{
+					if (player.getArmorItem(item.armorSlot, out int slotIdx))
+						compareItem = player.passiveItems[slotIdx];
+				}
+
+				sidePanelHeight = ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem);
+
+				//renderTooltip();
 			}
-
-			sidePanelHeight = ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem);
-
-			//renderTooltip();
 		}
 
 		item.render(this);

@@ -118,7 +118,10 @@ public class IronDoor : Entity, Interactable
 	public override void render()
 	{
 		if (outline != 0)
+		{
 			Renderer.DrawOutline(position.x + 0.5f - openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite, false, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, 1, 1, frameSprite, false, outline);
+		}
 
 		Renderer.DrawSprite(position.x + 0.5f - openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite);
 		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, frameSprite);
