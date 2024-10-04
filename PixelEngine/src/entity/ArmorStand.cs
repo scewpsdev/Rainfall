@@ -8,41 +8,33 @@ using System.Threading.Tasks;
 
 public class ArmorStand : Entity, Interactable
 {
+	StartingClass startingClass;
+
 	Sprite sprite;
 	uint outline;
-	string label;
-	int cost;
-
-	public List<Item> items = new List<Item>();
 
 
-	public ArmorStand(string label = null, int cost = 0, params Item[] items)
+	public ArmorStand(StartingClass startingClass)
 	{
-		this.label = label;
-		this.cost = cost;
+		this.startingClass = startingClass;
 
 		sprite = new Sprite(TileType.tileset, 2, 10);
-
-		this.items.AddRange(items);
 	}
 
 	public ArmorStand()
-		: this(null, 0, [])
+		: this(null)
 	{
 	}
 
 	public bool canInteract(Player player)
 	{
-		return items.Count > 0; // && player.money >= cost;
+		return startingClass != null; // && player.money >= cost;
 	}
 
 	public void interact(Player player)
 	{
-		player.clearInventory();
-		for (int i = 0; i < items.Count; i++)
-			player.giveItem(items[i]);
-		items.Clear();
-		player.money = Math.Max(player.money - cost, 0);
+		player.setStartingClass(startingClass);
+		startingClass = null;
 	}
 
 	public void onFocusEnter(Player player)
@@ -66,36 +58,42 @@ public class ArmorStand : Entity, Interactable
 		{
 			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.001f, 1, 1, 0, sprite, false, outline);
 
-			for (int i = 0; i < items.Count; i++)
+			if (startingClass != null)
 			{
-				if (items[i].ingameSprite != null)
+				for (int i = 0; i < startingClass.items.Length; i++)
 				{
-					Renderer.DrawOutline(position.x - 0.5f * items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * items[i].ingameSpriteSize, LAYER_BG + 0.001f, items[i].ingameSpriteSize, items[i].ingameSpriteSize, 0, items[i].ingameSprite, false, outline);
-				}
-				else if (items[i].isHandItem)
-				{
-					Renderer.DrawOutline(position.x - 0.5f * items[i].size.x + items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.001f, items[i].size.x, items[i].size.y, 0, items[i].sprite, false, outline);
+					if (startingClass.items[i].ingameSprite != null)
+					{
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * startingClass.items[i].ingameSpriteSize, LAYER_BG + 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, false, outline);
+					}
+					else if (startingClass.items[i].isHandItem)
+					{
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.001f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, false, outline);
+					}
 				}
 			}
 		}
 
 		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite);
 
-		for (int i = 0; i < items.Count; i++)
+		if (startingClass != null)
 		{
-			if (items[i].ingameSprite != null)
+			for (int i = 0; i < startingClass.items.Length; i++)
 			{
-				Renderer.DrawSprite(position.x - 0.5f * items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * items[i].ingameSpriteSize, LAYER_BG - 0.001f, items[i].ingameSpriteSize, items[i].ingameSpriteSize, 0, items[i].ingameSprite, false, items[i].ingameSpriteColor);
+				if (startingClass.items[i].ingameSprite != null)
+				{
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * startingClass.items[i].ingameSpriteSize, LAYER_BG - 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, false, startingClass.items[i].ingameSpriteColor);
+				}
+				else if (startingClass.items[i].isHandItem)
+				{
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG - 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, false, startingClass.items[i].spriteColor);
+				}
 			}
-			else if (items[i].isHandItem)
-			{
-				Renderer.DrawSprite(position.x - 0.5f * items[i].size.x + items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * items[i].size.y + getWeaponOrigin(true).y, LAYER_BG - 0.002f, items[i].size.x, items[i].size.y, 0, items[i].sprite, false, items[i].spriteColor);
-			}
-		}
 
-		if (label != null && outline != 0)
-		{
-			Renderer.DrawWorldTextBMP(position.x - Renderer.MeasureWorldTextBMP(label).x / 2 / 16, position.y + 2.5f, 0, label, 1.0f / 16, 0xFFAAAAAA);
+			if (outline != 0)
+			{
+				Renderer.DrawWorldTextBMP(position.x - Renderer.MeasureWorldTextBMP(startingClass.name).x / 2 / 16, position.y + 2.5f, 0, startingClass.name, 1.0f / 16, 0xFFAAAAAA);
+			}
 		}
 	}
 }

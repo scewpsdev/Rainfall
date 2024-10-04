@@ -28,7 +28,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public float speed = 4;
 	public float climbingSpeed = 4;
-	public float jumpPower = 12;
+	public float jumpPower = 11;
 	public float gravity = -30;
 
 	public float itemDropChance = 0.1f;
@@ -38,6 +38,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float health = 1;
 	public float damage = 1;
 	public float poise = 0.1f;
+	public float awareness = 0.5f;
+
 	public bool isBoss = false;
 
 	public bool canClimb = false;
@@ -89,10 +91,14 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
 	{
+		bool critical = item != null && Random.Shared.NextSingle() < item.criticalChance;
+		if (critical)
+			damage *= 2;
+
 		health -= damage;
 
 		if (damage >= 1)
-			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
+			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3, critical), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
 
 		if (hitSound != null && (triggerInvincibility || health <= 0))
 			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
@@ -163,16 +169,34 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		if (ai != null)
 			ai.onDeath();
 
-		if (Random.Shared.NextSingle() < itemDropChance)
+		if (Random.Shared.NextSingle() < relicDropChance)
 		{
-			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
-
-			foreach (Item item in items)
+			GameState.instance.level.addEntity(new RelicOffer(), position);
+		}
+		else
+		{
+			if (Random.Shared.NextSingle() < itemDropChance)
 			{
-				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
-				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
-				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
-				GameState.instance.level.addEntity(obj, throwOrigin);
+				Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
+
+				foreach (Item item in items)
+				{
+					Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+					Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+					ItemEntity obj = new ItemEntity(item, null, itemVelocity);
+					GameState.instance.level.addEntity(obj, throwOrigin);
+				}
+			}
+			if (Random.Shared.NextSingle() < coinDropChance)
+			{
+				int amount = MathHelper.RandomInt(3, 10);
+				for (int i = 0; i < amount; i++)
+				{
+					Coin coin = new Coin();
+					Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
+					coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+					GameState.instance.level.addEntity(coin, spawnPosition);
+				}
 			}
 		}
 		for (int i = 0; i < stuckProjectiles.Count; i++)
@@ -185,21 +209,6 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				ItemEntity obj = new ItemEntity(Item.GetItemPrototype(stuckProjectiles[i].item).copy(), null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
 			}
-		}
-		if (Random.Shared.NextSingle() < coinDropChance)
-		{
-			int amount = MathHelper.RandomInt(3, 10);
-			for (int i = 0; i < amount; i++)
-			{
-				Coin coin = new Coin();
-				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
-				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
-				GameState.instance.level.addEntity(coin, spawnPosition);
-			}
-		}
-		if (Random.Shared.NextSingle() < relicDropChance)
-		{
-			GameState.instance.level.addEntity(new RelicOffer(), position);
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)
@@ -217,10 +226,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			stunTime = Time.currentTime + (long)((stunDuration - 1) * STUN_DURATION * 1e9f);
 	}
 
-	public void addStatusEffect(StatusEffect effect)
+	public StatusEffect addStatusEffect(StatusEffect effect)
 	{
 		statusEffects.Add(effect);
 		effect.init(this);
+		return effect;
 	}
 
 	public void heal(float amount)

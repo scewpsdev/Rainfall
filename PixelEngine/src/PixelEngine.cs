@@ -233,7 +233,7 @@ public class PixelEngine : Game
 #if DEBUG
 		launchParams.width = 1600; //1280;
 		launchParams.height = 900; //720;
-		launchParams.maximized = false;
+		launchParams.maximized = true;
 #else
 		launchParams.width = 1280;
 		launchParams.height = 720;

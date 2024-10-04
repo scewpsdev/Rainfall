@@ -70,7 +70,7 @@ public class Potion : Item
 				effect.apply(player, this);
 			player.removeItemSingle(this);
 			player.giveItem(new GlassBottle());
-			return false;
+			return true;
 		}
 	}
 

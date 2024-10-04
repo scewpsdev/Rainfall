@@ -13,7 +13,11 @@ public class ItemGate : Entity
 		HitData[] hits = new HitData[1];
 		int numHits = GameState.instance.level.overlap(position, position + new Vector2(1, 2), hits, FILTER_PLAYER);
 		if (numHits > 0)
+		{
 			GameState.instance.player.clearInventory();
+			GameState.instance.player.health = GameState.instance.player.maxHealth;
+			GameState.instance.player.mana = GameState.instance.player.maxMana;
+		}
 	}
 
 	public override void render()

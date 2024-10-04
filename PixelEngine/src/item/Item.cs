@@ -88,6 +88,7 @@ public abstract class Item
 	public float secondaryChargeTime = 0.5f;
 	public float blockDuration = 0.7f;
 	public float damageReflect = 0.0f;
+	public float criticalChance = 0.025f;
 	public bool trigger = true;
 	public int maxPierces = 0;
 	public int maxRicochets = 0;
@@ -112,6 +113,7 @@ public abstract class Item
 	public bool projectileAims = false;
 	public bool breakOnWallHit = false;
 	public bool breakOnEnemyHit = false;
+	public bool tumbles = true;
 
 	public Sprite sprite = null;
 	public Sprite icon = null;
@@ -262,6 +264,10 @@ public abstract class Item
 	{
 	}
 
+	public virtual void onKill(Player player, Mob mob)
+	{
+	}
+
 	public virtual void update(Entity entity)
 	{
 		if (entity is Player)
@@ -389,6 +395,10 @@ public abstract class Item
 		InitType(new DarkCloak());
 		InitType(new WizardsLegacy());
 		InitType(new SleightOfHand());
+		InitType(new Spellweaver());
+		InitType(new Nightstalker());
+		InitType(new BerserkersChain());
+		InitType(new GlassRing());
 	}
 
 	static void InitType(Item item)

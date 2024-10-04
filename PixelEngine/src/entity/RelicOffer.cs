@@ -16,7 +16,7 @@ public class RelicOffer : Entity
 		for (int i = 0; i < 3; i++)
 		{
 			Item item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
-			Vector2 velocity = new Vector2(i - 1, 3) * 0.5f;
+			Vector2 velocity = new Vector2(i - 1, 3) * 1.5f;
 			ItemEntity entity = new ItemEntity(item, null, velocity);
 			GameState.instance.level.addEntity(entity, position + new Vector2((i - 1) * 0.2f, 0.5f));
 			items.Add(entity);

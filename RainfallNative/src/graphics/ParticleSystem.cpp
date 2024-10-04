@@ -232,7 +232,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 			if (system->colorAnim.count > 0)
 				particle->color = system->colorAnim.getValue(progress);
 
-			if (system->textureAtlas != UINT16_MAX && system->numFrames > 0)
+			if (system->numFrames > 0)
 			{
 				float animationFrame = particleTimer / particle->lifetime * system->numFrames / (system->atlasSize.x * system->atlasSize.y);
 				particle->animationFrame = animationFrame;

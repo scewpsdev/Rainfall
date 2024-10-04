@@ -109,7 +109,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 	{
 		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity.normalized * collider.size);
 
-		if (velocity.lengthSquared > 1)
+		if (velocity.lengthSquared > 4 * 4)
 		{
 			TileType tile = GameState.instance.level.getTile(pos);
 			if (tile != null)
@@ -202,7 +202,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 				//flipped = velocity.x < 0;
 			}
 		}
-		else //if (item.projectileItem && damage == 0 && thrower != null)
+		else if (item.tumbles) //if (item.projectileItem && damage == 0 && thrower != null)
 		{
 			// Tumble
 			if (velocity.lengthSquared > 0.25f)
@@ -300,14 +300,28 @@ public class ItemEntity : Entity, Interactable, Hittable
 	{
 		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 
-		if (outline != 0 && velocity.lengthSquared < 4 && GameState.instance.player.velocity.lengthSquared < 4.0f)
+		Player player = GameState.instance.player;
+		if (outline != 0 && velocity.lengthSquared < 4 && player.velocity.lengthSquared < 4.0f)
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
 			int sidePanelWidth = 80;
 			int x = Renderer.UIWidth - 10 - sidePanelWidth;
 			int y = 50;
-			sidePanelHeight = ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight);
+
+			Item compareItem = null;
+
+			if (item.isSecondaryItem && player.handItem == null  /*&& !handItem.twoHanded && offhandItem == null*/)
+				compareItem = player.offhandItem;
+			else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
+				compareItem = player.handItem;
+			else if (item.isPassiveItem && item.armorSlot != ArmorSlot.None)
+			{
+				if (player.getArmorItem(item.armorSlot, out int slotIdx))
+					compareItem = player.passiveItems[slotIdx];
+			}
+
+			sidePanelHeight = ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem);
 
 			//renderTooltip();
 		}

@@ -10,6 +10,7 @@ public abstract class Spell : Item
 	protected Spell(string name)
 		: base(name, ItemType.Spell)
 	{
+		tumbles = false;
 	}
 
 	public override bool use(Player player)

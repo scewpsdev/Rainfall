@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class WizardsLegacy : Item
+public class Spellweaver : Item
 {
-	public WizardsLegacy()
-		: base("wizards_legacy", ItemType.Relic)
+	public Spellweaver()
+		: base("spellweaver", ItemType.Relic)
 	{
-		displayName = "Wizard's Legacy";
-		description = "Reduces mana cost of spells by 20%";
+		displayName = "Spellweaver";
+		description = "Reduces spell mana cost by 20%";
 		stackable = true;
 
 		value = 27;

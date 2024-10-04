@@ -56,12 +56,18 @@ public class AttackAction : EntityAction
 				if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))
 				{
 					Hittable hittable = hits[i].entity as Hittable;
-					if (hittable.hit(weapon.attackDamage * player.attackDamageModifier, player, weapon))
+
+					float damage = weapon.attackDamage * player.attackDamageModifier;
+					if (hittable is Mob && (hittable as Mob).ai.target != player)
+						damage *= player.stealthAttackModifier;
+
+					//bool critical = Random.Shared.NextSingle() < weapon.criticalChance;
+					//if (critical)
+					//	damage *= 2;
+
+					if (hittable.hit(damage, player, weapon))
 					{
 						hitEntities.Add(hits[i].entity);
-
-						if (weapon.hitSound != null)
-							Audio.PlayOrganic(weapon.hitSound, new Vector3(player.position, 0));
 
 						player.addImpulse(-direction * 4);
 						if (!player.isGrounded)
@@ -69,6 +75,12 @@ public class AttackAction : EntityAction
 							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
 							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower);
 						}
+
+						if (weapon.hitSound != null)
+							Audio.PlayOrganic(weapon.hitSound, new Vector3(hits[i].entity.position + hits[i].entity.collider.center, 0));
+
+						//if (critical)
+						//	GameState.instance.level.addEntity(Effects.CreateCriticalEffect(), hits[i].entity.position + hits[i].entity.collider.center);
 					}
 				}
 			}

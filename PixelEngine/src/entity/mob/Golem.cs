@@ -37,7 +37,7 @@ public class Golem : Mob
 		jumpPower = 10;
 		gravity = -20;
 		itemDropChance = 0.8f;
-		relicDropChance = 0.5f;
+		//relicDropChance = 0.5f;
 
 		ai = new GolemAI(this);
 	}

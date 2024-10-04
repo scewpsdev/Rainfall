@@ -19,8 +19,8 @@ public class DarkHood : Item
 		value = 5;
 
 		sprite = new Sprite(tileset, 6, 3);
-		spriteColor = 0xFF2e2739;
+		spriteColor = 0xFF17141d; // 0xFF2e2739;
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/hood.png", false), 0, 0, 16, 16);
-		ingameSpriteColor = 0xFF2e2739;
+		ingameSpriteColor = 0xFF17141d; // 0xFF2e2739;
 	}
 }

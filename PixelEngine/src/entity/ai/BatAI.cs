@@ -118,7 +118,8 @@ public class BatAI : AI
 		{
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				if (distance < aggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < (mob.isBoss ? aggroRange : 0.25f * aggroRange))
+				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < mob.awareness * effectiveAggroRange)
 				{
 					setTarget(GameState.instance.player);
 				}

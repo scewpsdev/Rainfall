@@ -721,7 +721,7 @@ public class LevelGenerator
 
 				if (up != null && up.isSolid && down != null && down.isSolid)
 				{
-					float lockedChance = 0.25f;
+					float lockedChance = 1; // 0.25f;
 					if (random.NextSingle() < lockedChance)
 					{
 						Debug.Assert(doorPosition != Vector2i.Zero);

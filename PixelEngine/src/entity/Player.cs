@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 public class Player : Entity, Hittable, StatusEffectReceiver
 {
-	const float JUMP_BUFFER = 0.3f;
-	const float COYOTE_TIME = 0.2f;
+	const float JUMP_BUFFER = 0.2f;
+	const float COYOTE_TIME = 0.15f;
 #if DEBUG
 	const float SPRINT_MULTIPLIER = 1.5f;
 #else
@@ -49,6 +49,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float attackDamageModifier = 1.0f;
 	public float attackSpeedModifier = 1.0f;
 	public float manaCostModifier = 1.0f;
+	public float stealthAttackModifier = 1.0f;
+	public float defenseModifier = 1.0f;
 
 	public int direction = 1;
 	public Vector2i aimPosition;
@@ -63,6 +65,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public bool isDucked = false;
 	bool isClimbing = false;
 	float fallDistance = 0;
+	public float visibility = 1;
 
 	// Status effects
 	bool isStunned = false;
@@ -89,6 +92,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Interactable interactableInFocus = null;
 	public Climbable currentLadder = null;
 	Climbable lastLadderJumpedFrom = null;
+
+	public StartingClass startingClass;
 
 	public List<Item> items = new List<Item>();
 	public Item handItem = null;
@@ -166,6 +171,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			GameState.instance.moveEntityToLevel(handParticles, newLevel);
 		if (offhandParticles != null)
 			GameState.instance.moveEntityToLevel(offhandParticles, newLevel);
+	}
+
+	public void setStartingClass(StartingClass startingClass)
+	{
+		if (startingClass != null)
+			money += startingClass.cost;
+		clearInventory();
+		for (int i = 0; i < startingClass.items.Length; i++)
+			giveItem(startingClass.items[i].copy());
+		health = maxHealth = startingClass.maxHealth;
+
+		money = Math.Max(money - startingClass.cost, 0);
+
+		this.startingClass = startingClass;
 	}
 
 	public bool equipHandItem(Item item)
@@ -419,15 +438,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//items.Sort((a, b) => a.type.CompareTo(b.type));
 		items.Sort((Item item1, Item item2) =>
 		{
-			int getScore(Item item) => item.isActiveItem && !item.isSecondaryItem ? 1 :
-				item.isActiveItem ? 2 :
+			int getScore(Item item) => item.isHandItem && !item.isSecondaryItem ? 1 :
+				item.isHandItem ? 2 :
 				item.isSecondaryItem ? 3 :
 				item.isActiveItem ? 4 :
 				item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
 				item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
 			int score1 = getScore(item1);
 			int score2 = getScore(item2);
-			return score1 > score2 ? -1 : score1 < score2 ? 1 : 0;
+			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
 		if (item.isSecondaryItem && handItem != null /*&& !handItem.twoHanded && offhandItem == null*/)
@@ -631,7 +650,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
-		Vector2 throwOrigin = position + collider.center;
+		Vector2 throwOrigin = position + new Vector2(0, 0.5f) + direction.normalized;
 		ItemEntity obj = new ItemEntity(item, throws ? this : null, itemVelocity);
 		if (item.projectileSpins)
 			obj.rotationVelocity = MathF.PI * MathHelper.RandomFloat(-5, 5);
@@ -705,6 +724,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			int totalArmor = getTotalArmor();
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
+			damage /= defenseModifier;
 
 			health -= damage;
 
@@ -795,10 +815,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		mana = MathF.Max(mana - amount, 0);
 	}
 
-	public void addStatusEffect(StatusEffect effect)
+	public StatusEffect addStatusEffect(StatusEffect effect)
 	{
 		statusEffects.Add(effect);
 		effect.init(this);
+		return effect;
 	}
 
 	public void heal(float amount)
@@ -806,16 +827,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		health = MathF.Min(health + amount, maxHealth);
 	}
 
-	public void removeStatusEffect(string name)
+	public void removeStatusEffect(StatusEffect effect)
 	{
-		for (int i = 0; i < statusEffects.Count; i++)
-		{
-			if (statusEffects[i].name == name)
-			{
-				statusEffects.RemoveAt(i);
-				break;
-			}
-		}
+		Debug.Assert(statusEffects.Contains(effect));
+		statusEffects.Remove(effect);
 	}
 
 	public bool hasStatusEffect(string name)
@@ -833,6 +848,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		GameState.instance.run.kills++;
 		if (mana < maxMana)
 			mana = MathF.Min(mana + MANA_KILL_REWARD, maxMana);
+		for (int i = 0; i < items.Count; i++)
+			items[i].onKill(this, mob);
 	}
 
 	void updateMovement()
@@ -969,7 +986,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			//else if (delta.x < 0)
 			//	direction = -1;
 
-			currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : isDucked ? DUCKED_MULTIPLIER * speed : speed;
+			currentSpeed = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isDucked ? DUCKED_MULTIPLIER : 1) * speed;
 			if (actions.currentAction != null)
 				currentSpeed *= actions.currentAction.speedMultiplier;
 			velocity.x = delta.x * currentSpeed;
@@ -1128,10 +1145,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		if (item.stackable && item.stackSize > 1)
 		{
-			//Item copy = item.copy();
-			//copy.stackSize = 1;
-			//if (copy.use(this))
-			if (item.use(this))
+			Item copy = item.copy();
+			copy.stackSize = 1;
+			if (copy.use(this))
 			{
 				item.stackSize--;
 				return true;
@@ -1476,6 +1492,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = 2;
 		else if (animator.currentAnimation == "stun")
 			animOffset.y = -2;
+		if (isDucked)
+			animOffset.y = -3;
 		return new Vector2((!mainHand ? 2 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
 	}
 
