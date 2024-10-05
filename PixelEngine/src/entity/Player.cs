@@ -37,6 +37,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float wallJumpPower = 10;
 	public float manaRechargeRate = 0.03f;
 	public float coinCollectDistance = 1.0f;
+	public float aimDistance = 1.0f;
 
 	public float maxHealth = 3;
 	public float health = 3;

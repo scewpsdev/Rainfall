@@ -11,6 +11,7 @@ struct HUDMessage
 {
 	public string msg;
 	public long timeSent;
+	public int count;
 }
 
 public class HUD
@@ -78,7 +79,16 @@ public class HUD
 
 	public void showMessage(string msg)
 	{
-		messages.Add(new HUDMessage { msg = msg, timeSent = Time.currentTime });
+		if (messages.Count > 0 && messages[messages.Count - 1].msg == msg)
+		{
+			HUDMessage hmsg = messages[messages.Count - 1];
+			hmsg.count++;
+			messages[messages.Count - 1] = hmsg;
+		}
+		else
+		{
+			messages.Add(new HUDMessage { msg = msg, timeSent = Time.currentTime, count = 1 });
+		}
 	}
 
 	public void onLevelSwitch(string name)
@@ -110,7 +120,7 @@ public class HUD
 		{
 			HUDMessage notif = messages[i];
 
-			string msg = notif.msg;
+			string msg = notif.msg + (notif.count > 1 ? " x " + notif.count : "");
 
 			int height = (int)Renderer.smallFont.size;
 			int x = 12;

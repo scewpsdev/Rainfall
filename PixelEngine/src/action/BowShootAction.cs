@@ -28,6 +28,9 @@ public class BowShootAction : EntityAction
 		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
 
 		Vector2 direction = player.lookDirection.normalized;
+		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.03f;
+		direction = (direction + inaccuracy / weapon.accuracy).normalized;
+
 		Vector2 position = player.position + player.collider.center;
 		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
 

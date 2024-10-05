@@ -89,6 +89,7 @@ public abstract class Item
 	public float blockDuration = 0.7f;
 	public float damageReflect = 0.0f;
 	public float criticalChance = 0.025f;
+	public float accuracy = 1.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
 	public int maxRicochets = 0;
@@ -239,7 +240,7 @@ public abstract class Item
 	public virtual bool use(Player player)
 	{
 		if (useSound != null)
-			Audio.PlayOrganic(useSound, new Vector3(player.position, 0));
+			Audio.PlayOrganic(useSound, new Vector3(player.position, 0), 1, 1, 0.0f, 0.15f);
 		return false;
 	}
 
@@ -399,6 +400,7 @@ public abstract class Item
 		InitType(new Nightstalker());
 		InitType(new BerserkersChain());
 		InitType(new GlassRing());
+		InitType(new EaglesEye());
 	}
 
 	static void InitType(Item item)
