@@ -23,6 +23,7 @@ public class AutomaticCrossbow : Item
 		trigger = false;
 		requiredAmmo = "arrow";
 		twoHanded = true;
+		accuracy = 0.3f;
 
 		value = 130;
 
@@ -46,7 +47,14 @@ public class AutomaticCrossbow : Item
 			base.use(player);
 			Item arrow = player.removeItemSingle(arrows);
 			player.actions.queueAction(new CrossbowShootAction(this, arrow, player.handItem == this));
+			accuracy = MathF.Max(accuracy - 0.2f, 0.02f);
 		}
 		return false;
+	}
+
+	public override void update(Entity entity)
+	{
+		base.update(entity);
+		accuracy = MathHelper.Lerp(accuracy, 0.7f, 2.0f * Time.deltaTime);
 	}
 }

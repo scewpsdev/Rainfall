@@ -21,6 +21,7 @@ public class Longbow : Item
 		trigger = false;
 		twoHanded = true;
 		requiredAmmo = "arrow";
+		accuracy = 3.0f;
 
 		value = 48;
 

@@ -97,9 +97,9 @@ public class PlayerCamera : Entity
 			//Vector2 aimDirection = new Vector2(player.lookDirection.x, screenToWorld(Renderer.cursorPosition).y - position.y);
 			Vector2 aimDirection = screenToWorld(Renderer.cursorPosition) - position;
 			if (Settings.game.aimMode == AimMode.Directional)
-				target += aimDirection * 0.1f;
+				target += aimDirection * 0.1f * player.aimDistance;
 			else
-				target += aimDirection * 0.2f;
+				target += aimDirection * 0.2f * player.aimDistance;
 		}
 
 		position = Vector2.Lerp(position, target, 8 * Time.deltaTime);

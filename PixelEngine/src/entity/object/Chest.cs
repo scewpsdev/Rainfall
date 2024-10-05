@@ -29,6 +29,7 @@ public class Chest : Entity, Interactable, Hittable
 		openSprite = new Sprite(TileType.tileset, 1, 0);
 
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
+		filterGroup = FILTER_DECORATION;
 
 		this.flipped = flipped;
 
