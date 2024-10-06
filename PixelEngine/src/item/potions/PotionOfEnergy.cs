@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,17 +21,12 @@ public class ManaEffect : PotionEffect
 
 	public override void apply(Entity entity, Potion potion)
 	{
-		if (entity is Player)
+		if (entity is StatusEffectReceiver)
 		{
-			Player player = entity as Player;
-			if (player.mana < player.maxMana)
-				player.addStatusEffect(new ManaRechargeEffect(amount, 4));
-			player.hud.showMessage("You feel energy flow through you.");
-		}
-		else if (entity is Mob)
-		{
-			Mob mob = entity as Mob;
-			mob.addStatusEffect(new ManaRechargeEffect(amount, 4));
+			StatusEffectReceiver receiver = entity as StatusEffectReceiver;
+			receiver.addStatusEffect(new ManaRechargeEffect(amount, 4));
+			if (entity is Player)
+				(entity as Player).hud.showMessage("You feel energy flow through you.");
 		}
 	}
 }

@@ -49,7 +49,11 @@ public class MagicStaff : Item
 	{
 		Spell spell = player.activeItems[player.selectedActiveItem] as Spell;
 		if (spell != null)
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell));
+		{
+			float manaCost = spell.manaCost * this.manaCost * player.manaCostModifier;
+			if (player.mana >= manaCost)
+				player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+		}
 		return false;
 	}
 

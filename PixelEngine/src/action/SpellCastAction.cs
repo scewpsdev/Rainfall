@@ -9,35 +9,31 @@ using System.Threading.Tasks;
 public class SpellCastAction : EntityAction
 {
 	Item weapon;
-	Spell spell;
+	public Spell spell;
+	float manaCost;
 
 	public List<Entity> hitEntities = new List<Entity>();
 
 
-	public SpellCastAction(Item weapon, bool mainHand, Spell spell)
+	public SpellCastAction(Item weapon, bool mainHand, Spell spell, float manaCost)
 		: base("spell_cast", mainHand)
 	{
 		duration = 1000;
 
 		this.weapon = weapon;
 		this.spell = spell;
+		this.manaCost = manaCost;
 	}
 
 	public override void onStarted(Player player)
 	{
 		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
 
-		float manaCost = spell.manaCost * weapon.manaCost * player.manaCostModifier;
+		spell.cast(player, weapon);
+		player.consumeMana(manaCost);
 
-		if (player.mana >= manaCost)
-		{
-			spell.cast(player, weapon);
-
-			player.consumeMana(manaCost);
-
-			if (spell.useSound != null)
-				Audio.PlayOrganic(spell.useSound, new Vector3(player.position, 0));
-		}
+		if (spell.useSound != null)
+			Audio.PlayOrganic(spell.useSound, new Vector3(player.position, 0));
 	}
 
 	public override Matrix getItemTransform(Player player)

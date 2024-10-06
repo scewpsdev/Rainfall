@@ -44,15 +44,23 @@ public class PoisonStatusEffect : StatusEffect
 	{
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
 		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
-		float heal = amount * sinceLastFrame / duration;
-		if (entity is Hittable)
-		{
-			Hittable hittable = entity as Hittable;
-			if (hittable is not Player)
-				heal *= 10;
-			hittable.hit(heal, null, null, "Poison", false);
-		}
+		float dmg = amount * sinceLastFrame / duration;
+
+		Hittable hittable = entity as Hittable;
+		if (hittable is not Player)
+			dmg *= 10;
+		if (hittable is Mob && (hittable as Mob).poisonResistant)
+			dmg = 0;
+		if (dmg > 0)
+			hittable.hit(dmg, null, null, "Poison", false);
+
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
+	}
+
+	public override float getProgress()
+	{
+		float elapsed = (Time.currentTime - startTime) / 1e9f;
+		return elapsed / duration;
 	}
 }

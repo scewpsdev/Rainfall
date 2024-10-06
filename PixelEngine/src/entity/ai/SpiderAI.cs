@@ -98,7 +98,8 @@ public class SpiderAI : AI
 
 		if (target != null)
 		{
-			if ((target.position - mob.position).lengthSquared > loseRange * loseRange ||
+			float effectiveLoseRange = loseRange * GameState.instance.player.visibility;
+			if ((target.position - mob.position).lengthSquared > effectiveLoseRange * effectiveLoseRange ||
 				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime)
 			{
 				target = null;

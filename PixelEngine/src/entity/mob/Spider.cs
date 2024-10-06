@@ -23,5 +23,6 @@ public class Spider : Mob
 		ai = new SpiderAI(this);
 
 		health = 4;
+		poisonResistant = true;
 	}
 }

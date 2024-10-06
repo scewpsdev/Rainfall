@@ -33,4 +33,9 @@ public class AttackModifier : StatusEffect
 			Renderer.DrawSprite(center.x - 0.5f * size, center.y - 0.5f * size, Entity.LAYER_BG, size, size, 0, buffSprite, false, MathHelper.ARGBToVector(color) * new Vector4(alpha, alpha, alpha, 1), true);
 		}
 	}
+
+	public override float getProgress()
+	{
+		return 1;
+	}
 }

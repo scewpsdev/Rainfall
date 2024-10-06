@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class ProjectileStaff : Item
+public class MagicArrowStaff : Item
 {
-	public ProjectileStaff()
-		: base("projectile_staff", ItemType.Staff)
+	public MagicArrowStaff()
+		: base("magic_arrow_staff", ItemType.Staff)
 	{
-		displayName = "Projectile Staff";
+		displayName = "Magic Arrow Staff";
 
 		attackRate = 4;
 		trigger = false;
@@ -34,7 +34,7 @@ public class ProjectileStaff : Item
 	{
 		if (staffCharges > 0 && player.mana >= manaCost)
 		{
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new MagicProjectileSpell()));
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new MagicArrowSpell(), 0));
 			player.consumeMana(manaCost);
 			base.use(player);
 			staffCharges--;

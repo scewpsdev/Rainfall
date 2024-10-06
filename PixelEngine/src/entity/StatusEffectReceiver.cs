@@ -9,4 +9,5 @@ public interface StatusEffectReceiver
 {
 	StatusEffect addStatusEffect(StatusEffect effect);
 	void heal(float amount);
+	void setVisible(bool visible);
 }

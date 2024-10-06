@@ -37,7 +37,7 @@ public class ScrollOfIdentify : Item
 				List<Item> items = new List<Item>();
 				for (int i = 0; i < player.items.Count; i++)
 					items.Add(player.items[i]);
-				int choice = ItemSelector.Render(pos, "Identify item", items, null, -1, player, true, null, out bool secondary, out bool closed, ref selectedItem);
+				int choice = ItemSelector.Render(pos, "Identify item", items, null, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 				if (choice != -1)
 				{
 					Item item = items[choice];

@@ -12,4 +12,9 @@ public class AttackSpeedModifier : StatusEffect
 		: base("attack_speed_modifier", new Sprite(tileset, 3, 1))
 	{
 	}
+
+	public override float getProgress()
+	{
+		return 1;
+	}
 }

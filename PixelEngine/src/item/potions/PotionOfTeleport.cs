@@ -30,6 +30,7 @@ public class PotionOfTeleport : Potion
 
 		value = 11;
 		canDrop = true;
+		stackable = true;
 
 		sprite = new Sprite(tileset, 6, 5);
 	}

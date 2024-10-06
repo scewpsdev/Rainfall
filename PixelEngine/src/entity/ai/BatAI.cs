@@ -118,7 +118,7 @@ public class BatAI : AI
 		{
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
 				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < mob.awareness * effectiveAggroRange)
 				{
 					setTarget(GameState.instance.player);
@@ -128,7 +128,8 @@ public class BatAI : AI
 
 		if (target != null)
 		{
-			if ((target.position - mob.position).lengthSquared > loseRange * loseRange ||
+			float effectiveLoseRange = loseRange * GameState.instance.player.visibility;
+			if ((target.position - mob.position).lengthSquared > effectiveLoseRange * effectiveLoseRange ||
 				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime)
 			{
 				setTarget(null);

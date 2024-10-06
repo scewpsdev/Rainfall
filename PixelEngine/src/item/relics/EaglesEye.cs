@@ -12,10 +12,11 @@ public class EaglesEye : Item
 		: base("eagles_eye", ItemType.Relic)
 	{
 		displayName = "Eagle's Eye";
-
 		description = "Increases view distance";
 
 		value = 30;
+		tumbles = false;
+		canDrop = false;
 
 		sprite = new Sprite(tileset, 0, 4);
 	}

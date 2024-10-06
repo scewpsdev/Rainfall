@@ -35,7 +35,7 @@ public class LightningStaff : Item
 		if (staffCharges > 0 && player.mana >= manaCost)
 		{
 			base.use(player);
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightningSpell()));
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightningSpell(), 0));
 			player.consumeMana(manaCost);
 			staffCharges--;
 		}

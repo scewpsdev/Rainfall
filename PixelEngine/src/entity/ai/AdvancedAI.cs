@@ -241,7 +241,7 @@ public class AdvancedAI : AI
 
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
 				float effectiveAwareness = mob.awareness * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
 				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < effectiveAwareness * effectiveAggroRange)
 				{
@@ -257,7 +257,8 @@ public class AdvancedAI : AI
 
 		if (target != null)
 		{
-			bool targetLost = (target.position - mob.position).lengthSquared > loseRange * loseRange ||
+			float effectiveLoseRange = loseRange * GameState.instance.player.visibility;
+			bool targetLost = (target.position - mob.position).lengthSquared > effectiveLoseRange * effectiveLoseRange ||
 				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime;
 			if (targetLost && state == AIState.Default && !mob.isBoss)
 			{

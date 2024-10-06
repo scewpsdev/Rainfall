@@ -88,7 +88,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		outline = 0;
 	}
 
-	public bool hit(float damage, Entity by = null, Item _item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item _item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		if (by is Projectile)
 		{

@@ -61,7 +61,7 @@ public class Barrel : Entity, Hittable
 		remove();
 	}
 
-	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		breakBarrel();
 		return true;

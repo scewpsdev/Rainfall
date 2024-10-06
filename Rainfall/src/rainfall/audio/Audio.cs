@@ -64,7 +64,7 @@ namespace Rainfall
 			return Native.Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
 		}
 
-		public static uint PlayOrganic(Sound[] sounds, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f, float rolloff = 0.5f)
+		public static uint PlayOrganic(Sound[] sounds, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.0f, float pitchVariation = 0.25f, float rolloff = 0.5f)
 		{
 			return PlayOrganic(sounds[Random.Shared.Next() % sounds.Length], position, gain, pitch, gainVariation, pitchVariation, rolloff);
 		}

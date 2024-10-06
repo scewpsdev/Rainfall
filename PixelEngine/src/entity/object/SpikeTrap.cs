@@ -28,7 +28,7 @@ internal class SpikeTrap : Entity, Hittable
 		sprite = new Sprite(TileType.tileset, 0, 4);
 	}
 
-	public bool hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility)
+	public bool hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility, bool buffedHit = false)
 	{
 		remove();
 		return true;

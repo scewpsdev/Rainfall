@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class StatusEffect
+public abstract class StatusEffect
 {
-	protected static SpriteSheet tileset;
+	public static SpriteSheet tileset;
 
 	static StatusEffect()
 	{
@@ -44,4 +44,6 @@ public class StatusEffect
 	public virtual void render(Entity entity)
 	{
 	}
+
+	public abstract float getProgress();
 }
