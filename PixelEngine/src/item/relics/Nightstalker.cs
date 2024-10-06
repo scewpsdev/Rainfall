@@ -13,7 +13,7 @@ public class Nightstalker : Item
 	{
 		displayName = "Nightstalker";
 		description = "Increases attack against unsuspecting enemies";
-		stackable = true;
+		//stackable = true;
 		tumbles = false;
 		canDrop = false;
 

@@ -43,4 +43,10 @@ public class Dagger : Item
 		entity.rotationVelocity = -MathF.PI * 5;
 		return true;
 	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		criticalChance *= 1.2f;
+	}
 }

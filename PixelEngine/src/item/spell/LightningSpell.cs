@@ -31,6 +31,8 @@ public class LightningSpell : Spell
 		Vector2 offset = new Vector2(player.direction * 0.5f, 0.0f);
 
 		Vector2 direction = player.lookDirection.normalized;
+		//Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
+		//direction = (direction + inaccuracy / (staff.accuracy * player.accuracyModifier)).normalized;
 
 		GameState.instance.level.addEntity(new LightningProjectile(direction, Vector2.Zero, player, staff, this), position + offset);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);

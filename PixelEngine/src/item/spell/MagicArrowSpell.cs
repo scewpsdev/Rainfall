@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class MagicProjectileSpell : Spell
+public class MagicArrowSpell : Spell
 {
-	public MagicProjectileSpell()
+	public MagicArrowSpell()
 		: base("magic_arrow_spell")
 	{
 		displayName = "Magic Arrow";
@@ -16,7 +16,7 @@ public class MagicProjectileSpell : Spell
 		value = 14;
 
 		attackDamage = 0.8f;
-		attackRate = 3;
+		attackRate = 4;
 		manaCost = 0.1f;
 		knockback = 1.0f;
 		trigger = false;
@@ -32,6 +32,8 @@ public class MagicProjectileSpell : Spell
 		Vector2 offset = new Vector2(player.direction * 0.5f, 0.1f);
 
 		Vector2 direction = player.lookDirection.normalized;
+		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
+		direction = (direction + inaccuracy / (staff.accuracy * player.accuracyModifier)).normalized;
 
 		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, staff, this), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);

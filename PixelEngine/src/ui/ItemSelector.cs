@@ -14,7 +14,7 @@ public static class ItemSelector
 	static int maxItems = 10;
 	static int currentScroll = 0;
 
-	public static int Render(int x, int y, int width, int height, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Player infoPanelCompareItem, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(int x, int y, int width, int height, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		secondary = false;
 
@@ -140,21 +140,8 @@ public static class ItemSelector
 		if (items.Count > 0 && renderInfoPanel)
 		{
 			Item item = items[selectedItem];
-
-			Item compareItem = null;
-			if (infoPanelCompareItem != null)
-			{
-				if (item.isSecondaryItem && infoPanelCompareItem.handItem == null  /*&& !handItem.twoHanded && offhandItem == null*/)
-					compareItem = infoPanelCompareItem.offhandItem;
-				else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
-					compareItem = infoPanelCompareItem.handItem;
-				else if (item.isPassiveItem && item.armorSlot != ArmorSlot.None)
-				{
-					if (infoPanelCompareItem.getArmorItem(item.armorSlot, out int slotIdx))
-						compareItem = infoPanelCompareItem.passiveItems[slotIdx];
-				}
-			}
-
+			if (infoPanelShowCompareItem)
+				MathHelper.Swap(ref item, ref compareItem);
 			sidePanelHeight = ItemInfoPanel.Render(item, x + shopWidth + 1, top + headerHeight, sidePanelWidth, Math.Max(shopHeight, sidePanelHeight), compareItem);
 		}
 
@@ -169,7 +156,7 @@ public static class ItemSelector
 		return choice;
 	}
 
-	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Player infoPanelCompareItem, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
@@ -181,10 +168,10 @@ public static class ItemSelector
 		int x = Math.Clamp(pos.x, 2, Renderer.UIWidth - width - 2);
 		int y = Math.Clamp(pos.y - height, 2, Renderer.UIHeight - height - 2);
 
-		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, infoPanelCompareItem, out secondary, out closed, ref selectedItem);
+		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, compareItem, infoPanelShowCompareItem, out secondary, out closed, ref selectedItem);
 	}
 
-	public static int Render(int x, int y, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Player infoPanelCompareItem, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(int x, int y, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
@@ -196,6 +183,21 @@ public static class ItemSelector
 		x = Math.Clamp(x, 2, Renderer.UIWidth - width - 2);
 		y = Math.Clamp(y, 2, Renderer.UIHeight - height - 2);
 
-		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, infoPanelCompareItem, out secondary, out closed, ref selectedItem);
+		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, compareItem, infoPanelShowCompareItem, out secondary, out closed, ref selectedItem);
+	}
+
+	public static Item GetCompareItem(Player player, Item item)
+	{
+		Item compareItem = null;
+		if (item.isSecondaryItem && player.handItem == null  /*&& !handItem.twoHanded && offhandItem == null*/)
+			compareItem = player.offhandItem;
+		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
+			compareItem = player.handItem;
+		else if (item.isPassiveItem && item.armorSlot != ArmorSlot.None)
+		{
+			if (player.getArmorItem(item.armorSlot, out int slotIdx))
+				compareItem = player.passiveItems[slotIdx];
+		}
+		return compareItem;
 	}
 }

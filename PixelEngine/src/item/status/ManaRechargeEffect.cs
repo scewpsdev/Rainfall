@@ -55,4 +55,10 @@ public class ManaRechargeEffect : StatusEffect
 		lastUpdate = Time.currentTime;
 		return elapsed < duration;
 	}
+
+	public override float getProgress()
+	{
+		float elapsed = (Time.currentTime - startTime) / 1e9f;
+		return elapsed / duration;
+	}
 }

@@ -12,4 +12,9 @@ public class SpeedModifier : StatusEffect
 		: base("speed_modifier", new Sprite(tileset, 3, 1))
 	{
 	}
+
+	public override float getProgress()
+	{
+		return 1;
+	}
 }

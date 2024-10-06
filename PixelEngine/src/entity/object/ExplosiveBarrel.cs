@@ -23,7 +23,7 @@ public class ExplosiveBarrel : Entity, Hittable
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 	}
 
-	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		breakBarrel();
 		if (ignitedTime == -1)

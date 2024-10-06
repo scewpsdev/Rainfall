@@ -58,16 +58,28 @@ public class AttackAction : EntityAction
 					Hittable hittable = hits[i].entity as Hittable;
 
 					float damage = weapon.attackDamage * player.attackDamageModifier;
-					if (hittable is Mob && (hittable as Mob).ai.target != player)
+
+					bool stealthAttack = hittable is Mob && (hittable as Mob).ai.target != player && player.stealthAttackModifier > 1;
+					if (stealthAttack)
 						damage *= player.stealthAttackModifier;
 
 					//bool critical = Random.Shared.NextSingle() < weapon.criticalChance;
 					//if (critical)
 					//	damage *= 2;
 
-					if (hittable.hit(damage, player, weapon))
+					if (hittable.hit(damage, player, weapon, null, true, stealthAttack))
 					{
 						hitEntities.Add(hits[i].entity);
+
+						if (hittable is Mob)
+						{
+							Mob mob = hittable as Mob;
+							for (int j = 0; j < player.items.Count; j++)
+							{
+								if (player.isEquipped(player.items[j]))
+									player.items[j].onEnemyHit(player, mob, damage);
+							}
+						}
 
 						player.addImpulse(-direction * 4);
 						if (!player.isGrounded)

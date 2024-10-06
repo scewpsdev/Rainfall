@@ -14,7 +14,7 @@ public class Longbow : Item
 	{
 		displayName = "Longbow";
 
-		attackDamage = 3;
+		attackDamage = 2.5f;
 		attackRate = 0.7f;
 		attackRange = 50; // arrow speed
 		knockback = 8.0f;
@@ -23,7 +23,7 @@ public class Longbow : Item
 		requiredAmmo = "arrow";
 		accuracy = 3.0f;
 
-		value = 48;
+		value = 56;
 
 		sprite = new Sprite(tileset, 10, 3, 2, 1);
 		icon = new Sprite(tileset.texture, 10 * 16 + 8, 3 * 16, 16, 16);

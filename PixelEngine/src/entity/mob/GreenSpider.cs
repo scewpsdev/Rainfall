@@ -24,6 +24,7 @@ public class GreenSpider : Mob
 		jumpPower = 9;
 
 		health = 6;
+		poisonResistant = true;
 
 		itemDropChance = 0.8f;
 

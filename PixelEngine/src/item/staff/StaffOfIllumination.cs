@@ -32,7 +32,7 @@ public class StaffOfIllumination : Item
 	{
 		if (staffCharges > 0 && player.mana >= manaCost)
 		{
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightOrbSpell()));
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new IlluminationSpell(), 0));
 			player.consumeMana(manaCost);
 			staffCharges--;
 		}

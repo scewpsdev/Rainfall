@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class LightOrbSpell : Spell
+public class IlluminationSpell : Spell
 {
-	public LightOrbSpell()
+	public IlluminationSpell()
 		: base("illumination_spell")
 	{
 		displayName = "Illumination";
@@ -19,6 +19,7 @@ public class LightOrbSpell : Spell
 		attackDamage = 0;
 		manaCost = 0.5f;
 		trigger = false;
+		upgradable = false;
 
 		sprite = new Sprite(tileset, 4, 6);
 	}

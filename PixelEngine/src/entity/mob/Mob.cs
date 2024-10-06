@@ -41,9 +41,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float awareness = 0.5f;
 
 	public bool isBoss = false;
-
 	public bool canClimb = false;
 	public bool canFly = false;
+	public bool poisonResistant = false;
 
 	public Sprite sprite;
 	public SpriteAnimator animator;
@@ -62,8 +62,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	bool isSprinting = false;
 	bool isClimbing = false;
 	float distanceWalked = 0;
+
 	public bool isStunned = false;
 	long stunTime = -1;
+	public bool isVisible = true;
 
 	Climbable currentLadder = null;
 
@@ -89,16 +91,20 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 	}
 
-	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		bool critical = item != null && Random.Shared.NextSingle() < item.criticalChance;
 		if (critical)
+		{
 			damage *= 2;
+			if (by is Player)
+				damage *= (by as Player).criticalAttackModifier;
+		}
 
 		health -= damage;
 
 		if (damage >= 1)
-			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3, critical), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
+			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3, critical || buffedHit), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
 
 		if (hitSound != null && (triggerInvincibility || health <= 0))
 			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
@@ -236,6 +242,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public void heal(float amount)
 	{
 		health += amount;
+	}
+
+	public void setVisible(bool visible)
+	{
+		isVisible = visible;
 	}
 
 	public void addImpulse(Vector2 impulse)
@@ -426,27 +437,30 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public override void render()
 	{
-		bool hitMarker = lastHit != -1 && (Time.currentTime - lastHit) / 1e9f < 0.1f;
-
-		if (sprite != null)
+		if (isVisible)
 		{
-			if (hitMarker)
-				Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
-			else
-				Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
+			bool hitMarker = lastHit != -1 && (Time.currentTime - lastHit) / 1e9f < 0.1f;
 
-			if (outline != 0)
-				Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
-
-			for (int i = 0; i < statusEffects.Count; i++)
+			if (sprite != null)
 			{
-				statusEffects[i].render(this);
-			}
+				if (hitMarker)
+					Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
+				else
+					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 
-			for (int i = 0; i < stuckProjectiles.Count; i++)
-			{
-				StuckProjectile projectile = stuckProjectiles[i];
-				Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, (projectile.direction.angle + projectile.rotationOffset) * direction, projectile.sprite, direction == -1);
+				if (outline != 0)
+					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
+
+				for (int i = 0; i < statusEffects.Count; i++)
+				{
+					statusEffects[i].render(this);
+				}
+
+				for (int i = 0; i < stuckProjectiles.Count; i++)
+				{
+					StuckProjectile projectile = stuckProjectiles[i];
+					Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, (projectile.direction.angle + projectile.rotationOffset) * direction, projectile.sprite, direction == -1);
+				}
 			}
 		}
 	}

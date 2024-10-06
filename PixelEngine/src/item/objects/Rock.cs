@@ -22,6 +22,8 @@ public class Rock : Item
 		upgradable = false;
 
 		sprite = new Sprite(tileset, 4, 0);
+
+		hitSound = Resource.GetSounds("res/sounds/hit_rock", 5);
 	}
 
 	public override bool use(Player player)

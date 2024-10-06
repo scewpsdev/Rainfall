@@ -6,19 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HealStatusEffect : StatusEffect
+public class InvisibilityStatusEffect : StatusEffect
 {
-	float amount;
 	float duration;
 
 	long startTime;
 	long lastUpdate;
 
 
-	public HealStatusEffect(float amount, float duration)
+	public InvisibilityStatusEffect(float duration)
 		: base("heal", new Sprite(tileset, 0, 0))
 	{
-		this.amount = amount;
 		this.duration = duration;
 
 		startTime = Time.currentTime;
@@ -30,10 +28,10 @@ public class HealStatusEffect : StatusEffect
 		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, 0xFFFF4D40), player.position + new Vector2(0, 0.5f));
 
 		ParticleEffect effect = new ParticleEffect(entity, "res/effects/regenerate.rfs");
-		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFFFF4D40).xyz;
-		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFFFF4D40).xyz;
+		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0x7Fabb6bd).xyz;
+		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0x7Fabb6bd).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
-		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
+		effect.systems[0].handle->bursts[0].count = (int)(duration * 20);
 
 		GameState.instance.level.addEntity(effect, entity.position + new Vector2(0, 0.5f));
 	}
@@ -41,16 +39,22 @@ public class HealStatusEffect : StatusEffect
 	public override bool update(Entity entity)
 	{
 		float elapsed = (Time.currentTime - startTime) / 1e9f;
-		float sinceLastFrame = (Time.currentTime - lastUpdate) / 1e9f;
-		if (elapsed >= duration)
-			sinceLastFrame -= elapsed - duration;
-		float heal = amount * sinceLastFrame / duration;
-		if (entity is StatusEffectReceiver)
+		if (elapsed < duration)
 		{
-			StatusEffectReceiver receiver = entity as StatusEffectReceiver;
-			receiver.heal(heal);
+			if (entity is StatusEffectReceiver)
+			{
+				StatusEffectReceiver receiver = entity as StatusEffectReceiver;
+				receiver.setVisible(false);
+			}
 		}
-		lastUpdate = Time.currentTime;
+		else
+		{
+			if (entity is StatusEffectReceiver)
+			{
+				StatusEffectReceiver receiver = entity as StatusEffectReceiver;
+				receiver.setVisible(true);
+			}
+		}
 		return elapsed < duration;
 	}
 

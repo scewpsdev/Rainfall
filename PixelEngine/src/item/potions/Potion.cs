@@ -11,7 +11,7 @@ public class Potion : Item
 	public List<PotionEffect> effects = new List<PotionEffect>();
 	bool throwable = false;
 
-	public float spillRadius = 3.0f;
+	public float spillRadius = 1.5f;
 
 	Sound[] breakSound;
 
@@ -35,6 +35,7 @@ public class Potion : Item
 	public Item makeThrowable()
 	{
 		value++;
+		name = "throwable_" + name;
 		displayName = "Throwable " + displayName;
 		projectileItem = true;
 		projectileSpins = true;

@@ -13,4 +13,9 @@ public class ManaRechargeModifier : StatusEffect
 	{
 		iconColor = 0xFF76adff;
 	}
+
+	public override float getProgress()
+	{
+		return 1;
+	}
 }

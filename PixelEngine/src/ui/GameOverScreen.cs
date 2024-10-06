@@ -194,6 +194,8 @@ public static class GameOverScreen
 
 	public static void Render()
 	{
+		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0x7F000000);
+
 		int x = 16;
 		int y = 16;
 		int width = Renderer.UIWidth - 2 * 16;

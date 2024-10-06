@@ -17,7 +17,11 @@ public abstract class Spell : Item
 	{
 		Item staff = player.handItem != null && player.handItem.type == ItemType.Staff ? player.handItem : player.offhandItem != null && player.offhandItem.type == ItemType.Staff ? player.offhandItem : null;
 		if (staff != null)
-			player.actions.queueAction(new SpellCastAction(staff, player.handItem == staff, this));
+		{
+			float manaCost = this.manaCost * staff.manaCost * player.manaCostModifier;
+			if (player.mana >= manaCost)
+				player.actions.queueAction(new SpellCastAction(staff, player.handItem == staff, this, manaCost));
+		}
 		return false;
 	}
 

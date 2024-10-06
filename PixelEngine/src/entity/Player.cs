@@ -52,11 +52,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float manaCostModifier = 1.0f;
 	public float stealthAttackModifier = 1.0f;
 	public float defenseModifier = 1.0f;
+	public float accuracyModifier = 1.0f;
+	public float criticalAttackModifier = 1.0f;
 
 	public int direction = 1;
 	public Vector2i aimPosition;
 	public Vector2 lookDirection = Vector2.Zero;
-	float currentSpeed;
 	Vector2 impulseVelocity;
 	float wallJumpVelocity;
 	float wallJumpFactor;
@@ -66,10 +67,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public bool isDucked = false;
 	bool isClimbing = false;
 	float fallDistance = 0;
-	public float visibility = 1;
 
 	// Status effects
 	bool isStunned = false;
+	public bool isVisible = true;
+
+	public float visibility { get => (isVisible ? 1 : 0.25f) * MathHelper.Lerp(0.5f, 1.0f, level.lightLevel) * (isDucked ? 0.5f : 1.0f); }
 
 	Sprite stunnedIcon;
 
@@ -272,6 +275,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		if (item.isHandItem)
 			return equipHandItem(item);
+		if (item.isSecondaryItem)
+			return equipOffhandItem(item);
 		if (item.isActiveItem)
 		{
 			for (int i = 0; i < activeItems.Length; i++)
@@ -450,7 +455,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
-		if (item.isSecondaryItem && handItem != null /*&& !handItem.twoHanded && offhandItem == null*/)
+		if (item.isHandItem && item.isSecondaryItem && handItem != null || !item.isHandItem && item.isSecondaryItem /*&& !handItem.twoHanded && offhandItem == null*/)
 			equipOffhandItem(item);
 		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
 			equipHandItem(item);
@@ -687,7 +692,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return totalArmor;
 	}
 
-	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true)
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		if (!isAlive)
 			return false;
@@ -730,6 +735,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			health -= damage;
 
 			GameState.instance.run.hitsTaken++;
+
+			for (int i = 0; i < items.Count; i++)
+			{
+				if (isEquipped(items[i]))
+					items[i].onHit(this, by, damage);
+			}
 
 			if (health <= 0)
 			{
@@ -826,6 +837,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void heal(float amount)
 	{
 		health = MathF.Min(health + amount, maxHealth);
+	}
+
+	public void setVisible(bool visible)
+	{
+		isVisible = visible;
 	}
 
 	public void removeStatusEffect(StatusEffect effect)
@@ -987,9 +1003,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			//else if (delta.x < 0)
 			//	direction = -1;
 
-			currentSpeed = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isDucked ? DUCKED_MULTIPLIER : 1) * speed;
-			if (actions.currentAction != null)
-				currentSpeed *= actions.currentAction.speedMultiplier;
 			velocity.x = delta.x * currentSpeed;
 
 			isMoving = true;
@@ -1195,8 +1208,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (Input.IsKeyPressed(KeyCode.Key1 + i))
 				{
-					if (activeItems[i] != null)
-						useActiveItem(activeItems[i]);
+					selectedActiveItem = i;
+					//if (activeItems[i] != null)
+					//	useActiveItem(activeItems[i]);
 				}
 			}
 
@@ -1383,6 +1397,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					{
 						animator.setAnimation("run");
 						animator.startTime = startTime;
+						animator.getAnimation("run").fps = currentSpeed / 6 * 12;
 					}
 					else
 					{
@@ -1438,11 +1453,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		GameState.instance.run.stepsWalked++;
 
-		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
-		if (tile != null)
-			GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(2, 4), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+		if (!isDucked)
+		{
+			TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
+			if (tile != null)
+				GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(2, 4), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
 
-		Audio.PlayOrganic(stepSound, new Vector3(position, 0));
+			Audio.PlayOrganic(stepSound, new Vector3(position, 0));
+		}
 	}
 
 	void onLand()
@@ -1472,11 +1490,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (numOverlaysOpen == 0)
 			Input.cursorMode = CursorMode.Hidden;
-	}
-
-	public bool isAlive
-	{
-		get => health > 0;
 	}
 
 	public Vector2 getWeaponOrigin(bool mainHand)
@@ -1546,7 +1559,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		bool invincible = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
 
-		if (show)
+		if (isVisible && show)
 		{
 			Vector2 snappedPosition = position;
 			snappedPosition.x = MathF.Round(snappedPosition.x * 16) / 16;
@@ -1587,6 +1600,22 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			hud.render();
 			inventoryUI.render();
+		}
+	}
+
+	public bool isAlive
+	{
+		get => health > 0;
+	}
+
+	public float currentSpeed
+	{
+		get
+		{
+			float value = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isDucked ? DUCKED_MULTIPLIER : 1) * speed;
+			if (actions.currentAction != null)
+				value *= actions.currentAction.speedMultiplier;
+			return value;
 		}
 	}
 }

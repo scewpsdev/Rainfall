@@ -32,6 +32,8 @@ public class HUD
 	public static Sprite crosshair;
 	public static Sprite aimIndicator;
 
+	static Sprite[] cooldownOverlay;
+
 	static HUD()
 	{
 		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/ui.png", false), 8, 8);
@@ -52,6 +54,10 @@ public class HUD
 
 		crosshair = new Sprite(tileset, 2, 4, 1, 1);
 		aimIndicator = new Sprite(tileset, 3, 4, 2, 2);
+
+		cooldownOverlay = new Sprite[17];
+		for (int i = 0; i < 17; i++)
+			cooldownOverlay[i] = new Sprite(tileset, i % 4 * 2, 8 + i / 4 * 2, 2, 2);
 	}
 
 
@@ -326,6 +332,9 @@ public class HUD
 			Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
 			Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, effect.icon, effect.iconColor);
 
+			int overlayIdx = 16 - (int)(player.statusEffects[i].getProgress() * 16);
+			Renderer.DrawUISprite(x, y, size + 2, size + 2, cooldownOverlay[overlayIdx], true, 0xAF000000);
+
 			x += effect.icon.width + 3;
 		}
 	}
@@ -557,6 +566,14 @@ public class HUD
 			if (player.activeItems[i] != null)
 			{
 				Renderer.DrawUISprite(xx, yy, size, size, player.activeItems[i].sprite);
+
+				if (player.activeItems[i].type == ItemType.Spell && player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).spell == player.activeItems[i])
+				{
+					SpellCastAction spellCast = player.actions.currentAction as SpellCastAction;
+					float progress = spellCast.elapsedTime / spellCast.duration;
+					int overlayIdx = (int)(progress * 16);
+					Renderer.DrawUISprite(xx, yy, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
+				}
 			}
 
 			if (player.selectedActiveItem == i)

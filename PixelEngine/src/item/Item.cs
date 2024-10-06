@@ -269,6 +269,14 @@ public abstract class Item
 	{
 	}
 
+	public virtual void onHit(Player player, Entity by, float damage)
+	{
+	}
+
+	public virtual void onEnemyHit(Player player, Mob mob, float damage)
+	{
+	}
+
 	public virtual void update(Entity entity)
 	{
 		if (entity is Player)
@@ -323,7 +331,7 @@ public abstract class Item
 		InitType(new Torch());
 		InitType(new RingOfSwiftness());
 		InitType(new RingOfVitality());
-		InitType(new ProjectileStaff());
+		InitType(new MagicArrowStaff());
 		InitType(new PotionOfGreaterHealing());
 		InitType(new Lantern());
 		InitType(new BarbarianHelmet());
@@ -388,10 +396,10 @@ public abstract class Item
 		InitType(new AssassinsDagger());
 		InitType(new RoyalGreatsword());
 		InitType(new Magnet());
-		InitType(new MagicProjectileSpell());
+		InitType(new MagicArrowSpell());
 		InitType(new MagicStaff());
 		InitType(new LightningSpell());
-		InitType(new LightOrbSpell());
+		InitType(new IlluminationSpell());
 		InitType(new DarkHood());
 		InitType(new DarkCloak());
 		InitType(new WizardsLegacy());
@@ -401,6 +409,13 @@ public abstract class Item
 		InitType(new BerserkersChain());
 		InitType(new GlassRing());
 		InitType(new EaglesEye());
+		InitType(new RingOfRetaliation());
+		InitType(new Flamberge());
+		InitType(new LifegemRing());
+		InitType(new Bloodfang());
+		InitType(new Deadeye());
+		InitType(new KeenEdge());
+		InitType(new PotionOfInvisibility());
 	}
 
 	static void InitType(Item item)

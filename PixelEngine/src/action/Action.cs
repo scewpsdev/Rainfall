@@ -46,9 +46,6 @@ public class EntityAction
 	public int staminaCost = 0;
 	public float staminaCostTime = 0.0f;
 
-	public int manaCost = 0;
-	public float manaCostTime = 0.0f;
-
 	public long startTime = 0;
 	public float elapsedTime { get; protected set; } = 0.0f;
 	public float duration = 0.0f;

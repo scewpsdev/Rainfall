@@ -15,7 +15,7 @@ public class Lockpick : Item
 
 		value = 17;
 		//canDrop = false;
-		stackable = true;
+		stackable = false;
 		isActiveItem = false;
 
 		sprite = new Sprite(tileset, 9, 5);

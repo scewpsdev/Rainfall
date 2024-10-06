@@ -49,6 +49,15 @@ public class Level
 	public float fogFalloff = 0.2f;
 	public Sound ambientSound = null;
 
+	public float lightLevel
+	{
+		get
+		{
+			Vector3 srgb = Vector3.Min(ambientLight, Vector3.One);
+			return MathF.Max(MathF.Max(srgb.x, srgb.y), srgb.z);
+		}
+	}
+
 
 	public Level(int floor, string name)
 	{

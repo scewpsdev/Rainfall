@@ -16,6 +16,8 @@ public class LightningProjectile : Entity
 	int maxRicochets = 3;
 	float maxDistance = 25;
 
+	float damage;
+
 	Entity shooter;
 	Item staff;
 	Item spell;
@@ -51,6 +53,10 @@ public class LightningProjectile : Entity
 		filterGroup = FILTER_PROJECTILE;
 
 		velocity = direction * speed;
+
+		damage = spell.attackDamage * staff.attackDamage;
+		if (shooter is Player)
+			damage *= (shooter as Player).attackDamageModifier;
 
 		sprite = new Sprite(Item.tileset, 9, 2);
 		lightning = Resource.GetTexture("res/sprites/lightning.png", false);
@@ -100,16 +106,14 @@ public class LightningProjectile : Entity
 		{
 			if (hit.entity != null)
 			{
-				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
+				if (!(ricochets == 0 && hit.entity == shooter) && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
-					float damage = spell.attackDamage * staff.attackDamage;
-					if (hit.entity is Player)
-						damage *= (hit.entity as Player).attackDamageModifier;
-
 					Hittable hittable = hit.entity as Hittable;
 					hittable.hit(damage, this, spell);
 					hitEntities.Add(hit.entity);
-					remove();
+					damage = MathF.Max(damage - 1, 0);
+					if (damage == 0)
+						remove();
 				}
 			}
 			else
@@ -166,7 +170,7 @@ public class LightningProjectile : Entity
 				Vector4 color = MathHelper.ARGBToVector(colorSelection == 0 ? 0xFF5b98ff : colorSelection == 1 ? 0xFF6edcff : 0xFFd6eeff) * new Vector4(1.5f);
 
 				color.w *= fade;
-				color.w *= MathF.Exp(-j);
+				color.w *= MathF.Exp(-j * 3);
 
 				Renderer.DrawSprite(center.x - 0.5f * length, center.y - 0.5f, 0, length, 1, angle, lightning, u0, 0, width, lightning.height, color, true);
 			}

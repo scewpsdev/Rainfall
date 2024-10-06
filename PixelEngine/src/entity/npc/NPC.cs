@@ -544,7 +544,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add(shopItems[i].Item2);
 			}
 
-			int choice = ItemSelector.Render(pos, displayName, items, prices, player.money, null, true, player, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, displayName, items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = items[choice];
@@ -674,7 +674,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add((int)MathF.Round(player.items[i].value));
 			}
 
-			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, true, null, out bool secondary, out bool closed, ref selectedItem);
+			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (itemIdx != -1)
 			{
 				Item item = items[itemIdx];
@@ -803,7 +803,7 @@ public abstract class NPC : Mob, Interactable
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
-			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, null, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = craftingItems[choice];
@@ -923,7 +923,10 @@ public abstract class NPC : Mob, Interactable
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
-			int choice = ItemSelector.Render(pos, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, null, out bool secondary, out bool closed, ref selectedItem);
+			Item upgradedItem = upgradeItems[selectedItem].copy();
+			upgradedItem.upgrade();
+
+			int choice = ItemSelector.Render(pos, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = upgradeItems[choice];

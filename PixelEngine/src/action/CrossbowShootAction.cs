@@ -29,7 +29,7 @@ public class CrossbowShootAction : EntityAction
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.02f;
-		direction = (direction + inaccuracy / weapon.accuracy).normalized;
+		direction = (direction + inaccuracy / (weapon.accuracy * player.accuracyModifier)).normalized;
 
 		Vector2 position = player.position + player.collider.center;
 		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
