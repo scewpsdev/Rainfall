@@ -16,12 +16,25 @@ public class RelicOffer : Entity
 		for (int i = 0; i < 3; i++)
 		{
 			Item item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
+			while(hasItem(item.name))
+				item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
+
 			Vector2 velocity = new Vector2(i - 1, 3) * 1.5f;
 			ItemEntity entity = new ItemEntity(item, null, velocity);
 			GameState.instance.level.addEntity(entity, position + new Vector2((i - 1) * 0.2f, 0.5f));
 			items.Add(entity);
 			entity.removeCallbacks.Add(() => { items.Remove(entity); });
 		}
+	}
+
+	bool hasItem(string name)
+	{
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (items[i].name == name)
+				return true;
+		}
+		return false;
 	}
 
 	public override void update()

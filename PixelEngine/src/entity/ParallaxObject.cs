@@ -17,6 +17,12 @@ public class ParallaxObject : Entity
 		this.layer = layer;
 	}
 
+	public ParallaxObject(Texture texture, int x, int y, int width, int height, float layer)
+	{
+		sprite = new Sprite(texture, x, y, width, height);
+		this.layer = layer;
+	}
+
 	public override void render()
 	{
 		float width = sprite.size.x / 16.0f;
@@ -25,9 +31,9 @@ public class ParallaxObject : Entity
 		float xoffset = (GameState.instance.camera.position.x - position.x) * (1 - parallax);
 		float yoffset = (GameState.instance.camera.position.y - position.y) * (1 - parallax);
 
-		float distance = MathF.Pow(2, layer);
+		float distance = MathF.Pow(2, layer) - 1;
 		float fog = MathF.Exp(-distance * GameState.instance.level.fogFalloff);
-		Vector3 color = Vector3.Lerp(GameState.instance.level.fogColor, Vector3.One, fog);
+		//Vector3 color = Vector3.Lerp(GameState.instance.level.fogColor, Vector3.One, fog);
 
 		float z = 0.9f + 0.01f * layer;
 
