@@ -697,7 +697,7 @@ public static class Renderer
 				draw.transform.m31 = MathF.Round(draw.transform.m31 * 16) / 16;
 
 				spriteBatch.draw(
-					draw.size.x, draw.size.y, 0.0f - i / (float)draws.Count * 0.0001f,
+					draw.size.x, draw.size.y, 0.0f - i * 0.0000001f,
 					draw.transform,
 					draw.texture, uint.MaxValue,
 					u0, v0, u1, v1,
@@ -710,7 +710,7 @@ public static class Renderer
 				draw.position.y = MathF.Round(draw.position.y * 16) / 16;
 
 				spriteBatch.draw(
-					draw.position.x, draw.position.y, draw.position.z - i / (float)draws.Count * 0.0001f,
+					draw.position.x, draw.position.y, draw.position.z - i * 0.0000001f,
 					draw.size.x, draw.size.y,
 					draw.rotation,
 					draw.texture, uint.MaxValue,

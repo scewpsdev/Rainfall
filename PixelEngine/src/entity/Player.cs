@@ -57,7 +57,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public int direction = 1;
 	public Vector2i aimPosition;
-	public Vector2 lookDirection = Vector2.Zero;
+	public Vector2 lookDirection = Vector2.Right;
 	Vector2 impulseVelocity;
 	float wallJumpVelocity;
 	float wallJumpFactor;
@@ -75,6 +75,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float visibility { get => (isVisible ? 1 : 0.25f) * MathHelper.Lerp(0.5f, 1.0f, level.lightLevel) * (isDucked ? 0.5f : 1.0f); }
 
 	Sprite stunnedIcon;
+	MobCorpse corpse;
 
 	public Sprite sprite;
 	public SpriteAnimator animator;
@@ -639,7 +640,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			itemVelocity += new Vector2(direction * 0.05f, MathHelper.RandomFloat(-1.1f, -0.9f)) * 14;
 			if (!isGrounded)
-				velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
+				velocity.y = MathF.Max(velocity.y, jumpPower);
 		}
 		else
 		{
@@ -815,7 +816,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		actions.cancelAllActions();
 
-		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, true, passiveItems), position);
+		GameState.instance.level.addEntity(corpse = new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, true, passiveItems), position);
 
 		GameState.instance.stopRun(false, by, byName != null ? byName : by != null && by.displayName != null ? by.displayName : "???");
 
@@ -1146,6 +1147,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 
 		position += displacement;
+
+		if (corpse != null)
+			position = corpse.position;
 
 		//TileType below = TileType.Get(GameState.instance.level.getTile((Vector2i)Vector2.Floor(position - new Vector2(0, 0.1f))));
 		//isGrounded = below != null && below.isSolid;

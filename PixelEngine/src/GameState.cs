@@ -309,7 +309,7 @@ public class GameState : State
 		{
 			areaGardens = new Level[numGardenFloors];
 			for (int i = 0; i < areaGardens.Length; i++)
-				areaGardens[i] = new Level(numCaveFloors + i, i < numGardenFloors - 1 ? "Lushlands " + StringUtils.ToRoman(i + 1) : "The Glade");
+				areaGardens[i] = new Level(numCaveFloors + i, "The Glade" + StringUtils.ToRoman(i + 1));
 
 			/*
 			Door hubDungeonEntrance2 = new Door(areaGardens[0], null, true);
@@ -328,6 +328,7 @@ public class GameState : State
 				int floor = numCaveFloors + i;
 				level = areaGardens[i];
 				generator.generateGardens(run.seed, floor, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
+
 				lastLevel = areaGardens[i];
 				lastDoor = areaGardens[i].exit;
 			}
@@ -417,6 +418,8 @@ public class GameState : State
 			switchLevel(cliffside, (Vector2)cliffside.getMarker(34));
 			levelSwitchTime = -1;
 		}
+
+		//switchLevel(areaGardens[0], areaGardens[0].entrance.position);
 
 		/*
 		level = hub;

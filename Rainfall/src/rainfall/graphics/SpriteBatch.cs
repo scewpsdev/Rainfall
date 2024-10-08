@@ -191,6 +191,11 @@ namespace Rainfall
 				v1 = tmp;
 			}
 
+			//u0 += 0.0000001f;
+			//v0 += 0.0000001f;
+			//u1 -= 0.0000001f;
+			//v1 -= 0.0000001f;
+
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);
 			Vector2 uv2 = new Vector2(u1, v0);

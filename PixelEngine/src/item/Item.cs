@@ -416,6 +416,8 @@ public abstract class Item
 		InitType(new Deadeye());
 		InitType(new KeenEdge());
 		InitType(new PotionOfInvisibility());
+		InitType(new HuntersHat());
+		InitType(new OldHuntersHat());
 	}
 
 	static void InitType(Item item)
