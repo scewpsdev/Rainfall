@@ -13,13 +13,15 @@ public class MagicStaff : Item
 	{
 		displayName = "Magic Staff";
 
-		attackRate = 4;
+		attackRate = 1;
 		trigger = false;
-		isSecondaryItem = true;
+		//isSecondaryItem = true;
 		secondaryChargeTime = 0;
 
 		attackDamage = 1.0f;
 		manaCost = 1.0f;
+		knockback = 1;
+
 		staffCharges = 0;
 
 		value = 17;
@@ -27,7 +29,7 @@ public class MagicStaff : Item
 		sprite = new Sprite(tileset, 2, 6);
 		renderOffset.x = 0.4f;
 
-		useSound = Resource.GetSounds("res/sounds/cast", 3);
+		castSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
 	public override void update(Entity entity)
@@ -38,7 +40,7 @@ public class MagicStaff : Item
 			Spell spell = player.activeItems[player.selectedActiveItem] as Spell;
 			if (spell != null)
 			{
-				attackRate = spell.attackRate;
+				//attackRate = spell.attackRate;
 				trigger = spell.trigger;
 				//attackDamage = spell.attackDamage;
 			}
@@ -59,7 +61,7 @@ public class MagicStaff : Item
 
 	public override bool useSecondary(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this) { soundPlayed = true });
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 3, 1, 1));
 		return false;
 	}
 }

@@ -15,6 +15,7 @@ public class ChainmailHood : Item
 
 		armor = 3;
 		armorSlot = ArmorSlot.Helmet;
+		weight = 1;
 
 		value = 8;
 

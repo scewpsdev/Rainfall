@@ -14,6 +14,7 @@ public class BlankPaper : Item
 		displayName = "Blank Paper";
 
 		value = 3;
+		isActiveItem = false;
 
 		sprite = new Sprite(tileset, 14, 1);
 	}

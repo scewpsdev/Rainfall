@@ -17,6 +17,7 @@ public class Torch : Item
 		attackRange = 1.0f;
 		attackRate = 2.0f;
 		stab = false;
+		weight = 1;
 
 		value = 2;
 

@@ -240,28 +240,36 @@ public class ItemEntity : Entity, Interactable, Hittable
 						if (hit.entity is Hittable && !hitEntities.Contains(hit.entity) && velocity.lengthSquared > 4 * 4)
 						{
 							Hittable hittable = hit.entity as Hittable;
-							hittable.hit(damage, this, item);
 							hitEntities.Add(hit.entity);
-
-							if (item.hitSound != null)
-								Audio.PlayOrganic(item.hitSound, new Vector3(position, 0));
-
-							if (item.breakOnEnemyHit && velocity.lengthSquared > 4 * 4 && thrower != null)
+							if (hittable.hit(damage, this, item))
 							{
-								item.onEntityBreak(this);
-								remove();
-							}
-							else
-							{
-								if (pierces < item.maxPierces || item.maxPierces == -1)
-									pierces++;
+								if (hit.entity is Mob)
+								{
+									Mob mob = hit.entity as Mob;
+									Vector2 knockback = (hit.entity.position - position).normalized * item.knockback;
+									mob.addImpulse(knockback);
+								}
+
+								if (item.hitSound != null)
+									Audio.PlayOrganic(item.hitSound, new Vector3(position, 0));
+
+								if (item.breakOnEnemyHit && velocity.lengthSquared > 4 * 4 && thrower != null)
+								{
+									item.onEntityBreak(this);
+									remove();
+								}
 								else
 								{
-									damage = 0;
-									bool collidesX = MathF.Abs(hit.normal.x) > 0.5f;
-									bool collidesY = MathF.Abs(hit.normal.y) > 0.5f;
-									if (collidesX || collidesY)
-										onHit(collidesX, collidesY);
+									if (pierces < item.maxPierces || item.maxPierces == -1)
+										pierces++;
+									else
+									{
+										damage = 0;
+										bool collidesX = MathF.Abs(hit.normal.x) > 0.5f;
+										bool collidesY = MathF.Abs(hit.normal.y) > 0.5f;
+										if (collidesX || collidesY)
+											onHit(collidesX, collidesY);
+									}
 								}
 							}
 						}

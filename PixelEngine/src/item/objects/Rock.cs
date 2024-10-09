@@ -15,6 +15,7 @@ public class Rock : Item
 
 		projectileItem = true;
 		maxPierces = -1;
+		twoHanded = true;
 
 		attackDamage = 1.5f; //4;
 
@@ -22,6 +23,7 @@ public class Rock : Item
 		upgradable = false;
 
 		sprite = new Sprite(tileset, 4, 0);
+		renderOffset.x = 0.3f;
 
 		hitSound = Resource.GetSounds("res/sounds/hit_rock", 5);
 	}

@@ -20,9 +20,18 @@ public class BossRoom : Entity
 		GolemBoss boss = new GolemBoss();
 		boss.isBoss = true;
 		boss.itemDropChance = 1;
-		level.addEntity(boss, (Vector2)level.getMarker(100));
 
-		level.addEntity(new BossGate(boss, room, true), (Vector2)level.getMarker(101));
-		level.addEntity(new BossGate(boss, room, false), (Vector2)level.getMarker(102));
+		foreach (Room room in level.rooms)
+		{
+			if (room.tryGetMarker(100, out Vector2i p))
+			{
+				level.addEntity(boss, (Vector2)p);
+
+				level.addEntity(new BossGate(boss, room, true), (Vector2)room.getMarker(101));
+				level.addEntity(new BossGate(boss, room, false), (Vector2)room.getMarker(102));
+
+				break;
+			}
+		}
 	}
 }

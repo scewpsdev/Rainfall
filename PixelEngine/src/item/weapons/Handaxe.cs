@@ -36,7 +36,7 @@ public class Handaxe : Item
 
 	public override bool useSecondary(Player player)
 	{
-		ItemEntity entity = player.throwItem(this, player.lookDirection.normalized);
+		ItemEntity entity = player.throwItem(this, (player.lookDirection.normalized + Vector2.Up * 0.1f).normalized);
 		entity.rotationVelocity = -MathF.PI * 5;
 		return true;
 	}

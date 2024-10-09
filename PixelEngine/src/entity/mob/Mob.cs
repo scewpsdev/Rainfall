@@ -37,7 +37,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public float health = 1;
 	public float damage = 1;
-	public float poise = 0.1f;
+	public float poise = 1;
 	public float awareness = 0.5f;
 
 	public bool isBoss = false;
@@ -112,12 +112,6 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		if (by != null)
 		{
 			Vector2 enemyPosition = by.position;
-			if (by.collider != null)
-				enemyPosition += 0.5f * (by.collider.max + by.collider.min);
-			float knockbackStrength = item != null ? item.knockback : 8.0f;
-			Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
-			addImpulse(knockback);
-
 			GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
 
 			if (item != null && item.projectileItem && item.projectileSticks && item.breakOnEnemyHit)
@@ -195,7 +189,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			}
 			if (Random.Shared.NextSingle() < coinDropChance)
 			{
-				int amount = MathHelper.RandomInt(3, 10);
+				int amount = MathHelper.RandomInt(3, 6);
 				for (int i = 0; i < amount; i++)
 				{
 					Coin coin = new Coin();

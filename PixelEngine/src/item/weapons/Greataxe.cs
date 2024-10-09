@@ -20,10 +20,7 @@ public class Greataxe : Item
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 1.0f;
-
-		projectileItem = true;
-		projectileSpins = true;
-		projectileSticks = true;
+		weight = 3;
 
 		value = 72;
 
@@ -36,12 +33,5 @@ public class Greataxe : Item
 	{
 		player.actions.queueAction(new AttackAction(this, player.handItem == this));
 		return false;
-	}
-
-	public override bool useSecondary(Player player)
-	{
-		ItemEntity entity = player.throwItem(this, player.lookDirection.normalized);
-		entity.rotationVelocity = -MathF.PI * 5;
-		return true;
 	}
 }

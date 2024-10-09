@@ -13,29 +13,34 @@ public class AttackAction : EntityAction
 	public Vector2 direction;
 	public float startAngle;
 	public bool stab;
+	float attackDamage;
+	float attackRange;
+	float attackRate;
 
 	public List<Entity> hitEntities = new List<Entity>();
 
 	public bool soundPlayed = false;
 
 
-	public AttackAction(Item weapon, bool stab, bool mainHand)
+	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)
 		: base("attack", mainHand)
 	{
 		this.weapon = weapon;
 		this.stab = stab;
-
-		duration = 1000;
+		this.duration = 1 / attackRate;
+		this.attackRate = attackRate;
+		this.attackDamage = attackDamage;
+		this.attackRange = attackRange;
 	}
 
 	public AttackAction(Item weapon, bool mainHand)
-		: this(weapon, weapon.stab, mainHand)
+		: this(weapon, mainHand, weapon.stab, weapon.attackRate, weapon.attackDamage, weapon.attackRange)
 	{
 	}
 
 	public override void onStarted(Player player)
 	{
-		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+		duration /= player.attackSpeedModifier;
 
 		direction = player.lookDirection.normalized;
 		startAngle = new Vector2(MathF.Abs(direction.x), direction.y).angle;
@@ -53,11 +58,12 @@ public class AttackAction : EntityAction
 			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f), direction, currentRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
+				Entity entity = hits[i].entity;
 				if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))
 				{
 					Hittable hittable = hits[i].entity as Hittable;
 
-					float damage = weapon.attackDamage * player.attackDamageModifier;
+					float damage = attackDamage * player.attackDamageModifier;
 
 					bool stealthAttack = hittable is Mob && (hittable as Mob).ai.target != player && player.stealthAttackModifier > 1;
 					if (stealthAttack)
@@ -69,7 +75,14 @@ public class AttackAction : EntityAction
 
 					if (hittable.hit(damage, player, weapon, null, true, stealthAttack))
 					{
-						hitEntities.Add(hits[i].entity);
+						hitEntities.Add(entity);
+
+						if (entity is Mob)
+						{
+							Mob mob = entity as Mob;
+							Vector2 knockback = (entity.position - player.position).normalized * weapon.knockback;
+							mob.addImpulse(knockback);
+						}
 
 						if (hittable is Mob)
 						{
@@ -99,7 +112,7 @@ public class AttackAction : EntityAction
 
 			if (!soundPlayed)
 			{
-				Audio.PlayOrganic(weapon.useSound, new Vector3(player.position, 0), 1, weapon.attackRate * 0.25f);
+				Audio.PlayOrganic(weapon.useSound, new Vector3(player.position, 0), 1, attackRate * 0.25f);
 				soundPlayed = true;
 			}
 		}
@@ -107,7 +120,7 @@ public class AttackAction : EntityAction
 
 	public float currentProgress
 	{
-		get => MathF.Min(elapsedTime / duration + elapsedTime / duration * weapon.attackCooldown, 1);
+		get => MathF.Min(elapsedTime / duration * (1 + weapon.attackCooldown), 1);
 	}
 
 	public bool inDamageWindow
@@ -117,7 +130,7 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => stab ? currentProgress * weapon.attackRange : weapon.attackRange;
+		get => stab ? currentProgress * attackRange : attackRange;
 	}
 
 	public float currentAngle

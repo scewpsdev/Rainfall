@@ -15,6 +15,7 @@ public class Boomerang : Item
 
 		attackDamage = 2;
 		attackRange = 4;
+		weight = 1;
 
 		value = 20;
 

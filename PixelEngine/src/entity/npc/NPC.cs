@@ -31,12 +31,12 @@ enum DialogueEffect : int
 	Restless,
 }
 
-struct DialogueLine
+public struct DialogueLine
 {
 	public string[] words;
 }
 
-struct Dialogue
+public struct Dialogue
 {
 	public DialogueLine[] lines;
 }
@@ -49,7 +49,7 @@ public abstract class NPC : Mob, Interactable
 	NPCState state = NPCState.None;
 	protected Player player;
 
-	List<Dialogue> voiceLines = new List<Dialogue>();
+	protected List<Dialogue> voiceLines = new List<Dialogue>();
 	long lastCharacterTime;
 	int currentCharacter = 0;
 	bool dialogueFinished = false;

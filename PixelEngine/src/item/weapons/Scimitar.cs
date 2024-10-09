@@ -18,6 +18,7 @@ public class Scimitar : Item
 		attackRate = 2.0f;
 		stab = false;
 		attackCooldown = 0.3f;
+		weight = 1.5f;
 
 		value = 18;
 

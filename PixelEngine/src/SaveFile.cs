@@ -23,6 +23,8 @@ public class SaveFile
 {
 	public static readonly uint FLAG_TUTORIAL_FINISHED = Hash.hash("tutorial_finished");
 
+	public static readonly uint FLAG_NPC_RAT_QUESTLINE_INIT = Hash.hash("rat_questline_init");
+
 
 	public int id;
 	public string path;
@@ -37,7 +39,8 @@ public class SaveFile
 
 	public void setFlag(uint flag)
 	{
-		flags.Add(flag);
+		if (!flags.Contains(flag))
+			flags.Add(flag);
 	}
 
 

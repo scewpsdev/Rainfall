@@ -180,7 +180,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public void setStartingClass(StartingClass startingClass)
 	{
-		if (startingClass != null)
+		if (this.startingClass != null)
 			money += startingClass.cost;
 		clearInventory();
 		for (int i = 0; i < startingClass.items.Length; i++)
@@ -204,7 +204,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				handParticles = null;
 			}
 			*/
-			if (handItem.isSecondaryItem && !item.twoHanded)
+			if (handItem.isSecondaryItem && !item.twoHanded && offhandItem == null)
 			{
 				Item _item = handItem;
 				unequipItem(_item);
@@ -646,7 +646,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			itemVelocity += new Vector2(direction, 1) * (shortThrow ? new Vector2(0.4f, MathHelper.RandomFloat(0.14f, 0.16f)) : farThrow ? new Vector2(2, MathHelper.RandomFloat(0.14f, 0.16f)) : new Vector2(1, MathHelper.RandomFloat(0.14f, 0.16f))) * 14;
 		}
-		Vector2 throwOrigin = position + new Vector2(0, shortThrow ? 0.25f : 0.25f);
+		Vector2 throwOrigin = position + new Vector2(0, 0.5f);
 		ItemEntity obj = new ItemEntity(item, this, itemVelocity);
 		GameState.instance.level.addEntity(obj, throwOrigin);
 	}
@@ -693,6 +693,19 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return totalArmor;
 	}
 
+	public float getTotalEquipLoad()
+	{
+		float result = (handItem != null ? handItem.weight : 0) + (offhandItem != null ? offhandItem.weight : 0);
+		for (int i = 0; i < passiveItems.Count; i++)
+			result += passiveItems[i].weight;
+		return result;
+	}
+
+	public float getEquipLoadModifier()
+	{
+		return MathF.Exp(-getTotalEquipLoad() * 0.03f);
+	}
+
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		if (!isAlive)
@@ -708,17 +721,40 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			// play sound
 			// play particle effect
 			Mob mob = by as Mob;
-			if (by is Projectile)
-			{
-				Projectile p = by as Projectile;
-				mob = p.shooter as Mob;
-			}
+
+			Projectile projectile = by as Projectile;
+			ItemEntity itemEntity = by as ItemEntity;
+
+			if (projectile != null)
+				mob = projectile.shooter as Mob;
+			else if (itemEntity != null)
+				mob = itemEntity.thrower as Mob;
+
 			if (mob != null)
 			{
-				mob.stun(3);
-				mob.addImpulse(new Vector2(direction, 0.1f) * 8);
-				if (blockingItem.damageReflect > 0)
-					mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
+				if (projectile == null && itemEntity == null)
+				{
+					mob.stun(3);
+					mob.addImpulse(new Vector2(direction, 0.1f) * 8);
+					if (blockingItem.damageReflect > 0)
+						mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
+				}
+				else
+				{
+					if (blockingItem.type == ItemType.Shield)
+					{
+						if (projectile != null)
+						{
+							projectile.velocity.x *= -1.0f;
+							projectile.velocity.y = MathF.Max(projectile.velocity.y, 0);
+						}
+						else if (itemEntity != null)
+						{
+							itemEntity.velocity.x *= -1.0f;
+							itemEntity.velocity.y = MathF.Max(itemEntity.velocity.y, 0);
+						}
+					}
+				}
 
 				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
@@ -930,6 +966,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
+			if (!isDucked)
+			{
+				if (MathHelper.Fract(position.y) > 1 - collider.max.y)
+				{
+					TileType topTile = level.getTile(position + new Vector2(0, collider.max.y));
+					if (topTile != null && topTile.isSolid)
+						position.y = MathF.Min(position.y, MathF.Floor(position.y + collider.max.y) - collider.max.y);
+				}
+			}
 
 			if (isGrounded)
 				lastGrounded = Time.currentTime;
@@ -1040,9 +1085,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (controllerAim.lengthSquared > 0.25f)
 				lookDirection = controllerAim;
 
-			if (Input.cursorHasMoved)
+			if (Settings.game.aimMode == AimMode.Simple)
 			{
-				if (Settings.game.aimMode == AimMode.Directional)
+				if (delta.x != 0)
+					direction = MathF.Sign(delta.x);
+				if (InputManager.IsDown("Up"))
+					lookDirection = Vector2.Up;
+				else if (InputManager.IsDown("Down"))
+					lookDirection = Vector2.Down;
+				else
+					lookDirection = new Vector2(direction, 0.05f);
+			}
+			else if (Settings.game.aimMode == AimMode.Directional)
+			{
+				if (Input.cursorHasMoved)
 				{
 					float maxCursorDistance = handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
 					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
@@ -1067,17 +1123,25 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (MathF.Abs(lookDirection.y) > maxCursorDistance)
 						lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
 				}
-				else
+
+				if (actions.currentAction != null)
+					direction = Math.Sign(lookDirection.x);
+				else if (delta.x != 0)
+					direction = MathF.Sign(delta.x);
+			}
+			else if (Settings.game.aimMode == AimMode.Crosshair)
+			{
+				if (Input.cursorHasMoved)
 				{
 					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - (position + collider.center);
 				}
+
+				if (actions.currentAction != null)
+					direction = Math.Sign(lookDirection.x);
+				else if (delta.x != 0)
+					direction = MathF.Sign(delta.x);
 			}
 		}
-
-		if (actions.currentAction != null)
-			direction = Math.Sign(lookDirection.x);
-		else if (delta.x != 0)
-			direction = MathF.Sign(delta.x);
 
 		if (!isClimbing)
 		{
@@ -1127,7 +1191,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (fallDistance >= FALL_DAMAGE_DISTANCE)
 			{
 				float dmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.1f;
-				hit(dmg, null, null, "Fall Damage", false);
+				hit(dmg, null, null, "A high fall", false);
 			}
 			if (velocity.y < -10)
 				onLand();
@@ -1203,7 +1267,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (!switched)
 					selectedActiveItem = (selectedActiveItem + 1) % activeItems.Length;
 			}
-			if (InputManager.IsPressed("UseItem"))
+			if (InputManager.IsPressed("UseItem") && numOverlaysOpen == 0)
 			{
 				if (activeItems[selectedActiveItem] != null)
 					useActiveItem(activeItems[selectedActiveItem]);
@@ -1617,6 +1681,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		get
 		{
 			float value = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isDucked ? DUCKED_MULTIPLIER : 1) * speed;
+			value *= getEquipLoadModifier();
 			if (actions.currentAction != null)
 				value *= actions.currentAction.speedMultiplier;
 			return value;

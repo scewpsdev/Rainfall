@@ -19,6 +19,7 @@ public class AssassinsDagger : Item
 		attackCooldown = 2.0f;
 		canDrop = false;
 		//stab = false;
+		weight = 1;
 
 		isSecondaryItem = true;
 		attackRotationOffset = MathF.PI * 0.25f;

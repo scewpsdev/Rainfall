@@ -12,14 +12,17 @@ public class OldHuntersHat : Item
 		: base("old_hunters_hat", ItemType.Armor)
 	{
 		displayName = "Old Hunter's Hat";
+		description = "Strangely familiar.";
 
 		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
+		weight = 0.5f;
 
 		value = 17;
 		//canDrop = false;
 
 		sprite = new Sprite(tileset, 3, 7);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/old_hunters_hat.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/old_hunters_hat.png", false), 0, 0, 32, 32);
+		ingameSpriteSize = 2;
 	}
 }

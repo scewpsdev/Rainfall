@@ -70,9 +70,9 @@ public class InputBinding
 			if (key != KeyCode.None)
 				result.Append(key.ToString());
 			if (button != MouseButton.None)
-				result.Append((result.Length > 2 ? " / " : "") + "M" + ((int)button).ToString());
+				result.Append((result.Length > 0 ? " / " : "") + "M" + ((int)button).ToString());
 			if (scrollDelta != 0)
-				result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Up" : "Down"));
+				result.Append((result.Length > 0 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Up" : "Down"));
 		}
 		return result.ToString();
 	}

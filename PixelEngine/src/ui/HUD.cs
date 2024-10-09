@@ -235,8 +235,8 @@ public class HUD
 		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
 
 		int barWidth = (int)MathF.Ceiling(player.mana * 20);
-		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF4d4195);
-		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFF6555c8);
+		Renderer.DrawUISprite(x, y, barWidth, height, null, false, 0xFF4d4195);
+		Renderer.DrawUISprite(x, y, barWidth, height / 2, null, false, 0xFF6555c8);
 
 		string countTxt = ((int)MathF.Floor(player.mana * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxMana * 10)).ToString();
 		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
@@ -570,7 +570,7 @@ public class HUD
 				if (player.activeItems[i].type == ItemType.Spell && player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).spell == player.activeItems[i])
 				{
 					SpellCastAction spellCast = player.actions.currentAction as SpellCastAction;
-					float progress = spellCast.elapsedTime / spellCast.duration;
+					float progress = MathF.Min(spellCast.elapsedTime / spellCast.duration, 1);
 					int overlayIdx = (int)(progress * 16);
 					Renderer.DrawUISprite(xx, yy, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
 				}
@@ -634,16 +634,22 @@ public class HUD
 		renderPopup();
 
 		// Aim Direction
-		// Aim indicator
-		if (player.isAlive && Settings.game.aimMode == AimMode.Directional)
+		if (player.isAlive)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
-			Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
-		}
-		// Crosshair
-		else if (player.isAlive && Settings.game.aimMode == AimMode.Crosshair)
-		{
-			Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+			if (Settings.game.aimMode == AimMode.Simple)
+			{
+			}
+			// Aim indicator
+			else if (Settings.game.aimMode == AimMode.Directional)
+			{
+				Vector2i pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
+				Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
+			}
+			// Crosshair
+			else if (Settings.game.aimMode == AimMode.Crosshair)
+			{
+				Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+			}
 		}
 
 		/*

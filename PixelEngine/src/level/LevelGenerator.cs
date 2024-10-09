@@ -136,10 +136,29 @@ public class Room
 	public bool isMainPath = false;
 	public bool hasObject = false;
 
+	Dictionary<uint, Vector2i> markers = new Dictionary<uint, Vector2i>();
 	public List<Vector2i> spawnLocations = new List<Vector2i>();
 
 	public bool explored = false;
 
+
+	public void addMarker(uint id, int x, int y)
+	{
+		markers.Add(id, new Vector2i(x, y));
+	}
+
+	public bool tryGetMarker(uint id, out Vector2i value)
+	{
+		return markers.TryGetValue(id, out value);
+	}
+
+	public Vector2i getMarker(uint id)
+	{
+		if (markers.TryGetValue(id, out Vector2i pos))
+			return pos;
+		Debug.Assert(false);
+		return Vector2i.Zero;
+	}
 
 	public int countConnectedDoorways()
 	{
@@ -220,7 +239,7 @@ public class LevelGenerator
 		miscSet = new RoomDefSet("res/level/rooms_misc.png");
 		specialSet = new RoomDefSet("res/level/rooms_special.png");
 		cavesSet = new RoomDefSet("res/level/level1/rooms1.png");
-		gardensSet = new RoomDefSet("res/level/level2/rooms2.png");
+		gardensSet = new RoomDefSet("res/level/level1/rooms1.png");
 		minesSet = new RoomDefSet("res/level/rooms_mines.png");
 	}
 
@@ -302,7 +321,7 @@ public class LevelGenerator
 					default:
 						level.setTile(x + xx, y + yy, null);
 						if ((color | 0x0000FF00) == 0xFFFFFFFF) // marker
-							level.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);
+							room.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);
 						break;
 				}
 			}
@@ -858,54 +877,6 @@ public class LevelGenerator
 			level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
 		});
 
-		// Builder merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
-		{
-			BuilderMerchant npc = new BuilderMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Traveller merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
-		{
-			TravellingMerchant npc = new TravellingMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Rat NPC
-		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
-		{
-			RatNPC npc = new RatNPC();
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Logan
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
-		{
-			Logan npc = new Logan(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Blacksmith
-		spawnRoomObject(deadEnds, floor == 3 ? 1 : MathHelper.Remap(floor, 1, 5, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
-		{
-			Blacksmith npc = new Blacksmith(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Tinkerer
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
-		{
-			Tinkerer npc = new Tinkerer(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
 		// Fountain
 		spawnRoomObject(deadEnds, 1, false, (Vector2i tile, Random random) =>
 		{
@@ -916,7 +887,7 @@ public class LevelGenerator
 		// Coins
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.05f, 0.02f), true, (Vector2i tile, Random random) =>
 		{
-			int amount = MathHelper.RandomInt(2, 10, random);
+			int amount = MathHelper.RandomInt(2, 7, random);
 			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
 		});
 
@@ -1171,6 +1142,56 @@ public class LevelGenerator
 			}
 		});
 
+
+		// Builder merchant
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
+		{
+			BuilderMerchant npc = new BuilderMerchant(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Traveller merchant
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			TravellingMerchant npc = new TravellingMerchant(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Logan
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			Logan npc = new Logan(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Blacksmith
+		spawnRoomObject(deadEnds, floor == 3 ? 1 : MathHelper.Remap(floor, 1, 5, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
+		{
+			Blacksmith npc = new Blacksmith(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Tinkerer
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			Tinkerer npc = new Tinkerer(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Rat NPC
+		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
+		{
+			RatNPC npc = new RatNPC();
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+
 		level.updateLightmap(0, 0, width, height);
 	}
 
@@ -1255,6 +1276,7 @@ public class LevelGenerator
 		int height = Math.Max(150 * 50 / width, 30);
 
 		level.resize(width, height, TileType.dirt);
+		level.rooms = rooms;
 		level.ambientLight = new Vector3(1.0f);
 		level.ambientSound = Resource.GetSound("res/level/level2/ambience2.ogg");
 		//level.fogColor = MathHelper.ARGBToVector(0xFFa0c7eb).xyz;
@@ -1427,54 +1449,6 @@ public class LevelGenerator
 				}
 			}
 		}
-
-		// Builder merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
-		{
-			BuilderMerchant npc = new BuilderMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Traveller merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
-		{
-			TravellingMerchant npc = new TravellingMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Rat NPC
-		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
-		{
-			RatNPC npc = new RatNPC();
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Logan
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
-		{
-			Logan npc = new Logan(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Blacksmith
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
-		{
-			Blacksmith npc = new Blacksmith(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Tinkerer
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
-		{
-			Tinkerer npc = new Tinkerer(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
 
 		// Fountain
 		spawnRoomObject(deadEnds, 1, false, (Vector2i tile, Random random) =>
@@ -1679,6 +1653,56 @@ public class LevelGenerator
 				}
 			}
 		});
+
+
+		// Builder merchant
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.03f), false, (Vector2i tile, Random random) =>
+		{
+			BuilderMerchant npc = new BuilderMerchant(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Traveller merchant
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			TravellingMerchant npc = new TravellingMerchant(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Rat NPC
+		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
+		{
+			RatNPC npc = new RatNPC();
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Logan
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			Logan npc = new Logan(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Blacksmith
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.02f), false, (Vector2i tile, Random random) =>
+		{
+			Blacksmith npc = new Blacksmith(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Tinkerer
+		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
+		{
+			Tinkerer npc = new Tinkerer(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
 
 		level.updateLightmap(0, 0, width, height);
 	}
@@ -2024,10 +2048,10 @@ public class LevelGenerator
 		};
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
-
-		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/bg.png", false), 1), new Vector2(room.width * 0.5f, room.height * 0.5f));
+		level.rooms = [room];
 
 		level.fogFalloff = 1.0f;
+		level.infiniteEnergy = true;
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}
@@ -2048,6 +2072,9 @@ public class LevelGenerator
 		};
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
+		level.rooms = [room];
+
+		level.infiniteEnergy = true;
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}
@@ -2068,6 +2095,7 @@ public class LevelGenerator
 		};
 
 		placeRoom(room, level, (int x, int y) => TileType.stone);
+		level.rooms = [room];
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

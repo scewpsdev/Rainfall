@@ -20,6 +20,7 @@ public class WoodenMallet : Item
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;
+		weight = 2;
 
 		value = 28;
 
@@ -27,6 +28,8 @@ public class WoodenMallet : Item
 		icon = new Sprite(tileset.texture, 1 * 16 + 12, 4 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
+
+		hitSound = woodHit;
 	}
 
 	public override bool use(Player player)

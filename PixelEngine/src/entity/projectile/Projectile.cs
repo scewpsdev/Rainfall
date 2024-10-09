@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Projectile : Entity
 {
-	protected float maxSpeed = 10;
+	protected float maxSpeed = 100;
 	protected float acceleration = 0;
 	protected float gravity = 0;
 	protected float rotationSpeed = 0;
@@ -79,10 +79,20 @@ public class Projectile : Entity
 				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(damage, this, item);
 					hitEntities.Add(hit.entity);
-					onHit(hit.normal);
-					remove();
+					if (hittable.hit(damage, this, item))
+					{
+						onHit(hit.normal);
+
+						if (hit.entity is Mob)
+						{
+							Mob mob = hit.entity as Mob;
+							Vector2 knockback = (hit.entity.position - position).normalized * (item != null ? item.knockback : 8);
+							mob.addImpulse(knockback);
+						}
+
+						remove();
+					}
 				}
 			}
 			else

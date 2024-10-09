@@ -17,6 +17,7 @@ public class BrokenSword : Item
 		attackRange = 1;
 		attackRate = 2;
 		stab = false;
+		weight = 1;
 
 		value = 2;
 

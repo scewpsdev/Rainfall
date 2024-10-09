@@ -15,6 +15,7 @@ public class TravellingCloak : Item
 
 		armor = 1;
 		armorSlot = ArmorSlot.Body;
+		weight = 0.5f;
 
 		value = 3;
 

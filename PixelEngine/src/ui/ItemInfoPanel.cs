@@ -63,47 +63,53 @@ public static class ItemInfoPanel
 			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
 			Renderer.DrawUITextBMP(x + width - textWidth - 1, y, str, 1, color);
 		}
-		void drawComparison(float value, float to)
+		void drawComparison(float value, float to, bool flipComparison = false)
 		{
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
 			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
-			uint color = value > to ? 0xFF5ecb57 : value < to ? 0xFFbd4242 : 0xFFAAAAAA;
+			int comparison = MathF.Sign(value - to) * (flipComparison ? -1 : 1);
+			uint color = comparison == 1 ? 0xFF5ecb57 : comparison == -1 ? 0xFFbd4242 : 0xFFAAAAAA;
 			Renderer.DrawUITextBMP(x + width - 1 - textWidth, y, str, 1, color);
 		}
 
-		if (item.type == ItemType.Weapon)
+		if (item.type == ItemType.Weapon || item.type == ItemType.Staff)
 		{
 			drawLeft("DMG");
 			drawRight(item.attackDamage);
-			if (compareItem != null && compareItem.type == ItemType.Weapon)
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackDamage, compareItem.attackDamage);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("DEX");
 			drawRight(item.attackRate);
-			if (compareItem != null && compareItem.type == ItemType.Weapon)
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRate, compareItem.attackRate);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("CRIT");
 			drawRight(item.criticalChance * 100);
-			if (compareItem != null && compareItem.type == ItemType.Weapon)
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.criticalChance * 100, compareItem.criticalChance * 100);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("RANGE");
 			drawRight(item.attackRange);
-			if (compareItem != null && compareItem.type == ItemType.Weapon)
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRange, compareItem.attackRange);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("KNOCK");
 			drawRight(item.knockback);
-			if (compareItem != null && compareItem.type == ItemType.Weapon)
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.knockback, compareItem.knockback);
 			y += Renderer.smallFont.size + 1;
 
-			
+			drawLeft("WGHT");
+			drawRight(item.weight);
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+				drawComparison(item.weight, compareItem.weight, true);
+			y += Renderer.smallFont.size + 1;
+
 
 			//drawLeft("Reach");
 			//drawRight(item.attackRange.ToString("0.0"));
@@ -119,6 +125,12 @@ public static class ItemInfoPanel
 			drawRight(item.armor);
 			if (compareItem != null && compareItem.type == ItemType.Armor)
 				drawComparison(item.armor, compareItem.armor);
+			y += Renderer.smallFont.size + 1;
+
+			drawLeft("WGHT");
+			drawRight(item.weight);
+			if (compareItem != null && compareItem.type == ItemType.Armor)
+				drawComparison(item.weight, compareItem.weight, true);
 			y += Renderer.smallFont.size + 1;
 		}
 

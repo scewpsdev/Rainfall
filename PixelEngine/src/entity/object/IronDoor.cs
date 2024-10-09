@@ -107,6 +107,19 @@ public class IronDoor : Entity, Interactable
 
 		if (open)
 			Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
+		else
+		{
+			HitData[] hits = new HitData[16];
+			int numHits = GameState.instance.level.overlap((Vector2)tile, (Vector2)tile + 1, hits, FILTER_DEFAULT | FILTER_ITEM | FILTER_PLAYER | FILTER_MOB | FILTER_PROJECTILE);
+			for (int i = 0; i < numHits; i++)
+			{
+				Entity entity = hits[i].entity;
+				if (MathHelper.Fract(entity.position.x) < 0.5f)
+					entity.position.x = MathF.Min(entity.position.x, tile.x - entity.collider.max.x);
+				else
+					entity.position.x = MathF.Max(entity.position.x, tile.x + 1 - entity.collider.min.x);
+			}
+		}
 	}
 
 	public override void update()
@@ -119,11 +132,11 @@ public class IronDoor : Entity, Interactable
 	{
 		if (outline != 0)
 		{
-			Renderer.DrawOutline(position.x + 0.5f - openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite, false, outline);
+			Renderer.DrawOutline(position.x - openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite, false, outline);
 			Renderer.DrawOutline(position.x - 0.5f, position.y, 1, 1, frameSprite, false, outline);
 		}
 
-		Renderer.DrawSprite(position.x + 0.5f - openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite);
+		Renderer.DrawSprite(position.x - openProgress, position.y, LAYER_BG, openProgress, 1, 0, sprite);
 		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, frameSprite);
 	}
 }

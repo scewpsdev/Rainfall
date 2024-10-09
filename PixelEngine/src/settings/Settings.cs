@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 public enum AimMode
 {
+	Simple,
 	Directional,
 	Crosshair
 }
 
 public struct GameSettings
 {
-	public AimMode aimMode = AimMode.Directional;
+	public AimMode aimMode = AimMode.Simple;
 
 	public GameSettings(int _) { }
 }
