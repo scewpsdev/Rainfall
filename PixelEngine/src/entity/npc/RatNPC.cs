@@ -19,15 +19,32 @@ public class RatNPC : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		addVoiceLine("\\aWOAH!");
-		addVoiceLine("\\3You look... \\5\\bintense!");
-		addVoiceLine("Ah, you must be here to try some of my \\cwondrous cheese?");
-		addVoiceLine("Yes, yes. That must be it. I'll give you one for free, good?");
+		if (GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_INIT))
+		{
+			addVoiceLine("How goes the hunt?");
+		}
+		else
+		{
+			addVoiceLine("\\aWOAH!");
+			addVoiceLine("\\3You look... \\5\\bintense!");
+			addVoiceLine("Ah, you must be here to try some of my \\cwondrous cheese?");
+			addVoiceLine("Yes, yes. That must be it. I'll give you one for free, good?");
 
-		Cheese wondrousCheese = new Cheese();
-		wondrousCheese.name = "wondrous_cheese";
-		wondrousCheese.displayName = "Wondrous Cheese";
-		addShopItem(wondrousCheese, 0);
-		addShopItem(new Cheese());
+			Cheese wondrousCheese = new Cheese();
+			wondrousCheese.name = "wondrous_cheese";
+			wondrousCheese.displayName = "Wondrous Cheese";
+			addShopItem(wondrousCheese, 0);
+			addShopItem(new Cheese());
+		}
+	}
+
+	public override void update()
+	{
+		base.update();
+
+		if (voiceLines.Count == 0)
+		{
+			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_INIT);
+		}
 	}
 }

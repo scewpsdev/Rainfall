@@ -17,6 +17,7 @@ public class Rapier : Item
 		attackRange = 1.5f;
 		attackRate = 2.5f;
 		attackCooldown = 2;
+		weight = 1.5f;
 
 		value = 14;
 

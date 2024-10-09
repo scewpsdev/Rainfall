@@ -23,11 +23,12 @@ public class Dagger : Item
 		//projectileAims = true;
 		projectileSpins = true;
 		isSecondaryItem = true;
+		weight = 1;
 
 		value = 4;
 
 		sprite = new Sprite(tileset, 8, 6);
-		renderOffset.x = 0.3f;
+		renderOffset.x = 0.0f;
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
 	}

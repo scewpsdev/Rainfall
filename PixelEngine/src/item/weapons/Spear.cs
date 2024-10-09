@@ -16,6 +16,7 @@ public class Spear : Item
 		attackDamage = 2;
 		attackRange = 2.0f;
 		attackRate = 1.6f;
+		weight = 1.5f;
 
 		projectileItem = true;
 		projectileAims = true;

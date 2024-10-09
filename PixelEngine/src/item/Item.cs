@@ -87,6 +87,8 @@ public abstract class Item
 	public float attackCooldown = 1.0f;
 	public float secondaryChargeTime = 0.5f;
 	public float blockDuration = 0.7f;
+	public float blockCharge = 0.15f;
+	public float blockMovementSpeed = 0.2f;
 	public float damageReflect = 0.0f;
 	public float criticalChance = 0.025f;
 	public float accuracy = 1.0f;
@@ -99,13 +101,14 @@ public abstract class Item
 	public int staffCharges = 0;
 	public int maxStaffCharges = 0;
 
+	public int armor = 0;
+	public float weight = 0.0f;
+
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
 	public float attackRotationOffset = 0.0f;
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
-
-	public int armor = 0;
 
 	public bool projectileItem = false;
 	public float projectileRotationOffset = 0.0f;
@@ -130,6 +133,7 @@ public abstract class Item
 	public int upgradeLevel = 0;
 
 	public Sound[] useSound;
+	public Sound[] castSound;
 	public Sound[] hitSound;
 	public Sound[] blockSound;
 	public Sound[] pickupSound;
@@ -147,13 +151,14 @@ public abstract class Item
 
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor;
 
-		useSound = type == ItemType.Weapon ? weaponUse : type == ItemType.Potion ? potionUse : null;
+		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponUse : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
 		blockSound = type == ItemType.Weapon ? parryHit : weaponHit;
 		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
 		equipSound = type == ItemType.Relic ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 
 		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 4 : type == ItemType.Spell ? 1 : 4;
+		weight = type == ItemType.Weapon ? 2 : type == ItemType.Shield ? 2 : type == ItemType.Staff ? 1 : type == ItemType.Armor ? 1 : 0;
 	}
 
 	public Item copy()
@@ -418,6 +423,13 @@ public abstract class Item
 		InitType(new PotionOfInvisibility());
 		InitType(new HuntersHat());
 		InitType(new OldHuntersHat());
+		InitType(new TripleShotSpell());
+		InitType(new ElderwoodStaff());
+		InitType(new AstralScepter());
+		InitType(new MissileSpell());
+		InitType(new WoodenShield());
+		InitType(new Waraxe());
+		InitType(new MoonbladeAxe());
 	}
 
 	static void InitType(Item item)
@@ -493,6 +505,14 @@ public abstract class Item
 		//	newItem.stackSize = MathHelper.RandomInt(1, 10, random);
 		if (newItem.type == ItemType.Staff)
 			newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
+		else if (newItem.type == ItemType.Potion)
+		{
+			Potion potion = newItem as Potion;
+			float throwableChance = 0.3f;
+			if (random.NextSingle() < throwableChance)
+				potion.makeThrowable();
+		}
+
 		return newItem;
 
 		/*

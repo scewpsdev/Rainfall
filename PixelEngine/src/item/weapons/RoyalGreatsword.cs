@@ -18,6 +18,7 @@ public class RoyalGreatsword : Item
 		attackRate = 1.5f;
 		stab = false;
 		twoHanded = true;
+		weight = 3;
 
 		value = 102;
 
@@ -37,7 +38,7 @@ public class RoyalGreatsword : Item
 			if (attack.weapon == this)
 				anim = !attack.stab;
 		}
-		player.actions.queueAction(new AttackAction(this, anim, player.handItem == this));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, attackRate, attackDamage, attackRange));
 		return false;
 	}
 }

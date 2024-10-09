@@ -17,6 +17,7 @@ public class WizardsHat : Item
 
 		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
+		weight = 0.3f;
 
 		value = 12;
 

@@ -27,6 +27,8 @@ public class Level
 	public int floor;
 	public float lootValue;
 
+	public bool infiniteEnergy = false;
+
 	public int width, height;
 	int[] tiles;
 	bool[] walkable;
@@ -41,7 +43,6 @@ public class Level
 	public Door exit;
 
 	public List<Entity> entities = new List<Entity>();
-	Dictionary<uint, Vector2i> markers = new Dictionary<uint, Vector2i>();
 
 	public Texture bg = null;
 	public Vector3 ambientLight = new Vector3(1.0f);
@@ -85,19 +86,6 @@ public class Level
 		if (lightmap != null)
 			Renderer.graphics.destroyTexture(lightmap);
 		lightmap = Renderer.graphics.createTexture(width + 1, height + 1, TextureFormat.R8, (ulong)SamplerFlags.Clamp);
-	}
-
-	public void addMarker(uint id, int x, int y)
-	{
-		markers.Add(id, new Vector2i(x, y));
-	}
-
-	public Vector2i getMarker(uint id)
-	{
-		if (markers.TryGetValue(id, out Vector2i pos))
-			return pos;
-		Debug.Assert(false);
-		return Vector2i.Zero;
 	}
 
 	public unsafe void updateLightmap(int x0, int y0, int w, int h)
@@ -232,7 +220,7 @@ public class Level
 				if (entities[i] is Hittable)
 				{
 					Hittable hittable = entities[i] as Hittable;
-					hittable.hit(1000, null, null);
+					hittable.hit(1000, null, null, "The Void");
 				}
 				entities[i].remove();
 			}
@@ -263,6 +251,9 @@ public class Level
 					rooms[i].explored = true;
 			}
 		}
+
+		if (infiniteEnergy)
+			GameState.instance.player.mana = GameState.instance.player.maxMana;
 	}
 
 	public void render()
@@ -691,6 +682,8 @@ public class Level
 
 		if (velocity.x == 0)
 		{
+			//entry.x = Math.Sign(invEntry.x) * float.PositiveInfinity;
+			//exit.x = Math.Sign(invExit.x) * float.PositiveInfinity;
 			entry.x = float.NegativeInfinity;
 			exit.x = float.PositiveInfinity;
 		}
@@ -701,6 +694,8 @@ public class Level
 		}
 		if (velocity.y == 0)
 		{
+			//entry.y = Math.Sign(invEntry.y) * float.PositiveInfinity;
+			//exit.y = Math.Sign(invExit.y) * float.PositiveInfinity;
 			entry.y = float.NegativeInfinity;
 			exit.y = float.PositiveInfinity;
 		}
@@ -713,7 +708,7 @@ public class Level
 		float entryTime = MathF.Max(entry.x, entry.y);
 		float exitTime = MathF.Min(exit.x, exit.y);
 
-		if (entryTime > exitTime || /*entry.x < 0 && entry.y < 0 &&*/ exit.x < 0 || exit.y < 0 || entry.x > 1 || entry.y > 1)
+		if (entryTime > exitTime || /*entry.x < 0 && entry.y < 0 &&*/ exit.x < 0 || exit.y < 0 || entry.x > 1 || entry.y > 1 || velocity.x == 0 && Math.Sign(invEntry.x) == Math.Sign(invExit.x) || velocity.y == 0 && Math.Sign(invEntry.y) == Math.Sign(invExit.y))
 		{
 			normal = Vector2.Zero;
 			distance = -1;

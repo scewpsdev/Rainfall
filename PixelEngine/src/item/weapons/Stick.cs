@@ -17,6 +17,7 @@ public class Stick : Item
 		attackRange = 1.2f;
 		attackRate = 1.5f;
 		stab = false;
+		weight = 1;
 		//attackAngle = MathF.PI * 0.7f;
 
 		value = 1;

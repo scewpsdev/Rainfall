@@ -21,6 +21,7 @@ public class Greathammer : Item
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;
+		weight = 3;
 
 		value = 54;
 

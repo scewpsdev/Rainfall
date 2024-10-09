@@ -20,7 +20,7 @@ public class BlockAction : EntityAction
 		this.shield = shield;
 
 		duration = shield.blockDuration;
-		speedMultiplier = 0.2f;
+		speedMultiplier = shield.blockMovementSpeed;
 	}
 
 	public override void onStarted(Player player)
@@ -36,7 +36,7 @@ public class BlockAction : EntityAction
 
 	public float progress
 	{
-		get => MathF.Min(elapsedTime / duration * 5, 1);
+		get => MathF.Min(elapsedTime / shield.blockCharge, 1);
 	}
 
 	public bool isBlocking

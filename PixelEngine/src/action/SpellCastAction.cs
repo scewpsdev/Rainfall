@@ -27,13 +27,13 @@ public class SpellCastAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+		duration = 1.0f / spell.attackRate / weapon.attackRate / player.attackSpeedModifier;
 
 		spell.cast(player, weapon);
 		player.consumeMana(manaCost);
 
-		if (spell.useSound != null)
-			Audio.PlayOrganic(spell.useSound, new Vector3(player.position, 0));
+		if (spell.castSound != null)
+			Audio.PlayOrganic(spell.castSound, new Vector3(player.position, 0));
 	}
 
 	public override Matrix getItemTransform(Player player)

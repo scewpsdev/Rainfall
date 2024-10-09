@@ -18,6 +18,7 @@ public class Zweihander : Item
 		attackRate = 1.0f;
 		stab = false;
 		twoHanded = true;
+		weight = 2.5f;
 
 		value = 48;
 

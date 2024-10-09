@@ -44,7 +44,7 @@ public static class OptionsMenu
 	public static void Init()
 	{
 		generalOptions = [
-			new Option {name = "Aim Mode", items = ["Directional", "Crosshair"], selectedItem = (int)Settings.game.aimMode, callback = (string str) => { Settings.game.aimMode = Utils.ParseEnum<AimMode>(str); } },
+			new Option {name = "Aim Mode", items = ["Simple", "Directional", "Crosshair"], selectedItem = (int)Settings.game.aimMode, callback = (string str) => { Settings.game.aimMode = Utils.ParseEnum<AimMode>(str); } },
 		];
 		graphicsOptions = [
 			new Option {name = "Bloom", items = ["On", "Off"], selectedItem = Renderer.bloomEnabled ? 0 : 1, callback = (string str) => { Renderer.bloomEnabled = str == "On"; } },

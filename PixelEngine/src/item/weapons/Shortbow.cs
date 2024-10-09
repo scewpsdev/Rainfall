@@ -15,12 +15,14 @@ public class Shortbow : Item
 		displayName = "Shortbow";
 
 		attackDamage = 1;
-		attackRate = 2.2f;
+		attackRate = 2.0f;
 		attackRange = 30; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";
 		isSecondaryItem = true;
+		secondaryChargeTime = 0;
+		weight = 1;
 
 		value = 32;
 
@@ -43,6 +45,12 @@ public class Shortbow : Item
 			Item arrow = player.removeItemSingle(arrows);
 			player.actions.queueAction(new BowShootAction(this, arrow, player.handItem == this));
 		}
+		return false;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 2, 1, 1) { soundPlayed = true });
 		return false;
 	}
 }

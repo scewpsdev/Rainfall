@@ -98,7 +98,7 @@ public class PlayerCamera : Entity
 			Vector2 aimDirection = screenToWorld(Renderer.cursorPosition) - position;
 			if (Settings.game.aimMode == AimMode.Directional)
 				target += aimDirection * 0.1f * player.aimDistance;
-			else
+			else if (Settings.game.aimMode == AimMode.Crosshair)
 				target += aimDirection * 0.2f * player.aimDistance;
 		}
 

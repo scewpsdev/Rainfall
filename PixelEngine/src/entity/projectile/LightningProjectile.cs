@@ -123,14 +123,14 @@ public class LightningProjectile : Entity
 				else
 				{
 					Vector2 reflected = Vector2.Reflect(velocity, hit.normal);
-					/*
+
 					if (Vector2.Dot(velocity.normalized, hit.normal) < -0.9f)
 					{
 						float deviation = MathHelper.RandomFloat(-1, 1);
 						deviation = MathF.Sign(deviation) * (1 - MathF.Pow(MathF.Abs(deviation), 2));
 						reflected = Vector2.Rotate(reflected, MathF.PI * 0.25f * deviation);
 					}
-					*/
+
 					position = lastPosition + velocity.normalized * (hit.distance - 0.1f) + reflected.normalized * 0.1f;
 					velocity = reflected;
 					//position += velocity * Time.deltaTime;
