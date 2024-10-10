@@ -34,6 +34,6 @@ public class ScrollOfEarth : Item
 			}
 		}
 		player.hud.showMessage("The earth rumbles.");
-		return false;
+		return true;
 	}
 }

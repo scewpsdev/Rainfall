@@ -17,6 +17,8 @@ public class IronDoor : Entity, Interactable
 	float openProgress = 0.0f;
 
 	Sound unlockSound;
+	Sound closeSound;
+	bool closeSoundPlayed;
 
 
 	public IronDoor(Item key)
@@ -27,6 +29,7 @@ public class IronDoor : Entity, Interactable
 		frameSprite = new Sprite(TileType.tileset, 2, 9);
 
 		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
+		closeSound = Resource.GetSound("res/sounds/door_close.ogg");
 	}
 
 	public IronDoor()
@@ -119,6 +122,8 @@ public class IronDoor : Entity, Interactable
 				else
 					entity.position.x = MathF.Max(entity.position.x, tile.x + 1 - entity.collider.min.x);
 			}
+
+			closeSoundPlayed = false;
 		}
 	}
 
@@ -126,6 +131,12 @@ public class IronDoor : Entity, Interactable
 	{
 		float openDst = open ? 1 : 0;
 		openProgress = MathHelper.Lerp(openProgress, openDst, 10 * Time.deltaTime);
+
+		if (MathF.Abs(openDst - openProgress) < 0.01f && !closeSoundPlayed)
+		{
+			Audio.PlayOrganic(closeSound, new Vector3(position, 0));
+			closeSoundPlayed = true;
+		}
 	}
 
 	public override void render()

@@ -20,8 +20,9 @@ public class Logan : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		addVoiceLine("Mm, you seem quite lucid! A \\drare\\0 thing in these times.");
-		addVoiceLine("\\cBuy my shit.");
+		initialDialogue = new Dialogue();
+		initialDialogue.addVoiceLine("Mm, you seem quite lucid! A \\drare\\0 thing in these times.");
+		initialDialogue.addVoiceLine("\\cBuy my shit.");
 
 		populateShop(random, 2, 5, level.lootValue, ItemType.Potion, ItemType.Relic, ItemType.Staff, ItemType.Scroll);
 		buysItems = true;
