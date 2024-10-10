@@ -23,7 +23,8 @@ public class Blacksmith : NPC
 		buysItems = true;
 		canUpgrade = true;
 
-		addVoiceLine("Mmh.");
+		initialDialogue = new Dialogue();
+		initialDialogue.addVoiceLine("Mmh.");
 
 		populateShop(random, 2, 5, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}

@@ -20,6 +20,7 @@ enum NPCState
 	SellMenu,
 	CraftingMenu,
 	UpgradeMenu,
+	QuestList,
 }
 
 enum DialogueEffect : int
@@ -36,20 +37,71 @@ public struct DialogueLine
 	public string[] words;
 }
 
-public struct Dialogue
+public class DialogueScreen
 {
 	public DialogueLine[] lines;
+
+	public List<Action> callbacks = new List<Action>();
+
+	public void addCallback(Action callback)
+	{
+		callbacks.Add(callback);
+	}
+}
+
+public class Dialogue
+{
+	public List<DialogueScreen> screens = new List<DialogueScreen>();
+
+
+	public DialogueScreen addVoiceLine(string txt)
+	{
+		int maxWidth = 120 - 2 * 4;
+		string[] lines = Renderer.SplitMultilineText(txt, maxWidth);
+		DialogueScreen dialogue = new DialogueScreen();
+		dialogue.lines = new DialogueLine[lines.Length];
+		for (int i = 0; i < lines.Length; i++)
+		{
+			DialogueLine line;
+			line.words = lines[i].Split(' ');
+			/*
+			for (int j = 0; j < line.words.Length; j++)
+			{
+				string word = line.words[j];
+				for (int k = 0; k < word.Length; k++)
+				{
+					char c = word[i];
+					if (c == '\\' && k < word.Length - 1)
+					{
+
+						k++;
+					}
+				}
+				if (word.Length >= 3 && word[0] == '\\')
+				{
+					line.effects[j] = (DialogueEffect)(word[1] - '0');
+					line.words[j] = word.Substring(2);
+				}
+			}
+			*/
+			dialogue.lines[i] = line;
+		}
+		screens.Add(dialogue);
+		return dialogue;
+	}
 }
 
 public abstract class NPC : Mob, Interactable
 {
-	const int DEFAULT_DIALOGUE_SPEED = 15;
+	const int DEFAULT_DIALOGUE_SPEED = 25;
 
 
 	NPCState state = NPCState.None;
 	protected Player player;
 
-	protected List<Dialogue> voiceLines = new List<Dialogue>();
+	protected Dialogue initialDialogue;
+	protected List<Dialogue> dialogues = new List<Dialogue>();
+	Dialogue currentDialogue;
 	long lastCharacterTime;
 	int currentCharacter = 0;
 	bool dialogueFinished = false;
@@ -184,39 +236,9 @@ public abstract class NPC : Mob, Interactable
 		shopItems.Clear();
 	}
 
-	public void addVoiceLine(string txt)
+	public void addDialogue(Dialogue dialogue)
 	{
-		int maxWidth = 120 - 2 * 4;
-		string[] lines = Renderer.SplitMultilineText(txt, maxWidth);
-		Dialogue dialogue;
-		dialogue.lines = new DialogueLine[lines.Length];
-		for (int i = 0; i < lines.Length; i++)
-		{
-			DialogueLine line;
-			line.words = lines[i].Split(' ');
-			/*
-			for (int j = 0; j < line.words.Length; j++)
-			{
-				string word = line.words[j];
-				for (int k = 0; k < word.Length; k++)
-				{
-					char c = word[i];
-					if (c == '\\' && k < word.Length - 1)
-					{
-
-						k++;
-					}
-				}
-				if (word.Length >= 3 && word[0] == '\\')
-				{
-					line.effects[j] = (DialogueEffect)(word[1] - '0');
-					line.words[j] = word.Substring(2);
-				}
-			}
-			*/
-			dialogue.lines[i] = line;
-		}
-		voiceLines.Add(dialogue);
+		dialogues.Add(dialogue);
 	}
 
 	public virtual Item craftItem(Item item1, Item item2)
@@ -224,9 +246,13 @@ public abstract class NPC : Mob, Interactable
 		return null;
 	}
 
+	public virtual void onDialogueComplete(Dialogue dialogue)
+	{
+	}
+
 	public bool canInteract(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || voiceLines.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2));
+		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) || GameState.instance.save.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -239,9 +265,9 @@ public abstract class NPC : Mob, Interactable
 		openScreen();
 		this.player = player;
 
-		if (voiceLines.Count > 0)
+		if (initialDialogue != null)
 		{
-			initDialogue();
+			initDialogue(initialDialogue);
 		}
 		else
 		{
@@ -263,12 +289,12 @@ public abstract class NPC : Mob, Interactable
 	{
 		if (state == NPCState.None)
 		{
-			state = voiceLines.Count > 0 ? NPCState.Dialogue : NPCState.Menu;
+			state = initialDialogue != null ? NPCState.Dialogue : NPCState.Menu;
 			GameState.instance.player.numOverlaysOpen++;
 		}
 	}
 
-	void closeScreen()
+	protected void closeScreen()
 	{
 		if (state != NPCState.None)
 		{
@@ -278,9 +304,10 @@ public abstract class NPC : Mob, Interactable
 		}
 	}
 
-	void initDialogue()
+	void initDialogue(Dialogue dialogue)
 	{
 		state = NPCState.Dialogue;
+		currentDialogue = dialogue;
 		lastCharacterTime = Time.currentTime;
 		currentCharacter = 0;
 		dialogueFinished = false;
@@ -330,6 +357,12 @@ public abstract class NPC : Mob, Interactable
 		}
 	}
 
+	void initQuestList()
+	{
+		state = NPCState.QuestList;
+		selectedItem = 0;
+	}
+
 	public override void update()
 	{
 		Player player = GameState.instance.player;
@@ -356,7 +389,7 @@ public abstract class NPC : Mob, Interactable
 		if (state == NPCState.Dialogue)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-			Dialogue voiceLine = voiceLines[0];
+			DialogueScreen voiceLine = currentDialogue.screens[0];
 
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
@@ -476,13 +509,26 @@ public abstract class NPC : Mob, Interactable
 
 			if (dialogueFinished && InputManager.IsPressed("Interact", true))
 			{
-				voiceLines.RemoveAt(0);
+				DialogueScreen screen = currentDialogue.screens[0];
+				currentDialogue.screens.RemoveAt(0);
+
 				lastCharacterTime = Time.currentTime;
 				currentCharacter = 0;
 				dialogueFinished = false;
 				dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
-				if (voiceLines.Count == 0)
+				if (currentDialogue.screens.Count == 0)
+				{
+					onDialogueComplete(currentDialogue);
 					initMenu();
+					if (currentDialogue == initialDialogue)
+						initialDialogue = null;
+					else
+						dialogues.Remove(currentDialogue);
+					currentDialogue = null;
+				}
+
+				for (int i = 0; i < screen.callbacks.Count; i++)
+					screen.callbacks[i]();
 			}
 
 			if (InputManager.IsPressed("UIBack", true))
@@ -499,6 +545,10 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Craft");
 			if (canUpgrade && player.items.Count >= 1)
 				options.Add("Upgrade");
+			if (dialogues.Count > 0)
+				options.Add("Talk");
+			if (GameState.instance.save.getQuestList(name, out _))
+				options.Add("Quests");
 			options.Add("Quit");
 
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
@@ -523,8 +573,14 @@ public abstract class NPC : Mob, Interactable
 				{
 					initUpgradeMenu();
 				}
-				//else if (options[i] == "Talk")
-				//	; // TODO
+				else if (options[option] == "Talk")
+				{
+					initDialogue(dialogues[0]);
+				}
+				else if (options[option] == "Quests")
+				{
+					initQuestList();
+				}
 				else if (options[option] == "Quit")
 					closeScreen();
 			}
@@ -935,6 +991,52 @@ public abstract class NPC : Mob, Interactable
 				upgradePrices[choice] = item.upgradePrice;
 				Audio.Play(upgradeSound, new Vector3(position, 0));
 			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.QuestList)
+		{
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+
+			List<string> labels = new List<string>();
+			if (GameState.instance.save.getQuestList(name, out List<Quest> quests))
+			{
+				for (int i = 0; i < quests.Count; i++)
+					labels.Add(quests[i].displayName);
+			}
+
+			var renderInfoPanel = (int x, int y, int width, int height) =>
+			{
+				int top = y;
+
+				y += 4;
+
+				Quest quest = quests[selectedItem];
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(quest.displayName).x / 2, y, quest.displayName, 1, 0xFFFFFFFF);
+				y += Renderer.smallFont.size;
+				y += 5;
+
+				if (quest.description != null)
+				{
+					string[] descriptionLines = Renderer.SplitMultilineText(quest.description, width - 2);
+					for (int i = 0; i < descriptionLines.Length; i++)
+					{
+						Renderer.DrawUITextBMP(x + 2, y, descriptionLines[i], 1, 0xFFAAAAAA);
+						y += Renderer.smallFont.size;
+					}
+				}
+
+				y += 5;
+				string progress = quest.getProgressString();
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(progress).x / 2, y, progress, 1, 0xFFf4d16b);
+				y += Renderer.smallFont.size;
+
+				y += 4;
+
+				return y - top;
+			};
+			NPCSelector.Render(pos, "Quests", labels, renderInfoPanel, out bool secondary, out bool closed, ref selectedItem);
 
 			if (closed)
 				initMenu();

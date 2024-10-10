@@ -233,6 +233,8 @@ public class LevelGenerator
 	bool[] objectFlags;
 	float[] lootModifier;
 
+	bool ratSpawned = false;
+
 
 	public LevelGenerator()
 	{
@@ -1184,12 +1186,16 @@ public class LevelGenerator
 		});
 
 		// Rat NPC
-		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED) && !ratSpawned)
 		{
-			RatNPC npc = new RatNPC();
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
+			spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
+			{
+				RatNPC npc = new RatNPC();
+				npc.direction = random.Next() % 2 * 2 - 1;
+				level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+				ratSpawned = true;
+			});
+		}
 
 
 		level.updateLightmap(0, 0, width, height);
@@ -1667,14 +1673,6 @@ public class LevelGenerator
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random) =>
 		{
 			TravellingMerchant npc = new TravellingMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Rat NPC
-		spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
-		{
-			RatNPC npc = new RatNPC();
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});

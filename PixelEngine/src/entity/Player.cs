@@ -900,10 +900,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void onKill(Mob mob)
 	{
 		GameState.instance.run.kills++;
+
 		if (mana < maxMana)
 			mana = MathF.Min(mana + MANA_KILL_REWARD, maxMana);
 		for (int i = 0; i < items.Count; i++)
 			items[i].onKill(this, mob);
+
+		GameState.instance.save.onKill(mob);
 	}
 
 	void updateMovement()
@@ -1680,7 +1683,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		get
 		{
-			float value = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isDucked ? DUCKED_MULTIPLIER : 1) * speed;
+			float value = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isGrounded && isDucked ? DUCKED_MULTIPLIER : 1) * speed;
 			value *= getEquipLoadModifier();
 			if (actions.currentAction != null)
 				value *= actions.currentAction.speedMultiplier;

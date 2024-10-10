@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +22,8 @@ public class SaveFile
 {
 	public static readonly uint FLAG_TUTORIAL_FINISHED = Hash.hash("tutorial_finished");
 
-	public static readonly uint FLAG_NPC_RAT_QUESTLINE_INIT = Hash.hash("rat_questline_init");
+	public static readonly uint FLAG_NPC_RAT_MET = Hash.hash("rat_questline_init");
+	public static readonly uint FLAG_NPC_RAT_QUESTLINE_COMPLETED = Hash.hash("rat_questline_complete");
 
 
 	public int id;
@@ -31,6 +31,15 @@ public class SaveFile
 
 	public RunData[] highscores;
 	public HashSet<uint> flags = new HashSet<uint>();
+
+	public Dictionary<string, List<Quest>> quests = new Dictionary<string, List<Quest>>();
+	Dictionary<string, Action<Quest>> questCompleteCallbacks = new Dictionary<string, Action<Quest>>();
+
+
+	public void onReset()
+	{
+		questCompleteCallbacks.Clear();
+	}
 
 	public bool hasFlag(uint flag)
 	{
@@ -41,6 +50,65 @@ public class SaveFile
 	{
 		if (!flags.Contains(flag))
 			flags.Add(flag);
+	}
+
+	public void clearFlag(uint flag)
+	{
+		Debug.Assert(flags.Remove(flag));
+	}
+
+	public void addQuest(string npc, Quest quest)
+	{
+		if (!quests.ContainsKey(npc))
+			quests.Add(npc, new List<Quest>());
+		quests[npc].Add(quest);
+		if (quest.state == QuestState.Uninitialized)
+			quest.state = QuestState.InProgress;
+	}
+
+	public void addQuestCompletionCallback(string npc, string name, Action<Quest> callback)
+	{
+		questCompleteCallbacks.Add(name, callback);
+		if (tryGetQuest(npc, name, out Quest quest))
+		{
+			if (quest.isCompleted)
+				callback(quest);
+		}
+	}
+
+	public bool getQuestList(string name, out List<Quest> questList)
+	{
+		return quests.TryGetValue(name, out questList);
+	}
+
+	public bool tryGetQuest(string npc, string name, out Quest quest)
+	{
+		if (quests.TryGetValue(npc, out List<Quest> questList))
+		{
+			for (int i = 0; i < questList.Count; i++)
+			{
+				if (questList[i].name == name)
+				{
+					quest = questList[i];
+					return true;
+				}
+			}
+		}
+		quest = null;
+		return false;
+	}
+
+	public void onKill(Mob mob)
+	{
+		foreach (var pair in quests)
+		{
+			for (int i = 0; i < pair.Value.Count; i++)
+			{
+				Quest quest = pair.Value[i];
+				if (quest.state == QuestState.InProgress)
+					pair.Value[i].onKill(mob);
+			}
+		}
 	}
 
 
@@ -68,6 +136,22 @@ public class SaveFile
 			save.highscores = new RunData[highscoresDat.size];
 			for (int i = 0; i < highscoresDat.size; i++)
 				save.highscores[i] = LoadRun(highscoresDat[i].obj);
+
+			DatArray quests = dat.getField("quests")?.array;
+			if (quests != null)
+			{
+				for (int i = 0; i < quests.size; i++)
+				{
+					DatObject questDat = quests[i].obj;
+					string npc = questDat.getField("npc").identifier;
+					string name = questDat.getField("name").identifier;
+					QuestState state = Utils.ParseEnum<QuestState>(questDat.getField("state").identifier);
+					Quest quest = Quest.questInstances[name];
+					quest.state = state;
+					quest.load(questDat);
+					save.addQuest(npc, quest);
+				}
+			}
 		}
 		else
 		{
@@ -85,6 +169,8 @@ public class SaveFile
 
 			Save(save);
 		}
+
+		Update(save);
 
 		return save;
 	}
@@ -113,6 +199,97 @@ public class SaveFile
 			data.passiveItems[i] = Item.GetItemPrototype(items2[i].uinteger);
 
 		return data;
+	}
+
+	public static void Save(SaveFile save)
+	{
+		DatFile file = new DatFile();
+
+		{
+			DatValue[] flags = new DatValue[save.flags.Count];
+			int i = 0;
+			foreach (uint flag in save.flags)
+			{
+				flags[i++] = new DatValue(flag);
+			}
+			file.addArray("flags", new DatArray(flags));
+		}
+
+		DatValue[] highscoresDat = new DatValue[save.highscores.Length];
+		for (int i = 0; i < save.highscores.Length; i++)
+		{
+			DatObject run = new DatObject();
+			run.addInteger("score", save.highscores[i].score);
+			run.addInteger("floor", save.highscores[i].floor);
+			run.addNumber("time", save.highscores[i].time);
+			run.addInteger("kills", save.highscores[i].kills);
+
+			DatValue[] items0 = new DatValue[save.highscores[i].handItems.Length];
+			for (int j = 0; j < save.highscores[i].handItems.Length; j++)
+				items0[j] = new DatValue(save.highscores[i].handItems[j] != null ? save.highscores[i].handItems[j].id : 0);
+			run.addArray("items0", new DatArray(items0));
+
+			DatValue[] items1 = new DatValue[save.highscores[i].activeItems.Length];
+			for (int j = 0; j < save.highscores[i].activeItems.Length; j++)
+				items1[j] = new DatValue(save.highscores[i].activeItems[j] != null ? save.highscores[i].activeItems[j].id : 0);
+			run.addArray("items1", new DatArray(items1));
+
+			DatValue[] items2 = new DatValue[save.highscores[i].passiveItems.Length];
+			for (int j = 0; j < save.highscores[i].passiveItems.Length; j++)
+				items2[j] = new DatValue(save.highscores[i].passiveItems[j] != null ? save.highscores[i].passiveItems[j].id : 0);
+			run.addArray("items2", new DatArray(items2));
+
+			highscoresDat[i] = new DatValue(run);
+		}
+		file.addArray("highscores", new DatArray(highscoresDat));
+
+		List<DatValue> quests = new List<DatValue>();
+		foreach (var pair in save.quests)
+		{
+			for (int i = 0; i < pair.Value.Count; i++)
+			{
+				Quest quest = pair.Value[i];
+
+				DatObject questDat = new DatObject();
+				questDat.addIdentifier("npc", pair.Key);
+				questDat.addIdentifier("name", quest.name);
+				questDat.addIdentifier("state", quest.state.ToString());
+				quest.save(questDat);
+
+				quests.Add(new DatValue(questDat));
+			}
+		}
+		file.addArray("quests", new DatArray(quests.ToArray()));
+
+		file.serialize(save.path);
+
+#if DEBUG
+		Utils.RunCommand("xcopy", "/y \"" + save.path + "\" \"..\\..\\..\\\"");
+#endif
+
+		Console.WriteLine("Saved file " + save.id);
+	}
+
+	public static void Update(SaveFile save)
+	{
+		foreach (var pair in save.quests)
+		{
+			for (int i = 0; i < pair.Value.Count; i++)
+			{
+				Quest quest = pair.Value[i];
+				if (quest.state == QuestState.InProgress && quest.completionRequirementsMet())
+				{
+					quest.state = QuestState.Completed;
+
+					if (save.questCompleteCallbacks.TryGetValue(quest.name, out Action<Quest> callback))
+						callback(quest);
+					quest.onCompleted();
+
+					if (GameState.instance.player != null)
+						GameState.instance.player.hud.showMessage("Completed quest \"" + quest.displayName + "\"");
+				}
+			}
+		}
 	}
 
 	public static void OnRunFinished(RunStats run, SaveFile save)
@@ -164,56 +341,5 @@ public class SaveFile
 			save.highscores[idx].passiveItems[i] = player.passiveItems[i].copy();
 
 		Save(save);
-	}
-
-	public static void Save(SaveFile save)
-	{
-		DatFile file = new DatFile();
-
-		{
-			DatValue[] flags = new DatValue[save.flags.Count];
-			int i = 0;
-			foreach (uint flag in save.flags)
-			{
-				flags[i++] = new DatValue(flag);
-			}
-			file.addArray("flags", new DatArray(flags));
-		}
-
-		DatValue[] highscoresDat = new DatValue[save.highscores.Length];
-		for (int i = 0; i < save.highscores.Length; i++)
-		{
-			DatObject run = new DatObject();
-			run.addInteger("score", save.highscores[i].score);
-			run.addInteger("floor", save.highscores[i].floor);
-			run.addNumber("time", save.highscores[i].time);
-			run.addInteger("kills", save.highscores[i].kills);
-
-			DatValue[] items0 = new DatValue[save.highscores[i].handItems.Length];
-			for (int j = 0; j < save.highscores[i].handItems.Length; j++)
-				items0[j] = new DatValue(save.highscores[i].handItems[j] != null ? save.highscores[i].handItems[j].id : 0);
-			run.addArray("items0", new DatArray(items0));
-
-			DatValue[] items1 = new DatValue[save.highscores[i].activeItems.Length];
-			for (int j = 0; j < save.highscores[i].activeItems.Length; j++)
-				items1[j] = new DatValue(save.highscores[i].activeItems[j] != null ? save.highscores[i].activeItems[j].id : 0);
-			run.addArray("items1", new DatArray(items1));
-
-			DatValue[] items2 = new DatValue[save.highscores[i].passiveItems.Length];
-			for (int j = 0; j < save.highscores[i].passiveItems.Length; j++)
-				items2[j] = new DatValue(save.highscores[i].passiveItems[j] != null ? save.highscores[i].passiveItems[j].id : 0);
-			run.addArray("items2", new DatArray(items2));
-
-			highscoresDat[i] = new DatValue(run);
-		}
-		file.addArray("highscores", new DatArray(highscoresDat));
-
-		file.serialize(save.path);
-
-#if DEBUG
-		Utils.RunCommand("xcopy", "/y \"" + save.path + "\" \"..\\..\\..\\\"");
-#endif
-
-		Console.WriteLine("Saved file " + save.id);
 	}
 }

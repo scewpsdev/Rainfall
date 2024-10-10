@@ -132,6 +132,7 @@ public class GameState : State
 
 		//run = new RunStats(12345678);
 		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString(), seed != null);
+		save.onReset();
 
 		LevelGenerator generator = new LevelGenerator();
 
@@ -187,7 +188,7 @@ public class GameState : State
 		npc.buysItems = false;
 		hub.addEntity(npc, (Vector2)hub.rooms[0].getMarker(10) + new Vector2(-20, 0));
 
-		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_INIT))
+		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
 		{
 			RatNPC rat = new RatNPC();
 			rat.clearShop();
@@ -215,11 +216,11 @@ public class GameState : State
 		tutorial.addEntity(tutorialEntrance, (Vector2)tutorial.rooms[0].getMarker(33));
 		tutorial.addEntity(tutorialExit, (Vector2)tutorial.rooms[0].getMarker(01));
 
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + InputManager.GetBinding("Left").ToString() + InputManager.GetBinding("Down").ToString() + InputManager.GetBinding("Right").ToString() + " to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 3));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Jump").ToString() + " to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 4.5f));
-		tutorial.addEntity(new TutorialText("Hold to jump higher", 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 2));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Down").ToString() + " to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 4));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + " to climb", 0xFFFFFFFF), new Vector2(42, tutorial.height - 15));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + InputManager.GetBinding("Left").ToString() + InputManager.GetBinding("Down").ToString() + InputManager.GetBinding("Right").ToString() + " to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 8));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Jump").ToString() + " to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 9.5f));
+		tutorial.addEntity(new TutorialText("Hold to jump higher", 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 7));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Down").ToString() + " to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 9));
+		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + " to climb", 0xFFFFFFFF), new Vector2(42, tutorial.height - 20));
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Sprint").ToString() + " to sprint", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(04));
 
 		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(02));
@@ -543,6 +544,7 @@ public class GameState : State
 		}
 
 		run.update(isPaused);
+		SaveFile.Update(save);
 
 		if (newLevel != null && (Time.currentTime - levelSwitchTime) / 1e9f >= LEVEL_FADE)
 		{
@@ -580,7 +582,7 @@ public class GameState : State
 				ambientSource = 0;
 			}
 			if (level.ambientSound != null)
-				ambientSource = Audio.PlayBackground(level.ambientSound, 0.1f, 1, true, 10);
+				ambientSource = Audio.PlayBackground(level.ambientSound, 0.6f, 1, true, 10);
 		}
 
 		if (!isPaused && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
