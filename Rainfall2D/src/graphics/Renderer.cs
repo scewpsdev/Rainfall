@@ -2,6 +2,7 @@
 using Rainfall2D;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -33,6 +34,17 @@ public static class Renderer
 		public FloatRect rect;
 		public Vector4 color;
 		public bool solid;
+	}
+
+	struct SpriteExDraw
+	{
+		public Vector3 vertex0;
+		public Vector3 vertex1;
+		public Vector3 vertex2;
+		public Vector3 vertex3;
+		public Texture texture;
+		public FloatRect rect;
+		public Vector4 color;
 	}
 
 	struct UIDraw
@@ -92,6 +104,7 @@ public static class Renderer
 	static SpriteBatch additiveBatch;
 	static Shader spriteShader;
 	static List<SpriteDraw> draws = new List<SpriteDraw>();
+	static List<SpriteExDraw> exDraws = new List<SpriteExDraw>();
 	static List<SpriteDraw> additiveDraws = new List<SpriteDraw>();
 	static List<SpriteDraw> verticalDraws = new List<SpriteDraw>();
 
@@ -394,6 +407,21 @@ public static class Renderer
 		DrawOutline(x, y, 0.00001f, width, height, 0, sprite, flipped, color);
 	}
 
+	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, int u0, int v0, int w, int h, Vector4 color)
+	{
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
+		exDraws.Add(new SpriteExDraw
+		{
+			vertex0 = vertex0,
+			vertex1 = vertex1,
+			vertex2 = vertex2,
+			vertex3 = vertex3,
+			texture = texture,
+			rect = rect,
+			color = color
+		});
+	}
+
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -685,7 +713,7 @@ public static class Renderer
 
 		graphics.setViewTransform(projection, view);
 
-		spriteBatch.begin(draws.Count + verticalDraws.Count);
+		spriteBatch.begin(draws.Count + exDraws.Count + verticalDraws.Count);
 		for (int i = 0; i < draws.Count; i++)
 		{
 			SpriteDraw draw = draws[i];
@@ -717,6 +745,12 @@ public static class Renderer
 					u0, v0, u1, v1,
 					draw.color, draw.solid ? 0.0f : 1.0f);
 			}
+		}
+		for (int i = 0; i < exDraws.Count; i++)
+		{
+			SpriteExDraw draw = exDraws[i];
+			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+			spriteBatch.draw(draw.vertex0, draw.vertex1, draw.vertex2, draw.vertex3, draw.texture, uint.MaxValue, u0, v0, u1, v1, draw.color);
 		}
 		for (int i = 0; i < verticalDraws.Count; i++)
 		{
@@ -1038,6 +1072,7 @@ public static class Renderer
 		UIPass();
 
 		draws.Clear();
+		exDraws.Clear();
 		additiveDraws.Clear();
 		verticalDraws.Clear();
 		uiDraws.Clear();

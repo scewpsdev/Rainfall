@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class GlassRing : Item
 {
-	AttackModifier modifier;
+	Modifier modifier = new Modifier() { attackDamageModifier = 2, defenseModifier = 0.5f };
 
 
 	public GlassRing()
@@ -26,16 +26,11 @@ public class GlassRing : Item
 
 	public override void onEquip(Player player)
 	{
-		player.attackDamageModifier *= 2;
-		player.defenseModifier *= 0.5f;
-		player.addStatusEffect(modifier = new AttackModifier(2, false));
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.attackDamageModifier /= 2;
-		player.defenseModifier /= 0.5f;
-		player.removeStatusEffect(modifier);
-		modifier = null;
+		player.modifiers.Remove(modifier);
 	}
 }

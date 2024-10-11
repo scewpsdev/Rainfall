@@ -27,7 +27,7 @@ public class SpellCastAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		duration = 1.0f / spell.attackRate / weapon.attackRate / player.attackSpeedModifier;
+		duration = 1.0f / spell.attackRate / weapon.attackRate / player.getAttackSpeedModifier();
 
 		spell.cast(player, weapon);
 		player.consumeMana(manaCost);

@@ -25,11 +25,11 @@ public class CrossbowShootAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.02f;
-		direction = (direction + inaccuracy / (weapon.accuracy * player.accuracyModifier)).normalized;
+		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
 
 		Vector2 position = player.position + player.collider.center;
 		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);

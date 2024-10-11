@@ -14,6 +14,7 @@ public class StartingClass
 
 
 	public static StartingClass barbarian;
+	public static StartingClass knight;
 	public static StartingClass hunter;
 	public static StartingClass thief;
 	public static StartingClass wizard;
@@ -24,6 +25,7 @@ public class StartingClass
 	static StartingClass()
 	{
 		barbarian = new StartingClass() { name = "Barbarian", cost = 8, items = [new LeatherArmor(), new Handaxe(), new BerserkersChain()] };
+		knight = new StartingClass() { name = "Knight", cost = 8, items = [new Shortsword(), new IronShield(), new ChainmailHood(), new IronArmor()] };
 		hunter = new StartingClass() { name = "Hunter", cost = 8, items = [new Shortbow(), new Arrow() { stackSize = 50 }, new HuntersHat(), new EaglesEye()] };
 		thief = new StartingClass() { name = "Thief", cost = 8, items = [new Dagger(), new DarkHood(), new DarkCloak(), (new PoisonVial() { stackSize = 3 }).makeThrowable(), new Nightstalker()] };
 		wizard = new StartingClass() { name = "Wizard", cost = 8, items = [new MagicStaff(), new MagicArrowSpell(), new WizardsHood(), new WizardsCloak(), new WizardsLegacy()] };

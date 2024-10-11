@@ -25,6 +25,7 @@ public class BlockAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
+		//direction = Settings.game.aimMode == AimMode.Simple ? new Vector2(player.direction, 0) : player.lookDirection.normalized;
 		direction = player.lookDirection.normalized;
 		player.blockingItem = shield;
 	}

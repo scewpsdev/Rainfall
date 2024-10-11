@@ -56,7 +56,7 @@ public class LightningProjectile : Entity
 
 		damage = spell.attackDamage * staff.attackDamage;
 		if (shooter is Player)
-			damage *= (shooter as Player).attackDamageModifier;
+			damage *= (shooter as Player).getAttackDamageModifier();
 
 		sprite = new Sprite(Item.tileset, 9, 2);
 		lightning = Resource.GetTexture("res/sprites/lightning.png", false);

@@ -50,7 +50,7 @@ public class ElderwoodStaff : Item
 		Spell spell = player.activeItems[player.selectedActiveItem] as Spell;
 		if (spell != null)
 		{
-			float manaCost = spell.manaCost * this.manaCost * player.manaCostModifier;
+			float manaCost = spell.manaCost * this.manaCost * player.getManaCostModifier();
 			if (player.mana >= manaCost)
 				player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
 		}

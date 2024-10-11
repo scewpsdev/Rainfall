@@ -156,6 +156,8 @@ public class GameState : State
 
 		generator.generateHub(hub);
 
+		hub.addEntity(new HubRoom(hub.rooms[0]));
+
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
@@ -165,13 +167,14 @@ public class GameState : State
 
 		hub.addEntity(new Fountain(FountainEffect.None), hub.rooms[0].getMarker(11) + new Vector2(7, 0));
 
-		ArmorStand barbarianClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
+		ArmorStand barbarianClass, knightClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
 
 #if DEBUG
-		hub.addEntity(devClass = new ArmorStand(StartingClass.dev), hub.rooms[0].getMarker(10) + new Vector2(-2, 0));
+		hub.addEntity(devClass = new ArmorStand(StartingClass.dev), hub.rooms[0].getMarker(10) + new Vector2(2, 0));
 #endif
 
-		hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.rooms[0].getMarker(10) + new Vector2(-4, 0));
+		hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.rooms[0].getMarker(10) + new Vector2(-2, 0));
+		hub.addEntity(knightClass = new ArmorStand(StartingClass.knight), hub.rooms[0].getMarker(10) + new Vector2(-4, 0));
 		hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter), hub.rooms[0].getMarker(10) + new Vector2(-6, 0));
 		hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.rooms[0].getMarker(10) + new Vector2(-8, 0));
 		hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard), hub.rooms[0].getMarker(10) + new Vector2(-10, 0));
@@ -188,6 +191,7 @@ public class GameState : State
 		npc.buysItems = false;
 		hub.addEntity(npc, (Vector2)hub.rooms[0].getMarker(10) + new Vector2(-20, 0));
 
+		hub.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
 		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
 		{
 			RatNPC rat = new RatNPC();
@@ -281,7 +285,8 @@ public class GameState : State
 			for (int i = 0; i < areaCaves.Length; i++)
 				areaCaves[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
 
-			Door dungeonDoor = new Door(areaCaves[0], null, true);
+			Door dungeonDoor = new Door(areaCaves[0], null, true, ParallaxObject.ZToLayer(0.75f));
+			dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
 			hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(11));
 
 			Level lastLevel = hub;

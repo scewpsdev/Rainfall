@@ -23,7 +23,7 @@ public class RevolverShootAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		duration = 1.0f / weapon.attackRate / player.attackSpeedModifier;
+		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 
 		Vector2 direction = Vector2.Zero;
 		if (InputManager.IsDown("Up"))
