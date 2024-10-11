@@ -33,7 +33,7 @@ public class MissileSpell : Spell
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
-		direction = (direction + inaccuracy / (staff.accuracy * player.accuracyModifier)).normalized;
+		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
 		GameState.instance.level.addEntity(new MagicMissileProjectile(direction, player.velocity, offset, player, staff, this), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class RingOfDexterity : Item
 {
-	AttackSpeedModifier modifier;
+	Modifier modifier = new Modifier() { attackSpeedModifier = 1.2f };
 
 	public RingOfDexterity()
 		: base("ring_of_dexterity", ItemType.Relic)
@@ -23,14 +23,17 @@ public class RingOfDexterity : Item
 
 	public override void onEquip(Player player)
 	{
-		player.attackSpeedModifier *= 1.2f + 0.2f * upgradeLevel;
-		player.addStatusEffect(modifier = new AttackSpeedModifier());
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.attackSpeedModifier /= 1.2f + 0.2f * upgradeLevel;
-		player.removeStatusEffect(modifier);
-		modifier = null;
+		player.modifiers.Remove(modifier);
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		modifier.attackSpeedModifier = 1.2f + 0.2f * upgradeLevel;
 	}
 }

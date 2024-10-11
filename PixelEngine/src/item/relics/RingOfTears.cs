@@ -11,7 +11,7 @@ public class RingOfTears : Item
 	bool active = false;
 
 	float buff = 0.5f;
-	AttackModifier modifier;
+	Modifier modifier = new Modifier() { };
 
 
 	public RingOfTears()
@@ -28,17 +28,14 @@ public class RingOfTears : Item
 
 	void activate(Player player)
 	{
-		player.attackDamageModifier *= 1 + buff;
+		player.modifiers.Add(modifier);
 		active = true;
-		player.addStatusEffect(modifier = new AttackModifier(1 + buff));
 	}
 
 	void deactivate(Player player)
 	{
-		player.attackDamageModifier /= 1 + buff;
+		player.modifiers.Remove(modifier);
 		active = false;
-		player.removeStatusEffect(modifier);
-		modifier = null;
 	}
 
 	public override void onUnequip(Player player)
@@ -58,6 +55,8 @@ public class RingOfTears : Item
 			else if (player.health > 1.1f && active)
 				deactivate(player);
 		}
+
+		modifier.attackDamageModifier = 1 + buff;
 	}
 
 	public override void upgrade()

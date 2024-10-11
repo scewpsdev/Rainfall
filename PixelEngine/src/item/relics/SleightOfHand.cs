@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class SleightOfHand : Item
 {
+	Modifier modifier = new Modifier() { attackSpeedModifier = 1.15f };
+
 	public SleightOfHand()
 		: base("sleight_of_hand", ItemType.Relic)
 	{
@@ -23,11 +25,11 @@ public class SleightOfHand : Item
 
 	public override void onEquip(Player player)
 	{
-		player.attackSpeedModifier *= 1 + 0.15f;
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.attackSpeedModifier /= 1 + 0.15f;
+		player.modifiers.Remove(modifier);
 	}
 }

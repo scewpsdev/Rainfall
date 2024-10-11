@@ -40,7 +40,7 @@ public class AttackAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		duration /= player.attackSpeedModifier;
+		duration /= player.getAttackSpeedModifier();
 
 		direction = player.lookDirection.normalized;
 		startAngle = new Vector2(MathF.Abs(direction.x), direction.y).angle;
@@ -63,11 +63,12 @@ public class AttackAction : EntityAction
 				{
 					Hittable hittable = hits[i].entity as Hittable;
 
-					float damage = attackDamage * player.attackDamageModifier;
+					float damage = attackDamage * player.getAttackDamageModifier();
 
-					bool stealthAttack = hittable is Mob && (hittable as Mob).ai.target != player && player.stealthAttackModifier > 1;
+					float stealthAttackModifier = player.getStealthAttackModifier();
+					bool stealthAttack = hittable is Mob && (hittable as Mob).ai.target != player && stealthAttackModifier > 1;
 					if (stealthAttack)
-						damage *= player.stealthAttackModifier;
+						damage *= stealthAttackModifier;
 
 					//bool critical = Random.Shared.NextSingle() < weapon.criticalChance;
 					//if (critical)

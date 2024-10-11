@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class Spellweaver : Item
 {
+	Modifier modifier = new Modifier() { manaCostModifier = 0.8f };
+
 	public Spellweaver()
 		: base("spellweaver", ItemType.Relic)
 	{
@@ -22,11 +24,11 @@ public class Spellweaver : Item
 
 	public override void onEquip(Player player)
 	{
-		player.manaCostModifier *= 1 - 0.2f;
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.manaCostModifier /= 1 - 0.2f;
+		player.modifiers.Remove(modifier);
 	}
 }

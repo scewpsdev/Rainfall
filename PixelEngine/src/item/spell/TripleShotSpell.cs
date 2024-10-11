@@ -48,7 +48,7 @@ public class TripleShotSpell : Spell
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.03f;
-		direction = (direction + inaccuracy / (staff.accuracy * player.accuracyModifier)).normalized;
+		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, staff, this), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 

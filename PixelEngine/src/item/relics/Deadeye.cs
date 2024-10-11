@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class Deadeye : Item
 {
+	Modifier modifier = new Modifier() { accuracyModifier = 1.5f };
+
 	public Deadeye()
 		: base("deadeye", ItemType.Relic)
 	{
@@ -23,11 +25,11 @@ public class Deadeye : Item
 
 	public override void onEquip(Player player)
 	{
-		player.accuracyModifier *= 1.5f;
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.accuracyModifier /= 1.5f;
+		player.modifiers.Remove(modifier);
 	}
 }

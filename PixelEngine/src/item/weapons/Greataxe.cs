@@ -20,7 +20,7 @@ public class Greataxe : Item
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 1.0f;
-		weight = 3;
+		weight = 5;
 
 		value = 72;
 

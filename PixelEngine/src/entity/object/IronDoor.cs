@@ -12,7 +12,7 @@ public class IronDoor : Entity, Interactable
 	Sprite frameSprite;
 	uint outline = 0;
 
-	Item key;
+	public string key;
 	bool open = false;
 	float openProgress = 0.0f;
 
@@ -21,7 +21,7 @@ public class IronDoor : Entity, Interactable
 	bool closeSoundPlayed;
 
 
-	public IronDoor(Item key)
+	public IronDoor(string key)
 	{
 		this.key = key;
 
@@ -48,11 +48,11 @@ public class IronDoor : Entity, Interactable
 		{
 			if (key != null)
 			{
-				bool hasKey = player.hasItem(key);
+				Item key = player.getItem(this.key);
 				Item lockpick = player.getItem("lockpick");
-				if (hasKey || lockpick != null)
+				if (key != null || lockpick != null)
 				{
-					if (hasKey)
+					if (key != null)
 					{
 						setOpen(true);
 						player.removeItem(key);
@@ -73,7 +73,7 @@ public class IronDoor : Entity, Interactable
 						player.removeItem(lockpick);
 					}
 
-					key = null;
+					this.key = null;
 				}
 				else
 				{
@@ -106,14 +106,14 @@ public class IronDoor : Entity, Interactable
 		this.open = open;
 
 		Vector2i tile = (Vector2i)Vector2.Floor(position + new Vector2(0, 0.5f));
-		GameState.instance.level.setTile(tile.x, tile.y, open ? null : TileType.dummy);
+		level.setTile(tile.x, tile.y, open ? null : TileType.dummy);
 
 		if (open)
 			Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
 		else
 		{
 			HitData[] hits = new HitData[16];
-			int numHits = GameState.instance.level.overlap((Vector2)tile, (Vector2)tile + 1, hits, FILTER_DEFAULT | FILTER_ITEM | FILTER_PLAYER | FILTER_MOB | FILTER_PROJECTILE);
+			int numHits = level.overlap((Vector2)tile, (Vector2)tile + 1, hits, FILTER_DEFAULT | FILTER_ITEM | FILTER_PLAYER | FILTER_MOB | FILTER_PROJECTILE);
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;

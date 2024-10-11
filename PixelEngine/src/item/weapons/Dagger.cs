@@ -28,7 +28,7 @@ public class Dagger : Item
 		value = 4;
 
 		sprite = new Sprite(tileset, 8, 6);
-		renderOffset.x = 0.0f;
+		renderOffset.x = 0.2f;
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
 	}

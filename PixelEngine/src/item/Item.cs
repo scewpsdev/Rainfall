@@ -231,7 +231,7 @@ public abstract class Item
 		{
 			if (type == ItemType.Weapon || type == ItemType.Staff)
 			{
-				float dps = attackDamage * attackRate;
+				float dps = MathF.Pow(attackDamage, 1.5f) * attackRate;
 				return (int)(dps * 10 * (1 + upgradeLevel * 0.5f));
 			}
 			else if (type == ItemType.Armor)
@@ -430,6 +430,9 @@ public abstract class Item
 		InitType(new WoodenShield());
 		InitType(new Waraxe());
 		InitType(new MoonbladeAxe());
+		InitType(new Shortsword());
+		InitType(new IronArmor());
+		InitType(new Formation());
 	}
 
 	static void InitType(Item item)

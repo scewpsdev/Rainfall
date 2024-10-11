@@ -15,6 +15,7 @@ public class IronShield : Item
 
 		armor = 3;
 		value = 25;
+		weight = 2;
 
 		isSecondaryItem = true;
 

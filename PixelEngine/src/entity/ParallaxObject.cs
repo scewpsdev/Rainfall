@@ -27,17 +27,39 @@ public class ParallaxObject : Entity
 	{
 		float width = sprite.size.x / 16.0f;
 		float height = sprite.size.y / 16.0f;
-		float parallax = MathF.Pow(0.5f, layer);
-		float xoffset = (GameState.instance.camera.position.x - position.x) * (1 - parallax);
-		float yoffset = (GameState.instance.camera.position.y - position.y) * (1 - parallax);
 
-		float distance = MathF.Pow(2, layer) - 1;
+		float distance = LayerToZ(layer);
 		float fog = MathF.Exp(-distance * GameState.instance.level.fogFalloff);
-		//Vector3 color = Vector3.Lerp(GameState.instance.level.fogColor, Vector3.One, fog);
+
+		Vector3 vertex = ParallaxEffect(position, layer);
+
+		Renderer.DrawSprite(vertex.x - 0.5f * width, vertex.y - 0.5f * height, vertex.z, width, height, 0, sprite, false, Vector4.One);
+		Renderer.DrawSpriteSolid(vertex.x - 0.5f * width, vertex.y - 0.5f * height, vertex.z - 0.001f, width, height, 0, sprite, false, MathHelper.VectorToARGB(new Vector4(GameState.instance.level.fogColor, 1 - fog)));
+	}
+
+	public static Vector3 ParallaxEffect(Vector2 vertex, float layer)
+	{
+		float parallax = MathF.Pow(0.5f, layer);
+		float xoffset = (GameState.instance.camera.position.x - vertex.x) * (1 - parallax);
+		float yoffset = (GameState.instance.camera.position.y - vertex.y) * (1 - parallax);
 
 		float z = 0.9f + 0.01f * layer;
 
-		Renderer.DrawSprite(position.x + xoffset - 0.5f * width, position.y + yoffset - 0.5f * height, z, width, height, 0, sprite, false, Vector4.One);
-		Renderer.DrawSpriteSolid(position.x + xoffset - 0.5f * width, position.y + yoffset - 0.5f * height, z - 0.001f, width, height, 0, sprite, false, MathHelper.VectorToARGB(new Vector4(GameState.instance.level.fogColor, 1 - fog)));
+		return new Vector3(vertex.x + xoffset, vertex.y + yoffset, z);
+	}
+
+	public static Vector3 ParallaxEffect(Vector3 vertex)
+	{
+		return ParallaxEffect(vertex.xy, ZToLayer(vertex.z));
+	}
+
+	public static float LayerToZ(float layer)
+	{
+		return MathF.Pow(2, layer) - 1;
+	}
+
+	public static float ZToLayer(float z)
+	{
+		return MathF.Log2(1 + z);
 	}
 }

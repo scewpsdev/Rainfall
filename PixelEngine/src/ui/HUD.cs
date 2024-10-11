@@ -323,19 +323,49 @@ public class HUD
 		int x = Renderer.UIWidth / 2 + 8;
 		int y = Renderer.UIHeight - 4 - 16 - 12 - 12;
 
-		for (int i = 0; i < player.statusEffects.Count; i++)
+		void renderIcon(Sprite sprite, uint spriteColor, bool positive, float progress = -1)
 		{
-			StatusEffect effect = player.statusEffects[i];
-			uint color = effect.positiveEffect ? 0xFF777777 : 0xFF886666;
+			uint color = positive ? 0xFF777777 : 0xFF886666;
 
 			Renderer.DrawUISprite(x, y, size + 2, size + 2, null, false, color);
 			Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
-			Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, effect.icon, effect.iconColor);
+			Renderer.DrawUISprite(x + 1, y + 1, size, size, 0, sprite, spriteColor);
 
-			int overlayIdx = 16 - (int)(player.statusEffects[i].getProgress() * 16);
-			Renderer.DrawUISprite(x, y, size + 2, size + 2, cooldownOverlay[overlayIdx], true, 0xAF000000);
+			if (progress != -1)
+			{
+				int overlayIdx = Math.Clamp(16 - (int)(progress * 16), 0, 16);
+				Renderer.DrawUISprite(x, y, size + 2, size + 2, cooldownOverlay[overlayIdx], true, 0xAF000000);
+			}
 
-			x += effect.icon.width + 3;
+			x += sprite.width + 3;
+		}
+
+		for (int i = 0; i < player.modifiers.Count; i++)
+		{
+			Modifier modifier = player.modifiers[i];
+
+			if (modifier.movementSpeedModifier != 1)
+				renderIcon(Modifier.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.movementSpeedModifier > 1);
+			if (modifier.attackDamageModifier != 1)
+				renderIcon(Modifier.attackDamageModifierIcon, 0xFFFFFFFF, modifier.attackDamageModifier > 1);
+			if (modifier.attackSpeedModifier != 1)
+				renderIcon(Modifier.attackSpeedModifierIcon, 0xFFFFFFFF, modifier.attackSpeedModifier > 1);
+			if (modifier.manaCostModifier != 1)
+				renderIcon(Modifier.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaCostModifier < 1);
+			if (modifier.stealthAttackModifier != 1)
+				renderIcon(Modifier.stealthAttackModifierIcon, 0xFFFFFFFF, modifier.stealthAttackModifier > 1);
+			if (modifier.defenseModifier != 1)
+				renderIcon(Modifier.defenseModifierIcon, 0xFFFFFFFF, modifier.defenseModifier > 1);
+			if (modifier.accuracyModifier != 1)
+				renderIcon(Modifier.accuracyModifierIcon, 0xFFFFFFFF, modifier.accuracyModifier > 1);
+			if (modifier.criticalAttackModifier != 1)
+				renderIcon(Modifier.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalAttackModifier > 1);
+		}
+
+		for (int i = 0; i < player.statusEffects.Count; i++)
+		{
+			StatusEffect effect = player.statusEffects[i];
+			renderIcon(effect.icon, effect.iconColor, effect.positiveEffect, effect.getProgress());
 		}
 	}
 

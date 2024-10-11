@@ -14,7 +14,7 @@ public class BerserkersChain : Item
 	long lastTick = -1;
 	long lastKill = -1;
 
-	AttackModifier modifier;
+	Modifier modifier = new Modifier() { };
 
 
 	public BerserkersChain()
@@ -38,15 +38,12 @@ public class BerserkersChain : Item
 
 	public override void onKill(Player player, Mob mob)
 	{
-		float preDmg = damageMultiplier;
-
 		int lastBuffLevel = buffLevel;
 		buffLevel = Math.Min(buffLevel + 3, (2 - 1) * 20 + threshhold);
 		if (buffLevel > threshhold && lastBuffLevel <= threshhold)
 			onActivate(player);
 
-		float postDmg = damageMultiplier;
-		player.attackDamageModifier *= postDmg / preDmg;
+		modifier.attackDamageModifier = damageMultiplier;
 
 		lastKill = Time.currentTime;
 	}
@@ -55,13 +52,12 @@ public class BerserkersChain : Item
 
 	void onActivate(Player player)
 	{
-		player.addStatusEffect(modifier = new AttackModifier(1));
+		player.modifiers.Add(modifier);
 	}
 
 	void onDeactivate(Player player)
 	{
-		player.removeStatusEffect(modifier);
-		modifier = null;
+		player.modifiers.Remove(modifier);
 	}
 
 	public override void update(Entity entity)
@@ -74,20 +70,16 @@ public class BerserkersChain : Item
 			{
 				lastTick = Time.currentTime;
 
-				float preDmg = damageMultiplier;
-
 				int lastBuffLevel = buffLevel;
 				int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 5);
 				buffLevel = Math.Max(buffLevel - cooldown, 0);
 				if (buffLevel <= threshhold && lastBuffLevel > threshhold)
 					onDeactivate(player);
 
-				float postDmg = damageMultiplier;
-				player.attackDamageModifier *= postDmg / preDmg;
+				modifier.attackDamageModifier = damageMultiplier;
 			}
 
-			if (modifier != null)
-				modifier.strength = damageMultiplier;
+			modifier.auraStrength = damageMultiplier;
 		}
 	}
 }

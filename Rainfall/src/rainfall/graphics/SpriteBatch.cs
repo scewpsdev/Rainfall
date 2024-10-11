@@ -144,6 +144,54 @@ namespace Rainfall
 			drawVertical(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, additive);
 		}
 
+		public void draw(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		{
+			Vector2 uv0 = new Vector2(u0, v1);
+			Vector2 uv1 = new Vector2(u1, v1);
+			Vector2 uv2 = new Vector2(u1, v0);
+			Vector2 uv3 = new Vector2(u0, v0);
+
+			Native.SpriteBatch.SpriteBatch_Draw(handle, vertex0.x,
+				vertex0.y,
+				vertex0.z,
+				vertex1.x,
+				vertex1.y,
+				vertex1.z,
+				vertex2.x,
+				vertex2.y,
+				vertex2.z,
+				vertex3.x,
+				vertex3.y,
+				vertex3.z,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				0.0f,
+				1.0f,
+				uv0.x,
+				uv0.y,
+				uv1.x,
+				uv1.y,
+				uv2.x,
+				uv2.y,
+				uv3.x,
+				uv3.y,
+				color.x,
+				color.y,
+				color.z,
+				color.w,
+				1.0f,
+				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
+		}
+
 		public void draw(float x, float y, float z, float width, float height, float rotation, Vector2 rotationCenter, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, bool flipX, bool flipY, Vector4 color, float mask, Vector3 normal0, Vector3 normal1, Vector3 normal2, Vector3 normal3, bool additive = false)
 		{
 			float x0 = -rotationCenter.x;

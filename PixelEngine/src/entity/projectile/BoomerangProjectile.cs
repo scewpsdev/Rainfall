@@ -104,7 +104,7 @@ public class BoomerangProjectile : Projectile
 				{
 					float damage = item.attackDamage;
 					if (hit.entity is Player)
-						damage *= (hit.entity as Player).attackDamageModifier;
+						damage *= (hit.entity as Player).getAttackDamageModifier();
 
 					Hittable hittable = hit.entity as Hittable;
 					hittable.hit(damage, shooter, item);

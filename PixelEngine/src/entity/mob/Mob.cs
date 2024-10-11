@@ -64,6 +64,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	float distanceWalked = 0;
 
 	public bool isStunned = false;
+	bool criticalStun = false;
 	long stunTime = -1;
 	public bool isVisible = true;
 
@@ -93,12 +94,12 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		bool critical = item != null && Random.Shared.NextSingle() < item.criticalChance;
+		bool critical = isStunned && criticalStun || item != null && Random.Shared.NextSingle() < item.criticalChance;
 		if (critical)
 		{
 			damage *= 2;
 			if (by is Player)
-				damage *= (by as Player).criticalAttackModifier;
+				damage *= (by as Player).getCriticalAttackModifier();
 		}
 
 		health -= damage;
@@ -220,10 +221,13 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		remove();
 	}
 
-	public void stun(float stunDuration = 1)
+	public void stun(float stunDuration = 1, bool critical = false)
 	{
 		if (stunTime == -1 || (Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
+		{
 			stunTime = Time.currentTime + (long)((stunDuration - 1) * STUN_DURATION * 1e9f);
+			criticalStun = critical;
+		}
 	}
 
 	public StatusEffect addStatusEffect(StatusEffect effect)
@@ -254,6 +258,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		Vector2 delta = Vector2.Zero;
 
 		isStunned = stunTime != -1 && (Time.currentTime - stunTime) / 1e9f < STUN_DURATION;
+		criticalStun = criticalStun && isStunned;
 
 		if (!isStunned)
 		{

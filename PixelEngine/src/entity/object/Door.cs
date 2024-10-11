@@ -6,6 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public enum DoorSprite
+{
+	Small,
+	Big,
+	Invisible,
+}
+
 public class Door : Entity, Interactable
 {
 	public Level destination;
@@ -15,14 +22,16 @@ public class Door : Entity, Interactable
 	Sprite sprite;
 	FloatRect rect;
 	uint outline = 0;
+	float layer;
 
 	Sound openSound;
 
 
-	public Door(Level destination, Door otherDoor = null, bool big = false)
+	public Door(Level destination, Door otherDoor = null, bool big = false, float layer = 0)
 	{
 		this.destination = destination;
 		this.otherDoor = otherDoor;
+		this.layer = layer;
 
 		sprite = big ? new Sprite(TileType.tileset, 0, 9, 2, 2) : new Sprite(TileType.tileset, 2, 2);
 		rect = big ? new FloatRect(-1.0f, 0.0f, 2.0f, 2.0f) : new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
@@ -56,9 +65,11 @@ public class Door : Entity, Interactable
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, false, 0xFFFFFFFF);
+		Vector3 vertex = ParallaxObject.ParallaxEffect(position, layer);
+
+		Renderer.DrawSprite(vertex.x + rect.position.x, vertex.y + rect.position.y, layer == 0 ? LAYER_BG : vertex.z, rect.size.x, rect.size.y, 0, sprite, false, 0xFFFFFFFF);
 
 		if (outline != 0)
-			Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, false, outline);
+			Renderer.DrawOutline(vertex.x + rect.position.x, vertex.y + rect.position.y, (layer == 0 ? LAYER_BG : vertex.z) + 0.001f, rect.size.x, rect.size.y, 0, sprite, false, outline);
 	}
 }

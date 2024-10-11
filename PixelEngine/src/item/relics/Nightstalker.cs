@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class Nightstalker : Item
 {
+	Modifier modifier = new Modifier() { stealthAttackModifier = 2.0f };
+
 	public Nightstalker()
 		: base("nightstalker", ItemType.Relic)
 	{
@@ -24,11 +26,11 @@ public class Nightstalker : Item
 
 	public override void onEquip(Player player)
 	{
-		player.stealthAttackModifier *= 1 + 1;
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.stealthAttackModifier /= 1 + 1;
+		player.modifiers.Remove(modifier);
 	}
 }

@@ -45,7 +45,7 @@ public class Projectile : Entity
 		if (item != null)
 			damage = item.attackDamage;
 		if (shooter is Player)
-			damage *= (shooter as Player).attackDamageModifier;
+			damage *= (shooter as Player).getAttackDamageModifier();
 	}
 
 	public virtual void onHit(Vector2 normal)

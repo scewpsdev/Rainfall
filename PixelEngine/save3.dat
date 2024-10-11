@@ -1,20 +1,20 @@
-flags = [ 777027450, 3295548887, 1615716108 ]
+flags = [ 1615716108, 777027450 ]
 highscores = [ {
-score = 952
-floor = 0
-time = 105.68280029296875
-kills = 2
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0 ]
-items2 = [  ]
+score = 3014
+floor = 1
+time = 106.72830200195312
+kills = 6
+items0 = [ 7563864, 0 ]
+items1 = [ 2280768876, 0, 0, 0 ]
+items2 = [ 1505714389, 1596944642 ]
 }, {
-score = 952
-floor = 0
-time = 105.68280029296875
-kills = 2
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0 ]
-items2 = [  ]
+score = 3014
+floor = 1
+time = 106.72830200195312
+kills = 6
+items0 = [ 7563864, 0 ]
+items1 = [ 2280768876, 0, 0, 0 ]
+items2 = [ 1505714389, 1596944642 ]
 }, {
 score = 0
 floor = -1
@@ -24,11 +24,12 @@ items0 = [ 0, 0 ]
 items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
 }, {
-score = 952
-floor = 0
-time = 105.68280029296875
-kills = 2
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0 ]
-items2 = [  ]
+score = 3014
+floor = 1
+time = 106.72830200195312
+kills = 6
+items0 = [ 7563864, 0 ]
+items1 = [ 2280768876, 0, 0, 0 ]
+items2 = [ 1505714389, 1596944642 ]
 } ]
+quests = [  ]

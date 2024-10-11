@@ -31,7 +31,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 
 	public float speed = 6;
-	public float climbingSpeed = 6;
+	public float climbingSpeed = 5;
 	public float jumpPower = 10.5f; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
@@ -47,13 +47,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public int money = 0;
 
-	public float attackDamageModifier = 1.0f;
-	public float attackSpeedModifier = 1.0f;
-	public float manaCostModifier = 1.0f;
-	public float stealthAttackModifier = 1.0f;
-	public float defenseModifier = 1.0f;
-	public float accuracyModifier = 1.0f;
-	public float criticalAttackModifier = 1.0f;
+	public List<Modifier> modifiers = new List<Modifier>();
 
 	public int direction = 1;
 	public Vector2i aimPosition;
@@ -678,34 +672,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		velocity.y += impulse.y;
 	}
 
-	public int getTotalArmor()
-	{
-		int totalArmor = (handItem != null ? handItem.armor : 0) + (offhandItem != null ? offhandItem.armor : 0);
-		for (int i = 0; i < activeItems.Length; i++)
-		{
-			if (activeItems[i] != null)
-				totalArmor += activeItems[i].armor;
-		}
-		for (int i = 0; i < passiveItems.Count; i++)
-		{
-			totalArmor += passiveItems[i].armor;
-		}
-		return totalArmor;
-	}
-
-	public float getTotalEquipLoad()
-	{
-		float result = (handItem != null ? handItem.weight : 0) + (offhandItem != null ? offhandItem.weight : 0);
-		for (int i = 0; i < passiveItems.Count; i++)
-			result += passiveItems[i].weight;
-		return result;
-	}
-
-	public float getEquipLoadModifier()
-	{
-		return MathF.Exp(-getTotalEquipLoad() * 0.03f);
-	}
-
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		if (!isAlive)
@@ -734,7 +700,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (projectile == null && itemEntity == null)
 				{
-					mob.stun(3);
+					mob.stun(3, true);
 					mob.addImpulse(new Vector2(direction, 0.1f) * 8);
 					if (blockingItem.damageReflect > 0)
 						mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
@@ -767,7 +733,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			int totalArmor = getTotalArmor();
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
-			damage /= defenseModifier;
+			damage /= getDefenseModifier();
 
 			health -= damage;
 
@@ -822,13 +788,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			Item handItemCopy = handItem.copy();
 			Vector2 direction = new Vector2(0, 1) + MathHelper.RandomVector2(-0.5f, 0.5f);
-			throwItem(handItemCopy, direction, 14, false);
+			throwItem(handItemCopy, direction, 10, false);
 		}
 		if (offhandItem != null)
 		{
 			Item offhandItemCopy = offhandItem.copy();
 			Vector2 direction = new Vector2(0, 1) + MathHelper.RandomVector2(-0.5f, 0.5f);
-			throwItem(offhandItemCopy, direction, 14, false);
+			throwItem(offhandItemCopy, direction, 10, false);
 		}
 
 		for (int i = 0; i < passiveItems.Count; i++)
@@ -1052,7 +1018,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			//else if (delta.x < 0)
 			//	direction = -1;
 
-			velocity.x = delta.x * currentSpeed;
+			velocity.x = delta.x * speed * currentSpeedModifier;
 
 			isMoving = true;
 		}
@@ -1094,10 +1060,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					direction = MathF.Sign(delta.x);
 				if (InputManager.IsDown("Up"))
 					lookDirection = Vector2.Up;
-				else if (InputManager.IsDown("Down"))
+				else if (!isGrounded && InputManager.IsDown("Down"))
 					lookDirection = Vector2.Down;
 				else
-					lookDirection = new Vector2(direction, 0.05f);
+					lookDirection = new Vector2(direction, 0);
 			}
 			else if (Settings.game.aimMode == AimMode.Directional)
 			{
@@ -1174,7 +1140,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		else
 		{
-			velocity.y = delta.y * climbingSpeed;
+			velocity.y = delta.y * climbingSpeed * equipLoadModifier;
 		}
 
 		Vector2 displacement = velocity * Time.deltaTime;
@@ -1193,8 +1159,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				stun();
 			if (fallDistance >= FALL_DAMAGE_DISTANCE)
 			{
-				float dmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.1f;
-				hit(dmg, null, null, "A high fall", false);
+				float fallDmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.2f / equipLoadModifier;
+				hit(fallDmg, null, null, "A high fall", false);
 			}
 			if (velocity.y < -10)
 				onLand();
@@ -1468,7 +1434,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					{
 						animator.setAnimation("run");
 						animator.startTime = startTime;
-						animator.getAnimation("run").fps = currentSpeed / 6 * 12;
+						animator.getAnimation("run").fps = currentSpeedModifier * 12;
 					}
 					else
 					{
@@ -1679,15 +1645,105 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		get => health > 0;
 	}
 
-	public float currentSpeed
+	public float equipLoadModifier => MathF.Exp(-getTotalEquipLoad() * 0.025f);
+
+	public float currentSpeedModifier
 	{
 		get
 		{
-			float value = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isGrounded && isDucked ? DUCKED_MULTIPLIER : 1) * speed;
-			value *= getEquipLoadModifier();
+			float value = (isSprinting ? SPRINT_MULTIPLIER : 1) * (isGrounded && isDucked ? DUCKED_MULTIPLIER : 1);
+			value *= equipLoadModifier;
+			value *= getMovementSpeedModifier();
 			if (actions.currentAction != null)
 				value *= actions.currentAction.speedMultiplier;
 			return value;
 		}
+	}
+
+	public float getMovementSpeedModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.movementSpeedModifier;
+		return value;
+	}
+
+	public float getAttackDamageModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.attackDamageModifier;
+		return value;
+	}
+
+	public float getAttackSpeedModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.attackSpeedModifier;
+		return value;
+	}
+
+	public float getManaCostModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.manaCostModifier;
+		return value;
+	}
+
+	public float getStealthAttackModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.stealthAttackModifier;
+		return value;
+	}
+
+	public float getDefenseModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.defenseModifier;
+		return value;
+	}
+
+	public float getAccuracyModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.accuracyModifier;
+		return value;
+	}
+
+	public float getCriticalAttackModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.criticalAttackModifier;
+		return value;
+	}
+
+	public int getTotalArmor()
+	{
+		int totalArmor = (handItem != null ? handItem.armor : 0) + (offhandItem != null ? offhandItem.armor : 0);
+		for (int i = 0; i < activeItems.Length; i++)
+		{
+			if (activeItems[i] != null)
+				totalArmor += activeItems[i].armor;
+		}
+		for (int i = 0; i < passiveItems.Count; i++)
+		{
+			totalArmor += passiveItems[i].armor;
+		}
+		return totalArmor;
+	}
+
+	public float getTotalEquipLoad()
+	{
+		float result = (handItem != null ? handItem.weight : 0) + (offhandItem != null ? offhandItem.weight : 0);
+		for (int i = 0; i < passiveItems.Count; i++)
+			result += passiveItems[i].weight;
+		return result;
 	}
 }

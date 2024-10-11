@@ -766,7 +766,7 @@ public class LevelGenerator
 							else
 								level.addEntity(new ItemEntity(key), keySpawn + 0.5f);
 
-							level.addEntity(new IronDoor(key), doorPosition + new Vector2(0.5f, 0));
+							level.addEntity(new IronDoor(key.name), doorPosition + new Vector2(0.5f, 0));
 						}
 						else
 						{
@@ -803,7 +803,7 @@ public class LevelGenerator
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 		rooms = new List<Room>();
 
-		int width = spawnStartingRoom ? MathHelper.RandomInt(80, 150, random) : MathHelper.RandomInt(32, 150, random);
+		int width = spawnStartingRoom ? MathHelper.RandomInt(80, 150, random) : MathHelper.RandomInt(40, 150, random);
 		int height = Math.Max((floor == 4 ? 4500 : 3200) / width, 12);
 
 		level.resize(width, height, TileType.dirt);
@@ -880,7 +880,7 @@ public class LevelGenerator
 		});
 
 		// Fountain
-		spawnRoomObject(deadEnds, 1, false, (Vector2i tile, Random random) =>
+		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random) =>
 		{
 			Fountain fountain = new Fountain(random);
 			level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
@@ -1188,7 +1188,7 @@ public class LevelGenerator
 		// Rat NPC
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED) && !ratSpawned)
 		{
-			spawnRoomObject(deadEnds, 0.02f, false, (Vector2i tile, Random random) =>
+			spawnRoomObject(deadEnds, !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? 0.1f : 0.02f, false, (Vector2i tile, Random random) =>
 			{
 				RatNPC npc = new RatNPC();
 				npc.direction = random.Next() % 2 * 2 - 1;
@@ -2048,7 +2048,9 @@ public class LevelGenerator
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
 		level.rooms = [room];
 
-		level.fogFalloff = 1.0f;
+		level.fogFalloff = 0.1f;
+		//level.fogColor = new Vector3(0.1f);
+		level.fogColor = new Vector3(0.0f);
 		level.infiniteEnergy = true;
 
 		level.updateLightmap(0, 0, def.width, def.height);
