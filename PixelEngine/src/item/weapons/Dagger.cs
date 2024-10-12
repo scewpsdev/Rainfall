@@ -16,7 +16,6 @@ public class Dagger : Item
 		attackDamage = 1;
 		attackRange = 1.0f;
 		attackRate = 3;
-		criticalChance = 0.1f;
 
 		projectileItem = true;
 		projectileSticks = true;
@@ -31,6 +30,18 @@ public class Dagger : Item
 		renderOffset.x = 0.2f;
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
+
+		modifier = new Modifier() { criticalChanceModifier = 2 };
+	}
+
+	public override void onEquip(Player player)
+	{
+		player.modifiers.Add(modifier);
+	}
+
+	public override void onUnequip(Player player)
+	{
+		player.modifiers.Remove(modifier);
 	}
 
 	public override bool use(Player player)
@@ -49,6 +60,6 @@ public class Dagger : Item
 	public override void upgrade()
 	{
 		base.upgrade();
-		criticalChance *= 1.2f;
+		modifier.criticalChanceModifier *= 1.2f;
 	}
 }

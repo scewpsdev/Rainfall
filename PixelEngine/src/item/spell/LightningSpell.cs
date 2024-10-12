@@ -22,7 +22,7 @@ public class LightningSpell : Spell
 
 		sprite = new Sprite(tileset, 3, 6);
 
-		useSound = Resource.GetSounds("res/sounds/lightning", 4);
+		castSound = Resource.GetSounds("res/sounds/lightning", 4);
 	}
 
 	public override void cast(Player player, Item staff)

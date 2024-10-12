@@ -22,6 +22,7 @@ public class Modifier
 	public float attackDamageModifier = 1.0f;
 	public float attackSpeedModifier = 1.0f;
 	public float manaCostModifier = 1.0f;
+	public float manaRecoveryModifier = 1.0f;
 	public float stealthAttackModifier = 1.0f;
 	public float defenseModifier = 1.0f;
 	public float accuracyModifier = 1.0f;

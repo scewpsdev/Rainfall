@@ -23,7 +23,7 @@ public class MagicArrowSpell : Spell
 
 		sprite = new Sprite(tileset, 0, 6);
 
-		useSound = Resource.GetSounds("res/sounds/cast", 3);
+		castSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
 	public override void cast(Player player, Item staff)

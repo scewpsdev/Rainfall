@@ -111,7 +111,7 @@ public static class CharacterInfoPanel
 		drawRight(formatValue(player.mana * 10) + "/" + formatValue(player.maxMana * 10), UIColors.TEXT);
 		y += Renderer.smallFont.size + 1;
 		drawLeft("Mana Recovery Rate", UIColors.TEXT_MANA);
-		drawRightValueCompare(player.manaRechargeRate, Player.defaultManaRechargeRate, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);
+		drawRightValueRelative(player.getManaRecoveryModifier(), 1, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);
 		y += Renderer.smallFont.size + 1;
 
 		drawLeft("Speed", UIColors.TEXT_SPEED);
@@ -130,17 +130,17 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size + 1;
 
 		drawLeft("Attack Damage", UIColors.TEXT);
-		drawRightValueCompare(player.getAttackDamageModifier(), 1);
+		drawRightValueRelative(player.getAttackDamageModifier(), 1);
 		y += Renderer.smallFont.size + 1;
 		drawLeft("Attack Speed", UIColors.TEXT);
-		drawRightValueCompare(player.getAttackSpeedModifier(), 1);
+		drawRightValueRelative(player.getAttackSpeedModifier(), 1);
 		y += Renderer.smallFont.size + 1;
 
 		drawLeft("Critical Hit Chance", UIColors.TEXT);
-		drawRightValueCompare(player.getCriticalChanceModifier(), 1, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);
+		drawRightValueCompare(player.criticalChance * player.getCriticalChanceModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size + 1;
 		drawLeft("Critical Hit Damage", UIColors.TEXT);
-		drawRightValueCompare(player.getCriticalAttackModifier(), 1, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);
+		drawRightValueRelative(player.getCriticalAttackModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size + 1;
 	}
 }

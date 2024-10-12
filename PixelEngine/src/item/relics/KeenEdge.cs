@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class KeenEdge : Item
 {
-	Modifier modifier = new Modifier() { criticalAttackModifier = 2.0f };
-
 	public KeenEdge()
 		: base("keen_edge", ItemType.Relic)
 	{
@@ -21,6 +19,8 @@ public class KeenEdge : Item
 		value = 28;
 
 		sprite = new Sprite(tileset, 1, 7);
+
+		modifier = new Modifier() { criticalAttackModifier = 2.0f };
 	}
 
 	public override void onEquip(Player player)

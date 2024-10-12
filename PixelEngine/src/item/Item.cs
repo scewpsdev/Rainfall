@@ -90,7 +90,6 @@ public abstract class Item
 	public float blockCharge = 0.15f;
 	public float blockMovementSpeed = 0.2f;
 	public float damageReflect = 0.0f;
-	public float criticalChance = 0.025f;
 	public float accuracy = 1.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
@@ -103,6 +102,8 @@ public abstract class Item
 
 	public int armor = 0;
 	public float weight = 0.0f;
+
+	public Modifier modifier = null;
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);

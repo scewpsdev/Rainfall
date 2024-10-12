@@ -167,17 +167,27 @@ public class InventoryUI
 		if (selectedItem >= firstEquipmentItem && selectedItem < firstActiveItem)
 		{
 			if (InputManager.IsPressed("Right", true))
+			{
 				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 1) % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Left", true))
+			{
 				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 3 - 1) % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Down", true))
+			{
 				selectedItem = (selectedItem / 3 + 1) * 3 + selectedItem % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Up", true))
 			{
 				if (selectedItem == firstActiveItem - 1)
 					selectedItem -= 2;
 				else
 					selectedItem = (selectedItem / 3 - 1) * 3 + selectedItem % 3;
+				Audio.PlayBackground(UISound.uiClick);
 			}
 			if (selectedItem < firstEquipmentItem)
 				selectedItem = firstEquipmentItem;
@@ -207,13 +217,25 @@ public class InventoryUI
 		{
 			selectedItem -= firstActiveItem;
 			if (InputManager.IsPressed("Right", true))
+			{
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Left", true))
+			{
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Down", true))
+			{
 				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Up", true))
+			{
 				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (selectedItem < 0)
 				selectedItem = -1;
 			selectedItem += firstActiveItem;
@@ -245,13 +267,25 @@ public class InventoryUI
 		{
 			selectedItem -= firstPassiveItem;
 			if (InputManager.IsPressed("Right", true))
+			{
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Left", true))
+			{
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Down", true))
+			{
 				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (InputManager.IsPressed("Up", true))
+			{
 				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 			if (selectedItem >= idx)
 				selectedItem = idx - 1;
 			selectedItem += firstPassiveItem;
@@ -307,6 +341,19 @@ public class InventoryUI
 			{
 				int sidePanelWidth = 90;
 				sidePanelHeight = ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
+
+				if (InputManager.IsPressed("UIConfirm2", true))
+				{
+					if (selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None)
+					{
+						player.throwItem(selected, true);
+						player.removeItem(selected);
+					}
+					else
+					{
+						player.unequipItem(selected);
+					}
+				}
 			}
 
 			/*

@@ -64,7 +64,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	float distanceWalked = 0;
 
 	public bool isStunned = false;
-	bool criticalStun = false;
+	public bool criticalStun = false;
 	long stunTime = -1;
 	public bool isVisible = true;
 
@@ -94,18 +94,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		bool critical = isStunned && criticalStun || item != null && Random.Shared.NextSingle() < item.criticalChance;
-		if (critical)
-		{
-			damage *= 2;
-			if (by is Player)
-				damage *= (by as Player).getCriticalAttackModifier();
-		}
-
 		health -= damage;
 
 		if (damage >= 1)
-			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3, critical || buffedHit), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
+			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage), new Vector2(MathHelper.RandomFloat(-1, 1), 1) * 3, buffedHit), new Vector2(MathHelper.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), MathHelper.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
 
 		if (hitSound != null && (triggerInvincibility || health <= 0))
 			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);

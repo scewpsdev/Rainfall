@@ -14,8 +14,6 @@ public class BerserkersChain : Item
 	long lastTick = -1;
 	long lastKill = -1;
 
-	Modifier modifier = new Modifier() { };
-
 
 	public BerserkersChain()
 		: base("berserkers_chain", ItemType.Relic)
@@ -29,6 +27,8 @@ public class BerserkersChain : Item
 		value = 25;
 
 		sprite = new Sprite(tileset, 9, 6);
+
+		modifier = new Modifier();
 	}
 
 	public override void onEquip(Player player)

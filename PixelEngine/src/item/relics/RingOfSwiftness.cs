@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class RingOfSwiftness : Item
 {
-	SpeedModifier modifier;
-
 	public RingOfSwiftness()
 		: base("ring_of_swiftness", ItemType.Relic)
 	{
@@ -20,18 +18,17 @@ public class RingOfSwiftness : Item
 		value = 100;
 
 		sprite = new Sprite(tileset, 9, 0);
+
+		modifier = new Modifier() { movementSpeedModifier = 1.2f };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.speed += 1.0f + 0.5f * upgradeLevel;
-		player.addStatusEffect(modifier = new SpeedModifier());
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.speed -= 1.0f + 0.5f * upgradeLevel;
-		player.removeStatusEffect(modifier);
-		modifier = null;
+		player.modifiers.Remove(modifier);
 	}
 }

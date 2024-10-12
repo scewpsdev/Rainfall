@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 public class GlassRing : Item
 {
-	Modifier modifier = new Modifier() { attackDamageModifier = 2, defenseModifier = 0.5f };
-
-
 	public GlassRing()
 		: base("glass_ring", ItemType.Relic)
 	{
@@ -22,6 +19,8 @@ public class GlassRing : Item
 		value = 25;
 
 		sprite = new Sprite(tileset, 10, 6);
+
+		modifier = new Modifier() { attackDamageModifier = 2, defenseModifier = 0.5f };
 	}
 
 	public override void onEquip(Player player)
