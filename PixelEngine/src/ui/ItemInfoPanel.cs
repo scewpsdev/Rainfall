@@ -13,29 +13,30 @@ public static class ItemInfoPanel
 	{
 		int top = y;
 
-		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF222222);
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
+		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);
 
 		y += 4;
 
+		Renderer.DrawUIOutline(x + width / 2 - item.sprite.width / 2, y, item.sprite.width, item.sprite.height, item.sprite, false, 0xFF000000);
 		Renderer.DrawUISprite(x + width / 2 - item.sprite.width / 2, y, item.sprite.width, item.sprite.height, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 		y += item.sprite.height + 1;
 
 		string[] nameLines = Renderer.SplitMultilineText(item.fullDisplayName, width);
 		foreach (string line in nameLines)
 		{
-			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFFAAAAAA);
+			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
 			y += Renderer.smallFont.size;
 		}
 		y++;
 
 		string rarityString = item.rarityString;
 		string itemTypeStr = item.type.ToString();
-		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + itemTypeStr;
+		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + (item.isSecondaryItem ? "Secondary " : "") + itemTypeStr;
 		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width);
 		foreach (string line in itemInfoLines)
 		{
-			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFF666666);
+			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT_SUBTLE);
 			y += Renderer.smallFont.size;
 		}
 		y += 4;
@@ -45,19 +46,19 @@ public static class ItemInfoPanel
 			string[] descriptionLines = Renderer.SplitMultilineText(item.description, width);
 			foreach (string line in descriptionLines)
 			{
-				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, 0xFFAAAAAA);
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
 				y += Renderer.smallFont.size;
 			}
 			y += 4;
 		}
 
-		void drawLeft(string str, uint color = 0xFFAAAAAA)
+		void drawLeft(string str, uint color = UIColors.TEXT)
 		{
 			if (str == null)
 				str = "???";
 			Renderer.DrawUITextBMP(x + 4, y, str, 1, color);
 		}
-		void drawRight(float value, uint color = 0xFFAAAAAA)
+		void drawRight(float value, uint color = UIColors.TEXT)
 		{
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
 			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
@@ -68,7 +69,7 @@ public static class ItemInfoPanel
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
 			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
 			int comparison = MathF.Sign(value - to) * (flipComparison ? -1 : 1);
-			uint color = comparison == 1 ? 0xFF5ecb57 : comparison == -1 ? 0xFFbd4242 : 0xFFAAAAAA;
+			uint color = comparison == 1 ? UIColors.TEXT_UPGRADE : comparison == -1 ? UIColors.TEXT_DOWNGRADE : UIColors.TEXT;
 			Renderer.DrawUITextBMP(x + width - 1 - textWidth, y, str, 1, color);
 		}
 

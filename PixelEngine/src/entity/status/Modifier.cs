@@ -25,6 +25,7 @@ public class Modifier
 	public float stealthAttackModifier = 1.0f;
 	public float defenseModifier = 1.0f;
 	public float accuracyModifier = 1.0f;
+	public float criticalChanceModifier = 1.0f;
 	public float criticalAttackModifier = 1.0f;
 
 	public bool renderAura = true;

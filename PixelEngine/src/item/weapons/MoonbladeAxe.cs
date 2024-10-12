@@ -20,7 +20,7 @@ public class MoonbladeAxe : Item
 
 		value = 57;
 
-		sprite = new Sprite(tileset, 15, 4, 2, 1);
+		sprite = new Sprite(tileset, 10, 7, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
 	}

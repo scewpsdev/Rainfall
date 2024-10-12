@@ -24,6 +24,7 @@ public class Crossbow : Item
 		attackRange = 60; // arrow speed
 		knockback = 12.0f;
 		trigger = true;
+		twoHanded = true;
 		secondaryChargeTime = 1.0f;
 		requiredAmmo = "arrow";
 

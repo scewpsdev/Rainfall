@@ -13,10 +13,13 @@ public class ArmorStand : Entity, Interactable
 	Sprite sprite;
 	uint outline;
 
+	int direction;
 
-	public ArmorStand(StartingClass startingClass)
+
+	public ArmorStand(StartingClass startingClass, int direction = 1)
 	{
 		this.startingClass = startingClass;
+		this.direction = direction;
 
 		sprite = new Sprite(TileType.tileset, 2, 10);
 	}
@@ -56,7 +59,7 @@ public class ArmorStand : Entity, Interactable
 	{
 		if (outline != 0)
 		{
-			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.001f, 1, 1, 0, sprite, false, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.001f, 1, 1, 0, sprite, direction == -1, outline);
 
 			if (startingClass != null)
 			{
@@ -64,17 +67,17 @@ public class ArmorStand : Entity, Interactable
 				{
 					if (startingClass.items[i].ingameSprite != null)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG + 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, false, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG + 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
 					}
 					else if (startingClass.items[i].isHandItem)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.001f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, false, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.001f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
 					}
 				}
 			}
 		}
 
-		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite);
+		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite, direction == -1);
 
 		if (startingClass != null)
 		{
@@ -82,17 +85,17 @@ public class ArmorStand : Entity, Interactable
 			{
 				if (startingClass.items[i].ingameSprite != null)
 				{
-					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG - 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, false, startingClass.items[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG - 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, startingClass.items[i].ingameSpriteColor);
 				}
 				else if (startingClass.items[i].isHandItem)
 				{
-					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG - 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, false, startingClass.items[i].spriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG - 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, startingClass.items[i].spriteColor);
 				}
 			}
 
 			if (outline != 0)
 			{
-				Renderer.DrawWorldTextBMP(position.x - Renderer.MeasureWorldTextBMP(startingClass.name).x / 2 / 16, position.y + 2.5f, 0, startingClass.name, 1.0f / 16, 0xFFAAAAAA);
+				Renderer.DrawWorldTextBMP(position.x - Renderer.MeasureWorldTextBMP(startingClass.name).x / 2 / 16, position.y + 2.5f, 0, startingClass.name, 1.0f / 16, startingClass.color);
 			}
 		}
 	}

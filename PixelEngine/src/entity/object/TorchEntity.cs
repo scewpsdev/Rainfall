@@ -12,6 +12,9 @@ public class TorchEntity : Entity, Interactable
 	uint outline = 0;
 
 	ParticleEffect particles;
+	Simplex simplex;
+	float oscillateFreq = 1.0f;
+	float oscillateAmplitude = 3.0f;
 
 	Sound idleSound;
 	uint source;
@@ -22,6 +25,8 @@ public class TorchEntity : Entity, Interactable
 		sprite = new Sprite(TileType.tileset, 1, 3);
 
 		idleSound = Resource.GetSound("res/sounds/torch.ogg");
+
+		simplex = new Simplex((uint)Time.currentTime, 3);
 	}
 
 	public override void init(Level level)
@@ -64,6 +69,16 @@ public class TorchEntity : Entity, Interactable
 	{
 		if (source != 0)
 			Audio.SetPaused(source, newLevel != level);
+	}
+
+	public override unsafe void update()
+	{
+		float noise = simplex.sample1f(Time.currentTime / 1e9f * oscillateFreq) * 0.5f + 0.5f;
+		noise = MathF.Pow(noise, 3);
+		float value = 0.2f + noise * oscillateAmplitude;
+		particles.systems[0].handle->emissionRate = 40 * value;
+		particles.systems[1].handle->emissionRate = 10 * value;
+		particles.systems[2].handle->emissionRate = 0.4f * value;
 	}
 
 	public override void render()
