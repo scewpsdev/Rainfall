@@ -36,10 +36,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float jumpPower = 10.5f; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
-	public const float defaultManaRechargeRate = 0.03f;
-	public float manaRechargeRate = defaultManaRechargeRate;
+	public const float defaultManaRecoveryRate = 0.03f;
 	public float coinCollectDistance = 1.0f;
 	public float aimDistance = 1.0f;
+	public float criticalChance = 0.05f;
 
 	public float maxHealth = 3;
 	public float health = 3;
@@ -902,43 +902,51 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (isAlive && !isStunned)
 		{
-			if (InputManager.IsDown("Left"))
-				delta.x--;
-			if (InputManager.IsDown("Right"))
-				delta.x++;
-			if (isClimbing)
+			if (numOverlaysOpen == 0)
 			{
-				if (InputManager.IsDown("Up"))
+				if (InputManager.IsDown("Left"))
+					delta.x--;
+				if (InputManager.IsDown("Right"))
+					delta.x++;
+				if (isClimbing)
 				{
-					if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
-						delta.y++;
-					else
+					if (InputManager.IsDown("Up"))
 					{
-						TileType tile = GameState.instance.level.getTile(position);
-						TileType up = GameState.instance.level.getTile(position + new Vector2(0, 0.2f));
-						if (tile != null && tile.isPlatform && up == null)
+						if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
+							delta.y++;
+						else
 						{
-							lastLadderJumpedFrom = currentLadder;
-							currentLadder = null;
-							isClimbing = false;
-							position.y = MathF.Floor(position.y + 0.2f);
+							TileType tile = GameState.instance.level.getTile(position);
+							TileType up = GameState.instance.level.getTile(position + new Vector2(0, 0.2f));
+							if (tile != null && tile.isPlatform && up == null)
+							{
+								lastLadderJumpedFrom = currentLadder;
+								currentLadder = null;
+								isClimbing = false;
+								position.y = MathF.Floor(position.y + 0.2f);
+							}
 						}
 					}
+					if (InputManager.IsDown("Down"))
+					{
+						delta.y--;
+					}
 				}
-				if (InputManager.IsDown("Down"))
+				else
 				{
-					delta.y--;
+					if (isDucked)
+					{
+						TileType tile = GameState.instance.level.getTile(position);
+						if (position.x - MathF.Floor(position.x) > -collider.position.x && MathF.Ceiling(position.x) - position.x > collider.position.x + collider.size.x &&
+							tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
+							position.y = MathF.Floor(position.y) + 0.74f;
+					}
 				}
-			}
-			else
-			{
-				if (isDucked)
-				{
-					TileType tile = GameState.instance.level.getTile(position);
-					if (position.x - MathF.Floor(position.x) > -collider.position.x && MathF.Ceiling(position.x) - position.x > collider.position.x + collider.size.x &&
-						tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
-						position.y = MathF.Floor(position.y) + 0.74f;
-				}
+
+				if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
+					lastWallTouchRight = Time.currentTime;
+				if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
+					lastWallTouchLeft = Time.currentTime;
 			}
 
 			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
@@ -957,11 +965,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (isGrounded)
 				lastGrounded = Time.currentTime;
-
-			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
-				lastWallTouchRight = Time.currentTime;
-			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
-				lastWallTouchLeft = Time.currentTime;
 
 			if (InputManager.IsPressed("Jump"))
 			{
@@ -1416,7 +1419,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (isSprinting)
 			consumeMana(SPRINT_MANA_COST * Time.deltaTime);
 		else if (mana < maxMana)
-			mana = MathF.Min(mana + manaRechargeRate * Time.deltaTime, maxMana);
+			mana = MathF.Min(mana + defaultManaRecoveryRate * getManaRecoveryModifier() * Time.deltaTime, maxMana);
 
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
@@ -1640,6 +1643,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			statusEffects[i].render(this);
 		}
+		for (int i = 0; i < modifiers.Count; i++)
+		{
+			modifiers[i].render(this);
+		}
 
 		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
 
@@ -1655,7 +1662,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		get => health > 0;
 	}
 
-	public float equipLoadModifier => MathF.Exp(-getTotalEquipLoad() * 0.025f);
+	public float equipLoadModifier => MathF.Exp(-getTotalEquipLoad() * 0.02f);
 
 	public float currentSpeedModifier
 	{
@@ -1699,6 +1706,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (Modifier modifier in modifiers)
 			value *= modifier.manaCostModifier;
+		return value;
+	}
+
+	public float getManaRecoveryModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.manaRecoveryModifier;
 		return value;
 	}
 

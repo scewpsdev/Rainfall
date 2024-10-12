@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class RingOfDexterity : Item
 {
-	Modifier modifier = new Modifier() { attackSpeedModifier = 1.2f };
-
 	public RingOfDexterity()
 		: base("ring_of_dexterity", ItemType.Relic)
 	{
@@ -19,6 +17,8 @@ public class RingOfDexterity : Item
 		value = 120;
 
 		sprite = new Sprite(tileset, 9, 0);
+
+		modifier = new Modifier() { attackSpeedModifier = 1.2f };
 	}
 
 	public override void onEquip(Player player)

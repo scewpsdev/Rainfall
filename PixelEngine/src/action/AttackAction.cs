@@ -65,16 +65,18 @@ public class AttackAction : EntityAction
 
 					float damage = attackDamage * player.getAttackDamageModifier();
 
-					float stealthAttackModifier = player.getStealthAttackModifier();
-					bool stealthAttack = hittable is Mob && (hittable as Mob).ai.target != player && stealthAttackModifier > 1;
-					if (stealthAttack)
-						damage *= stealthAttackModifier;
+					bool critical = false;
+					if (entity is Mob)
+					{
+						Mob mob = entity as Mob;
+						critical = mob.isStunned && mob.criticalStun
+							|| Random.Shared.NextSingle() < player.criticalChance * player.getCriticalChanceModifier()
+							|| mob.ai.target != player && player.getStealthAttackModifier() > 1;
+					}
+					if (critical)
+						damage *= 2 * player.getCriticalAttackModifier();
 
-					//bool critical = Random.Shared.NextSingle() < weapon.criticalChance;
-					//if (critical)
-					//	damage *= 2;
-
-					if (hittable.hit(damage, player, weapon, null, true, stealthAttack))
+					if (hittable.hit(damage, player, weapon, null, true, critical))
 					{
 						hitEntities.Add(entity);
 

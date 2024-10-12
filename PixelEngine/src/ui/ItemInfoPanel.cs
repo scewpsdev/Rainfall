@@ -87,12 +87,6 @@ public static class ItemInfoPanel
 				drawComparison(item.attackRate, compareItem.attackRate);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("CRIT");
-			drawRight(item.criticalChance * 100);
-			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-				drawComparison(item.criticalChance * 100, compareItem.criticalChance * 100);
-			y += Renderer.smallFont.size + 1;
-
 			drawLeft("RANGE");
 			drawRight(item.attackRange);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
@@ -110,6 +104,18 @@ public static class ItemInfoPanel
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.weight, compareItem.weight, true);
 			y += Renderer.smallFont.size + 1;
+
+			if (item.modifier != null)
+			{
+				if (item.modifier.criticalAttackModifier > 1)
+				{
+					drawLeft("CRIT");
+					drawRight(item.modifier.criticalAttackModifier);
+					if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.modifier != null)
+						drawComparison(item.modifier.criticalAttackModifier, compareItem.modifier.criticalAttackModifier, true);
+					y += Renderer.smallFont.size + 1;
+				}
+			}
 
 
 			//drawLeft("Reach");

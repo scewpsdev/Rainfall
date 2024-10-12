@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class WizardsHat : Item
 {
-	ManaRechargeModifier modifier;
-
 	public WizardsHat()
 		: base("wizards_hat", ItemType.Armor)
 	{
@@ -24,18 +22,17 @@ public class WizardsHat : Item
 		sprite = new Sprite(tileset, 9, 4);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/wizards_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteSize = 2;
+
+		modifier = new Modifier() { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.manaRechargeRate *= 2;
-		player.addStatusEffect(modifier = new ManaRechargeModifier());
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.manaRechargeRate /= 2;
-		player.removeStatusEffect(modifier);
-		modifier = null;
+		player.modifiers.Remove(modifier);
 	}
 }

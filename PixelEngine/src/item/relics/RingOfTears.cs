@@ -11,7 +11,6 @@ public class RingOfTears : Item
 	bool active = false;
 
 	float buff = 0.5f;
-	Modifier modifier = new Modifier() { };
 
 
 	public RingOfTears()
@@ -24,6 +23,8 @@ public class RingOfTears : Item
 		value = 110;
 
 		sprite = new Sprite(tileset, 10, 2);
+
+		modifier = new Modifier();
 	}
 
 	void activate(Player player)

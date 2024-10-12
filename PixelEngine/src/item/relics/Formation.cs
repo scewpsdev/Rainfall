@@ -10,8 +10,6 @@ public class Formation : Item
 {
 	bool active = false;
 
-	Modifier modifier = new Modifier() { defenseModifier = 2, movementSpeedModifier = 0.5f };
-
 	public Formation()
 		: base("formation", ItemType.Relic)
 	{
@@ -23,6 +21,8 @@ public class Formation : Item
 		value = 36;
 
 		sprite = new Sprite(tileset, 13, 7);
+
+		modifier = new Modifier() { defenseModifier = 2, movementSpeedModifier = 0.5f };
 	}
 
 	void activate(Player player)

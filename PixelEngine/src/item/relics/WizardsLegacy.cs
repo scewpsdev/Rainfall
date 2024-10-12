@@ -20,15 +20,17 @@ public class WizardsLegacy : Item
 		value = 27;
 
 		sprite = new Sprite(tileset, 5, 6);
+
+		modifier = new Modifier() { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.manaRechargeRate *= 2;
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.manaRechargeRate /= 2;
+		player.modifiers.Remove(modifier);
 	}
 }

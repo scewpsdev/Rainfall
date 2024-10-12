@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class AmethystRing : Item
 {
-	ManaRechargeModifier modifier;
-
 	public AmethystRing()
 		: base("amethyst_ring", ItemType.Relic)
 	{
@@ -19,18 +17,17 @@ public class AmethystRing : Item
 		value = 45;
 
 		sprite = new Sprite(tileset, 13, 5);
+
+		modifier = new Modifier() { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.manaRechargeRate *= 2;
-		player.addStatusEffect(modifier = new ManaRechargeModifier());
+		player.modifiers.Add(modifier);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.manaRechargeRate /= 2;
-		player.removeStatusEffect(modifier);
-		modifier = null;
+		player.modifiers.Remove(modifier);
 	}
 }

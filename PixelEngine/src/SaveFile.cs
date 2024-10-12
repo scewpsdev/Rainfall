@@ -68,6 +68,11 @@ public class SaveFile
 
 	public void addQuestCompletionCallback(string npc, string name, Action<Quest> callback)
 	{
+		if (questCompleteCallbacks.ContainsKey(name))
+		{
+			Console.WriteLine("Quest complete callbacks not empty! " + questCompleteCallbacks[name].ToString());
+			questCompleteCallbacks.Clear();
+		}
 		questCompleteCallbacks.Add(name, callback);
 		if (tryGetQuest(npc, name, out Quest quest))
 		{

@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 public class Nightstalker : Item
 {
-	Modifier modifier = new Modifier() { stealthAttackModifier = 2.0f };
-
 	public Nightstalker()
 		: base("nightstalker", ItemType.Relic)
 	{
 		displayName = "Nightstalker";
-		description = "Increases attack against unsuspecting enemies";
+		description = "Attacks against unsuspecting enemies are critical attacks";
 		//stackable = true;
 		tumbles = false;
 		canDrop = false;
@@ -22,6 +20,8 @@ public class Nightstalker : Item
 		value = 22;
 
 		sprite = new Sprite(tileset, 7, 6);
+
+		modifier = new Modifier() { stealthAttackModifier = 2.0f };
 	}
 
 	public override void onEquip(Player player)
