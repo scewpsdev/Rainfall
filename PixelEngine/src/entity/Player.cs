@@ -30,12 +30,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 #endif
 
 
-	public float speed = 6;
+	public const float defaultSpeed = 6;
+	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
 	public float jumpPower = 10.5f; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
-	public float manaRechargeRate = 0.03f;
+	public const float defaultManaRechargeRate = 0.03f;
+	public float manaRechargeRate = defaultManaRechargeRate;
 	public float coinCollectDistance = 1.0f;
 	public float aimDistance = 1.0f;
 
@@ -46,6 +48,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float mana = 2;
 
 	public int money = 0;
+	public int playerLevel = 1;
 
 	public List<Modifier> modifiers = new List<Modifier>();
 
@@ -558,6 +561,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		slotIdx = -1;
 		return false;
+	}
+
+	public Item getArmorItem(ArmorSlot slot)
+	{
+		if (getArmorItem(slot, out int slotIdx))
+			return passiveItems[slotIdx];
+		return null;
 	}
 
 	public int numActiveItems
@@ -1713,6 +1723,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (Modifier modifier in modifiers)
 			value *= modifier.accuracyModifier;
+		return value;
+	}
+
+	public float getCriticalChanceModifier()
+	{
+		float value = 1;
+		foreach (Modifier modifier in modifiers)
+			value *= modifier.criticalChanceModifier;
 		return value;
 	}
 

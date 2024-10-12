@@ -128,7 +128,6 @@ public static unsafe class Effects
 	public static ParticleEffect CreateTorchEffect(Entity entity)
 	{
 		ParticleEffect effect = new ParticleEffect(entity, "res/effects/torch.rfs");
-		effect.oscillateEmissionRate = true;
 		return effect;
 	}
 

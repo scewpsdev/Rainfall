@@ -37,7 +37,7 @@ colorAnimStart = [ 1, 0.5567597150802612, 0.3861004114151001, 1 ]
 colorAnimEnd = [ 1, 0, 0, 0 ]
 }, {
 name = "Smoke"
-lifetime = 1
+lifetime = 1.2999999523162842
 size = 0.10000000149011612
 follow = 0
 emissionRate = 5

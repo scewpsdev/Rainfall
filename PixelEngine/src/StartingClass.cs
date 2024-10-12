@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 public class StartingClass
 {
-	public string name;
+	public string name = "???";
+	public uint color = 0xFFFF00FF;
 	public int cost;
 	public Item[] items;
 	public int maxHealth = 3;
@@ -24,12 +25,12 @@ public class StartingClass
 
 	static StartingClass()
 	{
-		barbarian = new StartingClass() { name = "Barbarian", cost = 8, items = [new LeatherArmor(), new Handaxe(), new BerserkersChain()] };
-		knight = new StartingClass() { name = "Knight", cost = 8, items = [new Shortsword(), new IronShield(), new ChainmailHood(), new IronArmor()] };
-		hunter = new StartingClass() { name = "Hunter", cost = 8, items = [new Shortbow(), new Arrow() { stackSize = 50 }, new HuntersHat(), new EaglesEye()] };
-		thief = new StartingClass() { name = "Thief", cost = 8, items = [new Dagger(), new DarkHood(), new DarkCloak(), (new PoisonVial() { stackSize = 3 }).makeThrowable(), new Nightstalker()] };
-		wizard = new StartingClass() { name = "Wizard", cost = 8, items = [new MagicStaff(), new MagicArrowSpell(), new WizardsHood(), new WizardsCloak(), new WizardsLegacy()] };
-		fool = new StartingClass() { name = "Fool", cost = 1, items = [new Stick(), new GlassRing()], maxHealth = 2 };
+		barbarian = new StartingClass() { name = "Barbarian", color = 0xFFa13d3b, cost = 8, items = [new LeatherArmor(), new Handaxe(), new BerserkersChain()] };
+		knight = new StartingClass() { name = "Knight", color = 0xFF7582ae, cost = 8, items = [new Shortsword(), new IronShield(), new ChainmailHood(), new IronArmor()] };
+		hunter = new StartingClass() { name = "Hunter", color = 0xFF6c8c50, cost = 8, items = [new Shortbow(), new Arrow() { stackSize = 50 }, new HuntersHat(), new EaglesEye()] };
+		thief = new StartingClass() { name = "Thief", color = 0xFF676767, cost = 8, items = [new Dagger(), new DarkHood(), new DarkCloak(), (new PoisonVial() { stackSize = 3 }).makeThrowable(), new Nightstalker()] };
+		wizard = new StartingClass() { name = "Wizard", color = 0xFF73549d, cost = 8, items = [new MagicStaff(), new MagicArrowSpell(), new WizardsHood(), new WizardsCloak(), new WizardsLegacy()] };
+		fool = new StartingClass() { name = "Fool", color = 0xFFc89d3b, cost = 1, items = [new Stick(), new GlassRing()], maxHealth = 2 };
 
 		dev = new StartingClass() { name = "Dev", items = [new Revolver(), new RingOfVitality(), new RingOfSwiftness(), new AmethystRing()] };
 	}

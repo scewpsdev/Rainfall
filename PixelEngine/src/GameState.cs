@@ -169,16 +169,16 @@ public class GameState : State
 
 		ArmorStand barbarianClass, knightClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
 
-#if DEBUG
-		hub.addEntity(devClass = new ArmorStand(StartingClass.dev), hub.rooms[0].getMarker(10) + new Vector2(2, 0));
-#endif
-
 		hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.rooms[0].getMarker(10) + new Vector2(-2, 0));
-		hub.addEntity(knightClass = new ArmorStand(StartingClass.knight), hub.rooms[0].getMarker(10) + new Vector2(-4, 0));
-		hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter), hub.rooms[0].getMarker(10) + new Vector2(-6, 0));
-		hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.rooms[0].getMarker(10) + new Vector2(-8, 0));
-		hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard), hub.rooms[0].getMarker(10) + new Vector2(-10, 0));
-		hub.addEntity(foolClass = new ArmorStand(StartingClass.fool), hub.rooms[0].getMarker(10) + new Vector2(-12, 0));
+		hub.addEntity(knightClass = new ArmorStand(StartingClass.knight, -1), hub.rooms[0].getMarker(10) + new Vector2(2, 0));
+		hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.rooms[0].getMarker(10) + new Vector2(-3.5f, 0));
+		hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter, -1), hub.rooms[0].getMarker(10) + new Vector2(3.5f, 0));
+		hub.addEntity(foolClass = new ArmorStand(StartingClass.fool), hub.rooms[0].getMarker(10) + new Vector2(-5, 0));
+		hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard, -1), hub.rooms[0].getMarker(10) + new Vector2(5, 0));
+
+#if DEBUG
+		hub.addEntity(devClass = new ArmorStand(StartingClass.dev, -1), hub.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
+#endif
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
 		npc.clearShop();

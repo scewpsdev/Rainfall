@@ -9,15 +9,20 @@ using System.Threading.Tasks;
 
 public class InventoryUI
 {
-	public static Sprite weaponSprite, shieldSprite, armorSprite, bagSprite, ringSprite;
+	public static Sprite weaponSprite, shieldSprite, helmetSprite, bagSprite, ringSprite;
+	public static Sprite backpackSprite, armorSprite, glovesSprite, bootsSprite;
 
 	static InventoryUI()
 	{
 		weaponSprite = new Sprite(HUD.tileset, 0, 2, 2, 2);
 		shieldSprite = new Sprite(HUD.tileset, 2, 2, 2, 2);
 		bagSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
-		armorSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
+		helmetSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
 		ringSprite = new Sprite(HUD.tileset, 6, 4, 2, 2);
+		backpackSprite = new Sprite(HUD.tileset, 0, 6, 2, 2);
+		armorSprite = new Sprite(HUD.tileset, 2, 6, 2, 2);
+		glovesSprite = new Sprite(HUD.tileset, 4, 6, 2, 2);
+		bootsSprite = new Sprite(HUD.tileset, 6, 6, 2, 2);
 	}
 
 
@@ -25,6 +30,7 @@ public class InventoryUI
 
 	int selectedItem = 0;
 	int sidePanelHeight = 40;
+	int inventoryHeight = 120;
 
 	int currentScroll = 0;
 
@@ -34,12 +40,24 @@ public class InventoryUI
 		this.player = player;
 	}
 
-	static void drawItemSlot(int x, int y, int size, Item item)
+	static bool drawItemSlot(int x, int y, int size, Item item, Sprite background = null, bool selected = false)
 	{
-		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, 0xFF333333);
-		Renderer.DrawUISprite(x, y, size, size, null, false, 0xFF111111);
+		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, selected ? UIColors.ITEM_SLOT_FRAME_HIGHLIGHT : UIColors.ITEM_SLOT_FRAME);
+		Renderer.DrawUISprite(x, y, size, size, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);
 		if (item != null)
+		{
+			Renderer.DrawUIOutline(x, y, size, size, item.getIcon(), false, 0xFF000000);
 			Renderer.DrawUISprite(x, y, size, size, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
+		}
+		else if (background != null)
+		{
+			Renderer.DrawUISprite(x, y, size, size, background, false, 0x7FFFFFFF);
+		}
+
+		bool newSelected = selected;
+		if (Input.cursorHasMoved && Renderer.IsHovered(x, y, size, size))
+			newSelected = true;
+		return newSelected;
 	}
 
 	public static void DrawEquipment(int x, int y, int width, int height, Player player)
@@ -61,7 +79,7 @@ public class InventoryUI
 			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.activeItems[i]);
 		y += slotSize + ypadding;
 
-		Renderer.DrawUISprite(x, y, 16, 16, armorSprite);
+		Renderer.DrawUISprite(x, y, 16, 16, helmetSprite);
 		for (int i = 0; i < (int)ArmorSlot.Count; i++)
 		{
 			if (player.getArmorItem((ArmorSlot)i, out int slot))
@@ -83,6 +101,165 @@ public class InventoryUI
 				}
 			}
 		}
+	}
+
+	public static int DrawEquipment2(int x, int y, int width, int height, Player player, ref int selectedItem, out Item item)
+	{
+		item = null;
+
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
+		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);
+
+		int xpadding = 4;
+		int ypadding = 4;
+		int slotSize = 16;
+
+		int top = y;
+
+		y += 8;
+
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP("Inventory").x / 2, y, "Inventory", 1, 0xFFAAAAAA);
+
+		y += Renderer.smallFont.size + 8;
+
+		int firstEquipmentItem = 0;
+		int firstActiveItem = 7;
+		int firstPassiveItem = firstActiveItem + player.activeItems.Length;
+
+		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.offhandItem, shieldSprite, selectedItem == firstEquipmentItem + 0))
+			selectedItem = firstEquipmentItem + 0;
+		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Helmet), helmetSprite, selectedItem == firstEquipmentItem + 1))
+			selectedItem = firstEquipmentItem + 1;
+		if (drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.handItem, weaponSprite, selectedItem == firstEquipmentItem + 2))
+			selectedItem = firstEquipmentItem + 2;
+
+		if (selectedItem == firstEquipmentItem + 0)
+			item = player.offhandItem;
+		else if (selectedItem == firstEquipmentItem + 1)
+			item = player.getArmorItem(ArmorSlot.Helmet);
+		else if (selectedItem == firstEquipmentItem + 2)
+			item = player.handItem;
+
+		y += slotSize + ypadding;
+
+		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.getArmorItem(ArmorSlot.Back), backpackSprite, selectedItem == firstEquipmentItem + 3))
+			selectedItem = firstEquipmentItem + 3;
+		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Body), armorSprite, selectedItem == firstEquipmentItem + 4))
+			selectedItem = firstEquipmentItem + 4;
+		if (drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.getArmorItem(ArmorSlot.Gloves), glovesSprite, selectedItem == firstEquipmentItem + 5))
+			selectedItem = firstEquipmentItem + 5;
+
+		if (selectedItem == firstEquipmentItem + 3)
+			item = player.getArmorItem(ArmorSlot.Back);
+		else if (selectedItem == firstEquipmentItem + 4)
+			item = player.getArmorItem(ArmorSlot.Body);
+		else if (selectedItem == firstEquipmentItem + 5)
+			item = player.getArmorItem(ArmorSlot.Gloves);
+
+		y += slotSize + ypadding;
+
+		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Boots), bootsSprite, selectedItem == firstEquipmentItem + 6))
+			selectedItem = firstEquipmentItem + 6;
+
+		if (selectedItem == firstEquipmentItem + 6)
+			item = player.getArmorItem(ArmorSlot.Boots);
+
+		if (selectedItem >= firstEquipmentItem && selectedItem < firstActiveItem)
+		{
+			if (InputManager.IsPressed("Right", true))
+				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 1) % 3;
+			if (InputManager.IsPressed("Left", true))
+				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 3 - 1) % 3;
+			if (InputManager.IsPressed("Down", true))
+				selectedItem = (selectedItem / 3 + 1) * 3 + selectedItem % 3;
+			if (InputManager.IsPressed("Up", true))
+			{
+				if (selectedItem == firstActiveItem - 1)
+					selectedItem -= 2;
+				else
+					selectedItem = (selectedItem / 3 - 1) * 3 + selectedItem % 3;
+			}
+			if (selectedItem < firstEquipmentItem)
+				selectedItem = firstEquipmentItem;
+			else if (selectedItem >= firstEquipmentItem + 6 + 3)
+				selectedItem = firstActiveItem;
+			else if (selectedItem >= firstActiveItem)
+				selectedItem = firstActiveItem - 1;
+		}
+
+		y += slotSize + 8;
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			bool selected = selectedItem == firstActiveItem + i;
+
+			if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.activeItems[i], bagSprite, selected))
+				selectedItem = firstActiveItem + i;
+
+			if (selected)
+				item = player.activeItems[i];
+		}
+
+		if (selectedItem >= firstActiveItem && selectedItem < firstPassiveItem)
+		{
+			selectedItem -= firstActiveItem;
+			if (InputManager.IsPressed("Right", true))
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+			if (InputManager.IsPressed("Left", true))
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+			if (InputManager.IsPressed("Down", true))
+				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+			if (InputManager.IsPressed("Up", true))
+				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+			if (selectedItem < 0)
+				selectedItem = -1;
+			selectedItem += firstActiveItem;
+		}
+
+		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
+
+		int idx = 0;
+		for (int i = 0; i < player.passiveItems.Count; i++)
+		{
+			if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+			{
+				int xx = idx % 4;
+				int yy = idx / 4;
+
+				bool selected = selectedItem == firstPassiveItem + i;
+
+				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.passiveItems[i], ringSprite, selected))
+					selectedItem = firstPassiveItem + i;
+
+				if (selected)
+					item = player.passiveItems[i];
+
+				idx++;
+			}
+		}
+
+		if (selectedItem >= firstPassiveItem && selectedItem < firstPassiveItem + idx)
+		{
+			selectedItem -= firstPassiveItem;
+			if (InputManager.IsPressed("Right", true))
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+			if (InputManager.IsPressed("Left", true))
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+			if (InputManager.IsPressed("Down", true))
+				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+			if (InputManager.IsPressed("Up", true))
+				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+			if (selectedItem >= idx)
+				selectedItem = idx - 1;
+			selectedItem += firstPassiveItem;
+		}
+
+		y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
+
+		return y - top;
 	}
 
 	void openScreen()
@@ -119,6 +296,20 @@ public class InventoryUI
 		{
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
 
+			CharacterInfoPanel.Render(10, 50, 140, 150, player);
+
+			int width = 90;
+			int x = Renderer.UIWidth - 10 - width;
+			int y = 50;
+
+			inventoryHeight = DrawEquipment2(x, y, width, inventoryHeight, player, ref selectedItem, out Item selected);
+			if (selected != null)
+			{
+				int sidePanelWidth = 90;
+				sidePanelHeight = ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
+			}
+
+			/*
 			List<Item> items = player.items;
 			int choice = ItemSelector.Render(10, 50, "Inventory", items, null, player.money, player, false, null, false, out bool secondary, out bool closed, ref selectedItem);
 
@@ -126,30 +317,6 @@ public class InventoryUI
 			{
 				Item item = items[choice];
 
-				/*
-				if (item.isHandItem && !secondary)
-				{
-					if (player.handItem == item)
-						player.unequipItem(item);
-					else
-					{
-						if (player.offhandItem == item)
-							player.unequipItem(item);
-						player.equipHandItem(item);
-					}
-				}
-				if (item.isSecondaryItem && secondary)
-				{
-					if (player.offhandItem == item)
-						player.unequipItem(item);
-					else
-					{
-						if (player.handItem == item)
-							player.unequipItem(item);
-						player.equipOffhandItem(item);
-					}
-				}
-				*/
 				if (item.isActiveItem)
 				{
 					if (!secondary)
@@ -168,15 +335,6 @@ public class InventoryUI
 						}
 					}
 				}
-				/*
-				if (item.isPassiveItem && !secondary)
-				{
-					if (player.isPassiveItem(item, out _))
-						player.unequipItem(item);
-					else
-						player.equipItem(item);
-				}
-				*/
 				if ((item.isHandItem || item.isPassiveItem) && secondary)
 				{
 					player.throwItem(item, true);
@@ -209,163 +367,6 @@ public class InventoryUI
 				int y = 50;
 				sidePanelHeight = ItemInfoPanel.Render(items[selectedItem], x, y, sidePanelWidth, sidePanelHeight);
 			}
-
-			/*
-			int lineHeight = 16;
-			int headerHeight = 12 + 1;
-			int sidePanelWidth = 80;
-			int maxItems = 12;
-			int shopWidth = 150;
-			int shopHeight = Math.Min(player.items.Count, maxItems) * lineHeight;
-			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + shopHeight;
-			int x = Renderer.UIWidth / 2 - width / 2;
-			int y = Math.Min(50, Renderer.UIHeight / 2 - Math.Max(height, headerHeight + sidePanelHeight) / 2);
-			int top = y;
-
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-
-			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
-			Renderer.DrawUITextBMP(x + 2, y + 2, "Inventory", 1, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x + width - 1 - HUD.gold.width, y + 2, HUD.gold.width, HUD.gold.height, HUD.gold);
-			string moneyStr = GameState.instance.player.money.ToString();
-			Renderer.DrawUITextBMP(x + width - 1 - HUD.gold.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
-			y += headerHeight;
-
-			if (player.items.Count > 0)
-			{
-				if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
-				{
-					selectedItem = (selectedItem + 1) % player.items.Count;
-					Audio.PlayBackground(UISound.uiClick);
-				}
-				if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
-				{
-					selectedItem = (selectedItem + player.items.Count - 1) % player.items.Count;
-					Audio.PlayBackground(UISound.uiClick);
-				}
-
-				if (selectedItem >= currentScroll + maxItems)
-					currentScroll = selectedItem - maxItems + 1;
-				else if (selectedItem >= 0 && selectedItem < currentScroll)
-					currentScroll = selectedItem;
-
-				if (Input.scrollMove != 0 && player.items.Count > maxItems)
-				{
-					currentScroll = Math.Clamp(currentScroll - Input.scrollMove, 0, player.items.Count - maxItems);
-					selectedItem = Math.Clamp(selectedItem, currentScroll, currentScroll + maxItems - 1);
-				}
-
-				for (int i = currentScroll; i < Math.Min(player.items.Count, currentScroll + maxItems); i++)
-				{
-					if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
-						selectedItem = i;
-
-					bool selected = selectedItem == i;
-
-					Item item = player.items[i].Item2;
-
-					Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-					Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
-					string name = item.fullDisplayName;
-					Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
-
-					if (player.handItem == item)
-						Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, weaponSprite);
-					else if (player.offhandItem == item)
-						Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, shieldSprite);
-					else if (player.isActiveItem(item, out int activeSlot))
-					{
-						Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, bagSprite);
-						Renderer.DrawUITextBMP(x + shopWidth - 3 - 4, y + 16 - 8, (activeSlot + 1).ToString(), 1, 0xFF505050);
-					}
-					else if (player.isPassiveItem(item, out int passiveSlot))
-					{
-						Renderer.DrawUISprite(x + shopWidth - 3 - 16, y, 16, 16, item.type == ItemType.Ring ? ringSprite : armorSprite);
-						Renderer.DrawUITextBMP(x + shopWidth - 3 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Length - 2 : 0)).ToString(), 1, 0xFF505050);
-					}
-
-					if (selected)
-					{
-						if (item.isHandItem)
-						{
-							if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
-							{
-								if (player.handItem == item)
-									player.unequipItem(item);
-								else
-								{
-									if (player.offhandItem == item)
-										player.unequipItem(item);
-									player.equipHandItem(item);
-								}
-								Audio.PlayBackground(UISound.uiConfirm2);
-							}
-						}
-						if (item.isSecondaryItem)
-						{
-							if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
-							{
-								if (player.offhandItem == item)
-									player.unequipItem(item);
-								else
-								{
-									if (player.handItem == item)
-										player.unequipItem(item);
-									player.equipOffhandItem(item);
-								}
-								Audio.PlayBackground(UISound.uiConfirm2);
-							}
-						}
-						if (item.isActiveItem)
-						{
-							if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
-							{
-								if (player.isActiveItem(item, out _))
-									player.unequipItem(item);
-								else
-									player.equipItem(item);
-								Audio.PlayBackground(UISound.uiClick);
-							}
-							if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
-							{
-								if (player.useActiveItem(item))
-								{
-									i--;
-									if (selectedItem == player.items.Count)
-										selectedItem--;
-								}
-							}
-							//Audio.PlayBackground(UISound.uiClick);
-
-						}
-						if (item.isPassiveItem)
-						{
-							if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
-							{
-								if (player.isPassiveItem(item, out _))
-									player.unequipItem(item);
-								else
-									player.equipItem(item);
-							}
-						}
-					}
-
-					y += lineHeight;
-				}
-
-				// Scroll bar
-				if (player.items.Count > maxItems)
-				{
-					float fraction = maxItems / (float)player.items.Count;
-					float offset = currentScroll / (float)player.items.Count;
-					Renderer.DrawUISprite(x + shopWidth - 2, top + headerHeight + 1 + (int)(offset * shopHeight), 1, (int)(fraction * shopHeight) - 2, 0, null, 0xFF777777);
-				}
-
-				// Item info panel
-				if (player.items.Count > 0)
-					sidePanelHeight = ItemInfoPanel.Render(player.items[selectedItem].Item2, x + shopWidth + 1, top + headerHeight, sidePanelWidth, Math.Max(shopHeight, sidePanelHeight));
-			}
 			*/
 		}
 
@@ -380,8 +381,6 @@ public class InventoryUI
 			Vector2i playerTile = (Vector2i)Vector2.Floor(player.position + new Vector2(0, 0.5f));
 			int scrollx = playerTile.x - width / 2;
 			int scrolly = playerTile.y - height / 2;
-
-			//Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF000000);
 
 			for (int yy = scrolly; yy < scrolly + height; yy++)
 			{
