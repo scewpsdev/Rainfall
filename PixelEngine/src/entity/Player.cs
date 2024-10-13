@@ -33,7 +33,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public const float defaultSpeed = 6;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
-	public float jumpPower = 10.5f; //12; //10.5f;
+	public float jumpPower = 11; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
 	public const float defaultManaRecoveryRate = 0.03f;
@@ -41,14 +41,25 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
-	public float maxHealth = 3;
+	//public float maxHealth = 3;
 	public float health = 3;
+	public float maxHealth => hp;
 
-	public float maxMana = 2;
+	//public float maxMana = 2;
 	public float mana = 2;
+	public float maxMana => magic;
+
+	public int hp = 3;
+	public int magic = 2;
+	public int strength = 1;
+	public int dexterity = 1;
+	public int intelligence = 1;
 
 	public int money = 0;
 	public int playerLevel = 1;
+	public int xp = 0;
+
+	public int nextLevelXP => (int)MathF.Round(50 * MathF.Exp((playerLevel - 1) * 0.1f));
 
 	public List<Modifier> modifiers = new List<Modifier>();
 
@@ -182,7 +193,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		clearInventory();
 		for (int i = 0; i < startingClass.items.Length; i++)
 			giveItem(startingClass.items[i].copy());
-		health = maxHealth = startingClass.maxHealth;
+
+		strength = startingClass.strength;
+		dexterity = startingClass.dexterity;
+		intelligence = startingClass.intelligence;
+		hp = startingClass.hp;
+		magic = startingClass.magic;
 
 		money = Math.Max(money - startingClass.cost, 0);
 
@@ -879,6 +895,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (mana < maxMana)
 			mana = MathF.Min(mana + MANA_KILL_REWARD, maxMana);
+
+		xp += (int)MathF.Round(mob.maxHealth);
+		if (xp >= nextLevelXP)
+		{
+			xp -= nextLevelXP;
+			playerLevel++;
+			//onLevelUp();
+		}
+
 		for (int i = 0; i < items.Count; i++)
 			items[i].onKill(this, mob);
 
@@ -902,52 +927,49 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (isAlive && !isStunned)
 		{
-			if (numOverlaysOpen == 0)
+			if (InputManager.IsDown("Left"))
+				delta.x--;
+			if (InputManager.IsDown("Right"))
+				delta.x++;
+			if (isClimbing)
 			{
-				if (InputManager.IsDown("Left"))
-					delta.x--;
-				if (InputManager.IsDown("Right"))
-					delta.x++;
-				if (isClimbing)
+				if (InputManager.IsDown("Up"))
 				{
-					if (InputManager.IsDown("Up"))
-					{
-						if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
-							delta.y++;
-						else
-						{
-							TileType tile = GameState.instance.level.getTile(position);
-							TileType up = GameState.instance.level.getTile(position + new Vector2(0, 0.2f));
-							if (tile != null && tile.isPlatform && up == null)
-							{
-								lastLadderJumpedFrom = currentLadder;
-								currentLadder = null;
-								isClimbing = false;
-								position.y = MathF.Floor(position.y + 0.2f);
-							}
-						}
-					}
-					if (InputManager.IsDown("Down"))
-					{
-						delta.y--;
-					}
-				}
-				else
-				{
-					if (isDucked)
+					if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
+						delta.y++;
+					else
 					{
 						TileType tile = GameState.instance.level.getTile(position);
-						if (position.x - MathF.Floor(position.x) > -collider.position.x && MathF.Ceiling(position.x) - position.x > collider.position.x + collider.size.x &&
-							tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
-							position.y = MathF.Floor(position.y) + 0.74f;
+						TileType up = GameState.instance.level.getTile(position + new Vector2(0, 0.2f));
+						if (tile != null && tile.isPlatform && up == null)
+						{
+							lastLadderJumpedFrom = currentLadder;
+							currentLadder = null;
+							isClimbing = false;
+							position.y = MathF.Floor(position.y + 0.2f);
+						}
 					}
 				}
-
-				if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
-					lastWallTouchRight = Time.currentTime;
-				if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
-					lastWallTouchLeft = Time.currentTime;
+				if (InputManager.IsDown("Down"))
+				{
+					delta.y--;
+				}
 			}
+			else
+			{
+				if (isDucked)
+				{
+					TileType tile = GameState.instance.level.getTile(position);
+					if (position.x - MathF.Floor(position.x) > -collider.position.x && MathF.Ceiling(position.x) - position.x > collider.position.x + collider.size.x &&
+						tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
+						position.y = MathF.Floor(position.y) + 0.74f;
+				}
+			}
+
+			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
+				lastWallTouchRight = Time.currentTime;
+			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
+				lastWallTouchLeft = Time.currentTime;
 
 			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
 
@@ -1073,7 +1095,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					direction = MathF.Sign(delta.x);
 				if (InputManager.IsDown("Up"))
 					lookDirection = Vector2.Up;
-				else if (!isGrounded && InputManager.IsDown("Down"))
+				else if (/*!isGrounded &&*/ InputManager.IsDown("Down"))
 					lookDirection = Vector2.Down;
 				else
 					lookDirection = new Vector2(direction, 0);
@@ -1106,7 +1128,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
 				}
 
-				if (actions.currentAction != null)
+				if (actions.currentAction != null && actions.currentAction.turnToCrosshair)
 					direction = Math.Sign(lookDirection.x);
 				else if (delta.x != 0)
 					direction = MathF.Sign(delta.x);
@@ -1118,7 +1140,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - (position + collider.center);
 				}
 
-				if (actions.currentAction != null)
+				if (actions.currentAction != null && actions.currentAction.turnToCrosshair)
 					direction = Math.Sign(lookDirection.x);
 				else if (delta.x != 0)
 					direction = MathF.Sign(delta.x);

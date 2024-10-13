@@ -18,8 +18,8 @@ public class WoodenShield : Item
 		weight = 1;
 
 		isSecondaryItem = true;
-		blockDuration = 0.4f;
-		blockCharge = 0.2f;
+		blockDuration = 0.3f;
+		blockCharge = 0.08f;
 		blockMovementSpeed = 0.5f;
 
 		sprite = new Sprite(tileset, 7, 7);

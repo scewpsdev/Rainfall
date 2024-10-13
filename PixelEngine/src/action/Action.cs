@@ -31,6 +31,7 @@ public class EntityAction
 
 	public string animation;
 	public bool mainHand;
+	public bool turnToCrosshair = true;
 
 	public float speedMultiplier = 1.0f;
 

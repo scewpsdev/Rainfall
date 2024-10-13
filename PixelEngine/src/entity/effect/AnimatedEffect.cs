@@ -10,6 +10,8 @@ public class AnimatedEffect : Entity
 {
 	Sprite sprite;
 	SpriteAnimator animator;
+	protected Vector4 color = Vector4.One;
+	protected bool additive = false;
 
 	Entity follow;
 	Vector2 offset;
@@ -54,6 +56,6 @@ public class AnimatedEffect : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_FG, rect.size.x, rect.size.y, 0, sprite);
+		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_FG, rect.size.x, rect.size.y, 0, sprite, false, color, additive);
 	}
 }

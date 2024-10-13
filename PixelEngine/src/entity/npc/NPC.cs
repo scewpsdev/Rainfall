@@ -600,7 +600,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add(shopItems[i].Item2);
 			}
 
-			int choice = ItemSelector.Render(pos, displayName, items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(pos, "Buy", items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = items[choice];
@@ -634,89 +634,6 @@ public abstract class NPC : Mob, Interactable
 
 			if (closed)
 				initMenu();
-
-			/*
-			int lineHeight = 16;
-			int headerHeight = 12 + 1;
-			int sidePanelWidth = 80;
-			int shopWidth = Math.Max(120, 1 + 16 + 5 + longestItemName + 4);
-			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + shopItems.Count * lineHeight;
-			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			int y = Math.Max(pos.y - height, 2);
-
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-
-			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
-			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x + width - 1 - gem.width, y + 2, gem.width, gem.height, gem);
-			string moneyStr = GameState.instance.player.money.ToString();
-			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
-			y += headerHeight;
-
-			if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
-				selectedItem = (selectedItem + 1) % shopItems.Count;
-			if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
-				selectedItem = (selectedItem + shopItems.Count - 1) % shopItems.Count;
-
-			for (int i = 0; i < shopItems.Count; i++)
-			{
-				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
-					selectedItem = i;
-
-				bool selected = selectedItem == i;
-
-				Item item = shopItems[i].Item1;
-				int price = shopItems[i].Item2;
-
-				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, 16, 16, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
-				string name = item.fullDisplayName;
-				Renderer.DrawUITextBMP(x + 1 + 16 + 5, y + 4, name, 1, 0xFFAAAAAA);
-
-				string quantity = price.ToString();
-				bool canAfford = GameState.instance.player.money >= price;
-				Renderer.DrawUITextBMP(x + shopWidth - 4 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, canAfford ? 0xFFAAAAAA : 0xFFAA3333);
-
-				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
-
-				if (selected && canAfford && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
-				{
-					if (item.stackable && item.stackSize > 1)
-					{
-						Item copy = item.copy();
-						copy.stackSize = 1;
-						GameState.instance.player.giveItem(copy);
-						GameState.instance.player.money -= price;
-						item.stackSize--;
-					}
-					else
-					{
-						GameState.instance.player.giveItem(item);
-						GameState.instance.player.money -= price;
-
-						shopItems.RemoveAt(i);
-						i--;
-
-						if (selectedItem == shopItems.Count)
-							selectedItem--;
-						if (shopItems.Count == 0)
-							initMenu();
-					}
-				}
-
-				y += lineHeight;
-			}
-
-			// Item info panel
-			if (shopItems.Count > 0)
-			{
-				sidePanelHeight = ItemInfoPanel.Render(shopItems[selectedItem].Item1, x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(shopItems.Count * lineHeight, sidePanelHeight));
-			}
-
-			if (InputManager.IsPressed("UIBack", true))
-				initMenu();
-			*/
 		}
 		else if (state == NPCState.SellMenu)
 		{
@@ -730,7 +647,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add((int)MathF.Round(player.items[i].value));
 			}
 
-			int itemIdx = ItemSelector.Render(pos, displayName, items, prices, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			int itemIdx = ItemSelector.Render(pos, "Sell", items, prices, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (itemIdx != -1)
 			{
 				Item item = items[itemIdx];
@@ -761,99 +678,6 @@ public abstract class NPC : Mob, Interactable
 
 			if (closed)
 				initMenu();
-
-			/*
-			int lineHeight = 16;
-			int headerHeight = 12 + 1;
-			int sidePanelWidth = 80;
-			int shopWidth = Math.Max(120, 1 + 16 + 5 + longestItemName + 1);
-			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + player.items.Count * lineHeight;
-			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			int y = Math.Max(pos.y - height, 2);
-
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-
-			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
-			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x + width - 1 - gem.width, y + 2, gem.width, gem.height, gem);
-			string moneyStr = GameState.instance.player.money.ToString();
-			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
-			y += headerHeight;
-
-			if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
-				selectedItem = (selectedItem + 1) % player.items.Count;
-			if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
-				selectedItem = (selectedItem + player.items.Count - 1) % player.items.Count;
-
-			for (int i = 0; i < player.items.Count; i++)
-			{
-				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
-					selectedItem = i;
-				bool selected = selectedItem == i;
-
-				Item item = player.items[i].Item2;
-				int price = (int)MathF.Round(item.value);
-
-				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
-				string name = item.fullDisplayName;
-				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
-
-				string quantity = price.ToString();
-				Renderer.DrawUITextBMP(x + shopWidth - 1 - 16 - Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x, y + 4, quantity, 1, 0xFFf4d16b);
-
-				if (player.handItem == item)
-					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, InventoryUI.weaponSprite);
-				else if (player.offhandItem == item)
-					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, InventoryUI.shieldSprite);
-				else if (player.isActiveItem(item, out int activeSlot))
-				{
-					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, InventoryUI.bagSprite);
-					Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (activeSlot + 1).ToString(), 1, 0xFF505050);
-				}
-				else if (player.isPassiveItem(item, out int passiveSlot))
-				{
-					Renderer.DrawUISprite(x + shopWidth - 1 - 16, y, 16, 16, item.type == ItemType.Ring ? InventoryUI.ringSprite : InventoryUI.armorSprite);
-					Renderer.DrawUITextBMP(x + shopWidth - 1 - 4, y + 16 - 8, (passiveSlot + 1 - (item.type == ItemType.Ring ? player.passiveItems.Length - 2 : 0)).ToString(), 1, 0xFF505050);
-				}
-
-				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5 + 16 + Renderer.MeasureUITextBMP(quantity, quantity.Length, 1).x);
-
-				if (selected && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
-				{
-					if (item.stackable && item.stackSize > 1)
-					{
-						item.stackSize--;
-						Item copy = item.copy();
-						copy.stackSize = 1;
-						addShopItem(copy);
-						GameState.instance.player.money += price;
-					}
-					else
-					{
-						GameState.instance.player.removeItem(item);
-						addShopItem(item);
-						GameState.instance.player.money += price;
-						i--;
-
-						if (selectedItem == player.items.Count)
-							selectedItem--;
-						if (player.items.Count == 0)
-							initMenu();
-					}
-				}
-
-				y += lineHeight;
-			}
-
-			// Item info panel
-			if (player.items.Count > 0)
-				sidePanelHeight = ItemInfoPanel.Render(player.items[selectedItem].Item2, x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(player.items.Count * lineHeight, sidePanelHeight));
-
-			if (InputManager.IsPressed("UIBack", true))
-				initMenu();
-			*/
 		}
 		else if (state == NPCState.CraftingMenu)
 		{
@@ -894,86 +718,6 @@ public abstract class NPC : Mob, Interactable
 
 			if (closed)
 				initMenu();
-
-			/*
-			int lineHeight = 16;
-			int headerHeight = 12 + 1;
-			int sidePanelWidth = 80;
-			int shopWidth = Math.Max(120, 1 + lineHeight + 5 + longestItemName + 1);
-			int width = shopWidth + 1 + sidePanelWidth;
-			int height = headerHeight + craftingItems.Count * lineHeight;
-			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			int y = Math.Max(pos.y - height, 2);
-
-			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
-
-			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
-			Renderer.DrawUITextBMP(x + 2, y + 2, craftingItem1 != null ? "Select item 2" : "Select item 1", 1, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x + width - 1 - gem.width, y + 2, gem.width, gem.height, gem);
-			string moneyStr = GameState.instance.player.money.ToString();
-			Renderer.DrawUITextBMP(x + width - 1 - gem.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, 0xFFAAAAAA);
-			y += headerHeight;
-
-			if (InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true))
-				selectedItem = (selectedItem + 1) % craftingItems.Count;
-			if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
-				selectedItem = (selectedItem + craftingItems.Count - 1) % craftingItems.Count;
-
-			for (int i = 0; i < craftingItems.Count; i++)
-			{
-				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved)
-					selectedItem = i;
-				bool selected = selectedItem == i;
-
-				Item item = craftingItems[i].Item2;
-
-				Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? 0xFF333333 : 0xFF222222);
-				Renderer.DrawUISprite(x + 1, y + 1, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
-				string name = item.fullDisplayName;
-				Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, 0xFFAAAAAA);
-
-				longestItemName = Math.Max(longestItemName, Renderer.MeasureUITextBMP(name, name.Length, 1).x + 5);
-
-				if (selected && (InputManager.IsPressed("Interact", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
-				{
-					if (craftingItem1 == null)
-					{
-						craftingItem1 = item;
-						craftingItems.Remove(item.type, item);
-						if (selectedItem == craftingItems.Count)
-							selectedItem--;
-					}
-					else if (craftingItem2 == null)
-					{
-						craftingItem2 = item;
-						Item craftedItem = craftItem(craftingItem1, craftingItem2);
-						if (craftedItem != null)
-						{
-							GameState.instance.level.addEntity(new ItemEntity(craftedItem, this, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
-							craftingItem1 = null;
-							craftingItem2 = null;
-							closeScreen();
-						}
-						else
-						{
-							player.hud.showMessage("Could not craft anything out of " + craftingItem1.displayName + " and " + craftingItem2.displayName + ".");
-							craftingItem1 = null;
-							craftingItem2 = null;
-							closeScreen();
-						}
-					}
-				}
-
-				y += lineHeight;
-			}
-
-			// Item info panel
-			if (craftingItems.Count > 0)
-				sidePanelHeight = ItemInfoPanel.Render(craftingItems[selectedItem].Item2, x + shopWidth + 1, Math.Max(pos.y - height, 2) + headerHeight, sidePanelWidth, Math.Max(player.items.Count * lineHeight, sidePanelHeight));
-
-			if (InputManager.IsPressed("UIBack", true))
-				initMenu();
-			*/
 		}
 		else if (state == NPCState.UpgradeMenu)
 		{

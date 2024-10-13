@@ -22,4 +22,12 @@ public static class UIColors
 	public const uint TEXT_HEALTH = 0xFFd84343;
 	public const uint TEXT_MANA = 0xFF6555c8;
 	public const uint TEXT_SPEED = 0xFF6c8c50;
+	public const uint TEXT_ARMOR = 0xFF7582ae;
+
+	public const uint TEXT_RARITY_GARBAGE = 0xFFBBCDCD;
+	public const uint TEXT_RARITY_COMMON = 0xFFFFFFFF;
+	public const uint TEXT_RARITY_UNCOMMON = 0xFF6DDF5E;
+	public const uint TEXT_RARITY_RARE = 0xFF6373E3;
+	public const uint TEXT_RARITY_EXCEEDINGLY_RARE = 0xFF923EE1;
+	public const uint TEXT_RARITY_LEGENDARY = 0xFFEBA462;
 }

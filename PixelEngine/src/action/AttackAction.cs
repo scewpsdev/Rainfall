@@ -31,6 +31,8 @@ public class AttackAction : EntityAction
 		this.attackRate = attackRate;
 		this.attackDamage = attackDamage;
 		this.attackRange = attackRange;
+
+		turnToCrosshair = false;
 	}
 
 	public AttackAction(Item weapon, bool mainHand)
@@ -42,7 +44,13 @@ public class AttackAction : EntityAction
 	{
 		duration /= player.getAttackSpeedModifier();
 
-		direction = player.lookDirection.normalized;
+		Vector2 charDirection = new Vector2(player.direction, 0);
+		if (InputManager.IsDown("Up"))
+			charDirection = Vector2.Up;
+		else if (/*!isGrounded &&*/ InputManager.IsDown("Down"))
+			charDirection = Vector2.Down;
+
+		direction = charDirection; // player.lookDirection.normalized;
 		startAngle = new Vector2(MathF.Abs(direction.x), direction.y).angle;
 	}
 

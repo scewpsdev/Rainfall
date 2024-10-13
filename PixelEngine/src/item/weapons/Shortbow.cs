@@ -29,6 +29,7 @@ public class Shortbow : Item
 		sprite = new Sprite(tileset, 9, 3);
 
 		useSound = [Resource.GetSound("res/sounds/bow_shoot.ogg")];
+		hitSound = woodHit;
 	}
 
 	public override bool use(Player player)

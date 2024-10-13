@@ -73,7 +73,7 @@ public class Fountain : Entity, Interactable
 				potionEffects.Add(new PoisonEffect(1, 16));
 				break;
 			case FountainEffect.Mana:
-				potionEffects.Add(new ManaEffect(4, 20));
+				potionEffects.Add(new ManaEffect(3, 30));
 				break;
 			case FountainEffect.Teleport:
 				potionEffects.Add(new TeleportEffect());

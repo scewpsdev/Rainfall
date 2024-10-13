@@ -13,6 +13,8 @@ public class MoonFruit : Item
 	{
 		displayName = "Moon Fruit";
 
+		description = "+1 MP";
+
 		value = 72;
 
 		sprite = new Sprite(tileset, 13, 4);
@@ -23,8 +25,8 @@ public class MoonFruit : Item
 	public override bool use(Player player)
 	{
 		base.use(player);
-		player.maxMana += 1 + upgradeLevel;
-		player.addStatusEffect(new ManaRechargeEffect(player.maxMana, 3.0f));
+		player.magic++;
+		player.addStatusEffect(new ManaRechargeEffect(player.maxMana - player.mana, 3.0f));
 		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);
 		return true;
 	}

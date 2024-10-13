@@ -22,7 +22,7 @@ public class BuilderMerchant : NPC
 		saleTax = 0.4f;
 		buysItems = true;
 
-		populateShop(random, 1, 4, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 7, level.lootValue, ItemType.Weapon, ItemType.Armor, ItemType.Scroll, ItemType.Food, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public BuilderMerchant()

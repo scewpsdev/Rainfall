@@ -214,7 +214,7 @@ public static class InputManager
 		stream.Close();
 
 #if DEBUG
-		Utils.RunCommand("xcopy", "/y \"" + INPUT_BINDINGS_FILE + "\" \"..\\..\\..\\\"");
+		//Utils.RunCommand("xcopy", "/y \"" + INPUT_BINDINGS_FILE + "\" \"..\\..\\..\\\"");
 #endif
 
 		Console.WriteLine("Saved bindings");

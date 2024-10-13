@@ -92,7 +92,7 @@ public class MobCorpse : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, 0, rect.size.x, rect.size.y, 0, sprite, direction == -1, color);
+		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, color);
 
 		if (passiveItems != null)
 		{

@@ -194,13 +194,34 @@ public abstract class Item
 			float r = rarity;
 			if (r >= 1.0f)
 				return "Garbage";
-			if (r >= 0.5f)
+			if (r >= 0.3f)
 				return "Common";
 			if (r >= 0.1f)
 				return "Uncommon";
 			if (r >= 0.02f)
 				return "Rare";
-			return "Exceedingly Rare";
+			if (r >= 0.008f)
+				return "Exceedingly Rare";
+			return "Legendary";
+		}
+	}
+
+	public uint rarityColor
+	{
+		get
+		{
+			float r = rarity;
+			if (r >= 1.0f)
+				return UIColors.TEXT_RARITY_GARBAGE;
+			if (r >= 0.25f)
+				return UIColors.TEXT_RARITY_COMMON;
+			if (r >= 0.1f)
+				return UIColors.TEXT_RARITY_UNCOMMON;
+			if (r >= 0.03f)
+				return UIColors.TEXT_RARITY_RARE;
+			if (r >= 0.01f)
+				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
+			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
 	}
 

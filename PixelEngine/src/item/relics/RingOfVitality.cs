@@ -23,13 +23,13 @@ public class RingOfVitality : Item
 	public override void onEquip(Player player)
 	{
 		if (player.health == player.maxHealth)
-			player.health += 1 + upgradeLevel;
-		player.maxHealth += 1 + upgradeLevel;
+			player.health++;
+		player.hp++;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.maxHealth -= 1 + upgradeLevel;
+		player.hp--;
 		player.health = MathF.Min(player.health, player.maxHealth);
 	}
 }

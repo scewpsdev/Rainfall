@@ -15,8 +15,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 	public int ricochets = 0;
 	int pierces = 0;
 	public float damage;
-	bool stuck = false;
-	Vector2i stuckTile;
+	public bool stuck = false;
+	Vector2i stuckTile = Vector2i.Zero;
 
 	public float rotationVelocity = 0;
 	bool flipped;
@@ -163,7 +163,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		if (stuck)
 		{
 			TileType tile = GameState.instance.level.getTile(stuckTile.x, stuckTile.y);
-			if (tile == null || !tile.isSolid)
+			if (stuckTile != Vector2i.Zero && (tile == null || !tile.isSolid))
 				stuck = false;
 			else
 				return;
@@ -311,7 +311,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		Player player = GameState.instance.player;
 		if (outline != 0 && velocity.lengthSquared < 4 && player.velocity.lengthSquared < 4.0f)
 		{
-			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
+			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE + 0.0001f, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 
 			if (player.numOverlaysOpen == 0)
 			{

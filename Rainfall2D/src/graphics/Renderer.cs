@@ -6,8 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
 
 
 enum RenderPass
@@ -566,7 +564,7 @@ public static class Renderer
 		return new Vector2i(font.measureText(text, length != -1 ? length : text.Length) * scale, (int)(font.size * scale));
 	}
 
-	public static void DrawUITextBMP(int x, int y, string text, int size = 1, uint color = 0xFFFFFFFF)
+	public static int DrawUITextBMP(int x, int y, string text, int size = 1, uint color = 0xFFFFFFFF)
 	{
 		int cursor = 0;
 		for (int i = 0; i < text.Length; i++)
@@ -579,6 +577,39 @@ public static class Renderer
 
 			cursor += rect.size.x;
 		}
+		return cursor;
+	}
+
+	public static int DrawUITextBMPFormatted(int x, int y, string text, int size = 1, uint defaultColor = 0xFFFFFFFF)
+	{
+		uint color = defaultColor;
+
+		int cursor = 0;
+		for (int i = 0; i < text.Length; i++)
+		{
+			char c = text[i];
+			if (i < text.Length - 2 && c == '\\' && text[i + 1] == 'x')
+			{
+				i += 2;
+				int end = text.IndexOf('\\', i);
+				string content = text.Substring(i, end - i);
+				if (content.Length == 10 && content.StartsWith("0x"))
+					color = Convert.ToUInt32(content, 16);
+				else if (content.Length == 1 && content == "0")
+					color = defaultColor;
+				i = end;
+				continue;
+			}
+
+			IntRect rect = smallFont.getCharacterRect(text[i]);
+			if (rect == null)
+				rect = smallFont.getCharacterRect('?');
+
+			uiDraws.Add(new UIDraw { position = new Vector2i(x + cursor * size, y), size = new Vector2i(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+
+			cursor += rect.size.x;
+		}
+		return cursor;
 	}
 
 	public static int DrawUITextBMP(int x, int y, char c, int size = 1, uint color = 0xFFFFFFFF)
@@ -592,8 +623,32 @@ public static class Renderer
 		return rect.size.x;
 	}
 
+	static string RemoveFormatCharacters(string str)
+	{
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < str.Length; i++)
+		{
+			char c = str[i];
+			if (i < str.Length - 2 && c == '\\' && str[i + 1] == 'x')
+			{
+				i += 2;
+				int end = str.IndexOf('\\', i);
+				if (end == -1)
+					return null;
+				i = end;
+				continue;
+			}
+			else
+			{
+				result.Append(c);
+			}
+		}
+		return result.ToString();
+	}
+
 	public static Vector2i MeasureUITextBMP(string text, int length = -1, int scale = 1)
 	{
+		text = RemoveFormatCharacters(text);
 		return new Vector2i(smallFont.measureText(text, length != -1 ? length : text.Length) * scale, smallFont.size * scale);
 	}
 
@@ -660,7 +715,7 @@ public static class Renderer
 		for (int i = 0; i < words.Length; i++)
 		{
 			string word = words[i];
-			int wordWidth = MeasureUITextBMP(word).x;
+			int wordWidth = MeasureUITextBMP(RemoveFormatCharacters(word)).x;
 			if (currentLineWidth + spaceWidth + wordWidth > maxWidth)
 			{
 				lines.Add(currentLine.ToString());
