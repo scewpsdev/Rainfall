@@ -14,6 +14,7 @@ public class Projectile : Entity
 	protected float rotationSpeed = 0;
 	protected int maxRicochets = 0;
 	protected float damage = 1;
+	protected float maxRange = 1000;
 
 	public Entity shooter;
 	protected Item item;
@@ -24,6 +25,7 @@ public class Projectile : Entity
 
 	int ricochets = 0;
 	Vector2 offset;
+	float currentDistance = 0;
 
 	List<Entity> hitEntities = new List<Entity>();
 
@@ -61,13 +63,20 @@ public class Projectile : Entity
 
 		Vector2 displacement = velocity * Time.deltaTime;
 		position += displacement;
+		currentDistance += displacement.length;
+
+		if (currentDistance >= maxRange)
+		{
+			GameState.instance.level.addEntity(new BulletDisappearEffect(), position);
+			remove();
+		}
 
 		if (rotationSpeed > 0)
 			rotation += rotationSpeed * Time.deltaTime;
 		else
 			rotation = MathF.Atan2(velocity.y, velocity.x);
 
-		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
+		offset = Vector2.Lerp(offset, Vector2.Zero, 5 * Time.deltaTime);
 
 		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit == null)

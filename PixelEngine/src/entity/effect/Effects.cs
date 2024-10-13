@@ -61,7 +61,7 @@ public static unsafe class Effects
 		effect.systems[0].handle->bursts[0].count = (int)MathF.Ceiling(strength * 0.5f);
 		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
-		effect.systems[0].handle->lifetime *= 0.5f;
+		effect.systems[0].handle->lifetime *= 0.1f;
 		effect.collision = true;
 		//effect.bounce = true;
 		return effect;

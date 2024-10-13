@@ -31,6 +31,7 @@ public class InventoryUI
 	int selectedItem = 0;
 	int sidePanelHeight = 40;
 	int inventoryHeight = 120;
+	int characterHeight = 150;
 
 	int currentScroll = 0;
 
@@ -166,23 +167,27 @@ public class InventoryUI
 
 		if (selectedItem >= firstEquipmentItem && selectedItem < firstActiveItem)
 		{
-			if (InputManager.IsPressed("Right", true))
+			if (Input.IsKeyPressed(KeyCode.L))
 			{
+				Input.ConsumeKeyEvent(KeyCode.L);
 				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 1) % 3;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Left", true))
+			if (Input.IsKeyPressed(KeyCode.J))
 			{
+				Input.ConsumeKeyEvent(KeyCode.J);
 				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 3 - 1) % 3;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Down", true))
+			if (Input.IsKeyPressed(KeyCode.K))
 			{
+				Input.ConsumeKeyEvent(KeyCode.K);
 				selectedItem = (selectedItem / 3 + 1) * 3 + selectedItem % 3;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Up", true))
+			if (Input.IsKeyPressed(KeyCode.I))
 			{
+				Input.ConsumeKeyEvent(KeyCode.I);
 				if (selectedItem == firstActiveItem - 1)
 					selectedItem -= 2;
 				else
@@ -216,23 +221,27 @@ public class InventoryUI
 		if (selectedItem >= firstActiveItem && selectedItem < firstPassiveItem)
 		{
 			selectedItem -= firstActiveItem;
-			if (InputManager.IsPressed("Right", true))
+			if (Input.IsKeyPressed(KeyCode.L))
 			{
+				Input.ConsumeKeyEvent(KeyCode.L);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Left", true))
+			if (Input.IsKeyPressed(KeyCode.J))
 			{
+				Input.ConsumeKeyEvent(KeyCode.J);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Down", true))
+			if (Input.IsKeyPressed(KeyCode.K))
 			{
+				Input.ConsumeKeyEvent(KeyCode.K);
 				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Up", true))
+			if (Input.IsKeyPressed(KeyCode.I))
 			{
+				Input.ConsumeKeyEvent(KeyCode.I);
 				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
@@ -266,23 +275,27 @@ public class InventoryUI
 		if (selectedItem >= firstPassiveItem && selectedItem < firstPassiveItem + idx)
 		{
 			selectedItem -= firstPassiveItem;
-			if (InputManager.IsPressed("Right", true))
+			if (Input.IsKeyPressed(KeyCode.L))
 			{
+				Input.ConsumeKeyEvent(KeyCode.L);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Left", true))
+			if (Input.IsKeyPressed(KeyCode.J))
 			{
+				Input.ConsumeKeyEvent(KeyCode.J);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Down", true))
+			if (Input.IsKeyPressed(KeyCode.K))
 			{
+				Input.ConsumeKeyEvent(KeyCode.K);
 				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("Up", true))
+			if (Input.IsKeyPressed(KeyCode.I))
 			{
+				Input.ConsumeKeyEvent(KeyCode.I);
 				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
@@ -330,7 +343,7 @@ public class InventoryUI
 		{
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
 
-			CharacterInfoPanel.Render(10, 50, 140, 150, player);
+			characterHeight = CharacterInfoPanel.Render(10, 50, 140, characterHeight, player);
 
 			int width = 90;
 			int x = Renderer.UIWidth - 10 - width;
@@ -342,7 +355,7 @@ public class InventoryUI
 				int sidePanelWidth = 90;
 				sidePanelHeight = ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
 
-				if (InputManager.IsPressed("UIConfirm2", true))
+				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 				{
 					if (selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None)
 					{

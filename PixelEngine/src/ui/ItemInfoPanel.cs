@@ -30,13 +30,13 @@ public static class ItemInfoPanel
 		}
 		y++;
 
-		string rarityString = item.rarityString;
+		string rarityString = "\\x0x" + item.rarityColor.ToString("X") + "\\" + item.rarityString + "\\x0\\";
 		string itemTypeStr = item.type.ToString();
 		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + (item.isSecondaryItem ? "Secondary " : "") + itemTypeStr;
 		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width);
 		foreach (string line in itemInfoLines)
 		{
-			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT_SUBTLE);
+			Renderer.DrawUITextBMPFormatted(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT_SUBTLE);
 			y += Renderer.smallFont.size;
 		}
 		y += 4;

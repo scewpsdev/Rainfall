@@ -26,7 +26,7 @@ public class Blacksmith : NPC
 		initialDialogue = new Dialogue();
 		initialDialogue.addVoiceLine("Mmh.");
 
-		populateShop(random, 2, 5, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 2, 8, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 
 	public Blacksmith()

@@ -183,7 +183,7 @@ public class HUD
 		int width = (int)MathF.Round(player.maxHealth * 20);
 		int height = 7;
 		int x = Renderer.UIWidth / 2 - 8 - 2 - width;
-		int y = Renderer.UIHeight - 4 - 16 - 4 - height;
+		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
 
 		Renderer.DrawUISprite(x - 1, y, width + 2, height, null, false, frameColor);
 		Renderer.DrawUISprite(x, y - 1, width, height + 2, null, false, frameColor);
@@ -227,7 +227,7 @@ public class HUD
 		int width = (int)MathF.Round(player.maxMana * 20);
 		int height = 7;
 		int x = Renderer.UIWidth / 2 + 8 + 1;
-		int y = Renderer.UIHeight - 4 - 16 - 4 - height;
+		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
 
 		Renderer.DrawUISprite(x - 1, y, width + 2, height, null, false, frameColor);
 		Renderer.DrawUISprite(x, y - 1, width, height + 2, null, false, frameColor);
@@ -240,6 +240,22 @@ public class HUD
 
 		string countTxt = ((int)MathF.Floor(player.mana * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxMana * 10)).ToString();
 		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
+	}
+
+	void renderXP()
+	{
+		int width = 80;
+		int height = 2;
+		int x = Renderer.UIWidth / 2 - width / 2;
+		int y = Renderer.UIHeight - 4 - 16 - 4;
+
+		float progress = player.xp / (float)player.nextLevelXP;
+
+		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF222222);
+		Renderer.DrawUISprite(x, y, (int)MathF.Round(width * progress), height, null, false, UIColors.TEXT_SPEED);
+
+		string lvlStr = player.playerLevel.ToString();
+		Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - Renderer.MeasureUITextBMP(lvlStr).x / 2, y - 8, lvlStr, 1, UIColors.TEXT_SPEED);
 	}
 
 	void ___renderMoney()
@@ -645,6 +661,7 @@ public class HUD
 
 		renderHealth();
 		renderMana();
+		renderXP();
 		renderMoney();
 		renderArmor();
 		renderStatusEffects();

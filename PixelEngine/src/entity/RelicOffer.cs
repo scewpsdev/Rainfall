@@ -10,20 +10,29 @@ public class RelicOffer : Entity
 {
 	List<ItemEntity> items = new List<ItemEntity>(3);
 
+	Sprite pedestal;
+
+
+	public RelicOffer()
+	{
+		pedestal = new Sprite(TileType.tileset, 0, 6);
+	}
+
 	public override void init(Level level)
 	{
 		// TODO modify count?
 		for (int i = 0; i < 3; i++)
 		{
 			Item item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
-			while(hasItem(item.name))
+			while (hasItem(item.name))
 				item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
 
-			Vector2 velocity = new Vector2(i - 1, 3) * 1.5f;
-			ItemEntity entity = new ItemEntity(item, null, velocity);
-			GameState.instance.level.addEntity(entity, position + new Vector2((i - 1) * 0.2f, 0.5f));
-			items.Add(entity);
+			ItemEntity entity = new ItemEntity(item);
+			entity.gravity = 0;
+			entity.stuck = true;
 			entity.removeCallbacks.Add(() => { items.Remove(entity); });
+			GameState.instance.level.addEntity(entity, position + new Vector2((i - 1) * 1.5f, 1.0f));
+			items.Add(entity);
 		}
 	}
 
@@ -44,6 +53,27 @@ public class RelicOffer : Entity
 			for (int i = 0; i < items.Count; i++)
 				items[i].remove();
 			remove();
+		}
+	}
+
+	public override void render()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			Vector2 pedestalPosition = position + new Vector2((i - 1) * 1.5f, 0);
+			for (int j = 0; j < 3; j++)
+			{
+				TileType tile = GameState.instance.level.getTile(pedestalPosition + new Vector2(0, 0.1f));
+				if (tile != null && tile.isSolid)
+					pedestalPosition += Vector2.Up;
+			}
+			for (int j = 0; j < 3; j++)
+			{
+				TileType below = GameState.instance.level.getTile(pedestalPosition + new Vector2(0, -0.9f));
+				if (below == null || !below.isSolid)
+					pedestalPosition -= Vector2.Up;
+			}
+			Renderer.DrawSprite(pedestalPosition.x - 0.5f, pedestalPosition.y, 1, 1, pedestal);
 		}
 	}
 }

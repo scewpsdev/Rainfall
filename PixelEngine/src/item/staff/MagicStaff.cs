@@ -30,6 +30,7 @@ public class MagicStaff : Item
 		renderOffset.x = 0.4f;
 
 		castSound = Resource.GetSounds("res/sounds/cast", 3);
+		hitSound = woodHit;
 	}
 
 	public override void update(Entity entity)

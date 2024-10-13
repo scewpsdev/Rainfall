@@ -13,9 +13,9 @@ public class RingOfSwiftness : Item
 	{
 		displayName = "Ring of Swiftness";
 
-		description = "Increases speed by 1";
+		description = "Increases speed by 20%";
 
-		value = 100;
+		value = 70;
 
 		sprite = new Sprite(tileset, 9, 0);
 

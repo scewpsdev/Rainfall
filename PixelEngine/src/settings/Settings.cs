@@ -75,7 +75,7 @@ public static class Settings
 		file.serialize(gameSettingsPath);
 
 #if DEBUG
-		Utils.RunCommand("xcopy", "/y \"" + gameSettingsPath + "\" \"..\\..\\..\\\"");
+		//Utils.RunCommand("xcopy", "/y \"" + gameSettingsPath + "\" \"..\\..\\..\\\"");
 #endif
 
 		Console.WriteLine("Saved game settings");
@@ -88,7 +88,7 @@ public static class Settings
 		file.serialize(graphicsSettingsPath);
 
 #if DEBUG
-		Utils.RunCommand("xcopy", "/y \"" + graphicsSettingsPath + "\" \"..\\..\\..\\\"");
+		//Utils.RunCommand("xcopy", "/y \"" + graphicsSettingsPath + "\" \"..\\..\\..\\\"");
 #endif
 
 		Console.WriteLine("Saved graphics settings");

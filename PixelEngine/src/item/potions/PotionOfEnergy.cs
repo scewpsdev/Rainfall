@@ -36,7 +36,7 @@ public class PotionOfEnergy : Potion
 	public PotionOfEnergy()
 		: base("potion_of_energy")
 	{
-		addEffect(new ManaEffect());
+		addEffect(new ManaEffect(4, 60));
 
 		displayName = "Potion of Energy";
 		stackable = true;

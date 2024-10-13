@@ -40,6 +40,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float poise = 1;
 	public float awareness = 0.5f;
 
+	public float maxHealth;
+
 	public bool isBoss = false;
 	public bool canClimb = false;
 	public bool canFly = false;
@@ -86,6 +88,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		this.name = name;
 
 		filterGroup = FILTER_MOB;
+	}
+
+	public override void init(Level level)
+	{
+		maxHealth = health;
 	}
 
 	public override void destroy()
@@ -164,7 +171,12 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		if (Random.Shared.NextSingle() < relicDropChance)
 		{
-			GameState.instance.level.addEntity(new RelicOffer(), position);
+			HitData hit = GameState.instance.level.raycastTiles(position, Vector2.Down, 5);
+			if (hit != null)
+			{
+				Vector2 relicPosition = position + Vector2.Down * hit.distance;
+				GameState.instance.level.addEntity(new RelicOffer(), relicPosition);
+			}
 		}
 		else
 		{
@@ -208,7 +220,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			statusEffects[i].destroy(this);
 		statusEffects.Clear();
 
-		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, rect, direction, velocity, impulseVelocity, collider, 0xFF7F7F7F), position);
+		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, rect, direction, Vector2.Zero, impulseVelocity, collider, 0xFF7F7F7F), position);
 
 		remove();
 	}

@@ -21,15 +21,15 @@ public class MissileSpell : Spell
 		knockback = 1.0f;
 		trigger = false;
 
-		sprite = new Sprite(tileset, 0, 6);
+		sprite = new Sprite(tileset, 14, 7);
 
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
 	public override void cast(Player player, Item staff)
 	{
-		Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.3f);
-		Vector2 offset = new Vector2(player.direction * 0.3f, 0.1f);
+		Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
+		Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
