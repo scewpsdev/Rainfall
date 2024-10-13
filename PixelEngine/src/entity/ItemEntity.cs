@@ -114,9 +114,9 @@ public class ItemEntity : Entity, Interactable, Hittable
 			TileType tile = GameState.instance.level.getTile(pos);
 			if (tile != null)
 			{
-				Vector2 normal = new Vector2(x ? MathF.Sign(velocity.x) : 0, y ? MathF.Sign(velocity.y) : 0);
-				uint color = tile.particleColor;
-				GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(color).xyz), position + velocity.normalized * 0.01f);
+				//Vector2 normal = new Vector2(x ? MathF.Sign(velocity.x) : 0, y ? MathF.Sign(velocity.y) : 0);
+				//uint color = tile.particleColor;
+				//GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(color).xyz), position + velocity.normalized * 0.01f);
 			}
 		}
 

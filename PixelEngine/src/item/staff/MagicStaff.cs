@@ -62,7 +62,7 @@ public class MagicStaff : Item
 
 	public override bool useSecondary(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 3, 1, 1));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 3, 0.5f, 1));
 		return false;
 	}
 }

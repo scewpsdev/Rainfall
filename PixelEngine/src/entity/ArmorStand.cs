@@ -52,14 +52,14 @@ public class ArmorStand : Entity, Interactable
 
 	Vector2 getWeaponOrigin(bool mainHand)
 	{
-		return new Vector2((!mainHand ? 4 / 16.0f : -3 / 16.0f), (!mainHand ? 5 / 16.0f : 4 / 16.0f));
+		return new Vector2((!mainHand ? 2 / 16.0f : -3 / 16.0f) * direction, (!mainHand ? 5 / 16.0f : 4 / 16.0f));
 	}
 
 	public override void render()
 	{
 		if (outline != 0)
 		{
-			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.001f, 1, 1, 0, sprite, direction == -1, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.002f, 1, 1, 0, sprite, direction == -1, outline);
 
 			if (startingClass != null)
 			{
@@ -67,11 +67,15 @@ public class ArmorStand : Entity, Interactable
 				{
 					if (startingClass.items[i].ingameSprite != null)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG + 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG + 0.002f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
+					}
+					else if (startingClass.items[i].isSecondaryItem)
+					{
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(false).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(false).y, LAYER_BG + 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
 					}
 					else if (startingClass.items[i].isHandItem)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.001f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
 					}
 				}
 			}
@@ -87,9 +91,13 @@ public class ArmorStand : Entity, Interactable
 				{
 					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG - 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, startingClass.items[i].ingameSpriteColor);
 				}
+				else if (startingClass.items[i].isSecondaryItem)
+				{
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(false).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(false).y, LAYER_BG + 0.001f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, startingClass.items[i].spriteColor);
+				}
 				else if (startingClass.items[i].isHandItem)
 				{
-					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG - 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, startingClass.items[i].spriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG - 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, startingClass.items[i].spriteColor);
 				}
 			}
 
