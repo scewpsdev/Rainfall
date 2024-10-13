@@ -12,5 +12,6 @@ public class BulletDisappearEffect : AnimatedEffect
 		: base(Resource.GetTexture("res/sprites/bullet_disappear.png", false), 24)
 	{
 		additive = true;
+		color = new Vector4(3, 3, 3, 1);
 	}
 }

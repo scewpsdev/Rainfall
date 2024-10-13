@@ -13,21 +13,23 @@ public class AmethystRing : Item
 	{
 		displayName = "Amethyst Ring";
 
-		description = "Increases energy recovery rate";
-		value = 45;
+		description = "Increases maximum health by 1";
 
-		sprite = new Sprite(tileset, 13, 5);
+		value = 64;
 
-		modifier = new Modifier() { manaRecoveryModifier = 2 };
+		sprite = new Sprite(tileset, 10, 0);
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		if (player.health == player.maxHealth)
+			player.health++;
+		player.hp++;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.hp--;
+		player.health = MathF.Min(player.health, player.maxHealth);
 	}
 }

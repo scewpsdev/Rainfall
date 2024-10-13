@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Bloodfang : Item
 {
-	float amount = 0.04f;
+	float amount = 0.01f;
 
 	public Bloodfang()
 		: base("bloodfang", ItemType.Relic)

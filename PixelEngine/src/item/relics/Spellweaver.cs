@@ -17,7 +17,7 @@ public class Spellweaver : Item
 
 		value = 27;
 
-		sprite = new Sprite(tileset, 5, 6);
+		sprite = new Sprite(tileset, 15, 7);
 
 		modifier = new Modifier() { manaCostModifier = 0.8f };
 	}

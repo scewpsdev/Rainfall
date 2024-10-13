@@ -59,7 +59,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(50 * MathF.Exp((playerLevel - 1) * 0.1f));
+	public int nextLevelXP => (int)MathF.Round(40 * (1 + 0.25f * (playerLevel - 1)));
 
 	public List<Modifier> modifiers = new List<Modifier>();
 
@@ -901,13 +901,21 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			xp -= nextLevelXP;
 			playerLevel++;
-			//onLevelUp();
+			onLevelUp();
 		}
 
 		for (int i = 0; i < items.Count; i++)
 			items[i].onKill(this, mob);
 
 		GameState.instance.save.onKill(mob);
+	}
+
+	void onLevelUp()
+	{
+		GameState.instance.level.addEntity(new LevelUpEffect(this), position + Vector2.Up * 1);
+
+		addStatusEffect(new HealStatusEffect(maxHealth, 2));
+		addStatusEffect(new ManaRechargeEffect(maxMana, 2));
 	}
 
 	void updateMovement()

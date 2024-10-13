@@ -194,7 +194,7 @@ public abstract class Item
 			float r = rarity;
 			if (r >= 1.0f)
 				return "Garbage";
-			if (r >= 0.3f)
+			if (r >= 0.5f)
 				return "Common";
 			if (r >= 0.1f)
 				return "Uncommon";
@@ -357,7 +357,7 @@ public abstract class Item
 		InitType(new Spear());
 		InitType(new Torch());
 		InitType(new RingOfSwiftness());
-		InitType(new RingOfVitality());
+		InitType(new AmethystRing());
 		InitType(new MagicArrowStaff());
 		InitType(new PotionOfGreaterHealing());
 		InitType(new Lantern());
@@ -387,7 +387,7 @@ public abstract class Item
 		InitType(new IronShield());
 		InitType(new ThornShield());
 		InitType(new Scimitar());
-		InitType(new WizardsHood());
+		InitType(new WizardsHat());
 		InitType(new Zweihander());
 		InitType(new TravellingCloak());
 		InitType(new Shortbow());
@@ -402,7 +402,7 @@ public abstract class Item
 		InitType(new ThrowingKnife());
 		InitType(new StaffOfIllumination());
 		InitType(new Halberd());
-		InitType(new WizardsHat());
+		InitType(new LargeWizardHat());
 		InitType(new RingOfDexterity());
 		InitType(new Greathammer());
 		InitType(new MoonBlossom());
@@ -419,7 +419,7 @@ public abstract class Item
 		InitType(new Potion());
 		InitType(new IronKey());
 		InitType(new Lockpick());
-		InitType(new AmethystRing());
+		InitType(new SapphireRing());
 		InitType(new AssassinsDagger());
 		InitType(new RoyalGreatsword());
 		InitType(new Magnet());
