@@ -10,7 +10,7 @@ public class RingOfTears : Item
 {
 	bool active = false;
 
-	float buff = 0.5f;
+	float dmgBuff = 0.5f;
 
 
 	public RingOfTears()
@@ -24,18 +24,18 @@ public class RingOfTears : Item
 
 		sprite = new Sprite(tileset, 10, 2);
 
-		modifier = new Modifier();
+		buff = new ItemBuff();
 	}
 
 	void activate(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 		active = true;
 	}
 
 	void deactivate(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 		active = false;
 	}
 
@@ -57,12 +57,12 @@ public class RingOfTears : Item
 				deactivate(player);
 		}
 
-		modifier.attackDamageModifier = 1 + buff;
+		buff.meleeDamageModifier = 1 + dmgBuff;
 	}
 
 	public override void upgrade()
 	{
 		base.upgrade();
-		buff += 0.1f;
+		dmgBuff += 0.1f;
 	}
 }

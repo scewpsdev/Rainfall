@@ -40,7 +40,7 @@ public class ArrowTrap : Entity
 	void shoot()
 	{
 		Vector2 velocity = (direction + new Vector2(0, 0.1f)) * SPEED;
-		GameState.instance.level.addEntity(new ItemEntity(new Arrow() { attackDamage = 2 }, this, velocity), position + new Vector2(0.5f) + direction.normalized * 0.7f);
+		GameState.instance.level.addEntity(new ItemEntity(new Arrow() { baseDamage = 2 }, this, velocity), position + new Vector2(0.5f) + direction.normalized * 0.7f);
 		hasAmmo = false;
 	}
 

@@ -46,8 +46,6 @@ public class Projectile : Entity
 
 		if (item != null)
 			damage = item.attackDamage;
-		if (shooter is Player)
-			damage *= (shooter as Player).getAttackDamageModifier();
 	}
 
 	public virtual void onHit(Vector2 normal)
@@ -57,7 +55,7 @@ public class Projectile : Entity
 	public override void update()
 	{
 		velocity += velocity.normalized * acceleration * Time.deltaTime;
-		velocity.y += gravity * Time.deltaTime;
+		//velocity.y += gravity * Time.deltaTime;
 		if (velocity.length > maxSpeed)
 			velocity = velocity.normalized * maxSpeed;
 
@@ -89,7 +87,21 @@ public class Projectile : Entity
 				{
 					Hittable hittable = hit.entity as Hittable;
 					hitEntities.Add(hit.entity);
-					if (hittable.hit(damage, this, item))
+
+					Player player = GameState.instance.player;
+
+					bool critical = false;
+					if (hit.entity is Mob)
+					{
+						Mob mob = hit.entity as Mob;
+						critical = mob.isStunned && mob.criticalStun
+						|| Random.Shared.NextSingle() < player.criticalChance * player.getCriticalChanceModifier()
+							|| mob.ai.target != player && player.getStealthAttackModifier() > 1;
+					}
+					if (critical)
+						damage *= 2 * player.getCriticalAttackModifier();
+
+					if (hittable.hit(damage, this, item, null, true, critical))
 					{
 						onHit(hit.normal);
 
@@ -123,6 +135,6 @@ public class Projectile : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, spriteColor, additive);
+		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0.001f, 1, 1, rotation, sprite, false, spriteColor, additive);
 	}
 }

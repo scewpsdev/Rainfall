@@ -13,12 +13,12 @@ public class MagicStaff : Item
 	{
 		displayName = "Magic Staff";
 
-		attackRate = 1;
+		baseAttackRate = 1;
 		trigger = false;
 		//isSecondaryItem = true;
 		secondaryChargeTime = 0;
 
-		attackDamage = 1.0f;
+		baseDamage = 1.0f;
 		manaCost = 1.0f;
 		knockback = 1;
 

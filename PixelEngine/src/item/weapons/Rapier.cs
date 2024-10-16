@@ -13,11 +13,11 @@ public class Rapier : Item
 	{
 		displayName = "Rapier";
 
-		attackDamage = 1.5f;
-		attackRange = 1.5f;
-		attackRate = 2.5f;
+		baseDamage = 1.5f;
+		baseAttackRange = 1.5f;
+		baseAttackRate = 2.5f;
 		attackCooldown = 2;
-		weight = 1.5f;
+		baseWeight = 1.5f;
 
 		value = 14;
 

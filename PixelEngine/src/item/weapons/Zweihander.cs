@@ -13,12 +13,12 @@ public class Zweihander : Item
 	{
 		displayName = "Zweihander";
 
-		attackDamage = 5;
-		attackRange = 1.8f;
-		attackRate = 1.0f;
+		baseDamage = 5;
+		baseAttackRange = 1.8f;
+		baseAttackRate = 1.0f;
 		stab = false;
 		twoHanded = true;
-		weight = 2.5f;
+		baseWeight = 2.5f;
 
 		value = 48;
 

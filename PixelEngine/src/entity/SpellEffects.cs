@@ -26,7 +26,7 @@ public static class SpellEffects
 				if (hit == null)
 				{
 					float distance = (tileCenter - position).length - 0.5f;
-					if (distance < radius && tile != null && tile.destructible)
+					if (distance < radius * 0.75f && tile != null && tile.destructible)
 						GameState.instance.level.setTile(x, y, null);
 				}
 			}

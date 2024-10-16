@@ -13,9 +13,9 @@ public class MoonbladeAxe : Item
 	{
 		displayName = "Moonblade Axe";
 
-		attackDamage = 2.0f;
-		attackRange = 1.9f;
-		attackRate = 1.2f;
+		baseDamage = 2.0f;
+		baseAttackRange = 1.9f;
+		baseAttackRate = 1.2f;
 		stab = false;
 
 		value = 57;

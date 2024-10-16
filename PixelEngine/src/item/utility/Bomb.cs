@@ -26,7 +26,7 @@ public class Bomb : Item
 
 		value = 5;
 
-		attackDamage = 8;
+		baseDamage = 8;
 		knockback = 20;
 
 		sprite = new Sprite(tileset, 1, 0);
@@ -62,7 +62,7 @@ public class Bomb : Item
 
 	void explode(Entity entity)
 	{
-		SpellEffects.Explode(entity.position, blastRadius, attackDamage, entity, this);
+		SpellEffects.Explode(entity.position, blastRadius, baseDamage, entity, this);
 	}
 
 	public override void update(Entity entity)

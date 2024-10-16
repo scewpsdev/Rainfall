@@ -13,11 +13,11 @@ public class BrokenSword : Item
 	{
 		displayName = "Broken Sword";
 
-		attackDamage = 0.8f;
-		attackRange = 1;
-		attackRate = 2;
+		baseDamage = 0.8f;
+		baseAttackRange = 1;
+		baseAttackRate = 2;
 		stab = false;
-		weight = 1;
+		baseWeight = 1;
 
 		value = 2;
 

@@ -13,16 +13,16 @@ public class Dagger : Item
 	{
 		displayName = "Dagger";
 
-		attackDamage = 1;
-		attackRange = 1.0f;
-		attackRate = 3;
+		baseDamage = 1;
+		baseAttackRange = 1.0f;
+		baseAttackRate = 3;
 
 		projectileItem = true;
 		projectileSticks = true;
 		//projectileAims = true;
 		projectileSpins = true;
 		isSecondaryItem = true;
-		weight = 1;
+		baseWeight = 1;
 
 		value = 4;
 
@@ -31,17 +31,17 @@ public class Dagger : Item
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
 
-		modifier = new Modifier() { criticalChanceModifier = 2 };
+		buff = new ItemBuff() { criticalChanceModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 
 	public override bool use(Player player)
@@ -60,6 +60,6 @@ public class Dagger : Item
 	public override void upgrade()
 	{
 		base.upgrade();
-		modifier.criticalChanceModifier *= 1.2f;
+		buff.criticalChanceModifier *= 1.2f;
 	}
 }

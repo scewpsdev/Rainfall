@@ -15,7 +15,7 @@ public class LeatherArmor : Item
 
 		armor = 4;
 		armorSlot = ArmorSlot.Body;
-		weight = 1;
+		baseWeight = 1;
 
 		value = 8;
 

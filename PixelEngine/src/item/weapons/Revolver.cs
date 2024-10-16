@@ -13,10 +13,10 @@ public class Revolver : Item
 	{
 		displayName = "Revolver";
 
-		attackRate = 10.0f;
+		baseAttackRate = 10.0f;
 		//trigger = false;
 
-		attackDamage = 10;
+		baseDamage = 10;
 
 		value = 1000;
 		canDrop = false;

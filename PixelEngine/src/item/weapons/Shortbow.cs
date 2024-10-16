@@ -14,15 +14,15 @@ public class Shortbow : Item
 	{
 		displayName = "Shortbow";
 
-		attackDamage = 1;
-		attackRate = 2.0f;
-		attackRange = 30; // arrow speed
+		baseDamage = 1;
+		baseAttackRate = 2.0f;
+		baseAttackRange = 30; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";
 		isSecondaryItem = true;
 		secondaryChargeTime = 0;
-		weight = 1;
+		baseWeight = 1;
 
 		value = 32;
 

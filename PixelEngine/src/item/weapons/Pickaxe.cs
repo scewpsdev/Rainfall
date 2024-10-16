@@ -13,9 +13,9 @@ public class Pickaxe : Item
 	{
 		displayName = "Pickaxe";
 
-		attackDamage = 2;
-		attackRange = 1.2f;
-		attackRate = 1.5f;
+		baseDamage = 2;
+		baseAttackRange = 1.2f;
+		baseAttackRate = 1.5f;
 		stab = false;
 
 		value = 27;

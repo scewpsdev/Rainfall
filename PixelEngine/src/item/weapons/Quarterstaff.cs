@@ -13,15 +13,15 @@ public class Quarterstaff : Item
 	{
 		displayName = "Quarterstaff";
 
-		attackDamage = 1.0f;
-		attackRange = 1.2f;
-		attackRate = 2.5f;
+		baseDamage = 1.0f;
+		baseAttackRange = 1.2f;
+		baseAttackRate = 2.5f;
 		stab = false;
 		attackAngle = MathF.PI * 2;
 		attackCooldown = 0.5f;
 		twoHanded = true;
 		secondaryChargeTime = 0.3f;
-		weight = 1;
+		baseWeight = 1;
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
@@ -44,7 +44,7 @@ public class Quarterstaff : Item
 			if (attack.weapon == this)
 				anim = !attack.stab;
 		}
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, attackRate, attackDamage, attackRange));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange));
 		return false;
 	}
 

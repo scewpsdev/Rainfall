@@ -15,7 +15,7 @@ public class BarbarianHelmet : Item
 
 		armor = 5;
 		armorSlot = ArmorSlot.Helmet;
-		weight = 2;
+		baseWeight = 2;
 
 		value = 12;
 

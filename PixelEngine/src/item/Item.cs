@@ -42,6 +42,33 @@ public enum ArmorSlot
 	Count
 }
 
+public class Infusion
+{
+	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.1f };
+	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.9f };
+	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, damageMultiplier = 0.9f };
+	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 0.8f, weightMultiplier = 1.5f, damageMultiplier = 1.2f };
+	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f };
+	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.8f };
+	public static readonly Infusion Flawless = new Infusion("Flawless") { damageMultiplier = 1.05f, attackSpeedMultiplier = 1.05f, weightMultiplier = 0.9f, rangeMultiplier = 1.1f };
+	public static readonly Infusion Broken = new Infusion("Broken") { damageMultiplier = 0.5f, attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, rangeMultiplier = 0.7f };
+
+	public static readonly Infusion[] infusions = [Sharp, Blunt, Light, Heavy, Long, Short, Flawless, Broken];
+
+
+	public string name;
+
+	public float damageMultiplier = 1.0f;
+	public float attackSpeedMultiplier = 1.0f;
+	public float weightMultiplier = 1.0f;
+	public float rangeMultiplier = 1.0f;
+
+	private Infusion(string name)
+	{
+		this.name = name;
+	}
+}
+
 public abstract class Item
 {
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
@@ -79,11 +106,45 @@ public abstract class Item
 	public ArmorSlot armorSlot = ArmorSlot.None;
 	public bool identified = true;
 
-	public float attackDamage = 1;
-	public float attackRange = 1;
+	public float baseDamage = 1;
+	public float attackDamage
+	{
+		get
+		{
+			float damage = baseDamage;
+			foreach (Infusion infusion in infusions)
+				damage *= infusion.damageMultiplier;
+			return damage;
+		}
+	}
+
+	protected float baseAttackRange = 1;
+	public float attackRange
+	{
+		get
+		{
+			float range = baseAttackRange;
+			foreach (Infusion infusion in infusions)
+				range *= infusion.rangeMultiplier;
+			return range;
+		}
+	}
+
 	public float attackAngle = MathF.PI;
 	public float attackAngleOffset = -0.25f * MathF.PI;
-	public float attackRate = 2.0f;
+
+	protected float baseAttackRate = 2.0f;
+	public float attackRate
+	{
+		get
+		{
+			float rate = baseAttackRate;
+			foreach (Infusion infusion in infusions)
+				rate *= infusion.attackSpeedMultiplier;
+			return rate;
+		}
+	}
+
 	public float attackCooldown = 1.0f;
 	public float secondaryChargeTime = 0.5f;
 	public float blockDuration = 0.7f;
@@ -101,9 +162,22 @@ public abstract class Item
 	public int maxStaffCharges = 0;
 
 	public int armor = 0;
-	public float weight = 0.0f;
 
-	public Modifier modifier = null;
+	protected float baseWeight = 0.0f;
+	public float weight
+	{
+		get
+		{
+			float value = baseWeight;
+			foreach (Infusion infusion in infusions)
+				value *= infusion.weightMultiplier;
+			return value;
+		}
+	}
+
+	public ItemBuff buff = null;
+
+	public HashSet<Infusion> infusions = new HashSet<Infusion>();
 
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
@@ -159,7 +233,7 @@ public abstract class Item
 		equipSound = type == ItemType.Relic ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 
 		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 4 : type == ItemType.Spell ? 1 : 4;
-		weight = type == ItemType.Weapon ? 2 : type == ItemType.Shield ? 2 : type == ItemType.Staff ? 1 : type == ItemType.Armor ? 1 : 0;
+		baseWeight = type == ItemType.Weapon ? 2 : type == ItemType.Shield ? 2 : type == ItemType.Staff ? 1 : type == ItemType.Armor ? 1 : 0;
 	}
 
 	public Item copy()
@@ -184,7 +258,18 @@ public abstract class Item
 
 	public string fullDisplayName
 	{
-		get => (stackable && stackSize > 1 ? stackSize + "x " : "") + displayName + (upgradeLevel > 0 ? " +" + upgradeLevel : "");
+		get
+		{
+			StringBuilder result = new StringBuilder();
+			if (stackable && stackSize > 1)
+				result.Append(stackSize).Append("x ");
+			foreach (Infusion infusion in infusions)
+				result.Append(infusion.name).Append(' ');
+			result.Append(displayName);
+			if (upgradeLevel > 0)
+				result.Append(" +").Append(upgradeLevel);
+			return result.ToString();
+		}
 	}
 
 	public string rarityString
@@ -213,13 +298,13 @@ public abstract class Item
 			float r = rarity;
 			if (r >= 1.0f)
 				return UIColors.TEXT_RARITY_GARBAGE;
-			if (r >= 0.25f)
+			if (r >= 0.5f)
 				return UIColors.TEXT_RARITY_COMMON;
 			if (r >= 0.1f)
 				return UIColors.TEXT_RARITY_UNCOMMON;
-			if (r >= 0.03f)
+			if (r >= 0.02f)
 				return UIColors.TEXT_RARITY_RARE;
-			if (r >= 0.01f)
+			if (r >= 0.008f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
@@ -240,9 +325,9 @@ public abstract class Item
 	public virtual void upgrade()
 	{
 		upgradeLevel++;
-		value *= 2;
+		value = value + upgradeLevel * 20; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
-			attackDamage *= 1.34f;
+			baseDamage *= 1.34f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
 			armor++;
 	}
@@ -253,7 +338,7 @@ public abstract class Item
 		{
 			if (type == ItemType.Weapon || type == ItemType.Staff)
 			{
-				float dps = MathF.Pow(attackDamage, 1.5f) * attackRate;
+				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
 				return (int)(dps * 10 * (1 + upgradeLevel * 0.5f));
 			}
 			else if (type == ItemType.Armor)
@@ -262,6 +347,16 @@ public abstract class Item
 			}
 			return value * 2;
 		}
+	}
+
+	public bool addInfusion(Infusion infusion)
+	{
+		if (!infusions.Contains(infusion))
+		{
+			infusions.Add(infusion);
+			return true;
+		}
+		return false;
 	}
 
 	public virtual bool use(Player player)
@@ -517,8 +612,20 @@ public abstract class Item
 		}
 		Item item = items[0];
 		Item newItem = item.copy();
+
 		while (newItem.value < meanValue * 0.5f && newItem.upgradable)
 			newItem.upgrade();
+
+		if (type == ItemType.Weapon || type == ItemType.Staff)
+		{
+			const float infusionChance = 0.1f;
+			if (random.NextSingle() < infusionChance)
+			{
+				Infusion infusion = Infusion.infusions[random.Next() % Infusion.infusions.Length];
+				newItem.addInfusion(infusion);
+			}
+		}
+
 		while (newItem.stackable && newItem.value * newItem.stackSize < 0.5f * meanValue)
 		{
 			int difference = (int)(meanValue / newItem.value - newItem.stackSize);

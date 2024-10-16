@@ -13,12 +13,12 @@ public class RoyalGreatsword : Item
 	{
 		displayName = "Royal Greatsword";
 
-		attackDamage = 4;
-		attackRange = 1.8f;
-		attackRate = 1.5f;
+		baseDamage = 4;
+		baseAttackRange = 1.8f;
+		baseAttackRate = 1.5f;
 		stab = false;
 		twoHanded = true;
-		weight = 3;
+		baseWeight = 3;
 
 		value = 102;
 
@@ -38,7 +38,7 @@ public class RoyalGreatsword : Item
 			if (attack.weapon == this)
 				anim = !attack.stab;
 		}
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, attackRate, attackDamage, attackRange));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange));
 		return false;
 	}
 }

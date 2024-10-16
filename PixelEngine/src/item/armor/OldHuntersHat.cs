@@ -16,7 +16,7 @@ public class OldHuntersHat : Item
 
 		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
-		weight = 0.5f;
+		baseWeight = 0.5f;
 
 		value = 17;
 		//canDrop = false;

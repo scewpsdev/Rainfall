@@ -13,13 +13,13 @@ public class AssassinsDagger : Item
 	{
 		displayName = "Assassins Dagger";
 
-		attackDamage = 1.5f;
-		attackRange = 1.0f;
-		attackRate = 2;
+		baseDamage = 1.5f;
+		baseAttackRange = 1.0f;
+		baseAttackRate = 2;
 		attackCooldown = 2.0f;
 		canDrop = false;
 		//stab = false;
-		weight = 1;
+		baseWeight = 1;
 
 		isSecondaryItem = true;
 		attackRotationOffset = MathF.PI * 0.25f;

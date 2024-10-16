@@ -13,9 +13,9 @@ public class Flamberge : Item
 	{
 		displayName = "Flamberge";
 
-		attackDamage = 2;
-		attackRange = 1.7f;
-		attackRate = 1.5f;
+		baseDamage = 2;
+		baseAttackRange = 1.7f;
+		baseAttackRate = 1.5f;
 		stab = false;
 		twoHanded = true;
 

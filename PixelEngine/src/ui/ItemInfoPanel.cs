@@ -13,7 +13,7 @@ public static class ItemInfoPanel
 	{
 		int top = y;
 
-		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, item.rarityColor /*UIColors.WINDOW_FRAME*/);
 		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);
 
 		y += 4;
@@ -33,7 +33,7 @@ public static class ItemInfoPanel
 		string rarityString = "\\x0x" + item.rarityColor.ToString("X") + "\\" + item.rarityString + "\\x0\\";
 		string itemTypeStr = item.type.ToString();
 		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + (item.isSecondaryItem ? "Secondary " : "") + itemTypeStr;
-		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width);
+		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width - 4);
 		foreach (string line in itemInfoLines)
 		{
 			Renderer.DrawUITextBMPFormatted(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT_SUBTLE);
@@ -105,14 +105,14 @@ public static class ItemInfoPanel
 				drawComparison(item.weight, compareItem.weight, true);
 			y += Renderer.smallFont.size + 1;
 
-			if (item.modifier != null)
+			if (item.buff != null)
 			{
-				if (item.modifier.criticalAttackModifier > 1)
+				if (item.buff.criticalAttackModifier > 1)
 				{
 					drawLeft("CRIT");
-					drawRight(item.modifier.criticalAttackModifier);
-					if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.modifier != null)
-						drawComparison(item.modifier.criticalAttackModifier, compareItem.modifier.criticalAttackModifier, true);
+					drawRight(item.buff.criticalAttackModifier);
+					if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.buff != null)
+						drawComparison(item.buff.criticalAttackModifier, compareItem.buff.criticalAttackModifier, true);
 					y += Renderer.smallFont.size + 1;
 				}
 			}

@@ -13,11 +13,11 @@ public class StaffOfIllumination : Item
 	{
 		displayName = "Staff of Illumination";
 
-		attackRate = 1;
+		baseAttackRate = 1;
 		trigger = false;
 		isSecondaryItem = true;
 
-		attackDamage = 0;
+		baseDamage = 0;
 		//manaCost = 0.5f;
 		staffCharges = 10;
 		maxStaffCharges = 10;

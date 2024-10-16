@@ -23,6 +23,9 @@ public class BossGate : Entity
 		this.isOpen = isOpen;
 
 		sprite = new Sprite(TileType.tileset, 2, 7);
+
+		Debug.Assert(boss != null);
+		Debug.Assert(room != null);
 	}
 
 	public override void init(Level level)
@@ -58,9 +61,13 @@ public class BossGate : Entity
 
 	public override void update()
 	{
-		if (boss.isAlive && boss.ai.target != null && room.containsEntity(boss.ai.target) && isOpen)
+		if (boss.isAlive && boss.ai.target != null && room.containsEntity(boss.ai.target) && room.containsEntity(boss) && isOpen)
 		{
 			close();
+		}
+		else if (!isOpen && (boss.ai.target != null && !room.containsEntity(boss.ai.target) || !room.containsEntity(boss)))
+		{
+			open();
 		}
 		if (!boss.isAlive && !isOpen)
 		{

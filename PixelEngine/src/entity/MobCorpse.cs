@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 public class MobCorpse : Entity
 {
 	Sprite sprite;
+	Vector4 spriteColor;
 	SpriteAnimator animator;
 	FloatRect rect;
 	int direction;
-	uint color;
 	bool renderLight;
 
 	List<Item> passiveItems;
@@ -23,13 +23,13 @@ public class MobCorpse : Entity
 	bool particlesEmitted = false;
 
 
-	public MobCorpse(Sprite sprite, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, uint color, bool renderLight = false, List<Item> passiveItems = null)
+	public MobCorpse(Sprite sprite, Vector4 spriteColor, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, bool renderLight = false, List<Item> passiveItems = null)
 	{
 		this.sprite = sprite;
+		this.spriteColor = spriteColor;
 		this.animator = animator;
 		this.rect = rect;
 		this.direction = direction;
-		this.color = color;
 		this.renderLight = renderLight;
 		this.passiveItems = passiveItems;
 
@@ -92,7 +92,7 @@ public class MobCorpse : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, color);
+		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
 
 		if (passiveItems != null)
 		{

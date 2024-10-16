@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 
 public class LightningProjectile : Entity
@@ -14,7 +13,7 @@ public class LightningProjectile : Entity
 
 	float speed = 200;
 	int maxRicochets = 3;
-	float maxDistance = 25;
+	float maxDistance = 10;
 
 	float damage;
 
@@ -39,14 +38,13 @@ public class LightningProjectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public LightningProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item staff, Item spell)
+	public LightningProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item spell, float damage, float rangeMultiplier = 1.0f)
 	{
 		displayName = "Lightning";
 
 		this.direction = direction;
 		this.offset = offset;
 		this.shooter = shooter;
-		this.staff = staff;
 		this.spell = spell;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
@@ -54,9 +52,7 @@ public class LightningProjectile : Entity
 
 		velocity = direction * speed;
 
-		damage = spell.attackDamage * staff.attackDamage;
-		if (shooter is Player)
-			damage *= (shooter as Player).getAttackDamageModifier();
+		this.damage = damage;
 
 		sprite = new Sprite(Item.tileset, 9, 2);
 		lightning = Resource.GetTexture("res/sprites/lightning.png", false);
@@ -106,7 +102,7 @@ public class LightningProjectile : Entity
 		{
 			if (hit.entity != null)
 			{
-				if (!(ricochets == 0 && hit.entity == shooter) && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
+				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
 					Hittable hittable = hit.entity as Hittable;
 					hittable.hit(damage, this, spell);

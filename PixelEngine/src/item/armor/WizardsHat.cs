@@ -15,11 +15,11 @@ public class WizardsHat : Item
 
 		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
-		weight = 0.2f;
+		baseWeight = 0.2f;
 
 		value = 5;
 
-		sprite = new Sprite(tileset, 6, 3);
+		sprite = new Sprite(tileset, 0, 8);
 		spriteColor = 0xFF4c358f; // 0xFF874774;
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/pointy_hat.png", false), 0, 0, 16, 16);
 		ingameSpriteColor = 0xFF4c358f; // 0xFF874774;

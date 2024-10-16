@@ -15,8 +15,8 @@ public class MissileSpell : Spell
 
 		value = 80;
 
-		attackDamage = 10;
-		attackRate = 1;
+		baseDamage = 10;
+		baseAttackRate = 1;
 		manaCost = 0.8f;
 		knockback = 1.0f;
 		trigger = false;

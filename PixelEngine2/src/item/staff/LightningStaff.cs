@@ -1,0 +1,44 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class LightningStaff : Item
+{
+	public LightningStaff()
+		: base("lightning_staff", ItemType.Staff)
+	{
+		displayName = "Lightning Staff";
+
+		attackRate = 2;
+		trigger = false;
+		isSecondaryItem = true;
+
+		attackDamage = 2;
+		manaCost = 0.0f;
+		staffCharges = 8;
+		maxStaffCharges = 8;
+
+		value = 30;
+
+		sprite = new Sprite(tileset, 8, 2);
+		renderOffset.x = 0.2f;
+
+		useSound = Resource.GetSounds("res/sounds/lightning", 4);
+	}
+
+	public override bool use(Player player)
+	{
+		if (staffCharges > 0 && player.mana >= manaCost)
+		{
+			base.use(player);
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightningSpell(), 0));
+			player.consumeMana(manaCost);
+			staffCharges--;
+		}
+		return staffCharges == 0;
+	}
+}

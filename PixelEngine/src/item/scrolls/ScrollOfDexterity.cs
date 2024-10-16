@@ -22,7 +22,7 @@ public class ScrollOfDexterity : Item
 	{
 		if (player.handItem != null)
 		{
-			player.handItem.attackRate *= 1.2f;
+			player.handItem.addInfusion(Infusion.Light);
 			player.hud.showMessage("Your weapon feels lighter.");
 		}
 		else

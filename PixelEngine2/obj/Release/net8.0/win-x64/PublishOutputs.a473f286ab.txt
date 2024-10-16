@@ -1,0 +1,5 @@
+D:\Dev\Rainfall\PixelEngine\bin\Release\net8.0\publish\InputBindings.config
+D:\Dev\Rainfall\PixelEngine\bin\Release\net8.0\publish\PixelEngine.exe
+D:\Dev\Rainfall\PixelEngine\bin\Release\net8.0\publish\PixelEngine.pdb
+D:\Dev\Rainfall\PixelEngine\bin\Release\net8.0\publish\Rainfall2D.pdb
+D:\Dev\Rainfall\PixelEngine\bin\Release\net8.0\publish\Rainfall.pdb

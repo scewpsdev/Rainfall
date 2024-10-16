@@ -15,7 +15,7 @@ public class LargeWizardHat : Item
 
 		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
-		weight = 0.3f;
+		baseWeight = 0.3f;
 
 		value = 12;
 
@@ -23,16 +23,16 @@ public class LargeWizardHat : Item
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/wizards_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteSize = 2;
 
-		modifier = new Modifier() { manaRecoveryModifier = 2 };
+		buff = new ItemBuff() { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 }

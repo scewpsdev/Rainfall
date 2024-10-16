@@ -13,11 +13,11 @@ public class Waraxe : Item
 	{
 		displayName = "Waraxe";
 
-		attackDamage = 1.8f;
-		attackRange = 1.7f;
-		attackRate = 1.3f;
+		baseDamage = 1.8f;
+		baseAttackRange = 1.7f;
+		baseAttackRate = 1.3f;
 		stab = false;
-		weight = 2.5f;
+		baseWeight = 2.5f;
 
 		value = 23;
 

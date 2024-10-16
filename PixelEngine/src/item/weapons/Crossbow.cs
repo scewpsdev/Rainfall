@@ -19,9 +19,9 @@ public class Crossbow : Item
 	{
 		displayName = "Crossbow";
 
-		attackDamage = 4;
-		attackRate = 1.0f; // 0.5f;
-		attackRange = 60; // arrow speed
+		baseDamage = 4;
+		baseAttackRate = 1.0f; // 0.5f;
+		baseAttackRange = 60; // arrow speed
 		knockback = 12.0f;
 		trigger = true;
 		twoHanded = true;

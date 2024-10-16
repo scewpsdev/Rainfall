@@ -803,8 +803,8 @@ public class LevelGenerator
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 		rooms = new List<Room>();
 
-		int width = spawnStartingRoom ? MathHelper.RandomInt(80, 150, random) : MathHelper.RandomInt(40, 150, random);
-		int height = Math.Max((floor == 4 ? 4500 : 3200) / width, 12);
+		int width = spawnStartingRoom ? MathHelper.RandomInt(60, 80, random) : MathHelper.RandomInt(40, 80, random);
+		int height = Math.Max((floor == 4 ? 3600 : 2400) / width, 12);
 
 		level.resize(width, height, TileType.dirt);
 		level.rooms = rooms;
@@ -1076,7 +1076,7 @@ public class LevelGenerator
 
 				if ((distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
 				{
-					float enemyChance = 0.2f;
+					float enemyChance = 0.15f;
 					if (random.NextSingle() < enemyChance)
 					{
 						spawnEnemy(x, y, floor);
@@ -1208,61 +1208,60 @@ public class LevelGenerator
 		TileType left = level.getTile(x - 1, y);
 		TileType right = level.getTile(x + 1, y);
 
-		bool flyingEnemy = random.NextSingle() < 0.15f;
-		if (flyingEnemy)
+		List<Mob> mobs = new List<Mob>();
+
+		if (down != null && up == null && left == null && right == null)
 		{
-			if (down == null)
+			if (floor < 5)
 			{
-				Mob enemy;
+				mobs.Add(new Rat());
+				mobs.Add(new Spider());
+				mobs.Add(new Snake());
+				mobs.Add(new Slime());
 
-				float batType = random.NextSingle();
-				if (batType < 0.9f)
-					enemy = new Bat();
-				else
-					enemy = new OrangeBat();
-
-				level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
-				objectFlags[x + y * level.width] = true;
-			}
-		}
-		else
-		{
-			TileType upUp = level.getTile(x, y + 2);
-			if (down != null && up == null && left == null && right == null)
-			{
-				float enemyType = random.NextSingle();
-
-				Mob enemy;
-
-				//if (enemyType > 0.9f)
-				//	enemy = new Bob();
-				//else 
-				if (enemyType > 0.95f)
-					enemy = new Gandalf();
-				else if (enemyType > 0.9f)
-					enemy = new SkeletonArcher();
-				else if (enemyType > 0.85f && upUp == null && floor >= 4)
-					enemy = new Golem();
-				else if (enemyType > 0.8f && floor >= 5)
-					enemy = new Leprechaun();
-				else if (enemyType > 0.6f)
-					enemy = new Snake();
-				else if (enemyType > 0.3f)
 				{
 					float spiderType = random.NextSingle();
 					if (spiderType < 0.9f)
-						enemy = new Spider();
+						mobs.Add(new Spider());
 					else
-						enemy = new GreenSpider();
-				}
-				else
-				{
-					enemy = new Rat();
+						mobs.Add(new GreenSpider());
 				}
 
-				level.addEntity(enemy, new Vector2(x + 0.5f, y));
-				objectFlags[x + y * level.width] = true;
+				if (down == null)
+				{
+					float batType = random.NextSingle();
+					if (batType < 0.9f)
+						mobs.Add(new Bat());
+					else
+						mobs.Add(new OrangeBat());
+				}
+
+				mobs.Add(new SkeletonArcher());
 			}
+			else if (floor < 8)
+			{
+				mobs.Add(new GreenSpider());
+				mobs.Add(new OrangeBat());
+				mobs.Add(new Golem());
+				mobs.Add(new Leprechaun());
+				mobs.Add(new Gandalf());
+
+				{
+					float slimeType = random.NextSingle();
+					if (slimeType < 0.9f)
+						mobs.Add(new Slime());
+					else
+						mobs.Add(new BlueSlime());
+				}
+			}
+		}
+
+		if (mobs.Count > 0)
+		{
+			Mob enemy = mobs[random.Next() % mobs.Count];
+
+			level.addEntity(enemy, new Vector2(x + 0.5f, y - enemy.collider.min.y));
+			objectFlags[x + y * level.width] = true;
 		}
 	}
 
@@ -1287,7 +1286,7 @@ public class LevelGenerator
 		level.ambientSound = Resource.GetSound("res/level/level2/ambience2.ogg");
 		//level.fogColor = MathHelper.ARGBToVector(0xFFa0c7eb).xyz;
 		//level.fogFalloff = 0.2f;
-		level.bg = Resource.GetTexture("res/level/level2/bg.png", false);
+		//level.bg = Resource.GetTexture("res/level/level2/bg.png", false);
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
@@ -1335,8 +1334,8 @@ public class LevelGenerator
 
 		// Leaves
 		{
-			level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/level2/parallax1.png", false), 2.0f), new Vector2(level.width, level.height) * 0.5f);
-			level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/level2/parallax2.png", false), 0.2f), new Vector2(level.width, level.height) * 0.5f);
+			//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/level2/parallax1.png", false), 2.0f), new Vector2(level.width, level.height) * 0.5f);
+			//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/level2/parallax2.png", false), 0.2f), new Vector2(level.width, level.height) * 0.5f);
 
 			Texture leavesHoriz = Resource.GetTexture("res/level/level2/leaves_horiz.png", false);
 			Texture leavesVert = Resource.GetTexture("res/level/level2/leaves_vert.png", false);

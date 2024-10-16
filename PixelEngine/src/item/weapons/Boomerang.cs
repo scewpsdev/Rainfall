@@ -13,9 +13,9 @@ public class Boomerang : Item
 	{
 		displayName = "Boomerang";
 
-		attackDamage = 2;
-		attackRange = 4;
-		weight = 1;
+		baseDamage = 2;
+		baseAttackRange = 4;
+		baseWeight = 1;
 
 		value = 20;
 

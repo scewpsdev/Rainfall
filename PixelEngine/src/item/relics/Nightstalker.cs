@@ -21,16 +21,16 @@ public class Nightstalker : Item
 
 		sprite = new Sprite(tileset, 7, 6);
 
-		modifier = new Modifier() { stealthAttackModifier = 2.0f };
+		buff = new ItemBuff() { stealthAttackModifier = 2.0f };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 }

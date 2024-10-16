@@ -13,11 +13,11 @@ public class Halberd : Item
 	{
 		displayName = "Halberd";
 
-		attackDamage = 2;
-		attackRange = 1.8f;
-		attackRate = 1.6f;
+		baseDamage = 2;
+		baseAttackRange = 1.8f;
+		baseAttackRate = 1.6f;
 		twoHanded = true;
-		weight = 2.5f;
+		baseWeight = 2.5f;
 
 		value = 16;
 
@@ -36,7 +36,7 @@ public class Halberd : Item
 			if (attack.weapon == this)
 				anim = !attack.stab;
 		}
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, attackRate, attackDamage, attackRange));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange));
 		return false;
 	}
 }
