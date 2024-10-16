@@ -15,15 +15,15 @@ public class MagicArrowSpell : Spell
 
 		value = 14;
 
-		attackDamage = 0.8f;
-		attackRate = 4;
+		baseDamage = 1;
+		baseAttackRate = 3;
 		manaCost = 0.1f;
 		knockback = 1.0f;
 		trigger = false;
 
 		sprite = new Sprite(tileset, 0, 6);
 
-		castSound = Resource.GetSounds("res/sounds/cast", 3);
+		castSound = Resource.GetSounds("res/sounds/shoot", 11);
 	}
 
 	public override void cast(Player player, Item staff)
@@ -35,7 +35,9 @@ public class MagicArrowSpell : Spell
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
 		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
-		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, staff, this), position);
+		float damage = this.attackDamage * staff.attackDamage * player.getMagicDamageModifier();
+
+		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, damage, player.mana >= manaCost ? 1 : 0.5f), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 	}
 }

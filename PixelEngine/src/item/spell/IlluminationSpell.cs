@@ -15,8 +15,8 @@ public class IlluminationSpell : Spell
 
 		value = 8;
 
-		attackRate = 1;
-		attackDamage = 0;
+		baseAttackRate = 1;
+		baseDamage = 0;
 		manaCost = 0.5f;
 		trigger = false;
 		upgradable = false;

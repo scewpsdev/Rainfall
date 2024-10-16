@@ -13,8 +13,8 @@ public class AstralScepter : Item
 	{
 		displayName = "Astral Scepter";
 
-		attackDamage = 2;
-		attackRate = 0.7f;
+		baseDamage = 2;
+		baseAttackRate = 0.7f;
 		manaCost = 2;
 		trigger = false;
 		//isSecondaryItem = true;

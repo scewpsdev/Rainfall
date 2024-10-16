@@ -13,32 +13,30 @@ public class LightningStaff : Item
 	{
 		displayName = "Lightning Staff";
 
-		attackRate = 2;
+		baseAttackRate = 1;
 		trigger = false;
-		isSecondaryItem = true;
+		isSecondaryItem = false;
 
-		attackDamage = 2;
-		manaCost = 0.0f;
-		staffCharges = 8;
-		maxStaffCharges = 8;
+		baseDamage = 1;
+		manaCost = 1.0f;
+		staffCharges = 10000;
+		//maxStaffCharges = 8;
 
 		value = 30;
 
 		sprite = new Sprite(tileset, 8, 2);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.4f;
 
-		useSound = Resource.GetSounds("res/sounds/lightning", 4);
+		//useSound = Resource.GetSounds("res/sounds/lightning", 4);
 	}
 
 	public override bool use(Player player)
 	{
-		if (staffCharges > 0 && player.mana >= manaCost)
-		{
-			base.use(player);
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new LightningSpell(), 0));
-			player.consumeMana(manaCost);
-			staffCharges--;
-		}
-		return staffCharges == 0;
+		Spell spell = new LightningSpell();
+		float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
+		player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+		player.consumeMana(manaCost);
+		base.use(player);
+		return false;
 	}
 }

@@ -14,7 +14,7 @@ public class Formation : Item
 		: base("formation", ItemType.Relic)
 	{
 		displayName = "Formation";
-		description = "Ducking increases armor while slowing movement";
+		description = "Ducking increases armor";
 		stackable = false;
 		tumbles = false;
 
@@ -22,19 +22,19 @@ public class Formation : Item
 
 		sprite = new Sprite(tileset, 13, 7);
 
-		modifier = new Modifier() { defenseModifier = 2, movementSpeedModifier = 0.5f };
+		buff = new ItemBuff() { defenseModifier = 2, movementSpeedModifier = 0.5f };
 	}
 
 	void activate(Player player)
 	{
 		active = true;
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	void deactivate(Player player)
 	{
 		active = false;
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 
 	public override void update(Entity entity)

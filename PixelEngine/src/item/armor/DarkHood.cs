@@ -15,7 +15,7 @@ public class DarkHood : Item
 
 		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
-		weight = 0.2f;
+		baseWeight = 0.2f;
 
 		value = 5;
 

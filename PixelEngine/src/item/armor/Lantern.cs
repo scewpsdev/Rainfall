@@ -28,7 +28,7 @@ public class Lantern : Item
 		armorSlot = ArmorSlot.Back;
 		isActiveItem = false;
 		isPassiveItem = true;
-		weight = 0.5f;
+		baseWeight = 0.5f;
 
 		sprite = new Sprite(tileset, 10, 1);
 

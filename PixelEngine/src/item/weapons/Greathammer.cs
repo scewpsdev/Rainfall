@@ -13,15 +13,15 @@ public class Greathammer : Item
 	{
 		displayName = "Greathammer";
 
-		attackDamage = 5;
-		attackRange = 1.8f;
-		attackRate = 0.7f;
+		baseDamage = 5;
+		baseAttackRange = 1.8f;
+		baseAttackRate = 0.7f;
 		knockback = 12;
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;
-		weight = 5;
+		baseWeight = 5;
 
 		value = 54;
 

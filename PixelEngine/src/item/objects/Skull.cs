@@ -16,7 +16,7 @@ public class Skull : Item
 		projectileItem = true;
 		breakOnWallHit = true;
 
-		attackDamage = 4;
+		baseDamage = 4;
 
 		value = 2;
 		upgradable = false;
@@ -45,6 +45,6 @@ public class Skull : Item
 	public override void upgrade()
 	{
 		base.upgrade();
-		attackDamage++;
+		baseDamage++;
 	}
 }

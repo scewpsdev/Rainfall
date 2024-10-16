@@ -13,9 +13,9 @@ public class Longsword : Item
 	{
 		displayName = "Longsword";
 
-		attackDamage = 2.5f;
-		attackRange = 1.2f;
-		attackRate = 1.4f;
+		baseDamage = 2.5f;
+		baseAttackRange = 1.2f;
+		baseAttackRate = 1.4f;
 		stab = false;
 
 		value = 16;

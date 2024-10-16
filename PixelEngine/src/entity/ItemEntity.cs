@@ -315,9 +315,11 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 			if (player.numOverlaysOpen == 0)
 			{
-				int sidePanelWidth = 80;
-				int x = Renderer.UIWidth - 10 - sidePanelWidth;
-				int y = 50;
+				Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(1, 0));
+
+				int sidePanelWidth = 90;
+				int x = MathHelper.Clamp(pos.x, 10, Renderer.UIWidth - 10 - sidePanelWidth);
+				int y = MathHelper.Clamp(pos.y, Renderer.UIHeight / 2, Renderer.UIHeight - 10 - sidePanelHeight);
 
 				Item compareItem = null;
 

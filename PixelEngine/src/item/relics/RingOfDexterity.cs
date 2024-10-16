@@ -18,22 +18,22 @@ public class RingOfDexterity : Item
 
 		sprite = new Sprite(tileset, 9, 0);
 
-		modifier = new Modifier() { attackSpeedModifier = 1.2f };
+		buff = new ItemBuff() { attackSpeedModifier = 1.2f };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 
 	public override void upgrade()
 	{
 		base.upgrade();
-		modifier.attackSpeedModifier = 1.2f + 0.2f * upgradeLevel;
+		buff.attackSpeedModifier = 1.2f + 0.2f * upgradeLevel;
 	}
 }

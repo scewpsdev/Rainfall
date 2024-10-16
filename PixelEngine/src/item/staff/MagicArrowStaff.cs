@@ -11,34 +11,36 @@ public class MagicArrowStaff : Item
 	public MagicArrowStaff()
 		: base("magic_arrow_staff", ItemType.Staff)
 	{
-		displayName = "Magic Arrow Staff";
+		displayName = "Magic Staff";
 
-		attackRate = 4;
+		baseAttackRate = 1;
 		trigger = false;
-		isSecondaryItem = true;
+		isSecondaryItem = false;
 
-		attackDamage = 1;
-		//manaCost = 0.1f;
-		staffCharges = 28;
-		maxStaffCharges = 28;
+		baseDamage = 1;
+		manaCost = 1.0f;
+		staffCharges = 10000;
+		knockback = 1;
+		//staffCharges = 28;
+		//maxStaffCharges = 28;
 
 		value = 30;
 
-		sprite = new Sprite(tileset, 8, 1);
-		renderOffset.x = 0.2f;
+		//sprite = new Sprite(tileset, 8, 1);
+		//renderOffset.x = 0.2f;
+		sprite = new Sprite(tileset, 2, 6);
+		renderOffset.x = 0.4f;
 
-		useSound = Resource.GetSounds("res/sounds/cast", 3);
+		//useSound = Resource.GetSounds("res/sounds/shoot", 11);
 	}
 
 	public override bool use(Player player)
 	{
-		if (staffCharges > 0 && player.mana >= manaCost)
-		{
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new MagicArrowSpell(), 0));
-			player.consumeMana(manaCost);
-			base.use(player);
-			staffCharges--;
-		}
-		return staffCharges == 0;
+		Spell spell = new MagicArrowSpell();
+		float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
+		player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+		player.consumeMana(manaCost);
+		base.use(player);
+		return false;
 	}
 }

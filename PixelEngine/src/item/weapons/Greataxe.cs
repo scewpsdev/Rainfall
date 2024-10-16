@@ -13,14 +13,14 @@ public class Greataxe : Item
 	{
 		displayName = "Greataxe";
 
-		attackDamage = 5;
-		attackRange = 1.8f;
-		attackRate = 0.8f;
+		baseDamage = 5;
+		baseAttackRange = 1.8f;
+		baseAttackRate = 0.8f;
 		knockback = 8;
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 1.0f;
-		weight = 5;
+		baseWeight = 5;
 
 		value = 72;
 

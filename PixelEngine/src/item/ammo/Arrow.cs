@@ -13,7 +13,7 @@ public class Arrow : Item
 	{
 		displayName = "Arrow";
 
-		attackDamage = 1;
+		baseDamage = 1;
 		projectileItem = true;
 		projectileAims = true;
 		projectileSticks = true;
@@ -34,7 +34,7 @@ public class Arrow : Item
 	{
 		Item arrow = player.removeItemSingle(this);
 		player.throwItem(arrow, player.lookDirection.normalized);
-		arrow.attackDamage = 0.5f;
+		arrow.baseDamage = 0.5f;
 		arrow.knockback = 2.0f;
 		return false;
 	}

@@ -38,6 +38,9 @@ public class Spring : Entity
 			{
 				//if (hits[i].entity.velocity.y < -0.1f)
 				{
+					if (hits[i].entity is Player && (hits[i].entity as Player).isDucked)
+						continue;
+
 					hits[i].entity.velocity.y = MathF.Max(-hits[i].entity.velocity.y, STRENGTH);
 					if (hits[i].entity is Mob)
 						((Mob)hits[i].entity).isGrounded = true;

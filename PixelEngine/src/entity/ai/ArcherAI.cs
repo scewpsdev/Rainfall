@@ -36,7 +36,7 @@ public class ArcherAI : AdvancedAI
 
 			Arrow arrow = new Arrow();
 			arrow.breakOnWallHit = true;
-			arrow.attackDamage = 1;
+			arrow.baseDamage = 1;
 			arrow.knockback = 10;
 			ItemEntity entity = new ItemEntity(arrow, mob, velocity);
 			entity.bounciness = 0.3f;

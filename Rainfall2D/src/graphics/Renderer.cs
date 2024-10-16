@@ -43,6 +43,7 @@ public static class Renderer
 		public Texture texture;
 		public FloatRect rect;
 		public Vector4 color;
+		public bool solid;
 	}
 
 	struct UIDraw
@@ -104,6 +105,7 @@ public static class Renderer
 	static List<SpriteDraw> draws = new List<SpriteDraw>();
 	static List<SpriteExDraw> exDraws = new List<SpriteExDraw>();
 	static List<SpriteDraw> additiveDraws = new List<SpriteDraw>();
+	static List<SpriteExDraw> additiveExDraws = new List<SpriteExDraw>();
 	static List<SpriteDraw> verticalDraws = new List<SpriteDraw>();
 
 	static SpriteBatch uiBatch;
@@ -300,7 +302,7 @@ public static class Renderer
 		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
 	}
 
-	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, Vector4 color, bool additive = false)
+	public static void DrawSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flippedX, Vector4 color, bool additive = false)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -310,12 +312,7 @@ public static class Renderer
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
 
-			//u0 += 0.00001f;
-			//v0 += 0.00001f;
-			//u1 -= 0.00001f;
-			//v1 -= 0.00001f;
-
-			if (flipped)
+			if (flippedX)
 				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
@@ -420,6 +417,59 @@ public static class Renderer
 		});
 	}
 
+	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Sprite sprite, bool flipped, Vector4 color, bool additive = false, bool solid = false)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+
+			if (flipped)
+				MathHelper.Swap(ref u0, ref u1);
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		(additive ? additiveExDraws : exDraws).Add(new SpriteExDraw
+		{
+			vertex0 = vertex0,
+			vertex1 = vertex1,
+			vertex2 = vertex2,
+			vertex3 = vertex3,
+			texture = sprite.spriteSheet.texture,
+			rect = rect,
+			color = color,
+			solid = solid
+		});
+	}
+
+	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, int u0, int v0, int w, int h, Vector4 color, bool additive = false, bool solid = false)
+	{
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
+		(additive ? additiveExDraws : exDraws).Add(new SpriteExDraw
+		{
+			vertex0 = vertex0,
+			vertex1 = vertex1,
+			vertex2 = vertex2,
+			vertex3 = vertex3,
+			texture = texture,
+			rect = rect,
+			color = color,
+			solid = solid
+		});
+	}
+
+	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, Vector4 color, bool additive = false)
+	{
+		DrawSpriteEx(new Vector3(x, y, z), new Vector3(x + width, y, z), new Vector3(x + width, y + height, z + height), new Vector3(x, y + height, z + height), sprite, flipped, color, additive);
+	}
+
+	public static void DrawVerticalSpriteSolid(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, Vector4 color)
+	{
+		DrawSpriteEx(new Vector3(x, y, z), new Vector3(x + width, y, z), new Vector3(x + width, y + height, z + height), new Vector3(x, y + height, z + height), sprite, flipped, color, false, true);
+	}
+
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -437,20 +487,44 @@ public static class Renderer
 		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, rotation = rotation, color = MathHelper.ARGBToVector(color) });
 	}
 
+	/*
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
 	{
 		DrawVerticalSprite(x, y, z, width, height, sprite, flipped, 0.0f, color);
 	}
+	*/
 
-	public static void DrawVerticalSprite(float x, float y, float width, float height, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	public static void DrawVerticalSprite(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
-		DrawVerticalSprite(x, y, 0.0f, width, height, sprite, flipped, color);
+		DrawVerticalSprite(x, y, 0.0f, width, height, sprite, flipped, MathHelper.ARGBToVector(color));
 	}
 
+	/*
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
 		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
 		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, color = MathHelper.ARGBToVector(color) });
+	}
+	*/
+
+	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, Vector4 color, bool additive)
+	{
+		Vector3 vertex0 = new Vector3(x, y, z);
+		Vector3 vertex1 = new Vector3(x + width, y, z);
+		Vector3 vertex2 = new Vector3(x + width, y, z + height);
+		Vector3 vertex3 = new Vector3(x, y, z + height);
+
+		vertex0.xz = Vector2.Rotate(vertex0.xz, rotation);
+		vertex1.xz = Vector2.Rotate(vertex1.xz, rotation);
+		vertex2.xz = Vector2.Rotate(vertex2.xz, rotation);
+		vertex3.xz = Vector2.Rotate(vertex3.xz, rotation);
+
+		vertex0.y += vertex0.z;
+		vertex1.y += vertex1.z;
+		vertex2.y += vertex2.z;
+		vertex3.y += vertex3.z;
+
+		DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, texture, u0, v0, w, h, color, additive);
 	}
 
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
@@ -805,7 +879,7 @@ public static class Renderer
 		{
 			SpriteExDraw draw = exDraws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
-			spriteBatch.draw(draw.vertex0, draw.vertex1, draw.vertex2, draw.vertex3, draw.texture, uint.MaxValue, u0, v0, u1, v1, draw.color);
+			spriteBatch.draw(draw.vertex0, draw.vertex1, draw.vertex2, draw.vertex3, draw.texture, uint.MaxValue, u0, v0, u1, v1, draw.color, draw.solid ? 0.0f : 1.0f);
 		}
 		for (int i = 0; i < verticalDraws.Count; i++)
 		{
@@ -829,7 +903,7 @@ public static class Renderer
 			spriteBatch.submitDrawCall(i, spriteShader);
 		}
 
-		additiveBatch.begin(additiveDraws.Count);
+		additiveBatch.begin(additiveDraws.Count + additiveExDraws.Count);
 		for (int i = 0; i < additiveDraws.Count; i++)
 		{
 			SpriteDraw draw = additiveDraws[i];
@@ -861,6 +935,12 @@ public static class Renderer
 					u0, v0, u1, v1,
 					draw.color, draw.solid ? 0.0f : 1.0f, true);
 			}
+		}
+		for (int i = 0; i < additiveExDraws.Count; i++)
+		{
+			SpriteExDraw draw = additiveExDraws[i];
+			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+			additiveBatch.draw(draw.vertex0, draw.vertex1, draw.vertex2, draw.vertex3, draw.texture, uint.MaxValue, u0, v0, u1, v1, draw.color, draw.solid ? 0.0f : 1.0f);
 		}
 		additiveBatch.end();
 
@@ -1129,6 +1209,7 @@ public static class Renderer
 		draws.Clear();
 		exDraws.Clear();
 		additiveDraws.Clear();
+		additiveExDraws.Clear();
 		verticalDraws.Clear();
 		uiDraws.Clear();
 		textDraws.Clear();

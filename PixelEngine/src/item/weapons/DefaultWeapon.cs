@@ -14,9 +14,9 @@ public class DefaultWeapon : Item
 	public DefaultWeapon()
 		: base("default_weapon", ItemType.Weapon)
 	{
-		attackDamage = 1;
-		attackRange = 1.0f;
-		attackRate = 4;
+		baseDamage = 1;
+		baseAttackRange = 1.0f;
+		baseAttackRate = 4;
 		knockback = 5;
 
 		sprite = new Sprite(tileset, 0, 2);

@@ -14,9 +14,9 @@ public class Longbow : Item
 	{
 		displayName = "Longbow";
 
-		attackDamage = 2.5f;
-		attackRate = 0.7f;
-		attackRange = 50; // arrow speed
+		baseDamage = 2.5f;
+		baseAttackRate = 0.7f;
+		baseAttackRange = 50; // arrow speed
 		knockback = 8.0f;
 		trigger = false;
 		twoHanded = true;

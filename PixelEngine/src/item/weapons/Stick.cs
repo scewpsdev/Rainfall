@@ -13,11 +13,11 @@ public class Stick : Item
 	{
 		displayName = "Stick";
 
-		attackDamage = 1;
-		attackRange = 1.2f;
-		attackRate = 1.5f;
+		baseDamage = 1;
+		baseAttackRange = 1.2f;
+		baseAttackRate = 1.5f;
 		stab = false;
-		weight = 1;
+		baseWeight = 1;
 		//attackAngle = MathF.PI * 0.7f;
 
 		value = 1;

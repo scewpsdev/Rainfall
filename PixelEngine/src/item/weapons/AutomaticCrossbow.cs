@@ -16,9 +16,9 @@ public class AutomaticCrossbow : Item
 
 		description = "slaps";
 
-		attackDamage = 0.7f;
-		attackRate = 7;
-		attackRange = 40; // arrow speed
+		baseDamage = 0.7f;
+		baseAttackRate = 7;
+		baseAttackRange = 40; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";

@@ -48,6 +48,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public bool poisonResistant = false;
 
 	public Sprite sprite;
+	public Vector4 spriteColor = Vector4.One;
 	public SpriteAnimator animator;
 	public FloatRect rect = new FloatRect(-0.5f, 0.0f, 1, 1);
 	protected uint outline = 0;
@@ -99,7 +100,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 	}
 
-	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	public virtual bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		health -= damage;
 
@@ -220,7 +221,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			statusEffects[i].destroy(this);
 		statusEffects.Clear();
 
-		GameState.instance.level.addEntity(new MobCorpse(sprite, animator, rect, direction, Vector2.Zero, impulseVelocity, collider, 0xFF7F7F7F), position);
+		GameState.instance.level.addEntity(new MobCorpse(sprite, spriteColor * new Vector4(0.5f, 0.5f, 0.5f, 1.0f), animator, rect, direction, Vector2.Zero, impulseVelocity, collider), position);
 
 		remove();
 	}
@@ -449,7 +450,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				if (hitMarker)
 					Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
 				else
-					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
+					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
 
 				if (outline != 0)
 					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);

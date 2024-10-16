@@ -13,10 +13,10 @@ public class Spear : Item
 	{
 		displayName = "Spear";
 
-		attackDamage = 2;
-		attackRange = 2.0f;
-		attackRate = 1.6f;
-		weight = 1.5f;
+		baseDamage = 2;
+		baseAttackRange = 2.0f;
+		baseAttackRate = 1.6f;
+		baseWeight = 1.5f;
 
 		projectileItem = true;
 		projectileAims = true;

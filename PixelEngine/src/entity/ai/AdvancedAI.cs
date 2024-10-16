@@ -117,6 +117,12 @@ public class AdvancedAI : AI
 
 	void updateTargetFollow()
 	{
+		if (target is Player && !(target as Player).isAlive || target is Mob && !(target as Mob).isAlive)
+		{
+			target = null;
+			return;
+		}
+
 		canSeeTarget = false;
 		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
 		{

@@ -144,7 +144,7 @@ namespace Rainfall
 			drawVertical(x, y, z, width, height, rotation, new Vector2(width, height) * 0.5f, texture, textureFlags, u0, v0, u1, v1, false, false, color, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, additive);
 		}
 
-		public void draw(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color)
+		public void draw(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, uint textureFlags, float u0, float v0, float u1, float v1, Vector4 color, float mask)
 		{
 			Vector2 uv0 = new Vector2(u0, v1);
 			Vector2 uv1 = new Vector2(u1, v1);
@@ -188,7 +188,7 @@ namespace Rainfall
 				color.y,
 				color.z,
 				color.w,
-				1.0f,
+				mask,
 				texture != null ? texture.handle : ushort.MaxValue, textureFlags);
 		}
 

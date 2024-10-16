@@ -18,16 +18,16 @@ public class SapphireRing : Item
 
 		sprite = new Sprite(tileset, 13, 5);
 
-		modifier = new Modifier() { manaRecoveryModifier = 2 };
+		buff = new ItemBuff() { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 }

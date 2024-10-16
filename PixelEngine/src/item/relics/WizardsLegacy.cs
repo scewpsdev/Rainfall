@@ -21,16 +21,16 @@ public class WizardsLegacy : Item
 
 		sprite = new Sprite(tileset, 5, 6);
 
-		modifier = new Modifier() { manaRecoveryModifier = 2 };
+		buff = new ItemBuff() { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class BerserkersChain : Item
 {
 	int buffLevel = 0;
-	int threshhold = 6;
+	int threshhold = 8;
 
 	long lastTick = -1;
 	long lastKill = -1;
@@ -28,7 +28,7 @@ public class BerserkersChain : Item
 
 		sprite = new Sprite(tileset, 9, 6);
 
-		modifier = new Modifier();
+		buff = new ItemBuff();
 	}
 
 	public override void onEquip(Player player)
@@ -43,7 +43,7 @@ public class BerserkersChain : Item
 		if (buffLevel > threshhold && lastBuffLevel <= threshhold)
 			onActivate(player);
 
-		modifier.attackDamageModifier = damageMultiplier;
+		buff.meleeDamageModifier = damageMultiplier;
 
 		lastKill = Time.currentTime;
 	}
@@ -52,12 +52,12 @@ public class BerserkersChain : Item
 
 	void onActivate(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	void onDeactivate(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 
 	public override void update(Entity entity)
@@ -76,10 +76,10 @@ public class BerserkersChain : Item
 				if (buffLevel <= threshhold && lastBuffLevel > threshhold)
 					onDeactivate(player);
 
-				modifier.attackDamageModifier = damageMultiplier;
+				buff.meleeDamageModifier = damageMultiplier;
 			}
 
-			modifier.auraStrength = damageMultiplier;
+			buff.auraStrength = damageMultiplier;
 		}
 	}
 }

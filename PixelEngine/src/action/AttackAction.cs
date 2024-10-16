@@ -31,8 +31,6 @@ public class AttackAction : EntityAction
 		this.attackRate = attackRate;
 		this.attackDamage = attackDamage;
 		this.attackRange = attackRange;
-
-		turnToCrosshair = false;
 	}
 
 	public AttackAction(Item weapon, bool mainHand)
@@ -44,13 +42,7 @@ public class AttackAction : EntityAction
 	{
 		duration /= player.getAttackSpeedModifier();
 
-		Vector2 charDirection = new Vector2(player.direction, 0);
-		if (InputManager.IsDown("Up"))
-			charDirection = Vector2.Up;
-		else if (/*!isGrounded &&*/ InputManager.IsDown("Down"))
-			charDirection = Vector2.Down;
-
-		direction = charDirection; // player.lookDirection.normalized;
+		direction = player.lookDirection.normalized;
 		startAngle = new Vector2(MathF.Abs(direction.x), direction.y).angle;
 	}
 
@@ -71,7 +63,7 @@ public class AttackAction : EntityAction
 				{
 					Hittable hittable = hits[i].entity as Hittable;
 
-					float damage = attackDamage * player.getAttackDamageModifier();
+					float damage = attackDamage * player.getMeleeDamageModifier();
 
 					bool critical = false;
 					if (entity is Mob)
@@ -79,7 +71,7 @@ public class AttackAction : EntityAction
 						Mob mob = entity as Mob;
 						critical = mob.isStunned && mob.criticalStun
 							|| Random.Shared.NextSingle() < player.criticalChance * player.getCriticalChanceModifier()
-							|| mob.ai.target != player && player.getStealthAttackModifier() > 1;
+							|| mob.ai.target != player && player.getStealthAttackModifier() > 1.5f;
 					}
 					if (critical)
 						damage *= 2 * player.getCriticalAttackModifier();
@@ -131,7 +123,12 @@ public class AttackAction : EntityAction
 
 	public float currentProgress
 	{
-		get => MathF.Min(elapsedTime / duration * (1 + weapon.attackCooldown), 1);
+		get
+		{
+			float value = MathF.Min(elapsedTime / duration * (1 + weapon.attackCooldown), 1);
+			//value = value < 0.5f ? MathF.Pow(value, 3) * 4 : 1 - MathF.Pow(1 - value, 3) * 4;
+			return value;
+		}
 	}
 
 	public bool inDamageWindow

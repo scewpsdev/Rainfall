@@ -15,7 +15,7 @@ public class ThrowingKnife : Item
 	{
 		displayName = "Throwing Knife";
 
-		attackDamage = 1.5f;
+		baseDamage = 2;
 		projectileItem = true;
 		projectileRotationOffset = -0.25f * MathF.PI;
 		projectileSticks = true;

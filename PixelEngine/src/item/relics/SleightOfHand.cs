@@ -20,16 +20,16 @@ public class SleightOfHand : Item
 
 		sprite = new Sprite(tileset, 6, 6);
 
-		modifier = new Modifier() { attackSpeedModifier = 1.15f };
+		buff = new ItemBuff() { attackSpeedModifier = 1.15f };
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.modifiers.Add(modifier);
+		player.itemBuffs.Add(buff);
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.modifiers.Remove(modifier);
+		player.itemBuffs.Remove(buff);
 	}
 }

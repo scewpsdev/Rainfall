@@ -13,9 +13,9 @@ public class Handaxe : Item
 	{
 		displayName = "Handaxe";
 
-		attackDamage = 1.5f;
-		attackRange = 1.2f;
-		attackRate = 1.5f;
+		baseDamage = 1.5f;
+		baseAttackRange = 1.2f;
+		baseAttackRate = 1.5f;
 		stab = false;
 
 		projectileItem = true;

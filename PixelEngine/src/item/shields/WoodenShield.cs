@@ -15,7 +15,7 @@ public class WoodenShield : Item
 
 		armor = 1;
 		value = 11;
-		weight = 1;
+		baseWeight = 1;
 
 		isSecondaryItem = true;
 		blockDuration = 0.3f;

@@ -17,7 +17,7 @@ public class Rock : Item
 		maxPierces = -1;
 		twoHanded = true;
 
-		attackDamage = 1.5f; //4;
+		baseDamage = 1.5f; //4;
 
 		value = 1;
 		upgradable = false;
@@ -37,6 +37,6 @@ public class Rock : Item
 	public override void upgrade()
 	{
 		base.upgrade();
-		attackDamage++;
+		baseDamage++;
 	}
 }

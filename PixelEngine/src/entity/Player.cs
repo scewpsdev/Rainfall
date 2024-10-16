@@ -22,7 +22,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float STUN_DURATION = 1.0f;
 	const float FALL_STUN_DISTANCE = 8;
 	const float FALL_DAMAGE_DISTANCE = 10;
-	const float MANA_KILL_REWARD = 0.4f;
+	const float MANA_KILL_REWARD = 0.5f;
 #if DEBUG
 	const float SPRINT_MANA_COST = 0.5f;
 #else
@@ -36,7 +36,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float jumpPower = 11; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
-	public const float defaultManaRecoveryRate = 0.03f;
+	public const float defaultManaRecoveryRate = 0.015f;
 	public float coinCollectDistance = 1.0f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
@@ -59,9 +59,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(40 * (1 + 0.25f * (playerLevel - 1)));
+	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.25f * (playerLevel - 1)));
+	public int availableStatUpgrades = 0;
 
-	public List<Modifier> modifiers = new List<Modifier>();
+	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
 
 	public int direction = 1;
 	public Vector2i aimPosition;
@@ -305,7 +306,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			unequipItem(activeItems[activeItems.Length - 1]);
+			throwItem(activeItems[activeItems.Length - 1]);
+			removeItem(activeItems[activeItems.Length - 1]);
 			activeItems[activeItems.Length - 1] = item;
 			activeItems[activeItems.Length - 1].onEquip(this);
 			return true;
@@ -473,7 +475,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			equipOffhandItem(item);
 		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
 			equipHandItem(item);
-		else if (item.isActiveItem && numActiveItems < activeItems.Length)
+		else if (item.isActiveItem)
 			equipItem(item);
 		else if (item.isPassiveItem /*&& canEquipPassiveItem(item)*/)
 			equipItem(item);
@@ -844,7 +846,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		actions.cancelAllActions();
 
-		GameState.instance.level.addEntity(corpse = new MobCorpse(sprite, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, 0xFFFFFFFF, true, passiveItems), position);
+		GameState.instance.level.addEntity(corpse = new MobCorpse(sprite, Vector4.One, animator, new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f), direction, velocity, impulseVelocity, collider, true, passiveItems), position);
 
 		GameState.instance.stopRun(false, by, byName != null ? byName : by != null && by.displayName != null ? by.displayName : "???");
 
@@ -912,6 +914,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	void onLevelUp()
 	{
+		availableStatUpgrades++;
+
 		GameState.instance.level.addEntity(new LevelUpEffect(this), position + Vector2.Up * 1);
 
 		addStatusEffect(new HealStatusEffect(maxHealth, 2));
@@ -1360,7 +1364,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 					if (InputManager.IsDown("Attack"))
 					{
-						if (handItem.trigger)
+						if (false)//if (handItem.trigger)
 						{
 							if (InputManager.IsPressed("Attack"))
 							{
@@ -1371,7 +1375,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (actions.currentAction == null)
+							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration)
 							{
 								if (handItem.use(this))
 									removeItem(handItem);
@@ -1449,7 +1453,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (isSprinting)
 			consumeMana(SPRINT_MANA_COST * Time.deltaTime);
 		else if (mana < maxMana)
-			mana = MathF.Min(mana + defaultManaRecoveryRate * getManaRecoveryModifier() * Time.deltaTime, maxMana);
+			mana = MathF.Min(mana + defaultManaRecoveryRate * maxMana * getManaRecoveryModifier() * Time.deltaTime, maxMana);
 
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
@@ -1673,9 +1677,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			statusEffects[i].render(this);
 		}
-		for (int i = 0; i < modifiers.Count; i++)
+		for (int i = 0; i < itemBuffs.Count; i++)
 		{
-			modifiers[i].render(this);
+			itemBuffs[i].render(this);
 		}
 
 		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
@@ -1710,31 +1714,42 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getMovementSpeedModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.movementSpeedModifier;
 		return value;
 	}
 
-	public float getAttackDamageModifier()
+	public float getMeleeDamageModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
-			value *= modifier.attackDamageModifier;
+		foreach (ItemBuff modifier in itemBuffs)
+			value *= modifier.meleeDamageModifier;
+		value *= MathF.Pow(1.25f, strength - 1);
+		return value;
+	}
+
+	public float getMagicDamageModifier()
+	{
+		float value = 1;
+		foreach (ItemBuff modifier in itemBuffs)
+			value *= modifier.magicDamageModifier;
+		value *= MathF.Pow(1.25f, intelligence - 1);
 		return value;
 	}
 
 	public float getAttackSpeedModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.attackSpeedModifier;
+		value *= MathF.Pow(1.15f, dexterity - 1);
 		return value;
 	}
 
 	public float getManaCostModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.manaCostModifier;
 		return value;
 	}
@@ -1742,7 +1757,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getManaRecoveryModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.manaRecoveryModifier;
 		return value;
 	}
@@ -1750,7 +1765,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getStealthAttackModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.stealthAttackModifier;
 		return value;
 	}
@@ -1758,7 +1773,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getDefenseModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.defenseModifier;
 		return value;
 	}
@@ -1766,7 +1781,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getAccuracyModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.accuracyModifier;
 		return value;
 	}
@@ -1774,7 +1789,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getCriticalChanceModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.criticalChanceModifier;
 		return value;
 	}
@@ -1782,7 +1797,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float getCriticalAttackModifier()
 	{
 		float value = 1;
-		foreach (Modifier modifier in modifiers)
+		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.criticalAttackModifier;
 		return value;
 	}

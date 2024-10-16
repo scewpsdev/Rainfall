@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "hLYeIIlq8a+ChC2dQYK5EkDjgBMu2ewMqFkamGxbeRtx/EOzkWImbqKK5IV1QTGA7zVdtMfUQbxcuEK8jBAxnA==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\PixelEngine2\\PixelEngine2.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

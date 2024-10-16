@@ -13,11 +13,11 @@ public class Shortsword : Item
 	{
 		displayName = "Shortsword";
 
-		attackDamage = 1.0f;
-		attackRange = 1.0f;
-		attackRate = 2.0f;
+		baseDamage = 1.0f;
+		baseAttackRange = 1.0f;
+		baseAttackRate = 2.0f;
 		stab = false;
-		weight = 1;
+		baseWeight = 1;
 
 		value = 9;
 
@@ -35,7 +35,7 @@ public class Shortsword : Item
 			if (attack.weapon == this)
 				anim = !attack.stab;
 		}
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, attackRate, attackDamage, attackRange));
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange));
 		return false;
 	}
 }
