@@ -33,7 +33,7 @@ public class TripleShotSpell : Spell
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
-	public override void cast(Player player, Item staff)
+	public override void cast(Player player, Item staff, float manaCost)
 	{
 		this.player = player;
 		this.staff = staff;

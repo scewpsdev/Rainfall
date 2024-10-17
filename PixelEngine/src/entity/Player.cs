@@ -37,19 +37,19 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float gravity = -22;
 	public float wallJumpPower = 10;
 	public const float defaultManaRecoveryRate = 0.015f;
-	public float coinCollectDistance = 1.0f;
+	public float coinCollectDistance = 1.5f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
 	//public float maxHealth = 3;
 	public float health = 3;
-	public float maxHealth => hp;
+	public float maxHealth => 2 + hp / 2.0f;
 
 	//public float maxMana = 2;
 	public float mana = 2;
 	public float maxMana => magic;
 
-	public int hp = 3;
+	public int hp = 2;
 	public int magic = 2;
 	public int strength = 1;
 	public int dexterity = 1;
@@ -57,7 +57,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public int money = 0;
 	public int playerLevel = 1;
-	public int xp = 0;
+	public int xp { get; private set; } = 0;
 
 	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.25f * (playerLevel - 1)));
 	public int availableStatUpgrades = 0;
@@ -330,15 +330,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			passiveItems.Add(item);
 			passiveItems.Sort((Item item1, Item item2) =>
 			{
-				int getScore(Item item) => item.isActiveItem && !item.isSecondaryItem ? 1 :
-					item.isActiveItem ? 2 :
-					item.isSecondaryItem ? 3 :
-					item.isActiveItem ? 4 :
-					item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
-					item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
+				int getScore(Item item) => item.isHandItem && !item.isSecondaryItem ? 1 :
+				item.isHandItem ? 2 :
+				item.isSecondaryItem ? 3 :
+				item.isActiveItem ? 4 :
+				item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
+				item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
 				int score1 = getScore(item1);
 				int score2 = getScore(item2);
-				return score1 > score2 ? -1 : score1 < score2 ? 1 : 0;
+				return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 			});
 
 			item.onEquip(this);
@@ -523,6 +523,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return false;
 	}
 
+	public bool hasItemOfType(ItemType type)
+	{
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (items[i].type == type)
+				return true;
+		}
+		return false;
+	}
+
 	public bool isEquipped(Item item)
 	{
 		if (handItem == item)
@@ -679,7 +689,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
-		Vector2 throwOrigin = position + new Vector2(0, 0.5f) + direction.normalized;
+		Vector2 throwOrigin = position + new Vector2(0, 0.5f); // + direction.normalized;
 		ItemEntity obj = new ItemEntity(item, throws ? this : null, itemVelocity);
 		if (item.projectileSpins)
 			obj.rotationVelocity = MathF.PI * MathHelper.RandomFloat(-5, 5);
@@ -898,23 +908,29 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (mana < maxMana)
 			mana = MathF.Min(mana + MANA_KILL_REWARD, maxMana);
 
-		xp += (int)MathF.Round(mob.maxHealth);
-		if (xp >= nextLevelXP)
-		{
-			xp -= nextLevelXP;
-			playerLevel++;
-			onLevelUp();
-		}
-
 		for (int i = 0; i < items.Count; i++)
 			items[i].onKill(this, mob);
 
 		GameState.instance.save.onKill(mob);
 	}
 
+	public void awardXP(int amount)
+	{
+		xp += amount;
+		if (xp >= nextLevelXP)
+		{
+			xp -= nextLevelXP;
+			playerLevel++;
+			onLevelUp();
+		}
+	}
+
 	void onLevelUp()
 	{
 		availableStatUpgrades++;
+
+		if (playerLevel % 5 == 0)
+			GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
 
 		GameState.instance.level.addEntity(new LevelUpEffect(this), position + Vector2.Up * 1);
 
@@ -1375,7 +1391,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration)
+							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
 							{
 								if (handItem.use(this))
 									removeItem(handItem);
@@ -1401,9 +1417,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 				else
 				{
-					if (InputManager.IsPressed("Attack"))
+					if (InputManager.IsDown("Attack") && (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration))
 					{
-						InputManager.ConsumeEvent("Attack");
+						//InputManager.ConsumeEvent("Attack");
 						DefaultWeapon.instance.use(this);
 					}
 				}
@@ -1412,7 +1428,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					if (InputManager.IsDown("Attack2"))
 					{
-						if (offhandItem.trigger)
+						if (false)//if (offhandItem.trigger)
 						{
 							if (InputManager.IsPressed("Attack2", true))
 							{
@@ -1422,7 +1438,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (actions.currentAction == null)
+							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
 							{
 								if (offhandItem.use(this))
 									removeItem(offhandItem);

@@ -25,7 +25,7 @@ public class LightningSpell : Spell
 		castSound = Resource.GetSounds("res/sounds/lightning", 4);
 	}
 
-	public override void cast(Player player, Item staff)
+	public override void cast(Player player, Item staff, float manaCost)
 	{
 		Vector2 position = player.position + new Vector2(0.0f, 0.5f);
 		Vector2 offset = new Vector2(player.direction * 0.5f, 0.0f);

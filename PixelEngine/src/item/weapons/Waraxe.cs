@@ -18,6 +18,7 @@ public class Waraxe : Item
 		baseAttackRate = 1.3f;
 		stab = false;
 		baseWeight = 2.5f;
+		doubleBladed = false;
 
 		value = 23;
 

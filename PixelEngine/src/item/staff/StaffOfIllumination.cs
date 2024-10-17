@@ -6,19 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class StaffOfIllumination : Item
+public class StaffOfIllumination : Staff
 {
 	public StaffOfIllumination()
-		: base("staff_of_illumination", ItemType.Staff)
+		: base("staff_of_illumination")
 	{
 		displayName = "Staff of Illumination";
 
-		baseAttackRate = 1;
-		trigger = false;
 		isSecondaryItem = true;
 
 		baseDamage = 0;
-		//manaCost = 0.5f;
 		staffCharges = 10;
 		maxStaffCharges = 10;
 
@@ -26,17 +23,8 @@ public class StaffOfIllumination : Item
 
 		sprite = new Sprite(tileset, 5, 4);
 		renderOffset.x = 0.2f;
-	}
 
-	public override bool use(Player player)
-	{
-		if (staffCharges > 0 && player.mana >= manaCost)
-		{
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, new IlluminationSpell(), 0));
-			player.consumeMana(manaCost);
-			staffCharges--;
-		}
-		return staffCharges == 0;
+		attuneSpell(0, new IlluminationSpell());
 	}
 
 	public override void render(Entity entity)

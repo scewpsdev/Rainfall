@@ -38,9 +38,9 @@ public class HUD
 	{
 		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/ui.png", false), 8, 8);
 
-		heartFull = new Sprite(tileset, 0, 0);
+		heartFull = new Sprite(tileset, 0, 1);
 		heartHalf = new Sprite(tileset, 1, 0);
-		heartEmpty = new Sprite(tileset, 2, 0);
+		heartEmpty = new Sprite(tileset, 1, 1);
 
 		mana = new Sprite(tileset, 6, 0);
 		manaEmpty = new Sprite(tileset, 7, 0);
@@ -154,14 +154,14 @@ public class HUD
 		}
 	}
 
-	void ___renderHealth()
+	void renderHealth()
 	{
 		for (int i = 0; i < player.maxHealth; i++)
 		{
 			int size = 8;
-			int padding = 3;
-			int x = 6 + i * (size + padding);
-			int y = 6;
+			int padding = 2;
+			int x = Renderer.UIWidth / 2 - 8 - size - i * (size + padding);
+			int y = Renderer.UIHeight - 4 - 16 - 7 - size;
 
 			Renderer.DrawUIOutline(x, y, size, size, heartEmpty, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, heartEmpty);
@@ -178,7 +178,7 @@ public class HUD
 		}
 	}
 
-	void renderHealth()
+	void ___renderHealth()
 	{
 		int width = (int)MathF.Round(player.maxHealth * 20);
 		int height = 7;
@@ -198,14 +198,14 @@ public class HUD
 		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
 	}
 
-	void ___renderMana()
+	void renderMana()
 	{
 		for (int i = 0; i < player.maxMana; i++)
 		{
 			int size = 8;
-			int padding = 3;
-			int x = 6 + i * (size + padding);
-			int y = 6 + 8 + 3;
+			int padding = 2;
+			int x = Renderer.UIWidth / 2 + 8 + i * (size + padding);
+			int y = Renderer.UIHeight - 4 - 16 - 7 - size;
 
 			Renderer.DrawUIOutline(x, y, size, size, manaEmpty, false, 0x5F000000);
 			Renderer.DrawUISprite(x, y, size, size, manaEmpty);
@@ -222,7 +222,7 @@ public class HUD
 		}
 	}
 
-	void renderMana()
+	void ___renderMana()
 	{
 		int width = (int)MathF.Round(player.maxMana * 20);
 		int height = 7;
@@ -699,16 +699,18 @@ public class HUD
 			}
 		}
 
-		/*
 		if (GameState.instance.currentBoss != null)
 		{
-			int width = Renderer.UIWidth - 40;
+			int width = Renderer.UIWidth / 2;
 			int height = 4;
-			Renderer.DrawUISprite(20 - 1, Renderer.UIHeight - 32 - height - 1, width + 2, height + 2, 0, null, 0xFFAAAAAA);
-			Renderer.DrawUISprite(20, Renderer.UIHeight - 32 - height, width, height, 0, null, 0xFF111111);
-			Renderer.DrawUISprite(20, Renderer.UIHeight - 32 - height, (int)MathF.Ceiling(GameState.instance.currentBoss.health / GameState.instance.currentBossMaxHealth * width), height, 0, null, 0xFF983a2e);
-			Renderer.DrawUITextBMP(20, Renderer.UIHeight - 32 - height - 10, GameState.instance.currentBoss.displayName, 1, 0xFF111111);
+			int x = Renderer.UIWidth / 2 - width / 2;
+			int y = 10;
+
+			//Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, 0, null, 0xFFAAAAAA);
+			Renderer.DrawUISprite(x, y, width, height, 0, null, 0xFF3F0000);
+			Renderer.DrawUISprite(x, y, (int)MathF.Ceiling(GameState.instance.currentBoss.health / GameState.instance.currentBossMaxHealth * width), height, 0, null, 0xFF983a2e);
+			Renderer.DrawUITextBMP(x, y + height + 3, GameState.instance.currentBoss.displayName, 1, 0xFF111111);
+			Renderer.DrawUITextBMP(x, y + height + 2, GameState.instance.currentBoss.displayName, 1, 0xFFAAAAAA);
 		}
-		*/
 	}
 }

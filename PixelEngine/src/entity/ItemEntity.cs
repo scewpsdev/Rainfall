@@ -171,6 +171,9 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 		velocity.y += gravity * Time.deltaTime;
 
+		if (GameState.instance.level.sampleTiles(position) != null)
+			velocity = Vector2.Zero;
+
 		Vector2 displacement = velocity * Time.deltaTime;
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, false);
 		position += displacement;

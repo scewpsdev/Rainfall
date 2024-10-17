@@ -37,16 +37,16 @@ public static class DropRates
 		0.01f, // Gem
 	};
 	public static readonly float[] chest = new float[(int)ItemType.Count] {
-		0.1f, // Weapon
-		0.06f, // Shield
-		0.11f, // Armor
-		0.04f, // Food
-		0.1f, // Potion
-		0.12f, // Relic
+		0.14f, // Weapon
+		0.09f, // Shield
+		0.14f, // Armor
+		0.06f, // Food
+		0.13f, // Potion
+		0.0f, // Relic
 		0.1f, // Staff
-		0.06f, // Scroll
-		0.08f,  // Spell
-		0.08f, // Utility
+		0.09f, // Scroll
+		0.0f,  // Spell
+		0.1f, // Utility
 		0.1f, // Ammo
 		0.05f, // Gem
 	};
@@ -56,38 +56,38 @@ public static class DropRates
 		0.1f, // Armor
 		0.25f, // Food
 		0.1f, // Potion
-		0.03f, // Relic
-		0.04f, // Staff
+		0.0f, // Relic
+		0.07f, // Staff
 		0.08f, // Scroll
-		0.01f,  // Spell
+		0.0f,  // Spell
 		0.13f, // Utility
-		0.11f, // Ammo
+		0.12f, // Ammo
 		0.04f, // Gem
 	};
 	public static readonly float[] ground = new float[(int)ItemType.Count] {
 		0.05f, // Weapon
 		0.01f, // Shield
 		0.05f, // Armor
-		0.19f, // Food
+		0.2f, // Food
 		0.1f, // Potion
 		0.0f, // Relic
 		0.03f, // Staff
 		0.06f, // Scroll
-		0.01f,  // Spell
+		0.0f,  // Spell
 		0.3f, // Utility
 		0.2f, // Ammo
 		0.0f, // Gem
 	};
 	public static readonly float[] mob = new float[(int)ItemType.Count] {
-		0.11f, // Weapon
-		0.04f, // Shield
-		0.11f, // Armor
-		0.13f, // Food
+		0.13f, // Weapon
+		0.07f, // Shield
+		0.13f, // Armor
+		0.16f, // Food
 		0.1f, // Potion
-		0.1f, // Relic
-		0.06f, // Staff
+		0.0f, // Relic
+		0.1f, // Staff
 		0.05f, // Scroll
-		0.04f,  // Spell
+		0.0f,  // Spell
 		0.1f, // Utility
 		0.11f, // Ammo
 		0.05f, // Gem

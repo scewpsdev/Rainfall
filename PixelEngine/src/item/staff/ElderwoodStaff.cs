@@ -19,6 +19,7 @@ public class ElderwoodStaff : Item
 		trigger = false;
 		//isSecondaryItem = true;
 		secondaryChargeTime = 0;
+		canDrop = false;
 
 		staffCharges = 0;
 

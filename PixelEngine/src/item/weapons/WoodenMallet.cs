@@ -20,6 +20,8 @@ public class WoodenMallet : Item
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;
+		attackAngle = MathF.PI;
+		doubleBladed = false;
 		baseWeight = 2;
 
 		value = 28;

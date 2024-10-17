@@ -29,8 +29,8 @@ public class Leprechaun : Mob
 		health = 3;
 		speed = 4;
 		jumpPower = 7;
-		gravity = -16;
-		damage = 0.5f;
+		//gravity = -16;
+		//damage = 0.5f;
 	}
 
 	public override void onDeath(Entity by)

@@ -21,7 +21,7 @@ public static class ItemSelector
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
 		int sidePanelWidth = 90;
-		int shopWidth = Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1);
+		int shopWidth = Math.Min(Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1), width);
 		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
 
 		int top = y;
@@ -29,10 +29,14 @@ public static class ItemSelector
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
 
 		Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, UIColors.WINDOW_BACKGROUND);
+		Renderer.DrawUISprite(x, y + headerHeight, width, height - headerHeight, null, false, UIColors.WINDOW_BACKGROUND);
 		Renderer.DrawUITextBMP(x + 2, y + 2, title, 1, UIColors.TEXT);
-		Renderer.DrawUISprite(x + width - 1 - HUD.gold.width, y + 2, HUD.gold.width, HUD.gold.height, HUD.gold);
-		string moneyStr = GameState.instance.player.money.ToString();
-		Renderer.DrawUITextBMP(x + width - 1 - HUD.gold.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, UIColors.TEXT);
+		if (money != -1)
+		{
+			Renderer.DrawUISprite(x + width - 1 - HUD.gold.width, y + 2, HUD.gold.width, HUD.gold.height, HUD.gold);
+			string moneyStr = money.ToString();
+			Renderer.DrawUITextBMP(x + width - 1 - HUD.gold.width - Renderer.MeasureUITextBMP(moneyStr, moneyStr.Length, 1).x - 2, y + 2, moneyStr, 1, UIColors.TEXT);
+		}
 		y += headerHeight;
 
 		if ((InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true)) && items.Count > 0)
@@ -184,6 +188,37 @@ public static class ItemSelector
 		y = Math.Clamp(y, 2, Renderer.UIHeight - height - 2);
 
 		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, compareItem, infoPanelShowCompareItem, out secondary, out closed, ref selectedItem);
+	}
+
+	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, Func<int, int, int, int, int, bool, bool, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
+	{
+		int lineHeight = 16;
+		int headerHeight = 12 + 1;
+		int sidePanelWidth = 90;
+		int shopWidth = Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1);
+		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
+		int width = shopWidth + (renderInfoPanel != null ? 1 + sidePanelWidth : 0);
+		int height = headerHeight + shopHeight;
+		int x = Math.Clamp(pos.x, 2, Renderer.UIWidth - width - 2);
+		int y = Math.Clamp(pos.y - height, 2, Renderer.UIHeight - height - 2);
+
+		int choice = Render(x, y, width, height, title, items, prices, money, renderSlotIcons, false, null, false, out secondary, out closed, ref selectedItem);
+
+		// Item info panel
+		if (items.Count > 0 && renderInfoPanel != null)
+		{
+			int xx = x + shopWidth + 1;
+			int yy = y + headerHeight;
+			int ww = sidePanelWidth;
+			int hh = Math.Max(shopHeight, sidePanelHeight);
+
+			Renderer.DrawUISprite(xx - 1, yy - 1, ww + 2, hh + 2, null, false, 0xFFAAAAAA);
+			Renderer.DrawUISprite(xx, yy, ww, hh, null, false, 0xFF222222);
+
+			sidePanelHeight = renderInfoPanel(xx, yy, ww, hh, choice, secondary, closed);
+		}
+
+		return choice;
 	}
 
 	public static Item GetCompareItem(Player player, Item item)

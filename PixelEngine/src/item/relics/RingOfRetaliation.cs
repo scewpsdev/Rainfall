@@ -35,7 +35,7 @@ public class RingOfRetaliation : Item
 
 		lastHit = Time.currentTime;
 		damageTaken += damage;
-		recoveryAmount += 0.25f * damage;
+		recoveryAmount += 0.15f * damage;
 	}
 
 	public override void onEnemyHit(Player player, Mob mob, float damage)

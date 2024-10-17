@@ -17,6 +17,7 @@ public class MoonBlossom : Item
 		description = "Refills staff charges";
 
 		value = 25;
+		canDrop = false;
 
 		sprite = new Sprite(tileset, 12, 4);
 

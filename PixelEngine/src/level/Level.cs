@@ -236,22 +236,6 @@ public class Level
 			}
 		}
 
-		if (rooms != null)
-		{
-			for (int i = 0; i < rooms.Count; i++)
-			{
-				int x0 = rooms[i].x;
-				int x1 = rooms[i].x + rooms[i].width - 1;
-				int y0 = rooms[i].y;
-				int y1 = rooms[i].y + rooms[i].height - 1;
-
-				Vector2i playerTile = (Vector2i)Vector2.Floor(GameState.instance.player.position + new Vector2(0, 0.5f));
-
-				if (playerTile.x >= x0 && playerTile.x <= x1 && playerTile.y >= y0 && playerTile.y <= y1)
-					rooms[i].explored = true;
-			}
-		}
-
 		if (infiniteEnergy)
 			GameState.instance.player.mana = GameState.instance.player.maxMana;
 	}
@@ -277,8 +261,8 @@ public class Level
 		}
 
 
-		int x0 = (int)MathF.Floor(GameState.instance.camera.left);
-		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom);
+		int x0 = (int)MathF.Floor(GameState.instance.camera.left) - 1;
+		int y0 = (int)MathF.Floor(GameState.instance.camera.bottom) - 1;
 		int x1 = (int)MathF.Ceiling(GameState.instance.camera.right);
 		int y1 = (int)MathF.Ceiling(GameState.instance.camera.top);
 
@@ -806,7 +790,7 @@ public class Level
 	{
 		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
 		TileType tile = getTile(tilePosition);
-		if (tile != null && (tile.isSolid || tile.isPlatform))
+		if (tile != null && tile.isSolid && !tile.isPlatform)
 			return new HitData() { position = position };
 		return null;
 	}

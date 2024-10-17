@@ -43,22 +43,7 @@ public class InventoryUI
 
 	static bool drawItemSlot(int x, int y, int size, Item item, Sprite background = null, bool selected = false)
 	{
-		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, selected ? UIColors.ITEM_SLOT_FRAME_HIGHLIGHT : UIColors.ITEM_SLOT_FRAME);
-		Renderer.DrawUISprite(x, y, size, size, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);
-		if (item != null)
-		{
-			Renderer.DrawUIOutline(x, y, size, size, item.getIcon(), false, 0xFF000000);
-			Renderer.DrawUISprite(x, y, size, size, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
-		}
-		else if (background != null)
-		{
-			Renderer.DrawUISprite(x, y, size, size, background, false, 0x7FFFFFFF);
-		}
-
-		bool newSelected = selected;
-		if (Input.cursorHasMoved && Renderer.IsHovered(x, y, size, size))
-			newSelected = true;
-		return newSelected;
+		return ItemSlotUI.Render(x, y, size, item, background, selected);
 	}
 
 	public static void DrawEquipment(int x, int y, int width, int height, Player player)
@@ -78,6 +63,18 @@ public class InventoryUI
 		Renderer.DrawUISprite(x, y, 16, 16, bagSprite);
 		for (int i = 0; i < player.activeItems.Length; i++)
 			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.activeItems[i]);
+		y += slotSize + ypadding;
+
+		int idx = 0;
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			Item item = player.items[i];
+			if (!player.isEquipped(item))
+			{
+				drawItemSlot(x + 16 + 2 + idx * (slotSize + xpadding), y, slotSize, item);
+				idx++;
+			}
+		}
 		y += slotSize + ypadding;
 
 		Renderer.DrawUISprite(x, y, 16, 16, helmetSprite);
@@ -123,9 +120,17 @@ public class InventoryUI
 
 		y += Renderer.smallFont.size + 8;
 
+		List<Item> storedItems = new List<Item>();
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (!player.isEquipped(player.items[i]))
+				storedItems.Add(player.items[i]);
+		}
+
 		int firstEquipmentItem = 0;
 		int firstActiveItem = 7;
-		int firstPassiveItem = firstActiveItem + player.activeItems.Length;
+		int firstStoredItem = firstActiveItem + player.activeItems.Length;
+		int firstPassiveItem = firstStoredItem + storedItems.Count;
 
 		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.offhandItem, shieldSprite, selectedItem == firstEquipmentItem + 0))
 			selectedItem = firstEquipmentItem + 0;
@@ -218,7 +223,7 @@ public class InventoryUI
 				item = player.activeItems[i];
 		}
 
-		if (selectedItem >= firstActiveItem && selectedItem < firstPassiveItem)
+		if (selectedItem >= firstActiveItem && selectedItem < firstStoredItem)
 		{
 			selectedItem -= firstActiveItem;
 			if (Input.IsKeyPressed(KeyCode.L))
@@ -251,6 +256,57 @@ public class InventoryUI
 		}
 
 		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
+
+		if (storedItems.Count > 0)
+		{
+			for (int i = 0; i < storedItems.Count; i++)
+			{
+				int xx = i % 4;
+				int yy = i / 4;
+
+				bool selected = selectedItem == firstStoredItem + i;
+
+				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, storedItems[i], bagSprite, selected))
+					selectedItem = firstStoredItem + i;
+
+				if (selected)
+					item = storedItems[i];
+			}
+
+			if (selectedItem >= firstStoredItem && selectedItem < firstPassiveItem)
+			{
+				selectedItem -= firstStoredItem;
+				if (Input.IsKeyPressed(KeyCode.L))
+				{
+					Input.ConsumeKeyEvent(KeyCode.L);
+					selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (Input.IsKeyPressed(KeyCode.J))
+				{
+					Input.ConsumeKeyEvent(KeyCode.J);
+					selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (Input.IsKeyPressed(KeyCode.K))
+				{
+					Input.ConsumeKeyEvent(KeyCode.K);
+					selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (Input.IsKeyPressed(KeyCode.I))
+				{
+					Input.ConsumeKeyEvent(KeyCode.I);
+					selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (selectedItem < 0)
+					selectedItem = -1;
+				selectedItem += firstStoredItem;
+			}
+
+			y += (storedItems.Count + 3) / 4 * (slotSize + ypadding) + 8;
+		}
 
 		int idx = 0;
 		for (int i = 0; i < player.passiveItems.Count; i++)

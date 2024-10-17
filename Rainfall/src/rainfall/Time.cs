@@ -9,6 +9,11 @@ namespace Rainfall
 {
 	public static class Time
 	{
+		public static bool paused
+		{
+			set { Native.Application.Application_SetTimerPaused((byte)(value ? 1 : 0)); }
+		}
+
 		public static long currentTime
 		{
 			get { return Native.Application.Application_GetCurrentTime(); }

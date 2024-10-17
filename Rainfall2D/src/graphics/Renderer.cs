@@ -437,7 +437,7 @@ public static class Renderer
 			vertex1 = vertex1,
 			vertex2 = vertex2,
 			vertex3 = vertex3,
-			texture = sprite.spriteSheet.texture,
+			texture = sprite != null ? sprite.spriteSheet.texture : null,
 			rect = rect,
 			color = color,
 			solid = solid
@@ -470,21 +470,44 @@ public static class Renderer
 		DrawSpriteEx(new Vector3(x, y, z), new Vector3(x + width, y, z), new Vector3(x + width, y + height, z + height), new Vector3(x, y + height, z + height), sprite, flipped, color, false, true);
 	}
 
-	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, uint color = 0xFFFFFFFF)
+	public static void DrawVerticalSpriteSolid(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, Vector4 color)
 	{
-		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
-		if (sprite != null)
-		{
-			u0 = sprite.uv0.x;
-			v0 = sprite.uv0.y;
-			u1 = sprite.uv1.x;
-			v1 = sprite.uv1.y;
+		Vector3 vertex0 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex1 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex2 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex3 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
 
-			if (flipped)
-				MathHelper.Swap(ref u0, ref u1);
-		}
-		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, rotation = rotation, color = MathHelper.ARGBToVector(color) });
+		vertex0.xz += Vector2.Rotate(new Vector2(-0.5f * width, -0.5f * height), rotation);
+		vertex1.xz += Vector2.Rotate(new Vector2(0.5f * width, -0.5f * height), rotation);
+		vertex2.xz += Vector2.Rotate(new Vector2(0.5f * width, 0.5f * height), rotation);
+		vertex3.xz += Vector2.Rotate(new Vector2(-0.5f * width, 0.5f * height), rotation);
+
+		vertex0.y += vertex0.z;
+		vertex1.y += vertex1.z;
+		vertex2.y += vertex2.z;
+		vertex3.y += vertex3.z;
+
+		DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, sprite, flipped, color, false, true);
+	}
+
+	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, Sprite sprite, bool flipped, float rotation, Vector4 color)
+	{
+		Vector3 vertex0 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex1 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex2 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex3 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+
+		vertex0.xz += Vector2.Rotate(new Vector2(-0.5f * width, -0.5f * height), rotation);
+		vertex1.xz += Vector2.Rotate(new Vector2(0.5f * width, -0.5f * height), rotation);
+		vertex2.xz += Vector2.Rotate(new Vector2(0.5f * width, 0.5f * height), rotation);
+		vertex3.xz += Vector2.Rotate(new Vector2(-0.5f * width, 0.5f * height), rotation);
+
+		vertex0.y += vertex0.z;
+		vertex1.y += vertex1.z;
+		vertex2.y += vertex2.z;
+		vertex3.y += vertex3.z;
+
+		DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, sprite, flipped, color);
 	}
 
 	/*
@@ -509,15 +532,15 @@ public static class Renderer
 
 	public static void DrawVerticalSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, Vector4 color, bool additive)
 	{
-		Vector3 vertex0 = new Vector3(x, y, z);
-		Vector3 vertex1 = new Vector3(x + width, y, z);
-		Vector3 vertex2 = new Vector3(x + width, y, z + height);
-		Vector3 vertex3 = new Vector3(x, y, z + height);
+		Vector3 vertex0 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex1 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex2 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
+		Vector3 vertex3 = new Vector3(x + 0.5f * width, y, z + 0.5f * height);
 
-		vertex0.xz = Vector2.Rotate(vertex0.xz, rotation);
-		vertex1.xz = Vector2.Rotate(vertex1.xz, rotation);
-		vertex2.xz = Vector2.Rotate(vertex2.xz, rotation);
-		vertex3.xz = Vector2.Rotate(vertex3.xz, rotation);
+		vertex0.xz += Vector2.Rotate(new Vector2(-0.5f * width, -0.5f * height), rotation);
+		vertex1.xz += Vector2.Rotate(new Vector2(0.5f * width, -0.5f * height), rotation);
+		vertex2.xz += Vector2.Rotate(new Vector2(0.5f * width, 0.5f * height), rotation);
+		vertex3.xz += Vector2.Rotate(new Vector2(-0.5f * width, 0.5f * height), rotation);
 
 		vertex0.y += vertex0.z;
 		vertex1.y += vertex1.z;
@@ -531,6 +554,14 @@ public static class Renderer
 	{
 		FloatRect rect = new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height);
 		verticalDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), texture = texture, rect = rect, rotation = rotation, color = MathHelper.ARGBToVector(color) });
+	}
+
+	public static void DrawVerticalOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)
+	{
+		DrawVerticalSpriteSolid(x - 1.0f / 16.0f, y + 0.001f, z, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x + 1.0f / 16.0f, y + 0.001f, z, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x, y + 0.001f, z - 1.0f / 16.0f, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x, y + 0.001f, z + 1.0f / 16.0f, width, height, rotation, sprite, flipped, color);
 	}
 
 	public static void DrawLine(Vector3 vertex0, Vector3 vertex1, Vector4 color)
@@ -766,6 +797,21 @@ public static class Renderer
 
 			FloatRect frect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy);
 			draws.Add(new SpriteDraw { position = new Vector3(x + cursor + 0.001f, y, z), size = rect.size * scale, texture = smallFont.texture, rect = frect, color = MathHelper.ARGBToVector(color) });
+
+			cursor += rect.size.x * scale;
+		}
+	}
+
+	public static void DrawWorldTextBMPVertical(float x, float y, float z, string text, float scale, uint color = 0xFFFFFFFF)
+	{
+		float cursor = 0;
+		for (int i = 0; i < text.Length; i++)
+		{
+			IntRect rect = smallFont.getCharacterRect(text[i]);
+			if (rect == null)
+				rect = smallFont.getCharacterRect('?');
+
+			DrawVerticalSprite(x + cursor + 0.001f, y, z, rect.size.x * scale, rect.size.y * scale, 0, smallFont.texture, rect.position.x, rect.position.y, rect.size.x, rect.size.y, MathHelper.ARGBToVector(color), false);
 
 			cursor += rect.size.x * scale;
 		}

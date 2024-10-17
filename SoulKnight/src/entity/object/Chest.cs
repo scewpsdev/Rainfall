@@ -1,0 +1,122 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class Chest : Entity, Interactable, Hittable
+{
+	Sprite sprite;
+	Sprite openSprite;
+	uint outline = 0;
+	bool flipped;
+
+	bool open = false;
+	Item[] items;
+	public int coins = 0;
+
+	Sound[] openSound;
+	Sound closeSound;
+
+
+	public Chest(Item[] items, bool flipped = false)
+	{
+		this.items = items;
+
+		sprite = new Sprite(TileType.tileset, 0, 0);
+		openSprite = new Sprite(TileType.tileset, 1, 0);
+
+		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
+		filterGroup = FILTER_DECORATION;
+
+		this.flipped = flipped;
+
+		openSound = [
+			Resource.GetSound("res/sounds/chest_open1.ogg"),
+			Resource.GetSound("res/sounds/chest_open2.ogg"),
+		];
+		closeSound = Resource.GetSound("res/sounds/chest_close.ogg");
+	}
+
+	public Chest(params Item[] items)
+		: this(items, false)
+	{
+	}
+
+	public Chest()
+		: this(null, false)
+	{
+	}
+
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	{
+		if (by != null && byName == "Explosion")
+		{
+			float distance = (by.position - (position + collider.center)).length;
+			if (distance < 1.5f)
+			{
+				if (!open && items != null)
+					dropItems();
+				remove();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public bool canInteract(Player player)
+	{
+		return !open;
+	}
+
+	public void onFocusEnter(Player player)
+	{
+		outline = OUTLINE_COLOR;
+	}
+
+	public void onFocusLeft(Player player)
+	{
+		outline = 0;
+	}
+
+	void dropItems()
+	{
+		for (int i = 0; i < items.Length; i++)
+		{
+			Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), MathHelper.RandomFloat(-0.2f, 0.2f)) * 8;
+			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+			ItemEntity obj = new ItemEntity(items[i], null, itemVelocity) { zVelocity = 5 };
+			GameState.instance.level.addEntity(obj, throwOrigin);
+		}
+		items = null;
+
+		for (int i = 0; i < coins; i++)
+		{
+			Coin coin = new Coin();
+			Vector2 spawnPosition = position + new Vector2(0, 0.5f) + Vector2.Rotate(Vector2.UnitX, i / (float)coins * 2 * MathF.PI) * 0.2f;
+			coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+			GameState.instance.level.addEntity(coin, spawnPosition);
+		}
+	}
+
+	public void interact(Player player)
+	{
+		open = true;
+		GameState.instance.run.chestsOpened++;
+
+		Debug.Assert(items != null);
+		dropItems();
+
+		Audio.Play(openSound, new Vector3(position, 0));
+	}
+
+	public override void render()
+	{
+		Renderer.DrawVerticalSprite(position.x - 0.5f, position.y, 1, 1, open ? openSprite : sprite, flipped);
+
+		if (outline != 0)
+			Renderer.DrawVerticalOutline(position.x - 0.5f, position.y, 0, 1, 1, 0, open ? openSprite : sprite, flipped, outline);
+	}
+}

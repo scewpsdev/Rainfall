@@ -18,6 +18,7 @@ public class Torch : Item
 		baseAttackRate = 2.0f;
 		stab = false;
 		baseWeight = 1;
+		doubleBladed = false;
 
 		value = 2;
 

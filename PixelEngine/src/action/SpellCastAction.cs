@@ -29,7 +29,7 @@ public class SpellCastAction : EntityAction
 	{
 		duration = 1.0f / spell.attackRate / weapon.attackRate / player.getAttackSpeedModifier();
 
-		spell.cast(player, weapon);
+		spell.cast(player, weapon, manaCost);
 		player.consumeMana(manaCost);
 
 		if (spell.castSound != null)

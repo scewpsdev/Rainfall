@@ -85,9 +85,13 @@ public class GameState : State
 	public Level cliffside;
 	public Level[] areaCaves;
 	public Level[] areaGardens;
-	public Level[] areaMines;
+
 	List<Level> cachedLevels = new List<Level>();
 	public Level level;
+	public int firstCaveFloor => 0;
+	public int lastCaveFloor => firstCaveFloor + areaCaves.Length - 1;
+	public int firstGardenFloor => areaCaves.Length;
+	public int lastGardenFloor => firstGardenFloor + areaGardens.Length - 1;
 
 	Level newLevel = null;
 	Vector2 newLevelSpawnPosition;
@@ -103,6 +107,7 @@ public class GameState : State
 
 	public bool isPaused = false;
 	public bool consoleOpen = false;
+	public bool onscreenPrompt = false;
 
 	long particleUpdateDelta;
 	long animationUpdateDelta;
@@ -123,6 +128,8 @@ public class GameState : State
 	{
 		level?.destroy();
 		level = null;
+
+		currentBoss = null;
 
 		for (int i = 0; i < cachedLevels.Count; i++)
 		{
@@ -239,9 +246,9 @@ public class GameState : State
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Inventory").ToString() + " to open inventory", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(05) + new Vector2(0, 1.5f));
 		tutorial.addEntity(new Chest(new PotionOfHealing(), new Bomb() { stackSize = 200 }), (Vector2)tutorial.rooms[0].getMarker(05));
 
-		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0, relicDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(06));
-		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0, relicDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(07));
-		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0, relicDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(08));
+		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(06));
+		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(07));
+		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(08));
 
 		tutorial.addEntity(new ItemGate(), (Vector2)tutorial.rooms[0].getMarker(09));
 
@@ -340,11 +347,9 @@ public class GameState : State
 			Door lastDoor = cliffDungeonEntrance2;
 			for (int i = 0; i < areaGardens.Length; i++)
 			{
-				bool startingRoom = false;
-				bool bossRoom = i == areaGardens.Length - 1;
 				int floor = numCaveFloors + i;
 				level = areaGardens[i];
-				generator.generateGardens(run.seed, floor, startingRoom, bossRoom, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
+				generator.generateGardens(run.seed, floor, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
 
 				lastLevel = areaGardens[i];
 				lastDoor = areaGardens[i].exit;
@@ -472,6 +477,9 @@ public class GameState : State
 		this.newLevel = newLevel;
 		this.newLevelSpawnPosition = spawnPosition;
 		levelSwitchTime = Time.currentTime;
+
+		if (currentBoss != null)
+			currentBoss = null;
 	}
 
 	public void moveEntityToLevel(Entity entity, Level newLevel)
@@ -548,7 +556,9 @@ public class GameState : State
 			PauseMenu.OnUnpause();
 		}
 
-		run.update(isPaused);
+		Time.paused = isPaused || onscreenPrompt;
+
+		run.update(isPaused || onscreenPrompt);
 		SaveFile.Update(save);
 
 		if (newLevel != null && (Time.currentTime - levelSwitchTime) / 1e9f >= LEVEL_FADE)
@@ -590,7 +600,7 @@ public class GameState : State
 				ambientSource = Audio.PlayBackground(level.ambientSound, 0.6f, 1, true, 10);
 		}
 
-		if (!isPaused && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
+		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
 		{
 			long beforeParticleUpdate = Time.timestamp;
 			//ParticleSystem.Update(Vector3.Zero);

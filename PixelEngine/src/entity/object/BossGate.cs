@@ -13,7 +13,7 @@ public class BossGate : Entity
 
 	Mob boss;
 	Room room;
-	bool isOpen = false;
+	public bool isOpen = false;
 
 
 	public BossGate(Mob boss, Room room, bool isOpen)

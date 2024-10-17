@@ -21,6 +21,8 @@ public class Greathammer : Item
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;
+		attackAngle = MathF.PI;
+		doubleBladed = false;
 		baseWeight = 5;
 
 		value = 54;

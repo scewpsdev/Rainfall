@@ -109,7 +109,11 @@ public class LightningProjectile : Entity
 					hitEntities.Add(hit.entity);
 					damage = MathF.Max(damage - 1, 0);
 					if (damage == 0)
-						remove();
+					{
+						active = false;
+						position = lastPosition + velocity.normalized * (hit.distance - 0.1f);
+						//remove();
+					}
 				}
 			}
 			else

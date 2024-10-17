@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "2wdKi6ZygTLfd8BvpphS0yC74ntyXKyV5q5RxpTNXf9ZBG5LFS1JtwSI+MYt2WGaGQ4w2LT3NCYQPxQCrLrd5w==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\SoulKnight\\SoulKnight.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

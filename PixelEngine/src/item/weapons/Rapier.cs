@@ -18,6 +18,7 @@ public class Rapier : Item
 		baseAttackRate = 2.5f;
 		attackCooldown = 2;
 		baseWeight = 1.5f;
+		secondaryChargeTime = 0.3f;
 
 		value = 14;
 
