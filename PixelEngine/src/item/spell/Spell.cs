@@ -25,5 +25,5 @@ public abstract class Spell : Item
 		return false;
 	}
 
-	public abstract void cast(Player player, Item staff);
+	public abstract void cast(Player player, Item staff, float manaCost);
 }

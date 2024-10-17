@@ -9,17 +9,28 @@ using System.Threading.Tasks;
 
 public class AttackAction : EntityAction
 {
+	static int swingIteration = 1;
+	static Item lastWeapon = null;
+
+	static int GetSwingIteration(Item weapon)
+	{
+		if (weapon != lastWeapon)
+			swingIteration = 1;
+		lastWeapon = weapon;
+		return swingIteration;
+	}
+
+
 	public Item weapon;
 	public Vector2 direction;
-	public float startAngle;
 	public bool stab;
 	float attackDamage;
 	float attackRange;
 	float attackRate;
 
 	public List<Entity> hitEntities = new List<Entity>();
-
 	public bool soundPlayed = false;
+	float maxRange = 0;
 
 
 	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)
@@ -43,7 +54,12 @@ public class AttackAction : EntityAction
 		duration /= player.getAttackSpeedModifier();
 
 		direction = player.lookDirection.normalized;
-		startAngle = new Vector2(MathF.Abs(direction.x), direction.y).angle;
+	}
+
+	public override void onFinished(Player player)
+	{
+		if (!stab)
+			swingIteration++;
 	}
 
 	public override void update(Player player)
@@ -54,8 +70,22 @@ public class AttackAction : EntityAction
 		{
 			Vector2 origin = player.position + new Vector2(0, player.getWeaponOrigin(mainHand).y);
 			Vector2 direction = new Vector2(MathF.Cos(currentAngle) * MathF.Sign(this.direction.x), MathF.Sin(currentAngle));
+
+			HitData tileHit = GameState.instance.level.raycastTiles(origin, direction, currentRange);
+			if (tileHit != null)
+				maxRange = MathF.Max(maxRange, tileHit.distance);
+			else
+				maxRange = MathF.Max(maxRange, currentRange);
+
+			HitData tileHit2 = GameState.instance.level.sampleTiles(origin + direction * currentRange);
+			if (tileHit2 != null)
+			{
+				Debug.Assert(tileHit != null);
+				maxRange = tileHit.distance;
+			}
+
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f), direction, currentRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
+			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f), direction, maxRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;
@@ -126,6 +156,7 @@ public class AttackAction : EntityAction
 		get
 		{
 			float value = MathF.Min(elapsedTime / duration * (1 + weapon.attackCooldown), 1);
+			value = 1 - MathF.Pow(1 - value, 2);
 			//value = value < 0.5f ? MathF.Pow(value, 3) * 4 : 1 - MathF.Pow(1 - value, 3) * 4;
 			return value;
 		}
@@ -138,12 +169,23 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => stab ? currentProgress * attackRange : attackRange;
+		get => stab ? currentProgress * attackRange : attackRange * 1.2f;
 	}
 
 	public float currentAngle
 	{
-		get => stab ? startAngle : startAngle + (1 - currentProgress) * weapon.attackAngle + weapon.attackAngleOffset;
+		get
+		{
+			if (stab)
+				return new Vector2(MathF.Abs(direction.x), direction.y).angle;
+			else
+			{
+				float angle = new Vector2(MathF.Abs(direction.x), direction.y).angle + weapon.attackAngleOffset;
+				float progress = weapon.doubleBladed ? (GetSwingIteration(weapon) % 2 == 0 ? currentProgress : 1 - currentProgress) : 1 - currentProgress;
+				angle += progress * weapon.attackAngle;
+				return angle;
+			}
+		}
 	}
 
 	public override Matrix getItemTransform(Player player)

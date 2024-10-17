@@ -21,6 +21,7 @@ public class Handaxe : Item
 		projectileItem = true;
 		projectileSpins = true;
 		projectileSticks = true;
+		doubleBladed = false;
 
 		value = 5;
 

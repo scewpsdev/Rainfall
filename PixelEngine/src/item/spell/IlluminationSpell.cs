@@ -24,14 +24,17 @@ public class IlluminationSpell : Spell
 		sprite = new Sprite(tileset, 4, 6);
 	}
 
-	public override void cast(Player player, Item staff)
+	public override void cast(Player player, Item staff, float manaCost)
 	{
-		Vector2 position = player.position + new Vector2(0.0f, 0.3f);
-		Vector2 offset = new Vector2(player.direction * 0.5f, 0.1f);
+		if (player.mana >= manaCost)
+		{
+			Vector2 position = player.position + new Vector2(0.0f, 0.3f);
+			Vector2 offset = new Vector2(player.direction * 0.5f, 0.1f);
 
-		Vector2 direction = player.lookDirection.normalized;
+			Vector2 direction = player.lookDirection.normalized;
 
-		GameState.instance.level.addEntity(new LightOrb(direction, player.velocity, offset, player), position);
-		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
+			GameState.instance.level.addEntity(new LightOrb(direction, player.velocity, offset, player), position);
+			GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
+		}
 	}
 }

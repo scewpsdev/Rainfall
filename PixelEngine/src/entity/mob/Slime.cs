@@ -36,7 +36,6 @@ public class Slime : Mob
 			collider = new FloatRect(-0.2f, 0, 0.4f, 0.25f);
 			itemDropChance = 0;
 			coinDropChance = 0;
-			relicDropChance = 0;
 		}
 		else if (size == 1)
 		{
@@ -44,7 +43,6 @@ public class Slime : Mob
 			collider = new FloatRect(-0.15f, 0, 0.3f, 0.2f);
 			itemDropChance = 0;
 			coinDropChance = 0;
-			relicDropChance = 0;
 			displayName = "Small Slime";
 		}
 
@@ -85,12 +83,13 @@ public class Slime : Mob
 	{
 		base.onDeath(by);
 
-		if (size > 1)
+		if (size > 2)
 		{
 			int subSlimes = MathHelper.RandomInt(1, 4);
 			for (int i = 0; i < subSlimes; i++)
 			{
-				Slime slime = new Slime(1);
+				Slime slime = new Slime(size - 2);
+				slime.spriteColor = spriteColor;
 				GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f));
 			}
 		}

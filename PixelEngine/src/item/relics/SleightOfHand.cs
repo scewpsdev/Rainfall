@@ -17,6 +17,7 @@ public class SleightOfHand : Item
 		tumbles = false;
 
 		value = 35;
+		canDrop = false;
 
 		sprite = new Sprite(tileset, 6, 6);
 

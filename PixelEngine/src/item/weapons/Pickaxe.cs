@@ -17,6 +17,7 @@ public class Pickaxe : Item
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.5f;
 		stab = false;
+		doubleBladed = false;
 
 		value = 27;
 

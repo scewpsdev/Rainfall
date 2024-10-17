@@ -158,6 +158,9 @@ public class AdvancedAI : AI
 		{
 			mob.animator.setAnimation("charge");
 
+			if (mob.isStunned)
+				chargeTime = Time.currentTime;
+
 			if ((Time.currentTime - chargeTime) / 1e9f >= currentAction.chargeTime)
 				beginAction();
 		}

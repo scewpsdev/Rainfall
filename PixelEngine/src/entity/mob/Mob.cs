@@ -33,7 +33,6 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public float itemDropChance = 0.1f;
 	public float coinDropChance = 0.2f;
-	public float relicDropChance = 0.0f;
 
 	public float health = 1;
 	public float damage = 1;
@@ -155,9 +154,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public virtual void onDeath(Entity by)
 	{
+		Player player = null;
 		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player || by is Projectile && ((Projectile)by).shooter is Player)
 		{
-			Player player = null;
 			if (by is Player)
 				player = by as Player;
 			else if (by is ItemEntity)
@@ -170,39 +169,27 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		if (ai != null)
 			ai.onDeath();
 
-		if (Random.Shared.NextSingle() < relicDropChance)
+		if (Random.Shared.NextSingle() < itemDropChance)
 		{
-			HitData hit = GameState.instance.level.raycastTiles(position, Vector2.Down, 5);
-			if (hit != null)
+			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
+
+			foreach (Item item in items)
 			{
-				Vector2 relicPosition = position + Vector2.Down * hit.distance;
-				GameState.instance.level.addEntity(new RelicOffer(), relicPosition);
+				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
+				GameState.instance.level.addEntity(obj, throwOrigin);
 			}
 		}
-		else
+		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			if (Random.Shared.NextSingle() < itemDropChance)
+			int amount = MathHelper.RandomInt(3, 6);
+			for (int i = 0; i < amount; i++)
 			{
-				Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
-
-				foreach (Item item in items)
-				{
-					Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
-					Vector2 throwOrigin = position + new Vector2(0, 0.5f);
-					ItemEntity obj = new ItemEntity(item, null, itemVelocity);
-					GameState.instance.level.addEntity(obj, throwOrigin);
-				}
-			}
-			if (Random.Shared.NextSingle() < coinDropChance)
-			{
-				int amount = MathHelper.RandomInt(3, 6);
-				for (int i = 0; i < amount; i++)
-				{
-					Coin coin = new Coin();
-					Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
-					coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
-					GameState.instance.level.addEntity(coin, spawnPosition);
-				}
+				Coin coin = new Coin();
+				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
+				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+				GameState.instance.level.addEntity(coin, spawnPosition);
 			}
 		}
 		for (int i = 0; i < stuckProjectiles.Count; i++)
@@ -214,6 +201,17 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
 				ItemEntity obj = new ItemEntity(Item.GetItemPrototype(stuckProjectiles[i].item).copy(), null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
+			}
+		}
+
+		if (player != null)
+		{
+			for (int i = 0; i < maxHealth; i++)
+			{
+				XPOrb orb = new XPOrb();
+				Vector2 pos = position + collider.center + Vector2.Rotate(Vector2.Right, i / maxHealth * MathF.PI * 2) * (0.5f + i / maxHealth); // new Vector2(MathHelper.RandomFloat(collider.min.x, collider.max.x), MathHelper.RandomFloat(collider.min.y, collider.max.y));
+				orb.velocity = (pos - (position + collider.center)).normalized * 3;
+				GameState.instance.level.addEntity(orb, pos);
 			}
 		}
 
@@ -232,6 +230,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		{
 			stunTime = Time.currentTime + (long)((stunDuration - 1) * STUN_DURATION * 1e9f);
 			criticalStun = critical;
+			isStunned = true;
 		}
 	}
 
@@ -262,7 +261,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		Vector2 delta = Vector2.Zero;
 
-		isStunned = stunTime != -1 && (Time.currentTime - stunTime) / 1e9f < STUN_DURATION;
+		if ((Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
+			isStunned = false;
 		criticalStun = criticalStun && isStunned;
 
 		if (!isStunned)

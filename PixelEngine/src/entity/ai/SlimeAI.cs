@@ -13,16 +13,13 @@ public class SlimeAI : AdvancedAI
 	public SlimeAI(Mob mob)
 		: base(mob)
 	{
-		aggroRange = 8.0f;
-		loseRange = 12.0f;
+		aggroRange = 12.0f;
+		loseRange = 14.0f;
 		loseTime = 6.0f;
 
 		float jumpChargeTime = MathHelper.RandomFloat(0.7f, 0.8f);
 
-		AIAction jump = addAction("idle", 100, jumpChargeTime, 0, 4, (AIAction action, Vector2 toTarget, float targetDistance) =>
-		{
-			return true;
-		});
+		AIAction jump = addAction("idle", 100, jumpChargeTime, 0, 4, (AIAction action, Vector2 toTarget, float targetDistance) => true);
 		jump.onStarted = (AIAction action) =>
 		{
 			mob.inputJump = true;
@@ -30,16 +27,8 @@ public class SlimeAI : AdvancedAI
 		};
 		jump.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
 		{
-			if (!mob.inputJump && mob.isGrounded && mob.velocity.y < -1)
-			{
-				if (numBounces == 1)
-					return false;
-				numBounces++;
-				mob.inputJump = true;
-				//mob.velocity.y *= -0.5f;
-				//mob.isGrounded = false;
-				return true;
-			}
+			if (!mob.inputJump && mob.isGrounded)
+				return false;
 			return true;
 		};
 	}

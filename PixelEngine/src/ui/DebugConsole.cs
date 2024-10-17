@@ -139,7 +139,7 @@ public static class DebugConsole
 				string areaName = args[0].Substring(0, args[0].Length - 1);
 				if (int.TryParse(args[0].Substring(args[0].Length - 1), out int floor))
 				{
-					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "mines" ? GameState.instance.areaMines : areaName == "gardens" ? GameState.instance.areaGardens : null;
+					Level[] area = areaName == "caves" ? GameState.instance.areaCaves : areaName == "gardens" ? GameState.instance.areaGardens : null;
 					if (area != null)
 					{
 						if (floor >= 1 && floor <= area.Length)

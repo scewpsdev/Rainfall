@@ -20,6 +20,7 @@ enum NPCState
 	SellMenu,
 	CraftingMenu,
 	UpgradeMenu,
+	AttuneMenu,
 	QuestList,
 }
 
@@ -112,6 +113,7 @@ public abstract class NPC : Mob, Interactable
 	public bool buysItems = false;
 	protected bool canCraft = false;
 	protected bool canUpgrade = false;
+	protected bool canAttune = false;
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
@@ -124,6 +126,12 @@ public abstract class NPC : Mob, Interactable
 
 	List<Item> upgradeItems = new List<Item>();
 	List<int> upgradePrices = new List<int>();
+
+	List<Item> attuneStaffs = new List<Item>();
+	List<Item> attuneSpells = new List<Item>();
+	Staff attuneStaff = null;
+	int attuneSlotID = -1;
+	Spell attuneSpell = null;
 
 	Sound[] tradeSound;
 	Sound upgradeSound;
@@ -199,6 +207,19 @@ public abstract class NPC : Mob, Interactable
 				i--;
 			*/
 		}
+
+		shopItems.Sort((Tuple<Item, int> item1, Tuple<Item, int> item2) =>
+		{
+			int getScore(Item item) => item.isHandItem && !item.isSecondaryItem ? 1 :
+				item.isHandItem ? 2 :
+				item.isSecondaryItem ? 3 :
+				item.isActiveItem ? 4 :
+				item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
+				item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
+			int score1 = getScore(item1.Item1);
+			int score2 = getScore(item2.Item1);
+			return score1 > score2 ? 1 : score1 < score2 ? -1 : item1.Item1.value > item2.Item1.value ? 1 : item1.Item1.value < item2.Item1.value ? -1 : 0;
+		});
 	}
 
 	public void addShopItem(Item item, int price = -1)
@@ -252,7 +273,7 @@ public abstract class NPC : Mob, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) || GameState.instance.save.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) || (canAttune && player.hasItemOfType(ItemType.Staff)) || GameState.instance.save.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -354,6 +375,24 @@ public abstract class NPC : Mob, Interactable
 				upgradeItems.Add(player.items[i]);
 				upgradePrices.Add(player.items[i].upgradePrice);
 			}
+		}
+	}
+
+	void initAttuneMenu()
+	{
+		state = NPCState.AttuneMenu;
+		selectedItem = 0;
+		attuneStaffs.Clear();
+		attuneSpells.Clear();
+		attuneStaff = null;
+		attuneSlotID = -1;
+		attuneSpell = null;
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].type == ItemType.Staff)
+				attuneStaffs.Add(player.items[i]);
+			else if (player.items[i].type == ItemType.Spell)
+				attuneSpells.Add(player.items[i]);
 		}
 	}
 
@@ -545,6 +584,8 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Craft");
 			if (canUpgrade && player.items.Count >= 1)
 				options.Add("Upgrade");
+			if (canAttune && player.hasItemOfType(ItemType.Staff))
+				options.Add("Attune");
 			if (dialogues.Count > 0)
 				options.Add("Talk");
 			if (GameState.instance.save.getQuestList(name, out _))
@@ -572,6 +613,10 @@ public abstract class NPC : Mob, Interactable
 				else if (options[option] == "Upgrade")
 				{
 					initUpgradeMenu();
+				}
+				else if (options[option] == "Attune")
+				{
+					initAttuneMenu();
 				}
 				else if (options[option] == "Talk")
 				{
@@ -739,6 +784,86 @@ public abstract class NPC : Mob, Interactable
 			if (closed)
 				initMenu();
 		}
+		else if (state == NPCState.AttuneMenu)
+		{
+			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			pos.x = Math.Min(pos.x, Renderer.UIWidth - 1 - 120 - 90 - 90);
+
+			if (attuneStaff == null)
+			{
+				int choice = ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, false, null, false, out bool secondary, out bool closed, ref selectedItem);
+				if (choice != -1)
+				{
+					attuneStaff = (Staff)attuneStaffs[choice];
+					while (attuneStaff.attunedSpells.Count < attuneStaff.staffAttunementSlots)
+						attuneStaff.attunedSpells.Add(null);
+				}
+
+				if (closed)
+					initMenu();
+			}
+			if (attuneStaff != null)
+			{
+				if (attuneSlotID == -1)
+				{
+					int renderAttunementSelector(int x, int y, int width, int height, int staffChoice, bool secondary, bool closed)
+					{
+						AttunementSelector.Render(x, y, width, height, attuneStaff, ref selectedItem);
+						if (staffChoice != -1)
+						{
+							int choice = selectedItem;
+							if (secondary)
+							{
+								if (attuneStaff.attunedSpells[choice] != null)
+								{
+									Spell oldSpell = attuneStaff.attuneSpell(choice, null);
+									player.giveItem(oldSpell);
+								}
+							}
+							else
+							{
+								attuneSlotID = choice;
+							}
+						}
+						if (closed)
+						{
+							attuneStaff = null;
+						}
+						return height;
+					}
+
+					int staffIdx = attuneStaffs.IndexOf(attuneStaff);
+					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderAttunementSelector, out bool secondary, out bool closed, ref staffIdx);
+				}
+				if (attuneSlotID != -1)
+				{
+					int renderSpellSelector(int x, int y, int width, int height, int staffChoice, bool secondary, bool closed)
+					{
+						ItemSelector.Render(x, y, width, height, "Select spell", attuneSpells, null, -1, null, true, null, false, out _, out bool _, ref selectedItem);
+						if (staffChoice != -1)
+						{
+							int choice = selectedItem;
+							attuneSpell = (Spell)attuneSpells[choice];
+
+							player.removeItem(attuneSpell);
+							Spell oldSpell = attuneStaff.attuneSpell(attuneSlotID, attuneSpell);
+							if (oldSpell != null)
+								player.giveItem(oldSpell);
+
+							attuneSlotID = -1;
+						}
+						if (closed)
+						{
+							attuneSlotID = -1;
+						}
+						return height;
+					}
+
+					int staffIdx = attuneStaffs.IndexOf(attuneStaff);
+					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderSpellSelector, out bool secondary, out bool closed, ref staffIdx);
+				}
+			}
+		}
 		else if (state == NPCState.QuestList)
 		{
 			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
@@ -750,7 +875,7 @@ public abstract class NPC : Mob, Interactable
 					labels.Add(quests[i].displayName);
 			}
 
-			var renderInfoPanel = (int x, int y, int width, int height) =>
+			int renderInfoPanel(int x, int y, int width, int height)
 			{
 				int top = y;
 

@@ -137,6 +137,7 @@ int64_t currentFrame = 0;
 int64_t delta = 0;
 int fps = 0;
 float ms = 0.0f;
+bool isPaused = false;
 
 float timeAccumulator = 0.0f;
 int frameCounter = 0;
@@ -669,16 +670,18 @@ static inline T clamp(const T& a, const T& v0, const T& v1)
 
 static bool Loop(const ApplicationCallbacks& callbacks)
 {
-	currentFrame = Application_GetTimestamp();
+	int64_t now = Application_GetTimestamp();
+	if (!isPaused)
+		currentFrame += now - lastFrame;
 
 	int64_t maxDelta = 1000000000 / 10;
-	delta = max(min(currentFrame - lastFrame, maxDelta), (int64_t)0);
+	delta = max(min(now - lastFrame, maxDelta), (int64_t)0);
 
 	bool exit = !ProcessEvents(callbacks);
 
-	if (currentFrame - lastSecond > 1000000000)
+	if (now - lastSecond > 1000000000)
 	{
-		lastSecond = currentFrame;
+		lastSecond = now;
 
 		ms = msCounter / frameCounter;
 		msCounter = 0.0f;
@@ -1255,6 +1258,11 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 	Platform_Terminate();
 
 	return gameThread.getExitCode();
+}
+
+RFAPI void Application_SetTimerPaused(bool paused)
+{
+	isPaused = paused;
 }
 
 RFAPI int64_t Application_GetCurrentTime()

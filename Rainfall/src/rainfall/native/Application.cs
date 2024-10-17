@@ -53,6 +53,9 @@ namespace Rainfall.Native
 		internal static extern void Application_Run(LaunchParams launchParams, ApplicationCallbacks callbacks);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Application_SetTimerPaused(byte paused);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern long Application_GetCurrentTime();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

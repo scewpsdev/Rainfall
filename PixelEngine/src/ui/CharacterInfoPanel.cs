@@ -128,11 +128,11 @@ public static class CharacterInfoPanel
 		y += 4;
 
 		drawLeft("Health", UIColors.TEXT_HEALTH);
-		drawRight(formatValue(player.health * 10) + "/" + formatValue(player.maxHealth * 10), UIColors.TEXT);
+		drawRight(formatValue(player.health) + "/" + formatValue(player.maxHealth), UIColors.TEXT);
 		y += Renderer.smallFont.size + 1;
 
 		drawLeft("Mana", UIColors.TEXT_MANA);
-		drawRight(formatValue(player.mana * 10) + "/" + formatValue(player.maxMana * 10), UIColors.TEXT);
+		drawRight(formatValue(player.mana) + "/" + formatValue(player.maxMana), UIColors.TEXT);
 		y += Renderer.smallFont.size + 1;
 		drawLeft("Mana Recovery Rate", UIColors.TEXT_MANA);
 		drawRightValueRelative(player.getManaRecoveryModifier(), 1, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);

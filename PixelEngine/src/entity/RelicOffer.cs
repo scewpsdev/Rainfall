@@ -8,14 +8,13 @@ using System.Threading.Tasks;
 
 public class RelicOffer : Entity
 {
-	List<ItemEntity> items = new List<ItemEntity>(3);
+	List<Item> items = new List<Item>();
 
-	Sprite pedestal;
+	long startTime;
 
 
 	public RelicOffer()
 	{
-		pedestal = new Sprite(TileType.tileset, 0, 6);
 	}
 
 	public override void init(Level level)
@@ -27,31 +26,19 @@ public class RelicOffer : Entity
 			while (hasItem(item.name))
 				item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
 
-			ItemEntity entity = new ItemEntity(item);
-			entity.gravity = 0;
-			entity.stuck = true;
-			entity.removeCallbacks.Add(() => { items.Remove(entity); });
-			GameState.instance.level.addEntity(entity, getPedestalPosition(i) + new Vector2(0, 1.0f));
-			items.Add(entity);
+			items.Add(item);
 		}
+
+		GameState.instance.onscreenPrompt = true;
+		Input.cursorMode = CursorMode.Normal;
+
+		startTime = Time.timestamp;
 	}
 
-	Vector2 getPedestalPosition(int i)
+	public override void destroy()
 	{
-		Vector2 pedestalPosition = position + new Vector2((i - 1) * 1.5f, 0);
-		for (int j = 0; j < 3; j++)
-		{
-			TileType tile = GameState.instance.level.getTile(pedestalPosition + new Vector2(0, 0.1f));
-			if (tile != null && tile.isSolid)
-				pedestalPosition += Vector2.Up;
-		}
-		for (int j = 0; j < 3; j++)
-		{
-			TileType below = GameState.instance.level.getTile(pedestalPosition + new Vector2(0, -0.9f));
-			if (below == null || !below.isSolid)
-				pedestalPosition -= Vector2.Up;
-		}
-		return pedestalPosition;
+		GameState.instance.onscreenPrompt = false;
+		Input.cursorMode = CursorMode.Hidden;
 	}
 
 	bool hasItem(string name)
@@ -64,22 +51,25 @@ public class RelicOffer : Entity
 		return false;
 	}
 
-	public override void update()
-	{
-		if (items.Count < 3)
-		{
-			for (int i = 0; i < items.Count; i++)
-				items[i].remove();
-			remove();
-		}
-	}
-
+	int selectedItem;
 	public override void render()
 	{
-		for (int i = 0; i < 3; i++)
+		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, MathHelper.ColorAlpha(0xFF000000, MathF.Min((Time.timestamp - startTime) / 1e9f, 0.5f)));
+
+		if ((Time.timestamp - startTime) / 1e9f > 0.5f)
 		{
-			Vector2 pedestalPosition = getPedestalPosition(i);
-			Renderer.DrawSprite(pedestalPosition.x - 0.5f, pedestalPosition.y, 1, 1, pedestal);
+			int width = 160;
+			int height = 50 * items.Count;
+			int x = Renderer.UIWidth / 2 - width / 2;
+			int y = Renderer.UIHeight / 2 - height / 2;
+
+			int choice = ItemSelector.Render(x, y, "Select upgrade", items, null, -1, null, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				GameState.instance.player.giveItem(items[choice]);
+				GameState.instance.onscreenPrompt = false;
+				remove();
+			}
 		}
 	}
 }

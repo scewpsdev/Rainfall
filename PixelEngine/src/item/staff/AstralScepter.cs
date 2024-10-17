@@ -21,6 +21,7 @@ public class AstralScepter : Item
 		secondaryChargeTime = 0;
 		knockback = 2.0f;
 		twoHanded = true;
+		canDrop = false;
 
 		staffCharges = 0;
 

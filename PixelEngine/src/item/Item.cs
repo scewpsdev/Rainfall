@@ -130,8 +130,8 @@ public abstract class Item
 		}
 	}
 
-	public float attackAngle = MathF.PI;
-	public float attackAngleOffset = -0.25f * MathF.PI;
+	public float attackAngle = 1.5f * MathF.PI;
+	public float attackAngleOffset = -0.75f * MathF.PI;
 
 	protected float baseAttackRate = 2.0f;
 	public float attackRate
@@ -151,6 +151,7 @@ public abstract class Item
 	public float blockCharge = 0.15f;
 	public float blockMovementSpeed = 0.2f;
 	public float damageReflect = 0.0f;
+	public bool doubleBladed = true;
 	public float accuracy = 1.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
@@ -160,6 +161,7 @@ public abstract class Item
 	public string requiredAmmo = null;
 	public int staffCharges = 0;
 	public int maxStaffCharges = 0;
+	public int staffAttunementSlots = 1;
 
 	public int armor = 0;
 
@@ -221,7 +223,7 @@ public abstract class Item
 		this.type = type;
 
 		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo;
-		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Spell || type == ItemType.Food || type == ItemType.Utility;
+		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor;
@@ -253,7 +255,7 @@ public abstract class Item
 
 	public static float GetArmorAbsorption(int armor)
 	{
-		return armor / (10.0f + armor);
+		return armor / (20.0f + armor);
 	}
 
 	public string fullDisplayName
@@ -283,9 +285,9 @@ public abstract class Item
 				return "Common";
 			if (r >= 0.1f)
 				return "Uncommon";
-			if (r >= 0.02f)
+			if (r >= 0.01f)
 				return "Rare";
-			if (r >= 0.008f)
+			if (r >= 0.005f)
 				return "Exceedingly Rare";
 			return "Legendary";
 		}
@@ -302,9 +304,9 @@ public abstract class Item
 				return UIColors.TEXT_RARITY_COMMON;
 			if (r >= 0.1f)
 				return UIColors.TEXT_RARITY_UNCOMMON;
-			if (r >= 0.02f)
+			if (r >= 0.01f)
 				return UIColors.TEXT_RARITY_RARE;
-			if (r >= 0.008f)
+			if (r >= 0.005f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
@@ -626,7 +628,7 @@ public abstract class Item
 			}
 		}
 
-		while (newItem.stackable && newItem.value * newItem.stackSize < 0.5f * meanValue)
+		while (newItem.stackable && newItem.value * newItem.stackSize * 3 / 2 < 0.5f * meanValue)
 		{
 			int difference = (int)(meanValue / newItem.value - newItem.stackSize);
 			newItem.stackSize += MathHelper.RandomInt(1, difference, random);

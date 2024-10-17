@@ -12,7 +12,7 @@ public class GolemBoss : Mob
 	public GolemBoss()
 		: base("golem_boss")
 	{
-		displayName = "Golem Boss";
+		displayName = "Grk";
 
 		sprite = new Sprite(Resource.GetTexture("res/sprites/golem_boss.png", false), 0, 0, 64, 64);
 		animator = new SpriteAnimator();
@@ -39,6 +39,5 @@ public class GolemBoss : Mob
 		gravity = -20;
 		awareness = 1;
 		itemDropChance = 1;
-		relicDropChance = 1;
 	}
 }

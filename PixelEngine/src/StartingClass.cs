@@ -15,7 +15,7 @@ public class StartingClass
 	public int strength = 1;
 	public int dexterity = 1;
 	public int intelligence = 1;
-	public int hp = 3;
+	public int hp = 2;
 	public int magic = 2;
 
 
@@ -35,7 +35,7 @@ public class StartingClass
 		hunter = new StartingClass() { name = "Hunter", color = 0xFF6c8c50, cost = 8, items = [new Shortbow(), new Arrow() { stackSize = 50 }, new HuntersHat(), new EaglesEye()] };
 		thief = new StartingClass() { name = "Thief", color = 0xFF676767, cost = 8, items = [new Dagger(), new DarkHood(), new DarkCloak(), (new PoisonVial() { stackSize = 3 }).makeThrowable(), new Nightstalker()] };
 		wizard = new StartingClass() { name = "Wizard", color = 0xFF73549d, cost = 8, items = [new MagicArrowStaff(), new WizardsHat(), new WizardsCloak(), new WizardsLegacy()], magic = 3 };
-		fool = new StartingClass() { name = "Fool", color = 0xFFc89d3b, cost = 1, items = [new Stick(), new GlassRing()], hp = 2 };
+		fool = new StartingClass() { name = "Fool", color = 0xFFc89d3b, cost = 1, items = [new Stick(), new GlassRing()], hp = 0 };
 
 		dev = new StartingClass() { name = "Dev", items = [new Revolver(), new AmethystRing(), new RingOfSwiftness(), new SapphireRing()] };
 	}

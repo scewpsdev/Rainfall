@@ -14,6 +14,7 @@ public class AmethystRing : Item
 		displayName = "Amethyst Ring";
 
 		description = "Increases maximum health by 1";
+		canDrop = false;
 
 		value = 64;
 
