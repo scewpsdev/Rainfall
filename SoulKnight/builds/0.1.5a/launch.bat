@@ -1,1 +1,0 @@
-cmd /k "roguep.exe"
