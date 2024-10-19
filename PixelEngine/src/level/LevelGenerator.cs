@@ -315,6 +315,10 @@ public class LevelGenerator
 					case 0xFF007fff:
 						level.setTile(x + xx, y + yy, TileType.water);
 						break;
+					case 0xFFFFFF00:
+						level.setTile(x + xx, y + yy, null);
+						level.addEntity(new Spike(), new Vector2(x + xx + 0.5f, y + yy));
+						break;
 					case 0xFF00cf5f:
 						room.spawnLocations.Add(new Vector2i(xx, yy));
 						level.setTile(x + xx, y + yy, null);
@@ -1409,60 +1413,60 @@ public class LevelGenerator
 			{
 				for (int x = 0; x < width; x++)
 				{
-					TileType tile = level.getTile(x, y);
-					TileType left = level.getTile(x - 1, y);
-					TileType down = level.getTile(x, y - 1);
-					TileType leftdown = level.getTile(x - 1, y - 1);
+					bool tile = level.getTile(x, y) != null && level.getTile(x, y).isSolid && level.getTile(x, y).visible;
+					bool left = level.getTile(x - 1, y) != null && level.getTile(x - 1, y).isSolid && level.getTile(x - 1, y).visible;
+					bool down = level.getTile(x, y - 1) != null && level.getTile(x, y - 1).isSolid && level.getTile(x, y - 1).visible;
+					bool leftdown = level.getTile(x - 1, y - 1) != null && level.getTile(x - 1, y - 1).isSolid && level.getTile(x - 1, y - 1).visible;
 
 					// top
-					if ((tile == null || left == null) && down != null && down.isSolid && leftdown != null && leftdown.isSolid)
+					if ((!tile || !left) && down && leftdown)
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesHoriz, (x + y * 19) * 16, 0, 16, 32, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y + 1));
 					}
 					// bottom
-					else if (tile != null && tile.isSolid && left != null && left.isSolid && (down == null || leftdown == null))
+					else if (tile && left && (!down || !leftdown))
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesHoriz, (x + y * 19) * 16, 32, 16, 32, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y - 1));
 					}
 					// left corners top/bottom pieces
-					else if (tile == null && left == null && leftdown == null && down != null && down.isSolid ||
-						tile != null && tile.isSolid && left == null && leftdown == null && down == null)
+					else if (!tile && !left && !leftdown && down ||
+						tile && !left && !leftdown && !down)
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x + 0.5f, y));
 					}
 					// right corners top/bottom pieces
-					else if (tile == null && left == null && leftdown != null && leftdown.isSolid && down == null ||
-						tile == null && left != null && left.isSolid && leftdown == null && down == null)
+					else if (!tile && !left && leftdown && !down ||
+						!tile && left && !leftdown && !down)
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x - 0.5f, y));
 					}
 
 					// right
-					if ((tile == null || down == null) && left != null && left.isSolid && leftdown != null && leftdown.isSolid)
+					if ((!tile || !down) && left && leftdown)
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesVert, 16, (y + x * 19) * 16, 16, 16, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x + 0.5f, y));
 					}
 					// left
-					else if (tile != null && tile.isSolid && down != null && down.isSolid && (left == null || leftdown == null))
+					else if (tile && down && (!left || !leftdown))
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesVert, 0, (y + x * 19) * 16, 16, 16, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x - 0.5f, y));
 					}
 					// top corners left/right pieces
-					else if (tile == null && left == null && leftdown == null && down != null && down.isSolid ||
-						tile == null && left == null && leftdown != null && leftdown.isSolid && down == null)
+					else if (!tile && !left && !leftdown && down ||
+						!tile && !left && leftdown && !down)
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y - 0.5f));
 					}
 					// bottom corners left/right pieces
-					else if (tile != null && tile.isSolid && left == null && leftdown == null && down == null ||
-						tile == null && left != null && left.isSolid && leftdown == null && down == null)
+					else if (tile && !left && !leftdown && !down ||
+						!tile && left && !leftdown && !down)
 					{
 						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y + 0.5f));

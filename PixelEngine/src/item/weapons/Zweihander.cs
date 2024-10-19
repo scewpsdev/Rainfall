@@ -13,7 +13,7 @@ public class Zweihander : Item
 	{
 		displayName = "Zweihander";
 
-		baseDamage = 5;
+		baseDamage = 3.5f;
 		baseAttackRange = 1.8f;
 		baseAttackRate = 1.0f;
 		stab = false;

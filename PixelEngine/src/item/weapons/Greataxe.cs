@@ -13,7 +13,7 @@ public class Greataxe : Item
 	{
 		displayName = "Greataxe";
 
-		baseDamage = 5;
+		baseDamage = 3.5f;
 		baseAttackRange = 1.8f;
 		baseAttackRate = 0.8f;
 		knockback = 8;

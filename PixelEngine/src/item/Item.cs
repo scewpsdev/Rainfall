@@ -55,6 +55,27 @@ public class Infusion
 
 	public static readonly Infusion[] infusions = [Sharp, Blunt, Light, Heavy, Long, Short, Flawless, Broken];
 
+	public static Infusion GetRandom(ItemType type, Random random)
+	{
+		while (true)
+		{
+			Infusion infusion = infusions[random.Next() % infusions.Length];
+			if (type == ItemType.Weapon)
+			{
+				return infusion;
+			}
+			else if (type == ItemType.Staff)
+			{
+				if (infusion == Light || infusion == Heavy || infusion == Flawless || infusion == Broken)
+					return infusion;
+			}
+			else
+			{
+				Debug.Assert(false);
+			}
+		}
+	}
+
 
 	public string name;
 
@@ -623,7 +644,7 @@ public abstract class Item
 			const float infusionChance = 0.1f;
 			if (random.NextSingle() < infusionChance)
 			{
-				Infusion infusion = Infusion.infusions[random.Next() % Infusion.infusions.Length];
+				Infusion infusion = Infusion.GetRandom(type, random);
 				newItem.addInfusion(infusion);
 			}
 		}

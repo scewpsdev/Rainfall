@@ -24,6 +24,8 @@ public class Staff : Item
 		knockback = 1;
 
 		value = 30;
+
+		useSound = null;
 	}
 
 	public Spell attuneSpell(int idx, Spell spell)

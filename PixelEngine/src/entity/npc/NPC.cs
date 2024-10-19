@@ -117,6 +117,7 @@ public abstract class NPC : Mob, Interactable
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
+	int infoPanelHeight = 90;
 	protected float saleTax = 0.3f;
 	protected float buyTax = 0.0f;
 	//int longestItemName = 80;
@@ -806,18 +807,23 @@ public abstract class NPC : Mob, Interactable
 			{
 				if (attuneSlotID == -1)
 				{
-					int renderAttunementSelector(int x, int y, int width, int height, int staffChoice, bool secondary, bool closed)
+					int renderAttunementSelector(int x, int y, int width, int height)
 					{
-						AttunementSelector.Render(x, y, width, height, attuneStaff, ref selectedItem);
-						if (staffChoice != -1)
+						int choice = AttunementSelector.Render(x, y, width, height, attuneStaff, out bool secondary, out bool closed, ref selectedItem);
+
+						Spell selectedSpell = attuneStaff.attunedSpells[selectedItem];
+						if (selectedSpell != null)
+							infoPanelHeight = ItemInfoPanel.Render(selectedSpell, x + width + 1, y, 90, infoPanelHeight);
+
+						if (choice != -1)
 						{
-							int choice = selectedItem;
 							if (secondary)
 							{
 								if (attuneStaff.attunedSpells[choice] != null)
 								{
 									Spell oldSpell = attuneStaff.attuneSpell(choice, null);
 									player.giveItem(oldSpell);
+									attuneSpells.Add(oldSpell);
 								}
 							}
 							else
@@ -829,26 +835,30 @@ public abstract class NPC : Mob, Interactable
 						{
 							attuneStaff = null;
 						}
+
 						return height;
 					}
 
 					int staffIdx = attuneStaffs.IndexOf(attuneStaff);
-					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderAttunementSelector, out bool secondary, out bool closed, ref staffIdx);
+					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderAttunementSelector, false, out bool secondary, out bool closed, ref staffIdx);
 				}
 				if (attuneSlotID != -1)
 				{
-					int renderSpellSelector(int x, int y, int width, int height, int staffChoice, bool secondary, bool closed)
+					int renderSpellSelector(int x, int y, int width, int height)
 					{
-						ItemSelector.Render(x, y, width, height, "Select spell", attuneSpells, null, -1, null, true, null, false, out _, out bool _, ref selectedItem);
-						if (staffChoice != -1)
+						int choice = ItemSelector.Render(x, y, width, height, "Select spell", attuneSpells, null, -1, null, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+						if (choice != -1)
 						{
-							int choice = selectedItem;
 							attuneSpell = (Spell)attuneSpells[choice];
 
 							player.removeItem(attuneSpell);
 							Spell oldSpell = attuneStaff.attuneSpell(attuneSlotID, attuneSpell);
+							attuneSpells.Remove(attuneSpell);
 							if (oldSpell != null)
+							{
 								player.giveItem(oldSpell);
+								attuneSpells.Add(oldSpell);
+							}
 
 							attuneSlotID = -1;
 						}
@@ -856,11 +866,15 @@ public abstract class NPC : Mob, Interactable
 						{
 							attuneSlotID = -1;
 						}
-						return height;
+
+						int lineHeight = 16;
+						int headerHeight = 12 + 1;
+						int shopHeight = Math.Min(attuneSpells.Count, 10) * lineHeight;
+						return headerHeight + shopHeight;
 					}
 
 					int staffIdx = attuneStaffs.IndexOf(attuneStaff);
-					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderSpellSelector, out bool secondary, out bool closed, ref staffIdx);
+					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderSpellSelector, false, out bool secondary, out bool closed, ref staffIdx);
 				}
 			}
 		}
