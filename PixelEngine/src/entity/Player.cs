@@ -57,7 +57,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public int money = 0;
 	public int playerLevel = 1;
-	public int xp { get; private set; } = 0;
+	public int xp = 0;
 
 	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.25f * (playerLevel - 1)));
 	public int availableStatUpgrades = 0;
@@ -226,8 +226,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 			else
 			{
-				throwItem(handItem, true);
-				removeItem(handItem);
+				dropItem(handItem);
 			}
 		}
 
@@ -235,8 +234,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//	unequipItem(offhandItem);
 		if (item.twoHanded && offhandItem != null)
 		{
-			throwItem(offhandItem, true);
-			removeItem(offhandItem);
+			dropItem(offhandItem);
 		}
 
 		handItem = item;
@@ -262,8 +260,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandParticles = null;
 			}
 			*/
-			throwItem(offhandItem, true);
-			removeItem(offhandItem);
+			dropItem(offhandItem);
 			offhandItem = null;
 		}
 
@@ -271,8 +268,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//	unequipItem(handItem);
 		if (handItem != null && handItem.twoHanded)
 		{
-			throwItem(handItem, true);
-			removeItem(handItem);
+			dropItem(handItem);
 		}
 
 		offhandItem = item;
@@ -306,8 +302,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			throwItem(activeItems[activeItems.Length - 1]);
-			removeItem(activeItems[activeItems.Length - 1]);
+			dropItem(activeItems[activeItems.Length - 1]);
 			activeItems[activeItems.Length - 1] = item;
 			activeItems[activeItems.Length - 1].onEquip(this);
 			return true;
@@ -320,8 +315,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					if (passiveItems[i].armorSlot == item.armorSlot)
 					{
-						throwItem(passiveItems[i], true);
-						removeItem(passiveItems[i]);
+						dropItem(passiveItems[i]);
 						break;
 					}
 				}
@@ -659,6 +653,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			int slotIdx = (int)item.armorSlot;
 			return passiveItems[slotIdx] == null;
 		}
+	}
+
+	public void dropItem(Item item)
+	{
+		removeItem(item);
+		Vector2 itemVelocity = velocity + new Vector2(direction, 1) * new Vector2(0.4f, MathHelper.RandomFloat(0.14f, 0.16f)) * 14;
+		ItemEntity obj = new ItemEntity(item, null, itemVelocity);
+		GameState.instance.level.addEntity(obj, position + Vector2.Up * 0.5f);
 	}
 
 	public void throwItem(Item item, bool shortThrow = false, bool farThrow = false)
@@ -1410,8 +1412,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						if (isDucked)
 						{
 							InputManager.ConsumeEvent("Interact");
-							throwItem(handItem, true);
-							removeItem(handItem);
+							dropItem(handItem);
 						}
 					}
 				}
@@ -1740,7 +1741,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.meleeDamageModifier;
-		value *= MathF.Pow(1.25f, strength - 1);
+		value *= MathF.Pow(1.1f, strength - 1);
 		return value;
 	}
 
@@ -1749,7 +1750,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.magicDamageModifier;
-		value *= MathF.Pow(1.25f, intelligence - 1);
+		value *= MathF.Pow(1.1f, intelligence - 1);
 		return value;
 	}
 
@@ -1758,7 +1759,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.attackSpeedModifier;
-		value *= MathF.Pow(1.15f, dexterity - 1);
+		value *= MathF.Pow(1.05f, dexterity - 1);
 		return value;
 	}
 

@@ -14,9 +14,10 @@ public static class ItemSelector
 	static int maxItems = 10;
 	static int currentScroll = 0;
 
-	public static int Render(int x, int y, int width, int height, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(int x, int y, int width, int height, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, bool takeInput, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		secondary = false;
+		closed = false;
 
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
@@ -39,15 +40,18 @@ public static class ItemSelector
 		}
 		y += headerHeight;
 
-		if ((InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true)) && items.Count > 0)
+		if (takeInput)
 		{
-			selectedItem = (selectedItem + 1) % items.Count;
-			Audio.PlayBackground(UISound.uiClick);
-		}
-		if ((InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true)) && items.Count > 0)
-		{
-			selectedItem = (selectedItem + items.Count - 1) % items.Count;
-			Audio.PlayBackground(UISound.uiClick);
+			if ((InputManager.IsPressed("Down", true) || InputManager.IsPressed("UIDown", true)) && items.Count > 0)
+			{
+				selectedItem = (selectedItem + 1) % items.Count;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if ((InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true)) && items.Count > 0)
+			{
+				selectedItem = (selectedItem + items.Count - 1) % items.Count;
+				Audio.PlayBackground(UISound.uiClick);
+			}
 		}
 
 		if (selectedItem >= currentScroll + maxItems)
@@ -64,19 +68,22 @@ public static class ItemSelector
 		int choice = -1;
 		for (int i = currentScroll; i < Math.Min(items.Count, currentScroll + maxItems); i++)
 		{
-			if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved && selectedItem != i)
+			if (takeInput)
 			{
-				selectedItem = i;
-				Audio.PlayBackground(UISound.uiClick);
+				if (Renderer.IsHovered(x, y, shopWidth, lineHeight) && Input.cursorHasMoved && selectedItem != i)
+				{
+					selectedItem = i;
+					Audio.PlayBackground(UISound.uiClick);
+				}
 			}
 			bool selected = selectedItem == i;
 
 			Item item = items[i];
 
 			Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);
-			Renderer.DrawUISprite(x + 1, y, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
+			Renderer.DrawUISprite(x, y, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
 			string name = item.fullDisplayName;
-			Renderer.DrawUITextBMP(x + 1 + lineHeight + 5, y + 4, name, 1, UIColors.TEXT);
+			Renderer.DrawUITextBMP(x + lineHeight + 5, y + 4, name, 1, UIColors.TEXT);
 
 			int lineWidth = Renderer.MeasureUITextBMP(name).x + 5;
 
@@ -117,16 +124,19 @@ public static class ItemSelector
 
 			longestLineWidth = Math.Max(longestLineWidth, lineWidth);
 
-			if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
+			if (takeInput)
 			{
-				choice = i;
-				Audio.PlayBackground(UISound.uiConfirm2);
-			}
-			if (selected && (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true)))
-			{
-				choice = i;
-				secondary = true;
-				Audio.PlayBackground(UISound.uiConfirm2);
+				if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
+				{
+					choice = i;
+					Audio.PlayBackground(UISound.uiConfirm2);
+				}
+				if (selected && (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true)))
+				{
+					choice = i;
+					secondary = true;
+					Audio.PlayBackground(UISound.uiConfirm2);
+				}
 			}
 
 			y += lineHeight;
@@ -149,15 +159,23 @@ public static class ItemSelector
 			sidePanelHeight = ItemInfoPanel.Render(item, x + shopWidth + 1, top + headerHeight, sidePanelWidth, Math.Max(shopHeight, sidePanelHeight), compareItem);
 		}
 
-		closed = InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIClose");
-		if (closed)
+		if (takeInput)
 		{
-			longestLineWidth = 60;
-			sidePanelHeight = 40;
-			Audio.PlayBackground(UISound.uiBack);
+			if (InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIClose"))
+			{
+				closed = true;
+				longestLineWidth = 60;
+				sidePanelHeight = 40;
+				Audio.PlayBackground(UISound.uiBack);
+			}
 		}
 
 		return choice;
+	}
+
+	public static int Render(int x, int y, int width, int height, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, out bool secondary, out bool closed, ref int selectedItem)
+	{
+		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, compareItem, infoPanelShowCompareItem, true, out secondary, out closed, ref selectedItem);
 	}
 
 	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, bool renderInfoPanel, Item compareItem, bool infoPanelShowCompareItem, out bool secondary, out bool closed, ref int selectedItem)
@@ -165,7 +183,7 @@ public static class ItemSelector
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
 		int sidePanelWidth = 90;
-		int shopWidth = Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1);
+		int shopWidth = Math.Max(60, lineHeight + 5 + longestLineWidth + 1);
 		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
 		int width = shopWidth + (renderInfoPanel ? 1 + sidePanelWidth : 0);
 		int height = headerHeight + shopHeight;
@@ -180,7 +198,7 @@ public static class ItemSelector
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
 		int sidePanelWidth = 90;
-		int shopWidth = Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1);
+		int shopWidth = Math.Max(60, lineHeight + 5 + longestLineWidth + 1);
 		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
 		int width = shopWidth + (renderInfoPanel ? 1 + sidePanelWidth : 0);
 		int height = headerHeight + shopHeight;
@@ -190,19 +208,19 @@ public static class ItemSelector
 		return Render(x, y, width, height, title, items, prices, money, renderSlotIcons, renderInfoPanel, compareItem, infoPanelShowCompareItem, out secondary, out closed, ref selectedItem);
 	}
 
-	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, Func<int, int, int, int, int, bool, bool, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, Func<int, int, int, int, int> renderInfoPanel, bool takeInput, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
 		int sidePanelWidth = 90;
-		int shopWidth = Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1);
+		int shopWidth = Math.Max(60, lineHeight + 5 + longestLineWidth + 1);
 		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
 		int width = shopWidth + (renderInfoPanel != null ? 1 + sidePanelWidth : 0);
 		int height = headerHeight + shopHeight;
 		int x = Math.Clamp(pos.x, 2, Renderer.UIWidth - width - 2);
 		int y = Math.Clamp(pos.y - height, 2, Renderer.UIHeight - height - 2);
 
-		int choice = Render(x, y, width, height, title, items, prices, money, renderSlotIcons, false, null, false, out secondary, out closed, ref selectedItem);
+		int choice = Render(x, y, width, height, title, items, prices, money, renderSlotIcons, false, null, false, takeInput, out secondary, out closed, ref selectedItem);
 
 		// Item info panel
 		if (items.Count > 0 && renderInfoPanel != null)
@@ -215,10 +233,15 @@ public static class ItemSelector
 			Renderer.DrawUISprite(xx - 1, yy - 1, ww + 2, hh + 2, null, false, 0xFFAAAAAA);
 			Renderer.DrawUISprite(xx, yy, ww, hh, null, false, 0xFF222222);
 
-			sidePanelHeight = renderInfoPanel(xx, yy, ww, hh, choice, secondary, closed);
+			sidePanelHeight = renderInfoPanel(xx, yy, ww, hh);
 		}
 
 		return choice;
+	}
+
+	public static int Render(Vector2i pos, string title, List<Item> items, List<int> prices, int money, Player renderSlotIcons, Func<int, int, int, int, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
+	{
+		return Render(pos, title, items, prices, money, renderSlotIcons, renderInfoPanel, true, out secondary, out closed, ref selectedItem);
 	}
 
 	public static Item GetCompareItem(Player player, Item item)

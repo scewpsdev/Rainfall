@@ -219,7 +219,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			statusEffects[i].destroy(this);
 		statusEffects.Clear();
 
-		GameState.instance.level.addEntity(new MobCorpse(sprite, spriteColor * new Vector4(0.5f, 0.5f, 0.5f, 1.0f), animator, rect, direction, Vector2.Zero, impulseVelocity, collider), position);
+		GameState.instance.level.addEntity(new MobCorpse(sprite, spriteColor * new Vector4(0.5f, 0.5f, 0.5f, 0.5f), animator, rect, direction, Vector2.Zero, impulseVelocity, collider), position);
 
 		remove();
 	}

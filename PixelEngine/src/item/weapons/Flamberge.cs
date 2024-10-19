@@ -15,7 +15,7 @@ public class Flamberge : Item
 
 		baseDamage = 2;
 		baseAttackRange = 1.7f;
-		baseAttackRate = 1.5f;
+		baseAttackRate = 1.0f;
 		stab = false;
 		twoHanded = true;
 

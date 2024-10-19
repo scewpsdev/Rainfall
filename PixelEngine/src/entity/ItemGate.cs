@@ -17,6 +17,8 @@ public class ItemGate : Entity
 			GameState.instance.player.clearInventory();
 			GameState.instance.player.health = GameState.instance.player.maxHealth;
 			GameState.instance.player.mana = GameState.instance.player.maxMana;
+			GameState.instance.player.xp = 0;
+			GameState.instance.player.playerLevel = 1;
 		}
 	}
 
