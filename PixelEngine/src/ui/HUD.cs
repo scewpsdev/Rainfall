@@ -68,6 +68,8 @@ public class HUD
 	const uint txtColor = 0xFFBBBBBB;
 
 
+	public bool enabled = true;
+
 	Player player;
 
 	List<HUDMessage> messages = new List<HUDMessage>();
@@ -659,6 +661,9 @@ public class HUD
 			Input.cursorMode = CursorMode.Normal;
 			return;
 		}
+
+		if (!enabled)
+			return;
 
 		renderHealth();
 		renderMana();
