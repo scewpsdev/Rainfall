@@ -955,7 +955,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
-		if (isAlive && !isStunned)
+		if (isAlive && !isStunned && (actions.currentAction == null || actions.currentAction.canMove))
 		{
 			if (InputManager.IsDown("Left"))
 				delta.x--;
@@ -1018,7 +1018,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (isGrounded)
 				lastGrounded = Time.currentTime;
 
-			if (InputManager.IsPressed("Jump"))
+			if (InputManager.IsPressed("Jump") && (actions.currentAction == null || actions.currentAction.canJump))
 			{
 				if (isClimbing)
 				{
@@ -1486,41 +1486,48 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		if (isAlive)
 		{
-			if (isStunned)
+			if (actions.currentAction != null && actions.currentAction.animation != null)
 			{
-				animator.setAnimation("stun");
+				animator.setAnimation(actions.currentAction.animation);
 			}
 			else
 			{
-				if (isGrounded)
+				if (isStunned)
 				{
-					if (isMoving)
-					{
-						animator.setAnimation("run");
-						animator.startTime = startTime;
-						animator.getAnimation("run").fps = currentSpeedModifier * 12;
-					}
-					else
-					{
-						animator.setAnimation("idle");
-					}
+					animator.setAnimation("stun");
 				}
 				else
 				{
-					if (isClimbing)
+					if (isGrounded)
 					{
-						animator.setAnimation("climb");
-						animator.getAnimation("climb").fps = velocity.y != 0 ? 6 : 0;
-					}
-					else
-					{
-						if (velocity.y > 0)
+						if (isMoving)
 						{
-							animator.setAnimation("jump");
+							animator.setAnimation("run");
+							animator.startTime = startTime;
+							animator.getAnimation("run").fps = currentSpeedModifier * 12;
 						}
 						else
 						{
-							animator.setAnimation("fall");
+							animator.setAnimation("idle");
+						}
+					}
+					else
+					{
+						if (isClimbing)
+						{
+							animator.setAnimation("climb");
+							animator.getAnimation("climb").fps = velocity.y != 0 ? 6 : 0;
+						}
+						else
+						{
+							if (velocity.y > 0)
+							{
+								animator.setAnimation("jump");
+							}
+							else
+							{
+								animator.setAnimation("fall");
+							}
 						}
 					}
 				}
@@ -1595,7 +1602,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public Vector2 getWeaponOrigin(bool mainHand)
 	{
-		int frame = (animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length; // sway
+		int frame = mainHand ? ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length) : animator.lastFrameIdx; // sway
 		Vector2i animOffset = Vector2i.Zero;
 		if (animator.currentAnimation == "idle")
 			animOffset.y = -frame / 2;
@@ -1617,7 +1624,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (!isAlive)
 			return;
 
-		uint color = mainHand ? 0xFFFFFFFF : 0xFF7F7F7F;
+		uint color = mainHand ? 0xFFFFFFFF : 0xFF9F9F9F;
 		ParticleEffect particles = mainHand ? handParticles : offhandParticles;
 
 		if (item == null)
@@ -1686,8 +1693,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
-			renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+			if (actions.currentAction == null || actions.currentAction.renderWeapon)
+			{
+				renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
+				renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+			}
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)

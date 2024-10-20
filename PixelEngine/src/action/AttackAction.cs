@@ -143,7 +143,7 @@ public class AttackAction : EntityAction
 				}
 			}
 
-			if (!soundPlayed)
+			if (!soundPlayed && weapon.useSound != null)
 			{
 				Audio.PlayOrganic(weapon.useSound, new Vector3(player.position, 0), 1, attackRate * 0.25f);
 				soundPlayed = true;

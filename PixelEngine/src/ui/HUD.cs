@@ -150,6 +150,7 @@ public class HUD
 			float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
 			float alpha = elapsed < 1 ? elapsed : elapsed > LEVEL_PROMPT_DURATION - 2 ? (1 - 0.5f * (elapsed - (LEVEL_PROMPT_DURATION - 2))) : 1;
 			uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
+			Renderer.DrawUIText(Renderer.UIWidth / 2 - width / 2, Renderer.UIHeight / 4 + (int)yanim + 1, levelName, 1, MathHelper.ColorAlpha(0xFF000000, alpha));
 			Renderer.DrawUIText(Renderer.UIWidth / 2 - width / 2, Renderer.UIHeight / 4 + (int)yanim, levelName, 1, color);
 		}
 	}
@@ -163,7 +164,7 @@ public class HUD
 			int x = Renderer.UIWidth / 2 - 8 - size - i * (size + padding);
 			int y = Renderer.UIHeight - 4 - 16 - 7 - size;
 
-			Renderer.DrawUIOutline(x, y, size, size, heartEmpty, false, 0x5F000000);
+			Renderer.DrawUIOutline(x, y, size, size, heartEmpty, false, 0xFF000000);
 			Renderer.DrawUISprite(x, y, size, size, heartEmpty);
 			if (i < player.health)
 			{
@@ -207,7 +208,7 @@ public class HUD
 			int x = Renderer.UIWidth / 2 + 8 + i * (size + padding);
 			int y = Renderer.UIHeight - 4 - 16 - 7 - size;
 
-			Renderer.DrawUIOutline(x, y, size, size, manaEmpty, false, 0x5F000000);
+			Renderer.DrawUIOutline(x, y, size, size, manaEmpty, false, 0xFF000000);
 			Renderer.DrawUISprite(x, y, size, size, manaEmpty);
 			if (i < player.mana)
 			{

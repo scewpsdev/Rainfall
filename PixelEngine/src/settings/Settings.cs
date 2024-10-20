@@ -15,7 +15,7 @@ public enum AimMode
 
 public struct GameSettings
 {
-	public AimMode aimMode = AimMode.Simple;
+	public AimMode aimMode = AimMode.Directional;
 
 	public GameSettings(int _) { }
 }

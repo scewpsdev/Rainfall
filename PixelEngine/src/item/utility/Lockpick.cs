@@ -19,5 +19,7 @@ public class Lockpick : Item
 		isActiveItem = false;
 
 		sprite = new Sprite(tileset, 9, 5);
+
+		rarity = GetRarity(50);
 	}
 }

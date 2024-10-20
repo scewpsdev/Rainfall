@@ -54,7 +54,7 @@ public class Staff : Item
 				}
 			}
 		}
-		return staffCharges == 0;
+		return false;
 	}
 
 	public override bool useSecondary(Player player)

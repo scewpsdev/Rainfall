@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class BossRoom : Entity
+public class CavesBossRoom : Entity
 {
 	Room room;
 
@@ -15,7 +15,7 @@ public class BossRoom : Entity
 	BossGate gate0;
 	BossGate gate1;
 
-	public BossRoom(Room room)
+	public CavesBossRoom(Room room)
 	{
 		this.room = room;
 	}
@@ -24,7 +24,6 @@ public class BossRoom : Entity
 	{
 		boss = new GolemBoss();
 		boss.isBoss = true;
-		boss.itemDropChance = 1;
 
 		foreach (Room room in level.rooms)
 		{

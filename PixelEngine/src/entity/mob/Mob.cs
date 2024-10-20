@@ -169,7 +169,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		if (ai != null)
 			ai.onDeath();
 
-		if (Random.Shared.NextSingle() < itemDropChance)
+		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
 		{
 			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
 
@@ -180,10 +180,12 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
 			}
+
+			itemDropChance--;
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = MathHelper.RandomInt(3, 6);
+			int amount = MathHelper.RandomInt(3, (int)MathF.Round(maxHealth));
 			for (int i = 0; i < amount; i++)
 			{
 				Coin coin = new Coin();

@@ -25,13 +25,7 @@ public class BlockAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		Vector2 charDirection = new Vector2(player.direction, 0);
-		if (InputManager.IsDown("Up"))
-			charDirection = Vector2.Up;
-		else if (/*!isGrounded &&*/ InputManager.IsDown("Down"))
-			charDirection = Vector2.Down;
-
-		direction = charDirection; // player.lookDirection.normalized;
+		direction = player.lookDirection.normalized;
 		player.blockingItem = shield;
 	}
 

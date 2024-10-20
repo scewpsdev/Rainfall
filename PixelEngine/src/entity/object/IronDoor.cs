@@ -17,6 +17,7 @@ public class IronDoor : Entity, Interactable
 	float openProgress = 0.0f;
 
 	Sound unlockSound;
+	Sound lockedSound;
 	Sound closeSound;
 	bool closeSoundPlayed;
 
@@ -29,6 +30,7 @@ public class IronDoor : Entity, Interactable
 		frameSprite = new Sprite(TileType.tileset, 2, 9);
 
 		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
+		lockedSound = Resource.GetSound("res/sounds/door_locked.ogg");
 		closeSound = Resource.GetSound("res/sounds/door_close.ogg");
 	}
 
@@ -78,6 +80,7 @@ public class IronDoor : Entity, Interactable
 				else
 				{
 					player.hud.showMessage("Locked");
+					Audio.Play(lockedSound, new Vector3(position, 0));
 				}
 			}
 			else
