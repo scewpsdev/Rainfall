@@ -34,6 +34,7 @@ public class TileType
 	public static TileType dirt;
 	public static TileType platform;
 	public static TileType stone;
+	public static TileType sand;
 	public static TileType path;
 	public static TileType grass;
 	public static TileType water;
@@ -68,6 +69,17 @@ public class TileType
 			right = [new Sprite(tileset, 5, 4), new Sprite(tileset, 15, 3), new Sprite(tileset, 15, 4), new Sprite(tileset, 15, 5)],
 			top = [new Sprite(tileset, 4, 3), new Sprite(tileset, 9, 3), new Sprite(tileset, 10, 3), new Sprite(tileset, 11, 3), new Sprite(tileset, 12, 3)],
 			bottom = [new Sprite(tileset, 4, 5), new Sprite(tileset, 9, 5), new Sprite(tileset, 10, 5), new Sprite(tileset, 11, 5), new Sprite(tileset, 12, 5)],
+		});
+		AddTileType(sand = new TileType()
+		{
+			name = "sand",
+			color = 0xFF333333,
+			particleColor = 0xFFb0a885,
+			sprites = [new Sprite(tileset, 4, 16)],
+			left = [new Sprite(tileset, 3, 16)],
+			right = [new Sprite(tileset, 5, 16)],
+			top = [new Sprite(tileset, 4, 15), new Sprite(tileset, 9, 15), new Sprite(tileset, 10, 15), new Sprite(tileset, 11, 15), new Sprite(tileset, 12, 15)],
+			bottom = [new Sprite(tileset, 4, 17)],
 		});
 		AddTileType(path = new TileType()
 		{

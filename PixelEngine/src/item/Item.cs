@@ -117,7 +117,17 @@ public abstract class Item
 	public string description = null;
 	public bool stackable = false;
 	public int stackSize = 1;
-	public int value = 1;
+	int _value = 1;
+	public int value
+	{
+		get => _value;
+		set
+		{
+			_value = value;
+			rarity = GetRarity(_value);
+		}
+	}
+	public float rarity = 1;
 	public bool canDrop = true;
 	public bool isHandItem;
 	public bool isActiveItem;
@@ -269,14 +279,14 @@ public abstract class Item
 		get => Hash.hash(name);
 	}
 
-	public float rarity
-	{
-		get => MathF.Exp(-value * 0.04f);
-	}
-
 	public static float GetArmorAbsorption(int armor)
 	{
 		return armor / (20.0f + armor);
+	}
+
+	public static float GetRarity(float value)
+	{
+		return MathF.Exp(-value * 0.04f);
 	}
 
 	public string fullDisplayName

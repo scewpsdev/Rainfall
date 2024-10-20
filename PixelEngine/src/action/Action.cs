@@ -29,15 +29,15 @@ public class EntityAction
 {
 	public readonly string type;
 
-	public string animation;
+	public string animation = null;
 	public bool mainHand;
+	public bool renderWeapon = true;
+	public bool canMove = true;
+	public bool canJump = true;
 	public bool turnToCrosshair = true;
 
 	public float speedMultiplier = 1.0f;
 
-	public Model animationSet;
-	public bool rootMotion = false;
-	public float animationTransitionDuration = 0.1f;
 	public float followUpCancelTime = 100.0f;
 	public float animationSpeed = 1.0f;
 

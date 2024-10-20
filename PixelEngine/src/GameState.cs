@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using Rainfall;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -80,8 +81,9 @@ public class GameState : State
 	public RunStats run;
 	string seed = null;
 
+	//public Level startingCave;
 	public Level hub;
-	public Level tutorial;
+	//public Level tutorial;
 	public Level cliffside;
 	public Level[] areaCaves;
 	public Level[] areaGardens;
@@ -137,29 +139,42 @@ public class GameState : State
 		}
 		cachedLevels.Clear();
 
-		//run = new RunStats(12345678);
 		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString(), seed != null);
 		save.onReset();
 
 		LevelGenerator generator = new LevelGenerator();
 
 		hub = new Level(-1, "Memory Tree");
-		tutorial = new Level(-1, "Tutorial");
+		//tutorial = new Level(-1, "Tutorial");
 		cliffside = new Level(-1, "Cliffside");
+		Level tutorial = cliffside;
 
-		Door tutorialEntrance = new Door(cliffside, null);
+		//Door tutorialEntrance = new Door(cliffside, null);
 		Door tutorialExit = new Door(hub, null);
 
-		//Door tutorialDoor = new Door(tutorial, tutorialEntrance);
 		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
 
-		//tutorialEntrance.otherDoor = tutorialDoor;
 		tutorialExit.otherDoor = tutorialExitDoor;
 
 		player = new Player();
 		camera = new PlayerCamera(player);
 
 		player.money = 8;
+
+
+		// Cliffside
+		{
+			//Door cliffTutorialDoor = new Door(tutorial, tutorialEntrance);
+			//tutorialEntrance.otherDoor = cliffTutorialDoor;
+
+			generator.generateCliffside(cliffside);
+			cliffside.addEntity(new Cliffside(cliffside.rooms[0]));
+			cliffside.bg = Resource.GetTexture("res/level/hub/bg.png", false);
+			//cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
+
+			//cliffside.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString(), 0xFFFFFFFF), cliffside.rooms[0].getMarker(32) + new Vector2(0, 1.5f));
+		}
+
 
 		generator.generateHub(hub);
 
@@ -168,8 +183,6 @@ public class GameState : State
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
 		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
 
-		//hub.addEntity(tutorialDoor, new Vector2(43.5f + 13, 23));
-		//hub.addEntity(new TutorialText("Tutorial [X]", 0xFFFFFFFF), new Vector2(43.5f + 13, 25));
 		hub.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
 
 		hub.addEntity(new Fountain(FountainEffect.None), hub.rooms[0].getMarker(11) + new Vector2(7, 0));
@@ -189,7 +202,6 @@ public class GameState : State
 
 		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
 		npc.clearShop();
-		//npc.addShopItem(new Stick());
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
@@ -223,8 +235,8 @@ public class GameState : State
 			}
 		}
 
-		generator.generateTutorial(tutorial);
-		tutorial.addEntity(tutorialEntrance, (Vector2)tutorial.rooms[0].getMarker(33));
+		//generator.generateTutorial(tutorial);
+		//tutorial.addEntity(tutorialEntrance, (Vector2)tutorial.rooms[0].getMarker(33));
 		tutorial.addEntity(tutorialExit, (Vector2)tutorial.rooms[0].getMarker(01));
 
 		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + InputManager.GetBinding("Left").ToString() + InputManager.GetBinding("Down").ToString() + InputManager.GetBinding("Right").ToString() + " to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 8));
@@ -252,17 +264,6 @@ public class GameState : State
 
 		tutorial.addEntity(new ItemGate(), (Vector2)tutorial.rooms[0].getMarker(09));
 
-
-		// Cliffside
-		{
-			Door cliffTutorialDoor = new Door(tutorial, tutorialEntrance);
-			tutorialEntrance.otherDoor = cliffTutorialDoor;
-
-			generator.generateCliffside(cliffside);
-			cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
-
-			cliffside.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString(), 0xFFFFFFFF), cliffside.rooms[0].getMarker(32) + new Vector2(0, 1.5f));
-		}
 
 		// Gode meme
 		/*
@@ -317,16 +318,6 @@ public class GameState : State
 			cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
 			lastLevel.exit.destination = cliffside;
 			lastLevel.exit.otherDoor = cliffDungeonExit1;
-
-			/*
-			Door hubDungeonExit1 = new Door(lastLevel, lastLevel.exit, true);
-			hub.addEntity(hubDungeonExit1, (Vector2)hub.getMarker(12));
-			lastLevel.exit.destination = hub;
-			lastLevel.exit.otherDoor = hubDungeonExit1;
-
-			Tinkerer hubMerchant2 = new Tinkerer(new Random((int)Hash.hash(run.seed)), hub);
-			hub.addEntity(hubMerchant2, (Vector2)hub.getMarker(12) + new Vector2(-12, 1));
-			*/
 		}
 
 		// The Glade
@@ -334,11 +325,6 @@ public class GameState : State
 			areaGardens = new Level[numGardenFloors];
 			for (int i = 0; i < areaGardens.Length; i++)
 				areaGardens[i] = new Level(numCaveFloors + i, "The Glade " + StringUtils.ToRoman(i + 1));
-
-			/*
-			Door hubDungeonEntrance2 = new Door(areaGardens[0], null, true);
-			hub.addEntity(hubDungeonEntrance2, (Vector2)hub.getMarker(13));
-			*/
 
 			Door cliffDungeonEntrance2 = new Door(areaGardens[0], null, true);
 			cliffside.addEntity(cliffDungeonEntrance2, (Vector2)cliffside.rooms[0].getMarker(37));
@@ -358,68 +344,6 @@ public class GameState : State
 			lastDoor.finalExit = true;
 		}
 
-		/*
-		// Mines area
-		{
-			int numMinesFloors = 3;
-			areaMines = new Level[numMinesFloors];
-			for (int i = 0; i < areaMines.Length; i++)
-				areaMines[i] = new Level(i, "Mines " + StringUtils.ToRoman(i + 1));
-
-			Door hubDungeonEntrance2 = new Door(areaMines[0]);
-			hub.addEntity(hubDungeonEntrance2, new Vector2(39.5f, 21));
-
-			Level lastLevel = hub;
-			Door lastDoor = hubDungeonEntrance2;
-			for (int i = 0; i < areaMines.Length; i++)
-			{
-				bool darkLevel = false;
-				bool startingRoom = false;
-				bool bossRoom = i == areaMines.Length - 1;
-				level = areaMines[i];
-				generator.generateMines(run.seed, areaMines.Length + i, darkLevel, startingRoom, bossRoom, areaMines[i], i < areaMines.Length - 1 ? areaMines[i + 1] : null, lastLevel, lastDoor);
-				lastLevel = areaMines[i];
-				lastDoor = areaMines[i].exit;
-			}
-		}
-		*/
-
-
-		/*
-		Level bossRoom = new Level(-1, null);
-		for (int y = 1; y < bossRoom.height - 1; y++)
-		{
-			for (int x = 1; x < bossRoom.width - 1; x++)
-			{
-				bossRoom.setTile(x, y, null);
-			}
-		}
-		Door bossRoomEntrance = new Door(lastLevel, lastLevel.exit);
-		lastLevel.exit.destination = bossRoom;
-		lastLevel.exit.otherDoor = bossRoomEntrance;
-		bossRoom.addEntity(bossRoomEntrance, new Vector2(3, 1));
-		bossRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
-		bossRoom.updateLightmap(0, 0, bossRoom.width, bossRoom.height);
-		*/
-
-		/*
-		Level finalRoom = new Level(-1, "Thanks for playing");
-		for (int y = 1; y < finalRoom.height - 1; y++)
-		{
-			for (int x = 1; x < finalRoom.width - 1; x++)
-			{
-				finalRoom.setTile(x, y, null);
-			}
-		}
-		Door finalRoomEntrance = new Door(lastLevel, lastLevel.exit);
-		lastLevel.exit.destination = finalRoom;
-		lastLevel.exit.otherDoor = finalRoomEntrance;
-		finalRoom.addEntity(finalRoomEntrance, new Vector2(3, 1));
-		finalRoom.addEntity(new Door(null) { finalExit = true }, new Vector2(12.5f, 1));
-		//finalRoom.addEntity(new TutorialText("Thanks for playing", 0xFFFFFFFF), new Vector2(10, 6));
-		finalRoom.updateLightmap(0, 0, finalRoom.width, finalRoom.height);
-		*/
-
 
 		if (startingClass != null)
 		{
@@ -437,19 +361,13 @@ public class GameState : State
 		else
 		{
 			level = null;
-			switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(34));
+			switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
 			levelSwitchTime = -1;
+
+			player.actions.queueAction(new UnconciousAction());
 		}
 
 		//switchLevel(areaGardens[0], areaGardens[0].entrance.position);
-
-		/*
-		level = hub;
-		for (int i = 0; i < hub.entities.Count; i++)
-		{
-			hub.entities[i].onLevelSwitch(false);
-		}
-		*/
 	}
 
 	public override void init()
@@ -471,7 +389,7 @@ public class GameState : State
 
 	public void switchLevel(Level newLevel, Vector2 spawnPosition)
 	{
-		if (level == tutorial && newLevel == hub)
+		if (level == /*tutorial*/ cliffside && newLevel == hub)
 			save.setFlag(SaveFile.FLAG_TUTORIAL_FINISHED);
 
 		this.newLevel = newLevel;

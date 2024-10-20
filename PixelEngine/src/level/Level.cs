@@ -107,10 +107,10 @@ public class Level
 				TileType t2 = getTile(x - 1, y);
 				TileType t3 = getTile(x, y);
 				byte value = 0;
-				if ((t0 == null || !t0.isSolid) && x > 0 && y > 0) value += 64;
-				if ((t1 == null || !t1.isSolid) && y > 0) value += 64;
-				if ((t2 == null || !t2.isSolid) && x > 0) value += 64;
-				if ((t3 == null || !t3.isSolid)) value += 63;
+				if ((t0 == null || !t0.isSolid || !t0.visible) && x > 0 && y > 0) value += 64;
+				if ((t1 == null || !t1.isSolid || !t1.visible) && y > 0) value += 64;
+				if ((t2 == null || !t2.isSolid || !t2.visible) && x > 0) value += 64;
+				if ((t3 == null || !t3.isSolid || !t3.visible)) value += 63;
 				lightmapData[(x - x0) + (y - y0) * w] = value;
 			}
 		}

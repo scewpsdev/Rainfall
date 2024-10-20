@@ -258,7 +258,7 @@ public class LevelGenerator
 		return result;
 	}
 
-	void placeRoom(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null)
+	void placeRoom(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null, Func<int, int, TileType> getTileTertiaryFunc = null)
 	{
 		int x = room.x;
 		int y = room.y;
@@ -283,17 +283,14 @@ public class LevelGenerator
 					case 0xFF7F7F7F:
 						level.setTile(x + xx, y + yy, getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone);
 						break;
+					case 0xFFAFAFAF:
+						level.setTile(x + xx, y + yy, getTileTertiaryFunc != null ? getTileTertiaryFunc(x + xx, y + yy) : TileType.sand);
+						break;
 					case 0xFF0000FF:
 						level.setTile(x + xx, y + yy, TileType.platform);
 						break;
-					case 0xFFFF00FF:
+					case 0xFFFF7F7F:
 						level.setTile(x + xx, y + yy, TileType.dummy);
-						//uint left = rooms[roomDef.x + xx - 1 + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
-						//uint right = rooms[roomDef.x + xx + 1 + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
-						uint left = roomDef.getTile(xx - 1, yy);
-						uint right = roomDef.getTile(xx + 1, yy);
-						Vector2 direction = (right == 0xFFFFFFFF) ? new Vector2(-1, 0) : new Vector2(1, 0);
-						level.addEntity(new ArrowTrap(direction), new Vector2(x + xx, y + yy));
 						break;
 					case 0xFF00FF00:
 						level.setTile(x + xx, y + yy, null);
@@ -308,16 +305,12 @@ public class LevelGenerator
 					case 0xFF00FFFF:
 						level.setTile(x + xx, y + yy, TileType.platform);
 						break;
-					case 0xFFFF0000:
-						level.setTile(x + xx, y + yy, null);
-						//level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
-						break;
 					case 0xFF007fff:
 						level.setTile(x + xx, y + yy, TileType.water);
 						break;
 					case 0xFFFFFF00:
 						level.setTile(x + xx, y + yy, null);
-						level.addEntity(new Spike(), new Vector2(x + xx + 0.5f, y + yy));
+						level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
 						break;
 					case 0xFF00cf5f:
 						room.spawnLocations.Add(new Vector2i(xx, yy));
@@ -586,7 +579,7 @@ public class LevelGenerator
 		}
 	}
 
-	void createDoors(bool spawnStartingRoom, bool spawnBossRoom, Room startingRoom, Room exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition)
+	void createDoors(bool spawnStartingRoom, Entity bossRoomEntity, Room startingRoom, Room exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition)
 	{
 		entrancePosition = Vector2i.Zero;
 		exitPosition = Vector2i.Zero;
@@ -619,7 +612,7 @@ public class LevelGenerator
 			}
 		}
 
-		if (spawnBossRoom)
+		if (bossRoomEntity != null)
 		{
 			for (int y = exitRoom.y; y < exitRoom.y + exitRoom.height; y++)
 			{
@@ -644,7 +637,7 @@ public class LevelGenerator
 				objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
 			}
 
-			level.addEntity(new BossRoom(exitRoom));
+			level.addEntity(bossRoomEntity);
 		}
 		else
 		{
@@ -845,7 +838,7 @@ public class LevelGenerator
 			});
 		}
 
-		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
+		createDoors(spawnStartingRoom, spawnBossRoom ? new CavesBossRoom(exitRoom) : null, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
 		List<Room> deadEnds = new List<Room>();
 		List<Room> mainRooms = new List<Room>();
@@ -1295,7 +1288,7 @@ public class LevelGenerator
 
 		level.resize(width, height, TileType.dirt);
 		level.rooms = rooms;
-		level.ambientLight = new Vector3(1.0f);
+		level.ambientLight = MathHelper.ARGBToVector(0xFFdcffb5).xyz;
 		level.ambientSound = Resource.GetSound("res/level/level2/ambience2.ogg");
 		//level.fogColor = MathHelper.ARGBToVector(0xFFa0c7eb).xyz;
 		//level.fogFalloff = 0.2f;
@@ -1308,7 +1301,9 @@ public class LevelGenerator
 		Array.Fill(lootModifier, 1.0f);
 
 		rooms.Clear();
-		generateMainRooms(gardensSet, floor == GameState.instance.firstGardenFloor ? specialSet.roomDefs[4] : null, floor == GameState.instance.lastGardenFloor);
+		bool spawnStartingRoom = floor == GameState.instance.firstGardenFloor;
+		bool spawnBossRoom = floor == GameState.instance.lastGardenFloor;
+		generateMainRooms(gardensSet, spawnStartingRoom ? specialSet.roomDefs[4] : null, spawnBossRoom);
 		Room mainRoom, startingRoom, exitRoom = null;
 
 		if (floor == GameState.instance.firstGardenFloor)
@@ -1374,7 +1369,7 @@ public class LevelGenerator
 			});
 		}
 
-		createDoors(false, floor == GameState.instance.lastGardenFloor, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
+		createDoors(false, spawnBossRoom ? new GardensBossRoom(exitRoom) : null, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
 		List<Room> deadEnds = new List<Room>();
 		List<Room> mainRooms = new List<Room>();
@@ -1748,6 +1743,32 @@ public class LevelGenerator
 		level.updateLightmap(0, 0, width, height);
 	}
 
+	public void generateStartingCave(Level level)
+	{
+		RoomDef def = specialSet.roomDefs[6];
+		level.resize(def.width, def.height);
+
+		Room room = new Room
+		{
+			x = 0,
+			y = 0,
+			width = def.width,
+			height = def.height,
+			roomDefID = def.id,
+			set = specialSet
+		};
+
+		placeRoom(room, level, (int x, int y) => TileType.stone);
+		level.rooms = [room];
+
+		level.fogFalloff = 0.1f;
+		//level.fogColor = new Vector3(0.1f);
+		level.fogColor = new Vector3(0.0f);
+		level.infiniteEnergy = true;
+
+		level.updateLightmap(0, 0, def.width, def.height);
+	}
+
 	public void generateHub(Level level)
 	{
 		RoomDef def = specialSet.roomDefs[5];
@@ -1812,7 +1833,7 @@ public class LevelGenerator
 			set = specialSet
 		};
 
-		placeRoom(room, level, (int x, int y) => TileType.stone);
+		placeRoom(room, level, (int x, int y) => TileType.dirt);
 		level.rooms = [room];
 
 		level.infiniteEnergy = true;
