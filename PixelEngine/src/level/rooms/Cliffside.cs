@@ -13,6 +13,8 @@ public class Cliffside : Entity
 	Texture waves;
 	Sprite caveBg;
 
+	Sound caveAmbience;
+
 
 	public Cliffside(Room room)
 	{
@@ -20,6 +22,30 @@ public class Cliffside : Entity
 
 		waves = Resource.GetTexture("res/level/hub/waves.png", (uint)SamplerFlags.Point | (uint)SamplerFlags.VClamp);
 		caveBg = new Sprite(Resource.GetTexture("res/level/hub/bg2.png", false));
+
+		caveAmbience = Resource.GetSound("res/sounds/ambience.ogg");
+	}
+
+	public override void init(Level level)
+	{
+		level.addEntity(new EventTrigger(new Vector2(1, 3), null, (Player player) =>
+		{
+			int direction = MathF.Sign(player.velocity.x);
+			if (direction == 1)
+				onTutorialEnter();
+			else if (direction == -1)
+				onBeachEnter();
+		}), new Vector2(59, 38));
+	}
+
+	void onTutorialEnter()
+	{
+		GameState.instance.setAmbience(caveAmbience);
+	}
+
+	void onBeachEnter()
+	{
+		GameState.instance.setAmbience(level.ambientSound);
 	}
 
 	public override void render()
@@ -37,7 +63,7 @@ public class Cliffside : Entity
 		for (int i = -5; i < waveLayers; i++)
 		{
 			float zoffset = ParallaxObject.LayerToZ(i <= 0 ? i * 0.4f : i * 0.2f + i * i * 0.1f); // i < 10 ? ParallaxObject.LayerToZ((i - 10) * -0.1f) : (i - 10) * -0.1f;
-			float yoffset = i <= 0 ? zoffset * 3 : zoffset * 5; // (i - 10) * 0.5f;
+			float yoffset = i <= 0 ? zoffset * 3 : zoffset * 3; // (i - 10) * 0.5f;
 			float brightness = (1 - MathF.Exp(-(i + 5) * 0.2f)); // MathF.Min(0.5f + i * 0.1f, 2);
 
 			//Vector4 color = new Vector4(MathHelper.SRGBToLinear(MathHelper.ARGBToVector(0xFF36b3be).xyz * brightness * 1.2f) + MathHelper.ARGBToVector(0xFF6eafeb).xyz * 0.3f, 1);

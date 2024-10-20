@@ -70,6 +70,8 @@ public class HUD
 
 	public bool enabled = true;
 
+	public float screenFade = 1.0f;
+
 	Player player;
 
 	List<HUDMessage> messages = new List<HUDMessage>();
@@ -662,61 +664,66 @@ public class HUD
 			return;
 		}
 
-		if (!enabled)
-			return;
-
-		renderHealth();
-		renderMana();
-		renderXP();
-		renderMoney();
-		renderArmor();
-		renderStatusEffects();
-		renderHandItems();
-		renderQuickItems();
-
-		/*
-		if (player.position.y < GameState.instance.camera.bottom + 0.2f * GameState.instance.camera.height ||
-			player.position.y < GameState.instance.camera.bottom + 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y < -0.5f)
-			flipItems = true;
-		else if (player.position.y > GameState.instance.camera.top - 0.2f * GameState.instance.camera.height ||
-			player.position.y > GameState.instance.camera.top - 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y > 0.5f)
-			flipItems = false;
-		*/
-
-		renderMessages();
-		renderPopup();
-
-		// Aim Direction
-		if (player.isAlive)
+		if (enabled)
 		{
-			if (Settings.game.aimMode == AimMode.Simple)
+			renderHealth();
+			renderMana();
+			renderXP();
+			renderMoney();
+			renderArmor();
+			renderStatusEffects();
+			renderHandItems();
+			renderQuickItems();
+
+			/*
+			if (player.position.y < GameState.instance.camera.bottom + 0.2f * GameState.instance.camera.height ||
+				player.position.y < GameState.instance.camera.bottom + 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y < -0.5f)
+				flipItems = true;
+			else if (player.position.y > GameState.instance.camera.top - 0.2f * GameState.instance.camera.height ||
+				player.position.y > GameState.instance.camera.top - 0.4f * GameState.instance.camera.height && player.lookDirection.normalized.y > 0.5f)
+				flipItems = false;
+			*/
+
+			renderMessages();
+			renderPopup();
+
+			// Aim Direction
+			if (player.isAlive)
 			{
+				if (Settings.game.aimMode == AimMode.Simple)
+				{
+				}
+				// Aim indicator
+				else if (Settings.game.aimMode == AimMode.Directional)
+				{
+					Vector2i pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
+					Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
+				}
+				// Crosshair
+				else if (Settings.game.aimMode == AimMode.Crosshair)
+				{
+					Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+				}
 			}
-			// Aim indicator
-			else if (Settings.game.aimMode == AimMode.Directional)
+
+			if (GameState.instance.currentBoss != null)
 			{
-				Vector2i pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
-				Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
-			}
-			// Crosshair
-			else if (Settings.game.aimMode == AimMode.Crosshair)
-			{
-				Renderer.DrawUISprite(Renderer.cursorPosition.x - crosshair.width / 2, Renderer.cursorPosition.y - crosshair.height / 2, crosshair.width, crosshair.height, crosshair);
+				int width = Renderer.UIWidth / 2;
+				int height = 4;
+				int x = Renderer.UIWidth / 2 - width / 2;
+				int y = 10;
+
+				//Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, 0, null, 0xFFAAAAAA);
+				Renderer.DrawUISprite(x, y, width, height, 0, null, 0xFF3F0000);
+				Renderer.DrawUISprite(x, y, (int)MathF.Ceiling(GameState.instance.currentBoss.health / GameState.instance.currentBossMaxHealth * width), height, 0, null, 0xFF983a2e);
+				Renderer.DrawUITextBMP(x, y + height + 3, GameState.instance.currentBoss.displayName, 1, 0xFF111111);
+				Renderer.DrawUITextBMP(x, y + height + 2, GameState.instance.currentBoss.displayName, 1, 0xFFAAAAAA);
 			}
 		}
 
-		if (GameState.instance.currentBoss != null)
+		if (screenFade != 1)
 		{
-			int width = Renderer.UIWidth / 2;
-			int height = 4;
-			int x = Renderer.UIWidth / 2 - width / 2;
-			int y = 10;
-
-			//Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, 0, null, 0xFFAAAAAA);
-			Renderer.DrawUISprite(x, y, width, height, 0, null, 0xFF3F0000);
-			Renderer.DrawUISprite(x, y, (int)MathF.Ceiling(GameState.instance.currentBoss.health / GameState.instance.currentBossMaxHealth * width), height, 0, null, 0xFF983a2e);
-			Renderer.DrawUITextBMP(x, y + height + 3, GameState.instance.currentBoss.displayName, 1, 0xFF111111);
-			Renderer.DrawUITextBMP(x, y + height + 2, GameState.instance.currentBoss.displayName, 1, 0xFFAAAAAA);
+			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, MathHelper.ColorAlpha(0xFF000000, 1 - screenFade));
 		}
 	}
 }

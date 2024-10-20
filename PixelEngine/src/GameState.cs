@@ -170,6 +170,7 @@ public class GameState : State
 			generator.generateCliffside(cliffside);
 			cliffside.addEntity(new Cliffside(cliffside.rooms[0]));
 			cliffside.bg = Resource.GetTexture("res/level/hub/bg.png", false);
+			cliffside.ambientSound = Resource.GetSound("res/sounds/ambience4.ogg");
 			//cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
 
 			//cliffside.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString(), 0xFFFFFFFF), cliffside.rooms[0].getMarker(32) + new Vector2(0, 1.5f));
@@ -387,6 +388,17 @@ public class GameState : State
 		}
 	}
 
+	public void setAmbience(Sound ambience)
+	{
+		if (ambientSource != 0)
+		{
+			Audio.FadeoutSource(ambientSource, 5);
+			ambientSource = 0;
+		}
+		if (ambience != null)
+			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 5);
+	}
+
 	public void switchLevel(Level newLevel, Vector2 spawnPosition)
 	{
 		if (level == /*tutorial*/ cliffside && newLevel == hub)
@@ -509,13 +521,7 @@ public class GameState : State
 
 			player.hud.onLevelSwitch(level.name);
 
-			if (ambientSource != 0)
-			{
-				Audio.FadeoutSource(ambientSource, 10);
-				ambientSource = 0;
-			}
-			if (level.ambientSound != null)
-				ambientSource = Audio.PlayBackground(level.ambientSound, 0.6f, 1, true, 10);
+			setAmbience(level.ambientSound);
 		}
 
 		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))

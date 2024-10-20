@@ -92,6 +92,10 @@ public class EntityAction
 		}
 	}
 
+	public virtual void render(Player player)
+	{
+	}
+
 	public virtual void onQueued(Player player)
 	{
 	}
