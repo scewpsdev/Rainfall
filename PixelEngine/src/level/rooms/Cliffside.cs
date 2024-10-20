@@ -39,11 +39,17 @@ public class Cliffside : Entity
 			float zoffset = ParallaxObject.LayerToZ(i <= 0 ? i * 0.4f : i * 0.2f + i * i * 0.1f); // i < 10 ? ParallaxObject.LayerToZ((i - 10) * -0.1f) : (i - 10) * -0.1f;
 			float yoffset = i <= 0 ? zoffset * 3 : zoffset * 5; // (i - 10) * 0.5f;
 			float brightness = (1 - MathF.Exp(-(i + 5) * 0.2f)); // MathF.Min(0.5f + i * 0.1f, 2);
+<<<<<<< HEAD
 
 			//Vector4 color = new Vector4(MathHelper.SRGBToLinear(MathHelper.ARGBToVector(0xFF36b3be).xyz * brightness * 1.2f) + MathHelper.ARGBToVector(0xFF6eafeb).xyz * 0.3f, 1);
 			Vector4 color = MathHelper.SRGBToLinear(MathHelper.ARGBToVector(0xFF36b3be) * brightness * 1.2f);
 
 			float xanimation = Time.currentTime / 1e9f * 16 * ((int)Hash.hash(i) % 2 * 2 - 1) * MathF.Pow(0.5f, 0.2f * i);
+=======
+			Vector4 color = new Vector4(MathHelper.SRGBToLinear(MathHelper.ARGBToVector(0xFF36b3be).xyz * brightness * 1.2f) + MathHelper.ARGBToVector(0xFF6eafeb).xyz * 0.3f, 1);
+
+			float xanimation = Time.currentTime / 1e9f * 16 * ((i + 5) % 2 * 2 - 1) * MathF.Pow(0.5f, 0.5f * i);
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a
 			float yanimation = 0.5f * MathF.Sin(Hash.hash(i) % 10 + Time.currentTime / 1e9f);
 
 			Vector3 vertex = ParallaxObject.ParallaxEffect(new Vector3((Vector2)wavesPosition + new Vector2(0, yoffset + yanimation), zoffset));

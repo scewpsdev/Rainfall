@@ -99,7 +99,11 @@ public class PlayerCamera : Entity
 			if (Settings.game.aimMode == AimMode.Directional)
 				target += aimDirection * 0.1f * player.aimDistance;
 			else if (Settings.game.aimMode == AimMode.Crosshair)
+<<<<<<< HEAD
 				target += aimDirection * 0.1f * player.aimDistance;
+=======
+				target += aimDirection * 0.2f * player.aimDistance;
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a
 		}
 
 		position = Vector2.Lerp(position, target, 8 * Time.deltaTime);

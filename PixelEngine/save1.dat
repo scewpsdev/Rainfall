@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 flags = [  ]
 highscores = [ {
 score = 0
@@ -7,6 +8,25 @@ kills = 0
 items0 = [ 0, 0 ]
 items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
+=======
+flags = [ 777027450, 3295548887, 1615716108, 1461520035 ]
+highscores = [ {
+score = 28650
+floor = 6
+time = 1060.561767578125
+kills = 90
+items0 = [ 1899663660, 0 ]
+items1 = [ 2697664425, 0, 0, 0 ]
+items2 = [ 2556857735, 435986570, 1686648792, 1596944642, 43293776 ]
+}, {
+score = 9483
+floor = 7
+time = 88.5000991821289
+kills = 10
+items0 = [ 3066057946, 0 ]
+items1 = [ 0, 0, 0, 0 ]
+items2 = [  ]
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a
 }, {
 score = 0
 floor = -1
@@ -16,6 +36,7 @@ items0 = [ 0, 0 ]
 items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
 }, {
+<<<<<<< HEAD
 score = 0
 floor = -1
 time = -1
@@ -33,3 +54,19 @@ items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
 } ]
 quests = [  ]
+=======
+score = 28650
+floor = 6
+time = 1060.561767578125
+kills = 90
+items0 = [ 1899663660, 0 ]
+items1 = [ 2697664425, 0, 0, 0 ]
+items2 = [ 2556857735, 435986570, 1686648792, 1596944642, 43293776 ]
+} ]
+quests = [ {
+npc = rat_npc
+name = cheese_quest
+state = Collected
+snake_kills = 26
+} ]
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a

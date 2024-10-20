@@ -68,8 +68,11 @@ public class HUD
 	const uint txtColor = 0xFFBBBBBB;
 
 
+<<<<<<< HEAD
 	public bool enabled = true;
 
+=======
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a
 	Player player;
 
 	List<HUDMessage> messages = new List<HUDMessage>();
@@ -662,9 +665,12 @@ public class HUD
 			return;
 		}
 
+<<<<<<< HEAD
 		if (!enabled)
 			return;
 
+=======
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a
 		renderHealth();
 		renderMana();
 		renderXP();

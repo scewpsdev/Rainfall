@@ -27,6 +27,7 @@ public class UnconciousAction : EntityAction
 		duration = 1000;
 	}
 
+<<<<<<< HEAD
 	public override void onStarted(Player player)
 	{
 		base.onStarted(player);
@@ -41,6 +42,8 @@ public class UnconciousAction : EntityAction
 		player.hud.enabled = true;
 	}
 
+=======
+>>>>>>> d79438fbcb8d9274022f6ae886162149e731fa4a
 	public override void update(Player player)
 	{
 		if (!gettingUp)
