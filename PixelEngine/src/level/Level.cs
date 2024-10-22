@@ -795,11 +795,8 @@ public class Level
 		return null;
 	}
 
-	public HitData sample(Vector2 position, uint filterMask = 1)
+	public HitData sample(Vector2 position, uint filterMask = 0)
 	{
-		HitData hit = sampleTiles(position);
-		if (hit != null)
-			return hit;
 		for (int i = 0; i < entities.Count; i++)
 		{
 			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
@@ -810,6 +807,8 @@ public class Level
 					return new HitData() { position = position, entity = entities[i] };
 			}
 		}
+		if (filterMask == 0)
+			return sampleTiles(position);
 		return null;
 	}
 }

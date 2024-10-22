@@ -20,14 +20,20 @@ public class Cliffside : Entity
 	{
 		this.room = room;
 
-		waves = Resource.GetTexture("res/level/hub/waves.png", (uint)SamplerFlags.Point | (uint)SamplerFlags.VClamp);
-		caveBg = new Sprite(Resource.GetTexture("res/level/hub/bg2.png", false));
+		waves = Resource.GetTexture("res/level/cliffside/waves.png", (uint)SamplerFlags.Point | (uint)SamplerFlags.VClamp);
+		caveBg = new Sprite(Resource.GetTexture("res/level/cliffside/bg2.png", false));
 
 		caveAmbience = Resource.GetSound("res/sounds/ambience.ogg");
 	}
 
 	public override void init(Level level)
 	{
+		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax0.png", false), 10), new Vector2(33, 200));
+		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax1.png", false), 9), new Vector2(33, 200));
+		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax2.png", false), 8), new Vector2(33, 200));
+
+		level.addEntity(new CameraFrame(new Vector2(20, 40)), new Vector2(33, 49));
+
 		level.addEntity(new EventTrigger(new Vector2(1, 3), null, (Player player) =>
 		{
 			int direction = MathF.Sign(player.velocity.x);

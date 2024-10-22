@@ -12,6 +12,8 @@ public class AIAction
 {
 	public AdvancedAI ai;
 	public string animation;
+	public string chargeAnimation = "charge";
+	public string cooldownAnimation = "cooldown";
 	public float duration;
 	public float chargeTime;
 	public float cooldownTime;
@@ -69,6 +71,13 @@ public class AdvancedAI : AI
 	{
 		if (GameState.instance.currentBoss == mob)
 			GameState.instance.currentBoss = null;
+	}
+
+	public AIAction addAction(string animation, float duration, string chargeAnimation, float chargeTime, string cooldownAnimation, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, Vector2, bool> onAction = null, Action<AIAction> onFinished = null)
+	{
+		AIAction action = new AIAction { ai = this, animation = animation, chargeAnimation = chargeAnimation, cooldownAnimation = cooldownAnimation, duration = duration, chargeTime = chargeTime, cooldownTime = cooldownTime, walkSpeed = walkSpeed, requirementsMet = requirementsMet, onStarted = onStarted, onAction = onAction, onFinished = onFinished };
+		actions.Add(action);
+		return action;
 	}
 
 	public AIAction addAction(string animation, float duration, float chargeTime, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, Vector2, bool> onAction = null, Action<AIAction> onFinished = null)
@@ -156,7 +165,10 @@ public class AdvancedAI : AI
 		}
 		if (state == AIState.Charge)
 		{
-			mob.animator.setAnimation("charge");
+			mob.animator.setAnimation(currentAction.chargeAnimation);
+			SpriteAnimation anim = mob.animator.getAnimation(currentAction.chargeAnimation);
+			if (anim != null)
+				anim.fps = anim.length / currentAction.chargeTime;
 
 			if (mob.isStunned)
 				chargeTime = Time.currentTime;
@@ -167,6 +179,9 @@ public class AdvancedAI : AI
 		if (state == AIState.Action)
 		{
 			mob.animator.setAnimation(currentAction.animation);
+			SpriteAnimation anim = mob.animator.getAnimation(currentAction.animation);
+			if (anim != null)
+				anim.fps = anim.length / currentAction.duration;
 
 			float elapsed = (Time.currentTime - actionTime) / 1e9f;
 			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed, toTarget * distance) || elapsed >= currentAction.duration || mob.isStunned)
@@ -174,7 +189,10 @@ public class AdvancedAI : AI
 		}
 		if (state == AIState.Cooldown)
 		{
-			mob.animator.setAnimation("cooldown");
+			mob.animator.setAnimation(currentAction.cooldownAnimation);
+			SpriteAnimation anim = mob.animator.getAnimation(currentAction.cooldownAnimation);
+			if (anim != null)
+				anim.fps = anim.length / currentAction.cooldownTime;
 
 			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
 			{

@@ -43,7 +43,7 @@ public class ParallaxObject : Entity
 		float xoffset = (GameState.instance.camera.position.x - vertex.x) * (1 - parallax);
 		float yoffset = (GameState.instance.camera.position.y - vertex.y) * (1 - parallax);
 
-		float z = layer >= 0 ? 0.9f + 0.01f * layer : -0.9f + 0.01f * layer;
+		float z = layer >= 0 ? 0.9f + 0.001f * layer : -0.9f + 0.001f * layer;
 
 		return new Vector3(vertex.x + xoffset, vertex.y + yoffset, z);
 	}

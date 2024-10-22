@@ -14,6 +14,7 @@ public class Entity
 	public const uint FILTER_ITEM = 1 << 3;
 	public const uint FILTER_PROJECTILE = 1 << 4;
 	public const uint FILTER_DECORATION = 1 << 5;
+	public const uint FILTER_CAMERA_FRAME = 1 << 6;
 
 	public const float LAYER_DEFAULT = 0.0f;
 	public const float LAYER_BGBG = 0.02f;

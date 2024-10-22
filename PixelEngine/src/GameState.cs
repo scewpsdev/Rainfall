@@ -368,7 +368,8 @@ public class GameState : State
 			player.actions.queueAction(new UnconciousAction());
 		}
 
-		//switchLevel(areaGardens[0], areaGardens[0].entrance.position);
+		switchLevel(areaGardens[2], areaGardens[2].entrance.position);
+		player.giveItem(new Waraxe());
 	}
 
 	public override void init()

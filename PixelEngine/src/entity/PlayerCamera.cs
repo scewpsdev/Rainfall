@@ -17,6 +17,8 @@ public class PlayerCamera : Entity
 	Player player;
 	Vector2 target;
 
+
+
 	public float width, height;
 
 	Simplex simplex;
@@ -70,7 +72,15 @@ public class PlayerCamera : Entity
 		float y0 = 0.0f; // + 0.5f * height;
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
-		target = player.position + player.collider.center;
+		HitData currentCameraFrame = GameState.instance.level.sample(position, FILTER_CAMERA_FRAME);
+		if (currentCameraFrame != null)
+		{
+			target = currentCameraFrame.entity.position;
+		}
+		else
+		{
+			target = player.position + player.collider.center;
+		}
 
 		//if (player.inventoryOpen)
 		//	target += new Vector2(-width / 4, 0);
