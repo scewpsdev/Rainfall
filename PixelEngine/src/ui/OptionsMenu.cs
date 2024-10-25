@@ -148,6 +148,11 @@ public static class OptionsMenu
 		int y = 48;
 		for (int i = currentScroll; i < Math.Min(options.Length, currentScroll + maxOptions); i++)
 		{
+			if (i == currentScroll && i > 0)
+			{
+				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 + 160 - 10, y - Renderer.smallFont.size - 4, '^', false, false, 1, 0xFF7F7F7F);
+			}
+
 			Option option = options[i];
 			bool selected = selectedOption == i;
 			DrawLeft(Renderer.UIWidth / 2 - 160, y, option.name, selected);
@@ -181,6 +186,11 @@ public static class OptionsMenu
 			}
 
 			y += Renderer.smallFont.size + 4;
+
+			if (i == Math.Min(options.Length, currentScroll + maxOptions) - 1 && i < options.Length - 1)
+			{
+				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 + 160 - 10, y, '^', false, true, 1, 0xFF7F7F7F);
+			}
 		}
 	}
 
@@ -239,35 +249,26 @@ public static class OptionsMenu
 
 	public static bool Render()
 	{
-		int x = 20;
-		int y = 20;
-
-		for (int i = 0; i < tabs.Length; i++)
-		{
-			Vector2i size = Renderer.MeasureUITextBMP(tabs[i]);
-			if (i == selectedTab)
-				Renderer.DrawUISprite(x - 4, y - 4, size.x + 8, size.y + 8, null, false, 0xFF333333);
-			Renderer.DrawUITextBMP(x, y, tabs[i]);
-			x += size.x + 16;
-		}
-
 		if (selectedOption == -1)
 		{
-			if (InputManager.IsPressed("UILeft", true))
+			int choice = FullscreenMenu.Render(tabs, null, ref selectedTab);
+
+			if (choice != -1)
+			{
+				selectedOption = 0;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+
+			if (InputManager.IsPressed("UIUp", true))
 			{
 				selectedTab = (selectedTab + tabs.Length - 1) % tabs.Length;
 				currentScroll = 0;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (InputManager.IsPressed("UIRight", true))
+			if (InputManager.IsPressed("UIDown", true))
 			{
 				selectedTab = (selectedTab + 1) % tabs.Length;
 				currentScroll = 0;
-				Audio.PlayBackground(UISound.uiClick);
-			}
-			if (InputManager.IsPressed("UIDown", true))
-			{
-				selectedOption = 0;
 				Audio.PlayBackground(UISound.uiClick);
 			}
 			if (InputManager.IsPressed("UIBack", true))
@@ -279,6 +280,13 @@ public static class OptionsMenu
 		}
 		else
 		{
+			if (selectedTab == 0) // General
+				General();
+			else if (selectedTab == 1) // Graphics
+				Graphics();
+			else if (selectedTab == 2) // Controls
+				Controls();
+
 			if (InputManager.IsPressed("UIBack", true))
 			{
 				selectedOption = -1;
@@ -292,13 +300,6 @@ public static class OptionsMenu
 			Audio.PlayBackground(UISound.uiBack);
 			return false;
 		}
-
-		if (selectedTab == 0) // General
-			General();
-		else if (selectedTab == 1) // Graphics
-			Graphics();
-		else if (selectedTab == 2) // Controls
-			Controls();
 
 		return true;
 	}

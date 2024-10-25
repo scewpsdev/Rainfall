@@ -31,7 +31,7 @@ public class TorchEntity : Entity, Interactable
 
 	public override void init(Level level)
 	{
-		GameState.instance.level.addEntity(particles = Effects.CreateTorchEffect(this), position + new Vector2(0, 0.25f));
+		level.addEntity(particles = Effects.CreateTorchEffect(this), position + new Vector2(0, 0.25f));
 		particles.layer = LAYER_DEFAULT - 0.01f;
 
 		source = Audio.Play(idleSound, new Vector3(position, 0));

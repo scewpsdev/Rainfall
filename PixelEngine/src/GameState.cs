@@ -3,6 +3,7 @@ using Rainfall;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
@@ -285,65 +286,26 @@ public class GameState : State
 		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
 
 
-		int numCaveFloors = 5;
-		int numGardenFloors = 3;
+		areaCaves = generator.generateCaves(run.seed);
 
-		// Cave area
-		{
-			areaCaves = new Level[numCaveFloors];
-			for (int i = 0; i < areaCaves.Length; i++)
-				areaCaves[i] = new Level(i, "Caves " + StringUtils.ToRoman(i + 1));
+		Door dungeonDoor = new Door(areaCaves[0], areaCaves[0].entrance, true, ParallaxObject.ZToLayer(0.75f));
+		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
+		hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(11));
+		areaCaves[0].entrance.destination = hub;
+		areaCaves[0].entrance.otherDoor = dungeonDoor;
 
-			Door dungeonDoor = new Door(areaCaves[0], null, true, ParallaxObject.ZToLayer(0.75f));
-			dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
-			hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(11));
+		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
+		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
+		areaCaves[areaCaves.Length - 1].exit.destination = cliffside;
+		areaCaves[areaCaves.Length - 1].exit.otherDoor = cliffDungeonExit1;
 
-			Level lastLevel = hub;
-			Door lastDoor = dungeonDoor;
-			for (int i = 0; i < areaCaves.Length; i++)
-			{
-				bool darkLevel = i == 2 || i == 3;
-				bool startingRoom = i == 0;
-				bool bossRoom = i == areaCaves.Length - 1;
-				level = areaCaves[i];
-				generator.generateCaves(run.seed, i, darkLevel, startingRoom, bossRoom, areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
 
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
+		areaGardens = generator.generateGardens(run.seed);
 
-				lastLevel = areaCaves[i];
-				lastDoor = areaCaves[i].exit;
-			}
-
-			Door cliffDungeonExit1 = new Door(lastLevel, lastLevel.exit, true);
-			cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
-			lastLevel.exit.destination = cliffside;
-			lastLevel.exit.otherDoor = cliffDungeonExit1;
-		}
-
-		// The Glade
-		{
-			areaGardens = new Level[numGardenFloors];
-			for (int i = 0; i < areaGardens.Length; i++)
-				areaGardens[i] = new Level(numCaveFloors + i, "The Glade " + StringUtils.ToRoman(i + 1));
-
-			Door cliffDungeonEntrance2 = new Door(areaGardens[0], null, true);
-			cliffside.addEntity(cliffDungeonEntrance2, (Vector2)cliffside.rooms[0].getMarker(37));
-
-			Level lastLevel = cliffside;
-			Door lastDoor = cliffDungeonEntrance2;
-			for (int i = 0; i < areaGardens.Length; i++)
-			{
-				int floor = numCaveFloors + i;
-				level = areaGardens[i];
-				generator.generateGardens(run.seed, floor, areaGardens[i], i < areaGardens.Length - 1 ? areaGardens[i + 1] : null, lastLevel, lastDoor);
-
-				lastLevel = areaGardens[i];
-				lastDoor = areaGardens[i].exit;
-			}
-
-			lastDoor.finalExit = true;
-		}
+		Door cliffDungeonEntrance2 = new Door(areaGardens[0], areaGardens[0].entrance, true);
+		cliffside.addEntity(cliffDungeonEntrance2, (Vector2)cliffside.rooms[0].getMarker(37));
+		areaGardens[0].entrance.destination = cliffside;
+		areaGardens[0].entrance.otherDoor = cliffDungeonEntrance2;
 
 
 		if (startingClass != null)
@@ -368,8 +330,8 @@ public class GameState : State
 			player.actions.queueAction(new UnconciousAction());
 		}
 
-		switchLevel(areaGardens[2], areaGardens[2].entrance.position);
-		player.giveItem(new Waraxe());
+		//switchLevel(areaGardens[2], areaGardens[2].entrance.position);
+		//player.giveItem(new Waraxe());
 	}
 
 	public override void init()

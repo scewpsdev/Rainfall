@@ -17,7 +17,7 @@ public static class FullscreenMenu
 			do
 			{
 				currentButton = (currentButton + 1) % labels.Length;
-			} while (!enabled[currentButton]);
+			} while (enabled != null && !enabled[currentButton]);
 			Audio.PlayBackground(UISound.uiClick);
 		}
 		if (InputManager.IsPressed("Up", true) || InputManager.IsPressed("UIUp", true))
@@ -25,7 +25,7 @@ public static class FullscreenMenu
 			do
 			{
 				currentButton = (currentButton + labels.Length - 1) % labels.Length;
-			} while (!enabled[currentButton]);
+			} while (enabled != null && !enabled[currentButton]);
 			Audio.PlayBackground(UISound.uiClick);
 		}
 
@@ -43,7 +43,7 @@ public static class FullscreenMenu
 			}
 			bool selected = currentButton == i;
 
-			uint color = enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF777777) : 0xFF444444;
+			uint color = enabled == null || enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF777777) : 0xFF444444;
 			uint bgColor = 0xFF444444;
 			if (selected)
 			{

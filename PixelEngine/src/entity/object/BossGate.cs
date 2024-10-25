@@ -44,7 +44,7 @@ public class BossGate : Entity
 		Vector2i tile = (Vector2i)Vector2.Floor(position + 0.5f);
 		for (int i = 0; i < height; i++)
 		{
-			GameState.instance.level.setTile(tile.x, tile.y - i, null);
+			level.setTile(tile.x, tile.y - i, null);
 		}
 		isOpen = true;
 	}
@@ -54,7 +54,7 @@ public class BossGate : Entity
 		Vector2i tile = (Vector2i)Vector2.Floor(position + 0.5f);
 		for (int i = 0; i < height; i++)
 		{
-			GameState.instance.level.setTile(tile.x, tile.y - i, TileType.dummy);
+			level.setTile(tile.x, tile.y - i, TileType.dummy);
 		}
 		isOpen = false;
 	}

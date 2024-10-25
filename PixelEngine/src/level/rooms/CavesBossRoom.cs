@@ -25,17 +25,12 @@ public class CavesBossRoom : Entity
 		boss = new GolemBoss();
 		boss.isBoss = true;
 
-		foreach (Room room in level.rooms)
+		if (room.tryGetMarker(100, out Vector2i p))
 		{
-			if (room.tryGetMarker(100, out Vector2i p))
-			{
-				level.addEntity(boss, (Vector2)p);
+			level.addEntity(boss, (Vector2)p);
 
-				level.addEntity(gate0 = new BossGate(boss, room, true), (Vector2)room.getMarker(101));
-				level.addEntity(gate1 = new BossGate(boss, room, false), (Vector2)room.getMarker(102));
-
-				break;
-			}
+			level.addEntity(gate0 = new BossGate(boss, room, true), (Vector2)room.getMarker(101));
+			level.addEntity(gate1 = new BossGate(boss, room, false), (Vector2)room.getMarker(102));
 		}
 	}
 

@@ -114,14 +114,15 @@ public class PlayerCamera : Entity
 
 		position = Vector2.Lerp(position, target, 8 * Time.deltaTime);
 
-		if (x1 > x0)
+		if (width < level.width)
 			position.x = MathHelper.Clamp(position.x, x0, x1);
 		else
-			position.x = (x0 + x1) * 0.5f;
-		if (y1 > y0)
+			position.x = 0.5f * level.width;
+
+		if (height < level.height)
 			position.y = MathHelper.Clamp(position.y, y0, y1);
 		else
-			position.y = (y0 + y1) * 0.5f;
+			position.y = 0.5f * level.height;
 
 		currentScreenShake = Vector2.Zero;
 		for (int i = 0; i < screenShakes.Count; i++)

@@ -117,6 +117,23 @@ public static class ItemInfoPanel
 				}
 			}
 
+			if (item.type == ItemType.Staff)
+			{
+				Staff staff = item as Staff;
+
+				y += 4;
+				drawLeft("Attuned spells:");
+				y += Renderer.smallFont.size + 1;
+
+				x += 4;
+				for (int i = 0; i < staff.attunedSpells.Count; i++)
+				{
+					y += Renderer.smallFont.size;
+					drawLeft(staff.attunedSpells[i].fullDisplayName, UIColors.TEXT_SUBTLE);
+				}
+				x -= 4;
+			}
+
 
 			//drawLeft("Reach");
 			//drawRight(item.attackRange.ToString("0.0"));

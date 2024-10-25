@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class BerserkersChain : Item
 {
 	int buffLevel = 0;
-	int threshhold = 8;
+	int threshhold = 10;
 
 	long lastTick = -1;
 	long lastKill = -1;
@@ -71,7 +71,7 @@ public class BerserkersChain : Item
 				lastTick = Time.currentTime;
 
 				int lastBuffLevel = buffLevel;
-				int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 5);
+				int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 4);
 				buffLevel = Math.Max(buffLevel - cooldown, 0);
 				if (buffLevel <= threshhold && lastBuffLevel > threshhold)
 					onDeactivate(player);

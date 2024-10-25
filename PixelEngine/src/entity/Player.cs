@@ -43,7 +43,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	//public float maxHealth = 3;
 	public float health = 3;
-	public float maxHealth => 2 + hp / 2.0f;
+	public float maxHealth => 2 + hp * 0.25f;
 
 	//public float maxMana = 2;
 	public float mana = 2;
@@ -691,7 +691,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		Vector2 itemVelocity = velocity + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
-		Vector2 throwOrigin = position + new Vector2(0, 0.5f); // + direction.normalized;
+		Vector2 throwOrigin = position + new Vector2(0, 0.5f) + direction.normalized * 0.1f;
 		ItemEntity obj = new ItemEntity(item, throws ? this : null, itemVelocity);
 		if (item.projectileSpins)
 			obj.rotationVelocity = MathF.PI * MathHelper.RandomFloat(-5, 5);

@@ -16,6 +16,7 @@ public class ScrollOfIdentify : Item
 		displayName = "Scroll of Identify";
 
 		value = 20;
+		canDrop = false;
 
 		sprite = new Sprite(tileset, 11, 2);
 	}

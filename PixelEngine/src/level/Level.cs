@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,6 +69,12 @@ public class Level
 		lootValue = Math.Max(floor, 0) * 10;
 
 		resize(20, 20);
+	}
+
+	public Level(int floor, string name, int width, int height, TileType defaultTile)
+		: this(floor, name)
+	{
+		resize(width, height, defaultTile);
 	}
 
 	public void resize(int width, int height, TileType fillTile = null)

@@ -28,16 +28,16 @@ public class GolemBoss : Mob
 		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.8f);
 		rect = new FloatRect(-2, 0, 4, 4);
 
-		ai = new GolemAI(this);
-		ai.loseRange = 100;
-
 		health = 30;
 		poise = 4;
 		speed = 2.0f;
-		damage = 1.5f;
+		damage = 1.0f;
 		jumpPower = 11;
 		gravity = -20;
 		awareness = 1;
 		itemDropChance = 1;
+
+		ai = new GolemAI(this);
+		ai.loseRange = 100;
 	}
 }

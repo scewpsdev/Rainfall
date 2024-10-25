@@ -534,7 +534,7 @@ public abstract class NPC : Mob, Interactable
 							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k), simplex.sample1f(-elapsed - k)) * amplitude);
 						}
 
-						cursor += Renderer.DrawUITextBMP(x + 4 + cursor + offset.x, y + offset.y, word[k], 1, 0xFFAAAAAA);
+						cursor += Renderer.DrawUITextBMP(x + 4 + cursor + offset.x, y + offset.y, word[k], false, false, 1, 0xFFAAAAAA);
 						characterIdx++;
 
 						if (k == word.Length - 1 && j == voiceLine.lines[i].words.Length - 1 && i == voiceLine.lines.Length - 1)

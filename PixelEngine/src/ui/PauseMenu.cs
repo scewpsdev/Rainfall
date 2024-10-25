@@ -51,7 +51,7 @@ public static class PauseMenu
 
 	public static bool Render(GameState game)
 	{
-		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0xAF000000);
+		Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, 0xCF000000);
 
 		if (state == PauseMenuState.Selection)
 		{

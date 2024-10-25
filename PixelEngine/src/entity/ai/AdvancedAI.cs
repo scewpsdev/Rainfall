@@ -146,21 +146,24 @@ public class AdvancedAI : AI
 
 			walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
 
-			List<AIAction> possibleActions = new List<AIAction>();
-			foreach (AIAction action in actions)
+			if (!mob.isStunned)
 			{
-				if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation) + Hash.hash(action.duration)) % 2 == 0)
-					possibleActions.Add(action);
-			}
+				List<AIAction> possibleActions = new List<AIAction>();
+				foreach (AIAction action in actions)
+				{
+					if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation) + Hash.hash(action.duration)) % 2 == 0)
+						possibleActions.Add(action);
+				}
 
-			if (possibleActions.Count > 0)
-			{
-				currentAction = possibleActions[Random.Shared.Next() % possibleActions.Count];
-				state = AIState.Charge;
-				chargeTime = Time.currentTime;
-				actionDirection = walkDirection;
-				if (currentAction.actionCollider != null)
-					mob.collider = currentAction.actionCollider;
+				if (possibleActions.Count > 0)
+				{
+					currentAction = possibleActions[Random.Shared.Next() % possibleActions.Count];
+					state = AIState.Charge;
+					chargeTime = Time.currentTime;
+					actionDirection = walkDirection;
+					if (currentAction.actionCollider != null)
+						mob.collider = currentAction.actionCollider;
+				}
 			}
 		}
 		if (state == AIState.Charge)

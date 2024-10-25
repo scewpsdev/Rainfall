@@ -717,13 +717,27 @@ public static class Renderer
 		return cursor;
 	}
 
-	public static int DrawUITextBMP(int x, int y, char c, int size = 1, uint color = 0xFFFFFFFF)
+	public static int DrawUITextBMP(int x, int y, char c, bool flippedX = false, bool flippedY = false, int size = 1, uint color = 0xFFFFFFFF)
 	{
 		IntRect rect = smallFont.getCharacterRect(c);
 		if (rect == null)
 			rect = smallFont.getCharacterRect('?');
 
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+		int w = rect.size.x;
+		int h = rect.size.y;
+
+		if (flippedX)
+		{
+			rect.position.x += rect.size.x;
+			rect.size.x *= -1;
+		}
+		if (flippedY)
+		{
+			rect.position.y += rect.size.y;
+			rect.size.y *= -1;
+		}
+
+		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(w * size, h * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
 		return rect.size.x;
 	}
