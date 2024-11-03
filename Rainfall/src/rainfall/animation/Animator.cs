@@ -136,7 +136,7 @@ namespace Rainfall
 			return to.transitionDuration;
 		}
 
-		void update()
+		public void update()
 		{
 			lastAnimUpdateTime = currentUpdateTime;
 			currentUpdateTime = Time.currentTime;

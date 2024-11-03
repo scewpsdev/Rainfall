@@ -23,7 +23,7 @@ namespace Rainfall
 
 		internal byte _bloomEnabled = 1;
 		public bool bloomEnabled { get => _bloomEnabled != 0; set { _bloomEnabled = (byte)(value ? 1 : 0); } }
-		public float bloomStrength = 0.2f;
+		public float bloomStrength = 0.15f;
 		public float bloomFalloff = 5.0f;
 
 		public float exposure = 1.0f;
@@ -409,11 +409,12 @@ namespace Rainfall
 			Renderer3D_Begin();
 		}
 
-		public static void SetCamera(Vector3 position, Quaternion rotation, Matrix projection, float fov, float aspect, float near, float far)
+		public static void SetCamera(Vector3 position, Quaternion rotation, float fov, float aspect, float near, float far)
 		{
 			cameraPosition = position;
 			cameraRotation = rotation;
 
+			Matrix projection = Matrix.CreatePerspective(MathHelper.ToRadians(fov), aspect, near, far);
 			pv = projection * Matrix.CreateTransform(position, rotation).inverted;
 
 			Renderer3D_SetCamera(position, rotation, projection, fov, aspect, near, far);

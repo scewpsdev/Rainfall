@@ -64,7 +64,7 @@ struct Renderer3DSettings
 	bool ssaoEnabled = true;
 
 	bool bloomEnabled = true;
-	float bloomStrength = 0.2f;
+	float bloomStrength = 0.15f;
 	float bloomFalloff = 5.0f;
 
 	float exposure = 1.0f;

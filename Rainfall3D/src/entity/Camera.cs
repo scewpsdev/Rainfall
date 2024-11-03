@@ -17,6 +17,11 @@ public class Camera : Entity
 		Audio.UpdateListener(position, rotation);
 	}
 
+	public override void draw(GraphicsDevice graphics)
+	{
+		Renderer.SetCamera(position, rotation, fov, Display.aspectRatio, near, far);
+	}
+
 	public Matrix getProjectionMatrix()
 	{
 		return Matrix.CreatePerspective(MathHelper.ToRadians(fov), Display.aspectRatio, near, far);
