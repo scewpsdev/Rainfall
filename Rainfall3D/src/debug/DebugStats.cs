@@ -27,7 +27,7 @@ namespace Rainfall
 
 			y++;
 
-			y = Renderer.DrawDebugStats(0, y, 0x1F);
+			y = Renderer.DrawDebugStats(0, y, color);
 
 			RenderStats renderStats = graphics.getRenderStats();
 

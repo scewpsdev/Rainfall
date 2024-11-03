@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class FreeCamera : Camera
 {
-	const float CAMERA_SENSITIVITY = 0.001f;
+	const float CAMERA_SENSITIVITY = 0.0015f;
 
 
 	float pitch, yaw;
@@ -18,7 +18,7 @@ public class FreeCamera : Camera
 	{
 		base.init();
 
-		Input.mouseLocked = true;
+		Input.cursorMode = CursorMode.Disabled;
 
 		pitch = rotation.eulers.x;
 		yaw = rotation.eulers.y;
@@ -60,6 +60,6 @@ public class FreeCamera : Camera
 	{
 		base.draw(graphics);
 
-		Renderer.SetCamera(position, rotation, getProjectionMatrix(), fov, Display.aspectRatio, near, far);
+		Renderer.SetCamera(position, rotation, fov, Display.aspectRatio, near, far);
 	}
 }

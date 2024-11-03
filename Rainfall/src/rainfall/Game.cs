@@ -17,7 +17,7 @@ namespace Rainfall
 		private byte _maximized = 0;
 		private byte _fullscreen = 0;
 
-		public int fpsCap = 0;
+		public int fpsCap = 60;
 		public int vsync = 0;
 
 

@@ -232,7 +232,7 @@ namespace Rainfall
 				entity.lights.Add(light);
 			}
 
-			for (int i = 0; i < entityData.particles.Count; i++)
+			for (int i = 0; i < entityData.particles.Length; i++)
 			{
 				ParticleSystem particles = ParticleSystem.Create(Matrix.Identity);
 				*particles.handle = entityData.particles[i];
