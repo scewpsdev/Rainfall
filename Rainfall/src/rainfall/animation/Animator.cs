@@ -265,6 +265,13 @@ namespace Rainfall
 			return inverseBindPose * transform;
 		}
 
+		public void setNodeTransform(Node node, Matrix transform, int skeletonID = 0)
+		{
+			Matrix parentTransform = getNodeTransform(node.parent, skeletonID);
+			Matrix localTransform = (parentTransform).inverted * transform;
+			nodeLocalTransforms[node.id] = localTransform;
+		}
+
 		public void copyPose(Animator from)
 		{
 			Array.Copy(from.nodeLocalTransforms, nodeLocalTransforms, nodeLocalTransforms.Length);
