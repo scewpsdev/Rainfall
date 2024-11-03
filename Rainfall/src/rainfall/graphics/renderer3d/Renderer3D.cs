@@ -23,7 +23,7 @@ namespace Rainfall
 
 		internal byte _bloomEnabled = 1;
 		public bool bloomEnabled { get => _bloomEnabled != 0; set { _bloomEnabled = (byte)(value ? 1 : 0); } }
-		public float bloomStrength = 0.15f;
+		public float bloomStrength = 0.1f;
 		public float bloomFalloff = 5.0f;
 
 		public float exposure = 1.0f;
@@ -416,7 +416,6 @@ namespace Rainfall
 
 			Matrix projection = Matrix.CreatePerspective(MathHelper.ToRadians(fov), aspect, near, far);
 			pv = projection * Matrix.CreateTransform(position, rotation).inverted;
-
 			Renderer3D_SetCamera(position, rotation, projection, fov, aspect, near, far);
 		}
 

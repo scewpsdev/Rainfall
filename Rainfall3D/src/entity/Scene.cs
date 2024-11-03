@@ -7,7 +7,7 @@ using System.Threading.Tasks.Dataflow;
 
 public class Scene
 {
-	const float ENTITY_VOXEL_SIZE = 20;
+	const float ENTITY_BUCKET_REGION_SIZE = 20.0f;
 
 
 	Dictionary<Vector3i, List<Entity>> entities = new Dictionary<Vector3i, List<Entity>>();
@@ -35,7 +35,7 @@ public class Scene
 
 	Vector3i getEntityTile(Vector3 position)
 	{
-		return (Vector3i)Vector3.Floor(position / ENTITY_VOXEL_SIZE);
+		return (Vector3i)Vector3.Floor(position / ENTITY_BUCKET_REGION_SIZE);
 	}
 
 	public void getEntitiesInRange(Vector3 position, float range, List<Entity> list)
@@ -52,7 +52,11 @@ public class Scene
 					if (entities.TryGetValue(tile, out List<Entity> entityList))
 					{
 						foreach (Entity entity in entityList)
-							list.Add(entity);
+						{
+							float distanceSq = (entity.position - position).lengthSquared;
+							if (distanceSq < range * range)
+								list.Add(entity);
+						}
 					}
 				}
 			}
