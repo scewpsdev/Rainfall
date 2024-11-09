@@ -582,4 +582,49 @@ public static class SceneFormat
 		DeserializeScene(stream, out entities, out selectedEntity);
 		stream.Close();
 	}
+
+	public static bool Read(string path, out List<EntityData> entities, out uint selectedEntity)
+	{
+		if (File.Exists(path + ".bin"))
+		{
+			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
+			DeserializeScene(stream, out entities, out selectedEntity);
+			stream.Close();
+			LoadDependencies(entities, path);
+			return true;
+		}
+		entities = null;
+		selectedEntity = 0;
+		return false;
+	}
+
+	static unsafe void LoadDependencies(List<EntityData> entities, string path)
+	{
+		for (int j = 0; j < entities.Count; j++)
+		{
+			EntityData entity = entities[j];
+
+			if (entity.modelPath != null)
+				entity.model = Resource.GetModel(StringUtils.AbsolutePath(entity.modelPath, path));
+
+			for (int i = 0; i < entity.colliders.Count; i++)
+			{
+				ColliderData collider = entity.colliders[i];
+				if (collider.meshColliderPath != null)
+					collider.meshCollider = Resource.GetModel(StringUtils.AbsolutePath(collider.meshColliderPath, path));
+				entity.colliders[i] = collider;
+			}
+
+			for (int i = 0; i < entity.particles.Length; i++)
+			{
+				ParticleSystemData particleData = entity.particles[i];
+				byte* textureAtlasPath = particleData.textureAtlasPath;
+				if (textureAtlasPath[0] != 0)
+					particleData.textureAtlas = Resource.GetTexture(StringUtils.AbsolutePath(new string((sbyte*)particleData.textureAtlasPath), path)).handle;
+				entity.particles[i] = particleData;
+			}
+
+			entities[j] = entity;
+		}
+	}
 }
