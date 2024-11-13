@@ -21,7 +21,7 @@ public class WizardsCloak : Item
 
 		sprite = new Sprite(tileset, 5, 0);
 		spriteColor = 0xFF4c358f; // 0xFF874774;
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/cloak.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/cloak.png", false), 0, 0, 16, 16);
 		ingameSpriteColor = 0xFF4c358f; // 0xFF874774;
 		//ingameSpriteColor = 0xFF676898;
 	}

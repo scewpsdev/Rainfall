@@ -9,18 +9,6 @@ using System.Threading.Tasks;
 
 public class AttackAction : EntityAction
 {
-	static int swingIteration = 1;
-	static Item lastWeapon = null;
-
-	static int GetSwingIteration(Item weapon)
-	{
-		if (weapon != lastWeapon)
-			swingIteration = 1;
-		lastWeapon = weapon;
-		return swingIteration;
-	}
-
-
 	public Item weapon;
 	public Vector2 direction;
 	public bool stab;
@@ -31,6 +19,8 @@ public class AttackAction : EntityAction
 	public List<Entity> hitEntities = new List<Entity>();
 	public bool soundPlayed = false;
 	float maxRange = 0;
+
+	int swingIteration = 1;
 
 
 	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)
@@ -49,6 +39,12 @@ public class AttackAction : EntityAction
 	{
 	}
 
+	public override void onQueued(Player player)
+	{
+		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == weapon)
+			swingIteration = (player.actions.currentAction as AttackAction).swingIteration + (stab ? 0 : 1);
+	}
+
 	public override void onStarted(Player player)
 	{
 		duration /= player.getAttackSpeedModifier();
@@ -58,8 +54,6 @@ public class AttackAction : EntityAction
 
 	public override void onFinished(Player player)
 	{
-		if (!stab)
-			swingIteration++;
 	}
 
 	public override void update(Player player)
@@ -181,7 +175,7 @@ public class AttackAction : EntityAction
 			else
 			{
 				float angle = new Vector2(MathF.Abs(direction.x), direction.y).angle + weapon.attackAngleOffset;
-				float progress = weapon.doubleBladed ? (GetSwingIteration(weapon) % 2 == 0 ? currentProgress : 1 - currentProgress) : 1 - currentProgress;
+				float progress = weapon.doubleBladed ? (swingIteration % 2 == 0 ? currentProgress : 1 - currentProgress) : 1 - currentProgress;
 				angle += progress * weapon.attackAngle;
 				return angle;
 			}

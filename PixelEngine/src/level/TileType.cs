@@ -42,7 +42,7 @@ public class TileType
 
 	static TileType()
 	{
-		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/tiles.png", false), 16, 16);
+		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/tiles/tiles.png", false), 16, 16);
 
 		AddTileType(dummy = new TileType() { name = "dummy", visible = false }); // dummy collider
 		AddTileType(dirt = new TileType()

@@ -74,6 +74,7 @@ public class ActionQueue
 		{
 			if (actionQueue.Count >= MAX_ACTION_QUEUE_SIZE)
 				actionQueue.RemoveRange(1, actionQueue.Count - 1);
+			action.onQueued(player);
 			actionQueue.Add(action);
 			if (actionQueue[0] == action)
 				initializeAction(actionQueue[0]);

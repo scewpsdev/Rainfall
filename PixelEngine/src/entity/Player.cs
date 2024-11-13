@@ -33,7 +33,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public const float defaultSpeed = 6;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
-	public float jumpPower = 11; //12; //10.5f;
+	public float jumpPower = 10; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
 	public const float defaultManaRecoveryRate = 0.015f;
@@ -142,14 +142,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 0, 0, 16, 0, 4, 5, true);
-		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 12, true);
-		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 6, true);
-		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("dead_falling", 17 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("stun", 18 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("idle", 0, 0, 16, 0, 2, 3, true);
+		animator.addAnimation("run", 2 * 16, 0, 16, 0, 8, 16, true);
+		animator.addAnimation("jump", 10 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("fall", 11 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("climb", 12 * 16, 0, 16, 0, 2, 6, true);
+		animator.addAnimation("dead", 14 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("dead_falling", 15 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("stun", 16 * 16, 0, 16, 0, 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
@@ -1382,7 +1382,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 					if (InputManager.IsDown("Attack"))
 					{
-						if (false)//if (handItem.trigger)
+						if (handItem.trigger)
 						{
 							if (InputManager.IsPressed("Attack"))
 							{
@@ -1418,9 +1418,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 				else
 				{
-					if (InputManager.IsDown("Attack") && (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration))
+					if (InputManager.IsPressed("Attack", true) && (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration))
 					{
-						//InputManager.ConsumeEvent("Attack");
 						DefaultWeapon.instance.use(this);
 					}
 				}
@@ -1429,7 +1428,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					if (InputManager.IsDown("Attack2"))
 					{
-						if (false)//if (offhandItem.trigger)
+						if (offhandItem.trigger)
 						{
 							if (InputManager.IsPressed("Attack2", true))
 							{
@@ -1504,7 +1503,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						{
 							animator.setAnimation("run");
 							animator.startTime = startTime;
-							animator.getAnimation("run").fps = currentSpeedModifier * 12;
+							animator.getAnimation("run").fps = currentSpeedModifier * 14;
 						}
 						else
 						{
@@ -1647,7 +1646,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (item != DefaultWeapon.instance)
 				{
-					Vector2 weaponPosition = new Vector2(position.x + (item.renderOffset.x + getWeaponOrigin(mainHand).x) * direction, position.y + getWeaponOrigin(mainHand).y);
+					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 					if (particles != null)
 					{
@@ -1673,7 +1672,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			snappedPosition.x = MathF.Round(snappedPosition.x * 16) / 16;
 			snappedPosition.y = MathF.Round(snappedPosition.y * 16) / 16;
 
-			Renderer.DrawSprite(snappedPosition.x - 0.5f, snappedPosition.y, 1, isDucked ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
+			Renderer.DrawSprite(snappedPosition.x - 0.5f, snappedPosition.y, 1, isDucked && !isClimbing ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
 
 			if (handItem != null)
 				handItem.render(this);
@@ -1693,7 +1692,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			if (actions.currentAction == null || actions.currentAction.renderWeapon)
+			if (!isClimbing && (actions.currentAction == null || actions.currentAction.renderWeapon))
 			{
 				renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
 				renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);

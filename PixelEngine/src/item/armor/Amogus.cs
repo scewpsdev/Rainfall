@@ -22,6 +22,6 @@ public class Amogus : Item
 		value = 25;
 
 		sprite = new Sprite(tileset, 2, 5);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/amogus.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/amogus.png", false), 0, 0, 16, 16);
 	}
 }

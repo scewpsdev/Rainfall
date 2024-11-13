@@ -288,11 +288,6 @@ public static class Renderer
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
 
-			//u0 += 0.00001f;
-			//v0 += 0.00001f;
-			//u1 -= 0.00001f;
-			//v1 -= 0.00001f;
-
 			if (flipX)
 				MathHelper.Swap(ref u0, ref u1);
 			if (flipY)
@@ -376,11 +371,6 @@ public static class Renderer
 			v0 = sprite.uv0.y;
 			u1 = sprite.uv1.x;
 			v1 = sprite.uv1.y;
-
-			//u0 += 0.00001f;
-			//v0 += 0.00001f;
-			//u1 -= 0.00001f;
-			//v1 -= 0.00001f;
 
 			if (flipped)
 				MathHelper.Swap(ref u0, ref u1);
@@ -1166,6 +1156,8 @@ public static class Renderer
 
 		float cameraFractX = cameraX * 16 - MathF.Round(cameraX * 16);
 		float cameraFractY = cameraY * 16 - MathF.Round(cameraY * 16);
+		//cameraFractX = 0;
+		//cameraFractY = 0;
 		graphics.setUniform(blitShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, cameraFractX, cameraFractY));
 
 		graphics.setTexture(blitShader.getUniform("s_frame", UniformType.Sampler), 0, composite.getAttachmentTexture(0));

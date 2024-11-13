@@ -381,14 +381,14 @@ public class InventoryUI
 
 	public void render()
 	{
-		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory", true))
+		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsDown("Inventory"))
 		{
 			openScreen();
 			Audio.PlayBackground(UISound.uiClick);
 		}
 		else if (player.inventoryOpen)
 		{
-			if (InputManager.IsPressed("Inventory", true) || InputManager.IsPressed("UIQuit", true) || InputManager.IsPressed("UIBack", true))
+			if (!InputManager.IsDown("Inventory"))
 			{
 				closeScreen();
 				Audio.PlayBackground(UISound.uiBack);
@@ -399,11 +399,11 @@ public class InventoryUI
 		{
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
 
-			characterHeight = CharacterInfoPanel.Render(10, 50, 140, characterHeight, player);
+			characterHeight = CharacterInfoPanel.Render(5, 5, 140, characterHeight, player);
 
 			int width = 90;
-			int x = Renderer.UIWidth - 10 - width;
-			int y = 50;
+			int x = Renderer.UIWidth - 5 - width;
+			int y = 5;
 
 			inventoryHeight = DrawEquipment2(x, y, width, inventoryHeight, player, ref selectedItem, out Item selected);
 			if (selected != null)
@@ -491,8 +491,8 @@ public class InventoryUI
 		{
 			int width = 48;
 			int height = 32;
-			int x = Renderer.UIWidth - 10 - width;
-			int y = 10;
+			int x = Renderer.UIWidth - 5 - width;
+			int y = Renderer.UIHeight - 5 - height;
 
 			Vector2i playerTile = (Vector2i)Vector2.Floor(player.position + new Vector2(0, 0.5f));
 			int scrollx = playerTile.x - width / 2;

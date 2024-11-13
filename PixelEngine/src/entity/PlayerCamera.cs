@@ -73,11 +73,11 @@ public class PlayerCamera : Entity
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
 		HitData currentCameraFrame = GameState.instance.level.sample(position, FILTER_CAMERA_FRAME);
-		if (currentCameraFrame != null)
-		{
-			target = currentCameraFrame.entity.position;
-		}
-		else
+		//if (currentCameraFrame != null)
+		//{
+		//	target = currentCameraFrame.entity.position;
+		//}
+		//else
 		{
 			target = player.position + player.collider.center;
 		}
@@ -113,6 +113,8 @@ public class PlayerCamera : Entity
 		}
 
 		position = Vector2.Lerp(position, target, 8 * Time.deltaTime);
+		//velocity = Vector2.Lerp(velocity, player.velocity, 10 * Time.deltaTime);
+		//position += velocity * Time.deltaTime;
 
 		if (width < level.width)
 			position.x = MathHelper.Clamp(position.x, x0, x1);
@@ -146,8 +148,10 @@ public class PlayerCamera : Entity
 	{
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix transform = getTransform(currentScreenShake);
-		transform.m30 = MathF.Round(transform.m30 * 16) / 16;
-		transform.m31 = MathF.Round(transform.m31 * 16) / 16;
+		Vector2 toTarget = new Vector2(transform.m30, transform.m31) - target;
+		//toTarget = Vector2.Round(toTarget * 16) / 16;
+		transform.m30 = target.x + toTarget.x; //MathF.Round(transform.m30 * 16) / 16;
+		transform.m31 = target.y + toTarget.y; //MathF.Round(transform.m31 * 16) / 16;
 		Matrix view = transform.inverted;
 
 		Renderer.SetCamera(projection, view, position.x, position.y, width, height);

@@ -170,7 +170,7 @@ public class GameState : State
 
 			generator.generateCliffside(cliffside);
 			cliffside.addEntity(new Cliffside(cliffside.rooms[0]));
-			cliffside.bg = Resource.GetTexture("res/level/hub/bg.png", false);
+			cliffside.bg = Resource.GetTexture("res/level/cliffside/bg.png", false);
 			cliffside.ambientSound = Resource.GetSound("res/sounds/ambience4.ogg");
 			//cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
 

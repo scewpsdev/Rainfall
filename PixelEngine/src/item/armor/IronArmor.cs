@@ -20,6 +20,6 @@ public class IronArmor : Item
 		value = 12;
 
 		sprite = new Sprite(tileset, 12, 7);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/iron_armor.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/iron_armor.png", false), 0, 0, 16, 16);
 	}
 }

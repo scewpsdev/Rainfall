@@ -36,46 +36,50 @@ public class Entity : PhysicsEntity
 	//public Vector3 particleOffset = Vector3.Zero;
 
 
+	public void load(SceneFormat.EntityData entity, uint filterGroup = 1)
+	{
+		model = entity.model;
+
+		if (entity.rigidBodyType != RigidBodyType.Null)
+		{
+			body = new RigidBody(this, entity.rigidBodyType, filterGroup);
+			for (int i = 0; i < entity.colliders.Count; i++)
+			{
+				SceneFormat.ColliderData collider = entity.colliders[i];
+				if (collider.type == SceneFormat.ColliderType.Box)
+					body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+				else if (collider.type == SceneFormat.ColliderType.Sphere)
+					body.addSphereCollider(collider.radius, collider.offset);
+				else if (collider.type == SceneFormat.ColliderType.Capsule)
+					body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+				else if (collider.type == SceneFormat.ColliderType.Mesh)
+					body.addMeshColliders(collider.meshCollider, Matrix.Identity);
+				else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
+					body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity);
+				else
+					Debug.Assert(false);
+			}
+		}
+
+		for (int i = 0; i < entity.lights.Count; i++)
+		{
+			PointLight light = new PointLight(entity.lights[i].offset, entity.lights[i].color);
+			lights.Add(light);
+		}
+
+		for (int i = 0; i < entity.particles.Length; i++)
+		{
+			ParticleSystem system = ParticleSystem.Create(getModelMatrix());
+			system.setData(entity.particles[i]);
+			particles.Add(system);
+		}
+	}
+
 	protected void load(string path, uint filterGroup = 1)
 	{
 		if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out _))
 		{
-			SceneFormat.EntityData entity = entities[0];
-			model = entity.model;
-
-			if (entity.rigidBodyType != RigidBodyType.Null)
-			{
-				body = new RigidBody(this, entity.rigidBodyType, filterGroup);
-				for (int i = 0; i < entity.colliders.Count; i++)
-				{
-					SceneFormat.ColliderData collider = entity.colliders[i];
-					if (collider.type == SceneFormat.ColliderType.Box)
-						body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity);
-					else if (collider.type == SceneFormat.ColliderType.Sphere)
-						body.addSphereCollider(collider.radius, collider.offset);
-					else if (collider.type == SceneFormat.ColliderType.Capsule)
-						body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
-					else if (collider.type == SceneFormat.ColliderType.Mesh)
-						body.addMeshColliders(collider.meshCollider, Matrix.Identity);
-					else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
-						body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity);
-					else
-						Debug.Assert(false);
-				}
-			}
-
-			for (int i = 0; i < entity.lights.Count; i++)
-			{
-				PointLight light = new PointLight(position + entity.lights[i].offset, entity.lights[i].color);
-				lights.Add(light);
-			}
-
-			for (int i = 0; i < entity.particles.Length; i++)
-			{
-				ParticleSystem system = ParticleSystem.Create(getModelMatrix());
-				system.setData(entity.particles[i]);
-				particles.Add(system);
-			}
+			load(entities[0], filterGroup);
 		}
 	}
 

@@ -13,7 +13,7 @@ public static class CharacterInfoPanel
 		Player player = GameState.instance.player;
 
 		int size = 16;
-		int xx = x + width / 2 - size / 2;
+		int xx = x + width / 2;
 		int yy = y + size * 3 / 4;
 		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
 
@@ -52,13 +52,13 @@ public static class CharacterInfoPanel
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
 		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF111111);
 
-		y += 4;
+		//y += 4;
 
-		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP("Character").x / 2, y, "Character", 1, UIColors.TEXT);
+		//Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP("Character").x / 2, y, "Character", 1, UIColors.TEXT);
 
-		y += Renderer.smallFont.size + 4;
+		//y += Renderer.smallFont.size + 4;
 
-		RenderPlayer(x + 4, y, 32, 32);
+		RenderPlayer(x + 4, y, 16, 16);
 
 		string className = player.startingClass != null ? player.startingClass.name : "No Class";
 		uint classColor = player.startingClass != null ? player.startingClass.color : UIColors.TEXT_SUBTLE;
@@ -129,26 +129,26 @@ public static class CharacterInfoPanel
 
 		drawLeft("Health", UIColors.TEXT_HEALTH);
 		drawRight(formatValue(player.health) + "/" + formatValue(player.maxHealth), UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLeft("Mana", UIColors.TEXT_MANA);
 		drawRight(formatValue(player.mana) + "/" + formatValue(player.maxMana), UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 		drawLeft("Mana Recovery Rate", UIColors.TEXT_MANA);
 		drawRightValueRelative(player.getManaRecoveryModifier(), 1, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLeft("Speed", UIColors.TEXT_SPEED);
 		drawRightValueCompare(player.speed, Player.defaultSpeed, UIColors.TEXT, UIColors.TEXT_UPGRADE, UIColors.TEXT_DOWNGRADE);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLeft("Equip Load", UIColors.TEXT_SPEED);
 		drawRightValueCompare(player.getTotalEquipLoad(), 10, UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLeft("Armor", UIColors.TEXT_ARMOR);
 		drawRightValue(player.getTotalArmor(), UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		y += 4;
 
@@ -163,35 +163,35 @@ public static class CharacterInfoPanel
 		}
 
 		drawLevel("HP", ref player.hp, UIColors.TEXT_HEALTH);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLevel("MP", ref player.magic, UIColors.TEXT_MANA);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLevel("STR", ref player.strength, UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLevel("DEX", ref player.dexterity, UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLevel("INT", ref player.intelligence, UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		y += 4;
 
 		drawLeft("Attack Damage", UIColors.TEXT);
 		drawRightValueRelative(player.getMeleeDamageModifier(), 1);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 		drawLeft("Attack Speed", UIColors.TEXT);
 		drawRightValueRelative(player.getAttackSpeedModifier(), 1);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		drawLeft("Critical Hit Chance", UIColors.TEXT);
 		drawRightValueCompare(player.criticalChance * player.getCriticalChanceModifier(), 1, UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 		drawLeft("Critical Hit Damage", UIColors.TEXT);
 		drawRightValueCompare(player.getCriticalAttackModifier(), 1, UIColors.TEXT);
-		y += Renderer.smallFont.size + 1;
+		y += Renderer.smallFont.size;
 
 		y += -2 + 4;
 

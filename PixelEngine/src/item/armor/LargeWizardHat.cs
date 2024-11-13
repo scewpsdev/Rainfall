@@ -20,7 +20,7 @@ public class LargeWizardHat : Item
 		value = 12;
 
 		sprite = new Sprite(tileset, 9, 4);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/wizards_hat.png", false), 0, 0, 32, 32);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/wizards_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteSize = 2;
 
 		buff = new ItemBuff() { manaRecoveryModifier = 2 };

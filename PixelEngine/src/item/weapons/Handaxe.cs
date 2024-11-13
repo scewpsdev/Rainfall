@@ -14,7 +14,7 @@ public class Handaxe : Item
 		displayName = "Handaxe";
 
 		baseDamage = 1.5f;
-		baseAttackRange = 1.2f;
+		baseAttackRange = 0.8f;
 		baseAttackRate = 1.5f;
 		stab = false;
 
@@ -22,6 +22,7 @@ public class Handaxe : Item
 		projectileSpins = true;
 		projectileSticks = true;
 		doubleBladed = false;
+		secondaryChargeTime = 0.25f;
 
 		value = 5;
 
