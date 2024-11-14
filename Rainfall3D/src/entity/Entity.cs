@@ -38,6 +38,8 @@ public class Entity : PhysicsEntity
 
 	public void load(SceneFormat.EntityData entity, uint filterGroup = 1)
 	{
+		name = entity.name;
+		isStatic = entity.isStatic;
 		model = entity.model;
 
 		if (entity.rigidBodyType != RigidBodyType.Null)
@@ -177,7 +179,7 @@ public class Entity : PhysicsEntity
 	{
 		Matrix transform = getModelMatrix();
 		if (model != null)
-			Renderer.DrawModel(model, transform * modelTransform, animator);
+			Renderer.DrawModel(model, transform * modelTransform, animator, isStatic);
 		for (int i = 0; i < lights.Count; i++)
 			Renderer.DrawPointLight(lights[i], transform);
 		for (int i = 0; i < particles.Count; i++)
