@@ -163,6 +163,7 @@ public static class SceneFormat
 			colliders = new List<ColliderData>();
 
 			lights = new List<LightData>();
+			particles = new ParticleSystemData[0];
 			//particles = new List<ParticleSystemData>();
 		}
 

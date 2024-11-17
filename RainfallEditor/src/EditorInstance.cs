@@ -151,7 +151,9 @@ public class EditorInstance
 	{
 		string name = newEntityName();
 		Entity entity = new Entity(name);
+		entity.reload();
 		entities.Add(entity);
+		entities.Sort((Entity e1, Entity e2) => e1.data.name.CompareTo(e2.data.name));
 		selectedEntity = entity.data.id;
 		notifyEdit();
 		return entity;
@@ -193,7 +195,7 @@ public class EditorInstance
 
 		Renderer.Begin();
 		float aspect = EditorUI.currentViewportSize.x / EditorUI.currentViewportSize.y;
-		Renderer.SetCamera(camera.position, camera.rotation, camera.getProjectionMatrix(aspect), Camera.FOV, aspect, Camera.NEAR, Camera.FAR);
+		Renderer.SetCamera(camera.position, camera.rotation, Camera.FOV, aspect, Camera.NEAR, Camera.FAR);
 
 		Renderer.DrawEnvironmentMap(environmentMap, 0.1f);
 

@@ -36,7 +36,7 @@ public class Entity : PhysicsEntity
 	//public Vector3 particleOffset = Vector3.Zero;
 
 
-	public void load(SceneFormat.EntityData entity, uint filterGroup = 1)
+	public void load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1)
 	{
 		name = entity.name;
 		isStatic = entity.isStatic;
@@ -44,22 +44,52 @@ public class Entity : PhysicsEntity
 
 		if (entity.rigidBodyType != RigidBodyType.Null)
 		{
-			body = new RigidBody(this, entity.rigidBodyType, filterGroup);
+			body = new RigidBody(this, entity.rigidBodyType, filterGroup, filterMask);
 			for (int i = 0; i < entity.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData collider = entity.colliders[i];
-				if (collider.type == SceneFormat.ColliderType.Box)
-					body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity);
-				else if (collider.type == SceneFormat.ColliderType.Sphere)
-					body.addSphereCollider(collider.radius, collider.offset);
-				else if (collider.type == SceneFormat.ColliderType.Capsule)
-					body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
-				else if (collider.type == SceneFormat.ColliderType.Mesh)
-					body.addMeshColliders(collider.meshCollider, Matrix.Identity);
-				else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
-					body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity);
+				if (collider.trigger)
+				{
+					if (collider.type == SceneFormat.ColliderType.Box)
+						body.addBoxTrigger(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+					else if (collider.type == SceneFormat.ColliderType.Sphere)
+						body.addSphereTrigger(collider.radius, collider.offset);
+					else if (collider.type == SceneFormat.ColliderType.Capsule)
+						body.addCapsuleTrigger(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+					else if (collider.type == SceneFormat.ColliderType.Mesh)
+					{
+						if (collider.meshCollider != null)
+							body.addMeshTriggers(collider.meshCollider, Matrix.Identity);
+					}
+					else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
+					{
+						if (collider.meshCollider != null)
+							body.addConvexMeshTriggers(collider.meshCollider, Matrix.Identity);
+					}
+					else
+						Debug.Assert(false);
+				}
 				else
-					Debug.Assert(false);
+				{
+					if (collider.type == SceneFormat.ColliderType.Box)
+						body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+					else if (collider.type == SceneFormat.ColliderType.Sphere)
+						body.addSphereCollider(collider.radius, collider.offset);
+					else if (collider.type == SceneFormat.ColliderType.Capsule)
+						body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+					else if (collider.type == SceneFormat.ColliderType.Mesh)
+					{
+						if (collider.meshCollider != null)
+							body.addMeshColliders(collider.meshCollider, Matrix.Identity);
+					}
+					else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
+					{
+						if (collider.meshCollider != null)
+							body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity);
+					}
+					else
+						Debug.Assert(false);
+				}
 			}
 		}
 

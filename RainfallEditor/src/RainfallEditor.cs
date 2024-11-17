@@ -202,7 +202,7 @@ public unsafe class RainfallEditor : Game
 			entityData.modelPath = StringUtils.RelativePath(entityData.modelPath, instance.path);
 			entityData.colliders = new List<SceneFormat.ColliderData>(entityData.colliders);
 			entityData.lights = new List<SceneFormat.LightData>(entityData.lights);
-			entityData.particles = ArrayUtils.Copy(entityData.particles);
+			entityData.particles = entityData.particles != null ? ArrayUtils.Copy(entityData.particles) : null;
 
 			for (int j = 0; j < entityData.colliders.Count; j++)
 			{
@@ -211,7 +211,7 @@ public unsafe class RainfallEditor : Game
 					collider.meshColliderPath = StringUtils.RelativePath(collider.meshColliderPath, instance.path);
 				entityData.colliders[j] = collider;
 			}
-			for (int j = 0; j < entityData.particles.Length; j++)
+			for (int j = 0; entityData.particles != null && j < entityData.particles.Length; j++)
 			{
 				ParticleSystemData particles = entityData.particles[j];
 				if (particles.textureAtlasPath[0] != 0)
@@ -352,13 +352,17 @@ public unsafe class RainfallEditor : Game
 
 	public static void Main(string[] args)
 	{
+#if DEBUG
 		string config = "Debug";
+#else
+		string config = "Release";
+#endif
 
 		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0");
 		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0");
 
 		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
-		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
+		//RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
 
 		LaunchParams launchParams = new LaunchParams(args);
 		launchParams.width = 1600;

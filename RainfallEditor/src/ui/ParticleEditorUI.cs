@@ -17,7 +17,7 @@ public partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Particles", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			for (int i = 0; i < entity.data.particles.Length; i++)
+			for (int i = 0; entity.data.particles != null && i < entity.data.particles.Length; i++)
 			{
 				ParticleSystemData particles = entity.data.particles[i];
 
@@ -260,9 +260,9 @@ public partial class EditorUI
 					//if (ImGui.ColorEdit4("##color" + i, &color, ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.NoInputs))
 					//	particles.color = color;
 
-					bool additive = particles.additive != 0;
+					bool additive = particles.additive;
 					Checkbox(instance, "Additive", "particle_additive" + i, ref additive);
-					particles.additive = (byte)(additive ? 1 : 0);
+					particles.additive = additive;
 
 					//ImGui.TextUnformatted("Additive");
 					//ImGui.SameLine(SPACING_X);
@@ -470,7 +470,7 @@ public partial class EditorUI
 				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##particles_remove" + i))
 				{
-					ArrayUtils.RemoveAt(entity.data.particles, i--);
+					entity.data.particles = ArrayUtils.RemoveAt(entity.data.particles, i--);
 					//entity.data.particles.RemoveAt(i--);
 					instance.notifyEdit();
 					ImGui.SetCursorPos(cursorPos);
@@ -486,7 +486,7 @@ public partial class EditorUI
 			if (ImGui.Button("Add Particle Effect"))
 			{
 				ParticleSystemData particles = new ParticleSystemData(0) { transform = entity.getModelMatrix() };
-				ArrayUtils.Add(entity.data.particles, particles);
+				entity.data.particles = ArrayUtils.Add(entity.data.particles, particles);
 				//entity.data.particles.Add(particles);
 				instance.notifyEdit();
 			}

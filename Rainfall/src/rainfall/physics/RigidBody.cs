@@ -168,9 +168,35 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyAddMeshTrigger(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask);
 		}
 
+		public MeshCollider addMeshTrigger(Model model, int meshIdx, Matrix transform)
+		{
+			MeshCollider mesh = Physics.CreateMeshCollider(model, meshIdx);
+			addMeshTrigger(mesh, transform);
+			return mesh;
+		}
+
+		public void addMeshTriggers(Model model, Matrix transform)
+		{
+			for (int i = 0; i < model.meshCount; i++)
+				addMeshTrigger(model, i, transform);
+		}
+
 		public void addConvexMeshTrigger(ConvexMeshCollider mesh, Matrix transform)
 		{
 			Native.Physics.Physics_RigidBodyAddConvexMeshTrigger(body, mesh.handle, transform * mesh.transform, filterGroup, filterMask);
+		}
+
+		public ConvexMeshCollider addConvexMeshTrigger(Model model, int meshIdx, Matrix transform)
+		{
+			ConvexMeshCollider mesh = Physics.CreateConvexMeshCollider(model, meshIdx);
+			addConvexMeshTrigger(mesh, transform);
+			return mesh;
+		}
+
+		public void addConvexMeshTriggers(Model model, Matrix transform)
+		{
+			for (int i = 0; i < model.meshCount; i++)
+				addConvexMeshTrigger(model, i, transform);
 		}
 
 		public void clearColliders()

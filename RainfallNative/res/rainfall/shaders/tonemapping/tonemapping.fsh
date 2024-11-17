@@ -108,9 +108,7 @@ void main()
 	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
 	hdr *= exposure;
 	vec3 tonemapped = Tonemap(hdr);
-	tonemapped = BayerDither(tonemapped, v_texcoord0);
+	//tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);
-	//gl_FragDepth = texture2D(s_depth, v_texcoord0).r;
-	//gl_FragColor = vec4(vec3_splat(texture2D(s_hdrBuffer, v_texcoord0).r), 1);
 }
