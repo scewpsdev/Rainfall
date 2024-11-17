@@ -147,13 +147,18 @@ public class EditorInstance
 		return name;
 	}
 
+	public void sortEntities()
+	{
+		entities.Sort((Entity e1, Entity e2) => e1.data.name.CompareTo(e2.data.name));
+	}
+
 	public Entity newEntity()
 	{
 		string name = newEntityName();
 		Entity entity = new Entity(name);
 		entity.reload();
 		entities.Add(entity);
-		entities.Sort((Entity e1, Entity e2) => e1.data.name.CompareTo(e2.data.name));
+		sortEntities();
 		selectedEntity = entity.data.id;
 		notifyEdit();
 		return entity;
@@ -166,6 +171,16 @@ public class EditorInstance
 		entity.destroy();
 		entities.Remove(entity);
 		notifyEdit();
+	}
+
+	public void duplicateEntity(Entity entity)
+	{
+		Entity e = newEntity();
+		uint newID = e.data.id;
+		e.data = SceneFormat.DeserializeEntity(SceneFormat.SerializeEntity(entity.data));
+		e.data.id = newID;
+		e.data.name = e.data.name + "_copy";
+		sortEntities();
 	}
 
 	public void update()
@@ -197,7 +212,7 @@ public class EditorInstance
 		float aspect = EditorUI.currentViewportSize.x / EditorUI.currentViewportSize.y;
 		Renderer.SetCamera(camera.position, camera.rotation, Camera.FOV, aspect, Camera.NEAR, Camera.FAR);
 
-		Renderer.DrawEnvironmentMap(environmentMap, 0.1f);
+		Renderer.DrawEnvironmentMap(environmentMap, 0.2f);
 
 		int gridSize = 10;
 		uint gridColor = 0xFF1F1F1F; ;

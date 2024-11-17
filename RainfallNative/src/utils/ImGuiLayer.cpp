@@ -485,6 +485,9 @@ void ImGuiLayerEndFrame()
 {
 	ImGui::Render();
 	ImGuiLayerDraw(ImGui::GetDrawData());
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.MouseWheel = 0;
 }
 
 RFAPI int ImGui_TranslateKey(KeyCode key)
@@ -652,7 +655,7 @@ bool ImGuiLayerProcessEvent(const Event* ev)
 		if (mouseEvent->move)
 		{
 			io.MousePos = ImVec2((float)mouseEvent->x, (float)mouseEvent->y);
-			io.MouseWheel = (float)(mouseEvent->z - m_lastScroll);
+			io.MouseWheel += (float)(mouseEvent->z - m_lastScroll);
 			m_lastScroll = mouseEvent->z;
 
 			if (imguiHovered)

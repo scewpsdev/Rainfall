@@ -88,7 +88,7 @@ namespace Rainfall
 
 		public string stringContent
 		{
-			get => str.Substring(1, str.Length - 2);
+			get => str;
 		}
 	}
 
@@ -782,7 +782,8 @@ namespace Rainfall
 
 		string readString(int length)
 		{
-			return state.read(length);
+			string str = state.read(length);
+			return str.Substring(1, str.Length - 2);
 		}
 
 		string readIdentifier(int length)

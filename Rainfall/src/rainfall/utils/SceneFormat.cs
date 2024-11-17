@@ -191,7 +191,7 @@ public static class SceneFormat
 	}
 
 
-	static unsafe DatObject SerializeEntity(EntityData entity)
+	public static unsafe DatObject SerializeEntity(EntityData entity)
 	{
 		DatObject obj = new DatObject();
 
@@ -371,7 +371,7 @@ public static class SceneFormat
 		return data;
 	}
 
-	static unsafe EntityData DeserializeEntity(DatObject obj)
+	public static unsafe EntityData DeserializeEntity(DatObject obj)
 	{
 		obj.getStringContent("name", out string name);
 		obj.getStringContent("id", out string idStr);
