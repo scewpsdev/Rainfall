@@ -44,7 +44,10 @@ public class Entity : PhysicsEntity
 
 		if (entity.rigidBodyType != RigidBodyType.Null)
 		{
-			body = new RigidBody(this, entity.rigidBodyType, filterGroup, filterMask);
+			Vector3 centerOfMass = Vector3.Zero;
+			if (entity.model != null)
+				centerOfMass = entity.model.boundingSphere.center;
+			body = new RigidBody(this, entity.rigidBodyType, 1, centerOfMass, filterGroup, filterMask);
 			for (int i = 0; i < entity.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData collider = entity.colliders[i];
@@ -89,6 +92,57 @@ public class Entity : PhysicsEntity
 					}
 					else
 						Debug.Assert(false);
+				}
+			}
+		}
+
+		if (entity.boneColliders != null)
+		{
+			hitboxData = new Dictionary<string, SceneFormat.ColliderData>();
+			hitboxes = new Dictionary<string, RigidBody>();
+
+			foreach (string nodeName in entity.boneColliders.Keys)
+			{
+				RigidBody boneCollider = new RigidBody(this, RigidBodyType.Kinematic, hitboxFilterGroup, hitboxFilterMask);
+				hitboxData.Add(nodeName, entity.boneColliders[nodeName]);
+				hitboxes.Add(nodeName, boneCollider);
+
+				SceneFormat.ColliderData colliderData = entity.boneColliders[nodeName];
+				if (colliderData.trigger)
+				{
+					switch (colliderData.type)
+					{
+						case SceneFormat.ColliderType.Box:
+							boneCollider.addBoxTrigger(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						case SceneFormat.ColliderType.Sphere:
+							boneCollider.addSphereTrigger(colliderData.radius, colliderData.offset);
+							break;
+						case SceneFormat.ColliderType.Capsule:
+							boneCollider.addCapsuleTrigger(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						default:
+							Debug.Assert(false);
+							break;
+					}
+				}
+				else
+				{
+					switch (colliderData.type)
+					{
+						case SceneFormat.ColliderType.Box:
+							boneCollider.addBoxCollider(colliderData.size * 0.5f, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						case SceneFormat.ColliderType.Sphere:
+							boneCollider.addSphereCollider(colliderData.radius, colliderData.offset);
+							break;
+						case SceneFormat.ColliderType.Capsule:
+							boneCollider.addCapsuleCollider(colliderData.radius, colliderData.height, colliderData.offset, Quaternion.FromEulerAngles(colliderData.eulers));
+							break;
+						default:
+							Debug.Assert(false);
+							break;
+					}
 				}
 			}
 		}

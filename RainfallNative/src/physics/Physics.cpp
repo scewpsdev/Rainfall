@@ -940,6 +940,15 @@ RFAPI void Physics_RigidBodyAddAcceleration(RigidBody* body, Vector3 acceleratio
 	}
 }
 
+RFAPI void Physics_RigidBodyAddImpulse(RigidBody* body, Vector3 impulse)
+{
+	if (body->type == RigidBodyType::Dynamic)
+	{
+		PxRigidBody* dynamic = body->actor->is<PxRigidBody>();
+		dynamic->addForce(PxVec3(impulse.x, impulse.y, impulse.z), PxForceMode::eIMPULSE);
+	}
+}
+
 RFAPI void Physics_RigidBodyGetTransform(RigidBody* body, Vector3* outPosition, Quaternion* outRotation)
 {
 	if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())

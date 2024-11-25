@@ -262,6 +262,11 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyAddAcceleration(body, acceleration);
 		}
 
+		public void addImpulse(Vector3 impulse)
+		{
+			Native.Physics.Physics_RigidBodyAddAcceleration(body, impulse);
+		}
+
 		public void lockAxis(bool x, bool y, bool z)
 		{
 			Native.Physics.Physics_RigidBodyLockAxis(body, x ? (byte)1 : (byte)0, y ? (byte)1 : (byte)0, z ? (byte)1 : (byte)0);

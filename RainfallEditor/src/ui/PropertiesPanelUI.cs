@@ -278,7 +278,7 @@ public static partial class EditorUI
 							{
 								float radius = 0.05f;
 								float distanceToEnd;
-								bool isLeafNode = node.children.Length == 0;
+								bool isLeafNode = node.children == null;
 								if (isLeafNode)
 									distanceToEnd = 0.05f;
 								else
@@ -288,6 +288,7 @@ public static partial class EditorUI
 									entity.data.boneColliders.Add(node.name, collider);
 							}
 						}
+						instance.notifyEdit();
 					}
 				}
 			}
