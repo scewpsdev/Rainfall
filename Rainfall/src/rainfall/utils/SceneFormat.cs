@@ -606,7 +606,7 @@ public static class SceneFormat
 			EntityData entity = entities[j];
 
 			if (entity.modelPath != null)
-				entity.model = Resource.GetModel(StringUtils.AbsolutePath(entity.modelPath, path));
+				entity.model = Resource.GetModel(StringUtils.AbsolutePath(entity.modelPath, path), false);
 
 			for (int i = 0; i < entity.colliders.Count; i++)
 			{
