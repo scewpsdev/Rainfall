@@ -291,6 +291,7 @@ public static class SceneFormat
 				particle.addString("textureAtlas", new string((sbyte*)particleData.textureAtlasPath));
 				particle.addVector2("atlasSize", (Vector2)particleData.atlasSize);
 				particle.addNumber("numFrames", particleData.numFrames);
+				particle.addBoolean("randomFrame", particleData.randomFrame != 0);
 				particle.addBoolean("linearFiltering", particleData.linearFiltering != 0);
 			}
 
@@ -306,11 +307,12 @@ public static class SceneFormat
 			particle.addNumber("velocityNoise", particleData.velocityNoise);
 
 			if (particleData.sizeAnim.count > 0)
-				particle.addVector2("sizeAnim", new Vector2(particleData.sizeAnim.value0.value, particleData.sizeAnim.value1.value));
+				particle.addVector3("sizeAnim", new Vector3(particleData.sizeAnim.value0.value, particleData.sizeAnim.value1.value, particleData.sizeAnim.value2.value));
 			if (particleData.colorAnim.count > 0)
 			{
-				particle.addVector4("colorAnimStart", particleData.colorAnim.value0.value);
-				particle.addVector4("colorAnimEnd", particleData.colorAnim.value1.value);
+				particle.addVector4("colorAnim0", particleData.colorAnim.value0.value);
+				particle.addVector4("colorAnim1", particleData.colorAnim.value1.value);
+				particle.addVector4("colorAnim2", particleData.colorAnim.value2.value);
 			}
 
 			if (particleData.bursts != null)
@@ -478,29 +480,16 @@ public static class SceneFormat
 					if (particle.getVector2("atlasSize", out Vector2 atlasSize))
 						particleData.atlasSize = (Vector2i)Vector2.Round(atlasSize);
 					particle.getInteger("numFrames", out particleData.numFrames);
+					if (particle.getBoolean("randomFrame", out bool randomFrame))
+						particleData.randomFrame = (byte)(randomFrame ? 1 : 0);
 					if (particle.getBoolean("linearFiltering", out bool linearFiltering))
 						particleData.linearFiltering = (byte)(linearFiltering ? 1 : 0);
 				}
 
 				particle.getVector4("color", out particleData.color);
 				if (particle.getBoolean("additive", out bool additive))
-				{
 					particleData.additive = additive;
-
-					// for compatibility reasons
-					if (additive)
-					{
-						particleData.emissiveIntensity = 1;
-						particleData.lightInfluence = 0;
-					}
-					else
-					{
-						particleData.emissiveIntensity = 0;
-						particleData.lightInfluence = 1;
-					}
-				}
-				else
-					particle.getNumber("emissiveIntensity", out particleData.emissiveIntensity);
+				particle.getNumber("emissiveIntensity", out particleData.emissiveIntensity);
 
 				particle.getVector3("randomVelocity", out particleData.randomVelocity);
 				particle.getNumber("randomRotation", out particleData.randomRotation);
@@ -508,12 +497,23 @@ public static class SceneFormat
 				particle.getNumber("randomLifetime", out particleData.randomLifetime);
 				particle.getNumber("velocityNoise", out particleData.velocityNoise);
 
-				if (particle.getVector2("sizeAnim", out Vector2 sizeAnim))
-					particleData.sizeAnim = new Gradient_float_2 { value0 = { value = sizeAnim.x, position = 0 }, value1 = { value = sizeAnim.y, position = 1 }, count = 2 };
-				if (particle.getVector4("colorAnimStart", out Vector4 colorAnimStart))
+				if (particle.getVector3("sizeAnim", out Vector3 sizeAnim))
+					particleData.sizeAnim = new Gradient_float_3 { value0 = { value = sizeAnim.x, position = 0 }, value1 = { value = sizeAnim.y, position = 0.5f }, value2 = { value = sizeAnim.z, position = 1.0f }, count = 3 };
+				// Compatibility
+				if (particle.getVector2("sizeAnim", out Vector2 _sizeAnim))
+					particleData.sizeAnim = new Gradient_float_3 { value0 = { value = _sizeAnim.x, position = 0 }, value1 = { value = _sizeAnim.y, position = 1 }, value2 = { value = _sizeAnim.y, position = 1 }, count = 3 };
+
+				if (particle.getVector4("colorAnim0", out Vector4 colorAnim0))
 				{
-					particle.getVector4("colorAnimEnd", out Vector4 colorAnimEnd);
-					particleData.colorAnim = new Gradient_Vector4_2 { value0 = { value = colorAnimStart, position = 0 }, value1 = { value = colorAnimEnd, position = 1 }, count = 2 };
+					particle.getVector4("colorAnim1", out Vector4 colorAnim1);
+					particle.getVector4("colorAnim2", out Vector4 colorAnim2);
+					particleData.colorAnim = new Gradient_Vector4_3 { value0 = { value = colorAnim0, position = 0 }, value1 = { value = colorAnim1, position = 0.5f }, value2 = { value = colorAnim2, position = 1 }, count = 3 };
+				}
+				// Compatibility
+				if (particle.getVector4("colorAnimStart", out Vector4 _colorAnim0))
+				{
+					particle.getVector4("colorAnimEnd", out Vector4 _colorAnim1);
+					particleData.colorAnim = new Gradient_Vector4_3 { value0 = { value = _colorAnim0, position = 0 }, value1 = { value = _colorAnim1, position = 0.5f }, value2 = { value = _colorAnim1, position = 1.0f }, count = 3 };
 				}
 
 				if (particle.getArray("bursts", out DatArray bursts))

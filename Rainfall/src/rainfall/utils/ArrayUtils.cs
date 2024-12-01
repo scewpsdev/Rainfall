@@ -44,4 +44,11 @@ public static class ArrayUtils
 		Array.Copy(arr, index, newArr, 0, count);
 		return newArr;
 	}
+
+	public static T[] Resize<T>(T[] arr, int newCount)
+	{
+		T[] newArr = new T[newCount];
+		Array.Copy(arr, newArr, Math.Min(arr.Length, newCount));
+		return newArr;
+	}
 }

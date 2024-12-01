@@ -76,6 +76,7 @@ struct ParticleSystem
 	uint16_t textureAtlas = bgfx::kInvalidHandle;
 	Vector2i atlasSize = Vector2i(1);
 	int numFrames = 1;
+	bool randomFrame = false;
 	bool linearFiltering = false;
 
 	Vector4 color = Vector4::One;
@@ -89,8 +90,8 @@ struct ParticleSystem
 	float randomLifetime = 0;
 	float velocityNoise = 0;
 
-	Gradient<float, 2> sizeAnim;
-	Gradient<Vector4, 2> colorAnim;
+	Gradient<float, 3> sizeAnim;
+	Gradient<Vector4, 3> colorAnim;
 
 	int numBursts = 0;
 	ParticleBurst* bursts;

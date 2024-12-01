@@ -59,6 +59,7 @@ vec3 Tonemap(vec3 color)
 	//color = toFilmic(color);
 
 	color = toAcesFilmic(color * 2);
+	//color = linearToSRGB(color);
 	color = pow(color, vec3_splat(1.0 / 2.2)); // Gamma correction
 
 	return color;

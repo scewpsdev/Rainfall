@@ -17,7 +17,7 @@ public partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Particles", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			for (int i = 0; entity.data.particles != null && i < entity.data.particles.Length; i++)
+			for (int i = 0; entity.particles != null && i < entity.particles.Length; i++)
 			{
 				//ParticleSystemData particles = entity.data.particles[i];
 				ParticleSystemData* particles = entity.particles[i].handle;
@@ -204,7 +204,7 @@ public partial class EditorUI
 					ImGui.Spacing();
 					ImGui.Spacing();
 
-					string textureAtlasPath = null;
+					string textureAtlasPath = new string((sbyte*)particles->textureAtlasPath);
 					if (FileSelect("Texture Atlas", "particle_atlas" + i, ref textureAtlasPath, "png"))
 					{
 						StringUtils.WriteString(particles->textureAtlasPath, textureAtlasPath);
@@ -235,6 +235,10 @@ public partial class EditorUI
 						//int numFrames = particles->numFrames;
 						//if (ImGui.DragInt("##frame_count" + i, &numFrames, 0.1f, 1, 100))
 						//	particles->numFrames = numFrames;
+
+						bool randomFrame = particles->randomFrame != 0;
+						Checkbox(instance, "Random Frame", "random_frame" + i, ref randomFrame);
+						particles->randomFrame = (byte)(randomFrame ? 1 : 0);
 
 						bool linearFiltering = particles->linearFiltering != 0;
 						Checkbox(instance, "Linear Filtering", "particle_linear_filtering" + i, ref linearFiltering);
@@ -318,23 +322,27 @@ public partial class EditorUI
 					if (animateSizeEnabled != (particles->sizeAnim.count > 0))
 					{
 						if (animateSizeEnabled)
-							particles->sizeAnim = new Gradient_float_2 { value0 = new Gradient_float_2.Value { value = 0.1f, position = 0 }, value1 = new Gradient_float_2.Value { value = 0.0f, position = 1 }, count = 2 };
+							particles->sizeAnim = new Gradient_float_3 { value0 = new Gradient_float_3.Value { value = 0.1f, position = 0 }, value1 = new Gradient_float_3.Value { value = 0.05f, position = 0.5f }, value2 = new Gradient_float_3.Value { value = 0.0f, position = 1 }, count = 3 };
 						else
-							particles->sizeAnim = new Gradient_float_2 { count = 0 };
+							particles->sizeAnim = new Gradient_float_3 { count = 0 };
 					}
 					if (animateSizeOpen)
 					{
 						if (particles->sizeAnim.count > 0)
 						{
-							float startValue = particles->sizeAnim.value0.value;
-							if (DragFloat(instance, "From", "particle_size_anim_start" + i, ref startValue, 0.001f, 0, 10))
-								particles->sizeAnim.value0 = new Gradient_float_2.Value { value = startValue, position = 0 };
+							float value0 = particles->sizeAnim.value0.value;
+							if (DragFloat(instance, "Size 0", "particle_size_anim0" + i, ref value0, 0.001f, 0, 10))
+								particles->sizeAnim.value0 = new Gradient_float_3.Value { value = value0, position = 0 };
 
-							float endValue = particles->sizeAnim.value1.value;
-							if (DragFloat(instance, "To", "particle_size_anim_end" + i, ref endValue, 0.001f, 0, 10))
-								particles->sizeAnim.value1 = new Gradient_float_2.Value { value = endValue, position = 1 };
+							float value1 = particles->sizeAnim.value1.value;
+							if (DragFloat(instance, "Size 1", "particle_size_anim1" + i, ref value1, 0.001f, 0, 10))
+								particles->sizeAnim.value1 = new Gradient_float_3.Value { value = value1, position = 0.5f };
 
-							particles->sizeAnim.count = 2;
+							float value2 = particles->sizeAnim.value2.value;
+							if (DragFloat(instance, "Size 2", "particle_size_anim2" + i, ref value2, 0.001f, 0, 10))
+								particles->sizeAnim.value2 = new Gradient_float_3.Value { value = value2, position = 1 };
+
+							particles->sizeAnim.count = 3;
 						}
 
 						ImGui.TreePop();
@@ -376,23 +384,27 @@ public partial class EditorUI
 					if (animateColorEnabled != (particles->colorAnim.count > 0))
 					{
 						if (animateColorEnabled)
-							particles->colorAnim = new Gradient_Vector4_2 { value0 = new Gradient_Vector4_2.Value { value = new Vector4(1), position = 0 }, value1 = new Gradient_Vector4_2.Value { value = new Vector4(0.5f, 0.5f, 0.5f, 1.0f), position = 1 }, count = 2 };
+							particles->colorAnim = new Gradient_Vector4_3 { value0 = new Gradient_Vector4_3.Value { value = new Vector4(1.0f), position = 0 }, value1 = new Gradient_Vector4_3.Value { value = new Vector4(1.0f), position = 0.5f }, value2 = new Gradient_Vector4_3.Value { value = new Vector4(1.0f), position = 1 }, count = 3 };
 						else
-							particles->colorAnim = new Gradient_Vector4_2 { count = 0 };
+							particles->colorAnim = new Gradient_Vector4_3 { count = 0 };
 					}
 					if (animateColorOpen)
 					{
 						if (particles->colorAnim.count > 0)
 						{
-							Vector4 startValue = particles->colorAnim.value0.value;
-							if (ColorEdit4(instance, "From", "particle_color_anim_start" + i, ref startValue, true))
-								particles->colorAnim.value0 = new Gradient_Vector4_2.Value { value = startValue, position = 0 };
+							Vector4 value0 = particles->colorAnim.value0.value;
+							if (ColorEdit4(instance, "Color 0", "particle_color_anim0" + i, ref value0, true))
+								particles->colorAnim.value0 = new Gradient_Vector4_3.Value { value = value0, position = 0 };
 
-							Vector4 endValue = particles->colorAnim.value1.value;
-							if (ColorEdit4(instance, "To", "particle_color_anim_end" + i, ref endValue, true))
-								particles->colorAnim.value1 = new Gradient_Vector4_2.Value { value = endValue, position = 1 };
+							Vector4 value1 = particles->colorAnim.value1.value;
+							if (ColorEdit4(instance, "Color 1", "particle_color_anim1" + i, ref value1, true))
+								particles->colorAnim.value1 = new Gradient_Vector4_3.Value { value = value1, position = 0.5f };
 
-							particles->colorAnim.count = 2;
+							Vector4 value2 = particles->colorAnim.value2.value;
+							if (ColorEdit4(instance, "Color 2", "particle_color_anim2" + i, ref value2, true))
+								particles->colorAnim.value2 = new Gradient_Vector4_3.Value { value = value2, position = 1.0f };
+
+							particles->colorAnim.count = 3;
 						}
 
 						ImGui.TreePop();
@@ -471,7 +483,8 @@ public partial class EditorUI
 				ImGui.SetCursorPos(new Vector2(PROPERTIES_PANEL_WIDTH - RIGHT_PADDING, topRight.y));
 				if (ImGui.SmallButton("X##particles_remove" + i))
 				{
-					entity.data.particles = ArrayUtils.RemoveAt(entity.data.particles, i--);
+					ParticleSystem.Destroy(entity.particles[i]);
+					entity.particles = ArrayUtils.RemoveAt(entity.particles, i--);
 					//entity.data.particles->RemoveAt(i--);
 					instance.notifyEdit();
 					ImGui.SetCursorPos(cursorPos);
@@ -486,8 +499,9 @@ public partial class EditorUI
 
 			if (ImGui.Button("Add Particle Effect"))
 			{
-				ParticleSystemData particles = new ParticleSystemData(0) { transform = entity.getModelMatrix() };
-				entity.data.particles = ArrayUtils.Add(entity.data.particles, particles);
+				//ParticleSystemData particles = new ParticleSystemData(0) { transform = entity.getModelMatrix() };
+				ParticleSystem particles = ParticleSystem.Create(entity.getModelMatrix());
+				entity.particles = ArrayUtils.Add(entity.particles, particles);
 				//entity.data.particles->Add(particles);
 				instance.notifyEdit();
 			}

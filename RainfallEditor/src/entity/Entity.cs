@@ -108,6 +108,8 @@ public class Entity
 			}
 		}
 
+		if (particles.Length != data.particles.Length)
+			data.particles = ArrayUtils.Resize(data.particles, particles.Length);
 		for (int i = 0; i < particles.Length; i++)
 		{
 			if (restartEffect)

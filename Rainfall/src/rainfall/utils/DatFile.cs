@@ -266,10 +266,11 @@ namespace Rainfall
 			if (field != null && field.value.type == DatValueType.Array)
 			{
 				DatArray arr = field.array;
-				Debug.Assert(arr.values.Count == 2);
-				v = new Vector2((float)arr.values[0].number, (float)arr.values[1].number);
-
-				return true;
+				if (arr.values.Count == 2)
+				{
+					v = new Vector2((float)arr.values[0].number, (float)arr.values[1].number);
+					return true;
+				}
 			}
 			v = Vector2.Zero;
 			return false;
@@ -281,10 +282,11 @@ namespace Rainfall
 			if (field != null && field.value.type == DatValueType.Array)
 			{
 				DatArray arr = field.array;
-				Debug.Assert(arr.values.Count == 3);
-				v = new Vector3((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number);
-
-				return true;
+				if (arr.values.Count == 3)
+				{
+					v = new Vector3((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number);
+					return true;
+				}
 			}
 			v = Vector3.Zero;
 			return false;
@@ -296,10 +298,11 @@ namespace Rainfall
 			if (field != null && field.value.type == DatValueType.Array)
 			{
 				DatArray arr = field.array;
-				Debug.Assert(arr.values.Count == 4);
-				v = new Vector4((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number, (float)arr.values[3].number);
-
-				return true;
+				if (arr.values.Count == 4)
+				{
+					v = new Vector4((float)arr.values[0].number, (float)arr.values[1].number, (float)arr.values[2].number, (float)arr.values[3].number);
+					return true;
+				}
 			}
 			v = Vector4.Zero;
 			return false;

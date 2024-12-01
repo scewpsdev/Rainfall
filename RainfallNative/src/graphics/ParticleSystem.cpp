@@ -157,6 +157,12 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 	particle->animationFrame = 0;
 	particle->color = system->color;
 	particle->birthTime = Application_GetCurrentTime();
+
+	if (system->randomFrame)
+	{
+		float animationFrame = system->random.next() % system->numFrames / (float)(system->atlasSize.x * system->atlasSize.y);
+		particle->animationFrame = animationFrame;
+	}
 }
 
 RFAPI void ParticleSystem_Update(ParticleSystem* system)
@@ -232,7 +238,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 			if (system->colorAnim.count > 0)
 				particle->color = system->colorAnim.getValue(progress);
 
-			if (system->numFrames > 0)
+			if (system->numFrames > 0 && !system->randomFrame)
 			{
 				float animationFrame = particleTimer / particle->lifetime * system->numFrames / (system->atlasSize.x * system->atlasSize.y);
 				particle->animationFrame = animationFrame;

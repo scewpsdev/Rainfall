@@ -37,6 +37,21 @@ namespace Rainfall
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct Gradient_float_3
+	{
+		public struct Value
+		{
+			public float value;
+			public float position;
+		}
+
+		public Value value0;
+		public Value value1;
+		public Value value2;
+		public int count;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct Gradient_Vector4_2
 	{
 		public struct Value
@@ -47,6 +62,21 @@ namespace Rainfall
 
 		public Value value0;
 		public Value value1;
+		public int count;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct Gradient_Vector4_3
+	{
+		public struct Value
+		{
+			public Vector4 value;
+			public float position;
+		}
+
+		public Value value0;
+		public Value value1;
+		public Value value2;
 		public int count;
 	}
 
@@ -91,6 +121,7 @@ namespace Rainfall
 		public ushort textureAtlas = ushort.MaxValue;
 		public Vector2i atlasSize = Vector2i.One;
 		public int numFrames = 1;
+		public byte randomFrame;
 		public byte linearFiltering;
 
 		public Vector4 color = Vector4.One;
@@ -105,8 +136,8 @@ namespace Rainfall
 		public float randomLifetime;
 		public float velocityNoise;
 
-		public Gradient_float_2 sizeAnim;
-		public Gradient_Vector4_2 colorAnim;
+		public Gradient_float_3 sizeAnim;
+		public Gradient_Vector4_3 colorAnim;
 
 		public int numBursts;
 		public ParticleBurst* bursts;
