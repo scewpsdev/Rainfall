@@ -396,7 +396,7 @@ public static unsafe partial class EditorUI
 				ImGui.Image(instance.frame, windowSize, true, false);
 
 			ImGuizmo.SetRect(topLeft.x, topLeft.y, windowSize.x, windowSize.y);
-			ImGuizmo.SetOrthographic(false);
+			ImGuizmo.SetOrthographic(instance.camera.orthographic);
 			ImGuizmo.SetDrawlist();
 
 			instance.camera.updateControls(instance);
@@ -426,31 +426,31 @@ public static unsafe partial class EditorUI
 						if (ImGui.IsKeyPressed(KeyCode.S))
 							currentManipulateOperation = GuizmoManipulateOperation.SCALE;
 					}
+				}
 
-					Vector3? snap = null;
-					if (ImGui.IsKeyDown(KeyCode.Ctrl))
-					{
-						if (currentManipulateOperation == GuizmoManipulateOperation.TRANSLATE)
-							snap = new Vector3(0.5f);
-						else if (currentManipulateOperation == GuizmoManipulateOperation.ROTATE)
-							snap = new Vector3(15, 0.0f, 0.0f);
-						else if (currentManipulateOperation == GuizmoManipulateOperation.SCALE)
-							snap = new Vector3(1.5f);
-					}
+				Vector3? snap = null;
+				if (ImGui.IsKeyDown(KeyCode.Ctrl))
+				{
+					if (currentManipulateOperation == GuizmoManipulateOperation.TRANSLATE)
+						snap = new Vector3(0.5f);
+					else if (currentManipulateOperation == GuizmoManipulateOperation.ROTATE)
+						snap = new Vector3(15, 0.0f, 0.0f);
+					else if (currentManipulateOperation == GuizmoManipulateOperation.SCALE)
+						snap = new Vector3(1.5f);
+				}
 
-					Entity selectedEntity = instance.getSelectedEntity();
-					Matrix matrix = selectedEntity.getModelMatrix();
-					if (ImGuizmo.Manipulate(view, projection, currentManipulateOperation, GuizmoManipulateMode.LOCAL, ref matrix, null, snap))
-					{
-						matrix.decompose(out selectedEntity.data.position, out selectedEntity.data.rotation, out selectedEntity.data.scale);
-						manipulateEdited = true;
-					}
-					if (ImGui.IsMouseButtonReleased(MouseButton.Left) && manipulateEdited)
-					{
-						// deactivated after edit
-						instance.notifyEdit();
-						manipulateEdited = false;
-					}
+				Entity selectedEntity = instance.getSelectedEntity();
+				Matrix matrix = selectedEntity.getModelMatrix();
+				if (ImGuizmo.Manipulate(view, projection, currentManipulateOperation, GuizmoManipulateMode.LOCAL, ref matrix, null, snap))
+				{
+					matrix.decompose(out selectedEntity.data.position, out selectedEntity.data.rotation, out selectedEntity.data.scale);
+					manipulateEdited = true;
+				}
+				if (ImGui.IsMouseButtonReleased(MouseButton.Left) && manipulateEdited)
+				{
+					// deactivated after edit
+					instance.notifyEdit();
+					manipulateEdited = false;
 				}
 			}
 		}

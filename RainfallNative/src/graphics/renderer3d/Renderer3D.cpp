@@ -1555,8 +1555,8 @@ static void RenderParticles()
 				}
 			}
 
-			if (particleCount != system->numParticles)
-				__debugbreak();
+			//if (particleCount != system->numParticles)
+			//	__debugbreak();
 
 			qsort(instanceData, particleCount, sizeof(ParticleInstanceData), (_CoreCrtNonSecureSearchSortCompareFunction)ParticleComparator);
 

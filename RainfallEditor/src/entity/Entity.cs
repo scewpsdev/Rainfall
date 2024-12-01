@@ -1,5 +1,4 @@
 ﻿using Rainfall;
-using Rainfall.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -27,7 +26,7 @@ public class Entity
 	public bool showDebugColliders;
 	public bool[] showDebugBoneColliders;
 
-	GCHandle particlesHandle;
+	public ParticleSystem[] particles;
 
 
 	public Entity(string name)
@@ -74,9 +73,17 @@ public class Entity
 			data.particles[i] = particleData;
 		}
 
-		if (particlesHandle.IsAllocated)
-			particlesHandle.Free();
-		particlesHandle = GCHandle.Alloc(data.particles, GCHandleType.Pinned);
+		if (particles != null)
+		{
+			foreach (ParticleSystem system in particles)
+				ParticleSystem.Destroy(system);
+		}
+		particles = new ParticleSystem[data.particles.Length];
+		for (int i = 0; i < data.particles.Length; i++)
+		{
+			particles[i] = ParticleSystem.Create(getModelMatrix());
+			particles[i].setData(data.particles[i]);
+		}
 	}
 
 	public void init()
@@ -92,23 +99,21 @@ public class Entity
 		Matrix transform = getModelMatrix();
 
 		bool restartEffect = true;
-		for (int i = 0; i < data.particles.Length; i++)
+		for (int i = 0; i < particles.Length; i++)
 		{
-			ParticleSystemData particles = data.particles[i];
-			if (Rainfall.Native.ParticleSystem.ParticleSystem_HasFinished(&particles) == 0)
+			if (!particles[i].hasFinished)
 			{
 				restartEffect = false;
 				break;
 			}
 		}
 
-		for (int i = 0; i < data.particles.Length; i++)
+		for (int i = 0; i < particles.Length; i++)
 		{
-			ParticleSystemData particleData = data.particles[i];
 			if (restartEffect)
-				Rainfall.Native.ParticleSystem.ParticleSystem_Restart(&particleData);
-			Rainfall.Native.ParticleSystem.ParticleSystem_SetTransform(&particleData, transform, 1);
-			data.particles[i] = particleData;
+				particles[i].restartEffect();
+			particles[i].setTransform(transform, true);
+			data.particles[i] = *particles[i].handle;
 		}
 	}
 
@@ -143,15 +148,11 @@ public class Entity
 			}
 		}
 
-		ParticleSystemData* particlesPtr = (ParticleSystemData*)particlesHandle.AddrOfPinnedObject();
-		for (int i = 0; i < data.particles.Length; i++)
+		for (int i = 0; i < particles.Length; i++)
 		{
-			Renderer3D_DrawParticleSystem(&particlesPtr[i]);
+			Renderer.DrawParticleSystem(particles[i]);
 		}
 	}
-
-	[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-	extern static unsafe void Renderer3D_DrawParticleSystem(ParticleSystemData* particleSystem);
 
 	unsafe ParticleSystemData? getParticlesByName(string name)
 	{

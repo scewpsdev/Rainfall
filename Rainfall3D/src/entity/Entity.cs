@@ -149,7 +149,7 @@ public class Entity : PhysicsEntity
 
 		for (int i = 0; i < entity.lights.Count; i++)
 		{
-			PointLight light = new PointLight(entity.lights[i].offset, entity.lights[i].color);
+			PointLight light = new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity);
 			lights.Add(light);
 		}
 

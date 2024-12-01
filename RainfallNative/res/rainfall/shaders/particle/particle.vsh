@@ -27,5 +27,5 @@ void main()
 
 	v_position = position;
 	v_texcoord0 = vec3(texcoord, animation);
-	v_color0 = color;
+	v_color0 = SRGBToLinear(color);
 }

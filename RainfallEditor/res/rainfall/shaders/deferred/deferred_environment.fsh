@@ -43,8 +43,10 @@ void main()
 	float distance = length(toCamera);
 	vec3 view = toCamera / distance;
 
+	bool previewLighting = u_environmentIntensity == 0;
 	vec3 ambient = RenderEnvironment(position, normal, view, albedo, roughness, metallic, s_environmentMap, u_environmentIntensity);
-	ambient += vec3_splat(0.5) * pow(1 - max(dot(view, normal), 0.0), 2);
+	if (!previewLighting)
+		ambient += vec3_splat(0.5) * pow(1 - max(dot(view, normal), 0.0), 2);
 	
 	for (int i = 0; i < u_numMasks; i++)
 	{

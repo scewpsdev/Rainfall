@@ -419,6 +419,16 @@ namespace Rainfall
 			Renderer3D_SetCamera(position, rotation, projection, fov, aspect, near, far);
 		}
 
+		public static void SetCameraOrtho(Vector3 position, Quaternion rotation, float width, float height, float near, float far)
+		{
+			cameraPosition = position;
+			cameraRotation = rotation;
+
+			Matrix projection = Matrix.CreateOrthographic(width, height, near, far);
+			pv = projection * Matrix.CreateTransform(position, rotation).inverted;
+			Renderer3D_SetCamera(position, rotation, projection, 90, width / height, near, far);
+		}
+
 		public static ushort End()
 		{
 			meshRenderCounter = 0;

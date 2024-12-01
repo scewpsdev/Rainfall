@@ -19,6 +19,7 @@ public class EditorInstance
 	public List<Entity> entities = new List<Entity>();
 	public Camera camera;
 
+	Model invertedBox;
 	Cubemap environmentMap;
 
 	public uint selectedEntity = 0;
@@ -40,6 +41,7 @@ public class EditorInstance
 			RainfallEditor.instance.readScene(this, path);
 		}
 
+		invertedBox = Resource.GetModel("res/models/inverted_box.gltf");
 		environmentMap = Resource.GetCubemap("res/textures/cubemap_equirect.png");
 
 		RendererSettings settings = new RendererSettings(0);
@@ -210,9 +212,13 @@ public class EditorInstance
 
 		Renderer.Begin();
 		float aspect = EditorUI.currentViewportSize.x / EditorUI.currentViewportSize.y;
-		Renderer.SetCamera(camera.position, camera.rotation, Camera.FOV, aspect, Camera.NEAR, Camera.FAR);
+		if (camera.orthographic)
+			Renderer.SetCameraOrtho(camera.position, camera.rotation, camera.distance * 2 * aspect, camera.distance * 2, -100, +100);
+		else
+			Renderer.SetCamera(camera.position, camera.rotation, Camera.FOV, aspect, Camera.NEAR, Camera.FAR);
 
-		Renderer.DrawEnvironmentMap(environmentMap, 0.2f);
+		bool previewLighting = ImGui.IsKeyDown(KeyCode.Z);
+		Renderer.DrawEnvironmentMap(environmentMap, previewLighting ? 0 : 0.2f);
 
 		int gridSize = 10;
 		uint gridColor = 0xFF1F1F1F; ;
@@ -226,6 +232,9 @@ public class EditorInstance
 		{
 			entity.draw(graphics);
 		}
+
+		if (previewLighting)
+			Renderer.DrawModel(invertedBox, Matrix.CreateScale(10));
 
 		frame = Renderer.End();
 	}

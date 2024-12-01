@@ -368,7 +368,7 @@ public unsafe class RainfallEditor : Game
 		launchParams.width = 1600;
 		launchParams.height = 900;
 		launchParams.maximized = true;
-		launchParams.vsync = 0;
+		launchParams.vsync = 1;
 		launchParams.fpsCap = 60;
 
 		Game game = new RainfallEditor();
