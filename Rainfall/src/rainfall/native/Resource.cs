@@ -38,6 +38,9 @@ namespace Rainfall.Native
 		internal static extern unsafe SceneData* Resource_CreateSceneDataFromFile(byte* path, ulong textureFlags);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe void Resource_DestroySceneData(SceneData* scene);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe IntPtr Resource_CreateFontDataFromFile(byte* path);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

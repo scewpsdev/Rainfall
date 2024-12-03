@@ -131,6 +131,11 @@ RFAPI SceneData* Resource_CreateSceneDataFromFile(const char* path, uint64_t tex
 	return nullptr;
 }
 
+RFAPI void Resource_DestroySceneData(SceneData* scene)
+{
+	BX_FREE(Application_GetAllocator(), scene);
+}
+
 RFAPI FontData* Resource_CreateFontDataFromFile(const char* path)
 {
 	//printf("Reading font '%s'\n", path);

@@ -36,7 +36,7 @@ public class Entity : PhysicsEntity
 	//public Vector3 particleOffset = Vector3.Zero;
 
 
-	public void load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1)
+	public Entity load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1)
 	{
 		name = entity.name;
 		isStatic = entity.isStatic;
@@ -159,14 +159,17 @@ public class Entity : PhysicsEntity
 			system.setData(entity.particles[i]);
 			particles.Add(system);
 		}
+
+		return this;
 	}
 
-	protected void load(string path, uint filterGroup = 1)
+	public Entity load(string path, uint filterGroup = 1, uint filterMask = 1)
 	{
 		if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out _))
 		{
-			load(entities[0], filterGroup);
+			load(entities[0], filterGroup, filterMask);
 		}
+		return this;
 	}
 
 	public virtual void init()

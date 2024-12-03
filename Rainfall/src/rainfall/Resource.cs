@@ -25,7 +25,7 @@ namespace Rainfall
 		static Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
 		static Dictionary<ushort, Texture> textureIdMap = new Dictionary<ushort, Texture>();
 		static Dictionary<string, Cubemap> cubemaps = new Dictionary<string, Cubemap>();
-		static Dictionary<string, IntPtr> scenes = new Dictionary<string, IntPtr>();
+		static Dictionary<string, Tuple<IntPtr, int>> scenes = new Dictionary<string, Tuple<IntPtr, int>>();
 		static Dictionary<string, FontData> fonts = new Dictionary<string, FontData>();
 		static Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
 
@@ -260,6 +260,16 @@ namespace Rainfall
 			return null;
 		}
 
+		public static void UnloadTexture(string path)
+		{
+			if (textures.TryGetValue(path, out Texture texture))
+			{
+				Native.Graphics.Graphics_DestroyTexture(texture.handle);
+				textures.Remove(path);
+				textureIdMap.Remove(texture.handle);
+			}
+		}
+
 		/*
 		public static Cubemap GetCubemap(int size, TextureFormat format, string[] sides)
 		{
@@ -284,7 +294,9 @@ namespace Rainfall
 		{
 			if (scenes.ContainsKey(path))
 			{
-				IntPtr scene = scenes[path];
+				IntPtr scene = scenes[path].Item1;
+				int refCount = scenes[path].Item2;
+				scenes[path] = new Tuple<nint, int>(scene, refCount + 1);
 				return new Model((SceneData*)scene);
 			}
 			else
@@ -293,8 +305,10 @@ namespace Rainfall
 				if (scene != null)
 				{
 					Material.Material_CreateMaterialsForScene(scene);
-					scenes.Add(path, (IntPtr)scene);
-					return new Model(scene);
+					scenes.Add(path, new Tuple<nint, int>((IntPtr)scene, 1));
+
+					Model model = new Model(scene);
+					return model;
 				}
 				return null;
 			}
@@ -303,6 +317,23 @@ namespace Rainfall
 		public static Model GetModel(string path, bool linearTextures)
 		{
 			return GetModel(path, linearTextures ? 0 : (uint)SamplerFlags.Point);
+		}
+
+		public static unsafe void UnloadModel(string path)
+		{
+			if (scenes.TryGetValue(path, out Tuple<IntPtr, int> sceneRefs))
+			{
+				SceneData* scene = (SceneData*)sceneRefs.Item1;
+				int refCount = sceneRefs.Item2;
+				refCount--;
+				scenes[path] = new Tuple<nint, int>((IntPtr)scene, refCount);
+
+				if (refCount == 0)
+				{
+					Native.Resource.Resource_DestroySceneData(scene);
+					scenes.Remove(path);
+				}
+			}
 		}
 
 		public static FontData GetFontData(string path)
@@ -329,6 +360,14 @@ namespace Rainfall
 			for (int i = 0; i < count; i++)
 				sounds[i] = GetSound(path + (i + 1) + ".ogg");
 			return sounds;
+		}
+
+		public static void UnloadAsset(string path)
+		{
+			if (textures.ContainsKey(path))
+				UnloadTexture(path);
+			else if (scenes.ContainsKey(path))
+				UnloadModel(path);
 		}
 	}
 }

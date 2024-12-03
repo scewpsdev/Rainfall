@@ -46,7 +46,7 @@ void main()
 	bool previewLighting = u_environmentIntensity == 0;
 	vec3 ambient = RenderEnvironment(position, normal, view, albedo, roughness, metallic, s_environmentMap, u_environmentIntensity);
 	if (!previewLighting)
-		ambient += vec3_splat(0.5) * pow(1 - max(dot(view, normal), 0.0), 2);
+		ambient += vec3_splat(0.5) * pow(1 - max(dot(view, normal), 0.0), 2) * albedo;
 	
 	for (int i = 0; i < u_numMasks; i++)
 	{

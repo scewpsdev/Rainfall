@@ -207,7 +207,7 @@ public partial class EditorUI
 					string textureAtlasPath = new string((sbyte*)particles->textureAtlasPath);
 					if (FileSelect("Texture Atlas", "particle_atlas" + i, ref textureAtlasPath, "png"))
 					{
-						StringUtils.WriteString(particles->textureAtlasPath, textureAtlasPath);
+						StringUtils.WriteString(particles->textureAtlasPath, textureAtlasPath != null ? textureAtlasPath : "");
 						if (textureAtlasPath != null)
 							particles->textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(textureAtlasPath)).handle;
 						else
@@ -441,8 +441,8 @@ public partial class EditorUI
 
 					bool burstsEnabled = particles->bursts != null;
 					bool burstsOpen = TreeNodeOptional(instance, "Bursts", "particle_bursts" + i, ref burstsEnabled);
-					//if (burstsEnabled != (particles->bursts != null))
-					//	particles->bursts = burstsEnabled ? new List<ParticleBurst>() : null;
+					if (burstsEnabled != (particles->bursts != null))
+						particles->bursts = burstsEnabled ? ((ParticleBurst*)Marshal.AllocHGlobal(sizeof(ParticleBurst) * particles->numBursts)) : null;
 					if (burstsOpen)
 					{
 						if (particles->bursts != null)

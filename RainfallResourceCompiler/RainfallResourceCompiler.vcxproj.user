@@ -14,8 +14,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>res D:\Dev\Rainfall\IvoryKeep\bin\Debug\net8.0\res gltf fbx png hdr ogg dat shader ttf</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>D:\Dev\Rainfall\IvoryKeep</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>-f D:\Dev\2024\GoJam\GoJam\res\effect\projectile\projectile.glb</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

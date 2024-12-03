@@ -98,7 +98,7 @@ public static partial class EditorUI
 	{
 		if (ImGui.TreeNodeEx("Model", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.DefaultOpen))
 		{
-			if (FileSelect(null, "model", ref entity.data.modelPath, "gltf"))
+			if (FileSelect(null, "model", ref entity.data.modelPath, "gltf,glb"))
 			{
 				entity.reload();
 				instance.notifyEdit();

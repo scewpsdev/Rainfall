@@ -1516,6 +1516,8 @@ static int ParticleComparator(const ParticleInstanceData* a, const ParticleInsta
 
 static void RenderParticles()
 {
+	Graphics_ResetState();
+
 	Shader* shader = particleShader;
 
 	for (int i = 0; i < particleSystemDraws.size; i++)

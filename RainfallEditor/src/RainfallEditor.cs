@@ -299,7 +299,11 @@ public unsafe class RainfallEditor : Game
 		process.Start();
 		process.WaitForExit();
 
-		return "../../../../" + outDir + "\\" + assetName;
+		string compiledPath = "../../../../" + outDir + "\\" + assetName;
+
+		//Resource.UnloadAsset(compiledPath);
+
+		return compiledPath;
 	}
 
 	public override void update()
