@@ -471,8 +471,10 @@ public static class SceneFormat
 				particle.getNumber("radialVelocity", out particleData.radialVelocity);
 				particle.getNumber("startRotation", out particleData.startRotation);
 				particle.getNumber("rotationSpeed", out particleData.rotationSpeed);
-				particle.getBoolean("applyEntityVelocity", out particleData.applyEntityVelocity);
-				particle.getBoolean("applyCentrifugalForce", out particleData.applyCentrifugalForce);
+				if (particle.getBoolean("applyEntityVelocity", out bool applyEntityVelocity))
+					particleData.applyEntityVelocity = applyEntityVelocity;
+				if (particle.getBoolean("applyCentrifugalForce", out bool applyCentrifugalForce))
+					particleData.applyCentrifugalForce = applyCentrifugalForce;
 
 				if (particle.getStringContent("textureAtlas", out string atlasPath))
 				{

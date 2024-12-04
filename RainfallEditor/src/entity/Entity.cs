@@ -114,7 +114,7 @@ public class Entity
 		{
 			if (restartEffect)
 				particles[i].restartEffect();
-			particles[i].setTransform(transform, true);
+			particles[i].setTransform(transform, particles[i].handle->applyEntityVelocity);
 			data.particles[i] = *particles[i].handle;
 		}
 	}

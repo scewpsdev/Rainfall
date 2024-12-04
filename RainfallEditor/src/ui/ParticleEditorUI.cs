@@ -197,8 +197,13 @@ public partial class EditorUI
 					//if (ImGui.DragFloat("##rotation_speed" + i, &rotationSpeed, 0.02f))
 					//	particles->rotationSpeed = rotationSpeed;
 
-					Checkbox(instance, "Apply Entity Velocity", "particle_apply_entity_velocity" + i, ref particles->applyEntityVelocity);
-					Checkbox(instance, "Apply Centrifugal Force", "particle_apply_centrifugal_force" + i, ref particles->applyCentrifugalForce);
+					bool applyEntityVelocity = particles->applyEntityVelocity;
+					Checkbox(instance, "Apply Entity Velocity", "particle_apply_entity_velocity" + i, ref applyEntityVelocity);
+					particles->applyEntityVelocity = applyEntityVelocity;
+
+					bool applyCentrifugalForce = particles->applyCentrifugalForce;
+					Checkbox(instance, "Apply Centrifugal Force", "particle_apply_centrifugal_force" + i, ref applyCentrifugalForce);
+					particles->applyCentrifugalForce = applyCentrifugalForce;
 
 					ImGui.Spacing();
 					ImGui.Spacing();

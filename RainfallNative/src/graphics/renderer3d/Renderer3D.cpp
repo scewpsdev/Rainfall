@@ -824,6 +824,8 @@ static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, Skele
 	if (hasHeight)
 		bgfx::setTexture(5, material->shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], UINT32_MAX);
 
+	bgfx::setTexture(6, material->shader->getUniform("s_blueNoise", bgfx::UniformType::Sampler), blueNoise64, UINT32_MAX);
+
 	if (skeleton)
 		bgfx::setUniform(material->shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
@@ -1516,8 +1518,6 @@ static int ParticleComparator(const ParticleInstanceData* a, const ParticleInsta
 
 static void RenderParticles()
 {
-	Graphics_ResetState();
-
 	Shader* shader = particleShader;
 
 	for (int i = 0; i < particleSystemDraws.size; i++)
@@ -1628,8 +1628,8 @@ static void ForwardPass()
 	Graphics_SetViewTransform(RenderPass::Forward, projection, view);
 
 	RenderForwardMeshes();
-	RenderParticles();
 	RenderSky();
+	RenderParticles();
 }
 
 static void BloomDownsample(int idx, bgfx::TextureHandle texture, RenderTarget target, int width, int height)

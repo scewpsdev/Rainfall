@@ -235,7 +235,7 @@ public class Entity : PhysicsEntity
 		}
 	}
 
-	public virtual void update()
+	public virtual unsafe void update()
 	{
 		Matrix transform = getModelMatrix();
 
@@ -258,7 +258,7 @@ public class Entity : PhysicsEntity
 		for (int i = 0; i < particles.Count; i++)
 		{
 			//if (Renderer.IsInFrustum(particles[i].boundingSphere.center, particles[i].boundingSphere.radius, transform, Renderer.pv))
-			particles[i].setTransform(transform);
+			particles[i].setTransform(transform, particles[i].handle->applyEntityVelocity);
 		}
 	}
 

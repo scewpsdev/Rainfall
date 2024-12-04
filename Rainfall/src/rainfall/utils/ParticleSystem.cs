@@ -114,8 +114,10 @@ namespace Rainfall
 		public float radialVelocity;
 		public float startRotation;
 		public float rotationSpeed;
-		public bool applyEntityVelocity;
-		public bool applyCentrifugalForce;
+		byte _applyEntityVelocity;
+		byte _applyCentrifugalForce;
+		public bool applyEntityVelocity { get => _applyEntityVelocity != 0; set { _applyEntityVelocity = (byte)(value ? 1 : 0); } }
+		public bool applyCentrifugalForce { get => _applyCentrifugalForce != 0; set { _applyCentrifugalForce = (byte)(value ? 1 : 0); } }
 
 		public fixed byte textureAtlasPath[256];
 		public ushort textureAtlas = ushort.MaxValue;

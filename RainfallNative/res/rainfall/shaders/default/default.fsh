@@ -11,6 +11,8 @@ SAMPLER2D(s_metallic, 3);
 SAMPLER2D(s_emissive, 4);
 SAMPLER2D(s_height, 5);
 
+SAMPLER2D(s_blueNoise, 6);
+
 uniform vec4 u_attributeInfo0;
 uniform vec4 u_attributeInfo1;
 
@@ -118,8 +120,13 @@ void main()
 
 	vec3 normal = (u_hasTexCoords * u_hasNormal > 0.5) ? mul(tbn, normalMapValue) : norm;
 
-	if (albedo.a < 0.01f)
+	vec2 pixelCoord = gl_FragCoord.xy / textureSize(s_blueNoise, 0).xy;
+	float noise = texture2D(s_blueNoise, pixelCoord).r;
+	if (albedo.a < noise)
 		discard;
+
+	//if (albedo.a < 0.01f)
+	//	discard;
 
 
     gl_FragData[0] = vec4(v_position, 1.0);
