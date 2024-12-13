@@ -489,8 +489,8 @@ public class InventoryUI
 		// Minimap
 		if (player.inventoryOpen)
 		{
-			int width = 48;
-			int height = 32;
+			int width = 64;
+			int height = 48;
 			int x = Renderer.UIWidth - 5 - width;
 			int y = Renderer.UIHeight - 5 - height;
 

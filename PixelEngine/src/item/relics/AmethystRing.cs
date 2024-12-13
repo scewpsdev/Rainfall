@@ -25,7 +25,7 @@ public class AmethystRing : Item
 	{
 		if (player.health == player.maxHealth)
 			player.health++;
-		player.hp++;
+		player.hp += 2;
 	}
 
 	public override void onUnequip(Player player)

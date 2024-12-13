@@ -20,7 +20,7 @@ public class AttackAction : EntityAction
 	public bool soundPlayed = false;
 	float maxRange = 0;
 
-	int swingIteration = 1;
+	public int swingIteration = 1;
 
 
 	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)

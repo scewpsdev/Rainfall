@@ -56,12 +56,13 @@ public class ActionQueue
 
 			if (currentAction != null)
 			{
-				if (!currentAction.hasStarted)
+				if (!currentAction.hasStarted && !player.isClimbing)
 				{
 					initializeAction(currentAction);
 				}
 
-				currentAction.update(player);
+				if (currentAction.hasStarted)
+					currentAction.update(player);
 			}
 		}
 	}
@@ -76,7 +77,7 @@ public class ActionQueue
 				actionQueue.RemoveRange(1, actionQueue.Count - 1);
 			action.onQueued(player);
 			actionQueue.Add(action);
-			if (actionQueue[0] == action)
+			if (actionQueue[0] == action && !player.isClimbing)
 				initializeAction(actionQueue[0]);
 		}
 	}

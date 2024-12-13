@@ -19,7 +19,8 @@ struct StuckProjectile
 
 public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 {
-	static Sound[] mobHit = Resource.GetSounds("res/sounds/flesh", 4);
+	static Sound[] mobHit = Resource.GetSounds("res/sounds/flesh", 2);
+	static Sound[] mobDeath = Resource.GetSounds("res/sounds/death", 9);
 
 
 	const float SPRINT_MULTIPLIER = 1.8f;
@@ -75,6 +76,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public Item handItem = null;
 
 	public Sound[] hitSound = mobHit;
+	public Sound[] deathSound = mobDeath;
 
 	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
@@ -169,6 +171,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		if (ai != null)
 			ai.onDeath();
 
+		if (deathSound != null)
+			Audio.PlayOrganic(deathSound, new Vector3(position, 0), 3);
+
 		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
 		{
 			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
@@ -185,7 +190,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = MathHelper.RandomInt(3, (int)MathF.Round(maxHealth));
+			int amount = MathHelper.RandomInt(3, Math.Max((int)MathF.Round(maxHealth), 3));
 			for (int i = 0; i < amount; i++)
 			{
 				Coin coin = new Coin();

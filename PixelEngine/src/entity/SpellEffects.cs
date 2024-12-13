@@ -70,7 +70,7 @@ public static class SpellEffects
 		Audio.PlayOrganic(Resource.GetSound("res/sounds/explosion.ogg"), new Vector3(position, 0));
 	}
 
-	public static void TeleportEntity(Entity entity, bool onGround = false, Vector2 center = default, float maxRange = 1000)
+	public static void TeleportEntity(Entity entity, bool onGround = false, Vector2 center = default, float maxRange = 20)
 	{
 		for (int i = 0; i < 1000; i++)
 		{

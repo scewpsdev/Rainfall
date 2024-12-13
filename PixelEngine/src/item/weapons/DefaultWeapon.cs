@@ -11,6 +11,8 @@ public class DefaultWeapon : Item
 	public static readonly DefaultWeapon instance = new DefaultWeapon();
 
 
+	Sprite punchSprite, swingSprite;
+
 	public DefaultWeapon()
 		: base("default_weapon", ItemType.Weapon)
 	{
@@ -18,15 +20,28 @@ public class DefaultWeapon : Item
 		baseAttackRange = 1.0f;
 		baseAttackRate = 3;
 		knockback = 5;
+		attackAngle = 1.0f * MathF.PI;
+		attackAngleOffset = -0.9f * MathF.PI;
 
-		sprite = new Sprite(tileset, 0, 2);
+		punchSprite = new Sprite(tileset, 0, 2);
+		swingSprite = new Sprite(tileset, 1, 8);
 
 		hitSound = [Resource.GetSound("res/sounds/punch_hit.ogg")];
 	}
 
 	public override bool use(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this, true));
+		bool anim = stab;
+		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction)
+		{
+			AttackAction lastAttack = player.actions.currentAction as AttackAction;
+			if (lastAttack.weapon == this)
+				anim = !lastAttack.stab;
+		}
+		sprite = anim ? punchSprite : swingSprite;
+		AttackAction attack = new AttackAction(this, anim, anim, baseAttackRate, baseDamage, baseAttackRange);
+		player.actions.queueAction(attack);
+		attack.swingIteration = 0;
 		return false;
 	}
 }

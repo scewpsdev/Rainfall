@@ -22,6 +22,13 @@ public class SaveFile
 {
 	public static readonly uint FLAG_TUTORIAL_FINISHED = Hash.hash("tutorial_finished");
 
+	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_BARBARIAN = Hash.hash("startingclass_barbarian");
+	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_KNIGHT = Hash.hash("startingclass_knight");
+	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_HUNTER = Hash.hash("startingclass_hunter");
+	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_THIEF = Hash.hash("startingclass_thief");
+	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_WIZARD = Hash.hash("startingclass_wizard");
+	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_FOOL = Hash.hash("startingclass_fool");
+
 	public static readonly uint FLAG_NPC_RAT_MET = Hash.hash("rat_questline_init");
 	public static readonly uint FLAG_NPC_RAT_QUESTLINE_COMPLETED = Hash.hash("rat_questline_complete");
 

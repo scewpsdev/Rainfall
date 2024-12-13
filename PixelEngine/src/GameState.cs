@@ -127,7 +127,7 @@ public class GameState : State
 		reset();
 	}
 
-	void reset(StartingClass startingClass = null)
+	void reset(StartingClass startingClass = null, bool quickRestart = false)
 	{
 		level?.destroy();
 		level = null;
@@ -161,6 +161,8 @@ public class GameState : State
 		camera = new PlayerCamera(player);
 
 		player.money = 8;
+		player.items.Add(new TravellingCloak());
+		player.passiveItems.Add(player.items[0]);
 
 
 		// Cliffside
@@ -191,12 +193,18 @@ public class GameState : State
 
 		ArmorStand barbarianClass, knightClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
 
-		hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.rooms[0].getMarker(10) + new Vector2(-2, 0));
-		hub.addEntity(knightClass = new ArmorStand(StartingClass.knight, -1), hub.rooms[0].getMarker(10) + new Vector2(2, 0));
-		hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.rooms[0].getMarker(10) + new Vector2(-3.5f, 0));
-		hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter, -1), hub.rooms[0].getMarker(10) + new Vector2(3.5f, 0));
-		hub.addEntity(foolClass = new ArmorStand(StartingClass.fool), hub.rooms[0].getMarker(10) + new Vector2(-5, 0));
-		hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard, -1), hub.rooms[0].getMarker(10) + new Vector2(5, 0));
+		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_BARBARIAN))
+			hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.rooms[0].getMarker(10) + new Vector2(-2, 0));
+		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_KNIGHT))
+			hub.addEntity(knightClass = new ArmorStand(StartingClass.knight, -1), hub.rooms[0].getMarker(10) + new Vector2(2, 0));
+		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_THIEF))
+			hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.rooms[0].getMarker(10) + new Vector2(-3.5f, 0));
+		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_HUNTER))
+			hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter, -1), hub.rooms[0].getMarker(10) + new Vector2(3.5f, 0));
+		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_FOOL))
+			hub.addEntity(foolClass = new ArmorStand(StartingClass.fool), hub.rooms[0].getMarker(10) + new Vector2(-5, 0));
+		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_WIZARD))
+			hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard, -1), hub.rooms[0].getMarker(10) + new Vector2(5, 0));
 
 #if DEBUG
 		hub.addEntity(devClass = new ArmorStand(StartingClass.dev, -1), hub.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
@@ -308,11 +316,12 @@ public class GameState : State
 		areaGardens[0].entrance.otherDoor = cliffDungeonEntrance2;
 
 
-		if (startingClass != null)
+		if (quickRestart)
 		{
 			level = null;
 			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
-			player.setStartingClass(startingClass);
+			if (startingClass != null)
+				player.setStartingClass(startingClass);
 			levelSwitchTime = -1;
 		}
 		else if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
@@ -525,7 +534,7 @@ public class GameState : State
 			{
 				Audio.PlayBackground(UISound.uiConfirm2);
 				GameOverScreen.Destroy();
-				reset(player.startingClass);
+				reset(player.startingClass, true);
 			}
 			if (InputManager.IsPressed("UIConfirm2"))
 			{

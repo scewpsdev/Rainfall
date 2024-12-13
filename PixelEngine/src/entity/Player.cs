@@ -30,10 +30,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 #endif
 
 
-	public const float defaultSpeed = 6;
+	public const float defaultSpeed = 5;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
-	public float jumpPower = 10; //12; //10.5f;
+	public float jumpPower = 11; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
 	public const float defaultManaRecoveryRate = 0.015f;
@@ -74,7 +74,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	bool isMoving = false;
 	bool isSprinting = false;
 	public bool isDucked = false;
-	bool isClimbing = false;
+	public bool isClimbing = false;
 	float fallDistance = 0;
 
 	// Status effects
@@ -142,7 +142,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 3, true);
+		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.addAnimation("run", 2 * 16, 0, 16, 0, 8, 16, true);
 		animator.addAnimation("jump", 10 * 16, 0, 16, 0, 1, 12, true);
 		animator.addAnimation("fall", 11 * 16, 0, 16, 0, 1, 12, true);
@@ -164,7 +164,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		stepSound = Resource.GetSounds("res/sounds/step", 6);
 		landSound = Resource.GetSound("res/sounds/land.ogg");
 		ladderSound = Resource.GetSounds("res/sounds/step_wood", 3);
-		hitSound = Resource.GetSounds("res/sounds/flesh", 4);
+		hitSound = Resource.GetSounds("res/sounds/flesh", 2);
 
 #if DEBUG
 #endif
@@ -929,7 +929,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	void onLevelUp()
 	{
-		availableStatUpgrades++;
+		//availableStatUpgrades++;
+		hp++;
+		magic++;
+		strength++;
+		dexterity++;
+		intelligence++;
 
 		if (playerLevel % 5 == 0)
 			GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);

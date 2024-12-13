@@ -112,7 +112,8 @@ public class PlayerCamera : Entity
 				target += aimDirection * 0.1f * player.aimDistance;
 		}
 
-		position = Vector2.Lerp(position, target, 8 * Time.deltaTime);
+		position.x = MathHelper.Lerp(position.x, target.x, 4 * Time.deltaTime);
+		position.y = MathHelper.Lerp(position.y, target.y, 8 * Time.deltaTime);
 		//velocity = Vector2.Lerp(velocity, player.velocity, 10 * Time.deltaTime);
 		//position += velocity * Time.deltaTime;
 

@@ -20,7 +20,7 @@ public class Spider : Mob
 
 		collider = new FloatRect(-0.4f, 0, 0.8f, 0.5f);
 
-		health = 4;
+		health = 3;
 		poisonResistant = true;
 		jumpPower = 12;
 
