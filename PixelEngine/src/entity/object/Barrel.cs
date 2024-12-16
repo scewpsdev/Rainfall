@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class Barrel : Entity, Hittable
 {
+	public float health = 2;
+
 	Sprite sprite;
 
 	Item[] items;
@@ -63,7 +65,9 @@ public class Barrel : Entity, Hittable
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		breakBarrel();
+		health -= damage;
+		if (health <= 0)
+			breakBarrel();
 		return true;
 	}
 

@@ -92,6 +92,11 @@ public class EntityAction
 		}
 	}
 
+	public void cancel()
+	{
+		duration = 0;
+	}
+
 	public virtual void render(Player player)
 	{
 	}

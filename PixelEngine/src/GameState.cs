@@ -84,8 +84,8 @@ public class GameState : State
 
 	//public Level startingCave;
 	public Level hub;
-	//public Level tutorial;
 	public Level cliffside;
+	public Level tutorial;
 	public Level[] areaCaves;
 	public Level[] areaGardens;
 
@@ -145,10 +145,10 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		hub = new Level(-1, "Memory Tree");
+		hub = new Level(-1, "The Outpost");
 		//tutorial = new Level(-1, "Tutorial");
-		cliffside = new Level(-1, "Cliffside");
-		Level tutorial = cliffside;
+		cliffside = new Level(-1, "");
+		tutorial = new Level(-1, "Abandoned Mineshaft");
 
 		//Door tutorialEntrance = new Door(cliffside, null);
 		Door tutorialExit = new Door(hub, null);
@@ -166,17 +166,29 @@ public class GameState : State
 
 
 		// Cliffside
+		Door tutorialDoor;
 		{
-			//Door cliffTutorialDoor = new Door(tutorial, tutorialEntrance);
 			//tutorialEntrance.otherDoor = cliffTutorialDoor;
 
 			generator.generateCliffside(cliffside);
 			cliffside.addEntity(new Cliffside(cliffside.rooms[0]));
 			cliffside.bg = Resource.GetTexture("res/level/cliffside/bg.png", false);
 			cliffside.ambientSound = Resource.GetSound("res/sounds/ambience4.ogg");
-			//cliffside.addEntity(cliffTutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
+
+			tutorialDoor = new Door(tutorial);
+			cliffside.addEntity(tutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
 
 			//cliffside.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString(), 0xFFFFFFFF), cliffside.rooms[0].getMarker(32) + new Vector2(0, 1.5f));
+		}
+
+		// Tutorial
+		{
+			generator.generateTutorial(tutorial);
+			tutorial.addEntity(new Tutorial(tutorial.rooms[0]));
+
+			Door cliffsideDoor = new Door(cliffside, tutorialDoor);
+			tutorialDoor.otherDoor = cliffsideDoor;
+			tutorial.addEntity(cliffsideDoor, (Vector2)tutorial.rooms[0].getMarker(0x21));
 		}
 
 
@@ -244,35 +256,6 @@ public class GameState : State
 				hub.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);
 			}
 		}
-
-		//generator.generateTutorial(tutorial);
-		//tutorial.addEntity(tutorialEntrance, (Vector2)tutorial.rooms[0].getMarker(33));
-		tutorial.addEntity(tutorialExit, (Vector2)tutorial.rooms[0].getMarker(01));
-
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + InputManager.GetBinding("Left").ToString() + InputManager.GetBinding("Down").ToString() + InputManager.GetBinding("Right").ToString() + " to move", 0xFFFFFFFF), new Vector2(10, tutorial.height - 8));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Jump").ToString() + " to jump", 0xFFFFFFFF), new Vector2(14.5f, tutorial.height - 9.5f));
-		tutorial.addEntity(new TutorialText("Hold to jump higher", 0xFFFFFFFF), new Vector2(25.5f, tutorial.height - 7));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Down").ToString() + " to drop", 0xFFFFFFFF), new Vector2(41, tutorial.height - 9));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Up").ToString() + " to climb", 0xFFFFFFFF), new Vector2(42, tutorial.height - 20));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Sprint").ToString() + " to sprint", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(04));
-
-		tutorial.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(02));
-
-		tutorial.addEntity(new Chest(new Stick(), new IronShield()), (Vector2)tutorial.rooms[0].getMarker(03));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString() + " to interact", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(03) + new Vector2(0, 3.5f));
-		tutorial.addEntity(new TutorialText("Down+" + InputManager.GetBinding("Interact").ToString() + " to drop", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(03) + new Vector2(0, 3));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(03) + new Vector2(-9, 6));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Attack2").ToString() + " to block", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(03) + new Vector2(-9, 5.5f));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("UseItem").ToString() + " to use item", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(05) + new Vector2(0, 2.5f));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(05) + new Vector2(0, 2.0f));
-		tutorial.addEntity(new TutorialText(InputManager.GetBinding("Inventory").ToString() + " to open inventory", 0xFFFFFFFF), (Vector2)tutorial.rooms[0].getMarker(05) + new Vector2(0, 1.5f));
-		tutorial.addEntity(new Chest(new PotionOfHealing(), new Bomb() { stackSize = 200 }), (Vector2)tutorial.rooms[0].getMarker(05));
-
-		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(06));
-		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(07));
-		tutorial.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)tutorial.rooms[0].getMarker(08));
-
-		tutorial.addEntity(new ItemGate(), (Vector2)tutorial.rooms[0].getMarker(09));
 
 
 		// Gode meme

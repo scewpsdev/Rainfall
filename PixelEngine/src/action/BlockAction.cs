@@ -19,8 +19,18 @@ public class BlockAction : EntityAction
 	{
 		this.shield = shield;
 
-		duration = shield.blockDuration;
+		//duration = shield.blockDuration;
+		duration = shield.type == ItemType.Shield ? 1000 : shield.blockDuration;
 		speedMultiplier = shield.blockMovementSpeed;
+	}
+
+	public override void update(Player player)
+	{
+		base.update(player);
+
+		bool input = InputManager.IsDown(mainHand ? "Attack" : "Attack2");
+		if (shield.type == ItemType.Shield && !input)
+			cancel();
 	}
 
 	public override void onStarted(Player player)

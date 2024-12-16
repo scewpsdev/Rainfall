@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Bomb : Item
 {
-	float blastRadius = 2.0f;
+	float blastRadius = 2.25f;
 	float fuseTime = 1.5f;
 
 	long useTime = -1;
@@ -28,6 +28,7 @@ public class Bomb : Item
 
 		baseDamage = 8;
 		knockback = 20;
+		canIgnite = true;
 
 		sprite = new Sprite(tileset, 1, 0);
 

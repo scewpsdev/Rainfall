@@ -36,6 +36,8 @@ public class Level
 	public AStar astar;
 	byte[] lightmapData;
 
+	int[] backgroundTiles;
+
 	public List<Room> rooms;
 
 	Texture lightmap;
@@ -84,6 +86,7 @@ public class Level
 		tiles = new int[width * height];
 		if (fillTile != null)
 			Array.Fill(tiles, fillTile.id);
+		backgroundTiles = new int[width * height];
 		walkable = new bool[width * height];
 		Array.Fill(walkable, false);
 
@@ -145,6 +148,28 @@ public class Level
 				return null;
 			y = Math.Max(y, 0);
 			return TileType.Get(tiles[x + y * width]);
+		}
+		return null;
+	}
+
+	public bool setBGTile(int x, int y, TileType tile)
+	{
+		if (x >= 0 && x < width && y >= 0 && y < height)
+		{
+			backgroundTiles[x + y * width] = tile != null ? tile.id : 0;
+			return true;
+		}
+		return false;
+	}
+
+	public TileType getBGTile(int x, int y)
+	{
+		if (x >= 0 && x < width && y < height)
+		{
+			if (y < 0)
+				return null;
+			y = Math.Max(y, 0);
+			return TileType.Get(backgroundTiles[x + y * width]);
 		}
 		return null;
 	}
@@ -302,6 +327,36 @@ public class Level
 					else
 					{
 						Renderer.DrawSprite(x, y, Entity.LAYER_TILE, 1.001f, 1.001f, null, 0, 0, 0, 0, tile.color);
+					}
+				}
+			}
+		}
+
+		for (int y = y0; y <= y1; y++)
+		{
+			for (int x = x0; x <= x1; x++)
+			{
+				TileType tile = getBGTile(x, y);
+				if (tile != null && tile.visible)
+				{
+					if (tile.sprites != null)
+					{
+						uint h = Hash.combine(Hash.hash(x), Hash.hash(y));
+						Renderer.DrawSprite(x, y, Entity.LAYER_BGBG, 1.001f, 1.001f, 0, tile.sprites[h % tile.sprites.Length], false, 0xFF4F4F4F);
+
+						TileType left = getBGTile(x - 1, y);
+						TileType right = getBGTile(x + 1, y);
+						TileType top = getBGTile(x, y + 1);
+						TileType bottom = getBGTile(x, y - 1);
+
+						if (left != tile && tile.left != null)
+							Renderer.DrawSprite(x - 1, y, Entity.LAYER_BGBG, 1, 1, 0, tile.left[h % tile.left.Length], false, 0xFF4F4F4F);
+						if (right != tile && tile.right != null)
+							Renderer.DrawSprite(x + 1, y, Entity.LAYER_BGBG, 1, 1, 0, tile.right[h % tile.right.Length], false, 0xFF4F4F4F);
+						if (top != tile && tile.top != null)
+							Renderer.DrawSprite(x, y + 1, Entity.LAYER_BGBG, 1, 1, 0, tile.top[h % tile.top.Length], false, 0xFF4F4F4F);
+						if (bottom != tile && tile.bottom != null)
+							Renderer.DrawSprite(x, y - 1, Entity.LAYER_BGBG, 1, 1, 0, tile.bottom[h % tile.bottom.Length], false, 0xFF4F4F4F);
 					}
 				}
 			}

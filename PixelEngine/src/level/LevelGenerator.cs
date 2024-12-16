@@ -59,9 +59,8 @@ public class RoomDefSet
 				uint pixel = rooms[x + y * roomsInfo.width];
 				if (pixel != 0xFFFF00FF)
 				{
-					Debug.Assert(x > 0 && y > 0);
-					uint top = rooms[x + (y - 1) * roomsInfo.width];
-					uint left = rooms[x - 1 + y * roomsInfo.width];
+					uint top = y > 0 ? rooms[x + (y - 1) * roomsInfo.width] : 0xFFFF00FF;
+					uint left = x > 0 ? rooms[x - 1 + y * roomsInfo.width] : 0xFFFF00FF;
 					if (top == 0xFFFF00FF && left == 0xFFFF00FF)
 					{
 						int roomWidth = 0, roomHeight = 0;
@@ -140,6 +139,25 @@ public class Room
 	Dictionary<uint, Vector2i> markers = new Dictionary<uint, Vector2i>();
 	public List<Vector2i> spawnLocations = new List<Vector2i>();
 
+
+	public Room()
+	{
+	}
+
+	public Room(RoomDef def)
+	{
+		x = 0;
+		y = 0;
+		width = def.width;
+		height = def.height;
+		roomDefID = def.id;
+		set = def.set;
+	}
+
+	public Room(string path)
+		: this(new RoomDefSet(path).roomDefs[0])
+	{
+	}
 
 	public void addMarker(uint id, int x, int y)
 	{
@@ -258,6 +276,51 @@ public class LevelGenerator
 		return result;
 	}
 
+	TileType translateTileColor(uint color, int x, int y, int xx, int yy, Room room, RoomDef roomDef, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc, Func<int, int, TileType> getTileTertiaryFunc)
+	{
+		switch (color)
+		{
+			case 0xFF000000:
+				return null;
+			case 0xFFFF0000:
+				return null;
+			case 0xFFFFFFFF:
+				return getTileFunc(x + xx, y + yy);
+			case 0xFF7F7F7F:
+				return getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone;
+			case 0xFFAFAFAF:
+				return getTileTertiaryFunc != null ? getTileTertiaryFunc(x + xx, y + yy) : TileType.sand;
+			case 0xFF0000FF:
+				return TileType.platform;
+			case 0xFFFF7F7F:
+				return TileType.dummy;
+			case 0xFF00FF00:
+				if (yy == room.set.height - 1 ||
+					(roomDef.getTile(xx, yy - 1) != 0xFF00FF00 && roomDef.getTile(xx, yy - 1) != 0xFF00FFFF))
+					level.addEntity(new Ladder(countLadderHeight(xx, yy, roomDef)), new Vector2(x + xx, y + yy));
+				return null;
+			case 0xFFFF7F00:
+				level.addEntity(new Spring(), new Vector2(x + xx + 0.5f, y + yy));
+				return null;
+			case 0xFF00FFFF:
+				return TileType.platform;
+			case 0xFF007fff:
+				return TileType.water;
+			case 0xFFFFFF00:
+				level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
+				return null;
+			case 0xFF00cf5f:
+				room.spawnLocations.Add(new Vector2i(xx, yy));
+				return null;
+			default:
+				if ((color | 0x0000FF00) == 0xFFFFFFFF) // marker
+					room.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);
+				else
+					Debug.Assert(false);
+				return null;
+		}
+	}
+
 	void placeRoom(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null, Func<int, int, TileType> getTileTertiaryFunc = null)
 	{
 		int x = room.x;
@@ -272,56 +335,42 @@ public class LevelGenerator
 			{
 				//uint color = rooms[roomDef.x + xx + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
 				uint color = roomDef.getTile(xx, yy);
-				switch (color)
-				{
-					case 0xFF000000:
-						level.setTile(x + xx, y + yy, null);
-						break;
-					case 0xFFFFFFFF:
-						level.setTile(x + xx, y + yy, getTileFunc(x + xx, y + yy));
-						break;
-					case 0xFF7F7F7F:
-						level.setTile(x + xx, y + yy, getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone);
-						break;
-					case 0xFFAFAFAF:
-						level.setTile(x + xx, y + yy, getTileTertiaryFunc != null ? getTileTertiaryFunc(x + xx, y + yy) : TileType.sand);
-						break;
-					case 0xFF0000FF:
-						level.setTile(x + xx, y + yy, TileType.platform);
-						break;
-					case 0xFFFF7F7F:
-						level.setTile(x + xx, y + yy, TileType.dummy);
-						break;
-					case 0xFF00FF00:
-						level.setTile(x + xx, y + yy, null);
-						if (yy == room.set.height - 1 ||
-							(roomDef.getTile(xx, yy - 1) != 0xFF00FF00 && roomDef.getTile(xx, yy - 1) != 0xFF00FFFF))
-							level.addEntity(new Ladder(countLadderHeight(xx, yy, roomDef)), new Vector2(x + xx, y + yy));
-						break;
-					case 0xFFFF7F00:
-						level.setTile(x + xx, y + yy, null);
-						level.addEntity(new Spring(), new Vector2(x + xx + 0.5f, y + yy));
-						break;
-					case 0xFF00FFFF:
-						level.setTile(x + xx, y + yy, TileType.platform);
-						break;
-					case 0xFF007fff:
-						level.setTile(x + xx, y + yy, TileType.water);
-						break;
-					case 0xFFFFFF00:
-						level.setTile(x + xx, y + yy, null);
-						level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
-						break;
-					case 0xFF00cf5f:
-						room.spawnLocations.Add(new Vector2i(xx, yy));
-						level.setTile(x + xx, y + yy, null);
-						break;
-					default:
-						level.setTile(x + xx, y + yy, null);
-						if ((color | 0x0000FF00) == 0xFFFFFFFF) // marker
-							room.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);
-						break;
-				}
+				TileType tile = translateTileColor(color, x, y, xx, yy, room, roomDef, level, getTileFunc, getTileSecondaryFunc, getTileTertiaryFunc);
+				level.setTile(x + xx, y + yy, tile);
+			}
+		}
+
+		/*
+		for (int i = 0; i < room.doorways.Count; i++)
+		{
+			Doorway doorway = room.doorways[i];
+			if (doorway.otherDoorway == null)
+			{
+				int xx = room.x + doorway.position.x;
+				int yy = room.y + doorway.position.y;
+				level.setTile(xx, yy, getTileFunc(xx, yy));
+			}
+		}
+		*/
+	}
+
+	void placeRoomBG(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null, Func<int, int, TileType> getTileTertiaryFunc = null)
+	{
+		int x = room.x;
+		int y = room.y;
+		int width = room.width;
+		int height = room.height;
+		RoomDef roomDef = room.set.roomDefs[room.roomDefID];
+
+		for (int yy = 0; yy < height; yy++)
+		{
+			for (int xx = 0; xx < width; xx++)
+			{
+				//uint color = rooms[roomDef.x + xx + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
+				uint color = roomDef.getTile(xx, yy);
+				TileType tile = translateTileColor(color, x, y, xx, yy, room, roomDef, level, getTileFunc, getTileSecondaryFunc, getTileTertiaryFunc);
+				if (tile != null)
+					level.setBGTile(x + xx, y + yy, tile);
 			}
 		}
 
@@ -949,6 +998,11 @@ public class LevelGenerator
 		generateMainRooms(cavesSet, floor == 0 ? specialSet.roomDefs[2] : null);
 		Room startingRoom = rooms[0];
 		Room exitRoom = rooms[rooms.Count - 1];
+		{
+			int i = 2;
+			while (exitRoom.width <= 2 || exitRoom.height <= 2)
+				exitRoom = rooms[rooms.Count - i++];
+		}
 
 		if (spawnStartingRoom)
 			startingRoom.spawnEnemies = false;
@@ -1973,33 +2027,23 @@ public class LevelGenerator
 		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
-	public void generateTutorial(Level level)
-	{
-		Debug.Assert(false); // room defs 1 is not tutorial anymore
-		RoomDef def = specialSet.roomDefs[1];
-		level.resize(def.width, def.height);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
-
-		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		level.rooms = [room];
-
-		level.infiniteEnergy = true;
-
-		level.updateLightmap(0, 0, def.width, def.height);
-	}
-
 	public void generateCliffside(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[0];
+		Room room = new Room("res/level/cliffside/room.png");
+		level.resize(room.width, room.height);
+
+		placeRoom(room, level, (int x, int y) => TileType.dirt);
+		placeRoomBG(new Room("res/level/cliffside/room1.png"), level, (int x, int y) => TileType.dirt);
+
+		level.rooms = [room];
+		level.infiniteEnergy = true;
+
+		level.updateLightmap(0, 0, room.width, room.height);
+	}
+
+	public void generateTutorial(Level level)
+	{
+		RoomDef def = specialSet.roomDefs[1];
 		level.resize(def.width, def.height);
 
 		Room room = new Room

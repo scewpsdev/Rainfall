@@ -762,6 +762,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					}
 				}
 
+				((BlockAction)actions.currentAction).cancel();
+
 				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
 			}
@@ -1191,6 +1193,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (InputManager.IsReleased("Jump"))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
+			if (InputManager.IsDown("Down"))
+				gravityMultiplier *= 2;
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 

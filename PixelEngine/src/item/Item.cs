@@ -180,7 +180,7 @@ public abstract class Item
 	public float secondaryChargeTime = 0.5f;
 	public float blockDuration = 0.7f;
 	public float blockCharge = 0.15f;
-	public float blockMovementSpeed = 0.2f;
+	public float blockMovementSpeed = 0.4f;
 	public float damageReflect = 0.0f;
 	public bool doubleBladed = true;
 	public float accuracy = 1.0f;
@@ -226,6 +226,7 @@ public abstract class Item
 	public bool breakOnWallHit = false;
 	public bool breakOnEnemyHit = false;
 	public bool tumbles = true;
+	public bool canIgnite = false;
 
 	public Sprite sprite = null;
 	public Sprite icon = null;

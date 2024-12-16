@@ -11,9 +11,6 @@ public class Cliffside : Entity
 {
 	Room room;
 	Texture waves;
-	Sprite caveBg;
-
-	Sound caveAmbience;
 
 
 	public Cliffside(Room room)
@@ -21,19 +18,25 @@ public class Cliffside : Entity
 		this.room = room;
 
 		waves = Resource.GetTexture("res/level/cliffside/waves.png", (uint)SamplerFlags.Point | (uint)SamplerFlags.VClamp);
-		caveBg = new Sprite(Resource.GetTexture("res/level/cliffside/bg2.png", false));
-
-		caveAmbience = Resource.GetSound("res/sounds/ambience.ogg");
 	}
 
 	public override void init(Level level)
 	{
+		level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(0.5f, 0.0f));
+		level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(-0.5f, 0.0f));
+
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax0.png", false), 10), new Vector2(33, 200));
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax1.png", false), 9), new Vector2(33, 200));
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax2.png", false), 8), new Vector2(33, 200));
 
 		level.addEntity(new CameraFrame(new Vector2(20, 40)), new Vector2(33, 49));
 
+		level.addEntity(new EventTrigger(new Vector2(1.0f, 2), (Player player) =>
+		{
+			GameState.instance.switchLevel(GameState.instance.hub, (Vector2)GameState.instance.hub.rooms[0].getMarker(1) + new Vector2(0.5f));
+		}, null), new Vector2(room.width - 0.1f, 38));
+
+		/*
 		level.addEntity(new EventTrigger(new Vector2(1, 3), null, (Player player) =>
 		{
 			int direction = MathF.Sign(player.velocity.x);
@@ -42,11 +45,12 @@ public class Cliffside : Entity
 			else if (direction == -1)
 				onBeachEnter();
 		}), new Vector2(59, 38));
+		*/
 	}
 
 	void onTutorialEnter()
 	{
-		GameState.instance.setAmbience(caveAmbience);
+		//GameState.instance.setAmbience(caveAmbience);
 	}
 
 	void onBeachEnter()
@@ -58,12 +62,12 @@ public class Cliffside : Entity
 	{
 		// Caves bg
 
-		Renderer.DrawSprite(room.width - caveBg.width / 16, 0, 0.5f, caveBg.width / 16, caveBg.height / 16, 0, caveBg);
+		//Renderer.DrawSprite(room.width - caveBg.width / 16, 0, 0.5f, caveBg.width / 16, caveBg.height / 16, 0, caveBg);
 
 
 		// Waves
 
-		Vector2i wavesPosition = new Vector2i(25, 37);
+		Vector2i wavesPosition = new Vector2i(25, 39);
 
 		int waveLayers = 10;
 		for (int i = -5; i < waveLayers; i++)

@@ -24,6 +24,7 @@ public class Torch : Item
 
 		canDrop = false;
 		isSecondaryItem = true;
+		canIgnite = true;
 
 		sprite = new Sprite(tileset, 8, 0);
 		hasParticleEffect = true;
