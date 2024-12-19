@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 public class Skull : Item
 {
 	public Skull()
-		: base("skull", ItemType.Weapon)
+		: base("skull", ItemType.Utility)
 	{
 		displayName = "Skull";
 
 		projectileItem = true;
 		breakOnWallHit = true;
+		isHandItem = true;
 
 		baseDamage = 4;
 
@@ -22,6 +23,8 @@ public class Skull : Item
 		upgradable = false;
 
 		sprite = new Sprite(tileset, 0, 0);
+
+		hitSound = woodHit;
 	}
 
 	public override bool use(Player player)

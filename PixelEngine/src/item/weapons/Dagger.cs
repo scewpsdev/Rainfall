@@ -21,7 +21,7 @@ public class Dagger : Item
 		projectileSticks = true;
 		//projectileAims = true;
 		projectileSpins = true;
-		isSecondaryItem = true;
+		//isSecondaryItem = true;
 		baseWeight = 1;
 
 		value = 4;

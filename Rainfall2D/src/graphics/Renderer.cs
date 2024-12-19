@@ -897,6 +897,12 @@ public static class Renderer
 		{
 			SpriteDraw draw = draws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+
+			u0 += 0.000001f;
+			v0 += 0.000001f;
+			u1 -= 0.000001f;
+			v1 -= 0.000001f;
+
 			if (draw.useTransform)
 			{
 				// pixel perfect correction

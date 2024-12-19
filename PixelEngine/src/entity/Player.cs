@@ -24,7 +24,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float FALL_DAMAGE_DISTANCE = 10;
 	const float MANA_KILL_REWARD = 0.5f;
 #if DEBUG
-	const float SPRINT_MANA_COST = 0.5f;
+	const float SPRINT_MANA_COST = 0.25f;
 #else
 	const float SPRINT_MANA_COST = 0.5f;
 #endif
@@ -43,13 +43,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	//public float maxHealth = 3;
 	public float health = 3;
-	public float maxHealth => 2 + hp * 0.25f;
+	public float maxHealth => hp * 0.5f;
 
 	//public float maxMana = 2;
-	public float mana = 2;
-	public float maxMana => magic;
+	public float mana = 1;
+	public float maxMana => magic * 0.5f;
 
-	public int hp = 2;
+	public int hp = 6;
 	public int magic = 2;
 	public int strength = 1;
 	public int dexterity = 1;
@@ -200,6 +200,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		intelligence = startingClass.intelligence;
 		hp = startingClass.hp;
 		magic = startingClass.magic;
+
+		health = maxHealth;
+		mana = maxMana;
 
 		money = Math.Max(money - startingClass.cost, 0);
 
@@ -931,12 +934,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	void onLevelUp()
 	{
-		//availableStatUpgrades++;
-		hp++;
-		magic++;
-		strength++;
-		dexterity++;
-		intelligence++;
+		availableStatUpgrades++;
+		//hp++;
+		//magic++;
+		//strength++;
+		//dexterity++;
+		//intelligence++;
 
 		if (playerLevel % 5 == 0)
 			GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
@@ -998,14 +1001,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					TileType tile = GameState.instance.level.getTile(position);
 					if (position.x - MathF.Floor(position.x) > -collider.position.x && MathF.Ceiling(position.x) - position.x > collider.position.x + collider.size.x &&
-						tile != null && tile.isPlatform && MathHelper.Fract(position.y) > 0.75f)
-						position.y = MathF.Floor(position.y) + 0.74f;
+						tile != null && tile.isPlatform && MathHelper.Fract(position.y) > tile.platformHeight - 0.25f)
+						position.y = MathF.Floor(position.y) + tile.platformHeight - 0.25f;
 				}
 			}
 
-			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.2f), position + new Vector2(collider.max.x + 0.1f, 0.8f)))
+			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, 0.9f)))
 				lastWallTouchRight = Time.currentTime;
-			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.1f, 0.2f), position + new Vector2(0.0f, 0.8f)))
+			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
 				lastWallTouchLeft = Time.currentTime;
 
 			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
@@ -1194,7 +1197,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
 			if (InputManager.IsDown("Down"))
-				gravityMultiplier *= 2;
+				gravityMultiplier *= 1.5f;
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
@@ -1690,7 +1693,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			for (int i = 0; i < passiveItems.Count; i++)
 			{
 				if (passiveItems[i].ingameSprite != null)
-					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}
 			for (int i = 0; i < activeItems.Length; i++)

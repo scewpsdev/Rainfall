@@ -204,6 +204,9 @@ public class Level
 			entity.destroy();
 		}
 		entities.Clear();
+
+		if (lightmap != null)
+			Renderer.graphics.destroyTexture(lightmap);
 	}
 
 	public void addEntity(Entity entity, bool init = true)
@@ -378,8 +381,15 @@ public class Level
 				TileType tile = getTile(x, y);
 				if (tile != null)
 				{
-					if (tile.isSolid || tile.isPlatform && falling && !downInput && min.y - y - 1 > -0.25f)
+					if (tile.isSolid)
 						return true;
+					else if (tile.isPlatform && falling && !downInput && min.y - (y + tile.platformHeight) > -0.25f)
+					{
+						Vector2 t0 = new Vector2(x, y);
+						Vector2 t1 = new Vector2(x + 1, y + tile.platformHeight);
+						if (t1.x > min.x && t1.y > min.y && t0.x < max.x && t1.y < max.y)
+							return true;
+					}
 				}
 			}
 		}
@@ -540,7 +550,7 @@ public class Level
 		for (int i = 0; i < 128; i++)
 		{
 			TileType value = getTile(pos.x, pos.y);
-			if (value != null && !value.destructible)
+			if (value != null && !value.destructible && value.visible)
 			{
 				hit = true;
 				break;

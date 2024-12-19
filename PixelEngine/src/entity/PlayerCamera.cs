@@ -125,7 +125,7 @@ public class PlayerCamera : Entity
 		if (height < level.height)
 			position.y = MathHelper.Clamp(position.y, y0, y1);
 		else
-			position.y = 0.5f * level.height;
+			position.y = MathF.Min(position.y, 0.5f * level.height);
 
 		currentScreenShake = Vector2.Zero;
 		for (int i = 0; i < screenShakes.Count; i++)

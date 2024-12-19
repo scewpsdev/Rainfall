@@ -21,7 +21,7 @@ public class PixelEngine : Game
 {
 	const int VERSION_MAJOR = 0;
 	const int VERSION_MINOR = 1;
-	const int VERSION_PATCH = 8;
+	const int VERSION_PATCH = 9;
 	const char VERSION_SUFFIX = 'a';
 
 

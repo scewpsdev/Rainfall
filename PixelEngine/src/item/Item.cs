@@ -584,6 +584,7 @@ public abstract class Item
 		InitType(new Shortsword());
 		InitType(new IronArmor());
 		InitType(new Formation());
+		InitType(new LeatherCap());
 	}
 
 	static void InitType(Item item)
@@ -660,7 +661,7 @@ public abstract class Item
 			}
 		}
 
-		while (newItem.stackable && newItem.value * newItem.stackSize * 3 / 2 < 0.5f * meanValue)
+		while (newItem.stackable && newItem.type != ItemType.Food && newItem.value * newItem.stackSize * 3 / 2 < 0.5f * meanValue)
 		{
 			int difference = (int)(meanValue / newItem.value - newItem.stackSize);
 			newItem.stackSize += MathHelper.RandomInt(1, difference, random);
@@ -669,13 +670,14 @@ public abstract class Item
 		//	newItem.stackSize = MathHelper.RandomInt(1, 35, random);
 		//else if (newItem.name == "throwing_knife")
 		//	newItem.stackSize = MathHelper.RandomInt(1, 10, random);
-		if (newItem.type == ItemType.Staff)
-			newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
-		else if (newItem.type == ItemType.Potion)
+
+		//if (newItem.type == ItemType.Staff)
+		//newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
+		//else
+		if (newItem.type == ItemType.Potion)
 		{
 			Potion potion = newItem as Potion;
-			float throwableChance = 0.3f;
-			if (random.NextSingle() < throwableChance)
+			if (random.NextSingle() < potion.throwableChance)
 				potion.makeThrowable();
 		}
 
@@ -732,9 +734,6 @@ public abstract class Item
 			r += distribution[i];
 			if (f < r)
 			{
-				if (distribution == DropRates.chest)
-					Console.WriteLine((ItemType)i);
-
 				Item item = CreateRandom((ItemType)i, random, meanValue);
 				if (item != null)
 				{

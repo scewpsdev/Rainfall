@@ -29,19 +29,19 @@ public class CavesBossRoom : Entity
 		{
 			level.addEntity(boss, (Vector2)p);
 
-			level.addEntity(gate0 = new BossGate(boss, room, true), (Vector2)room.getMarker(101));
+			//level.addEntity(gate0 = new BossGate(boss, room, true), (Vector2)room.getMarker(101));
 			level.addEntity(gate1 = new BossGate(boss, room, false), (Vector2)room.getMarker(102));
 		}
 	}
 
 	public override void update()
 	{
-		if (!gate0.isOpen && GameState.instance.currentBoss == null)
+		if (/*!gate0.isOpen &&*/ GameState.instance.currentBoss == null)
 		{
 			GameState.instance.currentBoss = boss;
 			GameState.instance.currentBossMaxHealth = boss.maxHealth;
 		}
-		else if (gate0.isOpen && GameState.instance.currentBoss == boss)
+		else if (/*gate0.isOpen &&*/ GameState.instance.currentBoss == boss)
 		{
 			GameState.instance.currentBoss = null;
 		}

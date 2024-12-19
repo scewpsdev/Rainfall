@@ -15,6 +15,7 @@ public class TileType
 	public bool visible = true;
 	public bool isSolid = true;
 	public bool isPlatform = false;
+	public float platformHeight = 1.0f;
 	public bool isLiquid = false;
 	public bool destructible = false;
 	public bool breaksArrows = false;
@@ -33,6 +34,7 @@ public class TileType
 	public static TileType dummy;
 	public static TileType dirt;
 	public static TileType platform;
+	public static TileType dummyPlatform;
 	public static TileType stone;
 	public static TileType sand;
 	public static TileType path;
@@ -58,6 +60,7 @@ public class TileType
 			bottom = [new Sprite(tileset, 4, 2), new Sprite(tileset, 9, 2), new Sprite(tileset, 10, 2), new Sprite(tileset, 11, 2), new Sprite(tileset, 12, 2)],
 		});
 		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 2)] });
+		AddTileType(dummyPlatform = new TileType() { name = "dummy_platform", isPlatform = true, platformHeight = 0.75f, isSolid = false, visible = false });
 		AddTileType(stone = new TileType()
 		{
 			name = "stone_block",
@@ -78,7 +81,7 @@ public class TileType
 			sprites = [new Sprite(tileset, 4, 16)],
 			left = [new Sprite(tileset, 3, 16)],
 			right = [new Sprite(tileset, 5, 16)],
-			top = [new Sprite(tileset, 4, 15), new Sprite(tileset, 9, 15), new Sprite(tileset, 10, 15), new Sprite(tileset, 11, 15), new Sprite(tileset, 12, 15)],
+			top = [new Sprite(tileset, 4, 15), new Sprite(tileset, 3, 17), new Sprite(tileset, 4, 17), new Sprite(tileset, 5, 17), new Sprite(tileset, 6, 17)],
 			bottom = [new Sprite(tileset, 4, 17)],
 		});
 		AddTileType(path = new TileType()

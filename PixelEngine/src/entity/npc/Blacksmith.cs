@@ -23,8 +23,25 @@ public class Blacksmith : NPC
 		buysItems = true;
 		canUpgrade = true;
 
-		initialDialogue = new Dialogue();
-		initialDialogue.addVoiceLine("Mmh.");
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET))
+		{
+			initialDialogue = new Dialogue();
+			initialDialogue.addVoiceLine("A thousand souls, and yet none strong enough to escape this \\bwretched\\0 place.");
+			initialDialogue.addVoiceLine("What makes you think you'll fare any better?").addCallback(() =>
+			{
+				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
+			});
+		}
+		else
+		{
+			initialDialogue = new Dialogue();
+			initialDialogue.addVoiceLine("Take what you need, if you can bear the weight.");
+		}
+
+		Dialogue dialogue = new Dialogue();
+		dialogue.addVoiceLine("Hmm?");
+		dialogue.addVoiceLine("I'm not up for chatting.");
+		addDialogue(dialogue);
 
 		populateShop(random, 2, 8, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}

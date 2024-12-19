@@ -31,13 +31,12 @@ public class ArmorStand : Entity, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return startingClass != null; // && player.money >= cost;
+		return player.startingClass != startingClass; // && player.money >= cost;
 	}
 
 	public void interact(Player player)
 	{
 		player.setStartingClass(startingClass);
-		startingClass = null;
 	}
 
 	public void onFocusEnter(Player player)
@@ -57,11 +56,13 @@ public class ArmorStand : Entity, Interactable
 
 	public override void render()
 	{
+		bool renderClass = GameState.instance.player.startingClass != startingClass;
+
 		if (outline != 0)
 		{
 			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.002f, 1, 1, 0, sprite, direction == -1, outline);
 
-			if (startingClass != null)
+			if (renderClass)
 			{
 				for (int i = 0; i < startingClass.items.Length; i++)
 				{
@@ -83,7 +84,7 @@ public class ArmorStand : Entity, Interactable
 
 		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite, direction == -1);
 
-		if (startingClass != null)
+		if (renderClass)
 		{
 			for (int i = 0; i < startingClass.items.Length; i++)
 			{

@@ -25,15 +25,15 @@ public class RopeEntity : Entity, Climbable
 
 	public FloatRect getArea()
 	{
-		return new FloatRect(-0.5f, -height - 0.5f, 1, height + 1);
+		return new FloatRect(0, 0, 1, height);
 	}
 
 	public override void render()
 	{
-		for (int i = 0; i < height + 1; i++)
+		for (int i = 0; i < height; i++)
 		{
-			Sprite s = i == 0 ? bottomSprite : i == height ? topSprite : sprite;
-			Renderer.DrawSprite(position.x - 0.5f, position.y - height - 0.5f + i, LAYER_BG, 1, 1, 0, s, false, 0xFFFFFFFF);
+			Sprite s = i == 0 ? bottomSprite : i == height - 1 ? topSprite : sprite;
+			Renderer.DrawSprite(position.x, position.y + i, LAYER_BG, 1, 1, 0, s, false, 0xFFFFFFFF);
 		}
 	}
 }

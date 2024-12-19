@@ -160,10 +160,6 @@ public class GameState : State
 		player = new Player();
 		camera = new PlayerCamera(player);
 
-		player.money = 8;
-		player.items.Add(new TravellingCloak());
-		player.passiveItems.Add(player.items[0]);
-
 
 		// Cliffside
 		Door tutorialDoor;
@@ -175,7 +171,7 @@ public class GameState : State
 			cliffside.bg = Resource.GetTexture("res/level/cliffside/bg.png", false);
 			cliffside.ambientSound = Resource.GetSound("res/sounds/ambience4.ogg");
 
-			tutorialDoor = new Door(tutorial);
+			tutorialDoor = new TutorialEntranceDoor(tutorial);
 			cliffside.addEntity(tutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
 
 			//cliffside.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString(), 0xFFFFFFFF), cliffside.rooms[0].getMarker(32) + new Vector2(0, 1.5f));
@@ -186,7 +182,7 @@ public class GameState : State
 			generator.generateTutorial(tutorial);
 			tutorial.addEntity(new Tutorial(tutorial.rooms[0]));
 
-			Door cliffsideDoor = new Door(cliffside, tutorialDoor);
+			Door cliffsideDoor = new TutorialExitDoor(cliffside, tutorialDoor);
 			tutorialDoor.otherDoor = cliffsideDoor;
 			tutorial.addEntity(cliffsideDoor, (Vector2)tutorial.rooms[0].getMarker(0x21));
 		}
@@ -194,68 +190,7 @@ public class GameState : State
 
 		generator.generateHub(hub);
 
-		hub.addEntity(new HubRoom(hub.rooms[0]));
-
-		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(hub.width, hub.height) * 0.5f);
-		hub.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(hub.width, hub.height) * 0.5f);
-
-		hub.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
-
-		hub.addEntity(new Fountain(FountainEffect.None), hub.rooms[0].getMarker(11) + new Vector2(7, 0));
-
-		ArmorStand barbarianClass, knightClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
-
-		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_BARBARIAN))
-			hub.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), hub.rooms[0].getMarker(10) + new Vector2(-2, 0));
-		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_KNIGHT))
-			hub.addEntity(knightClass = new ArmorStand(StartingClass.knight, -1), hub.rooms[0].getMarker(10) + new Vector2(2, 0));
-		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_THIEF))
-			hub.addEntity(thiefClass = new ArmorStand(StartingClass.thief), hub.rooms[0].getMarker(10) + new Vector2(-3.5f, 0));
-		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_HUNTER))
-			hub.addEntity(hunterClass = new ArmorStand(StartingClass.hunter, -1), hub.rooms[0].getMarker(10) + new Vector2(3.5f, 0));
-		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_FOOL))
-			hub.addEntity(foolClass = new ArmorStand(StartingClass.fool), hub.rooms[0].getMarker(10) + new Vector2(-5, 0));
-		if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_WIZARD))
-			hub.addEntity(wizardClass = new ArmorStand(StartingClass.wizard, -1), hub.rooms[0].getMarker(10) + new Vector2(5, 0));
-
-#if DEBUG
-		hub.addEntity(devClass = new ArmorStand(StartingClass.dev, -1), hub.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
-#endif
-
-		BuilderMerchant npc = new BuilderMerchant(Random.Shared, hub);
-		npc.clearShop();
-		npc.addShopItem(new Rock());
-		npc.addShopItem(new Torch());
-		npc.addShopItem(new Bomb());
-		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
-		npc.direction = 1;
-		npc.buysItems = false;
-		hub.addEntity(npc, (Vector2)hub.rooms[0].getMarker(10) + new Vector2(-20, 0));
-
-		hub.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
-		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
-		{
-			RatNPC rat = new RatNPC();
-			rat.clearShop();
-			rat.direction = 1;
-			hub.addEntity(rat, (Vector2)hub.rooms[0].getMarker(0x0e));
-		}
-
-		for (int i = 0; i < save.highscores.Length; i++)
-		{
-			Vector2 position = new Vector2(101 + i * 5, 24);
-			hub.addEntity(new Pedestal(), position);
-
-			if (save.highscores[i].score > 0)
-			{
-				string[] label = i == 0 ? ["Highest Score:", save.highscores[i].score.ToString()] :
-					i == 1 ? ["Highest Floor:", save.highscores[i].floor != -1 ? (save.highscores[i].floor + 1).ToString() : "???"] :
-					i == 2 ? ["Fastest Time:", save.highscores[i].time != -1 ? StringUtils.TimeToString(save.highscores[i].time) : "???"] :
-					i == 3 ? ["Most kills:", save.highscores[i].kills.ToString()] : ["???"];
-				uint color = RunStats.recordColors[i];
-				hub.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);
-			}
-		}
+		hub.addEntity(new Hub(hub.rooms[0]));
 
 
 		// Gode meme
@@ -279,11 +214,18 @@ public class GameState : State
 
 		areaCaves = generator.generateCaves(run.seed);
 
-		Door dungeonDoor = new Door(areaCaves[0], areaCaves[0].entrance, true, ParallaxObject.ZToLayer(0.75f));
-		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
-		hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(11));
+		Door fakeDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
+		fakeDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
+		hub.addEntity(fakeDoor, (Vector2)hub.rooms[0].getMarker(11));
+		areaCaves[0].entrance.destination = hub;
+		areaCaves[0].entrance.otherDoor = fakeDoor;
+
+		/*
+		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance);
+		hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(12));
 		areaCaves[0].entrance.destination = hub;
 		areaCaves[0].entrance.otherDoor = dungeonDoor;
+		*/
 
 		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
 		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
@@ -305,13 +247,24 @@ public class GameState : State
 			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
 			if (startingClass != null)
 				player.setStartingClass(startingClass);
+			else
+			{
+				player.money = 8;
+				player.items.Add(new TravellingCloak());
+				player.passiveItems.Add(player.items[0]);
+			}
 			levelSwitchTime = -1;
 		}
 		else if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
 		{
 			level = null;
-			switchLevel(hub, (Vector2)hub.rooms[0].getMarker(10));
+			Vector2 spawnPosition = (Vector2)hub.rooms[0].getMarker(10);
+			switchLevel(hub, spawnPosition);
 			levelSwitchTime = -1;
+
+			player.money = 8;
+			player.items.Add(new TravellingCloak());
+			player.passiveItems.Add(player.items[0]);
 		}
 		else
 		{
@@ -347,11 +300,11 @@ public class GameState : State
 	{
 		if (ambientSource != 0)
 		{
-			Audio.FadeoutSource(ambientSource, 5);
+			Audio.FadeoutSource(ambientSource, 2);
 			ambientSource = 0;
 		}
 		if (ambience != null)
-			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 5);
+			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 2);
 	}
 
 	public void switchLevel(Level newLevel, Vector2 spawnPosition)
@@ -538,6 +491,10 @@ public class GameState : State
 
 		if (consoleOpen)
 			DebugConsole.Render();
+
+#if DEBUG
+		Renderer.DrawUITextBMP(0, Renderer.UIHeight - 8, "x: " + player.position.x.ToString("0.0") + ", y: " + player.position.y.ToString("0.0"));
+#endif
 	}
 
 	public override void drawDebugStats(int y, byte color, GraphicsDevice graphics)

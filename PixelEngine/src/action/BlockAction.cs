@@ -29,8 +29,12 @@ public class BlockAction : EntityAction
 		base.update(player);
 
 		bool input = InputManager.IsDown(mainHand ? "Attack" : "Attack2");
-		if (shield.type == ItemType.Shield && !input)
-			cancel();
+		if (shield.type == ItemType.Shield)
+		{
+			direction = player.lookDirection.normalized;
+			if (!input)
+				cancel();
+		}
 	}
 
 	public override void onStarted(Player player)

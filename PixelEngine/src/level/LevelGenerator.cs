@@ -237,6 +237,7 @@ public class LevelGenerator
 	RoomDefSet minesSet;
 
 	string seed;
+	int numFloors;
 	int floor;
 	Level level;
 	Random random;
@@ -543,7 +544,7 @@ public class LevelGenerator
 				Debug.Assert(level.width - roomDef.width - 6 >= 0 && level.height - roomDef.height >= 0);
 
 				int startingRoomX = level.width / 2 - roomDef.width / 2; // random.Next() % Math.Max(level.width - roomDef.width - 6, 1) + 3;
-				int startingRoomY = level.height - roomDef.height - 8; // random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
+				int startingRoomY = Math.Max(level.height - roomDef.height - 8, 0); // random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
 				Room room = new Room
 				{
 					x = startingRoomX,
@@ -554,6 +555,9 @@ public class LevelGenerator
 					set = roomDef.set
 				};
 				room.isMainPath = true;
+
+				if (startingRoomX < 0 || startingRoomY < 0)
+					Debug.Assert(false);
 
 				for (int i = 0; i < roomDef.doorDefs.Count; i++)
 				{
@@ -688,22 +692,24 @@ public class LevelGenerator
 
 	void spawnRoomObject(List<Room> roomList, float chance, bool allowMultiple, Action<Vector2i, Random, Room> spawnFunc)
 	{
-		if (random.NextSingle() < chance)
+		MathHelper.ShuffleList(roomList, random);
+		roomList.Sort((Room room1, Room room2) =>
 		{
-			MathHelper.ShuffleList(roomList, random);
-			roomList.Sort((Room room1, Room room2) =>
-			{
-				if (!room1.hasObject && room2.hasObject)
-					return -1;
-				else if (room1.hasObject && !room2.hasObject)
-					return 1;
-				else
-					return 0;
-			});
+			if (!room1.hasObject && room2.hasObject)
+				return -1;
+			else if (room1.hasObject && !room2.hasObject)
+				return 1;
+			else
+				return 0;
+		});
 
-			for (int i = 0; i < roomList.Count; i++)
+		chance /= roomList.Count;
+
+		for (int i = 0; i < roomList.Count; i++)
+		{
+			Room room = roomList[i];
+			if (random.NextSingle() < chance)
 			{
-				Room room = roomList[i];
 				if (room.getFloorSpawn(level, random, objectFlags, out Vector2i tile))
 				{
 					spawnFunc(tile, random, room);
@@ -808,6 +814,21 @@ public class LevelGenerator
 		return null;
 	}
 
+	void generateCaveBackground(Level level, Simplex simplex)
+	{
+		for (int y = 0; y < level.height; y++)
+		{
+			for (int x = 0; x < level.width; x++)
+			{
+				float progress = 1 - y / (float)level.height;
+				float type = simplex.sample2f(x * 0.05f, -y * 0.05f) - progress * 0.4f;
+				float mask = simplex.sample2f(-x * 0.05f, y * 0.05f);
+				TileType tile = mask < 0 ? null : type > -0.1f ? TileType.dirt : TileType.stone;
+				level.setBGTile(x, y, tile);
+			}
+		}
+	}
+
 	public Level[] generateCaves(string seed)
 	{
 		/*
@@ -857,17 +878,20 @@ public class LevelGenerator
 		*/
 
 
-		Level[] areaCaves = new Level[2];
+		numFloors = 2;
+		Level[] areaCaves = new Level[numFloors + 1];
 		Vector3 lightAmbience = Vector3.One;
 		Vector3 darkAmbience = new Vector3(0.001f);
-		areaCaves[0] = new Level(0, "Caves", 200, 300, TileType.dirt) { ambientLight = darkAmbience };
-		areaCaves[1] = new Level(1, "") { ambientLight = lightAmbience };
+		areaCaves[0] = new Level(0, "Caves", 200, 200, TileType.dirt) { ambientLight = lightAmbience };
+		areaCaves[1] = new Level(0, "Deep Caves", 200, 200, TileType.dirt) { ambientLight = darkAmbience };
+		areaCaves[2] = new Level(1, "") { ambientLight = lightAmbience };
 
 		generateCaveFloor(seed, 0, true, areaCaves[0], areaCaves[1], null, null);
-		areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
-		areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
+		generateCaveFloor(seed, 1, false, areaCaves[1], areaCaves[2], areaCaves[0], null);
+		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
+		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
 
-		generateCaveBossFloor(areaCaves[1], null, areaCaves[0], areaCaves[0].exit);
+		generateCaveBossFloor(areaCaves[2], null, areaCaves[1], areaCaves[1].exit);
 
 		return areaCaves;
 	}
@@ -879,7 +903,7 @@ public class LevelGenerator
 		Vector2 exitPosition = level.exit.position;
 		Vector2 toRoom = roomPosition - entrancePosition;
 		Vector2 toExit = exitPosition - entrancePosition;
-		float progress = Vector2.Dot(toRoom, toExit.normalized) / toExit.length;
+		float progress = Vector2.Dot(toRoom, toExit.normalized) / toExit.length / numFloors + floor / (float)numFloors;
 		return level.lootValue + progress * 5;
 	}
 
@@ -985,8 +1009,8 @@ public class LevelGenerator
 
 		level.rooms = rooms;
 		level.ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
-		level.fogFalloff = 0.04f;
-		level.fogColor = new Vector3(0.1f);
+		//level.fogFalloff = 0.04f;
+		//level.fogColor = new Vector3(0.1f);
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
@@ -1019,6 +1043,8 @@ public class LevelGenerator
 			});
 		}
 
+		generateCaveBackground(level, simplex);
+
 		createDoors(spawnStartingRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
 		List<Room> deadEnds = new List<Room>();
@@ -1047,8 +1073,10 @@ public class LevelGenerator
 
 		// Starting weapon
 		List<Room> roomsWithStartingWeapon = mainRooms.Slice(0, 2);
-		roomsWithStartingWeapon.Add(deadEnds[0]);
-		roomsWithStartingWeapon.Add(deadEnds[1]);
+		if (deadEnds.Count > 0)
+			roomsWithStartingWeapon.Add(deadEnds[0]);
+		if (deadEnds.Count > 1)
+			roomsWithStartingWeapon.Add(deadEnds[1]);
 		spawnRoomObject(roomsWithStartingWeapon, 1, false, (Vector2i tile, Random random, Room room) =>
 		{
 			TileType left = level.getTile(tile.x - 1, tile.y);
@@ -1070,21 +1098,21 @@ public class LevelGenerator
 		});
 
 		// Fountain
-		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 1.0f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			Fountain fountain = new Fountain(random);
 			level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.05f, 0.02f), true, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 3.0f, true, (Vector2i tile, Random random, Room room) =>
 		{
 			int amount = MathHelper.RandomInt(2, 7, random);
 			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
 		});
 
 		// Items
-		spawnRoomObject(deadEnds, 0.65f, false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 2.0f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			spawnItem(tile.x, tile.y, getRoomLootValue(room));
 		});
@@ -1318,7 +1346,7 @@ public class LevelGenerator
 
 
 		// Builder merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.1f, 0.03f), false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			BuilderMerchant npc = new BuilderMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1326,7 +1354,7 @@ public class LevelGenerator
 		});
 
 		// Traveller merchant
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			TravellingMerchant npc = new TravellingMerchant(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1334,7 +1362,7 @@ public class LevelGenerator
 		});
 
 		// Logan
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.3f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			Logan npc = new Logan(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1342,7 +1370,7 @@ public class LevelGenerator
 		});
 
 		// Blacksmith
-		spawnRoomObject(deadEnds, floor == 3 ? 1 : MathHelper.Remap(floor, 1, 5, 0.1f, 0.02f), false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			Blacksmith npc = new Blacksmith(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1350,7 +1378,7 @@ public class LevelGenerator
 		});
 
 		// Tinkerer
-		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 1, 5, 0.01f, 0.05f), false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.3f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			Tinkerer npc = new Tinkerer(random, level);
 			npc.direction = random.Next() % 2 * 2 - 1;
@@ -1360,7 +1388,7 @@ public class LevelGenerator
 		// Rat NPC
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED) && !ratSpawned)
 		{
-			spawnRoomObject(deadEnds, !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? 0.1f : 0.02f, false, (Vector2i tile, Random random, Room room) =>
+			spawnRoomObject(deadEnds, !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? 0.7f : 0.1f, false, (Vector2i tile, Random random, Room room) =>
 			{
 				RatNPC npc = new RatNPC();
 				npc.direction = random.Next() % 2 * 2 - 1;
@@ -1387,31 +1415,20 @@ public class LevelGenerator
 			Vector2 exitPosition = level.exit.position;
 			Vector2 toPosition = position - entrancePosition;
 			Vector2 toExit = exitPosition - entrancePosition;
-			float progress = Vector2.Dot(toPosition, toExit.normalized) / toExit.length;
+			float progress = MathF.Max(Vector2.Dot(toPosition, toExit.normalized) / toExit.length, 0) / numFloors + floor / (float)numFloors;
 
 			List<Mob> mobs = new List<Mob>();
-			if (down != null)
-			{
-				mobs.Add(new Rat());
-				mobs.Add(new Spider());
-				mobs.Add(new Snake());
-			}
-			if (down == null)
-				mobs.Add(new Bat());
-			if (down != null)
-			{
-				mobs.Add(new Slime());
-				mobs.Add(new SkeletonArcher());
-				mobs.Add(new GreenSpider());
-			}
-			if (down == null)
-				mobs.Add(new OrangeBat());
-			if (down != null)
-			{
-				mobs.Add(new BlueSlime());
-				mobs.Add(new Leprechaun());
-				mobs.Add(new Gandalf());
-			}
+			mobs.Add(new Rat());
+			mobs.Add(new Spider());
+			mobs.Add(new Snake());
+			mobs.Add(new Bat());
+			mobs.Add(new Slime());
+			mobs.Add(new SkeletonArcher());
+			mobs.Add(new GreenSpider());
+			mobs.Add(new OrangeBat());
+			mobs.Add(new BlueSlime());
+			mobs.Add(new Leprechaun());
+			mobs.Add(new Gandalf());
 
 			int selection = MathHelper.Clamp((int)((progress + random.NextSingle() * 0.2f) * mobs.Count), 0, mobs.Count - 1);
 			Mob enemy = mobs[selection];
@@ -1884,7 +1901,7 @@ public class LevelGenerator
 		// Barrel
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
-			if (tile == null && down != null)
+			if (tile == null && down != null && down.visible)
 			{
 				float barrelChance = MathF.Max(simplex.sample2f(x * 0.03f, y * 0.03f) * 0.3f - 0.1f, 0);
 				if (random.NextSingle() < barrelChance)
@@ -2003,28 +2020,19 @@ public class LevelGenerator
 
 	public void generateHub(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[5];
-		level.resize(def.width, def.height);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
+		Room room = new Room("res/level/hub/hub.png");
+		level.resize(room.width, room.height);
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		level.rooms = [room];
+		placeRoomBG(new Room("res/level/hub/hub1.png"), level, (int x, int y) => TileType.dirt);
 
+		level.rooms = [room];
+		level.infiniteEnergy = true;
 		level.fogFalloff = 0.1f;
 		//level.fogColor = new Vector3(0.1f);
 		level.fogColor = new Vector3(0.0f);
-		level.infiniteEnergy = true;
 
-		level.updateLightmap(0, 0, def.width, def.height);
+		level.updateLightmap(0, 0, room.width, room.height);
 	}
 
 	public void generateCliffside(Level level)
@@ -2060,6 +2068,9 @@ public class LevelGenerator
 		level.rooms = [room];
 
 		level.infiniteEnergy = true;
+
+		Simplex simplex = new Simplex(12345, 3);
+		generateCaveBackground(level, simplex);
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

@@ -34,6 +34,18 @@ public class Barrel : Entity, Hittable
 	{
 	}
 
+	public override void init(Level level)
+	{
+		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		level.setTile(tile.x, tile.y, TileType.dummyPlatform);
+	}
+
+	public override void destroy()
+	{
+		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		level.setTile(tile.x, tile.y, null);
+	}
+
 	void dropItems()
 	{
 		for (int i = 0; i < items.Length; i++)
@@ -68,6 +80,11 @@ public class Barrel : Entity, Hittable
 		health -= damage;
 		if (health <= 0)
 			breakBarrel();
+		else
+		{
+			GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF675051), position);
+			Audio.PlayOrganic(breakSound, new Vector3(position, 0));
+		}
 		return true;
 	}
 

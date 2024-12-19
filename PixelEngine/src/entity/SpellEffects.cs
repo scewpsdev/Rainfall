@@ -70,7 +70,7 @@ public static class SpellEffects
 		Audio.PlayOrganic(Resource.GetSound("res/sounds/explosion.ogg"), new Vector3(position, 0));
 	}
 
-	public static void TeleportEntity(Entity entity, bool onGround = false, Vector2 center = default, float maxRange = 20)
+	public static void TeleportEntity(Entity entity, bool onGround, Vector2 center, float maxRange = 20)
 	{
 		for (int i = 0; i < 1000; i++)
 		{
@@ -94,5 +94,11 @@ public static class SpellEffects
 			Player player = entity as Player;
 			player.hud.showMessage("Everything around you starts spinning.");
 		}
+	}
+
+	public static void TeleportEntity(Entity entity, float maxRange = 20)
+	{
+		Vector2 center = entity.position + (entity.collider != null ? entity.collider.center : Vector2.Zero);
+		TeleportEntity(entity, false, center, maxRange);
 	}
 }

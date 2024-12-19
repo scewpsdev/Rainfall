@@ -1,4 +1,5 @@
-flags = [ 1615716108 ]
+flags = [ 1615716108, 952437344 ]
+runs_finished = 0
 highscores = [ {
 score = 0
 floor = -1

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 public class Potion : Item
 {
 	public List<PotionEffect> effects = new List<PotionEffect>();
+	public float throwableChance = 0.0f;
 	bool throwable = false;
 
 	public float spillRadius = 1.5f;

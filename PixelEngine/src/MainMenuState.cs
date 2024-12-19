@@ -67,19 +67,19 @@ public class MainMenuState : State
 					currentButton = 0;
 					break;
 
-					/*
-				case 1: // Daily Run
-					DateTime today = DateTime.Today;
-					int day = today.DayOfYear;
-					int year = today.Year;
-					uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
-					//PixelEngine.instance.pushState(new GameState(seed.ToString()));
-					break;
+				/*
+			case 1: // Daily Run
+				DateTime today = DateTime.Today;
+				int day = today.DayOfYear;
+				int year = today.Year;
+				uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
+				//PixelEngine.instance.pushState(new GameState(seed.ToString()));
+				break;
 
-				case 2: // Custom Run
-					screen = MainMenuScreen.CustomRunSettings;
-					break;
-					*/
+			case 2: // Custom Run
+				screen = MainMenuScreen.CustomRunSettings;
+				break;
+				*/
 
 				case 1: // Options
 					screen = MainMenuScreen.Options;
@@ -175,6 +175,8 @@ public class MainMenuState : State
 		drawLineRight("Lenee");
 		drawLineRight("Tojota");
 		drawLineRight("SovereignsGreed");
+		drawLineRight("Siegbruh");
+		drawLineRight("Souls_Lito");
 		drawLine("");
 		drawLine("Libraries:");
 		back();

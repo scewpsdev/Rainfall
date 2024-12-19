@@ -19,12 +19,12 @@ public class Door : Entity, Interactable
 	public Door otherDoor;
 	public bool finalExit = false;
 
-	Sprite sprite;
-	FloatRect rect;
-	uint outline = 0;
-	float layer;
+	protected Sprite sprite;
+	protected FloatRect rect;
+	protected uint outline = 0;
+	protected float layer;
 
-	Sound openSound;
+	protected Sound openSound;
 
 
 	public Door(Level destination, Door otherDoor = null, bool big = false, float layer = 0)
@@ -41,7 +41,12 @@ public class Door : Entity, Interactable
 		openSound = Resource.GetSound("res/sounds/chest_close.ogg");
 	}
 
-	public void interact(Player player)
+	public bool canInteract(Player player)
+	{
+		return destination != null && otherDoor != null;
+	}
+
+	public virtual void interact(Player player)
 	{
 		if (finalExit)
 			GameState.instance.stopRun(true);

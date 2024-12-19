@@ -10,7 +10,7 @@ public class ExplosiveBarrel : Entity, Hittable
 {
 	public float health = 4;
 
-	float fuseTime = 1.5f;
+	float fuseTime = 0.75f;
 	float blastRadius = 3.0f;
 	float damage = 8;
 
@@ -29,8 +29,17 @@ public class ExplosiveBarrel : Entity, Hittable
 		fuseSound = Resource.GetSound("res/sounds/fuse.ogg");
 	}
 
+	public override void init(Level level)
+	{
+		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		level.setTile(tile.x, tile.y, TileType.dummyPlatform);
+	}
+
 	public override void destroy()
 	{
+		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		level.setTile(tile.x, tile.y, null);
+
 		if (source != 0)
 			Audio.Stop(source);
 	}
@@ -40,16 +49,23 @@ public class ExplosiveBarrel : Entity, Hittable
 		health -= damage;
 		if (health <= 0)
 			breakBarrel();
-		if ((item != null && item.canIgnite || byName != null && byName == "Explosion") && ignitedTime == -1)
+		else
+		{
+			//GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF4c3f46), position);
+			//GameState.instance.level.addEntity(Effects.CreateSparkEffect(), position);
+		}
+		if ((item != null && item.canIgnite || byName != null && byName == "Explosion" || by != null && by is Projectile) && ignitedTime == -1)
 		{
 			ignitedTime = Time.currentTime;
 			source = Audio.PlayOrganic(fuseSound, new Vector3(position, 0));
+			GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF4c3f46), position);
 		}
-		return true;
+		return health <= 0;
 	}
 
 	void breakBarrel()
 	{
+		ignitedTime = Time.currentTime;
 		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF4c3f46), position);
 		GameState.instance.level.addEntity(Effects.CreateSparkEffect(), position);
 		sprite = null;
@@ -57,16 +73,22 @@ public class ExplosiveBarrel : Entity, Hittable
 
 	void explode()
 	{
-		SpellEffects.Explode(position, blastRadius, damage, this, null);
+		SpellEffects.Explode(position + Vector2.Up * 0.5f, blastRadius, damage, this, null);
 		remove();
 	}
 
 	public override void update()
 	{
-		if (ignitedTime != -1 && (Time.currentTime - ignitedTime) / 1e9f > fuseTime)
+		if (ignitedTime != -1)
 		{
-			explode();
-			return;
+			if ((Time.currentTime - ignitedTime) / 1e9f > fuseTime)
+			{
+				explode();
+				return;
+			}
+
+			if ((Time.currentTime - ignitedTime) / 1e9f % 1.0f * 10 < 1)
+				GameState.instance.level.addEntity(Effects.CreateSparkEffect(), position);
 		}
 
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.01f));

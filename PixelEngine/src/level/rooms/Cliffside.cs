@@ -22,19 +22,21 @@ public class Cliffside : Entity
 
 	public override void init(Level level)
 	{
-		level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(0.5f, 0.0f));
-		level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(-0.5f, 0.0f));
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
+		{
+			level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(0.5f, 0.0f));
+			level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(-0.5f, 0.0f));
+			for (int i = 0; i < 3; i++)
+				level.setTile(room.getMarker(40).x + 1, room.getMarker(40).y + i, TileType.dirt);
+		}
 
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax0.png", false), 10), new Vector2(33, 200));
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax1.png", false), 9), new Vector2(33, 200));
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax2.png", false), 8), new Vector2(33, 200));
 
-		level.addEntity(new CameraFrame(new Vector2(20, 40)), new Vector2(33, 49));
+		level.addEntity(new CameraFrame(new Vector2(20, 40)), new Vector2(33, 70));
 
-		level.addEntity(new EventTrigger(new Vector2(1.0f, 2), (Player player) =>
-		{
-			GameState.instance.switchLevel(GameState.instance.hub, (Vector2)GameState.instance.hub.rooms[0].getMarker(1) + new Vector2(0.5f));
-		}, null), new Vector2(room.width - 0.1f, 38));
+		level.addEntity(level.exit = new LevelTransition(GameState.instance.hub, GameState.instance.hub.entrance, new Vector2(1.0f, 2)), new Vector2(room.width - 0.1f, 38));
 
 		/*
 		level.addEntity(new EventTrigger(new Vector2(1, 3), null, (Player player) =>
@@ -67,7 +69,7 @@ public class Cliffside : Entity
 
 		// Waves
 
-		Vector2i wavesPosition = new Vector2i(25, 39);
+		Vector2i wavesPosition = new Vector2i(33, 39);
 
 		int waveLayers = 10;
 		for (int i = -5; i < waveLayers; i++)

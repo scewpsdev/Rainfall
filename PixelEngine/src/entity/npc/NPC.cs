@@ -114,6 +114,8 @@ public abstract class NPC : Mob, Interactable
 	protected bool canCraft = false;
 	protected bool canUpgrade = false;
 	protected bool canAttune = false;
+	public float voicePitch = 1.0f;
+	public int voicePitchVariation = 2;
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
@@ -464,6 +466,14 @@ public abstract class NPC : Mob, Interactable
 				currentCharacter++;
 				lastCharacterTime = Time.currentTime;
 			}
+			if (numChars > 0 && !dialogueFinished && currentCharacter % 2 == 0)
+			{
+				float pitch = voicePitch;
+				float noteMultiplier = MathF.Pow(2.0f, 1 / 7.0f);
+				int variation = MathHelper.RandomInt(-voicePitchVariation, voicePitchVariation);
+				pitch *= MathF.Pow(noteMultiplier, variation);
+				Audio.PlayBackground(UISound.uiClick, 0.2f, pitch);
+			}
 
 			DialogueEffect dialogueEffect = DialogueEffect.None;
 
@@ -584,7 +594,19 @@ public abstract class NPC : Mob, Interactable
 			if (canCraft && player.items.Count >= 2)
 				options.Add("Craft");
 			if (canUpgrade && player.items.Count >= 1)
-				options.Add("Upgrade");
+			{
+				bool hasUpgradable = false;
+				for (int i = 0; i < player.items.Count; i++)
+				{
+					if (player.items[i].upgradable)
+					{
+						hasUpgradable = true;
+						break;
+					}
+				}
+				if (hasUpgradable)
+					options.Add("Upgrade");
+			}
 			if (canAttune && player.hasItemOfType(ItemType.Staff))
 				options.Add("Attune");
 			if (dialogues.Count > 0)

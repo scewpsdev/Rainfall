@@ -25,7 +25,7 @@ public class MoonFruit : Item
 	public override bool use(Player player)
 	{
 		base.use(player);
-		player.magic++;
+		player.magic += 2;
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana - player.mana, 3.0f));
 		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);
 		return true;

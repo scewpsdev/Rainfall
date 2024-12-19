@@ -79,6 +79,18 @@ namespace Rainfall
 			PlayBackground(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, looping, fadein);
 		}
 
+		public static uint PlayBackgroundOrganic(Sound sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.05f)
+		{
+			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
+			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
+			return Native.Audio.Audio_PlayBackground(sound.handle, gainFactor * gain, pitchFactor * pitch, 0, 0);
+		}
+
+		public static void PlayBackgroundOrganic(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
+		{
+			PlayBackgroundOrganic(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, gainVariation, pitchVariation);
+		}
+
 		public static void Stop(uint source)
 		{
 			Native.Audio.Audio_SourceStop(source);

@@ -6,18 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class EventTrigger : Entity
+public class LevelTransition : Door
 {
 	Vector2 size;
-	protected Action<Player> onTriggerEnter, onTriggerLeave;
 	bool inTrigger = false;
 
 
-	public EventTrigger(Vector2 size, Action<Player> onTriggerEnter, Action<Player> onTriggerLeave)
+	public LevelTransition(Level destination, Door otherDoor, Vector2 size)
+		: base(destination, otherDoor, false, 0)
 	{
 		this.size = size;
-		this.onTriggerEnter = onTriggerEnter;
-		this.onTriggerLeave = onTriggerLeave;
+	}
+
+	void onTouch(Player player)
+	{
+		Vector2 destinationPos = otherDoor is LevelTransition ? (new Vector2(otherDoor.position.x < 0 ? 0.5f : destination.width - 0.5f, otherDoor.position.y)) : otherDoor.position;
+		GameState.instance.switchLevel(destination, destinationPos);
 	}
 
 	public override void update()
@@ -37,14 +41,15 @@ public class EventTrigger : Entity
 		if (playerFound && !inTrigger)
 		{
 			inTrigger = true;
-			if (onTriggerEnter != null)
-				onTriggerEnter(GameState.instance.player);
+			onTouch(GameState.instance.player);
 		}
 		else if (!playerFound && inTrigger)
 		{
 			inTrigger = false;
-			if (onTriggerLeave != null)
-				onTriggerLeave(GameState.instance.player);
 		}
+	}
+
+	public override void render()
+	{
 	}
 }

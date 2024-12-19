@@ -81,7 +81,7 @@ public static class ItemInfoPanel
 				drawComparison(item.attackDamage, compareItem.attackDamage);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("DEX");
+			drawLeft("SPD");
 			drawRight(item.attackRate);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRate, compareItem.attackRate);

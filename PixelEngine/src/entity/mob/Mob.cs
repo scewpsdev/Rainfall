@@ -460,7 +460,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
 
 				if (outline != 0)
-					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BGBG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
+					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
 
 				for (int i = 0; i < statusEffects.Count; i++)
 				{
