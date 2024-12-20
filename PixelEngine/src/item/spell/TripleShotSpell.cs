@@ -47,7 +47,7 @@ public class TripleShotSpell : Spell
 		Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
 
 		Vector2 direction = player.lookDirection.normalized;
-		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
+		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.08f;
 		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
 		float damage = this.attackDamage * staff.attackDamage;

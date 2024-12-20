@@ -11,7 +11,7 @@ public class DungeonGate : Door
 	public DungeonGate(Level destination, Door otherDoor = null, float layer = 0)
 		: base(destination, otherDoor, false, layer)
 	{
-		sprite = new Sprite(TileType.tileset, 6, 9, 3, 2);
+		sprite = new Sprite(tileset, 6, 9, 3, 2);
 		rect = new FloatRect(-1.5f, 0.0f, 3.0f, 2.0f);
 
 		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
@@ -46,7 +46,7 @@ public class Hub : Entity
 		level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2(1.0f, 2)), new Vector2(-1 + 0.1f, 29));
 		GameState.instance.cliffside.exit.otherDoor = level.entrance;
 
-		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
 
 		//level.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
@@ -88,7 +88,7 @@ public class Hub : Entity
 		//level.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
 		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
 		{
-			RatNPC rat = new RatNPC();
+			RatNPC rat = new RatNPC(null);
 			rat.clearShop();
 			rat.direction = 1;
 			level.addEntity(rat, (Vector2)level.rooms[0].getMarker(0x0e));

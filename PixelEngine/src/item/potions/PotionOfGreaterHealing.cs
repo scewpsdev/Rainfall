@@ -17,7 +17,7 @@ public class PotionOfGreaterHealing : Potion
 		//stackable = true;
 		canDrop = true;
 
-		value = 80;
+		value = 34;
 
 		sprite = new Sprite(tileset, 7, 0);
 	}

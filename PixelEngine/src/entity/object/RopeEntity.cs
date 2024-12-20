@@ -18,9 +18,9 @@ public class RopeEntity : Entity, Climbable
 	{
 		this.height = height;
 
-		sprite = new Sprite(TileType.tileset, 2, 4);
-		topSprite = new Sprite(TileType.tileset, 2, 3);
-		bottomSprite = new Sprite(TileType.tileset, 2, 5);
+		sprite = new Sprite(tileset, 2, 4);
+		topSprite = new Sprite(tileset, 2, 3);
+		bottomSprite = new Sprite(tileset, 2, 5);
 	}
 
 	public FloatRect getArea()

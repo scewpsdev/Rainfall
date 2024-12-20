@@ -30,10 +30,12 @@ public class Entity
 
 	public const uint OUTLINE_COLOR = 0xBFFFFFFF;
 
+	public static readonly SpriteSheet tileset;
 	public static readonly SpriteSheet effectsTileset;
 
 	static Entity()
 	{
+		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/tiles/objects.png", false), 16, 16);
 		effectsTileset = new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16);
 	}
 

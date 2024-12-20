@@ -22,7 +22,7 @@ public class BossGate : Entity
 		this.room = room;
 		this.isOpen = isOpen;
 
-		sprite = new Sprite(TileType.tileset, 2, 7);
+		sprite = new Sprite(tileset, 2, 7);
 
 		Debug.Assert(boss != null);
 		Debug.Assert(room != null);

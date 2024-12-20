@@ -22,9 +22,9 @@ public class RelicOffer : Entity
 		// TODO modify count?
 		for (int i = 0; i < 3; i++)
 		{
-			Item item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
+			Item item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.avgLootValue);
 			while (hasItem(item.name))
-				item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.lootValue);
+				item = Item.CreateRandom(ItemType.Relic, Random.Shared, level.avgLootValue);
 
 			items.Add(item);
 		}

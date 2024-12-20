@@ -23,7 +23,7 @@ public class Longbow : Item
 		requiredAmmo = "arrow";
 		accuracy = 3.0f;
 
-		value = 56;
+		value = 25;
 
 		sprite = new Sprite(tileset, 10, 3, 2, 1);
 		icon = new Sprite(tileset.texture, 10 * 16 + 8, 3 * 16, 16, 16);

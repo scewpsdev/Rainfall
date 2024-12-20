@@ -12,6 +12,7 @@ public class Chest : Entity, Interactable, Hittable
 	Sprite openSprite;
 	uint outline = 0;
 	bool flipped;
+	bool locked;
 
 	bool open = false;
 	Item[] items;
@@ -19,14 +20,17 @@ public class Chest : Entity, Interactable, Hittable
 
 	Sound[] openSound;
 	Sound closeSound;
+	Sound unlockSound;
+	Sound lockedSound;
 
 
-	public Chest(Item[] items, bool flipped = false)
+	public Chest(Item[] items, bool flipped = false, bool locked = false)
 	{
 		this.items = items;
+		this.locked = locked;
 
-		sprite = new Sprite(TileType.tileset, 0, 0);
-		openSprite = new Sprite(TileType.tileset, 1, 0);
+		sprite = locked ? new Sprite(tileset, 2, 0) : new Sprite(tileset, 0, 0);
+		openSprite = locked ? new Sprite(tileset, 3, 0) : new Sprite(tileset, 1, 0);
 
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
 		filterGroup = FILTER_DECORATION;
@@ -38,6 +42,8 @@ public class Chest : Entity, Interactable, Hittable
 			Resource.GetSound("res/sounds/chest_open2.ogg"),
 		];
 		closeSound = Resource.GetSound("res/sounds/chest_close.ogg");
+		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
+		lockedSound = Resource.GetSound("res/sounds/door_locked.ogg");
 	}
 
 	public Chest(params Item[] items)
@@ -103,6 +109,23 @@ public class Chest : Entity, Interactable, Hittable
 
 	public void interact(Player player)
 	{
+		if (locked)
+		{
+			Item key = player.getItem("iron_key");
+			if (key != null)
+			{
+				locked = false;
+				player.removeItemSingle(key);
+				Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
+			}
+			else
+			{
+				player.hud.showMessage("It's locked.");
+				Audio.PlayOrganic(lockedSound, new Vector3(position, 0));
+				return;
+			}
+		}
+
 		open = true;
 		GameState.instance.run.chestsOpened++;
 

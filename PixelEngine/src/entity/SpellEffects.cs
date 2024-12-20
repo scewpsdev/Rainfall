@@ -96,7 +96,7 @@ public static class SpellEffects
 		}
 	}
 
-	public static void TeleportEntity(Entity entity, float maxRange = 20)
+	public static void TeleportEntity(Entity entity, float maxRange = 40)
 	{
 		Vector2 center = entity.position + (entity.collider != null ? entity.collider.center : Vector2.Zero);
 		TeleportEntity(entity, false, center, maxRange);

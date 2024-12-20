@@ -13,7 +13,7 @@ public class Pedestal : Entity
 
 	public Pedestal()
 	{
-		sprite = new Sprite(TileType.tileset, 0, 7, 2, 1);
+		sprite = new Sprite(tileset, 0, 7, 2, 1);
 	}
 
 	public override void render()

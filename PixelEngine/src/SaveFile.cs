@@ -40,6 +40,8 @@ public class SaveFile
 
 	public static readonly uint FLAG_NPC_BLACKSMITH_MET = Hash.hash("blacksmith_questline_init");
 
+	public static readonly uint FLAG_NPC_SIKO_MET = Hash.hash("siko_questline_init");
+
 
 	public int id;
 	public string path;

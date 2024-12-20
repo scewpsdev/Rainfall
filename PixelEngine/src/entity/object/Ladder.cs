@@ -17,7 +17,7 @@ public class Ladder : Entity, Climbable
 	{
 		this.height = height;
 
-		sprite = new Sprite(TileType.tileset, 0, 2);
+		sprite = new Sprite(tileset, 0, 2);
 	}
 
 	public FloatRect getArea()

@@ -40,6 +40,7 @@ public class TileType
 	public static TileType path;
 	public static TileType grass;
 	public static TileType water;
+	public static TileType wood;
 
 
 	static TileType()
@@ -59,7 +60,7 @@ public class TileType
 			top = [new Sprite(tileset, 4, 0), new Sprite(tileset, 9, 0), new Sprite(tileset, 10, 0), new Sprite(tileset, 11, 0), new Sprite(tileset, 12, 0)],
 			bottom = [new Sprite(tileset, 4, 2), new Sprite(tileset, 9, 2), new Sprite(tileset, 10, 2), new Sprite(tileset, 11, 2), new Sprite(tileset, 12, 2)],
 		});
-		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 2)] });
+		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 19)], left = [new Sprite(tileset, 0, 19)], right = [new Sprite(tileset, 2, 19)] });
 		AddTileType(dummyPlatform = new TileType() { name = "dummy_platform", isPlatform = true, platformHeight = 0.75f, isSolid = false, visible = false });
 		AddTileType(stone = new TileType()
 		{
@@ -115,6 +116,14 @@ public class TileType
 			breaksArrows = true,
 			particleColor = 0xFF007FFF,
 			sprites = [new Sprite(tileset, 4, 13)]
+		});
+		AddTileType(wood = new TileType()
+		{
+			name = "wood",
+			color = 0xFF8a6d61,
+			isSolid = true,
+			particleColor = 0xFF8a6d61,
+			sprites = [new Sprite(tileset, 0, 16)]
 		});
 	}
 

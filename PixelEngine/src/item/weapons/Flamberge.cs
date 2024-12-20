@@ -19,7 +19,7 @@ public class Flamberge : Item
 		stab = false;
 		twoHanded = true;
 
-		value = 24;
+		value = 14;
 
 		sprite = new Sprite(tileset, 12, 6, 2, 1);
 		icon = new Sprite(tileset.texture, 12 * 16, 6 * 16, 16, 16);

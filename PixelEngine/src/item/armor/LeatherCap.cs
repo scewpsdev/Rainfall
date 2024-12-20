@@ -13,11 +13,11 @@ public class LeatherCap : Item
 	{
 		displayName = "Leather Cap";
 
-		armor = 1;
+		armor = 0.5f;
 		armorSlot = ArmorSlot.Helmet;
-		baseWeight = 0.5f;
+		baseWeight = 0.2f;
 
-		value = 4;
+		value = 2;
 
 		sprite = new Sprite(tileset, 2, 8);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/leather_cap.png", false), 0, 0, 16, 16);

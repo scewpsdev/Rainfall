@@ -24,7 +24,7 @@ public class Logan : NPC
 		initialDialogue.addVoiceLine("Mm, you seem quite lucid! A \\drare\\0 thing in these times.");
 		initialDialogue.addVoiceLine("\\cBuy my shit.");
 
-		populateShop(random, 2, 9, level.lootValue, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
+		populateShop(random, 2, 9, level.avgLootValue, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
 		buysItems = true;
 		canAttune = true;
 	}

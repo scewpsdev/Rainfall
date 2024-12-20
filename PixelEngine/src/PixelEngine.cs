@@ -29,7 +29,7 @@ public class PixelEngine : Game
 	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(PixelEngine))?.GetName().Name;
 
 
-	const int idealScale = 5;
+	const int idealScale = 4;
 	public int scale;
 	public int width, height;
 

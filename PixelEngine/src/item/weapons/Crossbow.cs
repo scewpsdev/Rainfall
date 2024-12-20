@@ -28,7 +28,7 @@ public class Crossbow : Item
 		secondaryChargeTime = 1.0f;
 		requiredAmmo = "arrow";
 
-		value = 56;
+		value = 17;
 
 		sprite = new Sprite(tileset, 12, 3);
 		renderOffset.x = 0.5f;

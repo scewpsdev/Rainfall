@@ -17,7 +17,7 @@ public class Boomerang : Item
 		baseAttackRange = 4;
 		baseWeight = 1;
 
-		value = 20;
+		value = 12;
 
 		sprite = new Sprite(tileset, 3, 1);
 		renderOffset.x = 0.2f;

@@ -33,14 +33,14 @@ public class Slime : Mob
 		else if (size == 2)
 		{
 			sprite = new Sprite(Resource.GetTexture("res/sprites/mob/slime2.png", false), 0, 0, 16, 16);
-			collider = new FloatRect(-0.2f, 0, 0.4f, 0.25f);
+			collider = new FloatRect(-0.2f, 0, 0.4f, 0.5f);
 			itemDropChance = 0;
 			coinDropChance = 0;
 		}
 		else if (size == 1)
 		{
 			sprite = new Sprite(Resource.GetTexture("res/sprites/mob/slime1.png", false), 0, 0, 16, 16);
-			collider = new FloatRect(-0.15f, 0, 0.3f, 0.2f);
+			collider = new FloatRect(-0.15f, 0, 0.3f, 0.5f);
 			itemDropChance = 0;
 			coinDropChance = 0;
 			displayName = "Small Slime";

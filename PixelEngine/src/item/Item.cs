@@ -47,7 +47,7 @@ public class Infusion
 	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.1f };
 	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.9f };
 	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, damageMultiplier = 0.9f };
-	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 0.8f, weightMultiplier = 1.5f, damageMultiplier = 1.2f };
+	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 0.8f, weightMultiplier = 1.5f, damageMultiplier = 1.25f };
 	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f };
 	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.8f };
 	public static readonly Infusion Flawless = new Infusion("Flawless") { damageMultiplier = 1.05f, attackSpeedMultiplier = 1.05f, weightMultiplier = 0.9f, rangeMultiplier = 1.1f };
@@ -192,9 +192,9 @@ public abstract class Item
 	public string requiredAmmo = null;
 	public int staffCharges = 0;
 	public int maxStaffCharges = 0;
-	public int staffAttunementSlots = 1;
+	public int staffAttunementSlots = 2;
 
-	public int armor = 0;
+	public float armor = 0;
 
 	protected float baseWeight = 0.0f;
 	public float weight
@@ -280,7 +280,7 @@ public abstract class Item
 		get => Hash.hash(name);
 	}
 
-	public static float GetArmorAbsorption(int armor)
+	public static float GetArmorAbsorption(float armor)
 	{
 		return armor / (20.0f + armor);
 	}
@@ -359,9 +359,9 @@ public abstract class Item
 	public virtual void upgrade()
 	{
 		upgradeLevel++;
-		value = value + upgradeLevel * 20; //Math.Min(value * 3 / 2, value + 1);
+		value = value + upgradeLevel * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
-			baseDamage *= 1.34f;
+			baseDamage *= 1.2f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
 			armor++;
 	}

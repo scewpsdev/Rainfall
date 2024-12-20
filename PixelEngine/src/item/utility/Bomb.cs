@@ -45,7 +45,7 @@ public class Bomb : Item
 
 	public override bool use(Player player)
 	{
-		player.throwItem(this, player.lookDirection.normalized);
+		player.throwItem(this, player.lookDirection.normalized, Vector2.Dot(player.lookDirection.normalized, Vector2.Down) > 0.5f ? 1 : 10);
 		ignite();
 		return true;
 	}

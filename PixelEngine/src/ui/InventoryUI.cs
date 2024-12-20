@@ -381,14 +381,14 @@ public class InventoryUI
 
 	public void render()
 	{
-		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsDown("Inventory"))
+		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory", true))
 		{
 			openScreen();
 			Audio.PlayBackground(UISound.uiClick);
 		}
 		else if (player.inventoryOpen)
 		{
-			if (!InputManager.IsDown("Inventory"))
+			if (InputManager.IsPressed("Inventory", true) || InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true))
 			{
 				closeScreen();
 				Audio.PlayBackground(UISound.uiBack);

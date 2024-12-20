@@ -22,7 +22,7 @@ public class Spear : Item
 		projectileAims = true;
 		projectileSticks = true;
 
-		value = 8;
+		value = 12;
 
 		sprite = new Sprite(tileset, 6, 1, 2, 1);
 		size = new Vector2(2, 1);

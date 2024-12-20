@@ -21,7 +21,7 @@ public class ArmorStand : Entity, Interactable
 		this.startingClass = startingClass;
 		this.direction = direction;
 
-		sprite = new Sprite(TileType.tileset, 2, 10);
+		sprite = new Sprite(tileset, 2, 10);
 	}
 
 	public ArmorStand()

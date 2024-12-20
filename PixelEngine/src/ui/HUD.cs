@@ -80,6 +80,7 @@ public class HUD
 	string levelName;
 
 	long lastItemSwitch = -1;
+	long lastSpellSwitch = -1;
 
 
 	public HUD(Player player)
@@ -110,6 +111,11 @@ public class HUD
 	public void onItemSwitch()
 	{
 		lastItemSwitch = Time.currentTime;
+	}
+
+	public void onSpellSwitch()
+	{
+		lastSpellSwitch = Time.currentTime;
 	}
 
 	void renderMessages()
@@ -288,7 +294,7 @@ public class HUD
 
 	void ___renderArmor()
 	{
-		int totalArmor = player.getTotalArmor();
+		int totalArmor = (int)MathF.Round(player.getTotalArmor());
 		if (totalArmor > 0)
 		{
 			int size = 8;
@@ -303,7 +309,7 @@ public class HUD
 
 	void renderArmor()
 	{
-		int totalArmor = player.getTotalArmor();
+		int totalArmor = (int)MathF.Round(player.getTotalArmor());
 		if (totalArmor > 0)
 		{
 			int size = 8;
@@ -319,7 +325,7 @@ public class HUD
 
 	void ___renderStatusEffects()
 	{
-		int totalArmor = player.getTotalArmor();
+		int totalArmor = (int)MathF.Round(player.getTotalArmor());
 
 		int size = 8;
 		int x = 6 + (totalArmor > 0 ? 8 + 3 + 8 + 3 : 0);
@@ -521,6 +527,7 @@ public class HUD
 				string countStr = player.handItem.staffCharges.ToString();
 				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8 - 32 - 2 - Renderer.MeasureUITextBMP(countStr).x, Renderer.UIHeight - 4 - 16 + 5, countStr, 1, txtColor);
 			}
+			//else if (player.handItem.type == ItemType.Staff && player.handItem.staff)
 		}
 	}
 
@@ -656,6 +663,70 @@ public class HUD
 		}
 	}
 
+	void renderSpells()
+	{
+		if (!(player.handItem != null && player.handItem.type == ItemType.Staff))
+			return;
+
+		Staff staff = player.handItem as Staff;
+
+		int size = 16;
+		int width = staff.attunedSpells.Count * (size + 1) - 1;
+		int height = size;
+		int x = Renderer.UIWidth / 2 + 8 + player.activeItems.Length * (size + 1) - 1 + 8;
+		int y = Renderer.UIHeight - 4 - size;
+
+		for (int i = 0; i < staff.attunedSpells.Count; i++)
+		{
+			int xx = x + i * (size + 1);
+			int yy = y;
+
+			Renderer.DrawUISprite(xx + 1, yy, size - 2, size, null, false, frameColor);
+			Renderer.DrawUISprite(xx, yy + 1, size, size - 2, null, false, frameColor);
+			Renderer.DrawUISprite(xx + 1, yy + 1, size - 2, size - 2, null, false, staff.selectedSpell == i ? bgSelectedColor : bgColor);
+		}
+
+		for (int i = 0; i < staff.attunedSpells.Count; i++)
+		{
+			int xx = x + i * (size + 1);
+			int yy = y;
+
+			if (staff.attunedSpells[i] != null)
+			{
+				Renderer.DrawUISprite(xx, yy, size, size, staff.attunedSpells[i].sprite);
+
+				if (player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).spell == staff.attunedSpells[i])
+				{
+					SpellCastAction spellCast = player.actions.currentAction as SpellCastAction;
+					float progress = MathF.Min(spellCast.elapsedTime / spellCast.duration, 1);
+					int overlayIdx = (int)(progress * 16);
+					Renderer.DrawUISprite(xx, yy, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
+				}
+			}
+
+			if (staff.selectedSpell == i)
+			{
+				Renderer.DrawUISprite(xx, yy, size, 1, null, false, frameSelectedColor);
+				Renderer.DrawUISprite(xx, yy + size - 1, size, 1, null, false, frameSelectedColor);
+				Renderer.DrawUISprite(xx, yy + 1, 1, size - 2, null, false, frameSelectedColor);
+				Renderer.DrawUISprite(xx + size - 1, yy + 1, 1, size - 2, null, false, frameSelectedColor);
+			}
+		}
+
+		if (staff.attunedSpells[staff.selectedSpell] != null)
+		{
+			float elapsed = (Time.currentTime - lastSpellSwitch) / 1e9f;
+			if (elapsed < ITEM_NAME_DURATION)
+			{
+				float txtAlpha = elapsed < ITEM_NAME_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - ITEM_NAME_DURATION + 1) / 1);
+				uint color = MathHelper.ColorAlpha(txtColor, txtAlpha);
+				string txt = staff.attunedSpells[staff.selectedSpell].displayName;
+				Vector2i txtSize = Renderer.MeasureUITextBMP(txt);
+				Renderer.DrawUITextBMP(x + width + 6, y + size / 2 - txtSize.y / 2, txt, 1, color);
+			}
+		}
+	}
+
 	public void render()
 	{
 		if (player.numOverlaysOpen > 0)
@@ -674,6 +745,7 @@ public class HUD
 			renderStatusEffects();
 			renderHandItems();
 			renderQuickItems();
+			renderSpells();
 
 			/*
 			if (player.position.y < GameState.instance.camera.bottom + 0.2f * GameState.instance.camera.height ||

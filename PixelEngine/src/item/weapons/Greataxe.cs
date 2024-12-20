@@ -22,7 +22,7 @@ public class Greataxe : Item
 		attackCooldown = 1.0f;
 		baseWeight = 5;
 
-		value = 72;
+		value = 22;
 
 		sprite = new Sprite(tileset, 0, 5, 2, 1);
 		size = new Vector2(2, 1);

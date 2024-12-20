@@ -20,7 +20,7 @@ public class Scimitar : Item
 		attackCooldown = 0.3f;
 		baseWeight = 1.5f;
 
-		value = 18;
+		value = 16;
 
 		sprite = new Sprite(tileset, 5, 3);
 		renderOffset.x = 0.2f;

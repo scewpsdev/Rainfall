@@ -15,7 +15,7 @@ public class Spike : Entity
 	{
 		displayName = "Spikes";
 
-		sprite = new Sprite(TileType.tileset, 0, 3);
+		sprite = new Sprite(tileset, 0, 3);
 	}
 
 	public override void update()

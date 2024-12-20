@@ -20,7 +20,7 @@ public class RoyalGreatsword : Item
 		twoHanded = true;
 		baseWeight = 3;
 
-		value = 102;
+		value = 50;
 
 		sprite = new Sprite(tileset, 10, 5, 2, 1);
 		icon = new Sprite(tileset, 10.5f, 5);

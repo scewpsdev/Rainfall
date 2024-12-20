@@ -176,7 +176,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
 		{
-			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.lootValue);
+			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue);
 
 			foreach (Item item in items)
 			{

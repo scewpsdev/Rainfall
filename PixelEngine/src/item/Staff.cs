@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 public class Staff : Item
 {
 	public List<Spell> attunedSpells = new List<Spell>();
+	public int selectedSpell = 0;
 
 
 	public Staff(string name)
@@ -40,18 +41,15 @@ public class Staff : Item
 
 	public override bool use(Player player)
 	{
-		for (int i = 0; i < attunedSpells.Count; i++)
+		Spell spell = attunedSpells[selectedSpell];
+		if (spell != null)
 		{
-			Spell spell = attunedSpells[i];
-			if (spell != null)
+			if (staffCharges > 0)
 			{
-				if (staffCharges > 0)
-				{
-					float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
-					player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
-					player.consumeMana(manaCost);
-					base.use(player);
-				}
+				float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
+				player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+				player.consumeMana(manaCost);
+				base.use(player);
 			}
 		}
 		return false;

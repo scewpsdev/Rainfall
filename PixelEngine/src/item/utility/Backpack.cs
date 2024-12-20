@@ -21,7 +21,7 @@ public class Backpack : Item
 		description = "+4 inventory space";
 
 		armor = 1;
-		value = 30;
+		value = 20;
 
 		sprite = new Sprite(tileset, 3, 4);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/backpack.png", false), 0, 0, 16, 16);

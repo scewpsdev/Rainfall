@@ -13,12 +13,11 @@ public class IronKey : Item
 	{
 		displayName = "Iron Key";
 
-		value = 4;
+		value = 8;
 		canDrop = false;
 		isActiveItem = false;
 		upgradable = false;
-		projectileItem = true;
-		twoHanded = true;
+		stackable = true;
 
 		sprite = new Sprite(tileset, 8, 5);
 

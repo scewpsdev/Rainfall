@@ -20,7 +20,7 @@ public class Waraxe : Item
 		baseWeight = 2.5f;
 		doubleBladed = false;
 
-		value = 23;
+		value = 19;
 
 		sprite = new Sprite(tileset, 8, 7, 2, 1);
 		size = new Vector2(2, 1);

@@ -127,6 +127,7 @@ public static class Renderer
 	static Matrix projection, view;
 	static float cameraX, cameraY;
 	static float left, right, bottom, top;
+	static float cameraFractX, cameraFractY;
 
 	public static Vector3 ambientLight = Vector3.Zero;
 	public static Texture lightMask = null;
@@ -868,7 +869,7 @@ public static class Renderer
 		return lines.ToArray();
 	}
 
-	public static void SetCamera(Matrix projection, Matrix view, float x, float y, float width, float height)
+	public static void SetCamera(Matrix projection, Matrix view, float x, float y, float width, float height, float fractx, float fracty)
 	{
 		Renderer.projection = projection;
 		Renderer.view = view;
@@ -878,6 +879,8 @@ public static class Renderer
 		Renderer.right = x + 0.5f * width;
 		Renderer.bottom = y - 0.5f * height;
 		Renderer.top = y + 0.5f * height;
+		Renderer.cameraFractX = fractx;
+		Renderer.cameraFractY = fracty;
 	}
 
 	public static void Begin()
@@ -898,10 +901,10 @@ public static class Renderer
 			SpriteDraw draw = draws[i];
 			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
 
-			u0 += 0.000001f;
-			v0 += 0.000001f;
-			u1 -= 0.000001f;
-			v1 -= 0.000001f;
+			u0 += 0.00001f;
+			v0 += 0.00001f;
+			u1 -= 0.00001f;
+			v1 -= 0.00001f;
 
 			if (draw.useTransform)
 			{
@@ -1160,11 +1163,8 @@ public static class Renderer
 		graphics.setDepthTest(DepthTest.None);
 		graphics.setCullState(CullState.ClockWise);
 
-		float cameraFractX = cameraX * 16 - MathF.Round(cameraX * 16);
-		float cameraFractY = cameraY * 16 - MathF.Round(cameraY * 16);
-		//cameraFractX = 0;
-		//cameraFractY = 0;
 		graphics.setUniform(blitShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, cameraFractX, cameraFractY));
+		graphics.setUniform(blitShader, "u_cameraSettings1", new Vector4(right - left, top - bottom, 0, 0));
 
 		graphics.setTexture(blitShader.getUniform("s_frame", UniformType.Sampler), 0, composite.getAttachmentTexture(0));
 		graphics.setTexture(blitShader.getUniform("s_bloom", UniformType.Sampler), 1, bloomUpsampleChain[0].getAttachmentTexture(0));

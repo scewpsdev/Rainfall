@@ -20,6 +20,7 @@ public class StaffOfIllumination : Staff
 		maxStaffCharges = 10;
 
 		value = 9;
+		rarity = GetRarity(25);
 
 		sprite = new Sprite(tileset, 5, 4);
 		renderOffset.x = 0.2f;

@@ -25,7 +25,7 @@ internal class SpikeTrap : Entity, Hittable
 
 		collider = new FloatRect(-0.25f, -0.5f, 0.5f, 1.0f);
 
-		sprite = new Sprite(TileType.tileset, 0, 4);
+		sprite = new Sprite(tileset, 0, 4);
 	}
 
 	public bool hit(float damage, Entity by, Item item, string byName, bool triggerInvincibility, bool buffedHit = false)

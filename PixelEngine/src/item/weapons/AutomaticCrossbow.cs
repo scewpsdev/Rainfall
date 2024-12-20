@@ -25,7 +25,7 @@ public class AutomaticCrossbow : Item
 		twoHanded = true;
 		accuracy = 0.3f;
 
-		value = 130;
+		value = 50;
 
 		sprite = new Sprite(tileset, 14, 3);
 		renderOffset.x = 0.5f;

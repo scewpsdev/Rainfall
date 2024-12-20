@@ -56,7 +56,7 @@ public class ActionQueue
 
 			if (currentAction != null)
 			{
-				if (!currentAction.hasStarted && !player.isClimbing)
+				if (!currentAction.hasStarted /*&& !player.isClimbing*/)
 				{
 					initializeAction(currentAction);
 				}

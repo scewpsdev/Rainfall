@@ -26,8 +26,8 @@ public class IronDoor : Entity, Interactable
 	{
 		this.key = key;
 
-		sprite = new Sprite(TileType.tileset, 2, 8);
-		frameSprite = new Sprite(TileType.tileset, 2, 9);
+		sprite = key != null ? new Sprite(tileset, 2, 8) : new Sprite(tileset, 3, 8);
+		frameSprite = key != null ? new Sprite(tileset, 2, 9) : new Sprite(tileset, 3, 9);
 
 		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
 		lockedSound = Resource.GetSound("res/sounds/door_locked.ogg");

@@ -22,7 +22,7 @@ public class TorchEntity : Entity, Interactable
 
 	public TorchEntity()
 	{
-		sprite = new Sprite(TileType.tileset, 1, 3);
+		sprite = new Sprite(tileset, 1, 3);
 
 		idleSound = Resource.GetSound("res/sounds/torch.ogg");
 

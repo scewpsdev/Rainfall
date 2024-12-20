@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 public class Barrel : Entity, Hittable
 {
-	public float health = 2;
+	public float health = 1.5f;
 
 	Sprite sprite;
 
 	Item[] items;
 	public int coins = 0;
 
+	Sound[] hitSound;
 	Sound breakSound;
 
 
@@ -22,10 +23,11 @@ public class Barrel : Entity, Hittable
 	{
 		this.items = items;
 
-		sprite = new Sprite(TileType.tileset, 0, 1);
+		sprite = new Sprite(tileset, 0, 1);
 
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.1f);
 
+		hitSound = Item.woodHit;
 		breakSound = Resource.GetSound("res/sounds/break_wood.ogg");
 	}
 
@@ -83,7 +85,7 @@ public class Barrel : Entity, Hittable
 		else
 		{
 			GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF675051), position);
-			Audio.PlayOrganic(breakSound, new Vector3(position, 0));
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
 		}
 		return true;
 	}

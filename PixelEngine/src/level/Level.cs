@@ -26,7 +26,8 @@ public class Level
 
 	public string name;
 	public int floor;
-	public float lootValue;
+	public float minLootValue, maxLootValue;
+	public float avgLootValue => (minLootValue + maxLootValue) * 0.5f;
 
 	public bool infiniteEnergy = false;
 
@@ -63,18 +64,18 @@ public class Level
 	}
 
 
-	public Level(int floor, string name)
+	public Level(int floor, string name, float minLootValue = 0, float maxLootValue = 0)
 	{
 		this.floor = floor;
 		this.name = name;
-
-		lootValue = Math.Max(floor, 0) * 4;
+		this.minLootValue = minLootValue;
+		this.maxLootValue = maxLootValue;
 
 		resize(20, 20);
 	}
 
-	public Level(int floor, string name, int width, int height, TileType defaultTile)
-		: this(floor, name)
+	public Level(int floor, string name, int width, int height, TileType defaultTile, float minLootValue = 0, float maxLootValue = 0)
+		: this(floor, name, minLootValue, maxLootValue)
 	{
 		resize(width, height, defaultTile);
 	}
@@ -345,7 +346,7 @@ public class Level
 					if (tile.sprites != null)
 					{
 						uint h = Hash.combine(Hash.hash(x), Hash.hash(y));
-						Renderer.DrawSprite(x, y, Entity.LAYER_BGBG, 1.001f, 1.001f, 0, tile.sprites[h % tile.sprites.Length], false, 0xFF4F4F4F);
+						Renderer.DrawSprite(x, y, Entity.LAYER_BGBG, 1.001f, 1.001f, 0, tile.sprites[h % tile.sprites.Length], false, 0xFF3F3F3F);
 
 						TileType left = getBGTile(x - 1, y);
 						TileType right = getBGTile(x + 1, y);
@@ -353,13 +354,13 @@ public class Level
 						TileType bottom = getBGTile(x, y - 1);
 
 						if (left != tile && tile.left != null)
-							Renderer.DrawSprite(x - 1, y, Entity.LAYER_BGBG, 1, 1, 0, tile.left[h % tile.left.Length], false, 0xFF4F4F4F);
+							Renderer.DrawSprite(x - 1, y, Entity.LAYER_BGBG, 1, 1, 0, tile.left[h % tile.left.Length], false, 0xFF3F3F3F);
 						if (right != tile && tile.right != null)
-							Renderer.DrawSprite(x + 1, y, Entity.LAYER_BGBG, 1, 1, 0, tile.right[h % tile.right.Length], false, 0xFF4F4F4F);
+							Renderer.DrawSprite(x + 1, y, Entity.LAYER_BGBG, 1, 1, 0, tile.right[h % tile.right.Length], false, 0xFF3F3F3F);
 						if (top != tile && tile.top != null)
-							Renderer.DrawSprite(x, y + 1, Entity.LAYER_BGBG, 1, 1, 0, tile.top[h % tile.top.Length], false, 0xFF4F4F4F);
+							Renderer.DrawSprite(x, y + 1, Entity.LAYER_BGBG, 1, 1, 0, tile.top[h % tile.top.Length], false, 0xFF3F3F3F);
 						if (bottom != tile && tile.bottom != null)
-							Renderer.DrawSprite(x, y - 1, Entity.LAYER_BGBG, 1, 1, 0, tile.bottom[h % tile.bottom.Length], false, 0xFF4F4F4F);
+							Renderer.DrawSprite(x, y - 1, Entity.LAYER_BGBG, 1, 1, 0, tile.bottom[h % tile.bottom.Length], false, 0xFF3F3F3F);
 					}
 				}
 			}

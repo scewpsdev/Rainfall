@@ -797,11 +797,14 @@ public abstract class NPC : Mob, Interactable
 			int choice = ItemSelector.Render(pos, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
-				Item item = upgradeItems[choice];
-				item.upgrade();
-				player.money -= upgradePrices[choice];
-				upgradePrices[choice] = item.upgradePrice;
-				Audio.Play(upgradeSound, new Vector3(position, 0));
+				if (upgradePrices[selectedItem] <= player.money)
+				{
+					Item item = upgradeItems[choice];
+					item.upgrade();
+					player.money -= upgradePrices[choice];
+					upgradePrices[choice] = item.upgradePrice;
+					Audio.Play(upgradeSound, new Vector3(position, 0));
+				}
 			}
 
 			if (closed)

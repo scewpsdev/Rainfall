@@ -20,7 +20,7 @@ public class Zweihander : Item
 		twoHanded = true;
 		baseWeight = 2.5f;
 
-		value = 48;
+		value = 18;
 
 		sprite = new Sprite(tileset, 7, 3, 2, 1);
 		icon = new Sprite(tileset.texture, 7 * 16 + 8, 3 * 16, 16, 16);

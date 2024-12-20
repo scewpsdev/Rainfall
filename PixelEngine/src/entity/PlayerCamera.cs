@@ -113,7 +113,7 @@ public class PlayerCamera : Entity
 		}
 
 		position.x = MathHelper.Lerp(position.x, target.x, 4 * Time.deltaTime);
-		position.y = MathHelper.Lerp(position.y, target.y, 8 * Time.deltaTime);
+		position.y = MathHelper.Lerp(position.y, target.y, 4 * Time.deltaTime);
 		//velocity = Vector2.Lerp(velocity, player.velocity, 10 * Time.deltaTime);
 		//position += velocity * Time.deltaTime;
 
@@ -149,13 +149,26 @@ public class PlayerCamera : Entity
 	{
 		Matrix projection = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix transform = getTransform(currentScreenShake);
-		Vector2 toTarget = new Vector2(transform.m30, transform.m31) - target;
+
+		float snappedx = MathF.Floor(transform.m30 * 16) / 16.0f;
+		float cameraFractX = transform.m30 - snappedx;
+		transform.m30 = snappedx;
+
+		float snappedy = MathF.Floor(transform.m31 * 16) / 16.0f;
+		float cameraFractY = transform.m31 - snappedy;
+		transform.m31 = snappedy;
+
+		// offset by a quarter pixel so that sprites rendered exactly at integer coordinates dont glitch out
+		transform.m30 -= 0.25f / 16;
+		transform.m31 -= 0.25f / 16;
+
+		//Vector2 toTarget = new Vector2(transform.m30, transform.m31) - target;
 		//toTarget = Vector2.Round(toTarget * 16) / 16;
-		transform.m30 = target.x + toTarget.x; //MathF.Round(transform.m30 * 16) / 16;
-		transform.m31 = target.y + toTarget.y; //MathF.Round(transform.m31 * 16) / 16;
+		//transform.m30 = target.x + toTarget.x; //MathF.Round(transform.m30 * 16) / 16;
+		//transform.m31 = target.y + toTarget.y; //MathF.Round(transform.m31 * 16) / 16;
 		Matrix view = transform.inverted;
 
-		Renderer.SetCamera(projection, view, position.x, position.y, width, height);
+		Renderer.SetCamera(projection, view, transform.m30, transform.m31, width, height, cameraFractX, cameraFractY);
 	}
 
 	public float left

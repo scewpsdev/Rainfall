@@ -24,7 +24,7 @@ public class WoodenMallet : Item
 		doubleBladed = false;
 		baseWeight = 2;
 
-		value = 28;
+		value = 20;
 
 		sprite = new Sprite(tileset, 1, 4, 2, 1);
 		icon = new Sprite(tileset.texture, 1 * 16 + 12, 4 * 16, 16, 16);

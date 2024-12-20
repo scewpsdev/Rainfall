@@ -18,7 +18,7 @@ public class Longsword : Item
 		baseAttackRate = 1.4f;
 		stab = false;
 
-		value = 16;
+		value = 14;
 
 		sprite = new Sprite(tileset, 1, 1);
 		renderOffset.x = 0.2f;

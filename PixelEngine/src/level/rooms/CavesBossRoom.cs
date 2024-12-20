@@ -41,9 +41,9 @@ public class CavesBossRoom : Entity
 			GameState.instance.currentBoss = boss;
 			GameState.instance.currentBossMaxHealth = boss.maxHealth;
 		}
-		else if (/*gate0.isOpen &&*/ GameState.instance.currentBoss == boss)
-		{
-			GameState.instance.currentBoss = null;
-		}
+		//else if (/*gate0.isOpen &&*/ GameState.instance.currentBoss == boss)
+		//{
+		//	GameState.instance.currentBoss = null;
+		//}
 	}
 }

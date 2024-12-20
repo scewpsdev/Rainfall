@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class ExplosiveBarrel : Entity, Hittable
 {
-	public float health = 4;
+	public float health = 2;
 
 	float fuseTime = 0.75f;
 	float blastRadius = 3.0f;
@@ -23,8 +23,8 @@ public class ExplosiveBarrel : Entity, Hittable
 
 	public ExplosiveBarrel()
 	{
-		sprite = new Sprite(TileType.tileset, 1, 1);
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
+		sprite = new Sprite(tileset, 1, 1);
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.1f);
 
 		fuseSound = Resource.GetSound("res/sounds/fuse.ogg");
 	}

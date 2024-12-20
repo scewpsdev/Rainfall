@@ -52,7 +52,7 @@ public class PotionOfHealing : Potion
 		stackable = true;
 		canDrop = true;
 
-		value = 25;
+		value = 16;
 		throwableChance = 0.1f;
 
 		sprite = new Sprite(tileset, 7, 0);

@@ -51,7 +51,7 @@ public class Fountain : Entity, Interactable
 		this.effect = effect;
 		displayName = "Fountain";
 
-		sprite = new Sprite(TileType.tileset, 2, 6);
+		sprite = new Sprite(tileset, 2, 6);
 
 		idleSound = Resource.GetSound("res/sounds/fountain.ogg");
 

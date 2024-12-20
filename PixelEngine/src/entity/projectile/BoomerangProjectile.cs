@@ -64,7 +64,10 @@ public class BoomerangProjectile : Projectile
 			speed /= 1.5f;
 			currentRange /= 1.5f;
 			if (currentRange < 2)
+			{
 				drop();
+				return;
+			}
 		}
 
 		rotation += 5 * Time.deltaTime;
@@ -94,9 +97,8 @@ public class BoomerangProjectile : Projectile
 				{
 					if (player != null && (Time.currentTime - throwTime) / 1e9f > 0.1f)
 					{
-						Boomerang boomerang = new Boomerang();
-						player.giveItem(boomerang);
-						player.equipHandItem(boomerang);
+						player.giveItem(item);
+						//player.equipHandItem(item);
 						remove();
 					}
 				}

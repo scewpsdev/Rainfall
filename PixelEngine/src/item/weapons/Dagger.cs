@@ -52,7 +52,10 @@ public class Dagger : Item
 
 	public override bool useSecondary(Player player)
 	{
-		ItemEntity entity = player.throwItem(this, player.lookDirection.normalized, 20);
+		Vector2 direction = player.lookDirection.normalized;
+		if (Settings.game.aimMode == AimMode.Simple)
+			direction = (direction + Vector2.Up * 0.1f).normalized;
+		ItemEntity entity = player.throwItem(this, direction, 20);
 		entity.rotationVelocity = -MathF.PI * 5;
 		return true;
 	}

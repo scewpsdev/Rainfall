@@ -155,7 +155,7 @@ public static class CharacterInfoPanel
 		if (player.availableStatUpgrades > 0)
 		{
 			int ww = width;
-			int hh = 5 * (Renderer.smallFont.size + 1);
+			int hh = 6 * (Renderer.smallFont.size + 1);
 			float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
 			uint color = MathHelper.ColorAlpha(UIColors.WINDOW_FRAME, alpha);
 			Renderer.DrawUISprite(x, y - 2, ww, hh + 2, null, false, color);
@@ -175,6 +175,9 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size;
 
 		drawLevel("INT", ref player.intelligence, UIColors.TEXT);
+		y += Renderer.smallFont.size;
+
+		drawLevel("SPD", ref player.swiftness, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		y += 4;

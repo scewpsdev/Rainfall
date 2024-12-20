@@ -20,7 +20,7 @@ public class Rapier : Item
 		baseWeight = 1.5f;
 		secondaryChargeTime = 0.3f;
 
-		value = 14;
+		value = 12;
 
 		sprite = new Sprite(tileset, 14, 4);
 		renderOffset.x = 0.4f;

@@ -30,13 +30,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 #endif
 
 
-	public const float defaultSpeed = 5;
+	public const float defaultSpeed = 6;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
 	public float jumpPower = 11; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
-	public const float defaultManaRecoveryRate = 0.015f;
+	public const float defaultManaRecoveryRate = 0.02f;
 	public float coinCollectDistance = 1.5f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
@@ -46,14 +46,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float maxHealth => hp * 0.5f;
 
 	//public float maxMana = 2;
-	public float mana = 1;
+	public float mana = 2;
 	public float maxMana => magic * 0.5f;
 
 	public int hp = 6;
-	public int magic = 2;
+	public int magic = 4;
 	public int strength = 1;
 	public int dexterity = 1;
 	public int intelligence = 1;
+	public int swiftness = 0;
 
 	public int money = 0;
 	public int playerLevel = 1;
@@ -130,6 +131,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	Sound landSound;
 	Sound[] ladderSound;
 	Sound[] hitSound;
+	Sound wallTouchSound;
 
 
 	public Player()
@@ -165,9 +167,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		landSound = Resource.GetSound("res/sounds/land.ogg");
 		ladderSound = Resource.GetSounds("res/sounds/step_wood", 3);
 		hitSound = Resource.GetSounds("res/sounds/flesh", 2);
-
-#if DEBUG
-#endif
+		wallTouchSound = Resource.GetSound("res/sounds/wall_touch.ogg");
 	}
 
 	public override void init(Level level)
@@ -775,7 +775,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		else
 		{
-			int totalArmor = getTotalArmor();
+			float totalArmor = getTotalArmor();
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
 			damage *= 1 - armorAbsorption;
 			damage /= getDefenseModifier();
@@ -1007,9 +1007,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, 0.9f)))
+			{
+				if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
+					Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 				lastWallTouchRight = Time.currentTime;
+			}
 			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
+			{
+				if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
+					Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 				lastWallTouchLeft = Time.currentTime;
+			}
 
 			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
 
@@ -1313,6 +1321,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (!switched)
 					selectedActiveItem = (selectedActiveItem + 1) % activeItems.Length;
 			}
+			if (InputManager.IsPressed("SwitchSpell"))
+			{
+				if (handItem != null && handItem.type == ItemType.Staff)
+				{
+					Staff staff = handItem as Staff;
+					staff.selectedSpell = (staff.selectedSpell + 1) % staff.attunedSpells.Count;
+					hud.onSpellSwitch();
+				}
+			}
 			if (InputManager.IsPressed("UseItem") && numOverlaysOpen == 0)
 			{
 				if (activeItems[selectedActiveItem] != null)
@@ -1481,7 +1498,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (isSprinting)
 			consumeMana(SPRINT_MANA_COST * Time.deltaTime);
 		else if (mana < maxMana)
-			mana = MathF.Min(mana + defaultManaRecoveryRate * maxMana * getManaRecoveryModifier() * Time.deltaTime, maxMana);
+			mana = MathHelper.Clamp(mana + defaultManaRecoveryRate * maxMana * getManaRecoveryModifier() * Time.deltaTime, 0, maxMana);
 
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
@@ -1704,7 +1721,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			if (!isClimbing && (actions.currentAction == null || actions.currentAction.renderWeapon))
+			if (/*!isClimbing &&*/ (actions.currentAction == null || actions.currentAction.renderWeapon))
 			{
 				renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
 				renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
@@ -1754,6 +1771,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.movementSpeedModifier;
+		value *= MathF.Pow(1.1f, swiftness - 1);
 		return value;
 	}
 
@@ -1780,7 +1798,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.attackSpeedModifier;
-		value *= MathF.Pow(1.05f, dexterity - 1);
+		value *= MathF.Pow(1.1f, dexterity - 1);
 		return value;
 	}
 
@@ -1840,9 +1858,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return value;
 	}
 
-	public int getTotalArmor()
+	public float getTotalArmor()
 	{
-		int totalArmor = (handItem != null ? handItem.armor : 0) + (offhandItem != null ? offhandItem.armor : 0);
+		float totalArmor = (handItem != null ? handItem.armor : 0) + (offhandItem != null ? offhandItem.armor : 0);
 		for (int i = 0; i < activeItems.Length; i++)
 		{
 			if (activeItems[i] != null)

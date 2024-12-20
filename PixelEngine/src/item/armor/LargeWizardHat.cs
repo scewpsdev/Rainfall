@@ -13,11 +13,11 @@ public class LargeWizardHat : Item
 	{
 		displayName = "Large Wizard Hat";
 
-		armor = 1;
+		armor = 1.5f;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.3f;
 
-		value = 12;
+		value = 7;
 
 		sprite = new Sprite(tileset, 9, 4);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/wizards_hat.png", false), 0, 0, 32, 32);

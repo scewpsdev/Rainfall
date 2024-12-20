@@ -24,7 +24,7 @@ public class Shortbow : Item
 		secondaryChargeTime = 0;
 		baseWeight = 1;
 
-		value = 32;
+		value = 16;
 
 		sprite = new Sprite(tileset, 9, 3);
 

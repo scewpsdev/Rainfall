@@ -22,8 +22,8 @@ public class Spring : Entity
 
 	public Spring()
 	{
-		sprite = new Sprite(TileType.tileset, 0, 5);
-		activeSprite = new Sprite(TileType.tileset, 1, 5);
+		sprite = new Sprite(tileset, 0, 5);
+		activeSprite = new Sprite(tileset, 1, 5);
 
 		useSound = Resource.GetSound("res/sounds/spring.ogg");
 	}

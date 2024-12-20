@@ -12,7 +12,7 @@ public class RatNPC : NPC
 	Dialogue questlineDialogue;
 
 
-	public RatNPC()
+	public RatNPC(Random random)
 		: base("rat_npc")
 	{
 		displayName = "Jack";
@@ -57,7 +57,8 @@ public class RatNPC : NPC
 				wondrousCheese.displayName = "Wondrous Cheese";
 				addShopItem(wondrousCheese, 0);
 
-				addShopItem(new Cheese() { stackSize = 5 });
+				populateShop(random, 1, 4, 5, ItemType.Food);
+				//addShopItem(new Cheese() { stackSize = 5 });
 			}
 		}
 		else if (GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET))
@@ -86,6 +87,11 @@ public class RatNPC : NPC
 			wondrousCheese.displayName = "Wondrous Cheese";
 			addShopItem(wondrousCheese, 0);
 		}
+	}
+
+	public RatNPC()
+		: this(null)
+	{
 	}
 
 	public override void onDialogueComplete(Dialogue dialogue)

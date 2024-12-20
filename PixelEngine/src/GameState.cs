@@ -250,8 +250,8 @@ public class GameState : State
 			else
 			{
 				player.money = 8;
-				player.items.Add(new TravellingCloak());
-				player.passiveItems.Add(player.items[0]);
+				//player.items.Add(new TravellingCloak());
+				//player.passiveItems.Add(player.items[0]);
 			}
 			levelSwitchTime = -1;
 		}
@@ -263,8 +263,8 @@ public class GameState : State
 			levelSwitchTime = -1;
 
 			player.money = 8;
-			player.items.Add(new TravellingCloak());
-			player.passiveItems.Add(player.items[0]);
+			//player.items.Add(new TravellingCloak());
+			//player.passiveItems.Add(player.items[0]);
 		}
 		else
 		{

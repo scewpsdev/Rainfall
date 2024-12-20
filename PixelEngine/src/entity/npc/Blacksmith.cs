@@ -43,7 +43,7 @@ public class Blacksmith : NPC
 		dialogue.addVoiceLine("I'm not up for chatting.");
 		addDialogue(dialogue);
 
-		populateShop(random, 2, 8, level.lootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 2, 8, level.avgLootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 
 	public Blacksmith()

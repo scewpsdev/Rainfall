@@ -18,11 +18,11 @@ public class Minecart : Entity, Interactable
 	public Minecart(params Item[] items)
 	{
 		this.items = items;
-		sprite = new Sprite(TileType.tileset, 0, 8, 2, 1);
+		sprite = new Sprite(tileset, 0, 8, 2, 1);
 	}
 
 	public Minecart()
-		: this(Item.CreateRandom(Random.Shared, DropRates.barrel, GameState.instance.level.lootValue))
+		: this(Item.CreateRandom(Random.Shared, DropRates.barrel, GameState.instance.level.avgLootValue))
 	{
 	}
 

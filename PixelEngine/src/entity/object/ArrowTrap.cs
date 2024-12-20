@@ -21,7 +21,7 @@ public class ArrowTrap : Entity
 	{
 		this.direction = direction;
 
-		sprite = new Sprite(TileType.tileset, 2, 1);
+		sprite = new Sprite(tileset, 2, 1);
 	}
 
 	public override void update()

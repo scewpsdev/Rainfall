@@ -19,7 +19,7 @@ public class Pickaxe : Item
 		stab = false;
 		doubleBladed = false;
 
-		value = 27;
+		value = 13;
 
 		sprite = new Sprite(tileset, 0, 1);
 		renderOffset.x = 0.2f;

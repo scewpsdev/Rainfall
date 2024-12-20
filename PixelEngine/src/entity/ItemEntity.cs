@@ -312,7 +312,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		Renderer.DrawSprite(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE, item.size.x, item.size.y, rotation, item.sprite, flipped, color);
 
 		Player player = GameState.instance.player;
-		if (outline != 0 && velocity.lengthSquared < 8 && player.velocity.lengthSquared < 4.0f)
+		if (outline != 0 && velocity.lengthSquared < 8 && player.velocity.lengthSquared < 4.0f && player.actions.currentAction == null)
 		{
 			Renderer.DrawOutline(position.x - 0.5f * item.size.x, position.y - 0.5f * item.size.y, LAYER_INTERACTABLE + 0.0001f, item.size.x, item.size.y, rotation, item.sprite, flipped, outline);
 

@@ -123,7 +123,8 @@ public static class ItemInfoPanel
 
 				y += 4;
 				drawLeft("Attuned spells:");
-				y += Renderer.smallFont.size + 1;
+				//y += Renderer.smallFont.size + 1;
+				y++;
 
 				x += 4;
 				for (int i = 0; i < staff.attunedSpells.Count; i++)
@@ -132,6 +133,7 @@ public static class ItemInfoPanel
 					drawLeft(staff.attunedSpells[i].fullDisplayName, UIColors.TEXT_SUBTLE);
 				}
 				x -= 4;
+				y += Renderer.smallFont.size + 1;
 			}
 
 

@@ -12,7 +12,7 @@ public class TutorialEntranceDoor : Door
 	public TutorialEntranceDoor(Level destination, Door otherDoor = null, bool big = false, float layer = 0)
 		: base(destination, otherDoor, big, layer)
 	{
-		sprite = new Sprite(TileType.tileset, 6, 9, 3, 2);
+		sprite = new Sprite(tileset, 6, 9, 3, 2);
 		rect = new FloatRect(-1.5f, 0.0f, 3.0f, 2.0f);
 
 		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
@@ -26,13 +26,13 @@ public class TutorialExitDoor : Door
 	public TutorialExitDoor(Level destination, Door otherDoor = null, bool big = false, float layer = 0)
 		: base(destination, otherDoor, big, layer)
 	{
-		sprite = new Sprite(TileType.tileset, 9, 8, 3, 4);
+		sprite = new Sprite(tileset, 9, 8, 3, 4);
 		rect = new FloatRect(-1.5f, -1, 3.0f, 4.0f);
 
 		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
 
-		layer1 = new Sprite(TileType.tileset, 9, 12, 3, 4);
-		layer2 = new Sprite(TileType.tileset, 9, 16, 3, 4);
+		layer1 = new Sprite(tileset, 9, 12, 3, 4);
+		layer2 = new Sprite(tileset, 9, 16, 3, 4);
 	}
 
 	public override void render()
@@ -82,7 +82,7 @@ public class Tutorial : Entity
 		level.addEntity(new ItemEntity(new Stick()), (Vector2)level.rooms[0].getMarker(03) + Vector2.Up);
 		level.addEntity(new ItemEntity(new IronShield()), (Vector2)level.rooms[0].getMarker(04) + Vector2.Up);
 		level.addEntity(new ItemEntity(new PotionOfHealing()), (Vector2)level.rooms[0].getMarker(04) + Vector2.Up + Vector2.Right);
-		level.addEntity(new Chest(new TravellingCloak()), (Vector2)level.rooms[0].getMarker(05));
+		//level.addEntity(new Chest(new TravellingCloak()), (Vector2)level.rooms[0].getMarker(05));
 		level.addEntity(new Chest(new Bomb() { stackSize = 5 }), (Vector2)level.rooms[0].getMarker(10) + new Vector2(0.5f));
 		level.addEntity(new TorchEntity(), (Vector2)level.rooms[0].getMarker(11) + new Vector2(0.5f));
 		level.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString() + " to interact", 0xFFFFFFFF), new Vector2(40, 43.5f));

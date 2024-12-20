@@ -33,7 +33,7 @@ public class Door : Entity, Interactable
 		this.otherDoor = otherDoor;
 		this.layer = layer;
 
-		sprite = big ? new Sprite(TileType.tileset, 0, 9, 2, 2) : new Sprite(TileType.tileset, 2, 2);
+		sprite = big ? new Sprite(tileset, 0, 9, 2, 2) : new Sprite(tileset, 2, 2);
 		rect = big ? new FloatRect(-1.0f, 0.0f, 2.0f, 2.0f) : new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
 
 		collider = new FloatRect(-0.5f, 0.0f, 1, 1);

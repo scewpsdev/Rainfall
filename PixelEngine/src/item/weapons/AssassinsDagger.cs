@@ -24,7 +24,7 @@ public class AssassinsDagger : Item
 		isSecondaryItem = true;
 		attackRotationOffset = MathF.PI * 0.25f;
 
-		value = 17;
+		value = 11;
 
 		sprite = new Sprite(tileset, 15, 5);
 		renderOffset.x = 0.0f;
