@@ -23,6 +23,7 @@ public class Dagger : Item
 		projectileSpins = true;
 		//isSecondaryItem = true;
 		baseWeight = 1;
+		secondaryChargeTime = 0.25f;
 
 		value = 4;
 

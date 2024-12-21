@@ -107,10 +107,10 @@ public static class CharacterInfoPanel
 		{
 			if (player.availableStatUpgrades > 0)
 			{
-				bool hovered = Renderer.IsHovered(x, y, width, Renderer.smallFont.size + 1);
+				bool hovered = Renderer.IsHovered(x, y, width, Renderer.smallFont.size);
 				if (hovered)
 				{
-					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size + 1, null, false, 0xFF222222);
+					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
 					if (Input.IsMouseButtonPressed(MouseButton.Left, true))
 					{
 						value++;
@@ -155,7 +155,7 @@ public static class CharacterInfoPanel
 		if (player.availableStatUpgrades > 0)
 		{
 			int ww = width;
-			int hh = 6 * (Renderer.smallFont.size + 1);
+			int hh = 6 * Renderer.smallFont.size;
 			float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
 			uint color = MathHelper.ColorAlpha(UIColors.WINDOW_FRAME, alpha);
 			Renderer.DrawUISprite(x, y - 2, ww, hh + 2, null, false, color);

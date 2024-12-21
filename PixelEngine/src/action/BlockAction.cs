@@ -32,7 +32,7 @@ public class BlockAction : EntityAction
 		if (shield.type == ItemType.Shield)
 		{
 			direction = player.lookDirection.normalized;
-			if (!input)
+			if (!input || player.actions.actionQueue.Count > 1)
 				cancel();
 		}
 	}

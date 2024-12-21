@@ -308,12 +308,19 @@ public class LevelGenerator
 				return TileType.platform;
 			case 0xFF007fff:
 				return TileType.water;
-			case 0xFFFFFF00:
+			case 0xFFff6100:
 				level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
 				return null;
 			case 0xFF00cf5f:
 				room.spawnLocations.Add(new Vector2i(xx, yy));
 				return null;
+			case 0xFFFFFF00:
+				float tileType = random.NextSingle();
+				if (tileType < 0.5f)
+					return null;
+				else if (tileType < 0.95f)
+					return getTileFunc(x + xx, y + yy);
+				return getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone;
 			default:
 				if ((color | 0x0000FF00) == 0xFFFFFFFF) // marker
 					room.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);

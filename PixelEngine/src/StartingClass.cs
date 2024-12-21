@@ -16,7 +16,7 @@ public class StartingClass
 	public int dexterity = 1;
 	public int intelligence = 1;
 	public int hp = 6;
-	public int magic = 2;
+	public int magic = 4;
 
 
 	public static StartingClass barbarian;
