@@ -129,8 +129,11 @@ public static class ItemInfoPanel
 				x += 4;
 				for (int i = 0; i < staff.attunedSpells.Count; i++)
 				{
-					y += Renderer.smallFont.size;
-					drawLeft(staff.attunedSpells[i].fullDisplayName, UIColors.TEXT_SUBTLE);
+					if (staff.attunedSpells[i] != null)
+					{
+						y += Renderer.smallFont.size;
+						drawLeft(staff.attunedSpells[i].fullDisplayName, UIColors.TEXT_SUBTLE);
+					}
 				}
 				x -= 4;
 				y += Renderer.smallFont.size + 1;
@@ -146,6 +149,20 @@ public static class ItemInfoPanel
 			//y += Renderer.smallFont.size + 1;
 		}
 		else if (item.type == ItemType.Armor)
+		{
+			drawLeft("ARM");
+			drawRight(item.armor);
+			if (compareItem != null && compareItem.type == ItemType.Armor)
+				drawComparison(item.armor, compareItem.armor);
+			y += Renderer.smallFont.size + 1;
+
+			drawLeft("WGHT");
+			drawRight(item.weight);
+			if (compareItem != null && compareItem.type == ItemType.Armor)
+				drawComparison(item.weight, compareItem.weight, true);
+			y += Renderer.smallFont.size + 1;
+		}
+		else if (item.type == ItemType.Shield)
 		{
 			drawLeft("ARM");
 			drawRight(item.armor);

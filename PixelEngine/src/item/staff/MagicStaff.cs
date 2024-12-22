@@ -15,7 +15,7 @@ public class MagicStaff : Staff
 
 		canDrop = false;
 
-		value = 17;
+		value = 10;
 
 		sprite = new Sprite(tileset, 2, 6);
 		renderOffset.x = 0.4f;

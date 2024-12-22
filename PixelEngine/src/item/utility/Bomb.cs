@@ -24,7 +24,7 @@ public class Bomb : Item
 		displayName = "Bomb";
 		stackable = true;
 
-		value = 5;
+		value = 7;
 
 		baseDamage = 8;
 		knockback = 20;
@@ -45,7 +45,8 @@ public class Bomb : Item
 
 	public override bool use(Player player)
 	{
-		player.throwItem(this, player.lookDirection.normalized, Vector2.Dot(player.lookDirection.normalized, Vector2.Down) > 0.5f ? 1 : 10);
+		player.dropItem(this);
+		//player.throwItem(this, player.lookDirection.normalized, Vector2.Dot(player.lookDirection.normalized, Vector2.Down) > 0.5f ? 1 : 10);
 		ignite();
 		return true;
 	}

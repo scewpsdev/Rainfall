@@ -24,7 +24,7 @@ public class IlluminationSpell : Spell
 		sprite = new Sprite(tileset, 4, 6);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost)
+	public override void cast(Player player, Item staff, float manaCost, float duration)
 	{
 		if (player.mana >= manaCost)
 		{

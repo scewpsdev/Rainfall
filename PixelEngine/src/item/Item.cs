@@ -359,7 +359,7 @@ public abstract class Item
 	public virtual void upgrade()
 	{
 		upgradeLevel++;
-		value = value + upgradeLevel * 10; //Math.Min(value * 3 / 2, value + 1);
+		value = value + MathHelper.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
 			baseDamage *= 1.2f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
@@ -574,7 +574,7 @@ public abstract class Item
 		InitType(new PotionOfInvisibility());
 		InitType(new HuntersHat());
 		InitType(new OldHuntersHat());
-		InitType(new TripleShotSpell());
+		InitType(new BurstShotSpell());
 		InitType(new ElderwoodStaff());
 		InitType(new AstralScepter());
 		InitType(new MissileSpell());
@@ -585,6 +585,7 @@ public abstract class Item
 		InitType(new IronArmor());
 		InitType(new Formation());
 		InitType(new LeatherCap());
+		InitType(new TripleShotSpell());
 	}
 
 	static void InitType(Item item)
@@ -619,33 +620,42 @@ public abstract class Item
 
 	public static Item CreateRandom(ItemType type, Random random, float meanValue)
 	{
-		float value = meanValue * MathF.Pow(2, MathHelper.RandomGaussian(random) * 0.5f); // MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random) * 0.25f, 0.0f);
 		List<Item> items = GetItemPrototypesOfType(type);
+		MathHelper.ShuffleList(items);
 		for (int i = 0; i < items.Count; i++)
 		{
 			if (!items[i].canDrop)
 				items.RemoveAt(i--);
 		}
-		items.Sort((Item item1, Item item2) =>
+		for (int i = 0; i < items.Count; i++)
 		{
-			float r1 = MathF.Abs(item1.value - value);
-			float r2 = MathF.Abs(item2.value - value);
-			return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
-		});
-		for (int j = 0; j < 5; j++)
+			float gaussian = items[i].value <= meanValue ?
+				MathHelper.Gaussian(items[i].value / meanValue - 1, 1, 1.0f) :
+				MathHelper.Gaussian((items[i].value - meanValue) / 5, 0, 1);
+			gaussian /= MathHelper.inv_sqrt_2pi;
+			if (random.NextSingle() > gaussian && items.Count > 1)
+				items.RemoveAt(i--);
+		}
+
+		float cumulativeRarity = 0;
+		for (int i = 0; i < items.Count; i++)
+			cumulativeRarity += items[i].rarity;
+
+		float choice = random.NextSingle();
+		float f = 0;
+		Item item = null;
+		for (int i = 0; i < items.Count; i++)
 		{
-			for (int i = items.Count - 2; i >= 0; i--)
+			f += items[i].rarity / cumulativeRarity;
+			if (f >= choice)
 			{
-				if (random.NextSingle() < 0.5f)
-				{
-					// swap
-					Item tmp = items[i];
-					items[i] = items[i + 1];
-					items[i + 1] = tmp;
-				}
+				item = items[i];
+				break;
 			}
 		}
-		Item item = items[0];
+
+		Debug.Assert(item != null);
+
 		Item newItem = item.copy();
 
 		while (newItem.value < meanValue * 0.5f && newItem.upgradable)

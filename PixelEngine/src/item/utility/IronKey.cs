@@ -14,7 +14,8 @@ public class IronKey : Item
 		displayName = "Iron Key";
 
 		value = 8;
-		canDrop = false;
+
+		//canDrop = false;
 		isActiveItem = false;
 		upgradable = false;
 		stackable = true;

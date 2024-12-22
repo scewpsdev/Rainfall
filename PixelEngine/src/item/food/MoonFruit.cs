@@ -15,7 +15,7 @@ public class MoonFruit : Item
 
 		description = "+1 MP";
 
-		value = 72;
+		value = 40;
 
 		sprite = new Sprite(tileset, 13, 4);
 

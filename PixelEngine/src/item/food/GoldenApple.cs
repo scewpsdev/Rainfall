@@ -14,7 +14,7 @@ public class GoldenApple : Item
 		displayName = "Golden Apple";
 		stackable = true;
 
-		value = 50;
+		value = 30;
 
 		sprite = new Sprite(tileset, 4, 2);
 

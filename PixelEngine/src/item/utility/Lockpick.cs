@@ -14,7 +14,7 @@ public class Lockpick : Item
 		displayName = "Lockpick";
 
 		value = 4;
-		//canDrop = false;
+		canDrop = false;
 		stackable = false;
 		isActiveItem = false;
 

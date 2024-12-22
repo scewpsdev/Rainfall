@@ -29,11 +29,18 @@ public class SpellCastAction : EntityAction
 	{
 		duration = 1.0f / spell.attackRate / weapon.attackRate / player.getAttackSpeedModifier();
 
-		spell.cast(player, weapon, manaCost);
+		spell.cast(player, weapon, manaCost, duration);
 		player.consumeMana(manaCost);
 
 		if (spell.castSound != null)
 			Audio.PlayOrganic(spell.castSound, new Vector3(player.position, 0));
+	}
+
+	public override void update(Player player)
+	{
+		base.update(player);
+
+		spell.update(player);
 	}
 
 	public override Matrix getItemTransform(Player player)

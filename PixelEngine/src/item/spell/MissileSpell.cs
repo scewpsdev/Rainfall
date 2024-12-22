@@ -26,7 +26,7 @@ public class MissileSpell : Spell
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost)
+	public override void cast(Player player, Item staff, float manaCost, float duration)
 	{
 		if (player.mana >= manaCost)
 		{

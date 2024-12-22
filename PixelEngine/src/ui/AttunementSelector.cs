@@ -22,22 +22,22 @@ public static class AttunementSelector
 
 		int columns = (width - 2 * padding + 2) / (slotSize + 2);
 
-		if (InputManager.IsPressed("UIRight", true))
+		if (InputManager.IsPressed("UIRight", true) || Input.IsKeyPressed(KeyCode.L))
 		{
 			selectedItem++;
 			Audio.PlayBackground(UISound.uiClick);
 		}
-		if (InputManager.IsPressed("UILeft", true))
+		if (InputManager.IsPressed("UILeft", true) || Input.IsKeyPressed(KeyCode.J))
 		{
 			selectedItem--;
 			Audio.PlayBackground(UISound.uiClick);
 		}
-		if (InputManager.IsPressed("UIDown", true))
+		if (InputManager.IsPressed("UIDown", true) || Input.IsKeyPressed(KeyCode.K))
 		{
 			selectedItem += columns;
 			Audio.PlayBackground(UISound.uiClick);
 		}
-		if (InputManager.IsPressed("UIUp", true))
+		if (InputManager.IsPressed("UIUp", true) || Input.IsKeyPressed(KeyCode.I))
 		{
 			selectedItem -= columns;
 			Audio.PlayBackground(UISound.uiClick);
@@ -47,8 +47,8 @@ public static class AttunementSelector
 
 		for (int i = 0; i < staff.staffAttunementSlots; i++)
 		{
-			int xx = x + padding + i % columns;
-			int yy = y + padding + i / columns;
+			int xx = x + padding + (i % columns) * (slotSize + padding);
+			int yy = y + padding + (i / columns) * (slotSize + padding);
 
 			bool selected = selectedItem == i;
 			if (ItemSlotUI.Render(xx, yy, slotSize, staff.attunedSpells[i], null, selected))

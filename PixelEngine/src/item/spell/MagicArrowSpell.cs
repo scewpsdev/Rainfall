@@ -26,7 +26,7 @@ public class MagicArrowSpell : Spell
 		castSound = Resource.GetSounds("res/sounds/shoot", 11);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost)
+	public override void cast(Player player, Item staff, float manaCost, float duration)
 	{
 		Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
 		Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);

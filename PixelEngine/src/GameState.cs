@@ -104,6 +104,7 @@ public class GameState : State
 	public PlayerCamera camera;
 
 	uint ambientSource;
+	public Sound ambience;
 
 	public Mob currentBoss;
 	public float currentBossMaxHealth;
@@ -147,7 +148,7 @@ public class GameState : State
 
 		hub = new Level(-1, "The Outpost");
 		//tutorial = new Level(-1, "Tutorial");
-		cliffside = new Level(-1, "");
+		cliffside = new Level(-1, "Cliffside");
 		tutorial = new Level(-1, "Abandoned Mineshaft");
 
 		//Door tutorialEntrance = new Door(cliffside, null);
@@ -214,18 +215,14 @@ public class GameState : State
 
 		areaCaves = generator.generateCaves(run.seed);
 
-		Door fakeDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
-		fakeDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
-		hub.addEntity(fakeDoor, (Vector2)hub.rooms[0].getMarker(11));
-		areaCaves[0].entrance.destination = hub;
-		areaCaves[0].entrance.otherDoor = fakeDoor;
-
-		/*
-		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance);
-		hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(12));
+		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
+		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
+		hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(11));
 		areaCaves[0].entrance.destination = hub;
 		areaCaves[0].entrance.otherDoor = dungeonDoor;
-		*/
+
+		Door castleGate = new CastleGate(null, null);
+		hub.addEntity(castleGate, (Vector2)hub.rooms[0].getMarker(16));
 
 		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
 		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
@@ -239,6 +236,8 @@ public class GameState : State
 		cliffside.addEntity(cliffDungeonEntrance2, (Vector2)cliffside.rooms[0].getMarker(37));
 		areaGardens[0].entrance.destination = cliffside;
 		areaGardens[0].entrance.otherDoor = cliffDungeonEntrance2;
+
+		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
 
 
 		if (quickRestart)
@@ -305,6 +304,7 @@ public class GameState : State
 		}
 		if (ambience != null)
 			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 2);
+		this.ambience = ambience;
 	}
 
 	public void switchLevel(Level newLevel, Vector2 spawnPosition)

@@ -17,35 +17,48 @@ public class TravellingMerchant : NPC
 
 		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant2.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
+		animator.addAnimation("idle", 0, 0, 16, 0, 2, 1, true);
 		animator.setAnimation("idle");
 
-		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_SIKO_MET))
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
 		{
 			initialDialogue = new Dialogue();
-			initialDialogue.addVoiceLine("\\cAh, a customer!");
-			initialDialogue.addVoiceLine("You'd be surprised how good business is down here.");
-			initialDialogue.addVoiceLine("But don't ask me how I get by wares. Just know that they can be yours...\\3 For a price, of course.").addCallback(() =>
+			initialDialogue.addVoiceLine("So, you've found your way here. Curious.");
+			initialDialogue.addVoiceLine("Many wander, but few arrive.");
+			initialDialogue.screens[initialDialogue.screens.Count - 1].addCallback(() =>
 			{
-				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_SIKO_MET);
+				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET);
 			});
 		}
-
+		else
 		{
-			Dialogue dialogue = new Dialogue();
-			dialogue.addVoiceLine("You're looking for the lost sigil, aren't you? Everyone is. Let me know if you find it.");
-			addDialogue(dialogue);
+			initialDialogue = new Dialogue();
+			initialDialogue.addVoiceLine("\\d...");
 		}
 
+		if (level == GameState.instance.hub)
 		{
-			Dialogue dialogue = new Dialogue();
-			dialogue.addVoiceLine("Let's talk trade.");
-			addDialogue(dialogue);
+			{
+				Dialogue dialogue = new Dialogue();
+				dialogue.addVoiceLine("The castle looms beyond, doesn't it? I wonder what's left of it...");
+				addDialogue(dialogue);
+			}
+		}
+		else
+		{
+			{
+				Dialogue dialogue = new Dialogue();
+				dialogue.addVoiceLine("After all that's happened, the castle still stands tall...");
+				dialogue.addVoiceLine("What? Sorry, I was just talking to myself.");
+				addDialogue(dialogue);
+			}
 		}
 
-		populateShop(random, 3, 7, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Relic, ItemType.Gem);
-
-		buysItems = true;
+		if (level != GameState.instance.hub)
+		{
+			buysItems = true;
+			populateShop(random, 3, 7, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Relic, ItemType.Gem);
+		}
 	}
 
 	public TravellingMerchant()

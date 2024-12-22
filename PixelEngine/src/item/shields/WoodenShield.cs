@@ -14,7 +14,7 @@ public class WoodenShield : Item
 		displayName = "Wooden Shield";
 
 		armor = 1;
-		value = 11;
+		value = 5;
 		baseWeight = 1;
 
 		isSecondaryItem = true;

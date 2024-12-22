@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class IronDoor : Entity, Interactable
+public class IronDoor : Entity, Interactable, Hittable
 {
 	Sprite sprite;
 	Sprite frameSprite;
@@ -120,14 +120,24 @@ public class IronDoor : Entity, Interactable
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;
-				if (MathHelper.Fract(entity.position.x) < 0.5f)
+				if (MathHelper.Fract(entity.position.x) < 0.5f && (level.getTile(tile.x - 1, tile.y) == null || !level.getTile(tile.x - 1, tile.y).isSolid))
 					entity.position.x = MathF.Min(entity.position.x, tile.x - entity.collider.max.x);
-				else
+				else if (level.getTile(tile.x + 1, tile.y) == null || !level.getTile(tile.x + 1, tile.y).isSolid)
 					entity.position.x = MathF.Max(entity.position.x, tile.x + 1 - entity.collider.min.x);
 			}
 
 			closeSoundPlayed = false;
 		}
+	}
+
+	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	{
+		if (item is Bomb)
+		{
+			remove();
+			return true;
+		}
+		return false;
 	}
 
 	public override void update()

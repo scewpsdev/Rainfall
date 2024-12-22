@@ -10,6 +10,7 @@ public class SpecialCaveRoom : Entity
 {
 	Room room;
 	LevelGenerator generator;
+	Sound ambience;
 
 	public SpecialCaveRoom(Room room, LevelGenerator generator)
 	{
@@ -58,5 +59,18 @@ public class SpecialCaveRoom : Entity
 		else
 			level.addEntity(new Chest(Item.CreateRandom(generator.random, DropRates.chest, generator.getRoomLootValue(room) * 2), false, true),
 				new Vector2(room.x + MathHelper.RandomInt(2, 5, generator.random), room.y + 1));
+
+		level.addEntity(new EventTrigger(new Vector2(room.width, room.height), onRoomEnter, onRoomLeave), position);
+	}
+
+	void onRoomEnter(Player player)
+	{
+		ambience = GameState.instance.ambience;
+		GameState.instance.setAmbience(null);
+	}
+
+	void onRoomLeave(Player player)
+	{
+		GameState.instance.setAmbience(ambience);
 	}
 }

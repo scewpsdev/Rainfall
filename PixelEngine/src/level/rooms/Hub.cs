@@ -26,6 +26,18 @@ public class DungeonGate : Door
 	}
 }
 
+public class CastleGate : Door
+{
+	public CastleGate(Level destination, Door otherDoor = null)
+		: base(destination, otherDoor, false, 0.0f)
+	{
+		sprite = new Sprite(tileset, 0, 11, 8, 8);
+		rect = new FloatRect(-4, 0, 8, 8);
+
+		collider = new FloatRect(-4, 0, 8, 2);
+	}
+}
+
 
 public class Hub : Entity
 {
@@ -47,7 +59,7 @@ public class Hub : Entity
 		GameState.instance.cliffside.exit.otherDoor = level.entrance;
 
 		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
-		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(level.width, level.height) * 0.5f + new Vector2(4, 0));
 
 		//level.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
 
@@ -80,6 +92,7 @@ public class Hub : Entity
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb());
+		npc.addShopItem(new IronKey(), 8);
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
 		npc.buysItems = false;
@@ -93,7 +106,13 @@ public class Hub : Entity
 			rat.direction = 1;
 			level.addEntity(rat, (Vector2)level.rooms[0].getMarker(0x0e));
 
-			level.addEntity(new RopeEntity(11), new Vector2(46, 23));
+			level.addEntity(new RopeEntity(13), new Vector2(46, 23));
+		}
+
+		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
+		{
+			TravellingMerchant gatekeeper = new TravellingMerchant(null, level);
+			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
 		}
 
 		for (int i = 0; i < save.highscores.Length; i++)

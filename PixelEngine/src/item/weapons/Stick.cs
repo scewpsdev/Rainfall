@@ -11,7 +11,7 @@ public class Stick : Item
 	public Stick()
 		: base("stick", ItemType.Weapon)
 	{
-		displayName = "Stick";
+		displayName = "Club";
 
 		baseDamage = 1;
 		baseAttackRange = 1.2f;

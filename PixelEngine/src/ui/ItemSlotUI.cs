@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +17,9 @@ public static class ItemSlotUI
 		{
 			Renderer.DrawUIOutline(x, y, size, size, item.getIcon(), false, 0xFF000000);
 			Renderer.DrawUISprite(x, y, size, size, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
+
+			if (item.stackable && item.stackSize > 1)
+				Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, item.stackSize.ToString(), 1, 0xFFBBBBBB);
 		}
 		else if (background != null)
 		{

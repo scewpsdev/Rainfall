@@ -13,11 +13,12 @@ public class Halberd : Item
 	{
 		displayName = "Halberd";
 
-		baseDamage = 2;
+		baseDamage = 1.6f;
 		baseAttackRange = 1.8f;
 		baseAttackRate = 1.6f;
 		twoHanded = true;
 		baseWeight = 2.5f;
+		doubleBladed = false;
 
 		value = 16;
 

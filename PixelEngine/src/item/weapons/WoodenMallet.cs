@@ -13,9 +13,9 @@ public class WoodenMallet : Item
 	{
 		displayName = "Wooden Mallet";
 
-		baseDamage = 3;
+		baseDamage = 2.25f;
 		baseAttackRange = 1.2f;
-		baseAttackRate = 1.3f;
+		baseAttackRate = 1.1f;
 		stab = false;
 		twoHanded = true;
 		attackCooldown = 2.5f;

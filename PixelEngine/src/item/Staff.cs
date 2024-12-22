@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Staff : Item
 {
-	public List<Spell> attunedSpells = new List<Spell>();
+	public List<Spell> attunedSpells = [null]; // size of 1 just so attunedSpells[selectedSpell] can be accessed
 	public int selectedSpell = 0;
 
 
@@ -32,7 +32,7 @@ public class Staff : Item
 	public Spell attuneSpell(int idx, Spell spell)
 	{
 		Debug.Assert(idx <= attunedSpells.Count);
-		if (idx == attunedSpells.Count)
+		for (int i = attunedSpells.Count; i < staffAttunementSlots; i++)
 			attunedSpells.Add(null);
 		Spell oldSpell = attunedSpells[idx];
 		attunedSpells[idx] = spell;

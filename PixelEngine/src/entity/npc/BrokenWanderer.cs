@@ -46,20 +46,21 @@ public class BrokenWanderer : NPC
 		{
 			{
 				Dialogue dialogue = new Dialogue();
-				dialogue.addVoiceLine("That giant gate over there? Nobody knows how to open it.");
-				dialogue.addVoiceLine("It's been like this since I got here. I don't even know where it leads...");
-				addDialogue(dialogue);
-			}
-			{
-				Dialogue dialogue = new Dialogue();
-				dialogue.addVoiceLine("This entrance leads into the caverns below. Tunnels that twist and turn...");
+				dialogue.addVoiceLine("That entrance over there? It leads into the caverns below. Tunnels that twist and turn...");
 				dialogue.addVoiceLine("The deeper you go, the less sense it all makes.");
+				dialogue.addVoiceLine("So many travellers got lost down there...");
 				addDialogue(dialogue);
 			}
 			{
 				Dialogue dialogue = new Dialogue();
 				dialogue.addVoiceLine("I've ventured down before. Not far, mind you. It wasn't the creatures that turned me back.");
 				dialogue.addVoiceLine("It was the... \\dstillness\\0. A silence that seeps into your soul.");
+				addDialogue(dialogue);
+			}
+			{
+				Dialogue dialogue = new Dialogue();
+				dialogue.addVoiceLine("Have you seen that big stone gate in the back? Nobody knows how to open it.");
+				dialogue.addVoiceLine("It's been like this since I got here. I wonder where it could lead...");
 				addDialogue(dialogue);
 			}
 		}

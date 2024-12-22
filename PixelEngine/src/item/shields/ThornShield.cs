@@ -15,7 +15,7 @@ public class ThornShield : Item
 
 		armor = 3;
 		damageReflect = 1.0f;
-		value = 45;
+		value = 14;
 
 		isSecondaryItem = true;
 

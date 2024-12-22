@@ -59,13 +59,18 @@ public class BossGate : Entity
 		isOpen = false;
 	}
 
+	bool isInRoom(Entity entity)
+	{
+		return room.containsEntity(entity) && entity.position.x > room.x + 5.5f && entity.position.x < room.x + room.width - 5.5f;
+	}
+
 	public override void update()
 	{
-		if (boss.isAlive && boss.ai.target != null && room.containsEntity(boss.ai.target) && room.containsEntity(boss) && isOpen)
+		if (boss.isAlive && boss.ai.target != null && isInRoom(boss.ai.target) && isInRoom(boss) && isOpen)
 		{
 			close();
 		}
-		else if (!isOpen && (boss.ai.target != null && !room.containsEntity(boss.ai.target) || !room.containsEntity(boss)))
+		else if (!isOpen && (boss.ai.target != null && !isInRoom(boss.ai.target) || !isInRoom(boss)))
 		{
 			open();
 		}

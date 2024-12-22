@@ -14,7 +14,7 @@ public class IronShield : Item
 		displayName = "Iron Shield";
 
 		armor = 3;
-		value = 25;
+		value = 8;
 		baseWeight = 2;
 
 		isSecondaryItem = true;

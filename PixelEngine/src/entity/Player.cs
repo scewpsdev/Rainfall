@@ -661,7 +661,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void dropItem(Item item)
 	{
 		removeItem(item);
-		Vector2 itemVelocity = velocity + new Vector2(direction, 1) * new Vector2(0.4f, MathHelper.RandomFloat(0.14f, 0.16f)) * 14;
+		Vector2 itemVelocity = velocity; // + new Vector2(direction, 1) * new Vector2(0.4f, MathHelper.RandomFloat(0.14f, 0.16f)) * 14;
 		ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 		GameState.instance.level.addEntity(obj, position + Vector2.Up * 0.5f);
 	}

@@ -105,6 +105,13 @@ namespace Rainfall
 			return f - MathF.Floor(f);
 		}
 
+		public static readonly float inv_sqrt_2pi = 0.3989422804014327f;
+		public static float Gaussian(float x, float m, float s)
+		{
+			float a = (x - m) / s;
+			return inv_sqrt_2pi / s * MathF.Exp(-0.5f * a * a);
+		}
+
 		public static void Swap<T>(ref T a, ref T b)
 		{
 			T tmp = a;

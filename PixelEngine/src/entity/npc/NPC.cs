@@ -823,6 +823,7 @@ public abstract class NPC : Mob, Interactable
 					attuneStaff = (Staff)attuneStaffs[choice];
 					while (attuneStaff.attunedSpells.Count < attuneStaff.staffAttunementSlots)
 						attuneStaff.attunedSpells.Add(null);
+					selectedItem = 0;
 				}
 
 				if (closed)
@@ -854,6 +855,7 @@ public abstract class NPC : Mob, Interactable
 							else
 							{
 								attuneSlotID = choice;
+								selectedItem = 0;
 							}
 						}
 						if (closed)

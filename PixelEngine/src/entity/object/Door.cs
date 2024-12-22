@@ -36,14 +36,14 @@ public class Door : Entity, Interactable
 		sprite = big ? new Sprite(tileset, 0, 9, 2, 2) : new Sprite(tileset, 2, 2);
 		rect = big ? new FloatRect(-1.0f, 0.0f, 2.0f, 2.0f) : new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
 
-		collider = new FloatRect(-0.5f, 0.0f, 1, 1);
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1);
 
 		openSound = Resource.GetSound("res/sounds/chest_close.ogg");
 	}
 
 	public bool canInteract(Player player)
 	{
-		return destination != null && otherDoor != null;
+		return destination != null && otherDoor != null || finalExit;
 	}
 
 	public virtual void interact(Player player)

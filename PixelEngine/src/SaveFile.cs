@@ -40,7 +40,11 @@ public class SaveFile
 
 	public static readonly uint FLAG_NPC_BLACKSMITH_MET = Hash.hash("blacksmith_questline_init");
 
-	public static readonly uint FLAG_NPC_SIKO_MET = Hash.hash("siko_questline_init");
+	public static readonly uint FLAG_NPC_TINKERER_MET = Hash.hash("tinkerer_questline_init");
+
+	public static readonly uint FLAG_NPC_GATEKEEPER_MET = Hash.hash("gatekeeper_questline_init");
+
+	public static readonly uint FLAG_NPC_LOGAN_MET = Hash.hash("logan_questline_init");
 
 
 	public int id;
