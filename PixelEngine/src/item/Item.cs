@@ -45,8 +45,8 @@ public enum ArmorSlot
 public class Infusion
 {
 	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.1f };
-	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.9f };
-	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, damageMultiplier = 0.9f };
+	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.8f };
+	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, damageMultiplier = 0.95f };
 	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 0.8f, weightMultiplier = 1.5f, damageMultiplier = 1.25f };
 	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f };
 	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.8f };
@@ -192,7 +192,7 @@ public abstract class Item
 	public string requiredAmmo = null;
 	public int staffCharges = 0;
 	public int maxStaffCharges = 0;
-	public int staffAttunementSlots = 2;
+	public int staffAttunementSlots = 3;
 
 	public float armor = 0;
 
@@ -229,7 +229,21 @@ public abstract class Item
 	public bool canIgnite = false;
 
 	public Sprite sprite = null;
-	public Sprite icon = null;
+	Sprite _icon = null;
+	public Sprite icon
+	{
+		get
+		{
+			if (_icon == null)
+				_icon = new Sprite(sprite.spriteSheet, (sprite.position.x + sprite.size.x / 2) / sprite.spriteSheet.spriteSize.x, sprite.position.y / sprite.spriteSheet.spriteSize.y, 1, 1);
+			return _icon;
+		}
+		set
+		{
+			_icon = value;
+		}
+	}
+	public Sprite spellIcon = null;
 	public Vector4 spriteColor = Vector4.One;
 	public Sprite ingameSprite = null;
 	public int ingameSpriteSize = 1;
@@ -272,7 +286,9 @@ public abstract class Item
 
 	public Item copy()
 	{
-		return (Item)MemberwiseClone();
+		Item copy = (Item)MemberwiseClone();
+		copy.infusions = new HashSet<Infusion>(infusions);
+		return copy;
 	}
 
 	public uint id
@@ -344,13 +360,6 @@ public abstract class Item
 		}
 	}
 
-	public Sprite getIcon()
-	{
-		if (icon == null)
-			icon = new Sprite(sprite.spriteSheet, (sprite.position.x + sprite.size.x / 2) / sprite.spriteSheet.spriteSize.x, sprite.position.y / sprite.spriteSheet.spriteSize.y, 1, 1);
-		return icon;
-	}
-
 	public void identify()
 	{
 		identified = true;
@@ -358,8 +367,9 @@ public abstract class Item
 
 	public virtual void upgrade()
 	{
+		value += upgradePrice;
 		upgradeLevel++;
-		value = value + MathHelper.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
+		//value = value + MathHelper.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
 			baseDamage *= 1.2f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
@@ -586,6 +596,9 @@ public abstract class Item
 		InitType(new Formation());
 		InitType(new LeatherCap());
 		InitType(new TripleShotSpell());
+		InitType(new HealingSpell());
+		InitType(new ClimbingGear());
+		InitType(new WingProsthetics());
 	}
 
 	static void InitType(Item item)

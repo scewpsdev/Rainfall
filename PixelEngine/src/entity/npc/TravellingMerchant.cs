@@ -57,7 +57,8 @@ public class TravellingMerchant : NPC
 		if (level != GameState.instance.hub)
 		{
 			buysItems = true;
-			populateShop(random, 3, 7, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Relic, ItemType.Gem);
+			canAttune = true;
+			populateShop(random, 3, 7, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic, ItemType.Gem);
 		}
 	}
 

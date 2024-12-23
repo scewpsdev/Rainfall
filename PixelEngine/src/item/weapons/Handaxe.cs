@@ -13,8 +13,8 @@ public class Handaxe : Item
 	{
 		displayName = "Handaxe";
 
-		baseDamage = 1.5f;
-		baseAttackRange = 0.8f;
+		baseDamage = 1.4f;
+		baseAttackRange = 1.0f;
 		baseAttackRate = 1.5f;
 		stab = false;
 
@@ -38,7 +38,7 @@ public class Handaxe : Item
 
 	public override bool useSecondary(Player player)
 	{
-		Vector2 direction = player.lookDirection.normalized;
+		Vector2 direction = (player.lookDirection.normalized + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
 		if (Settings.game.aimMode == AimMode.Simple)
 			direction = (direction + Vector2.Up * 0.1f).normalized;
 		ItemEntity entity = player.throwItem(this, direction);

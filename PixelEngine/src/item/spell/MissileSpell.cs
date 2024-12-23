@@ -21,7 +21,7 @@ public class MissileSpell : Spell
 		knockback = 1.0f;
 		trigger = false;
 
-		sprite = new Sprite(tileset, 14, 7);
+		spellIcon = new Sprite(tileset, 14, 7);
 
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}

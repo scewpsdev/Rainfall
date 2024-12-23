@@ -26,6 +26,8 @@ public class StartingClass
 	public static StartingClass wizard;
 	public static StartingClass fool;
 
+	public static StartingClass[] startingClasses;
+
 	public static StartingClass dev;
 
 	static StartingClass()
@@ -38,5 +40,7 @@ public class StartingClass
 		fool = new StartingClass() { name = "Fool", color = 0xFFc89d3b, cost = 1, items = [new Stick(), new GlassRing()], hp = 4 };
 
 		dev = new StartingClass() { name = "Dev", items = [new Revolver(), new AmethystRing(), new RingOfSwiftness(), new SapphireRing()], hp = 20, magic = 20 };
+
+		startingClasses = [barbarian, knight, hunter, thief, wizard, fool];
 	}
 }

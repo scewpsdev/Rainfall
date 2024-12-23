@@ -43,7 +43,7 @@ public class InventoryUI
 
 	static bool drawItemSlot(int x, int y, int size, Item item, Sprite background = null, bool selected = false)
 	{
-		return ItemSlotUI.Render(x, y, size, item, background, selected);
+		return ItemSlotUI.Render(x, y, size, item?.icon, item != null ? MathHelper.VectorToARGB(item.spriteColor) : 0xFFFFFFFF, item != null ? item.stackSize : 1, background, selected);
 	}
 
 	public static void DrawEquipment(int x, int y, int width, int height, Player player)
@@ -172,25 +172,25 @@ public class InventoryUI
 
 		if (selectedItem >= firstEquipmentItem && selectedItem < firstActiveItem)
 		{
-			if (Input.IsKeyPressed(KeyCode.L))
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.L);
 				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 1) % 3;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.J))
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.J);
 				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 3 - 1) % 3;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.K))
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.K);
 				selectedItem = (selectedItem / 3 + 1) * 3 + selectedItem % 3;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.I))
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.I);
 				if (selectedItem == firstActiveItem - 1)
@@ -209,6 +209,8 @@ public class InventoryUI
 
 		y += slotSize + 8;
 
+		// Active items
+
 		for (int i = 0; i < player.activeItems.Length; i++)
 		{
 			int xx = i % 4;
@@ -226,25 +228,25 @@ public class InventoryUI
 		if (selectedItem >= firstActiveItem && selectedItem < firstStoredItem)
 		{
 			selectedItem -= firstActiveItem;
-			if (Input.IsKeyPressed(KeyCode.L))
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.L);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.J))
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.J);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.K))
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.K);
 				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.I))
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.I);
 				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
@@ -256,6 +258,8 @@ public class InventoryUI
 		}
 
 		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Stored items
 
 		if (storedItems.Count > 0)
 		{
@@ -276,25 +280,25 @@ public class InventoryUI
 			if (selectedItem >= firstStoredItem && selectedItem < firstPassiveItem)
 			{
 				selectedItem -= firstStoredItem;
-				if (Input.IsKeyPressed(KeyCode.L))
+				if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
 				{
 					Input.ConsumeKeyEvent(KeyCode.L);
 					selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
 					Audio.PlayBackground(UISound.uiClick);
 				}
-				if (Input.IsKeyPressed(KeyCode.J))
+				if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
 				{
 					Input.ConsumeKeyEvent(KeyCode.J);
 					selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
 					Audio.PlayBackground(UISound.uiClick);
 				}
-				if (Input.IsKeyPressed(KeyCode.K))
+				if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
 				{
 					Input.ConsumeKeyEvent(KeyCode.K);
 					selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
 					Audio.PlayBackground(UISound.uiClick);
 				}
-				if (Input.IsKeyPressed(KeyCode.I))
+				if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
 				{
 					Input.ConsumeKeyEvent(KeyCode.I);
 					selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
@@ -316,10 +320,10 @@ public class InventoryUI
 				int xx = idx % 4;
 				int yy = idx / 4;
 
-				bool selected = selectedItem == firstPassiveItem + i;
+				bool selected = selectedItem == firstPassiveItem + idx;
 
 				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.passiveItems[i], ringSprite, selected))
-					selectedItem = firstPassiveItem + i;
+					selectedItem = firstPassiveItem + idx;
 
 				if (selected)
 					item = player.passiveItems[i];
@@ -331,25 +335,25 @@ public class InventoryUI
 		if (selectedItem >= firstPassiveItem && selectedItem < firstPassiveItem + idx)
 		{
 			selectedItem -= firstPassiveItem;
-			if (Input.IsKeyPressed(KeyCode.L))
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.L);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.J))
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.J);
 				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.K))
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.K);
 				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
 				Audio.PlayBackground(UISound.uiClick);
 			}
-			if (Input.IsKeyPressed(KeyCode.I))
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
 			{
 				Input.ConsumeKeyEvent(KeyCode.I);
 				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;

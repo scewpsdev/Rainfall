@@ -445,7 +445,7 @@ public class HUD
 		Renderer.DrawUISprite(x + size + padding, y, size, size, null, false, bgColor);
 		if (player.handItem != null)
 		{
-			Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.getIcon());
+			Renderer.DrawUISprite(x + size + padding, y, size, size, player.handItem.icon);
 			if (player.handItem.stackable && player.handItem.stackSize > 1)
 				Renderer.DrawUITextBMP(x + size + padding + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
 
@@ -509,7 +509,7 @@ public class HUD
 
 		if (player.handItem != null)
 		{
-			Renderer.DrawUISprite(x + size + 1, y, size, size, player.handItem.getIcon());
+			Renderer.DrawUISprite(x + size + 1, y, size, size, player.handItem.icon);
 			if (player.handItem.stackable && player.handItem.stackSize > 1)
 				Renderer.DrawUITextBMP(x + size + 1 + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
 
@@ -693,7 +693,7 @@ public class HUD
 
 			if (staff.attunedSpells[i] != null)
 			{
-				Renderer.DrawUISprite(xx, yy, size, size, staff.attunedSpells[i].sprite);
+				Renderer.DrawUISprite(xx, yy, size, size, staff.attunedSpells[i].spellIcon);
 
 				if (player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).spell == staff.attunedSpells[i])
 				{

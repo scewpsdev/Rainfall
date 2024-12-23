@@ -91,7 +91,7 @@ public class Hub : Entity
 		npc.clearShop();
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
-		npc.addShopItem(new Bomb());
+		npc.addShopItem(new Bomb(), 7);
 		npc.addShopItem(new IronKey(), 8);
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;

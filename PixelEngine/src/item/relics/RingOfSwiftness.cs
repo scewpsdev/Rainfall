@@ -15,7 +15,7 @@ public class RingOfSwiftness : Item
 
 		description = "Increases speed by 20%";
 
-		value = 70;
+		value = 25;
 
 		sprite = new Sprite(tileset, 9, 0);
 

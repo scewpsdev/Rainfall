@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rainfall;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ public abstract class Spell : Item
 		: base(name, ItemType.Spell)
 	{
 		tumbles = false;
+
+		sprite = new Sprite(tileset, 3, 8);
 	}
 
 	public override bool use(Player player)

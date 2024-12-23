@@ -61,11 +61,11 @@ public class Chest : Entity, Interactable, Hittable
 		if (by != null && byName == "Explosion")
 		{
 			float distance = (by.position - (position + collider.center)).length;
-			if (distance < 1.5f)
+			if (distance < 1.7f)
 			{
-				if (distance > 0.5f && !open && items != null && !locked)
+				if (distance > 1.1f && !open && items != null && !locked)
 					dropItems();
-				else if (distance <= 0.5f)
+				else if (distance <= 1.1f)
 					remove();
 				return true;
 			}

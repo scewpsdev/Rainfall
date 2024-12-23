@@ -51,7 +51,7 @@ public static class AttunementSelector
 			int yy = y + padding + (i / columns) * (slotSize + padding);
 
 			bool selected = selectedItem == i;
-			if (ItemSlotUI.Render(xx, yy, slotSize, staff.attunedSpells[i], null, selected))
+			if (ItemSlotUI.Render(xx, yy, slotSize, staff.attunedSpells[i]?.spellIcon, 0xFFFFFFFF, 1, null, selected))
 				selectedItem = i;
 
 			if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))

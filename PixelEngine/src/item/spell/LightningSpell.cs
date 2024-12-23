@@ -20,7 +20,7 @@ public class LightningSpell : Spell
 		manaCost = 0.25f;
 		trigger = false;
 
-		sprite = new Sprite(tileset, 3, 6);
+		spellIcon = new Sprite(tileset, 3, 6);
 
 		castSound = Resource.GetSounds("res/sounds/lightning", 4);
 	}

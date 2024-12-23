@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 
 public static class ItemSlotUI
 {
-	public static bool Render(int x, int y, int size, Item item, Sprite background = null, bool selected = false)
+	public static bool Render(int x, int y, int size, Sprite icon, uint iconColor, int stackSize, Sprite background = null, bool selected = false)
 	{
 		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, selected ? UIColors.ITEM_SLOT_FRAME_HIGHLIGHT : UIColors.ITEM_SLOT_FRAME);
 		Renderer.DrawUISprite(x, y, size, size, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);
-		if (item != null)
+		if (icon != null)
 		{
-			Renderer.DrawUIOutline(x, y, size, size, item.getIcon(), false, 0xFF000000);
-			Renderer.DrawUISprite(x, y, size, size, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
+			Renderer.DrawUIOutline(x, y, size, size, icon, false, 0xFF000000);
+			Renderer.DrawUISprite(x, y, size, size, icon, false, iconColor);
 
-			if (item.stackable && item.stackSize > 1)
-				Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, item.stackSize.ToString(), 1, 0xFFBBBBBB);
+			if (stackSize > 1)
+				Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, stackSize.ToString(), 1, 0xFFBBBBBB);
 		}
 		else if (background != null)
 		{

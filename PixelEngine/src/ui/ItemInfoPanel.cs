@@ -18,9 +18,10 @@ public static class ItemInfoPanel
 
 		y += 4;
 
-		Renderer.DrawUIOutline(x + width / 2 - item.sprite.width / 2, y, item.sprite.width, item.sprite.height, item.sprite, false, 0xFF000000);
-		Renderer.DrawUISprite(x + width / 2 - item.sprite.width / 2, y, item.sprite.width, item.sprite.height, item.sprite, false, MathHelper.VectorToARGB(item.spriteColor));
-		y += item.sprite.height + 1;
+		Sprite sprite = item.type == ItemType.Spell ? item.spellIcon : item.sprite;
+		Renderer.DrawUIOutline(x + width / 2 - sprite.width / 2, y, sprite.width, sprite.height, sprite, false, 0xFF000000);
+		Renderer.DrawUISprite(x + width / 2 - sprite.width / 2, y, sprite.width, sprite.height, sprite, false, MathHelper.VectorToARGB(item.spriteColor));
+		y += sprite.height + 1;
 
 		string[] nameLines = Renderer.SplitMultilineText(item.fullDisplayName, width);
 		foreach (string line in nameLines)
@@ -122,20 +123,23 @@ public static class ItemInfoPanel
 				Staff staff = item as Staff;
 
 				y += 4;
-				drawLeft("Attuned spells:");
+				drawLeft("Attuned spells:" + (staff.attunedSpells.Count > 0 ? "" : " ---"));
 				//y += Renderer.smallFont.size + 1;
 				y++;
 
-				x += 4;
-				for (int i = 0; i < staff.attunedSpells.Count; i++)
+				if (staff.attunedSpells.Count > 0)
 				{
-					if (staff.attunedSpells[i] != null)
+					x += 4;
+					for (int i = 0; i < staff.attunedSpells.Count; i++)
 					{
-						y += Renderer.smallFont.size;
-						drawLeft(staff.attunedSpells[i].fullDisplayName, UIColors.TEXT_SUBTLE);
+						if (staff.attunedSpells[i] != null)
+						{
+							y += Renderer.smallFont.size;
+							drawLeft(staff.attunedSpells[i].fullDisplayName, UIColors.TEXT_SUBTLE);
+						}
 					}
+					x -= 4;
 				}
-				x -= 4;
 				y += Renderer.smallFont.size + 1;
 			}
 

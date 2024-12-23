@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class SpecialCaveRoom : Entity
+public class CavesSpecialRoom1 : Entity
 {
 	Room room;
 	LevelGenerator generator;
 	Sound ambience;
 
-	public SpecialCaveRoom(Room room, LevelGenerator generator)
+	public CavesSpecialRoom1(Room room, LevelGenerator generator)
 	{
 		this.room = room;
 		this.generator = generator;
@@ -40,6 +40,7 @@ public class SpecialCaveRoom : Entity
 		else
 		{
 			level.addEntity(new IronDoor(), new Vector2(room.x + room.doorways[1].position.x + 0.5f, room.y + room.doorways[1].position.y));
+			generator.setObjectFlag(room.x + room.doorways[1].position.x, room.y + room.doorways[1].position.y);
 		}
 		if (room.doorways[2].otherDoorway == null)
 		{
@@ -48,6 +49,7 @@ public class SpecialCaveRoom : Entity
 		else
 		{
 			level.addEntity(new IronDoor(), new Vector2(room.x + room.doorways[2].position.x + 0.5f, room.y + room.doorways[2].position.y));
+			generator.setObjectFlag(room.x + room.doorways[2].position.x, room.y + room.doorways[2].position.y);
 		}
 
 		level.addEntity(new TorchEntity(), position + new Vector2(2.5f, 3.5f));

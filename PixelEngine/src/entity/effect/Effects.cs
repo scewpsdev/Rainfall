@@ -138,6 +138,12 @@ public static unsafe class Effects
 		return effect;
 	}
 
+	public static ParticleEffect CreateAirJumpEffect(Entity follow)
+	{
+		ParticleEffect effect = new ParticleEffect(follow, "res/effects/air_jump.rfs");
+		return effect;
+	}
+
 	public static UIParticleEffect CreateRecordUIEffect(uint color)
 	{
 		UIParticleEffect effect = new UIParticleEffect(null, "res/effects/ui_record.rfs");

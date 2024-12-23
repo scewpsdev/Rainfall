@@ -118,12 +118,12 @@ public class GameState : State
 	long entityUpdateDelta;
 
 
-	public GameState(int saveID, string seed)
+	public GameState(int saveID, string seed, bool customRun = false, bool dailyRun = false)
 	{
 		this.seed = seed;
 		instance = this;
 
-		save = SaveFile.Load(saveID);
+		save = customRun ? SaveFile.customRun : dailyRun ? SaveFile.dailyRun : SaveFile.Load(saveID);
 
 		reset();
 	}
@@ -240,7 +240,14 @@ public class GameState : State
 		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
 
 
-		if (quickRestart)
+		if (save.isDaily)
+		{
+			level = null;
+			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
+			player.setStartingClass(StartingClass.startingClasses[Hash.hash(Hash.hash(seed)) % StartingClass.startingClasses.Length]);
+			levelSwitchTime = -1;
+		}
+		else if (quickRestart)
 		{
 			level = null;
 			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
@@ -284,7 +291,8 @@ public class GameState : State
 
 	public override void destroy()
 	{
-		SaveFile.Save(save);
+		if (save.id != -1)
+			SaveFile.Save(save);
 
 		Audio.StopSource(ambientSource);
 

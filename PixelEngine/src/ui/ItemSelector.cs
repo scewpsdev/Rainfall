@@ -81,7 +81,7 @@ public static class ItemSelector
 			Item item = items[i];
 
 			Renderer.DrawUISprite(x, y, shopWidth, lineHeight, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);
-			Renderer.DrawUISprite(x, y, lineHeight, lineHeight, item.getIcon(), false, MathHelper.VectorToARGB(item.spriteColor));
+			Renderer.DrawUISprite(x, y, lineHeight, lineHeight, item.icon, false, MathHelper.VectorToARGB(item.spriteColor));
 			string name = item.fullDisplayName;
 			Renderer.DrawUITextBMP(x + lineHeight + 5, y + 4, name, 1, UIColors.TEXT);
 

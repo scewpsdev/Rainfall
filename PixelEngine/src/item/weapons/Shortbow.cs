@@ -20,7 +20,7 @@ public class Shortbow : Item
 		knockback = 2.0f;
 		trigger = false;
 		requiredAmmo = "arrow";
-		isSecondaryItem = true;
+		//isSecondaryItem = true;
 		secondaryChargeTime = 0;
 		baseWeight = 1;
 

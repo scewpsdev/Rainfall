@@ -36,6 +36,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float jumpPower = 11; //12; //10.5f;
 	public float gravity = -22;
 	public float wallJumpPower = 10;
+	public float wallControl = 2;
+	public int airJumps = 0;
+	public int airJumpsLeft = 0;
 	public const float defaultManaRecoveryRate = 0.02f;
 	public float coinCollectDistance = 1.5f;
 	public float aimDistance = 1.0f;
@@ -941,8 +944,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//dexterity++;
 		//intelligence++;
 
-		if (playerLevel % 5 == 0)
-			GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
+		//if (playerLevel % 5 == 0)
+		//	GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
 
 		GameState.instance.level.addEntity(new LevelUpEffect(this), position + Vector2.Up * 1);
 
@@ -1034,7 +1037,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			if (isGrounded)
+			{
 				lastGrounded = Time.currentTime;
+				airJumpsLeft = airJumps;
+			}
 
 			if (InputManager.IsPressed("Jump") && (actions.currentAction == null || actions.currentAction.canJump))
 			{
@@ -1055,6 +1061,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						velocity.y = jumpPower;
 						lastJumpInput = 0;
 						lastGrounded = 0;
+					}
+					else if (airJumpsLeft > 0)
+					{
+						velocity.y = jumpPower;
+						lastJumpInput = 0;
+						airJumpsLeft--;
+						level.addEntity(Effects.CreateAirJumpEffect(this), position);
 					}
 					else if (!isGrounded)
 					{
@@ -1209,7 +1222,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
-			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, 2 * Time.deltaTime);
+			if (lastWallTouchLeft == Time.currentTime || lastWallTouchRight == Time.currentTime)
+				velocity.y = MathF.Max(velocity.y, -12 / wallControl);
+
+			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, wallControl * getWallControlModifier() * Time.deltaTime);
 			velocity.x = MathHelper.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
 
 			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
@@ -1772,6 +1788,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.movementSpeedModifier;
 		value *= MathF.Pow(1.1f, swiftness - 1);
+		return value;
+	}
+
+	public float getWallControlModifier()
+	{
+		float value = 1;
+		foreach (ItemBuff modifier in itemBuffs)
+			value *= modifier.wallControlModifier;
 		return value;
 	}
 

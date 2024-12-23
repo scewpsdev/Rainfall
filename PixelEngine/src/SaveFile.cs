@@ -47,11 +47,16 @@ public class SaveFile
 	public static readonly uint FLAG_NPC_LOGAN_MET = Hash.hash("logan_questline_init");
 
 
+	public static SaveFile customRun => new SaveFile() { id = -1, isCustom = true, flags = [FLAG_TUTORIAL_FINISHED] };
+	public static SaveFile dailyRun => new SaveFile() { id = -1, isDaily = true };
+
+
 	public int id;
 	public string path;
+	public bool isDaily, isCustom;
 
 	public int runsFinished = 0;
-	public RunData[] highscores;
+	public RunData[] highscores = new RunData[0];
 	public HashSet<uint> flags = new HashSet<uint>();
 
 	public Dictionary<string, List<Quest>> quests = new Dictionary<string, List<Quest>>();

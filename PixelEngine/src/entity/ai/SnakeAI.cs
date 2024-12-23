@@ -32,6 +32,7 @@ public class SnakeAI : AI
 	long cooldownTime;
 
 	long targetLastSeen = -1;
+	long lastTurn = -1;
 
 
 	public SnakeAI(Mob mob)
@@ -124,13 +125,22 @@ public class SnakeAI : AI
 			mob.inputLeft = true;
 
 		TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, 0.5f));
-		if (forwardTile != null)
-			walkDirection *= -1;
+		if (forwardTile != null && forwardTile.isSolid)
+		{
+			if ((Time.currentTime - lastTurn) / 1e9f > 0.1f)
+			{
+				walkDirection *= -1;
+				lastTurn = Time.currentTime;
+			}
+		}
 		else
 		{
 			TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * walkDirection, -0.5f));
-			if (forwardDownTile == null)
+			if (forwardDownTile == null && (Time.currentTime - lastTurn) / 1e9f > 0.1f)
+			{
 				walkDirection *= -1;
+				lastTurn = Time.currentTime;
+			}
 		}
 	}
 

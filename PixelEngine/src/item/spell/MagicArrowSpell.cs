@@ -21,7 +21,7 @@ public class MagicArrowSpell : Spell
 		knockback = 1.0f;
 		trigger = false;
 
-		sprite = new Sprite(tileset, 0, 6);
+		spellIcon = new Sprite(tileset, 0, 6);
 
 		castSound = Resource.GetSounds("res/sounds/shoot", 11);
 	}

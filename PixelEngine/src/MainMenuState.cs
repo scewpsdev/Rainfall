@@ -41,8 +41,8 @@ public class MainMenuState : State
 
 		string[] labels = [
 			"Play",
-			//"Daily Run",
-			//"Custom Run",
+			"Daily Run",
+			"Custom Run",
 			"Options",
 			"Credits",
 			"Quit"
@@ -50,8 +50,8 @@ public class MainMenuState : State
 
 		bool[] enabled = [
 			true,
-			//true,
-			//true,
+			true,
+			true,
 			true,
 			true,
 			true
@@ -67,30 +67,28 @@ public class MainMenuState : State
 					currentButton = 0;
 					break;
 
-				/*
-			case 1: // Daily Run
-				DateTime today = DateTime.Today;
-				int day = today.DayOfYear;
-				int year = today.Year;
-				uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
-				//PixelEngine.instance.pushState(new GameState(seed.ToString()));
-				break;
+				case 1: // Daily Run
+					DateTime today = DateTime.Today;
+					int day = today.DayOfYear;
+					int year = today.Year;
+					uint seed = Hash.combine(Hash.hash(day), Hash.hash(year));
+					PixelEngine.instance.pushState(new GameState(-1, seed.ToString(), false, true));
+					break;
 
-			case 2: // Custom Run
-				screen = MainMenuScreen.CustomRunSettings;
-				break;
-				*/
+				case 2: // Custom Run
+					screen = MainMenuScreen.CustomRunSettings;
+					break;
 
-				case 1: // Options
+				case 3: // Options
 					screen = MainMenuScreen.Options;
 					OptionsMenu.OnOpen();
 					break;
 
-				case 2: // Credits
+				case 4: // Credits
 					screen = MainMenuScreen.Credits;
 					break;
 
-				case 3: // Quit
+				case 5: // Quit
 					PixelEngine.instance.popState();
 					PixelEngine.instance.terminate();
 					break;
@@ -213,8 +211,11 @@ public class MainMenuState : State
 		{
 			if (key == KeyCode.Backspace && modifiers == KeyModifier.None && down && customRunSeedStr.Length > 0)
 				customRunSeedStr.Remove(customRunSeedStr.Length - 1, 1);
-			//if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
-			//	PixelEngine.instance.pushState(new GameState(customRunSeedStr.ToString()));
+			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
+			{
+				PixelEngine.instance.pushState(new GameState(-1, customRunSeedStr.ToString(), true));
+				screen = MainMenuScreen.Main;
+			}
 			if (InputManager.IsPressed("UIQuit", true))
 			{
 				screen = MainMenuScreen.Main;

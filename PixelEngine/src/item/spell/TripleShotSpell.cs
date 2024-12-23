@@ -25,7 +25,7 @@ public class TripleShotSpell : Spell
 		knockback = 1.0f;
 		trigger = false;
 
-		sprite = new Sprite(tileset, 4, 7);
+		spellIcon = new Sprite(tileset, 5, 8);
 
 		useSound = Resource.GetSounds("res/sounds/cast", 3);
 	}

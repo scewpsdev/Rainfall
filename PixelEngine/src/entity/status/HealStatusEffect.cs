@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 public class HealStatusEffect : StatusEffect
 {
-	float amount;
-	float duration;
+	public float amount;
+	public float duration;
 
 	long startTime;
 	long lastUpdate;
