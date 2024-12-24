@@ -70,7 +70,7 @@ public class GameState : State
 	const float AREA_TEXT_DURATION = 7.0f;
 	const float AREA_TEXT_FADE = 2.0f;
 
-	const float GAME_OVER_SCREEN_DELAY = 2.0f;
+	public const float GAME_OVER_SCREEN_DELAY = 3.0f;
 
 	const float LEVEL_FADE = 0.5f;
 
@@ -244,7 +244,7 @@ public class GameState : State
 		{
 			level = null;
 			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
-			player.setStartingClass(StartingClass.startingClasses[Hash.hash(Hash.hash(seed)) % StartingClass.startingClasses.Length]);
+			player.setStartingClass(StartingClass.startingClasses[Hash.hash(seed) % StartingClass.startingClasses.Length]);
 			levelSwitchTime = -1;
 		}
 		else if (quickRestart)
@@ -470,21 +470,28 @@ public class GameState : State
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, color);
 		}
 
-		if (run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY)
+		if (!run.active)
 		{
-			GameOverScreen.Render();
+			if (run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY)
+			{
+				GameOverScreen.Render();
 
-			if (InputManager.IsPressed("UIConfirm"))
-			{
-				Audio.PlayBackground(UISound.uiConfirm2);
-				GameOverScreen.Destroy();
-				reset(player.startingClass, true);
+				if (InputManager.IsPressed("UIConfirm"))
+				{
+					Audio.PlayBackground(UISound.uiConfirm2);
+					GameOverScreen.Destroy();
+					reset(player.startingClass, true);
+				}
+				if (InputManager.IsPressed("UIConfirm2"))
+				{
+					Audio.PlayBackground(UISound.uiConfirm2);
+					GameOverScreen.Destroy();
+					reset();
+				}
 			}
-			if (InputManager.IsPressed("UIConfirm2"))
+			else
 			{
-				Audio.PlayBackground(UISound.uiConfirm2);
-				GameOverScreen.Destroy();
-				reset();
+				//Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, MathHelper.ColorAlpha(0xFF000000, MathF.Pow((Time.currentTime - run.endedTime) / 1e9f / GAME_OVER_SCREEN_DELAY, 3)));
 			}
 		}
 

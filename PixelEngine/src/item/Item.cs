@@ -634,7 +634,7 @@ public abstract class Item
 	public static Item CreateRandom(ItemType type, Random random, float meanValue)
 	{
 		List<Item> items = GetItemPrototypesOfType(type);
-		MathHelper.ShuffleList(items);
+		MathHelper.ShuffleList(items, random);
 		for (int i = 0; i < items.Count; i++)
 		{
 			if (!items[i].canDrop)
