@@ -35,6 +35,9 @@ public class ScrollOfArmorEnchantment : Item
 			player.hud.showMessage("Your armor shimmers lightly.");
 		else
 			player.hud.showMessage("The scroll was lost without use.");
+
+		player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+
 		return true;
 	}
 }

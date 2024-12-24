@@ -38,6 +38,9 @@ public class ScrollOfWeaponEnchantment : Item
 		{
 			player.hud.showMessage("The scroll was lost without use.");
 		}
+
+		player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+
 		return true;
 	}
 }

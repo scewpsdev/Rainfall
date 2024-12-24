@@ -67,7 +67,7 @@ public class Crossbow : Item
 			if (arrows != null)
 			{
 				loadedArrow = player.removeItemSingle(arrows);
-				Audio.PlayOrganic(reloadSound, new Vector3(player.position, 0));
+				Audio.PlayOrganic(reloadSound, new Vector3(player.position, 0), 3);
 			}
 		}
 		return false;

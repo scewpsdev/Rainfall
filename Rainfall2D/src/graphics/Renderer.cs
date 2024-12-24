@@ -48,8 +48,8 @@ public static class Renderer
 
 	struct UIDraw
 	{
-		public Vector2i position;
-		public Vector2i size;
+		public Vector2 position;
+		public Vector2 size;
 		public float rotation;
 		public Texture texture;
 		public FloatRect rect;
@@ -565,7 +565,7 @@ public static class Renderer
 		lightDraws.Add(new LightDraw { position = position, color = new Vector4(color, 1.0f), radius = radius });
 	}
 
-	public static void DrawUISprite(int x, int y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
+	public static void DrawUISprite(float x, float y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -579,10 +579,10 @@ public static class Renderer
 				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
 	}
 
-	public static void DrawUISprite(int x, int y, int width, int height, float rotation, Sprite sprite, uint color = 0xFFFFFFFF)
+	public static void DrawUISprite(float x, float y, int width, int height, float rotation, Sprite sprite, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -593,13 +593,13 @@ public static class Renderer
 			v1 = sprite.uv1.y;
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
 	}
 
-	public static void DrawUISprite(int x, int y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
+	public static void DrawUISprite(float x, float y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(width, height), texture = texture, rect = rect, color = color });
 	}
 
 	public static void DrawUISpriteCutout(int x, int y, Sprite sprite, int width, int height, int uoffset = 0, int voffset = 0, uint color = 0xFFFFFFFF)
@@ -616,10 +616,10 @@ public static class Renderer
 			v1 = sprite.uv1.y - ((sprite.height - height) / 2 - voffset) / (float)sprite.spriteSheet.texture.height;
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color });
 	}
 
-	public static void DrawUISpriteSolid(int x, int y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
+	public static void DrawUISpriteSolid(float x, float y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -633,16 +633,16 @@ public static class Renderer
 				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
 	}
 
 	public static void DrawUISpriteSolid(int x, int y, int width, int height, Texture texture, int u0, int v0, int w, int h, uint color = 0xFFFFFFFF)
 	{
 		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(width, height), texture = texture, rect = rect, color = color, solid = true });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(width, height), texture = texture, rect = rect, color = color, solid = true });
 	}
 
-	public static void DrawUIOutline(int x, int y, int width, int height, Sprite sprite, bool flipped, uint color)
+	public static void DrawUIOutline(float x, float y, int width, int height, Sprite sprite, bool flipped, uint color)
 	{
 		DrawUISpriteSolid(x - 1, y, width, height, sprite, flipped, color);
 		DrawUISpriteSolid(x + 1, y, width, height, sprite, flipped, color);
@@ -660,7 +660,7 @@ public static class Renderer
 		return new Vector2i(font.measureText(text, length != -1 ? length : text.Length) * scale, (int)(font.size * scale));
 	}
 
-	public static int DrawUITextBMP(int x, int y, string text, int size = 1, uint color = 0xFFFFFFFF)
+	public static int DrawUITextBMP(float x, float y, string text, int size = 1, uint color = 0xFFFFFFFF)
 	{
 		int cursor = 0;
 		for (int i = 0; i < text.Length; i++)
@@ -669,14 +669,14 @@ public static class Renderer
 			if (rect == null)
 				rect = smallFont.getCharacterRect('?');
 
-			uiDraws.Add(new UIDraw { position = new Vector2i(x + cursor * size, y), size = new Vector2i(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+			uiDraws.Add(new UIDraw { position = new Vector2(x + cursor * size, y), size = new Vector2(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
 			cursor += rect.size.x;
 		}
 		return cursor;
 	}
 
-	public static int DrawUITextBMPFormatted(int x, int y, string text, int size = 1, uint defaultColor = 0xFFFFFFFF)
+	public static int DrawUITextBMPFormatted(float x, float y, string text, int size = 1, uint defaultColor = 0xFFFFFFFF)
 	{
 		uint color = defaultColor;
 
@@ -701,14 +701,14 @@ public static class Renderer
 			if (rect == null)
 				rect = smallFont.getCharacterRect('?');
 
-			uiDraws.Add(new UIDraw { position = new Vector2i(x + cursor * size, y), size = new Vector2i(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+			uiDraws.Add(new UIDraw { position = new Vector2(x + cursor * size, y), size = new Vector2(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
 			cursor += rect.size.x;
 		}
 		return cursor;
 	}
 
-	public static int DrawUITextBMP(int x, int y, char c, bool flippedX = false, bool flippedY = false, int size = 1, uint color = 0xFFFFFFFF)
+	public static int DrawUITextBMP(float x, float y, char c, bool flippedX = false, bool flippedY = false, int size = 1, uint color = 0xFFFFFFFF)
 	{
 		IntRect rect = smallFont.getCharacterRect(c);
 		if (rect == null)
@@ -728,7 +728,7 @@ public static class Renderer
 			rect.size.y *= -1;
 		}
 
-		uiDraws.Add(new UIDraw { position = new Vector2i(x, y), size = new Vector2i(w * size, h * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
+		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(w * size, h * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
 		return rect.size.x;
 	}
@@ -786,7 +786,7 @@ public static class Renderer
 		}
 	}
 
-	public static bool IsHovered(int x, int y, int width, int height)
+	public static bool IsHovered(float x, float y, int width, int height)
 	{
 		return cursorPosition.x >= x && cursorPosition.x < x + width && cursorPosition.y >= y && cursorPosition.y < y + height;
 	}

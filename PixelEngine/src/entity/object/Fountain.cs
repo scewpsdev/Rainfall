@@ -375,7 +375,7 @@ public class Fountain : Entity, Interactable
 				options.Add("Use item");
 			options.Add("Walk away");
 
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			int option = InteractableMenu.Render(pos, displayName, options, out bool closed, ref selectedOption);
 
@@ -401,7 +401,7 @@ public class Fountain : Entity, Interactable
 		}
 		else if (state == FountainState.UseItem)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			List<Item> items = new List<Item>(player.items.Count);
 			for (int i = 0; i < player.items.Count; i++)

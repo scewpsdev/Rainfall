@@ -1,20 +1,13 @@
-flags = [ 1615716108, 777027450 ]
+flags = [ 777027450, 1615716108 ]
+runs_finished = 0
 highscores = [ {
-score = 1675
-floor = 0
-time = 146.73223876953125
-kills = 4
-items0 = [ 156068506, 3945930507 ]
-items1 = [ 0, 0, 0, 0 ]
-items2 = [ 1067816680 ]
-}, {
-score = 1675
-floor = 0
-time = 146.73223876953125
-kills = 4
-items0 = [ 156068506, 3945930507 ]
-items1 = [ 0, 0, 0, 0 ]
-items2 = [ 1067816680 ]
+score = 0
+floor = -1
+time = -1
+kills = 0
+items0 = [ 0, 0 ]
+items1 = [ 0, 0, 0, 0, 0 ]
+items2 = [ 0, 0, 0, 0 ]
 }, {
 score = 0
 floor = -1
@@ -24,17 +17,25 @@ items0 = [ 0, 0 ]
 items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
 }, {
-score = 1527
-floor = 0
-time = 61.8390998840332
-kills = 6
+score = 0
+floor = -1
+time = -1
+kills = 0
 items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0 ]
-items2 = [ 1067816680 ]
+items1 = [ 0, 0, 0, 0, 0 ]
+items2 = [ 0, 0, 0, 0 ]
+}, {
+score = 0
+floor = -1
+time = -1
+kills = 0
+items0 = [ 0, 0 ]
+items1 = [ 0, 0, 0, 0, 0 ]
+items2 = [ 0, 0, 0, 0 ]
 } ]
 quests = [ {
 npc = rat_npc
 name = cheese_quest
 state = InProgress
-snake_kills = 6
+snake_kills = 0
 } ]

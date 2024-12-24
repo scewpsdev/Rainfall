@@ -15,7 +15,7 @@ public class Shortsword : Item
 
 		baseDamage = 1.0f;
 		baseAttackRange = 0.8f;
-		baseAttackRate = 2.0f;
+		baseAttackRate = 2.2f;
 		stab = false;
 		baseWeight = 1;
 

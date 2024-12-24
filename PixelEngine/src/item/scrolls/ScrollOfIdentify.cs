@@ -34,7 +34,7 @@ public class ScrollOfIdentify : Item
 			Player player = entity as Player;
 			if (selectedItem != -1)
 			{
-				Vector2i pos = GameState.instance.camera.worldToScreen(entity.position + new Vector2(0, 1));
+				Vector2 pos = GameState.instance.camera.worldToScreen(entity.position + new Vector2(0, 1));
 				List<Item> items = new List<Item>();
 				for (int i = 0; i < player.items.Count; i++)
 					items.Add(player.items[i]);
@@ -48,6 +48,8 @@ public class ScrollOfIdentify : Item
 				}
 				if (closed)
 					selectedItem = -1;
+
+				player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
 			}
 		}
 	}

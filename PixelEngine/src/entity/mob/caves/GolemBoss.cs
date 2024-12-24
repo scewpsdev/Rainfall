@@ -36,6 +36,7 @@ public class GolemBoss : Mob
 		gravity = -20;
 		awareness = 1;
 		itemDropChance = 1;
+		itemDropValue = 2;
 
 		ai = new GolemAI(this);
 		ai.loseRange = 100;

@@ -33,7 +33,7 @@ public class CavesSpecialRoom4 : Entity
 		level.addEntity(new TorchEntity(), position + new Vector2(4.5f, 4.5f));
 		level.addEntity(new TorchEntity(), position + new Vector2(8.5f, 4.5f));
 
-		for (int i = 0; i < room.height; i++)
+		for (int i = 0; i < 6; i++)
 		{
 			int x = room.x + i % 2 == 0 ? 1 : room.width - 2;
 			int y = room.y + 3 + i * 2;

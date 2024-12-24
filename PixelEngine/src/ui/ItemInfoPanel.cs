@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 public static class ItemInfoPanel
 {
-	public static int Render(Item item, int x, int y, int width, int height, Item compareItem = null)
+	public static float Render(Item item, float x, float y, int width, int height, Item compareItem = null)
 	{
-		int top = y;
+		float top = y;
 
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, item.rarityColor /*UIColors.WINDOW_FRAME*/);
 		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);

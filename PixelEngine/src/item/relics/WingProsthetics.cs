@@ -18,7 +18,7 @@ public class WingProsthetics : Item
 
 		value = 25;
 
-		sprite = new Sprite(tileset, 6, 8);
+		sprite = new Sprite(tileset, 7, 8);
 	}
 
 	public override void onEquip(Player player)

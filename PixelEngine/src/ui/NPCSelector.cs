@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +14,7 @@ public static class NPCSelector
 	static int maxItems = 10;
 	static int currentScroll = 0;
 
-	public static int Render(int x, int y, int width, int height, string title, List<string> items, Func<int, int, int, int, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(float x, float y, int width, int height, string title, List<string> items, Func<float, float, int, int, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		secondary = false;
 
@@ -24,7 +24,7 @@ public static class NPCSelector
 		int shopWidth = Math.Max(60, 4 + longestLineWidth + 1);
 		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
 
-		int top = y;
+		float top = y;
 
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
 
@@ -102,8 +102,8 @@ public static class NPCSelector
 		// Item info panel
 		if (items.Count > 0 && renderInfoPanel != null)
 		{
-			int xx = x + shopWidth + 1;
-			int yy = top + headerHeight;
+			float xx = x + shopWidth + 1;
+			float yy = top + headerHeight;
 			int ww = sidePanelWidth;
 			int hh = Math.Max(shopHeight, sidePanelHeight);
 
@@ -120,11 +120,10 @@ public static class NPCSelector
 			sidePanelHeight = 40;
 			Audio.PlayBackground(UISound.uiBack);
 		}
-
 		return choice;
 	}
 
-	public static int Render(Vector2i pos, string title, List<string> items, Func<int, int, int, int, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(Vector2 pos, string title, List<string> items, Func<float, float, int, int, int> renderInfoPanel, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		int lineHeight = 16;
 		int headerHeight = 12 + 1;
@@ -133,8 +132,8 @@ public static class NPCSelector
 		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
 		int width = shopWidth + (renderInfoPanel != null ? 1 + sidePanelWidth : 0);
 		int height = headerHeight + shopHeight;
-		int x = Math.Clamp(pos.x, 2, Renderer.UIWidth - width - 2);
-		int y = Math.Clamp(pos.y - height, 2, Renderer.UIHeight - height - 2);
+		float x = Math.Clamp(pos.x, 2, Renderer.UIWidth - width - 2);
+		float y = Math.Clamp(pos.y - height, 2, Renderer.UIHeight - height - 2);
 
 		return Render(x, y, width, height, title, items, renderInfoPanel, out secondary, out closed, ref selectedItem);
 	}

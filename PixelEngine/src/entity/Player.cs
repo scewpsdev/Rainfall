@@ -346,37 +346,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
 
 			return true;
-
-			if (item.type == ItemType.Relic)
-			{
-				for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
-				{
-					if (passiveItems[i] == null)
-					{
-						passiveItems[i] = item;
-						passiveItems[i].onEquip(this);
-						return true;
-					}
-				}
-
-				unequipItem(passiveItems[(int)ArmorSlot.Ring2]);
-				passiveItems[(int)ArmorSlot.Ring2] = item;
-				passiveItems[(int)ArmorSlot.Ring2].onEquip(this);
-				return true;
-			}
-			else
-			{
-				int slotIdx = (int)item.armorSlot;
-				if (passiveItems[slotIdx] != null)
-					unequipItem(passiveItems[slotIdx]);
-
-				passiveItems[slotIdx] = item;
-				passiveItems[slotIdx].onEquip(this);
-				if (item.equipSound != null)
-					Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
-				return true;
-			}
-			return false;
 		}
 
 		Debug.Assert(false);
@@ -644,21 +613,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 		return true;
-
-		if (item.type == ItemType.Relic)
-		{
-			for (int i = (int)ArmorSlot.Ring1; i <= (int)ArmorSlot.Ring2; i++)
-			{
-				if (passiveItems[i] == null)
-					return true;
-			}
-			return false;
-		}
-		else
-		{
-			int slotIdx = (int)item.armorSlot;
-			return passiveItems[slotIdx] == null;
-		}
 	}
 
 	public void dropItem(Item item)
@@ -814,6 +768,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 				if (triggerInvincibility)
 					GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+			}
+			else
+			{
+				if (triggerInvincibility)
+					GameState.instance.level.addEntity(Effects.CreateBloodEffect(Vector2.Up), position + collider.center);
 			}
 
 			if (triggerInvincibility)
@@ -1217,13 +1176,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (InputManager.IsReleased("Jump"))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
-			if (InputManager.IsDown("Down"))
+			if (InputManager.IsDown("Down") && actions.currentAction == null)
 				gravityMultiplier *= 1.5f;
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
 			if (lastWallTouchLeft == Time.currentTime || lastWallTouchRight == Time.currentTime)
-				velocity.y = MathF.Max(velocity.y, -12 / wallControl);
+				velocity.y = MathF.Max(velocity.y, -16 / wallControl);
 
 			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, wallControl * getWallControlModifier() * Time.deltaTime);
 			velocity.x = MathHelper.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
@@ -1260,7 +1219,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				stun();
 			if (fallDistance >= FALL_DAMAGE_DISTANCE)
 			{
-				float fallDmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.2f / equipLoadModifier;
+				float fallDmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.5f / equipLoadModifier;
 				hit(fallDmg, null, null, "A high fall", false);
 			}
 			if (velocity.y < -10)

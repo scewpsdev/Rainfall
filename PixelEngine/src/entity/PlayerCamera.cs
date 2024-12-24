@@ -34,11 +34,11 @@ public class PlayerCamera : Entity
 		simplex = new Simplex((uint)Time.currentTime);
 	}
 
-	public Vector2i worldToScreen(Vector2 pos)
+	public Vector2 worldToScreen(Vector2 pos)
 	{
-		int x = (int)MathF.Round(MathHelper.Remap(pos.x, position.x - 0.5f * width, position.x + 0.5f * width, 0, 1) * Renderer.UIWidth);
-		int y = (int)MathF.Round(MathHelper.Remap(pos.y, position.y - 0.5f * height, position.y + 0.5f * height, 1, 0) * Renderer.UIHeight);
-		return new Vector2i(x, y);
+		float x = MathHelper.Remap(pos.x, position.x - 0.5f * width, position.x + 0.5f * width, 0, 1) * Renderer.UIWidth;
+		float y = MathHelper.Remap(pos.y, position.y - 0.5f * height, position.y + 0.5f * height, 1, 0) * Renderer.UIHeight;
+		return new Vector2(x, y);
 	}
 
 	public Vector2 screenToWorld(Vector2i pos)

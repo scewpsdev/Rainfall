@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public static class ItemSlotUI
 {
-	public static bool Render(int x, int y, int size, Sprite icon, uint iconColor, int stackSize, Sprite background = null, bool selected = false)
+	public static bool Render(float x, float y, int size, Sprite icon, uint iconColor, int stackSize, Sprite background = null, bool selected = false)
 	{
 		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, selected ? UIColors.ITEM_SLOT_FRAME_HIGHLIGHT : UIColors.ITEM_SLOT_FRAME);
 		Renderer.DrawUISprite(x, y, size, size, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);

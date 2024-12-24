@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public static class AttunementSelector
 {
-	public static int Render(int x, int y, int width, int height, Staff staff, out bool secondary, out bool closed, ref int selectedItem)
+	public static int Render(float x, float y, int width, int height, Staff staff, out bool secondary, out bool closed, ref int selectedItem)
 	{
 		secondary = false;
 		closed = false;
@@ -47,8 +47,8 @@ public static class AttunementSelector
 
 		for (int i = 0; i < staff.staffAttunementSlots; i++)
 		{
-			int xx = x + padding + (i % columns) * (slotSize + padding);
-			int yy = y + padding + (i / columns) * (slotSize + padding);
+			float xx = x + padding + (i % columns) * (slotSize + padding);
+			float yy = y + padding + (i / columns) * (slotSize + padding);
 
 			bool selected = selectedItem == i;
 			if (ItemSlotUI.Render(xx, yy, slotSize, staff.attunedSpells[i]?.spellIcon, 0xFFFFFFFF, 1, null, selected))

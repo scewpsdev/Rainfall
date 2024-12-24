@@ -61,7 +61,7 @@ public class BossGate : Entity
 
 	bool isInRoom(Entity entity)
 	{
-		return room.containsEntity(entity) && entity.position.x > room.x + 5.5f && entity.position.x < room.x + room.width - 5.5f;
+		return room.containsEntity(entity) && entity.position.x > room.x + 5 && entity.position.x < room.x + room.width - 5;
 	}
 
 	public override void update()

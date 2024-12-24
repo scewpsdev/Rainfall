@@ -2,21 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 
 public static class InteractableMenu
 {
-	public static int Render(Vector2i pos, string title, List<string> options, out bool closed, ref int selectedOption)
+	public static int Render(Vector2 pos, string title, List<string> options, out bool closed, ref int selectedOption)
 	{
 		int lineHeight = 12;
 		int headerHeight = 12 + 1;
 		int width = 120;
 		int height = headerHeight + options.Count * lineHeight;
-		int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-		int y = Math.Max(pos.y - height, 2);
+		float x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
+		float y = Math.Max(pos.y - height, 2);
 
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
 

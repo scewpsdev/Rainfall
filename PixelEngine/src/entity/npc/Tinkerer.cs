@@ -46,7 +46,7 @@ public class Tinkerer : NPC
 			addDialogue(dialogue);
 		}
 
-		populateShop(random, 3, 9, level.avgLootValue, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 3, 9, level.avgLootValue * 1.25f, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public Tinkerer()

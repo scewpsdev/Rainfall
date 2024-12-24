@@ -33,8 +33,6 @@ public class InventoryUI
 	int inventoryHeight = 120;
 	int characterHeight = 150;
 
-	int currentScroll = 0;
-
 
 	public InventoryUI(Player player)
 	{
@@ -255,6 +253,9 @@ public class InventoryUI
 			if (selectedItem < 0)
 				selectedItem = -1;
 			selectedItem += firstActiveItem;
+			if (selectedItem >= firstStoredItem && storedItems.Count > 0)
+				selectedItem = Math.Min(selectedItem, firstStoredItem + storedItems.Count - 1);
+
 		}
 
 		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
@@ -364,6 +365,9 @@ public class InventoryUI
 			selectedItem += firstPassiveItem;
 		}
 
+		if (selectedItem >= firstPassiveItem + idx)
+			selectedItem = firstPassiveItem + idx - 1;
+
 		y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
 
 		return y - top;
@@ -374,7 +378,6 @@ public class InventoryUI
 		player.inventoryOpen = true;
 		player.numOverlaysOpen++;
 		selectedItem = 0;
-		currentScroll = 0;
 	}
 
 	void closeScreen()
@@ -413,7 +416,7 @@ public class InventoryUI
 			if (selected != null)
 			{
 				int sidePanelWidth = 90;
-				sidePanelHeight = ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
+				sidePanelHeight = (int)ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
 
 				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 				{

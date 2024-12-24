@@ -144,6 +144,12 @@ public static unsafe class Effects
 		return effect;
 	}
 
+	public static ParticleEffect CreateScrollUseEffect(Entity follow)
+	{
+		ParticleEffect effect = new ParticleEffect(follow, "res/effects/scroll_use.rfs");
+		return effect;
+	}
+
 	public static UIParticleEffect CreateRecordUIEffect(uint color)
 	{
 		UIParticleEffect effect = new UIParticleEffect(null, "res/effects/ui_record.rfs");

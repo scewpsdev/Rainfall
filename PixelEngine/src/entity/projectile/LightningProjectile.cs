@@ -18,10 +18,8 @@ public class LightningProjectile : Entity
 	float damage;
 
 	Entity shooter;
-	Item staff;
 	Item spell;
 
-	Sprite sprite;
 	Texture lightning;
 	Sprite trail, trailFade;
 
@@ -54,7 +52,6 @@ public class LightningProjectile : Entity
 
 		this.damage = damage;
 
-		sprite = new Sprite(Item.tileset, 9, 2);
 		lightning = Resource.GetTexture("res/sprites/lightning.png", false);
 		trail = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 2, 0);
 		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 3, 0);

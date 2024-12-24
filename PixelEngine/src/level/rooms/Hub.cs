@@ -83,9 +83,9 @@ public class Hub : Entity
 		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_WIZARD))
 		level.addEntity(wizardClass = new ArmorStand(StartingClass.wizard, -1), level.rooms[0].getMarker(10) + new Vector2(5, 0));
 
-		//#if DEBUG
-		//		level.addEntity(devClass = new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
-		//#endif
+#if DEBUG
+		level.addEntity(devClass = new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
+#endif
 
 		BrokenWanderer npc = new BrokenWanderer(Random.Shared, level);
 		npc.clearShop();

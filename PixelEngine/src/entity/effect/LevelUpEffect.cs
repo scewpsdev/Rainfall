@@ -32,7 +32,7 @@ public class LevelUpEffect : Entity
 		float yoffset = elapsed / duration * 1.2f;
 
 		position = entity.position + offset;
-		Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, yoffset));
+		Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, yoffset));
 
 		float alpha = elapsed < 0.5f ? elapsed * 2 : elapsed > duration - 0.5f ? (duration - elapsed) * 2 : 1;
 		uint color = MathHelper.ColorAlpha(0xFFFFFFFF, alpha);

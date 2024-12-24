@@ -19,7 +19,7 @@ public class MoonbladeAxe : Item
 		stab = false;
 		doubleBladed = false;
 
-		value = 18;
+		value = 27;
 
 		sprite = new Sprite(tileset, 10, 7, 2, 1);
 		size = new Vector2(2, 1);

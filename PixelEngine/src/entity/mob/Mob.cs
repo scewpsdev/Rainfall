@@ -33,6 +33,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float gravity = -30;
 
 	public float itemDropChance = 0.1f;
+	public float itemDropValue = 1;
 	public float coinDropChance = 0.2f;
 
 	public float health = 1;
@@ -176,7 +177,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
 		{
-			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue);
+			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue * itemDropValue);
 
 			foreach (Item item in items)
 			{
@@ -190,7 +191,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 		if (Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = MathHelper.RandomInt(3, Math.Max((int)MathF.Round(maxHealth), 3));
+			int amount = MathHelper.RandomInt(1, Math.Max((int)MathF.Round(maxHealth / 2), 1));
 			for (int i = 0; i < amount; i++)
 			{
 				Coin coin = new Coin();

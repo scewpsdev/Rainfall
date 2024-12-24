@@ -430,23 +430,23 @@ public abstract class NPC : Mob, Interactable
 
 		if (state == NPCState.Dialogue)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 			DialogueScreen voiceLine = currentDialogue.screens[0];
 
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
 			int width = 120;
 			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight + 4;
-			int x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			int y = Math.Max(pos.y - height, 2);
+			float x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
+			float y = Math.Max(pos.y - height, 2);
 
 			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
 
 			// speech bubble thingy
 			for (int i = 0; i < 5; i++)
 			{
-				int xx = pos.x + 4;
-				int yy = y + height + i;
+				float xx = pos.x + 4;
+				float yy = y + height + i;
 				int ww = 5 - i;
 
 				Renderer.DrawUISprite(xx, yy, ww, 1, null, false, 0xFF222222);
@@ -615,7 +615,7 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Quests");
 			options.Add("Quit");
 
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			int option = InteractableMenu.Render(pos, displayName, options, out bool closed, ref selectedOption);
 
@@ -658,7 +658,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.Shop)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			List<Item> items = new List<Item>(shopItems.Count);
 			List<int> prices = new List<int>(shopItems.Count);
@@ -705,7 +705,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.SellMenu)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			List<Item> items = new List<Item>(player.items.Count);
 			List<int> prices = new List<int>(player.items.Count);
@@ -715,7 +715,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add((int)MathF.Round(player.items[i].value));
 			}
 
-			int itemIdx = ItemSelector.Render(pos, "Sell", items, prices, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			int itemIdx = ItemSelector.Render(pos, "Sell", items, prices, -player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (itemIdx != -1)
 			{
 				Item item = items[itemIdx];
@@ -749,7 +749,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.CraftingMenu)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
@@ -789,7 +789,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.UpgradeMenu)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			Item upgradedItem = upgradeItems[selectedItem].copy();
 			upgradedItem.upgrade();
@@ -812,7 +812,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.AttuneMenu)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 			pos.x = Math.Min(pos.x, Renderer.UIWidth - 1 - 120 - 90 - 90);
 
 			if (attuneStaff == null)
@@ -833,13 +833,13 @@ public abstract class NPC : Mob, Interactable
 			{
 				if (attuneSlotID == -1)
 				{
-					int renderAttunementSelector(int x, int y, int width, int height)
+					int renderAttunementSelector(float x, float y, int width, int height)
 					{
 						int choice = AttunementSelector.Render(x, y, width, height, attuneStaff, out bool secondary, out bool closed, ref selectedItem);
 
 						Spell selectedSpell = attuneStaff.attunedSpells[selectedItem];
 						if (selectedSpell != null)
-							infoPanelHeight = ItemInfoPanel.Render(selectedSpell, x + width + 1, y, 90, infoPanelHeight);
+							infoPanelHeight = (int)ItemInfoPanel.Render(selectedSpell, x + width + 1, y, 90, infoPanelHeight);
 
 						if (choice != -1)
 						{
@@ -871,7 +871,7 @@ public abstract class NPC : Mob, Interactable
 				}
 				if (attuneSlotID != -1)
 				{
-					int renderSpellSelector(int x, int y, int width, int height)
+					int renderSpellSelector(float x, float y, int width, int height)
 					{
 						int choice = ItemSelector.Render(x, y, width, height, "Select spell", attuneSpells, null, -1, null, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 						if (choice != -1)
@@ -907,7 +907,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.QuestList)
 		{
-			Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			List<string> labels = new List<string>();
 			if (GameState.instance.save.getQuestList(name, out List<Quest> quests))
@@ -916,9 +916,9 @@ public abstract class NPC : Mob, Interactable
 					labels.Add(quests[i].displayName);
 			}
 
-			int renderInfoPanel(int x, int y, int width, int height)
+			int renderInfoPanel(float x, float y, int width, int height)
 			{
-				int top = y;
+				float top = y;
 
 				y += 4;
 
@@ -944,7 +944,7 @@ public abstract class NPC : Mob, Interactable
 
 				y += 4;
 
-				return y - top;
+				return (int)MathF.Round(y - top);
 			};
 			NPCSelector.Render(pos, "Quests", labels, renderInfoPanel, out bool secondary, out bool closed, ref selectedItem);
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class SlimeAI : AdvancedAI
 {
-	int numBounces = 0;
+	//int numBounces = 0;
 
 	public SlimeAI(Mob mob)
 		: base(mob)
@@ -23,7 +23,7 @@ public class SlimeAI : AdvancedAI
 		jump.onStarted = (AIAction action) =>
 		{
 			mob.inputJump = true;
-			numBounces = 0;
+			//numBounces = 0;
 		};
 		jump.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
 		{

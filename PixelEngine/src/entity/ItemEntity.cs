@@ -286,7 +286,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 	void renderTooltip()
 	{
-		Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+		Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 		int direction = GameState.instance.player.position.x < position.x ? 1 : -1;
 
 		string name = item.fullDisplayName;
@@ -295,8 +295,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 		int lineHeight = 16;
 		int height = lineHeight + 12;
 		int width = 1 + lineHeight + 5 + Math.Max(Renderer.MeasureUITextBMP(name).x, Renderer.MeasureUITextBMP(rarityString).x) + 4;
-		int x = Math.Min(direction == 1 ? pos.x : pos.x - width, Renderer.UIWidth - width - 2);
-		int y = Math.Max(pos.y - height, 2);
+		float x = Math.Min(direction == 1 ? pos.x : pos.x - width, Renderer.UIWidth - width - 2);
+		float y = Math.Max(pos.y - height, 2);
 
 		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
 		Renderer.DrawUISprite(x, y, width, height, null, false, 0xFF222222);
@@ -318,11 +318,11 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 			if (player.numOverlaysOpen == 0)
 			{
-				Vector2i pos = GameState.instance.camera.worldToScreen(position + new Vector2(1, 0));
+				Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(1, 0));
 
 				int sidePanelWidth = 90;
-				int x = MathHelper.Clamp(pos.x, 10, Renderer.UIWidth - 10 - sidePanelWidth);
-				int y = MathHelper.Clamp(pos.y, Renderer.UIHeight / 2, Renderer.UIHeight - 10 - sidePanelHeight);
+				float x = MathHelper.Clamp(pos.x, 10, Renderer.UIWidth - 10 - sidePanelWidth);
+				float y = MathHelper.Clamp(pos.y, Renderer.UIHeight / 2, Renderer.UIHeight - 10 - sidePanelHeight);
 
 				Item compareItem = null;
 
@@ -336,7 +336,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 						compareItem = player.passiveItems[slotIdx];
 				}
 
-				sidePanelHeight = ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem);
+				sidePanelHeight = (int)ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem);
 
 				//renderTooltip();
 			}

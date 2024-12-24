@@ -34,6 +34,9 @@ public class ScrollOfEarth : Item
 			}
 		}
 		player.hud.showMessage("The earth rumbles.");
+
+		player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+
 		return true;
 	}
 }
