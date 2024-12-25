@@ -19,6 +19,8 @@ public class Zweihander : Item
 		stab = false;
 		twoHanded = true;
 		baseWeight = 2.5f;
+		attackAngleOffset = 0;
+		attackAngle = MathF.PI;
 
 		value = 18;
 

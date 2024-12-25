@@ -11,6 +11,7 @@ public class AttackAction : EntityAction
 {
 	public Item weapon;
 	public Vector2 direction;
+	public int charDirection;
 	public bool stab;
 	float attackDamage;
 	float attackRange;
@@ -50,6 +51,7 @@ public class AttackAction : EntityAction
 		duration /= player.getAttackSpeedModifier();
 
 		direction = player.lookDirection.normalized;
+		charDirection = player.direction;
 	}
 
 	public override void onFinished(Player player)
@@ -63,7 +65,7 @@ public class AttackAction : EntityAction
 		if (inDamageWindow)
 		{
 			Vector2 origin = player.position + new Vector2(0, player.getWeaponOrigin(mainHand).y);
-			Vector2 direction = new Vector2(MathF.Cos(currentAngle) * MathF.Sign(this.direction.x), MathF.Sin(currentAngle));
+			Vector2 direction = new Vector2(MathF.Cos(currentAngle) * charDirection, MathF.Sin(currentAngle));
 
 			HitData tileHit = GameState.instance.level.raycastTiles(origin, direction, currentRange);
 			if (tileHit != null)
@@ -185,7 +187,7 @@ public class AttackAction : EntityAction
 	public override Matrix getItemTransform(Player player)
 	{
 		float rotation = currentAngle;
-		bool flip = direction.x < 0;
+		bool flip = charDirection < 0;
 		Matrix weaponTransform = Matrix.CreateTranslation(0, player.getWeaponOrigin(mainHand).y, 0)
 			* Matrix.CreateRotation(Vector3.UnitZ, rotation)
 			* Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0)

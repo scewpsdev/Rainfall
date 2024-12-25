@@ -29,6 +29,8 @@ public class IronDoor : Entity, Interactable, Hittable
 		sprite = key != null ? new Sprite(tileset, 2, 8) : new Sprite(tileset, 3, 8);
 		frameSprite = key != null ? new Sprite(tileset, 2, 9) : new Sprite(tileset, 3, 9);
 
+		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1);
+
 		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
 		lockedSound = Resource.GetSound("res/sounds/door_locked.ogg");
 		closeSound = Resource.GetSound("res/sounds/door_close.ogg");
@@ -120,10 +122,13 @@ public class IronDoor : Entity, Interactable, Hittable
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;
-				if (MathHelper.Fract(entity.position.x) < 0.5f && (level.getTile(tile.x - 1, tile.y) == null || !level.getTile(tile.x - 1, tile.y).isSolid))
-					entity.position.x = MathF.Min(entity.position.x, tile.x - entity.collider.max.x);
-				else if (level.getTile(tile.x + 1, tile.y) == null || !level.getTile(tile.x + 1, tile.y).isSolid)
-					entity.position.x = MathF.Max(entity.position.x, tile.x + 1 - entity.collider.min.x);
+				if (entity is Player || entity is Mob || entity is ItemEntity)
+				{
+					if (MathHelper.Fract(entity.position.x) < 0.5f && (level.getTile(tile.x - 1, tile.y) == null || !level.getTile(tile.x - 1, tile.y).isSolid))
+						entity.position.x = MathF.Min(entity.position.x, tile.x - entity.collider.max.x);
+					else if (level.getTile(tile.x + 1, tile.y) == null || !level.getTile(tile.x + 1, tile.y).isSolid)
+						entity.position.x = MathF.Max(entity.position.x, tile.x + 1 - entity.collider.min.x);
+				}
 			}
 
 			closeSoundPlayed = false;

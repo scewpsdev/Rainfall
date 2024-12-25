@@ -147,14 +147,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
-		animator.addAnimation("run", 2 * 16, 0, 16, 0, 8, 16, true);
-		animator.addAnimation("jump", 10 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("fall", 11 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("climb", 12 * 16, 0, 16, 0, 2, 6, true);
-		animator.addAnimation("dead", 14 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("dead_falling", 15 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("stun", 16 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("idle", 0, 0, 16, 0, 4, 4, true);
+		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 16, true);
+		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 6, true);
+		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("dead_falling", 17 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("stun", 18 * 16, 0, 16, 0, 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public partial class LevelGenerator
 {
-	void generateCaveBackground(Level level, Simplex simplex)
+	void generateDungeonBackground(Level level, Simplex simplex)
 	{
 		for (int y = 0; y < level.height; y++)
 		{
@@ -23,55 +23,8 @@ public partial class LevelGenerator
 		}
 	}
 
-	public Level[] generateCaves(string seed)
+	public Level[] generateDungeons(string seed)
 	{
-		/*
-		int numCaveFloors = 5;
-		int numInbetweenRooms = 3;
-		Level[] areaCaves = new Level[numCaveFloors + numInbetweenRooms];
-		Vector3 lightAmbience = Vector3.One;
-		Vector3 darkAmbience = new Vector3(0.001f);
-		areaCaves[0] = new Level(0, "Caves I", 80, 30, TileType.dirt) { ambientLight = lightAmbience };
-		areaCaves[1] = new Level(1, "Caves II", 40, 60, TileType.dirt) { ambientLight = lightAmbience };
-		areaCaves[2] = new Level(-1, "") { ambientLight = lightAmbience };
-		areaCaves[3] = new Level(2, "Caves III", 50, 50, TileType.dirt) { ambientLight = darkAmbience };
-		areaCaves[4] = new Level(3, "Caves IV", 30, 30, TileType.dirt) { ambientLight = darkAmbience };
-		areaCaves[5] = new Level(-1, "") { ambientLight = lightAmbience };
-		areaCaves[6] = new Level(4, "Caves V", 80, 80, TileType.dirt) { ambientLight = lightAmbience };
-		areaCaves[7] = new Level(4, "") { ambientLight = lightAmbience };
-
-		Level lastLevel = null;
-		Door lastDoor = null;
-		for (int i = 0; i < areaCaves.Length; i++)
-		{
-			bool startingRoom = i == 0;
-			level = areaCaves[i];
-
-			if (areaCaves[i].name != "")
-			{
-				generateCaveFloor(seed, areaCaves[i].floor - areaCaves[0].floor, startingRoom, areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
-
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
-			}
-			else
-			{
-				if (i == 2 || i == 5)
-					generateRandomCaveFloor(areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
-				else if (i == 7)
-					generateCaveBossFloor(areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
-				else
-					Debug.Assert(false);
-			}
-
-			lastLevel = areaCaves[i];
-			lastDoor = areaCaves[i].exit;
-		}
-
-		return areaCaves;
-		*/
-
-
 		Level[] areaCaves = new Level[6];
 		Vector3 lightAmbience = Vector3.One;
 		Vector3 darkAmbience = new Vector3(0.001f);
@@ -99,55 +52,18 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
-		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 4));
-		generateCaveFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));
-		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 8));
-		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 10));
-		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(1, 10));
-		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
-		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
+		generateDungeonFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 4));
+		generateDungeonFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));
+		generateDungeonFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 8));
+		generateDungeonFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 10));
+		generateDungeonFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(1, 10));
 
-		generateCaveBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
+		generateDungeonBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
 
 		return areaCaves;
 	}
 
-	void generateRandomCaveFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
-	{
-		RoomDef def = specialSet.roomDefs[1];
-		level.resize(def.width, def.height);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
-
-		placeRoom(room, level, (int x, int y) => TileType.stone);
-		level.rooms = [room];
-
-		level.fogFalloff = 0.1f;
-		level.fogColor = new Vector3(0.0f);
-
-		level.entrance = new Door(lastLevel, lastDoor);
-		Vector2i entrancePosition = new Vector2i(2, 1);
-		level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
-		lastDoor.otherDoor = level.entrance;
-
-		level.exit = new Door(nextLevel);
-		Vector2i exitPosition = new Vector2i(14, 1);
-		level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
-
-		level.addEntity(new CavesShopRoom(room));
-
-		level.updateLightmap(0, 0, def.width, def.height);
-	}
-
-	void generateCaveBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
+	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
@@ -197,7 +113,7 @@ public partial class LevelGenerator
 		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
-	void generateCaveFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
+	void generateDungeonFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
 	{
 		this.seed = seed;
 		this.floor = floor;
@@ -234,7 +150,6 @@ public partial class LevelGenerator
 			rooms.Reverse();
 		Room startingRoom = rooms[0];
 		Room exitRoom = rooms[rooms.Count - 1];
-		if (rooms.Count > 2)
 		{
 			int i = 2;
 			while (exitRoom.width <= 2 || exitRoom.height <= 2)

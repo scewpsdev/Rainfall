@@ -27,8 +27,11 @@ public class CavesSpecialRoom3 : Entity
 			}
 		}
 
+		level.setTile(room.x, room.y + 1, TileType.dirt);
+		level.setTile(room.x + room.width - 1, room.y + 1, TileType.dirt);
+
 		Vector2i chestPosition = room.getMarker(0x1);
-		generator.spawnChest(chestPosition.x, chestPosition.y, generator.getRoomLootValue(room) * 2);
+		generator.spawnChest(chestPosition.x, chestPosition.y, generator.getRoomLootValue(room) * 2, generator.random.NextSingle() < 0.2f);
 
 		level.addEntity(new TorchEntity(), position + new Vector2(4.5f, 4.5f));
 		level.addEntity(new TorchEntity(), position + new Vector2(8.5f, 4.5f));

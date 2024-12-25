@@ -418,6 +418,11 @@ public class InventoryUI
 				int sidePanelWidth = 90;
 				sidePanelHeight = (int)ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
 
+				if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+				{
+					if (!(selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None || selected.isActiveItem) && !player.isEquipped(selected))
+						player.equipItem(selected);
+				}
 				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 				{
 					if (selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None || selected.isActiveItem)
@@ -427,7 +432,13 @@ public class InventoryUI
 					}
 					else
 					{
-						player.unequipItem(selected);
+						if (player.isEquipped(selected))
+							player.unequipItem(selected);
+						else
+						{
+							player.throwItem(selected, true);
+							player.removeItem(selected);
+						}
 					}
 				}
 			}

@@ -586,7 +586,7 @@ public partial class LevelGenerator
 		objectFlags[x + y * level.width] = true;
 	}
 
-	public void spawnChest(int x, int y, float roomLootValue)
+	public void spawnChest(int x, int y, float roomLootValue, bool locked = false)
 	{
 		float scamChestChance = 0.02f;
 		bool scam = random.NextSingle() < scamChestChance;
@@ -1013,7 +1013,7 @@ public partial class LevelGenerator
 				}
 			}
 
-			if (doorPosition.x == room.x || doorPosition.x == room.x + room.width - 1)
+			if ((doorPosition.x == room.x || doorPosition.x == room.x + room.width - 1) && !getObjectFlag(doorPosition.x, doorPosition.y))
 			{
 				TileType up = level.getTile(doorPosition.x, doorPosition.y + 1);
 				TileType down = level.getTile(doorPosition.x, doorPosition.y - 1);
@@ -1088,15 +1088,26 @@ public partial class LevelGenerator
 		TileType left = level.getTile(x - 1, y);
 		TileType right = level.getTile(x + 1, y);
 
+		Vector2 exitPosition = level.exit.position;
+
+		float furthestDistance = 0;
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Vector2 roomCenter = new Vector2(rooms[i].x + 0.5f * rooms[i].width, rooms[i].y + 0.5f * rooms[i].height);
+			Vector2 toRoom = roomCenter - exitPosition;
+			float distance = toRoom.length;
+			furthestDistance = MathF.Max(furthestDistance, distance);
+		}
+
 		if (up == null && left == null && right == null)
 		{
 			Vector2 position = new Vector2(x, y);
-			Vector2 entrancePosition = level.entrance.position;
-			Vector2 exitPosition = level.exit.position;
-			Vector2 toPosition = position - entrancePosition;
-			Vector2 toExit = exitPosition - entrancePosition;
-			float progress = MathHelper.Clamp(Vector2.Dot(toPosition, toExit.normalized) / toExit.length, 0, 1);
-			progress = progress + random.NextSingle() * 0.5f;
+			float distance = (position - exitPosition).length;
+			float progress = MathHelper.Remap(distance, 0, furthestDistance, 1, 0);
+			if (progress < 0.5f)
+				progress *= 0.5f + random.NextSingle();
+			else
+				progress = 1 - (1 - progress) * (0.5f + random.NextSingle());
 			progress = progress * progress;
 			int selection = MathHelper.Clamp((int)(progress * mobs.Count), 0, mobs.Count - 1);
 			Mob enemy = mobs[selection];

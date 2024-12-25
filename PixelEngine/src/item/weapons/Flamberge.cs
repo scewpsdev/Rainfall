@@ -18,6 +18,8 @@ public class Flamberge : Item
 		baseAttackRate = 1.0f;
 		stab = false;
 		twoHanded = true;
+		attackAngleOffset = -0.25f * MathF.PI;
+		attackAngle = MathF.PI;
 
 		value = 14;
 

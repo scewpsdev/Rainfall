@@ -13,7 +13,7 @@ public class Shortsword : Item
 	{
 		displayName = "Shortsword";
 
-		baseDamage = 1.0f;
+		baseDamage = 1.25f;
 		baseAttackRange = 0.8f;
 		baseAttackRate = 2.2f;
 		stab = false;
