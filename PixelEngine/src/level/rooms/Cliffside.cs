@@ -28,6 +28,11 @@ public class Cliffside : Entity
 			level.addEntity(new ExplosiveBarrel() { health = 1000 }, (Vector2)room.getMarker(40) + new Vector2(-0.5f, 0.0f));
 			for (int i = 0; i < 3; i++)
 				level.setTile(room.getMarker(40).x + 1, room.getMarker(40).y + i, TileType.dirt);
+
+			level.addEntity(new EventTrigger(new Vector2(1, 2), (Player player) =>
+			{
+				player.clearInventory();
+			}, null), new Vector2(room.width - 1, 38));
 		}
 
 		level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/cliffside/parallax0.png", false), 10), new Vector2(33, 200));

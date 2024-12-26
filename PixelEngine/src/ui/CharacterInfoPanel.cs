@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 public static class CharacterInfoPanel
 {
+	static int selectedLevelStat = 0;
+
+	public static void OnOpen()
+	{
+		selectedLevelStat = 0;
+	}
+
 	static void RenderPlayer(int x, int y, int width, int height)
 	{
 		Player player = GameState.instance.player;
@@ -103,15 +110,19 @@ public static class CharacterInfoPanel
 			string str = (value >= defaultValue ? "+" : "") + formatValue((value - defaultValue) / defaultValue * 100) + "%";
 			drawRight(str, value > defaultValue ? positiveColor : value < defaultValue ? negativeColor : color);
 		}
-		void drawLevel(string name, ref int value, uint color)
+		void drawLevel(int idx, string name, ref int value, uint color)
 		{
 			if (player.availableStatUpgrades > 0)
 			{
 				bool hovered = Renderer.IsHovered(x, y, width, Renderer.smallFont.size);
 				if (hovered)
+					selectedLevelStat = idx;
+				if (selectedLevelStat == idx)
 				{
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
-					if (Input.IsMouseButtonPressed(MouseButton.Left, true))
+					float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
+					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, MathHelper.ColorAlpha(UIColors.WINDOW_FRAME, alpha));
+					if (Input.IsMouseButtonPressed(MouseButton.Left, true) || InputManager.IsPressed("UIConfirm", true))
 					{
 						value++;
 						player.availableStatUpgrades--;
@@ -152,33 +163,28 @@ public static class CharacterInfoPanel
 
 		y += 4;
 
-		if (player.availableStatUpgrades > 0)
-		{
-			int ww = width;
-			int hh = 6 * Renderer.smallFont.size;
-			float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
-			uint color = MathHelper.ColorAlpha(UIColors.WINDOW_FRAME, alpha);
-			Renderer.DrawUISprite(x, y - 2, ww, hh + 2, null, false, color);
-			Renderer.DrawUISprite(x + 1, y - 1, ww - 2, hh, null, false, UIColors.WINDOW_BACKGROUND);
-		}
-
-		drawLevel("HP", ref player.hp, UIColors.TEXT_HEALTH);
+		drawLevel(0, "HP", ref player.hp, UIColors.TEXT_HEALTH);
 		y += Renderer.smallFont.size;
 
-		drawLevel("MP", ref player.magic, UIColors.TEXT_MANA);
+		drawLevel(1, "MP", ref player.magic, UIColors.TEXT_MANA);
 		y += Renderer.smallFont.size;
 
-		drawLevel("STR", ref player.strength, UIColors.TEXT);
+		drawLevel(2, "STR", ref player.strength, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLevel("DEX", ref player.dexterity, UIColors.TEXT);
+		drawLevel(3, "DEX", ref player.dexterity, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLevel("INT", ref player.intelligence, UIColors.TEXT);
+		drawLevel(4, "INT", ref player.intelligence, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLevel("SPD", ref player.swiftness, UIColors.TEXT);
+		drawLevel(5, "SPD", ref player.swiftness, UIColors.TEXT);
 		y += Renderer.smallFont.size;
+
+		if (InputManager.IsPressed("Down", true))
+			selectedLevelStat = (selectedLevelStat + 1) % 6;
+		if (InputManager.IsPressed("Up", true))
+			selectedLevelStat = (selectedLevelStat + 6 - 1) % 6;
 
 		y += 4;
 

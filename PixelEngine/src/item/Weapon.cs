@@ -35,7 +35,6 @@ public class Weapon : Item
 
 	public override bool use(Player player)
 	{
-		base.use(player);
 		if (weaponType == WeaponType.Melee)
 		{
 			int attackIdx = 0;
@@ -43,7 +42,10 @@ public class Weapon : Item
 				attackIdx = (player.actions.currentAction as AttackAction).attackIdx + 1;
 			getAttackAnim(attackIdx, out bool stab, out int swingDir, out float startAngle, out float endAngle);
 			player.actions.queueAction(new AttackAction(this, player.handItem == this, stab, baseAttackRate, baseDamage, baseAttackRange, startAngle, endAngle) { swingDir = swingDir, attackIdx = attackIdx });
+			return false;
 		}
+
+		base.use(player);
 		return false;
 	}
 }

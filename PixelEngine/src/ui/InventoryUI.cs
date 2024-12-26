@@ -378,6 +378,7 @@ public class InventoryUI
 		player.inventoryOpen = true;
 		player.numOverlaysOpen++;
 		selectedItem = 0;
+		CharacterInfoPanel.OnOpen();
 	}
 
 	void closeScreen()

@@ -74,7 +74,7 @@ public class BrokenWanderer : NPC
 		{
 			Dialogue dialogue = new Dialogue();
 			dialogue.addVoiceLine("I once knew a way out. Or thought I did... But the caves - they shift and change.");
-			dialogue.addVoiceLine("They're alive you know. Mocking us.");
+			dialogue.addVoiceLine("They're \\balive\\ you know. Mocking us.");
 			addDialogue(dialogue);
 		}
 		{

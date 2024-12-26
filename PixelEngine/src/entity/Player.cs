@@ -1313,8 +1313,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (handItem != null && handItem.type == ItemType.Staff)
 				{
 					Staff staff = handItem as Staff;
-					staff.selectedSpell = (staff.selectedSpell + 1) % staff.attunedSpells.Count;
-					hud.onSpellSwitch();
+
+					bool switched = false;
+					for (int i = 0; i < activeItems.Length; i++)
+					{
+						if (staff.attunedSpells[(staff.selectedSpell + 1 + i) % staff.attunedSpells.Count] != null)
+						{
+							staff.selectedSpell = (staff.selectedSpell + 1 + i) % staff.attunedSpells.Count;
+							switched = true;
+							hud.onSpellSwitch();
+							break;
+						}
+					}
+					if (!switched)
+						staff.selectedSpell = (staff.selectedSpell + 1) % staff.attunedSpells.Count;
 				}
 			}
 			if (InputManager.IsPressed("UseItem") && numOverlaysOpen == 0)
@@ -1437,6 +1449,113 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (InputManager.IsPressed("Attack", true) && (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration))
 					{
 						DefaultWeapon.instance.use(this);
+					}
+				}
+
+				{
+					Item handItem = this.handItem != null ? this.handItem : DefaultWeapon.instance;
+					Item offhandItem = this.offhandItem != null ? this.offhandItem : this.handItem != null ? this.handItem : null;
+
+					if (!Input.IsKeyDown(KeyCode.Ctrl))
+					{
+						KeyCode directionalAttackInput = KeyCode.None;
+						Vector2 directionalAttackDir = Vector2.Zero;
+						if (Input.IsKeyDown(KeyCode.Left))
+						{
+							directionalAttackInput = KeyCode.Left;
+							directionalAttackDir = Vector2.Left;
+						}
+						if (Input.IsKeyDown(KeyCode.Right))
+						{
+							directionalAttackInput = KeyCode.Right;
+							directionalAttackDir = Vector2.Right;
+						}
+						if (Input.IsKeyDown(KeyCode.Up))
+						{
+							directionalAttackInput = KeyCode.Up;
+							directionalAttackDir = Vector2.Up;
+						}
+						if (Input.IsKeyDown(KeyCode.Down))
+						{
+							directionalAttackInput = KeyCode.Down;
+							directionalAttackDir = Vector2.Down;
+						}
+						if (directionalAttackInput != KeyCode.None)
+						{
+							lookDirection = directionalAttackDir;
+							if (directionalAttackDir.x != 0)
+								direction = MathF.Sign(directionalAttackDir.x);
+
+							if (handItem.trigger)
+							{
+								if (Input.IsKeyPressed(directionalAttackInput))
+								{
+									Input.ConsumeKeyEvent(directionalAttackInput);
+									if (handItem.use(this))
+										removeItemSingle(handItem);
+								}
+							}
+							else
+							{
+								if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+								{
+									if (handItem.use(this))
+										removeItem(handItem);
+								}
+							}
+						}
+					}
+
+					if (Input.IsKeyDown(KeyCode.Ctrl) && offhandItem != null)
+					{
+						KeyCode directionalAttackInput = KeyCode.None;
+						Vector2 directionalAttackDir = Vector2.Zero;
+						if (Input.IsKeyDown(KeyCode.Left))
+						{
+							directionalAttackInput = KeyCode.Left;
+							directionalAttackDir = Vector2.Left;
+						}
+						if (Input.IsKeyDown(KeyCode.Right))
+						{
+							directionalAttackInput = KeyCode.Right;
+							directionalAttackDir = Vector2.Right;
+						}
+						if (Input.IsKeyDown(KeyCode.Up))
+						{
+							directionalAttackInput = KeyCode.Up;
+							directionalAttackDir = Vector2.Up;
+						}
+						if (Input.IsKeyDown(KeyCode.Down))
+						{
+							directionalAttackInput = KeyCode.Down;
+							directionalAttackDir = Vector2.Down;
+						}
+						if (directionalAttackInput != KeyCode.None)
+						{
+							lookDirection = directionalAttackDir;
+							if (directionalAttackDir.x != 0)
+								direction = MathF.Sign(directionalAttackDir.x);
+
+							bool secondary = this.offhandItem == null && this.handItem != null;
+
+							if (offhandItem.trigger)
+							{
+								if (Input.IsKeyPressed(directionalAttackInput))
+								{
+									Input.ConsumeKeyEvent(directionalAttackInput);
+									if (secondary ? offhandItem.useSecondary(this) : offhandItem.use(this))
+										removeItemSingle(offhandItem);
+								}
+							}
+							else
+							{
+								if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+								{
+									if (secondary ? offhandItem.useSecondary(this) : offhandItem.use(this))
+										removeItem(offhandItem);
+								}
+							}
+						}
 					}
 				}
 
@@ -1662,7 +1781,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (item != DefaultWeapon.instance)
 				{
-					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + getWeaponOrigin(mainHand).y);
+					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 					if (particles != null)
 					{

@@ -23,7 +23,7 @@ public class CrossbowShootAction : EntityAction
 		this.arrow = arrow;
 	}
 
-	public override void onStarted(Player player)
+	public override void onQueued(Player player)
 	{
 		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 

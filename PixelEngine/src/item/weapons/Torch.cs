@@ -19,6 +19,7 @@ public class Torch : Weapon
 		stab = false;
 		baseWeight = 1;
 		doubleBladed = false;
+		attackAngleOffset = -0.25f * MathF.PI;
 
 		value = 2;
 

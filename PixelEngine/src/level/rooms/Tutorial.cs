@@ -83,14 +83,17 @@ public class Tutorial : Entity
 		level.addEntity(new ItemEntity(new IronShield()), (Vector2)level.rooms[0].getMarker(04) + Vector2.Up);
 		level.addEntity(new ItemEntity(new PotionOfHealing()), (Vector2)level.rooms[0].getMarker(04) + Vector2.Up + Vector2.Right);
 		//level.addEntity(new Chest(new TravellingCloak()), (Vector2)level.rooms[0].getMarker(05));
-		level.addEntity(new Chest(new Bomb() { stackSize = 5 }), (Vector2)level.rooms[0].getMarker(10) + new Vector2(0.5f));
+		level.addEntity(new Chest(new TutorialBomb()), (Vector2)level.rooms[0].getMarker(10) + new Vector2(0.5f));
 		level.addEntity(new TorchEntity(), (Vector2)level.rooms[0].getMarker(11) + new Vector2(0.5f));
 		level.addEntity(new TutorialText(InputManager.GetBinding("Interact").ToString() + " to interact", 0xFFFFFFFF), new Vector2(40, 43.5f));
 		level.addEntity(new TutorialText("Down+" + InputManager.GetBinding("Interact").ToString() + " to drop", 0xFFFFFFFF), new Vector2(40, 43.0f));
-		level.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), new Vector2(43, 37.0f));
-		level.addEntity(new TutorialText(InputManager.GetBinding("Attack2").ToString() + " to block", 0xFFFFFFFF), new Vector2(31, 37.5f));
+		//level.addEntity(new TutorialText(InputManager.GetBinding("Attack").ToString() + " to attack", 0xFFFFFFFF), new Vector2(43, 37.0f));
+		level.addEntity(new TutorialText("Arrow Key to attack", 0xFFFFFFFF), new Vector2(43, 37.0f));
+		//level.addEntity(new TutorialText(InputManager.GetBinding("Attack2").ToString() + " to block", 0xFFFFFFFF), new Vector2(31, 37.5f));
+		level.addEntity(new TutorialText("Ctrl + Arrow Key to block", 0xFFFFFFFF), new Vector2(31, 37.5f));
 		level.addEntity(new TutorialText(InputManager.GetBinding("UseItem").ToString() + " to use item", 0xFFFFFFFF), new Vector2(31, 37));
 		level.addEntity(new TutorialText(InputManager.GetBinding("SwitchItem").ToString() + " to switch item", 0xFFFFFFFF), (Vector2)level.rooms[0].getMarker(10) + new Vector2(1, 3.0f));
+		level.addEntity(new TutorialText(InputManager.GetBinding("SwitchSpell").ToString() + " to switch spell", 0xFFFFFFFF), (Vector2)level.rooms[0].getMarker(10) + new Vector2(1, 2.5f));
 		level.addEntity(new TutorialText(InputManager.GetBinding("Inventory").ToString() + " to open inventory", 0xFFFFFFFF), (Vector2)level.rooms[0].getMarker(05) + new Vector2(0, 1.5f));
 
 		level.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)level.rooms[0].getMarker(06));

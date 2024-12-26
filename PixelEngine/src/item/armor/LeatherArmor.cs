@@ -13,11 +13,11 @@ public class LeatherArmor : Item
 	{
 		displayName = "Leather Armor";
 
-		armor = 4;
+		armor = 2;
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 1;
 
-		value = 8;
+		value = 6;
 
 		sprite = new Sprite(tileset, 2, 2);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/leather_armor.png", false), 0, 0, 16, 16);

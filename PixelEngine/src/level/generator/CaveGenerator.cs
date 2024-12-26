@@ -508,7 +508,7 @@ public partial class LevelGenerator
 				float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
 				Room room = getRoom(x, y);
 
-				if (room != null && room.spawnEnemies && (distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
+				if (room != null && room.spawnEnemies && (distanceToEntrance > 8 || y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
 				{
 					float enemyChance = 0.15f;
 					if (random.NextSingle() < enemyChance)

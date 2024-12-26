@@ -29,19 +29,11 @@ public class DefaultWeapon : Weapon
 		hitSound = [Resource.GetSound("res/sounds/punch_hit.ogg")];
 	}
 
-	public override bool use(Player player)
+	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
 	{
-		bool anim = stab;
-		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction)
-		{
-			AttackAction lastAttack = player.actions.currentAction as AttackAction;
-			if (lastAttack.weapon == this)
-				anim = !lastAttack.stab;
-		}
-		sprite = anim ? punchSprite : swingSprite;
-		AttackAction attack = new AttackAction(this, anim, anim, baseAttackRate, baseDamage, baseAttackRange);
-		player.actions.queueAction(attack);
-		attack.attackIdx = 0;
-		return false;
+		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
+		stab = idx % 2 == 0;
+		swingDir = 1;
+		sprite = stab ? punchSprite : swingSprite;
 	}
 }

@@ -24,23 +24,24 @@ public class BlockAction : EntityAction
 		speedMultiplier = shield.blockMovementSpeed;
 	}
 
+	public override void onQueued(Player player)
+	{
+		direction = player.lookDirection.normalized;
+
+		player.blockingItem = shield;
+	}
+
 	public override void update(Player player)
 	{
 		base.update(player);
 
-		bool input = InputManager.IsDown(mainHand ? "Attack" : "Attack2");
+		bool input = InputManager.IsDown(mainHand ? "Attack" : "Attack2") || Input.IsKeyDown(KeyCode.Ctrl) && (Input.IsKeyDown(KeyCode.Left) || Input.IsKeyDown(KeyCode.Right) || Input.IsKeyDown(KeyCode.Up) || Input.IsKeyDown(KeyCode.Down));
 		if (shield.type == ItemType.Shield)
 		{
 			direction = player.lookDirection.normalized;
 			if (!input || player.actions.actionQueue.Count > 1)
 				cancel();
 		}
-	}
-
-	public override void onStarted(Player player)
-	{
-		direction = player.lookDirection.normalized;
-		player.blockingItem = shield;
 	}
 
 	public override void onFinished(Player player)

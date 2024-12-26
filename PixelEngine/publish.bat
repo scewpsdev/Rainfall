@@ -1,4 +1,4 @@
-del /s /q bin\Release\net8.0\publish
+if exist bin\Release\net8.0\publish del /s /q bin\Release\net8.0\publish
 
 dotnet publish -r win-x64 -c Release --self-contained -o bin/Release/net8.0/publish
 del bin\Release\net8.0\publish\*.pdb

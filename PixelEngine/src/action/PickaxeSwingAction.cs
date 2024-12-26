@@ -17,9 +17,9 @@ public class PickaxeSwingAction : AttackAction
 	{
 	}
 
-	public override void onStarted(Player player)
+	public override void onQueued(Player player)
 	{
-		base.onStarted(player);
+		base.onQueued(player);
 
 		startPosition = player.position;
 	}

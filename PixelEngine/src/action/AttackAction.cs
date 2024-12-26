@@ -51,12 +51,12 @@ public class AttackAction : EntityAction
 	{
 	}
 
-	public override void onStarted(Player player)
+	public override void onQueued(Player player)
 	{
 		duration /= player.getAttackSpeedModifier();
 
 		direction = player.lookDirection.normalized;
-		charDirection = player.direction;
+		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
 	}
 
 	public override void onFinished(Player player)
@@ -181,9 +181,8 @@ public class AttackAction : EntityAction
 				return new Vector2(MathF.Abs(direction.x), direction.y).angle;
 			else
 			{
-				float angle = new Vector2(MathF.Abs(direction.x), direction.y).angle + startAngle;
 				float progress = swingDir % 2 == 0 ? currentProgress : 1 - currentProgress;
-				angle = MathHelper.Lerp(angle, endAngle, progress);
+				float angle = MathHelper.Lerp(new Vector2(MathF.Abs(direction.x), direction.y).angle + startAngle, new Vector2(MathF.Abs(direction.x), direction.y).angle + endAngle, progress);
 				return angle;
 			}
 		}

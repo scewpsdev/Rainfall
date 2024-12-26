@@ -21,7 +21,7 @@ public class RevolverShootAction : EntityAction
 		this.weapon = weapon;
 	}
 
-	public override void onStarted(Player player)
+	public override void onQueued(Player player)
 	{
 		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 
@@ -41,7 +41,7 @@ public class RevolverShootAction : EntityAction
 		direction = player.lookDirection.normalized;
 
 		Vector2 position = player.position + new Vector2(0.0f, 0.3f);
-		Vector2 offset = new Vector2(player.direction * 0.5f, 0.1f);
+		Vector2 offset = new Vector2(player.direction * 0.6f, 0);
 
 		GameState.instance.level.addEntity(new Bullet(direction, player.velocity, offset, player, weapon), position);
 

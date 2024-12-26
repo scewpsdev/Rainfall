@@ -12,6 +12,9 @@ public class SpellCastAction : EntityAction
 	public Spell spell;
 	float manaCost;
 
+	Vector2 direction;
+	int charDirection;
+
 	public List<Entity> hitEntities = new List<Entity>();
 
 
@@ -25,9 +28,12 @@ public class SpellCastAction : EntityAction
 		this.manaCost = manaCost;
 	}
 
-	public override void onStarted(Player player)
+	public override void onQueued(Player player)
 	{
 		duration = 1.0f / spell.attackRate / weapon.attackRate / player.getAttackSpeedModifier();
+
+		direction = player.lookDirection.normalized;
+		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
 
 		if (player.mana >= manaCost)
 		{
@@ -53,8 +59,8 @@ public class SpellCastAction : EntityAction
 		if (item != null)
 			position += item.renderOffset;
 		float progress = MathF.Min(elapsedTime / duration * 1.5f, 1);
-		return Matrix.CreateRotation(Vector3.UnitY, player.direction == -1 ? MathF.PI : 0)
+		return Matrix.CreateRotation(Vector3.UnitY, charDirection == -1 ? MathF.PI : 0)
 			* Matrix.CreateTranslation(position.x, position.y, 0)
-			* Matrix.CreateRotation(Vector3.UnitZ, (player.lookDirection * new Vector2(player.direction, 1)).angle + MathHelper.Lerp(MathF.PI * 0.75f, -0.25f * MathF.PI, progress));
+			* Matrix.CreateRotation(Vector3.UnitZ, (direction * new Vector2(charDirection, 1)).angle + MathHelper.Lerp(MathF.PI * 0.75f, -0.25f * MathF.PI, progress));
 	}
 }
