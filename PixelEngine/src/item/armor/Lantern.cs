@@ -49,7 +49,7 @@ public class Lantern : Item
 
 	public override void render(Entity entity)
 	{
-		if (entity is Player)
+		if (entity is Player && (entity as Player).isAlive)
 		{
 			Player player = entity as Player;
 

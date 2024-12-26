@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Shortsword : Item
+public class Shortsword : Weapon
 {
 	public Shortsword()
-		: base("shortsword", ItemType.Weapon)
+		: base("shortsword")
 	{
 		displayName = "Shortsword";
 
@@ -26,16 +26,24 @@ public class Shortsword : Item
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
-	public override bool use(Player player)
+	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
 	{
-		bool anim = stab;
-		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction)
+		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
+
+		swingDir = 0;
+		if (idx % 3 == 0)
 		{
-			AttackAction attack = player.actions.currentAction as AttackAction;
-			if (attack.weapon == this)
-				anim = !attack.stab;
+			startAngle = 0.75f * MathF.PI;
+			endAngle = -0.75f * MathF.PI;
 		}
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange));
-		return false;
+		else if (idx % 3 == 1)
+		{
+			startAngle = 1.25f * MathF.PI;
+			endAngle = 0 * MathF.PI;
+		}
+		else
+		{
+			stab = true;
+		}
 	}
 }

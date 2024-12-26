@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Flamberge : Item
+public class Flamberge : Weapon
 {
 	public Flamberge()
-		: base("flamberge", ItemType.Weapon)
+		: base("flamberge")
 	{
 		displayName = "Flamberge";
 
@@ -21,18 +21,12 @@ public class Flamberge : Item
 		attackAngleOffset = -0.25f * MathF.PI;
 		attackAngle = MathF.PI;
 
-		value = 14;
+		value = 19;
 
 		sprite = new Sprite(tileset, 12, 6, 2, 1);
 		icon = new Sprite(tileset.texture, 12 * 16, 6 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

@@ -17,7 +17,8 @@ public class RunStats
 
 	public string seed;
 	public float duration = 0.0f;
-	public int floor = 0;
+	public int floor = -1;
+	public string areaName;
 	public int kills = 0;
 	public int chestsOpened = 0;
 	public int stepsWalked = 0;
@@ -87,6 +88,7 @@ public class GameState : State
 	public Level cliffside;
 	public Level tutorial;
 	public Level[] areaCaves;
+	public Level[] areaDungeons;
 	public Level[] areaGardens;
 
 	List<Level> cachedLevels = new List<Level>();
@@ -146,7 +148,7 @@ public class GameState : State
 
 		LevelGenerator generator = new LevelGenerator();
 
-		hub = new Level(-1, "The Outpost");
+		hub = new Level(-1, "Hollow's Refuge");
 		//tutorial = new Level(-1, "Tutorial");
 		cliffside = new Level(-1, "Cliffside");
 		tutorial = new Level(-1, "Abandoned Mineshaft");
@@ -226,8 +228,13 @@ public class GameState : State
 
 		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
 		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
-		areaCaves[areaCaves.Length - 1].exit.destination = cliffside;
-		areaCaves[areaCaves.Length - 1].exit.otherDoor = cliffDungeonExit1;
+
+		areaDungeons = generator.generateDungeons(run.seed);
+		areaCaves[areaCaves.Length - 1].exit.destination = areaDungeons[0];
+		areaCaves[areaCaves.Length - 1].exit.otherDoor = areaDungeons[0].entrance;
+		areaDungeons[0].entrance.destination = areaCaves[areaCaves.Length - 1];
+		areaDungeons[0].entrance.otherDoor = areaCaves[areaCaves.Length - 1].exit;
+		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
 
 
 		areaGardens = generator.generateGardens(run.seed);
@@ -430,7 +437,11 @@ public class GameState : State
 			camera.position = player.position;
 
 			if (newLevel.floor > run.floor)
+			{
 				run.floor = newLevel.floor;
+				if (newLevel.name != null && newLevel.name != "")
+					run.areaName = newLevel.name;
+			}
 
 			level = newLevel;
 			newLevel = null;

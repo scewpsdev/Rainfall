@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Bloodfang : Item
 {
-	float amount = 0.01f;
+	float amount = 0.04f;
 
 	public Bloodfang()
 		: base("bloodfang", ItemType.Relic)
@@ -18,7 +18,7 @@ public class Bloodfang : Item
 		stackable = true;
 		tumbles = false;
 
-		value = 54;
+		value = 35;
 
 		sprite = new Sprite(tileset, 15, 6);
 	}

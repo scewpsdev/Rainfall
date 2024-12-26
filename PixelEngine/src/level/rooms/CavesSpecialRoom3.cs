@@ -28,7 +28,9 @@ public class CavesSpecialRoom3 : Entity
 		}
 
 		level.setTile(room.x, room.y + 1, TileType.dirt);
+		level.setTile(room.x + 1, room.y + 1, TileType.dirt);
 		level.setTile(room.x + room.width - 1, room.y + 1, TileType.dirt);
+		level.setTile(room.x + room.width - 2, room.y + 1, TileType.dirt);
 
 		Vector2i chestPosition = room.getMarker(0x1);
 		generator.spawnChest(chestPosition.x, chestPosition.y, generator.getRoomLootValue(room) * 2, generator.random.NextSingle() < 0.2f);

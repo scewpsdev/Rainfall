@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Rapier : Item
+public class Rapier : Weapon
 {
 	public Rapier()
-		: base("rapier", ItemType.Weapon)
+		: base("rapier")
 	{
 		displayName = "Rapier";
 
@@ -24,12 +24,6 @@ public class Rapier : Item
 
 		sprite = new Sprite(tileset, 14, 4);
 		renderOffset.x = 0.4f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 
 	public override bool useSecondary(Player player)

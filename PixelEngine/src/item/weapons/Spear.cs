@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Spear : Item
+public class Spear : Weapon
 {
 	public Spear()
-		: base("spear", ItemType.Weapon)
+		: base("spear")
 	{
 		displayName = "Spear";
 
@@ -27,12 +27,6 @@ public class Spear : Item
 		sprite = new Sprite(tileset, 6, 1, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 
 	public override bool useSecondary(Player player)

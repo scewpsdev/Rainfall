@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Longbow : Item
+public class Longbow : Weapon
 {
 	public Longbow()
-		: base("longbow", ItemType.Weapon)
+		: base("longbow", WeaponType.Ranged)
 	{
 		displayName = "Longbow";
 

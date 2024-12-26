@@ -168,15 +168,21 @@ public static class ItemInfoPanel
 		}
 		else if (item.type == ItemType.Shield)
 		{
+			drawLeft("PROT");
+			drawRight(item.blockAbsorption);
+			if (compareItem != null && compareItem.type == ItemType.Shield)
+				drawComparison(item.blockAbsorption, compareItem.blockAbsorption);
+			y += Renderer.smallFont.size + 1;
+
 			drawLeft("ARM");
 			drawRight(item.armor);
-			if (compareItem != null && compareItem.type == ItemType.Armor)
+			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.armor, compareItem.armor);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("WGHT");
 			drawRight(item.weight);
-			if (compareItem != null && compareItem.type == ItemType.Armor)
+			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.weight, compareItem.weight, true);
 			y += Renderer.smallFont.size + 1;
 		}

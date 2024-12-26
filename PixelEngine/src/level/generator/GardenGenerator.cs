@@ -124,7 +124,6 @@ public partial class LevelGenerator
 	void generateGardenFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
 	{
 		this.seed = seed;
-		this.floor = floor;
 		this.level = level;
 		this.nextLevel = nextLevel;
 		this.lastLevel = lastLevel;

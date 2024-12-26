@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Revolver : Item
+public class Revolver : Weapon
 {
 	public Revolver()
-		: base("revolver", ItemType.Weapon)
+		: base("revolver", WeaponType.Ranged)
 	{
 		displayName = "Revolver";
 

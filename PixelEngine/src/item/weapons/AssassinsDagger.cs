@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class AssassinsDagger : Item
+public class AssassinsDagger : Weapon
 {
 	public AssassinsDagger()
-		: base("assassins_dagger", ItemType.Weapon)
+		: base("assassins_dagger")
 	{
 		displayName = "Assassins Dagger";
 
@@ -31,11 +31,5 @@ public class AssassinsDagger : Item
 		renderOffset.y = -0.25f;
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

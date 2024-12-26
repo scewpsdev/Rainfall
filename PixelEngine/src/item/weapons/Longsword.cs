@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Longsword : Item
+public class Longsword : Weapon
 {
 	public Longsword()
-		: base("longsword", ItemType.Weapon)
+		: base("longsword")
 	{
 		displayName = "Longsword";
 
@@ -23,11 +23,5 @@ public class Longsword : Item
 		sprite = new Sprite(tileset, 1, 1);
 		renderOffset.x = 0.2f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

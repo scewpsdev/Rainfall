@@ -677,6 +677,19 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (!isAlive)
 			return false;
 
+		Mob mob = by as Mob;
+
+		Projectile projectile = by as Projectile;
+		ItemEntity itemEntity = by as ItemEntity;
+
+		if (projectile != null)
+			mob = projectile.shooter as Mob;
+		else if (itemEntity != null)
+			mob = itemEntity.thrower as Mob;
+
+		if (mob != null)
+			by = mob;
+
 		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
 		if (invincible)
 		{
@@ -686,15 +699,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			// play sound
 			// play particle effect
-			Mob mob = by as Mob;
 
-			Projectile projectile = by as Projectile;
-			ItemEntity itemEntity = by as ItemEntity;
-
-			if (projectile != null)
-				mob = projectile.shooter as Mob;
-			else if (itemEntity != null)
-				mob = itemEntity.thrower as Mob;
+			damage *= 1 - blockingItem.blockAbsorption;
+			triggerInvincibility = false;
 
 			if (mob != null)
 			{
@@ -728,9 +735,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
 			}
 
-			return false;
+			if (damage < 0.0001f)
+				return false;
 		}
-		else
+
+		if (damage > 0)
 		{
 			float totalArmor = getTotalArmor();
 			float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
@@ -780,6 +789,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			return true;
 		}
+
+		Debug.Assert(false);
+		return false;
 	}
 
 	void stun()
@@ -1346,7 +1358,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 				if (interactableInFocus != null)
 				{
-					if (InputManager.IsPressed("Interact"))
+					if (InputManager.IsPressed("Interact") && !isDucked)
 					{
 						InputManager.ConsumeEvent("Interact");
 						interactableInFocus.interact(this);
@@ -1682,7 +1694,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				handItem.render(this);
 			if (offhandItem != null)
 				offhandItem.render(this);
-			for (int i = 0; i < passiveItems.Count; i++)
+			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
 				if (passiveItems[i].ingameSprite != null)
 					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);

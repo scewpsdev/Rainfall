@@ -21,8 +21,9 @@ public class WoodenShield : Item
 		blockDuration = 0.3f;
 		blockCharge = 0.08f;
 		blockMovementSpeed = 0.5f;
+		blockAbsorption = 0.8f;
 
-		sprite = new Sprite(tileset, 7, 7);
+		sprite = new Sprite(tileset, 9, 8);
 		renderOffset.x = 0.2f;
 
 		blockSound = woodHit;

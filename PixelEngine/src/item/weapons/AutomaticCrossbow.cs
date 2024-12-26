@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class AutomaticCrossbow : Item
+public class AutomaticCrossbow : Weapon
 {
 	public AutomaticCrossbow()
-		: base("automatic_crossbow", ItemType.Weapon)
+		: base("automatic_crossbow", WeaponType.Ranged)
 	{
 		displayName = "Automatic Crossbow";
 
@@ -25,7 +25,7 @@ public class AutomaticCrossbow : Item
 		twoHanded = true;
 		accuracy = 0.3f;
 
-		value = 50;
+		value = 42;
 
 		sprite = new Sprite(tileset, 14, 3);
 		renderOffset.x = 0.5f;

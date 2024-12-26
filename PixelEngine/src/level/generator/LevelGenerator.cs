@@ -236,14 +236,12 @@ public class Doorway
 
 public partial class LevelGenerator
 {
-	RoomDefSet miscSet;
 	RoomDefSet specialSet;
 	RoomDefSet cavesSet;
 	RoomDefSet gardensSet;
-	RoomDefSet minesSet;
+	RoomDefSet dungeonsSet;
 
 	string seed;
-	int floor;
 	Level level;
 	public Random random;
 	Simplex simplex;
@@ -262,11 +260,10 @@ public partial class LevelGenerator
 
 	public LevelGenerator()
 	{
-		miscSet = new RoomDefSet("res/level/rooms_misc.png");
 		specialSet = new RoomDefSet("res/level/rooms_special.png", false);
 		cavesSet = new RoomDefSet("res/level/level1/rooms1.png");
 		gardensSet = new RoomDefSet("res/level/level2/rooms2.png");
-		minesSet = new RoomDefSet("res/level/rooms_mines.png");
+		dungeonsSet = new RoomDefSet("res/level/level3/rooms3.png");
 	}
 
 	public void setObjectFlag(int x, int y)
@@ -874,7 +871,7 @@ public partial class LevelGenerator
 
 		if (spawnStartingRoom)
 		{
-			entrancePosition = new Vector2i(startingRoom.x + startingRoom.width / 2, startingRoom.y + 2);
+			entrancePosition = startingRoom.getMarker(0x1);
 			level.entrance = new Door(lastLevel, entrance);
 			if (entrance != null)
 				entrance.otherDoor = level.entrance;

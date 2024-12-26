@@ -73,6 +73,10 @@ public static class GameOverScreen
 		}
 		y += lineHeight;
 
+		drawLeft("Area");
+		drawRight(game.run.areaName, 0xFFAAAAAA);
+		y += lineHeight;
+
 		drawLeft("Floor");
 		drawRight((game.run.floor + 1).ToString(), game.run.floorRecord ? RunStats.recordColors[1] : 0xFFAAAAAA);
 		if (game.run.floorRecord && floorRecordParticles == null && !particlesEmitted)

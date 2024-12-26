@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class MoonbladeAxe : Item
+public class MoonbladeAxe : Weapon
 {
 	public MoonbladeAxe()
-		: base("moonblade_axe", ItemType.Weapon)
+		: base("moonblade_axe")
 	{
 		displayName = "Moonblade Axe";
 
@@ -24,11 +24,5 @@ public class MoonbladeAxe : Item
 		sprite = new Sprite(tileset, 10, 7, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

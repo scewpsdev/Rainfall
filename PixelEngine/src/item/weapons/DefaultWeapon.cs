@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class DefaultWeapon : Item
+public class DefaultWeapon : Weapon
 {
 	public static readonly DefaultWeapon instance = new DefaultWeapon();
 
@@ -14,7 +14,7 @@ public class DefaultWeapon : Item
 	Sprite punchSprite, swingSprite;
 
 	public DefaultWeapon()
-		: base("default_weapon", ItemType.Weapon)
+		: base("default_weapon")
 	{
 		baseDamage = 0.8f;
 		baseAttackRange = 1.0f;
@@ -41,7 +41,7 @@ public class DefaultWeapon : Item
 		sprite = anim ? punchSprite : swingSprite;
 		AttackAction attack = new AttackAction(this, anim, anim, baseAttackRate, baseDamage, baseAttackRange);
 		player.actions.queueAction(attack);
-		attack.swingIteration = 0;
+		attack.attackIdx = 0;
 		return false;
 	}
 }

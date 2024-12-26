@@ -181,6 +181,7 @@ public abstract class Item
 	public float blockDuration = 0.7f;
 	public float blockCharge = 0.15f;
 	public float blockMovementSpeed = 0.4f;
+	public float blockAbsorption = 1.0f;
 	public float damageReflect = 0.0f;
 	public bool doubleBladed = true;
 	public float accuracy = 1.0f;
@@ -272,6 +273,7 @@ public abstract class Item
 		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
+		stackable = type == ItemType.Food || type == ItemType.Potion || type == ItemType.Relic || type == ItemType.Scroll || type == ItemType.Gem || type == ItemType.Ammo;
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor;
 
 		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponUse : type == ItemType.Potion ? potionUse : null;
@@ -503,7 +505,7 @@ public abstract class Item
 		InitType(new BarbarianHelmet());
 		InitType(new Cheese());
 		InitType(new Revolver());
-		InitType(new Stick());
+		InitType(new Club());
 		InitType(new BlankPaper());
 		InitType(new ScrollOfWeaponEnchantment());
 		InitType(new ScrollOfArmorEnchantment());
@@ -599,6 +601,10 @@ public abstract class Item
 		InitType(new HealingSpell());
 		InitType(new ClimbingGear());
 		InitType(new WingProsthetics());
+		InitType(new ChainmailArmor());
+		InitType(new RoundShield());
+		InitType(new Twinblades());
+		InitType(new AdventurersHood());
 	}
 
 	static void InitType(Item item)

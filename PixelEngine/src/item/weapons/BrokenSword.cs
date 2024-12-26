@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class BrokenSword : Item
+public class BrokenSword : Weapon
 {
 	public BrokenSword()
-		: base("broken_sword", ItemType.Weapon)
+		: base("broken_sword")
 	{
 		displayName = "Broken Sword";
 
@@ -23,11 +23,5 @@ public class BrokenSword : Item
 
 		sprite = new Sprite(tileset, 15, 3);
 		renderOffset.x = 0.2f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

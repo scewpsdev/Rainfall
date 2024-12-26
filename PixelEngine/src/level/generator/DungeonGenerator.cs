@@ -25,47 +25,37 @@ public partial class LevelGenerator
 
 	public Level[] generateDungeons(string seed)
 	{
-		Level[] areaCaves = new Level[6];
-		Vector3 lightAmbience = Vector3.One;
-		Vector3 darkAmbience = new Vector3(0.001f);
-		areaCaves[0] = new Level(0, "Caves I", 50, 50, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
-		areaCaves[1] = new Level(1, "Caves II", 50, 50, TileType.dirt, 4, 8) { ambientLight = darkAmbience };
-		areaCaves[2] = new Level(2, "Caves III", 50, 50, TileType.dirt, 7, 12) { ambientLight = darkAmbience };
-		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 7, 12) { ambientLight = darkAmbience };
-		areaCaves[4] = new Level(4, "Caves V", 60, 40, TileType.dirt, 7, 12) { ambientLight = lightAmbience };
-		areaCaves[5] = new Level(-1, "", 40, 20, TileType.dirt) { ambientLight = lightAmbience };
+		Level[] areaCaves = new Level[4];
+		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
+		areaCaves[0] = new Level(5, "Weeping Catacombs", 80, 40, TileType.stone, 15, 20) { ambientLight = ambience };
+		areaCaves[1] = new Level(6, "", 40, 80, TileType.stone, 19, 24) { ambientLight = ambience };
+		areaCaves[2] = new Level(7, "", 60, 60, TileType.stone, 22, 30) { ambientLight = ambience };
+		areaCaves[3] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
 
 		List<Mob> createEnemy()
 		{
 			List<Mob> mobs = new List<Mob>();
-			mobs.Add(new Rat());
-			mobs.Add(new Spider());
-			mobs.Add(new Snake());
-			mobs.Add(new Bat());
-			mobs.Add(new Slime());
-			mobs.Add(new SkeletonArcher());
 			mobs.Add(new GreenSpider());
 			mobs.Add(new OrangeBat());
 			mobs.Add(new BlueSlime());
+			mobs.Add(new SkeletonArcher());
 			mobs.Add(new Leprechaun());
 			mobs.Add(new Gandalf());
 			return mobs;
 		};
 
-		generateDungeonFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 4));
-		generateDungeonFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));
-		generateDungeonFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 8));
-		generateDungeonFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 10));
-		generateDungeonFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(1, 10));
+		generateDungeonFloor(seed, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy());
+		generateDungeonFloor(seed, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy());
+		generateDungeonFloor(seed, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy());
 
-		generateDungeonBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
+		generateDungeonBossFloor(areaCaves[3], null, areaCaves[2], areaCaves[2].exit);
 
 		return areaCaves;
 	}
 
 	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
 
 		RoomDef def = specialSet.roomDefs[4];
 		level.resize(def.width, def.height);
@@ -113,29 +103,23 @@ public partial class LevelGenerator
 		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
-	void generateDungeonFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
+	void generateDungeonFloor(string seed, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
 	{
 		this.seed = seed;
-		this.floor = floor;
 		this.level = level;
 		this.nextLevel = nextLevel;
 		this.lastLevel = lastLevel;
 		this.entrance = entrance;
 
-		random = new Random((int)Hash.hash(seed) + floor);
-		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+		random = new Random((int)Hash.hash(seed) + level.floor);
+		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
 		rooms = new List<Room>();
 
 		int width = level.width;
 		int height = level.height;
 
-		//int width = spawnStartingRoom ? MathHelper.RandomInt(60, 80, random) : MathHelper.RandomInt(40, 80, random);
-		//int height = Math.Max((floor == 4 ? 3600 : 2400) / width, 20);
-
 		level.rooms = rooms;
 		level.ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
-		//level.fogFalloff = 0.04f;
-		//level.fogColor = new Vector3(0.1f);
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
@@ -144,8 +128,8 @@ public partial class LevelGenerator
 		Array.Fill(lootModifier, 1.0f);
 
 		rooms.Clear();
-		RoomDef? startingRoomDef = spawnStartingRoom ? specialSet.roomDefs[2] : spawnBossRoom ? specialSet.roomDefs[3] : null;
-		generateMainRooms(cavesSet, startingRoomDef);
+		RoomDef? startingRoomDef = spawnStartingRoom ? specialSet.roomDefs[12] : spawnBossRoom ? specialSet.roomDefs[13] : null;
+		generateMainRooms(dungeonsSet, startingRoomDef);
 		if (spawnBossRoom)
 			rooms.Reverse();
 		Room startingRoom = rooms[0];
@@ -156,15 +140,15 @@ public partial class LevelGenerator
 				exitRoom = rooms[rooms.Count - i++];
 		}
 
-		generateExtraRooms(cavesSet);
+		generateExtraRooms(dungeonsSet);
 
 		for (int i = 0; i < rooms.Count; i++)
 		{
 			placeRoom(rooms[i], level, (int x, int y) =>
 			{
 				float progress = 1 - y / (float)level.height;
-				float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
-				return type > -0.1f ? TileType.dirt : TileType.stone;
+				float type = simplex.sample2f(x * 0.05f, y * 0.05f);
+				return type > -0.5f ? TileType.bricks : TileType.stone;
 			});
 		}
 
@@ -371,7 +355,7 @@ public partial class LevelGenerator
 		// Torch
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
-			if ((floor == 2 || floor == 3) && tile == null && down == null && up == null)
+			if (tile == null && down == null && up == null)
 			{
 				TileType downDown = level.getTile(x, y - 2);
 				if (downDown != null)

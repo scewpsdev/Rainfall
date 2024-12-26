@@ -78,8 +78,8 @@ public partial class LevelGenerator
 		areaCaves[0] = new Level(0, "Caves I", 50, 50, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
 		areaCaves[1] = new Level(1, "Caves II", 50, 50, TileType.dirt, 4, 8) { ambientLight = darkAmbience };
 		areaCaves[2] = new Level(2, "Caves III", 50, 50, TileType.dirt, 7, 12) { ambientLight = darkAmbience };
-		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 7, 12) { ambientLight = darkAmbience };
-		areaCaves[4] = new Level(4, "Caves V", 60, 40, TileType.dirt, 7, 12) { ambientLight = lightAmbience };
+		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 11, 16) { ambientLight = darkAmbience };
+		areaCaves[4] = new Level(4, "Caves V", 60, 40, TileType.dirt, 15, 18) { ambientLight = lightAmbience };
 		areaCaves[5] = new Level(-1, "", 40, 20, TileType.dirt) { ambientLight = lightAmbience };
 
 		List<Mob> createEnemy()
@@ -149,7 +149,7 @@ public partial class LevelGenerator
 
 	void generateCaveBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
 
 		RoomDef def = specialSet.roomDefs[4];
 		level.resize(def.width, def.height);
@@ -200,7 +200,6 @@ public partial class LevelGenerator
 	void generateCaveFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
 	{
 		this.seed = seed;
-		this.floor = floor;
 		this.level = level;
 		this.nextLevel = nextLevel;
 		this.lastLevel = lastLevel;

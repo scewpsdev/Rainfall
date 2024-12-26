@@ -6,14 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Greataxe : Item
+public class Greataxe : Weapon
 {
 	public Greataxe()
-		: base("greataxe", ItemType.Weapon)
+		: base("greataxe")
 	{
 		displayName = "Greataxe";
 
-		baseDamage = 3.5f;
+		baseDamage = 2.8f;
 		baseAttackRange = 1.8f;
 		baseAttackRate = 0.8f;
 		knockback = 8;
@@ -22,16 +22,10 @@ public class Greataxe : Item
 		attackCooldown = 1.0f;
 		baseWeight = 5;
 
-		value = 22;
+		value = 27;
 
 		sprite = new Sprite(tileset, 0, 5, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.5f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

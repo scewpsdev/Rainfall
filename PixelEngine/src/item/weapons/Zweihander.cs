@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Zweihander : Item
+public class Zweihander : Weapon
 {
 	public Zweihander()
-		: base("zweihander", ItemType.Weapon)
+		: base("zweihander")
 	{
 		displayName = "Zweihander";
 
@@ -29,11 +29,5 @@ public class Zweihander : Item
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

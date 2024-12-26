@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class WoodenMallet : Item
+public class WoodenMallet : Weapon
 {
 	public WoodenMallet()
-		: base("wooden_mallet", ItemType.Weapon)
+		: base("wooden_mallet")
 	{
 		displayName = "Wooden Mallet";
 
@@ -32,11 +32,5 @@ public class WoodenMallet : Item
 		renderOffset.x = 0.2f;
 
 		hitSound = woodHit;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

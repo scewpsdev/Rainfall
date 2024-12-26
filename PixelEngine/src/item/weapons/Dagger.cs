@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Dagger : Item
+public class Dagger : Weapon
 {
 	public Dagger()
-		: base("dagger", ItemType.Weapon)
+		: base("dagger")
 	{
 		displayName = "Dagger";
 
@@ -43,12 +43,6 @@ public class Dagger : Item
 	public override void onUnequip(Player player)
 	{
 		player.itemBuffs.Remove(buff);
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 
 	public override bool useSecondary(Player player)

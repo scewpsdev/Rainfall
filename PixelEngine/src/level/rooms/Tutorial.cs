@@ -79,7 +79,7 @@ public class Tutorial : Entity
 
 		level.addEntity(new TutorialText("Hug wall to wall jump", 0xFFFFFFFF), (Vector2)level.rooms[0].getMarker(02));
 
-		level.addEntity(new ItemEntity(new Stick()), (Vector2)level.rooms[0].getMarker(03) + Vector2.Up);
+		level.addEntity(new ItemEntity(new Club()), (Vector2)level.rooms[0].getMarker(03) + Vector2.Up);
 		level.addEntity(new ItemEntity(new IronShield()), (Vector2)level.rooms[0].getMarker(04) + Vector2.Up);
 		level.addEntity(new ItemEntity(new PotionOfHealing()), (Vector2)level.rooms[0].getMarker(04) + Vector2.Up + Vector2.Right);
 		//level.addEntity(new Chest(new TravellingCloak()), (Vector2)level.rooms[0].getMarker(05));

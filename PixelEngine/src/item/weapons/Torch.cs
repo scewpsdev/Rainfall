@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Torch : Item
+public class Torch : Weapon
 {
 	public Torch()
-		: base("torch", ItemType.Weapon)
+		: base("torch")
 	{
 		displayName = "Torch";
 
@@ -37,12 +37,6 @@ public class Torch : Item
 	public override ParticleEffect createParticleEffect(Entity entity)
 	{
 		return Effects.CreateTorchEffect(entity);
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 
 	public override void render(Entity entity)

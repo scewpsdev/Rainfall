@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Scimitar : Item
+public class Scimitar : Weapon
 {
 	public Scimitar()
-		: base("scimitar", ItemType.Weapon)
+		: base("scimitar")
 	{
 		displayName = "Scimitar";
 
@@ -25,11 +25,5 @@ public class Scimitar : Item
 		sprite = new Sprite(tileset, 5, 3);
 		renderOffset.x = 0.2f;
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

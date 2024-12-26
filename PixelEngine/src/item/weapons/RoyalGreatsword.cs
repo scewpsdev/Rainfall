@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class RoyalGreatsword : Item
+public class RoyalGreatsword : Weapon
 {
 	public RoyalGreatsword()
-		: base("royal_greatsword", ItemType.Weapon)
+		: base("royal_greatsword")
 	{
 		displayName = "Royal Greatsword";
 
@@ -29,16 +29,9 @@ public class RoyalGreatsword : Item
 		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
 	}
 
-	public override bool use(Player player)
+	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
 	{
-		bool anim = stab;
-		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction)
-		{
-			AttackAction attack = player.actions.currentAction as AttackAction;
-			if (attack.weapon == this)
-				anim = !attack.stab;
-		}
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange));
-		return false;
+		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
+		stab = idx % 2 == 1;
 	}
 }

@@ -13,11 +13,11 @@ public class ChainmailHood : Item
 	{
 		displayName = "Chainmail Hood";
 
-		armor = 3;
+		armor = 2;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 1;
 
-		value = 8;
+		value = 6;
 
 		sprite = new Sprite(tileset, 3, 2);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/chainmail_hood.png", false), 0, 0, 16, 16);

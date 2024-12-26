@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Crossbow : Item
+public class Crossbow : Weapon
 {
 	Item loadedArrow = null;
 
@@ -15,7 +15,7 @@ public class Crossbow : Item
 
 
 	public Crossbow()
-		: base("crossbow", ItemType.Weapon)
+		: base("crossbow", WeaponType.Ranged)
 	{
 		displayName = "Crossbow";
 

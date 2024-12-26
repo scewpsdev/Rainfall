@@ -13,18 +13,20 @@ public class AttackAction : EntityAction
 	public Vector2 direction;
 	public int charDirection;
 	public bool stab;
+	public int swingDir;
 	float attackDamage;
 	float attackRange;
 	float attackRate;
+	float startAngle, endAngle;
 
 	public List<Entity> hitEntities = new List<Entity>();
 	public bool soundPlayed = false;
 	float maxRange = 0;
 
-	public int swingIteration = 1;
+	public int attackIdx = 0;
 
 
-	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)
+	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
 		: base("attack", mainHand)
 	{
 		this.weapon = weapon;
@@ -33,17 +35,20 @@ public class AttackAction : EntityAction
 		this.attackRate = attackRate;
 		this.attackDamage = attackDamage;
 		this.attackRange = attackRange;
+		this.startAngle = startAngle;
+		this.endAngle = endAngle;
+
+		postActionLinger = 0.25f;
+	}
+
+	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)
+		: this(weapon, mainHand, stab, attackRate, attackDamage, attackRange, weapon.attackAngleOffset + weapon.attackAngle, weapon.attackAngleOffset)
+	{
 	}
 
 	public AttackAction(Item weapon, bool mainHand)
-		: this(weapon, mainHand, weapon.stab, weapon.attackRate, weapon.attackDamage, weapon.attackRange)
+		: this(weapon, mainHand, weapon.stab, weapon.attackRate, weapon.attackDamage, weapon.attackRange, weapon.attackAngleOffset + weapon.attackAngle, weapon.attackAngleOffset)
 	{
-	}
-
-	public override void onQueued(Player player)
-	{
-		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == weapon)
-			swingIteration = (player.actions.currentAction as AttackAction).swingIteration + (stab ? 0 : 1);
 	}
 
 	public override void onStarted(Player player)
@@ -176,9 +181,9 @@ public class AttackAction : EntityAction
 				return new Vector2(MathF.Abs(direction.x), direction.y).angle;
 			else
 			{
-				float angle = new Vector2(MathF.Abs(direction.x), direction.y).angle + weapon.attackAngleOffset;
-				float progress = weapon.doubleBladed ? (swingIteration % 2 == 0 ? currentProgress : 1 - currentProgress) : 1 - currentProgress;
-				angle += progress * weapon.attackAngle;
+				float angle = new Vector2(MathF.Abs(direction.x), direction.y).angle + startAngle;
+				float progress = swingDir % 2 == 0 ? currentProgress : 1 - currentProgress;
+				angle = MathHelper.Lerp(angle, endAngle, progress);
 				return angle;
 			}
 		}

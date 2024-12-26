@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Boomerang : Item
+public class Boomerang : Weapon
 {
 	public Boomerang()
-		: base("boomerang", ItemType.Weapon)
+		: base("boomerang")
 	{
 		displayName = "Boomerang";
 

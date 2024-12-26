@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Greathammer : Item
+public class Greathammer : Weapon
 {
 	public Greathammer()
-		: base("greathammer", ItemType.Weapon)
+		: base("greathammer")
 	{
 		displayName = "Greathammer";
 
@@ -30,11 +30,5 @@ public class Greathammer : Item
 		sprite = new Sprite(tileset, 10, 4, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 }

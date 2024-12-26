@@ -40,6 +40,7 @@ public class EntityAction
 
 	public float followUpCancelTime = 100.0f;
 	public float animationSpeed = 1.0f;
+	public float postActionLinger = 0.0f;
 
 	public float iframesStartTime = 0.0f;
 	public float iframesEndTime = 0.0f;
@@ -130,6 +131,6 @@ public class EntityAction
 
 	public bool hasFinished
 	{
-		get => hasStarted && elapsedTime >= duration;
+		get => hasStarted && elapsedTime >= duration + postActionLinger;
 	}
 }

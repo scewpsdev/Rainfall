@@ -45,7 +45,7 @@ public class ActionQueue
 			EntityAction currentAction = actionQueue[0];
 			if (currentAction.hasStarted)
 			{
-				bool actionShouldFinish = currentAction.hasFinished ||
+				bool actionShouldFinish = currentAction.hasFinished || currentAction.elapsedTime >= currentAction.duration && actionQueue.Count > 1 ||
 					(currentAction.elapsedTime >= currentAction.followUpCancelTime && actionQueue.Count > 1 && currentAction.type == actionQueue[1].type);
 				if (actionShouldFinish)
 				{

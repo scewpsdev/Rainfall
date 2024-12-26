@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Handaxe : Item
+public class Handaxe : Weapon
 {
 	public Handaxe()
-		: base("handaxe", ItemType.Weapon)
+		: base("handaxe")
 	{
 		displayName = "Handaxe";
 
@@ -28,12 +28,6 @@ public class Handaxe : Item
 
 		sprite = new Sprite(tileset, 15, 4);
 		renderOffset.x = 0.2f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this));
-		return false;
 	}
 
 	public override bool useSecondary(Player player)

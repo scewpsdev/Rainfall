@@ -41,6 +41,7 @@ public class TileType
 	public static TileType grass;
 	public static TileType water;
 	public static TileType wood;
+	public static TileType bricks;
 
 
 	static TileType()
@@ -122,8 +123,32 @@ public class TileType
 			name = "wood",
 			color = 0xFF8a6d61,
 			isSolid = true,
+			destructible = true,
 			particleColor = 0xFF8a6d61,
-			sprites = [new Sprite(tileset, 0, 16)]
+			sprites = [new Sprite(tileset, 4, 19)]
+		});
+		AddTileType(bricks = new TileType()
+		{
+			name = "bricks",
+			color = 0xFF3a3a3a,
+			isSolid = true,
+			particleColor = 0xFF3a3a3a,
+			sprites = [
+				new Sprite(tileset, 4, 22),
+				new Sprite(tileset, 6, 22),
+				new Sprite(tileset, 7, 22),
+				new Sprite(tileset, 8, 22),
+				new Sprite(tileset, 9, 22),
+				new Sprite(tileset, 10, 22),
+				new Sprite(tileset, 11, 22),
+				new Sprite(tileset, 12, 22),
+				new Sprite(tileset, 13, 22),
+				new Sprite(tileset, 14, 22),
+				new Sprite(tileset, 15, 22),
+			],
+			left = [new Sprite(tileset, 3, 22)],
+			right = [new Sprite(tileset, 5, 22)],
+			bottom = [new Sprite(tileset, 4, 23)],
 		});
 	}
 
