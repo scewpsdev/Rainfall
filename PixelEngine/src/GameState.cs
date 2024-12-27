@@ -257,7 +257,8 @@ public class GameState : State
 		else if (quickRestart)
 		{
 			level = null;
-			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
+			//switchLevel(areaCaves[0], areaCaves[0].entrance.position);
+			switchLevel(areaDungeons[0], areaDungeons[0].entrance.position);
 			if (startingClass != null)
 				player.setStartingClass(startingClass);
 			else
@@ -266,6 +267,9 @@ public class GameState : State
 				//player.items.Add(new TravellingCloak());
 				//player.passiveItems.Add(player.items[0]);
 			}
+			player.giveItem(new AmethystRing());
+			player.giveItem(new RingOfDexterity());
+			player.giveItem(new ScrollOfWeaponEnchantment());
 			levelSwitchTime = -1;
 		}
 		else if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
@@ -431,8 +435,8 @@ public class GameState : State
 
 			if (cachedLevels.Contains(newLevel))
 				cachedLevels.Remove(newLevel);
-			newLevel.addEntity(player, newLevelSpawnPosition, false);
-			newLevel.addEntity(camera, false);
+			newLevel.addEntity(player, newLevelSpawnPosition, level == null);
+			newLevel.addEntity(camera, level == null);
 
 			camera.position = player.position;
 

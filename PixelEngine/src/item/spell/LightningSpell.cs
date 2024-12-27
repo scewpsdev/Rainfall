@@ -17,7 +17,7 @@ public class LightningSpell : Spell
 
 		baseAttackRate = 3;
 		baseDamage = 1.2f;
-		manaCost = 0.25f;
+		manaCost = 0.15f;
 		trigger = false;
 
 		spellIcon = new Sprite(tileset, 3, 6);

@@ -30,7 +30,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 #endif
 
 
-	public const float defaultSpeed = 6;
+	public const float defaultSpeed = 8;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
 	public float jumpPower = 11; //12; //10.5f;
@@ -63,7 +63,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.25f * (playerLevel - 1)));
+	public int nextLevelXP => (int)MathF.Round(25 * (1 + 0.3f * (playerLevel - 1)));
 	public int availableStatUpgrades = 0;
 
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
@@ -80,6 +80,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public bool isDucked = false;
 	public bool isClimbing = false;
 	float fallDistance = 0;
+
+	ParticleEffect wallSlideParticles;
 
 	// Status effects
 	bool isStunned = false;
@@ -176,10 +178,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public override void init(Level level)
 	{
 		startTime = Time.currentTime;
-	}
 
-	public override void destroy()
-	{
+		level.addEntity(wallSlideParticles = Effects.CreateWallSlideEffect(this), position);
 	}
 
 	public override void onLevelSwitch(Level newLevel)
@@ -188,6 +188,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			GameState.instance.moveEntityToLevel(handParticles, newLevel);
 		if (offhandParticles != null)
 			GameState.instance.moveEntityToLevel(offhandParticles, newLevel);
+		GameState.instance.moveEntityToLevel(wallSlideParticles, newLevel);
 	}
 
 	public void setStartingClass(StartingClass startingClass)
@@ -1256,6 +1257,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (corpse != null)
 			position = corpse.position;
 
+
 		//TileType below = TileType.Get(GameState.instance.level.getTile((Vector2i)Vector2.Floor(position - new Vector2(0, 0.1f))));
 		//isGrounded = below != null && below.isSolid;
 
@@ -1616,7 +1618,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 	}
 
-	void updateAnimation()
+	unsafe void updateAnimation()
 	{
 		if (isAlive)
 		{
@@ -1688,6 +1690,34 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				animator.update(passiveItems[i].ingameSprite);
 				passiveItems[i].ingameSprite.position *= passiveItems[i].ingameSpriteSize;
 			}
+		}
+
+
+		if (lastWallTouchLeft == Time.currentTime || lastWallTouchRight == Time.currentTime)
+		{
+			wallSlideParticles.systems[0].handle->startVelocity.x = (lastWallTouchLeft == Time.currentTime ? 1 : -1) * 2;
+
+			TileType tile = level.getTile(position + collider.center + (lastWallTouchLeft == Time.currentTime ? collider.min.x - 0.2f : collider.max.x + 0.2f));
+			if (tile != null && tile.isSolid)
+			{
+				wallSlideParticles.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(tile.particleColor).xyz;
+				wallSlideParticles.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(tile.particleColor).xyz;
+				wallSlideParticles.systems[0].handle->colorAnim.value2.value.xyz = MathHelper.ARGBToVector(tile.particleColor).xyz;
+
+				if (wallSlideParticles.systems[0].handle->emissionRate < 0.01f)
+				{
+					wallSlideParticles.systems[0].handle->emissionRate = 20;
+					wallSlideParticles.systems[0].restartEffect();
+				}
+			}
+			else
+			{
+				wallSlideParticles.systems[0].handle->emissionRate = 0.00001f;
+			}
+		}
+		else
+		{
+			wallSlideParticles.systems[0].handle->emissionRate = 0.00001f;
 		}
 	}
 
@@ -1877,7 +1907,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.movementSpeedModifier;
-		value *= MathF.Pow(1.1f, swiftness - 1);
+		value *= MathF.Pow(1.25f, swiftness - 1);
 		return value;
 	}
 
@@ -1894,7 +1924,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.meleeDamageModifier;
-		value *= MathF.Pow(1.1f, strength - 1);
+		value *= MathF.Pow(1.25f, strength - 1);
 		return value;
 	}
 
@@ -1903,7 +1933,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.magicDamageModifier;
-		value *= MathF.Pow(1.1f, intelligence - 1);
+		value *= MathF.Pow(1.25f, intelligence - 1);
 		return value;
 	}
 
@@ -1912,7 +1942,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.attackSpeedModifier;
-		value *= MathF.Pow(1.1f, dexterity - 1);
+		value *= MathF.Pow(1.25f, dexterity - 1);
 		return value;
 	}
 

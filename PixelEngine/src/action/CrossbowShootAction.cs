@@ -27,7 +27,7 @@ public class CrossbowShootAction : EntityAction
 	{
 		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 
-		Vector2 direction = player.lookDirection.normalized;
+		Vector2 direction = (player.lookDirection.normalized * 1.1f + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.02f;
 		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
 

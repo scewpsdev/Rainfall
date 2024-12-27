@@ -49,6 +49,7 @@ public class Entity
 	public List<Action> removeCallbacks = new List<Action>();
 
 	public FloatRect collider;
+	public bool platformCollider = false;
 	public uint filterGroup = FILTER_DEFAULT;
 
 	public string name;

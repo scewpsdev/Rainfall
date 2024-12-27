@@ -48,6 +48,8 @@ public class Level
 
 	public List<Entity> entities = new List<Entity>();
 
+	List<Entity> colliders = new List<Entity>();
+
 	public Texture bg = null;
 	public Vector3 ambientLight = new Vector3(1.0f);
 	public Vector3 fogColor = new Vector3(0.0f);
@@ -198,13 +200,13 @@ public class Level
 
 	public void destroy()
 	{
-		foreach (Entity entity in entities)
+		while (entities.Count > 0)
 		{
-			foreach (var removeCallback in entity.removeCallbacks)
+			foreach (var removeCallback in entities[0].removeCallbacks)
 				removeCallback.Invoke();
-			entity.destroy();
+			entities[0].destroy();
+			entities.RemoveAt(0);
 		}
-		entities.Clear();
 
 		if (lightmap != null)
 			Renderer.graphics.destroyTexture(lightmap);
@@ -367,6 +369,16 @@ public class Level
 		}
 	}
 
+	public void addCollider(Entity collider)
+	{
+		colliders.Add(collider);
+	}
+
+	public void removeCollider(Entity collider)
+	{
+		colliders.Remove(collider);
+	}
+
 	bool overlapTiles(Vector2 min, Vector2 max, bool falling, bool downInput)
 	{
 		int x0 = (int)MathF.Floor(min.x + 0.01f);
@@ -394,6 +406,20 @@ public class Level
 				}
 			}
 		}
+
+		for (int i = 0; i < colliders.Count; i++)
+		{
+			Vector2 cmin = colliders[i].position + colliders[i].collider.min;
+			Vector2 cmax = colliders[i].position + colliders[i].collider.max;
+			if (max.x > cmin.x && max.y > cmin.y && min.x < cmax.x && min.y < cmax.y)
+			{
+				if (!colliders[i].platformCollider || min.y - cmax.y > -0.25f && falling && !downInput)
+				{
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 

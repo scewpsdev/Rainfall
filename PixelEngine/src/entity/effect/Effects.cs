@@ -144,6 +144,13 @@ public static unsafe class Effects
 		return effect;
 	}
 
+	public static ParticleEffect CreateWallSlideEffect(Entity follow)
+	{
+		ParticleEffect effect = new ParticleEffect(follow, "res/effects/wall_slide.rfs");
+		effect.collision = true;
+		return effect;
+	}
+
 	public static ParticleEffect CreateScrollUseEffect(Entity follow)
 	{
 		ParticleEffect effect = new ParticleEffect(follow, "res/effects/scroll_use.rfs");

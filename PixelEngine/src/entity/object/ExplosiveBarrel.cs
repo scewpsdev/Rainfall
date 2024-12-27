@@ -24,21 +24,24 @@ public class ExplosiveBarrel : Entity, Hittable
 	public ExplosiveBarrel()
 	{
 		sprite = new Sprite(tileset, 1, 1);
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.1f);
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
+		platformCollider = true;
 
 		fuseSound = Resource.GetSound("res/sounds/fuse.ogg");
 	}
 
 	public override void init(Level level)
 	{
-		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
-		level.setTile(tile.x, tile.y, TileType.dummyPlatform);
+		//Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		//level.setTile(tile.x, tile.y, TileType.dummyPlatform);
+		level.addCollider(this);
 	}
 
 	public override void destroy()
 	{
-		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
-		level.setTile(tile.x, tile.y, null);
+		//Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		//level.setTile(tile.x, tile.y, null);
+		level.removeCollider(this);
 
 		if (source != 0)
 			Audio.Stop(source);

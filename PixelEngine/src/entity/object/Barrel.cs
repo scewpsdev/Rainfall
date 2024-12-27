@@ -25,7 +25,8 @@ public class Barrel : Entity, Hittable
 
 		sprite = new Sprite(tileset, 0, 1);
 
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.1f);
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
+		platformCollider = true;
 
 		hitSound = Item.woodHit;
 		breakSound = Resource.GetSound("res/sounds/break_wood.ogg");
@@ -38,14 +39,16 @@ public class Barrel : Entity, Hittable
 
 	public override void init(Level level)
 	{
-		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
-		level.setTile(tile.x, tile.y, TileType.dummyPlatform);
+		//Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		//level.setTile(tile.x, tile.y, TileType.dummyPlatform);
+		level.addCollider(this);
 	}
 
 	public override void destroy()
 	{
-		Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
-		level.setTile(tile.x, tile.y, null);
+		//Vector2i tile = (Vector2i)(position + Vector2.Up * 0.5f);
+		//level.setTile(tile.x, tile.y, null);
+		level.removeCollider(this);
 	}
 
 	void dropItems()

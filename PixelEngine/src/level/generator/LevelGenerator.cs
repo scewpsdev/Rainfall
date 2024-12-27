@@ -1105,7 +1105,7 @@ public partial class LevelGenerator
 				progress *= 0.5f + random.NextSingle();
 			else
 				progress = 1 - (1 - progress) * (0.5f + random.NextSingle());
-			progress = progress * progress;
+			//progress = progress * progress;
 			int selection = MathHelper.Clamp((int)(progress * mobs.Count), 0, mobs.Count - 1);
 			Mob enemy = mobs[selection];
 			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f - enemy.collider.min.y));

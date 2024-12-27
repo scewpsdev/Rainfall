@@ -27,9 +27,9 @@ public partial class LevelGenerator
 	{
 		Level[] areaCaves = new Level[4];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
-		areaCaves[0] = new Level(5, "Weeping Catacombs", 80, 40, TileType.stone, 15, 20) { ambientLight = ambience };
-		areaCaves[1] = new Level(6, "", 40, 80, TileType.stone, 19, 24) { ambientLight = ambience };
-		areaCaves[2] = new Level(7, "", 60, 60, TileType.stone, 22, 30) { ambientLight = ambience };
+		areaCaves[0] = new Level(5, "Weeping Catacombs", 50, 30, TileType.stone, 15, 20) { ambientLight = ambience };
+		areaCaves[1] = new Level(6, "", 30, 40, TileType.stone, 19, 24) { ambientLight = ambience };
+		areaCaves[2] = new Level(7, "", 40, 40, TileType.stone, 22, 30) { ambientLight = ambience };
 		areaCaves[3] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
 
 		List<Mob> createEnemy()
@@ -98,7 +98,7 @@ public partial class LevelGenerator
 
 		generateCaveBackground(level, simplex);
 
-		level.addEntity(new CavesBossRoom(room));
+		level.addEntity(new DungeonsBossRoom(room));
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

@@ -459,7 +459,7 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
 			y += 4;
 
-			float characterFreq = dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 2 ? 12 : 1);
+			float characterFreq = dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 5 ? 12 : 1);
 			int numChars = (int)((Time.currentTime - lastCharacterTime) / 1e9f * characterFreq);
 			for (int i = 0; i < numChars; i++)
 			{

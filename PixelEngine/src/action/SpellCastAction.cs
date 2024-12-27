@@ -34,7 +34,10 @@ public class SpellCastAction : EntityAction
 
 		direction = player.lookDirection.normalized;
 		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
+	}
 
+	public override void onStarted(Player player)
+	{
 		if (player.mana >= manaCost)
 		{
 			spell.cast(player, weapon, manaCost, duration);

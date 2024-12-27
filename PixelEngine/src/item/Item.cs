@@ -606,6 +606,7 @@ public abstract class Item
 		InitType(new Twinblades());
 		InitType(new AdventurersHood());
 		InitType(new AK47());
+		InitType(new WizardsHood());
 	}
 
 	static void InitType(Item item)
