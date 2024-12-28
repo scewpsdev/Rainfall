@@ -51,9 +51,7 @@ public class TripleShotSpell : Spell
 			Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.08f;
 			direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
-			float damage = this.attackDamage * staff.attackDamage;
-
-			GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, damage, player.mana >= manaCost ? 1 : 0.5f), position);
+			GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, staff), position);
 			GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 
 			Audio.PlayOrganic(useSound, new Vector3(player.position, 0));

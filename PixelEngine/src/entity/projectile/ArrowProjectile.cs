@@ -8,14 +8,13 @@ using System.Threading.Tasks;
 
 public class ArrowProjectile : Projectile
 {
-	public ArrowProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item bow, Item item)
-		: base(direction * bow.attackRange, Vector2.Zero, offset, shooter, item)
+	public ArrowProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item bow, Item arrow)
+		: base(direction * bow.attackRange, Vector2.Zero, offset, shooter, arrow, arrow.attackDamage * bow.attackDamage)
 	{
 		maxSpeed = bow.attackRange;
 		gravity = -20;
 		acceleration = 0;
 		maxRicochets = 0;
-		damage = bow.attackDamage;
 
 		sprite = new Sprite(Item.tileset, 2, 0);
 	}

@@ -30,11 +30,12 @@ public class Projectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public Projectile(Vector2 velocity, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item)
+	public Projectile(Vector2 velocity, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item, float damage)
 	{
 		this.offset = offset;
 		this.shooter = shooter;
 		this.item = item;
+		this.damage = damage;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
 		filterGroup = FILTER_PROJECTILE;
@@ -43,9 +44,6 @@ public class Projectile : Entity
 		if (MathF.Sign(velocity.x) == MathF.Sign(startVelocity.x) && MathF.Abs(startVelocity.x) > MathF.Abs(velocity.x))
 			velocity.x = startVelocity.x;
 		//velocity += (Vector2.Dot(startVelocity, velocity) + 1.0f) * 0.5f * startVelocity * 0.05f;
-
-		if (item != null)
-			damage = item.attackDamage;
 	}
 
 	public virtual void onHit(Vector2 normal)
@@ -99,7 +97,7 @@ public class Projectile : Entity
 							|| mob.ai.target != player && player.getStealthAttackModifier() > 1;
 					}
 					if (critical)
-						damage *= 2 * player.getCriticalAttackModifier();
+						damage *= player.getCriticalAttackModifier();
 
 					if (hittable.hit(damage, this, item, null, true, critical))
 					{

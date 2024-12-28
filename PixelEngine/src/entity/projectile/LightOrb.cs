@@ -13,11 +13,10 @@ public class LightOrb : Projectile
 	const float speed = 5;
 
 	public LightOrb(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter)
-		: base(direction * speed, startVelocity, offset, shooter, null)
+		: base(direction * speed, startVelocity, offset, shooter, null, 0)
 	{
 		acceleration = -1;
 		rotationSpeed = 1.0f;
-		damage = 0;
 		maxRicochets = 1000;
 
 		sprite = new Sprite(Item.tileset, 6, 4);

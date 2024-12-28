@@ -314,7 +314,7 @@ public partial class LevelGenerator
 					level.addEntity(new Ladder(countLadderHeight(xx, yy, roomDef)), new Vector2(x + xx, y + yy));
 				return null;
 			case 0xFFFF7F00:
-				level.addEntity(new Spring(), new Vector2(x + xx + 0.5f, y + yy));
+				level.addEntity(new Trampoline(), new Vector2(x + xx + 0.5f, y + yy));
 				return null;
 			case 0xFF00FFFF:
 				return TileType.platform;

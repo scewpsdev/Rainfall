@@ -132,6 +132,16 @@ public static class DebugConsole
 				}
 			}
 		}
+		if (cmd == "xp")
+		{
+			if (args.Length > 0)
+			{
+				if (int.TryParse(args[0], out int amount))
+				{
+					GameState.instance.player.awardXP(amount);
+				}
+			}
+		}
 		if (cmd == "set_floor")
 		{
 			if (args.Length > 0)

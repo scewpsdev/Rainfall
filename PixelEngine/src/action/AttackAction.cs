@@ -105,7 +105,7 @@ public class AttackAction : EntityAction
 							|| mob.ai.target != player && player.getStealthAttackModifier() > 1.5f;
 					}
 					if (critical)
-						damage *= 2 * player.getCriticalAttackModifier();
+						damage *= player.getCriticalAttackModifier();
 
 					if (hittable.hit(damage, player, weapon, null, true, critical))
 					{

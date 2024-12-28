@@ -142,15 +142,6 @@ public static class ItemInfoPanel
 				}
 				y += Renderer.smallFont.size + 1;
 			}
-
-
-			//drawLeft("Reach");
-			//drawRight(item.attackRange.ToString("0.0"));
-			//y += Renderer.smallFont.size + 1;
-
-			//drawLeft("Knockback");
-			//drawRight(item.knockback.ToString("0.0"));
-			//y += Renderer.smallFont.size + 1;
 		}
 		else if (item.type == ItemType.Armor)
 		{

@@ -11,12 +11,10 @@ public class MagicMissileProjectile : Projectile
 {
 	const float speed = 30;
 
-	public MagicMissileProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter, Item staff, Item spell)
-		: base(direction * speed, startVelocity, offset, shooter, spell)
+	public MagicMissileProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item staff, Item spell)
+		: base(direction * speed, startVelocity, offset, player, spell, spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier())
 	{
 		gravity = -20;
-
-		damage = spell.attackDamage * staff.attackDamage;
 
 		sprite = new Sprite(Item.tileset, 9, 1);
 		spriteColor = new Vector4(1.5f);

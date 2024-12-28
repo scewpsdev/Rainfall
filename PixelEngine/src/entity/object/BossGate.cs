@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 public class BossGate : Entity
 {
 	Sprite sprite;
-	int height;
+	int height = 3;
 
 	Mob boss;
 	Room room;
-	public bool isOpen = false;
+	public bool isOpen;
 
 
 	public BossGate(Mob boss, Room room, bool isOpen)
@@ -30,16 +30,11 @@ public class BossGate : Entity
 
 	public override void init(Level level)
 	{
-		Vector2i tile = (Vector2i)Vector2.Round(position);
-		HitData hit = level.raycastTiles(tile + 0.5f, Vector2.Down, 10);
-		Debug.Assert(hit != null);
-		height = (int)MathF.Ceiling(hit.distance);
-
 		if (!isOpen)
 			close();
 	}
 
-	void open()
+	public void open()
 	{
 		Vector2i tile = (Vector2i)Vector2.Floor(position + 0.5f);
 		for (int i = 0; i < height; i++)
@@ -49,7 +44,7 @@ public class BossGate : Entity
 		isOpen = true;
 	}
 
-	void close()
+	public void close()
 	{
 		Vector2i tile = (Vector2i)Vector2.Floor(position + 0.5f);
 		for (int i = 0; i < height; i++)
@@ -57,30 +52,6 @@ public class BossGate : Entity
 			level.setTile(tile.x, tile.y - i, TileType.dummy);
 		}
 		isOpen = false;
-	}
-
-	bool isInRoom(Entity entity)
-	{
-		return room.containsEntity(entity) && entity.position.x > room.x + 5 && entity.position.x < room.x + room.width - 5;
-	}
-
-	public override void update()
-	{
-		if (boss.isAlive && boss.ai.target != null && isInRoom(boss.ai.target) && isInRoom(boss) && isOpen)
-		{
-			close();
-		}
-		else if (!isOpen && (boss.ai.target != null && !isInRoom(boss.ai.target) || !isInRoom(boss)))
-		{
-			open();
-		}
-		if (!boss.isAlive && !isOpen)
-		{
-			open();
-
-			// update hub area
-			GameState.instance.hub.addEntity(new Ladder(15), new Vector2(87, 23));
-		}
 	}
 
 	public override void render()

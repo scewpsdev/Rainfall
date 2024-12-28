@@ -11,13 +11,12 @@ public class FireProjectile : Projectile
 	const float speed = 2;
 
 	public FireProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter)
-		: base(direction * speed, startVelocity, offset, shooter, null)
+		: base(direction * speed, startVelocity, offset, shooter, null, 1)
 	{
 		maxSpeed = 20;
 		gravity = 0;
 		acceleration = 30;
 		maxRicochets = 0;
-		damage = 1;
 
 		sprite = new Sprite(Item.tileset, 1, 2);
 		spriteColor = new Vector4(2.0f);

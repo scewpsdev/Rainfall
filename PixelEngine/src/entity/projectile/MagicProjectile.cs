@@ -11,14 +11,13 @@ public class MagicProjectile : Projectile
 {
 	const float speed = 30; //2;
 
-	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Entity shooter, Item spell, float damage, float rangeMultiplier = 1.0f)
-		: base(direction * speed, startVelocity, offset, shooter, spell)
+	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item spell, Item staff)
+		: base(direction * speed, startVelocity, offset, player, spell, spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier())
 	{
 		//maxSpeed = 40;
 		//acceleration = 50;
 		maxRicochets = 0;
-		maxRange = 8 * rangeMultiplier;
-		this.damage = damage;
+		maxRange = 8;
 
 		sprite = new Sprite(Item.tileset, 9, 1);
 		spriteColor = new Vector4(1.5f);

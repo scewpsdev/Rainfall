@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Spring : Entity
+public class Trampoline : Entity
 {
 	const float STRENGTH = 14;
 	const float ACTIVE_DURATION = 0.2f;
@@ -20,7 +20,7 @@ public class Spring : Entity
 	long lastActive = -1;
 
 
-	public Spring()
+	public Trampoline()
 	{
 		sprite = new Sprite(tileset, 0, 5);
 		activeSprite = new Sprite(tileset, 1, 5);
@@ -47,7 +47,8 @@ public class Spring : Entity
 					if (hits[i].entity is Player)
 						((Player)hits[i].entity).currentLadder = null;
 
-					Audio.Play(useSound, new Vector3(position, 0));
+					if (!isActive)
+						Audio.Play(useSound, new Vector3(position, 0));
 
 					lastActive = Time.currentTime;
 				}
@@ -59,10 +60,10 @@ public class Spring : Entity
 			remove();
 	}
 
+	public bool isActive => lastActive != -1 && (Time.currentTime - lastActive) / 1e9f < ACTIVE_DURATION;
+
 	public override void render()
 	{
-		bool active = lastActive != -1 && (Time.currentTime - lastActive) / 1e9f < ACTIVE_DURATION;
-
-		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, active ? activeSprite : sprite, false);
+		Renderer.DrawSprite(position.x - 0.5f, position.y, 1, 1, isActive ? activeSprite : sprite, false);
 	}
 }

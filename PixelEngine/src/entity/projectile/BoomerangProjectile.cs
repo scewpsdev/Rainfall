@@ -20,7 +20,7 @@ public class BoomerangProjectile : Projectile
 
 
 	public BoomerangProjectile(Vector2 direction, Vector2 startVelocity, Entity shooter, Boomerang item)
-		: base(Vector2.Zero, startVelocity, Vector2.Zero, shooter, item)
+		: base(Vector2.Zero, startVelocity, Vector2.Zero, shooter, item, item.attackDamage)
 	{
 		this.direction = direction;
 

@@ -37,7 +37,7 @@ public static class EntityType
 		InitType<ExplosiveBarrel>("explosive_barrel");
 		InitType<Spike>("spike");
 		InitType<SpikeTrap>("spike_trap");
-		InitType<Spring>("spring");
+		InitType<Trampoline>("spring");
 		InitType<TorchEntity>("torch");
 		InitType<Coin>("coin");
 		InitType<Minecart>("minecart");

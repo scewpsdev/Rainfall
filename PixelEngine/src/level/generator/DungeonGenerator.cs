@@ -77,12 +77,12 @@ public partial class LevelGenerator
 		level.fogColor = new Vector3(0.0f);
 
 		level.entrance = new Door(lastLevel, lastDoor);
-		Vector2i entrancePosition = room.getMarker(0x63);
+		Vector2i entrancePosition = room.getMarker(0x4);
 		level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
 		lastDoor.otherDoor = level.entrance;
 
 		level.exit = new Door(nextLevel);
-		Vector2i exitPosition = room.getMarker(0x67);
+		Vector2i exitPosition = room.getMarker(0x5);
 		level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
 
 		if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
@@ -304,7 +304,7 @@ public partial class LevelGenerator
 					float springChance = 0.01f;
 					if (random.NextSingle() < springChance)
 					{
-						level.addEntity(new Spring(), new Vector2(x + 0.5f, y));
+						level.addEntity(new Trampoline(), new Vector2(x + 0.5f, y));
 						objectFlags[x + y * width] = true;
 					}
 				}

@@ -30,7 +30,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 #endif
 
 
-	public const float defaultSpeed = 8;
+	public const float defaultSpeed = 6;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
 	public float jumpPower = 11; //12; //10.5f;
@@ -57,7 +57,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int strength = 1;
 	public int dexterity = 1;
 	public int intelligence = 1;
-	public int swiftness = 0;
+	public int swiftness = 1;
 
 	public int money = 0;
 	public int playerLevel = 1;
@@ -207,6 +207,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		health = maxHealth;
 		mana = maxMana;
+
+		xp = 0;
+		playerLevel = 1;
 
 		money = Math.Max(money - startingClass.cost, 0);
 
@@ -899,7 +902,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void awardXP(int amount)
 	{
 		xp += amount;
-		if (xp >= nextLevelXP)
+		while (xp >= nextLevelXP)
 		{
 			xp -= nextLevelXP;
 			playerLevel++;
@@ -1996,7 +1999,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public float getCriticalAttackModifier()
 	{
-		float value = 1;
+		float value = 2;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= modifier.criticalAttackModifier;
 		return value;

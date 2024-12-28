@@ -16,6 +16,7 @@ public static class UIColors
 
 	public const uint TEXT = 0xFFAAAAAA;
 	public const uint TEXT_HIGHLIGHT = 0xFFFFFFFF;
+	public const uint TEXT_HIGHLIGHT2 = 0xFFAA4444;
 	public const uint TEXT_SUBTLE = 0xFF666666;
 	public const uint TEXT_UPGRADE = 0xFF5ecb57;
 	public const uint TEXT_DOWNGRADE = 0xFFbd4242;

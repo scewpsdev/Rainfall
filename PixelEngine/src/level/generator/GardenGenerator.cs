@@ -429,7 +429,7 @@ public partial class LevelGenerator
 					float springChance = 0.01f;
 					if (random.NextSingle() < springChance)
 					{
-						level.addEntity(new Spring(), new Vector2(x + 0.5f, y));
+						level.addEntity(new Trampoline(), new Vector2(x + 0.5f, y));
 						objectFlags[x + y * width] = true;
 					}
 				}
