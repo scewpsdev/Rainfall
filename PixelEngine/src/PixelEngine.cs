@@ -40,7 +40,7 @@ public class PixelEngine : Game
 
 	public override void init()
 	{
-		Display.windowTitle = ASSEMBLY_NAME;
+		Display.windowTitle = "Ivory Keep";
 
 		// pixel perfect correction
 		scale = (int)MathF.Round(Display.width / 1920.0f * idealScale);

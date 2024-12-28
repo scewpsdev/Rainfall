@@ -1098,6 +1098,12 @@ RFAPI int Application_Run(LaunchParams params, ApplicationCallbacks callbacks)
 		return EXIT_FAILURE;
 	}
 
+#if BX_PLATFORM_WINDOWS
+	HICON icon = ExtractIcon(GetModuleHandle(NULL), L"PixelEngine.exe", 0);
+	SendMessage(glfwGetWin32Window(window), WM_SETICON, ICON_SMALL, (LPARAM)icon);
+	SendMessage(glfwGetWin32Window(window), WM_SETICON, ICON_BIG, (LPARAM)icon);
+#endif
+
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetCharCallback(window, CharCallback);
 	glfwSetScrollCallback(window, ScrollCallback);
