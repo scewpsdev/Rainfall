@@ -55,9 +55,8 @@ public class CavesSpecialRoom1 : Entity
 		level.addEntity(new TorchEntity(), position + new Vector2(2.5f, 3.5f));
 		level.addEntity(new TorchEntity(), position + new Vector2(6.5f, 3.5f));
 
-
 		if (generator.random.NextSingle() < 0.8f)
-			generator.spawnNPC(room.x + MathHelper.RandomInt(2, 5, generator.random), room.y + 1);
+			generator.spawnNPC(room.x + MathHelper.RandomInt(2, 5, generator.random), room.y + 1, generator.getCaveNPCList());
 		else
 			level.addEntity(new Chest(Item.CreateRandom(generator.random, DropRates.chest, generator.getRoomLootValue(room) * 2), false, true),
 				new Vector2(room.x + MathHelper.RandomInt(2, 5, generator.random), room.y + 1));

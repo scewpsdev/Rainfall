@@ -112,6 +112,21 @@ public partial class LevelGenerator
 		return areaCaves;
 	}
 
+	public List<NPC> getCaveNPCList()
+	{
+		List<NPC> npcs = new List<NPC>();
+		npcs.Add(new BuilderMerchant(random, level));
+		npcs.Add(new TravellingMerchant(random, level));
+		npcs.Add(new Logan(random, level));
+		npcs.Add(new Blacksmith(random, level));
+		npcs.Add(new Tinkerer(random, level));
+
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
+			npcs.Add(new RatNPC(random));
+
+		return npcs;
+	}
+
 	void generateRandomCaveFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
 		RoomDef def = specialSet.roomDefs[1];
@@ -602,7 +617,7 @@ public partial class LevelGenerator
 
 		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
 		{
-			spawnNPC(tile.x, tile.y);
+			spawnNPC(tile.x, tile.y, getCaveNPCList());
 		});
 
 		/*

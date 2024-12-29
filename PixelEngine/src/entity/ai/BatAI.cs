@@ -13,11 +13,6 @@ public class BatAI : AdvancedAI
 	public bool preferVerticalMovement = false;
 	public bool canShoot = false;
 
-	long targetLastSeen = -1;
-	long lastShot = -1;
-
-	List<Vector2i> currentPath = new List<Vector2i>();
-
 
 	public BatAI(Mob mob)
 		: base(mob)

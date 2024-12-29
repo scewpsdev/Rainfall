@@ -1,5 +1,6 @@
 ﻿using Rainfall;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
@@ -23,15 +24,9 @@ public class SaveFile
 	public static readonly uint FLAG_TUTORIAL_FINISHED = Hash.hash("tutorial_finished");
 
 	public static readonly uint FLAG_CAVES_FOUND = Hash.hash("caves_found");
+	public static readonly uint FLAG_DUNGEONS_FOUND = Hash.hash("dungeons_found");
 
 	public static readonly uint FLAG_CASTLE_UNLOCKED = Hash.hash("castle_unlocked");
-
-	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_BARBARIAN = Hash.hash("startingclass_barbarian");
-	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_KNIGHT = Hash.hash("startingclass_knight");
-	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_HUNTER = Hash.hash("startingclass_hunter");
-	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_THIEF = Hash.hash("startingclass_thief");
-	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_WIZARD = Hash.hash("startingclass_wizard");
-	public static readonly uint FLAG_STARTING_CLASS_UNLOCKED_FOOL = Hash.hash("startingclass_fool");
 
 	public static readonly uint FLAG_NPC_RAT_MET = Hash.hash("rat_questline_init");
 	public static readonly uint FLAG_NPC_RAT_QUESTLINE_COMPLETED = Hash.hash("rat_questline_complete");
@@ -45,6 +40,7 @@ public class SaveFile
 	public static readonly uint FLAG_NPC_GATEKEEPER_MET = Hash.hash("gatekeeper_questline_init");
 
 	public static readonly uint FLAG_NPC_LOGAN_MET = Hash.hash("logan_questline_init");
+	public static readonly uint FLAG_NPC_LOGAN_IMPRESSED = Hash.hash("logan_questline_impressed");
 
 
 	public static SaveFile customRun => new SaveFile() { id = -1, isCustom = true, flags = [FLAG_TUTORIAL_FINISHED] };
@@ -130,6 +126,21 @@ public class SaveFile
 		return false;
 	}
 
+	public void unlockStartingClass(StartingClass startingClass)
+	{
+		uint h = Hash.hash(startingClass.name);
+		if (!hasFlag(h))
+		{
+			setFlag(h);
+			GameState.instance.player.hud.showMessage($"Unlocked starting class \"{startingClass.name}\"!");
+		}
+	}
+
+	public bool isStartingClassUnlocked(StartingClass startingClass)
+	{
+		return hasFlag(Hash.hash(startingClass.name));
+	}
+
 	public void onKill(Mob mob)
 	{
 		foreach (var pair in quests)
@@ -139,6 +150,19 @@ public class SaveFile
 				Quest quest = pair.Value[i];
 				if (quest.state == QuestState.InProgress)
 					pair.Value[i].onKill(mob);
+			}
+		}
+	}
+
+	public void onItemPickup(Item item)
+	{
+		foreach (var pair in quests)
+		{
+			for (int i = 0; i < pair.Value.Count; i++)
+			{
+				Quest quest = pair.Value[i];
+				if (quest.state == QuestState.InProgress)
+					pair.Value[i].onItemPickup(item);
 			}
 		}
 	}
@@ -180,6 +204,7 @@ public class SaveFile
 					string npc = questDat.getField("npc").identifier;
 					string name = questDat.getField("name").identifier;
 					QuestState state = Utils.ParseEnum<QuestState>(questDat.getField("state").identifier);
+					Debug.Assert(Quest.questInstances.ContainsKey(name));
 					Quest quest = Quest.questInstances[name];
 					quest.state = state;
 					quest.load(questDat);

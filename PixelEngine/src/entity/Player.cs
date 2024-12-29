@@ -452,6 +452,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			equipItem(item);
 		else if (item.isPassiveItem /*&& canEquipPassiveItem(item)*/)
 			equipItem(item);
+
+		GameState.instance.save.onItemPickup(item);
 	}
 
 	public void removeItem(Item item)

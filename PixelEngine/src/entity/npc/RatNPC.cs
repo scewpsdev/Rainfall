@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 
 public class RatNPC : NPC
 {
-	Dialogue questlineDialogue;
-
-
 	public RatNPC(Random random)
 		: base("rat_npc")
 	{
@@ -31,6 +28,7 @@ public class RatNPC : NPC
 			initialDialogue.addVoiceLine("You did it! Here is your reward, as promised.").addCallback(() =>
 			{
 				GameState.instance.level.addEntity(new ItemEntity(new Cheese() { name = "wondrous_cheese", displayName = "Wondrous Cheese", stackable = false }), position + Vector2.Up);
+				GameState.instance.save.unlockStartingClass(StartingClass.fool);
 				closeScreen();
 
 				cheeseQuest.collect();
@@ -66,12 +64,15 @@ public class RatNPC : NPC
 			initialDialogue = new Dialogue();
 			initialDialogue.addVoiceLine("\\cYou again!");
 
-			questlineDialogue = new Dialogue();
+			Dialogue questlineDialogue = new Dialogue();
 			questlineDialogue.addVoiceLine("There's something fierce about you. \\3I'm wondering...");
 			questlineDialogue.addVoiceLine("Hear me out, will you?");
-			questlineDialogue.addVoiceLine("I'm buying the milk I'm using for my cheese from this guy Siko. He wants some snake venom in return but I'm no good at hunting snakes, they \\bscare\\0 me.");
+			questlineDialogue.addVoiceLine("I'm buying the milk I'm using for my cheese from this guy Siko. He wants some snake venom in return but I'm no good at hunting snakes. They \\bscare\\0 me.");
 			questlineDialogue.addVoiceLine("You seem to have no problem of that kind. Would you mind helping me out?");
-			questlineDialogue.addVoiceLine("The cheese is very important to me. Nowhere else have I ever found such an \\cexquisite\\0 type of milk...");
+			questlineDialogue.addVoiceLine("The milk is very important to me. Nowhere else have I ever found such an \\cexquisite\\0 kind...").addCallback(() =>
+			{
+				GameState.instance.save.addQuest(name, new CheeseQuest());
+			});
 			addDialogue(questlineDialogue);
 		}
 		else
@@ -80,7 +81,10 @@ public class RatNPC : NPC
 			initialDialogue.addVoiceLine("\\aWOAH!");
 			initialDialogue.addVoiceLine("\\3You look... \\5\\bintense!");
 			initialDialogue.addVoiceLine("Ah, you must be here to try some of my \\cwondrous cheese?");
-			initialDialogue.addVoiceLine("Yes, yes. That must be it. I'll give you one for free, good?");
+			initialDialogue.addVoiceLine("Yes, yes. That must be it. I'll give you one for free, good?").addCallback(() =>
+			{
+				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_RAT_MET);
+			});
 
 			Cheese wondrousCheese = new Cheese();
 			wondrousCheese.name = "wondrous_cheese";
@@ -90,18 +94,8 @@ public class RatNPC : NPC
 	}
 
 	public RatNPC()
-		: this(null)
+		: this(Random.Shared)
 	{
-	}
-
-	public override void onDialogueComplete(Dialogue dialogue)
-	{
-		if (dialogue == initialDialogue)
-			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_RAT_MET);
-		else if (dialogue == questlineDialogue)
-		{
-			GameState.instance.save.addQuest(name, new CheeseQuest());
-		}
 	}
 
 	public override void update()

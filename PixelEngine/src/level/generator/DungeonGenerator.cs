@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -414,129 +415,35 @@ public partial class LevelGenerator
 					if (random.NextSingle() < enemyChance)
 					{
 						spawnEnemy(x, y, createEnemy());
-
-						/*
-						bool flyingEnemy = random.NextSingle() < 0.15f;
-						if (flyingEnemy)
-						{
-							if (down == null)
-							{
-								Mob enemy;
-
-								float batType = random.NextSingle();
-								if (batType < 0.9f)
-									enemy = new Bat();
-								else
-									enemy = new OrangeBat();
-
-								level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
-								objectFlags[x + y * width] = true;
-							}
-						}
-						else
-						{
-							TileType upUp = level.getTile(x, y + 2);
-							if (down != null && up == null && left == null && right == null)
-							{
-								float enemyType = random.NextSingle();
-
-								Mob enemy;
-
-								//if (enemyType > 0.9f)
-								//	enemy = new Bob();
-								//else 
-								if (enemyType > 0.95f)
-									enemy = new Gandalf();
-								else if (enemyType > 0.9f)
-									enemy = new SkeletonArcher();
-								else if (enemyType > 0.85f && upUp == null)
-									enemy = new Golem();
-								else if (enemyType > 0.8f)
-									enemy = new Leprechaun();
-								else if (enemyType > 0.6f)
-									enemy = new Snake();
-								else if (enemyType > 0.3f)
-								{
-									float spiderType = random.NextSingle();
-									if (spiderType < 0.9f)
-										enemy = new Spider();
-									else
-										enemy = new GreenSpider();
-								}
-								else
-								{
-									enemy = new Rat();
-								}
-
-								level.addEntity(enemy, new Vector2(x + 0.5f, y));
-								objectFlags[x + y * width] = true;
-							}
-						}
-						*/
 					}
 				}
 			}
 		});
 
 
-		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
+		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest))
 		{
-			spawnNPC(tile.x, tile.y);
-		});
-
-		/*
-		// Builder merchant
-		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			BuilderMerchant npc = new BuilderMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Traveller merchant
-		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			TravellingMerchant npc = new TravellingMerchant(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Logan
-		spawnRoomObject(deadEnds, 0.3f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			Logan npc = new Logan(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Blacksmith
-		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			Blacksmith npc = new Blacksmith(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Tinkerer
-		spawnRoomObject(deadEnds, 0.3f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			Tinkerer npc = new Tinkerer(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-		// Rat NPC
-		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED) && !ratSpawned)
-		{
-			spawnRoomObject(deadEnds, !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? 0.7f : 0.1f, false, (Vector2i tile, Random random, Room room) =>
+			spawnRoomObject([startingRoom], 1, false, (Vector2i pos, Random random, Room room) =>
 			{
-				RatNPC npc = new RatNPC();
-				npc.direction = random.Next() % 2 * 2 - 1;
-				level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
-				ratSpawned = true;
+				spawnNPC(pos.x, pos.y, [new Logan(random, level)]);
 			});
 		}
-		*/
+
+		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			List<NPC> npcs = new List<NPC>();
+			npcs.Add(new BuilderMerchant(random, level));
+			npcs.Add(new TravellingMerchant(random, level));
+			npcs.Add(new Logan(random, level));
+			npcs.Add(new Blacksmith(random, level));
+			npcs.Add(new Tinkerer(random, level));
+
+			if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
+				npcs.Add(new RatNPC(random));
+
+			spawnNPC(tile.x, tile.y, npcs);
+		});
+
 
 		level.updateLightmap(0, 0, width, height);
 	}

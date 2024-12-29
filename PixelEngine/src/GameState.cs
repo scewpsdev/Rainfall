@@ -330,6 +330,10 @@ public class GameState : State
 	{
 		if (level == /*tutorial*/ cliffside && newLevel == hub)
 			save.setFlag(SaveFile.FLAG_TUTORIAL_FINISHED);
+		else if (newLevel == areaCaves[0])
+			save.setFlag(SaveFile.FLAG_CAVES_FOUND);
+		else if (newLevel == areaDungeons[0])
+			save.setFlag(SaveFile.FLAG_DUNGEONS_FOUND);
 
 		this.newLevel = newLevel;
 		this.newLevelSpawnPosition = spawnPosition;

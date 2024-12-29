@@ -32,17 +32,14 @@ public class BrokenWanderer : NPC
 				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_TRAVELLER_MET);
 			});
 		}
-
-		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND))
+		else if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND))
 		{
-			{
-				Dialogue dialogue = new Dialogue();
-				dialogue.addVoiceLine("You've been below, haven't you? I can see it in your eyes.");
-				dialogue.addVoiceLine("The caves... they leave their mark, even if you come back whole.");
-				addDialogue(dialogue);
-			}
+			initialDialogue = new Dialogue();
+			initialDialogue.addVoiceLine("You've been below, haven't you? I can see it in your eyes.");
+			initialDialogue.addVoiceLine("The caves... they leave their mark, even if you come back whole.");
 		}
-		else
+
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND))
 		{
 			{
 				Dialogue dialogue = new Dialogue();

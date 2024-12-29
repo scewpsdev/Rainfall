@@ -254,7 +254,8 @@ public partial class LevelGenerator
 	bool[] objectFlags;
 	float[] lootModifier;
 
-	bool ratSpawned = false;
+	List<Type> spawnedNPCs = new List<Type>();
+
 	bool lockedDoorSpawned = false;
 
 
@@ -649,24 +650,23 @@ public partial class LevelGenerator
 			spawnGroundItem(x, y, roomLootValue);
 	}
 
-	public void spawnNPC(int x, int y)
+	public void spawnNPC(int x, int y, List<NPC> npcs)
 	{
-		List<NPC> npcs = new List<NPC>();
-		npcs.Add(new BuilderMerchant(random, level));
-		npcs.Add(new TravellingMerchant(random, level));
-		npcs.Add(new Logan(random, level));
-		npcs.Add(new Blacksmith(random, level));
-		npcs.Add(new Tinkerer(random, level));
+		npcs = new List<NPC>(npcs);
+		for (int i = 0; i < npcs.Count; i++)
+		{
+			if (spawnedNPCs.Contains(npcs[i].GetType()))
+				npcs.RemoveAt(i--);
+		}
 
-		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED) && !ratSpawned)
-			npcs.Add(new RatNPC(random));
+		if (npcs.Count == 0)
+			return;
 
 		NPC npc = npcs[random.Next() % npcs.Count];
 		npc.direction = random.Next() % 2 * 2 - 1;
 		level.addEntity(npc, new Vector2(x + 0.5f, y));
 
-		if (npc is RatNPC)
-			ratSpawned = true;
+		spawnedNPCs.Add(npc.GetType());
 	}
 
 	void generateMainRooms(RoomDefSet set, RoomDef? startingRoomDef)

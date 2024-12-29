@@ -16,14 +16,6 @@ public class DungeonGate : Door
 
 		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
 	}
-
-	public override void interact(Player player)
-	{
-		base.interact(player);
-
-		if (GameState.instance.save.runsFinished > 2)
-			GameState.instance.save.setFlag(SaveFile.FLAG_CAVES_FOUND);
-	}
 }
 
 public class CastleGate : Door
@@ -68,23 +60,18 @@ public class Hub : Entity
 
 		SaveFile save = GameState.instance.save;
 
-		ArmorStand barbarianClass, knightClass, hunterClass, thiefClass, wizardClass, foolClass, devClass;
-
-		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_BARBARIAN))
-		level.addEntity(barbarianClass = new ArmorStand(StartingClass.barbarian), level.rooms[0].getMarker(10) + new Vector2(-2, 0));
-		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_KNIGHT))
-		level.addEntity(knightClass = new ArmorStand(StartingClass.knight, -1), level.rooms[0].getMarker(10) + new Vector2(2, 0));
-		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_THIEF))
-		level.addEntity(thiefClass = new ArmorStand(StartingClass.thief), level.rooms[0].getMarker(10) + new Vector2(-3.5f, 0));
-		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_HUNTER))
-		level.addEntity(hunterClass = new ArmorStand(StartingClass.hunter, -1), level.rooms[0].getMarker(10) + new Vector2(3.5f, 0));
-		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_FOOL))
-		level.addEntity(foolClass = new ArmorStand(StartingClass.fool), level.rooms[0].getMarker(10) + new Vector2(-5, 0));
-		//if (save.hasFlag(SaveFile.FLAG_STARTING_CLASS_UNLOCKED_WIZARD))
-		level.addEntity(wizardClass = new ArmorStand(StartingClass.wizard, -1), level.rooms[0].getMarker(10) + new Vector2(5, 0));
+		for (int i = 0; i < StartingClass.startingClasses.Length; i++)
+		{
+			StartingClass startingClass = StartingClass.startingClasses[i];
+			if (save.isStartingClassUnlocked(startingClass))
+			{
+				Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
+				level.addEntity(new ArmorStand(startingClass), level.rooms[0].getMarker(10) + position);
+			}
+		}
 
 #if DEBUG
-		level.addEntity(devClass = new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
+		level.addEntity(new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
 #endif
 
 		BrokenWanderer npc = new BrokenWanderer(Random.Shared, level);

@@ -31,27 +31,66 @@ public class Logan : NPC
 		}
 		else
 		{
-			int i = random.Next();
-			if (i % 4 == 0)
+			if (GameState.instance.save.hasFlag(SaveFile.FLAG_DUNGEONS_FOUND) && !GameState.instance.save.tryGetQuest(name, "logan_quest", out _))
 			{
 				initialDialogue = new Dialogue();
-				initialDialogue.addVoiceLine("Ah, \\byou again\\0! My best - and only - customer.");
+				initialDialogue.addVoiceLine("\\1Aha... \\0You again.");
+				initialDialogue.addVoiceLine("Color me impressed, you're not as hopeless as you look, making it this far.");
+				initialDialogue.addVoiceLine("Makes me wonder... maybe you're the type who can handle something a bit more interesting.");
+
+				Dialogue dialogue = new Dialogue();
+				dialogue.addVoiceLine("Fine then, let's see if you're up to a real challenge.");
+				dialogue.addVoiceLine("Word is, there's an ancient magic staff hidden somewhere deep in those weeping catacombs.");
+				dialogue.addVoiceLine("Find it for me and you might even earn yourself a proper wizard's robes!");
+				dialogue.addVoiceLine("That's if the beast guarding it doesn't rip you to pieces first. But you look sturdy enough, I suppose!");
+				dialogue.addVoiceLine("Hehe.").addCallback(() =>
+				{
+					GameState.instance.save.addQuest(name, new LoganQuest());
+				});
+				addDialogue(dialogue);
 			}
-			else if (i % 4 == 1)
+			if (GameState.instance.save.tryGetQuest(name, "logan_quest", out Quest quest))
 			{
-				initialDialogue = new Dialogue();
-				initialDialogue.addVoiceLine("Well, well, still breathing are we?");
-				initialDialogue.addVoiceLine("Very good.");
-			}
-			else if (i % 4 == 2)
-			{
-				initialDialogue = new Dialogue();
-				initialDialogue.addVoiceLine("Go ahead, take a look. Just don't blame me if your eyebrows fall off.");
+				GameState.instance.save.addQuestCompletionCallback(name, "logan_quest", (Quest quest) =>
+				{
+					initialDialogue = new Dialogue();
+					initialDialogue.addVoiceLine("Ha, look at you! You actually did it. Maybe you're not as useless as the rest of the rabble.");
+					initialDialogue.addVoiceLine("Hooray, or something. Here, take this.").addCallback(() =>
+					{
+						closeScreen();
+						GameState.instance.save.unlockStartingClass(StartingClass.wizard);
+					});
+				});
+				if (!quest.isCompleted && level == GameState.instance.areaDungeons[0])
+				{
+					initialDialogue = new Dialogue();
+					initialDialogue.addVoiceLine("I'll be waiting here in case you find it.");
+				}
 			}
 			else
 			{
-				initialDialogue = new Dialogue();
-				initialDialogue.addVoiceLine("Still alive, eh? I'll admit, I'm impressed. Most of my customers are more ghostly by now.");
+				int i = random.Next();
+				if (i % 4 == 0)
+				{
+					initialDialogue = new Dialogue();
+					initialDialogue.addVoiceLine("Ah, \\byou again\\0! My best - and only - customer.");
+				}
+				else if (i % 4 == 1)
+				{
+					initialDialogue = new Dialogue();
+					initialDialogue.addVoiceLine("Well, well, still breathing are we?");
+					initialDialogue.addVoiceLine("Very good.");
+				}
+				else if (i % 4 == 2)
+				{
+					initialDialogue = new Dialogue();
+					initialDialogue.addVoiceLine("Go ahead, take a look. Just don't blame me if your eyebrows fall off.");
+				}
+				else
+				{
+					initialDialogue = new Dialogue();
+					initialDialogue.addVoiceLine("Still alive, eh? I'll admit, I'm impressed. Most of my customers are more ghostly by now.");
+				}
 			}
 
 			if (!GameState.instance.save.hasFlag(SaveFile.FLAG_CASTLE_UNLOCKED))

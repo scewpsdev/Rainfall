@@ -617,6 +617,8 @@ public abstract class Item
 		InitType(new AdventurersHood());
 		InitType(new AK47());
 		InitType(new WizardsHood());
+
+		InitType(new QuestlineLoganStaff());
 	}
 
 	static void InitType(Item item)

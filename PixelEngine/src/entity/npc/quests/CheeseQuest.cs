@@ -14,7 +14,7 @@ public class CheeseQuest : Quest
 	public CheeseQuest()
 		: base("cheese_quest", "Cheese Quest")
 	{
-		description = "Kill snakes for Jack so he can get his favorite cheese.";
+		description = "Kill snakes for Jack so he can make his favorite cheese.";
 	}
 
 	public override bool completionRequirementsMet()

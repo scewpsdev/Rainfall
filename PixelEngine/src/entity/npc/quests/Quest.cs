@@ -21,6 +21,7 @@ public abstract class Quest
 	static Quest()
 	{
 		InitQuestType(new CheeseQuest());
+		InitQuestType(new LoganQuest());
 	}
 
 	static void InitQuestType(Quest quest)
@@ -58,6 +59,10 @@ public abstract class Quest
 	}
 
 	public virtual void onKill(Mob mob)
+	{
+	}
+
+	public virtual void onItemPickup(Item item)
 	{
 	}
 }

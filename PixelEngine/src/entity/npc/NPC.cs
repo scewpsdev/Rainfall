@@ -270,10 +270,6 @@ public abstract class NPC : Mob, Interactable
 		return null;
 	}
 
-	public virtual void onDialogueComplete(Dialogue dialogue)
-	{
-	}
-
 	public bool canInteract(Player player)
 	{
 		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) || (canAttune && player.hasItemOfType(ItemType.Staff)) || GameState.instance.save.getQuestList(name, out _);
@@ -568,7 +564,6 @@ public abstract class NPC : Mob, Interactable
 				dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
 				if (currentDialogue.screens.Count == 0)
 				{
-					onDialogueComplete(currentDialogue);
 					initMenu();
 					if (currentDialogue == initialDialogue)
 						initialDialogue = null;
