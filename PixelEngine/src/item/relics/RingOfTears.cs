@@ -24,7 +24,7 @@ public class RingOfTears : Item
 
 		sprite = new Sprite(tileset, 10, 2);
 
-		buff = new ItemBuff();
+		buff = new ItemBuff(this);
 	}
 
 	void activate(Player player)

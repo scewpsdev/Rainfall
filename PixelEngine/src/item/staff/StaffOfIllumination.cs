@@ -15,7 +15,6 @@ public class StaffOfIllumination : Staff
 
 		isSecondaryItem = true;
 
-		baseDamage = 0;
 		staffCharges = 10;
 		maxStaffCharges = 10;
 

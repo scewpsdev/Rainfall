@@ -57,8 +57,8 @@ public abstract class AI
 			Debug.Assert(false);
 		}
 		Vector2 toEntity = entity.position + entity.collider.center - (mob.position + mob.collider.center);
-		toTarget = toEntity / toEntity.length;
 		distance = toEntity.length;
+		toTarget = distance != 0 ? toEntity / distance : Vector2.Right;
 		HitData hit = GameState.instance.level.raycastTiles(mob.position + mob.collider.center, toTarget, distance + 0.1f);
 		return hit == null;
 	}

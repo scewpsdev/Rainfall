@@ -1108,7 +1108,7 @@ public partial class LevelGenerator
 			//progress = progress * progress;
 			int selection = MathHelper.Clamp((int)(progress * mobs.Count), 0, mobs.Count - 1);
 			Mob enemy = mobs[selection];
-			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f - enemy.collider.min.y));
+			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
 			objectFlags[x + y * level.width] = true;
 		}
 	}

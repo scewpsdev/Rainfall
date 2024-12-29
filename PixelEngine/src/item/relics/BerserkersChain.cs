@@ -28,7 +28,7 @@ public class BerserkersChain : Item
 
 		sprite = new Sprite(tileset, 9, 6);
 
-		buff = new ItemBuff();
+		buff = new ItemBuff(this);
 	}
 
 	public override void onEquip(Player player)

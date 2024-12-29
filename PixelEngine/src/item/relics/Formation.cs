@@ -22,7 +22,7 @@ public class Formation : Item
 
 		sprite = new Sprite(tileset, 13, 7);
 
-		buff = new ItemBuff() { defenseModifier = 2, movementSpeedModifier = 0.5f };
+		buff = new ItemBuff(this) { defenseModifier = 2, movementSpeedModifier = 0.5f };
 	}
 
 	void activate(Player player)

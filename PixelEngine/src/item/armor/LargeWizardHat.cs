@@ -17,13 +17,13 @@ public class LargeWizardHat : Item
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.3f;
 
-		value = 7;
+		value = 13;
 
 		sprite = new Sprite(tileset, 9, 4);
 		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/wizards_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteSize = 2;
 
-		buff = new ItemBuff() { manaRecoveryModifier = 2 };
+		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)

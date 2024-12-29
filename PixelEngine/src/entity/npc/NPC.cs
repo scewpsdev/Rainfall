@@ -376,7 +376,7 @@ public abstract class NPC : Mob, Interactable
 			if (player.items[i].upgradable)
 			{
 				upgradeItems.Add(player.items[i]);
-				upgradePrices.Add(player.items[i].upgradePrice);
+				upgradePrices.Add(player.items[i].upgradeCost);
 			}
 		}
 	}
@@ -802,7 +802,7 @@ public abstract class NPC : Mob, Interactable
 					Item item = upgradeItems[choice];
 					item.upgrade();
 					player.money -= upgradePrices[choice];
-					upgradePrices[choice] = item.upgradePrice;
+					upgradePrices[choice] = item.upgradeCost;
 					Audio.Play(upgradeSound, new Vector3(position, 0));
 				}
 			}

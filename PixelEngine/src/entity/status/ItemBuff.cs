@@ -18,6 +18,8 @@ public class ItemBuff
 	public static Sprite criticalAttackModifierIcon = new Sprite(StatusEffect.tileset, 2, 3);
 
 
+	public Item item;
+
 	public float movementSpeedModifier = 1.0f;
 	public float wallControlModifier = 1.0f;
 	public float meleeDamageModifier = 1.0f;
@@ -36,10 +38,14 @@ public class ItemBuff
 	Sprite aura;
 
 
-	public ItemBuff()
+	public ItemBuff(Item item)
 	{
+		this.item = item;
+
 		aura = new Sprite(Entity.effectsTileset, 2, 2, 2, 2);
 	}
+
+	public ItemBuff copy() => (ItemBuff)MemberwiseClone();
 
 	public void render(Entity entity)
 	{

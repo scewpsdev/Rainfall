@@ -34,7 +34,7 @@ public static class DebugConsole
 				Entity entity = EntityType.CreateInstance(args[0]);
 				if (entity != null)
 				{
-					Vector2 position = GameState.instance.player.position; //GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection : GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
+					Vector2 position = GameState.instance.player.position + GameState.instance.player.collider.center; //GameSettings.aimMode == AimMode.Directional ? GameState.instance.player.position + GameState.instance.player.collider.center + GameState.instance.player.lookDirection : GameState.instance.camera.screenToWorld(Renderer.cursorPosition);
 					if (args.Length == 3)
 					{
 						if (float.TryParse(args[1], out float x))

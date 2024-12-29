@@ -19,7 +19,7 @@ public class RingOfSwiftness : Item
 
 		sprite = new Sprite(tileset, 9, 0);
 
-		buff = new ItemBuff() { movementSpeedModifier = 1.2f };
+		buff = new ItemBuff(this) { movementSpeedModifier = 1.2f };
 	}
 
 	public override void onEquip(Player player)

@@ -53,7 +53,7 @@ public class BossRoom : Entity
 		if (boss.level == null && isInRoom(GameState.instance.player))
 		{
 			GameState.instance.currentBoss = boss;
-			GameState.instance.currentBossMaxHealth = boss.maxHealth;
+			GameState.instance.currentBossMaxHealth = boss.health;
 			boss.ai.aggroRange = 100;
 			boss.ai.loseRange = 100;
 

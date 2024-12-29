@@ -20,7 +20,7 @@ public class GlassRing : Item
 
 		sprite = new Sprite(tileset, 10, 6);
 
-		buff = new ItemBuff() { meleeDamageModifier = 2, magicDamageModifier = 2, defenseModifier = 0.5f };
+		buff = new ItemBuff(this) { meleeDamageModifier = 2, magicDamageModifier = 2, defenseModifier = 0.5f };
 	}
 
 	public override void onEquip(Player player)

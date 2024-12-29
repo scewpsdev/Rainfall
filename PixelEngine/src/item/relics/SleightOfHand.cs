@@ -21,7 +21,7 @@ public class SleightOfHand : Item
 
 		sprite = new Sprite(tileset, 6, 6);
 
-		buff = new ItemBuff() { attackSpeedModifier = 1.15f };
+		buff = new ItemBuff(this) { attackSpeedModifier = 1.15f };
 	}
 
 	public override void onEquip(Player player)

@@ -36,13 +36,13 @@ public class LightningProjectile : Entity
 	List<Entity> hitEntities = new List<Entity>();
 
 
-	public LightningProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item spell, float damage, float rangeMultiplier = 1.0f)
+	public LightningProjectile(Vector2 direction, Vector2 offset, Player player, Item spell, Item staff)
 	{
 		displayName = "Lightning";
 
 		this.direction = direction;
 		this.offset = offset;
-		this.shooter = shooter;
+		this.shooter = player;
 		this.spell = spell;
 
 		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
@@ -50,7 +50,7 @@ public class LightningProjectile : Entity
 
 		velocity = direction * speed;
 
-		this.damage = damage;
+		this.damage = spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier();
 
 		lightning = Resource.GetTexture("res/sprites/lightning.png", false);
 		trail = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 2, 0);
@@ -102,7 +102,7 @@ public class LightningProjectile : Entity
 				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(damage, this, spell);
+					hittable.hit(damage, shooter, spell);
 					hitEntities.Add(hit.entity);
 					damage = MathF.Max(damage - 1, 0);
 					if (damage < 0.1f)

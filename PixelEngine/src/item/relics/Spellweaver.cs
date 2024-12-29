@@ -20,7 +20,7 @@ public class Spellweaver : Item
 
 		sprite = new Sprite(tileset, 15, 7);
 
-		buff = new ItemBuff() { manaCostModifier = 0.8f };
+		buff = new ItemBuff(this) { manaCostModifier = 0.8f };
 	}
 
 	public override void onEquip(Player player)

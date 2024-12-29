@@ -94,6 +94,7 @@ public class HUD
 		{
 			HUDMessage hmsg = messages[messages.Count - 1];
 			hmsg.count++;
+			hmsg.timeSent = Time.currentTime;
 			messages[messages.Count - 1] = hmsg;
 		}
 		else

@@ -41,7 +41,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float poise = 1;
 	public float awareness = 0.5f;
 
-	public float maxHealth;
+	float maxHealth;
 
 	public bool isBoss = false;
 	public bool canClimb = false;
@@ -91,11 +91,6 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		this.name = name;
 
 		filterGroup = FILTER_MOB;
-	}
-
-	public override void init(Level level)
-	{
-		maxHealth = health;
 	}
 
 	public override void destroy()
@@ -429,6 +424,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		if (!isAlive)
 			return;
+
+		maxHealth = MathF.Max(maxHealth, health);
 
 		if (ai != null)
 			ai.update();

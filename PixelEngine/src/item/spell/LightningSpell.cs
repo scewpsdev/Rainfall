@@ -34,9 +34,7 @@ public class LightningSpell : Spell
 		//Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
 		//direction = (direction + inaccuracy / (staff.accuracy * player.accuracyModifier)).normalized;
 
-		float damage = this.attackDamage * staff.attackDamage * player.getMagicDamageModifier();
-
-		GameState.instance.level.addEntity(new LightningProjectile(direction, Vector2.Zero, player, this, damage, player.mana >= manaCost ? 1 : 0.5f), position + offset);
+		GameState.instance.level.addEntity(new LightningProjectile(direction, offset, player, this, staff), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 	}
 }

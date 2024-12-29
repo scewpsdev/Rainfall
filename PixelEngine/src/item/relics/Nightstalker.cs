@@ -21,7 +21,7 @@ public class Nightstalker : Item
 
 		sprite = new Sprite(tileset, 7, 6);
 
-		buff = new ItemBuff() { stealthAttackModifier = 2.0f };
+		buff = new ItemBuff(this) { stealthAttackModifier = 2.0f };
 	}
 
 	public override void onEquip(Player player)

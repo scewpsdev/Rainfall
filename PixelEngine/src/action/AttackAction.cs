@@ -101,7 +101,7 @@ public class AttackAction : EntityAction
 					{
 						Mob mob = entity as Mob;
 						critical = mob.isStunned && mob.criticalStun
-							|| Random.Shared.NextSingle() < player.criticalChance * player.getCriticalChanceModifier()
+							|| Random.Shared.NextSingle() < player.criticalChance * weapon.criticalChanceModifier * player.getCriticalChanceModifier()
 							|| mob.ai.target != player && player.getStealthAttackModifier() > 1.5f;
 					}
 					if (critical)

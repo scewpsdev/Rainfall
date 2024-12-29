@@ -21,7 +21,7 @@ public class WizardsLegacy : Item
 
 		sprite = new Sprite(tileset, 5, 6);
 
-		buff = new ItemBuff() { manaRecoveryModifier = 2 };
+		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)

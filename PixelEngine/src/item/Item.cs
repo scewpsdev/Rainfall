@@ -184,6 +184,7 @@ public abstract class Item
 	public float blockAbsorption = 1.0f;
 	public float damageReflect = 0.0f;
 	public bool doubleBladed = true;
+	public float criticalChanceModifier = 1.0f;
 	public float accuracy = 1.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
@@ -289,6 +290,11 @@ public abstract class Item
 	public Item copy()
 	{
 		Item copy = (Item)MemberwiseClone();
+		if (buff != null)
+		{
+			copy.buff = buff.copy();
+			copy.buff.item = copy;
+		}
 		copy.infusions = new HashSet<Infusion>(infusions);
 		return copy;
 	}
@@ -369,7 +375,7 @@ public abstract class Item
 
 	public virtual void upgrade()
 	{
-		value += upgradePrice;
+		value += upgradeCost;
 		upgradeLevel++;
 		//value = value + MathHelper.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
@@ -378,7 +384,7 @@ public abstract class Item
 			armor++;
 	}
 
-	public int upgradePrice
+	public int upgradeCost
 	{
 		get
 		{
@@ -419,10 +425,14 @@ public abstract class Item
 
 	public virtual void onEquip(Player player)
 	{
+		if (buff != null)
+			player.itemBuffs.Add(buff);
 	}
 
 	public virtual void onUnequip(Player player)
 	{
+		if (buff != null)
+			player.itemBuffs.Remove(buff);
 	}
 
 	public virtual void onDestroy(ItemEntity entity)

@@ -24,6 +24,7 @@ public class Dagger : Weapon
 		//isSecondaryItem = true;
 		baseWeight = 1;
 		secondaryChargeTime = 0.25f;
+		criticalChanceModifier = 2.0f;
 
 		value = 4;
 
@@ -31,18 +32,6 @@ public class Dagger : Weapon
 		renderOffset.x = 0.2f;
 
 		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
-
-		buff = new ItemBuff() { criticalChanceModifier = 2 };
-	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
 	}
 
 	public override bool useSecondary(Player player)
@@ -58,6 +47,6 @@ public class Dagger : Weapon
 	public override void upgrade()
 	{
 		base.upgrade();
-		buff.criticalChanceModifier *= 1.2f;
+		criticalChanceModifier *= 1.2f;
 	}
 }

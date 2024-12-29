@@ -20,7 +20,7 @@ public class KeenEdge : Item
 
 		sprite = new Sprite(tileset, 1, 7);
 
-		buff = new ItemBuff() { criticalChanceModifier = 2.0f };
+		buff = new ItemBuff(this) { criticalChanceModifier = 2.0f };
 	}
 
 	public override void onEquip(Player player)

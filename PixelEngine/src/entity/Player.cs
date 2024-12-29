@@ -1181,6 +1181,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				else if (delta.x != 0)
 					direction = MathF.Sign(delta.x);
 			}
+
+			lookDirection = Vector2.Rotate(Vector2.Right, MathF.Floor((lookDirection.angle + MathF.PI * 0.125f) / (MathF.PI * 0.25f)) * MathF.PI * 0.25f);
 		}
 
 		if (!isClimbing)
@@ -1468,25 +1470,27 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						if (Input.IsKeyDown(KeyCode.Left))
 						{
 							directionalAttackInput = KeyCode.Left;
-							directionalAttackDir = Vector2.Left;
+							directionalAttackDir += Vector2.Left;
 						}
 						if (Input.IsKeyDown(KeyCode.Right))
 						{
 							directionalAttackInput = KeyCode.Right;
-							directionalAttackDir = Vector2.Right;
+							directionalAttackDir += Vector2.Right;
 						}
 						if (Input.IsKeyDown(KeyCode.Up))
 						{
 							directionalAttackInput = KeyCode.Up;
-							directionalAttackDir = Vector2.Up;
+							directionalAttackDir += Vector2.Up;
 						}
 						if (Input.IsKeyDown(KeyCode.Down))
 						{
 							directionalAttackInput = KeyCode.Down;
-							directionalAttackDir = Vector2.Down;
+							directionalAttackDir += Vector2.Down;
 						}
-						if (directionalAttackInput != KeyCode.None)
+						if (directionalAttackInput != KeyCode.None && directionalAttackDir != Vector2.Zero)
 						{
+							directionalAttackDir = directionalAttackDir.normalized;
+
 							lookDirection = directionalAttackDir;
 							if (directionalAttackDir.x != 0)
 								direction = MathF.Sign(directionalAttackDir.x);
@@ -1909,7 +1913,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.movementSpeedModifier;
+			value *= MathF.Pow(modifier.movementSpeedModifier, modifier.item.stackSize);
 		value *= MathF.Pow(1.25f, swiftness - 1);
 		return value;
 	}
@@ -1918,7 +1922,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.wallControlModifier;
+			value *= MathF.Pow(modifier.wallControlModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -1926,7 +1930,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.meleeDamageModifier;
+			value *= MathF.Pow(modifier.meleeDamageModifier, modifier.item.stackSize);
 		value *= MathF.Pow(1.25f, strength - 1);
 		return value;
 	}
@@ -1935,7 +1939,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.magicDamageModifier;
+			value *= MathF.Pow(modifier.magicDamageModifier, modifier.item.stackSize);
 		value *= MathF.Pow(1.25f, intelligence - 1);
 		return value;
 	}
@@ -1944,7 +1948,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.attackSpeedModifier;
+			value *= MathF.Pow(modifier.attackSpeedModifier, modifier.item.stackSize);
 		value *= MathF.Pow(1.25f, dexterity - 1);
 		return value;
 	}
@@ -1953,7 +1957,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.manaCostModifier;
+			value *= MathF.Pow(modifier.manaCostModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -1961,7 +1965,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.manaRecoveryModifier;
+			value *= MathF.Pow(modifier.manaRecoveryModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -1969,7 +1973,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.stealthAttackModifier;
+			value *= MathF.Pow(modifier.stealthAttackModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -1977,7 +1981,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.defenseModifier;
+			value *= MathF.Pow(modifier.defenseModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -1985,7 +1989,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.accuracyModifier;
+			value *= MathF.Pow(modifier.accuracyModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -1993,7 +1997,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.criticalChanceModifier;
+			value *= MathF.Pow(modifier.criticalChanceModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -2001,7 +2005,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 2;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= modifier.criticalAttackModifier;
+			value *= MathF.Pow(modifier.criticalAttackModifier, modifier.item.stackSize);
 		return value;
 	}
 

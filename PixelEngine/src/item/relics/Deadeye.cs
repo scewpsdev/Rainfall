@@ -20,7 +20,7 @@ public class Deadeye : Item
 
 		sprite = new Sprite(tileset, 0, 7);
 
-		buff = new ItemBuff() { accuracyModifier = 1.5f };
+		buff = new ItemBuff(this) { accuracyModifier = 1.5f };
 	}
 
 	public override void onEquip(Player player)

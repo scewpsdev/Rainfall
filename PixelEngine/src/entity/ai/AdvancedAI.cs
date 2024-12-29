@@ -18,6 +18,8 @@ public class AIAction
 	public float chargeTime;
 	public float cooldownTime;
 	public float walkSpeed;
+	public float chargeSpeed;
+	public float cooldownSpeed;
 	public FloatRect actionCollider;
 
 	public Func<AIAction, Vector2, float, bool> requirementsMet;
@@ -40,12 +42,17 @@ public class AdvancedAI : AI
 	AIState state = AIState.Default;
 	public int walkDirection = 1;
 	public bool patrol = true;
+	public string runAnim = "run";
+
+	protected bool useAStar = false;
+	List<Vector2i> currentPath = new List<Vector2i>();
 
 	float walkSpeed;
 	FloatRect collider;
 
 	List<AIAction> actions = new List<AIAction>();
 	AIAction currentAction = null;
+	protected int hesitation = 1;
 
 	long chargeTime;
 	long actionTime;
@@ -64,6 +71,7 @@ public class AdvancedAI : AI
 		loseTime = 3.0f;
 
 		walkSpeed = mob.speed;
+
 		collider = mob.collider;
 	}
 
@@ -124,6 +132,12 @@ public class AdvancedAI : AI
 		mob.speed = walkSpeed;
 	}
 
+	bool updatePath(Vector2i currentTile, Vector2i targetTile)
+	{
+		currentPath.Clear();
+		return GameState.instance.level.astar.run(currentTile, targetTile, currentPath, false);
+	}
+
 	void updateTargetFollow()
 	{
 		if (target is Player && !(target as Player).isAlive || target is Mob && !(target as Mob).isAlive)
@@ -142,16 +156,53 @@ public class AdvancedAI : AI
 
 		if (state == AIState.Default)
 		{
-			mob.animator.setAnimation("run");
+			mob.animator.setAnimation(runAnim);
 
-			walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
+			if (useAStar)
+			{
+				Vector2i currentTile = (Vector2i)Vector2.Floor(mob.position);
+				Vector2i targetTile = (Vector2i)Vector2.Floor(target.position + target.collider.center);
+
+				if (!updatePath(currentTile, targetTile))
+				{
+					onTargetSwitched(null);
+					target = null;
+					currentPath.Clear();
+					return;
+				}
+
+				if (currentPath.Count > 0 && currentAction == null)
+				{
+					Vector2i nextTile = currentPath.Count > 1 ? currentPath[1] : currentPath[0];
+					float xdelta = nextTile.x + 0.5f - mob.position.x;
+					float ydelta = nextTile.y + 0.5f - mob.position.y;
+
+					if (xdelta < -0.1f)
+						mob.inputLeft = true;
+					else if (xdelta > 0.1f)
+						mob.inputRight = true;
+					if (ydelta < -0.1f)
+						mob.inputDown = true;
+					else if (ydelta > 0.1f)
+						mob.inputUp = true;
+				}
+			}
+			else
+			{
+				walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
+
+				if (walkDirection == -1)
+					mob.inputLeft = true;
+				else
+					mob.inputRight = true;
+			}
 
 			if (!mob.isStunned)
 			{
 				List<AIAction> possibleActions = new List<AIAction>();
 				foreach (AIAction action in actions)
 				{
-					if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation) + Hash.hash(action.duration)) % 2 == 0)
+					if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation) + Hash.hash(action.duration)) % (hesitation + 1) == 0)
 						possibleActions.Add(action);
 				}
 
@@ -176,6 +227,16 @@ public class AdvancedAI : AI
 			if (mob.isStunned)
 				chargeTime = Time.currentTime;
 
+			if (currentAction.chargeSpeed > 0)
+			{
+				mob.speed = currentAction.chargeSpeed;
+
+				if (walkDirection == -1)
+					mob.inputLeft = true;
+				else
+					mob.inputRight = true;
+			}
+
 			if ((Time.currentTime - chargeTime) / 1e9f >= currentAction.chargeTime)
 				beginAction();
 		}
@@ -189,6 +250,11 @@ public class AdvancedAI : AI
 			float elapsed = (Time.currentTime - actionTime) / 1e9f;
 			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed, toTarget * distance) || elapsed >= currentAction.duration || mob.isStunned)
 				endAction();
+
+			if (actionDirection == -1)
+				mob.inputLeft = true;
+			else if (actionDirection == 1)
+				mob.inputRight = true;
 		}
 		if (state == AIState.Cooldown)
 		{
@@ -196,6 +262,16 @@ public class AdvancedAI : AI
 			SpriteAnimation anim = mob.animator.getAnimation(currentAction.cooldownAnimation);
 			if (anim != null)
 				anim.fps = anim.length / currentAction.cooldownTime;
+
+			if (currentAction.cooldownSpeed > 0)
+			{
+				mob.speed = currentAction.cooldownSpeed;
+
+				if (walkDirection == -1)
+					mob.inputLeft = true;
+				else
+					mob.inputRight = true;
+			}
 
 			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
 			{
@@ -205,28 +281,13 @@ public class AdvancedAI : AI
 				currentAction = null;
 			}
 		}
-
-		if (state == AIState.Default)
-		{
-			if (walkDirection == -1)
-				mob.inputLeft = true;
-			else
-				mob.inputRight = true;
-		}
-		else if (state == AIState.Action)
-		{
-			if (actionDirection == -1)
-				mob.inputLeft = true;
-			else if (actionDirection == 1)
-				mob.inputRight = true;
-		}
 	}
 
 	void updatePatrol()
 	{
 		if (patrol)
 		{
-			mob.animator.setAnimation("run");
+			mob.animator.setAnimation(runAnim);
 
 			if (walkDirection == 1)
 				mob.inputRight = true;
@@ -234,7 +295,7 @@ public class AdvancedAI : AI
 				mob.inputLeft = true;
 
 			bool hitsWall = false;
-			for (int i = 0; i < (int)MathF.Round(mob.collider.max.y); i++)
+			for (int i = (int)MathF.Floor(mob.collider.min.y); i <= (int)MathF.Floor(mob.collider.max.y); i++)
 			{
 				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
 				if (forwardTile != null && forwardTile.isSolid)
@@ -248,7 +309,7 @@ public class AdvancedAI : AI
 			else
 			{
 				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, -0.5f));
-				if (forwardDownTile == null)
+				if (mob.isGrounded && forwardDownTile == null)
 					walkDirection *= -1;
 			}
 		}
@@ -258,11 +319,17 @@ public class AdvancedAI : AI
 		}
 	}
 
+	protected virtual void onTargetSwitched(Entity newTarget)
+	{
+	}
+
 	public override void update()
 	{
 		mob.inputRight = false;
 		mob.inputLeft = false;
 		mob.inputJump = false;
+		mob.inputDown = false;
+		mob.inputUp = false;
 
 		if (target == null)
 		{
@@ -275,12 +342,9 @@ public class AdvancedAI : AI
 				float effectiveAwareness = mob.awareness * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
 				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < effectiveAwareness * effectiveAggroRange)
 				{
-					target = GameState.instance.player;
-					if (mob.isBoss)
-					{
-						GameState.instance.currentBoss = mob;
-						GameState.instance.currentBossMaxHealth = mob.health;
-					}
+					Entity newTarget = GameState.instance.player;
+					onTargetSwitched(newTarget);
+					target = newTarget;
 				}
 			}
 		}

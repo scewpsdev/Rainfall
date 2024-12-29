@@ -18,7 +18,7 @@ public class RingOfDexterity : Item
 
 		sprite = new Sprite(tileset, 9, 0);
 
-		buff = new ItemBuff() { attackSpeedModifier = 1.2f };
+		buff = new ItemBuff(this) { attackSpeedModifier = 1.2f };
 	}
 
 	public override void onEquip(Player player)

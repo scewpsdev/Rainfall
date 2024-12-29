@@ -48,7 +48,7 @@ namespace Rainfall
 
 		public void setAnimation(string name)
 		{
-			if (currentAnimation != name)
+			if (currentAnimation != name && getAnimation(name) != null)
 			{
 				startTime = Time.currentTime;
 				currentAnimation = name;

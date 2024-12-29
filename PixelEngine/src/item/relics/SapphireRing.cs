@@ -18,7 +18,7 @@ public class SapphireRing : Item
 
 		sprite = new Sprite(tileset, 13, 5);
 
-		buff = new ItemBuff() { manaRecoveryModifier = 2 };
+		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
 	}
 
 	public override void onEquip(Player player)
