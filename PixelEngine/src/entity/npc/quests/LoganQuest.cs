@@ -19,7 +19,7 @@ public class LoganQuest : Quest
 
 	public override bool completionRequirementsMet()
 	{
-		return GameState.instance.player.getItem("questline_logan_staff") != null;
+		return staffFound;
 	}
 
 	public override string getProgressString()

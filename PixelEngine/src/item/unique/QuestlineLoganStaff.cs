@@ -6,16 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class QuestlineLoganStaff : Item
+public class QuestlineLoganStaff : ElderwoodStaff
 {
 	public QuestlineLoganStaff()
-		: base("questline_logan_staff", ItemType.Relic)
 	{
+		name = "questline_logan_staff";
 		displayName = "Gatekeeper's Spectral Staff";
 
 		canDrop = false;
-		value = 1000;
-
-		sprite = new Sprite(tileset, 0, 0);
 	}
 }

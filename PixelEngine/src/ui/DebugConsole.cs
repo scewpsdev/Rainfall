@@ -183,6 +183,36 @@ public static class DebugConsole
 				}
 			}
 		}
+		if (cmd == "reset_quest")
+		{
+			if (args.Length == 2)
+			{
+				if (GameState.instance.save.getQuestList(args[0], out List<Quest> questList))
+				{
+					for (int i = 0; i < questList.Count; i++)
+					{
+						if (questList[i].name == args[1])
+						{
+							questList.RemoveAt(i);
+							GameState.instance.player.hud.showMessage($"Reset questline {args[0]}:{args[1]}");
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (cmd == "reset_flag")
+		{
+			if (args.Length == 1)
+			{
+				uint flag = Hash.hash(args[0]);
+				if (GameState.instance.save.hasFlag(flag))
+				{
+					GameState.instance.save.clearFlag(flag);
+					GameState.instance.player.hud.showMessage($"Reset flag {args[0]}:{flag}");
+				}
+			}
+		}
 
 		return null;
 	}

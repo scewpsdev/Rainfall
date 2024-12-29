@@ -24,14 +24,14 @@ public partial class LevelGenerator
 		}
 	}
 
-	public Level[] generateDungeons(string seed)
+	public void generateDungeons(string seed, out Level[] areaDungeons)
 	{
-		Level[] areaCaves = new Level[4];
+		areaDungeons = new Level[4];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
-		areaCaves[0] = new Level(5, "Weeping Catacombs", 50, 30, TileType.stone, 15, 20) { ambientLight = ambience };
-		areaCaves[1] = new Level(6, "", 30, 40, TileType.stone, 19, 24) { ambientLight = ambience };
-		areaCaves[2] = new Level(7, "", 40, 40, TileType.stone, 22, 30) { ambientLight = ambience };
-		areaCaves[3] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
+		areaDungeons[0] = new Level(5, "Weeping Catacombs", 50, 30, TileType.stone, 15, 20) { ambientLight = ambience };
+		areaDungeons[1] = new Level(6, "", 30, 40, TileType.stone, 19, 24) { ambientLight = ambience };
+		areaDungeons[2] = new Level(7, "", 40, 40, TileType.stone, 22, 30) { ambientLight = ambience };
+		areaDungeons[3] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
 
 		List<Mob> createEnemy()
 		{
@@ -45,13 +45,11 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
-		generateDungeonFloor(seed, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy());
-		generateDungeonFloor(seed, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy());
-		generateDungeonFloor(seed, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy());
+		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy());
+		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy());
+		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy());
 
-		generateDungeonBossFloor(areaCaves[3], null, areaCaves[2], areaCaves[2].exit);
-
-		return areaCaves;
+		generateDungeonBossFloor(areaDungeons[3], null, areaDungeons[2], areaDungeons[2].exit);
 	}
 
 	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
@@ -421,12 +419,22 @@ public partial class LevelGenerator
 		});
 
 
-		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest))
+		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && !loganQuest.isCompleted)
 		{
-			spawnRoomObject([startingRoom], 1, false, (Vector2i pos, Random random, Room room) =>
+			if (level == GameState.instance.areaDungeons[0])
 			{
-				spawnNPC(pos.x, pos.y, [new Logan(random, level)]);
-			});
+				spawnRoomObject([startingRoom], 1, false, (Vector2i pos, Random random, Room room) =>
+				{
+					spawnNPC(pos.x, pos.y, [new Logan(random, level)]);
+				});
+			}
+			else if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 1])
+			{
+				spawnRoomObject(rooms, 1, false, (Vector2i pos, Random random, Room room) =>
+				{
+					spawnItem(pos.x, pos.y, [new QuestlineLoganStaff()]);
+				});
+			}
 		}
 
 		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>

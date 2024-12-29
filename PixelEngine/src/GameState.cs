@@ -229,7 +229,7 @@ public class GameState : State
 		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
 		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
 
-		areaDungeons = generator.generateDungeons(run.seed);
+		generator.generateDungeons(run.seed, out areaDungeons);
 		areaCaves[areaCaves.Length - 1].exit.destination = areaDungeons[0];
 		areaCaves[areaCaves.Length - 1].exit.otherDoor = areaDungeons[0].entrance;
 		areaDungeons[0].entrance.destination = areaCaves[areaCaves.Length - 1];

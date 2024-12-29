@@ -54,20 +54,23 @@ public class Logan : NPC
 				GameState.instance.save.addQuestCompletionCallback(name, "logan_quest", (Quest quest) =>
 				{
 					initialDialogue = new Dialogue();
-					initialDialogue.addVoiceLine("Ha, look at you! You actually did it. Maybe you're not as useless as the rest of the rabble.");
+					initialDialogue.addVoiceLine("Ha, look at you! You actually did it. Maybe you're not as useless as the rest of the rabble.").addCallback(() =>
+					{
+						player.removeItem(player.getItem("questline_logan_staff"));
+					});
 					initialDialogue.addVoiceLine("Hooray, or something. Here, take this.").addCallback(() =>
 					{
 						closeScreen();
 						GameState.instance.save.unlockStartingClass(StartingClass.wizard);
 					});
 				});
-				if (!quest.isCompleted && level == GameState.instance.areaDungeons[0])
+				if (!quest.isCompleted && GameState.instance.areaDungeons != null && level == GameState.instance.areaDungeons[0])
 				{
 					initialDialogue = new Dialogue();
 					initialDialogue.addVoiceLine("I'll be waiting here in case you find it.");
 				}
 			}
-			else
+			if (initialDialogue == null)
 			{
 				int i = random.Next();
 				if (i % 4 == 0)

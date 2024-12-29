@@ -40,7 +40,6 @@ public class SaveFile
 	public static readonly uint FLAG_NPC_GATEKEEPER_MET = Hash.hash("gatekeeper_questline_init");
 
 	public static readonly uint FLAG_NPC_LOGAN_MET = Hash.hash("logan_questline_init");
-	public static readonly uint FLAG_NPC_LOGAN_IMPRESSED = Hash.hash("logan_questline_impressed");
 
 
 	public static SaveFile customRun => new SaveFile() { id = -1, isCustom = true, flags = [FLAG_TUTORIAL_FINISHED] };
@@ -86,7 +85,10 @@ public class SaveFile
 			quests.Add(npc, new List<Quest>());
 		quests[npc].Add(quest);
 		if (quest.state == QuestState.Uninitialized)
+		{
 			quest.state = QuestState.InProgress;
+			GameState.instance.player.hud.showMessage($"Started quest \"{quest.displayName}\"");
+		}
 	}
 
 	public void addQuestCompletionCallback(string npc, string name, Action<Quest> callback)
