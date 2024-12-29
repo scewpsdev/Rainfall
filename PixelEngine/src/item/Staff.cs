@@ -48,7 +48,6 @@ public class Staff : Item
 			{
 				float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
 				player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
-				player.consumeMana(manaCost);
 				base.use(player);
 			}
 		}

@@ -29,6 +29,7 @@ public abstract class AI
 
 	public virtual void onHit(Entity by)
 	{
+		return;
 		if (target == null)
 		{
 			if (by is ItemEntity)

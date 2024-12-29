@@ -21,7 +21,8 @@ public class WizardsHat : Item
 
 		sprite = new Sprite(tileset, 0, 8);
 		spriteColor = 0xFF4c358f; // 0xFF874774;
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/pointy_hat.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/pointy_hat.png", false), 0, 0, 32, 32);
+		ingameSpriteSize = 2;
 		ingameSpriteColor = 0xFF4c358f; // 0xFF874774;
 										//ingameSpriteColor = 0xFF676898;
 	}

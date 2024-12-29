@@ -207,15 +207,12 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
-		if (player != null)
+		for (int i = 0; i < maxHealth; i++)
 		{
-			for (int i = 0; i < maxHealth; i++)
-			{
-				XPOrb orb = new XPOrb();
-				Vector2 pos = position + collider.center + Vector2.Rotate(Vector2.Right, i / maxHealth * MathF.PI * 2) * (0.5f + i / maxHealth); // new Vector2(MathHelper.RandomFloat(collider.min.x, collider.max.x), MathHelper.RandomFloat(collider.min.y, collider.max.y));
-				orb.velocity = (pos - (position + collider.center)).normalized * 3;
-				GameState.instance.level.addEntity(orb, pos);
-			}
+			XPOrb orb = new XPOrb();
+			Vector2 pos = position + collider.center + Vector2.Rotate(Vector2.Right, i / maxHealth * MathF.PI * 2) * (0.5f + i / maxHealth); // new Vector2(MathHelper.RandomFloat(collider.min.x, collider.max.x), MathHelper.RandomFloat(collider.min.y, collider.max.y));
+			orb.velocity = (pos - (position + collider.center)).normalized * 3;
+			GameState.instance.level.addEntity(orb, pos);
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)

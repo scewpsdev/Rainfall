@@ -984,16 +984,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			if (InputManager.IsDown("Right") && GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, 0.9f)))
+			if (/*InputManager.IsDown("Right") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, 0.9f)))
 			{
-				if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
-					Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
+				//if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
+				//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 				lastWallTouchRight = Time.currentTime;
 			}
-			if (InputManager.IsDown("Left") && GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
+			if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
 			{
-				if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
-					Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
+				//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
+				//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 				lastWallTouchLeft = Time.currentTime;
 			}
 
@@ -1199,7 +1199,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
-			if (lastWallTouchLeft == Time.currentTime || lastWallTouchRight == Time.currentTime)
+			if (lastWallTouchLeft == Time.currentTime && InputManager.IsDown("Left") || lastWallTouchRight == Time.currentTime && InputManager.IsDown("Right"))
 				velocity.y = MathF.Max(velocity.y, -16 / wallControl);
 
 			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, wallControl * getWallControlModifier() * Time.deltaTime);
@@ -1700,7 +1700,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 
 
-		if (lastWallTouchLeft == Time.currentTime || lastWallTouchRight == Time.currentTime)
+		if (lastWallTouchLeft == Time.currentTime && InputManager.IsDown("Left") || lastWallTouchRight == Time.currentTime && InputManager.IsDown("Right"))
 		{
 			wallSlideParticles.systems[0].handle->startVelocity.x = (lastWallTouchLeft == Time.currentTime ? 1 : -1) * 2;
 
@@ -1759,6 +1759,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public override void update()
 	{
+		if (Input.IsKeyPressed(KeyCode.M) && GameState.instance.currentBoss != null)
+		{
+			Bomb bomb = new Bomb();
+			bomb.ignite();
+			level.addEntity(new ItemEntity(bomb, this), GameState.instance.currentBoss.position);
+		}
+
 		updateMovement();
 		updateActions();
 		updateStatus();
