@@ -139,7 +139,51 @@ public partial class LevelGenerator
 				exitRoom = rooms[rooms.Count - i++];
 		}
 
-		generateExtraRooms(dungeonsSet);
+		// TODO create new special rooms
+		generateExtraRooms(dungeonsSet, (Doorway doorway) =>
+		{
+			int type = random.Next() % 4;
+			Room room = null;
+			if (type == 0)
+			{
+				room = fillDoorway(doorway, specialSet.roomDefs[6], specialSet);
+				if (room != null)
+					room.entity = new CavesSpecialRoom1(room, this);
+			}
+			else if (type == 1)
+			{
+				RoomDef def = specialSet.roomDefs[random.Next() % 2 == 0 ? 7 : 8];
+				room = fillDoorway(doorway, def, specialSet);
+				if (room != null)
+					room.entity = new CavesSpecialRoom2(room, this);
+			}
+			else if (type == 2)
+			{
+				RoomDef def = specialSet.roomDefs[random.Next() % 2 == 0 ? 9 : 10];
+				room = fillDoorway(doorway, def, specialSet);
+				if (room != null)
+					room.entity = new CavesSpecialRoom3(room, this);
+			}
+			else if (type == 3)
+			{
+				RoomDef def = specialSet.roomDefs[11];
+				room = fillDoorway(doorway, def, specialSet);
+				if (room != null)
+					room.entity = new CavesSpecialRoom4(room, this);
+			}
+			else
+			{
+				Debug.Assert(false);
+			}
+
+			if (room != null)
+			{
+				room.spawnEnemies = false;
+				return true;
+			}
+
+			return false;
+		});
 
 		for (int i = 0; i < rooms.Count; i++)
 		{
@@ -223,21 +267,21 @@ public partial class LevelGenerator
 		});
 
 		// Fountain
-		spawnRoomObject(deadEnds, 1.0f, false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			Fountain fountain = new Fountain(random);
 			level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, 0.5f, true, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.05f, true, (Vector2i tile, Random random, Room room) =>
 		{
 			int amount = MathHelper.RandomInt(2, 7, random);
 			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
 		});
 
 		// Items
-		spawnRoomObject(deadEnds, 2.0f, false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			spawnItem(tile.x, tile.y, getRoomLootValue(room));
 		});
@@ -421,14 +465,7 @@ public partial class LevelGenerator
 
 		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && !loganQuest.isCompleted)
 		{
-			if (level == GameState.instance.areaDungeons[0])
-			{
-				spawnRoomObject([startingRoom], 1, false, (Vector2i pos, Random random, Room room) =>
-				{
-					spawnNPC(pos.x, pos.y, [new Logan(random, level)]);
-				});
-			}
-			else if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 1])
+			if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 1])
 			{
 				spawnRoomObject(rooms, 1, false, (Vector2i pos, Random random, Room room) =>
 				{

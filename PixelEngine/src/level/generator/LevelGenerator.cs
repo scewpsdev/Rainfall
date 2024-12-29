@@ -764,62 +764,8 @@ public partial class LevelGenerator
 		Debug.Assert(rooms.Count > 1);
 	}
 
-	void generateExtraRooms(RoomDefSet set)
+	void generateExtraRooms(RoomDefSet set, Func<Doorway, bool> createSpecialRoom)
 	{
-		bool createSpecialRoom(Doorway doorway)
-		{
-			int type = random.Next() % 4;
-			Room room = null;
-			if (type == 0)
-			{
-				room = fillDoorway(doorway, specialSet.roomDefs[6], specialSet);
-				if (room != null)
-					room.entity = new CavesSpecialRoom1(room, this);
-			}
-			else if (type == 1)
-			{
-				RoomDef def = specialSet.roomDefs[random.Next() % 2 == 0 ? 7 : 8];
-				room = fillDoorway(doorway, def, specialSet);
-				if (room != null)
-					room.entity = new CavesSpecialRoom2(room, this);
-			}
-			else if (type == 2)
-			{
-				RoomDef def = specialSet.roomDefs[random.Next() % 2 == 0 ? 9 : 10];
-				room = fillDoorway(doorway, def, specialSet);
-				if (room != null)
-					room.entity = new CavesSpecialRoom3(room, this);
-			}
-			else if (type == 3)
-			{
-				RoomDef def = specialSet.roomDefs[11];
-				room = fillDoorway(doorway, def, specialSet);
-				if (room != null)
-					room.entity = new CavesSpecialRoom4(room, this);
-			}
-			else
-			{
-				Debug.Assert(false);
-			}
-
-			if (room != null)
-			{
-				room.spawnEnemies = false;
-				/*
-				for (int y = room.y; y < room.y + room.height; y++)
-				{
-					for (int x = room.x; x < room.x + room.width; x++)
-					{
-						objectFlags[x + y * level.width] = true;
-					}
-				}
-				*/
-				return true;
-			}
-
-			return false;
-		}
-
 		// Spawn special rooms
 
 		{

@@ -237,6 +237,7 @@ public class GameState : State
 		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
 
 
+		/*
 		areaGardens = generator.generateGardens(run.seed);
 
 		Door cliffDungeonEntrance2 = new Door(areaGardens[0], areaGardens[0].entrance, true);
@@ -245,6 +246,7 @@ public class GameState : State
 		areaGardens[0].entrance.otherDoor = cliffDungeonEntrance2;
 
 		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
+		*/
 
 
 		if (save.isDaily)
@@ -257,8 +259,7 @@ public class GameState : State
 		else if (quickRestart)
 		{
 			level = null;
-			//switchLevel(areaCaves[0], areaCaves[0].entrance.position);
-			switchLevel(areaDungeons[0], areaDungeons[0].entrance.position);
+			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
 			if (startingClass != null)
 				player.setStartingClass(startingClass);
 			else
@@ -267,9 +268,6 @@ public class GameState : State
 				//player.items.Add(new TravellingCloak());
 				//player.passiveItems.Add(player.items[0]);
 			}
-			player.giveItem(new AmethystRing());
-			player.giveItem(new RingOfDexterity());
-			player.giveItem(new ScrollOfWeaponEnchantment());
 			levelSwitchTime = -1;
 		}
 		else if (save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))

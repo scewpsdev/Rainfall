@@ -46,6 +46,11 @@ public class IronDoor : Entity, Interactable, Hittable
 		setOpen(false);
 	}
 
+	public override void destroy()
+	{
+		setOpen(true);
+	}
+
 	public void interact(Player player)
 	{
 		if (!open)

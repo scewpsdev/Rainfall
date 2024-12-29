@@ -41,6 +41,11 @@ public class SaveFile
 
 	public static readonly uint FLAG_NPC_LOGAN_MET = Hash.hash("logan_questline_init");
 
+	public static readonly uint FLAG_NPC_BARBARIAN_MET = Hash.hash("barbarian_questline_init");
+	public static readonly uint FLAG_NPC_KNIGHT_MET = Hash.hash("knight_questline_init");
+	public static readonly uint FLAG_NPC_HUNTER_MET = Hash.hash("hunter_questline_init");
+	public static readonly uint FLAG_NPC_THIEF_MET = Hash.hash("thief_questline_init");
+
 
 	public static SaveFile customRun => new SaveFile() { id = -1, isCustom = true, flags = [FLAG_TUTORIAL_FINISHED] };
 	public static SaveFile dailyRun => new SaveFile() { id = -1, isDaily = true };

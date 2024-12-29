@@ -31,7 +31,7 @@ public class ArmorStand : Entity, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return player.startingClass != startingClass; // && player.money >= cost;
+		return startingClass != null && player.startingClass != startingClass; // && player.money >= cost;
 	}
 
 	public void interact(Player player)
@@ -56,7 +56,7 @@ public class ArmorStand : Entity, Interactable
 
 	public override void render()
 	{
-		bool renderClass = GameState.instance.player.startingClass != startingClass;
+		bool renderClass = startingClass != null && GameState.instance.player.startingClass != startingClass;
 
 		if (outline != 0)
 		{

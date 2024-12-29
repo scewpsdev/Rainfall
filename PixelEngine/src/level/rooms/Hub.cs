@@ -63,11 +63,8 @@ public class Hub : Entity
 		for (int i = 0; i < StartingClass.startingClasses.Length; i++)
 		{
 			StartingClass startingClass = StartingClass.startingClasses[i];
-			if (save.isStartingClassUnlocked(startingClass))
-			{
-				Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
-				level.addEntity(new ArmorStand(startingClass), level.rooms[0].getMarker(10) + position);
-			}
+			Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
+			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), level.rooms[0].getMarker(10) + position);
 		}
 
 #if DEBUG
@@ -102,6 +99,11 @@ public class Hub : Entity
 			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
 		}
 
+		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && !loganQuest.isCompleted)
+		{
+			level.addEntity(new Logan(), new Vector2(56, 23));
+		}
+
 		for (int i = 0; i < save.highscores.Length; i++)
 		{
 			Vector2 position = room.getMarker(15) + new Vector2(i * 5, 0);
@@ -117,8 +119,6 @@ public class Hub : Entity
 				level.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);
 			}
 		}
-
-
 	}
 
 	public override void render()

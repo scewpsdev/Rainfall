@@ -30,6 +30,7 @@ public static class EntityType
 		InitType<RatNPC>("rat_npc");
 		InitType<Tinkerer>("tinkerer");
 		InitType<TravellingMerchant>("travelling_merchant");
+		InitType<Barbarian>("barbarian");
 
 		InitType<Fountain>("fountain");
 		InitType<Barrel>("barrel");

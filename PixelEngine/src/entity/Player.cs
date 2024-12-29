@@ -63,7 +63,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(25 * (1 + 0.3f * (playerLevel - 1)));
+	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.35f * (playerLevel - 1)));
 	public int availableStatUpgrades = 0;
 
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();

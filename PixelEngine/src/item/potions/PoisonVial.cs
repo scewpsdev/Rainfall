@@ -45,7 +45,7 @@ public class PoisonVial : Potion
 		stackable = true;
 		value = 11;
 		canDrop = true;
-		throwableChance = 0.9f;
+		throwableChance = 1.0f;
 
 		sprite = new Sprite(tileset, 5, 5);
 	}

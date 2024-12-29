@@ -64,11 +64,6 @@ public class Logan : NPC
 						GameState.instance.save.unlockStartingClass(StartingClass.wizard);
 					});
 				});
-				if (!quest.isCompleted && GameState.instance.areaDungeons != null && level == GameState.instance.areaDungeons[0])
-				{
-					initialDialogue = new Dialogue();
-					initialDialogue.addVoiceLine("I'll be waiting here in case you find it.");
-				}
 			}
 			if (initialDialogue == null)
 			{
