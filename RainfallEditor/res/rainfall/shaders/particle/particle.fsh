@@ -69,7 +69,7 @@ void main()
 
 	vec3 light = CalculatePointLights(v_position);
 	light = max(light, vec3_splat(1));
-	final.rgb += light * u_lightInfluence;
+	final.rgb += light * u_lightInfluence * albedo.rgb;
 
 	if (u_additive > 0.5)
 	{

@@ -6,17 +6,28 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public enum ChestType
+{
+	Normal,
+	Red, // Weapons
+	Blue, // Magic
+	Green, // Armor
+	Silver, // Anything
+}
+
 public class Chest : Entity, Interactable, Hittable
 {
-	Sprite sprite;
-	Sprite openSprite;
-	uint outline = 0;
-	bool flipped;
+	ChestType type;
 	bool locked;
 
 	bool open = false;
 	Item[] items;
 	public int coins = 0;
+
+	Sprite sprite;
+	Sprite openSprite;
+	uint outline = 0;
+	bool flipped;
 
 	Sound[] openSound;
 	Sound closeSound;
@@ -24,13 +35,23 @@ public class Chest : Entity, Interactable, Hittable
 	Sound lockedSound;
 
 
-	public Chest(Item[] items, bool flipped = false, bool locked = false)
+	public Chest(Item[] items, bool flipped = false, ChestType type = ChestType.Normal)
 	{
 		this.items = items;
-		this.locked = locked;
+		this.type = type;
 
-		sprite = locked ? new Sprite(tileset, 2, 0) : new Sprite(tileset, 0, 0);
-		openSprite = locked ? new Sprite(tileset, 3, 0) : new Sprite(tileset, 1, 0);
+		locked = type != ChestType.Normal;
+
+		sprite = type == ChestType.Normal ? new Sprite(tileset, 0, 0) :
+			type == ChestType.Red ? new Sprite(tileset, 2, 0) :
+			type == ChestType.Blue ? new Sprite(tileset, 4, 0) :
+			type == ChestType.Green ? new Sprite(tileset, 6, 0) :
+			type == ChestType.Silver ? new Sprite(tileset, 8, 0) : null;
+		openSprite = type == ChestType.Normal ? new Sprite(tileset, 1, 0) :
+			type == ChestType.Red ? new Sprite(tileset, 3, 0) :
+			type == ChestType.Blue ? new Sprite(tileset, 5, 0) :
+			type == ChestType.Green ? new Sprite(tileset, 7, 0) :
+			type == ChestType.Silver ? new Sprite(tileset, 9, 0) : null;
 
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 5 / 16.0f);
 		platformCollider = true;

@@ -17,7 +17,7 @@ public class Gem : Entity
 	{
 		this.value = value;
 
-		sprite = new Sprite(tileset, 4, 0);
+		sprite = new Sprite(tileset, 3, 1);
 	}
 
 	void spawnCoins()

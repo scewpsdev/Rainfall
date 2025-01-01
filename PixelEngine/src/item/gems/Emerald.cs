@@ -14,7 +14,7 @@ public class Emerald : Item
 		displayName = "Emerald";
 		stackable = true;
 
-		value = 20;
+		value = 50;
 
 		sprite = new Sprite(tileset, 1, 3);
 	}

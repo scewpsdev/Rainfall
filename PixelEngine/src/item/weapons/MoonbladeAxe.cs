@@ -13,7 +13,7 @@ public class MoonbladeAxe : Weapon
 	{
 		displayName = "Moonblade Axe";
 
-		baseDamage = 2.0f;
+		baseDamage = 1.6f;
 		baseAttackRange = 1.9f;
 		baseAttackRate = 1.2f;
 		stab = false;

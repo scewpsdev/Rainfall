@@ -14,7 +14,7 @@ public class Zweihander : Weapon
 		displayName = "Zweihander";
 
 		baseDamage = 3.5f;
-		baseAttackRange = 1.8f;
+		baseAttackRange = 1.6f;
 		baseAttackRate = 1.0f;
 		stab = false;
 		twoHanded = true;

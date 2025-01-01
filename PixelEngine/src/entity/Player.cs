@@ -17,7 +17,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float SPRINT_MULTIPLIER = 1.5f;
 #endif
 	const float DUCKED_MULTIPLIER = 0.6f;
-	const float MAX_FALL_SPEED = -15;
+	const float MAX_FALL_SPEED = -18;
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
 	const float FALL_STUN_DISTANCE = 8;
@@ -35,6 +35,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float climbingSpeed = 5;
 	public float jumpPower = 11; //12; //10.5f;
 	public float gravity = -22;
+	public bool canWallJump = true;
 	public float wallJumpPower = 10;
 	public float wallControl = 2;
 	public int airJumps = 0;
@@ -84,7 +85,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	ParticleEffect wallSlideParticles;
 
 	// Status effects
-	bool isStunned = false;
+	public bool isStunned = false;
 	public bool isVisible = true;
 
 	public float visibility { get => (isVisible ? 1 : 0.25f) * MathHelper.Lerp(0.5f, 1.0f, level.lightLevel) * (isDucked ? 0.5f : 1.0f); }
@@ -1075,17 +1076,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			if (/*InputManager.IsDown("Right") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, 0.9f)))
+			if (canWallJump)
 			{
-				//if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
-				//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
-				lastWallTouchRight = Time.currentTime;
-			}
-			if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
-			{
-				//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
-				//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
-				lastWallTouchLeft = Time.currentTime;
+				if (/*InputManager.IsDown("Right") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, collider.max.y - 0.1f)))
+				{
+					//if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
+					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
+					lastWallTouchRight = Time.currentTime;
+				}
+				if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
+				{
+					//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
+					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
+					lastWallTouchLeft = Time.currentTime;
+				}
 			}
 
 			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
@@ -1324,9 +1328,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
 		{
-			if (fallDistance >= FALL_STUN_DISTANCE)
+			if (fallDistance >= FALL_STUN_DISTANCE && velocity.y <= MAX_FALL_SPEED)
+			{
 				stun();
-			if (fallDistance >= FALL_DAMAGE_DISTANCE)
+				Console.WriteLine(velocity.y);
+			}
+			if (fallDistance >= FALL_DAMAGE_DISTANCE && velocity.y <= MAX_FALL_SPEED)
 			{
 				float fallDmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.5f / equipLoadModifier;
 				hit(fallDmg, null, null, "A high fall", false);
@@ -1942,9 +1949,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return;
 
 		bool invincible = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
-		bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
+		//bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
 
-		if (isVisible && show)
+		if (isVisible /*&& show*/)
 		{
 			Vector2 snappedPosition = position;
 			snappedPosition.x = MathF.Round(snappedPosition.x * 16) / 16;

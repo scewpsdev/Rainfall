@@ -118,11 +118,18 @@ public static class ItemInfoPanel
 				}
 			}
 
-			/*
 			if (item.type == ItemType.Staff)
 			{
 				Staff staff = item as Staff;
 
+				if (staff.staffCharges > 0)
+				{
+					drawLeft("Charges");
+					drawRight(staff.staffCharges);
+					y += Renderer.smallFont.size + 1;
+				}
+
+				/*
 				y += 4;
 				drawLeft("Attuned spells:" + (staff.attunedSpells.Count > 0 ? "" : " ---"));
 				//y += Renderer.smallFont.size + 1;
@@ -142,8 +149,8 @@ public static class ItemInfoPanel
 					x -= 4;
 				}
 				y += Renderer.smallFont.size + 1;
+				*/
 			}
-			*/
 		}
 		else if (item.type == ItemType.Armor)
 		{

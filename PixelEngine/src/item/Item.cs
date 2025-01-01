@@ -625,6 +625,8 @@ public abstract class Item
 		InitType(new LeatherBoots());
 		InitType(new ChainmailBoots());
 		InitType(new IronSabatons());
+		InitType(new Parachute());
+		InitType(new Jetpack());
 	}
 
 	static void InitType(Item item)

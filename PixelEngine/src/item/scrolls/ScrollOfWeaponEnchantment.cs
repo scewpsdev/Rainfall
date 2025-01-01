@@ -13,7 +13,7 @@ public class ScrollOfWeaponEnchantment : Item
 	{
 		displayName = "Scroll of Weapon Enchantment";
 
-		value = 13;
+		value = 25;
 
 		sprite = new Sprite(tileset, 15, 2);
 	}

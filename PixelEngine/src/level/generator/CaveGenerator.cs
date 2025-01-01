@@ -250,7 +250,7 @@ public partial class LevelGenerator
 		if (rooms.Count > 2)
 		{
 			int i = 2;
-			while (exitRoom.width <= 2 || exitRoom.height <= 2)
+			while ((exitRoom.width <= 2 || exitRoom.height <= 2) && rooms.Count - i >= 1)
 				exitRoom = rooms[rooms.Count - i++];
 		}
 

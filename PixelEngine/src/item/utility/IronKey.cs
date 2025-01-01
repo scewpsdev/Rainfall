@@ -13,7 +13,7 @@ public class IronKey : Item
 	{
 		displayName = "Iron Key";
 
-		value = 8;
+		value = 25;
 
 		//canDrop = false;
 		isActiveItem = false;

@@ -22,6 +22,7 @@ public class LightningStaff : Staff
 		renderOffset.x = 0.4f;
 
 		spell = new LightningSpell();
+		maxStaffCharges = 12;
 		staffCharges = 12;
 	}
 

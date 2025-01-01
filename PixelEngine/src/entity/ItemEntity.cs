@@ -54,6 +54,13 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 	public override void init(Level level)
 	{
+		if (level.overlapTiles(position + collider.min, position + collider.max))
+		{
+			TileType tile = level.getTile(position);
+			if (tile == null || !tile.isSolid)
+				position = Vector2.Floor(position) + 0.5f;
+		}
+
 		if (item.hasParticleEffect)
 		{
 			particles = item.createParticleEffect(this);

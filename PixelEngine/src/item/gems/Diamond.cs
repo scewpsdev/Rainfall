@@ -14,7 +14,7 @@ public class Diamond : Item
 		displayName = "Diamond";
 		stackable = true;
 
-		value = 30;
+		value = 60;
 
 		sprite = new Sprite(tileset, 3, 0);
 	}
