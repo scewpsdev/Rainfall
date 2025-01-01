@@ -25,7 +25,9 @@ public class Boomerang : Weapon
 
 	public override bool use(Player player)
 	{
-		GameState.instance.level.addEntity(new BoomerangProjectile(player.lookDirection.normalized, player.velocity, player, this), player.position + new Vector2(renderOffset.x * player.direction, 0.5f + renderOffset.y));
+		Vector2 origin = player.position + new Vector2(0, 0.5f);
+		Vector2 offset = new Vector2(player.direction * 0.5f, 0);
+		GameState.instance.level.addEntity(new BoomerangProjectile(player.lookDirection.normalized, offset, player.velocity, player, this), origin);
 		return true;
 	}
 }

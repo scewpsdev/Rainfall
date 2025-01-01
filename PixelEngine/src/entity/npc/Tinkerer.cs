@@ -16,12 +16,13 @@ public class Tinkerer : NPC
 	{
 		displayName = "Tinker";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant6.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/merchant6.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
 		buysItems = true;
+		buyTax = 0.35f;
 		canCraft = true;
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_TINKERER_MET))

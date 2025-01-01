@@ -1,3 +1,5 @@
+#ifndef RAINFALL_EXCLUDE_PHYSICS
+
 #include "Physics.h"
 
 #include "Cloth.h"
@@ -1386,3 +1388,5 @@ RFAPI int Physics_OverlapCapsule(float radius, float height, const Vector3& posi
 {
 	return Overlap(PxCapsuleGeometry(radius, 0.5f * height - radius), PxTransform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w)), hits, maxHits, flags, filterMask);
 }
+
+#endif

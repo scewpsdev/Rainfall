@@ -113,17 +113,14 @@ public abstract class NPC : Mob, Interactable
 	public bool buysItems = false;
 	protected bool canCraft = false;
 	protected bool canUpgrade = false;
-	protected bool canAttune = false;
+	//protected bool canAttune = false;
 	public float voicePitch = 1.0f;
 	public int voicePitchVariation = 2;
 
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
-	int infoPanelHeight = 90;
-	protected float saleTax = 0.3f;
-	protected float buyTax = 0.0f;
-	//int longestItemName = 80;
-	//int sidePanelHeight = 40;
+	//int infoPanelHeight = 90;
+	protected float buyTax = 0.25f;
 	List<Item> craftingItems = new List<Item>();
 	Item craftingItem1, craftingItem2;
 
@@ -132,9 +129,9 @@ public abstract class NPC : Mob, Interactable
 
 	List<Item> attuneStaffs = new List<Item>();
 	List<Item> attuneSpells = new List<Item>();
-	Staff attuneStaff = null;
-	int attuneSlotID = -1;
-	Spell attuneSpell = null;
+	//Staff attuneStaff = null;
+	//int attuneSlotID = -1;
+	//Spell attuneSpell = null;
 
 	Sound[] tradeSound;
 	Sound upgradeSound;
@@ -149,8 +146,8 @@ public abstract class NPC : Mob, Interactable
 	{
 		//gem = HUD.gold;
 
-		tradeSound = Resource.GetSounds("res/sounds/trade", 12);
-		upgradeSound = Resource.GetSound("res/sounds/upgrade.ogg");
+		tradeSound = Resource.GetSounds("sounds/trade", 12);
+		upgradeSound = Resource.GetSound("sounds/upgrade.ogg");
 	}
 
 	public override void destroy()
@@ -228,7 +225,7 @@ public abstract class NPC : Mob, Interactable
 	public void addShopItem(Item item, int price = -1)
 	{
 		if (price == -1)
-			price = (int)MathF.Round(item.value * (1 + saleTax));
+			price = (int)MathF.Round(item.value);
 
 		if (item.stackable)
 		{
@@ -270,9 +267,9 @@ public abstract class NPC : Mob, Interactable
 		return null;
 	}
 
-	public bool canInteract(Player player)
+	public bool isInteractable(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) || (canAttune && player.hasItemOfType(ItemType.Staff)) || GameState.instance.save.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || GameState.instance.save.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -383,9 +380,9 @@ public abstract class NPC : Mob, Interactable
 		selectedItem = 0;
 		attuneStaffs.Clear();
 		attuneSpells.Clear();
-		attuneStaff = null;
-		attuneSlotID = -1;
-		attuneSpell = null;
+		//attuneStaff = null;
+		//attuneSlotID = -1;
+		//attuneSpell = null;
 		for (int i = 0; i < player.items.Count; i++)
 		{
 			if (player.items[i].type == ItemType.Staff)
@@ -602,8 +599,8 @@ public abstract class NPC : Mob, Interactable
 				if (hasUpgradable)
 					options.Add("Upgrade");
 			}
-			if (canAttune && player.hasItemOfType(ItemType.Staff))
-				options.Add("Attune");
+			//if (canAttune && player.hasItemOfType(ItemType.Staff))
+			//	options.Add("Attune");
 			if (dialogues.Count > 0)
 				options.Add("Talk");
 			if (GameState.instance.save.getQuestList(name, out _))
@@ -707,7 +704,7 @@ public abstract class NPC : Mob, Interactable
 			for (int i = 0; i < player.items.Count; i++)
 			{
 				items.Add(player.items[i]);
-				prices.Add((int)MathF.Round(player.items[i].value));
+				prices.Add(Math.Max((int)MathF.Round(player.items[i].value * buyTax), 1));
 			}
 
 			int itemIdx = ItemSelector.Render(pos, "Sell", items, prices, -player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
@@ -807,6 +804,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.AttuneMenu)
 		{
+			/*
 			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 			pos.x = Math.Min(pos.x, Renderer.UIWidth - 1 - 120 - 90 - 90);
 
@@ -899,6 +897,7 @@ public abstract class NPC : Mob, Interactable
 					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderSpellSelector, false, out bool secondary, out bool closed, ref staffIdx);
 				}
 			}
+			*/
 		}
 		else if (state == NPCState.QuestList)
 		{

@@ -13,7 +13,7 @@ public class Snake : Mob
 	{
 		displayName = "Snake";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/snake.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/snake.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 0, 0, 1, 1, true);
 		animator.addAnimation("charge", 16, 0, 0, 0, 1, 1, true);
@@ -21,7 +21,7 @@ public class Snake : Mob
 		animator.addAnimation("dead", 3 * 16, 0, 16, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.3f, 0, 0.6f, 1.0f);
+		collider = new FloatRect(-0.3f, 0, 0.6f, 0.9f);
 
 		health = 3;
 		speed = 2;

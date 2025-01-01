@@ -19,8 +19,8 @@ public class BoomerangProjectile : Projectile
 	long throwTime;
 
 
-	public BoomerangProjectile(Vector2 direction, Vector2 startVelocity, Entity shooter, Boomerang item)
-		: base(Vector2.Zero, startVelocity, Vector2.Zero, shooter, item, item.attackDamage)
+	public BoomerangProjectile(Vector2 direction, Vector2 offset, Vector2 startVelocity, Entity shooter, Boomerang item)
+		: base(Vector2.Zero, startVelocity, offset, shooter, item, item.attackDamage)
 	{
 		this.direction = direction;
 
@@ -41,7 +41,7 @@ public class BoomerangProjectile : Projectile
 
 	void drop()
 	{
-		GameState.instance.level.addEntity(new ItemEntity(new Boomerang(), null, velocity) { rotation = rotation }, position - velocity.normalized * 0.25f);
+		GameState.instance.level.addEntity(new ItemEntity(item, null, velocity) { rotation = rotation }, position - velocity.normalized * 0.25f);
 		remove();
 	}
 
@@ -73,7 +73,7 @@ public class BoomerangProjectile : Projectile
 		rotation += 5 * Time.deltaTime;
 		rotation = (rotation + MathF.PI) % (MathF.PI * 2) - MathF.PI;
 
-		HitData tileHit = GameState.instance.level.sampleTiles(position);
+		HitData tileHit = GameState.instance.level.hitTiles(position);
 		if (tileHit != null)
 		{
 			TileType tile = GameState.instance.level.getTile(tileHit.tile);

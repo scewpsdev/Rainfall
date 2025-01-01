@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 public class Backpack : Item
 {
-	int numSlots = 4;
+	int bonusActiveSlots = 2;
+	int bonusStorageSlots = 3;
 
 
 	public Backpack()
@@ -18,27 +19,28 @@ public class Backpack : Item
 		displayName = "Backpack";
 		armorSlot = ArmorSlot.Back;
 
-		description = "+4 inventory space";
+		description = "Increases inventory space";
 
 		armor = 1;
 		value = 20;
 
 		sprite = new Sprite(tileset, 3, 4);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/backpack.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/backpack.png", false), 0, 0, 16, 16);
 	}
 
 	public override void onEquip(Player player)
 	{
-		Item[] newStorage = new Item[player.activeItems.Length + numSlots];
+		Item[] newStorage = new Item[player.activeItems.Length + bonusActiveSlots];
 		Array.Copy(player.activeItems, newStorage, player.activeItems.Length);
 		player.activeItems = newStorage;
+		player.storeCapacity += bonusStorageSlots;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		Item[] newStorage = new Item[player.activeItems.Length - numSlots];
+		Item[] newStorage = new Item[player.activeItems.Length - bonusActiveSlots];
 		Array.Copy(player.activeItems, newStorage, newStorage.Length);
-		for (int i = 0; i < numSlots; i++)
+		for (int i = 0; i < bonusActiveSlots; i++)
 		{
 			Item item = player.activeItems[player.activeItems.Length - 1 - i];
 			if (item != null)
@@ -48,5 +50,11 @@ public class Backpack : Item
 			}
 		}
 		player.activeItems = newStorage;
+		player.storeCapacity -= bonusStorageSlots;
+		for (int i = player.storeCapacity; i < player.storedItems.Count; i++)
+		{
+			player.dropItem(player.storedItems[i]);
+			i--;
+		}
 	}
 }

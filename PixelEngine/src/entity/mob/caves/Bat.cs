@@ -21,7 +21,7 @@ public class Bat : Mob
 		ai = new BatAI(this);
 
 		collider = new FloatRect(-0.4f, -0.4f, 0.8f, 0.8f);
-		sprite = new Sprite(Resource.GetTexture("res/sprites/bat.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/bat.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 3, 6, true);
 		animator.addAnimation("dead", 3 * 16, 0, 16, 0, 1, 1, true);

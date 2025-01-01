@@ -41,6 +41,7 @@ public class PixelEngine : Game
 	public override void init()
 	{
 		Display.windowTitle = "Ivory Keep";
+		Resource.ASSET_DIRECTORY = "assets";
 
 		// pixel perfect correction
 		scale = (int)MathF.Round(Display.width / 1920.0f * idealScale);
@@ -49,7 +50,6 @@ public class PixelEngine : Game
 
 		Renderer.Init(graphics, width, height);
 
-		Physics.Init();
 		Audio.Init();
 
 		Item.InitTypes();
@@ -66,7 +66,6 @@ public class PixelEngine : Game
 			stateMachine.Pop().destroy();
 
 		Audio.Shutdown();
-		Physics.Shutdown();
 	}
 
 	protected override void onViewportSizeEvent(int newWidth, int newHeight)
@@ -134,8 +133,6 @@ public class PixelEngine : Game
 
 		if (stateMachine.TryPeek(out State state))
 			state.update();
-
-		Physics.Update();
 	}
 
 	public override void draw()
@@ -204,7 +201,7 @@ public class PixelEngine : Game
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + outDir + "\\res png ogg vsh fsh csh ttf rfs";
+		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + outDir + " png ogg vsh fsh csh ttf rfs";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();
@@ -220,9 +217,9 @@ public class PixelEngine : Game
 		string config = "Release";
 #endif
 
-		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
-		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
-		CompileFolder("D:\\Dev\\Rainfall\\Rainfall2D", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\assets");
+		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\assets");
+		CompileFolder("D:\\Dev\\Rainfall\\Rainfall2D", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\assets");
 
 		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 		//Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");

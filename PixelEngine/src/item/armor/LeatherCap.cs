@@ -20,6 +20,6 @@ public class LeatherCap : Item
 		value = 2;
 
 		sprite = new Sprite(tileset, 2, 8);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/leather_cap.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/leather_cap.png", false), 0, 0, 16, 16);
 	}
 }

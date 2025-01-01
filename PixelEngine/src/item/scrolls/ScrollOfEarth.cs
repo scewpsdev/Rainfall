@@ -26,7 +26,7 @@ public class ScrollOfEarth : Item
 		int x1 = Math.Min((int)pos.x + (1 + numSpikes) * player.direction, GameState.instance.level.width - 1);
 		for (int x = x0; x != x1; x += player.direction)
 		{
-			HitData hit = GameState.instance.level.raycastTiles(new Vector2(x + 0.5f, (int)pos.y + 0.5f), new Vector2(0, 1), 10);
+			HitData hit = GameState.instance.level.raycastTiles(new Vector2(x + 0.5f, (int)pos.y + 0.5f), new Vector2(0, 1), 20);
 			if (hit != null && hit.distance > 1)
 			{
 				SpikeTrap spike = new SpikeTrap();
@@ -36,7 +36,7 @@ public class ScrollOfEarth : Item
 		}
 		player.hud.showMessage("The earth rumbles.");
 
-		player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+		player.level.addEntity(ParticleEffects.CreateScrollUseEffect(player), player.position + player.collider.center);
 
 		return true;
 	}

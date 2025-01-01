@@ -26,12 +26,14 @@ public partial class LevelGenerator
 
 	public void generateDungeons(string seed, out Level[] areaDungeons)
 	{
-		areaDungeons = new Level[4];
+		areaDungeons = new Level[6];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
 		areaDungeons[0] = new Level(5, "Weeping Catacombs", 50, 30, TileType.stone, 15, 20) { ambientLight = ambience };
 		areaDungeons[1] = new Level(6, "", 30, 40, TileType.stone, 19, 24) { ambientLight = ambience };
 		areaDungeons[2] = new Level(7, "", 40, 40, TileType.stone, 22, 30) { ambientLight = ambience };
-		areaDungeons[3] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
+		areaDungeons[3] = new Level(8, "", 30, 50, TileType.stone, 28, 35) { ambientLight = ambience };
+		areaDungeons[4] = new Level(9, "", 50, 20, TileType.stone, 33, 40) { ambientLight = ambience };
+		areaDungeons[5] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
 
 		List<Mob> createEnemy()
 		{
@@ -48,8 +50,21 @@ public partial class LevelGenerator
 		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy());
 		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy());
 		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy());
+		generateDungeonFloor(seed, false, false, areaDungeons[3], areaDungeons[4], areaDungeons[2], areaDungeons[2].exit, () => createEnemy());
+		generateDungeonFloor(seed, false, false, areaDungeons[4], areaDungeons[5], areaDungeons[3], areaDungeons[3].exit, () => createEnemy());
 
-		generateDungeonBossFloor(areaDungeons[3], null, areaDungeons[2], areaDungeons[2].exit);
+		generateDungeonBossFloor(areaDungeons[5], null, areaDungeons[4], areaDungeons[4].exit);
+	}
+
+	public List<NPC> getDungeonNPCList()
+	{
+		List<NPC> npcs = new List<NPC>();
+		npcs.Add(new TravellingMerchant(random, level));
+		npcs.Add(new Logan(random, level));
+		npcs.Add(new Blacksmith(random, level));
+		npcs.Add(new Tinkerer(random, level));
+
+		return npcs;
 	}
 
 	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
@@ -118,7 +133,7 @@ public partial class LevelGenerator
 		int height = level.height;
 
 		level.rooms = rooms;
-		level.ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
+		level.ambientSound = Resource.GetSound("sounds/ambience.ogg");
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
@@ -281,7 +296,7 @@ public partial class LevelGenerator
 		});
 
 		// Items
-		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.15f, false, (Vector2i tile, Random random, Room room) =>
 		{
 			spawnItem(tile.x, tile.y, getRoomLootValue(room));
 		});
@@ -488,6 +503,15 @@ public partial class LevelGenerator
 
 			spawnNPC(tile.x, tile.y, npcs);
 		});
+
+
+		if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 2])
+		{
+			spawnRoomObject([exitRoom], 1.0f, false, (Vector2i pos, Random random, Room room) =>
+			{
+				spawnNPC(pos.x, pos.y, getDungeonNPCList());
+			});
+		}
 
 
 		level.updateLightmap(0, 0, width, height);

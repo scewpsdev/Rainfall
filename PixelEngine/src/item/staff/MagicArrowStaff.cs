@@ -17,7 +17,5 @@ public class MagicArrowStaff : Staff
 
 		sprite = new Sprite(tileset, 2, 6);
 		renderOffset.x = 0.4f;
-
-		attuneSpell(0, new MagicArrowSpell());
 	}
 }

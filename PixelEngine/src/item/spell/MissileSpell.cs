@@ -13,20 +13,20 @@ public class MissileSpell : Spell
 	{
 		displayName = "Missile";
 
-		value = 80;
+		value = 45;
 
 		baseDamage = 10;
-		baseAttackRate = 1;
-		manaCost = 0.8f;
+		baseAttackRate = 0.5f;
+		manaCost = 6;
 		knockback = 1.0f;
 		trigger = false;
 
 		spellIcon = new Sprite(tileset, 14, 7);
 
-		useSound = Resource.GetSounds("res/sounds/cast", 3);
+		useSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost, float duration)
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
 		if (player.mana >= manaCost)
 		{
@@ -39,6 +39,10 @@ public class MissileSpell : Spell
 
 			GameState.instance.level.addEntity(new MagicMissileProjectile(direction, player.velocity, offset, player, staff, this), position);
 			GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
+
+			return true;
 		}
+
+		return false;
 	}
 }

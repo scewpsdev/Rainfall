@@ -26,7 +26,7 @@ public class Minecart : Entity, Interactable
 	{
 	}
 
-	public bool canInteract(Player player)
+	public bool isInteractable(Player player)
 	{
 		return !looted;
 	}

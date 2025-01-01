@@ -120,7 +120,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Item offhandItem = null;
 	public Item[] activeItems = new Item[4];
 	public int selectedActiveItem = 0;
+	public List<Spell> spellItems = new List<Spell>();
+	public int spellCapacity = 3;
+	public int selectedSpellItem = 0;
+	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem] : null;
 	public List<Item> passiveItems = new List<Item>();
+	public List<Item> storedItems = new List<Item>();
+	public int storeCapacity = 3;
 
 	ParticleEffect handParticles, offhandParticles;
 
@@ -146,7 +152,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		collider = new FloatRect(-0.1f, 0, 0.2f, 0.75f);
 		filterGroup = FILTER_PLAYER;
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/player.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 
 		animator.addAnimation("idle", 0, 0, 16, 0, 4, 4, true);
@@ -163,23 +169,23 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		animator.addAnimationEvent("climb", 0, onClimbStep);
 		animator.addAnimationEvent("climb", 1, onClimbStep);
 
-		stunnedIcon = new Sprite(Resource.GetTexture("res/sprites/status_stun.png", false));
+		stunnedIcon = new Sprite(Resource.GetTexture("sprites/status_stun.png", false));
 
 		hud = new HUD(this);
 		inventoryUI = new InventoryUI(this);
 
-		stepSound = Resource.GetSounds("res/sounds/step", 6);
-		landSound = Resource.GetSound("res/sounds/land.ogg");
-		ladderSound = Resource.GetSounds("res/sounds/step_wood", 3);
-		hitSound = Resource.GetSounds("res/sounds/flesh", 2);
-		wallTouchSound = Resource.GetSound("res/sounds/wall_touch.ogg");
+		stepSound = Resource.GetSounds("sounds/step", 6);
+		landSound = Resource.GetSound("sounds/land.ogg");
+		ladderSound = Resource.GetSounds("sounds/step_wood", 3);
+		hitSound = Resource.GetSounds("sounds/flesh", 2);
+		wallTouchSound = Resource.GetSound("sounds/wall_touch.ogg");
 	}
 
 	public override void init(Level level)
 	{
 		startTime = Time.currentTime;
 
-		level.addEntity(wallSlideParticles = Effects.CreateWallSlideEffect(this), position);
+		level.addEntity(wallSlideParticles = ParticleEffects.CreateWallSlideEffect(this), position);
 	}
 
 	public override void onLevelSwitch(Level newLevel)
@@ -236,7 +242,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 			else
 			{
-				dropItem(handItem);
+				Item _item = handItem;
+				if (storedItems.Count < storeCapacity)
+					storeItem(_item);
+				else
+					dropItem(handItem);
 			}
 		}
 
@@ -244,7 +254,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//	unequipItem(offhandItem);
 		if (item.twoHanded && offhandItem != null)
 		{
-			dropItem(offhandItem);
+			if (storedItems.Count < storeCapacity)
+				storeItem(offhandItem);
+			else
+				dropItem(offhandItem);
 		}
 
 		handItem = item;
@@ -270,15 +283,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandParticles = null;
 			}
 			*/
-			dropItem(offhandItem);
-			offhandItem = null;
+			if (storedItems.Count < storeCapacity)
+				storeItem(offhandItem);
+			else
+				dropItem(offhandItem);
 		}
 
 		//if (handItem != null && handItem.twoHanded)
 		//	unequipItem(handItem);
 		if (handItem != null && handItem.twoHanded)
 		{
-			dropItem(handItem);
+			if (storedItems.Count < storeCapacity)
+				storeItem(handItem);
+			else
+				dropItem(handItem);
 		}
 
 		offhandItem = item;
@@ -292,65 +310,98 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return true;
 	}
 
+	public bool equipActiveItem(Item item)
+	{
+		for (int i = 0; i < activeItems.Length; i++)
+		{
+			if (activeItems[i] == null)
+			{
+				activeItems[i] = item;
+				activeItems[i].onEquip(this);
+				if (item.equipSound != null)
+					Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
+				return true;
+			}
+		}
+
+		dropItem(activeItems[activeItems.Length - 1]);
+		activeItems[activeItems.Length - 1] = item;
+		activeItems[activeItems.Length - 1].onEquip(this);
+		return true;
+	}
+
+	public bool equipPassiveItem(Item item)
+	{
+		if (item.armorSlot != ArmorSlot.None)
+		{
+			for (int i = 0; i < passiveItems.Count; i++)
+			{
+				if (passiveItems[i].armorSlot == item.armorSlot)
+				{
+					if (storedItems.Count < storeCapacity)
+						storeItem(passiveItems[i]);
+					else
+						dropItem(passiveItems[i]);
+					break;
+				}
+			}
+		}
+
+		passiveItems.Add(item);
+		passiveItems.Sort((Item item1, Item item2) =>
+		{
+			int getScore(Item item) => item.isHandItem && !item.isSecondaryItem ? 1 :
+			item.isHandItem ? 2 :
+			item.isSecondaryItem ? 3 :
+			item.isActiveItem ? 4 :
+			item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
+			item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
+			int score1 = getScore(item1);
+			int score2 = getScore(item2);
+			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
+		});
+
+		item.onEquip(this);
+		if (item.equipSound != null)
+			Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
+
+		return true;
+	}
+
+	public bool attuneSpell(Spell spell)
+	{
+		if (spellItems.Count < spellCapacity)
+		{
+			spellItems.Add(spell);
+		}
+		else
+		{
+			dropItem(spellItems[spellItems.Count - 1]);
+		}
+		return true;
+	}
+
 	public bool equipItem(Item item)
 	{
+		for (int i = 0; i < storedItems.Count; i++)
+		{
+			if (storedItems[i] == item)
+			{
+				storedItems.RemoveAt(i);
+				break;
+			}
+		}
+
 		if (item.isHandItem)
 			return equipHandItem(item);
 		if (item.isSecondaryItem)
 			return equipOffhandItem(item);
 		if (item.isActiveItem)
-		{
-			for (int i = 0; i < activeItems.Length; i++)
-			{
-				if (activeItems[i] == null)
-				{
-					activeItems[i] = item;
-					activeItems[i].onEquip(this);
-					if (item.equipSound != null)
-						Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
-					return true;
-				}
-			}
-
-			dropItem(activeItems[activeItems.Length - 1]);
-			activeItems[activeItems.Length - 1] = item;
-			activeItems[activeItems.Length - 1].onEquip(this);
-			return true;
-		}
+			return equipActiveItem(item);
 		if (item.isPassiveItem)
-		{
-			if (item.armorSlot != ArmorSlot.None)
-			{
-				for (int i = 0; i < passiveItems.Count; i++)
-				{
-					if (passiveItems[i].armorSlot == item.armorSlot)
-					{
-						dropItem(passiveItems[i]);
-						break;
-					}
-				}
-			}
-
-			passiveItems.Add(item);
-			passiveItems.Sort((Item item1, Item item2) =>
-			{
-				int getScore(Item item) => item.isHandItem && !item.isSecondaryItem ? 1 :
-				item.isHandItem ? 2 :
-				item.isSecondaryItem ? 3 :
-				item.isActiveItem ? 4 :
-				item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
-				item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
-				int score1 = getScore(item1);
-				int score2 = getScore(item2);
-				return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
-			});
-
-			item.onEquip(this);
-			if (item.equipSound != null)
-				Audio.PlayOrganic(item.equipSound, new Vector3(position, 0));
-
-			return true;
-		}
+			return equipPassiveItem(item);
+		if (item.type == ItemType.Spell)
+			return attuneSpell((Spell)item);
 
 		Debug.Assert(false);
 		return false;
@@ -403,6 +454,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				return true;
 			}
 		}
+		for (int i = 0; i < spellItems.Count; i++)
+		{
+			if (spellItems[i] == item)
+			{
+				spellItems[i].onUnequip(this);
+				spellItems.RemoveAt(i);
+				return true;
+			}
+		}
 		for (int i = 0; i < passiveItems.Count; i++)
 		{
 			if (passiveItems[i] == item)
@@ -444,14 +504,22 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
-		if (item.isHandItem && item.isSecondaryItem && handItem != null || !item.isHandItem && item.isSecondaryItem /*&& !handItem.twoHanded && offhandItem == null*/)
+		if ((item.isHandItem && item.isSecondaryItem && handItem != null || !item.isHandItem && item.isSecondaryItem) && offhandItem == null)
 			equipOffhandItem(item);
-		else if (item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff) /*&& handItem == null && (offhandItem == null || !item.twoHanded)*/)
+		else if ((item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff)) && handItem == null)
 			equipHandItem(item);
 		else if (item.isActiveItem)
-			equipItem(item);
-		else if (item.isPassiveItem /*&& canEquipPassiveItem(item)*/)
-			equipItem(item);
+			equipActiveItem(item);
+		else if (item.type == ItemType.Spell && spellItems.Count < spellCapacity)
+			attuneSpell((Spell)item);
+		else if (item.isPassiveItem && canEquipPassiveItem(item))
+			equipPassiveItem(item);
+		else
+		{
+			if (storedItems.Count == storeCapacity)
+				dropItem(storedItems[storeCapacity - 1]);
+			storeItem(item);
+		}
 
 		GameState.instance.save.onItemPickup(item);
 	}
@@ -460,6 +528,25 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		unequipItem(item);
 		items.Remove(item);
+		for (int i = 0; i < storedItems.Count; i++)
+		{
+			if (storedItems[i] == item)
+			{
+				storedItems.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	public bool storeItem(Item item)
+	{
+		if (storedItems.Count < storeCapacity)
+		{
+			unequipItem(item);
+			storedItems.Add(item);
+			return true;
+		}
+		return false;
 	}
 
 	public Item removeItemSingle(Item item)
@@ -621,12 +708,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return true;
 	}
 
-	public void dropItem(Item item)
+	public ItemEntity dropItem(Item item)
 	{
 		removeItem(item);
 		Vector2 itemVelocity = velocity; // + new Vector2(direction, 1) * new Vector2(0.4f, MathHelper.RandomFloat(0.14f, 0.16f)) * 14;
 		ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 		GameState.instance.level.addEntity(obj, position + Vector2.Up * 0.5f);
+		return obj;
 	}
 
 	public void throwItem(Item item, bool shortThrow = false, bool farThrow = false)
@@ -662,7 +750,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (item.projectileSpins)
 			obj.rotationVelocity = MathF.PI * MathHelper.RandomFloat(-5, 5);
 		GameState.instance.level.addEntity(obj, throwOrigin);
-		Audio.PlayOrganic(Resource.GetSound("res/sounds/swing3.ogg"), new Vector3(position, 0));
+		Audio.PlayOrganic(Resource.GetSound("sounds/swing3.ogg"), new Vector3(position, 0));
 		return obj;
 	}
 
@@ -735,7 +823,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					}
 				}
 
-				((BlockAction)actions.currentAction).cancel();
+				BlockAction blockAction = actions.currentAction as BlockAction;
+				blockAction.duration = blockAction.elapsedTime + 0.3f;
 
 				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
@@ -782,12 +871,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 
 				if (triggerInvincibility)
-					GameState.instance.level.addEntity(Effects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+					GameState.instance.level.addEntity(ParticleEffects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
 			}
 			else
 			{
 				if (triggerInvincibility)
-					GameState.instance.level.addEntity(Effects.CreateBloodEffect(Vector2.Up), position + collider.center);
+					GameState.instance.level.addEntity(ParticleEffects.CreateBloodEffect(Vector2.Up), position + collider.center);
 			}
 
 			if (triggerInvincibility)
@@ -1044,7 +1133,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						velocity.y = jumpPower;
 						lastJumpInput = 0;
 						airJumpsLeft--;
-						level.addEntity(Effects.CreateAirJumpEffect(this), position);
+						level.addEntity(ParticleEffects.CreateAirJumpEffect(this), position);
 					}
 					else if (!isGrounded)
 					{
@@ -1230,7 +1319,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		else
 			fallDistance = 0;
 
-		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, isDucked);
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, isDucked, true);
 
 		isGrounded = false;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
@@ -1297,51 +1386,59 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return false;
 	}
 
+	void switchActiveItem()
+	{
+		bool switched = false;
+		for (int i = 0; i < activeItems.Length; i++)
+		{
+			if (activeItems[(selectedActiveItem + 1 + i) % activeItems.Length] != null)
+			{
+				selectedActiveItem = (selectedActiveItem + 1 + i) % activeItems.Length;
+				switched = true;
+				hud.onItemSwitch();
+				break;
+			}
+		}
+		if (!switched)
+			selectedActiveItem = (selectedActiveItem + 1) % activeItems.Length;
+	}
+
+	void switchSpellItem()
+	{
+		if (handItem != null && handItem.type == ItemType.Staff)
+		{
+			bool switched = false;
+			for (int i = 0; i < spellItems.Count; i++)
+			{
+				if (spellItems[(selectedSpellItem + 1 + i) % spellItems.Count] != null)
+				{
+					selectedSpellItem = (selectedSpellItem + 1 + i) % spellItems.Count;
+					switched = true;
+					hud.onSpellSwitch();
+					break;
+				}
+			}
+			if (!switched)
+				selectedSpellItem = (selectedSpellItem + 1) % spellItems.Count;
+		}
+	}
+
 	void updateActions()
 	{
 		if (isAlive && GameState.instance.run.active)
 		{
 			if (InputManager.IsPressed("SwitchItem"))
-			{
-				bool switched = false;
-				for (int i = 0; i < activeItems.Length; i++)
-				{
-					if (activeItems[(selectedActiveItem + 1 + i) % activeItems.Length] != null)
-					{
-						selectedActiveItem = (selectedActiveItem + 1 + i) % activeItems.Length;
-						switched = true;
-						hud.onItemSwitch();
-						break;
-					}
-				}
-				if (!switched)
-					selectedActiveItem = (selectedActiveItem + 1) % activeItems.Length;
-			}
+				switchActiveItem();
 			if (InputManager.IsPressed("SwitchSpell"))
-			{
-				if (handItem != null && handItem.type == ItemType.Staff)
-				{
-					Staff staff = handItem as Staff;
-
-					bool switched = false;
-					for (int i = 0; i < activeItems.Length; i++)
-					{
-						if (staff.attunedSpells[(staff.selectedSpell + 1 + i) % staff.attunedSpells.Count] != null)
-						{
-							staff.selectedSpell = (staff.selectedSpell + 1 + i) % staff.attunedSpells.Count;
-							switched = true;
-							hud.onSpellSwitch();
-							break;
-						}
-					}
-					if (!switched)
-						staff.selectedSpell = (staff.selectedSpell + 1) % staff.attunedSpells.Count;
-				}
-			}
+				switchSpellItem();
 			if (InputManager.IsPressed("UseItem") && numOverlaysOpen == 0)
 			{
 				if (activeItems[selectedActiveItem] != null)
+				{
 					useActiveItem(activeItems[selectedActiveItem]);
+					if (activeItems[selectedActiveItem] == null && numActiveItems > 0)
+						switchActiveItem();
+				}
 			}
 			for (int i = 0; i < Math.Min(activeItems.Length, 9); i++)
 			{
@@ -1738,7 +1835,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
 			if (tile != null)
-				GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(2, 4), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+				GameState.instance.level.addEntity(ParticleEffects.CreateStepEffect(MathHelper.RandomInt(2, 4), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
 
 			Audio.PlayOrganic(stepSound, new Vector3(position, 0));
 		}
@@ -1748,7 +1845,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
 		if (tile != null)
-			GameState.instance.level.addEntity(Effects.CreateStepEffect(MathHelper.RandomInt(4, 8), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateStepEffect(MathHelper.RandomInt(4, 8), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
 
 		Audio.PlayOrganic(landSound, new Vector3(position, 0));
 	}
@@ -1923,7 +2020,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.movementSpeedModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.25f, swiftness - 1);
+		value *= MathF.Pow(1.15f, swiftness - 1);
 		return value;
 	}
 
@@ -1940,7 +2037,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.meleeDamageModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.25f, strength - 1);
+		value *= MathF.Pow(1.15f, strength - 1);
 		return value;
 	}
 
@@ -1949,7 +2046,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.magicDamageModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.25f, intelligence - 1);
+		value *= MathF.Pow(1.15f, intelligence - 1);
 		return value;
 	}
 
@@ -1958,7 +2055,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.attackSpeedModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.25f, dexterity - 1);
+		value *= MathF.Pow(1.15f, dexterity - 1);
 		return value;
 	}
 

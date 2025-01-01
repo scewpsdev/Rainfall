@@ -22,6 +22,6 @@ public class IronKey : Item
 
 		sprite = new Sprite(tileset, 8, 5);
 
-		hitSound = Resource.GetSounds("res/sounds/hit_rock", 5);
+		hitSound = Resource.GetSounds("sounds/hit_rock", 5);
 	}
 }

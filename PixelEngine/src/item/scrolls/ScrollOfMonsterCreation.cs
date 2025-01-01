@@ -78,7 +78,7 @@ public class ScrollOfMonsterCreation : Item
 		}
 		player.hud.showMessage("The air fizzles.");
 
-		player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+		player.level.addEntity(ParticleEffects.CreateScrollUseEffect(player), player.position + player.collider.center);
 
 		return true;
 	}

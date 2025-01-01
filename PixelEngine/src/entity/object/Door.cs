@@ -38,10 +38,10 @@ public class Door : Entity, Interactable
 
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1);
 
-		openSound = Resource.GetSound("res/sounds/chest_close.ogg");
+		openSound = Resource.GetSound("sounds/chest_close.ogg");
 	}
 
-	public bool canInteract(Player player)
+	public virtual bool isInteractable(Player player)
 	{
 		return destination != null && otherDoor != null || finalExit;
 	}

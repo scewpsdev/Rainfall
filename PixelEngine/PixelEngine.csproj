@@ -11,6 +11,7 @@
     <RootNamespace />
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,7 +48,7 @@
     <None Update="InputBindings__.config">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="InputBindings.config">
+    <None Update="settings\InputBindings.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

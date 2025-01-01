@@ -122,7 +122,7 @@ public static class CharacterInfoPanel
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
 					float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, MathHelper.ColorAlpha(UIColors.WINDOW_FRAME, alpha));
-					if (Input.IsMouseButtonPressed(MouseButton.Left, true) || InputManager.IsPressed("UIConfirm", true))
+					if (Input.IsMouseButtonPressed(MouseButton.Left, true) || InputManager.IsPressed("Jump", true))
 					{
 						value++;
 						player.availableStatUpgrades--;
@@ -139,11 +139,11 @@ public static class CharacterInfoPanel
 		y += 4;
 
 		drawLeft("Health", UIColors.TEXT_HEALTH);
-		drawRight(formatValue(player.health) + "/" + formatValue(player.maxHealth), selectedLevelStat == 0 ? UIColors.TEXT_HIGHLIGHT2 : UIColors.TEXT);
+		drawRight(formatValue(player.health) + "/" + formatValue(player.maxHealth), player.availableStatUpgrades > 0 && selectedLevelStat == 0 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Mana", UIColors.TEXT_MANA);
-		drawRight(formatValue(player.mana) + "/" + formatValue(player.maxMana), selectedLevelStat == 1 ? UIColors.TEXT_HIGHLIGHT2 : UIColors.TEXT);
+		drawRight(formatValue(player.mana) + "/" + formatValue(player.maxMana), player.availableStatUpgrades > 0 && selectedLevelStat == 1 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Speed", UIColors.TEXT_SPEED);
@@ -179,23 +179,29 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size;
 
 		if (InputManager.IsPressed("Down", true))
+		{
 			selectedLevelStat = (selectedLevelStat + 1) % 6;
+			Audio.PlayBackground(UISound.uiClick);
+		}
 		if (InputManager.IsPressed("Up", true))
+		{
 			selectedLevelStat = (selectedLevelStat + 6 - 1) % 6;
+			Audio.PlayBackground(UISound.uiClick);
+		}
 
 		y += 4;
 
 		drawLeft("Attack Damage", UIColors.TEXT);
-		drawRightValueRelative(player.getMeleeDamageModifier(), 1, selectedLevelStat == 2 ? UIColors.TEXT_HIGHLIGHT2 : UIColors.TEXT);
+		drawRightValueRelative(player.getMeleeDamageModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 2 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Attack Speed", UIColors.TEXT);
-		drawRightValueRelative(player.getAttackSpeedModifier(), 1, selectedLevelStat == 3 ? UIColors.TEXT_HIGHLIGHT2 : UIColors.TEXT);
+		drawRightValueRelative(player.getAttackSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 3 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Magic Damage", UIColors.TEXT);
-		drawRightValueRelative(player.getMagicDamageModifier(), 1, selectedLevelStat == 4 ? UIColors.TEXT_HIGHLIGHT2 : UIColors.TEXT);
+		drawRightValueRelative(player.getMagicDamageModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 4 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Movement Speed", UIColors.TEXT);
-		drawRightValueRelative(player.getMovementSpeedModifier(), 1, selectedLevelStat == 5 ? UIColors.TEXT_HIGHLIGHT2 : UIColors.TEXT);
+		drawRightValueRelative(player.getMovementSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 5 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Mana Recovery Rate", UIColors.TEXT);

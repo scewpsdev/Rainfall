@@ -11,7 +11,7 @@ public class Raya : Mob
 	public Raya()
 		: base("raya")
 	{
-		displayName = "Raya the Explorer";
+		displayName = "Raya, Third Knight of the King";
 
 		health = 65;
 		poise = 10;
@@ -21,8 +21,9 @@ public class Raya : Mob
 		gravity = -30;
 		awareness = 1;
 		itemDropChance = 2;
+		itemDropValueMultiplier = 2;
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/mob/gardens/raya.png", false), 0, 0, 64, 64);
+		sprite = new Sprite(Resource.GetTexture("sprites/mob/gardens/raya.png", false), 0, 0, 64, 64);
 		collider = new FloatRect(-0.25f, 0, 0.5f, 1.4f);
 		rect = new FloatRect(-2, 0, 4, 4);
 

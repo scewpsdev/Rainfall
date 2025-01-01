@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class InventoryUI
 {
-	public static Sprite weaponSprite, shieldSprite, helmetSprite, bagSprite, ringSprite;
+	public static Sprite weaponSprite, shieldSprite, helmetSprite, bagSprite, ringSprite, spellSprite;
 	public static Sprite backpackSprite, armorSprite, glovesSprite, bootsSprite;
 
 	static InventoryUI()
@@ -19,6 +19,7 @@ public class InventoryUI
 		bagSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
 		helmetSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
 		ringSprite = new Sprite(HUD.tileset, 6, 4, 2, 2);
+		spellSprite = new Sprite(HUD.tileset, 0, 4, 2, 2);
 		backpackSprite = new Sprite(HUD.tileset, 0, 6, 2, 2);
 		armorSprite = new Sprite(HUD.tileset, 2, 6, 2, 2);
 		glovesSprite = new Sprite(HUD.tileset, 4, 6, 2, 2);
@@ -28,7 +29,7 @@ public class InventoryUI
 
 	Player player;
 
-	int selectedItem = 0;
+	Vector2i selectedCell = Vector2i.Zero;
 	int sidePanelHeight = 40;
 	int inventoryHeight = 120;
 	int characterHeight = 150;
@@ -39,11 +40,14 @@ public class InventoryUI
 		this.player = player;
 	}
 
-	static bool drawItemSlot(int x, int y, int size, Item item, Sprite background = null, bool selected = false)
+	static void drawItemSlot(int x, int y, int size, Item item, Sprite background, Vector2i cellPosition, ref Vector2i selectedCell, ref Item selectedItem)
 	{
-		return ItemSlotUI.Render(x, y, size, item?.icon, item != null ? MathHelper.VectorToARGB(item.spriteColor) : 0xFFFFFFFF, item != null ? item.stackSize : 1, background, selected);
+		ItemSlotUI.Render(x, y, size, item?.icon, item != null ? MathHelper.VectorToARGB(item.spriteColor) : 0xFFFFFFFF, item != null ? item.stackSize : 1, background, cellPosition, ref selectedCell);
+		if (cellPosition == selectedCell)
+			selectedItem = item;
 	}
 
+	/*
 	public static void DrawEquipment(int x, int y, int width, int height, Player player)
 	{
 		int xpadding = 4;
@@ -118,17 +122,11 @@ public class InventoryUI
 
 		y += Renderer.smallFont.size + 8;
 
-		List<Item> storedItems = new List<Item>();
-		for (int i = 0; i < player.items.Count; i++)
-		{
-			if (!player.isEquipped(player.items[i]))
-				storedItems.Add(player.items[i]);
-		}
-
 		int firstEquipmentItem = 0;
 		int firstActiveItem = 7;
-		int firstStoredItem = firstActiveItem + player.activeItems.Length;
-		int firstPassiveItem = firstStoredItem + storedItems.Count;
+		int firstSpellItem = firstActiveItem + player.activeItems.Length;
+		int firstStoredItem = firstSpellItem + player.spellCapacity;
+		int firstPassiveItem = firstStoredItem + player.storeCapacity;
 
 		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.offhandItem, shieldSprite, selectedItem == firstEquipmentItem + 0))
 			selectedItem = firstEquipmentItem + 0;
@@ -146,7 +144,7 @@ public class InventoryUI
 
 		y += slotSize + ypadding;
 
-		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.getArmorItem(ArmorSlot.Back), backpackSprite, selectedItem == firstEquipmentItem + 3))
+		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.getArmorItem(ArmorSlot.Back), armorSprite, selectedItem == firstEquipmentItem + 3))
 			selectedItem = firstEquipmentItem + 3;
 		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Body), armorSprite, selectedItem == firstEquipmentItem + 4))
 			selectedItem = firstEquipmentItem + 4;
@@ -223,7 +221,7 @@ public class InventoryUI
 				item = player.activeItems[i];
 		}
 
-		if (selectedItem >= firstActiveItem && selectedItem < firstStoredItem)
+		if (selectedItem >= firstActiveItem && selectedItem < firstSpellItem)
 		{
 			selectedItem -= firstActiveItem;
 			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
@@ -253,29 +251,80 @@ public class InventoryUI
 			if (selectedItem < 0)
 				selectedItem = -1;
 			selectedItem += firstActiveItem;
-			if (selectedItem >= firstStoredItem && storedItems.Count > 0)
-				selectedItem = Math.Min(selectedItem, firstStoredItem + storedItems.Count - 1);
+			if (selectedItem >= firstSpellItem)
+				selectedItem = Math.Min(selectedItem, firstSpellItem + player.spellCapacity - 1);
 
 		}
 
 		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
 
-		// Stored items
+		// Spell items
 
-		if (storedItems.Count > 0)
+		for (int i = 0; i < player.spellCapacity; i++)
 		{
-			for (int i = 0; i < storedItems.Count; i++)
+			int xx = i % 4;
+			int yy = i / 4;
+
+			bool selected = selectedItem == firstSpellItem + i;
+
+			if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.spellItems.Count ? player.spellItems[i] : null, spellSprite, selected))
+				selectedItem = firstSpellItem + i;
+
+			if (selected)
+				item = i < player.spellItems.Count ? player.spellItems[i] : null;
+		}
+
+		if (selectedItem >= firstSpellItem && selectedItem < firstStoredItem)
+		{
+			selectedItem -= firstSpellItem;
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.L);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4 % (player.spellCapacity % 4);
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.J);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + player.spellCapacity - 1) % player.spellCapacity;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.K);
+				selectedItem = Math.Min((selectedItem / 4 + 1) * 4, player.spellCapacity) + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.I);
+				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (selectedItem < 0)
+				selectedItem = -1;
+			selectedItem += firstSpellItem;
+			if (selectedItem >= firstStoredItem)
+				selectedItem = Math.Min(selectedItem, firstStoredItem + player.storeCapacity - 1);
+
+		}
+
+		y += (player.spellCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Stored items
+		{
+			for (int i = 0; i < player.storeCapacity; i++)
 			{
 				int xx = i % 4;
 				int yy = i / 4;
 
 				bool selected = selectedItem == firstStoredItem + i;
 
-				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, storedItems[i], bagSprite, selected))
+				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.storedItems.Count ? player.storedItems[i] : null, backpackSprite, selected))
 					selectedItem = firstStoredItem + i;
 
 				if (selected)
-					item = storedItems[i];
+					item = i < player.storedItems.Count ? player.storedItems[i] : null;
 			}
 
 			if (selectedItem >= firstStoredItem && selectedItem < firstPassiveItem)
@@ -310,7 +359,7 @@ public class InventoryUI
 				selectedItem += firstStoredItem;
 			}
 
-			y += (storedItems.Count + 3) / 4 * (slotSize + ypadding) + 8;
+			y += (player.storeCapacity + 3) / 4 * (slotSize + ypadding) + 8;
 		}
 
 		int idx = 0;
@@ -372,12 +421,184 @@ public class InventoryUI
 
 		return y - top;
 	}
+	*/
+
+	public static int DrawEquipment3(int x, int y, int width, int height, Player player, ref Vector2i selectedCell, out Item item)
+	{
+		item = null;
+
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
+		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);
+
+		int xpadding = 4;
+		int ypadding = 4;
+		int slotSize = 16;
+
+		int top = y;
+
+		y += 8;
+
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP("Inventory").x / 2, y, "Inventory", 1, 0xFFAAAAAA);
+
+		y += Renderer.smallFont.size + 8;
+
+		if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.L);
+			selectedCell.x++;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.J);
+			selectedCell.x--;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.K);
+			selectedCell.y++;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.I);
+			selectedCell.y--;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+
+		int numPassiveItems = 0;
+		for (int i = 0; i < player.passiveItems.Count; i++)
+		{
+			if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+				numPassiveItems++;
+		}
+
+		Vector2i firstEquipmentItem = Vector2i.Zero;
+		Vector2i firstActiveItem = new Vector2i(0, 3);
+		Vector2i firstSpellItem = firstActiveItem + new Vector2i(0, (player.activeItems.Length + 3) / 4);
+		Vector2i firstStoredItem = firstSpellItem + new Vector2i(0, (player.spellCapacity + 3) / 4);
+		Vector2i firstPassiveItem = firstStoredItem + new Vector2i(0, (player.storeCapacity + 3) / 4);
+		Vector2i wrapPoint = firstPassiveItem + new Vector2i(0, (numPassiveItems + 3) / 4);
+
+		if (selectedCell.y < 0)
+			selectedCell.y += wrapPoint.y;
+		else if (selectedCell.y >= wrapPoint.y)
+			selectedCell.y -= wrapPoint.y;
+
+		// Equipment items
+
+		drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.offhandItem, shieldSprite, firstEquipmentItem, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Helmet), helmetSprite, firstEquipmentItem + Vector2i.Right, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.handItem, weaponSprite, firstEquipmentItem + 2 * Vector2i.Right, ref selectedCell, ref item);
+
+		y += slotSize + ypadding;
+
+		drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.getArmorItem(ArmorSlot.Back), backpackSprite, firstEquipmentItem + Vector2i.Up, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Body), armorSprite, firstEquipmentItem + Vector2i.One, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.getArmorItem(ArmorSlot.Gloves), glovesSprite, firstEquipmentItem + new Vector2i(2, 1), ref selectedCell, ref item);
+
+		y += slotSize + ypadding;
+
+		drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Boots), bootsSprite, firstEquipmentItem + new Vector2i(1, 2), ref selectedCell, ref item);
+
+		if (selectedCell.y == firstEquipmentItem.y || selectedCell.y == firstEquipmentItem.y + 1)
+			selectedCell.x = (selectedCell.x + 3) % 3;
+		else if (selectedCell.y == firstEquipmentItem.y + 2)
+			selectedCell.x = 1;
+
+		y += slotSize + 8;
+
+		// Active items
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.activeItems[i], bagSprite, firstActiveItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+		}
+
+		if (selectedCell.y >= firstActiveItem.y && selectedCell.y < firstSpellItem.y)
+		{
+			int localy = selectedCell.y - firstActiveItem.y;
+			int cols = Math.Min(player.activeItems.Length - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Spell items
+
+		for (int i = 0; i < player.spellCapacity; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.spellItems.Count ? player.spellItems[i] : null, spellSprite, firstSpellItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+		}
+
+		if (selectedCell.y >= firstSpellItem.y && selectedCell.y < firstStoredItem.y)
+		{
+			int localy = selectedCell.y - firstSpellItem.y;
+			int cols = Math.Min(player.spellCapacity - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (player.spellCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Stored items
+
+		for (int i = 0; i < player.storeCapacity; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.storedItems.Count ? player.storedItems[i] : null, backpackSprite, firstStoredItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+		}
+
+		if (selectedCell.y >= firstStoredItem.y && selectedCell.y < firstPassiveItem.y)
+		{
+			int localy = selectedCell.y - firstStoredItem.y;
+			int cols = Math.Min(player.storeCapacity - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (player.storeCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Passive items
+
+		int idx = 0;
+		for (int i = 0; i < player.passiveItems.Count; i++)
+		{
+			if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+			{
+				int xx = idx % 4;
+				int yy = idx / 4;
+
+				drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.passiveItems[i], ringSprite, firstPassiveItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+
+				idx++;
+			}
+		}
+
+		if (selectedCell.y >= firstPassiveItem.y && selectedCell.y < wrapPoint.y)
+		{
+			int localy = selectedCell.y - firstPassiveItem.y;
+			int cols = Math.Min(numPassiveItems - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
+
+		return y - top;
+	}
 
 	void openScreen()
 	{
 		player.inventoryOpen = true;
 		player.numOverlaysOpen++;
-		selectedItem = 0;
+		selectedCell = Vector2i.Zero;
 		CharacterInfoPanel.OnOpen();
 	}
 
@@ -413,7 +634,7 @@ public class InventoryUI
 			int x = Renderer.UIWidth - 5 - width;
 			int y = 5;
 
-			inventoryHeight = DrawEquipment2(x, y, width, inventoryHeight, player, ref selectedItem, out Item selected);
+			inventoryHeight = DrawEquipment3(x, y, width, inventoryHeight, player, ref selectedCell, out Item selected);
 			if (selected != null)
 			{
 				int sidePanelWidth = 90;
@@ -421,7 +642,7 @@ public class InventoryUI
 
 				if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 				{
-					if (!(selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None || selected.isActiveItem) && !player.isEquipped(selected))
+					if ((selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None || selected.isActiveItem) && !player.isEquipped(selected))
 						player.equipItem(selected);
 				}
 				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))

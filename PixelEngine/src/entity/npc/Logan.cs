@@ -15,7 +15,7 @@ public class Logan : NPC
 	{
 		displayName = "Big Fat Logan";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant4.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/merchant4.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
@@ -54,14 +54,17 @@ public class Logan : NPC
 				GameState.instance.save.addQuestCompletionCallback(name, "logan_quest", (Quest quest) =>
 				{
 					initialDialogue = new Dialogue();
-					initialDialogue.addVoiceLine("Ha, look at you! You actually did it. Maybe you're not as useless as the rest of the rabble.").addCallback(() =>
-					{
-						player.removeItem(player.getItem("questline_logan_staff"));
-					});
+					initialDialogue.addVoiceLine("Ha, look at you! You actually did it. Maybe you're not as useless as the rest of the rabble.");
 					initialDialogue.addVoiceLine("Hooray, or something. Here, take this.").addCallback(() =>
 					{
+						Item staff = player.getItem("questline_logan_staff");
+						if (staff != null)
+							player.removeItem(staff);
+
 						closeScreen();
 						GameState.instance.save.unlockStartingClass(StartingClass.wizard);
+
+						quest.collect();
 					});
 				});
 			}
@@ -104,7 +107,7 @@ public class Logan : NPC
 					}
 					{
 						Dialogue dialogue = new Dialogue();
-						dialogue.addVoiceLine("Magic ran through those halls back in the days. Until something changed. Something quite \\dsinister\\...");
+						dialogue.addVoiceLine("Magic ran through those halls back in the days. Until \\dsomething\\0 changed.");
 						addDialogue(dialogue);
 					}
 					{
@@ -136,7 +139,7 @@ public class Logan : NPC
 
 		populateShop(random, 2, 9, level.avgLootValue, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
 		buysItems = true;
-		canAttune = true;
+		//canAttune = true;
 	}
 
 	public Logan()

@@ -52,7 +52,7 @@ public class AdvancedAI : AI
 
 	List<AIAction> actions = new List<AIAction>();
 	AIAction currentAction = null;
-	protected int hesitation = 1;
+	protected int hesitation = 0;
 
 	long chargeTime;
 	long actionTime;
@@ -295,7 +295,7 @@ public class AdvancedAI : AI
 				mob.inputLeft = true;
 
 			bool hitsWall = false;
-			for (int i = (int)MathF.Floor(mob.collider.min.y); i <= (int)MathF.Floor(mob.collider.max.y); i++)
+			for (int i = (int)MathF.Floor(mob.collider.min.y + 0.01f); i <= (int)MathF.Floor(mob.collider.max.y - 0.01f); i++)
 			{
 				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
 				if (forwardTile != null && forwardTile.isSolid)

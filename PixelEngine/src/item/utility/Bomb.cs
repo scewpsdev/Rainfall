@@ -34,7 +34,7 @@ public class Bomb : Item
 
 		//projectileItem = true;
 
-		fuseSound = Resource.GetSound("res/sounds/fuse.ogg");
+		fuseSound = Resource.GetSound("sounds/fuse.ogg");
 	}
 
 	public override void onDestroy(ItemEntity entity)
@@ -45,7 +45,8 @@ public class Bomb : Item
 
 	public override bool use(Player player)
 	{
-		player.dropItem(this);
+		ItemEntity entity = player.dropItem(this);
+		entity.velocity += player.velocity;
 		//player.throwItem(this, player.lookDirection.normalized, Vector2.Dot(player.lookDirection.normalized, Vector2.Down) > 0.5f ? 1 : 10);
 		ignite();
 		return true;

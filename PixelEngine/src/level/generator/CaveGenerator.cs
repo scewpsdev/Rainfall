@@ -23,7 +23,7 @@ public partial class LevelGenerator
 		}
 	}
 
-	public Level[] generateCaves(string seed)
+	public void generateCaves(string seed, out Level[] areaCaves)
 	{
 		/*
 		int numCaveFloors = 5;
@@ -51,8 +51,8 @@ public partial class LevelGenerator
 			{
 				generateCaveFloor(seed, areaCaves[i].floor - areaCaves[0].floor, startingRoom, areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
 
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
+				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
+				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
 			}
 			else
 			{
@@ -72,13 +72,14 @@ public partial class LevelGenerator
 		*/
 
 
-		Level[] areaCaves = new Level[6];
+		areaCaves = new Level[6];
 		Vector3 lightAmbience = Vector3.One;
+		Vector3 mediumAmbience = new Vector3(0.2f);
 		Vector3 darkAmbience = new Vector3(0.001f);
 		areaCaves[0] = new Level(0, "Caves I", 50, 50, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
-		areaCaves[1] = new Level(1, "Caves II", 50, 50, TileType.dirt, 4, 8) { ambientLight = darkAmbience };
+		areaCaves[1] = new Level(1, "Caves II", 50, 50, TileType.dirt, 4, 8) { ambientLight = mediumAmbience };
 		areaCaves[2] = new Level(2, "Caves III", 50, 50, TileType.dirt, 7, 12) { ambientLight = darkAmbience };
-		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 11, 16) { ambientLight = darkAmbience };
+		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 11, 16) { ambientLight = mediumAmbience };
 		areaCaves[4] = new Level(4, "Caves V", 60, 40, TileType.dirt, 15, 18) { ambientLight = lightAmbience };
 		areaCaves[5] = new Level(-1, "", 40, 20, TileType.dirt) { ambientLight = lightAmbience };
 
@@ -104,12 +105,10 @@ public partial class LevelGenerator
 		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 8));
 		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 10));
 		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(1, 10));
-		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
-		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("res/level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
+		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
+		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
 
 		generateCaveBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
-
-		return areaCaves;
 	}
 
 	public List<NPC> getCaveNPCList()
@@ -231,7 +230,7 @@ public partial class LevelGenerator
 		//int height = Math.Max((floor == 4 ? 3600 : 2400) / width, 20);
 
 		level.rooms = rooms;
-		level.ambientSound = Resource.GetSound("res/sounds/ambience.ogg");
+		level.ambientSound = Resource.GetSound("sounds/ambience.ogg");
 		//level.fogFalloff = 0.04f;
 		//level.fogColor = new Vector3(0.1f);
 
@@ -669,6 +668,14 @@ public partial class LevelGenerator
 		{
 			spawnNPC(tile.x, tile.y, getCaveNPCList());
 		});
+
+		if (level == GameState.instance.areaCaves[GameState.instance.areaCaves.Length - 2])
+		{
+			spawnRoomObject([exitRoom], 1.0f, false, (Vector2i pos, Random random, Room room) =>
+			{
+				spawnNPC(pos.x, pos.y, getCaveNPCList());
+			});
+		}
 
 		/*
 		// Builder merchant

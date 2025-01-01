@@ -18,14 +18,14 @@ public class Apple : Item
 
 		sprite = new Sprite(tileset, 5, 2);
 
-		useSound = [Resource.GetSound("res/sounds/eat.ogg")];
+		useSound = [Resource.GetSound("sounds/eat.ogg")];
 	}
 
 	public override bool use(Player player)
 	{
 		base.use(player);
 		player.addStatusEffect(new HealStatusEffect(0.5f + upgradeLevel * 0.5f, 5));
-		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFb15848), player.position);
+		GameState.instance.level.addEntity(ParticleEffects.CreateConsumableUseEffect(player, player.direction, 0xFFb15848), player.position);
 		return true;
 	}
 }

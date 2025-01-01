@@ -30,8 +30,8 @@ public static class Settings
 	public static GameSettings game = new GameSettings(0);
 	public static GraphicsSettings graphics = new GraphicsSettings(0);
 
-	const string gameSettingsPath = "GameSettings.config";
-	const string graphicsSettingsPath = "GraphicsSettings.config";
+	const string gameSettingsPath = "settings/GameSettings.config";
+	const string graphicsSettingsPath = "settings/GraphicsSettings.config";
 
 
 	public static void Load()

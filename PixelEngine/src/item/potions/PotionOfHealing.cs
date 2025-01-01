@@ -53,7 +53,7 @@ public class PotionOfHealing : Potion
 		canDrop = true;
 
 		value = 16;
-		throwableChance = 0.1f;
+		throwableChance = 0.0f;
 
 		sprite = new Sprite(tileset, 7, 0);
 	}

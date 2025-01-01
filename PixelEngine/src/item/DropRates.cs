@@ -29,9 +29,9 @@ public static class DropRates
 		0.1f, // Food
 		0.1f, // Potion
 		0.1f, // Relic
-		0.1f, // Staff
+		0.04f, // Staff
 		0.09f, // Scroll
-		0.1f,  // Spell
+		0.16f,  // Spell
 		0.08f, // Utility
 		0.09f, // Ammo
 		0.01f, // Gem
@@ -53,12 +53,12 @@ public static class DropRates
 	public static readonly float[] barrel = new float[(int)ItemType.Count] {
 		0.09f, // Weapon
 		0.02f, // Shield
-		0.1f, // Armor
+		0.12f, // Armor
 		0.25f, // Food
 		0.1f, // Potion
 		0.0f, // Relic
-		0.07f, // Staff
-		0.08f, // Scroll
+		0.04f, // Staff
+		0.09f, // Scroll
 		0.0f,  // Spell
 		0.13f, // Utility
 		0.12f, // Ammo
@@ -80,12 +80,12 @@ public static class DropRates
 	};
 	public static readonly float[] mob = new float[(int)ItemType.Count] {
 		0.13f, // Weapon
-		0.07f, // Shield
-		0.13f, // Armor
-		0.16f, // Food
+		0.08f, // Shield
+		0.15f, // Armor
+		0.18f, // Food
 		0.1f, // Potion
 		0.0f, // Relic
-		0.1f, // Staff
+		0.05f, // Staff
 		0.05f, // Scroll
 		0.0f,  // Spell
 		0.1f, // Utility

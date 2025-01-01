@@ -24,7 +24,7 @@ public class IlluminationSpell : Spell
 		spellIcon = new Sprite(tileset, 4, 6);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost, float duration)
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
 		if (player.mana >= manaCost)
 		{
@@ -35,6 +35,10 @@ public class IlluminationSpell : Spell
 
 			GameState.instance.level.addEntity(new LightOrb(direction, player.velocity, offset, player), position);
 			GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
+
+			return true;
 		}
+
+		return false;
 	}
 }

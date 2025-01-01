@@ -96,7 +96,7 @@ public class InputBinding
 
 public static class InputManager
 {
-	const string INPUT_BINDINGS_FILE = "InputBindings.config";
+	const string INPUT_BINDINGS_FILE = "settings/InputBindings.config";
 
 	const float MOUSE_SENSITIVITY = 0.0015f;
 	const float TURN_SPEED = 2.5f;

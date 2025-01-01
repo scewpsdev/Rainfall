@@ -14,12 +14,11 @@ public class BuilderMerchant : NPC
 	{
 		displayName = "John";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/merchant.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		saleTax = 0.4f;
 		buysItems = true;
 
 		initialDialogue = new Dialogue();

@@ -138,10 +138,10 @@ public partial class LevelGenerator
 		level.resize(width, height, TileType.dirt);
 		level.rooms = rooms;
 		level.ambientLight = MathHelper.ARGBToVector(0xFFdcffb5).xyz;
-		level.ambientSound = Resource.GetSound("res/level/level2/ambience2.ogg");
+		level.ambientSound = Resource.GetSound("level/level2/ambience2.ogg");
 		//level.fogColor = MathHelper.ARGBToVector(0xFFa0c7eb).xyz;
 		//level.fogFalloff = 0.2f;
-		//level.bg = Resource.GetTexture("res/level/level2/bg.png", false);
+		//level.bg = Resource.GetTexture("level/level2/bg.png", false);
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
@@ -262,12 +262,12 @@ public partial class LevelGenerator
 
 		// Leaves
 		{
-			//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/level2/parallax1.png", false), 2.0f), new Vector2(level.width, level.height) * 0.5f);
-			//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/level2/parallax2.png", false), 0.2f), new Vector2(level.width, level.height) * 0.5f);
+			//level.addEntity(new ParallaxObject(Resource.GetTexture("level/level2/parallax1.png", false), 2.0f), new Vector2(level.width, level.height) * 0.5f);
+			//level.addEntity(new ParallaxObject(Resource.GetTexture("level/level2/parallax2.png", false), 0.2f), new Vector2(level.width, level.height) * 0.5f);
 
-			Texture leavesHoriz = Resource.GetTexture("res/level/level2/leaves_horiz.png", false);
-			Texture leavesVert = Resource.GetTexture("res/level/level2/leaves_vert.png", false);
-			Texture leavesCorner = Resource.GetTexture("res/level/level2/leaves_corner.png", false);
+			Texture leavesHoriz = Resource.GetTexture("level/level2/leaves_horiz.png", false);
+			Texture leavesVert = Resource.GetTexture("level/level2/leaves_vert.png", false);
+			Texture leavesCorner = Resource.GetTexture("level/level2/leaves_corner.png", false);
 
 			for (int y = 0; y < height; y++)
 			{

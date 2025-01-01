@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 public class RunStats
 {
-	public static readonly uint[] recordColors = [0xFFd0be69, 0xFF6cb859, 0xFF5f81cf, 0xFFb15848];
+	public static readonly uint[] recordColors = [0xFF5f81cf, 0xFFd0be69, 0xFF6cb859, 0xFFb15848];
 
 	public string seed;
 	public float duration = 0.0f;
@@ -171,8 +171,8 @@ public class GameState : State
 
 			generator.generateCliffside(cliffside);
 			cliffside.addEntity(new Cliffside(cliffside.rooms[0]));
-			cliffside.bg = Resource.GetTexture("res/level/cliffside/bg.png", false);
-			cliffside.ambientSound = Resource.GetSound("res/sounds/ambience4.ogg");
+			cliffside.bg = Resource.GetTexture("level/cliffside/bg.png", false);
+			cliffside.ambientSound = Resource.GetSound("sounds/ambience4.ogg");
 
 			tutorialDoor = new TutorialEntranceDoor(tutorial);
 			cliffside.addEntity(tutorialDoor, (Vector2)cliffside.rooms[0].getMarker(32));
@@ -215,7 +215,7 @@ public class GameState : State
 		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
 
 
-		areaCaves = generator.generateCaves(run.seed);
+		generator.generateCaves(run.seed, out areaCaves);
 
 		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
 		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
@@ -224,6 +224,7 @@ public class GameState : State
 		areaCaves[0].entrance.otherDoor = dungeonDoor;
 
 		Door castleGate = new CastleGate(null, null);
+		castleGate.finalExit = true;
 		hub.addEntity(castleGate, (Vector2)hub.rooms[0].getMarker(16));
 
 		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
@@ -234,7 +235,12 @@ public class GameState : State
 		areaCaves[areaCaves.Length - 1].exit.otherDoor = areaDungeons[0].entrance;
 		areaDungeons[0].entrance.destination = areaCaves[areaCaves.Length - 1];
 		areaDungeons[0].entrance.otherDoor = areaCaves[areaCaves.Length - 1].exit;
-		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
+
+		Door hubElevator = new Door(null, null);
+		hub.addEntity(hubElevator, (Vector2)hub.rooms[0].getMarker(0x12));
+
+		areaDungeons[areaDungeons.Length - 1].exit.destination = hub;
+		areaDungeons[areaDungeons.Length - 1].exit.otherDoor = hubElevator;
 
 
 		/*
@@ -256,7 +262,7 @@ public class GameState : State
 			player.setStartingClass(StartingClass.startingClasses[Hash.hash(seed) % StartingClass.startingClasses.Length]);
 			levelSwitchTime = -1;
 		}
-		else if (quickRestart)
+		else if (quickRestart && save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
 		{
 			level = null;
 			switchLevel(areaCaves[0], areaCaves[0].entrance.position);

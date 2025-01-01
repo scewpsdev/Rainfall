@@ -13,7 +13,7 @@ public class SkeletonArcher : Mob
 	{
 		displayName = "Skeleton Archer";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/skeleton.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/skeleton.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 1, 1, true);
 		animator.addAnimation("charge", 0, 0, 16, 0, 1, 1, true);

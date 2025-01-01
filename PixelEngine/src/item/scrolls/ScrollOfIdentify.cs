@@ -49,7 +49,7 @@ public class ScrollOfIdentify : Item
 				if (closed)
 					selectedItem = -1;
 
-				player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+				player.level.addEntity(ParticleEffects.CreateScrollUseEffect(player), player.position + player.collider.center);
 			}
 		}
 	}

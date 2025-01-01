@@ -23,7 +23,7 @@ public class ArcherAI : AdvancedAI
 		loseRange = 15.0f;
 		loseTime = 4.0f;
 
-		shootSound = Resource.GetSound("res/sounds/bow_shoot.ogg");
+		shootSound = Resource.GetSound("sounds/bow_shoot.ogg");
 
 		AIAction shoot = addAction("idle", 0, attackChargeTime, attackCooldownTime, 0, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < attackTriggerDistance);
 		shoot.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>

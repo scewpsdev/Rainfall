@@ -171,7 +171,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 		velocity.y += gravity * Time.deltaTime;
 
-		if (GameState.instance.level.sampleTiles(position) != null)
+		if (GameState.instance.level.hitTiles(position) != null)
 			velocity = Vector2.Zero;
 
 		Vector2 displacement = velocity * Time.deltaTime;

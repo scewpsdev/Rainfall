@@ -78,7 +78,7 @@ public class AttackAction : EntityAction
 			else
 				maxRange = MathF.Max(maxRange, currentRange);
 
-			HitData tileHit2 = GameState.instance.level.sampleTiles(origin + direction * currentRange);
+			HitData tileHit2 = GameState.instance.level.hitTiles(origin + direction * currentRange);
 			if (tileHit2 != null)
 			{
 				Debug.Assert(tileHit != null);

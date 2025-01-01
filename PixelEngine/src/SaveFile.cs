@@ -177,7 +177,7 @@ public class SaveFile
 
 	public static SaveFile Load(int saveID)
 	{
-		string path = "save" + (saveID + 1) + ".dat";
+		string path = "saves/save" + (saveID + 1) + ".dat";
 		SaveFile save = new SaveFile() { id = saveID, path = path };
 
 #if DEBUG
@@ -332,7 +332,7 @@ public class SaveFile
 		file.serialize(save.path);
 
 #if DEBUG
-		Utils.RunCommand("xcopy", "/y \"" + save.path + "\" \"..\\..\\..\\\"");
+		Utils.RunCommand("xcopy", "/y \"" + save.path + "\" \"..\\..\\..\\saves\\\"");
 #endif
 
 		Console.WriteLine("Saved file " + save.id);
@@ -364,20 +364,20 @@ public class SaveFile
 	{
 		if (!run.isCustomRun)
 		{
-			if (run.score > save.highscores[0].score)
+			if (run.hasWon && (run.duration < save.highscores[0].time || save.highscores[0].time == -1))
 			{
 				HighscoreRun(run, 0, save);
-				run.scoreRecord = true;
+				run.timeRecord = true;
 			}
-			if (run.floor > save.highscores[1].floor)
+			if (run.score > save.highscores[1].score)
 			{
 				HighscoreRun(run, 1, save);
-				run.floorRecord = true;
+				run.scoreRecord = true;
 			}
-			if (run.hasWon && (run.duration < save.highscores[2].time || save.highscores[2].time == -1))
+			if (run.floor > save.highscores[2].floor)
 			{
 				HighscoreRun(run, 2, save);
-				run.timeRecord = true;
+				run.floorRecord = true;
 			}
 			if (run.kills > save.highscores[3].kills)
 			{

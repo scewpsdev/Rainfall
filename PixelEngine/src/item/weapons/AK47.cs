@@ -25,7 +25,7 @@ public class AK47 : Weapon
 		sprite = new Sprite(tileset, 12, 8);
 		renderOffset.x = 0.3f;
 
-		useSound = Resource.GetSounds("res/sounds/shoot", 2);
+		useSound = Resource.GetSounds("sounds/shoot", 2);
 	}
 
 	public override bool use(Player player)

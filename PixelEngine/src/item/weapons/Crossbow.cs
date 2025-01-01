@@ -33,8 +33,8 @@ public class Crossbow : Weapon
 		sprite = new Sprite(tileset, 12, 3);
 		renderOffset.x = 0.5f;
 
-		useSound = Resource.GetSounds("res/sounds/crossbow", 6);
-		reloadSound = Resource.GetSound("res/sounds/crossbow_reload.ogg");
+		useSound = Resource.GetSounds("sounds/crossbow", 6);
+		reloadSound = Resource.GetSound("sounds/crossbow_reload.ogg");
 	}
 
 	public override void update(Entity entity)

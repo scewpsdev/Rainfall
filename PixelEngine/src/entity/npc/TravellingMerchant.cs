@@ -15,7 +15,7 @@ public class TravellingMerchant : NPC
 	{
 		displayName = "Siko";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/merchant2.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/merchant2.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 1, true);
 		animator.setAnimation("idle");
@@ -57,7 +57,7 @@ public class TravellingMerchant : NPC
 		if (level != GameState.instance.hub)
 		{
 			buysItems = true;
-			canAttune = true;
+			//canAttune = true;
 			populateShop(random, 3, 7, level.avgLootValue * 1.25f, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic, ItemType.Gem);
 		}
 	}

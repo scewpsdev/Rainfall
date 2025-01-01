@@ -24,14 +24,14 @@ public class TorchEntity : Entity, Interactable
 	{
 		sprite = new Sprite(tileset, 1, 3);
 
-		idleSound = Resource.GetSound("res/sounds/torch.ogg");
+		idleSound = Resource.GetSound("sounds/torch.ogg");
 
 		simplex = new Simplex((uint)Time.currentTime, 3);
 	}
 
 	public override void init(Level level)
 	{
-		level.addEntity(particles = Effects.CreateTorchEffect(this), position + new Vector2(0, 0.25f));
+		level.addEntity(particles = ParticleEffects.CreateTorchEffect(this), position + new Vector2(0, 0.25f));
 		particles.layer = LAYER_DEFAULT - 0.01f;
 
 		source = Audio.Play(idleSound, new Vector3(position, 0));
@@ -44,7 +44,7 @@ public class TorchEntity : Entity, Interactable
 		particles.remove();
 	}
 
-	public bool canInteract(Player player)
+	public bool isInteractable(Player player)
 	{
 		return player.handItem == null || player.offhandItem == null;
 	}

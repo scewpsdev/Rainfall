@@ -46,8 +46,8 @@ internal class SpikeTrap : Entity, Hittable
 		{
 			if (velocity.y < -2)
 			{
-				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Up, MathF.Abs(velocity.y), MathHelper.ARGBToVector(0xFF47362a).xyz), position);
-				Audio.PlayOrganic(Resource.GetSound("res/sounds/arrow_hit.ogg"), new Vector3(position, 0));
+				GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Up, MathF.Abs(velocity.y), MathHelper.ARGBToVector(0xFF47362a).xyz), position);
+				Audio.PlayOrganic(Resource.GetSound("sounds/arrow_hit.ogg"), new Vector3(position, 0));
 				velocity.y = 0;
 			}
 		}
@@ -57,7 +57,7 @@ internal class SpikeTrap : Entity, Hittable
 			if (hit != null && hit.entity != null)
 			{
 				trigger();
-				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Down, 8, MathHelper.ARGBToVector(0xFF47362a).xyz), position);
+				GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Down, 8, MathHelper.ARGBToVector(0xFF47362a).xyz), position);
 			}
 		}
 		else if (falling)

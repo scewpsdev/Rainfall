@@ -1,3 +1,5 @@
+#ifndef RAINFALL_EXCLUDE_PHYSICS
+
 #include "Cloth.h"
 
 #include "Rainfall.h"
@@ -305,3 +307,5 @@ RFAPI int Physics_ClothGetNumCapsules(Cloth* cloth)
 {
 	return (int)cloth->cloth->getNumCapsules();
 }
+
+#endif

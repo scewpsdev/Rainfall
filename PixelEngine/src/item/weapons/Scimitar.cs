@@ -24,6 +24,6 @@ public class Scimitar : Weapon
 
 		sprite = new Sprite(tileset, 5, 3);
 		renderOffset.x = 0.2f;
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
+		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 }

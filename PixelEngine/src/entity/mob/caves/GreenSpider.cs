@@ -12,7 +12,7 @@ public class GreenSpider : Mob
 	{
 		displayName = "Green Spider";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/green_spider.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/green_spider.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 1, 1, true);
 		animator.addAnimation("dead", 1 * 16, 0, 16, 0, 1, 1, true);
@@ -28,11 +28,10 @@ public class GreenSpider : Mob
 
 		itemDropChance = 0.8f;
 
-		ai = new SpiderAI(this)
+		ai = new SpiderAI(this, 0.5f)
 		{
 			aggroRange = 12,
 			loseRange = 15,
-			jumpChargeTime = 0.5f,
 		};
 	}
 }

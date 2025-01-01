@@ -26,7 +26,7 @@ public class MagicProjectile : Projectile
 
 	public override void onHit(Vector2 normal)
 	{
-		GameState.instance.level.addEntity(Effects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(0xFF99eeee).xyz), position - velocity * Time.deltaTime);
+		GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(0xFF99eeee).xyz), position - velocity * Time.deltaTime);
 	}
 
 	public override void render()

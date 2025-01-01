@@ -28,9 +28,10 @@ public class PotionOfTeleport : Potion
 
 		displayName = "Potion of Teleport";
 
-		value = 11;
+		value = 17;
 		canDrop = true;
 		stackable = true;
+		throwableChance = 1.0f;
 
 		sprite = new Sprite(tileset, 6, 5);
 	}

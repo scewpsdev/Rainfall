@@ -27,6 +27,6 @@ public class Flamberge : Weapon
 		icon = new Sprite(tileset.texture, 12 * 16, 6 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
+		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 }

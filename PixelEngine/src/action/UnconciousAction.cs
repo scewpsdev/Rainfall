@@ -29,7 +29,7 @@ public class UnconciousAction : EntityAction
 
 		duration = 1000;
 
-		wakeupSound = Resource.GetSound("res/sounds/wakeup.ogg");
+		wakeupSound = Resource.GetSound("sounds/wakeup.ogg");
 	}
 
 	public override void onStarted(Player player)

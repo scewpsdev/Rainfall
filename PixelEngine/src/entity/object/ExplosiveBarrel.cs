@@ -27,7 +27,7 @@ public class ExplosiveBarrel : Entity, Hittable
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 		platformCollider = true;
 
-		fuseSound = Resource.GetSound("res/sounds/fuse.ogg");
+		fuseSound = Resource.GetSound("sounds/fuse.ogg");
 	}
 
 	public override void init(Level level)
@@ -61,7 +61,7 @@ public class ExplosiveBarrel : Entity, Hittable
 		{
 			ignitedTime = Time.currentTime;
 			source = Audio.PlayOrganic(fuseSound, new Vector3(position, 0));
-			GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF4c3f46), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF4c3f46), position);
 		}
 		return health <= 0;
 	}
@@ -69,8 +69,8 @@ public class ExplosiveBarrel : Entity, Hittable
 	void breakBarrel()
 	{
 		ignitedTime = Time.currentTime;
-		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF4c3f46), position);
-		GameState.instance.level.addEntity(Effects.CreateSparkEffect(), position);
+		GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF4c3f46), position);
+		GameState.instance.level.addEntity(ParticleEffects.CreateSparkEffect(), position);
 		sprite = null;
 	}
 
@@ -91,7 +91,7 @@ public class ExplosiveBarrel : Entity, Hittable
 			}
 
 			if ((Time.currentTime - ignitedTime) / 1e9f % 1.0f * 10 < 1)
-				GameState.instance.level.addEntity(Effects.CreateSparkEffect(), position);
+				GameState.instance.level.addEntity(ParticleEffects.CreateSparkEffect(), position);
 		}
 
 		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.01f));

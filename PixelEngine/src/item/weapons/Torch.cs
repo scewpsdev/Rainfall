@@ -32,12 +32,12 @@ public class Torch : Weapon
 		particlesOffset = new Vector2(0.25f, 0.25f);
 		renderOffset.x = 0.3f;
 
-		hitSound = [Resource.GetSound("res/sounds/hit_torch.ogg")];
+		hitSound = [Resource.GetSound("sounds/hit_torch.ogg")];
 	}
 
 	public override ParticleEffect createParticleEffect(Entity entity)
 	{
-		return Effects.CreateTorchEffect(entity);
+		return ParticleEffects.CreateTorchEffect(entity);
 	}
 
 	public override void render(Entity entity)

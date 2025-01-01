@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 public class Staff : Item
 {
-	public List<Spell> attunedSpells = [null]; // size of 1 just so attunedSpells[selectedSpell] can be accessed
-	public int selectedSpell = 0;
-
-
 	public Staff(string name)
 		: base(name, ItemType.Staff)
 	{
@@ -29,6 +25,7 @@ public class Staff : Item
 		useSound = null;
 	}
 
+	/*
 	public Spell attuneSpell(int idx, Spell spell)
 	{
 		Debug.Assert(idx <= attunedSpells.Count);
@@ -38,10 +35,11 @@ public class Staff : Item
 		attunedSpells[idx] = spell;
 		return oldSpell;
 	}
+	*/
 
 	public override bool use(Player player)
 	{
-		Spell spell = attunedSpells[selectedSpell];
+		Spell spell = player.getSelectedSpell();
 		if (spell != null)
 		{
 			if (staffCharges > 0)

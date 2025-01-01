@@ -20,6 +20,8 @@ namespace Rainfall
 
 	public static class Resource
 	{
+		public static string ASSET_DIRECTORY = "res";
+
 		static Dictionary<string, string> texts = new Dictionary<string, string>();
 		static Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 		static Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
@@ -32,17 +34,19 @@ namespace Rainfall
 
 		public static string ReadText(string path)
 		{
-			return File.ReadAllText(path + ".bin");
+			return File.ReadAllText($"{ASSET_DIRECTORY}/{path}.bin");
 		}
 
 		internal static Shader CreateShader(string vertexPath, string fragmentPath)
 		{
 			Span<byte> vertexPtr = stackalloc byte[256];
-			StringUtils.WriteString(vertexPtr, vertexPath);
+			StringUtils.WriteString(vertexPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(vertexPtr, vertexPath);
 			StringUtils.AppendString(vertexPtr, ".bin");
 
 			Span<byte> fragmentPtr = stackalloc byte[256];
-			StringUtils.WriteString(fragmentPtr, fragmentPath);
+			StringUtils.WriteString(fragmentPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(fragmentPtr, fragmentPath);
 			StringUtils.AppendString(fragmentPtr, ".bin");
 
 			unsafe
@@ -60,7 +64,8 @@ namespace Rainfall
 		internal static Shader CreateShader(string computePath)
 		{
 			Span<byte> computePtr = stackalloc byte[256];
-			StringUtils.WriteString(computePtr, computePath);
+			StringUtils.WriteString(computePtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(computePtr, computePath);
 			StringUtils.AppendString(computePtr, ".bin");
 
 			unsafe
@@ -78,7 +83,8 @@ namespace Rainfall
 		internal static Texture CreateTexture(string path, ulong flags)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
-			StringUtils.WriteString(pathPtr, path);
+			StringUtils.WriteString(pathPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(pathPtr, path);
 			StringUtils.AppendString(pathPtr, ".bin");
 
 			unsafe
@@ -110,7 +116,8 @@ namespace Rainfall
 		internal static Cubemap CreateCubemap(string path, ulong flags)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
-			StringUtils.WriteString(pathPtr, path);
+			StringUtils.WriteString(pathPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(pathPtr, path);
 			StringUtils.AppendString(pathPtr, ".bin");
 
 			unsafe
@@ -128,7 +135,8 @@ namespace Rainfall
 		internal static unsafe SceneData* CreateScene(string path, ulong textureFlags)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
-			StringUtils.WriteString(pathPtr, path);
+			StringUtils.WriteString(pathPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(pathPtr, path);
 			StringUtils.AppendString(pathPtr, ".bin");
 
 			unsafe
@@ -144,7 +152,8 @@ namespace Rainfall
 		internal static FontData CreateFontData(string path)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
-			StringUtils.WriteString(pathPtr, path);
+			StringUtils.WriteString(pathPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(pathPtr, path);
 			StringUtils.AppendString(pathPtr, ".bin");
 
 			unsafe
@@ -162,7 +171,8 @@ namespace Rainfall
 		internal static Sound CreateSound(string path)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
-			StringUtils.WriteString(pathPtr, path);
+			StringUtils.WriteString(pathPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(pathPtr, path);
 			StringUtils.AppendString(pathPtr, ".bin");
 
 			unsafe
@@ -208,7 +218,8 @@ namespace Rainfall
 		public static byte[] ReadImage(string path, out TextureInfo info)
 		{
 			Span<byte> pathPtr = stackalloc byte[256];
-			StringUtils.WriteString(pathPtr, path);
+			StringUtils.WriteString(pathPtr, ASSET_DIRECTORY + "/");
+			StringUtils.AppendString(pathPtr, path);
 			StringUtils.AppendString(pathPtr, ".bin");
 
 			unsafe

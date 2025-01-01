@@ -1,3 +1,5 @@
+#ifndef RAINFALL_EXCLUDE_PHYSICS
+
 #include "FilterShader.h"
 
 #include <PxRigidActor.h>
@@ -36,3 +38,5 @@ PxFilterFlags FilterShader(
 	}
 	return PxFilterFlag::eKILL;
 }
+
+#endif

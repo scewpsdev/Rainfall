@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 public static class ItemSlotUI
 {
-	public static bool Render(float x, float y, int size, Sprite icon, uint iconColor, int stackSize, Sprite background = null, bool selected = false)
+	public static void Render(float x, float y, int size, Sprite icon, uint iconColor, int stackSize, Sprite background, Vector2i cellPosition, ref Vector2i selectedCell)
 	{
+		bool selected = cellPosition == selectedCell;
+
 		Renderer.DrawUISprite(x - 1, y - 1, size + 2, size + 2, null, false, selected ? UIColors.ITEM_SLOT_FRAME_HIGHLIGHT : UIColors.ITEM_SLOT_FRAME);
 		Renderer.DrawUISprite(x, y, size, size, null, false, selected ? UIColors.ITEM_SLOT_BACKGROUND_HIGHLIGHT : UIColors.ITEM_SLOT_BACKGROUND);
 		if (icon != null)
@@ -26,9 +28,7 @@ public static class ItemSlotUI
 			Renderer.DrawUISprite(x, y, size, size, background, false, 0x7FFFFFFF);
 		}
 
-		bool newSelected = selected;
 		if (Input.cursorHasMoved && Renderer.IsHovered(x, y, size, size))
-			newSelected = true;
-		return newSelected;
+			selectedCell = cellPosition;
 	}
 }

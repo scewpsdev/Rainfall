@@ -31,7 +31,7 @@ public class PoisonStatusEffect : StatusEffect
 	{
 		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 16), duration, 5.0f, 0.25f, 0xFFAFAF2A), player.position + new Vector2(0, 0.5f));
 
-		ParticleEffect effect = new ParticleEffect(entity, "res/effects/regenerate.rfs");
+		ParticleEffect effect = new ParticleEffect(entity, "effects/regenerate.rfs");
 		effect.systems[0].handle->colorAnim.value0.value.xyz = MathHelper.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = MathHelper.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;

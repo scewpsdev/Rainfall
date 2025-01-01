@@ -38,7 +38,7 @@ public class Lantern : Item
 
 	public override void onEquip(Player player)
 	{
-		GameState.instance.level.addEntity(particles = new ParticleEffect(player, "res/effects/lantern.rfs"), player.position + new Vector2(0, 0.5f));
+		GameState.instance.level.addEntity(particles = new ParticleEffect(player, "effects/lantern.rfs"), player.position + new Vector2(0, 0.5f));
 	}
 
 	public override void onUnequip(Player player)

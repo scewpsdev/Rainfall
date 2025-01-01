@@ -12,7 +12,7 @@ public class Spider : Mob
 	{
 		displayName = "Spider";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/spider.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/spider.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 1, 1, true);
 		animator.addAnimation("dead", 1 * 16, 0, 16, 0, 1, 1, true);

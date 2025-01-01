@@ -12,7 +12,7 @@ public abstract class StatusEffect
 
 	static StatusEffect()
 	{
-		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/status.png", false), 8, 8);
+		tileset = new SpriteSheet(Resource.GetTexture("sprites/status.png", false), 8, 8);
 	}
 
 

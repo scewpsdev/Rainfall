@@ -29,7 +29,7 @@ public class Barrel : Entity, Hittable
 		platformCollider = true;
 
 		hitSound = Item.woodHit;
-		breakSound = Resource.GetSound("res/sounds/break_wood.ogg");
+		breakSound = Resource.GetSound("sounds/break_wood.ogg");
 	}
 
 	public Barrel()
@@ -75,7 +75,7 @@ public class Barrel : Entity, Hittable
 	{
 		if (items != null)
 			dropItems();
-		GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF675051), position);
+		GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051), position);
 		Audio.PlayOrganic(breakSound, new Vector3(position, 0));
 		remove();
 	}
@@ -87,7 +87,7 @@ public class Barrel : Entity, Hittable
 			breakBarrel();
 		else
 		{
-			GameState.instance.level.addEntity(Effects.CreateDestroyWoodEffect(0xFF675051), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051), position);
 			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
 		}
 		return true;

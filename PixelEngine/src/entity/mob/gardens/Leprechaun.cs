@@ -15,7 +15,7 @@ public class Leprechaun : Mob
 	{
 		displayName = "Leprechaun";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/leprechaun.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/leprechaun.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 4, true);
 		animator.addAnimation("run", 2 * 16, 0, 16, 0, 8, 18, true);

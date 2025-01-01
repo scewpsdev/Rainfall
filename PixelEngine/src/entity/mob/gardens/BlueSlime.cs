@@ -17,11 +17,10 @@ public class BlueSlime : Slime
 		health = 8;
 		jumpPower = 12;
 
-		ai = new SpiderAI(this)
+		ai = new SpiderAI(this, 0.75f)
 		{
 			aggroRange = 12,
 			loseRange = 15,
-			jumpChargeTime = 0.75f,
 		};
 	}
 }

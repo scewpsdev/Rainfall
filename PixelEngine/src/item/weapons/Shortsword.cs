@@ -23,7 +23,7 @@ public class Shortsword : Weapon
 
 		sprite = new Sprite(tileset, 2, 1);
 		renderOffset.x = 0.2f;
-		//ingameSprite = new Sprite(Resource.GetTexture("res/sprites/sword.png", false));
+		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 
 	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)

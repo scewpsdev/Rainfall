@@ -25,7 +25,7 @@ public class Coin : Entity
 		color = new Vector4(MathHelper.ARGBToVector(0xFFCCAA66).xyz * MathHelper.RandomVector3(0.8f, 1.2f), 1.0f);
 		collider = new FloatRect(-1 / 16.0f, -1 / 16.0f, 2.0f / 16, 2.0f / 16);
 
-		collectSound = Resource.GetSounds("res/sounds/coin", 6);
+		collectSound = Resource.GetSounds("sounds/coin", 6);
 	}
 
 	public override void init(Level level)
@@ -63,7 +63,7 @@ public class Coin : Entity
 							(target as Leprechaun).money++;
 
 						if (Random.Shared.NextSingle() < 0.4f)
-							GameState.instance.level.addEntity(Effects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
+							GameState.instance.level.addEntity(ParticleEffects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
 
 						Audio.Play(collectSound, new Vector3(position, 0));
 

@@ -41,11 +41,13 @@ public class SpellCastAction : EntityAction
 		if (player.mana < manaCost)
 			duration *= 2;
 
-		spell.cast(player, weapon, manaCost, duration);
-		player.consumeMana(manaCost);
+		if (spell.cast(player, weapon, manaCost, duration))
+		{
+			player.consumeMana(manaCost);
 
-		if (spell.castSound != null)
-			Audio.PlayOrganic(spell.castSound, new Vector3(player.position, 0));
+			if (spell.castSound != null)
+				Audio.PlayOrganic(spell.castSound, new Vector3(player.position, 0));
+		}
 	}
 
 	public override void update(Player player)

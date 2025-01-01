@@ -19,7 +19,7 @@ public class MoonFruit : Item
 
 		sprite = new Sprite(tileset, 13, 4);
 
-		useSound = [Resource.GetSound("res/sounds/eat.ogg")];
+		useSound = [Resource.GetSound("sounds/eat.ogg")];
 	}
 
 	public override bool use(Player player)
@@ -27,7 +27,7 @@ public class MoonFruit : Item
 		base.use(player);
 		player.magic += 2;
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana - player.mana, 3.0f));
-		GameState.instance.level.addEntity(Effects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);
+		GameState.instance.level.addEntity(ParticleEffects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);
 		return true;
 	}
 }

@@ -20,6 +20,6 @@ public class ChainmailArmor : Item
 		value = 8;
 
 		sprite = new Sprite(tileset, 8, 8);
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/chainmail_armor.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/chainmail_armor.png", false), 0, 0, 16, 16);
 	}
 }

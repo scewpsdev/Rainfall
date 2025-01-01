@@ -27,8 +27,8 @@ public class MainMenuState : State
 
 	public MainMenuState()
 	{
-		splash = new Sprite(Resource.GetTexture("res/sprites/splash.png", false), 0, 0, 256, 64);
-		splashSmall = new Sprite(Resource.GetTexture("res/sprites/splash.png", false), 0, 64, 256, 32);
+		splash = new Sprite(Resource.GetTexture("sprites/splash.png", false), 0, 0, 256, 64);
+		splashSmall = new Sprite(Resource.GetTexture("sprites/splash.png", false), 0, 64, 256, 32);
 	}
 
 	public override void update()
@@ -175,6 +175,7 @@ public class MainMenuState : State
 		drawLineRight("SovereignsGreed");
 		drawLineRight("Siegbruh");
 		drawLineRight("Souls_Lito");
+		drawLineRight("wsfz_demon");
 		drawLine("");
 		drawLine("Libraries:");
 		back();

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class DungeonsBossRoom : BossRoom
 {
 	public DungeonsBossRoom(Room room)
-		: base(room, new Raya())
+		: base(room, new Raya() { itemDrops = [new LostSigil()] })
 	{
 	}
 }

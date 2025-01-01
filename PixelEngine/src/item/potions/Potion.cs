@@ -25,7 +25,7 @@ public class Potion : Item
 		sprite = new Sprite(tileset, 4, 5);
 		canDrop = false;
 
-		breakSound = Resource.GetSounds("res/sounds/break_bottle", 3);
+		breakSound = Resource.GetSounds("sounds/break_bottle", 3);
 	}
 
 	public Potion()
@@ -108,7 +108,7 @@ public class Potion : Item
 			color += MathHelper.ARGBToVector(effects[i].color).xyz;
 		color /= effects.Count;
 
-		GameState.instance.level.addEntity(Effects.CreatePotionExplodeEffect(color), entity.position);
+		GameState.instance.level.addEntity(ParticleEffects.CreatePotionExplodeEffect(color), entity.position);
 		GameState.instance.level.addEntity(new PotionExplodeEffect(spillRadius, color), entity.position);
 
 		Audio.PlayOrganic(breakSound, new Vector3(entity.position, 0), 3);

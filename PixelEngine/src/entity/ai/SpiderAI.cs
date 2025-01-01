@@ -8,17 +8,19 @@ using System.Threading.Tasks;
 
 public class SpiderAI : AdvancedAI
 {
-	public float jumpChargeTime = 2.0f;
+	float jumpChargeTime = 2.0f;
 	float jumpSpeed = 4;
 	float chargeSpeed = 0.25f;
 
 
-	public SpiderAI(Mob mob)
+	public SpiderAI(Mob mob, float jumpChargeTime = 2.0f)
 		: base(mob)
 	{
 		aggroRange = 8.0f;
 		loseRange = 12.0f;
 		loseTime = 6.0f;
+
+		this.jumpChargeTime = jumpChargeTime;
 
 		patrol = false;
 

@@ -76,31 +76,31 @@ public static class ItemInfoPanel
 
 		if (item.type == ItemType.Weapon || item.type == ItemType.Staff)
 		{
-			drawLeft("DMG");
+			drawLeft("Attack");
 			drawRight(item.attackDamage);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackDamage, compareItem.attackDamage);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("SPD");
+			drawLeft("Speed");
 			drawRight(item.attackRate);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRate, compareItem.attackRate);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("RANGE");
+			drawLeft("Range");
 			drawRight(item.attackRange);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRange, compareItem.attackRange);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("KNOCK");
+			drawLeft("Knockback");
 			drawRight(item.knockback);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.knockback, compareItem.knockback);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("WGHT");
+			drawLeft("Weight");
 			drawRight(item.weight);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.weight, compareItem.weight, true);
@@ -110,7 +110,7 @@ public static class ItemInfoPanel
 			{
 				if (item.buff.criticalAttackModifier > 1)
 				{
-					drawLeft("CRIT");
+					drawLeft("Critical");
 					drawRight(item.buff.criticalAttackModifier);
 					if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.buff != null)
 						drawComparison(item.buff.criticalAttackModifier, compareItem.buff.criticalAttackModifier, true);
@@ -118,6 +118,7 @@ public static class ItemInfoPanel
 				}
 			}
 
+			/*
 			if (item.type == ItemType.Staff)
 			{
 				Staff staff = item as Staff;
@@ -142,16 +143,17 @@ public static class ItemInfoPanel
 				}
 				y += Renderer.smallFont.size + 1;
 			}
+			*/
 		}
 		else if (item.type == ItemType.Armor)
 		{
-			drawLeft("ARM");
+			drawLeft("Armor");
 			drawRight(item.armor);
 			if (compareItem != null && compareItem.type == ItemType.Armor)
 				drawComparison(item.armor, compareItem.armor);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("WGHT");
+			drawLeft("Weight");
 			drawRight(item.weight);
 			if (compareItem != null && compareItem.type == ItemType.Armor)
 				drawComparison(item.weight, compareItem.weight, true);
@@ -159,19 +161,19 @@ public static class ItemInfoPanel
 		}
 		else if (item.type == ItemType.Shield)
 		{
-			drawLeft("PROT");
+			drawLeft("Protection");
 			drawRight(item.blockAbsorption);
 			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.blockAbsorption, compareItem.blockAbsorption);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("ARM");
+			drawLeft("Armor");
 			drawRight(item.armor);
 			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.armor, compareItem.armor);
 			y += Renderer.smallFont.size + 1;
 
-			drawLeft("WGHT");
+			drawLeft("Weight");
 			drawRight(item.weight);
 			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.weight, compareItem.weight, true);

@@ -31,7 +31,7 @@ public class AstralScepter : Item
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
 
-		castSound = Resource.GetSounds("res/sounds/cast", 3);
+		castSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
 	public override void update(Entity entity)

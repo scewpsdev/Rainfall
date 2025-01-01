@@ -28,6 +28,19 @@ public class CastleGate : Door
 
 		collider = new FloatRect(-4, 0, 8, 2);
 	}
+
+	public override bool isInteractable(Player player)
+	{
+		Item helmet = player.getArmorItem(ArmorSlot.Helmet);
+		return helmet != null && helmet.name == "lost_sigil";
+	}
+
+	public override void interact(Player player)
+	{
+		base.interact(player);
+
+		player.removeItem(player.getItem("lost_sigil"));
+	}
 }
 
 
@@ -42,7 +55,7 @@ public class Hub : Entity
 	{
 		this.room = room;
 
-		stairs = Resource.GetTexture("res/level/hub/stairs.png", false);
+		stairs = Resource.GetTexture("level/hub/stairs.png", false);
 	}
 
 	public override void init(Level level)
@@ -50,8 +63,8 @@ public class Hub : Entity
 		level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2(1.0f, 2)), new Vector2(-1 + 0.1f, 29));
 		GameState.instance.cliffside.exit.otherDoor = level.entrance;
 
-		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
-		//level.addEntity(new ParallaxObject(Resource.GetTexture("res/level/hub/parallax2.png", false), 0.01f), new Vector2(level.width, level.height) * 0.5f + new Vector2(4, 0));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/hub/parallax2.png", false), 0.01f), new Vector2(level.width, level.height) * 0.5f + new Vector2(4, 0));
 
 		//level.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
 
@@ -79,7 +92,6 @@ public class Hub : Entity
 		npc.addShopItem(new IronKey(), 8);
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
-		npc.buysItems = false;
 		level.addEntity(npc, new Vector2(54, 23));
 
 		//level.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
@@ -99,9 +111,9 @@ public class Hub : Entity
 			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
 		}
 
-		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && !loganQuest.isCompleted)
+		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.Completed)
 		{
-			level.addEntity(new Logan(), new Vector2(56, 23));
+			level.addEntity(new Logan(Random.Shared, level), new Vector2(56, 23));
 		}
 
 		for (int i = 0; i < save.highscores.Length; i++)
@@ -111,9 +123,10 @@ public class Hub : Entity
 
 			if (save.highscores[i].score > 0)
 			{
-				string[] label = i == 0 ? ["Highest Score:", save.highscores[i].score.ToString()] :
-					i == 1 ? ["Highest Floor:", save.highscores[i].floor != -1 ? (save.highscores[i].floor + 1).ToString() : "???"] :
-					i == 2 ? ["Fastest Time:", save.highscores[i].time != -1 ? StringUtils.TimeToString(save.highscores[i].time) : "???"] :
+				string[] label =
+					i == 0 ? ["Fastest Time:", save.highscores[i].time != -1 ? StringUtils.TimeToString(save.highscores[i].time) : "???"] :
+					i == 1 ? ["Highest Score:", save.highscores[i].score.ToString()] :
+					i == 2 ? ["Highest Floor:", save.highscores[i].floor != -1 ? (save.highscores[i].floor + 1).ToString() : "???"] :
 					i == 3 ? ["Most kills:", save.highscores[i].kills.ToString()] : ["???"];
 				uint color = RunStats.recordColors[i];
 				level.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);

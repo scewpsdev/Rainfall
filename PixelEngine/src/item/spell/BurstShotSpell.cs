@@ -31,22 +31,24 @@ public class BurstShotSpell : Spell
 
 		spellIcon = new Sprite(tileset, 4, 7);
 
-		useSound = Resource.GetSounds("res/sounds/cast", 3);
+		useSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost, float duration)
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
 		this.player = player;
 		this.staff = staff;
 		this.speed = duration * attackRate;
 		castTime = Time.currentTime;
 		castedProjectiles = 0;
+
+		return true;
 	}
 
 	void shoot()
 	{
-		Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
-		Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
+		Vector2 position = player.position + new Vector2(0.0f, 0.5f);
+		Vector2 offset = new Vector2(player.direction * 0.5f, -0.1f);
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.08f;

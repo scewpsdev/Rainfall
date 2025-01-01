@@ -62,10 +62,10 @@ public static class GameOverScreen
 		}
 
 		drawLeft("Score");
-		drawRight(game.run.score.ToString(), game.run.scoreRecord ? RunStats.recordColors[0] : 0xFFAAAAAA);
+		drawRight(game.run.score.ToString(), game.run.scoreRecord ? RunStats.recordColors[1] : 0xFFAAAAAA);
 		if (game.run.scoreRecord && scoreRecordParticles == null && !particlesEmitted)
 		{
-			GameState.instance.level.addEntity(scoreRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[0]), new Vector2(x + width - 8, y + 4));
+			GameState.instance.level.addEntity(scoreRecordParticles = ParticleEffects.CreateRecordUIEffect(RunStats.recordColors[1]), new Vector2(x + width - 8, y + 4));
 			scoreRecordParticles.removeCallbacks.Add(() =>
 			{
 				scoreRecordParticles = null;
@@ -78,19 +78,19 @@ public static class GameOverScreen
 		y += lineHeight;
 
 		drawLeft("Floor");
-		drawRight((game.run.floor + 1).ToString(), game.run.floorRecord ? RunStats.recordColors[1] : 0xFFAAAAAA);
+		drawRight((game.run.floor + 1).ToString(), game.run.floorRecord ? RunStats.recordColors[2] : 0xFFAAAAAA);
 		if (game.run.floorRecord && floorRecordParticles == null && !particlesEmitted)
 		{
-			GameState.instance.level.addEntity(floorRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[1]), new Vector2(x + width - 8, y + 4));
+			GameState.instance.level.addEntity(floorRecordParticles = ParticleEffects.CreateRecordUIEffect(RunStats.recordColors[2]), new Vector2(x + width - 8, y + 4));
 			floorRecordParticles.removeCallbacks.Add(() => { floorRecordParticles = null; });
 		}
 		y += lineHeight;
 
 		drawLeft("Time");
-		drawRight(StringUtils.TimeToString(game.run.duration), game.run.timeRecord ? RunStats.recordColors[2] : 0xFFAAAAAA);
+		drawRight(StringUtils.TimeToString(game.run.duration), game.run.timeRecord ? RunStats.recordColors[0] : 0xFFAAAAAA);
 		if (game.run.timeRecord && timeRecordParticles == null && !particlesEmitted)
 		{
-			GameState.instance.level.addEntity(timeRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[2]), new Vector2(x + width - 8, y + 4));
+			GameState.instance.level.addEntity(timeRecordParticles = ParticleEffects.CreateRecordUIEffect(RunStats.recordColors[0]), new Vector2(x + width - 8, y + 4));
 			timeRecordParticles.removeCallbacks.Add(() => { timeRecordParticles = null; });
 		}
 		y += lineHeight;
@@ -121,7 +121,7 @@ public static class GameOverScreen
 		drawRight(game.run.kills.ToString(), game.run.killRecord ? RunStats.recordColors[3] : 0xFFAAAAAA);
 		if (game.run.killRecord && killRecordParticles == null && !particlesEmitted)
 		{
-			GameState.instance.level.addEntity(killRecordParticles = Effects.CreateRecordUIEffect(RunStats.recordColors[3]), new Vector2(x + width - 8, y + 4));
+			GameState.instance.level.addEntity(killRecordParticles = ParticleEffects.CreateRecordUIEffect(RunStats.recordColors[3]), new Vector2(x + width - 8, y + 4));
 			killRecordParticles.removeCallbacks.Add(() => { killRecordParticles = null; });
 		}
 		y += lineHeight;
@@ -215,7 +215,9 @@ public static class GameOverScreen
 
 		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
 		RenderPlayer(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, playerViewHeight);
-		InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
+		//InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
+		Vector2i selectedCell = Vector2i.Zero;
+		InventoryUI.DrawEquipment3(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player, ref selectedCell, out _);
 
 		string prompt1 = InputManager.GetBinding("UIConfirm").ToString() + " to quick restart";
 		Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt1).x / 2, y + height - padding - 12 - Renderer.MeasureUITextBMP(prompt1).y, prompt1);

@@ -22,24 +22,24 @@ public class Slime : Mob
 
 		if (size == 4)
 		{
-			sprite = new Sprite(Resource.GetTexture("res/sprites/mob/slime4.png", false), 0, 0, 16, 16);
+			sprite = new Sprite(Resource.GetTexture("sprites/mob/slime4.png", false), 0, 0, 16, 16);
 			collider = new FloatRect(-0.3f, 0, 0.6f, 0.5f);
 		}
 		else if (size == 3)
 		{
-			sprite = new Sprite(Resource.GetTexture("res/sprites/mob/slime3.png", false), 0, 0, 16, 16);
+			sprite = new Sprite(Resource.GetTexture("sprites/mob/slime3.png", false), 0, 0, 16, 16);
 			collider = new FloatRect(-0.25f, 0, 0.5f, 0.5f);
 		}
 		else if (size == 2)
 		{
-			sprite = new Sprite(Resource.GetTexture("res/sprites/mob/slime2.png", false), 0, 0, 16, 16);
+			sprite = new Sprite(Resource.GetTexture("sprites/mob/slime2.png", false), 0, 0, 16, 16);
 			collider = new FloatRect(-0.2f, 0, 0.4f, 0.5f);
 			itemDropChance = 0;
 			coinDropChance = 0;
 		}
 		else if (size == 1)
 		{
-			sprite = new Sprite(Resource.GetTexture("res/sprites/mob/slime1.png", false), 0, 0, 16, 16);
+			sprite = new Sprite(Resource.GetTexture("sprites/mob/slime1.png", false), 0, 0, 16, 16);
 			collider = new FloatRect(-0.15f, 0, 0.3f, 0.5f);
 			itemDropChance = 0;
 			coinDropChance = 0;

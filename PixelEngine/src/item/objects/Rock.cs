@@ -25,7 +25,7 @@ public class Rock : Item
 		sprite = new Sprite(tileset, 4, 0);
 		renderOffset.x = 0.3f;
 
-		hitSound = Resource.GetSounds("res/sounds/hit_rock", 5);
+		hitSound = Resource.GetSounds("sounds/hit_rock", 5);
 	}
 
 	public override bool use(Player player)

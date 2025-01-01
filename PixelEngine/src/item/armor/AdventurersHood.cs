@@ -21,7 +21,7 @@ public class AdventurersHood : Item
 
 		sprite = new Sprite(tileset, 6, 3);
 		spriteColor = 0xFF944046; // 0xFF2e2739;
-		ingameSprite = new Sprite(Resource.GetTexture("res/sprites/items/hood.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/hood.png", false), 0, 0, 16, 16);
 		ingameSpriteColor = 0xFF944046; // 0xFF2e2739;
 	}
 }

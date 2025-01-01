@@ -14,19 +14,16 @@ public class BrokenWanderer : NPC
 	{
 		displayName = "Broken Wanderer";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/npc/traveller.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/npc/traveller.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 0.7f, true);
 		animator.setAnimation("idle");
-
-		saleTax = 0.4f;
-		buysItems = true;
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_TRAVELLER_MET))
 		{
 			initialDialogue = new Dialogue();
 			initialDialogue.addVoiceLine("Oh, a traveler? It's rare to find one still breathing.");
-			initialDialogue.addVoiceLine("The air down here has a way of\\1...\\3thinning your chances.");
+			initialDialogue.addVoiceLine("The air down here has a way of\\1... \\3thinning your chances.");
 			initialDialogue.screens[initialDialogue.screens.Count - 1].addCallback(() =>
 			{
 				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_TRAVELLER_MET);
@@ -51,7 +48,7 @@ public class BrokenWanderer : NPC
 			{
 				Dialogue dialogue = new Dialogue();
 				dialogue.addVoiceLine("I've ventured down before. Not far, mind you. It wasn't the creatures that turned me back.");
-				dialogue.addVoiceLine("It was the... \\dstillness\\0. A silence that seeps into your soul.");
+				dialogue.addVoiceLine("Something's wrong with the air down there... It gets thick, like it's pressing against you.");
 				addDialogue(dialogue);
 			}
 			{
@@ -71,7 +68,7 @@ public class BrokenWanderer : NPC
 		{
 			Dialogue dialogue = new Dialogue();
 			dialogue.addVoiceLine("I once knew a way out. Or thought I did... But the caves - they shift and change.");
-			dialogue.addVoiceLine("They're \\balive\\ you know. Mocking us.");
+			dialogue.addVoiceLine("They're \\balive\\0 you know. Mocking us.");
 			addDialogue(dialogue);
 		}
 		{

@@ -21,7 +21,7 @@ public class ScrollOfTeleportation : Item
 	public override bool use(Player player)
 	{
 		SpellEffects.TeleportEntity(player);
-		player.level.addEntity(Effects.CreateScrollUseEffect(player), player.position + player.collider.center);
+		player.level.addEntity(ParticleEffects.CreateScrollUseEffect(player), player.position + player.collider.center);
 		return true;
 	}
 }

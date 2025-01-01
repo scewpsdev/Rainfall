@@ -32,18 +32,19 @@ public class Chest : Entity, Interactable, Hittable
 		sprite = locked ? new Sprite(tileset, 2, 0) : new Sprite(tileset, 0, 0);
 		openSprite = locked ? new Sprite(tileset, 3, 0) : new Sprite(tileset, 1, 0);
 
-		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.5f);
+		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 5 / 16.0f);
+		platformCollider = true;
 		filterGroup = FILTER_DECORATION;
 
 		this.flipped = flipped;
 
 		openSound = [
-			Resource.GetSound("res/sounds/chest_open1.ogg"),
-			Resource.GetSound("res/sounds/chest_open2.ogg"),
+			Resource.GetSound("sounds/chest_open1.ogg"),
+			Resource.GetSound("sounds/chest_open2.ogg"),
 		];
-		closeSound = Resource.GetSound("res/sounds/chest_close.ogg");
-		unlockSound = Resource.GetSound("res/sounds/door_unlock.ogg");
-		lockedSound = Resource.GetSound("res/sounds/door_locked.ogg");
+		closeSound = Resource.GetSound("sounds/chest_close.ogg");
+		unlockSound = Resource.GetSound("sounds/door_unlock.ogg");
+		lockedSound = Resource.GetSound("sounds/door_locked.ogg");
 	}
 
 	public Chest(params Item[] items)
@@ -54,6 +55,16 @@ public class Chest : Entity, Interactable, Hittable
 	public Chest()
 		: this(null, false)
 	{
+	}
+
+	public override void init(Level level)
+	{
+		level.addCollider(this);
+	}
+
+	public override void destroy()
+	{
+		level.removeCollider(this);
 	}
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
@@ -73,7 +84,7 @@ public class Chest : Entity, Interactable, Hittable
 		return false;
 	}
 
-	public bool canInteract(Player player)
+	public bool isInteractable(Player player)
 	{
 		return !open;
 	}

@@ -23,10 +23,10 @@ public class MagicArrowSpell : Spell
 
 		spellIcon = new Sprite(tileset, 0, 6);
 
-		castSound = Resource.GetSounds("res/sounds/shoot", 11);
+		castSound = Resource.GetSounds("sounds/shoot", 11);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost, float duration)
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
 		Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
 		Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
@@ -37,5 +37,7 @@ public class MagicArrowSpell : Spell
 
 		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, staff), position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
+
+		return true;
 	}
 }

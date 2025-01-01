@@ -24,7 +24,7 @@ public class XPOrb : Entity
 		color = new Vector4(MathHelper.RandomVector3(0.5f, 1.5f), 1.0f);
 		collider = new FloatRect(-1 / 16.0f, -1 / 16.0f, 2.0f / 16, 2.0f / 16);
 
-		collectSound = Resource.GetSounds("res/sounds/coin", 6);
+		collectSound = Resource.GetSounds("sounds/coin", 6);
 	}
 
 	public override void init(Level level)

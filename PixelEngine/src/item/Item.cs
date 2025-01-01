@@ -92,23 +92,23 @@ public class Infusion
 
 public abstract class Item
 {
-	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("res/sprites/items.png", false), 16, 16);
+	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("sprites/items.png", false), 16, 16);
 
-	public static Sound[] weaponHit = Resource.GetSounds("res/sounds/hit_weapon", 6);
-	public static Sound[] parryHit = [Resource.GetSound("res/sounds/parry.ogg")];
-	public static Sound[] woodHit = Resource.GetSounds("res/sounds/hit_wood", 6);
+	public static Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
+	public static Sound[] parryHit = [Resource.GetSound("sounds/parry.ogg")];
+	public static Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 6);
 
-	public static Sound[] defaultPickup = [Resource.GetSound("res/sounds/pickup.ogg")];
-	public static Sound[] weaponPickup = Resource.GetSounds("res/sounds/pickup_weapon", 2);
-	public static Sound[] potionPickup = [Resource.GetSound("res/sounds/pickup_potion.ogg")];
+	public static Sound[] defaultPickup = [Resource.GetSound("sounds/pickup.ogg")];
+	public static Sound[] weaponPickup = Resource.GetSounds("sounds/pickup_weapon", 2);
+	public static Sound[] potionPickup = [Resource.GetSound("sounds/pickup_potion.ogg")];
 
-	public static Sound[] lightEquip = [Resource.GetSound("res/sounds/equip_light.ogg")];
-	public static Sound[] mediumEquip = [Resource.GetSound("res/sounds/equip_medium.ogg")];
-	public static Sound[] heavyEquip = [Resource.GetSound("res/sounds/equip_heavy.ogg")];
-	public static Sound[] ringEquip = [Resource.GetSound("res/sounds/equip_ring.ogg")];
+	public static Sound[] lightEquip = [Resource.GetSound("sounds/equip_light.ogg")];
+	public static Sound[] mediumEquip = [Resource.GetSound("sounds/equip_medium.ogg")];
+	public static Sound[] heavyEquip = [Resource.GetSound("sounds/equip_heavy.ogg")];
+	public static Sound[] ringEquip = [Resource.GetSound("sounds/equip_ring.ogg")];
 
-	public static Sound[] weaponUse = Resource.GetSounds("res/sounds/swing", 3);
-	public static Sound[] potionUse = [Resource.GetSound("res/sounds/use_potion.ogg")];
+	public static Sound[] weaponUse = Resource.GetSounds("sounds/swing", 3);
+	public static Sound[] potionUse = [Resource.GetSound("sounds/use_potion.ogg")];
 
 
 	public string name;
@@ -339,11 +339,11 @@ public abstract class Item
 				return "Garbage";
 			if (r >= 0.5f)
 				return "Common";
-			if (r >= 0.1f)
+			if (r >= 0.05f)
 				return "Uncommon";
-			if (r >= 0.01f)
-				return "Rare";
 			if (r >= 0.005f)
+				return "Rare";
+			if (r >= 0.001f)
 				return "Exceedingly Rare";
 			return "Legendary";
 		}
@@ -358,11 +358,11 @@ public abstract class Item
 				return UIColors.TEXT_RARITY_GARBAGE;
 			if (r >= 0.5f)
 				return UIColors.TEXT_RARITY_COMMON;
-			if (r >= 0.1f)
+			if (r >= 0.05f)
 				return UIColors.TEXT_RARITY_UNCOMMON;
-			if (r >= 0.01f)
-				return UIColors.TEXT_RARITY_RARE;
 			if (r >= 0.005f)
+				return UIColors.TEXT_RARITY_RARE;
+			if (r >= 0.001f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
@@ -617,8 +617,14 @@ public abstract class Item
 		InitType(new AdventurersHood());
 		InitType(new AK47());
 		InitType(new WizardsHood());
-
 		InitType(new QuestlineLoganStaff());
+		InitType(new LostSigil());
+		InitType(new LeatherGauntlets());
+		InitType(new ChainmailGauntlets());
+		InitType(new IronGauntlets());
+		InitType(new LeatherBoots());
+		InitType(new ChainmailBoots());
+		InitType(new IronSabatons());
 	}
 
 	static void InitType(Item item)

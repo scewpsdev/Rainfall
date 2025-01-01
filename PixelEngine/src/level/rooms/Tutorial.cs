@@ -63,7 +63,7 @@ public class Tutorial : Entity
 	{
 		this.room = room;
 
-		caveAmbience = Resource.GetSound("res/sounds/ambience.ogg");
+		caveAmbience = Resource.GetSound("sounds/ambience.ogg");
 	}
 
 	public override void init(Level level)

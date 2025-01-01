@@ -36,7 +36,7 @@ public class HUD
 
 	static HUD()
 	{
-		tileset = new SpriteSheet(Resource.GetTexture("res/sprites/ui.png", false), 8, 8);
+		tileset = new SpriteSheet(Resource.GetTexture("sprites/ui.png", false), 8, 8);
 
 		heartFull = new Sprite(tileset, 0, 1);
 		heartHalf = new Sprite(tileset, 1, 0);
@@ -672,31 +672,31 @@ public class HUD
 		Staff staff = player.handItem as Staff;
 
 		int size = 16;
-		int width = staff.attunedSpells.Count * (size + 1) - 1;
+		int width = player.spellItems.Count * (size + 1) - 1;
 		int height = size;
 		int x = Renderer.UIWidth / 2 + 8 + player.activeItems.Length * (size + 1) - 1 + 8;
 		int y = Renderer.UIHeight - 4 - size;
 
-		for (int i = 0; i < staff.attunedSpells.Count; i++)
+		for (int i = 0; i < player.spellItems.Count; i++)
 		{
 			int xx = x + i * (size + 1);
 			int yy = y;
 
 			Renderer.DrawUISprite(xx + 1, yy, size - 2, size, null, false, frameColor);
 			Renderer.DrawUISprite(xx, yy + 1, size, size - 2, null, false, frameColor);
-			Renderer.DrawUISprite(xx + 1, yy + 1, size - 2, size - 2, null, false, staff.selectedSpell == i ? bgSelectedColor : bgColor);
+			Renderer.DrawUISprite(xx + 1, yy + 1, size - 2, size - 2, null, false, player.selectedSpellItem == i ? bgSelectedColor : bgColor);
 		}
 
-		for (int i = 0; i < staff.attunedSpells.Count; i++)
+		for (int i = 0; i < player.spellItems.Count; i++)
 		{
 			int xx = x + i * (size + 1);
 			int yy = y;
 
-			if (staff.attunedSpells[i] != null)
+			if (player.spellItems[i] != null)
 			{
-				Renderer.DrawUISprite(xx, yy, size, size, staff.attunedSpells[i].spellIcon);
+				Renderer.DrawUISprite(xx, yy, size, size, player.spellItems[i].spellIcon);
 
-				if (player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).spell == staff.attunedSpells[i])
+				if (player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).spell == player.spellItems[i])
 				{
 					SpellCastAction spellCast = player.actions.currentAction as SpellCastAction;
 					float progress = MathF.Min(spellCast.elapsedTime / spellCast.duration, 1);
@@ -705,7 +705,7 @@ public class HUD
 				}
 			}
 
-			if (staff.selectedSpell == i)
+			if (player.selectedSpellItem == i)
 			{
 				Renderer.DrawUISprite(xx, yy, size, 1, null, false, frameSelectedColor);
 				Renderer.DrawUISprite(xx, yy + size - 1, size, 1, null, false, frameSelectedColor);
@@ -714,14 +714,14 @@ public class HUD
 			}
 		}
 
-		if (staff.attunedSpells[staff.selectedSpell] != null)
+		if (player.getSelectedSpell() != null)
 		{
 			float elapsed = (Time.currentTime - lastSpellSwitch) / 1e9f;
 			if (elapsed < ITEM_NAME_DURATION)
 			{
 				float txtAlpha = elapsed < ITEM_NAME_DURATION - 1 ? 1 : MathHelper.Lerp(1, 0, (elapsed - ITEM_NAME_DURATION + 1) / 1);
 				uint color = MathHelper.ColorAlpha(txtColor, txtAlpha);
-				string txt = staff.attunedSpells[staff.selectedSpell].displayName;
+				string txt = player.getSelectedSpell().displayName;
 				Vector2i txtSize = Renderer.MeasureUITextBMP(txt);
 				Renderer.DrawUITextBMP(x + width + 6, y + size / 2 - txtSize.y / 2, txt, 1, color);
 			}

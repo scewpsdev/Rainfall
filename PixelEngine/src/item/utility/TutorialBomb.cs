@@ -34,7 +34,7 @@ public class TutorialBomb : Item
 
 		//projectileItem = true;
 
-		fuseSound = Resource.GetSound("res/sounds/fuse.ogg");
+		fuseSound = Resource.GetSound("sounds/fuse.ogg");
 	}
 
 	public override void onDestroy(ItemEntity entity)

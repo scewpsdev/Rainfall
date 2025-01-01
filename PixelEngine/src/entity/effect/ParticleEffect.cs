@@ -25,7 +25,7 @@ public class ParticleEffect : Entity
 	{
 		this.follow = follow;
 
-		FileStream stream = new FileStream(file + ".bin", FileMode.Open);
+		FileStream stream = new FileStream(Resource.ASSET_DIRECTORY + "/" + file + ".bin", FileMode.Open);
 		SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
 		stream.Close();
 
@@ -83,7 +83,7 @@ public class ParticleEffect : Entity
 					ParticleData particle = systemData[j];
 					if (particle.active)
 					{
-						if (GameState.instance.level.sampleTiles(particle.position.xy) != null)
+						if (GameState.instance.level.hitTiles(particle.position.xy) != null)
 						{
 							if (bounce)
 							{

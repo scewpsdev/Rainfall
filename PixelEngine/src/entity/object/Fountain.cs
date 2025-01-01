@@ -53,7 +53,10 @@ public class Fountain : Entity, Interactable
 
 		sprite = new Sprite(tileset, 2, 6);
 
-		idleSound = Resource.GetSound("res/sounds/fountain.ogg");
+		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 14 / 16.0f);
+		platformCollider = true;
+
+		idleSound = Resource.GetSound("sounds/fountain.ogg");
 
 		switch (effect)
 		{
@@ -96,7 +99,9 @@ public class Fountain : Entity, Interactable
 
 	public override unsafe void init(Level level)
 	{
-		level.addEntity(particles = Effects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
+		level.addEntity(particles = ParticleEffects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
+
+		level.addCollider(this);
 
 		source = Audio.Play(idleSound, new Vector3(position, 0));
 		Audio.SetPaused(source, true);
@@ -105,6 +110,8 @@ public class Fountain : Entity, Interactable
 
 	public override void destroy()
 	{
+		level.removeCollider(this);
+
 		if (particles != null)
 		{
 			particles.remove();
@@ -120,7 +127,7 @@ public class Fountain : Entity, Interactable
 			closeScreen();
 	}
 
-	public bool canInteract(Player player)
+	public bool isInteractable(Player player)
 	{
 		//return !consumed;
 		return true;
@@ -272,7 +279,7 @@ public class Fountain : Entity, Interactable
 		potionEffects.AddRange(p.effects);
 
 		if (particles == null)
-			GameState.instance.level.addEntity(particles = Effects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
+			GameState.instance.level.addEntity(particles = ParticleEffects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
 
 		if (source == 0)
 		{

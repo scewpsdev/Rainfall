@@ -40,7 +40,7 @@ public class LeprechaunAI : AdvancedAI
 		});
 		teleport.onStarted = (AIAction action) =>
 		{
-			GameState.instance.level.addEntity(Effects.CreateTeleportEffect(mob, 0xFF4b692f), mob.position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateTeleportEffect(mob, 0xFF4b692f), mob.position);
 			SpellEffects.TeleportEntity(mob, true, target.position, aggroRange);
 		};
 	}

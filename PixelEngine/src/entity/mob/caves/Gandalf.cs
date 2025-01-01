@@ -14,7 +14,7 @@ public class Gandalf : Mob
 	{
 		displayName = "Gandalf";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/gandalf.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/gandalf.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.addAnimation("charge", 2 * 16, 0, 16, 0, 1, 1, true);

@@ -15,7 +15,7 @@ public class Golem : Mob
 	{
 		displayName = "Golem";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/golem.png", false), 0, 0, 48, 48);
+		sprite = new Sprite(Resource.GetTexture("sprites/golem.png", false), 0, 0, 48, 48);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 48, 0, 4, 2, true);
 		animator.addAnimation("run", 4 * 48, 0, 48, 0, 4, 3, true);

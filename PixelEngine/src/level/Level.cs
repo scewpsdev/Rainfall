@@ -428,16 +428,31 @@ public class Level
 		return overlapTiles(min, max, false, false);
 	}
 
-	public int doCollision(ref Vector2 position, FloatRect collider, ref Vector2 displacement, bool downInput = false)
+	public int doCollision(ref Vector2 position, FloatRect collider, ref Vector2 displacement, bool downInput = false, bool cornerCutting = false)
 	{
 		int flags = 0;
-		if (overlapTiles(position + collider.min + new Vector2(displacement.x, 0), position + collider.max + new Vector2(displacement.x, 0), displacement.y < 0, downInput))
+		if (overlapTiles(position + collider.min + new Vector2(displacement.x, 0), position + collider.max + new Vector2(displacement.x, 0), false, downInput))
 		{
 			displacement.x = 0;
 			flags |= COLLISION_X;
 		}
 		if (overlapTiles(position + collider.min + new Vector2(0, displacement.y), position + collider.max + new Vector2(0, displacement.y), displacement.y < 0, downInput))
 		{
+			// Do corner cutting
+			if (cornerCutting && displacement.y > 0.01f && !sampleTiles(position + displacement + new Vector2(0, collider.max.y)))
+			{
+				if (!sampleTiles(position + displacement + collider.max) && sampleTiles(position + displacement + new Vector2(collider.min.x, collider.max.y)))
+				{
+					displacement.x = MathF.Max(displacement.x, 1 - MathHelper.Fract(position.x + displacement.x + collider.min.x));
+					return 0;
+				}
+				else if (sampleTiles(position + displacement + collider.max) && !sampleTiles(position + displacement + new Vector2(collider.min.x, collider.max.y)))
+				{
+					displacement.x = MathF.Min(displacement.x, -MathHelper.Fract(position.x + displacement.x + collider.max.x));
+					return 0;
+				}
+			}
+
 			displacement.y = 0;
 			flags |= COLLISION_Y;
 		}
@@ -488,7 +503,7 @@ public class Level
 					p += entities[i].collider.center;
 				Vector2 delta = p - position;
 				float d2 = Vector2.Dot(delta, delta);
-				if (interactable.canInteract(player) && d2 < interactable.getRange() * interactable.getRange())
+				if (interactable.isInteractable(player) && d2 < interactable.getRange() * interactable.getRange())
 				{
 					if (d2 < resultD2)
 					{
@@ -885,13 +900,20 @@ public class Level
 		return numHits;
 	}
 
-	public HitData sampleTiles(Vector2 position)
+	public HitData hitTiles(Vector2 position)
 	{
 		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
 		TileType tile = getTile(tilePosition);
 		if (tile != null && tile.isSolid && !tile.isPlatform)
 			return new HitData() { position = position };
 		return null;
+	}
+
+	public bool sampleTiles(Vector2 position)
+	{
+		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
+		TileType tile = getTile(tilePosition);
+		return tile != null && tile.isSolid && !tile.isPlatform;
 	}
 
 	public HitData sample(Vector2 position, uint filterMask = 0)
@@ -907,7 +929,7 @@ public class Level
 			}
 		}
 		if (filterMask == 0)
-			return sampleTiles(position);
+			return hitTiles(position);
 		return null;
 	}
 }

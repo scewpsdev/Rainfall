@@ -36,7 +36,7 @@ public class MobCorpse : Entity
 		this.velocity = velocity * 0.5f + impulseVelocity;
 
 		this.collider = collider;
-		filterGroup = FILTER_DECORATION;
+		filterGroup = FILTER_DECORATION | FILTER_MOB;
 
 		this.velocity.y = MathF.Max(this.velocity.y, 5);
 		gravity = -30;
@@ -65,7 +65,7 @@ public class MobCorpse : Entity
 
 		if (isGrounded && !particlesEmitted)
 		{
-			GameState.instance.level.addEntity(Effects.CreateDeathEffect(this, MathF.Sign(velocity.x)), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDeathEffect(this, MathF.Sign(velocity.x)), position);
 			particlesEmitted = true;
 		}
 

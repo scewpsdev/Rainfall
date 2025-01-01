@@ -24,7 +24,7 @@ public class Revolver : Weapon
 		sprite = new Sprite(tileset, 14, 0);
 		renderOffset.x = 0.3f;
 
-		useSound = Resource.GetSounds("res/sounds/shoot", 2);
+		useSound = Resource.GetSounds("sounds/shoot", 2);
 	}
 
 	public override bool use(Player player)

@@ -25,7 +25,7 @@ public class Trampoline : Entity
 		sprite = new Sprite(tileset, 0, 5);
 		activeSprite = new Sprite(tileset, 1, 5);
 
-		useSound = Resource.GetSound("res/sounds/spring.ogg");
+		useSound = Resource.GetSound("sounds/spring.ogg");
 	}
 
 	public override void update()

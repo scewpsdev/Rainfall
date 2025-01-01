@@ -28,7 +28,7 @@ public class Shortbow : Weapon
 
 		sprite = new Sprite(tileset, 9, 3);
 
-		useSound = [Resource.GetSound("res/sounds/bow_shoot.ogg")];
+		useSound = [Resource.GetSound("sounds/bow_shoot.ogg")];
 		hitSound = woodHit;
 	}
 

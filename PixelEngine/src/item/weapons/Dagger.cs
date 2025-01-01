@@ -31,7 +31,7 @@ public class Dagger : Weapon
 		sprite = new Sprite(tileset, 8, 6);
 		renderOffset.x = 0.2f;
 
-		useSound = Resource.GetSounds("res/sounds/swing_dagger", 6);
+		useSound = Resource.GetSounds("sounds/swing_dagger", 6);
 	}
 
 	public override bool useSecondary(Player player)

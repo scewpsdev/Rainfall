@@ -27,8 +27,16 @@ public class BlockAction : EntityAction
 	public override void onQueued(Player player)
 	{
 		direction = player.lookDirection.normalized;
+	}
 
+	public override void onStarted(Player player)
+	{
 		player.blockingItem = shield;
+	}
+
+	public override void onFinished(Player player)
+	{
+		player.blockingItem = null;
 	}
 
 	public override void update(Player player)
@@ -42,11 +50,6 @@ public class BlockAction : EntityAction
 			if (!input || player.actions.actionQueue.Count > 1)
 				cancel();
 		}
-	}
-
-	public override void onFinished(Player player)
-	{
-		player.blockingItem = null;
 	}
 
 	public float progress

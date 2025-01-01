@@ -30,7 +30,7 @@ public class Longbow : Weapon
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
 
-		useSound = [Resource.GetSound("res/sounds/bow_shoot.ogg")];
+		useSound = [Resource.GetSound("sounds/bow_shoot.ogg")];
 	}
 
 	public override bool use(Player player)

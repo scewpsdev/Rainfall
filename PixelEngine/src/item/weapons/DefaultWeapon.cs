@@ -26,7 +26,7 @@ public class DefaultWeapon : Weapon
 		punchSprite = new Sprite(tileset, 0, 2);
 		swingSprite = new Sprite(tileset, 1, 8);
 
-		hitSound = [Resource.GetSound("res/sounds/punch_hit.ogg")];
+		hitSound = [Resource.GetSound("sounds/punch_hit.ogg")];
 	}
 
 	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)

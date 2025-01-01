@@ -261,10 +261,10 @@ public partial class LevelGenerator
 
 	public LevelGenerator()
 	{
-		specialSet = new RoomDefSet("res/level/rooms_special.png", false);
-		cavesSet = new RoomDefSet("res/level/level1/rooms1.png");
-		gardensSet = new RoomDefSet("res/level/level2/rooms2.png");
-		dungeonsSet = new RoomDefSet("res/level/level3/rooms3.png");
+		specialSet = new RoomDefSet("level/rooms_special.png", false);
+		cavesSet = new RoomDefSet("level/level1/rooms1.png");
+		gardensSet = new RoomDefSet("level/level2/rooms2.png");
+		dungeonsSet = new RoomDefSet("level/level3/rooms3.png");
 	}
 
 	public void setObjectFlag(int x, int y)
@@ -1054,6 +1054,7 @@ public partial class LevelGenerator
 			//progress = progress * progress;
 			int selection = MathHelper.Clamp((int)(progress * mobs.Count), 0, mobs.Count - 1);
 			Mob enemy = mobs[selection];
+			enemy.itemDropChance = MathHelper.Lerp(0.05f, 0.5f, progress);
 			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
 			objectFlags[x + y * level.width] = true;
 		}
@@ -1087,11 +1088,11 @@ public partial class LevelGenerator
 
 	public void generateHub(Level level)
 	{
-		Room room = new Room("res/level/hub/hub.png");
+		Room room = new Room("level/hub/hub.png");
 		level.resize(room.width, room.height);
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		placeRoomBG(new Room("res/level/hub/hub1.png"), level, (int x, int y) => TileType.dirt);
+		placeRoomBG(new Room("level/hub/hub1.png"), level, (int x, int y) => TileType.dirt);
 
 		level.rooms = [room];
 		level.infiniteEnergy = true;
@@ -1104,11 +1105,11 @@ public partial class LevelGenerator
 
 	public void generateCliffside(Level level)
 	{
-		Room room = new Room("res/level/cliffside/room.png");
+		Room room = new Room("level/cliffside/room.png");
 		level.resize(room.width, room.height);
 
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		placeRoomBG(new Room("res/level/cliffside/room1.png"), level, (int x, int y) => TileType.dirt);
+		placeRoomBG(new Room("level/cliffside/room1.png"), level, (int x, int y) => TileType.dirt);
 
 		level.rooms = [room];
 		level.infiniteEnergy = true;

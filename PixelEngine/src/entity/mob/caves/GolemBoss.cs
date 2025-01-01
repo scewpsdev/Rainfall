@@ -14,7 +14,7 @@ public class GolemBoss : Mob
 	{
 		displayName = "Grk";
 
-		sprite = new Sprite(Resource.GetTexture("res/sprites/golem_boss.png", false), 0, 0, 64, 64);
+		sprite = new Sprite(Resource.GetTexture("sprites/golem_boss.png", false), 0, 0, 64, 64);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 0, 0, 64, 0, 4, 2, true);
 		animator.addAnimation("run", 4 * 64, 0, 64, 0, 4, 3, true);
@@ -35,8 +35,8 @@ public class GolemBoss : Mob
 		jumpPower = 11;
 		gravity = -20;
 		awareness = 1;
-		itemDropChance = 1;
-		itemDropValue = 2;
+		itemDropChance = 2;
+		itemDropValueMultiplier = 2;
 
 		ai = new GolemAI(this);
 		ai.loseRange = 100;

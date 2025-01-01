@@ -20,7 +20,7 @@ public class HighscoreDummy : Entity
 		this.data = data;
 		this.label = label;
 		this.color = color;
-		sprite = new Sprite(Resource.GetTexture("res/sprites/player.png", false), 0, 0, 16, 16);
+		sprite = new Sprite(Resource.GetTexture("sprites/player.png", false), 0, 0, 16, 16);
 	}
 
 	public Vector2 getWeaponOrigin(bool mainHand)

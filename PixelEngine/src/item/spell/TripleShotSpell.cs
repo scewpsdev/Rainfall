@@ -27,15 +27,17 @@ public class TripleShotSpell : Spell
 
 		spellIcon = new Sprite(tileset, 5, 8);
 
-		useSound = Resource.GetSounds("res/sounds/cast", 3);
+		useSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
-	public override void cast(Player player, Item staff, float manaCost, float duration)
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
 		this.player = player;
 		this.staff = staff;
 
 		shoot();
+
+		return true;
 	}
 
 	void shoot()
@@ -43,8 +45,8 @@ public class TripleShotSpell : Spell
 		int numBullets = 3;
 		for (int i = 0; i < numBullets; i++)
 		{
-			Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
-			Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
+			Vector2 position = player.position + new Vector2(0.0f, 0.5f);
+			Vector2 offset = new Vector2(player.direction * 0.5f, -0.1f);
 
 			float coneSize = MathF.PI / 6 / player.getAccuracyModifier();
 			Vector2 direction = Vector2.Rotate(player.lookDirection.normalized, (i / (float)(numBullets - 1) - 0.5f) * coneSize);

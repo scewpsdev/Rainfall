@@ -52,9 +52,9 @@ public class LightningProjectile : Entity
 
 		this.damage = spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier();
 
-		lightning = Resource.GetTexture("res/sprites/lightning.png", false);
-		trail = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 2, 0);
-		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("res/sprites/effects.png", false), 16, 16), 3, 0);
+		lightning = Resource.GetTexture("sprites/lightning.png", false);
+		trail = new Sprite(new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16), 2, 0);
+		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16), 3, 0);
 	}
 
 	public override void init(Level level)

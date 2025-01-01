@@ -189,36 +189,36 @@ public static class Renderer
 			}
 		}
 
-		bloomDownsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vsh", "res/shaders/bloom/bloom_downsample.fsh");
-		bloomUpsampleShader = Resource.GetShader("res/shaders/bloom/bloom.vsh", "res/shaders/bloom/bloom_upsample.fsh");
-		compositeShader = Resource.GetShader("res/shaders/composite/composite.vsh", "res/shaders/composite/composite.fsh");
-		blitShader = Resource.GetShader("res/shaders/final/final.vsh", "res/shaders/final/final.fsh");
+		bloomDownsampleShader = Resource.GetShader("shaders/bloom/bloom.vsh", "shaders/bloom/bloom_downsample.fsh");
+		bloomUpsampleShader = Resource.GetShader("shaders/bloom/bloom.vsh", "shaders/bloom/bloom_upsample.fsh");
+		compositeShader = Resource.GetShader("shaders/composite/composite.vsh", "shaders/composite/composite.fsh");
+		blitShader = Resource.GetShader("shaders/final/final.vsh", "shaders/final/final.fsh");
 
 		quad = graphics.createVertexBuffer(graphics.createVideoMemory(new float[] { -3, -1, 1, -1, 1, 3 }), new VertexElement[]
 		{
 			new VertexElement(VertexAttribute.Position, VertexAttributeType.Vector2, false)
 		});
 
-		lightingShader = Resource.GetShader("res/shaders/lighting/lighting.vsh", "res/shaders/lighting/lighting.fsh");
-		lightMaskShader = Resource.GetShader("res/shaders/lighting/light_mask.vsh", "res/shaders/lighting/light_mask.fsh");
+		lightingShader = Resource.GetShader("shaders/lighting/lighting.vsh", "shaders/lighting/lighting.fsh");
+		lightMaskShader = Resource.GetShader("shaders/lighting/light_mask.vsh", "shaders/lighting/light_mask.fsh");
 
 		spriteBatch = new SpriteBatch(graphics);
 		additiveBatch = new SpriteBatch(graphics);
-		spriteShader = Resource.GetShader("res/shaders/sprite/sprite.vsh", "res/shaders/sprite/sprite.fsh");
+		spriteShader = Resource.GetShader("shaders/sprite/sprite.vsh", "shaders/sprite/sprite.fsh");
 
 		uiBatch = new SpriteBatch(graphics);
-		uiShader = Resource.GetShader("res/shaders/ui/ui.vsh", "res/shaders/ui/ui.fsh");
+		uiShader = Resource.GetShader("shaders/ui/ui.vsh", "shaders/ui/ui.fsh");
 
 		textBatch = new SpriteBatch(graphics);
-		textShader = Resource.GetShader("res/shaders/text/text.vsh", "res/shaders/text/text.fsh");
+		textShader = Resource.GetShader("shaders/text/text.vsh", "shaders/text/text.fsh");
 
 		lineRenderer = new LineRenderer();
-		lineShader = Resource.GetShader("res/shaders/line/line.vsh", "res/shaders/line/line.fsh");
+		lineShader = Resource.GetShader("shaders/line/line.vsh", "shaders/line/line.fsh");
 
-		fontData = Resource.GetFontData("res/fonts/dpcomic.ttf");
+		fontData = Resource.GetFontData("fonts/dpcomic.ttf");
 		font = fontData.createFont(14, false);
 
-		smallFont = new PixelFont("res/fonts/font2.png");
+		smallFont = new PixelFont("fonts/font2.png");
 	}
 
 	public static void Resize(int width, int height)

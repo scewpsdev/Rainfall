@@ -14,7 +14,7 @@ public class ExplosionEffect : ParticleEffect
 
 
 	public ExplosionEffect()
-		: base(null, "res/effects/explosion.rfs")
+		: base(null, "effects/explosion.rfs")
 	{
 	}
 

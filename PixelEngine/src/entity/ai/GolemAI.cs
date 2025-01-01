@@ -25,6 +25,7 @@ public class GolemAI : AdvancedAI
 		loseTime = 3.0f;
 
 		patrol = false;
+		hesitation = 1;
 
 		AIAction attack = addAction("attack", dashDistance / dashSpeed, dashChargeTime, dashCooldownTime, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance && mob.ai.canSeeTarget);
 		attack.onStarted = (AIAction action) =>
@@ -35,7 +36,7 @@ public class GolemAI : AdvancedAI
 		{
 			TileType tile = GameState.instance.level.getTile(mob.position - new Vector2(0, 0.5f));
 			if (tile != null)
-				GameState.instance.level.addEntity(Effects.CreateImpactEffect(Vector2.Up, 6, 40, MathHelper.ARGBToVector(tile.particleColor).xyz), mob.position + mob.direction * Vector2.Right);
+				GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Up, 6, 40, MathHelper.ARGBToVector(tile.particleColor).xyz), mob.position + mob.direction * Vector2.Right);
 			GameState.instance.camera.addScreenShake(mob.position + mob.direction * Vector2.Right, 1, 3);
 		};
 		attack.actionCollider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.0f);
