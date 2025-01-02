@@ -87,7 +87,7 @@ public class CavesSpecialRoom1 : Entity
 				Item[] items = itemType != ItemType.Count ? [Item.CreateRandom(itemType, generator.random, itemValue)] : Item.CreateRandom(generator.random, DropRates.chest, itemValue);
 				Chest chest = new Chest(items, false, chestType);
 				level.addEntity(chest, new Vector2(room.x + xpos + i + 0.5f, room.y + 1));
-				generator.setObjectFlag(room.x + xpos, room.y + 1);
+				generator.setObjectFlag(room.x + xpos + i, room.y + 1);
 			}
 		}
 
