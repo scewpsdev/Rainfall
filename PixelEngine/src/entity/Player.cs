@@ -133,6 +133,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public Item blockingItem = null;
 	public bool unlimitedArrows = false;
+	public bool canEquipOffhand = false;
+	public bool canEquipOnehanded = false;
 
 	public HUD hud;
 	InventoryUI inventoryUI;
@@ -235,7 +237,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				handParticles = null;
 			}
 			*/
-			if (handItem.isSecondaryItem && !item.twoHanded && offhandItem == null)
+			if (handItem.isSecondaryItem && (!item.twoHanded || canEquipOnehanded) && offhandItem == null)
 			{
 				Item _item = handItem;
 				unequipItem(_item);
@@ -253,7 +255,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		//if (item.twoHanded && offhandItem != null)
 		//	unequipItem(offhandItem);
-		if (item.twoHanded && offhandItem != null)
+		if (item.twoHanded && !canEquipOnehanded && offhandItem != null)
 		{
 			if (storedItems.Count < storeCapacity)
 				storeItem(offhandItem);
@@ -292,7 +294,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		//if (handItem != null && handItem.twoHanded)
 		//	unequipItem(handItem);
-		if (handItem != null && handItem.twoHanded)
+		if (handItem != null && handItem.twoHanded && !canEquipOnehanded)
 		{
 			if (storedItems.Count < storeCapacity)
 				storeItem(handItem);
@@ -476,6 +478,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return false;
 	}
 
+	bool canEquipHandItem(Item item)
+	{
+		return item.isHandItem && handItem == null;
+	}
+
+	bool canEquipOffhandItem(Item item)
+	{
+		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand) && offhandItem == null && (!item.isHandItem || handItem != null);
+	}
+
 	public void giveItem(Item item)
 	{
 		if (item.stackable)
@@ -505,15 +517,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
-		if ((item.isHandItem && item.isSecondaryItem && handItem != null || !item.isHandItem && item.isSecondaryItem) && offhandItem == null)
+		if (canEquipOffhandItem(item))
 			equipOffhandItem(item);
-		else if ((item.isHandItem && (item.type == ItemType.Weapon || item.type == ItemType.Staff)) && handItem == null)
+		else if (canEquipHandItem(item))
 			equipHandItem(item);
 		else if (item.isActiveItem)
 			equipActiveItem(item);
 		else if (item.type == ItemType.Spell && spellItems.Count < spellCapacity)
 			attuneSpell((Spell)item);
-		else if (item.isPassiveItem && canEquipPassiveItem(item))
+		else if (canEquipPassiveItem(item))
 			equipPassiveItem(item);
 		else
 		{
@@ -698,15 +710,19 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public bool canEquipPassiveItem(Item item)
 	{
-		if (item.armorSlot != ArmorSlot.None)
+		if (item.isPassiveItem)
 		{
-			for (int i = 0; i < passiveItems.Count; i++)
+			if (item.armorSlot != ArmorSlot.None)
 			{
-				if (passiveItems[i].armorSlot == item.armorSlot)
-					return false;
+				for (int i = 0; i < passiveItems.Count; i++)
+				{
+					if (passiveItems[i].armorSlot == item.armorSlot)
+						return false;
+				}
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public ItemEntity dropItem(Item item)
@@ -827,7 +843,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				BlockAction blockAction = actions.currentAction as BlockAction;
 				blockAction.duration = blockAction.elapsedTime + 0.3f;
 
-				GameState.instance.level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
+				level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
 			}
 
@@ -1458,7 +1474,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.overlap(position + collider.min, position + collider.max, hits, FILTER_MOB);
+			int numHits = level.overlap(position + collider.min, position + collider.max, hits, FILTER_MOB);
 			for (int i = 0; i < numHits; i++)
 			{
 				if (hits[i].entity != null && hits[i].entity is Mob)
@@ -1474,7 +1490,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (!isStunned && numOverlaysOpen == 0)
 			{
-				Interactable interactable = isAlive ? GameState.instance.level.getInteractable(position + collider.center, this) : null;
+				Interactable interactable = isAlive ? level.getInteractable(position + collider.center, this) : null;
 				if (interactableInFocus != null && interactableInFocus != interactable)
 					interactableInFocus.onFocusLeft(this);
 				if (interactable != null && interactable != interactableInFocus)
@@ -1483,7 +1499,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 				if (interactableInFocus != null)
 				{
-					if (InputManager.IsPressed("Interact") && !isDucked)
+					if (InputManager.IsPressed("Interact"))
 					{
 						InputManager.ConsumeEvent("Interact");
 						interactableInFocus.interact(this);
@@ -1546,15 +1562,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						if (handItem.useSecondary(this))
 							removeItem(handItem);
 						lastItemUseDown = -1;
-					}
-
-					if (InputManager.IsPressed("Interact"))
-					{
-						if (isDucked)
-						{
-							InputManager.ConsumeEvent("Interact");
-							dropItem(handItem);
-						}
 					}
 				}
 				else
@@ -1886,7 +1893,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public Vector2 getWeaponOrigin(bool mainHand)
 	{
-		int frame = mainHand ? ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length) : animator.lastFrameIdx; // sway
+		//int frame = mainHand ? ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length) : animator.lastFrameIdx; // sway
+		int frame = animator.lastFrameIdx;
 		Vector2i animOffset = Vector2i.Zero;
 		if (animator.currentAnimation == "idle")
 			animOffset.y = -frame / 2;

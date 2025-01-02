@@ -18,7 +18,7 @@ public class Spider : Mob
 		animator.addAnimation("dead", 1 * 16, 0, 16, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.4f, 0, 0.8f, 0.5f);
+		collider = new FloatRect(-0.4f, 0, 0.8f, 0.6f);
 
 		health = 3;
 		poisonResistant = true;

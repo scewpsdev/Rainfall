@@ -22,7 +22,7 @@ public class Club : Weapon
 		//attackAngle = MathF.PI * 0.7f;
 
 		value = 1;
-		upgradable = false;
+		//upgradable = false;
 
 		sprite = new Sprite(tileset, 13, 1);
 		renderOffset.x = 0.2f;

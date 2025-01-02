@@ -25,6 +25,8 @@ public class AttackAction : EntityAction
 
 	public int attackIdx = 0;
 
+	int lastSpin = 0;
+
 
 	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
 		: base("attack", mainHand)
@@ -69,6 +71,13 @@ public class AttackAction : EntityAction
 
 		if (inDamageWindow)
 		{
+			int currentSpin = (int)(currentProgress * weapon.attackAngle / MathF.PI / 2);
+			if (currentSpin > lastSpin)
+			{
+				hitEntities.Clear();
+				lastSpin = currentSpin;
+			}
+
 			Vector2 origin = player.position + new Vector2(0, player.getWeaponOrigin(mainHand).y);
 			Vector2 direction = new Vector2(MathF.Cos(currentAngle) * charDirection, MathF.Sin(currentAngle));
 

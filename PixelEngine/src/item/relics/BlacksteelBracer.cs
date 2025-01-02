@@ -1,0 +1,34 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class BlacksteelBracer : Item
+{
+	public BlacksteelBracer()
+		: base("blacksteel_bracer", ItemType.Relic)
+	{
+		displayName = "Blacksteel Bracer";
+		description = "Allows the bearer to wield big weapons with a single hand.";
+
+		isPassiveItem = true;
+		armorSlot = ArmorSlot.Gloves;
+
+		value = 35;
+
+		sprite = new Sprite(tileset, 7, 6);
+	}
+
+	public override void onEquip(Player player)
+	{
+		player.canEquipOnehanded = true;
+	}
+
+	public override void onUnequip(Player player)
+	{
+		player.canEquipOnehanded = false;
+	}
+}

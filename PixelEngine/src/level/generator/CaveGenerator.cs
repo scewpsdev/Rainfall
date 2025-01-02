@@ -116,7 +116,8 @@ public partial class LevelGenerator
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new BuilderMerchant(random, level));
 		npcs.Add(new TravellingMerchant(random, level));
-		npcs.Add(new Logan(random, level));
+		if (!GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+			npcs.Add(new Logan(random, level));
 		npcs.Add(new Blacksmith(random, level));
 		npcs.Add(new Tinkerer(random, level));
 

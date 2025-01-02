@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 
 public class HitData
@@ -592,7 +593,7 @@ public class Level
 		for (int i = 0; i < 128; i++)
 		{
 			TileType value = getTile(pos.x, pos.y);
-			if (value != null && !value.destructible && value.visible)
+			if (value != null && value.health == 0 && value.visible)
 			{
 				hit = true;
 				break;

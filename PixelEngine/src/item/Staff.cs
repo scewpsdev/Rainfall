@@ -17,7 +17,7 @@ public class Staff : Item
 
 		baseDamage = 1;
 		manaCost = 1.0f;
-		staffCharges = 10000;
+		staffCharges = -1;
 		knockback = 1;
 
 		value = 30;
@@ -42,12 +42,9 @@ public class Staff : Item
 		Spell spell = player.getSelectedSpell();
 		if (spell != null)
 		{
-			if (staffCharges > 0)
-			{
-				float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
-				player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
-				base.use(player);
-			}
+			float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
+			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+			base.use(player);
 		}
 		return false;
 	}

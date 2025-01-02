@@ -8,14 +8,30 @@ using System.Threading.Tasks;
 
 public class MagicArrowStaff : Staff
 {
+	Spell spell;
+
+
 	public MagicArrowStaff()
 		: base("magic_arrow_staff")
 	{
-		displayName = "Magic Staff";
+		displayName = "Magic Arrow Staff";
 
 		value = 30;
 
-		sprite = new Sprite(tileset, 2, 6);
+		sprite = new Sprite(tileset, 8, 1);
 		renderOffset.x = 0.4f;
+
+		spell = new MagicArrowSpell();
+		maxStaffCharges = 30;
+		staffCharges = 30;
+	}
+
+	public override bool use(Player player)
+	{
+		float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
+		player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+		staffCharges--;
+		base.use(player);
+		return staffCharges <= 0;
 	}
 }

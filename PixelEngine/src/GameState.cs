@@ -71,7 +71,7 @@ public class GameState : State
 	const float AREA_TEXT_DURATION = 7.0f;
 	const float AREA_TEXT_FADE = 2.0f;
 
-	public const float GAME_OVER_SCREEN_DELAY = 3.0f;
+	public const float GAME_OVER_SCREEN_DELAY = 2.0f;
 
 	const float LEVEL_FADE = 0.5f;
 

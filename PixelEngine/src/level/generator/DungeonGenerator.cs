@@ -60,7 +60,8 @@ public partial class LevelGenerator
 	{
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new TravellingMerchant(random, level));
-		npcs.Add(new Logan(random, level));
+		if (!GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+			npcs.Add(new Logan(random, level));
 		npcs.Add(new Blacksmith(random, level));
 		npcs.Add(new Tinkerer(random, level));
 
@@ -455,6 +456,27 @@ public partial class LevelGenerator
 			}
 		});
 
+		spawnRoomObject(rooms, rooms.Count * 0.5f, true, (Vector2i pos, Random random, Room room) =>
+		{
+			TileType tile = level.getTile(pos);
+			TileType left = level.getTile(pos.x - 1, pos.y);
+			TileType right = level.getTile(pos.x + 1, pos.y);
+			TileType up = level.getTile(pos.x, pos.y + 1);
+			TileType down = level.getTile(pos.x, pos.y - 1);
+			if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
+			{
+				TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
+				TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
+
+				float distanceToEntrance = (pos - entrancePosition).length;
+
+				if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
+				{
+					spawnEnemy(pos.x, pos.y, createEnemy());
+				}
+			}
+		});
+
 		// Enemy
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
@@ -478,9 +500,9 @@ public partial class LevelGenerator
 		});
 
 
-		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && !loganQuest.isCompleted)
+		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
 		{
-			if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 1])
+			if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 2])
 			{
 				spawnRoomObject(rooms, 1, false, (Vector2i pos, Random random, Room room) =>
 				{

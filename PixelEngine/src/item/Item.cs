@@ -457,14 +457,17 @@ public abstract class Item
 
 	public virtual void update(Entity entity)
 	{
-		if (entity is Player)
+		if (entity is Player && requiredAmmo != null)
 		{
 			Player player = entity as Player;
-			if (player.interactableInFocus != null && player.interactableInFocus is ItemEntity)
+			HitData[] hits = new HitData[16];
+			int numHits = player.level.overlap(player.position - Vector2.One * 0.5f, player.position + Vector2.One * 0.5f, hits, Entity.FILTER_ITEM);
+			for (int i = 0; i < numHits; i++)
 			{
-				ItemEntity itemEntity = player.interactableInFocus as ItemEntity;
-				if (itemEntity.velocity.lengthSquared < 4 && itemEntity.item.name == requiredAmmo)
-					itemEntity.interact(player);
+				Debug.Assert(hits[i].entity is ItemEntity);
+				ItemEntity item = hits[i].entity as ItemEntity;
+				if (item.item.name == requiredAmmo)
+					item.interact(player);
 			}
 		}
 	}
@@ -627,6 +630,10 @@ public abstract class Item
 		InitType(new IronSabatons());
 		InitType(new Parachute());
 		InitType(new Jetpack());
+		InitType(new SpectralShield());
+		InitType(new MissileStaff());
+		InitType(new DuelistHarness());
+		InitType(new BlacksteelBracer());
 	}
 
 	static void InitType(Item item)

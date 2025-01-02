@@ -111,6 +111,11 @@ namespace Rainfall
 			Native.Audio.Audio_SourceSetGain(source, gain);
 		}
 
+		public static void SetSourcePitch(uint source, float pitch)
+		{
+			Native.Audio.Audio_SourceSetPitch(source, pitch);
+		}
+
 		public static void SetSourceLooping(uint source, bool looping)
 		{
 			Native.Audio.Audio_SourceSetLooping(source, (byte)(looping ? 1 : 0));

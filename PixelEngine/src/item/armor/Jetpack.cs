@@ -20,24 +20,35 @@ public class Jetpack : Item
 	ParticleEffect particles;
 	float emissionRate;
 
+	Sound sound;
+	uint source;
+	float soundVolume = 0;
+
 
 	public unsafe Jetpack()
-		: base("jetpack", ItemType.Armor)
+		: base("jetpack", ItemType.Relic)
 	{
 		displayName = "Alchemical Thrusters";
+		description = "An ingenious alchemical contraption, powered by volatile fluid which ignites with mana, releasing bursts of energy.";
 
 		armor = 1;
+		isPassiveItem = true;
 		armorSlot = ArmorSlot.Back;
 		value = 42;
+		rarity = 0.04f;
 		manaCost = 1;
+		baseWeight = 5;
 
 		sprite = new Sprite(tileset, 6, 9);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/jetpack.png", false), 0, 0, 16, 16);
 
 		particles = new ParticleEffect(null, "effects/jetpack.rfs");
 		emissionRate = particles.systems[0].handle->emissionRate;
+		particles.systems[0].handle->emissionRate = 0;
 		particles.collision = true;
 		particles.bounce = true;
+
+		sound = Resource.GetSound("sounds/jetpack.ogg");
 	}
 
 	public override void onUnequip(Player player)
@@ -45,15 +56,35 @@ public class Jetpack : Item
 		player.canWallJump = true;
 	}
 
-	public override unsafe void update(Entity entity)
+	unsafe void activate(Player player)
+	{
+		active = true;
+		particles.systems[0].handle->emissionRate = emissionRate;
+		source = Audio.Play(sound, new Vector3(player.position, 0), soundVolume, soundVolume);
+	}
+
+	unsafe void deactivate()
+	{
+		active = false;
+		particles.systems[0].handle->emissionRate = 0;
+		Audio.FadeoutSource(source, 1.5f);
+		source = 0;
+	}
+
+	public override void update(Entity entity)
 	{
 		if (entity is Player)
 		{
 			Player player = entity as Player;
 
 			particles.update();
-			particles.systems[0].handle->emissionRate = active ? emissionRate : 0;
+
 			particles.position = player.position + new Vector2(-0.25f * player.direction, 0.25f);
+
+			soundVolume = MathHelper.Lerp(soundVolume, active ? 1 : 0, 5 * Time.deltaTime);
+			Audio.SetSourcePosition(source, new Vector3(player.position, 0));
+			Audio.SetSourceGain(source, soundVolume);
+			Audio.SetSourcePitch(source, soundVolume);
 
 			lastInputDown = inputDown;
 			inputDown = InputManager.IsDown("Jump");
@@ -65,7 +96,7 @@ public class Jetpack : Item
 				if (!active)
 				{
 					if (player.velocity.y < 2 && player.mana > 0.5f)
-						active = true;
+						activate(player);
 				}
 				if (active)
 				{
@@ -81,7 +112,7 @@ public class Jetpack : Item
 					player.consumeMana(manaCost * Time.deltaTime);
 
 					if (player.mana <= 0)
-						active = false;
+						deactivate();
 
 					float tick = 0.2f;
 					if ((Time.currentTime - lastTick) / 1e9f > tick)
@@ -114,7 +145,7 @@ public class Jetpack : Item
 				if (lastInputDown && player.velocity.y <= 0 && lastVelocity > 0 && active)
 					player.velocity.y = lastVelocity;
 
-				active = false;
+				deactivate();
 			}
 			lastVelocity = player.velocity.y;
 		}

@@ -19,6 +19,7 @@ public class Scimitar : Weapon
 		stab = false;
 		attackCooldown = 0.3f;
 		baseWeight = 1.5f;
+		doubleBladed = false;
 
 		value = 16;
 

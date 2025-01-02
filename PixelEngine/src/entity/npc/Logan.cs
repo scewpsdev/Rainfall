@@ -68,6 +68,11 @@ public class Logan : NPC
 					});
 				});
 			}
+			if (level == GameState.instance.hub)
+			{
+				initialDialogue = new Dialogue();
+				initialDialogue.addVoiceLine("Found that staff yet? Come see me if you find it.");
+			}
 			if (initialDialogue == null)
 			{
 				int i = random.Next();
@@ -102,6 +107,10 @@ public class Logan : NPC
 						Dialogue dialogue = new Dialogue();
 						dialogue.addVoiceLine("Heading for the castle, eh? You're braver than I thought.");
 						dialogue.addVoiceLine("Rumour has it something \\bterrible\\0 happened there.");
+						addDialogue(dialogue);
+					}
+					{
+						Dialogue dialogue = new Dialogue();
 						dialogue.addVoiceLine("I do admit, I would love to visit the king's archives again after all this time... But now? That would be \\dsuicide\\0.");
 						addDialogue(dialogue);
 					}
@@ -137,9 +146,12 @@ public class Logan : NPC
 			}
 		}
 
-		populateShop(random, 2, 9, level.avgLootValue, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
-		buysItems = true;
-		//canAttune = true;
+		if (level != GameState.instance.hub)
+		{
+			populateShop(random, 2, 9, level.avgLootValue, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
+			buysItems = true;
+			//canAttune = true;
+		}
 	}
 
 	public Logan()

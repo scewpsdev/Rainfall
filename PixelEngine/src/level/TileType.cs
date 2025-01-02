@@ -17,7 +17,7 @@ public class TileType
 	public bool isPlatform = false;
 	public float platformHeight = 1.0f;
 	public bool isLiquid = false;
-	public bool destructible = false;
+	public int health = 0;
 	public bool breaksArrows = false;
 
 	public uint color = 0xFFFF00FF;
@@ -51,10 +51,10 @@ public class TileType
 		AddTileType(dummy = new TileType() { name = "dummy", visible = false }); // dummy collider
 		AddTileType(dirt = new TileType()
 		{
-			name = "wall",
+			name = "dirt",
 			color = 0xFFFFFFFF,
 			particleColor = 0xFF5c4637,
-			destructible = true,
+			health = 1,
 			sprites = [new Sprite(tileset, 4, 1), new Sprite(tileset, 9, 1), new Sprite(tileset, 10, 1), new Sprite(tileset, 11, 1), new Sprite(tileset, 12, 1)],
 			left = [new Sprite(tileset, 3, 1)],
 			right = [new Sprite(tileset, 5, 1)],
@@ -65,10 +65,11 @@ public class TileType
 		AddTileType(dummyPlatform = new TileType() { name = "dummy_platform", isPlatform = true, platformHeight = 0.75f, isSolid = false, visible = false });
 		AddTileType(stone = new TileType()
 		{
-			name = "stone_block",
+			name = "stone",
 			breaksArrows = true,
 			color = 0xFF333333,
 			particleColor = 0xFF50504c,
+			health = 2,
 			sprites = [new Sprite(tileset, 4, 4), new Sprite(tileset, 9, 4), new Sprite(tileset, 10, 4), new Sprite(tileset, 11, 4), new Sprite(tileset, 12, 4)],
 			left = [new Sprite(tileset, 3, 4), new Sprite(tileset, 13, 3), new Sprite(tileset, 13, 4), new Sprite(tileset, 13, 5)],
 			right = [new Sprite(tileset, 5, 4), new Sprite(tileset, 15, 3), new Sprite(tileset, 15, 4), new Sprite(tileset, 15, 5)],
@@ -91,6 +92,7 @@ public class TileType
 			name = "stone_path",
 			color = 0xFF333333,
 			particleColor = 0xFF838dad,
+			health = 1,
 			sprites = [new Sprite(tileset, 4, 7)],
 			left = [new Sprite(tileset, 3, 7)],
 			right = [new Sprite(tileset, 5, 7)],
@@ -102,6 +104,7 @@ public class TileType
 			name = "grass",
 			color = 0xFF333333,
 			particleColor = 0xFF678343,
+			health = 1,
 			sprites = [new Sprite(tileset, 4, 10)],
 			left = [new Sprite(tileset, 3, 10)],
 			right = [new Sprite(tileset, 5, 10)],
@@ -123,7 +126,7 @@ public class TileType
 			name = "wood",
 			color = 0xFF8a6d61,
 			isSolid = true,
-			destructible = true,
+			health = 1,
 			particleColor = 0xFF8a6d61,
 			sprites = [new Sprite(tileset, 4, 19)]
 		});
@@ -132,6 +135,7 @@ public class TileType
 			name = "bricks",
 			color = 0xFF3a3a3a,
 			isSolid = true,
+			health = 3,
 			particleColor = 0xFF3a3a3a,
 			sprites = [
 				new Sprite(tileset, 4, 22),

@@ -122,7 +122,7 @@ public static class ItemInfoPanel
 			{
 				Staff staff = item as Staff;
 
-				if (staff.staffCharges > 0)
+				if (staff.staffCharges >= 0)
 				{
 					drawLeft("Charges");
 					drawRight(staff.staffCharges);

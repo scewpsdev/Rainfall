@@ -111,7 +111,7 @@ public class Hub : Entity
 			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
 		}
 
-		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.Completed)
+		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
 		{
 			level.addEntity(new Logan(Random.Shared, level), new Vector2(56, 23));
 		}

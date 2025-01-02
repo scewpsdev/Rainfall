@@ -669,96 +669,117 @@ public partial class LevelGenerator
 		spawnedNPCs.Add(npc.GetType());
 	}
 
-	void generateMainRooms(RoomDefSet set, RoomDef? startingRoomDef)
+	Room propagateMainRooms(Doorway doorway, RoomDefSet set, bool firstLeafPath, int minRooms)
 	{
-		Room lastRoom = null;
-		while (true)
+		Room room = fillDoorway(doorway, set, false);
+
+		if (room == null)
+			return null;
+
+		room.isMainPath = true;
+
+		List<Doorway> emptyDoorways = new List<Doorway>();
+		for (int i = 0; i < room.doorways.Count; i++)
 		{
-			if (lastRoom == null) // First room
+			if (room.doorways[i].otherDoorway == null)
+				emptyDoorways.Add(room.doorways[i]);
+		}
+		MathHelper.ShuffleList(emptyDoorways, random);
+		if (random.NextSingle() < 0.95f)
+		{
+			emptyDoorways.Sort((Doorway a, Doorway b) =>
 			{
-				int roomDefID;
-				RoomDef roomDef;
+				float da = Vector2.Dot((Vector2)a.direction, Vector2.Down);
+				float db = Vector2.Dot((Vector2)b.direction, Vector2.Down);
+				return da > db ? -1 : db > da ? 1 : 0;
+			});
+		}
 
-				if (startingRoomDef != null)
-				{
-					roomDefID = startingRoomDef.Value.id;
-					roomDef = startingRoomDef.Value;
-				}
-				else
-				{
-					roomDefID = random.Next() % set.roomDefs.Count;
-					roomDef = set.roomDefs[roomDefID];
-					while (roomDef.height > level.height || roomDef.width > level.width)
-					{
-						roomDefID = random.Next() % set.roomDefs.Count;
-						roomDef = set.roomDefs[roomDefID];
-					}
-				}
+		Debug.Assert(emptyDoorways.Count > 0);
 
-				Debug.Assert(level.width - roomDef.width - 6 >= 0 && level.height - roomDef.height >= 0);
+		while (emptyDoorways.Count > 0 && (rooms.Count <= minRooms || firstLeafPath))
+		{
+			propagateMainRooms(emptyDoorways[0], set, firstLeafPath, minRooms);
+			firstLeafPath = false;
+			emptyDoorways.RemoveAt(0);
+		}
 
-				int startingRoomX = level.width / 2 - roomDef.width / 2; // random.Next() % Math.Max(level.width - roomDef.width - 6, 1) + 3;
-				int startingRoomY = Math.Max(level.height - roomDef.height - 8, 0); // random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
-				Room room = new Room
-				{
-					x = startingRoomX,
-					y = startingRoomY,
-					width = roomDef.width,
-					height = roomDef.height,
-					roomDefID = roomDefID,
-					set = roomDef.set
-				};
-				room.isMainPath = true;
+		return room;
+	}
 
-				if (startingRoomX < 0 || startingRoomY < 0)
-					Debug.Assert(false);
+	void generateMainRooms(RoomDefSet set, RoomDef? startingRoomDef, int minRooms = 5)
+	{
+		// Starting room
 
-				for (int i = 0; i < roomDef.doorDefs.Count; i++)
-				{
-					room.doorways.Add(new Doorway { room = room, doorDef = roomDef.doorDefs[i], otherDoorway = null, position = roomDef.doorDefs[i].position, direction = roomDef.doorDefs[i].direction });
-				}
-				rooms.Add(room);
+		int roomDefID;
+		RoomDef roomDef;
 
-				lastRoom = room;
-			}
-			else
+		if (startingRoomDef != null)
+		{
+			roomDefID = startingRoomDef.Value.id;
+			roomDef = startingRoomDef.Value;
+		}
+		else
+		{
+			roomDefID = random.Next() % set.roomDefs.Count;
+			roomDef = set.roomDefs[roomDefID];
+			while (roomDef.height > level.height || roomDef.width > level.width)
 			{
-				List<Doorway> emptyDoorways = new List<Doorway>();
-				for (int i = 0; i < lastRoom.doorways.Count; i++)
-				{
-					if (lastRoom.doorways[i].otherDoorway == null)
-						emptyDoorways.Add(lastRoom.doorways[i]);
-				}
-				MathHelper.ShuffleList(emptyDoorways, random);
-				if (random.NextSingle() < 0.95f)
-				{
-					emptyDoorways.Sort((Doorway a, Doorway b) =>
-					{
-						float da = Vector2.Dot((Vector2)a.direction, Vector2.Down);
-						float db = Vector2.Dot((Vector2)b.direction, Vector2.Down);
-						return da > db ? -1 : db > da ? 1 : 0;
-					});
-				}
-
-				Debug.Assert(emptyDoorways.Count > 0);
-
-				bool found = false;
-				for (int s = 0; s < emptyDoorways.Count; s++)
-				{
-					Doorway lastDoorway = emptyDoorways[s];
-					Room room = fillDoorway(lastDoorway, set, false);
-
-					if (room != null)
-					{
-						room.isMainPath = true;
-						lastRoom = room;
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					break;
+				roomDefID = random.Next() % set.roomDefs.Count;
+				roomDef = set.roomDefs[roomDefID];
 			}
+		}
+
+		Debug.Assert(level.width - roomDef.width - 6 >= 0 && level.height - roomDef.height >= 0);
+
+		int startingRoomX = level.width / 2 - roomDef.width / 2; // random.Next() % Math.Max(level.width - roomDef.width - 6, 1) + 3;
+		int startingRoomY = Math.Max(level.height - roomDef.height - 8, 0); // random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
+		Room room = new Room
+		{
+			x = startingRoomX,
+			y = startingRoomY,
+			width = roomDef.width,
+			height = roomDef.height,
+			roomDefID = roomDefID,
+			set = roomDef.set
+		};
+		room.isMainPath = true;
+
+		if (startingRoomX < 0 || startingRoomY < 0)
+			Debug.Assert(false);
+
+		for (int i = 0; i < roomDef.doorDefs.Count; i++)
+		{
+			room.doorways.Add(new Doorway { room = room, doorDef = roomDef.doorDefs[i], otherDoorway = null, position = roomDef.doorDefs[i].position, direction = roomDef.doorDefs[i].direction });
+		}
+		rooms.Add(room);
+
+
+		List<Doorway> emptyDoorways = new List<Doorway>();
+		for (int i = 0; i < room.doorways.Count; i++)
+		{
+			if (room.doorways[i].otherDoorway == null)
+				emptyDoorways.Add(room.doorways[i]);
+		}
+		MathHelper.ShuffleList(emptyDoorways, random);
+		if (random.NextSingle() < 0.95f)
+		{
+			emptyDoorways.Sort((Doorway a, Doorway b) =>
+			{
+				float da = Vector2.Dot((Vector2)a.direction, Vector2.Down);
+				float db = Vector2.Dot((Vector2)b.direction, Vector2.Down);
+				return da > db ? -1 : db > da ? 1 : 0;
+			});
+		}
+
+		Debug.Assert(emptyDoorways.Count > 0);
+
+		bool firstLeafPath = true;
+		while (emptyDoorways.Count > 0 && (rooms.Count <= minRooms || firstLeafPath))
+		{
+			propagateMainRooms(emptyDoorways[0], set, firstLeafPath, minRooms);
+			firstLeafPath = false;
+			emptyDoorways.RemoveAt(0);
 		}
 
 		Debug.Assert(rooms.Count > 1);
