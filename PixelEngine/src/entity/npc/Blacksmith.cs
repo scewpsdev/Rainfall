@@ -20,7 +20,7 @@ public class Blacksmith : NPC
 		animator.setAnimation("idle");
 
 		buysItems = true;
-		buyTax = 0.3f;
+		buyTax = 0.5f;
 		canUpgrade = true;
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET))

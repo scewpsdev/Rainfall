@@ -162,7 +162,7 @@ public static class GameOverScreen
 		Player player = GameState.instance.player;
 
 		int size = 16;
-		int xx = x + width / 2 - size / 2;
+		int xx = x - size / 2;
 		int yy = y + size * 3 / 4;
 		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
 
@@ -213,11 +213,11 @@ public static class GameOverScreen
 
 		int playerViewHeight = 32; // (height - 2 * padding) * 2 / 8;
 
-		RenderRunStats(GameState.instance, x + padding, y + padding, width / 2 - 2 * padding, height - 2 * padding);
-		RenderPlayer(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, playerViewHeight);
-		//InventoryUI.DrawEquipment(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player);
+		RenderPlayer(x + width / 4, y + padding, width / 2 - 2 * padding, playerViewHeight);
+
+		RenderRunStats(GameState.instance, x + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, height - 2 * padding);
 		Vector2i selectedCell = Vector2i.Zero;
-		InventoryUI.DrawEquipment3(x + width / 2 + padding, y + padding + playerViewHeight, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player, ref selectedCell, out _);
+		InventoryUI.DrawEquipment3(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, (height - 2 * padding) - playerViewHeight, GameState.instance.player, ref selectedCell, out _);
 
 		string prompt1 = InputManager.GetBinding("UIConfirm").ToString() + " to quick restart";
 		Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt1).x / 2, y + height - padding - 12 - Renderer.MeasureUITextBMP(prompt1).y, prompt1);

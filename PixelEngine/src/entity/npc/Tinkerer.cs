@@ -22,7 +22,7 @@ public class Tinkerer : NPC
 		animator.setAnimation("idle");
 
 		buysItems = true;
-		buyTax = 0.35f;
+		buyTax = 0.55f;
 		canCraft = true;
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_TINKERER_MET))

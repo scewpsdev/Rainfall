@@ -17,7 +17,7 @@ public class LeatherArmor : Item
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 1;
 
-		value = 6;
+		value = 12;
 
 		sprite = new Sprite(tileset, 2, 2);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/leather_armor.png", false), 0, 0, 16, 16);

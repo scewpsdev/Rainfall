@@ -984,13 +984,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		statusEffects.Remove(effect);
 	}
 
-	public bool hasStatusEffect(string name)
+	public bool hasStatusEffect(string name, out StatusEffect effect)
 	{
 		for (int i = 0; i < statusEffects.Count; i++)
 		{
 			if (statusEffects[i].name == name)
+			{
+				effect = statusEffects[i];
 				return true;
+			}
 		}
+		effect = null;
 		return false;
 	}
 
@@ -1957,15 +1961,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return;
 
 		bool invincible = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
-		//bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
+		bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
 
-		if (isVisible /*&& show*/)
+		if (isVisible)
 		{
 			Vector2 snappedPosition = position;
 			snappedPosition.x = MathF.Round(snappedPosition.x * 16) / 16;
 			snappedPosition.y = MathF.Round(snappedPosition.y * 16) / 16;
 
-			Renderer.DrawSprite(snappedPosition.x - 0.5f, snappedPosition.y, 1, isDucked && !isClimbing ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
+			if (show)
+				Renderer.DrawSprite(snappedPosition.x - 0.5f, snappedPosition.y, 1, isDucked && !isClimbing ? 0.5f : 1, sprite, direction == -1, 0xFFFFFFFF);
 
 			if (handItem != null)
 				handItem.render(this);
@@ -1973,19 +1978,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandItem.render(this);
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
-				if (passiveItems[i].ingameSprite != null)
+				if (passiveItems[i].ingameSprite != null && show)
 					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}
 			for (int i = 0; i < activeItems.Length; i++)
 			{
 				if (activeItems[i] != null)
-				{
 					activeItems[i].render(this);
-				}
 			}
 
-			if (/*!isClimbing &&*/ (actions.currentAction == null || actions.currentAction.renderWeapon))
+			if (/*!isClimbing &&*/ (actions.currentAction == null || actions.currentAction.renderWeapon) && show)
 			{
 				renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
 				renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);

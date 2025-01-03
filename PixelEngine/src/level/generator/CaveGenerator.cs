@@ -396,7 +396,7 @@ public partial class LevelGenerator
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, 0.15f, true, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.1f, true, (Vector2i tile, Random random, Room room) =>
 		{
 			int amount = MathHelper.RandomInt(2, 7, random);
 			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));

@@ -29,7 +29,7 @@ public class IronDoor : Entity, Interactable, Hittable
 		sprite = key != null ? new Sprite(tileset, 2, 8) : new Sprite(tileset, 3, 8);
 		frameSprite = key != null ? new Sprite(tileset, 2, 9) : new Sprite(tileset, 3, 9);
 
-		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1);
+		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 1);
 
 		unlockSound = Resource.GetSound("sounds/door_unlock.ogg");
 		lockedSound = Resource.GetSound("sounds/door_locked.ogg");
@@ -116,7 +116,10 @@ public class IronDoor : Entity, Interactable, Hittable
 		this.open = open;
 
 		Vector2i tile = (Vector2i)Vector2.Floor(position + new Vector2(0, 0.5f));
-		level.setTile(tile.x, tile.y, open ? null : TileType.dummy);
+		if (open)
+			level.addCollider(this);
+		else
+			level.removeCollider(this);
 
 		if (open)
 			Audio.PlayOrganic(unlockSound, new Vector3(position, 0));

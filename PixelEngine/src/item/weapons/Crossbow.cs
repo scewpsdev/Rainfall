@@ -20,7 +20,7 @@ public class Crossbow : Weapon
 		displayName = "Crossbow";
 
 		baseDamage = 4;
-		baseAttackRate = 1.0f; // 0.5f;
+		baseAttackRate = 0.5f;
 		baseAttackRange = 60; // arrow speed
 		knockback = 12.0f;
 		trigger = true;

@@ -17,7 +17,7 @@ public class IronArmor : Item
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 3;
 
-		value = 23;
+		value = 25;
 
 		sprite = new Sprite(tileset, 12, 7);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/iron_armor.png", false), 0, 0, 16, 16);

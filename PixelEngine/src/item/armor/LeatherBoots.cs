@@ -17,7 +17,7 @@ public class LeatherBoots : Item
 		armorSlot = ArmorSlot.Boots;
 		baseWeight = 0.2f;
 
-		value = 2;
+		value = 8;
 
 		sprite = new Sprite(tileset, 1, 9);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/leather_boots.png", false), 0, 0, 16, 16);

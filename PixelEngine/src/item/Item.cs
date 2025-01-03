@@ -461,7 +461,7 @@ public abstract class Item
 		{
 			Player player = entity as Player;
 			HitData[] hits = new HitData[16];
-			int numHits = player.level.overlap(player.position - Vector2.One * 0.5f, player.position + Vector2.One * 0.5f, hits, Entity.FILTER_ITEM);
+			int numHits = player.level.overlap(player.position + player.collider.min - 0.1f, player.position + player.collider.max + 0.1f, hits, Entity.FILTER_ITEM);
 			for (int i = 0; i < numHits; i++)
 			{
 				Debug.Assert(hits[i].entity is ItemEntity);
@@ -634,6 +634,7 @@ public abstract class Item
 		InitType(new MissileStaff());
 		InitType(new DuelistHarness());
 		InitType(new BlacksteelBracer());
+		InitType(new Parsley());
 	}
 
 	static void InitType(Item item)

@@ -120,7 +120,7 @@ public abstract class NPC : Mob, Interactable
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
 	//int infoPanelHeight = 90;
-	protected float buyTax = 0.25f;
+	protected float buyTax = 0.4f;
 	List<Item> craftingItems = new List<Item>();
 	Item craftingItem1, craftingItem2;
 
@@ -452,13 +452,15 @@ public abstract class NPC : Mob, Interactable
 			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
 			y += 4;
 
-			float characterFreq = dialogueSpeed * (InputManager.IsDown("Interact") && currentCharacter >= 5 ? 12 : 1);
-			int numChars = (int)((Time.currentTime - lastCharacterTime) / 1e9f * characterFreq);
-			for (int i = 0; i < numChars; i++)
+			int numChars = (int)((Time.currentTime - lastCharacterTime) / 1e9f * dialogueSpeed);
+			if (numChars > 0)
 			{
-				currentCharacter++;
+				currentCharacter += numChars;
 				lastCharacterTime = Time.currentTime;
 			}
+			if (!dialogueFinished && InputManager.IsPressed("Interact", true))
+				currentCharacter = 1000;
+
 			if (numChars > 0 && !dialogueFinished && currentCharacter % 2 == 0)
 			{
 				float pitch = voicePitch;

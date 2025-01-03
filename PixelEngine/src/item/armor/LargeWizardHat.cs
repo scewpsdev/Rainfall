@@ -13,7 +13,7 @@ public class LargeWizardHat : Item
 	{
 		displayName = "Large Wizard Hat";
 
-		armor = 1.5f;
+		armor = 1;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.3f;
 

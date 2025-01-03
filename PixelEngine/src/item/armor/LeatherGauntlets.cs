@@ -17,7 +17,7 @@ public class LeatherGauntlets : Item
 		armorSlot = ArmorSlot.Gloves;
 		baseWeight = 0.2f;
 
-		value = 2;
+		value = 8;
 
 		sprite = new Sprite(tileset, 14, 8);
 	}

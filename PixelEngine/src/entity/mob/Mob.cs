@@ -35,7 +35,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float itemDropChance = 0.1f;
 	public float itemDropValueMultiplier = 1;
 	public List<Item> itemDrops = new List<Item>();
-	public float coinDropChance = 0.2f;
+	public float coinDropChance = 0.1f;
 
 	public float health = 1;
 	public float damage = 1;

@@ -17,7 +17,7 @@ public class IronSabatons : Item
 		armorSlot = ArmorSlot.Boots;
 		baseWeight = 1.25f;
 
-		value = 8;
+		value = 20;
 
 		sprite = new Sprite(tileset, 3, 9);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/iron_sabatons.png", false), 0, 0, 16, 16);

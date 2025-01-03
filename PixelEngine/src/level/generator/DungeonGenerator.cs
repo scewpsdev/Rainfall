@@ -504,7 +504,7 @@ public partial class LevelGenerator
 		{
 			if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 2])
 			{
-				spawnRoomObject(rooms, 1, false, (Vector2i pos, Random random, Room room) =>
+				spawnRoomObject(rooms, rooms.Count, false, (Vector2i pos, Random random, Room room) =>
 				{
 					spawnItem(pos.x, pos.y, [new QuestlineLoganStaff()]);
 				});

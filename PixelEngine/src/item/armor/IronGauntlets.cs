@@ -17,7 +17,7 @@ public class IronGauntlets : Item
 		armorSlot = ArmorSlot.Gloves;
 		baseWeight = 1.25f;
 
-		value = 8;
+		value = 20;
 
 		sprite = new Sprite(tileset, 0, 9);
 	}

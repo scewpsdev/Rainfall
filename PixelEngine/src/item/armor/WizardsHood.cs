@@ -13,11 +13,11 @@ public class WizardsHood : Item
 	{
 		displayName = "Wizard's Hood";
 
-		armor = 1;
+		armor = 0.5f;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.2f;
 
-		value = 5;
+		value = 2;
 
 		sprite = new Sprite(tileset, 6, 3);
 		spriteColor = 0xFF4c358f; // 0xFF2e2739;

@@ -54,7 +54,7 @@ public class Logan : NPC
 				GameState.instance.save.addQuestCompletionCallback(name, "logan_quest", (Quest quest) =>
 				{
 					initialDialogue = new Dialogue();
-					initialDialogue.addVoiceLine("Ha, look at you! You actually did it. Maybe you're not as useless as the rest of the rabble.");
+					initialDialogue.addVoiceLine("Ha, look at you! You actually did it! Maybe you're not as useless as the rest of the rabble.");
 					initialDialogue.addVoiceLine("Hooray, or something. Here, take this.").addCallback(() =>
 					{
 						Item staff = player.getItem("questline_logan_staff");
@@ -71,7 +71,7 @@ public class Logan : NPC
 			if (level == GameState.instance.hub)
 			{
 				initialDialogue = new Dialogue();
-				initialDialogue.addVoiceLine("Found that staff yet? Come see me if you find it.");
+				initialDialogue.addVoiceLine("Found that staff yet? Come see me if you do.");
 			}
 			if (initialDialogue == null)
 			{

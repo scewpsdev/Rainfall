@@ -28,7 +28,7 @@ public static class SpellEffects
 					float distance = (tileCenter - position).length - 0.5f;
 					if (tile != null && tile.health > 0)
 					{
-						bool destroyed = (1 - distance / radius) * damage > tile.health * 2;
+						bool destroyed = (1 - distance / radius) * damage / 10 > tile.health;
 						if (destroyed)
 							GameState.instance.level.setTile(x, y, null);
 					}

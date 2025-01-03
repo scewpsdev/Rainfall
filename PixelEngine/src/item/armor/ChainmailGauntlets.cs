@@ -17,7 +17,7 @@ public class ChainmailGauntlets : Item
 		armorSlot = ArmorSlot.Gloves;
 		baseWeight = 0.75f;
 
-		value = 5;
+		value = 16;
 
 		sprite = new Sprite(tileset, 15, 8);
 	}
