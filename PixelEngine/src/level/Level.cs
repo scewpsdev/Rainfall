@@ -206,6 +206,7 @@ public class Level
 			foreach (var removeCallback in entities[0].removeCallbacks)
 				removeCallback.Invoke();
 			entities[0].destroy();
+			entities[0].level = null;
 			entities.RemoveAt(0);
 		}
 
@@ -215,6 +216,9 @@ public class Level
 
 	public void addEntity(Entity entity, bool init = true)
 	{
+		Debug.Assert(!init || entity.level == null);
+		Debug.Assert(!entities.Contains(entity));
+
 		entities.Add(entity);
 		entity.level = this;
 
@@ -246,6 +250,7 @@ public class Level
 	public void removeEntity(Entity entity)
 	{
 		entities.Remove(entity);
+		entity.level = null;
 	}
 
 	public void update()
@@ -560,9 +565,6 @@ public class Level
 			pos += mm * rs;
 		}
 
-		if (!hit)
-			return null;
-
 		Vector2 normal = (Vector2)(-mm * rs);
 		Vector2i tile = pos;
 
@@ -570,10 +572,48 @@ public class Level
 		Vector2 mini = (pos - origin + 0.5f - 0.5f * rs) * ri;
 		float distance = MathF.Max(mini.x, mini.y);
 
+		Entity entity = null;
+		for (int i = 0; i < colliders.Count; i++)
+		{
+			if (!colliders[i].platformCollider)
+			{
+				Vector2 min = colliders[i].position + colliders[i].collider.min;
+				Vector2 max = colliders[i].position + colliders[i].collider.max;
+
+				float x0 = direction.x > 0 ? min.x : max.x;
+				float y0 = direction.y > 0 ? min.y : max.y;
+				float x1 = direction.x > 0 ? max.x : min.x;
+				float y1 = direction.y > 0 ? max.y : min.y;
+
+				float tx0 = (x0 - origin.x) / direction.x;
+				float tx1 = (x1 - origin.x) / direction.x;
+				float ty0 = (y0 - origin.y) / direction.y;
+				float ty1 = (y1 - origin.y) / direction.y;
+
+				if (tx1 >= ty0 && tx0 <= ty1 && tx1 > 0 && ty1 > 0)
+				{
+					tx0 = MathF.Max(tx0, 0);
+					ty0 = MathF.Max(ty0, 0);
+
+					float t = MathF.Max(tx0, ty0);
+					if (t < distance)
+					{
+						distance = t;
+						normal = tx0 > ty0 ? new Vector2(-MathF.Sign(direction.x), 0) : new Vector2(0, -MathF.Sign(direction.y));
+						entity = colliders[i];
+						hit = true;
+					}
+				}
+			}
+		}
+
+		if (!hit)
+			return null;
+
 		if (distance > range)
 			return null;
 
-		return new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile };
+		return new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile, entity = entity };
 	}
 
 	public HitData raycastTilesDestructible(Vector2 origin, Vector2 direction, float range)
@@ -593,7 +633,7 @@ public class Level
 		for (int i = 0; i < 128; i++)
 		{
 			TileType value = getTile(pos.x, pos.y);
-			if (value != null && value.health == 0 && value.visible)
+			if (value != null && value.health != 1 && value.visible)
 			{
 				hit = true;
 				break;

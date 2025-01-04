@@ -187,7 +187,7 @@ public static class DebugConsole
 		{
 			if (args.Length == 2)
 			{
-				if (GameState.instance.save.getQuestList(args[0], out List<Quest> questList))
+				if (QuestManager.getQuestList(args[0], out List<Quest> questList))
 				{
 					for (int i = 0; i < questList.Count; i++)
 					{

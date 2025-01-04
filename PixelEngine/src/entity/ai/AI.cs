@@ -14,7 +14,8 @@ public abstract class AI
 	public float loseRange = 5.0f;
 	public float loseTime = 3.0f;
 
-	public Entity target = null;
+	public Entity target { get; private set; }
+	public void setTarget(Entity newTarget) { onTargetSwitched(newTarget); target = newTarget; }
 	public bool canSeeTarget = false;
 
 
@@ -24,6 +25,10 @@ public abstract class AI
 	}
 
 	public virtual void update()
+	{
+	}
+
+	protected virtual void onTargetSwitched(Entity newTarget)
 	{
 	}
 

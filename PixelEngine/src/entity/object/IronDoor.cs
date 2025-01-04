@@ -116,10 +116,16 @@ public class IronDoor : Entity, Interactable, Hittable
 		this.open = open;
 
 		Vector2i tile = (Vector2i)Vector2.Floor(position + new Vector2(0, 0.5f));
-		if (open)
+		if (!open)
+		{
 			level.addCollider(this);
+			//level.setTile(tile.x, tile.y, TileType.dummy);
+		}
 		else
+		{
 			level.removeCollider(this);
+			//level.setTile(tile.x, tile.y, null);
+		}
 
 		if (open)
 			Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
@@ -134,7 +140,7 @@ public class IronDoor : Entity, Interactable, Hittable
 				{
 					Vector2 pos = entity.position;
 					if (entity is Player)
-						pos.x += (entity as Player).direction * 0.25f;
+						pos.x -= (entity as Player).direction * 0.5f;
 					if (MathHelper.Fract(pos.x) < 0.5f && (level.getTile(tile.x - 1, tile.y) == null || !level.getTile(tile.x - 1, tile.y).isSolid))
 						entity.position.x = MathF.Min(entity.position.x, tile.x - entity.collider.max.x);
 					else if (level.getTile(tile.x + 1, tile.y) == null || !level.getTile(tile.x + 1, tile.y).isSolid)

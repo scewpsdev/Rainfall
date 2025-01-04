@@ -102,6 +102,7 @@ public abstract class NPC : Mob, Interactable
 
 	protected Dialogue initialDialogue;
 	protected List<Dialogue> dialogues = new List<Dialogue>();
+	HashSet<uint> finishedDialogues = new HashSet<uint>();
 	Dialogue currentDialogue;
 	long lastCharacterTime;
 	int currentCharacter = 0;
@@ -262,6 +263,87 @@ public abstract class NPC : Mob, Interactable
 		dialogues.Add(dialogue);
 	}
 
+	protected DialogueScreen setOneTimeInititalDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		uint h = Hash.hash(txt);
+		if (!finishedDialogues.Contains(h))
+		{
+			Dialogue dialogue = new Dialogue();
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			initialDialogue = dialogue;
+			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+			lastScreen.addCallback(() =>
+			{
+				finishedDialogues.Add(h);
+			});
+			return lastScreen;
+		}
+		return null;
+	}
+
+	protected DialogueScreen setInititalDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		Dialogue dialogue = new Dialogue();
+		for (int i = 0; i < screens.Length; i++)
+			dialogue.addVoiceLine(screens[i]);
+		initialDialogue = dialogue;
+		return dialogue.screens[dialogue.screens.Count - 1];
+	}
+
+	protected DialogueScreen addOneTimeDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		uint h = Hash.hash(txt);
+		if (!finishedDialogues.Contains(h))
+		{
+			Dialogue dialogue = new Dialogue();
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			addDialogue(dialogue);
+			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+			lastScreen.addCallback(() =>
+			{
+				finishedDialogues.Add(h);
+			});
+			return lastScreen;
+		}
+		return null;
+	}
+
+	protected DialogueScreen addDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		Dialogue dialogue = new Dialogue();
+		for (int i = 0; i < screens.Length; i++)
+			dialogue.addVoiceLine(screens[i]);
+		addDialogue(dialogue);
+		return dialogue.screens[dialogue.screens.Count - 1];
+	}
+
+	public virtual void load(DatObject obj)
+	{
+		if (obj.getArray("dialogues", out DatArray dialogues))
+		{
+			for (int i = 0; i < dialogues.size; i++)
+				finishedDialogues.Add(dialogues[i].uinteger);
+		}
+	}
+
+	public virtual void save(DatObject obj)
+	{
+		DatArray dialogues = new DatArray();
+		foreach (uint h in finishedDialogues)
+			dialogues.addUInteger(h);
+		obj.addArray("dialogues", dialogues);
+	}
+
 	public virtual Item craftItem(Item item1, Item item2)
 	{
 		return null;
@@ -269,7 +351,7 @@ public abstract class NPC : Mob, Interactable
 
 	public bool isInteractable(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || GameState.instance.save.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -605,7 +687,7 @@ public abstract class NPC : Mob, Interactable
 			//	options.Add("Attune");
 			if (dialogues.Count > 0)
 				options.Add("Talk");
-			if (GameState.instance.save.getQuestList(name, out _))
+			if (QuestManager.getQuestList(name, out _))
 				options.Add("Quests");
 			options.Add("Quit");
 
@@ -906,7 +988,7 @@ public abstract class NPC : Mob, Interactable
 			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
 			List<string> labels = new List<string>();
-			if (GameState.instance.save.getQuestList(name, out List<Quest> quests))
+			if (QuestManager.getQuestList(name, out List<Quest> quests))
 			{
 				for (int i = 0; i < quests.Count; i++)
 					labels.Add(quests[i].displayName);

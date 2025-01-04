@@ -23,7 +23,7 @@ public class HUD
 
 	public static SpriteSheet tileset;
 
-	public static Sprite heartFull, heartHalf, heartEmpty;
+	public static Sprite heartFull, heartEmpty, heartHalf, heartHalfEmpty;
 	public static Sprite armor, armorEmpty;
 	public static Sprite mana, manaEmpty;
 	public static Sprite gold;
@@ -38,9 +38,10 @@ public class HUD
 	{
 		tileset = new SpriteSheet(Resource.GetTexture("sprites/ui.png", false), 8, 8);
 
-		heartFull = new Sprite(tileset, 0, 1);
-		heartHalf = new Sprite(tileset, 1, 0);
-		heartEmpty = new Sprite(tileset, 1, 1);
+		heartFull = new Sprite(tileset, 0, 0);
+		heartEmpty = new Sprite(tileset, 1, 0);
+		heartHalf = new Sprite(tileset, 0, 1);
+		heartHalfEmpty = new Sprite(tileset, 1, 1);
 
 		mana = new Sprite(tileset, 6, 0);
 		manaEmpty = new Sprite(tileset, 7, 0);
@@ -175,17 +176,22 @@ public class HUD
 			int x = Renderer.UIWidth / 2 - 8 - size - i * (size + padding);
 			int y = Renderer.UIHeight - 4 - 16 - 7 - size;
 
-			Renderer.DrawUIOutline(x, y, size, size, heartEmpty, false, 0xFF000000);
-			Renderer.DrawUISprite(x, y, size, size, heartEmpty);
+			Sprite emptySprite = player.maxHealth - i <= 0.5f ? heartHalfEmpty : heartEmpty;
+			Sprite heartSprite = player.maxHealth - i <= 0.5f ? heartHalf : heartFull;
+
+			Renderer.DrawUIOutline(x, y, size, size, emptySprite, false, 0xFF000000);
+			Renderer.DrawUISprite(x, y, size, size, emptySprite);
 			if (i < player.health)
 			{
 				float fraction = MathF.Min(player.health - i, 1);
+				if (player.maxHealth - i <= 0.5f)
+					fraction *= 2;
 				fraction = MathF.Floor(fraction * 8) / 8.0f;
-				Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), heartFull.spriteSheet.texture, heartFull.position.x, heartFull.position.y + (int)(heartFull.size.y * (1 - fraction)), heartFull.size.x, (int)(heartFull.size.y * fraction));
+				Renderer.DrawUISprite(x, y + (int)((1 - fraction) * size), size, (int)(fraction * size), heartSprite.spriteSheet.texture, heartSprite.position.x, heartSprite.position.y + (int)(heartSprite.size.y * (1 - fraction)), heartSprite.size.x, (int)(heartSprite.size.y * fraction));
 			}
 			else
 			{
-				Renderer.DrawUISprite(x, y, size, size, heartEmpty);
+				Renderer.DrawUISprite(x, y, size, size, emptySprite);
 			}
 		}
 	}

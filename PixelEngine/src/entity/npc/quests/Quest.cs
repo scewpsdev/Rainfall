@@ -16,20 +16,6 @@ public enum QuestState
 
 public abstract class Quest
 {
-	public static Dictionary<string, Quest> questInstances = new Dictionary<string, Quest>();
-
-	static Quest()
-	{
-		InitQuestType(new CheeseQuest());
-		InitQuestType(new LoganQuest());
-	}
-
-	static void InitQuestType(Quest quest)
-	{
-		questInstances.Add(quest.name, quest);
-	}
-
-
 	public string name;
 	public string displayName;
 	public string description;

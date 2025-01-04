@@ -108,7 +108,7 @@ public class SpectralShield : Spell
 
 	public void deactivate(Player player)
 	{
-		player.level.removeEntity(entity);
+		entity.remove();
 		entity = null;
 	}
 

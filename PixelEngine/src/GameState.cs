@@ -82,6 +82,7 @@ public class GameState : State
 	public SaveFile save;
 	public RunStats run;
 	string seed = null;
+	public LevelGenerator generator;
 
 	//public Level startingCave;
 	public Level hub;
@@ -91,7 +92,6 @@ public class GameState : State
 	public Level[] areaDungeons;
 	public Level[] areaGardens;
 
-	List<Level> cachedLevels = new List<Level>();
 	public Level level;
 	public int firstCaveFloor => 0;
 	public int lastCaveFloor => firstCaveFloor + areaCaves.Length - 1;
@@ -132,21 +132,16 @@ public class GameState : State
 
 	void reset(StartingClass startingClass = null, bool quickRestart = false)
 	{
-		level?.destroy();
-		level = null;
+		destroy();
 
 		currentBoss = null;
 
-		for (int i = 0; i < cachedLevels.Count; i++)
-		{
-			cachedLevels[i].destroy();
-		}
-		cachedLevels.Clear();
-
 		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString(), seed != null);
-		save.onReset();
 
-		LevelGenerator generator = new LevelGenerator();
+		NPCManager.Init();
+		QuestManager.Init();
+
+		generator = new LevelGenerator();
 
 		hub = new Level(-1, "Hollow's Refuge");
 		//tutorial = new Level(-1, "Tutorial");
@@ -162,6 +157,10 @@ public class GameState : State
 
 		player = new Player();
 		camera = new PlayerCamera(player);
+
+
+		generator.generateCaves(run.seed, out areaCaves);
+		generator.generateDungeons(run.seed, out areaDungeons);
 
 
 		// Cliffside
@@ -190,32 +189,12 @@ public class GameState : State
 			tutorial.addEntity(cliffsideDoor, (Vector2)tutorial.rooms[0].getMarker(0x21));
 		}
 
+		// Hub
+		{
+			generator.generateHub(hub);
+			hub.addEntity(new Hub(hub.rooms[0]));
+		}
 
-		generator.generateHub(hub);
-
-		hub.addEntity(new Hub(hub.rooms[0]));
-
-
-		// Gode meme
-		/*
-		tutorial.addEntity(new TutorialText("For Gode ->", 0xFFFFFFFF), new Vector2(55, 25.5f));
-		for (int i = 0; i < 50; i++)
-			tutorial.addEntity(new SpikeTrap(), new Vector2(67.5f + i, 27.5f));
-		tutorial.addEntity(new TutorialText("Das ist eine Spike Trap ->     <-", 0xFFFFFFFF), new Vector2(121.7f, 29.5f));
-		tutorial.addEntity(new TutorialText("Ja, man kann sie sehen.", 0xFFFFFFFF), new Vector2(121, 28.5f));
-		tutorial.addEntity(new TutorialText("Von denen sollte man nicht", 0xFFFFFFFF), new Vector2(121, 27.5f));
-		tutorial.addEntity(new TutorialText("getroffen werden.", 0xFFFFFFFF), new Vector2(121, 27.0f));
-		tutorial.addEntity(new TutorialText("Das tut weh.", 0xFFFFFFFF), new Vector2(121, 26.5f));
-		tutorial.addEntity(new TutorialText("(:", 0xFFFFFFFF), new Vector2(121, 26.0f));
-		tutorial.addEntity(new SpikeTrap(), new Vector2(124.5f, 29.5f));
-		*/
-
-		//tutorial.addEntity(new Snake(), new Vector2(50, 19));
-		//tutorial.addEntity(new Spider(), new Vector2(48, 23));
-		//tutorial.addEntity(new Bat(), new Vector2(48, 24));
-
-
-		generator.generateCaves(run.seed, out areaCaves);
 
 		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
 		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
@@ -230,7 +209,7 @@ public class GameState : State
 		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
 		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
 
-		generator.generateDungeons(run.seed, out areaDungeons);
+
 		areaCaves[areaCaves.Length - 1].exit.destination = areaDungeons[0];
 		areaCaves[areaCaves.Length - 1].exit.otherDoor = areaDungeons[0].entrance;
 		areaDungeons[0].entrance.destination = areaCaves[areaCaves.Length - 1];
@@ -241,18 +220,6 @@ public class GameState : State
 
 		areaDungeons[areaDungeons.Length - 1].exit.destination = hub;
 		areaDungeons[areaDungeons.Length - 1].exit.otherDoor = hubElevator;
-
-
-		/*
-		areaGardens = generator.generateGardens(run.seed);
-
-		Door cliffDungeonEntrance2 = new Door(areaGardens[0], areaGardens[0].entrance, true);
-		cliffside.addEntity(cliffDungeonEntrance2, (Vector2)cliffside.rooms[0].getMarker(37));
-		areaGardens[0].entrance.destination = cliffside;
-		areaGardens[0].entrance.otherDoor = cliffDungeonEntrance2;
-
-		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
-		*/
 
 
 		if (save.isDaily)
@@ -306,15 +273,29 @@ public class GameState : State
 
 	public override void destroy()
 	{
-		if (save.id != -1)
+		if (save != null && save.id != -1)
 			SaveFile.Save(save);
 
-		Audio.StopSource(ambientSource);
+		if (ambientSource != 0)
+			Audio.StopSource(ambientSource);
 
-		level.destroy();
-		for (int i = 0; i < cachedLevels.Count; i++)
+		hub?.destroy();
+		cliffside?.destroy();
+		tutorial?.destroy();
+		if (areaCaves != null)
 		{
-			cachedLevels[i].destroy();
+			foreach (Level level in areaCaves)
+				level.destroy();
+		}
+		if (areaDungeons != null)
+		{
+			foreach (Level level in areaDungeons)
+				level.destroy();
+		}
+		if (areaGardens != null)
+		{
+			foreach (Level level in areaGardens)
+				level.destroy();
 		}
 	}
 
@@ -424,7 +405,7 @@ public class GameState : State
 		Time.paused = isPaused || onscreenPrompt;
 
 		run.update(isPaused || onscreenPrompt);
-		SaveFile.Update(save);
+		QuestManager.Update();
 
 		if (newLevel != null && (Time.currentTime - levelSwitchTime) / 1e9f >= LEVEL_FADE)
 		{
@@ -433,7 +414,6 @@ public class GameState : State
 				for (int i = 0; i < level.entities.Count; i++)
 					level.entities[i].onLevelSwitch(newLevel);
 
-				cachedLevels.Add(level);
 				level.removeEntity(player);
 				level.removeEntity(camera);
 			}
@@ -441,8 +421,6 @@ public class GameState : State
 			for (int i = 0; i < newLevel.entities.Count; i++)
 				newLevel.entities[i].onLevelSwitch(newLevel);
 
-			if (cachedLevels.Contains(newLevel))
-				cachedLevels.Remove(newLevel);
 			newLevel.addEntity(player, newLevelSpawnPosition, level == null);
 			newLevel.addEntity(camera, level == null);
 

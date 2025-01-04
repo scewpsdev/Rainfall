@@ -142,7 +142,7 @@ public class AdvancedAI : AI
 	{
 		if (target is Player && !(target as Player).isAlive || target is Mob && !(target as Mob).isAlive)
 		{
-			target = null;
+			setTarget(null);
 			return;
 		}
 
@@ -165,8 +165,7 @@ public class AdvancedAI : AI
 
 				if (!updatePath(currentTile, targetTile))
 				{
-					onTargetSwitched(null);
-					target = null;
+					setTarget(null);
 					currentPath.Clear();
 					return;
 				}
@@ -319,10 +318,6 @@ public class AdvancedAI : AI
 		}
 	}
 
-	protected virtual void onTargetSwitched(Entity newTarget)
-	{
-	}
-
 	public override void update()
 	{
 		mob.inputRight = false;
@@ -343,8 +338,7 @@ public class AdvancedAI : AI
 				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < effectiveAwareness * effectiveAggroRange)
 				{
 					Entity newTarget = GameState.instance.player;
-					onTargetSwitched(newTarget);
-					target = newTarget;
+					setTarget(newTarget);
 				}
 			}
 		}
@@ -356,7 +350,7 @@ public class AdvancedAI : AI
 				targetLastSeen != -1 && (Time.currentTime - targetLastSeen) / 1e9f > loseTime;
 			if (targetLost && state == AIState.Default && !mob.isBoss)
 			{
-				target = null;
+				setTarget(null);
 				targetLastSeen = -1;
 			}
 		}

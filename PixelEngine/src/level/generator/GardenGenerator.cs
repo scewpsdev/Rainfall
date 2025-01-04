@@ -547,7 +547,7 @@ public partial class LevelGenerator
 		// Logan
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random, Room room) =>
 		{
-			Logan npc = new Logan(random, level);
+			Logan npc = NPCManager.logan;
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});

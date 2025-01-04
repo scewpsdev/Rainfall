@@ -534,7 +534,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			storeItem(item);
 		}
 
-		GameState.instance.save.onItemPickup(item);
+		QuestManager.onItemPickup(item);
 	}
 
 	public void removeItem(Item item)
@@ -1008,7 +1008,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		for (int i = 0; i < items.Count; i++)
 			items[i].onKill(this, mob);
 
-		GameState.instance.save.onKill(mob);
+		QuestManager.onKill(mob);
 	}
 
 	public void awardXP(int amount)

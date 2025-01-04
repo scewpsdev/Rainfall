@@ -424,9 +424,14 @@ namespace Rainfall
 			values.Add(new DatValue(new DatArray(new DatValue(v.x), new DatValue(v.y), new DatValue(v.z), new DatValue(v.w))));
 		}
 
-		public void addInteger(int i)
+		public void addInteger(long i)
 		{
 			values.Add(new DatValue(i));
+		}
+
+		public void addUInteger(ulong u)
+		{
+			values.Add(new DatValue(u));
 		}
 
 		public void addBoolean(bool b)

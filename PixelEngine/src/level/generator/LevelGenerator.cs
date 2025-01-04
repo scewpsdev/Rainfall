@@ -707,7 +707,7 @@ public partial class LevelGenerator
 		return room;
 	}
 
-	void generateMainRooms(RoomDefSet set, RoomDef? startingRoomDef, int minRooms = 5)
+	void generateMainRooms(RoomDefSet set, RoomDef? startingRoomDef, int minRooms = 10)
 	{
 		// Starting room
 
@@ -1159,7 +1159,7 @@ public partial class LevelGenerator
 		level.infiniteEnergy = true;
 
 		Simplex simplex = new Simplex(12345, 3);
-		generateCaveBackground(level, simplex);
+		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
 		level.updateLightmap(0, 0, def.width, def.height);
 	}

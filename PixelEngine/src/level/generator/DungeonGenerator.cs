@@ -60,8 +60,8 @@ public partial class LevelGenerator
 	{
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
-			npcs.Add(new Logan(random, level));
+		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+			npcs.Add(NPCManager.logan);
 		npcs.Add(new Blacksmith(random, level));
 		npcs.Add(new Tinkerer(random, level));
 
@@ -111,7 +111,7 @@ public partial class LevelGenerator
 			objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
 		}
 
-		generateCaveBackground(level, simplex);
+		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
 		level.addEntity(new DungeonsBossRoom(room));
 
@@ -211,7 +211,7 @@ public partial class LevelGenerator
 			});
 		}
 
-		generateCaveBackground(level, simplex);
+		generateCaveBackground(level, simplex, TileType.stone, TileType.bricks);
 
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 
@@ -500,7 +500,7 @@ public partial class LevelGenerator
 		});
 
 
-		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
+		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
 		{
 			if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 2])
 			{
@@ -513,17 +513,7 @@ public partial class LevelGenerator
 
 		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
 		{
-			List<NPC> npcs = new List<NPC>();
-			npcs.Add(new BuilderMerchant(random, level));
-			npcs.Add(new TravellingMerchant(random, level));
-			npcs.Add(new Logan(random, level));
-			npcs.Add(new Blacksmith(random, level));
-			npcs.Add(new Tinkerer(random, level));
-
-			if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
-				npcs.Add(new RatNPC(random));
-
-			spawnNPC(tile.x, tile.y, npcs);
+			spawnNPC(tile.x, tile.y, getDungeonNPCList());
 		});
 
 

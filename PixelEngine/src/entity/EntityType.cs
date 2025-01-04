@@ -27,8 +27,8 @@ public static class EntityType
 
 		InitType<Blacksmith>("blacksmith");
 		InitType<BuilderMerchant>("builder_merchant");
-		InitType<Logan>("logan");
-		InitType<RatNPC>("rat_npc");
+		//InitType<Logan>("logan");
+		//InitType<RatNPC>("rat_npc");
 		InitType<Tinkerer>("tinkerer");
 		InitType<TravellingMerchant>("travelling_merchant");
 		InitType<Barbarian>("barbarian");

@@ -76,15 +76,16 @@ public class Hub : Entity
 		for (int i = 0; i < StartingClass.startingClasses.Length; i++)
 		{
 			StartingClass startingClass = StartingClass.startingClasses[i];
-			Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
+			//Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
+			Vector2 position = new Vector2(2 + i * 1.5f, 0);
 			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), level.rooms[0].getMarker(10) + position);
 		}
 
 #if DEBUG
-		level.addEntity(new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(6.5f, 0));
+		level.addEntity(new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(2 + StartingClass.startingClasses.Length * 1.5f, 0));
 #endif
 
-		BrokenWanderer npc = new BrokenWanderer(Random.Shared, level);
+		BrokenWanderer npc = NPCManager.brokenWanderer;
 		npc.clearShop();
 		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
@@ -92,12 +93,12 @@ public class Hub : Entity
 		npc.addShopItem(new IronKey(), 8);
 		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		npc.direction = 1;
-		level.addEntity(npc, new Vector2(54, 23));
+		level.addEntity(npc, level.rooms[0].getMarker(10) + new Vector2(-3, 0));
 
 		//level.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
 		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
 		{
-			RatNPC rat = new RatNPC(null);
+			RatNPC rat = NPCManager.rat;
 			rat.clearShop();
 			rat.direction = 1;
 			level.addEntity(rat, (Vector2)level.rooms[0].getMarker(0x0e));
@@ -111,9 +112,9 @@ public class Hub : Entity
 			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
 		}
 
-		if (GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
+		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
 		{
-			level.addEntity(new Logan(Random.Shared, level), new Vector2(56, 23));
+			level.addEntity(NPCManager.logan, new Vector2(56, 23));
 		}
 
 		for (int i = 0; i < save.highscores.Length; i++)

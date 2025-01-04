@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public partial class LevelGenerator
 {
-	void generateCaveBackground(Level level, Simplex simplex)
+	void generateCaveBackground(Level level, Simplex simplex, TileType tile1, TileType tile2)
 	{
 		for (int y = 0; y < level.height; y++)
 		{
@@ -17,7 +17,7 @@ public partial class LevelGenerator
 				float progress = 1 - y / (float)level.height;
 				float type = simplex.sample2f(x * 0.05f, -y * 0.05f) - progress * 0.4f;
 				float mask = simplex.sample2f(-x * 0.05f, y * 0.05f);
-				TileType tile = mask < 0 ? null : type > -0.1f ? TileType.dirt : TileType.stone;
+				TileType tile = mask < 0 ? null : type > -0.1f ? tile1 : tile2;
 				level.setBGTile(x, y, tile);
 			}
 		}
@@ -116,13 +116,13 @@ public partial class LevelGenerator
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new BuilderMerchant(random, level));
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!GameState.instance.save.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
-			npcs.Add(new Logan(random, level));
+		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+			npcs.Add(NPCManager.logan);
 		npcs.Add(new Blacksmith(random, level));
 		npcs.Add(new Tinkerer(random, level));
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
-			npcs.Add(new RatNPC(random));
+			npcs.Add(NPCManager.rat);
 
 		return npcs;
 	}
@@ -205,7 +205,7 @@ public partial class LevelGenerator
 			objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
 		}
 
-		generateCaveBackground(level, simplex);
+		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
 		level.addEntity(new CavesBossRoom(room));
 
@@ -317,7 +317,7 @@ public partial class LevelGenerator
 			});
 		}
 
-		generateCaveBackground(level, simplex);
+		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
 

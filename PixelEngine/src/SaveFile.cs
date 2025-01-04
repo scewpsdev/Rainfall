@@ -6,6 +6,8 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 public struct RunData
@@ -53,20 +55,13 @@ public class SaveFile
 
 	public int id;
 	public string path;
+	public DatFile file;
 	public bool isDaily, isCustom;
 
 	public int runsFinished = 0;
 	public RunData[] highscores = new RunData[0];
 	public HashSet<uint> flags = new HashSet<uint>();
 
-	public Dictionary<string, List<Quest>> quests = new Dictionary<string, List<Quest>>();
-	Dictionary<string, Action<Quest>> questCompleteCallbacks = new Dictionary<string, Action<Quest>>();
-
-
-	public void onReset()
-	{
-		questCompleteCallbacks.Clear();
-	}
 
 	public bool hasFlag(uint flag)
 	{
@@ -84,55 +79,6 @@ public class SaveFile
 		Debug.Assert(flags.Remove(flag));
 	}
 
-	public void addQuest(string npc, Quest quest)
-	{
-		if (!quests.ContainsKey(npc))
-			quests.Add(npc, new List<Quest>());
-		quests[npc].Add(quest);
-		if (quest.state == QuestState.Uninitialized)
-		{
-			quest.state = QuestState.InProgress;
-			GameState.instance.player.hud.showMessage($"Started quest \"{quest.displayName}\"");
-		}
-	}
-
-	public void addQuestCompletionCallback(string npc, string name, Action<Quest> callback)
-	{
-		if (questCompleteCallbacks.ContainsKey(name))
-		{
-			Console.WriteLine("Quest complete callbacks not empty! " + questCompleteCallbacks[name].ToString());
-			questCompleteCallbacks.Clear();
-		}
-		questCompleteCallbacks.Add(name, callback);
-		if (tryGetQuest(npc, name, out Quest quest))
-		{
-			if (quest.isCompleted)
-				callback(quest);
-		}
-	}
-
-	public bool getQuestList(string name, out List<Quest> questList)
-	{
-		return quests.TryGetValue(name, out questList);
-	}
-
-	public bool tryGetQuest(string npc, string name, out Quest quest)
-	{
-		if (quests.TryGetValue(npc, out List<Quest> questList))
-		{
-			for (int i = 0; i < questList.Count; i++)
-			{
-				if (questList[i].name == name)
-				{
-					quest = questList[i];
-					return true;
-				}
-			}
-		}
-		quest = null;
-		return false;
-	}
-
 	public void unlockStartingClass(StartingClass startingClass)
 	{
 		uint h = Hash.hash(startingClass.name);
@@ -148,32 +94,6 @@ public class SaveFile
 		return hasFlag(Hash.hash(startingClass.name));
 	}
 
-	public void onKill(Mob mob)
-	{
-		foreach (var pair in quests)
-		{
-			for (int i = 0; i < pair.Value.Count; i++)
-			{
-				Quest quest = pair.Value[i];
-				if (quest.state == QuestState.InProgress)
-					pair.Value[i].onKill(mob);
-			}
-		}
-	}
-
-	public void onItemPickup(Item item)
-	{
-		foreach (var pair in quests)
-		{
-			for (int i = 0; i < pair.Value.Count; i++)
-			{
-				Quest quest = pair.Value[i];
-				if (quest.state == QuestState.InProgress)
-					pair.Value[i].onItemPickup(item);
-			}
-		}
-	}
-
 
 	public static SaveFile Load(int saveID)
 	{
@@ -187,6 +107,7 @@ public class SaveFile
 #endif
 		{
 			DatFile dat = new DatFile(File.ReadAllText(path), path);
+			save.file = dat;
 
 			dat.getInteger("runs_finished", out save.runsFinished);
 
@@ -201,23 +122,6 @@ public class SaveFile
 			save.highscores = new RunData[highscoresDat.size];
 			for (int i = 0; i < highscoresDat.size; i++)
 				save.highscores[i] = LoadRun(highscoresDat[i].obj);
-
-			DatArray quests = dat.getField("quests")?.array;
-			if (quests != null)
-			{
-				for (int i = 0; i < quests.size; i++)
-				{
-					DatObject questDat = quests[i].obj;
-					string npc = questDat.getField("npc").identifier;
-					string name = questDat.getField("name").identifier;
-					QuestState state = Utils.ParseEnum<QuestState>(questDat.getField("state").identifier);
-					Debug.Assert(Quest.questInstances.ContainsKey(name));
-					Quest quest = Quest.questInstances[name];
-					quest.state = state;
-					quest.load(questDat);
-					save.addQuest(npc, quest);
-				}
-			}
 		}
 		else
 		{
@@ -236,7 +140,7 @@ public class SaveFile
 			Save(save);
 		}
 
-		Update(save);
+		QuestManager.Update();
 
 		return save;
 	}
@@ -311,23 +215,7 @@ public class SaveFile
 		}
 		file.addArray("highscores", new DatArray(highscoresDat));
 
-		List<DatValue> quests = new List<DatValue>();
-		foreach (var pair in save.quests)
-		{
-			for (int i = 0; i < pair.Value.Count; i++)
-			{
-				Quest quest = pair.Value[i];
-
-				DatObject questDat = new DatObject();
-				questDat.addIdentifier("npc", pair.Key);
-				questDat.addIdentifier("name", quest.name);
-				questDat.addIdentifier("state", quest.state.ToString());
-				quest.save(questDat);
-
-				quests.Add(new DatValue(questDat));
-			}
-		}
-		file.addArray("quests", new DatArray(quests.ToArray()));
+		file.addArray("npcs", NPCManager.SaveNPCs());
 
 		file.serialize(save.path);
 
@@ -338,26 +226,34 @@ public class SaveFile
 		Console.WriteLine("Saved file " + save.id);
 	}
 
-	public static void Update(SaveFile save)
+	public static void LoadQuest(DatObject obj, Quest quest, NPC npc)
 	{
-		foreach (var pair in save.quests)
+		if (obj.getArray("quests", out DatArray quests))
 		{
-			for (int i = 0; i < pair.Value.Count; i++)
+			for (int i = 0; i < quests.size; i++)
 			{
-				Quest quest = pair.Value[i];
-				if (quest.state == QuestState.InProgress && quest.completionRequirementsMet())
+				if (quests[i].obj.getIdentifier("name", out string questName) && questName == quest.name)
 				{
-					quest.state = QuestState.Completed;
+					QuestState state = Utils.ParseEnum<QuestState>(quests[i].obj.getField("state").identifier);
+					quest.state = state;
+					quest.load(quests[i].obj);
 
-					if (save.questCompleteCallbacks.TryGetValue(quest.name, out Action<Quest> callback))
-						callback(quest);
-					quest.onCompleted();
-
-					if (GameState.instance.player != null)
-						GameState.instance.player.hud.showMessage("Completed quest \"" + quest.displayName + "\"");
+					if (quest.state != QuestState.Uninitialized)
+						QuestManager.AddActiveQuest(npc.name, quest);
 				}
 			}
 		}
+	}
+
+	public static void SaveQuest(DatObject obj, Quest quest, NPC npc)
+	{
+		if (!obj.getArray("quests", out DatArray quests))
+			obj.addArray("quests", quests = new DatArray());
+		DatObject questDat = new DatObject();
+		questDat.addIdentifier("name", quest.name);
+		questDat.addIdentifier("state", quest.state.ToString());
+		quest.save(questDat);
+		quests.addObject(questDat);
 	}
 
 	public static void OnRunFinished(RunStats run, SaveFile save)

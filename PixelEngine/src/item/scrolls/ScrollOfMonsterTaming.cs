@@ -80,7 +80,7 @@ public class ScrollOfMonsterTaming : Item
 			if (mob.ai != null)
 			{
 				mob.ai.aggroRange = 0;
-				mob.ai.target = null;
+				mob.ai.setTarget(null);
 			}
 		}
 		player.hud.showMessage("The air fizzles.");
