@@ -24,7 +24,8 @@ cd bin\Release\net8.0\publish
 tar -a -cf ..\roguep-0.1.9a.zip *
 move ..\roguep-0.1.9a.zip .
 
-xcopy /y /e /q .\ ..\..\..\..\builds\0.1.9a\
+:: xcopy /y /e /q .\ ..\..\..\..\builds\0.1.9a\
+xcopy /y roguep-0.1.9a.zip ..\..\..\..\builds\0.1.9a\
 
 butler push roguep-0.1.9a.zip scewps/ivory-keep:0.1.9a-windows --userversion=0.1.9a
 

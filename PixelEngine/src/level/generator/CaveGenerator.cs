@@ -520,7 +520,7 @@ public partial class LevelGenerator
 			List<Mob> mobTypes = createEnemy();
 			mobInstances.Add(mobTypes[random.Next() % mobTypes.Count]);
 		}
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; mobInstances.Count > 0 && i < 1000; i++)
 		{
 			Mob mob = mobInstances[0];
 

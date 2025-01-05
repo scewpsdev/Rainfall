@@ -137,7 +137,7 @@ public class SaveFile
 				save.highscores[i].passiveItems = new Item[4];
 			}
 
-			Save(save);
+			save.file = Save(save);
 		}
 
 		QuestManager.Update();
@@ -171,7 +171,7 @@ public class SaveFile
 		return data;
 	}
 
-	public static void Save(SaveFile save)
+	public static DatFile Save(SaveFile save)
 	{
 		DatFile file = new DatFile();
 
@@ -224,6 +224,8 @@ public class SaveFile
 #endif
 
 		Console.WriteLine("Saved file " + save.id);
+
+		return file;
 	}
 
 	public static void LoadQuest(DatObject obj, Quest quest, NPC npc)

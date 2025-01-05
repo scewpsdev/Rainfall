@@ -22,7 +22,7 @@ public static class NPCManager
 		npcs.Add(npc);
 		nameMap.Add(npc.name, npc);
 
-		if (GameState.instance.save.file.getArray("npcs", out DatArray npcsData))
+		if (GameState.instance.save.file != null && GameState.instance.save.file.getArray("npcs", out DatArray npcsData))
 		{
 			for (int i = 0; i < npcsData.size; i++)
 			{
