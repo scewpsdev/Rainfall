@@ -62,6 +62,18 @@ namespace Rainfall
 			return a + (b - a) * t;
 		}
 
+		public static float LinearAngle(float a, float b, float t)
+		{
+			a = (a + MathF.PI * 2.0f) % (MathF.PI * 2.0f);
+			b = (b + MathF.PI * 2.0f) % (MathF.PI * 2.0f);
+			if (a - b > MathF.PI)
+				a -= MathF.PI * 2.0f;
+			else if (b - a > MathF.PI)
+				b -= MathF.PI * 2.0f;
+
+			return Linear(a, b, t);
+		}
+
 		public static bool CompareAngles(float a, float b, float epsilon = float.Epsilon)
 		{
 			a = (a + MathF.PI * 2.0f) % (MathF.PI * 2.0f);

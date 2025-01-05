@@ -117,6 +117,8 @@ public class Hub : Entity
 			level.addEntity(NPCManager.logan, new Vector2(56, 23));
 		}
 
+		level.addEntity(new Stalker(), new Vector2(35, 23.25f));
+
 		for (int i = 0; i < save.highscores.Length; i++)
 		{
 			Vector2 position = room.getMarker(15) + new Vector2(i * 5, 0);

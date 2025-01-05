@@ -47,7 +47,7 @@ public class CavesSpecialRoom2 : Entity
 						float enemyChance = 0.4f;
 						if (generator.random.NextSingle() < enemyChance)
 						{
-							generator.spawnEnemy(x, y, [new Bat()]);
+							generator.spawnEnemy(x, y, new Bat());
 						}
 					}
 				}

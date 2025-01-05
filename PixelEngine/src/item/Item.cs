@@ -189,7 +189,7 @@ public abstract class Item
 	public bool trigger = true;
 	public int maxPierces = 0;
 	public int maxRicochets = 0;
-	public float knockback = 4.0f;
+	public float knockback = 6.0f;
 	public float manaCost = 0;
 	public string requiredAmmo = null;
 	public int staffCharges = 0;

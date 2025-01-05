@@ -24,6 +24,8 @@ public static class EntityType
 		InitType<GolemBoss>("golem_boss");
 		InitType<Leprechaun>("leprechaun");
 		InitType<Raya>("raya");
+		InitType<Beetle>("beetle");
+		InitType<Stalker>("stalker");
 
 		InitType<Blacksmith>("blacksmith");
 		InitType<BuilderMerchant>("builder_merchant");
@@ -39,7 +41,7 @@ public static class EntityType
 		InitType<ExplosiveBarrel>("explosive_barrel");
 		InitType<Spike>("spike");
 		InitType<SpikeTrap>("spike_trap");
-		InitType<Trampoline>("spring");
+		InitType<Trampoline>("trampoline");
 		InitType<TorchEntity>("torch");
 		InitType<Coin>("coin");
 		InitType<Minecart>("minecart");

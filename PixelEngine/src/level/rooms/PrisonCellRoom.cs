@@ -28,6 +28,7 @@ public class PrisonCellRoom : Entity
 		}
 
 		level.addEntity(new IronDoor("iron_key"), new Vector2(room.x, room.y) + room.doorways[0].position + new Vector2(0.5f, 0));
+		generator.setObjectFlag(room.x + room.doorways[0].position.x, room.y + room.doorways[0].position.y);
 
 		Vector2i npcPosition = room.getMarker(0x1);
 
@@ -45,6 +46,7 @@ public class PrisonCellRoom : Entity
 		{
 			NPC npc = npcs[generator.random.Next() % npcs.Count];
 			level.addEntity(npc, npcPosition + new Vector2(0.5f, 0));
+			generator.setObjectFlag(npcPosition.x, npcPosition.y);
 		}
 
 		level.addEntity(new TorchEntity(), npcPosition + new Vector2(1.5f, 1.5f));

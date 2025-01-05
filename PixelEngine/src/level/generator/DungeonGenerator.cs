@@ -44,14 +44,15 @@ public partial class LevelGenerator
 			mobs.Add(new SkeletonArcher());
 			mobs.Add(new Leprechaun());
 			mobs.Add(new Gandalf());
+			mobs.Add(new Stalker());
 			return mobs;
 		};
 
-		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy());
-		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy());
-		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy());
-		generateDungeonFloor(seed, false, false, areaDungeons[3], areaDungeons[4], areaDungeons[2], areaDungeons[2].exit, () => createEnemy());
-		generateDungeonFloor(seed, false, false, areaDungeons[4], areaDungeons[5], areaDungeons[3], areaDungeons[3].exit, () => createEnemy());
+		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
+		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 4));
+		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy().Slice(0, 5));
+		generateDungeonFloor(seed, false, false, areaDungeons[3], areaDungeons[4], areaDungeons[2], areaDungeons[2].exit, () => createEnemy().Slice(0, 7));
+		generateDungeonFloor(seed, false, false, areaDungeons[4], areaDungeons[5], areaDungeons[3], areaDungeons[3].exit, () => createEnemy().Slice(0, 7));
 
 		generateDungeonBossFloor(areaDungeons[5], null, areaDungeons[4], areaDungeons[4].exit);
 	}
@@ -456,48 +457,40 @@ public partial class LevelGenerator
 			}
 		});
 
-		spawnRoomObject(rooms, rooms.Count * 0.5f, true, (Vector2i pos, Random random, Room room) =>
+
+		List<Mob> mobInstances = new List<Mob>();
+		int numMobs = MathHelper.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
+		for (int i = 0; i < numMobs; i++)
 		{
-			TileType tile = level.getTile(pos);
-			TileType left = level.getTile(pos.x - 1, pos.y);
-			TileType right = level.getTile(pos.x + 1, pos.y);
-			TileType up = level.getTile(pos.x, pos.y + 1);
-			TileType down = level.getTile(pos.x, pos.y - 1);
-			if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
-			{
-				TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
-				TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
-
-				float distanceToEntrance = (pos - entrancePosition).length;
-
-				if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
-				{
-					spawnEnemy(pos.x, pos.y, createEnemy());
-				}
-			}
-		});
-
-		// Enemy
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+			List<Mob> mobTypes = createEnemy();
+			mobInstances.Add(mobTypes[random.Next() % mobTypes.Count]);
+		}
+		while (mobInstances.Count > 0)
 		{
-			if (tile == null && (left == null && right == null) && !objectFlags[x + y * width] && getRoom(x, y) != startingRoom)
+			Mob mob = mobInstances[0];
+
+			spawnRoomObject(rooms, rooms.Count, false, (Vector2i pos, Random random, Room room) =>
 			{
-				TileType downLeft = level.getTile(x - 1, y - 1);
-				TileType downRight = level.getTile(x + 1, y - 1);
-
-				float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
-				Room room = getRoom(x, y);
-
-				if (room != null && room.spawnEnemies && (distanceToEntrance > 8 || y < entrancePosition.y) && (downLeft != null || downRight != null))
+				TileType tile = level.getTile(pos);
+				TileType left = level.getTile(pos.x - 1, pos.y);
+				TileType right = level.getTile(pos.x + 1, pos.y);
+				TileType up = level.getTile(pos.x, pos.y + 1);
+				TileType down = level.getTile(pos.x, pos.y - 1);
+				if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
 				{
-					float enemyChance = 0.15f;
-					if (random.NextSingle() < enemyChance)
+					TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
+					TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
+
+					float distanceToEntrance = (pos - entrancePosition).length;
+
+					if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
 					{
-						spawnEnemy(x, y, createEnemy());
+						if (spawnEnemy(pos.x, pos.y, mob))
+							mobInstances.RemoveAt(0);
 					}
 				}
-			}
-		});
+			});
+		}
 
 
 		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)

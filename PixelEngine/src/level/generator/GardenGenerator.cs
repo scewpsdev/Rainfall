@@ -336,28 +336,6 @@ public partial class LevelGenerator
 		}
 
 
-		foreach (Room room in rooms)
-		{
-			foreach (Vector2i spawnLocation in room.spawnLocations)
-			{
-				Vector2i pos = new Vector2i(room.x, room.y) + spawnLocation;
-
-				float itemChance = 0.1f;
-				if (random.NextSingle() < itemChance || !room.spawnEnemies)
-				{
-					spawnItem(pos.x, pos.y, getRoomLootValue(room));
-				}
-				else
-				{
-					float enemyChance = 0.2f;
-					if (random.NextSingle() < enemyChance)
-					{
-						spawnEnemy(pos.x, pos.y, createEnemy());
-					}
-				}
-			}
-		}
-
 		// Fountain
 		spawnRoomObject(deadEnds, 1, false, (Vector2i tile, Random random, Room room) =>
 		{
@@ -500,29 +478,6 @@ public partial class LevelGenerator
 						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
 					}
 					objectFlags[x + y * width] = true;
-				}
-			}
-		});
-
-		// Enemy
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
-		{
-			if (tile == null && (left == null && right == null) && !objectFlags[x + y * width])
-			{
-				TileType downDown = level.getTile(x, y - 2);
-				TileType downLeft = level.getTile(x - 1, y - 1);
-				TileType downRight = level.getTile(x + 1, y - 1);
-
-				float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
-				Room room = getRoom(x, y);
-
-				if (room.spawnEnemies && (distanceToEntrance > 8 || y < entrancePosition.y) && (left == null && downLeft != null || right == null && downRight != null) && (down != null))
-				{
-					float enemyChance = 0.2f;
-					if (random.NextSingle() < enemyChance)
-					{
-						spawnEnemy(x, y, createEnemy());
-					}
 				}
 			}
 		});

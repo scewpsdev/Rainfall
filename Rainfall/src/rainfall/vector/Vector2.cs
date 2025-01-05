@@ -159,6 +159,15 @@ namespace Rainfall
 			);
 		}
 
+		public static Vector2 Linear(Vector2 a, Vector2 b, float t)
+		{
+			Vector2 c = b - a;
+			float d = c.length;
+			if (d > t)
+				return a + c / d * t;
+			return b;
+		}
+
 		public static Vector2 Rotate(Vector2 v, float angle)
 		{
 			float s = MathF.Sin(angle);

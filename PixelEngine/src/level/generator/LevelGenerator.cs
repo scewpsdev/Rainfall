@@ -1045,12 +1045,15 @@ public partial class LevelGenerator
 		return getLootValue(new Vector2(room.x + 0.5f * room.width, room.y + 0.5f * room.height));
 	}
 
-	public void spawnEnemy(int x, int y, List<Mob> mobs)
+	public bool spawnEnemy(int x, int y, Mob enemy)
 	{
 		TileType up = level.getTile(x, y + 1);
 		TileType down = level.getTile(x, y - 1);
 		TileType left = level.getTile(x - 1, y);
 		TileType right = level.getTile(x + 1, y);
+
+		TileType downLeft = level.getTile(x - 1, y - 1);
+		TileType downRight = level.getTile(x + 1, y - 1);
 
 		Vector2 exitPosition = level.exit.position;
 
@@ -1059,26 +1062,29 @@ public partial class LevelGenerator
 		{
 			Vector2 roomCenter = new Vector2(rooms[i].x + 0.5f * rooms[i].width, rooms[i].y + 0.5f * rooms[i].height);
 			Vector2 toRoom = roomCenter - exitPosition;
-			float distance = toRoom.length;
-			furthestDistance = MathF.Max(furthestDistance, distance);
+			furthestDistance = MathF.Max(furthestDistance, toRoom.length);
 		}
 
-		if (up == null && left == null && right == null)
+		Vector2 position = new Vector2(x, y);
+		float distance = (position - exitPosition).length;
+		float progress = MathHelper.Remap(distance, 0, furthestDistance, 1, 0);
+		if (progress < 0.5f)
+			progress *= 0.5f + random.NextSingle();
+		else
+			progress = 1 - (1 - progress) * (0.5f + random.NextSingle());
+
+		if (!enemy.canFly && enemy.gravity != 0 && left == null && right == null && up == null && down != null && (downLeft != null || downRight != null)
+			|| enemy.canFly && left == null && right == null
+			|| enemy.gravity == 0 && (down != null || up != null))
 		{
-			Vector2 position = new Vector2(x, y);
-			float distance = (position - exitPosition).length;
-			float progress = MathHelper.Remap(distance, 0, furthestDistance, 1, 0);
-			if (progress < 0.5f)
-				progress *= 0.5f + random.NextSingle();
-			else
-				progress = 1 - (1 - progress) * (0.5f + random.NextSingle());
-			//progress = progress * progress;
-			int selection = MathHelper.Clamp((int)(progress * mobs.Count), 0, mobs.Count - 1);
-			Mob enemy = mobs[selection];
+			enemy.direction = random.NextSingle() < 0.5f ? 1 : -1;
 			enemy.itemDropChance = MathHelper.Lerp(0.05f, 0.5f, progress);
 			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
 			objectFlags[x + y * level.width] = true;
+			return true;
 		}
+
+		return false;
 	}
 
 	public void generateStartingCave(Level level)
@@ -1112,6 +1118,10 @@ public partial class LevelGenerator
 		Room room = new Room("level/hub/hub.png");
 		level.resize(room.width, room.height);
 
+		this.level = level;
+		objectFlags = new bool[level.width * level.height];
+		Array.Fill(objectFlags, false);
+
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
 		placeRoomBG(new Room("level/hub/hub1.png"), level, (int x, int y) => TileType.dirt);
 
@@ -1129,6 +1139,10 @@ public partial class LevelGenerator
 		Room room = new Room("level/cliffside/room.png");
 		level.resize(room.width, room.height);
 
+		this.level = level;
+		objectFlags = new bool[level.width * level.height];
+		Array.Fill(objectFlags, false);
+
 		placeRoom(room, level, (int x, int y) => TileType.dirt);
 		placeRoomBG(new Room("level/cliffside/room1.png"), level, (int x, int y) => TileType.dirt);
 
@@ -1142,6 +1156,10 @@ public partial class LevelGenerator
 	{
 		RoomDef def = specialSet.roomDefs[1];
 		level.resize(def.width, def.height);
+
+		this.level = level;
+		objectFlags = new bool[level.width * level.height];
+		Array.Fill(objectFlags, false);
 
 		Room room = new Room
 		{

@@ -123,7 +123,7 @@ public class AttackAction : EntityAction
 						if (entity is Mob)
 						{
 							Mob mob = entity as Mob;
-							Vector2 knockback = (entity.position - player.position).normalized * weapon.knockback;
+							Vector2 knockback = (entity.position - (player.position + player.collider.center)).normalized * weapon.knockback;
 							mob.addImpulse(knockback);
 						}
 

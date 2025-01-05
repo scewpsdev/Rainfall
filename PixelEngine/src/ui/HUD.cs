@@ -320,7 +320,7 @@ public class HUD
 		if (totalArmor > 0)
 		{
 			int size = 8;
-			int x = Renderer.UIWidth / 2 - 8 - 8 - 1;
+			int x = Renderer.UIWidth / 2 - 8 - 8;
 			int y = Renderer.UIHeight - 4 - 16 - 12 - 12;
 
 			Renderer.DrawUISprite(x, y, size, size, armor, false);

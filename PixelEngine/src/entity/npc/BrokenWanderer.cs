@@ -56,8 +56,8 @@ public class BrokenWanderer : NPC
 		addOneTimeDialogue("""
 			Are the stories true? Word is the ancient castle on the hill got overrun.
 			A fortress so strong and mighty, I never thought it possible for anything to get over those walls...
-			Must've been some time ago, considering the inhabitants are all gone.
-			I wonder where they went...
+			It must have happened quite some time ago, considering the inhabitants are long gone.
+			I wonder where they all went...
 			""");
 
 		addOneTimeDialogue("""

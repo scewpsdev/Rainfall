@@ -90,7 +90,7 @@ public class Slime : Mob
 			{
 				Slime slime = new Slime(size - 2);
 				slime.spriteColor = spriteColor;
-				GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f));
+				GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.1f));
 			}
 		}
 	}

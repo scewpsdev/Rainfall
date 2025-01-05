@@ -318,9 +318,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		{
 			//if (isGrounded)
 			{
-				if (delta.x > 0)
+				if (Vector2.Rotate(delta, -rotation).x > 0)
 					direction = 1;
-				else if (delta.x < 0)
+				else if (Vector2.Rotate(delta, -rotation).x < 0)
 					direction = -1;
 
 				currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : speed;
@@ -328,6 +328,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 				if (canFly)
 					velocity.y = MathHelper.Lerp(velocity.y, delta.y * currentSpeed, 5 * Time.deltaTime);
+				else if (gravity == 0)
+					velocity.y = delta.y * currentSpeed;
 			}
 		}
 		else
@@ -461,12 +463,12 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			if (sprite != null)
 			{
 				if (hitMarker)
-					Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, 0xFFFFFFFF);
+					Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, rotation, sprite, direction == -1, 0xFFFFFFFF);
 				else
-					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
+					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, rotation, sprite, direction == -1, spriteColor);
 
 				if (outline != 0)
-					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, outline);
+					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, rotation, sprite, direction == -1, outline);
 
 				for (int i = 0; i < statusEffects.Count; i++)
 				{

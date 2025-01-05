@@ -25,58 +25,11 @@ public partial class LevelGenerator
 
 	public void generateCaves(string seed, out Level[] areaCaves)
 	{
-		/*
-		int numCaveFloors = 5;
-		int numInbetweenRooms = 3;
-		Level[] areaCaves = new Level[numCaveFloors + numInbetweenRooms];
-		Vector3 lightAmbience = Vector3.One;
-		Vector3 darkAmbience = new Vector3(0.001f);
-		areaCaves[0] = new Level(0, "Caves I", 80, 30, TileType.dirt) { ambientLight = lightAmbience };
-		areaCaves[1] = new Level(1, "Caves II", 40, 60, TileType.dirt) { ambientLight = lightAmbience };
-		areaCaves[2] = new Level(-1, "") { ambientLight = lightAmbience };
-		areaCaves[3] = new Level(2, "Caves III", 50, 50, TileType.dirt) { ambientLight = darkAmbience };
-		areaCaves[4] = new Level(3, "Caves IV", 30, 30, TileType.dirt) { ambientLight = darkAmbience };
-		areaCaves[5] = new Level(-1, "") { ambientLight = lightAmbience };
-		areaCaves[6] = new Level(4, "Caves V", 80, 80, TileType.dirt) { ambientLight = lightAmbience };
-		areaCaves[7] = new Level(4, "") { ambientLight = lightAmbience };
-
-		Level lastLevel = null;
-		Door lastDoor = null;
-		for (int i = 0; i < areaCaves.Length; i++)
-		{
-			bool startingRoom = i == 0;
-			level = areaCaves[i];
-
-			if (areaCaves[i].name != "")
-			{
-				generateCaveFloor(seed, areaCaves[i].floor - areaCaves[0].floor, startingRoom, areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
-
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
-				areaCaves[i].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[i].width, areaCaves[i].height) * 0.5f);
-			}
-			else
-			{
-				if (i == 2 || i == 5)
-					generateRandomCaveFloor(areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
-				else if (i == 7)
-					generateCaveBossFloor(areaCaves[i], i < areaCaves.Length - 1 ? areaCaves[i + 1] : null, lastLevel, lastDoor);
-				else
-					Debug.Assert(false);
-			}
-
-			lastLevel = areaCaves[i];
-			lastDoor = areaCaves[i].exit;
-		}
-
-		return areaCaves;
-		*/
-
-
 		areaCaves = new Level[6];
 		Vector3 lightAmbience = Vector3.One;
 		Vector3 mediumAmbience = new Vector3(0.2f);
 		Vector3 darkAmbience = new Vector3(0.001f);
-		areaCaves[0] = new Level(0, "Caves I", 50, 50, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
+		areaCaves[0] = new Level(0, "Caves I", 40, 40, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
 		areaCaves[1] = new Level(1, "Caves II", 50, 50, TileType.dirt, 4, 8) { ambientLight = mediumAmbience };
 		areaCaves[2] = new Level(2, "Caves III", 50, 50, TileType.dirt, 7, 12) { ambientLight = darkAmbience };
 		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 11, 16) { ambientLight = mediumAmbience };
@@ -87,6 +40,7 @@ public partial class LevelGenerator
 		{
 			List<Mob> mobs = new List<Mob>();
 			mobs.Add(new Rat());
+			mobs.Add(new Beetle());
 			mobs.Add(new Spider());
 			mobs.Add(new Snake());
 			mobs.Add(new Bat());
@@ -95,18 +49,14 @@ public partial class LevelGenerator
 			mobs.Add(new GreenSpider());
 			mobs.Add(new OrangeBat());
 			mobs.Add(new BlueSlime());
-			mobs.Add(new Leprechaun());
-			mobs.Add(new Gandalf());
 			return mobs;
 		};
 
-		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 4));
+		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 5));
 		generateCaveFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));
-		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 8));
-		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 10));
-		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(1, 10));
-		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax1.png", false), 2.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
-		//areaCaves[0].addEntity(new ParallaxObject(Resource.GetTexture("level/level1/parallax2.png", false), 1.0f), new Vector2(areaCaves[0].width, areaCaves[0].height) * 0.5f);
+		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 7));
+		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 9));
+		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(2, 8));
 
 		generateCaveBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
 	}
@@ -562,107 +512,40 @@ public partial class LevelGenerator
 			}
 		});
 
-		spawnRoomObject(rooms, rooms.Count * 0.5f, true, (Vector2i pos, Random random, Room room) =>
+
+		List<Mob> mobInstances = new List<Mob>();
+		int numMobs = MathHelper.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
+		for (int i = 0; i < numMobs; i++)
 		{
-			TileType tile = level.getTile(pos);
-			TileType left = level.getTile(pos.x - 1, pos.y);
-			TileType right = level.getTile(pos.x + 1, pos.y);
-			TileType up = level.getTile(pos.x, pos.y + 1);
-			TileType down = level.getTile(pos.x, pos.y - 1);
-			if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
-			{
-				TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
-				TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
-
-				float distanceToEntrance = (pos - entrancePosition).length;
-
-				if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
-				{
-					spawnEnemy(pos.x, pos.y, createEnemy());
-				}
-			}
-		});
-
-		// Enemy
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+			List<Mob> mobTypes = createEnemy();
+			mobInstances.Add(mobTypes[random.Next() % mobTypes.Count]);
+		}
+		while (mobInstances.Count > 0)
 		{
-			if (tile == null && (left == null && right == null) && !objectFlags[x + y * width] && getRoom(x, y) != startingRoom)
+			Mob mob = mobInstances[0];
+
+			spawnRoomObject(rooms, rooms.Count, false, (Vector2i pos, Random random, Room room) =>
 			{
-				TileType downLeft = level.getTile(x - 1, y - 1);
-				TileType downRight = level.getTile(x + 1, y - 1);
-
-				float distanceToEntrance = (new Vector2i(x, y) - entrancePosition).length;
-				Room room = getRoom(x, y);
-
-				if (room != null && room.spawnEnemies && (distanceToEntrance > 8 || y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
+				TileType tile = level.getTile(pos);
+				TileType left = level.getTile(pos.x - 1, pos.y);
+				TileType right = level.getTile(pos.x + 1, pos.y);
+				TileType up = level.getTile(pos.x, pos.y + 1);
+				TileType down = level.getTile(pos.x, pos.y - 1);
+				if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
 				{
-					float enemyChance = 0.15f;
-					if (random.NextSingle() < enemyChance)
+					TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
+					TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
+
+					float distanceToEntrance = (pos - entrancePosition).length;
+
+					if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
 					{
-						spawnEnemy(x, y, createEnemy());
-
-						/*
-						bool flyingEnemy = random.NextSingle() < 0.15f;
-						if (flyingEnemy)
-						{
-							if (down == null)
-							{
-								Mob enemy;
-
-								float batType = random.NextSingle();
-								if (batType < 0.9f)
-									enemy = new Bat();
-								else
-									enemy = new OrangeBat();
-
-								level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
-								objectFlags[x + y * width] = true;
-							}
-						}
-						else
-						{
-							TileType upUp = level.getTile(x, y + 2);
-							if (down != null && up == null && left == null && right == null)
-							{
-								float enemyType = random.NextSingle();
-
-								Mob enemy;
-
-								//if (enemyType > 0.9f)
-								//	enemy = new Bob();
-								//else 
-								if (enemyType > 0.95f)
-									enemy = new Gandalf();
-								else if (enemyType > 0.9f)
-									enemy = new SkeletonArcher();
-								else if (enemyType > 0.85f && upUp == null)
-									enemy = new Golem();
-								else if (enemyType > 0.8f)
-									enemy = new Leprechaun();
-								else if (enemyType > 0.6f)
-									enemy = new Snake();
-								else if (enemyType > 0.3f)
-								{
-									float spiderType = random.NextSingle();
-									if (spiderType < 0.9f)
-										enemy = new Spider();
-									else
-										enemy = new GreenSpider();
-								}
-								else
-								{
-									enemy = new Rat();
-								}
-
-								level.addEntity(enemy, new Vector2(x + 0.5f, y));
-								objectFlags[x + y * width] = true;
-							}
-						}
-						*/
+						if (spawnEnemy(pos.x, pos.y, mob))
+							mobInstances.RemoveAt(0);
 					}
 				}
-			}
-		});
+			});
+		}
 
 
 		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
