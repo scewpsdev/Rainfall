@@ -94,8 +94,8 @@ public static class DropRates
 	};
 	public static readonly float[] caves = new float[(int)ItemType.Count] {
 		0.12f, // Weapon
-		0.03f, // Shield
-		0.12f, // Armor
+		0.04f, // Shield
+		0.13f, // Armor
 		0.15f, // Food
 		0.1f, // Potion
 		0.03f, // Relic
@@ -104,7 +104,7 @@ public static class DropRates
 		0.09f,  // Spell
 		0.1f, // Utility
 		0.11f, // Ammo
-		0.05f, // Gem
+		0.03f, // Gem
 	};
 	public static readonly float[] dungeons = new float[(int)ItemType.Count] {
 		0.08f, // Weapon

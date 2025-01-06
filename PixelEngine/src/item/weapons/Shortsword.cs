@@ -14,7 +14,7 @@ public class Shortsword : Weapon
 		displayName = "Shortsword";
 
 		baseDamage = 1.25f;
-		baseAttackRange = 0.8f;
+		baseAttackRange = 1.0f;
 		baseAttackRate = 2.2f;
 		stab = false;
 		baseWeight = 1;
@@ -35,7 +35,7 @@ public class Shortsword : Weapon
 		swingDir = 0;
 		if (idx % 3 == 0)
 		{
-			startAngle = 1 * MathF.PI;
+			startAngle = 0.75f * MathF.PI;
 			endAngle = -0.75f * MathF.PI;
 		}
 		else if (idx % 3 == 1)
