@@ -160,12 +160,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		animator.addAnimation("idle", 0, 0, 16, 0, 4, 4, true);
 		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 16, true);
-		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("fall", 13 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("climb", 14 * 16, 0, 16, 0, 2, 6, true);
-		animator.addAnimation("dead", 16 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("dead_falling", 17 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("stun", 18 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 3, 1, true);
+		animator.addAnimation("climb", 15 * 16, 0, 16, 0, 2, 6, true);
+		animator.addAnimation("dead", 17 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("dead_falling", 18 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("stun", 19 * 16, 0, 16, 0, 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
@@ -395,6 +394,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
+		if (canEquipOffhandItem(item))
+			return equipOffhandItem(item);
 		if (item.isHandItem)
 			return equipHandItem(item);
 		if (item.isSecondaryItem)
@@ -1780,14 +1781,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (velocity.y > 0)
-							{
-								animator.setAnimation("jump");
-							}
+							animator.setAnimation("jump");
+							float animation = MathHelper.Remap(velocity.y, -2, 2, 0, 1);
+							if (animation > 1)
+								animator.currentFrame = 0;
+							else if (animation < 0)
+								animator.currentFrame = 2;
 							else
-							{
-								animator.setAnimation("fall");
-							}
+								animator.currentFrame = 1;
 						}
 					}
 				}
@@ -1807,12 +1808,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		animator.update(sprite);
 
-		for (int i = 0; i < passiveItems.Count; i++)
+		for (int i = 0; i < items.Count; i++)
 		{
-			if (passiveItems[i].ingameSprite != null)
+			if (items[i].ingameSprite != null)
 			{
-				animator.update(passiveItems[i].ingameSprite);
-				passiveItems[i].ingameSprite.position *= passiveItems[i].ingameSpriteSize;
+				animator.update(items[i].ingameSprite);
+				items[i].ingameSprite.position *= items[i].ingameSpriteSize;
 			}
 		}
 
@@ -1943,12 +1944,30 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (item != DefaultWeapon.instance)
 				{
-					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
-					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
-					if (particles != null)
+					if (item.ingameSprite != null)
 					{
-						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
-						particles.layer = layer - 0.01f;
+						Renderer.DrawSprite(position.x - 0.5f * item.ingameSpriteSize, position.y + 0.5f - 0.5f * item.ingameSpriteSize, item.ingameSpriteLayer, item.ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * item.ingameSpriteSize, 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
+
+						//Vector3 buffColor = MathHelper.ARGBToVector(0xFFdac66c).xyz;
+						//float buffIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 60), -1, 1, 0.1f, 1);
+						//Renderer.DrawSpriteSolid(position.x - 0.5f * item.ingameSpriteSize, position.y + 0.5f - 0.5f * item.ingameSpriteSize, item.ingameSpriteLayer, item.ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * item.ingameSpriteSize, 0, item.ingameSprite, direction == -1, new Vector4(buffColor, buffIntensity), true);
+
+						if (particles != null)
+						{
+							Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
+							particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+							particles.layer = layer - 0.01f;
+						}
+					}
+					else
+					{
+						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
+						Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
+						if (particles != null)
+						{
+							particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+							particles.layer = layer - 0.01f;
+						}
 					}
 				}
 			}
@@ -1979,7 +1998,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
 				if (passiveItems[i].ingameSprite != null && show)
-					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y + 0.5f - 0.5f * passiveItems[i].ingameSpriteSize, passiveItems[i].ingameSpriteLayer, passiveItems[i].ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}
 			for (int i = 0; i < activeItems.Length; i++)

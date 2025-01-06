@@ -15,7 +15,7 @@ public class Amogus : Item
 
 		description = "sus";
 
-		armor = 5;
+		baseArmor = 5;
 		armorSlot = ArmorSlot.Body;
 		canDrop = false;
 

@@ -29,8 +29,12 @@ public class Torch : Weapon
 
 		sprite = new Sprite(tileset, 8, 0);
 		hasParticleEffect = true;
-		particlesOffset = new Vector2(0.25f, 0.25f);
+		particlesOffset = new Vector2(6, 10) / 16.0f;
 		renderOffset.x = 0.3f;
+
+		ingameSprite = new Sprite("sprites/items/weapon/torch.png", 0, 0, 32, 32);
+		ingameSpriteSize = 2;
+		ingameSpriteLayer = Entity.LAYER_PLAYER_ITEM_SECONDARY;
 
 		hitSound = [Resource.GetSound("sounds/hit_torch.ogg")];
 	}

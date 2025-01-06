@@ -13,7 +13,7 @@ public class ThornShield : Item
 	{
 		displayName = "Thorn Shield";
 
-		armor = 3;
+		baseArmor = 3;
 		damageReflect = 1.0f;
 		value = 14;
 

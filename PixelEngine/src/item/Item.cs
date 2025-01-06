@@ -53,13 +53,20 @@ public class Infusion
 	public static readonly Infusion Flawless = new Infusion("Flawless") { damageMultiplier = 1.05f, attackSpeedMultiplier = 1.05f, weightMultiplier = 0.9f, rangeMultiplier = 1.1f };
 	public static readonly Infusion Broken = new Infusion("Broken") { damageMultiplier = 0.5f, attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, rangeMultiplier = 0.7f };
 
-	public static readonly Infusion[] infusions = [Sharp, Blunt, Light, Heavy, Long, Short, Flawless, Broken];
+	public static readonly Infusion ArmorHeavy = new Infusion("Heavy") { armorMultiplier = 1.5f, weightMultiplier = 1.5f };
+	public static readonly Infusion ArmorLight = new Infusion("Light") { armorMultiplier = 0.75f, weightMultiplier = 0.5f };
+	public static readonly Infusion ArmorFlawless = new Infusion("Flawless") { armorMultiplier = 1.25f, weightMultiplier = 0.75f };
+	public static readonly Infusion ArmorBattered = new Infusion("Battered") { armorMultiplier = 0.75f, weightMultiplier = 1.0f };
+	public static readonly Infusion ArmorBroken = new Infusion("Broken") { armorMultiplier = 0.5f, weightMultiplier = 0.75f };
+
+	public static readonly Infusion[] weaponInfusions = [Sharp, Blunt, Light, Heavy, Long, Short, Flawless, Broken];
+	public static readonly Infusion[] armorInfusions = [ArmorHeavy, ArmorLight, ArmorFlawless, ArmorBattered, ArmorBroken];
 
 	public static Infusion GetRandom(ItemType type, Random random)
 	{
 		while (true)
 		{
-			Infusion infusion = infusions[random.Next() % infusions.Length];
+			Infusion infusion = weaponInfusions[random.Next() % weaponInfusions.Length];
 			if (type == ItemType.Weapon)
 			{
 				return infusion;
@@ -76,6 +83,11 @@ public class Infusion
 		}
 	}
 
+	public static Infusion GetArmorRandom(Random random)
+	{
+		return armorInfusions[random.Next() % armorInfusions.Length];
+	}
+
 
 	public string name;
 
@@ -83,6 +95,7 @@ public class Infusion
 	public float attackSpeedMultiplier = 1.0f;
 	public float weightMultiplier = 1.0f;
 	public float rangeMultiplier = 1.0f;
+	public float armorMultiplier = 1.0f;
 
 	private Infusion(string name)
 	{
@@ -196,7 +209,17 @@ public abstract class Item
 	public int maxStaffCharges = 0;
 	public int staffAttunementSlots = 3;
 
-	public float armor = 0;
+	public float baseArmor = 0;
+	public float armor
+	{
+		get
+		{
+			float armor = baseArmor;
+			foreach (Infusion infusion in infusions)
+				armor *= infusion.armorMultiplier;
+			return armor;
+		}
+	}
 
 	protected float baseWeight = 0.0f;
 	public float weight
@@ -250,6 +273,7 @@ public abstract class Item
 	public Sprite ingameSprite = null;
 	public int ingameSpriteSize = 1;
 	public Vector4 ingameSpriteColor = Vector4.One;
+	public float ingameSpriteLayer = Entity.LAYER_PLAYER_ARMOR;
 
 	public bool hasParticleEffect = false;
 	public Vector2 particlesOffset = Vector2.Zero;
@@ -381,7 +405,7 @@ public abstract class Item
 		if (type == ItemType.Weapon || type == ItemType.Staff)
 			baseDamage *= 1.2f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
-			armor++;
+			baseArmor++;
 	}
 
 	public int upgradeCost
@@ -584,7 +608,7 @@ public abstract class Item
 		InitType(new DarkHood());
 		InitType(new DarkCloak());
 		InitType(new WizardsLegacy());
-		InitType(new SleightOfHand());
+		InitType(new NimbleGloves());
 		InitType(new Spellweaver());
 		InitType(new Nightstalker());
 		InitType(new BerserkersChain());
@@ -716,6 +740,15 @@ public abstract class Item
 			if (random.NextSingle() < infusionChance)
 			{
 				Infusion infusion = Infusion.GetRandom(type, random);
+				newItem.addInfusion(infusion);
+			}
+		}
+		else if (type == ItemType.Armor || type == ItemType.Shield)
+		{
+			const float infusionChance = 0.1f;
+			if (random.NextSingle() < infusionChance)
+			{
+				Infusion infusion = Infusion.GetArmorRandom(random);
 				newItem.addInfusion(infusion);
 			}
 		}

@@ -13,7 +13,7 @@ public class IronGauntlets : Item
 	{
 		displayName = "Iron Gauntlets";
 
-		armor = 2.5f;
+		baseArmor = 2.5f;
 		armorSlot = ArmorSlot.Gloves;
 		baseWeight = 1.25f;
 

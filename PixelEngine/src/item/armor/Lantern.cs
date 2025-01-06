@@ -23,7 +23,7 @@ public class Lantern : Item
 	{
 		displayName = "Lantern";
 
-		armor = 1;
+		baseArmor = 0.25f;
 		value = 10;
 		armorSlot = ArmorSlot.Back;
 		isActiveItem = false;

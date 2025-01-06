@@ -23,5 +23,8 @@ public class BrokenSword : Weapon
 
 		sprite = new Sprite(tileset, 15, 3);
 		renderOffset.x = 0.2f;
+
+		ingameSprite = new Sprite("sprites/items/weapon/broken_sword.png", 0, 0, 32, 32);
+		ingameSpriteSize = 2;
 	}
 }

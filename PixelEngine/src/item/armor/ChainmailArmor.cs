@@ -13,7 +13,7 @@ public class ChainmailArmor : Item
 	{
 		displayName = "Chainmail Armor";
 
-		armor = 4;
+		baseArmor = 4;
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 2;
 

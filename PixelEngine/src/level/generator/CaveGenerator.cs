@@ -52,6 +52,8 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
+		createBarrelEntity = (Item[] items) => new Barrel(items);
+
 		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 5));
 		generateCaveFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));
 		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 7));
@@ -59,6 +61,9 @@ public partial class LevelGenerator
 		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(2, 8));
 
 		generateCaveBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
+
+		areaCaves[0].entrance.sprite = new Sprite(Entity.tileset, 4, 9, 2, 2);
+		areaCaves[0].entrance.rect = new FloatRect(-1, 0, 2, 2);
 	}
 
 	public List<NPC> getCaveNPCList()
@@ -75,41 +80,6 @@ public partial class LevelGenerator
 			npcs.Add(NPCManager.rat);
 
 		return npcs;
-	}
-
-	void generateRandomCaveFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
-	{
-		RoomDef def = specialSet.roomDefs[1];
-		level.resize(def.width, def.height);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
-
-		placeRoom(room, level, (int x, int y) => TileType.stone);
-		level.rooms = [room];
-
-		level.fogFalloff = 0.1f;
-		level.fogColor = new Vector3(0.0f);
-
-		level.entrance = new Door(lastLevel, lastDoor);
-		Vector2i entrancePosition = new Vector2i(2, 1);
-		level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
-		lastDoor.otherDoor = level.entrance;
-
-		level.exit = new Door(nextLevel);
-		Vector2i exitPosition = new Vector2i(14, 1);
-		level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
-
-		level.addEntity(new CavesShopRoom(room));
-
-		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
 	void generateCaveBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
@@ -278,7 +248,17 @@ public partial class LevelGenerator
 		}
 
 		if (spawnStartingRoom)
+		{
 			startingRoom.spawnEnemies = false;
+
+			for (int y = entrancePosition.y; y < entrancePosition.y + 3; y++)
+			{
+				for (int x = entrancePosition.x - 1; x < entrancePosition.x + 2; x++)
+				{
+					level.setBGTile(x, y, TileType.stone);
+				}
+			}
+		}
 
 		/*
 		if (spawnBossRoom)
@@ -353,10 +333,7 @@ public partial class LevelGenerator
 		});
 
 		// Items
-		spawnRoomObject(deadEnds, 1.0f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			spawnItem(tile.x, tile.y, getRoomLootValue(room));
-		});
+		spawnItems(level.minLootValue, level.maxLootValue, DropRates.caves, deadEnds);
 
 
 		MathHelper.ShuffleList(deadEnds, random);
@@ -500,12 +477,7 @@ public partial class LevelGenerator
 					}
 					else
 					{
-						Item[] items = null;
-						float itemChance = 0.1f;
-						if (random.NextSingle() < itemChance)
-							items = Item.CreateRandom(random, DropRates.barrel, getLootValue(new Vector2(x, y)));
-
-						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
+						level.addEntity(new Barrel(null), new Vector2(x + 0.5f, y));
 					}
 					objectFlags[x + y * width] = true;
 				}
@@ -513,39 +485,7 @@ public partial class LevelGenerator
 		});
 
 
-		List<Mob> mobInstances = new List<Mob>();
-		int numMobs = MathHelper.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
-		for (int i = 0; i < numMobs; i++)
-		{
-			List<Mob> mobTypes = createEnemy();
-			mobInstances.Add(mobTypes[random.Next() % mobTypes.Count]);
-		}
-		for (int i = 0; mobInstances.Count > 0 && i < 1000; i++)
-		{
-			Mob mob = mobInstances[0];
-
-			spawnRoomObject(rooms, rooms.Count, false, (Vector2i pos, Random random, Room room) =>
-			{
-				TileType tile = level.getTile(pos);
-				TileType left = level.getTile(pos.x - 1, pos.y);
-				TileType right = level.getTile(pos.x + 1, pos.y);
-				TileType up = level.getTile(pos.x, pos.y + 1);
-				TileType down = level.getTile(pos.x, pos.y - 1);
-				if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
-				{
-					TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
-					TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
-
-					float distanceToEntrance = (pos - entrancePosition).length;
-
-					if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
-					{
-						if (spawnEnemy(pos.x, pos.y, mob))
-							mobInstances.RemoveAt(0);
-					}
-				}
-			});
-		}
+		spawnEnemies(createEnemy, entrancePosition);
 
 
 		spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>

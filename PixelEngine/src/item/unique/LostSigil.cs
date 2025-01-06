@@ -19,8 +19,8 @@ public class LostSigil : Item
 		tumbles = false;
 
 		armorSlot = ArmorSlot.Helmet;
-		baseWeight = 20;
-		armor = 20;
+		baseWeight = 10;
+		baseArmor = 10;
 
 		sprite = new Sprite(tileset, 13, 8);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/lost_sigil.png", false), 0, 0, 32, 32);

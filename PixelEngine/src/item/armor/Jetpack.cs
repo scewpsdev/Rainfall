@@ -31,7 +31,7 @@ public class Jetpack : Item
 		displayName = "Alchemical Thrusters";
 		description = "An ingenious alchemical contraption, powered by volatile fluid which ignites with mana, releasing bursts of energy.";
 
-		armor = 1;
+		baseArmor = 1;
 		isPassiveItem = true;
 		armorSlot = ArmorSlot.Back;
 		value = 42;

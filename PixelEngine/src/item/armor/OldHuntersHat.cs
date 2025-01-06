@@ -14,7 +14,7 @@ public class OldHuntersHat : Item
 		displayName = "Old Hunter's Hat";
 		description = "Strangely familiar.";
 
-		armor = 1;
+		baseArmor = 1;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.5f;
 

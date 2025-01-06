@@ -13,7 +13,7 @@ public class LeatherGauntlets : Item
 	{
 		displayName = "Leather Gauntlets";
 
-		armor = 0.5f;
+		baseArmor = 0.5f;
 		armorSlot = ArmorSlot.Gloves;
 		baseWeight = 0.2f;
 

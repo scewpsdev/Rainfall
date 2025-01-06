@@ -10,13 +10,14 @@ public class Barrel : Entity, Hittable
 {
 	public float health = 1.5f;
 
-	Sprite sprite;
+	protected Sprite sprite;
+	protected FloatRect rect;
 
 	Item[] items;
 	public int coins = 0;
 
-	Sound[] hitSound;
-	Sound breakSound;
+	protected Sound[] hitSound;
+	protected Sound[] breakSound;
 
 
 	public Barrel(params Item[] items)
@@ -24,12 +25,13 @@ public class Barrel : Entity, Hittable
 		this.items = items;
 
 		sprite = new Sprite(tileset, 0, 1);
+		rect = new FloatRect(-0.5f, 0, 1, 1);
 
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 		platformCollider = true;
 
 		hitSound = Item.woodHit;
-		breakSound = Resource.GetSound("sounds/break_wood.ogg");
+		breakSound = [Resource.GetSound("sounds/break_wood.ogg")];
 	}
 
 	public Barrel()
@@ -114,6 +116,6 @@ public class Barrel : Entity, Hittable
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 1, 0, sprite);
+		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite);
 	}
 }

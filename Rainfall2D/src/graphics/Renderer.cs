@@ -363,7 +363,7 @@ public static class Renderer
 		DrawSprite(width, height, transform, sprite.spriteSheet.texture, sprite.position.x, sprite.position.y, sprite.size.x, sprite.size.y, color);
 	}
 
-	public static void DrawSpriteSolid(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color = 0xFFFFFFFF)
+	public static void DrawSpriteSolid(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, Vector4 color, bool additive = false)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
 		if (sprite != null)
@@ -377,7 +377,7 @@ public static class Renderer
 				MathHelper.Swap(ref u0, ref u1);
 		}
 		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
-		draws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = MathHelper.ARGBToVector(color), solid = true });
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
 	}
 
 	public static void DrawOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)

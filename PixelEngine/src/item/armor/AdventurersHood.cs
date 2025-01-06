@@ -13,7 +13,7 @@ public class AdventurersHood : Item
 	{
 		displayName = "Adventurer's Hood";
 
-		armor = 0.5f;
+		baseArmor = 0.5f;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.2f;
 

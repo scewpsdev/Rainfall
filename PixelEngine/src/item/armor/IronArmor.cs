@@ -13,7 +13,7 @@ public class IronArmor : Item
 	{
 		displayName = "Iron Armor";
 
-		armor = 6;
+		baseArmor = 6;
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 3;
 

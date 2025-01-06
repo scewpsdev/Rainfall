@@ -17,7 +17,7 @@ public class DefaultWeapon : Weapon
 		: base("default_weapon")
 	{
 		baseDamage = 0.8f;
-		baseAttackRange = 1.0f;
+		baseAttackRange = 0.8f;
 		baseAttackRate = 3;
 		knockback = 5;
 		attackAngle = 1.0f * MathF.PI;
@@ -25,6 +25,8 @@ public class DefaultWeapon : Weapon
 
 		punchSprite = new Sprite(tileset, 0, 2);
 		swingSprite = new Sprite(tileset, 1, 8);
+
+		//ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/default.png", false), 0, 0, 16, 16);
 
 		hitSound = [Resource.GetSound("sounds/punch_hit.ogg")];
 	}

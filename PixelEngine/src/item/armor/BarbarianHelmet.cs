@@ -13,7 +13,7 @@ public class BarbarianHelmet : Item
 	{
 		displayName = "Barbarian Helmet";
 
-		armor = 5;
+		baseArmor = 5;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 2;
 

@@ -54,6 +54,8 @@ public class Stalker : Mob
 		gravity = 0;
 		direction = -1;
 
+		spawnRate = 0.5f;
+
 		ai = new StalkerAI(this);
 	}
 

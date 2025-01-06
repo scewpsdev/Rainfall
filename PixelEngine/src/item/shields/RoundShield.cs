@@ -13,7 +13,7 @@ public class RoundShield : Item
 	{
 		displayName = "Round Shield";
 
-		armor = 0.5f;
+		baseArmor = 0.5f;
 		value = 2;
 		baseWeight = 0.5f;
 

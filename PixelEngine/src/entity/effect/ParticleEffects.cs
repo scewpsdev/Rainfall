@@ -86,6 +86,14 @@ public static unsafe class ParticleEffects
 		return effect;
 	}
 
+	public static ParticleEffect CreateDestroyPotEffect(uint color)
+	{
+		ParticleEffect effect = new ParticleEffect(null, "effects/destroy_pot.rfs");
+		effect.systems[0].handle->color = MathHelper.ARGBToVector(color);
+		effect.collision = true;
+		return effect;
+	}
+
 	public static ParticleEffect CreateSparkEffect()
 	{
 		ParticleEffect effect = new ParticleEffect(null, "effects/sparks.rfs");

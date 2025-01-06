@@ -13,7 +13,7 @@ public class ChainmailBoots : Item
 	{
 		displayName = "Chainmail Boots";
 
-		armor = 1.5f;
+		baseArmor = 1.5f;
 		armorSlot = ArmorSlot.Boots;
 		baseWeight = 0.75f;
 

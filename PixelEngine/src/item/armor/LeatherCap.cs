@@ -13,7 +13,7 @@ public class LeatherCap : Item
 	{
 		displayName = "Leather Cap";
 
-		armor = 1f;
+		baseArmor = 1;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.5f;
 

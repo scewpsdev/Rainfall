@@ -191,6 +191,7 @@ public class AttackAction : EntityAction
 			else
 			{
 				float progress = swingDir % 2 == 0 ? currentProgress : 1 - currentProgress;
+				progress = 1 - MathF.Pow(1 - progress, 1.5f);
 				float angle = MathHelper.Lerp(new Vector2(MathF.Abs(direction.x), direction.y).angle + startAngle, new Vector2(MathF.Abs(direction.x), direction.y).angle + endAngle, progress);
 				return angle;
 			}

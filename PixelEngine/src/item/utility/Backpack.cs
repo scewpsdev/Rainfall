@@ -21,7 +21,7 @@ public class Backpack : Item
 
 		description = "Increases inventory space";
 
-		armor = 1;
+		baseArmor = 1;
 		value = 20;
 
 		sprite = new Sprite(tileset, 3, 4);

@@ -35,6 +35,13 @@ namespace Rainfall
 			size = new Vector2i(width, height);
 		}
 
+		public Sprite(string path, int x, int y, int width, int height)
+		{
+			spriteSheet = new SpriteSheet(Resource.GetTexture(path, false), 1, 1);
+			position = new Vector2i(x, y);
+			size = new Vector2i(width, height);
+		}
+
 		public Sprite(Texture texture)
 		{
 			spriteSheet = new SpriteSheet(texture, texture.width, texture.height);

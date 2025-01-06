@@ -13,7 +13,7 @@ public class WoodenShield : Item
 	{
 		displayName = "Wooden Shield";
 
-		armor = 1;
+		baseArmor = 1;
 		value = 5;
 		baseWeight = 1;
 

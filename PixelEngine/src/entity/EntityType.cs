@@ -46,6 +46,8 @@ public static class EntityType
 		InitType<Coin>("coin");
 		InitType<Minecart>("minecart");
 		InitType<IronDoor>("iron_door");
+		InitType<Pot>("pot");
+		InitType<FireSconce>("fire_sconce");
 	}
 
 	static void InitType<T>(string name) where T : Entity, new()

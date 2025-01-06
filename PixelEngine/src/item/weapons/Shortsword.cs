@@ -23,7 +23,9 @@ public class Shortsword : Weapon
 
 		sprite = new Sprite(tileset, 2, 1);
 		renderOffset.x = 0.2f;
-		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/shortsword.png", false), 0, 0, 32, 32);
+		ingameSpriteSize = 2;
+		//ingameSpriteLayer = Entity.LAYER_PLAYER_ITEM_SECONDARY;
 	}
 
 	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
@@ -33,7 +35,7 @@ public class Shortsword : Weapon
 		swingDir = 0;
 		if (idx % 3 == 0)
 		{
-			startAngle = 0.75f * MathF.PI;
+			startAngle = 1 * MathF.PI;
 			endAngle = -0.75f * MathF.PI;
 		}
 		else if (idx % 3 == 1)

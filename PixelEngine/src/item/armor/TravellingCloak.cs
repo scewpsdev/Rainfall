@@ -13,7 +13,7 @@ public class TravellingCloak : Item
 	{
 		displayName = "Travelling Cloak";
 
-		armor = 1;
+		baseArmor = 1;
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 0.5f;
 

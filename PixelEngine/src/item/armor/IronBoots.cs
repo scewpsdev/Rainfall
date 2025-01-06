@@ -13,7 +13,7 @@ public class IronSabatons : Item
 	{
 		displayName = "Iron Sabatons";
 
-		armor = 2.5f;
+		baseArmor = 2.5f;
 		armorSlot = ArmorSlot.Boots;
 		baseWeight = 1.25f;
 

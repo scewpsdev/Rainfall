@@ -13,7 +13,7 @@ public class ChainmailHood : Item
 	{
 		displayName = "Chainmail Hood";
 
-		armor = 2;
+		baseArmor = 2;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 1;
 

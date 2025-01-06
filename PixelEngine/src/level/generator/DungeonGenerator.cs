@@ -48,6 +48,8 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
+		createBarrelEntity = (Item[] items) => new Pot(items);
+
 		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
 		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 4));
 		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy().Slice(0, 5));
@@ -257,32 +259,6 @@ public partial class LevelGenerator
 		}
 
 
-		// Starting weapon
-		List<Room> roomsWithStartingWeapon = mainRooms.Slice(0, 2);
-		if (deadEnds.Count > 0)
-			roomsWithStartingWeapon.Add(deadEnds[0]);
-		if (deadEnds.Count > 1)
-			roomsWithStartingWeapon.Add(deadEnds[1]);
-		spawnRoomObject(roomsWithStartingWeapon, 1, false, (Vector2i tile, Random random, Room room) =>
-		{
-			TileType left = level.getTile(tile.x - 1, tile.y);
-			TileType right = level.getTile(tile.x + 1, tile.y);
-			Item item = Item.CreateRandom(ItemType.Weapon, random, getLootValue((Vector2)tile));
-			Item[] items;
-			if (item.requiredAmmo != null)
-			{
-				Item ammo = Item.GetItemPrototype(item.requiredAmmo).copy();
-				ammo.stackSize = MathHelper.RandomInt(20, 36, random);
-				items = [item, ammo];
-			}
-			else
-			{
-				items = [item];
-			}
-			Chest chest = new Chest(items, left != null && right == null);
-			level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
 		// Fountain
 		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
 		{
@@ -298,10 +274,7 @@ public partial class LevelGenerator
 		});
 
 		// Items
-		spawnRoomObject(deadEnds, 0.15f, false, (Vector2i tile, Random random, Room room) =>
-		{
-			spawnItem(tile.x, tile.y, getRoomLootValue(room));
-		});
+		spawnItems(level.minLootValue, level.maxLootValue, DropRates.dungeons, deadEnds);
 
 
 		MathHelper.ShuffleList(deadEnds, random);
@@ -412,20 +385,16 @@ public partial class LevelGenerator
 			}
 		});
 
-		// Torch
+		// Sconces
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
-			if (tile == null && down == null && up == null)
+			if (tile == null && down != null && up == null)
 			{
-				TileType downDown = level.getTile(x, y - 2);
-				if (downDown != null)
+				float sconceChance = 0.02f;
+				if (random.NextSingle() < sconceChance)
 				{
-					float torchChance = 0.01f;
-					if (random.NextSingle() < torchChance)
-					{
-						level.addEntity(new TorchEntity(), new Vector2(x + 0.5f, y + 0.5f));
-						objectFlags[x + y * width] = true;
-					}
+					level.addEntity(new FireSconce(), new Vector2(x + 0.5f, y));
+					objectFlags[x + y * width] = true;
 				}
 			}
 		});
@@ -441,16 +410,11 @@ public partial class LevelGenerator
 					float explosiveBarrel = 0.1f;
 					if (random.NextSingle() < explosiveBarrel)
 					{
-						level.addEntity(new ExplosiveBarrel(), new Vector2(x + 0.5f, y));
+						level.addEntity(new ExplosivePot(), new Vector2(x + 0.5f, y));
 					}
 					else
 					{
-						Item[] items = null;
-						float itemChance = 0.1f;
-						if (random.NextSingle() < itemChance)
-							items = Item.CreateRandom(random, DropRates.barrel, getLootValue(new Vector2(x, y)));
-
-						level.addEntity(new Barrel(items), new Vector2(x + 0.5f, y));
+						level.addEntity(new Pot(null), new Vector2(x + 0.5f, y));
 					}
 					objectFlags[x + y * width] = true;
 				}
@@ -458,39 +422,7 @@ public partial class LevelGenerator
 		});
 
 
-		List<Mob> mobInstances = new List<Mob>();
-		int numMobs = MathHelper.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
-		for (int i = 0; i < numMobs; i++)
-		{
-			List<Mob> mobTypes = createEnemy();
-			mobInstances.Add(mobTypes[random.Next() % mobTypes.Count]);
-		}
-		for (int i = 0; mobInstances.Count > 0 && i < 1000; i++)
-		{
-			Mob mob = mobInstances[0];
-
-			spawnRoomObject(rooms, rooms.Count, false, (Vector2i pos, Random random, Room room) =>
-			{
-				TileType tile = level.getTile(pos);
-				TileType left = level.getTile(pos.x - 1, pos.y);
-				TileType right = level.getTile(pos.x + 1, pos.y);
-				TileType up = level.getTile(pos.x, pos.y + 1);
-				TileType down = level.getTile(pos.x, pos.y - 1);
-				if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
-				{
-					TileType downLeft = level.getTile(pos.x - 1, pos.y - 1);
-					TileType downRight = level.getTile(pos.x + 1, pos.y - 1);
-
-					float distanceToEntrance = (pos - entrancePosition).length;
-
-					if (room.spawnEnemies && (distanceToEntrance > 8 || pos.y < entrancePosition.y) && down != null && (downLeft != null && left == null || downRight != null && right == null))
-					{
-						if (spawnEnemy(pos.x, pos.y, mob))
-							mobInstances.RemoveAt(0);
-					}
-				}
-			});
-		}
+		spawnEnemies(createEnemy, entrancePosition);
 
 
 		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)

@@ -118,6 +118,17 @@ namespace Rainfall
 				}
 				return -1;
 			}
+			set
+			{
+				if (currentAnimation != null)
+				{
+					SpriteAnimation current = getAnimation(currentAnimation);
+					int frameIdx = value;
+					float timer = frameIdx / current.fps;
+					long now = Time.currentTime;
+					startTime = now - (long)(timer * 1e9f);
+				}
+			}
 		}
 
 		public bool finished

@@ -17,7 +17,7 @@ public class BlacksteelBracer : Item
 		isPassiveItem = true;
 		armorSlot = ArmorSlot.Gloves;
 
-		value = 35;
+		value = 45;
 
 		sprite = new Sprite(tileset, 7, 6);
 	}

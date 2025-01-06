@@ -22,7 +22,7 @@ public class Parachute : Item
 	{
 		displayName = "Parachute";
 
-		armor = 1;
+		baseArmor = 1;
 		armorSlot = ArmorSlot.Back;
 		value = 35;
 

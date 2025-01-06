@@ -13,7 +13,7 @@ public class ChainmailGauntlets : Item
 	{
 		displayName = "Chainmail Gauntlets";
 
-		armor = 1.5f;
+		baseArmor = 1.5f;
 		armorSlot = ArmorSlot.Gloves;
 		baseWeight = 0.75f;
 

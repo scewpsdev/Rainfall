@@ -19,8 +19,8 @@ public class Door : Entity, Interactable
 	public Door otherDoor;
 	public bool finalExit = false;
 
-	protected Sprite sprite;
-	protected FloatRect rect;
+	public Sprite sprite;
+	public FloatRect rect;
 	protected uint outline = 0;
 	protected float layer;
 
