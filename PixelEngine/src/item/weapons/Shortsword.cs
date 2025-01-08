@@ -23,8 +23,8 @@ public class Shortsword : Weapon
 
 		sprite = new Sprite(tileset, 2, 1);
 		renderOffset.x = 0.2f;
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/shortsword.png", false), 0, 0, 32, 32);
-		ingameSpriteSize = 2;
+		//ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/shortsword.png", false), 0, 0, 32, 32);
+		//ingameSpriteSize = 2;
 		//ingameSpriteLayer = Entity.LAYER_PLAYER_ITEM_SECONDARY;
 	}
 

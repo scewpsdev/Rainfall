@@ -642,7 +642,7 @@ public class InventoryUI
 
 				if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
 				{
-					if ((selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None || selected.isActiveItem) && !player.isEquipped(selected))
+					if (!player.isEquipped(selected))
 						player.equipItem(selected);
 					else if (player.isEquipped(selected))
 					{

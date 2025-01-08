@@ -43,7 +43,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float poise = 1;
 	public float awareness = 0.5f;
 
-	float maxHealth;
+	protected float maxHealth;
 
 	public bool isBoss = false;
 	public bool canClimb = false;

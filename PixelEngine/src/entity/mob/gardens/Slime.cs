@@ -54,7 +54,7 @@ public class Slime : Mob
 		animator.setAnimation("idle");
 
 		health = (MathHelper.IPow(2, size) + 1) / 2;
-		jumpPower = MathHelper.IPow(2, size) * 3 / 2;
+		jumpPower = size * 4; //  MathHelper.IPow(2, size) * 3 / 2;
 		speed = 0.5f;
 
 		ai = new SlimeAI(this);
@@ -75,10 +75,29 @@ public class Slime : Mob
 	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		if ((Time.currentTime - spawnTime) / 1e9f > 0.2f)
-			return base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
+		{
+			base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
+			if (isAlive && health <= maxHealth - 1)
+			{
+				if (size > 1)
+				{
+					int subSlimes = MathHelper.RandomInt(1, 4);
+					for (int i = 0; i < subSlimes; i++)
+					{
+						Slime slime = new Slime(size - 1);
+						slime.spriteColor = spriteColor;
+						GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(collider.min.x - slime.collider.min.x, collider.max.x - slime.collider.max.x), MathHelper.RandomFloat(collider.min.y - slime.collider.min.y, collider.max.y - -slime.collider.max.y)));
+					}
+				}
+
+				remove();
+			}
+			return true;
+		}
 		return false;
 	}
 
+	/*
 	public override void onDeath(Entity by)
 	{
 		base.onDeath(by);
@@ -94,4 +113,5 @@ public class Slime : Mob
 			}
 		}
 	}
+	*/
 }
