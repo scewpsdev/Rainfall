@@ -68,7 +68,7 @@ public class ArmorStand : Entity, Interactable
 				{
 					if (startingClass.items[i].ingameSprite != null)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG + 0.002f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * startingClass.items[i].ingameSpriteSize, LAYER_BG + 0.002f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
 					}
 					else if (startingClass.items[i].isSecondaryItem)
 					{
@@ -90,7 +90,7 @@ public class ArmorStand : Entity, Interactable
 			{
 				if (startingClass.items[i].ingameSprite != null)
 				{
-					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f, LAYER_BG - 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, startingClass.items[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * startingClass.items[i].ingameSpriteSize, LAYER_BG - 0.001f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, startingClass.items[i].ingameSpriteColor);
 				}
 				else if (startingClass.items[i].isSecondaryItem)
 				{

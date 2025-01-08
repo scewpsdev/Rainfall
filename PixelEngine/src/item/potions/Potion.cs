@@ -71,7 +71,11 @@ public class Potion : Item
 			foreach (PotionEffect effect in effects)
 				effect.apply(player, this);
 			player.removeItemSingle(this);
-			player.giveItem(new GlassBottle());
+			GlassBottle bottle = new GlassBottle();
+			if (player.storedItems.Count < player.storeCapacity || player.getItem(bottle.name) != null)
+				player.giveItem(bottle);
+			else
+				GameState.instance.level.addEntity(new ItemEntity(bottle), player.position + Vector2.Up * 0.5f);
 			return true;
 		}
 	}

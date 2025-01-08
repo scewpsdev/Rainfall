@@ -53,7 +53,7 @@ public class Projectile : Entity
 	public override void update()
 	{
 		velocity += velocity.normalized * acceleration * Time.deltaTime;
-		//velocity.y += gravity * Time.deltaTime;
+		velocity.y += gravity * Time.deltaTime;
 		if (velocity.length > maxSpeed)
 			velocity = velocity.normalized * maxSpeed;
 

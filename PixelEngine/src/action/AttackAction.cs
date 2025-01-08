@@ -71,7 +71,7 @@ public class AttackAction : EntityAction
 
 		if (inDamageWindow)
 		{
-			int currentSpin = (int)(currentProgress * weapon.attackAngle / MathF.PI / 2);
+			int currentSpin = stab ? 0 : (int)(currentProgress * weapon.attackAngle / MathF.PI / 2 - 0.001f);
 			if (currentSpin > lastSpin)
 			{
 				hitEntities.Clear();
@@ -137,11 +137,12 @@ public class AttackAction : EntityAction
 							}
 						}
 
-						player.addImpulse(-direction * 4);
 						if (!player.isGrounded)
 						{
+							player.addImpulse(-direction * 4);
+
 							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
-							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower);
+							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
 						}
 
 						if (weapon.hitSound != null)

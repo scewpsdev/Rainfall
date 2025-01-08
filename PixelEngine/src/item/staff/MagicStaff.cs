@@ -13,8 +13,6 @@ public class MagicStaff : Staff
 	{
 		displayName = "Magic Staff";
 
-		canDrop = false;
-
 		value = 10;
 
 		sprite = new Sprite(tileset, 2, 6);

@@ -179,7 +179,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			foreach (Item item in items)
 			{
 				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
-				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+				Vector2 throwOrigin = position + collider.center;
 				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
 			}
@@ -189,7 +189,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		for (int i = 0; i < itemDrops.Count; i++)
 		{
 			Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
-			Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+			Vector2 throwOrigin = position + collider.center;
 			ItemEntity obj = new ItemEntity(itemDrops[i], null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);
 		}
@@ -200,7 +200,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			{
 				Coin coin = new Coin();
 				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
-				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 1;
 				GameState.instance.level.addEntity(coin, spawnPosition);
 			}
 		}
@@ -210,7 +210,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			if (Random.Shared.NextSingle() < dropChance)
 			{
 				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
-				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+				Vector2 throwOrigin = position + collider.center;
 				ItemEntity obj = new ItemEntity(Item.GetItemPrototype(stuckProjectiles[i].item).copy(), null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
 			}

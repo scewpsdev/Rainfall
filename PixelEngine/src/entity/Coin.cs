@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Coin : Entity
 {
-	const float COLLECT_DELAY = 0.2f;
+	const float COLLECT_DELAY = 0.25f;
 
 	Vector4 color;
 
@@ -48,9 +48,15 @@ public class Coin : Entity
 			float distance = toTarget.length;
 			if (distance < followDistance && !target.removed)
 			{
-				float speed = (1 - distance / followDistance * 0.5f) * 1;
-				velocity += speed * toTarget / distance * 0.3f;
-				displacement += toTarget.normalized * 7 * Time.deltaTime;
+				//float speed = (1 - distance / followDistance * 0.5f) * 1;
+				//velocity += speed * toTarget / distance * 0.3f;
+				//displacement += toTarget.normalized * 7 * Time.deltaTime;
+
+				float maxSpeed = 10;
+				float currentSpeed = velocity.length;
+				velocity = (velocity + toTarget / distance * Time.deltaTime * 40);
+				if (velocity.length >= maxSpeed)
+					velocity = velocity.normalized * maxSpeed;
 
 				if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
 				{
@@ -103,9 +109,9 @@ public class Coin : Entity
 
 		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement);
 		if ((collisionFlags & Level.COLLISION_X) != 0)
-			velocity.x = 0;
+			velocity.x *= -0.5f;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
-			velocity.y = 0;
+			velocity.y *= -0.5f;
 
 		position += displacement;
 	}

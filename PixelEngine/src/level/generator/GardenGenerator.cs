@@ -127,7 +127,7 @@ public partial class LevelGenerator
 		this.level = level;
 		this.nextLevel = nextLevel;
 		this.lastLevel = lastLevel;
-		this.entrance = entrance;
+		this.lastExit = entrance;
 
 		random = new Random((int)Hash.hash(seed) + floor);
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
@@ -145,9 +145,6 @@ public partial class LevelGenerator
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
-
-		lootModifier = new float[width * height];
-		Array.Fill(lootModifier, 1.0f);
 
 		rooms.Clear();
 		RoomDef? startingRoomDef = spawnStartingRoom ? specialSet.roomDefs[5] : spawnBossRoom ? specialSet.roomDefs[3] : null;
@@ -225,7 +222,8 @@ public partial class LevelGenerator
 			});
 		}
 
-		createDoors(false, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
+		Door entranceDoor = new Door(lastLevel, lastExit);
+		createDoors(false, spawnBossRoom, startingRoom, exitRoom, entranceDoor, out Vector2i entrancePosition, out Vector2i exitPosition);
 
 		if (spawnStartingRoom)
 			startingRoom.spawnEnemies = false;
@@ -246,17 +244,6 @@ public partial class LevelGenerator
 				deadEnds.Add(room);
 			else if (room.isMainPath)
 				mainRooms.Add(room);
-
-			if (isDeadEnd)
-			{
-				for (int y = room.y; y < room.y + room.height; y++)
-				{
-					for (int x = room.x; x < room.x + room.width; x++)
-					{
-						lootModifier[x + y * width] = 3.0f;
-					}
-				}
-			}
 		}
 
 
@@ -347,20 +334,20 @@ public partial class LevelGenerator
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.05f, 0.02f), true, (Vector2i tile, Random random, Room room) =>
 		{
 			int amount = MathHelper.RandomInt(2, 10, random);
-			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
+			level.addEntity(new CoinStack(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
 		});
 
 		// Items
 		spawnRoomObject(deadEnds, 0.65f, false, (Vector2i tile, Random random, Room room) =>
 		{
-			spawnItem(tile.x, tile.y, getRoomLootValue(room));
+			//spawnItem(tile.x, tile.y, getRoomLootValue(room));
 		});
 
 
 		MathHelper.ShuffleList(deadEnds, random);
 		MathHelper.ShuffleList(mainRooms, random);
 
-		lockDeadEnds(deadEnds, mainRooms);
+		//lockDeadEnds(deadEnds, mainRooms);
 
 
 		// Arrow trap
@@ -390,7 +377,7 @@ public partial class LevelGenerator
 				{
 					//int amount = MathHelper.RandomInt(3, 12, random);
 					int amount = 10;
-					level.addEntity(new Gem(amount), new Vector2(x + 0.5f, y + 0.5f));
+					level.addEntity(new CoinStack(amount), new Vector2(x + 0.5f, y + 0.5f));
 					objectFlags[x + y * width] = true;
 				}
 			}
@@ -510,7 +497,7 @@ public partial class LevelGenerator
 		// Blacksmith
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.1f, 0.02f), false, (Vector2i tile, Random random, Room room) =>
 		{
-			Blacksmith npc = new Blacksmith(random, level);
+			Blacksmith npc = new Blacksmith();
 			npc.direction = random.Next() % 2 * 2 - 1;
 			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});

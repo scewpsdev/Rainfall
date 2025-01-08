@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 public class MagicMissileProjectile : Projectile
 {
 	const float speed = 30;
+	const float radius = 2;
 	float explosionDamage;
 
 	public MagicMissileProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item staff, Item spell)
@@ -26,7 +27,7 @@ public class MagicMissileProjectile : Projectile
 	public override void onHit(Vector2 normal)
 	{
 		GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(normal, velocity.length, MathHelper.ARGBToVector(0xFF99eeee).xyz), position - velocity * Time.deltaTime);
-		SpellEffects.Explode(position, 1, explosionDamage, this, null);
+		SpellEffects.Explode(position, radius, explosionDamage, this, null);
 	}
 
 	public override void render()

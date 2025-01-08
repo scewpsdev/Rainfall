@@ -74,7 +74,8 @@ public class BrokenWanderer : NPC
 			""");
 
 		addDialogue("""
-			Still here? You're either brave or a fool. I wonder - are they so different in the end?
+			Still here? You're either brave or a fool.
+			I wonder - are they so different in the end?
 			""");
 	}
 }

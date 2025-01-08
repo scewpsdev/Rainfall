@@ -38,14 +38,21 @@ public class Trampoline : Entity
 			{
 				//if (hits[i].entity.velocity.y < -0.1f)
 				{
-					if (hits[i].entity is Player && (hits[i].entity as Player).isDucked)
+					if (hits[i].entity is Player)
+					{
+						if ((hits[i].entity as Player).isDucked)
 						continue;
 
-					hits[i].entity.velocity.y = MathF.Max(-hits[i].entity.velocity.y, STRENGTH);
-					if (hits[i].entity is Mob)
-						((Mob)hits[i].entity).isGrounded = true;
-					if (hits[i].entity is Player)
+						hits[i].entity.velocity.y = MathF.Max(-hits[i].entity.velocity.y, STRENGTH);
 						((Player)hits[i].entity).currentLadder = null;
+					}
+					else
+					{
+						hits[i].entity.velocity.y = -hits[i].entity.velocity.y;
+
+						if (hits[i].entity is Mob)
+							((Mob)hits[i].entity).isGrounded = true;
+					}
 
 					if (!isActive)
 						Audio.Play(useSound, new Vector3(position, 0));

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 public class Barrel : Entity, Hittable
 {
+	const float gravity = -10;
+
 	public float health = 1.5f;
 
 	protected Sprite sprite;
@@ -73,7 +75,7 @@ public class Barrel : Entity, Hittable
 		}
 	}
 
-	void breakBarrel()
+	protected virtual void breakBarrel()
 	{
 		if (items != null)
 			dropItems();
@@ -82,7 +84,7 @@ public class Barrel : Entity, Hittable
 		remove();
 	}
 
-	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	public virtual bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		health -= damage;
 		if (health <= 0)
@@ -95,27 +97,40 @@ public class Barrel : Entity, Hittable
 		return true;
 	}
 
+	protected virtual void onHit(bool x, bool y)
+	{
+		if (velocity.length > 10)
+			breakBarrel();
+
+		if (x)
+			velocity.x = 0;
+		else if (y)
+			velocity.y = 0;
+	}
+
 	public override void update()
 	{
-		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.01f));
-		if (!(tile != null && (tile.isSolid || tile.isPlatform)))
-		{
-			velocity.y += -10 * Time.deltaTime;
+		velocity.y += gravity * Time.deltaTime;
 
-			float displacement = velocity.y * Time.deltaTime;
-			position.y += displacement;
-		}
-		else
-		{
-			if (MathF.Abs(velocity.y) > 10)
-				breakBarrel();
+		Vector2 displacement = velocity * Time.deltaTime;
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, false);
+		position += displacement;
 
-			velocity.y = 0;
+		base.update();
+
+		{
+			bool collidesX = (collisionFlags & Level.COLLISION_X) != 0;
+			bool collidesY = (collisionFlags & Level.COLLISION_Y) != 0;
+			if (collidesX || collidesY)
+			{
+				onHit(collidesX, collidesY);
+			}
 		}
 	}
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite);
+		if (sprite != null)
+			Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, rotation, sprite);
 	}
 }

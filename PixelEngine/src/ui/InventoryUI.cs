@@ -652,21 +652,8 @@ public class InventoryUI
 				}
 				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 				{
-					if (selected.isHandItem || selected.isSecondaryItem || selected.isPassiveItem && selected.armorSlot != ArmorSlot.None || selected.isActiveItem)
-					{
-						player.throwItem(selected, true);
-						player.removeItem(selected);
-					}
-					else
-					{
-						if (player.isEquipped(selected))
-							player.unequipItem(selected);
-						else
-						{
-							player.throwItem(selected, true);
-							player.removeItem(selected);
-						}
-					}
+					player.throwItem(selected, true);
+					player.removeItem(selected);
 				}
 			}
 

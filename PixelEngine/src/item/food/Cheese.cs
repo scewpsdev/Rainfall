@@ -24,7 +24,8 @@ public class Cheese : Item
 	public override bool use(Player player)
 	{
 		base.use(player);
-		player.addStatusEffect(new HealStatusEffect(1.5f + upgradeLevel * 0.5f, 5));
+		player.addStatusEffect(new HealStatusEffect(1.0f, 10));
+		player.addStatusEffect(new ManaRechargeEffect(2, 10));
 		GameState.instance.level.addEntity(ParticleEffects.CreateConsumableUseEffect(player, player.direction, 0xFFe9dd78), player.position);
 		return true;
 	}

@@ -24,7 +24,7 @@ public class Beetle : Mob
 
 		ai = new BeetleAI(this);
 
-		spawnRate = 0.5f;
+		spawnRate = 0.1f;
 
 		health = 3;
 		poise = 0;

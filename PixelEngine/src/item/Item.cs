@@ -565,7 +565,7 @@ public abstract class Item
 		InitType(new IronShield());
 		InitType(new ThornShield());
 		InitType(new Scimitar());
-		InitType(new WizardsHat());
+		InitType(new WizardHat());
 		InitType(new Zweihander());
 		InitType(new TravellingCloak());
 		InitType(new Shortbow());
@@ -659,6 +659,8 @@ public abstract class Item
 		InitType(new DuelistHarness());
 		InitType(new BlacksteelBracer());
 		InitType(new Parsley());
+		InitType(new LargeWizardHatRed());
+		InitType(new DankHat());
 	}
 
 	static void InitType(Item item)

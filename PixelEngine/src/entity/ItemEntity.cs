@@ -238,7 +238,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 		if (damage > 0 && item.projectileItem && thrower != null)
 		{
-			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, velocity.length * Time.deltaTime, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
+			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, velocity.length * Time.deltaTime + collider.size.y * 0.5f + 0.1f, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER);
 			if (hit != null)
 			{
 				bool skipHit = hit.entity == thrower && (Time.currentTime - throwTime) / 1e9f < 0.1f;

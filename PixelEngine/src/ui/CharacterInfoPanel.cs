@@ -40,7 +40,7 @@ public static class CharacterInfoPanel
 			{
 				int ss = size * player.passiveItems[i].ingameSpriteSize;
 				//player.animator.update(player.passiveItems[i].ingameSprite);
-				Renderer.DrawUISprite(xx - (ss - size) / 2, yy - (ss - size), ss, ss, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
+				Renderer.DrawUISprite(xx - (ss - size) / 2, yy - (ss - size) / 2, ss, ss, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
 			}
 		}
 

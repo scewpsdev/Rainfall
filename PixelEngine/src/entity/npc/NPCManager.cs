@@ -15,6 +15,7 @@ public static class NPCManager
 	public static RatNPC rat;
 	public static Logan logan;
 	public static BrokenWanderer brokenWanderer;
+	public static Blacksmith blacksmith;
 
 
 	static void RegisterNPC(NPC npc)
@@ -76,5 +77,6 @@ public static class NPCManager
 		RegisterNPC(rat = new RatNPC());
 		RegisterNPC(logan = new Logan());
 		RegisterNPC(brokenWanderer = new BrokenWanderer());
+		RegisterNPC(blacksmith = new Blacksmith());
 	}
 }

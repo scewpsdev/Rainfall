@@ -42,7 +42,7 @@ public class Logan : NPC
 		setOneTimeInititalDialogue("""
 			Mm, you seem quite lucid! A \drare\0 thing in these times.
 			\cBuy my shit.
-			""").addCallback(() =>
+			""")?.addCallback(() =>
 		{
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_LOGAN_MET);
 		});

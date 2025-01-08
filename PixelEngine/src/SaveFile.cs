@@ -218,6 +218,7 @@ public class SaveFile
 		file.addArray("npcs", NPCManager.SaveNPCs());
 
 		file.serialize(save.path);
+		save.file = file;
 
 #if DEBUG
 		Utils.RunCommand("xcopy", "/y \"" + save.path + "\" \"..\\..\\..\\saves\\\"");

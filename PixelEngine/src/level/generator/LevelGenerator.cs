@@ -249,12 +249,11 @@ public partial class LevelGenerator
 	Simplex simplex;
 
 	Level lastLevel, nextLevel;
-	Door entrance;
+	Door lastExit;
 
 	List<Room> rooms;
 
 	bool[] objectFlags;
-	float[] lootModifier;
 
 	List<Type> spawnedNPCs = new List<Type>();
 
@@ -564,7 +563,7 @@ public partial class LevelGenerator
 		}
 		else if (f < chestChance + barrelChance)
 		{
-			Barrel barrel = new Barrel(items);
+			Barrel barrel = createBarrelEntity(items);
 			level.addEntity(barrel, new Vector2(x + 0.5f, y));
 
 			float barrelCoinsChance = 0.08f;
@@ -607,7 +606,7 @@ public partial class LevelGenerator
 		objectFlags[x + y * level.width] = true;
 	}
 
-	public void spawnBarrel(int x, int y, float roomLootValue)
+	void spawnBarrel_(int x, int y, float roomLootValue)
 	{
 		float scamChestChance = 0.02f;
 		bool scam = random.NextSingle() < scamChestChance;
@@ -626,7 +625,7 @@ public partial class LevelGenerator
 		objectFlags[x + y * level.width] = true;
 	}
 
-	public void spawnGroundItem(int x, int y, float roomLootValue)
+	void spawnGroundItem_(int x, int y, float roomLootValue)
 	{
 		Item[] items = Item.CreateRandom(random, DropRates.ground, roomLootValue);
 		foreach (Item item in items)
@@ -638,7 +637,7 @@ public partial class LevelGenerator
 		objectFlags[x + y * level.width] = true;
 	}
 
-	void spawnItem(int x, int y, float roomLootValue)
+	void spawnItem_(int x, int y, float roomLootValue)
 	{
 		float chestChance = 0.1f;
 		float barrelChance = 0.4f;
@@ -647,12 +646,12 @@ public partial class LevelGenerator
 		if (f < chestChance)
 			spawnChest(x, y, roomLootValue);
 		else if (f < chestChance + barrelChance)
-			spawnBarrel(x, y, roomLootValue);
+			spawnBarrel_(x, y, roomLootValue);
 		else
-			spawnGroundItem(x, y, roomLootValue);
+			spawnGroundItem_(x, y, roomLootValue);
 	}
 
-	void spawnItems(float minValue, float maxValue, float[] dropRates, List<Room> deadEnds)
+	List<Item[]> generateItems(float minValue, float maxValue, float[] dropRates)
 	{
 		int numItems = rooms.Count / 4;
 		List<Item[]> items = new List<Item[]>();
@@ -662,7 +661,11 @@ public partial class LevelGenerator
 			Item[] item = Item.CreateRandom(random, dropRates, value);
 			items.Add(item);
 		}
+		return items;
+	}
 
+	void spawnItems(List<Item[]> items, List<Room> deadEnds)
+	{
 		while (items.Count > 0)
 		{
 			Item[] item = items[0];
@@ -720,6 +723,7 @@ public partial class LevelGenerator
 		NPC npc = npcs[random.Next() % npcs.Count];
 		npc.direction = random.Next() % 2 * 2 - 1;
 		level.addEntity(npc, new Vector2(x + 0.5f, y));
+		setObjectFlag(x, y);
 
 		spawnedNPCs.Add(npc.GetType());
 	}
@@ -858,7 +862,7 @@ public partial class LevelGenerator
 			for (int i = 0; i < emptyDoorways.Count; i++)
 			{
 				Doorway emptyDoorway = emptyDoorways[i];
-				bool specialRoom = random.NextSingle() < 0.2f;
+				bool specialRoom = random.NextSingle() < 0.5f;
 				if (!(specialRoom && createSpecialRoom(emptyDoorway)))
 					fillDoorway(emptyDoorway, set);
 			}
@@ -879,44 +883,30 @@ public partial class LevelGenerator
 			for (int i = 0; i < emptyDoorways.Count; i++)
 			{
 				Doorway emptyDoorway = emptyDoorways[i];
-				bool specialRoom = random.NextSingle() < 0.2f;
+				bool specialRoom = random.NextSingle() < 0.1f;
 				if (!(specialRoom && createSpecialRoom(emptyDoorway)))
 					fillDoorway(emptyDoorway, set);
 			}
 		}
 	}
 
-	void createDoors(bool spawnStartingRoom, bool spawnBossRoom, Room startingRoom, Room exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition)
+	void createDoors(bool spawnStartingRoom, bool spawnBossRoom, Room startingRoom, Room exitRoom, Door entranceDoor, out Vector2i entrancePosition, out Vector2i exitPosition)
 	{
 		entrancePosition = Vector2i.Zero;
 		exitPosition = Vector2i.Zero;
 
+		level.entrance = entranceDoor;
+		if (lastExit != null)
+			lastExit.otherDoor = level.entrance;
+
 		if (spawnStartingRoom)
-		{
 			entrancePosition = startingRoom.getMarker(0x1);
-			level.entrance = new Door(lastLevel, entrance);
-			if (entrance != null)
-				entrance.otherDoor = level.entrance;
-			level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
-
-			objectFlags[entrancePosition.x + entrancePosition.y * level.width] = true;
-		}
 		else
-		{
-			if (startingRoom.getFloorSpawn(level, random, objectFlags, out entrancePosition))
-			{
-				level.entrance = new Door(lastLevel, entrance);
-				if (entrance != null)
-					entrance.otherDoor = level.entrance;
-				level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
+			startingRoom.getFloorSpawn(level, random, objectFlags, out entrancePosition);
+		Debug.Assert(entrancePosition != Vector2i.Zero);
 
-				objectFlags[entrancePosition.x + entrancePosition.y * level.width] = true;
-			}
-			else
-			{
-				Debug.Assert(false);
-			}
-		}
+		level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
+		setObjectFlag(entrancePosition.x, entrancePosition.y);
 
 		if (spawnBossRoom)
 		{
@@ -1019,8 +1009,11 @@ public partial class LevelGenerator
 		}
 	}
 
-	void lockDeadEnds(List<Room> deadEnds, List<Room> mainRooms)
+	void lockDeadEnds(List<Room> deadEnds, List<Item[]> items)
 	{
+		if (items.Count == 0)
+			return;
+
 		foreach (Room room in deadEnds)
 		{
 			if (!room.hasObject)
@@ -1050,7 +1043,9 @@ public partial class LevelGenerator
 
 						if (room.getFloorSpawn(level, random, objectFlags, out Vector2i pos))
 						{
-							spawnItem(pos.x, pos.y, getRoomLootValue(room));
+							spawnItem(pos.x, pos.y, items[0]);
+							items.RemoveAt(0);
+							//spawnItem(pos.x, pos.y, getRoomLootValue(room));
 						}
 
 						/*
@@ -1137,7 +1132,7 @@ public partial class LevelGenerator
 			|| enemy.gravity == 0 && (down != null || up != null))
 		{
 			enemy.direction = random.NextSingle() < 0.5f ? 1 : -1;
-			enemy.itemDropChance = MathHelper.Lerp(0.05f, 0.5f, progress);
+			enemy.itemDropChance = MathHelper.Lerp(0.05f, 0.1f, progress);
 			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
 			objectFlags[x + y * level.width] = true;
 			return true;
@@ -1149,7 +1144,7 @@ public partial class LevelGenerator
 	void spawnEnemies(Func<List<Mob>> createEnemy, Vector2i entrancePosition)
 	{
 		List<Mob> mobInstances = new List<Mob>();
-		int numMobs = MathHelper.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
+		int numMobs = rooms.Count * 2 / 3; // MathHelper.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
 		for (int i = 0; i < numMobs; i++)
 		{
 			List<Mob> mobTypes = createEnemy();

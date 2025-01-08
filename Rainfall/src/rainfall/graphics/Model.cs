@@ -66,7 +66,7 @@ namespace Rainfall
 	public unsafe struct MeshData
 	{
 		PositionNormalTangent* positionsNormalsTangents;
-		Vector2* texcoords;
+		public Vector2* texcoords;
 		uint* vertexColors;
 		IntPtr boneWeights;
 
@@ -76,8 +76,8 @@ namespace Rainfall
 		public int* indices { get; internal set; }
 		public int indexCount { get; internal set; }
 
-		internal int materialID;
-		internal int skeletonID;
+		public int materialID;
+		public int skeletonID;
 
 		public BoundingBox boundingBox;
 		public BoundingSphere boundingSphere;
@@ -135,6 +135,17 @@ namespace Rainfall
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct TextureData
+	{
+		public fixed byte path[256];
+		public byte isEmbedded;
+		public int width, height;
+		public uint* data;
+
+		ushort handle;
+	};
+
+	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct MaterialData
 	{
 		public UInt32 color;
@@ -143,12 +154,12 @@ namespace Rainfall
 		public Vector3 emissiveColor;
 		public float emissiveStrength;
 
-		public IntPtr diffuse;
-		public IntPtr normal;
-		public IntPtr roughness;
-		public IntPtr metallic;
-		public IntPtr emissive;
-		public IntPtr height;
+		public TextureData* diffuse;
+		public TextureData* normal;
+		public TextureData* roughness;
+		public TextureData* metallic;
+		public TextureData* emissive;
+		public TextureData* height;
 	};
 
 	[StructLayout(LayoutKind.Sequential)]

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class Blacksmith : NPC
 {
-	public Blacksmith(Random random, Level level)
+	public Blacksmith()
 		: base("blacksmith")
 	{
 		displayName = "Blacksmith";
@@ -22,32 +22,29 @@ public class Blacksmith : NPC
 		buysItems = true;
 		buyTax = 0.5f;
 		canUpgrade = true;
-
-		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET))
-		{
-			initialDialogue = new Dialogue();
-			initialDialogue.addVoiceLine("A thousand souls, and yet none strong enough to escape this \\bwretched\\0 place.");
-			initialDialogue.addVoiceLine("What makes you think you'll fare any better?").addCallback(() =>
-			{
-				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
-			});
-		}
-		else
-		{
-			initialDialogue = new Dialogue();
-			initialDialogue.addVoiceLine("Take what you need, if you can bear the weight.");
-		}
-
-		Dialogue dialogue = new Dialogue();
-		dialogue.addVoiceLine("Hmm?");
-		dialogue.addVoiceLine("I'm not up for chatting.");
-		addDialogue(dialogue);
-
-		populateShop(random, 2, 8, level.avgLootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 
-	public Blacksmith()
-		: this(Random.Shared, GameState.instance.level)
+	public override void init(Level level)
 	{
+		setOneTimeInititalDialogue("""
+			A thousand souls, and yet none strong enough to escape this \bwretched\0 place. What makes you think you'll fare any better?
+			""")?.addCallback(() =>
+		{
+			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
+		});
+
+		if (initialDialogue == null)
+		{
+			setInititalDialogue("""
+				Take what you need, if you can bear the weight.
+				""");
+		}
+
+		addDialogue("""
+			Hmm?
+			I'm not up for chatting.
+			""");
+
+		populateShop(GameState.instance.generator.random, 2, 8, level.avgLootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 }

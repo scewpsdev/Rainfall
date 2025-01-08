@@ -64,7 +64,7 @@ public class IronDoor : Entity, Interactable, Hittable
 					if (key != null)
 					{
 						setOpen(true);
-						player.removeItem(key);
+						player.removeItemSingle(key);
 						player.hud.showMessage("Used " + key.displayName);
 					}
 					else if (lockpick != null)

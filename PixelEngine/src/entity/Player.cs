@@ -24,7 +24,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float FALL_DAMAGE_DISTANCE = 10;
 	const float MANA_KILL_REWARD = 0.5f;
 #if DEBUG
-	const float SPRINT_MANA_COST = 0.25f;
+	const float SPRINT_MANA_COST = 0.5f;
 #else
 	const float SPRINT_MANA_COST = 0.5f;
 #endif
@@ -40,8 +40,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
-	public const float defaultManaRecoveryRate = 0.02f;
-	public float coinCollectDistance = 1.5f;
+	public const float defaultManaRecoveryRate = 0.04f;
+	public float coinCollectDistance = 4.0f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
@@ -80,6 +80,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	bool isSprinting = false;
 	public bool isDucked = false;
 	public bool isClimbing = false;
+	public bool isLookingUp = false;
 	float fallDistance = 0;
 
 	ParticleEffect wallSlideParticles;
@@ -124,10 +125,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public List<Spell> spellItems = new List<Spell>();
 	public int spellCapacity = 3;
 	public int selectedSpellItem = 0;
-	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem] : null;
+	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem = MathHelper.Clamp(selectedSpellItem, 0, spellItems.Count)] : null;
 	public List<Item> passiveItems = new List<Item>();
 	public List<Item> storedItems = new List<Item>();
-	public int storeCapacity = 3;
+	public int storeCapacity = 4;
 
 	ParticleEffect handParticles, offhandParticles;
 
@@ -159,12 +160,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		animator = new SpriteAnimator();
 
 		animator.addAnimation("idle", 0, 0, 16, 0, 4, 4, true);
-		animator.addAnimation("run", 4 * 16, 0, 16, 0, 8, 16, true);
-		animator.addAnimation("jump", 12 * 16, 0, 16, 0, 3, 1, true);
-		animator.addAnimation("climb", 15 * 16, 0, 16, 0, 2, 6, true);
-		animator.addAnimation("dead", 17 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("dead_falling", 18 * 16, 0, 16, 0, 1, 12, true);
-		animator.addAnimation("stun", 19 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("look_up", 4 * 16, 0, 16, 0, 4, 4, true);
+		animator.addAnimation("run", 8 * 16, 0, 16, 0, 8, 16, true);
+		animator.addAnimation("jump", 16 * 16, 0, 16, 0, 2, 1, true);
+		animator.addAnimation("fall", 18 * 16, 0, 16, 0, 3, 10, true);
+		animator.addAnimation("climb", 21 * 16, 0, 16, 0, 2, 6, true);
+		animator.addAnimation("dead", 23 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("dead_falling", 24 * 16, 0, 16, 0, 1, 12, true);
+		animator.addAnimation("stun", 25 * 16, 0, 16, 0, 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
@@ -372,14 +375,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public bool attuneSpell(Spell spell)
 	{
-		if (spellItems.Count < spellCapacity)
-		{
-			spellItems.Add(spell);
-		}
-		else
-		{
+		if (spellItems.Count == spellCapacity)
 			dropItem(spellItems[spellItems.Count - 1]);
-		}
+		spellItems.Add(spell);
 		return true;
 	}
 
@@ -619,6 +617,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return true;
 		if (isPassiveItem(item, out _))
 			return true;
+		if (isSpellItem(item, out _))
+			return true;
 		return false;
 	}
 
@@ -674,6 +674,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return null;
 	}
 
+	public bool isSpellItem(Item item, out int slot)
+	{
+		for (int i = 0; i < spellItems.Count; i++)
+		{
+			if (spellItems[i] == item)
+			{
+				slot = i;
+				return true;
+			}
+		}
+		slot = -1;
+		return false;
+	}
+
 	public int numActiveItems
 	{
 		get
@@ -686,27 +700,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 			return result;
 		}
-	}
-
-	public int numPassiveItems => passiveItems.Count;
-	/*
-	{
-		get
-		{
-			int result = 0;
-			for (int i = 0; i < passiveItems.Count; i++)
-			{
-				if (passiveItems[i] != null)
-					result++;
-			}
-			return result;
-		}
-	}
-	*/
-
-	public int numTotalEquippedItems
-	{
-		get => (handItem != null ? 1 : 0) + (offhandItem != null ? 1 : 0) + numActiveItems + numPassiveItems;
 	}
 
 	public bool canEquipPassiveItem(Item item)
@@ -1126,6 +1119,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						position.y = MathF.Min(position.y, MathF.Floor(position.y + collider.max.y) - collider.max.y);
 				}
 			}
+
+			isLookingUp = isGrounded && InputManager.IsDown("Up");
 
 			if (isGrounded)
 			{
@@ -1769,7 +1764,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							animator.setAnimation("idle");
+							if (isLookingUp)
+							{
+								animator.setAnimation("look_up");
+							}
+							else
+							{
+								animator.setAnimation("idle");
+							}
 						}
 					}
 					else
@@ -1781,14 +1783,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							animator.setAnimation("jump");
-							float animation = MathHelper.Remap(velocity.y, -2, 2, 0, 1);
-							if (animation > 1)
-								animator.currentFrame = 0;
-							else if (animation < 0)
-								animator.currentFrame = 2;
+							if (velocity.y < -5)
+							{
+								animator.setAnimation("fall");
+							}
 							else
-								animator.currentFrame = 1;
+							{
+								animator.setAnimation("jump");
+								if (velocity.y > 5)
+									animator.currentFrame = 0;
+								else
+									animator.currentFrame = 1;
+							}
 						}
 					}
 				}
@@ -1913,7 +1919,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = -2;
 		if (isDucked)
 			animOffset.y = -3;
-		return new Vector2((!mainHand ? 2 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
@@ -2057,7 +2063,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.movementSpeedModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.15f, swiftness - 1);
+		value *= MathF.Pow(1.08f, swiftness - 1);
 		return value;
 	}
 

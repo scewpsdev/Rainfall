@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -252,10 +253,10 @@ namespace Rainfall
 		public override string ToString()
 		{
 			return
-				"[" + m00 + "," + m10 + "," + m20 + "," + m30 + "\n" +
-				" " + m01 + "," + m11 + "," + m21 + "," + m31 + "\n" +
-				" " + m02 + "," + m12 + "," + m22 + "," + m32 + "\n" +
-				" " + m03 + "," + m13 + "," + m23 + "," + m33 + "]";
+				"[" + m00.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m10.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m20.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m30.ToString("0.00000", CultureInfo.InvariantCulture) + "\n" +
+				" " + m01.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m11.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m21.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m31.ToString("0.00000", CultureInfo.InvariantCulture) + "\n" +
+				" " + m02.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m12.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m22.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m32.ToString("0.00000", CultureInfo.InvariantCulture) + "\n" +
+				" " + m03.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m13.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m23.ToString("0.00000", CultureInfo.InvariantCulture) + "," + m33.ToString("0.00000", CultureInfo.InvariantCulture) + "]";
 		}
 
 		public Vector4 this[int index]

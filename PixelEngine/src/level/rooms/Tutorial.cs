@@ -26,13 +26,13 @@ public class TutorialExitDoor : Door
 	public TutorialExitDoor(Level destination, Door otherDoor = null, bool big = false, float layer = 0)
 		: base(destination, otherDoor, big, layer)
 	{
-		sprite = new Sprite(tileset, 9, 8, 3, 4);
+		sprite = new Sprite(tileset, 9, 9, 3, 4);
 		rect = new FloatRect(-1.5f, -1, 3.0f, 4.0f);
 
 		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
 
-		layer1 = new Sprite(tileset, 9, 12, 3, 4);
-		layer2 = new Sprite(tileset, 9, 16, 3, 4);
+		layer1 = new Sprite(tileset, 9, 13, 3, 4);
+		layer2 = new Sprite(tileset, 9, 17, 3, 4);
 	}
 
 	public override void render()

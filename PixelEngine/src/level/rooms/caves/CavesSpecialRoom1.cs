@@ -61,7 +61,7 @@ public class CavesSpecialRoom1 : Entity
 		{
 			int numChests = MathHelper.RandomInt(1, 6, generator.random);
 			numChests = numChests <= 3 ? 1 : numChests <= 5 ? 2 : 3;
-			int xpos = MathHelper.RandomInt(2, room.width - 2 - numChests, generator.random);
+			int xpos = MathHelper.RandomInt(2, room.width - 4 - numChests, generator.random);
 			for (int i = 0; i < numChests; i++)
 			{
 				ChestType chestType = (ChestType)MathHelper.RandomInt((int)ChestType.Red, (int)ChestType.Silver, generator.random);
@@ -85,8 +85,8 @@ public class CavesSpecialRoom1 : Entity
 					itemValue = generator.getRoomLootValue(room) * 3;
 				}
 				Item[] items = itemType != ItemType.Count ? [Item.CreateRandom(itemType, generator.random, itemValue)] : Item.CreateRandom(generator.random, DropRates.chest, itemValue);
-				Chest chest = new Chest(items, false, chestType);
-				level.addEntity(chest, new Vector2(room.x + xpos + i + 0.5f, room.y + 1));
+				Chest chest = new Chest(items, i < numChests / 2, chestType);
+				level.addEntity(chest, new Vector2(room.x + xpos + i * 1.5f + 0.5f, room.y + 1));
 				generator.setObjectFlag(room.x + xpos + i, room.y + 1);
 			}
 		}

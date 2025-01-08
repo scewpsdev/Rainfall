@@ -588,9 +588,9 @@ public static class SceneFormat
 
 	public static bool Read(string path, out List<EntityData> entities, out uint selectedEntity)
 	{
-		if (File.Exists(path + ".bin"))
+		if (File.Exists(Resource.ASSET_DIRECTORY + "/" + path + ".bin"))
 		{
-			FileStream stream = new FileStream(path + ".bin", FileMode.Open);
+			FileStream stream = new FileStream(Resource.ASSET_DIRECTORY + "/" + path + ".bin", FileMode.Open);
 			DeserializeScene(stream, out entities, out selectedEntity);
 			stream.Close();
 			LoadDependencies(entities, path);

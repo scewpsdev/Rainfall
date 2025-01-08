@@ -30,7 +30,7 @@ public class Torch : Weapon
 		sprite = new Sprite(tileset, 8, 0);
 		hasParticleEffect = true;
 		particlesOffset = new Vector2(2, 4) / 16.0f;
-		renderOffset = new Vector2(0.5f, 0.2f);
+		renderOffset = new Vector2(0.5f - 2 / 16.0f, 0.2f);
 
 		hitSound = [Resource.GetSound("sounds/hit_torch.ogg")];
 	}

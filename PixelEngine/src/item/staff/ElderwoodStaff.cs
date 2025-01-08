@@ -13,7 +13,7 @@ public class ElderwoodStaff : Staff
 	{
 		displayName = "Elderwood Staff";
 
-		baseDamage = 0.7f;
+		baseDamage = 0.6f;
 		baseAttackRate = 2;
 		manaCost = 0.7f;
 		trigger = false;

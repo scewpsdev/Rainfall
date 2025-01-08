@@ -11,7 +11,7 @@ public class BlacksteelBracer : Item
 	public BlacksteelBracer()
 		: base("blacksteel_bracer", ItemType.Relic)
 	{
-		displayName = "Blacksteel Bracer";
+		displayName = "Reinforced Glove";
 		description = "Allows the bearer to wield big weapons with a single hand.";
 
 		isPassiveItem = true;
@@ -19,7 +19,7 @@ public class BlacksteelBracer : Item
 
 		value = 45;
 
-		sprite = new Sprite(tileset, 7, 6);
+		sprite = new Sprite(tileset, 10, 9);
 	}
 
 	public override void onEquip(Player player)

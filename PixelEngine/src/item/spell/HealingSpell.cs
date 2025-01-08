@@ -13,7 +13,7 @@ public class HealingSpell : Spell
 	{
 		displayName = "Heal";
 
-		value = 15;
+		value = 25;
 
 		baseAttackRate = 1;
 		baseDamage = 0;

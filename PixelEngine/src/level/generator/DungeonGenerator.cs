@@ -28,11 +28,11 @@ public partial class LevelGenerator
 	{
 		areaDungeons = new Level[6];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
-		areaDungeons[0] = new Level(5, "Weeping Catacombs", 50, 30, TileType.stone, 15, 20) { ambientLight = ambience };
-		areaDungeons[1] = new Level(6, "", 30, 40, TileType.stone, 19, 24) { ambientLight = ambience };
-		areaDungeons[2] = new Level(7, "", 40, 40, TileType.stone, 22, 30) { ambientLight = ambience };
-		areaDungeons[3] = new Level(8, "", 30, 50, TileType.stone, 28, 35) { ambientLight = ambience };
-		areaDungeons[4] = new Level(9, "", 50, 20, TileType.stone, 33, 40) { ambientLight = ambience };
+		areaDungeons[0] = new Level(5, "Weeping Catacombs", 50, 30, TileType.stone, 12, 20) { ambientLight = ambience };
+		areaDungeons[1] = new Level(6, "", 30, 40, TileType.stone, 14, 24) { ambientLight = ambience };
+		areaDungeons[2] = new Level(7, "", 40, 40, TileType.stone, 17, 30) { ambientLight = ambience };
+		areaDungeons[3] = new Level(8, "", 30, 50, TileType.stone, 20, 35) { ambientLight = ambience };
+		areaDungeons[4] = new Level(9, "", 50, 20, TileType.stone, 24, 40) { ambientLight = ambience };
 		areaDungeons[5] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
 
 		List<Mob> createEnemy()
@@ -48,7 +48,8 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
-		createBarrelEntity = (Item[] items) => new Pot(items);
+		//createBarrelEntity = (Item[] items) => new Pot(items);
+		createBarrelEntity = (Item[] items) => new Crate(items);
 
 		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
 		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 4));
@@ -65,7 +66,7 @@ public partial class LevelGenerator
 		npcs.Add(new TravellingMerchant(random, level));
 		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(NPCManager.logan);
-		npcs.Add(new Blacksmith(random, level));
+		npcs.Add(NPCManager.blacksmith);
 		npcs.Add(new Tinkerer(random, level));
 
 		return npcs;
@@ -127,7 +128,7 @@ public partial class LevelGenerator
 		this.level = level;
 		this.nextLevel = nextLevel;
 		this.lastLevel = lastLevel;
-		this.entrance = entrance;
+		this.lastExit = entrance;
 
 		random = new Random((int)Hash.hash(seed) + level.floor);
 		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
@@ -141,9 +142,6 @@ public partial class LevelGenerator
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);
-
-		lootModifier = new float[width * height];
-		Array.Fill(lootModifier, 1.0f);
 
 		rooms.Clear();
 		RoomDef? startingRoomDef = spawnStartingRoom ? specialSet.roomDefs[12] : spawnBossRoom ? specialSet.roomDefs[13] : null;
@@ -216,7 +214,8 @@ public partial class LevelGenerator
 
 		generateCaveBackground(level, simplex, TileType.stone, TileType.bricks);
 
-		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, out Vector2i entrancePosition, out Vector2i exitPosition);
+		Door entranceDoor = new Door(lastLevel, lastExit);
+		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, entranceDoor, out Vector2i entrancePosition, out Vector2i exitPosition);
 
 		for (int i = 0; i < rooms.Count; i++)
 		{
@@ -240,22 +239,31 @@ public partial class LevelGenerator
 		for (int i = 0; i < rooms.Count; i++)
 		{
 			Room room = rooms[i];
-			bool isDeadEnd = room.countConnectedDoorways() == 1 && !room.isMainPath;
+			bool isDeadEnd = room.countConnectedDoorways() == 1 || !room.isMainPath;
 			if (isDeadEnd)
 				deadEnds.Add(room);
 			else if (room.isMainPath)
 				mainRooms.Add(room);
+		}
 
-			if (isDeadEnd)
+
+		List<Item[]> items = generateItems(level.minLootValue, level.maxLootValue, DropRates.dungeons);
+
+		MathHelper.ShuffleList(deadEnds, random);
+		MathHelper.ShuffleList(mainRooms, random);
+
+		lockDeadEnds(deadEnds, items);
+
+		spawnItems(items, deadEnds);
+
+
+		// Guaranteed key per floor
+		if (lockedDoorSpawned)
+		{
+			spawnRoomObject(rooms, 0.5f, false, (Vector2i tile, Random random, Room room) =>
 			{
-				for (int y = room.y; y < room.y + room.height; y++)
-				{
-					for (int x = room.x; x < room.x + room.width; x++)
-					{
-						lootModifier[x + y * width] = 3.0f;
-					}
-				}
-			}
+				spawnItem(tile.x, tile.y, [new IronKey()]);
+			});
 		}
 
 
@@ -270,28 +278,8 @@ public partial class LevelGenerator
 		spawnRoomObject(deadEnds, 0.05f, true, (Vector2i tile, Random random, Room room) =>
 		{
 			int amount = MathHelper.RandomInt(2, 7, random);
-			level.addEntity(new Gem(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
+			level.addEntity(new CoinStack(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
 		});
-
-		// Items
-		spawnItems(level.minLootValue, level.maxLootValue, DropRates.dungeons, deadEnds);
-
-
-		MathHelper.ShuffleList(deadEnds, random);
-		MathHelper.ShuffleList(mainRooms, random);
-
-		lockDeadEnds(deadEnds, mainRooms);
-
-
-		// Guaranteed key per floor
-		if (lockedDoorSpawned)
-		{
-			spawnRoomObject(rooms, 0.5f, false, (Vector2i tile, Random random, Room room) =>
-			{
-				spawnItem(tile.x, tile.y, [new IronKey()]);
-			});
-		}
-
 
 		// Arrow trap
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
@@ -304,23 +292,6 @@ public partial class LevelGenerator
 					int direction = right == null ? 1 : left == null ? -1 : random.Next() % 2 * 2 - 1;
 					level.setTile(x, y, TileType.dummy);
 					level.addEntity(new ArrowTrap(new Vector2(direction, 0)), new Vector2(x, y));
-					objectFlags[x + y * width] = true;
-				}
-			}
-		});
-
-		// Moneh
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
-		{
-			if (tile == null && down != null)
-			{
-				float gemChance = up != null ? 0.04f : 0.01f;
-				gemChance *= 0.25f;
-				if (random.NextSingle() < gemChance)
-				{
-					//int amount = MathHelper.RandomInt(3, 12, random);
-					int amount = 10;
-					level.addEntity(new Gem(amount), new Vector2(x + 0.5f, y + 0.5f));
 					objectFlags[x + y * width] = true;
 				}
 			}
@@ -410,11 +381,11 @@ public partial class LevelGenerator
 					float explosiveBarrel = 0.1f;
 					if (random.NextSingle() < explosiveBarrel)
 					{
-						level.addEntity(new ExplosivePot(), new Vector2(x + 0.5f, y));
+						level.addEntity(new ExplosiveCrate(), new Vector2(x + 0.5f, y));
 					}
 					else
 					{
-						level.addEntity(new Pot(null), new Vector2(x + 0.5f, y));
+						level.addEntity(new Crate(null), new Vector2(x + 0.5f, y));
 					}
 					objectFlags[x + y * width] = true;
 				}
@@ -440,7 +411,6 @@ public partial class LevelGenerator
 		{
 			spawnNPC(tile.x, tile.y, getDungeonNPCList());
 		});
-
 
 		if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 2])
 		{

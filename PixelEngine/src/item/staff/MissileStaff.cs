@@ -29,12 +29,12 @@ public class MissileStaff : Staff
 	public override bool use(Player player)
 	{
 		float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
-		if (player.mana >= manaCost)
-		{
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
-			staffCharges--;
-			base.use(player);
-		}
+		player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+		staffCharges--;
+
+		if (useSound != null)
+			Audio.PlayOrganic(useSound, new Vector3(player.position, 0), 1, 1, 0.0f, 0.15f);
+
 		return staffCharges <= 0;
 	}
 }

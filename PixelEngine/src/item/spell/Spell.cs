@@ -12,6 +12,7 @@ public abstract class Spell : Item
 		: base(name, ItemType.Spell)
 	{
 		tumbles = false;
+		upgradable = false;
 
 		sprite = new Sprite(tileset, 3, 8);
 	}

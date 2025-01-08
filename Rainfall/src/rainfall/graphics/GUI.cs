@@ -53,8 +53,8 @@ namespace Rainfall
 		{
 			GUI.graphics = graphics;
 
-			uiTextureShader = Resource.GetShader("res/rainfall/shaders/ui/ui.vsh", "res/rainfall/shaders/ui/ui.fsh");
-			textShader = Resource.GetShader("res/rainfall/shaders/text/text.vsh", "res/rainfall/shaders/text/text.fsh");
+			uiTextureShader = Resource.GetShader("rainfall/shaders/ui/ui.vsh", "rainfall/shaders/ui/ui.fsh");
+			textShader = Resource.GetShader("rainfall/shaders/text/text.vsh", "rainfall/shaders/text/text.fsh");
 
 			uiTextureBatch = new SpriteBatch(graphics);
 			textBatch = new SpriteBatch(graphics);

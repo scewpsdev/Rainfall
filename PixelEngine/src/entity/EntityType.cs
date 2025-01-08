@@ -44,10 +44,13 @@ public static class EntityType
 		InitType<Trampoline>("trampoline");
 		InitType<TorchEntity>("torch");
 		InitType<Coin>("coin");
+		InitType<CoinStack>("coin_stack");
 		InitType<Minecart>("minecart");
 		InitType<IronDoor>("iron_door");
 		InitType<Pot>("pot");
 		InitType<FireSconce>("fire_sconce");
+		InitType<Crate>("crate");
+		InitType<ExplosiveCrate>("explosive_crate");
 	}
 
 	static void InitType<T>(string name) where T : Entity, new()

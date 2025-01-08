@@ -48,7 +48,7 @@ public class HighscoreDummy : Entity
 			if (data.passiveItems[i] != null)
 			{
 				if (data.passiveItems[i].ingameSprite != null)
-					Renderer.DrawSprite(position.x - 0.5f * data.passiveItems[i].ingameSpriteSize, position.y, LAYER_PLAYER_ARMOR, data.passiveItems[i].ingameSpriteSize, data.passiveItems[i].ingameSpriteSize, 0, data.passiveItems[i].ingameSprite, false, data.passiveItems[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x - 0.5f * data.passiveItems[i].ingameSpriteSize, position.y + 0.5f - 0.5f * data.passiveItems[i].ingameSpriteSize, LAYER_PLAYER_ARMOR, data.passiveItems[i].ingameSpriteSize, data.passiveItems[i].ingameSpriteSize, 0, data.passiveItems[i].ingameSprite, false, data.passiveItems[i].ingameSpriteColor);
 			}
 		}
 

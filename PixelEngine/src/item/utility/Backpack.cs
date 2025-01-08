@@ -45,8 +45,7 @@ public class Backpack : Item
 			Item item = player.activeItems[player.activeItems.Length - 1 - i];
 			if (item != null)
 			{
-				player.throwItem(item, new Vector2(player.direction, 1) * 3);
-				player.removeItem(item);
+				player.dropItem(item);
 			}
 		}
 		player.activeItems = newStorage;

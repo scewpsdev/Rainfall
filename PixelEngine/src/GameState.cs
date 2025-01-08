@@ -126,6 +126,8 @@ public class GameState : State
 		instance = this;
 
 		save = customRun ? SaveFile.customRun : dailyRun ? SaveFile.dailyRun : SaveFile.Load(saveID);
+		NPCManager.Init();
+		QuestManager.Init();
 
 		reset();
 	}

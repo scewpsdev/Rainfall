@@ -27,16 +27,6 @@ public class CrossbowShootAction : EntityAction
 	{
 		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 
-		Vector2 direction = (player.lookDirection.normalized * 1.1f + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
-		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.02f;
-		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
-
-		Vector2 position = player.position + player.collider.center;
-		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
-
-		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon, arrow);
-		GameState.instance.level.addEntity(projectile, position);
-
 		/*
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 position = player.position + player.collider.center + direction * 0.25f;
@@ -53,6 +43,19 @@ public class CrossbowShootAction : EntityAction
 		entity.bounciness = 0.3f;
 		GameState.instance.level.addEntity(entity, position);
 		*/
+	}
+
+	public override void onStarted(Player player)
+	{
+		Vector2 direction = (player.lookDirection.normalized * 1.1f + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
+		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.02f;
+		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
+
+		Vector2 position = player.position + player.collider.center;
+		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
+
+		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon, arrow);
+		GameState.instance.level.addEntity(projectile, position);
 	}
 
 	public override Matrix getItemTransform(Player player)

@@ -24,7 +24,8 @@ public class Apple : Item
 	public override bool use(Player player)
 	{
 		base.use(player);
-		player.addStatusEffect(new HealStatusEffect(0.5f + upgradeLevel * 0.5f, 5));
+		player.addStatusEffect(new HealStatusEffect(0.5f, 10));
+		player.addStatusEffect(new ManaRechargeEffect(2, 10));
 		GameState.instance.level.addEntity(ParticleEffects.CreateConsumableUseEffect(player, player.direction, 0xFFb15848), player.position);
 		return true;
 	}
