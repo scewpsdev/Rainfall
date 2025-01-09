@@ -48,7 +48,7 @@ public class Spike : Entity, Hittable
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		if (item != null && item.type == ItemType.Weapon)
+		if (item != null && item.type == ItemType.Weapon && by is not Projectile)
 			return true;
 		return false;
 	}

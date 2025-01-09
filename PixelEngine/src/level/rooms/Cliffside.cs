@@ -35,9 +35,9 @@ public class Cliffside : Entity
 			}, null), new Vector2(room.width - 1, 38));
 		}
 
-		level.addEntity(new ParallaxObject(Resource.GetTexture("level/cliffside/parallax0.png", false), 10), new Vector2(33, 200));
-		level.addEntity(new ParallaxObject(Resource.GetTexture("level/cliffside/parallax1.png", false), 9), new Vector2(33, 200));
-		level.addEntity(new ParallaxObject(Resource.GetTexture("level/cliffside/parallax2.png", false), 8), new Vector2(33, 200));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/cliffside/parallax0.png", false), 10), new Vector2(33, 200));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/cliffside/parallax1.png", false), 9), new Vector2(33, 200));
+		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/cliffside/parallax2.png", false), 8), new Vector2(33, 200));
 
 		level.addEntity(new CameraFrame(new Vector2(20, 40)), new Vector2(33, 70));
 

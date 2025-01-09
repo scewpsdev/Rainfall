@@ -218,6 +218,27 @@ public class Room
 		return false;
 	}
 
+	public bool getSpawn(Level level, Random random, bool[] objectFlags, out Vector2i pos)
+	{
+		int offset = random.Next() % this.width;
+		for (int i = 0; i < this.width; i++)
+		{
+			int x = this.x + (offset + i) % this.width;
+			for (int y = this.y; y < this.y + this.height; y++)
+			{
+				if (objectFlags[x + y * level.width])
+					break;
+				if (y > 0 && level.getTile(x, y) == null)
+				{
+					pos = new Vector2i(x, y);
+					return true;
+				}
+			}
+		}
+		pos = Vector2i.Zero;
+		return false;
+	}
+
 	public bool containsEntity(Entity entity)
 	{
 		return entity.position.x >= x + 1 && entity.position.x <= x + width - 1 &&
@@ -948,7 +969,7 @@ public partial class LevelGenerator
 		}
 	}
 
-	bool spawnRoomObject(List<Room> roomList, float chance, bool allowMultiple, Action<Vector2i, Random, Room> spawnFunc)
+	bool spawnRoomObject(List<Room> roomList, float chance, bool allowMultiple, Action<Vector2i, Random, Room> spawnFunc, bool floorSpawn = true)
 	{
 		MathHelper.ShuffleList(roomList, random);
 		roomList.Sort((Room room1, Room room2) =>
@@ -969,7 +990,7 @@ public partial class LevelGenerator
 			Room room = roomList[i];
 			if (random.NextSingle() < chance)
 			{
-				if (room.getFloorSpawn(level, random, objectFlags, out Vector2i tile))
+				if (floorSpawn ? room.getFloorSpawn(level, random, objectFlags, out Vector2i tile) : room.getSpawn(level, random, objectFlags, out tile))
 				{
 					spawnFunc(tile, random, room);
 					objectFlags[tile.x + tile.y * level.width] = true;
@@ -1172,7 +1193,7 @@ public partial class LevelGenerator
 				TileType tile = level.getTile(pos);
 				TileType left = level.getTile(pos.x - 1, pos.y);
 				TileType right = level.getTile(pos.x + 1, pos.y);
-				TileType up = level.getTile(pos.x, pos.y + 1);
+				//TileType up = level.getTile(pos.x, pos.y + 1);
 				TileType down = level.getTile(pos.x, pos.y - 1);
 				if (tile == null && (left == null && right == null) && !getObjectFlag(pos.x, pos.y))
 				{
@@ -1187,7 +1208,7 @@ public partial class LevelGenerator
 							mobInstances.RemoveAt(0);
 					}
 				}
-			});
+			}, !mob.canFly);
 		}
 	}
 

@@ -107,7 +107,7 @@ public class Coin : Entity
 			}
 		}
 
-		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement);
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, true);
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 			velocity.x *= -0.5f;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)

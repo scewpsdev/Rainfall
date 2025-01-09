@@ -49,7 +49,7 @@ public class Logan : NPC
 
 		if (initialDialogue == null && loganQuest.state == QuestState.Uninitialized && GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_LOGAN_MET) && GameState.instance.save.hasFlag(SaveFile.FLAG_DUNGEONS_FOUND))
 		{
-			setInititalDialogue("""
+			setOneTimeInititalDialogue("""
 				\1Aha... \0You again.
 				Color me impressed, you're not as hopeless as you look, making it this far.
 				Makes me wonder... maybe you're the type who can handle something a bit more interesting.

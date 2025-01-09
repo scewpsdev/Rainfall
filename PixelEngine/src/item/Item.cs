@@ -484,14 +484,17 @@ public abstract class Item
 		if (entity is Player && requiredAmmo != null)
 		{
 			Player player = entity as Player;
-			HitData[] hits = new HitData[16];
-			int numHits = player.level.overlap(player.position + player.collider.min - 0.25f, player.position + player.collider.max + 0.25f, hits, Entity.FILTER_ITEM);
-			for (int i = 0; i < numHits; i++)
+			if (player.getItem(requiredAmmo) != null)
 			{
-				Debug.Assert(hits[i].entity is ItemEntity);
-				ItemEntity item = hits[i].entity as ItemEntity;
-				if (item.item.name == requiredAmmo)
-					item.interact(player);
+				HitData[] hits = new HitData[16];
+				int numHits = player.level.overlap(player.position + player.collider.min - 0.25f, player.position + player.collider.max + 0.25f, hits, Entity.FILTER_ITEM);
+				for (int i = 0; i < numHits; i++)
+				{
+					Debug.Assert(hits[i].entity is ItemEntity);
+					ItemEntity item = hits[i].entity as ItemEntity;
+					if (item.item.name == requiredAmmo)
+						item.interact(player);
+				}
 			}
 		}
 	}

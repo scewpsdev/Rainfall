@@ -72,7 +72,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int direction = 1;
 	public Vector2i aimPosition;
 	public Vector2 lookDirection = Vector2.Right;
-	Vector2 impulseVelocity;
+	public Vector2 impulseVelocity;
 	float wallJumpVelocity;
 	float wallJumpFactor;
 	public bool isGrounded = false;
@@ -1904,8 +1904,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public Vector2 getWeaponOrigin(bool mainHand)
 	{
-		//int frame = mainHand ? ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length) : animator.lastFrameIdx; // sway
-		int frame = animator.lastFrameIdx;
+		int frame = mainHand ? ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length) : animator.lastFrameIdx; // sway
 		Vector2i animOffset = Vector2i.Zero;
 		if (animator.currentAnimation == "idle")
 			animOffset.y = -frame / 2;

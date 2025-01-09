@@ -216,70 +216,6 @@ public class AdvancedAI : AI
 				}
 			}
 		}
-		if (state == AIState.Charge)
-		{
-			mob.animator.setAnimation(currentAction.chargeAnimation);
-			SpriteAnimation anim = mob.animator.getAnimation(currentAction.chargeAnimation);
-			if (anim != null)
-				anim.fps = anim.length / currentAction.chargeTime;
-
-			if (mob.isStunned)
-				chargeTime = Time.currentTime;
-
-			if (currentAction.chargeSpeed > 0)
-			{
-				mob.speed = currentAction.chargeSpeed;
-
-				if (walkDirection == -1)
-					mob.inputLeft = true;
-				else
-					mob.inputRight = true;
-			}
-
-			if ((Time.currentTime - chargeTime) / 1e9f >= currentAction.chargeTime)
-				beginAction();
-		}
-		if (state == AIState.Action)
-		{
-			mob.animator.setAnimation(currentAction.animation);
-			SpriteAnimation anim = mob.animator.getAnimation(currentAction.animation);
-			if (anim != null)
-				anim.fps = anim.length / currentAction.duration;
-
-			float elapsed = (Time.currentTime - actionTime) / 1e9f;
-			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed, toTarget * distance) || elapsed >= currentAction.duration || mob.isStunned)
-				endAction();
-
-			if (actionDirection == -1)
-				mob.inputLeft = true;
-			else if (actionDirection == 1)
-				mob.inputRight = true;
-		}
-		if (state == AIState.Cooldown)
-		{
-			mob.animator.setAnimation(currentAction.cooldownAnimation);
-			SpriteAnimation anim = mob.animator.getAnimation(currentAction.cooldownAnimation);
-			if (anim != null)
-				anim.fps = anim.length / currentAction.cooldownTime;
-
-			if (currentAction.cooldownSpeed > 0)
-			{
-				mob.speed = currentAction.cooldownSpeed;
-
-				if (walkDirection == -1)
-					mob.inputLeft = true;
-				else
-					mob.inputRight = true;
-			}
-
-			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
-			{
-				if (currentAction.actionCollider != null)
-					mob.collider = collider;
-				state = AIState.Default;
-				currentAction = null;
-			}
-		}
 	}
 
 	void updatePatrol()
@@ -296,7 +232,7 @@ public class AdvancedAI : AI
 			bool hitsWall = false;
 			for (int i = (int)MathF.Floor(mob.collider.min.y + 0.01f); i <= (int)MathF.Floor(mob.collider.max.y - 0.01f); i++)
 			{
-				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
+				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.01f : walkDirection == -1 ? mob.collider.min.x - 0.01f : 0, 0.5f + i));
 				if (forwardTile != null && forwardTile.isSolid)
 				{
 					hitsWall = true;
@@ -307,7 +243,7 @@ public class AdvancedAI : AI
 				walkDirection *= -1;
 			else
 			{
-				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, -0.5f));
+				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.01f : walkDirection == -1 ? mob.collider.min.x - 0.01f : 0, -0.5f));
 				if (mob.isGrounded && forwardDownTile == null)
 					walkDirection *= -1;
 			}
@@ -359,5 +295,76 @@ public class AdvancedAI : AI
 			updateTargetFollow();
 		else
 			updatePatrol();
+
+		if (state == AIState.Charge)
+		{
+			mob.animator.setAnimation(currentAction.chargeAnimation);
+			SpriteAnimation anim = mob.animator.getAnimation(currentAction.chargeAnimation);
+			if (anim != null)
+				anim.fps = anim.length / currentAction.chargeTime;
+
+			if (mob.isStunned)
+				chargeTime = Time.currentTime;
+
+			if (currentAction.chargeSpeed > 0)
+			{
+				mob.speed = currentAction.chargeSpeed;
+
+				if (walkDirection == -1)
+					mob.inputLeft = true;
+				else
+					mob.inputRight = true;
+			}
+
+			if ((Time.currentTime - chargeTime) / 1e9f >= currentAction.chargeTime)
+				beginAction();
+		}
+		if (state == AIState.Action)
+		{
+			mob.animator.setAnimation(currentAction.animation);
+			SpriteAnimation anim = mob.animator.getAnimation(currentAction.animation);
+			if (anim != null)
+				anim.fps = anim.length / currentAction.duration;
+
+			Vector2 toTarget = Vector2.Zero;
+			float distance = 0;
+
+			if (target != null)
+				canSeeEntity(target, out toTarget, out distance);
+
+			float elapsed = (Time.currentTime - actionTime) / 1e9f;
+			if (currentAction.onAction != null && !currentAction.onAction(currentAction, elapsed, toTarget * distance) || elapsed >= currentAction.duration || mob.isStunned)
+				endAction();
+
+			if (actionDirection == -1)
+				mob.inputLeft = true;
+			else if (actionDirection == 1)
+				mob.inputRight = true;
+		}
+		if (state == AIState.Cooldown)
+		{
+			mob.animator.setAnimation(currentAction.cooldownAnimation);
+			SpriteAnimation anim = mob.animator.getAnimation(currentAction.cooldownAnimation);
+			if (anim != null)
+				anim.fps = anim.length / currentAction.cooldownTime;
+
+			if (currentAction.cooldownSpeed > 0)
+			{
+				mob.speed = currentAction.cooldownSpeed;
+
+				if (walkDirection == -1)
+					mob.inputLeft = true;
+				else
+					mob.inputRight = true;
+			}
+
+			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
+			{
+				if (currentAction.actionCollider != null)
+					mob.collider = collider;
+				state = AIState.Default;
+				currentAction = null;
+			}
+		}
 	}
 }

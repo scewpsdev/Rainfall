@@ -139,7 +139,9 @@ public class AttackAction : EntityAction
 
 						if (!player.isGrounded)
 						{
-							player.addImpulse(-direction * 4);
+							Vector2 knockback = -direction * 4;
+							if (Vector2.Dot(player.impulseVelocity, -direction) < 4)
+								player.addImpulse(knockback);
 
 							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
 							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);

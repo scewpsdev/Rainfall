@@ -21,9 +21,9 @@ public class DankHat : Item
 		rarity = GetRarity(50);
 
 		sprite = new Sprite(tileset, 0, 8);
-		spriteColor = 0xFF86a331;
+		spriteColor = 0xFFB7C17A;
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/pointy_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteSize = 2;
-		ingameSpriteColor = 0xFF86a331;
+		ingameSpriteColor = 0xFFB7C17A;
 	}
 }
