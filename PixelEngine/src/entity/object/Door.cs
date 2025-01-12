@@ -17,6 +17,7 @@ public class Door : Entity, Interactable
 {
 	public Level destination;
 	public Door otherDoor;
+	public bool locked = false;
 	public bool finalExit = false;
 
 	public Sprite sprite;
@@ -41,17 +42,35 @@ public class Door : Entity, Interactable
 		openSound = Resource.GetSound("sounds/chest_close.ogg");
 	}
 
+	public virtual Vector2 getSpawnPoint()
+	{
+		return position;
+	}
+
 	public virtual bool isInteractable(Player player)
 	{
-		return destination != null && otherDoor != null || finalExit;
+		return destination != null && otherDoor != null && !locked || finalExit;
 	}
 
 	public virtual void interact(Player player)
 	{
+		// unlock from the other side
+		otherDoor.locked = false;
+
 		if (finalExit)
 			GameState.instance.stopRun(true);
 		else
-			GameState.instance.switchLevel(destination, otherDoor.position);
+			GameState.instance.switchLevel(destination, otherDoor.getSpawnPoint());
+
+		if (otherDoor is LevelTransition)
+		{
+			LevelTransition transition = otherDoor as LevelTransition;
+			if (transition.direction.x != 0)
+				player.direction = -(otherDoor as LevelTransition).direction.x;
+			if (transition.direction == Vector2i.Down)
+				player.velocity.y = 20;
+		}
+
 		//Audio.PlayOrganic(openSound, new Vector3(position, 0));
 		Audio.PlayBackground(openSound, 0.2f);
 	}

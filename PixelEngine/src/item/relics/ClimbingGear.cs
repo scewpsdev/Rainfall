@@ -15,7 +15,7 @@ public class ClimbingGear : Item
 
 		description = "Grants more air control when jumping off a wall";
 
-		value = 25;
+		value = 37;
 
 		sprite = new Sprite(tileset, 6, 8);
 	}

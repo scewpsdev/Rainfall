@@ -31,8 +31,9 @@ public class CastleGate : Door
 
 	public override bool isInteractable(Player player)
 	{
-		Item helmet = player.getArmorItem(ArmorSlot.Helmet);
-		return helmet != null && helmet.name == "lost_sigil";
+		return false;
+		//Item helmet = player.getArmorItem(ArmorSlot.Helmet);
+		//return helmet != null && helmet.name == "lost_sigil";
 	}
 
 	public override void interact(Player player)
@@ -60,7 +61,7 @@ public class Hub : Entity
 
 	public override void init(Level level)
 	{
-		level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2(1.0f, 2)), new Vector2(-1 + 0.1f, 29));
+		level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2i(1, 2), Vector2i.Left), new Vector2(-1, 29));
 		GameState.instance.cliffside.exit.otherDoor = level.entrance;
 
 		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));

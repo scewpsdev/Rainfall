@@ -8,26 +8,27 @@ using System.Threading.Tasks;
 
 public class LevelTransition : Door
 {
-	Vector2 size;
+	Vector2i size;
+	public Vector2i direction;
 	bool inTrigger = false;
 
 
-	public LevelTransition(Level destination, Door otherDoor, Vector2 size)
+	public LevelTransition(Level destination, Door otherDoor, Vector2i size, Vector2i direction)
 		: base(destination, otherDoor, false, 0)
 	{
 		this.size = size;
+		this.direction = direction;
 	}
 
-	void onTouch(Player player)
+	public override Vector2 getSpawnPoint()
 	{
-		Vector2 destinationPos = otherDoor is LevelTransition ? (new Vector2(otherDoor.position.x < 0 ? 0.5f : destination.width - 0.5f, otherDoor.position.y)) : otherDoor.position;
-		GameState.instance.switchLevel(destination, destinationPos);
+		return new Vector2(position.x + 0.5f * size.x - direction.x, position.y);
 	}
 
 	public override void update()
 	{
 		HitData[] hits = new HitData[16];
-		int numHits = GameState.instance.level.overlap(position, position + size, hits, FILTER_PLAYER);
+		int numHits = GameState.instance.level.overlap(position + new Vector2(0.25f, 0), position + size + new Vector2(-0.25f, 0), hits, FILTER_PLAYER);
 		bool playerFound = false;
 		for (int i = 0; i < numHits; i++)
 		{
@@ -41,7 +42,7 @@ public class LevelTransition : Door
 		if (playerFound && !inTrigger)
 		{
 			inTrigger = true;
-			onTouch(GameState.instance.player);
+			base.interact(GameState.instance.player);
 		}
 		else if (!playerFound && inTrigger)
 		{

@@ -14,7 +14,7 @@ public class Halberd : Weapon
 		displayName = "Halberd";
 
 		baseDamage = 1.6f;
-		baseAttackRange = 1.8f;
+		baseAttackRange = 1.2f;
 		baseAttackRate = 1.6f;
 		twoHanded = true;
 		baseWeight = 2.5f;

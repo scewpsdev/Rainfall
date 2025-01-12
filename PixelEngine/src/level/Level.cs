@@ -395,8 +395,8 @@ public class Level
 		{
 			for (int x = x0; x <= x1; x++)
 			{
-				if (x < 0 || x >= width /*|| y < 0*/ || y >= height)
-					return true;
+				//if (x < 0 || x >= width /*|| y < 0*/ || y >= height)
+				//	return true;
 				TileType tile = getTile(x, y);
 				if (tile != null)
 				{

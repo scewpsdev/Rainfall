@@ -90,13 +90,10 @@ public class GameState : State
 	public Level tutorial;
 	public Level[] areaCaves;
 	public Level[] areaDungeons;
+	public Level[] areaMines;
 	public Level[] areaGardens;
 
 	public Level level;
-	public int firstCaveFloor => 0;
-	public int lastCaveFloor => firstCaveFloor + areaCaves.Length - 1;
-	public int firstGardenFloor => areaCaves.Length;
-	public int lastGardenFloor => firstGardenFloor + areaGardens.Length - 1;
 
 	Level newLevel = null;
 	Vector2 newLevelSpawnPosition;
@@ -163,6 +160,7 @@ public class GameState : State
 
 		generator.generateCaves(run.seed, out areaCaves);
 		generator.generateDungeons(run.seed, out areaDungeons);
+		generator.generateMines(run.seed, out areaMines);
 
 
 		// Cliffside
@@ -205,23 +203,21 @@ public class GameState : State
 		areaCaves[0].entrance.otherDoor = dungeonDoor;
 
 		Door castleGate = new CastleGate(null, null);
-		castleGate.finalExit = true;
 		hub.addEntity(castleGate, (Vector2)hub.rooms[0].getMarker(16));
 
-		Door cliffDungeonExit1 = new Door(areaCaves[areaCaves.Length - 1], areaCaves[areaCaves.Length - 1].exit, true);
-		cliffside.addEntity(cliffDungeonExit1, (Vector2)cliffside.rooms[0].getMarker(35));
 
+		generator.connectDoors(areaCaves[areaCaves.Length - 1].exit, areaDungeons[0].entrance);
 
-		areaCaves[areaCaves.Length - 1].exit.destination = areaDungeons[0];
-		areaCaves[areaCaves.Length - 1].exit.otherDoor = areaDungeons[0].entrance;
-		areaDungeons[0].entrance.destination = areaCaves[areaCaves.Length - 1];
-		areaDungeons[0].entrance.otherDoor = areaCaves[areaCaves.Length - 1].exit;
 
 		Door hubElevator = new Door(null, null);
 		hub.addEntity(hubElevator, (Vector2)hub.rooms[0].getMarker(0x12));
 
-		areaDungeons[areaDungeons.Length - 1].exit.destination = hub;
-		areaDungeons[areaDungeons.Length - 1].exit.otherDoor = hubElevator;
+		generator.connectDoors(areaCaves[areaCaves.Length - 2].rooms[0].doorways[0].door, areaMines[0].entrance);
+		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[0].door, hubElevator);
+		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door, areaMines[areaMines.Length - 1].exit);
+		hubElevator.locked = true;
+		areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door.locked = true;
+		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
 
 
 		if (save.isDaily)

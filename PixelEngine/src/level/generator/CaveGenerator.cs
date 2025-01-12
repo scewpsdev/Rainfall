@@ -38,6 +38,19 @@ public class CaveEntranceDoor : Door
 	}
 }
 
+public class DungeonEntrance : Door
+{
+	public DungeonEntrance(Level destination, Door otherDoor)
+		: base(destination, otherDoor)
+	{
+	}
+
+	public override bool isInteractable(Player player)
+	{
+		return player.getItem("lost_sigil") != null;
+	}
+}
+
 public partial class LevelGenerator
 {
 	void generateCaveBackground(Level level, Simplex simplex, TileType tile1, TileType tile2)
@@ -57,7 +70,7 @@ public partial class LevelGenerator
 
 	public void generateCaves(string seed, out Level[] areaCaves)
 	{
-		areaCaves = new Level[6];
+		areaCaves = new Level[8];
 		Vector3 lightAmbience = Vector3.One;
 		Vector3 mediumAmbience = new Vector3(0.2f);
 		Vector3 darkAmbience = new Vector3(0.001f);
@@ -66,7 +79,9 @@ public partial class LevelGenerator
 		areaCaves[2] = new Level(2, "Caves III", 50, 50, TileType.dirt, 4, 12) { ambientLight = darkAmbience };
 		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 7, 16) { ambientLight = mediumAmbience };
 		areaCaves[4] = new Level(4, "Caves V", 60, 40, TileType.dirt, 10, 18) { ambientLight = lightAmbience };
-		areaCaves[5] = new Level(-1, "", 40, 20, TileType.dirt) { ambientLight = lightAmbience };
+		areaCaves[5] = new Level(-1, "") { ambientLight = lightAmbience };
+		areaCaves[6] = new Level(-1, "") { ambientLight = lightAmbience };
+		areaCaves[7] = new Level(-1, "") { ambientLight = lightAmbience };
 
 		List<Mob> createEnemy()
 		{
@@ -92,7 +107,28 @@ public partial class LevelGenerator
 		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 9));
 		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(2, 8));
 
-		generateCaveBossFloor(areaCaves[5], null, areaCaves[4], areaCaves[4].exit);
+		generateCaveBossFloor(areaCaves[5], areaCaves[6], areaCaves[4], areaCaves[4].exit);
+
+		generateSingleRoomLevel(areaCaves[6], specialSet, 16, TileType.stone, TileType.dirt, 0x1, 0x2);
+		generateSingleRoomLevel(areaCaves[7], specialSet, 17, TileType.stone, TileType.dirt, 0x1, 0x2, null, new DungeonEntrance(null, null));
+
+		// mines entrance
+		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(7, 1), Vector2i.Down);
+		areaCaves[6].addEntity(minesEntrance, areaCaves[6].rooms[0].getMarker(0x3) + new Vector2(-3, 0));
+		areaCaves[6].rooms[0].doorways.Add(new Doorway(areaCaves[6].rooms[0], new DoorDef()) { door = minesEntrance });
+
+		// elevator that leads to the hub
+		Door elevator1 = new Door(null, null);
+		areaCaves[7].addEntity(elevator1, (Vector2)areaCaves[7].rooms[0].getMarker(0x3) + new Vector2(0.5f, 0));
+		areaCaves[7].rooms[0].doorways.Add(new Doorway(areaCaves[7].rooms[0], new DoorDef()) { door = elevator1 });
+
+		// elevator that leads to the mines exit
+		Door elevator2 = new Door(null, null);
+		areaCaves[7].addEntity(elevator2, (Vector2)areaCaves[7].rooms[0].getMarker(0x4) + new Vector2(0.5f, 0));
+		areaCaves[7].rooms[0].doorways.Add(new Doorway(areaCaves[7].rooms[0], new DoorDef()) { door = elevator2 });
+
+		connectDoors(areaCaves[5].exit, areaCaves[6].entrance);
+		connectDoors(areaCaves[6].exit, areaCaves[7].entrance);
 	}
 
 	public List<NPC> getCaveNPCList()
@@ -113,52 +149,19 @@ public partial class LevelGenerator
 
 	void generateCaveBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
-
-		RoomDef def = specialSet.roomDefs[4];
-		level.resize(def.width, def.height);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
-
-		placeRoom(room, level, (int x, int y) => TileType.stone);
-		level.rooms = [room];
+		Room room = generateSingleRoomLevel(level, specialSet, 4, TileType.stone, TileType.dirt);
 
 		level.fogFalloff = 0.1f;
 		level.fogColor = new Vector3(0.0f);
 
-		level.entrance = new Door(lastLevel, lastDoor);
-		Vector2i entrancePosition = room.getMarker(0x4);
-		level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
+		level.entrance.destination = lastLevel;
+		level.entrance.otherDoor = lastDoor;
 		lastDoor.otherDoor = level.entrance;
 
-		level.exit = new Door(nextLevel);
-		Vector2i exitPosition = room.getMarker(0x5);
-		level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
-
-		if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
-		{
-			level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
-			objectFlags[exitPosition.x - 1 + exitPosition.y * level.width] = true;
-		}
-		if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
-		{
-			level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
-			objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
-		}
-
+		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
 		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
 		level.addEntity(new CavesBossRoom(room));
-
-		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
 	void generateCaveFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door lastExit, Func<List<Mob>> createEnemy)
@@ -170,7 +173,6 @@ public partial class LevelGenerator
 		this.lastExit = lastExit;
 
 		random = new Random((int)Hash.hash(seed) + floor);
-		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 		rooms = new List<Room>();
 
 		int width = level.width;
@@ -230,7 +232,7 @@ public partial class LevelGenerator
 				RoomDef def = specialSet.roomDefs[11];
 				room = fillDoorway(doorway, def, specialSet);
 				if (room != null)
-					room.entity = new CavesSpecialRoom4(room, this);
+					room.entity = new CavesPlatformingRoom1(room, this);
 			}
 			else if (type == 4)
 			{
@@ -253,6 +255,9 @@ public partial class LevelGenerator
 			return false;
 		});
 
+
+		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+
 		for (int i = 0; i < rooms.Count; i++)
 		{
 			placeRoom(rooms[i], level, (int x, int y) =>
@@ -264,6 +269,7 @@ public partial class LevelGenerator
 		}
 
 		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
+
 
 		Door entranceDoor = floor == 0 ? new CaveEntranceDoor(lastLevel, lastExit) : new Door(lastLevel, lastExit);
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, entranceDoor, out Vector2i entrancePosition, out Vector2i exitPosition);

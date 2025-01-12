@@ -30,6 +30,10 @@ public class BossGate : Entity
 
 	public override void init(Level level)
 	{
+		HitData hit = level.raycastTiles(position + 0.5f, Vector2.Down, 10);
+		if (hit != null)
+			height = (int)MathF.Ceiling(hit.distance);
+
 		if (!isOpen)
 			close();
 	}

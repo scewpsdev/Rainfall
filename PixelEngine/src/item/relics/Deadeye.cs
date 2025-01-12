@@ -11,12 +11,11 @@ public class Deadeye : Item
 	public Deadeye()
 		: base("deadeye", ItemType.Relic)
 	{
-		displayName = "Deadeye";
+		displayName = "Magnifying Glass";
 		description = "Increases projectile accuracy";
 		stackable = true;
-		tumbles = false;
 
-		value = 24;
+		value = 28;
 
 		sprite = new Sprite(tileset, 0, 7);
 

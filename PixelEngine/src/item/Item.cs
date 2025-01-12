@@ -664,6 +664,7 @@ public abstract class Item
 		InitType(new Parsley());
 		InitType(new LargeWizardHatRed());
 		InitType(new DankHat());
+		InitType(new BlacksteelGlaive());
 	}
 
 	static void InitType(Item item)

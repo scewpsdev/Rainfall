@@ -484,7 +484,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	bool canEquipOffhandItem(Item item)
 	{
-		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand) && offhandItem == null && (!item.isHandItem || handItem != null);
+		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand) && offhandItem == null && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded);
 	}
 
 	public void giveItem(Item item)
@@ -1783,14 +1783,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (velocity.y < -5)
+							if (velocity.y < -2.5f)
 							{
 								animator.setAnimation("fall");
 							}
 							else
 							{
 								animator.setAnimation("jump");
-								if (velocity.y > 5)
+								if (velocity.y > 2.5f)
 									animator.currentFrame = 0;
 								else
 									animator.currentFrame = 1;
@@ -1916,7 +1916,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = 2;
 		else if (animator.currentAnimation == "stun")
 			animOffset.y = -2;
-		if (isDucked)
+		if (isDucked && !isClimbing)
 			animOffset.y = -3;
 		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
 	}
@@ -1979,6 +1979,47 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 	}
 
+	void renderBackItem(float layer, Item item)
+	{
+		if (!isAlive)
+			return;
+
+		uint color = 0xFFFFFFFF;
+		ParticleEffect particles = handParticles;
+
+		if (item == null)
+			item = DefaultWeapon.instance;
+
+		if (item.sprite != null)
+		{
+			if (item != DefaultWeapon.instance)
+			{
+				if (item.ingameSprite != null)
+				{
+					Renderer.DrawSprite(position.x - 0.5f * item.ingameSpriteSize, position.y + 0.5f - 0.5f * item.ingameSpriteSize, item.ingameSpriteLayer, item.ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * item.ingameSpriteSize, 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
+
+					if (particles != null)
+					{
+						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(true).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(true).y);
+						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+						particles.layer = layer - 0.01f;
+					}
+				}
+				else
+				{
+					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(true).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(true).y);
+					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, MathF.PI * 0.5f, item.sprite, false, color);
+					Console.WriteLine(weaponPosition.y);
+					if (particles != null)
+					{
+						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+						particles.layer = layer - 0.01f;
+					}
+				}
+			}
+		}
+	}
+
 	public override void render()
 	{
 		if (!isAlive)
@@ -2012,10 +2053,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					activeItems[i].render(this);
 			}
 
-			if (/*!isClimbing &&*/ (actions.currentAction == null || actions.currentAction.renderWeapon) && show)
+			if (show)
 			{
-				renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
-				renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+				if (isClimbing && actions.currentAction == null)
+					renderBackItem(LAYER_PLAYER_ARMOR, handItem);
+				else if (actions.currentAction == null || actions.currentAction.renderWeapon)
+				{
+					renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
+					renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+				}
 			}
 		}
 

@@ -130,7 +130,6 @@ public partial class LevelGenerator
 		this.lastExit = entrance;
 
 		random = new Random((int)Hash.hash(seed) + floor);
-		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
 		int width = MathHelper.RandomInt(40, 80, random);
 		int height = Math.Max(2400 / width, 20);
@@ -186,6 +185,9 @@ public partial class LevelGenerator
 
 
 		generateExtraRooms(gardensSet, null);
+
+
+		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
 
 		for (int i = 0; i < rooms.Count; i++)
 		{

@@ -251,8 +251,16 @@ public class Doorway
 	public Room room;
 	public DoorDef doorDef;
 	public Doorway otherDoorway;
-	public Vector2i position;
-	public Vector2i direction;
+	public Door door;
+
+	public Doorway(Room room, DoorDef doorDef)
+	{
+		this.room = room;
+		this.doorDef = doorDef;
+	}
+
+	public Vector2i position => doorDef.position;
+	public Vector2i direction => doorDef.direction;
 }
 
 public partial class LevelGenerator
@@ -263,11 +271,12 @@ public partial class LevelGenerator
 	RoomDefSet dungeonsSet;
 
 	Func<Item[], Barrel> createBarrelEntity = null;
+	Func<Entity> createExplosiveBarrelEntity = null;
 
 	string seed;
 	Level level;
 	public Random random;
-	Simplex simplex;
+	//Simplex simplex;
 
 	Level lastLevel, nextLevel;
 	Door lastExit;
@@ -347,7 +356,7 @@ public partial class LevelGenerator
 				level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
 				return null;
 			case 0xFFff9600:
-				level.addEntity(new ExplosiveBarrel(), new Vector2(x + xx + 0.5f, y + yy));
+				level.addEntity(createExplosiveBarrelEntity != null ? createExplosiveBarrelEntity() : new ExplosiveBarrel(), new Vector2(x + xx + 0.5f, y + yy));
 				setObjectFlag(x + xx, y + yy);
 				return null;
 			case 0xFF00cf5f:
@@ -485,14 +494,7 @@ public partial class LevelGenerator
 						};
 						for (int k = 0; k < def.doorDefs.Count; k++)
 						{
-							Doorway doorway = new Doorway
-							{
-								room = room,
-								doorDef = def.doorDefs[k],
-								otherDoorway = null,
-								position = def.doorDefs[k].position,
-								direction = def.doorDefs[k].direction
-							};
+							Doorway doorway = new Doorway(room, def.doorDefs[k]);
 							if (k == j)
 							{
 								doorway.otherDoorway = lastDoorway;
@@ -536,14 +538,7 @@ public partial class LevelGenerator
 					};
 					for (int k = 0; k < def.doorDefs.Count; k++)
 					{
-						Doorway doorway = new Doorway
-						{
-							room = room,
-							doorDef = def.doorDefs[k],
-							otherDoorway = null,
-							position = def.doorDefs[k].position,
-							direction = def.doorDefs[k].direction
-						};
+						Doorway doorway = new Doorway(room, def.doorDefs[k]);
 						if (k == j)
 						{
 							doorway.otherDoorway = lastDoorway;
@@ -829,9 +824,8 @@ public partial class LevelGenerator
 			Debug.Assert(false);
 
 		for (int i = 0; i < roomDef.doorDefs.Count; i++)
-		{
-			room.doorways.Add(new Doorway { room = room, doorDef = roomDef.doorDefs[i], otherDoorway = null, position = roomDef.doorDefs[i].position, direction = roomDef.doorDefs[i].direction });
-		}
+			room.doorways.Add(new Doorway(room, roomDef.doorDefs[i]));
+
 		rooms.Add(room);
 
 
@@ -1212,11 +1206,61 @@ public partial class LevelGenerator
 		}
 	}
 
-	public void generateStartingCave(Level level)
+	public void connectDoors(Door door1, Door door2)
 	{
-		RoomDef def = specialSet.roomDefs[6];
-		level.resize(def.width, def.height);
+		door1.otherDoor = door2;
+		door1.destination = door2.level;
+		door2.otherDoor = door1;
+		door2.destination = door1.level;
+	}
 
+	void generateSingleRoomLevel(Level level, Room room, Room bgRoom, TileType primaryTile, TileType secondaryTile, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
+	{
+		level.resize(room.width, room.height);
+
+		this.level = level;
+		objectFlags = new bool[level.width * level.height];
+		Array.Fill(objectFlags, false);
+
+		placeRoom(room, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile);
+		level.rooms = [room];
+
+		if (bgRoom != null)
+			placeRoomBG(bgRoom, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile);
+
+		RoomDef def = room.set.roomDefs[room.roomDefID];
+		for (int i = 0; i < def.doorDefs.Count; i++)
+		{
+			LevelTransition door = new LevelTransition(null, null, new Vector2i(1, 3), def.doorDefs[i].direction);
+			Vector2 position = (Vector2)def.doorDefs[i].position + def.doorDefs[i].direction;
+			level.addEntity(door, position);
+			room.doorways.Add(new Doorway(room, def.doorDefs[i]) { door = door });
+
+			if (i == 0 && entranceMarker == 0 && level.entrance == null)
+				level.entrance = door;
+			else if (i == 1 && exitMarker == 0 && level.exit == null)
+				level.exit = door;
+		}
+
+		if (entranceMarker != 0)
+		{
+			level.entrance = entranceDoor != null ? entranceDoor : new Door(null, null);
+			Vector2 position = room.getMarker(entranceMarker) + new Vector2(0.5f, 0);
+			level.addEntity(level.entrance, position);
+		}
+		if (exitMarker != 0)
+		{
+			level.exit = exitDoor != null ? exitDoor : new Door(null, null);
+			Vector2 position = room.getMarker(exitMarker) + new Vector2(0.5f, 0);
+			level.addEntity(level.exit, position);
+		}
+
+		level.updateLightmap(0, 0, room.width, room.height);
+	}
+
+	Room generateSingleRoomLevel(Level level, RoomDefSet set, int idx, TileType primaryTile, TileType secondaryTile, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
+	{
+		RoomDef def = set.roomDefs[idx];
 		Room room = new Room
 		{
 			x = 0,
@@ -1226,84 +1270,44 @@ public partial class LevelGenerator
 			roomDefID = def.id,
 			set = specialSet
 		};
+		generateSingleRoomLevel(level, room, null, primaryTile, secondaryTile, entranceMarker, exitMarker, entranceDoor, exitDoor);
+		return room;
+	}
 
-		placeRoom(room, level, (int x, int y) => TileType.stone);
-		level.rooms = [room];
+	public void generateStartingCave(Level level)
+	{
+		generateSingleRoomLevel(level, specialSet, 6, TileType.stone, TileType.dirt);
 
 		level.fogFalloff = 0.1f;
 		//level.fogColor = new Vector3(0.1f);
 		level.fogColor = new Vector3(0.0f);
 		level.infiniteEnergy = true;
-
-		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
 	public void generateHub(Level level)
 	{
-		Room room = new Room("level/hub/hub.png");
-		level.resize(room.width, room.height);
+		generateSingleRoomLevel(level, new Room("level/hub/hub.png"), new Room("level/hub/hub1.png"), TileType.dirt, TileType.stone);
 
-		this.level = level;
-		objectFlags = new bool[level.width * level.height];
-		Array.Fill(objectFlags, false);
-
-		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		placeRoomBG(new Room("level/hub/hub1.png"), level, (int x, int y) => TileType.dirt);
-
-		level.rooms = [room];
 		level.infiniteEnergy = true;
 		level.fogFalloff = 0.1f;
 		//level.fogColor = new Vector3(0.1f);
 		level.fogColor = new Vector3(0.0f);
-
-		level.updateLightmap(0, 0, room.width, room.height);
 	}
 
 	public void generateCliffside(Level level)
 	{
-		Room room = new Room("level/cliffside/room.png");
-		level.resize(room.width, room.height);
+		generateSingleRoomLevel(level, new Room("level/cliffside/room.png"), new Room("level/cliffside/room1.png"), TileType.dirt, TileType.stone);
 
-		this.level = level;
-		objectFlags = new bool[level.width * level.height];
-		Array.Fill(objectFlags, false);
-
-		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		placeRoomBG(new Room("level/cliffside/room1.png"), level, (int x, int y) => TileType.dirt);
-
-		level.rooms = [room];
 		level.infiniteEnergy = true;
-
-		level.updateLightmap(0, 0, room.width, room.height);
 	}
 
 	public void generateTutorial(Level level)
 	{
-		RoomDef def = specialSet.roomDefs[1];
-		level.resize(def.width, def.height);
-
-		this.level = level;
-		objectFlags = new bool[level.width * level.height];
-		Array.Fill(objectFlags, false);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
-
-		placeRoom(room, level, (int x, int y) => TileType.dirt);
-		level.rooms = [room];
+		generateSingleRoomLevel(level, specialSet, 1, TileType.dirt, TileType.stone);
 
 		level.infiniteEnergy = true;
 
 		Simplex simplex = new Simplex(12345, 3);
 		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
-
-		level.updateLightmap(0, 0, def.width, def.height);
 	}
 }

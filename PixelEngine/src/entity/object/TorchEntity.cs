@@ -46,7 +46,7 @@ public class TorchEntity : Entity, Interactable
 
 	public bool isInteractable(Player player)
 	{
-		return player.handItem == null || player.offhandItem == null;
+		return player.handItem == null || !player.handItem.twoHanded && player.offhandItem == null;
 	}
 
 	public void interact(Player player)

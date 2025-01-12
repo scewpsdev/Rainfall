@@ -50,6 +50,7 @@ public partial class LevelGenerator
 
 		//createBarrelEntity = (Item[] items) => new Pot(items);
 		createBarrelEntity = (Item[] items) => new Crate(items);
+		createExplosiveBarrelEntity = () => new ExplosiveCrate();
 
 		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
 		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 4));
@@ -74,52 +75,19 @@ public partial class LevelGenerator
 
 	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
-
-		RoomDef def = specialSet.roomDefs[4];
-		level.resize(def.width, def.height);
-
-		Room room = new Room
-		{
-			x = 0,
-			y = 0,
-			width = def.width,
-			height = def.height,
-			roomDefID = def.id,
-			set = specialSet
-		};
-
-		placeRoom(room, level, (int x, int y) => TileType.stone);
-		level.rooms = [room];
+		Room room = generateSingleRoomLevel(level, specialSet, 4, TileType.stone, TileType.dirt);
 
 		level.fogFalloff = 0.1f;
 		level.fogColor = new Vector3(0.0f);
 
-		level.entrance = new Door(lastLevel, lastDoor);
-		Vector2i entrancePosition = room.getMarker(0x4);
-		level.addEntity(level.entrance, new Vector2(entrancePosition.x + 0.5f, entrancePosition.y));
+		level.entrance.destination = lastLevel;
+		level.entrance.otherDoor = lastDoor;
 		lastDoor.otherDoor = level.entrance;
 
-		level.exit = new Door(nextLevel);
-		Vector2i exitPosition = room.getMarker(0x5);
-		level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
-
-		if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
-		{
-			level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
-			objectFlags[exitPosition.x - 1 + exitPosition.y * level.width] = true;
-		}
-		if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
-		{
-			level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
-			objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
-		}
-
-		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
+		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
+		generateCaveBackground(level, simplex, TileType.bricks, TileType.stone);
 
 		level.addEntity(new DungeonsBossRoom(room));
-
-		level.updateLightmap(0, 0, def.width, def.height);
 	}
 
 	void generateDungeonFloor(string seed, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
@@ -131,7 +99,6 @@ public partial class LevelGenerator
 		this.lastExit = entrance;
 
 		random = new Random((int)Hash.hash(seed) + level.floor);
-		simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
 		rooms = new List<Room>();
 
 		int width = level.width;
@@ -186,7 +153,7 @@ public partial class LevelGenerator
 				RoomDef def = specialSet.roomDefs[11];
 				room = fillDoorway(doorway, def, specialSet);
 				if (room != null)
-					room.entity = new CavesSpecialRoom4(room, this);
+					room.entity = new CavesPlatformingRoom1(room, this);
 			}
 			else
 			{
@@ -202,6 +169,9 @@ public partial class LevelGenerator
 			return false;
 		});
 
+
+		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
+
 		for (int i = 0; i < rooms.Count; i++)
 		{
 			placeRoom(rooms[i], level, (int x, int y) =>
@@ -213,6 +183,7 @@ public partial class LevelGenerator
 		}
 
 		generateCaveBackground(level, simplex, TileType.stone, TileType.bricks);
+
 
 		Door entranceDoor = new Door(lastLevel, lastExit);
 		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, entranceDoor, out Vector2i entrancePosition, out Vector2i exitPosition);
