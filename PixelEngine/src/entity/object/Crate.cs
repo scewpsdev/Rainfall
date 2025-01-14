@@ -35,7 +35,7 @@ public class Crate : Container
 		if (health > 0)
 			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051), position);
 		else
-			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051, 20, velocity), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051, 20, velocity * 0.5f), position);
 		return true;
 	}
 }

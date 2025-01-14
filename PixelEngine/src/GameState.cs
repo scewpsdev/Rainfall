@@ -124,8 +124,8 @@ public class GameState : State
 		instance = this;
 
 		save = customRun ? SaveFile.customRun : dailyRun ? SaveFile.dailyRun : SaveFile.Load(saveID);
-		NPCManager.Init();
 		QuestManager.Init();
+		NPCManager.Init();
 
 		reset();
 	}
@@ -138,8 +138,8 @@ public class GameState : State
 
 		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString(), seed != null);
 
-		NPCManager.Init();
 		QuestManager.Init();
+		NPCManager.Init();
 
 		generator = new LevelGenerator();
 

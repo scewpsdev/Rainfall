@@ -18,7 +18,7 @@ public class DankHat : Item
 		baseWeight = 0.2f;
 
 		value = 5;
-		rarity = GetRarity(50);
+		rarity = 0.1f;
 
 		sprite = new Sprite(tileset, 0, 8);
 		spriteColor = 0xFFB7C17A;

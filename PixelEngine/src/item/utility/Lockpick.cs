@@ -20,6 +20,6 @@ public class Lockpick : Item
 
 		sprite = new Sprite(tileset, 9, 5);
 
-		rarity = GetRarity(50);
+		rarity = 0.1f;
 	}
 }

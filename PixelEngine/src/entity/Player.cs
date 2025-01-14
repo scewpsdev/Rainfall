@@ -2148,6 +2148,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			value *= getMovementSpeedModifier();
 			if (actions.currentAction != null)
 				value *= actions.currentAction.speedMultiplier;
+			if (carriedObject != null)
+				value *= 0.7f;
 			return value;
 		}
 	}

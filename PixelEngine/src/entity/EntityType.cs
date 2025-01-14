@@ -31,8 +31,8 @@ public static class EntityType
 
 		InitType<Blacksmith>("blacksmith");
 		InitType<BuilderMerchant>("builder_merchant");
-		//InitType<Logan>("logan");
-		//InitType<RatNPC>("rat_npc");
+		InitType<Logan>("logan");
+		InitType<RatNPC>("rat_npc");
 		InitType<Tinkerer>("tinkerer");
 		InitType<TravellingMerchant>("travelling_merchant");
 		InitType<Barbarian>("barbarian");
@@ -55,6 +55,7 @@ public static class EntityType
 		InitType<ExplosiveCrate>("explosive_crate");
 		InitType<ExplosivePot>("explosive_pot");
 		InitType<Rock>("rock");
+		InitType<Skull>("skull");
 	}
 
 	static void InitType<T>(string name) where T : Entity, new()

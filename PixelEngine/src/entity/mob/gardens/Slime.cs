@@ -86,7 +86,7 @@ public class Slime : Mob
 					{
 						Slime slime = new Slime(size - 1);
 						slime.spriteColor = spriteColor;
-						GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(collider.min.x - slime.collider.min.x, collider.max.x - slime.collider.max.x), MathHelper.RandomFloat(collider.min.y - slime.collider.min.y, collider.max.y - -slime.collider.max.y)));
+						GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(collider.min.x - slime.collider.min.x, collider.max.x - slime.collider.max.x), MathHelper.RandomFloat(collider.min.y - slime.collider.min.y, collider.max.y - slime.collider.max.y)));
 					}
 				}
 

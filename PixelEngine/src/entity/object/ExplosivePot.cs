@@ -27,7 +27,7 @@ public class ExplosivePot : ExplosiveObject
 		if (health > 0)
 			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF6e484d), position);
 		else
-			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF6e484d, 20, velocity), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF6e484d, 20, velocity * 0.5f), position);
 		return true;
 	}
 }

@@ -16,11 +16,14 @@ public class Object : Entity, Hittable, Interactable
 
 	public bool tumbles = true;
 	public float rotationVelocity = 0;
+	public int numRestRotations = 4;
 
 	public long throwTime = -1;
 
 	protected Sprite sprite;
 	protected FloatRect rect;
+
+	protected Sound[] hitSound;
 
 	uint outline = 0;
 
@@ -42,12 +45,12 @@ public class Object : Entity, Hittable, Interactable
 		level.removeCollider(this);
 	}
 
-	public bool canInteract(Player player)
+	public virtual bool canInteract(Player player)
 	{
 		return player.isDucked && player.carriedObject == null;
 	}
 
-	public void interact(Player player)
+	public virtual void interact(Player player)
 	{
 		player.carryObject(this);
 	}
@@ -72,6 +75,9 @@ public class Object : Entity, Hittable, Interactable
 			velocity += knockback;
 			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
 		}
+
+		if (hitSound != null)
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
 
 		return true;
 	}
@@ -140,8 +146,8 @@ public class Object : Entity, Hittable, Interactable
 		}
 		else
 		{
-			float dst = rotation / (2 * MathF.PI) * 4;
-			dst = MathF.Round(dst) / 4 * 2 * MathF.PI;
+			float dst = rotation / (2 * MathF.PI) * numRestRotations;
+			dst = MathF.Round(dst) / numRestRotations * 2 * MathF.PI;
 			rotation = MathHelper.Lerp(rotation, dst, 5 * Time.deltaTime);
 		}
 	}

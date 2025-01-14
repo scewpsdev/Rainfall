@@ -6,48 +6,34 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Skull : Item
+public class Skull : Object
 {
 	public Skull()
-		: base("skull", ItemType.Utility)
 	{
 		displayName = "Skull";
 
-		projectileItem = true;
-		breakOnWallHit = true;
-		isHandItem = true;
+		damage = 4;
 
-		baseDamage = 4;
+		sprite = new Sprite(Item.tileset, 0, 0);
 
-		value = 2;
-		upgradable = false;
-
-		sprite = new Sprite(tileset, 0, 0);
-
-		hitSound = woodHit;
+		hitSound = Item.woodHit;
 	}
 
-	public override bool use(Player player)
+	protected override void onCollision(bool x, bool y, bool isEntity)
 	{
-		player.throwItem(this, player.lookDirection.normalized);
-		return true;
-	}
-
-	public override void onEntityBreak(ItemEntity entity)
-	{
-		int numCoins = MathHelper.RandomInt(1, 6); // MathHelper.RandomInt((int)MathF.Round(value / 2), (int)MathF.Round(value * 1.5f));
-		for (int i = 0; i < numCoins; i++)
+		if (velocity.length > 8)
 		{
-			Coin coin = new Coin();
-			Vector2 spawnPosition = entity.position + MathHelper.RandomVector2(-0.5f, 0.5f, Random.Shared);
-			coin.velocity = (spawnPosition - entity.position).normalized * 4;
-			GameState.instance.level.addEntity(coin, spawnPosition);
+			int numCoins = MathHelper.RandomInt(1, 6); // MathHelper.RandomInt((int)MathF.Round(value / 2), (int)MathF.Round(value * 1.5f));
+			for (int i = 0; i < numCoins; i++)
+			{
+				Coin coin = new Coin();
+				Vector2 spawnPosition = position + MathHelper.RandomVector2(-0.5f, 0.5f, Random.Shared);
+				coin.velocity = (spawnPosition - position).normalized * 4;
+				GameState.instance.level.addEntity(coin, spawnPosition);
+			}
+			remove();
 		}
-	}
 
-	public override void upgrade()
-	{
-		base.upgrade();
-		baseDamage++;
+		base.onCollision(x, y, isEntity);
 	}
 }

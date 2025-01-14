@@ -29,7 +29,7 @@ public class ExplosiveCrate : ExplosiveObject
 		if (health > 0)
 			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF4c3f46), position);
 		else
-			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF4c3f46, 20, velocity), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF4c3f46, 20, velocity * 0.5f), position);
 
 		return true;
 	}

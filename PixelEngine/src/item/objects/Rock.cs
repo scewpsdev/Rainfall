@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 public class Rock : Object
 {
-	Sound[] hitSound;
-
-
 	public Rock()
 	{
 		displayName = "Rock";
@@ -28,9 +25,6 @@ public class Rock : Object
 	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
-
-		if (hitSound != null)
-			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
 
 		return true;
 	}

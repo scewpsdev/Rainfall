@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class BlacksteelBracer : Item
+public class ReinforcedGlove : Item
 {
-	public BlacksteelBracer()
-		: base("blacksteel_bracer", ItemType.Relic)
+	public ReinforcedGlove()
+		: base("reinforced_glove", ItemType.Relic)
 	{
 		displayName = "Reinforced Glove";
 		description = "Allows the bearer to wield big weapons with a single hand.";

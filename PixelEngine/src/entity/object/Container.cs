@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 public class Container : Object
 {
-	Item[] items;
+	public Item[] items;
 	public int coins = 0;
 
-	protected Sound[] hitSound;
 	protected Sound[] breakSound;
 
 
@@ -20,7 +19,7 @@ public class Container : Object
 		this.items = items;
 	}
 
-	void dropItems()
+	protected void dropItems()
 	{
 		for (int i = 0; i < items.Length; i++)
 		{
@@ -55,11 +54,6 @@ public class Container : Object
 
 		if (health <= 0)
 			breakContainer();
-		else
-		{
-			if (hitSound != null)
-				Audio.PlayOrganic(hitSound, new Vector3(position, 0));
-		}
 
 		return true;
 	}

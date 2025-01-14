@@ -20,10 +20,10 @@ public class LargeWizardHatRed : Item
 		value = 13;
 
 		sprite = new Sprite(tileset, 9, 4);
-		spriteColor = 0xFFac3434;
+		spriteColor = 0xFF874444;
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/large_wizard_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteSize = 2;
-		ingameSpriteColor = 0xFFac3434;
+		ingameSpriteColor = 0xFF874444;
 
 		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
 	}

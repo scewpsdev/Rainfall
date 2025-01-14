@@ -63,7 +63,7 @@ public class Logan : NPC
 				Hehe.
 				""").addCallback(() =>
 			{
-				QuestManager.AddActiveQuest(name, loganQuest);
+				loganQuest.state = QuestState.InProgress;
 			});
 		}
 		QuestManager.addQuestCompletionCallback(name, loganQuest.name, (Quest _) =>

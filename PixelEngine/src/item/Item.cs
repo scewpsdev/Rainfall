@@ -130,16 +130,7 @@ public abstract class Item
 	public string description = null;
 	public bool stackable = false;
 	public int stackSize = 1;
-	int _value = 1;
-	public int value
-	{
-		get => _value;
-		set
-		{
-			_value = value;
-			rarity = GetRarity(_value);
-		}
-	}
+	public int value = 1;
 	public float rarity = 1;
 	public bool canDrop = true;
 	public bool isHandItem;
@@ -240,7 +231,6 @@ public abstract class Item
 	public bool stab = true;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
-	public float attackRotationOffset = 0.0f;
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
 
 	public bool projectileItem = false;
@@ -333,10 +323,12 @@ public abstract class Item
 		return armor / (20.0f + armor);
 	}
 
+	/*
 	public static float GetRarity(float value)
 	{
 		return MathF.Exp(-value * 0.04f);
 	}
+	*/
 
 	public string fullDisplayName
 	{
@@ -358,7 +350,7 @@ public abstract class Item
 	{
 		get
 		{
-			float r = rarity;
+			float r = rarity * MathF.Exp(-0.04f * value);
 			if (r >= 1.0f)
 				return "Garbage";
 			if (r >= 0.5f)
@@ -377,7 +369,7 @@ public abstract class Item
 	{
 		get
 		{
-			float r = rarity;
+			float r = rarity * MathF.Exp(-0.04f * value);
 			if (r >= 1.0f)
 				return UIColors.TEXT_RARITY_GARBAGE;
 			if (r >= 0.5f)
@@ -487,7 +479,7 @@ public abstract class Item
 			if (player.getItem(requiredAmmo) != null)
 			{
 				HitData[] hits = new HitData[16];
-				int numHits = player.level.overlap(player.position + player.collider.min - 0.25f, player.position + player.collider.max + 0.25f, hits, Entity.FILTER_ITEM);
+				int numHits = player.level.overlap(player.position + player.collider.center - 1, player.position + player.collider.center + 1, hits, Entity.FILTER_ITEM);
 				for (int i = 0; i < numHits; i++)
 				{
 					Debug.Assert(hits[i].entity is ItemEntity);
@@ -523,7 +515,6 @@ public abstract class Item
 			typeLists.Add((ItemType)i, new List<int>());
 		}
 
-		InitType(new Skull());
 		InitType(new Arrow());
 		InitType(new Bomb());
 		InitType(new Dagger());
@@ -659,7 +650,7 @@ public abstract class Item
 		InitType(new SpectralShield());
 		InitType(new MissileStaff());
 		InitType(new DuelistHarness());
-		InitType(new BlacksteelBracer());
+		InitType(new ReinforcedGlove());
 		InitType(new Parsley());
 		InitType(new LargeWizardHatRed());
 		InitType(new DankHat());
@@ -696,9 +687,9 @@ public abstract class Item
 		return items;
 	}
 
-	public static Item CreateRandom(ItemType type, Random random, float meanValue)
+	static Item CreateRandom(List<Item> items, Random random, float meanValue)
 	{
-		List<Item> items = GetItemPrototypesOfType(type);
+		items = new List<Item>(items);
 		MathHelper.ShuffleList(items, random);
 		for (int i = 0; i < items.Count; i++)
 		{
@@ -735,6 +726,7 @@ public abstract class Item
 		Debug.Assert(item != null);
 
 		Item newItem = item.copy();
+		ItemType type = item.type;
 
 		while (newItem.value < meanValue * 0.5f && newItem.upgradable)
 			newItem.upgrade();
@@ -763,14 +755,7 @@ public abstract class Item
 			int difference = (int)(meanValue / newItem.value - newItem.stackSize);
 			newItem.stackSize += MathHelper.RandomInt(1, difference, random);
 		}
-		//if (newItem.name == "arrow")
-		//	newItem.stackSize = MathHelper.RandomInt(1, 35, random);
-		//else if (newItem.name == "throwing_knife")
-		//	newItem.stackSize = MathHelper.RandomInt(1, 10, random);
 
-		//if (newItem.type == ItemType.Staff)
-		//newItem.staffCharges = MathHelper.RandomInt(newItem.maxStaffCharges / 2, newItem.maxStaffCharges, random);
-		//else
 		if (newItem.type == ItemType.Potion)
 		{
 			Potion potion = newItem as Potion;
@@ -821,39 +806,24 @@ public abstract class Item
 		*/
 	}
 
+	public static Item CreateRandom(ItemType type, Random random, float meanValue)
+	{
+		List<Item> items = GetItemPrototypesOfType(type);
+		return CreateRandom(items, random, meanValue);
+	}
+
 	public static Item[] CreateRandom(Random random, float[] distribution, float meanValue)
 	{
-		float f = random.NextSingle();
-
-		float r = 0;
-		for (int i = 0; i < (int)ItemType.Count; i++)
+		Item item = CreateRandom(itemTypes, random, meanValue);
+		if (item.requiredAmmo != null)
 		{
-			r += distribution[i];
-			if (f < r)
-			{
-				Item item = CreateRandom((ItemType)i, random, meanValue);
-				if (item != null)
-				{
-					if (item.requiredAmmo != null)
-					{
-						Item ammo = GetItemPrototype(item.requiredAmmo).copy();
-						ammo.stackSize = MathHelper.RandomInt(3, 20, random);
-						return [item, ammo];
-					}
-					else
-					{
-						return [item];
-					}
-				}
-				else
-				{
-					f = random.NextSingle();
-					r = 0;
-					i = -1;
-				}
-			}
+			Item ammo = GetItemPrototype(item.requiredAmmo).copy();
+			ammo.stackSize = MathHelper.RandomInt(3, 20, random);
+			return [item, ammo];
 		}
-
-		return null;
+		else
+		{
+			return [item];
+		}
 	}
 }

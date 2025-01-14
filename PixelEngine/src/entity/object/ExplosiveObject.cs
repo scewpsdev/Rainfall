@@ -17,7 +17,6 @@ public class ExplosiveObject : Object
 
 	long ignitedTime = -1;
 
-	protected Sound[] hitSound;
 	protected Sound[] breakSound;
 
 
@@ -34,11 +33,6 @@ public class ExplosiveObject : Object
 
 		if (health <= 0)
 			breakObject();
-		else
-		{
-			if (hitSound != null)
-				Audio.PlayOrganic(hitSound, new Vector3(position, 0));
-		}
 		if ((item != null && item.canIgnite || byName != null && byName == "Explosion" || by != null && by is Projectile) && ignitedTime == -1)
 		{
 			ignitedTime = Time.currentTime;

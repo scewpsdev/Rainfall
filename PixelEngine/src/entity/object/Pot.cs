@@ -34,7 +34,7 @@ public class Pot : Container
 		if (health > 0)
 			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF8e5252), position);
 		else
-			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF8e5252, 20, velocity), position);
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF8e5252, 20, velocity * 0.5f), position);
 		return true;
 	}
 }

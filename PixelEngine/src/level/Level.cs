@@ -708,7 +708,7 @@ public class Level
 				maxT[i] = -1;
 		}
 
-		int whichPlane = maxT[0] < maxT[1] ? 1 : 0;
+		int whichPlane = maxT[0] != -1 && maxT[0] > maxT[1] ? 0 : 1;
 
 		if (maxT[whichPlane] < 0)
 			return false;
@@ -727,10 +727,7 @@ public class Level
 			}
 		}
 
-		if (direction.x != 0)
-			distance = (position.x - origin.x) / direction.x;
-		else
-			distance = (position.y - origin.y) / direction.y;
+		distance = maxT[whichPlane];
 
 		normal = new Vector2(0);
 		normal[whichPlane] = Math.Sign(direction[whichPlane]);
@@ -760,6 +757,8 @@ public class Level
 						hitPosition = position;
 						hitDistance = distance;
 						hitNormal = normal;
+
+						hitBoundingBox(origin, direction, min, max, out position, out distance, out normal);
 					}
 				}
 			}

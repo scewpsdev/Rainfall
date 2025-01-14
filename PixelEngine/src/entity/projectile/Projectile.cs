@@ -29,6 +29,9 @@ public class Projectile : Entity
 
 	List<Entity> hitEntities = new List<Entity>();
 
+	Trail trail;
+	protected Vector4 trailColor = Vector4.One;
+
 
 	public Projectile(Vector2 velocity, Vector2 startVelocity, Vector2 offset, Entity shooter, Item item, float damage)
 	{
@@ -44,6 +47,11 @@ public class Projectile : Entity
 		if (MathF.Sign(velocity.x) == MathF.Sign(startVelocity.x) && MathF.Abs(startVelocity.x) > MathF.Abs(velocity.x))
 			velocity.x = startVelocity.x;
 		//velocity += (Vector2.Dot(startVelocity, velocity) + 1.0f) * 0.5f * startVelocity * 0.05f;
+	}
+
+	public override void init(Level level)
+	{
+		trail = new Trail(20, trailColor, position);
 	}
 
 	public virtual void onHit(Vector2 normal)
@@ -73,6 +81,9 @@ public class Projectile : Entity
 			rotation = MathF.Atan2(velocity.y, velocity.x);
 
 		offset = Vector2.Lerp(offset, Vector2.Zero, 5 * Time.deltaTime);
+
+		trail.update();
+		trail.setPosition(position);
 
 		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit == null)
@@ -134,5 +145,7 @@ public class Projectile : Entity
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0.001f, 1, 1, rotation, sprite, false, spriteColor, additive);
+
+		trail.render();
 	}
 }

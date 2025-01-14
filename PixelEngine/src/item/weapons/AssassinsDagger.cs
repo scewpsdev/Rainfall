@@ -22,7 +22,7 @@ public class AssassinsDagger : Weapon
 		baseWeight = 1;
 
 		isSecondaryItem = true;
-		attackRotationOffset = MathF.PI * 0.25f;
+		//attackRotationOffset = MathF.PI * 0.25f;
 
 		value = 11;
 

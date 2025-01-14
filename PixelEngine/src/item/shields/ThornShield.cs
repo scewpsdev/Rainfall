@@ -6,26 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class ThornShield : Item
+public class ThornShield : Shield
 {
 	public ThornShield()
-		: base("thorn_shield", ItemType.Shield)
+		: base("thorn_shield")
 	{
 		displayName = "Thorn Shield";
 
 		baseArmor = 3;
 		damageReflect = 1.0f;
 		value = 14;
-
-		isSecondaryItem = true;
+		rarity *= 0.5f;
 
 		sprite = new Sprite(tileset, 4, 3);
-		renderOffset.x = 0.2f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new BlockAction(this, player.handItem == this));
-		return false;
 	}
 }

@@ -17,7 +17,7 @@ public class Parsley : Item
 		description = "Cures poison";
 
 		value = 12;
-		rarity = GetRarity(25);
+		rarity = 0.1f;
 
 		sprite = new Sprite(tileset, 12, 4);
 

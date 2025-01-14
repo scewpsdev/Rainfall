@@ -30,6 +30,7 @@ public class AttackAction : EntityAction
 	int lastSpin = 0;
 
 	Trail trail;
+	Trail secondaryTrail;
 
 
 	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
@@ -65,12 +66,11 @@ public class AttackAction : EntityAction
 		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
 	}
 
-	Vector2 getWeaponTip(Player player)
+	Vector2 getWeaponTip(Player player, float fract = 1.0f)
 	{
 		bool flip = charDirection < 0;
 		Vector2 position = new Vector2(0.5f * weapon.size.x, 0);
-		position = Vector2.Rotate(position, weapon.attackRotationOffset);
-		position += new Vector2(currentRange - 0.25f - 0.5f * weapon.size.x, 0);
+		position += new Vector2(currentRange * fract - 0.5f * weapon.size.x, 0);
 		position = Vector2.Rotate(position, currentAngle);
 		if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
 			position *= new Vector2(1, 0.5f);
@@ -86,6 +86,7 @@ public class AttackAction : EntityAction
 	public override void onStarted(Player player)
 	{
 		trail = new Trail(20, Vector4.One, getWeaponTip(player));
+		secondaryTrail = new Trail(14, new Vector4(1, 1, 1, 0.5f), getWeaponTip(player, 0.9f));
 	}
 
 	public override void onFinished(Player player)
@@ -194,13 +195,18 @@ public class AttackAction : EntityAction
 		}
 
 		trail.update();
+		secondaryTrail.update();
 		if (inDamageWindow)
+		{
 			trail.setPosition(getWeaponTip(player));
+			secondaryTrail.setPosition(getWeaponTip(player, 0.9f));
+		}
 	}
 
 	public override void render(Player player)
 	{
 		trail.render();
+		secondaryTrail.render();
 	}
 
 	public float currentProgress
@@ -208,7 +214,7 @@ public class AttackAction : EntityAction
 		get
 		{
 			float value = MathF.Min(elapsedTime / duration * (1 + weapon.attackCooldown), 1);
-			value = 1 - MathF.Pow(1 - value, 2);
+			value = 1 - MathF.Pow(1 - value, 3);
 			//value = value < 0.5f ? MathF.Pow(value, 3) * 4 : 1 - MathF.Pow(1 - value, 3) * 4;
 			return value;
 		}
@@ -243,9 +249,8 @@ public class AttackAction : EntityAction
 	{
 		float rotation = currentAngle;
 		bool flip = charDirection < 0;
-		Matrix weaponTransform = Matrix.CreateRotation(Vector3.UnitZ, rotation)
-			* Matrix.CreateTranslation(currentRange - 0.25f - 0.5f * weapon.size.x, 0, 0)
-			* Matrix.CreateRotation(Vector3.UnitZ, weapon.attackRotationOffset);
+		Matrix weaponTransform = Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0);
+		weaponTransform = Matrix.CreateRotation(Vector3.UnitZ, rotation) * weaponTransform;
 		if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
 			weaponTransform.translation *= new Vector3(1, 0.5f, 1);
 		else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)

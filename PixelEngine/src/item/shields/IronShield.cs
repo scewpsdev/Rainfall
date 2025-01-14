@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class IronShield : Item
+public class IronShield : Shield
 {
 	public IronShield()
-		: base("iron_shield", ItemType.Shield)
+		: base("iron_shield")
 	{
 		displayName = "Iron Shield";
 
@@ -17,15 +17,6 @@ public class IronShield : Item
 		value = 8;
 		baseWeight = 2;
 
-		isSecondaryItem = true;
-
 		sprite = new Sprite(tileset, 3, 3);
-		renderOffset.x = 0.2f;
-	}
-
-	public override bool use(Player player)
-	{
-		player.actions.queueAction(new BlockAction(this, player.handItem == this));
-		return false;
 	}
 }
