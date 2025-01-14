@@ -270,8 +270,8 @@ public partial class LevelGenerator
 	RoomDefSet gardensSet;
 	RoomDefSet dungeonsSet;
 
-	Func<Item[], Barrel> createBarrelEntity = null;
-	Func<Entity> createExplosiveBarrelEntity = null;
+	Func<Item[], Container> createContainer = null;
+	Func<ExplosiveObject> createExplosiveObject = null;
 
 	string seed;
 	Level level;
@@ -356,7 +356,7 @@ public partial class LevelGenerator
 				level.addEntity(new Spike(), new Vector2(x + xx, y + yy));
 				return null;
 			case 0xFFff9600:
-				level.addEntity(createExplosiveBarrelEntity != null ? createExplosiveBarrelEntity() : new ExplosiveBarrel(), new Vector2(x + xx + 0.5f, y + yy));
+				level.addEntity(createExplosiveObject != null ? createExplosiveObject() : new ExplosiveBarrel(), new Vector2(x + xx + 0.5f, y + yy));
 				setObjectFlag(x + xx, y + yy);
 				return null;
 			case 0xFF00cf5f:
@@ -579,14 +579,14 @@ public partial class LevelGenerator
 		}
 		else if (f < chestChance + barrelChance)
 		{
-			Barrel barrel = createBarrelEntity(items);
-			level.addEntity(barrel, new Vector2(x + 0.5f, y));
+			Container container = createContainer(items);
+			level.addEntity(container, new Vector2(x + 0.5f, y));
 
-			float barrelCoinsChance = 0.08f;
-			if (random.NextSingle() < barrelCoinsChance)
+			float coinsChance = 0.08f;
+			if (random.NextSingle() < coinsChance)
 			{
 				int amount = MathHelper.RandomInt(1, 6, random);
-				barrel.coins = amount;
+				container.coins = amount;
 			}
 		}
 		else
@@ -620,51 +620,6 @@ public partial class LevelGenerator
 		}
 
 		objectFlags[x + y * level.width] = true;
-	}
-
-	void spawnBarrel_(int x, int y, float roomLootValue)
-	{
-		float scamChestChance = 0.02f;
-		bool scam = random.NextSingle() < scamChestChance;
-
-		Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.barrel, roomLootValue);
-
-		Barrel barrel = createBarrelEntity(items);
-		float barrelCoinsChance = 0.08f;
-		if (random.NextSingle() < barrelCoinsChance)
-		{
-			int amount = MathHelper.RandomInt(1, 6, random);
-			barrel.coins = amount;
-		}
-
-		level.addEntity(barrel, new Vector2(x + 0.5f, y));
-		objectFlags[x + y * level.width] = true;
-	}
-
-	void spawnGroundItem_(int x, int y, float roomLootValue)
-	{
-		Item[] items = Item.CreateRandom(random, DropRates.ground, roomLootValue);
-		foreach (Item item in items)
-		{
-			ItemEntity itemEntity = new ItemEntity(item);
-			level.addEntity(itemEntity, new Vector2(x + 0.5f, y + 0.5f));
-		}
-
-		objectFlags[x + y * level.width] = true;
-	}
-
-	void spawnItem_(int x, int y, float roomLootValue)
-	{
-		float chestChance = 0.1f;
-		float barrelChance = 0.4f;
-
-		float f = random.NextSingle();
-		if (f < chestChance)
-			spawnChest(x, y, roomLootValue);
-		else if (f < chestChance + barrelChance)
-			spawnBarrel_(x, y, roomLootValue);
-		else
-			spawnGroundItem_(x, y, roomLootValue);
 	}
 
 	List<Item[]> generateItems(float minValue, float maxValue, float[] dropRates)
@@ -1217,6 +1172,9 @@ public partial class LevelGenerator
 	void generateSingleRoomLevel(Level level, Room room, Room bgRoom, TileType primaryTile, TileType secondaryTile, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
 	{
 		level.resize(room.width, room.height);
+
+		createContainer = null;
+		createExplosiveObject = null;
 
 		this.level = level;
 		objectFlags = new bool[level.width * level.height];

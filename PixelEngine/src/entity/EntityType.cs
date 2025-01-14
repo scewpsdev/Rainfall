@@ -53,6 +53,8 @@ public static class EntityType
 		InitType<FireSconce>("fire_sconce");
 		InitType<Crate>("crate");
 		InitType<ExplosiveCrate>("explosive_crate");
+		InitType<ExplosivePot>("explosive_pot");
+		InitType<Rock>("rock");
 	}
 
 	static void InitType<T>(string name) where T : Entity, new()

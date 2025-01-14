@@ -380,6 +380,23 @@ public static class Renderer
 		(additive ? additiveDraws : draws).Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
 	}
 
+	public static void DrawSpriteSolid(float width, float height, Matrix transform, Sprite sprite, bool flipped, Vector4 color, bool additive = false)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+
+			if (flipped)
+				MathHelper.Swap(ref u0, ref u1);
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		(additive ? additiveDraws : draws).Add(new SpriteDraw { useTransform = true, transform = transform, size = new Vector2(width, height), texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
+	}
+
 	public static void DrawOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)
 	{
 		DrawSpriteSolid(x - 1.0f / 16.0f, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
@@ -391,6 +408,14 @@ public static class Renderer
 	public static void DrawOutline(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		DrawOutline(x, y, 0.00001f, width, height, 0, sprite, flipped, color);
+	}
+
+	public static void DrawOutline(float width, float height, Matrix transform, Sprite sprite, bool flipped, uint color)
+	{
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(-1.0f / 16, 0, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(1.0f / 16, 0, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, -1.0f / 16, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, 1.0f / 16, 0.00001f) * transform, sprite, flipped, color);
 	}
 
 	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, int u0, int v0, int w, int h, Vector4 color)

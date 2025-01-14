@@ -46,7 +46,7 @@ public class Jetpack : Item
 		emissionRate = particles.systems[0].handle->emissionRate;
 		particles.systems[0].handle->emissionRate = 0;
 		particles.collision = true;
-		particles.bounce = true;
+		particles.bounciness = 0.7f;
 
 		sound = Resource.GetSound("sounds/jetpack.ogg");
 	}

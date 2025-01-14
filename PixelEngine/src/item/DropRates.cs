@@ -106,6 +106,20 @@ public static class DropRates
 		0.11f, // Ammo
 		0.03f, // Gem
 	};
+	public static readonly float[] mines = new float[(int)ItemType.Count] {
+		0.08f, // Weapon
+		0.05f, // Shield
+		0.12f, // Armor
+		0.1f, // Food
+		0.1f, // Potion
+		0.06f, // Relic
+		0.06f, // Staff
+		0.07f, // Scroll
+		0.09f,  // Spell
+		0.1f, // Utility
+		0.12f, // Ammo
+		0.05f, // Gem
+	};
 	public static readonly float[] dungeons = new float[(int)ItemType.Count] {
 		0.08f, // Weapon
 		0.05f, // Shield

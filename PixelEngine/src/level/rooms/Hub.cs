@@ -29,7 +29,7 @@ public class CastleGate : Door
 		collider = new FloatRect(-4, 0, 8, 2);
 	}
 
-	public override bool isInteractable(Player player)
+	public override bool canInteract(Player player)
 	{
 		return false;
 		//Item helmet = player.getArmorItem(ArmorSlot.Helmet);
@@ -88,7 +88,6 @@ public class Hub : Entity
 
 		BrokenWanderer npc = NPCManager.brokenWanderer;
 		npc.clearShop();
-		npc.addShopItem(new Rock());
 		npc.addShopItem(new Torch());
 		npc.addShopItem(new Bomb(), 7);
 		npc.addShopItem(new IronKey(), 8);

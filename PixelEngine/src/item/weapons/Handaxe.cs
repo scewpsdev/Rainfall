@@ -22,7 +22,7 @@ public class Handaxe : Weapon
 		projectileSpins = true;
 		projectileSticks = true;
 		doubleBladed = false;
-		secondaryChargeTime = 0.25f;
+		secondaryChargeTime = 0;
 
 		value = 5;
 

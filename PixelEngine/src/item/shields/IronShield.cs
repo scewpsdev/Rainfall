@@ -13,7 +13,7 @@ public class IronShield : Item
 	{
 		displayName = "Iron Shield";
 
-		baseArmor = 3;
+		baseArmor = 2;
 		value = 8;
 		baseWeight = 2;
 

@@ -45,7 +45,7 @@ public class DungeonEntrance : Door
 	{
 	}
 
-	public override bool isInteractable(Player player)
+	public override bool canInteract(Player player)
 	{
 		return player.getItem("lost_sigil") != null;
 	}
@@ -99,7 +99,7 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
-		createBarrelEntity = (Item[] items) => new Barrel(items);
+		createContainer = (Item[] items) => new Barrel(items);
 
 		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 5));
 		generateCaveFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));

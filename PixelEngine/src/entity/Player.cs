@@ -64,7 +64,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.35f * (playerLevel - 1)));
+	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.4f * (playerLevel - 1)));
 	public int availableStatUpgrades = 0;
 
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
@@ -141,6 +141,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	InventoryUI inventoryUI;
 	public int numOverlaysOpen = 0;
 	public bool inventoryOpen = false;
+
+	public Object carriedObject = null;
 
 	Sound[] stepSound;
 	Sound landSound;
@@ -771,6 +773,30 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			removeItem(items[i--]);
 	}
 
+	public void carryObject(Object obj)
+	{
+		Debug.Assert(carriedObject == null);
+		carriedObject = obj;
+		level.removeEntity(obj);
+	}
+
+	public void dropObject()
+	{
+		level.addEntity(carriedObject, position + collider.center, false);
+		carriedObject.velocity = Vector2.Zero;
+		carriedObject.rotationVelocity = 0;
+		carriedObject = null;
+	}
+
+	public void throwObject()
+	{
+		level.addEntity(carriedObject, position + collider.center, false);
+		carriedObject.velocity = velocity * 0.5f + (lookDirection + Vector2.Up * 0.1f) * 15;
+		carriedObject.rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
+		carriedObject.throwTime = Time.currentTime;
+		carriedObject = null;
+	}
+
 	public void addImpulse(Vector2 impulse)
 	{
 		impulseVelocity.x += impulse.x;
@@ -839,6 +865,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 				level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
+
+				GameState.instance.freeze(0.2f);
 			}
 
 			if (damage < 0.0001f)
@@ -891,7 +919,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			if (triggerInvincibility)
+			{
 				lastHit = Time.currentTime;
+				GameState.instance.freeze(0.2f);
+			}
 
 			return true;
 		}
@@ -1347,7 +1378,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (fallDistance >= FALL_STUN_DISTANCE && velocity.y <= MAX_FALL_SPEED)
 			{
 				stun();
-				Console.WriteLine(velocity.y);
 			}
 			if (fallDistance >= FALL_DAMAGE_DISTANCE && velocity.y <= MAX_FALL_SPEED)
 			{
@@ -1490,6 +1520,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (!isStunned && numOverlaysOpen == 0)
 			{
+				if (carriedObject != null && isDucked && InputManager.IsPressed("Interact", true))
+					dropObject();
+
 				Interactable interactable = isAlive ? level.getInteractable(position + collider.center, this) : null;
 				if (interactableInFocus != null && interactableInFocus != interactable)
 					interactableInFocus.onFocusLeft(this);
@@ -1527,7 +1560,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					}
 				}
 
-				if (handItem != null)
+				if (carriedObject != null)
+				{
+					if (InputManager.IsPressed("Attack", true))
+					{
+						throwObject();
+					}
+				}
+				else if (handItem != null)
 				{
 					if (offhandItem == null && InputManager.IsPressed("Attack2"))
 					{
@@ -2009,7 +2049,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(true).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(true).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, MathF.PI * 0.5f, item.sprite, false, color);
-					Console.WriteLine(weaponPosition.y);
 					if (particles != null)
 					{
 						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
@@ -2053,7 +2092,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					activeItems[i].render(this);
 			}
 
-			if (show)
+			if (show && carriedObject == null)
 			{
 				if (isClimbing && actions.currentAction == null)
 					renderBackItem(LAYER_PLAYER_ARMOR, handItem);
@@ -2063,6 +2102,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
 				}
 			}
+		}
+
+		if (actions.currentAction != null)
+			actions.currentAction.render(this);
+
+		if (carriedObject != null)
+		{
+			carriedObject.position = position + new Vector2(0, collider.max.y + 1 / 16.0f);
+			carriedObject.rotation = 0;
+			carriedObject.render();
 		}
 
 		for (int i = 0; i < statusEffects.Count; i++)

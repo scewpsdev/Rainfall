@@ -112,9 +112,10 @@ public class GameState : State
 	public bool consoleOpen = false;
 	public bool onscreenPrompt = false;
 
-	long particleUpdateDelta;
-	long animationUpdateDelta;
 	long entityUpdateDelta;
+
+	long lastFreezeTime = -1;
+	float freezeDuration;
 
 
 	public GameState(int saveID, string seed, bool customRun = false, bool dailyRun = false)
@@ -297,6 +298,12 @@ public class GameState : State
 		}
 	}
 
+	public void freeze(float duration)
+	{
+		lastFreezeTime = Time.currentTime;
+		freezeDuration = duration;
+	}
+
 	public void setAmbience(Sound ambience)
 	{
 		if (ambientSource != 0)
@@ -441,20 +448,15 @@ public class GameState : State
 
 		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
 		{
-			long beforeParticleUpdate = Time.timestamp;
-			//ParticleSystem.Update(Vector3.Zero);
-			long afterParticleUpdate = Time.timestamp;
-			particleUpdateDelta = afterParticleUpdate - beforeParticleUpdate;
+			bool freeze = lastFreezeTime != -1 && (Time.currentTime - lastFreezeTime) / 1e9f < freezeDuration;
 
-			long beforeAnimationUpdate = Time.timestamp;
-			Animator.Update(Matrix.Identity);
-			long afterAnimationUpdate = Time.timestamp;
-			animationUpdateDelta = afterAnimationUpdate - beforeAnimationUpdate;
-
-			long beforeEntityUpdate = Time.timestamp;
-			level.update();
-			long afterEntityUpdate = Time.timestamp;
-			entityUpdateDelta = afterEntityUpdate - beforeEntityUpdate;
+			if (!freeze)
+			{
+				long beforeEntityUpdate = Time.timestamp;
+				level.update();
+				long afterEntityUpdate = Time.timestamp;
+				entityUpdateDelta = afterEntityUpdate - beforeEntityUpdate;
+			}
 		}
 	}
 
@@ -514,24 +516,6 @@ public class GameState : State
 	public override void drawDebugStats(int y, byte color, GraphicsDevice graphics)
 	{
 		Span<byte> str = stackalloc byte[64];
-
-		StringUtils.WriteString(str, "Particle Systems: ");
-		StringUtils.AppendInteger(str, ParticleSystem.numParticleSystems);
-		graphics.drawDebugText(0, y++, color, str);
-
-		StringUtils.WriteString(str, "Animators: ");
-		StringUtils.AppendInteger(str, Animator.numAnimators);
-		graphics.drawDebugText(0, y++, color, str);
-
-		StringUtils.WriteString(str, "Particle Update: ");
-		StringUtils.AppendFloat(str, (particleUpdateDelta / 1e9f) * 1000, 2);
-		StringUtils.AppendString(str, " ms");
-		graphics.drawDebugText(0, y++, color, str);
-
-		StringUtils.WriteString(str, "Animation Update: ");
-		StringUtils.AppendFloat(str, (animationUpdateDelta / 1e9f) * 1000, 2);
-		StringUtils.AppendString(str, " ms");
-		graphics.drawDebugText(0, y++, color, str);
 
 		StringUtils.WriteString(str, "Entity Update: ");
 		StringUtils.AppendFloat(str, (entityUpdateDelta / 1e9f) * 1000, 2);

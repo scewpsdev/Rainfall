@@ -530,7 +530,6 @@ public abstract class Item
 		InitType(new Longsword());
 		InitType(new Rope());
 		InitType(new Pickaxe());
-		InitType(new Rock());
 		InitType(new WizardsCloak());
 		InitType(new PotionOfHealing());
 		InitType(new Boomerang());

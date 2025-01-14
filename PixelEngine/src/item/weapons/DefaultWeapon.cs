@@ -25,6 +25,7 @@ public class DefaultWeapon : Weapon
 
 		punchSprite = new Sprite(tileset, 0, 2);
 		swingSprite = new Sprite(tileset, 1, 8);
+		sprite = punchSprite;
 
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/default.png", false), 0, 0, 16, 16);
 
@@ -34,8 +35,9 @@ public class DefaultWeapon : Weapon
 	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
 	{
 		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
-		stab = idx % 2 == 0;
+		//stab = idx % 2 == 0;
+		stab = true;
 		swingDir = 1;
-		sprite = stab ? punchSprite : swingSprite;
+		//sprite = stab ? punchSprite : swingSprite;
 	}
 }

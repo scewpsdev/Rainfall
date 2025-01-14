@@ -29,7 +29,7 @@ public class ArmorStand : Entity, Interactable
 	{
 	}
 
-	public bool isInteractable(Player player)
+	public bool canInteract(Player player)
 	{
 		return startingClass != null && player.startingClass != startingClass; // && player.money >= cost;
 	}

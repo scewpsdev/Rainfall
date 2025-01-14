@@ -21,6 +21,7 @@ public class Spear : Weapon
 		projectileItem = true;
 		projectileAims = true;
 		projectileSticks = true;
+		secondaryChargeTime = 0;
 
 		value = 12;
 

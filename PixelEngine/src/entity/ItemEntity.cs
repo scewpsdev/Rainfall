@@ -32,6 +32,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 	ParticleEffect particles;
 
+	Trail trail;
+
 
 	public ItemEntity(Item item, Entity thrower = null, Vector2 velocity = default)
 	{
@@ -67,6 +69,9 @@ public class ItemEntity : Entity, Interactable, Hittable
 			particles.layer = LAYER_INTERACTABLE - 0.01f;
 			GameState.instance.level.addEntity(particles, position + item.particlesOffset);
 		}
+
+		if (thrower != null)
+			trail = new Trail(20, Vector4.One, position);
 	}
 
 	public override void destroy()
@@ -228,13 +233,12 @@ public class ItemEntity : Entity, Interactable, Hittable
 					rotation = MathHelper.LerpAngle(rotation, MathF.PI, 5 * Time.deltaTime);
 			}
 		}
-		/*
-		else
+
+		if (trail != null)
 		{
-			rotation = MathHelper.Lerp(rotation, 0, 5 * Time.deltaTime);
-			flipped = false;
+			trail.update();
+			trail.setPosition(position);
 		}
-		*/
 
 		if (damage > 0 && item.projectileItem && thrower != null)
 		{
@@ -350,5 +354,10 @@ public class ItemEntity : Entity, Interactable, Hittable
 		}
 
 		item.render(this);
+
+		if (trail != null && velocity.length > 4)
+		{
+			trail.render();
+		}
 	}
 }

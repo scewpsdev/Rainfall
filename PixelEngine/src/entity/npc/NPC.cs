@@ -349,7 +349,7 @@ public abstract class NPC : Mob, Interactable
 		return null;
 	}
 
-	public bool isInteractable(Player player)
+	public bool canInteract(Player player)
 	{
 		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
 	}

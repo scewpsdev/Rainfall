@@ -51,7 +51,7 @@ public class Shortbow : Weapon
 
 	public override bool useSecondary(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 2, 0.5f, 1) { soundPlayed = true });
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 2, 0.5f, 1) { useSoundPlayed = true });
 		return false;
 	}
 }

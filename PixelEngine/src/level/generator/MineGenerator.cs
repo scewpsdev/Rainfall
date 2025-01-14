@@ -29,10 +29,10 @@ public partial class LevelGenerator
 		Vector3 lightAmbience = Vector3.One;
 		Vector3 mediumAmbience = new Vector3(0.2f);
 		Vector3 darkAmbience = new Vector3(0.001f);
-		areaMines[0] = new Level(0, "Crystal Mines", 30, 70, TileType.dirt, 12, 20) { ambientLight = mediumAmbience };
-		areaMines[1] = new Level(1, "", 70, 30, TileType.dirt, 14, 23) { ambientLight = mediumAmbience };
-		areaMines[2] = new Level(2, "", 40, 40, TileType.dirt, 16, 26) { ambientLight = mediumAmbience };
-		areaMines[3] = new Level(3, "", 30, 80, TileType.dirt, 18, 30) { ambientLight = mediumAmbience };
+		areaMines[0] = new Level(5, "Crystal Mines", 30, 70, TileType.dirt, 12, 20) { ambientLight = mediumAmbience };
+		areaMines[1] = new Level(6, "", 70, 30, TileType.dirt, 14, 23) { ambientLight = mediumAmbience };
+		areaMines[2] = new Level(7, "", 40, 40, TileType.dirt, 16, 26) { ambientLight = mediumAmbience };
+		areaMines[3] = new Level(8, "", 30, 80, TileType.dirt, 18, 30) { ambientLight = mediumAmbience };
 		areaMines[4] = new Level(-1, "") { ambientLight = mediumAmbience };
 
 		List<Mob> createEnemy()
@@ -51,7 +51,7 @@ public partial class LevelGenerator
 			return mobs;
 		};
 
-		createBarrelEntity = (Item[] items) => new Barrel(items);
+		createContainer = (Item[] items) => new Barrel(items);
 
 		generateMinesFloor(seed, 0, true, false, areaMines[0], areaMines[1], null, null, () => createEnemy().Slice(0, 5));
 		generateMinesFloor(seed, 1, false, false, areaMines[1], areaMines[2], areaMines[0], areaMines[0].exit, () => createEnemy().Slice(0, 6));
@@ -194,11 +194,11 @@ public partial class LevelGenerator
 			{
 				float progress = 1 - y / (float)level.height;
 				float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
-				return type > -0.1f ? TileType.dirt : TileType.stone;
+				return type > -0.1f ? TileType.rock : TileType.stone;
 			});
 		}
 
-		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
+		generateCaveBackground(level, simplex, TileType.rock, TileType.stone);
 
 
 		Door entranceDoor = floor == 0 ? new CaveEntranceDoor(lastLevel, lastExit) : new Door(lastLevel, lastExit);
@@ -221,7 +221,7 @@ public partial class LevelGenerator
 					if (x >= entrancePosition.x - 1 && x <= entrancePosition.x + 1 && y >= entrancePosition.y && y <= entrancePosition.y + 2)
 						level.setBGTile(x, y, null);
 					else
-						level.setBGTile(x, y, TileType.stone);
+						level.setBGTile(x, y, TileType.rock);
 				}
 			}
 		}
@@ -274,7 +274,7 @@ public partial class LevelGenerator
 		});
 
 
-		List<Item[]> items = generateItems(level.minLootValue, level.maxLootValue, DropRates.caves);
+		List<Item[]> items = generateItems(level.minLootValue, level.maxLootValue, DropRates.mines);
 
 		MathHelper.ShuffleList(deadEnds, random);
 		MathHelper.ShuffleList(mainRooms, random);

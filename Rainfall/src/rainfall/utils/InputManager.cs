@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public class InputBinding
 {
-	public KeyCode key = KeyCode.None;
+	public KeyCode[] keys = null;
 	public MouseButton button = MouseButton.None;
 	public GamepadButton gamepadButton = GamepadButton.None;
 	public int scrollDelta = 0;
@@ -18,14 +18,32 @@ public class InputBinding
 
 	public bool isDown()
 	{
-		return InputManager.inputEnabled && (key != KeyCode.None && Input.IsKeyDown(key)
+		bool keyDown = false;
+		if (keys != null)
+		{
+			for (int i = 0; i < keys.Length; i++)
+			{
+				if (Input.IsKeyDown(keys[i]))
+					keyDown = true;
+			}
+		}
+		return InputManager.inputEnabled && (keyDown
 			|| button != MouseButton.None && Input.IsMouseButtonDown(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonDown(gamepadButton));
 	}
 
 	public bool isPressed(bool consume)
 	{
-		bool result = InputManager.inputEnabled && (key != KeyCode.None && Input.IsKeyPressed(key)
+		bool keyPressed = false;
+		if (keys != null)
+		{
+			for (int i = 0; i < keys.Length; i++)
+			{
+				if (Input.IsKeyPressed(keys[i]))
+					keyPressed = true;
+			}
+		}
+		bool result = InputManager.inputEnabled && (keyPressed
 			|| button != MouseButton.None && Input.IsMouseButtonPressed(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonPressed(gamepadButton)
 			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove));
@@ -36,7 +54,16 @@ public class InputBinding
 
 	public bool isReleased(bool consume)
 	{
-		bool result = InputManager.inputEnabled && (key != KeyCode.None && Input.IsKeyReleased(key)
+		bool keyReleased = false;
+		if (keys != null)
+		{
+			for (int i = 0; i < keys.Length; i++)
+			{
+				if (Input.IsKeyReleased(keys[i]))
+					keyReleased = true;
+			}
+		}
+		bool result = InputManager.inputEnabled && (keyReleased
 			|| button != MouseButton.None && Input.IsMouseButtonReleased(button)
 			|| gamepadButton != GamepadButton.None && Input.IsGamepadButtonReleased(gamepadButton)
 			|| scrollDelta != 0 && scrollDelta == Math.Sign(Input.scrollMove));
@@ -47,8 +74,11 @@ public class InputBinding
 
 	public void consumeEvent()
 	{
-		if (key != KeyCode.None)
-			Input.ConsumeKeyEvent(key);
+		if (keys != null)
+		{
+			for (int i = 0; i < keys.Length; i++)
+				Input.ConsumeKeyEvent(keys[i]);
+		}
 		if (button != MouseButton.None)
 			Input.ConsumeMouseButtonEvent(button);
 		if (gamepadButton != GamepadButton.None)
@@ -67,8 +97,8 @@ public class InputBinding
 		}
 		else
 		{
-			if (key != KeyCode.None)
-				result.Append(key.ToString());
+			if (keys != null && keys.Length > 0)
+				result.Append((result.Length > 2 ? " / " : "") + keys[0].ToString());
 			if (button != MouseButton.None)
 				result.Append((result.Length > 0 ? " / " : "") + "M" + ((int)button).ToString());
 			if (scrollDelta != 0)
@@ -81,8 +111,11 @@ public class InputBinding
 	{
 		StringBuilder result = new StringBuilder();
 		result.Append("[ ");
-		if (key != KeyCode.None)
-			result.Append(key.ToString());
+		if (keys != null)
+		{
+			for (int i = 0; i < keys.Length; i++)
+				result.Append((result.Length > 2 ? " / " : "") + keys[i].ToString());
+		}
 		if (button != MouseButton.None)
 			result.Append((result.Length > 2 ? " / " : "") + "M" + ((int)button).ToString());
 		if (gamepadButton != GamepadButton.None)
@@ -131,7 +164,7 @@ public static class InputManager
 			foreach (DatField binding in bindingsFile.root.fields)
 			{
 				MouseButton button = MouseButton.None;
-				KeyCode key = KeyCode.None;
+				List<KeyCode> keys = new List<KeyCode>();
 				GamepadButton gamepadButton = GamepadButton.None;
 				int scrollDelta = 0;
 
@@ -139,7 +172,8 @@ public static class InputManager
 				{
 					string valueStr = binding.value.identifier;
 					TryGetButton(valueStr, ref button);
-					TryGetKey(valueStr, ref key);
+					if (TryGetKey(valueStr, out KeyCode key))
+						keys.Add(key);
 					TryGetGamepadButton(valueStr, ref gamepadButton);
 					TryGetScroll(valueStr, ref scrollDelta);
 				}
@@ -149,25 +183,31 @@ public static class InputManager
 					{
 						string valueStr = value.identifier;
 						TryGetButton(valueStr, ref button);
-						TryGetKey(valueStr, ref key);
+						if (TryGetKey(valueStr, out KeyCode key))
+							keys.Add(key);
 						TryGetGamepadButton(valueStr, ref gamepadButton);
 						TryGetScroll(valueStr, ref scrollDelta);
 					}
 				}
 
-				if (button != MouseButton.None || key != KeyCode.None || gamepadButton != GamepadButton.None || scrollDelta != 0)
+				if (button != MouseButton.None || keys.Count > 0 || gamepadButton != GamepadButton.None || scrollDelta != 0)
 				{
-					bindings.Add(binding.name, new InputBinding() { button = button, key = key, gamepadButton = gamepadButton, scrollDelta = scrollDelta });
+					bindings.Add(binding.name, new InputBinding() { button = button, keys = keys.ToArray(), gamepadButton = gamepadButton, scrollDelta = scrollDelta });
 					Console.WriteLine("Registered binding " + binding.name);
 				}
 			}
 		}
 	}
 
-	static void TryGetKey(string value, ref KeyCode key)
+	static bool TryGetKey(string value, out KeyCode key)
 	{
 		if (keys.ContainsKey(value))
+		{
 			key = keys[value];
+			return true;
+		}
+		key = KeyCode.None;
+		return false;
 	}
 
 	static void TryGetButton(string value, ref MouseButton button)
@@ -199,8 +239,13 @@ public static class InputManager
 		{
 			InputBinding binding = pair.Value;
 			List<DatValue> values = new List<DatValue>();
-			if (binding.key != KeyCode.None)
-				values.Add(new DatValue(binding.key.ToString(), DatValueType.Identifier));
+			if (binding.keys != null)
+			{
+				DatValue[] keyValues = new DatValue[binding.keys.Length];
+				for (int i = 0; i < binding.keys.Length; i++)
+					keyValues[i] = new DatValue(binding.keys[i].ToString(), DatValueType.Identifier);
+				values.Add(new DatValue(new DatArray(keyValues)));
+			}
 			if (binding.button != MouseButton.None)
 				values.Add(new DatValue("M" + ((int)binding.button).ToString(), DatValueType.Identifier));
 			if (binding.gamepadButton != GamepadButton.None)

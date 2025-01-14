@@ -206,7 +206,9 @@ public static class OptionsMenu
 			else
 			{
 				Input.ConsumeKeyEvent(key);
-				awaitingInputOption.input.key = key;
+				if (awaitingInputOption.input.keys == null)
+					awaitingInputOption.input.keys = new KeyCode[1];
+				awaitingInputOption.input.keys[0] = key;
 				awaitingInputOption = null;
 			}
 		}

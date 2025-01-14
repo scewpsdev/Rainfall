@@ -14,7 +14,7 @@ public class ParticleEffect : Entity
 	public ParticleSystem[] systems;
 	public Texture[] textureAtlases;
 	public bool collision = false;
-	public bool bounce = false;
+	public float bounciness = 0;
 
 	float[] emissionRates;
 
@@ -85,12 +85,15 @@ public class ParticleEffect : Entity
 					{
 						if (GameState.instance.level.hitTiles(particle.position.xy) != null)
 						{
-							if (bounce)
+							if (bounciness > 0)
 							{
 								if (MathF.Abs(particle.velocity.x) > MathF.Abs(particle.velocity.y))
-									particle.velocity.x *= -0.5f;
+									particle.velocity.x *= -bounciness;
 								else
-									particle.velocity.y *= -0.5f;
+								{
+									particle.velocity.y *= -bounciness;
+									particle.velocity.x *= bounciness;
+								}
 							}
 							else
 							{

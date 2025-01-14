@@ -21,7 +21,7 @@ public static unsafe class ParticleEffects
 	{
 		ParticleEffect effect = new ParticleEffect(null, "effects/fountain2.rfs");
 		effect.collision = true;
-		effect.bounce = true;
+		effect.bounciness = 0.9f;
 		return effect;
 	}
 
@@ -50,7 +50,7 @@ public static unsafe class ParticleEffects
 		effect.systems[0].handle->colorAnim.value0.value.xyz = color;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = color;
 		//effect.collision = true;
-		effect.bounce = true;
+		effect.bounciness = 0.5f;
 		return effect;
 	}
 
@@ -78,19 +78,25 @@ public static unsafe class ParticleEffects
 		return effect;
 	}
 
-	public static ParticleEffect CreateDestroyWoodEffect(uint color)
+	public static ParticleEffect CreateDestroyWoodEffect(uint color, int count = 10, Vector2 initialVelocity = default)
 	{
 		ParticleEffect effect = new ParticleEffect(null, "effects/destroy_wood.rfs");
 		effect.systems[0].handle->color = MathHelper.ARGBToVector(color);
+		effect.systems[0].handle->startVelocity += new Vector3(initialVelocity, 0);
+		effect.systems[0].handle->bursts[0].count = count;
 		effect.collision = true;
+		effect.bounciness = 0.3f;
 		return effect;
 	}
 
-	public static ParticleEffect CreateDestroyPotEffect(uint color)
+	public static ParticleEffect CreateDestroyPotEffect(uint color, int count = 10, Vector2 initialVelocity = default)
 	{
 		ParticleEffect effect = new ParticleEffect(null, "effects/destroy_pot.rfs");
 		effect.systems[0].handle->color = MathHelper.ARGBToVector(color);
+		effect.systems[0].handle->startVelocity += new Vector3(initialVelocity, 0);
+		effect.systems[0].handle->bursts[0].count = count;
 		effect.collision = true;
+		effect.bounciness = 0.3f;
 		return effect;
 	}
 

@@ -20,12 +20,16 @@ public class AttackAction : EntityAction
 	float startAngle, endAngle;
 
 	public List<Entity> hitEntities = new List<Entity>();
-	public bool soundPlayed = false;
 	float maxRange = 0;
+
+	public bool useSoundPlayed = false;
+	bool hitSoundPlayed = false;
 
 	public int attackIdx = 0;
 
 	int lastSpin = 0;
+
+	Trail trail;
 
 
 	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
@@ -59,6 +63,29 @@ public class AttackAction : EntityAction
 
 		direction = player.lookDirection.normalized;
 		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
+	}
+
+	Vector2 getWeaponTip(Player player)
+	{
+		bool flip = charDirection < 0;
+		Vector2 position = new Vector2(0.5f * weapon.size.x, 0);
+		position = Vector2.Rotate(position, weapon.attackRotationOffset);
+		position += new Vector2(currentRange - 0.25f - 0.5f * weapon.size.x, 0);
+		position = Vector2.Rotate(position, currentAngle);
+		if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
+			position *= new Vector2(1, 0.5f);
+		else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
+			position *= new Vector2(0.5f, 1);
+		position += new Vector2(0, player.getWeaponOrigin(mainHand).y);
+		if (flip)
+			position.x *= -1;
+		position += player.position;
+		return position;
+	}
+
+	public override void onStarted(Player player)
+	{
+		trail = new Trail(20, Vector4.One, getWeaponTip(player));
 	}
 
 	public override void onFinished(Player player)
@@ -147,8 +174,11 @@ public class AttackAction : EntityAction
 							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
 						}
 
-						if (weapon.hitSound != null)
+						if (weapon.hitSound != null && !hitSoundPlayed)
+						{
 							Audio.PlayOrganic(weapon.hitSound, new Vector3(hits[i].entity.position + hits[i].entity.collider.center, 0));
+							hitSoundPlayed = true;
+						}
 
 						//if (critical)
 						//	GameState.instance.level.addEntity(Effects.CreateCriticalEffect(), hits[i].entity.position + hits[i].entity.collider.center);
@@ -156,12 +186,21 @@ public class AttackAction : EntityAction
 				}
 			}
 
-			if (!soundPlayed && weapon.useSound != null)
+			if (!useSoundPlayed && weapon.useSound != null)
 			{
 				Audio.PlayOrganic(weapon.useSound, new Vector3(player.position, 0), 1, attackRate * 0.25f);
-				soundPlayed = true;
+				useSoundPlayed = true;
 			}
 		}
+
+		trail.update();
+		if (inDamageWindow)
+			trail.setPosition(getWeaponTip(player));
+	}
+
+	public override void render(Player player)
+	{
+		trail.render();
 	}
 
 	public float currentProgress
@@ -182,7 +221,7 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => stab ? currentProgress * attackRange : attackRange * 1.2f;
+		get => (stab ? currentProgress * attackRange : attackRange) + 0.25f;
 	}
 
 	public float currentAngle
@@ -204,10 +243,14 @@ public class AttackAction : EntityAction
 	{
 		float rotation = currentAngle;
 		bool flip = charDirection < 0;
-		Matrix weaponTransform = Matrix.CreateTranslation(0, player.getWeaponOrigin(mainHand).y, 0)
-			* Matrix.CreateRotation(Vector3.UnitZ, rotation)
-			* Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0)
+		Matrix weaponTransform = Matrix.CreateRotation(Vector3.UnitZ, rotation)
+			* Matrix.CreateTranslation(currentRange - 0.25f - 0.5f * weapon.size.x, 0, 0)
 			* Matrix.CreateRotation(Vector3.UnitZ, weapon.attackRotationOffset);
+		if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
+			weaponTransform.translation *= new Vector3(1, 0.5f, 1);
+		else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
+			weaponTransform.translation *= new Vector3(0.5f, 1, 1);
+		weaponTransform = Matrix.CreateTranslation(0, player.getWeaponOrigin(mainHand).y, 0) * weaponTransform;
 		if (flip)
 			weaponTransform = Matrix.CreateRotation(Vector3.UnitY, MathF.PI) * weaponTransform;
 		return weaponTransform;

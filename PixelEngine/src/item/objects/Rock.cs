@@ -6,37 +6,42 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Rock : Item
+public class Rock : Object
 {
+	Sound[] hitSound;
+
+
 	public Rock()
-		: base("rock", ItemType.Weapon)
 	{
 		displayName = "Rock";
 
-		projectileItem = true;
-		maxPierces = -1;
-		twoHanded = true;
+		damage = 4;
+		health = 20;
 
-		baseDamage = 1.5f; //4;
-
-		value = 1;
-		upgradable = false;
-
-		sprite = new Sprite(tileset, 4, 0);
-		renderOffset.x = 0.3f;
+		sprite = new Sprite(Item.tileset, 4, 0);
+		collider = new FloatRect(-5 / 16.0f, 0, 10 / 16.0f, 7 / 16.0f);
+		platformCollider = true;
 
 		hitSound = Resource.GetSounds("sounds/hit_rock", 5);
 	}
 
-	public override bool use(Player player)
+	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		player.throwItem(this, player.lookDirection.normalized);
+		base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
+
+		if (hitSound != null)
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0));
+
 		return true;
 	}
 
-	public override void upgrade()
+	protected override void onCollision(bool x, bool y, bool isEntity)
 	{
-		base.upgrade();
-		baseDamage++;
+		if (isEntity)
+			hit(velocity.length / 8);
+		else if (velocity.length > 8)
+			hit((velocity.length - 8) / 8);
+
+		base.onCollision(x, y, isEntity);
 	}
 }

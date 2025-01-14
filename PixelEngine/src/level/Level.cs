@@ -509,7 +509,7 @@ public class Level
 					p += entities[i].collider.center;
 				Vector2 delta = p - position;
 				float d2 = Vector2.Dot(delta, delta);
-				if (interactable.isInteractable(player) && d2 < interactable.getRange() * interactable.getRange())
+				if (interactable.canInteract(player) && d2 < interactable.getRange() * interactable.getRange())
 				{
 					if (d2 < resultD2)
 					{

@@ -42,6 +42,7 @@ public class TileType
 	public static TileType water;
 	public static TileType wood;
 	public static TileType bricks;
+	public static TileType rock;
 
 
 	static TileType()
@@ -153,6 +154,33 @@ public class TileType
 			left = [new Sprite(tileset, 3, 22)],
 			right = [new Sprite(tileset, 5, 22)],
 			bottom = [new Sprite(tileset, 4, 23)],
+		});
+		AddTileType(rock = new TileType()
+		{
+			name = "rock",
+			color = 0xFF4a5062,
+			isSolid = true,
+			health = 3,
+			particleColor = 0xFF4a5062,
+			sprites = [
+				new Sprite(tileset, 4, 25),
+			],
+			left = [new Sprite(tileset, 3, 25)],
+			right = [new Sprite(tileset, 5, 25)],
+			bottom = [new Sprite(tileset, 4, 26)],
+			top = [
+				new Sprite(tileset, 4, 24),
+				new Sprite(tileset, 6, 24),
+				new Sprite(tileset, 7, 24),
+				new Sprite(tileset, 8, 24),
+				new Sprite(tileset, 9, 24),
+				new Sprite(tileset, 10, 24),
+				new Sprite(tileset, 11, 24),
+				new Sprite(tileset, 12, 24),
+				new Sprite(tileset, 13, 24),
+				new Sprite(tileset, 14, 24),
+				new Sprite(tileset, 15, 24),
+			],
 		});
 	}
 

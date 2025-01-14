@@ -23,7 +23,7 @@ public class Dagger : Weapon
 		projectileSpins = true;
 		//isSecondaryItem = true;
 		baseWeight = 1;
-		secondaryChargeTime = 0.25f;
+		secondaryChargeTime = 0;
 		criticalChanceModifier = 2.0f;
 
 		value = 4;
