@@ -25,6 +25,8 @@ struct ResourceTask
 };
 
 
+static bool optimizeSceneGraph = true;
+
 static int assetsCompiled = 0;
 static int assetsUpToDate = 0;
 
@@ -239,7 +241,7 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 	}
 	else if (extension == ".glb" || extension == ".gltf")
 	{
-		success = CompileGeometry(filepathStr.c_str(), outpath.c_str());
+		success = CompileGeometry(filepathStr.c_str(), outpath.c_str(), optimizeSceneGraph);
 	}
 	else
 	{
@@ -418,6 +420,8 @@ int main(int argc, char* argv[])
 			{
 				if (strcmp(arg, "-f") == 0)
 					singleFile = true;
+				else if (strcmp(arg, "--preserve-scenegraph") == 0)
+					optimizeSceneGraph = false;
 			}
 			else
 			{

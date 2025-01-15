@@ -375,7 +375,7 @@ public class Level
 		}
 	}
 
-	public void addCollider(Entity collider)
+	public void addEntityCollider(Entity collider)
 	{
 		colliders.Add(collider);
 	}
@@ -546,7 +546,8 @@ public class Level
 			direction.y = 0.00001f;
 
 		Vector2i pos = (Vector2i)Vector2.Floor(origin);
-		Vector2 ri = 1.0f / direction;
+		//Vector2 ri = 1.0f / direction;
+		Vector2 ri = 1.0f / new Vector2(direction.x != 0 ? direction.x : 0, direction.y != 0 ? direction.y : 0);
 		Vector2i rs = Vector2.Sign(direction);
 		Vector2 dis = (pos - origin + 0.5f + rs * 0.5f) * ri;
 
@@ -757,8 +758,6 @@ public class Level
 						hitPosition = position;
 						hitDistance = distance;
 						hitNormal = normal;
-
-						hitBoundingBox(origin, direction, min, max, out position, out distance, out normal);
 					}
 				}
 			}

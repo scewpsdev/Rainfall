@@ -1471,7 +1471,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					break;
 				}
 			}
-			if (!switched)
+			if (!switched && spellItems.Count > 0)
 				selectedSpellItem = (selectedSpellItem + 1) % spellItems.Count;
 		}
 	}

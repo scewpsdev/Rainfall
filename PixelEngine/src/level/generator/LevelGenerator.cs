@@ -326,6 +326,8 @@ public partial class LevelGenerator
 	{
 		switch (color)
 		{
+			case 0x00000000:
+				return null;
 			case 0xFF000000:
 				return null;
 			case 0xFFFF0000:
@@ -1267,5 +1269,10 @@ public partial class LevelGenerator
 
 		Simplex simplex = new Simplex(12345, 3);
 		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
+	}
+
+	public void generateIntroBridge(Level level)
+	{
+		generateSingleRoomLevel(level, new Room("level/intro/bridge.png"), null, TileType.bricks, TileType.stone);
 	}
 }

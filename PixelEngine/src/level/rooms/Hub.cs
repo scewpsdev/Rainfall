@@ -112,7 +112,7 @@ public class Hub : Entity
 			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
 		}
 
-		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
+		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
 		{
 			level.addEntity(NPCManager.logan, new Vector2(56, 23));
 		}

@@ -8,8 +8,13 @@ using System.Threading.Tasks;
 
 public class ParallaxObject : Entity
 {
-	Sprite sprite;
-	float layer;
+	public Sprite sprite;
+	public float layer;
+
+
+	public ParallaxObject()
+	{
+	}
 
 	public ParallaxObject(Texture texture, float layer)
 	{
@@ -20,6 +25,12 @@ public class ParallaxObject : Entity
 	public ParallaxObject(Texture texture, int x, int y, int width, int height, float layer)
 	{
 		sprite = new Sprite(texture, x, y, width, height);
+		this.layer = layer;
+	}
+
+	public ParallaxObject(Sprite sprite, float layer)
+	{
+		this.sprite = sprite;
 		this.layer = layer;
 	}
 

@@ -85,6 +85,7 @@ public class GameState : State
 	public LevelGenerator generator;
 
 	//public Level startingCave;
+	public Level introBridge;
 	public Level hub;
 	public Level cliffside;
 	public Level tutorial;
@@ -143,6 +144,7 @@ public class GameState : State
 
 		generator = new LevelGenerator();
 
+		introBridge = new Level(-1, "");
 		hub = new Level(-1, "Hollow's Refuge");
 		//tutorial = new Level(-1, "Tutorial");
 		cliffside = new Level(-1, "Cliffside");
@@ -163,13 +165,25 @@ public class GameState : State
 		generator.generateDungeons(run.seed, out areaDungeons);
 		generator.generateMines(run.seed, out areaMines);
 
+		generator.generateIntroBridge(introBridge);
+		generator.generateCliffside(cliffside);
+		generator.generateTutorial(tutorial);
+		generator.generateHub(hub);
+
+		// Intro
+		{
+			introBridge.addEntity(new IntroBridge());
+			introBridge.bg = Resource.GetTexture("level/cliffside/bg.png", false);
+			introBridge.ambientSound = Resource.GetSound("sounds/ambience2.ogg");
+
+			loadScene("level/intro/bridge.gltf", introBridge);
+		}
 
 		// Cliffside
 		Door tutorialDoor;
 		{
 			//tutorialEntrance.otherDoor = cliffTutorialDoor;
 
-			generator.generateCliffside(cliffside);
 			cliffside.addEntity(new Cliffside(cliffside.rooms[0]));
 			cliffside.bg = Resource.GetTexture("level/cliffside/bg.png", false);
 			cliffside.ambientSound = Resource.GetSound("sounds/ambience4.ogg");
@@ -182,7 +196,6 @@ public class GameState : State
 
 		// Tutorial
 		{
-			generator.generateTutorial(tutorial);
 			tutorial.addEntity(new Tutorial(tutorial.rooms[0]));
 
 			Door cliffsideDoor = new TutorialExitDoor(cliffside, tutorialDoor);
@@ -192,7 +205,6 @@ public class GameState : State
 
 		// Hub
 		{
-			generator.generateHub(hub);
 			hub.addEntity(new Hub(hub.rooms[0]));
 		}
 
@@ -237,8 +249,6 @@ public class GameState : State
 			else
 			{
 				player.money = 8;
-				//player.items.Add(new TravellingCloak());
-				//player.passiveItems.Add(player.items[0]);
 			}
 			levelSwitchTime = -1;
 		}
@@ -250,20 +260,76 @@ public class GameState : State
 			levelSwitchTime = -1;
 
 			player.money = 8;
-			//player.items.Add(new TravellingCloak());
-			//player.passiveItems.Add(player.items[0]);
 		}
 		else
 		{
 			level = null;
-			switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
+			//switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
+			switchLevel(introBridge, (Vector2)introBridge.rooms[0].getMarker(0x22));
 			levelSwitchTime = -1;
 
-			player.actions.queueAction(new UnconciousAction());
+			//player.actions.queueAction(new UnconciousAction());
 		}
+	}
 
-		//switchLevel(areaGardens[2], areaGardens[2].entrance.position);
-		//player.giveItem(new Waraxe());
+	unsafe void loadScene(string path, Level level)
+	{
+		Model scene = Resource.GetModel(path, false);
+		foreach (Node node in scene.skeleton.nodes)
+		{
+			if (node.name == "tilemap" || node.name == "Plane")
+				continue;
+
+			for (int i = 0; i < node.meshes.Length; i++)
+			{
+				int meshID = node.meshes[i];
+				MeshData* mesh = &scene.scene->meshes[meshID];
+
+				if (mesh->materialID != -1)
+				{
+					MaterialData* material = &scene.scene->materials[mesh->materialID];
+					string texturePath = new string((sbyte*)material->diffuse->path);
+					texturePath = StringUtils.AbsolutePath(texturePath, path);
+					Texture texture = Resource.GetTexture(texturePath, false);
+
+					int numSubMeshes = mesh->vertexCount / 4;
+					for (int k = 0; k < numSubMeshes; k++)
+					{
+						Vector2 min = new Vector2(float.MaxValue);
+						Vector2 max = new Vector2(float.MinValue);
+						float layer = 0;
+						Vector2 uv0 = new Vector2(float.MaxValue);
+						Vector2 uv1 = new Vector2(float.MinValue);
+						for (int j = k * 4; j < k * 4 + 4; j++)
+						{
+							PositionNormalTangent* vertex = &mesh->vertices[j];
+							Vector3 position = node.transform * vertex->position;
+							min = Vector2.Min(min, position.xy);
+							max = Vector2.Max(max, position.xy);
+							layer = position.z;
+
+							Vector2 uv = mesh->texcoords[j];
+							uv0 = Vector2.Min(uv0, uv);
+							uv1 = Vector2.Max(uv1, uv);
+						}
+
+						ParallaxObject entity = new ParallaxObject();
+
+						int u0 = (int)MathF.Round(uv0.x * texture.width);
+						int v0 = (int)MathF.Round(uv0.y * texture.height);
+						int w = (int)MathF.Round((uv1.x - uv0.x) * texture.width);
+						int h = (int)MathF.Round((uv1.y - uv0.y) * texture.height);
+						entity.sprite = new Sprite(texture, u0, v0, w, h);
+						entity.layer = MathF.Log2(1 - layer * 0.1f);
+
+						Vector2 center = (min + max) * 0.5f;
+						//Vector2 size = max - min;
+						//entity.rect = new FloatRect(-0.5f * size, size);
+						level.addEntity(entity, center);
+					}
+				}
+			}
+		}
 	}
 
 	public override void init()

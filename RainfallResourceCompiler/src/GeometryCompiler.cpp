@@ -640,7 +640,7 @@ static int CountNodes(const aiNode* ainode)
 	return result;
 }
 
-bool CompileGeometry(const char* path, const char* out)
+bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 {
 	unsigned int flags = 0
 		| aiProcess_ValidateDataStructure
@@ -651,10 +651,13 @@ bool CompileGeometry(const char* path, const char* out)
 		| aiProcess_ImproveCacheLocality
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
-		| aiProcess_OptimizeGraph
+		//| aiProcess_OptimizeGraph
 		| aiProcess_PopulateArmatureData
 		//| aiProcess_RemoveRedundantMaterials
 		;
+
+	if (optimizeGraph)
+		flags |= aiProcess_OptimizeGraph;
 
 	Assimp::Importer importer;
 	//importer.SetPropertyString(AI_CONFIG_PP_OG_EXCLUDE_LIST,

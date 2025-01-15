@@ -101,7 +101,7 @@ public class Fountain : Entity, Interactable
 	{
 		level.addEntity(particles = ParticleEffects.CreateFountainEffect(), position + new Vector2(0, 1.0f - 2.0f / 16));
 
-		level.addCollider(this);
+		level.addEntityCollider(this);
 
 		source = Audio.Play(idleSound, new Vector3(position, 0));
 		Audio.SetPaused(source, true);

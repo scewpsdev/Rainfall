@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class MagicProjectile : Projectile
 {
-	const float speed = 30; //2;
+	const float speed = 50; //2;
 
 	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item spell, Item staff)
 		: base(direction * speed, startVelocity, offset, player, spell, spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier())
@@ -22,6 +22,8 @@ public class MagicProjectile : Projectile
 		sprite = new Sprite(Item.tileset, 9, 1);
 		spriteColor = new Vector4(1.5f);
 		additive = true;
+
+		trailColor = 0xFF99eeee;
 	}
 
 	public override void onHit(Vector2 normal)

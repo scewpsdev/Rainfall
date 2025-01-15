@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 public class LevelTransition : Door
 {
-	Vector2i size;
+	public Vector2i size;
 	public Vector2i direction;
 	bool inTrigger = false;
+
+	public Action onTrigger;
 
 
 	public LevelTransition(Level destination, Door otherDoor, Vector2i size, Vector2i direction)
@@ -18,6 +20,8 @@ public class LevelTransition : Door
 	{
 		this.size = size;
 		this.direction = direction;
+
+		openSound = null;
 	}
 
 	public override Vector2 getSpawnPoint()
@@ -43,6 +47,8 @@ public class LevelTransition : Door
 		{
 			inTrigger = true;
 			base.interact(GameState.instance.player);
+			if (onTrigger != null)
+				onTrigger();
 		}
 		else if (!playerFound && inTrigger)
 		{

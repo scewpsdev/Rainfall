@@ -241,7 +241,7 @@ public class SaveFile
 					quest.state = state;
 					quest.load(quests[i].obj);
 
-					if (quest.state == QuestState.InProgress)
+					if (quest.state == QuestState.InProgress || quest.state == QuestState.Completed)
 						QuestManager.AddActiveQuest(npc.name, quest);
 				}
 			}

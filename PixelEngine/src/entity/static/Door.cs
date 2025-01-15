@@ -17,6 +17,7 @@ public class Door : Entity, Interactable
 {
 	public Level destination;
 	public Door otherDoor;
+	public Vector2i? destinationPosition;
 	public bool locked = false;
 	public bool finalExit = false;
 
@@ -49,18 +50,27 @@ public class Door : Entity, Interactable
 
 	public virtual bool canInteract(Player player)
 	{
-		return destination != null && otherDoor != null && !locked || finalExit;
+		return destination != null && (otherDoor != null || destinationPosition.HasValue) && !locked || finalExit;
 	}
 
 	public virtual void interact(Player player)
 	{
 		// unlock from the other side
-		otherDoor.locked = false;
+		if (otherDoor != null)
+			otherDoor.locked = false;
 
 		if (finalExit)
 			GameState.instance.stopRun(true);
 		else
-			GameState.instance.switchLevel(destination, otherDoor.getSpawnPoint());
+		{
+			if (otherDoor != null)
+				GameState.instance.switchLevel(destination, otherDoor.getSpawnPoint());
+			else
+			{
+				Debug.Assert(destinationPosition.HasValue);
+				GameState.instance.switchLevel(destination, destinationPosition.Value + new Vector2(0.5f));
+			}
+		}
 
 		if (otherDoor is LevelTransition)
 		{
@@ -68,11 +78,15 @@ public class Door : Entity, Interactable
 			if (transition.direction.x != 0)
 				player.direction = -(otherDoor as LevelTransition).direction.x;
 			if (transition.direction == Vector2i.Down)
-				player.velocity.y = 20;
+				player.velocity.y = 16;
+		}
+		else
+		{
+			player.velocity = Vector2.Zero;
 		}
 
-		//Audio.PlayOrganic(openSound, new Vector3(position, 0));
-		Audio.PlayBackground(openSound, 0.2f);
+		if (openSound != null)
+			Audio.PlayBackground(openSound, 0.2f);
 	}
 
 	public void onFocusEnter(Player player)

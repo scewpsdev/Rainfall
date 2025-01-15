@@ -51,21 +51,27 @@ public class UnconciousAction : EntityAction
 	{
 		base.update(player);
 
-		if (elapsedTime < 2)
+		float fadeStart = 4;
+		float fadeEnd = 8;
+
+		if (elapsedTime < fadeStart)
 			player.hud.screenFade = 0;
-		else if (elapsedTime < 8)
-			player.hud.screenFade = (elapsedTime - 2) / 6.0f;
+		else if (elapsedTime < fadeEnd)
+			player.hud.screenFade = (elapsedTime - fadeStart) / (fadeEnd - fadeStart);
 		else
 			player.hud.screenFade = 1;
 
 		if (!gettingUp)
 		{
-			if (InputManager.IsDown("Left") || InputManager.IsDown("Right") || InputManager.IsDown("Up") || InputManager.IsDown("Down"))
+			if (elapsedTime > fadeEnd - GETTING_UP_DELAY)
 			{
-				gettingUp = true;
-				gettingUpTime = Time.currentTime;
-				animation = "stun";
-				Audio.Play(wakeupSound, new Vector3(player.position, 0));
+				if (InputManager.IsDown("Left") || InputManager.IsDown("Right") || InputManager.IsDown("Up") || InputManager.IsDown("Down"))
+				{
+					gettingUp = true;
+					gettingUpTime = Time.currentTime;
+					animation = "stun";
+					Audio.Play(wakeupSound, new Vector3(player.position, 0));
+				}
 			}
 		}
 		if (gettingUp)

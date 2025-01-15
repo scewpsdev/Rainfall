@@ -25,7 +25,7 @@ public class Crossbow : Weapon
 		knockback = 12.0f;
 		trigger = true;
 		twoHanded = true;
-		secondaryChargeTime = 1.0f;
+		secondaryChargeTime = 0;
 		requiredAmmo = "arrow";
 
 		value = 17;

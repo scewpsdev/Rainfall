@@ -37,7 +37,7 @@ public class Object : Entity, Hittable, Interactable
 
 	public override void init(Level level)
 	{
-		level.addCollider(this);
+		level.addEntityCollider(this);
 	}
 
 	public override void destroy()

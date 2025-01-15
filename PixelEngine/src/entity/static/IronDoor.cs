@@ -118,7 +118,7 @@ public class IronDoor : Entity, Interactable, Hittable
 		Vector2i tile = (Vector2i)Vector2.Floor(position + new Vector2(0, 0.5f));
 		if (!open)
 		{
-			level.addCollider(this);
+			level.addEntityCollider(this);
 			//level.setTile(tile.x, tile.y, TileType.dummy);
 		}
 		else
