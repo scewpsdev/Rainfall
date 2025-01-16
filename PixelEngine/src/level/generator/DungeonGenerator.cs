@@ -26,14 +26,13 @@ public partial class LevelGenerator
 
 	public void generateDungeons(string seed, out Level[] areaDungeons)
 	{
-		areaDungeons = new Level[6];
+		areaDungeons = new Level[5];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
-		areaDungeons[0] = new Level(9, "Weeping Catacombs", 50, 30, TileType.stone, 12, 20) { ambientLight = ambience };
-		areaDungeons[1] = new Level(10, "", 30, 40, TileType.stone, 14, 24) { ambientLight = ambience };
-		areaDungeons[2] = new Level(11, "", 40, 40, TileType.stone, 17, 30) { ambientLight = ambience };
-		areaDungeons[3] = new Level(12, "", 30, 50, TileType.stone, 20, 35) { ambientLight = ambience };
-		areaDungeons[4] = new Level(13, "", 50, 20, TileType.stone, 24, 40) { ambientLight = ambience };
-		areaDungeons[5] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
+		areaDungeons[0] = new Level(9, "Weeping Catacombs", 50, 30, TileType.stone, 20, 40) { ambientLight = ambience };
+		areaDungeons[1] = new Level(10, "", 30, 40, TileType.stone, 22, 50) { ambientLight = ambience };
+		areaDungeons[2] = new Level(11, "", 40, 40, TileType.stone, 25, 60) { ambientLight = ambience };
+		areaDungeons[3] = new Level(12, "", 30, 50, TileType.stone, 27, 70) { ambientLight = ambience };
+		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
 
 		List<Mob> createEnemy()
 		{
@@ -49,16 +48,15 @@ public partial class LevelGenerator
 		};
 
 		//createBarrelEntity = (Item[] items) => new Pot(items);
-		createContainer = (Item[] items) => new Crate(items);
-		createExplosiveObject = () => new ExplosiveCrate();
+		createContainer = (Item[] items) => new Pot(items);
+		createExplosiveObject = () => new ExplosivePot();
 
 		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
-		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 4));
-		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy().Slice(0, 5));
+		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 5));
+		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy().Slice(0, 6));
 		generateDungeonFloor(seed, false, false, areaDungeons[3], areaDungeons[4], areaDungeons[2], areaDungeons[2].exit, () => createEnemy().Slice(0, 7));
-		generateDungeonFloor(seed, false, false, areaDungeons[4], areaDungeons[5], areaDungeons[3], areaDungeons[3].exit, () => createEnemy().Slice(0, 7));
 
-		generateDungeonBossFloor(areaDungeons[5], null, areaDungeons[4], areaDungeons[4].exit);
+		generateDungeonBossFloor(areaDungeons[4], null, areaDungeons[3], areaDungeons[3].exit);
 	}
 
 	public List<NPC> getDungeonNPCList()
@@ -75,7 +73,7 @@ public partial class LevelGenerator
 
 	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		Room room = generateSingleRoomLevel(level, specialSet, 4, TileType.stone, TileType.dirt);
+		Room room = generateSingleRoomLevel(level, specialSet, 18, TileType.bricks, TileType.dirt, 0, 0x4);
 
 		level.fogFalloff = 0.1f;
 		level.fogColor = new Vector3(0.0f);

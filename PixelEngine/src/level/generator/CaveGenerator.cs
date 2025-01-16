@@ -87,25 +87,21 @@ public partial class LevelGenerator
 		{
 			List<Mob> mobs = new List<Mob>();
 			mobs.Add(new Rat());
-			mobs.Add(new Beetle());
 			mobs.Add(new Spider());
 			mobs.Add(new Snake());
 			mobs.Add(new Bat());
 			mobs.Add(new Slime());
-			mobs.Add(new SkeletonArcher());
-			mobs.Add(new GreenSpider());
-			mobs.Add(new OrangeBat());
-			mobs.Add(new BlueSlime());
+			mobs.Add(new Beetle());
 			return mobs;
 		};
 
 		createContainer = (Item[] items) => new Barrel(items);
 
-		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 5));
-		generateCaveFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 6));
-		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 7));
-		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 9));
-		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(2, 8));
+		generateCaveFloor(seed, 0, true, false, areaCaves[0], areaCaves[1], null, null, () => createEnemy().Slice(0, 3));
+		generateCaveFloor(seed, 1, false, false, areaCaves[1], areaCaves[2], areaCaves[0], areaCaves[0].exit, () => createEnemy().Slice(0, 4));
+		generateCaveFloor(seed, 2, false, false, areaCaves[2], areaCaves[3], areaCaves[1], areaCaves[1].exit, () => createEnemy().Slice(0, 5));
+		generateCaveFloor(seed, 3, false, false, areaCaves[3], areaCaves[4], areaCaves[2], areaCaves[2].exit, () => createEnemy().Slice(0, 6));
+		generateCaveFloor(seed, 4, false, true, areaCaves[4], areaCaves[5], areaCaves[3], areaCaves[3].exit, () => createEnemy().Slice(1, 5));
 
 		generateCaveBossFloor(areaCaves[5], areaCaves[6], areaCaves[4], areaCaves[4].exit);
 
@@ -372,7 +368,7 @@ public partial class LevelGenerator
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, 0.05f, true, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.1f, true, (Vector2i tile, Random random, Room room) =>
 		{
 			int amount = MathHelper.RandomInt(2, 7, random);
 			level.addEntity(new CoinStack(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));

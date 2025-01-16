@@ -67,7 +67,7 @@ public class BurstShotSpell : Spell
 		if (castTime != -1)
 		{
 			float elapsed = (Time.currentTime - castTime) / 1e9f * speed;
-			int projectilesShouldCast = Math.Min((int)(elapsed / 0.2f) + 1, 3);
+			int projectilesShouldCast = Math.Min((int)(elapsed / 0.1f) + 1, 3);
 			if (castedProjectiles < projectilesShouldCast)
 			{
 				shoot();

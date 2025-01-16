@@ -30,7 +30,7 @@ public class GolemBoss : Mob
 
 		health = 30;
 		poise = 4;
-		speed = 2.0f;
+		speed = 3.3f;
 		damage = 1.0f;
 		jumpPower = 11;
 		gravity = -20;

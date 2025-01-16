@@ -30,33 +30,32 @@ public partial class LevelGenerator
 		Vector3 mediumAmbience = new Vector3(0.2f);
 		Vector3 darkAmbience = new Vector3(0.001f);
 		areaMines[0] = new Level(5, "Crystal Mines", 30, 70, TileType.dirt, 12, 20) { ambientLight = mediumAmbience };
-		areaMines[1] = new Level(6, "", 70, 30, TileType.dirt, 14, 23) { ambientLight = mediumAmbience };
-		areaMines[2] = new Level(7, "", 40, 40, TileType.dirt, 16, 26) { ambientLight = mediumAmbience };
-		areaMines[3] = new Level(8, "", 30, 80, TileType.dirt, 18, 30) { ambientLight = mediumAmbience };
+		areaMines[1] = new Level(6, "", 70, 30, TileType.dirt, 14, 25) { ambientLight = mediumAmbience };
+		areaMines[2] = new Level(7, "", 40, 40, TileType.dirt, 16, 30) { ambientLight = mediumAmbience };
+		areaMines[3] = new Level(8, "", 30, 80, TileType.dirt, 18, 35) { ambientLight = mediumAmbience };
 		areaMines[4] = new Level(-1, "") { ambientLight = mediumAmbience };
 
 		List<Mob> createEnemy()
 		{
 			List<Mob> mobs = new List<Mob>();
-			mobs.Add(new Rat());
-			mobs.Add(new Beetle());
 			mobs.Add(new Spider());
 			mobs.Add(new Snake());
 			mobs.Add(new Bat());
 			mobs.Add(new Slime());
-			mobs.Add(new SkeletonArcher());
 			mobs.Add(new GreenSpider());
 			mobs.Add(new OrangeBat());
 			mobs.Add(new BlueSlime());
+			mobs.Add(new SkeletonArcher());
 			return mobs;
 		};
 
-		createContainer = (Item[] items) => new Barrel(items);
+		createContainer = (Item[] items) => new Crate(items);
+		createExplosiveObject = () => new ExplosiveCrate();
 
 		generateMinesFloor(seed, 0, true, false, areaMines[0], areaMines[1], null, null, () => createEnemy().Slice(0, 5));
 		generateMinesFloor(seed, 1, false, false, areaMines[1], areaMines[2], areaMines[0], areaMines[0].exit, () => createEnemy().Slice(0, 6));
 		generateMinesFloor(seed, 2, false, false, areaMines[2], areaMines[3], areaMines[1], areaMines[1].exit, () => createEnemy().Slice(0, 7));
-		generateMinesFloor(seed, 3, false, false, areaMines[3], areaMines[4], areaMines[2], areaMines[2].exit, () => createEnemy().Slice(0, 9));
+		generateMinesFloor(seed, 3, false, false, areaMines[3], areaMines[4], areaMines[2], areaMines[2].exit, () => createEnemy().Slice(0, 8));
 
 		generateMinesBossFloor(areaMines[4], null, areaMines[3], areaMines[3].exit);
 	}
@@ -91,7 +90,7 @@ public partial class LevelGenerator
 		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
 		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
-		level.addEntity(new CavesBossRoom(room));
+		level.addEntity(new MinesBossRoom(room));
 	}
 
 	void generateMinesFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door lastExit, Func<List<Mob>> createEnemy)

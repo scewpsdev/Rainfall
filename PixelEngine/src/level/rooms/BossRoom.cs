@@ -10,7 +10,7 @@ public class BossRoom : Entity
 {
 	Room room;
 
-	Mob boss;
+	public Mob boss;
 
 	BossGate gate0;
 	BossGate gate1;

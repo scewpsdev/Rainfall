@@ -25,7 +25,7 @@ public class GolemAI : AdvancedAI
 		loseTime = 3.0f;
 
 		patrol = false;
-		hesitation = 1;
+		hesitation = 0;
 
 		AIAction attack = addAction("attack", dashDistance / dashSpeed, dashChargeTime, dashCooldownTime, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance && mob.ai.canSeeTarget);
 		attack.onStarted = (AIAction action) =>
