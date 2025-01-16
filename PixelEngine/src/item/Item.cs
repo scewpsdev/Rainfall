@@ -467,7 +467,7 @@ public abstract class Item
 	{
 	}
 
-	public virtual void onEnemyHit(Player player, Mob mob, float damage)
+	public virtual void onEnemyHit(Player player, Mob mob, float damage, bool critical)
 	{
 	}
 
@@ -655,6 +655,7 @@ public abstract class Item
 		InitType(new LargeWizardHatRed());
 		InitType(new DankHat());
 		InitType(new BlacksteelGlaive());
+		InitType(new RingOfThorns());
 	}
 
 	static void InitType(Item item)

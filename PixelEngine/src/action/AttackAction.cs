@@ -161,7 +161,7 @@ public class AttackAction : EntityAction
 							for (int j = 0; j < player.items.Count; j++)
 							{
 								if (player.isEquipped(player.items[j]))
-									player.items[j].onEnemyHit(player, mob, damage);
+									player.items[j].onEnemyHit(player, mob, damage, critical);
 							}
 						}
 

@@ -782,7 +782,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public void dropObject()
 	{
-		level.addEntity(carriedObject, position + collider.center, false);
+		level.addEntity(carriedObject, position + new Vector2(0, 0.05f - carriedObject.collider.min.y), false);
 		carriedObject.velocity = Vector2.Zero;
 		carriedObject.rotationVelocity = 0;
 		carriedObject = null;
@@ -790,7 +790,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public void throwObject()
 	{
-		level.addEntity(carriedObject, position + collider.center, false);
+		level.addEntity(carriedObject, position + new Vector2(0, 0.05f - carriedObject.collider.min.y), false);
 		carriedObject.velocity = velocity * 0.5f + (lookDirection + Vector2.Up * 0.1f) * 15;
 		carriedObject.rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
 		carriedObject.throwTime = Time.currentTime;

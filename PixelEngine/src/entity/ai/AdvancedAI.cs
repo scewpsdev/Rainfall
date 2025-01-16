@@ -232,7 +232,7 @@ public class AdvancedAI : AI
 			bool hitsWall = false;
 			for (int i = (int)MathF.Floor(mob.collider.min.y + 0.01f); i <= (int)MathF.Floor(mob.collider.max.y - 0.01f); i++)
 			{
-				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.01f : walkDirection == -1 ? mob.collider.min.x - 0.01f : 0, 0.5f + i));
+				TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
 				if (forwardTile != null && forwardTile.isSolid)
 				{
 					hitsWall = true;
@@ -243,7 +243,7 @@ public class AdvancedAI : AI
 				walkDirection *= -1;
 			else
 			{
-				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.01f : walkDirection == -1 ? mob.collider.min.x - 0.01f : 0, -0.5f));
+				TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, -0.5f));
 				if (mob.isGrounded && forwardDownTile == null)
 					walkDirection *= -1;
 			}

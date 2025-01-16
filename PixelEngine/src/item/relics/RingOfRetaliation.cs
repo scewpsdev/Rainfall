@@ -38,7 +38,7 @@ public class RingOfRetaliation : Item
 		recoveryAmount += 0.15f * damage;
 	}
 
-	public override void onEnemyHit(Player player, Mob mob, float damage)
+	public override void onEnemyHit(Player player, Mob mob, float damage, bool critical)
 	{
 		if ((Time.currentTime - lastHit) / 1e9f < timeThreshhold)
 		{
