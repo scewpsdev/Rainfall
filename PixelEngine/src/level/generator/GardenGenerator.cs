@@ -507,9 +507,9 @@ public partial class LevelGenerator
 		// Tinkerer
 		spawnRoomObject(deadEnds, MathHelper.Remap(floor, 5, 7, 0.01f, 0.05f), false, (Vector2i tile, Random random, Room room) =>
 		{
-			Tinkerer npc = new Tinkerer(random, level);
-			npc.direction = random.Next() % 2 * 2 - 1;
-			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+			//Tinkerer npc = new Tinkerer(random, level);
+			//npc.direction = random.Next() % 2 * 2 - 1;
+			//level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
 		});
 
 

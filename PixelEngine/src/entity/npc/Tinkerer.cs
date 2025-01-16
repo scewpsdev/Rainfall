@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 public class Tinkerer : NPC
 {
-	public Tinkerer(Random random, Level level)
+	public Tinkerer()
 		: base("tinkerer")
 	{
 		displayName = "Tinker";
@@ -24,7 +24,11 @@ public class Tinkerer : NPC
 		buysItems = true;
 		buyTax = 0.55f;
 		canCraft = true;
+		canUpgrade = true;
+	}
 
+	public override void init(Level level)
+	{
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_TINKERER_MET))
 		{
 			initialDialogue = new Dialogue();
@@ -47,12 +51,7 @@ public class Tinkerer : NPC
 			addDialogue(dialogue);
 		}
 
-		populateShop(random, 3, 9, level.avgLootValue * 1.25f, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
-	}
-
-	public Tinkerer()
-		: this(Random.Shared, GameState.instance.level)
-	{
+		populateShop(GameState.instance.generator.random, 3, 9, level.avgLootValue * 1.25f, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Ammo);
 	}
 
 	public override Item craftItem(Item item1, Item item2)

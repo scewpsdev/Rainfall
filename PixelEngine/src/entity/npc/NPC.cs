@@ -446,6 +446,7 @@ public abstract class NPC : Mob, Interactable
 		state = NPCState.UpgradeMenu;
 		selectedItem = 0;
 		upgradeItems.Clear();
+		upgradePrices.Clear();
 		for (int i = 0; i < player.items.Count; i++)
 		{
 			if (player.items[i].upgradable)

@@ -66,14 +66,14 @@ public partial class LevelGenerator
 		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(NPCManager.logan);
 		npcs.Add(NPCManager.blacksmith);
-		npcs.Add(new Tinkerer(random, level));
+		npcs.Add(NPCManager.tinkerer);
 
 		return npcs;
 	}
 
 	void generateDungeonBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		Room room = generateSingleRoomLevel(level, specialSet, 18, TileType.bricks, TileType.dirt, 0, 0x4);
+		Room room = generateSingleRoomLevel(level, specialSet, 18, TileType.stone, TileType.bricks, 0, 0x4);
 
 		level.fogFalloff = 0.1f;
 		level.fogColor = new Vector3(0.0f);

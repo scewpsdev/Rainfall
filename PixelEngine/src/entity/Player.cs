@@ -866,7 +866,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
 
-				GameState.instance.freeze(0.2f);
+				GameState.instance.freeze(0.1f);
 			}
 
 			if (damage < 0.0001f)

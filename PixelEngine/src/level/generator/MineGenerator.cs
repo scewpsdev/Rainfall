@@ -68,7 +68,7 @@ public partial class LevelGenerator
 		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(NPCManager.logan);
 		npcs.Add(NPCManager.blacksmith);
-		npcs.Add(new Tinkerer(random, level));
+		npcs.Add(NPCManager.tinkerer);
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
 			npcs.Add(NPCManager.rat);
@@ -78,7 +78,7 @@ public partial class LevelGenerator
 
 	void generateMinesBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
 	{
-		Room room = generateSingleRoomLevel(level, specialSet, 4, TileType.stone, TileType.dirt);
+		Room room = generateSingleRoomLevel(level, specialSet, 4, TileType.stone, TileType.rock);
 
 		level.fogFalloff = 0.1f;
 		level.fogColor = new Vector3(0.0f);
@@ -426,14 +426,14 @@ public partial class LevelGenerator
 		spawnEnemies(createEnemy, entrancePosition);
 
 
-		if (!spawnedNPCs.Contains(typeof(Blacksmith)))
+		if (!spawnedNPCs.Contains(typeof(Tinkerer)))
 		{
-			float chance = MathHelper.Remap(floor, 0, GameState.instance.areaCaves.Length - 2, 0.2f, 1.0f);
+			float chance = MathHelper.Remap(floor - GameState.instance.areaMines[0].floor, 0, GameState.instance.areaMines.Length - 2, 0.2f, 1.0f);
 			if (random.NextSingle() < chance)
 			{
 				spawnRoomObject(rooms, rooms.Count, false, (Vector2i tile, Random random, Room room) =>
 				{
-					spawnNPC(tile.x, tile.y, [NPCManager.blacksmith]);
+					spawnNPC(tile.x, tile.y, [NPCManager.tinkerer]);
 				});
 			}
 		}
