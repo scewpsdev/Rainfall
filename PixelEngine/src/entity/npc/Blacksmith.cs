@@ -45,6 +45,6 @@ public class Blacksmith : NPC
 			I'm not up for chatting.
 			""");
 
-		populateShop(GameState.instance.generator.random, 2, 8, level.avgLootValue, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(GameState.instance.generator.random, 2, 8, level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 }

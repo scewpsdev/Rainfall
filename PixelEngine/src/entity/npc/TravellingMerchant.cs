@@ -58,7 +58,7 @@ public class TravellingMerchant : NPC
 		{
 			buysItems = true;
 			//canAttune = true;
-			populateShop(random, 3, 7, level.avgLootValue * 1.25f, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic, ItemType.Gem);
+			populateShop(random, 3, 7, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic, ItemType.Gem);
 		}
 	}
 

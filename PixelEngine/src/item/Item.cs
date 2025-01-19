@@ -233,6 +233,7 @@ public abstract class Item
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+	public bool alwaysRenderHand = false;
 
 	public bool projectileItem = false;
 	public float projectileRotationOffset = 0.0f;

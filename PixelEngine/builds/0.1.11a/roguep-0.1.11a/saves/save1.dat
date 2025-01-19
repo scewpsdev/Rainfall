@@ -1,5 +1,5 @@
-flags = [ 1615716108, 417135138, 219332589, 471866501, 2694791299, 273510894 ]
-runs_finished = 2
+flags = [ 1615716108, 417135138, 219332589, 471866501, 2694791299, 273510894, 952437344 ]
+runs_finished = 15
 highscores = [ {
 score = 0
 floor = -1
@@ -43,7 +43,7 @@ snake_kills = 0
 } ]
 }, {
 name = logan
-dialogues = [ 1391610874 ]
+dialogues = [ 1391610874, 1722719013 ]
 quests = [ {
 name = logan_quest
 state = Uninitialized
@@ -51,7 +51,7 @@ staff_found = 0
 } ]
 }, {
 name = builder_merchant
-dialogues = [  ]
+dialogues = [ 2508811269 ]
 }, {
 name = blacksmith
 dialogues = [ 1655782478 ]

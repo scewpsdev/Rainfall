@@ -22,8 +22,7 @@ public class Knight : NPC
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_KNIGHT_MET))
 		{
 			initialDialogue = new Dialogue();
-			initialDialogue.addVoiceLine("thx i guess");
-			initialDialogue.addVoiceLine("hier könnte ihre werbung stehen").addCallback(() =>
+			initialDialogue.addVoiceLine("...").addCallback(() =>
 			{
 				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_KNIGHT_MET);
 				GameState.instance.save.unlockStartingClass(StartingClass.knight);

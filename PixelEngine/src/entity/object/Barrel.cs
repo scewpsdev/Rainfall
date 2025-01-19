@@ -13,6 +13,8 @@ public class Barrel : Container
 	{
 		displayName = "Barrel";
 
+		health = 1;
+
 		sprite = new Sprite(tileset, 0, 1);
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
 		platformCollider = true;

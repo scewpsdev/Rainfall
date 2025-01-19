@@ -2104,13 +2104,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (show && carriedObject == null)
 			{
-				if (isClimbing && actions.currentAction == null)
-					renderBackItem(LAYER_PLAYER_ARMOR, handItem);
-				else if (actions.currentAction != null)
+				//if (isClimbing && actions.currentAction == null)
+				//	renderBackItem(LAYER_PLAYER_ARMOR, handItem);
+				//else 
+				if (actions.currentAction != null)
 				{
-					if (actions.currentAction.renderMainWeapon)
+					if (actions.currentAction.renderMainWeapon || handItem != null && handItem.alwaysRenderHand)
 						renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
-					if (actions.currentAction.renderSecondaryWeapon)
+					if (actions.currentAction.renderSecondaryWeapon || offhandItem != null && offhandItem.alwaysRenderHand)
 						renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
 				}
 			}
