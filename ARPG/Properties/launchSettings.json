@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PixelEngine": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

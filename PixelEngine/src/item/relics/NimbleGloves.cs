@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class NimbleGloves : Item
 {
 	public NimbleGloves()
-		: base("nimbleGloves", ItemType.Relic)
+		: base("nimbleGloves", ItemType.Armor)
 	{
 		displayName = "Nimble Gloves";
 		description = "Increases attack rate by 15%";

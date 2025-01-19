@@ -229,6 +229,7 @@ public abstract class Item
 	public HashSet<Infusion> infusions = new HashSet<Infusion>();
 
 	public bool stab = true;
+	public bool sidewaySwing = true;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);

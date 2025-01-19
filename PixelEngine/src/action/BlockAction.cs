@@ -19,6 +19,9 @@ public class BlockAction : EntityAction
 	{
 		this.shield = shield;
 
+		if (mainHand) renderMainWeapon = true;
+		else renderSecondaryWeapon = true;
+
 		//duration = shield.blockDuration;
 		duration = shield.type == ItemType.Shield ? 1000 : shield.blockDuration;
 		speedMultiplier = shield.blockMovementSpeed;

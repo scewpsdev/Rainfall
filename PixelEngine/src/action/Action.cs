@@ -31,7 +31,8 @@ public class EntityAction
 
 	public string animation = null;
 	public bool mainHand;
-	public bool renderWeapon = true;
+	public bool renderMainWeapon = false;
+	public bool renderSecondaryWeapon = false;
 	public bool canMove = true;
 	public bool canJump = true;
 	public bool turnToCrosshair = true;

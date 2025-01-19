@@ -1,0 +1,45 @@
+entities = [ {
+name = "Entity"
+id = "20993616"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [ {
+lifetime = 1
+size = 0.10000000149011612
+follow = 0
+emissionRate = 0
+spawnShape = Sphere
+spawnOffset = [ 0, 0, 0 ]
+spawnRadius = 0.28999999165534973
+gravity = 0
+drag = 0.0430000014603138
+startVelocity = [ 0, 0, 0 ]
+radialVelocity = 2.940000057220459
+startRotation = 0
+rotationSpeed = 0
+applyEntityVelocity = 1
+applyCentrifugalForce = 0
+color = [ 1, 1, 1, 1 ]
+additive = 0
+emissiveIntensity = 0
+lightInfluence = 1
+randomVelocity = [ 1, 1, 0 ]
+randomRotation = 0
+randomRotationSpeed = 0
+randomLifetime = 0.5680000185966492
+velocityNoise = 0.1679999977350235
+colorAnim0 = [ 1, 1, 1, 0 ]
+colorAnim1 = [ 1, 1, 1, 0.25 ]
+colorAnim2 = [ 1, 1, 1, 0 ]
+bursts = [ {
+time = 0
+count = 20
+duration = 0
+} ]
+} ]
+} ]
+selectedEntity = "20993616"

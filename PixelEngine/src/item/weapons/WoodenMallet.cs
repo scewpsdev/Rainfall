@@ -17,6 +17,7 @@ public class WoodenMallet : Weapon
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.1f;
 		stab = false;
+		sidewaySwing = false;
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;

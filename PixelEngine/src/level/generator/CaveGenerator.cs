@@ -109,8 +109,8 @@ public partial class LevelGenerator
 		generateSingleRoomLevel(areaCaves[7], specialSet, 17, TileType.stone, TileType.dirt, 0x1, 0x2, null, new DungeonEntrance(null, null));
 
 		// mines entrance
-		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(7, 1), Vector2i.Down);
-		areaCaves[6].addEntity(minesEntrance, areaCaves[6].rooms[0].getMarker(0x3) + new Vector2(-3, 0));
+		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(7, 2), Vector2i.Down);
+		areaCaves[6].addEntity(minesEntrance, areaCaves[6].rooms[0].getMarker(0x3) + new Vector2(-3, -2));
 		areaCaves[6].rooms[0].doorways.Add(new Doorway(areaCaves[6].rooms[0], new DoorDef()) { door = minesEntrance });
 
 		// elevator that leads to the hub

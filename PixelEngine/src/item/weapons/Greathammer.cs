@@ -18,6 +18,7 @@ public class Greathammer : Weapon
 		baseAttackRate = 0.7f;
 		knockback = 12;
 		stab = false;
+		sidewaySwing = false;
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;

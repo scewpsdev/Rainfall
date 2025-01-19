@@ -755,7 +755,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public ItemEntity throwItem(Item item, Vector2 direction, float speed = 14, bool throws = true)
 	{
 		direction = direction.normalized;
-		Vector2 itemVelocity = velocity + direction * speed;
+		Vector2 itemVelocity = velocity * 0.5f + direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
 		Vector2 throwOrigin = position + new Vector2(0, 0.5f) + direction.normalized * 0.1f;
@@ -1648,21 +1648,31 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 							if (directionalAttackDir.x != 0)
 								direction = MathF.Sign(directionalAttackDir.x);
 
-							if (handItem.trigger)
+							if (carriedObject != null)
 							{
 								if (Input.IsKeyPressed(directionalAttackInput))
 								{
-									Input.ConsumeKeyEvent(directionalAttackInput);
-									if (handItem.use(this))
-										removeItemSingle(handItem);
+									throwObject();
 								}
 							}
 							else
 							{
-								if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+								if (handItem.trigger)
 								{
-									if (handItem.use(this))
-										removeItem(handItem);
+									if (Input.IsKeyPressed(directionalAttackInput))
+									{
+										Input.ConsumeKeyEvent(directionalAttackInput);
+										if (handItem.use(this))
+											removeItemSingle(handItem);
+									}
+								}
+								else
+								{
+									if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+									{
+										if (handItem.use(this))
+											removeItem(handItem);
+									}
 								}
 							}
 						}
@@ -2096,10 +2106,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (isClimbing && actions.currentAction == null)
 					renderBackItem(LAYER_PLAYER_ARMOR, handItem);
-				else if (actions.currentAction == null || actions.currentAction.renderWeapon)
+				else if (actions.currentAction != null)
 				{
-					renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
-					renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+					if (actions.currentAction.renderMainWeapon)
+						renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
+					if (actions.currentAction.renderSecondaryWeapon)
+						renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
 				}
 			}
 		}

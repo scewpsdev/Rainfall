@@ -45,6 +45,9 @@ public class AttackAction : EntityAction
 		this.startAngle = startAngle;
 		this.endAngle = endAngle;
 
+		if (mainHand) renderMainWeapon = true;
+		else renderSecondaryWeapon = true;
+
 		postActionLinger = 0.25f;
 	}
 
@@ -72,10 +75,13 @@ public class AttackAction : EntityAction
 		Vector2 position = new Vector2(0.5f * weapon.size.x, 0);
 		position += new Vector2(currentRange * fract - 0.5f * weapon.size.x, 0);
 		position = Vector2.Rotate(position, currentAngle);
-		if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
-			position *= new Vector2(1, 0.5f);
-		else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
-			position *= new Vector2(0.5f, 1);
+		if (weapon.sidewaySwing)
+		{
+			if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
+				position *= new Vector2(1, 0.5f);
+			else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
+				position *= new Vector2(0.5f, 1);
+		}
 		position += new Vector2(0, player.getWeaponOrigin(mainHand).y);
 		if (flip)
 			position.x *= -1;

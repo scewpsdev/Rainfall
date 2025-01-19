@@ -1,0 +1,57 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class Shortbow : Weapon
+{
+	public Shortbow()
+		: base("shortbow", WeaponType.Ranged)
+	{
+		displayName = "Shortbow";
+
+		baseDamage = 1;
+		baseAttackRate = 2.5f;
+		baseAttackRange = 30; // arrow speed
+		knockback = 2.0f;
+		trigger = false;
+		requiredAmmo = "arrow";
+		//isSecondaryItem = true;
+		secondaryChargeTime = 0;
+		baseWeight = 1;
+
+		value = 16;
+
+		sprite = new Sprite(tileset, 9, 3);
+
+		useSound = [Resource.GetSound("sounds/bow_shoot.ogg")];
+		hitSound = woodHit;
+	}
+
+	public override bool use(Player player)
+	{
+		Item arrows = player.getItem(requiredAmmo);
+		if (player.unlimitedArrows && arrows == null)
+		{
+			arrows = new Arrow();
+			player.giveItem(arrows);
+		}
+		if (arrows != null)
+		{
+			base.use(player);
+			Item arrow = player.removeItemSingle(arrows);
+			player.actions.queueAction(new BowShootAction(this, arrow, player.handItem == this));
+		}
+		return false;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 2, 0.5f, 1) { useSoundPlayed = true });
+		return false;
+	}
+}

@@ -40,6 +40,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoulKnight", "SoulKnight\So
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParallaxRenderer", "ParallaxRenderer\ParallaxRenderer.csproj", "{5033527A-65C3-4230-AE5D-BA9A9A6B8E54}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ARPG", "ARPG\ARPG.csproj", "{B01226BB-9133-4C17-909F-1B1D930D8034}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -275,6 +277,24 @@ Global
 		{5033527A-65C3-4230-AE5D-BA9A9A6B8E54}.ReleaseLight|x64.Build.0 = Release|x64
 		{5033527A-65C3-4230-AE5D-BA9A9A6B8E54}.ReleaseLight|x86.ActiveCfg = Release|Any CPU
 		{5033527A-65C3-4230-AE5D-BA9A9A6B8E54}.ReleaseLight|x86.Build.0 = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Debug|x64.ActiveCfg = Debug|x64
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Debug|x64.Build.0 = Debug|x64
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Debug|x86.Build.0 = Debug|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Release|x64.ActiveCfg = Release|x64
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Release|x64.Build.0 = Release|x64
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Release|x86.ActiveCfg = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.Release|x86.Build.0 = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.ReleaseLight|Any CPU.ActiveCfg = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.ReleaseLight|Any CPU.Build.0 = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.ReleaseLight|x64.ActiveCfg = Release|x64
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.ReleaseLight|x64.Build.0 = Release|x64
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.ReleaseLight|x86.ActiveCfg = Release|Any CPU
+		{B01226BB-9133-4C17-909F-1B1D930D8034}.ReleaseLight|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
