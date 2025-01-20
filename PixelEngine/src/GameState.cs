@@ -1,14 +1,4 @@
-﻿using Microsoft.Win32;
-using Rainfall;
-using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Rainfall;
 
 
 public class RunStats
@@ -264,8 +254,8 @@ public class GameState : State
 		else
 		{
 			level = null;
-			switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
-			//switchLevel(introBridge, (Vector2)introBridge.rooms[0].getMarker(0x22));
+			//switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
+			switchLevel(introBridge, (Vector2)introBridge.rooms[0].getMarker(0x22));
 			levelSwitchTime = -1;
 
 			player.actions.queueAction(new UnconciousAction());
@@ -277,8 +267,30 @@ public class GameState : State
 		Model scene = Resource.GetModel(path, false);
 		foreach (Node node in scene.skeleton.nodes)
 		{
-			if (node.name == "tilemap" || node.name == "Plane")
+			if (node.name == "tilemap")
 				continue;
+
+			if (node.name == "background")
+			{
+				if (node.meshes.Length == 0)
+					continue;
+
+				int meshID = node.meshes[0];
+				MeshData* mesh = &scene.scene->meshes[meshID];
+				if (mesh->materialID == -1)
+					continue;
+
+				MaterialData* material = &scene.scene->materials[mesh->materialID];
+				if (material->diffuse == null)
+					continue;
+
+				string texturePath = new string((sbyte*)material->diffuse->path);
+				texturePath = StringUtils.AbsolutePath(texturePath, path);
+				Texture texture = Resource.GetTexture(texturePath, false);
+				level.bg = texture;
+
+				continue;
+			}
 
 			for (int i = 0; i < node.meshes.Length; i++)
 			{
@@ -288,44 +300,49 @@ public class GameState : State
 				if (mesh->materialID != -1)
 				{
 					MaterialData* material = &scene.scene->materials[mesh->materialID];
-					string texturePath = new string((sbyte*)material->diffuse->path);
-					texturePath = StringUtils.AbsolutePath(texturePath, path);
-					Texture texture = Resource.GetTexture(texturePath, false);
-
-					int numSubMeshes = mesh->vertexCount / 4;
-					for (int k = 0; k < numSubMeshes; k++)
+					if (material->diffuse != null)
 					{
-						Vector2 min = new Vector2(float.MaxValue);
-						Vector2 max = new Vector2(float.MinValue);
-						float layer = 0;
-						Vector2 uv0 = new Vector2(float.MaxValue);
-						Vector2 uv1 = new Vector2(float.MinValue);
-						for (int j = k * 4; j < k * 4 + 4; j++)
+						string texturePath = new string((sbyte*)material->diffuse->path);
+						texturePath = StringUtils.AbsolutePath(texturePath, path);
+						Texture texture = Resource.GetTexture(texturePath, false);
+
+						int numSubMeshes = mesh->vertexCount / 4;
+						for (int k = 0; k < numSubMeshes; k++)
 						{
-							PositionNormalTangent* vertex = &mesh->vertices[j];
-							Vector3 position = node.transform * vertex->position;
-							min = Vector2.Min(min, position.xy);
-							max = Vector2.Max(max, position.xy);
-							layer = position.z;
+							Vector2 min = new Vector2(float.MaxValue);
+							Vector2 max = new Vector2(float.MinValue);
+							float z = 0;
+							Vector2 uv0 = new Vector2(float.MaxValue);
+							Vector2 uv1 = new Vector2(float.MinValue);
+							for (int j = k * 4; j < k * 4 + 4; j++)
+							{
+								PositionNormalTangent* vertex = &mesh->vertices[j];
+								Vector3 position = node.transform * vertex->position;
+								min = Vector2.Min(min, position.xy);
+								max = Vector2.Max(max, position.xy);
+								z = position.z;
 
-							Vector2 uv = mesh->texcoords[j];
-							uv0 = Vector2.Min(uv0, uv);
-							uv1 = Vector2.Max(uv1, uv);
+								Vector2 uv = mesh->texcoords[j];
+								uv0 = Vector2.Min(uv0, uv);
+								uv1 = Vector2.Max(uv1, uv);
+							}
+
+							Vector2 center = (min + max) * 0.5f;
+							Vector2 size = max - min;
+
+							ParallaxObject entity = new ParallaxObject();
+
+							int u0 = (int)MathF.Round(uv0.x * texture.width);
+							int v0 = (int)MathF.Round(uv0.y * texture.height);
+							int w = (int)MathF.Round((uv1.x - uv0.x) * texture.width);
+							int h = (int)MathF.Round((uv1.y - uv0.y) * texture.height);
+							entity.sprite = new Sprite(texture, u0, v0, w, h);
+							entity.rect = new FloatRect(-0.5f * size, size);
+							entity.z = z;
+
+							//entity.rect = new FloatRect(-0.5f * size, size);
+							level.addEntity(entity, center);
 						}
-
-						ParallaxObject entity = new ParallaxObject();
-
-						int u0 = (int)MathF.Round(uv0.x * texture.width);
-						int v0 = (int)MathF.Round(uv0.y * texture.height);
-						int w = (int)MathF.Round((uv1.x - uv0.x) * texture.width);
-						int h = (int)MathF.Round((uv1.y - uv0.y) * texture.height);
-						entity.sprite = new Sprite(texture, u0, v0, w, h);
-						entity.layer = MathF.Log2(1 - layer * 0.1f);
-
-						Vector2 center = (min + max) * 0.5f;
-						//Vector2 size = max - min;
-						//entity.rect = new FloatRect(-0.5f * size, size);
-						level.addEntity(entity, center);
 					}
 				}
 			}

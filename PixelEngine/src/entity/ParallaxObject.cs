@@ -9,43 +9,51 @@ using System.Threading.Tasks;
 public class ParallaxObject : Entity
 {
 	public Sprite sprite;
-	public float layer;
+	public FloatRect rect;
+	public float z;
 
 
 	public ParallaxObject()
 	{
 	}
 
-	public ParallaxObject(Texture texture, float layer)
+	public ParallaxObject(Texture texture, FloatRect rect, float z)
 	{
 		sprite = new Sprite(texture, 0, 0, texture.width, texture.height);
-		this.layer = layer;
+		this.rect = rect;
+		this.z = z;
 	}
 
-	public ParallaxObject(Texture texture, int x, int y, int width, int height, float layer)
+	public ParallaxObject(Texture texture, int x, int y, int width, int height, FloatRect rect, float z)
 	{
 		sprite = new Sprite(texture, x, y, width, height);
-		this.layer = layer;
+		this.rect = rect;
+		this.z = z;
 	}
 
-	public ParallaxObject(Sprite sprite, float layer)
+	public ParallaxObject(Sprite sprite, FloatRect rect, float z)
 	{
 		this.sprite = sprite;
-		this.layer = layer;
+		this.rect = rect;
+		this.z = z;
 	}
 
 	public override void render()
 	{
-		float width = sprite.size.x / 16.0f;
-		float height = sprite.size.y / 16.0f;
-
-		float distance = LayerToZ(layer);
+		float distance = -z;
 		float fog = MathF.Exp(-distance * GameState.instance.level.fogFalloff);
 
-		Vector3 vertex = ParallaxEffect(position, layer);
+		//Vector3 vertex = ParallaxEffect(position, MathF.Log2(1 - 0.1f * z));
 
-		Renderer.DrawSprite(vertex.x - 0.5f * width, vertex.y - 0.5f * height, vertex.z, width, height, 0, sprite, false, Vector4.One);
-		Renderer.DrawSpriteSolid(vertex.x - 0.5f * width, vertex.y - 0.5f * height, vertex.z - 0.001f, width, height, 0, sprite, false, MathHelper.VectorToARGB(new Vector4(GameState.instance.level.fogColor, 1 - fog)));
+		//Renderer.DrawSprite(vertex.x + rect.min.x, vertex.y + rect.min.y, z, rect.size.x, rect.size.y, 0, sprite, false, Vector4.One);
+		//Renderer.DrawSpriteSolid(vertex.x + rect.min.x, vertex.y + rect.min.y, z + 0.01f, rect.size.x, rect.size.y, 0, sprite, false, MathHelper.VectorToARGB(new Vector4(GameState.instance.level.fogColor, 1 - fog)));
+
+		float scale = (10 - z) * 0.1f;
+		Vector2 center = rect.center;
+		float width = sprite.spriteSheet.texture.width / 16.0f * scale;
+		float height = sprite.spriteSheet.texture.height / 16.0f * scale;
+
+		Renderer.DrawParallaxSprite(position.x + center.x - 0.5f * width, position.y + center.y - 0.5f * height, z, width, height, 0, sprite, Vector4.One);
 	}
 
 	public static Vector3 ParallaxEffect(Vector2 vertex, float layer)

@@ -12,6 +12,7 @@ enum RenderPass
 {
 	Geometry,
 	Lighting,
+	Parallax,
 	Composite,
 	Bloom,
 	UI = Bloom + 11,
@@ -19,7 +20,7 @@ enum RenderPass
 	Count
 }
 
-public static class Renderer2D
+public static class Renderer
 {
 	struct SpriteDraw
 	{
@@ -85,6 +86,7 @@ public static class Renderer2D
 	public static GraphicsDevice graphics;
 
 	static RenderTarget gbuffer;
+	static RenderTarget parallax;
 	static RenderTarget lighting;
 	static RenderTarget composite;
 	static RenderTarget[] bloomDownsampleChain;
@@ -101,12 +103,14 @@ public static class Renderer2D
 
 	static SpriteBatch spriteBatch;
 	static SpriteBatch additiveBatch;
+	static SpriteBatch parallaxBatch;
 	static Shader spriteShader;
 	static List<SpriteDraw> draws = new List<SpriteDraw>();
 	static List<SpriteExDraw> exDraws = new List<SpriteExDraw>();
 	static List<SpriteDraw> additiveDraws = new List<SpriteDraw>();
 	static List<SpriteExDraw> additiveExDraws = new List<SpriteExDraw>();
 	static List<SpriteDraw> verticalDraws = new List<SpriteDraw>();
+	static List<SpriteDraw> parallaxDraws = new List<SpriteDraw>();
 
 	static SpriteBatch uiBatch;
 	static Shader uiShader;
@@ -124,7 +128,7 @@ public static class Renderer2D
 	public static Font font;
 	public static PixelFont smallFont;
 
-	static Matrix projection, view;
+	static Matrix ortho, orthoView, perspective, perspectiveView;
 	static float cameraX, cameraY;
 	static float left, right, bottom, top;
 	static float cameraFractX, cameraFractY;
@@ -147,16 +151,22 @@ public static class Renderer2D
 
 	public static void Init(GraphicsDevice graphics, int width, int height)
 	{
-		Renderer2D.graphics = graphics;
+		Renderer.graphics = graphics;
 
 		UIWidth = width;
 		UIHeight = height;
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+		});
+		parallax = graphics.createRenderTarget(new RenderTargetAttachment[]
+		{
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (ulong)TextureFlags.BlitDst | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -164,7 +174,7 @@ public static class Renderer2D
 		});
 		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(Display.width, Display.height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
 
 		bloomDownsampleChain = new RenderTarget[BLOOM_CHAIN_LENGTH];
@@ -204,6 +214,7 @@ public static class Renderer2D
 
 		spriteBatch = new SpriteBatch(graphics);
 		additiveBatch = new SpriteBatch(graphics);
+		parallaxBatch = new SpriteBatch(graphics);
 		spriteShader = Resource.GetShader("shaders/sprite/sprite.vsh", "shaders/sprite/sprite.fsh");
 
 		uiBatch = new SpriteBatch(graphics);
@@ -228,6 +239,8 @@ public static class Renderer2D
 
 		if (gbuffer != null)
 			graphics.destroyRenderTarget(gbuffer);
+		if (parallax != null)
+			graphics.destroyRenderTarget(parallax);
 		if (lighting != null)
 			graphics.destroyRenderTarget(lighting);
 		if (composite != null)
@@ -245,9 +258,15 @@ public static class Renderer2D
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
+		});
+		parallax = graphics.createRenderTarget(new RenderTargetAttachment[]
+		{
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point| (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (ulong)TextureFlags.BlitDst | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -255,7 +274,7 @@ public static class Renderer2D
 		});
 		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(Display.width, Display.height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
 
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
@@ -590,6 +609,50 @@ public static class Renderer2D
 		lightDraws.Add(new LightDraw { position = position, color = new Vector4(color, 1.0f), radius = radius });
 	}
 
+	public static void DrawParallaxSprite(float x, float y, float z, float width, float height, float rotation, Sprite sprite, Vector4 color)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		parallaxDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color });
+	}
+
+	public static void DrawParallaxSprite(float x, float y, float z, float width, float height, float rotation, Texture texture, int u0, int v0, int w, int h, Vector4 color)
+	{
+		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
+		parallaxDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = texture, rect = rect, color = color });
+	}
+
+	public static void DrawParallaxSolid(float x, float y, float z, float width, float height, float rotation, Sprite sprite, Vector4 color)
+	{
+		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
+		if (sprite != null)
+		{
+			u0 = sprite.uv0.x;
+			v0 = sprite.uv0.y;
+			u1 = sprite.uv1.x;
+			v1 = sprite.uv1.y;
+		}
+		FloatRect rect = new FloatRect(u0, v0, u1 - u0, v1 - v0);
+		parallaxDraws.Add(new SpriteDraw { position = new Vector3(x, y, z), size = new Vector2(width, height), rotation = rotation, texture = sprite?.spriteSheet.texture, rect = rect, color = color, solid = true });
+	}
+
+	public static void DrawParallaxOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, Vector4 color)
+	{
+		float pixelSize = (10 - z) * 0.1f / 16;
+
+		DrawParallaxSolid(x - pixelSize, y, z, width, height, rotation, sprite, color);
+		DrawParallaxSolid(x + pixelSize, y, z, width, height, rotation, sprite, color);
+		DrawParallaxSolid(x, y - pixelSize, z, width, height, rotation, sprite, color);
+		DrawParallaxSolid(x, y + pixelSize, z, width, height, rotation, sprite, color);
+	}
+
 	public static void DrawUISprite(float x, float y, int width, int height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;
@@ -894,18 +957,45 @@ public static class Renderer2D
 		return lines.ToArray();
 	}
 
-	public static void SetCamera(Matrix projection, Matrix view, float x, float y, float width, float height, float fractx, float fracty)
+	public static void SetCamera(Vector2 position, float width, float height)
 	{
-		Renderer2D.projection = projection;
-		Renderer2D.view = view;
-		Renderer2D.cameraX = x;
-		Renderer2D.cameraY = y;
-		Renderer2D.left = x - 0.5f * width;
-		Renderer2D.right = x + 0.5f * width;
-		Renderer2D.bottom = y - 0.5f * height;
-		Renderer2D.top = y + 0.5f * height;
-		Renderer2D.cameraFractX = fractx;
-		Renderer2D.cameraFractY = fracty;
+		float distance = 10;
+		float fov = MathF.Atan2(0.5f * height, distance) * 2;
+		Matrix perspective = Matrix.CreatePerspective(fov, Display.aspectRatio, 0.1f, 500);
+		Matrix ortho = Matrix.CreateOrthographic(width, height, 1, -1);
+		Matrix transform = Matrix.CreateTranslation(new Vector3(position, 0));
+
+		float pixelx = transform.m30 * 16;
+		float snappedx = MathF.Floor(pixelx);
+		float cameraFractX = pixelx - snappedx;
+		transform.m30 = snappedx / 16.0f;
+
+		float pixely = transform.m31 * 16;
+		float snappedy = MathF.Floor(pixely);
+		float cameraFractY = pixely - snappedy;
+		transform.m31 = snappedy / 16.0f;
+
+		// offset by a quarter pixel so that sprites rendered exactly at integer coordinates dont glitch out
+		transform.m30 -= 0.25f / 16;
+		transform.m31 -= 0.25f / 16;
+
+		Matrix orthoView = transform.inverted;
+
+		transform.m32 = distance;
+		Matrix perspectiveView = transform.inverted;
+
+		Renderer.ortho = ortho;
+		Renderer.perspective = perspective;
+		Renderer.orthoView = orthoView;
+		Renderer.perspectiveView = perspectiveView;
+		Renderer.cameraX = position.x;
+		Renderer.cameraY = position.y;
+		Renderer.left = position.x - 0.5f * width;
+		Renderer.right = position.x + 0.5f * width;
+		Renderer.bottom = position.y - 0.5f * height;
+		Renderer.top = position.y + 0.5f * height;
+		Renderer.cameraFractX = cameraFractX;
+		Renderer.cameraFractY = cameraFractY;
 	}
 
 	public static void Begin()
@@ -918,7 +1008,7 @@ public static class Renderer2D
 		graphics.setPass((int)RenderPass.Geometry);
 		graphics.setRenderTarget(gbuffer);
 
-		graphics.setViewTransform(projection, view);
+		graphics.setViewTransform(ortho, orthoView);
 
 		spriteBatch.begin(draws.Count + exDraws.Count + verticalDraws.Count);
 		for (int i = 0; i < draws.Count; i++)
@@ -1107,6 +1197,58 @@ public static class Renderer2D
 		}
 	}
 
+	static void ParallaxPass()
+	{
+		graphics.resetState();
+		graphics.setPass((int)RenderPass.Parallax);
+		graphics.setRenderTarget(parallax);
+
+		//graphics.blit(parallax.getAttachmentTexture(2), gbuffer.getAttachmentTexture(2));
+
+		graphics.setViewTransform(perspective, perspectiveView);
+
+		parallaxBatch.begin(parallaxDraws.Count);
+		for (int i = 0; i < parallaxDraws.Count; i++)
+		{
+			SpriteDraw draw = parallaxDraws[i];
+			float u0 = draw.rect.min.x, v0 = draw.rect.min.y, u1 = draw.rect.max.x, v1 = draw.rect.max.y;
+
+			u0 += 0.00001f;
+			v0 += 0.00001f;
+			u1 -= 0.00001f;
+			v1 -= 0.00001f;
+
+			if (draw.useTransform)
+			{
+				spriteBatch.draw(
+					draw.size.x, draw.size.y, 0.0f - i * 0.0000001f,
+					draw.transform,
+					draw.texture, uint.MaxValue,
+					u0, v0, u1, v1,
+					draw.color, draw.solid ? 0.0f : 1.0f);
+			}
+			else
+			{
+				parallaxBatch.draw(
+					draw.position.x, draw.position.y, draw.position.z - i * 0.0000001f,
+					draw.size.x, draw.size.y,
+					draw.rotation,
+					draw.texture, uint.MaxValue,
+					u0, v0, u1, v1,
+					draw.color, draw.solid ? 0.0f : 1.0f);
+			}
+		}
+		parallaxBatch.end();
+
+		for (int i = 0; i < parallaxBatch.getNumDrawCalls(); i++)
+		{
+			graphics.setCullState(CullState.None);
+			graphics.setBlendState(BlendState.Alpha);
+
+			parallaxBatch.submitDrawCall(i, spriteShader);
+		}
+	}
+
 	static void CompositePass()
 	{
 		graphics.resetState();
@@ -1117,9 +1259,12 @@ public static class Renderer2D
 		graphics.setDepthTest(DepthTest.None);
 		graphics.setCullState(CullState.ClockWise);
 
-		graphics.setTexture(compositeShader.getUniform("s_albedo", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
-		graphics.setTexture(compositeShader.getUniform("s_material", UniformType.Sampler), 1, gbuffer.getAttachmentTexture(1));
-		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 2, lighting.getAttachmentTexture(0));
+		graphics.setTexture(compositeShader.getUniform("s_midground", UniformType.Sampler), 0, gbuffer.getAttachmentTexture(0));
+		graphics.setTexture(compositeShader.getUniform("s_parallax", UniformType.Sampler), 1, parallax.getAttachmentTexture(0));
+		graphics.setTexture(compositeShader.getUniform("s_material", UniformType.Sampler), 2, gbuffer.getAttachmentTexture(1));
+		graphics.setTexture(compositeShader.getUniform("s_lighting", UniformType.Sampler), 3, lighting.getAttachmentTexture(0));
+
+		graphics.setUniform(compositeShader, "u_cameraSettings", new Vector4(cameraFractX, cameraFractY, 0, 0));
 
 		graphics.setVertexBuffer(quad);
 		graphics.draw(compositeShader);
@@ -1188,7 +1333,7 @@ public static class Renderer2D
 		graphics.setDepthTest(DepthTest.None);
 		graphics.setCullState(CullState.ClockWise);
 
-		graphics.setUniform(blitShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, cameraFractX, cameraFractY));
+		graphics.setUniform(blitShader, "u_cameraSettings", new Vector4(UIWidth, UIHeight, 0, 0 /*cameraFractX, cameraFractY*/));
 		graphics.setUniform(blitShader, "u_cameraSettings1", new Vector4(right - left, top - bottom, 0, 0));
 
 		graphics.setTexture(blitShader.getUniform("s_frame", UniformType.Sampler), 0, composite.getAttachmentTexture(0));
@@ -1284,6 +1429,7 @@ public static class Renderer2D
 	{
 		GeometryPass();
 		LightingPass();
+		ParallaxPass();
 		CompositePass();
 		PostProcessingPass();
 		BlitPass();
@@ -1294,6 +1440,7 @@ public static class Renderer2D
 		additiveDraws.Clear();
 		additiveExDraws.Clear();
 		verticalDraws.Clear();
+		parallaxDraws.Clear();
 		uiDraws.Clear();
 		textDraws.Clear();
 		lineDraws.Clear();

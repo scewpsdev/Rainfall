@@ -59,12 +59,12 @@ namespace Rainfall
 			get => size.y;
 		}
 
-		internal Vector2 uv0
+		public Vector2 uv0
 		{
 			get => new Vector2(position.x, position.y) / new Vector2(spriteSheet.texture.width, spriteSheet.texture.height);
 		}
 
-		internal Vector2 uv1
+		public Vector2 uv1
 		{
 			get => new Vector2(position.x + size.x, position.y + size.y) / new Vector2(spriteSheet.texture.width, spriteSheet.texture.height);
 		}

@@ -77,7 +77,7 @@ public class Cliffside : Entity
 		Vector2i wavesPosition = new Vector2i(33, 39);
 
 		int waveLayers = 10;
-		for (int i = -5; i < waveLayers; i++)
+		for (int i = 0/*-5*/; i < waveLayers; i++)
 		{
 			float zoffset = ParallaxObject.LayerToZ(i <= 0 ? i * 0.4f : i * 0.2f + i * i * 0.1f); // i < 10 ? ParallaxObject.LayerToZ((i - 10) * -0.1f) : (i - 10) * -0.1f;
 			float yoffset = i <= 0 ? zoffset * 3 : zoffset * 3; // (i - 10) * 0.5f;
@@ -87,16 +87,21 @@ public class Cliffside : Entity
 			Vector4 color = MathHelper.SRGBToLinear(MathHelper.ARGBToVector(0xFF36b3be) * brightness * 1.2f);
 
 			float xanimation = Time.currentTime / 1e9f * 16 * ((int)Hash.hash(i) % 2 * 2 - 1) * MathF.Pow(0.5f, 0.2f * i);
-			float yanimation = 0.5f * MathF.Sin(Hash.hash(i) % 10 + Time.currentTime / 1e9f);
+			float yanimation = 0.5f * MathF.Sin(Hash.hash(i) % 10 + Time.currentTime / 1e9f) * (i + 1);
 
 			Vector3 vertex = ParallaxObject.ParallaxEffect(new Vector3((Vector2)wavesPosition + new Vector2(0, yoffset + yanimation), zoffset));
 			float width = i <= 0 ? 60 * MathF.Pow(0.5f, ParallaxObject.ZToLayer(zoffset)) : 60;
-			int height = 35;
+			float height = 35;
 			int u0 = (int)xanimation;
 			int v0 = 0;
 			int w = (int)MathF.Round(width * 16);
 			int h = (int)MathF.Round(height * 16) * 2;
-			Renderer.DrawSprite(vertex.x - 0.5f * width, vertex.y - height, vertex.z, width, height, waves, u0, v0, w, h, color);
+			//Renderer.DrawSprite(vertex.x - 0.5f * width, vertex.y - height, vertex.z, width, height, waves, u0, v0, w, h, color);
+			float z = -i;
+			float scale = (10 - z) * 0.1f;
+			width *= scale;
+			height *= scale;
+			Renderer.DrawParallaxSprite(wavesPosition.x - 0.5f * width, wavesPosition.y - height + yanimation, z, width, height, 0, waves, u0, v0, w, h, color);
 		}
 	}
 }

@@ -86,7 +86,7 @@ public class TileType
 			left = [new Sprite(tileset, 3, 16)],
 			right = [new Sprite(tileset, 5, 16)],
 			top = [new Sprite(tileset, 4, 15), new Sprite(tileset, 3, 17), new Sprite(tileset, 4, 17), new Sprite(tileset, 5, 17), new Sprite(tileset, 6, 17)],
-			bottom = [new Sprite(tileset, 4, 17)],
+			//bottom = [new Sprite(tileset, 4, 17)],
 		});
 		AddTileType(path = new TileType()
 		{

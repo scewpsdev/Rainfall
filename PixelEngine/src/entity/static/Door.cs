@@ -103,11 +103,20 @@ public class Door : Entity, Interactable
 
 	public override void render()
 	{
-		Vector3 vertex = ParallaxObject.ParallaxEffect(position, layer);
-
-		Renderer.DrawSprite(vertex.x + rect.position.x, vertex.y + rect.position.y, layer == 0 ? LAYER_BG : vertex.z, rect.size.x, rect.size.y, 0, sprite, false, 0xFFFFFFFF);
-
-		if (outline != 0)
-			Renderer.DrawOutline(vertex.x + rect.position.x, vertex.y + rect.position.y, (layer == 0 ? LAYER_BG : vertex.z) + 0.001f, rect.size.x, rect.size.y, 0, sprite, false, outline);
+		if (layer == 0)
+		{
+			Vector3 vertex = ParallaxObject.ParallaxEffect(position, layer);
+			Renderer.DrawSprite(vertex.x + rect.position.x, vertex.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, false, 0xFFFFFFFF);
+			if (outline != 0)
+				Renderer.DrawOutline(vertex.x + rect.position.x, vertex.y + rect.position.y, (layer == 0 ? LAYER_BG : vertex.z) + 0.001f, rect.size.x, rect.size.y, 0, sprite, false, outline);
+		}
+		else
+		{
+			float z = 10 - MathF.Pow(2, layer) * 10;
+			float scale = (10 - z) * 0.1f;
+			Renderer.DrawParallaxSprite(position.x + rect.position.x * scale, position.y + rect.position.y * scale, z, rect.size.x * scale, rect.size.y * scale, 0, sprite, 0xFFFFFFFF);
+			if (outline != 0)
+				Renderer.DrawParallaxOutline(position.x + rect.position.x * scale, position.y + rect.position.y * scale, z, rect.size.x * scale, rect.size.y * scale, 0, sprite, outline);
+		}
 	}
 }

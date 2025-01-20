@@ -91,8 +91,11 @@ public class AttackAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		trail = new Trail(20, Vector4.One, getWeaponTip(player));
-		secondaryTrail = new Trail(14, new Vector4(1, 1, 1, 0.5f), getWeaponTip(player, 0.9f));
+		if (!stab)
+		{
+			trail = new Trail(20, Vector4.One, getWeaponTip(player));
+			secondaryTrail = new Trail(14, new Vector4(1, 1, 1, 0.5f), getWeaponTip(player, 0.9f));
+		}
 	}
 
 	public override void onFinished(Player player)
@@ -200,19 +203,25 @@ public class AttackAction : EntityAction
 			}
 		}
 
-		trail.update();
-		secondaryTrail.update();
-		if (inDamageWindow)
+		if (!stab)
 		{
-			trail.setPosition(getWeaponTip(player));
-			secondaryTrail.setPosition(getWeaponTip(player, 0.9f));
+			trail.update();
+			secondaryTrail.update();
+			if (inDamageWindow)
+			{
+				trail.setPosition(getWeaponTip(player));
+				secondaryTrail.setPosition(getWeaponTip(player, 0.9f));
+			}
 		}
 	}
 
 	public override void render(Player player)
 	{
-		trail.render();
-		secondaryTrail.render();
+		if (!stab)
+		{
+			trail.render();
+			secondaryTrail.render();
+		}
 	}
 
 	public float currentProgress

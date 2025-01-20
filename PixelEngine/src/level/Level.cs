@@ -293,10 +293,10 @@ public class Level
 		Renderer.lightMask = lightmap;
 		Renderer.lightMaskRect = new FloatRect(-0.5f, -0.5f, width + 1, height + 1);
 
-		if (bg != null)
-			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, bg, 0, 0, bg.width, bg.height, new Vector4(1));
-		else
-			Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, 0, null, false, new Vector4(fogColor, 1));
+		//if (bg != null)
+		//Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, bg, 0, 0, bg.width, bg.height, new Vector4(1));
+		//else
+		//	Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, 0, null, false, new Vector4(fogColor, 1));
 
 
 		for (int i = 0; i < entities.Count; i++)

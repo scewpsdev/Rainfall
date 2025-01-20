@@ -270,54 +270,54 @@ public partial class LevelGenerator
 					// top
 					if ((!tile || !left) && down && leftdown)
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesHoriz, (x + y * 19) * 16, 0, 16, 32, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesHoriz, (x + y * 19) * 16, 0, 16, 32, new FloatRect(-0.5f, -1, 1, 2), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y + 1));
 					}
 					// bottom
 					else if (tile && left && (!down || !leftdown))
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesHoriz, (x + y * 19) * 16, 32, 16, 32, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesHoriz, (x + y * 19) * 16, 32, 16, 32, new FloatRect(-0.5f, -1, 1, 2), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y - 1));
 					}
 					// left corners top/bottom pieces
 					else if (!tile && !left && !leftdown && down ||
 						tile && !left && !leftdown && !down)
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, new FloatRect(-1, -1, 2, 2), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x + 0.5f, y));
 					}
 					// right corners top/bottom pieces
 					else if (!tile && !left && leftdown && !down ||
 						!tile && left && !leftdown && !down)
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, new FloatRect(-1, -1, 2, 2), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x - 0.5f, y));
 					}
 
 					// right
 					if ((!tile || !down) && left && leftdown)
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesVert, 16, (y + x * 19) * 16, 16, 16, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesVert, 16, (y + x * 19) * 16, 16, 16, new FloatRect(-0.5f, -0.5f, 1, 1), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x + 0.5f, y));
 					}
 					// left
 					else if (tile && down && (!left || !leftdown))
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesVert, 0, (y + x * 19) * 16, 16, 16, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesVert, 0, (y + x * 19) * 16, 16, 16, new FloatRect(-0.5f, -0.5f, 1, 1), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x - 0.5f, y));
 					}
 					// top corners left/right pieces
 					else if (!tile && !left && !leftdown && down ||
 						!tile && !left && leftdown && !down)
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, new FloatRect(-1, -1, 2, 2), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y - 0.5f));
 					}
 					// bottom corners left/right pieces
 					else if (tile && !left && !leftdown && !down ||
 						!tile && left && !leftdown && !down)
 					{
-						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, 0.0f);
+						ParallaxObject parallaxObject = new ParallaxObject(leavesCorner, (x + y * 19) * 32, 32, 32, 32, new FloatRect(-1, -1, 2, 2), 0.0f);
 						level.addEntity(parallaxObject, new Vector2(x, y + 0.5f));
 					}
 				}

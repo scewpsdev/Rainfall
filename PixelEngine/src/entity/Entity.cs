@@ -82,8 +82,8 @@ public class Entity
 		removed = true;
 	}
 
-	public Matrix getTransform(Vector2 offset = default)
+	public Matrix getTransform(Vector2 offset = default, float z = 0)
 	{
-		return Matrix.CreateTransform(new Vector3(position + offset, 0), Quaternion.FromAxisAngle(Vector3.UnitZ, rotation));
+		return Matrix.CreateTransform(new Vector3(position + offset, z), Quaternion.FromAxisAngle(Vector3.UnitZ, rotation));
 	}
 }
