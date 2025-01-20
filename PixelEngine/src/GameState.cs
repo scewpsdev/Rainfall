@@ -254,8 +254,8 @@ public class GameState : State
 		else
 		{
 			level = null;
-			//switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
-			switchLevel(introBridge, (Vector2)introBridge.rooms[0].getMarker(0x22));
+			switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
+			//switchLevel(introBridge, (Vector2)introBridge.rooms[0].getMarker(0x22));
 			levelSwitchTime = -1;
 
 			player.actions.queueAction(new UnconciousAction());
