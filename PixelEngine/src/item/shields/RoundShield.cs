@@ -19,7 +19,7 @@ public class RoundShield : Shield
 
 		blockDuration = 0.3f;
 		blockCharge = 0.08f;
-		blockMovementSpeed = 0.5f;
+		actionMovementSpeed = 0.5f;
 		blockAbsorption = 0.6f;
 
 		sprite = new Sprite(tileset, 7, 7);

@@ -48,7 +48,7 @@ public class Trampoline : Entity
 					}
 					else
 					{
-						hits[i].entity.velocity.y = -hits[i].entity.velocity.y;
+						hits[i].entity.velocity.y = MathF.Max(-hits[i].entity.velocity.y, STRENGTH);
 
 						if (hits[i].entity is Mob)
 							((Mob)hits[i].entity).isGrounded = true;

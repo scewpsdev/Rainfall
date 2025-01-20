@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 public class NimbleGloves : Item
 {
 	public NimbleGloves()
-		: base("nimbleGloves", ItemType.Armor)
+		: base("nimble_gloves", ItemType.Armor)
 	{
 		displayName = "Nimble Gloves";
 		description = "Increases attack rate by 15%";
 		armorSlot = ArmorSlot.Gloves;
 
+		baseArmor = 1;
 		value = 35;
 
 		sprite = new Sprite(tileset, 9, 9);

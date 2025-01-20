@@ -22,6 +22,5 @@ public class HuntersHat : Item
 
 		sprite = new Sprite(tileset, 2, 7);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/hunters_hat.png", false), 0, 0, 32, 32);
-		ingameSpriteSize = 2;
 	}
 }

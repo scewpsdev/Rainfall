@@ -36,6 +36,7 @@ public class EntityAction
 	public bool canMove = true;
 	public bool canJump = true;
 	public bool turnToCrosshair = true;
+	public float actionMovement = 0;
 
 	public float speedMultiplier = 1.0f;
 

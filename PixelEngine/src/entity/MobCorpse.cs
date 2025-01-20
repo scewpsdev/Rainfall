@@ -100,7 +100,7 @@ public class MobCorpse : Entity
 			{
 				if (passiveItems[i].ingameSprite != null)
 				{
-					Renderer.DrawSprite(position.x - 0.5f * passiveItems[i].ingameSpriteSize, position.y + 0.5f - 0.5f * passiveItems[i].ingameSpriteSize, LAYER_PLAYER_ARMOR, passiveItems[i].ingameSpriteSize, passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f, LAYER_PLAYER_ARMOR, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 			}
 		}

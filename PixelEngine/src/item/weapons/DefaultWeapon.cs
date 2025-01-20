@@ -22,14 +22,17 @@ public class DefaultWeapon : Weapon
 		knockback = 5;
 		attackAngle = 1.0f * MathF.PI;
 		attackAngleOffset = -0.9f * MathF.PI;
+		actionMovementSpeed = 0.8f;
 
 		punchSprite = new Sprite(tileset, 0, 2);
 		swingSprite = new Sprite(tileset, 1, 8);
 		sprite = punchSprite;
 
-		//ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/default.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/default.png", false), 0, 0, 32, 32);
 
 		hitSound = [Resource.GetSound("sounds/punch_hit.ogg")];
+		stepSound = Resource.GetSounds("sounds/step_bare", 3);
+		landSound = Resource.GetSounds("sounds/land_bare", 3);
 	}
 
 	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)

@@ -22,8 +22,7 @@ public class DankHat : Item
 
 		sprite = new Sprite(tileset, 0, 8);
 		spriteColor = 0xFFB7C17A;
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/pointy_hat.png", false), 0, 0, 32, 32);
-		ingameSpriteSize = 2;
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/pointy_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteColor = 0xFFB7C17A;
 	}
 }

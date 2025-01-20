@@ -24,6 +24,5 @@ public class LostSigil : Item
 
 		sprite = new Sprite(tileset, 13, 8);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/lost_sigil.png", false), 0, 0, 32, 32);
-		ingameSpriteSize = 2;
 	}
 }

@@ -25,6 +25,7 @@ public class Dagger : Weapon
 		baseWeight = 1;
 		secondaryChargeTime = 0;
 		criticalChanceModifier = 2.0f;
+		actionMovementSpeed = 0.8f;
 
 		value = 4;
 

@@ -60,20 +60,26 @@ public class Coin : Entity
 
 				if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
 				{
-					HitData hit = GameState.instance.level.sample(position, FILTER_PLAYER | FILTER_MOB);
-					if (hit != null && hit.entity == target)
+					HitData[] hits = new HitData[16];
+					int numHits = GameState.instance.level.overlap(position - 0.25f, position + 0.25f, hits, FILTER_PLAYER | FILTER_MOB);
+					for (int i = 0; i < numHits; i++)
 					{
-						if (hit.entity is Player)
-							(target as Player).money++;
-						else if (hit.entity is Leprechaun)
-							(target as Leprechaun).money++;
+						HitData hit = hits[i];
+						if (hit != null && hit.entity == target)
+						{
+							if (hit.entity is Player)
+								(target as Player).money++;
+							else if (hit.entity is Leprechaun)
+								(target as Leprechaun).money++;
 
-						if (Random.Shared.NextSingle() < 0.4f)
-							GameState.instance.level.addEntity(ParticleEffects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
+							if (Random.Shared.NextSingle() < 0.4f)
+								GameState.instance.level.addEntity(ParticleEffects.CreateCoinBlinkEffect(), position + MathHelper.RandomVector2(-0.5f, 0.5f));
 
-						Audio.Play(collectSound, new Vector3(position, 0));
+							Audio.Play(collectSound, new Vector3(position, 0));
 
-						remove();
+							remove();
+							break;
+						}
 					}
 				}
 			}

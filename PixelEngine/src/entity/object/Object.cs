@@ -118,7 +118,7 @@ public class Object : Entity, Hittable, Interactable
 			onCollision(collidesX, collidesY, false);
 		}
 
-		if ((throwTime == -1 || (Time.currentTime - throwTime) / 1e9f > 0.1f) && velocity.length > 8)
+		if ((throwTime == -1 || (Time.currentTime - throwTime) / 1e9f > 0.2f) && velocity.length > 8)
 		{
 			HitData[] hits = new HitData[32];
 			int numHits = GameState.instance.level.overlap(position + collider.min, position + collider.max, hits, FILTER_MOB | FILTER_PLAYER | FILTER_PROJECTILE | FILTER_OBJECT);

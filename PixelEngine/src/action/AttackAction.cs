@@ -66,7 +66,9 @@ public class AttackAction : EntityAction
 		duration /= player.getAttackSpeedModifier();
 
 		direction = player.lookDirection.normalized;
-		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
+		if (MathF.Abs(direction.x) < 0.001f)
+			direction.x = 0;
+		charDirection = direction.x != 0 ? MathF.Sign(direction.x) : player.direction;
 	}
 
 	Vector2 getWeaponTip(Player player, float fract = 1.0f)
@@ -213,6 +215,11 @@ public class AttackAction : EntityAction
 				secondaryTrail.setPosition(getWeaponTip(player, 0.9f));
 			}
 		}
+
+		if (inDamageWindow)
+			player.direction = charDirection;
+		speedMultiplier = inDamageWindow && player.isGrounded ? weapon.actionMovementSpeed : 1;
+		//actionMovement = inDamageWindow && player.isGrounded ? MathF.Sign(direction.x) * (1 - elapsedTime / (duration / (1 + weapon.attackCooldown))) * 4 : 0;
 	}
 
 	public override void render(Player player)

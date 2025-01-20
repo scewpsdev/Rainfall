@@ -28,7 +28,7 @@ public class CavesPlatformingRoom1 : Entity
 		}
 
 		Vector2i chestPosition = room.getMarker(0x1);
-		generator.spawnChest(chestPosition.x, chestPosition.y, generator.getRoomLootValue(room) * 2);
+		generator.spawnChest(chestPosition.x, chestPosition.y, generator.getRoomLootValue(room) * 3);
 
 		level.addEntity(new TorchEntity(), position + new Vector2(4.5f, 4.5f));
 		level.addEntity(new TorchEntity(), position + new Vector2(8.5f, 4.5f));

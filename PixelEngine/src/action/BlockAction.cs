@@ -24,7 +24,7 @@ public class BlockAction : EntityAction
 
 		//duration = shield.blockDuration;
 		duration = shield.type == ItemType.Shield ? 1000 : shield.blockDuration;
-		speedMultiplier = shield.blockMovementSpeed;
+		speedMultiplier = shield.actionMovementSpeed;
 	}
 
 	public override void onQueued(Player player)

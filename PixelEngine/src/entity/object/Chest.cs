@@ -120,6 +120,16 @@ public class Chest : Container
 		}
 	}
 
+	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	{
+		base.hit(damage, by, item, byName, triggerInvincibility);
+		if (health > 0)
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051), position);
+		else
+			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyWoodEffect(0xFF675051, 20, velocity * 0.25f), position);
+		return true;
+	}
+
 	protected override void breakContainer()
 	{
 		if (locked)

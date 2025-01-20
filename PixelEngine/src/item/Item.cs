@@ -184,10 +184,10 @@ public abstract class Item
 	public float secondaryChargeTime = 0.5f;
 	public float blockDuration = 0.7f;
 	public float blockCharge = 0.15f;
-	public float blockMovementSpeed = 0.4f;
+	public float actionMovementSpeed = 0.4f;
 	public float blockAbsorption = 1.0f;
 	public float damageReflect = 0.0f;
-	public bool doubleBladed = true;
+	public bool doubleBladed = false;
 	public float criticalChanceModifier = 1.0f;
 	public float accuracy = 1.0f;
 	public bool trigger = true;
@@ -263,9 +263,9 @@ public abstract class Item
 	public Sprite spellIcon = null;
 	public Vector4 spriteColor = Vector4.One;
 	public Sprite ingameSprite = null;
-	public int ingameSpriteSize = 1;
 	public Vector4 ingameSpriteColor = Vector4.One;
 	public float ingameSpriteLayer = Entity.LAYER_PLAYER_ARMOR;
+	public int ingameSpriteSize { get => ingameSprite.width / GameState.instance.player.sprite.width; }
 
 	public bool hasParticleEffect = false;
 	public Vector2 particlesOffset = Vector2.Zero;
@@ -279,6 +279,8 @@ public abstract class Item
 	public Sound[] blockSound;
 	public Sound[] pickupSound;
 	public Sound[] equipSound;
+	public Sound[] stepSound;
+	public Sound[] landSound;
 
 
 	public Item(string name, ItemType type)
@@ -658,6 +660,7 @@ public abstract class Item
 		InitType(new DankHat());
 		InitType(new BlacksteelGlaive());
 		InitType(new RingOfThorns());
+		InitType(new AdventurersHoodBlue());
 	}
 
 	static void InitType(Item item)

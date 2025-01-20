@@ -19,7 +19,7 @@ public class WoodenShield : Shield
 
 		blockDuration = 0.3f;
 		blockCharge = 0.08f;
-		blockMovementSpeed = 0.5f;
+		actionMovementSpeed = 0.5f;
 		blockAbsorption = 0.8f;
 
 		sprite = new Sprite(tileset, 9, 8);

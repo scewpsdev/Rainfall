@@ -945,6 +945,18 @@ public class Level
 		TileType tile = getTile(tilePosition);
 		if (tile != null && tile.isSolid && !tile.isPlatform)
 			return new HitData() { position = position };
+
+		for (int i = 0; i < colliders.Count; i++)
+		{
+			if (!colliders[i].platformCollider)
+			{
+				Vector2 min = colliders[i].position + colliders[i].collider.min;
+				Vector2 max = colliders[i].position + colliders[i].collider.max;
+				if (position.x >= min.x && position.x <= max.x && position.y >= min.y && position.y <= max.y)
+					return new HitData() { position = position };
+			}
+		}
+
 		return null;
 	}
 
