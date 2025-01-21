@@ -20,6 +20,6 @@ public class ChainmailBoots : Item
 		value = 16;
 
 		sprite = new Sprite(tileset, 2, 9);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/chainmail_boots.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/chainmail_boots.png", false), 0, 0, 32, 32);
 	}
 }

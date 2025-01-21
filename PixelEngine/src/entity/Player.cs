@@ -1335,8 +1335,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (InputManager.IsReleased("Jump"))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
-			if (InputManager.IsDown("Down") && actions.currentAction == null)
-				gravityMultiplier *= 1.5f;
+			//if (InputManager.IsDown("Down") && actions.currentAction == null)
+			//	gravityMultiplier *= 1.5f;
 			velocity.y += gravityMultiplier * gravity * Time.deltaTime;
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
@@ -1972,9 +1972,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = 2;
 		else if (animator.currentAnimation == "stun")
 			animOffset.y = -2;
-		if (isDucked && !isClimbing)
+		if (isDucked && !isClimbing && isGrounded)
 			animOffset.y = -3;
-		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 7 / 16.0f : 6 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 8 / 16.0f : 7 / 16.0f) + animOffset.y / 16.0f);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
@@ -2007,7 +2007,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					if (item != DefaultWeapon.instance || actions.currentAction == null)
 					{
-						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f, item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
+						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
 
 						//Vector3 buffColor = MathHelper.ARGBToVector(0xFFdac66c).xyz;
 						//float buffIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 60), -1, 1, 0.1f, 1);
@@ -2032,6 +2032,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 							particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
 							particles.layer = layer - 0.01f;
 						}
+					}
+					else
+					{
+						item = DefaultWeapon.instance;
+						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
 					}
 				}
 			}
@@ -2093,7 +2098,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			snappedPosition.y = MathF.Round(snappedPosition.y * 16) / 16;
 
 			if (show)
-				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
+				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing && isGrounded ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
 
 			if (handItem != null)
 				handItem.render(this);
@@ -2102,7 +2107,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
 				if (passiveItems[i].ingameSprite != null && show)
-					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}
 			for (int i = 0; i < activeItems.Length; i++)

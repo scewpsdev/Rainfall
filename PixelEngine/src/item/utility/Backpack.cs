@@ -25,7 +25,7 @@ public class Backpack : Item
 		value = 20;
 
 		sprite = new Sprite(tileset, 3, 4);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/backpack.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/backpack.png", false), 0, 0, 32, 32);
 	}
 
 	public override void onEquip(Player player)

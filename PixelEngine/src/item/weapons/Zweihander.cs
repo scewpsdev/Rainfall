@@ -22,6 +22,7 @@ public class Zweihander : Weapon
 		attackAngleOffset = 0;
 		attackAngle = MathF.PI;
 		doubleBladed = true;
+		sidewaySwing = true;
 
 		value = 18;
 
