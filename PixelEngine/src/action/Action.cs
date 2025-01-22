@@ -6,33 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public struct ActionSfx
-{
-	internal Sound sound;
-	internal float gain;
-	internal float time;
-	internal bool organic;
-
-	internal bool played;
-
-	public ActionSfx(Sound sound, float gain = 1.0f, float time = 0.0f, bool organic = false)
-	{
-		this.sound = sound;
-		this.gain = gain;
-		this.time = time;
-		this.organic = organic;
-		played = false;
-	}
-}
-
 public class EntityAction
 {
 	public readonly string type;
 
 	public string animation = null;
 	public bool mainHand;
-	public bool renderMainWeapon = false;
-	public bool renderSecondaryWeapon = false;
+	public bool renderWeapon = false;
 	public bool canMove = true;
 	public bool canJump = true;
 	public bool turnToCrosshair = true;
@@ -47,16 +27,9 @@ public class EntityAction
 	public float iframesStartTime = 0.0f;
 	public float iframesEndTime = 0.0f;
 
-	public int staminaCost = 0;
-	public float staminaCostTime = 0.0f;
-
 	public long startTime = 0;
 	public float elapsedTime { get; protected set; } = 0.0f;
 	public float duration = 0.0f;
-
-	List<ActionSfx> soundEffects = new List<ActionSfx>();
-
-	bool staminaConsumed = false;
 
 
 	public EntityAction(string type, bool mainHand = true)
@@ -65,34 +38,9 @@ public class EntityAction
 		this.mainHand = mainHand;
 	}
 
-	protected void addSoundEffect(ActionSfx sfx)
-	{
-		soundEffects.Add(sfx);
-	}
-
 	public virtual void update(Player player)
 	{
 		elapsedTime += Time.deltaTime * animationSpeed;
-
-		if (staminaCost > 0.0f && elapsedTime >= staminaCostTime && !staminaConsumed)
-		{
-			//player.stats.consumeStamina(staminaCost);
-			staminaConsumed = true;
-		}
-
-		for (int i = 0; i < soundEffects.Count; i++)
-		{
-			ActionSfx sfx = soundEffects[i];
-			if (elapsedTime >= sfx.time && !sfx.played)
-			{
-				//if (sfx.organic)
-				//	player.playSoundOrganic(sfx.sound, sfx.gain);
-				//else
-				//	player.playSound(sfx.sound, sfx.gain);
-				sfx.played = true;
-				soundEffects[i] = sfx;
-			}
-		}
 	}
 
 	public void cancel()

@@ -11,6 +11,8 @@ public class BowShootAction : EntityAction
 	Item weapon;
 	Item arrow;
 
+	Sound shootSound;
+
 	public List<Entity> hitEntities = new List<Entity>();
 
 
@@ -21,12 +23,14 @@ public class BowShootAction : EntityAction
 
 		this.weapon = weapon;
 		this.arrow = arrow;
+
+		renderWeapon = true;
+
+		shootSound = Resource.GetSound("sounds/bow_shoot.ogg");
 	}
 
-	public override void onQueued(Player player)
+	public override void onFinished(Player player)
 	{
-		duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
-
 		Vector2 direction = (player.lookDirection.normalized * 1.1f + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.03f;
 		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
@@ -37,17 +41,16 @@ public class BowShootAction : EntityAction
 		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon, arrow);
 		GameState.instance.level.addEntity(projectile, position);
 
-		/*
-		Arrow arrow = new Arrow();
-		//arrow.breakOnHit = Random.Shared.Next() % 5 > 0;
-		arrow.breakOnWallHit = true;
-		//arrow.maxRicochets = 1;
-		arrow.attackDamage = weapon.attackDamage;
-		arrow.knockback = weapon.knockback;
-		ItemEntity entity = new ItemEntity(arrow, player, velocity);
-		entity.bounciness = 0.3f;
-		GameState.instance.level.addEntity(entity, position);
-		*/
+		Audio.PlayOrganic(shootSound, new Vector3(player.position, 0), 1, 1, 0.0f, 0.15f);
+	}
+
+	public override void update(Player player)
+	{
+		base.update(player);
+
+		InputBinding binding = player.currentAttackInput;
+		if (binding == null)
+			duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 	}
 
 	public override Matrix getItemTransform(Player player)

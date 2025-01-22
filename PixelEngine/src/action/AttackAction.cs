@@ -46,8 +46,7 @@ public class AttackAction : EntityAction
 		this.startAngle = startAngle;
 		this.endAngle = endAngle;
 
-		if (mainHand) renderMainWeapon = true;
-		else renderSecondaryWeapon = true;
+		renderWeapon = true;
 
 		postActionLinger = 0.25f;
 	}

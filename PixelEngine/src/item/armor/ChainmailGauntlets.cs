@@ -20,5 +20,9 @@ public class ChainmailGauntlets : Item
 		value = 16;
 
 		sprite = new Sprite(tileset, 15, 8);
+		ingameSprite = new Sprite("sprites/items/armor/chainmail_gauntlets.png", 0, 0, 32, 32);
+		ingameSpriteLayer = Entity.LAYER_PLAYER_GLOVE;
+
+		gloveColor = 0xFF8c8c8c;
 	}
 }

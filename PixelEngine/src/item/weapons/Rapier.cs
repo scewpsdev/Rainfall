@@ -20,6 +20,8 @@ public class Rapier : Weapon
 		baseWeight = 1.5f;
 		secondaryChargeTime = 0.3f;
 
+		anim = AttackAnim.Stab;
+
 		value = 12;
 
 		sprite = new Sprite(tileset, 14, 4);

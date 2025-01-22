@@ -40,7 +40,7 @@ public class Jetpack : Item
 		baseWeight = 5;
 
 		sprite = new Sprite(tileset, 6, 9);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/jetpack.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/jetpack.png", false), 0, 0, 32, 32);
 
 		particles = new ParticleEffect(null, "effects/jetpack.rfs");
 		emissionRate = particles.systems[0].handle->emissionRate;

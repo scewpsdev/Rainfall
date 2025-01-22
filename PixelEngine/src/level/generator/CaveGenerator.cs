@@ -376,7 +376,7 @@ public partial class LevelGenerator
 		// Arrow trap
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
-			if (tile != null && tile.isSolid && (left == null || right == null) && y != entrancePosition.y)
+			if (tile != null && tile.isSolid && (x > 0 && left == null || x < width - 1 && right == null) && y != entrancePosition.y)
 			{
 				float arrowTrapChance = 0.001f;
 				if (random.NextSingle() < arrowTrapChance)

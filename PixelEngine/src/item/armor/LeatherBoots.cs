@@ -20,6 +20,6 @@ public class LeatherBoots : Item
 		value = 8;
 
 		sprite = new Sprite(tileset, 1, 9);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/leather_boots.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/leather_boots.png", false), 0, 0, 32, 32);
 	}
 }

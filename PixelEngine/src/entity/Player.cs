@@ -98,11 +98,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public FloatRect rect;
 	public SpriteAnimator animator;
 
+	public InputBinding currentAttackInput = null;
+
 	long lastJumpInput = -10000000000;
 	long lastGrounded = -10000000000;
 	long lastWallTouchRight = -10000000000;
 	long lastWallTouchLeft = -10000000000;
-	long lastItemUseDown = -1;
 
 	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
@@ -1324,6 +1325,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 
 			lookDirection = Vector2.Rotate(Vector2.Right, MathF.Floor((lookDirection.angle + MathF.PI * 0.125f) / (MathF.PI * 0.25f)) * MathF.PI * 0.25f);
+			if (MathF.Abs(lookDirection.x) < 0.001f)
+				lookDirection.x = 0;
+			if (MathF.Abs(lookDirection.y) < 0.001f)
+				lookDirection.y = 0;
 		}
 
 		if (!isClimbing)
@@ -1517,6 +1522,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
+			currentAttackInput = null;
 			if (!isStunned && numOverlaysOpen == 0)
 			{
 				if (carriedObject != null && isDucked && InputManager.IsPressed("Interact", true))
@@ -1559,108 +1565,77 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					}
 				}
 
-				if (carriedObject != null)
-				{
-					if (InputManager.IsPressed("Attack", true))
-					{
-						throwObject();
-					}
-				}
-				else if (handItem != null)
-				{
-					if (offhandItem == null && InputManager.IsPressed("Attack2"))
-					{
-						if (lastItemUseDown == -1)
-							lastItemUseDown = Time.currentTime;
-					}
-					if (InputManager.IsReleased("Attack2"))
-						lastItemUseDown = -1;
 
+				{
+					InputBinding attackInput = null;
+					Vector2 directionalAttackDir = Vector2.Zero;
+					bool secondary = false;
 					if (InputManager.IsDown("Attack"))
 					{
-						if (handItem.trigger)
-						{
-							if (InputManager.IsPressed("Attack"))
-							{
-								InputManager.ConsumeEvent("Attack");
-								if (handItem.use(this))
-									removeItemSingle(handItem);
-							}
-						}
-						else
-						{
-							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
-							{
-								if (handItem.use(this))
-									removeItem(handItem);
-							}
-						}
+						attackInput = InputManager.GetBinding("Attack");
+						directionalAttackDir += lookDirection;
 					}
-					if (lastItemUseDown != -1 && (Time.currentTime - lastItemUseDown) / 1e9f > handItem.secondaryChargeTime && (Time.currentTime - lastItemUseDown) / 1e9f < handItem.secondaryChargeTime + 1)
+					if (InputManager.IsDown("Attack2"))
 					{
-						if (handItem.useSecondary(this))
-							removeItem(handItem);
-						lastItemUseDown = -1;
+						attackInput = InputManager.GetBinding("Attack2");
+						directionalAttackDir += lookDirection;
+						secondary = true;
 					}
-				}
-				else
-				{
-					if (InputManager.IsPressed("Attack", true) && (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration))
+					if (InputManager.IsDown("AttackLeft"))
 					{
-						DefaultWeapon.instance.use(this);
+						attackInput = InputManager.GetBinding("AttackLeft");
+						directionalAttackDir += Vector2.Left;
+						secondary = Input.IsKeyDown(KeyCode.Ctrl);
 					}
-				}
-
-				{
-					Item handItem = this.handItem != null ? this.handItem : DefaultWeapon.instance;
-					Item offhandItem = this.offhandItem != null ? this.offhandItem : this.handItem != null ? this.handItem : null;
-
-					if (!Input.IsKeyDown(KeyCode.Ctrl))
+					if (InputManager.IsDown("AttackRight"))
 					{
-						KeyCode directionalAttackInput = KeyCode.None;
-						Vector2 directionalAttackDir = Vector2.Zero;
-						if (Input.IsKeyDown(KeyCode.Left))
-						{
-							directionalAttackInput = KeyCode.Left;
-							directionalAttackDir += Vector2.Left;
-						}
-						if (Input.IsKeyDown(KeyCode.Right))
-						{
-							directionalAttackInput = KeyCode.Right;
-							directionalAttackDir += Vector2.Right;
-						}
-						if (Input.IsKeyDown(KeyCode.Up))
-						{
-							directionalAttackInput = KeyCode.Up;
-							directionalAttackDir += Vector2.Up;
-						}
-						if (Input.IsKeyDown(KeyCode.Down))
-						{
-							directionalAttackInput = KeyCode.Down;
-							directionalAttackDir += Vector2.Down;
-						}
-						if (directionalAttackInput != KeyCode.None && directionalAttackDir != Vector2.Zero)
-						{
-							directionalAttackDir = directionalAttackDir.normalized;
+						attackInput = InputManager.GetBinding("AttackRight");
+						directionalAttackDir += Vector2.Right;
+						secondary = Input.IsKeyDown(KeyCode.Ctrl);
+					}
+					if (InputManager.IsDown("AttackUp"))
+					{
+						attackInput = InputManager.GetBinding("AttackUp");
+						directionalAttackDir += Vector2.Up;
+						secondary = Input.IsKeyDown(KeyCode.Ctrl);
+					}
+					if (InputManager.IsDown("AttackDown"))
+					{
+						attackInput = InputManager.GetBinding("AttackDown");
+						directionalAttackDir += Vector2.Down;
+						secondary = Input.IsKeyDown(KeyCode.Ctrl);
+					}
 
-							lookDirection = directionalAttackDir;
-							if (directionalAttackDir.x != 0)
-								direction = MathF.Sign(directionalAttackDir.x);
+					if (MathF.Abs(directionalAttackDir.x) < 0.001f)
+						directionalAttackDir.x = 0;
+					if (MathF.Abs(directionalAttackDir.y) < 0.001f)
+						directionalAttackDir.y = 0;
 
+					if (attackInput != null)
+					{
+						currentAttackInput = attackInput;
+
+						lookDirection = directionalAttackDir.normalized;
+						if (directionalAttackDir.x != 0)
+							direction = MathF.Sign(directionalAttackDir.x);
+
+						Item handItem = this.handItem != null ? this.handItem : DefaultWeapon.instance;
+
+						if (!secondary)
+						{
 							if (carriedObject != null)
 							{
-								if (Input.IsKeyPressed(directionalAttackInput))
+								if (attackInput.isPressed(true))
 								{
 									throwObject();
 								}
 							}
-							else
+							else if (handItem != null)
 							{
 								if (handItem.trigger)
 								{
-									if (Input.IsKeyPressed(directionalAttackInput))
+									if (attackInput.isPressed(true))
 									{
-										Input.ConsumeKeyEvent(directionalAttackInput);
 										if (handItem.use(this))
 											removeItemSingle(handItem);
 									}
@@ -1670,84 +1645,57 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 									if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
 									{
 										if (handItem.use(this))
-											removeItem(handItem);
+											removeItemSingle(handItem);
 									}
-								}
-							}
-						}
-					}
-
-					if (Input.IsKeyDown(KeyCode.Ctrl) && offhandItem != null)
-					{
-						KeyCode directionalAttackInput = KeyCode.None;
-						Vector2 directionalAttackDir = Vector2.Zero;
-						if (Input.IsKeyDown(KeyCode.Left))
-						{
-							directionalAttackInput = KeyCode.Left;
-							directionalAttackDir = Vector2.Left;
-						}
-						if (Input.IsKeyDown(KeyCode.Right))
-						{
-							directionalAttackInput = KeyCode.Right;
-							directionalAttackDir = Vector2.Right;
-						}
-						if (Input.IsKeyDown(KeyCode.Up))
-						{
-							directionalAttackInput = KeyCode.Up;
-							directionalAttackDir = Vector2.Up;
-						}
-						if (Input.IsKeyDown(KeyCode.Down))
-						{
-							directionalAttackInput = KeyCode.Down;
-							directionalAttackDir = Vector2.Down;
-						}
-						if (directionalAttackInput != KeyCode.None)
-						{
-							lookDirection = directionalAttackDir;
-							if (directionalAttackDir.x != 0)
-								direction = MathF.Sign(directionalAttackDir.x);
-
-							bool secondary = this.offhandItem == null && this.handItem != null;
-
-							if (offhandItem.trigger)
-							{
-								if (Input.IsKeyPressed(directionalAttackInput))
-								{
-									Input.ConsumeKeyEvent(directionalAttackInput);
-									if (secondary ? offhandItem.useSecondary(this) : offhandItem.use(this))
-										removeItemSingle(offhandItem);
 								}
 							}
 							else
 							{
-								if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+								if (attackInput.isPressed(true) && (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.5f * actions.currentAction.duration))
 								{
-									if (secondary ? offhandItem.useSecondary(this) : offhandItem.use(this))
-										removeItem(offhandItem);
+									DefaultWeapon.instance.use(this);
 								}
-							}
-						}
-					}
-				}
-
-				if (offhandItem != null)
-				{
-					if (InputManager.IsDown("Attack2"))
-					{
-						if (offhandItem.trigger)
-						{
-							if (InputManager.IsPressed("Attack2", true))
-							{
-								if (offhandItem.use(this))
-									removeItem(offhandItem);
 							}
 						}
 						else
 						{
-							if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+							if (offhandItem != null)
 							{
-								if (offhandItem.use(this))
-									removeItem(offhandItem);
+								if (offhandItem.trigger)
+								{
+									if (attackInput.isPressed(true))
+									{
+										if (offhandItem.use(this))
+											removeItemSingle(offhandItem);
+									}
+								}
+								else
+								{
+									if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+									{
+										if (offhandItem.use(this))
+											removeItemSingle(offhandItem);
+									}
+								}
+							}
+							else if (handItem != null)
+							{
+								if (handItem.trigger)
+								{
+									if (attackInput.isPressed(true))
+									{
+										if (handItem.useSecondary(this))
+											removeItemSingle(handItem);
+									}
+								}
+								else
+								{
+									if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+									{
+										if (handItem.useSecondary(this))
+											removeItemSingle(handItem);
+									}
+								}
 							}
 						}
 					}
@@ -1974,7 +1922,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = -2;
 		if (isDucked && !isClimbing && isGrounded)
 			animOffset.y = -3;
-		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 8 / 16.0f : 7 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 7 / 16.0f : 6 / 16.0f) + animOffset.y / 16.0f);
+	}
+
+	bool renderArms
+	{
+		get
+		{
+			for (int i = 0; i < passiveItems.Count; i++)
+			{
+				if (passiveItems[i].ingameSpriteCoversArms)
+					return false;
+			}
+			return true;
+		}
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
@@ -1990,39 +1951,76 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (item.sprite != null)
 		{
-			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand && (actions.currentAction.renderMainWeapon && mainHand || actions.currentAction.renderSecondaryWeapon && !mainHand))
+			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
 			{
-				Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, layer)
-					* actions.currentAction.getItemTransform(this);
-				Renderer.DrawSprite(item.size.x, item.size.y, weaponTransform, item.sprite, color);
-				if (particles != null)
+				if (actions.currentAction.renderWeapon)
 				{
-					particles.position = weaponTransform.translation.xy + item.particlesOffset * new Vector2i(direction, 1);
-					particles.layer = layer - 0.01f;
+					Matrix weaponTransform = actions.currentAction.getItemTransform(this);
+					Renderer.DrawSprite(item.size.x, item.size.y, Matrix.CreateTranslation(position.x, position.y, layer) * weaponTransform, item.sprite, color);
+
+					if (item != DefaultWeapon.instance)
+					{
+						Vector4 handColor = 0xFF282828;
+						if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
+							handColor = passiveItems[gloveSlot].gloveColor;
+						float handRotation = weaponTransform.rotation.angle * MathF.Sign(weaponTransform.rotation.axis.z);
+						Vector2 handPosition = (weaponTransform * Matrix.CreateTranslation(-0.25f, 0, 0)).translation.xy;
+						Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, handRotation, null, false, handColor);
+					}
+
+					if (particles != null)
+					{
+						particles.position = position + weaponTransform.translation.xy + item.particlesOffset * new Vector2i(direction, 1);
+						particles.layer = layer - 0.01f;
+					}
 				}
 			}
 			else
 			{
-				if (item.ingameSprite != null)
+				if (item.ingameSprite != null && item != DefaultWeapon.instance)
 				{
-					if (item != DefaultWeapon.instance || actions.currentAction == null)
+					Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
+
+					//Vector3 buffColor = MathHelper.ARGBToVector(0xFFdac66c).xyz;
+					//float buffIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 60), -1, 1, 0.1f, 1);
+					//Renderer.DrawSpriteSolid(position.x - 0.5f * item.ingameSpriteSize, position.y + 0.5f - 0.5f * item.ingameSpriteSize, item.ingameSpriteLayer, item.ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * item.ingameSpriteSize, 0, item.ingameSprite, direction == -1, new Vector4(buffColor, buffIntensity), true);
+
+					if (particles != null)
 					{
-						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
-
-						//Vector3 buffColor = MathHelper.ARGBToVector(0xFFdac66c).xyz;
-						//float buffIntensity = MathHelper.Remap(MathF.Sin(Time.currentTime / 1e9f * 60), -1, 1, 0.1f, 1);
-						//Renderer.DrawSpriteSolid(position.x - 0.5f * item.ingameSpriteSize, position.y + 0.5f - 0.5f * item.ingameSpriteSize, item.ingameSpriteLayer, item.ingameSpriteSize, (isDucked && !isClimbing ? 0.5f : 1) * item.ingameSpriteSize, 0, item.ingameSprite, direction == -1, new Vector4(buffColor, buffIntensity), true);
-
-						if (particles != null)
-						{
-							Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
-							particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
-							particles.layer = layer - 0.01f;
-						}
+						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
+						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+						particles.layer = layer - 0.01f;
 					}
 				}
-				else
+				else if (item != DefaultWeapon.instance)
 				{
+					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
+					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
+
+					Vector4 handColor = 0xFF282828;
+					if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
+						handColor = passiveItems[gloveSlot].gloveColor;
+					Vector2 handPosition = getWeaponOrigin(mainHand);
+					handPosition.x -= 1 / 16.0f;
+					if (direction == -1)
+						handPosition.x *= -1;
+					Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, 0, null, false, handColor);
+
+					if (particles != null)
+					{
+						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
+						particles.layer = layer - 0.01f;
+					}
+				}
+				else if (actions.currentAction == null || !actions.currentAction.renderWeapon)
+				{
+					if (renderArms)
+					{
+						item = DefaultWeapon.instance;
+						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
+					}
+
+					/*
 					if (actions.currentAction != null)
 					{
 						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
@@ -2033,11 +2031,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 							particles.layer = layer - 0.01f;
 						}
 					}
-					else
-					{
-						item = DefaultWeapon.instance;
-						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
-					}
+					*/
 				}
 			}
 		}
@@ -2106,7 +2100,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandItem.render(this);
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
-				if (passiveItems[i].ingameSprite != null && show)
+				if (passiveItems[i].ingameSprite != null && show && (passiveItems[i].armorSlot != ArmorSlot.Gloves || renderArms && (actions.currentAction == null || !actions.currentAction.renderWeapon)))
 					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}

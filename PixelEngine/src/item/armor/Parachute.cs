@@ -27,7 +27,7 @@ public class Parachute : Item
 		value = 35;
 
 		sprite = new Sprite(tileset, 4, 9);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/parachute.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/parachute.png", false), 0, 0, 32, 32);
 		parachute = new Sprite(Entity.tileset, 4, 1, 2, 2);
 	}
 

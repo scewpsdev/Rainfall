@@ -20,5 +20,9 @@ public class IronGauntlets : Item
 		value = 20;
 
 		sprite = new Sprite(tileset, 0, 9);
+		ingameSprite = new Sprite("sprites/items/armor/iron_gauntlets.png", 0, 0, 32, 32);
+		ingameSpriteLayer = Entity.LAYER_PLAYER_GLOVE;
+
+		gloveColor = 0xFF969696;
 	}
 }

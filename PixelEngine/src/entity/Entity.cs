@@ -23,6 +23,7 @@ public class Entity
 	public const float LAYER_INTERACTABLE = -0.005f;
 	public const float LAYER_PLAYER_BG = 0.002f;
 	public const float LAYER_PLAYER_ARMOR = -0.0005f;
+	public const float LAYER_PLAYER_GLOVE = -0.00075f;
 	public const float LAYER_PLAYER_ITEM_MAIN = -0.001f;
 	public const float LAYER_PLAYER_ITEM_SECONDARY = 0.001f;
 	public const float LAYER_FG = -0.02f;

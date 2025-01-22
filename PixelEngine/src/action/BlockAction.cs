@@ -19,8 +19,7 @@ public class BlockAction : EntityAction
 	{
 		this.shield = shield;
 
-		if (mainHand) renderMainWeapon = true;
-		else renderSecondaryWeapon = true;
+		renderWeapon = true;
 
 		//duration = shield.blockDuration;
 		duration = shield.type == ItemType.Shield ? 1000 : shield.blockDuration;
@@ -46,7 +45,7 @@ public class BlockAction : EntityAction
 	{
 		base.update(player);
 
-		bool input = InputManager.IsDown(mainHand ? "Attack" : "Attack2") || Input.IsKeyDown(KeyCode.Ctrl) && (Input.IsKeyDown(KeyCode.Left) || Input.IsKeyDown(KeyCode.Right) || Input.IsKeyDown(KeyCode.Up) || Input.IsKeyDown(KeyCode.Down));
+		bool input = InputManager.IsDown(mainHand ? "Attack" : "Attack2") || Input.IsKeyDown(KeyCode.Ctrl) && (InputManager.IsDown("AttackLeft") || InputManager.IsDown("AttackRight") || InputManager.IsDown("AttackUp") || InputManager.IsDown("AttackDown"));
 		if (shield.type == ItemType.Shield)
 		{
 			direction = player.lookDirection.normalized;

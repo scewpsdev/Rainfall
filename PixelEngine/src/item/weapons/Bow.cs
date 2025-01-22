@@ -21,7 +21,7 @@ public class Bow : Weapon
 		secondaryChargeTime = 0;
 		baseWeight = 1;
 
-		useSound = [Resource.GetSound("sounds/bow_shoot.ogg")];
+		useSound = [Resource.GetSound("sounds/bow_draw.ogg")];
 		hitSound = woodHit;
 	}
 

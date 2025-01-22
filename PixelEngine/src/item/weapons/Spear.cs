@@ -18,6 +18,8 @@ public class Spear : Weapon
 		baseAttackRate = 1.6f;
 		baseWeight = 1.5f;
 
+		anim = AttackAnim.Stab;
+
 		projectileItem = true;
 		projectileAims = true;
 		projectileSticks = true;

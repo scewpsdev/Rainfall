@@ -274,6 +274,9 @@ public abstract class Item
 	public Vector4 ingameSpriteColor = Vector4.One;
 	public float ingameSpriteLayer = Entity.LAYER_PLAYER_ARMOR;
 	public int ingameSpriteSize { get => ingameSprite.width / GameState.instance.player.sprite.width; }
+	public bool ingameSpriteCoversArms = false;
+
+	public Vector4 gloveColor = new Vector4(1, 0, 1, 1);
 
 	public bool hasParticleEffect = false;
 	public Vector2 particlesOffset = Vector2.Zero;

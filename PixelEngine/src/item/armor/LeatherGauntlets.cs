@@ -20,5 +20,9 @@ public class LeatherGauntlets : Item
 		value = 8;
 
 		sprite = new Sprite(tileset, 14, 8);
+		ingameSprite = new Sprite("sprites/items/armor/leather_gauntlets.png", 0, 0, 32, 32);
+		ingameSpriteLayer = Entity.LAYER_PLAYER_GLOVE;
+
+		gloveColor = 0xFF4c3435;
 	}
 }

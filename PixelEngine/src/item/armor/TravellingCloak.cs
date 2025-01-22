@@ -21,7 +21,8 @@ public class TravellingCloak : Item
 
 		sprite = new Sprite(tileset, 5, 0);
 		spriteColor = 0xFF5a6557;
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/cloak.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/cloak.png", false), 0, 0, 32, 32);
 		ingameSpriteColor = 0xFF5a6557;
+		ingameSpriteCoversArms = true;
 	}
 }
