@@ -16,8 +16,7 @@ public class Pickaxe : Weapon
 		baseDamage = 2;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.5f;
-		stab = false;
-		doubleBladed = false;
+		anim = AttackAnim.SwingOverhead;
 
 		value = 13;
 

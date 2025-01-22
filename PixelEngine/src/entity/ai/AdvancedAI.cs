@@ -75,12 +75,6 @@ public class AdvancedAI : AI
 		collider = mob.collider;
 	}
 
-	public override void onDeath()
-	{
-		if (GameState.instance.currentBoss == mob)
-			GameState.instance.currentBoss = null;
-	}
-
 	public AIAction addAction(string animation, float duration, string chargeAnimation, float chargeTime, string cooldownAnimation, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, Vector2, bool> onAction = null, Action<AIAction> onFinished = null)
 	{
 		AIAction action = new AIAction { ai = this, animation = animation, chargeAnimation = chargeAnimation, cooldownAnimation = cooldownAnimation, duration = duration, chargeTime = chargeTime, cooldownTime = cooldownTime, walkSpeed = walkSpeed, requirementsMet = requirementsMet, onStarted = onStarted, onAction = onAction, onFinished = onFinished };

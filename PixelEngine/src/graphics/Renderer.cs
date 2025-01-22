@@ -159,18 +159,18 @@ public static class Renderer
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		parallax = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (ulong)TextureFlags.BlitDst | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
 		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -259,18 +259,18 @@ public static class Renderer
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		parallax = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point| (uint)SamplerFlags.Clamp),
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (ulong)TextureFlags.BlitDst | (uint)SamplerFlags.Point)
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RGBA8, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.D32F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point)
 		});
 		lighting = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
-			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point),
+			new RenderTargetAttachment(UIWidth, UIHeight, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
 		composite = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{

@@ -20,7 +20,7 @@ public class ChainmailHood : Item
 		value = 6;
 
 		sprite = new Sprite(tileset, 3, 2);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/chainmail_hood.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/chainmail_hood.png", false), 0, 0, 32, 32);
 
 		equipSound = Resource.GetSounds("sounds/equip_chainmail", 2);
 	}

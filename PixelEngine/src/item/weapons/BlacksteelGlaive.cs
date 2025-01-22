@@ -20,6 +20,7 @@ public class BlacksteelGlaive : Weapon
 		baseWeight = 2.5f;
 		doubleBladed = false;
 		attackCooldown = 1.5f;
+		attackAcceleration = 1;
 
 		value = 35;
 
@@ -29,26 +30,26 @@ public class BlacksteelGlaive : Weapon
 		renderOffset.x = 0.2f;
 	}
 
-	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
 	{
-		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
+		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
 		if (idx % 3 == 0)
 		{
-			stab = false;
+			anim = AttackAnim.SwingOverhead;
 			swingDir = 0;
 			startAngle = MathF.PI * 1.5f;
 			endAngle = MathF.PI * -0.25f;
 		}
 		else if (idx % 3 == 1)
 		{
-			stab = false;
+			anim = AttackAnim.SwingSideways;
 			swingDir = 0;
 			startAngle = MathF.PI * 0.75f;
 			endAngle = MathF.PI * -1.0f;
 		}
 		else
 		{
-			stab = true;
+			anim = AttackAnim.Stab;
 		}
 	}
 }

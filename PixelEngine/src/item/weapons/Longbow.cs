@@ -20,7 +20,6 @@ public class Longbow : Weapon
 		knockback = 8.0f;
 		trigger = false;
 		twoHanded = true;
-		requiredAmmo = "arrow";
 		accuracy = 3.0f;
 
 		value = 25;
@@ -29,8 +28,6 @@ public class Longbow : Weapon
 		icon = new Sprite(tileset.texture, 10 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
-
-		useSound = [Resource.GetSound("sounds/bow_shoot.ogg")];
 	}
 
 	public override bool use(Player player)

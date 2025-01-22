@@ -16,7 +16,6 @@ public class Flamberge : Weapon
 		baseDamage = 2;
 		baseAttackRange = 1.7f;
 		baseAttackRate = 1.0f;
-		stab = false;
 		twoHanded = true;
 		attackAngleOffset = -0.25f * MathF.PI;
 		attackAngle = MathF.PI;

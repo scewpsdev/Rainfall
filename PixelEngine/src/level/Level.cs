@@ -99,7 +99,7 @@ public class Level
 		lightmapData = new byte[(width + 1) * (height + 1)];
 		if (lightmap != null)
 			Renderer.graphics.destroyTexture(lightmap);
-		lightmap = Renderer.graphics.createTexture(width + 1, height + 1, TextureFormat.R8, (ulong)SamplerFlags.Clamp);
+		lightmap = Renderer.graphics.createTexture(width + 1, height + 1, TextureFormat.R8, (uint)SamplerFlags.Clamp);
 	}
 
 	public unsafe void updateLightmap(int x0, int y0, int w, int h)

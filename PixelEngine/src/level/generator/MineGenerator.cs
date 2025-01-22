@@ -33,7 +33,7 @@ public partial class LevelGenerator
 		areaMines[1] = new Level(6, "", 70, 30, TileType.dirt, 14, 25) { ambientLight = mediumAmbience };
 		areaMines[2] = new Level(7, "", 40, 40, TileType.dirt, 16, 30) { ambientLight = mediumAmbience };
 		areaMines[3] = new Level(8, "", 30, 80, TileType.dirt, 18, 35) { ambientLight = mediumAmbience };
-		areaMines[4] = new Level(-1, "") { ambientLight = mediumAmbience };
+		areaMines[4] = new Level(-1, "", 18, 35) { ambientLight = mediumAmbience }; // loot value will affect what the blacksmith sells in the hub
 
 		List<Mob> createEnemy()
 		{
@@ -67,7 +67,6 @@ public partial class LevelGenerator
 		npcs.Add(new TravellingMerchant(random, level));
 		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(NPCManager.logan);
-		npcs.Add(NPCManager.blacksmith);
 		npcs.Add(NPCManager.tinkerer);
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
@@ -426,17 +425,14 @@ public partial class LevelGenerator
 		spawnEnemies(createEnemy, entrancePosition);
 
 
-		if (!spawnedNPCs.Contains(typeof(Tinkerer)))
+		// Anvil
 		{
-			float chance = MathHelper.Remap(floor - GameState.instance.areaMines[0].floor, 0, GameState.instance.areaMines.Length - 2, 0.2f, 1.0f);
-			if (random.NextSingle() < chance)
+			spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
 			{
-				spawnRoomObject(rooms, rooms.Count, false, (Vector2i tile, Random random, Room room) =>
-				{
-					spawnNPC(tile.x, tile.y, [NPCManager.tinkerer]);
-				});
-			}
+				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
+			});
 		}
+
 
 		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>
 		{

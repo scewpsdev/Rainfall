@@ -270,6 +270,14 @@ public static class StringUtils
 		return path;
 	}
 
+	public static string GetDirectoryFromPath(string path)
+	{
+		int slash = path.LastIndexOfAny(new char[] { '/', '\\' });
+		if (slash != -1)
+			return path.Substring(0, slash + 1);
+		return "./";
+	}
+
 	public static string RelativePath(string path, string root)
 	{
 		if (path == null)

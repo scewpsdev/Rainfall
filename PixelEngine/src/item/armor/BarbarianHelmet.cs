@@ -20,6 +20,6 @@ public class BarbarianHelmet : Item
 		value = 30;
 
 		sprite = new Sprite(tileset, 11, 0);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/barbarian_helmet.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/barbarian_helmet.png", false), 0, 0, 32, 32);
 	}
 }

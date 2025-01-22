@@ -16,8 +16,6 @@ public class MoonbladeAxe : Weapon
 		baseDamage = 1.6f;
 		baseAttackRange = 1.9f;
 		baseAttackRate = 1.2f;
-		stab = false;
-		doubleBladed = false;
 
 		value = 27;
 

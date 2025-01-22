@@ -1990,7 +1990,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (item.sprite != null)
 		{
-			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
+			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand && (actions.currentAction.renderMainWeapon && mainHand || actions.currentAction.renderSecondaryWeapon && !mainHand))
 			{
 				Matrix weaponTransform = Matrix.CreateTranslation(position.x, position.y, layer)
 					* actions.currentAction.getItemTransform(this);

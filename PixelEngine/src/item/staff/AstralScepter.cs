@@ -17,7 +17,6 @@ public class AstralScepter : Staff
 		baseAttackRate = 0.7f;
 		manaCost = 2;
 		trigger = false;
-		//isSecondaryItem = true;
 		secondaryChargeTime = 0;
 		knockback = 2.0f;
 		twoHanded = true;
@@ -31,13 +30,9 @@ public class AstralScepter : Staff
 		castSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
-	public override bool useSecondary(Player player)
+	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
 	{
-		int attackIdx = 0;
-		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == this)
-			attackIdx = (player.actions.currentAction as AttackAction).attackIdx + 1;
-		bool stab = attackIdx % 2 == 0;
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, stab, 2.0f, 1.5f, 1.2f));
-		return false;
+		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
+		anim = idx % 2 == 0 ? AttackAnim.Stab : AttackAnim.SwingSideways;
 	}
 }

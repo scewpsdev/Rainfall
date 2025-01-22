@@ -610,6 +610,7 @@ namespace Rainfall
 
 		public void serialize(string path)
 		{
+			Directory.CreateDirectory(StringUtils.GetDirectoryFromPath(path));
 			FileStream stream = File.Open(path, FileMode.Create);
 			StreamWriter writer = new StreamWriter(stream);
 			serializeObjectContent(root, writer);

@@ -16,7 +16,6 @@ public class Club : Weapon
 		baseDamage = 1;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.5f;
-		stab = false;
 		doubleBladed = false;
 		baseWeight = 1;
 		//attackAngle = MathF.PI * 0.7f;

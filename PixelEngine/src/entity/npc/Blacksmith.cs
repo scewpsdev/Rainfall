@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Blacksmith : NPC
+public class Blacksmith : NPC, WorldEventListener
 {
 	public Blacksmith()
 		: base("blacksmith")
@@ -19,9 +19,8 @@ public class Blacksmith : NPC
 		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
 		animator.setAnimation("idle");
 
-		buysItems = true;
 		buyTax = 0.5f;
-		canUpgrade = true;
+		voicePitch = 0.75f;
 	}
 
 	public override void init(Level level)
@@ -33,18 +32,26 @@ public class Blacksmith : NPC
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
 		});
 
+		addDialogue("""
+			Hmm?
+			I'm not up for chatting.
+			""");
+
+		GameState.instance.worldEventListeners.Add(this);
+	}
+
+	public void onBossKilled(Mob boss)
+	{
+		clearShop();
+		populateShop(GameState.instance.generator.random, 5, 5, boss.level.avgLootValue * 1.5f, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		buysItems = true;
+		canUpgrade = true;
+
 		if (initialDialogue == null)
 		{
 			setInititalDialogue("""
 				Take what you need, if you can bear the weight.
 				""");
 		}
-
-		addDialogue("""
-			Hmm?
-			I'm not up for chatting.
-			""");
-
-		populateShop(GameState.instance.generator.random, 2, 8, level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 	}
 }

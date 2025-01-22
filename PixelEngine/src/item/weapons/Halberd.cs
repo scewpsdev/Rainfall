@@ -28,9 +28,9 @@ public class Halberd : Weapon
 		renderOffset.x = 0.2f;
 	}
 
-	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
 	{
-		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
-		stab = idx % 2 == 0;
+		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
+		anim = idx % 2 == 0 ? AttackAnim.Stab : AttackAnim.SwingSideways;
 	}
 }

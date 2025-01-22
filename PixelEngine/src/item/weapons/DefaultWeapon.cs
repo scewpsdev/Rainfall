@@ -34,13 +34,4 @@ public class DefaultWeapon : Weapon
 		stepSound = Resource.GetSounds("sounds/step_bare", 3);
 		landSound = Resource.GetSounds("sounds/land_bare", 3);
 	}
-
-	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
-	{
-		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
-		//stab = idx % 2 == 0;
-		stab = true;
-		swingDir = 1;
-		//sprite = stab ? punchSprite : swingSprite;
-	}
 }

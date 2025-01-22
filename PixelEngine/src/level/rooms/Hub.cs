@@ -51,6 +51,8 @@ public class Hub : Entity
 
 	Texture stairs;
 
+	public Blacksmith blacksmith;
+
 
 	public Hub(Room room)
 	{
@@ -86,14 +88,20 @@ public class Hub : Entity
 		level.addEntity(new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(2 + StartingClass.startingClasses.Length * 1.5f, 0));
 #endif
 
-		BrokenWanderer npc = NPCManager.brokenWanderer;
-		npc.clearShop();
-		npc.addShopItem(new Torch());
-		npc.addShopItem(new Bomb(), 7);
-		npc.addShopItem(new IronKey(), 8);
-		npc.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
-		npc.direction = 1;
-		level.addEntity(npc, level.rooms[0].getMarker(10) + new Vector2(-3, 0));
+		{
+			BrokenWanderer npc = NPCManager.brokenWanderer;
+			npc.clearShop();
+			level.addEntity(npc, level.rooms[0].getMarker(10) + new Vector2(-11, 0));
+		}
+
+		{
+			blacksmith = NPCManager.blacksmith;
+			blacksmith.addShopItem(new Torch());
+			blacksmith.addShopItem(new Bomb(), 7);
+			blacksmith.addShopItem(new IronKey(), 8);
+			blacksmith.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
+			level.addEntity(blacksmith, level.rooms[0].getMarker(10) + new Vector2(-3, 0));
+		}
 
 		//level.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
 		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))

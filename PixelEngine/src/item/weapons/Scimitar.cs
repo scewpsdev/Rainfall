@@ -16,10 +16,8 @@ public class Scimitar : Weapon
 		baseDamage = 1.0f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 2.0f;
-		stab = false;
 		attackCooldown = 0.3f;
 		baseWeight = 1.5f;
-		doubleBladed = false;
 
 		value = 16;
 

@@ -50,23 +50,31 @@ public class BossRoom : Entity
 
 	public override void update()
 	{
-		if (boss.level == null && isInRoom(GameState.instance.player))
+		if (GameState.instance.currentBoss == null)
 		{
-			GameState.instance.currentBoss = boss;
-			GameState.instance.currentBossMaxHealth = boss.health;
-			boss.ai.aggroRange = 100;
-			boss.ai.loseRange = 100;
+			if (boss.level == null && isInRoom(GameState.instance.player))
+			{
+				GameState.instance.currentBoss = boss;
+				GameState.instance.currentBossMaxHealth = boss.health;
+				boss.ai.aggroRange = 100;
+				boss.ai.loseRange = 100;
 
-			level.addEntity(boss, room.getMarker(1) + new Vector2(0.5f));
+				level.addEntity(boss, room.getMarker(1) + new Vector2(0.5f));
 
-			close();
+				close();
+			}
 		}
 
-		if (!boss.isAlive)
+		if (GameState.instance.currentBoss != null)
 		{
-			GameState.instance.currentBoss = null;
+			if (!boss.isAlive)
+			{
+				GameState.instance.currentBoss = null;
+				open();
 
-			open();
+				foreach (WorldEventListener listener in GameState.instance.worldEventListeners)
+					listener.onBossKilled(boss);
+			}
 		}
 	}
 }

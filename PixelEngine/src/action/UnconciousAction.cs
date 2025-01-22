@@ -51,8 +51,8 @@ public class UnconciousAction : EntityAction
 	{
 		base.update(player);
 
-		float fadeStart = 4;
-		float fadeEnd = 8;
+		float fadeStart = 2;
+		float fadeEnd = 6;
 
 		if (elapsedTime < fadeStart)
 			player.hud.screenFade = 0;

@@ -16,7 +16,6 @@ public class Torch : Weapon
 		baseDamage = 1.0f;
 		baseAttackRange = 1.0f;
 		baseAttackRate = 2.0f;
-		stab = false;
 		baseWeight = 1;
 		doubleBladed = false;
 		attackAngleOffset = -0.25f * MathF.PI;
@@ -31,7 +30,6 @@ public class Torch : Weapon
 		hasParticleEffect = true;
 		particlesOffset = new Vector2(2, 4) / 16.0f;
 		renderOffset = new Vector2(0.5f - 2 / 16.0f, 0.2f);
-		alwaysRenderHand = true;
 
 		hitSound = [Resource.GetSound("sounds/hit_torch.ogg")];
 	}

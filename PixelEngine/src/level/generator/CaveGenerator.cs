@@ -79,7 +79,7 @@ public partial class LevelGenerator
 		areaCaves[2] = new Level(2, "Caves III", 50, 50, TileType.dirt, 4, 12) { ambientLight = darkAmbience };
 		areaCaves[3] = new Level(3, "Caves IV", 30, 70, TileType.dirt, 7, 16) { ambientLight = mediumAmbience };
 		areaCaves[4] = new Level(4, "Caves V", 60, 40, TileType.dirt, 10, 18) { ambientLight = lightAmbience };
-		areaCaves[5] = new Level(-1, "") { ambientLight = lightAmbience };
+		areaCaves[5] = new Level(-1, "", 10, 18) { ambientLight = lightAmbience }; // loot value will affect what the blacksmith sells in the hub
 		areaCaves[6] = new Level(-1, "") { ambientLight = lightAmbience };
 		areaCaves[7] = new Level(-1, "") { ambientLight = lightAmbience };
 
@@ -109,8 +109,8 @@ public partial class LevelGenerator
 		generateSingleRoomLevel(areaCaves[7], specialSet, 17, TileType.stone, TileType.dirt, 0x1, 0x2, null, new DungeonEntrance(null, null));
 
 		// mines entrance
-		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(7, 2), Vector2i.Down);
-		areaCaves[6].addEntity(minesEntrance, areaCaves[6].rooms[0].getMarker(0x3) + new Vector2(-3, -2));
+		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(11, 2), Vector2i.Down);
+		areaCaves[6].addEntity(minesEntrance, areaCaves[6].rooms[0].getMarker(0x3) + new Vector2(-5, -2));
 		areaCaves[6].rooms[0].doorways.Add(new Doorway(areaCaves[6].rooms[0], new DoorDef()) { door = minesEntrance });
 
 		// elevator that leads to the hub
@@ -134,7 +134,6 @@ public partial class LevelGenerator
 		npcs.Add(new TravellingMerchant(random, level));
 		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(NPCManager.logan);
-		npcs.Add(NPCManager.blacksmith);
 		npcs.Add(NPCManager.tinkerer);
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
@@ -493,17 +492,14 @@ public partial class LevelGenerator
 		spawnEnemies(createEnemy, entrancePosition);
 
 
-		if (!spawnedNPCs.Contains(typeof(Blacksmith)))
+		// Anvil
 		{
-			float chance = MathHelper.Remap(floor, 0, GameState.instance.areaCaves.Length - 2, 0.2f, 1.0f);
-			if (random.NextSingle() < chance)
+			spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
 			{
-				spawnRoomObject(rooms, rooms.Count, false, (Vector2i tile, Random random, Room room) =>
-				{
-					spawnNPC(tile.x, tile.y, [NPCManager.blacksmith]);
-				});
-			}
+				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
+			});
 		}
+
 
 		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>
 		{

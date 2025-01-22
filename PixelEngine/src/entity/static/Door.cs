@@ -78,7 +78,7 @@ public class Door : Entity, Interactable
 			if (transition.direction.x != 0)
 				player.direction = -(otherDoor as LevelTransition).direction.x;
 			if (transition.direction == Vector2i.Down)
-				player.velocity.y = 16;
+				player.velocity.y = 20;
 		}
 		else
 		{

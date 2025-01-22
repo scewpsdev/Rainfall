@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ public class AttackAction : EntityAction
 	public Item weapon;
 	public Vector2 direction;
 	public int charDirection;
-	public bool stab;
+	public AttackAnim anim;
 	public int swingDir;
 	float attackDamage;
 	float attackRange;
@@ -33,11 +34,11 @@ public class AttackAction : EntityAction
 	Trail secondaryTrail;
 
 
-	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
+	public AttackAction(Item weapon, bool mainHand, AttackAnim anim, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
 		: base("attack", mainHand)
 	{
 		this.weapon = weapon;
-		this.stab = stab;
+		this.anim = anim;
 		this.duration = 1 / attackRate;
 		this.attackRate = attackRate;
 		this.attackDamage = attackDamage;
@@ -51,13 +52,13 @@ public class AttackAction : EntityAction
 		postActionLinger = 0.25f;
 	}
 
-	public AttackAction(Item weapon, bool mainHand, bool stab, float attackRate, float attackDamage, float attackRange)
-		: this(weapon, mainHand, stab, attackRate, attackDamage, attackRange, weapon.attackAngleOffset + weapon.attackAngle, weapon.attackAngleOffset)
+	public AttackAction(Item weapon, bool mainHand, AttackAnim anim, float attackRate, float attackDamage, float attackRange)
+		: this(weapon, mainHand, anim, attackRate, attackDamage, attackRange, weapon.attackAngleOffset + weapon.attackAngle, weapon.attackAngleOffset)
 	{
 	}
 
 	public AttackAction(Item weapon, bool mainHand)
-		: this(weapon, mainHand, weapon.stab, weapon.attackRate, weapon.attackDamage, weapon.attackRange, weapon.attackAngleOffset + weapon.attackAngle, weapon.attackAngleOffset)
+		: this(weapon, mainHand, weapon.anim, weapon.attackRate, weapon.attackDamage, weapon.attackRange, weapon.attackAngleOffset + weapon.attackAngle, weapon.attackAngleOffset)
 	{
 	}
 
@@ -77,7 +78,7 @@ public class AttackAction : EntityAction
 		Vector2 position = new Vector2(0.5f * weapon.size.x, 0);
 		position += new Vector2(currentRange * fract - 0.5f * weapon.size.x, 0);
 		position = Vector2.Rotate(position, currentAngle);
-		if (weapon.sidewaySwing)
+		if (anim == AttackAnim.SwingSideways)
 		{
 			if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
 				position *= new Vector2(1, 0.5f);
@@ -93,7 +94,7 @@ public class AttackAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		if (!stab)
+		if (anim != AttackAnim.Stab)
 		{
 			trail = new Trail(20, Vector4.One, getWeaponTip(player));
 			secondaryTrail = new Trail(14, new Vector4(1, 1, 1, 0.5f), getWeaponTip(player, 0.9f));
@@ -110,7 +111,7 @@ public class AttackAction : EntityAction
 
 		if (inDamageWindow)
 		{
-			int currentSpin = stab ? 0 : (int)(currentProgress * weapon.attackAngle / MathF.PI / 2 - 0.001f);
+			int currentSpin = anim == AttackAnim.Stab ? 0 : (int)(currentProgress * weapon.attackAngle / MathF.PI / 2 - 0.001f);
 			if (currentSpin > lastSpin)
 			{
 				hitEntities.Clear();
@@ -205,7 +206,7 @@ public class AttackAction : EntityAction
 			}
 		}
 
-		if (!stab)
+		if (anim != AttackAnim.Stab)
 		{
 			trail.update();
 			secondaryTrail.update();
@@ -224,7 +225,7 @@ public class AttackAction : EntityAction
 
 	public override void render(Player player)
 	{
-		if (!stab)
+		if (anim != AttackAnim.Stab)
 		{
 			trail.render();
 			secondaryTrail.render();
@@ -236,8 +237,7 @@ public class AttackAction : EntityAction
 		get
 		{
 			float value = MathF.Min(elapsedTime / duration * (1 + weapon.attackCooldown), 1);
-			value = 1 - MathF.Pow(1 - value, 3);
-			//value = value < 0.5f ? MathF.Pow(value, 3) * 4 : 1 - MathF.Pow(1 - value, 3) * 4;
+			value = 1 - MathF.Pow(1 - value, weapon.attackAcceleration);
 			return value;
 		}
 	}
@@ -249,14 +249,14 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => (stab ? currentProgress * attackRange : attackRange) + 0.25f;
+		get => (anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.25f;
 	}
 
 	public float currentAngle
 	{
 		get
 		{
-			if (stab)
+			if (anim == AttackAnim.Stab)
 				return new Vector2(MathF.Abs(direction.x), direction.y).angle;
 			else
 			{
@@ -273,10 +273,13 @@ public class AttackAction : EntityAction
 		bool flip = charDirection < 0;
 		Matrix weaponTransform = Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0);
 		weaponTransform = Matrix.CreateRotation(Vector3.UnitZ, rotation) * weaponTransform;
-		if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
-			weaponTransform.translation *= new Vector3(1, 0.5f, 1);
-		else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
-			weaponTransform.translation *= new Vector3(0.5f, 1, 1);
+		if (anim == AttackAnim.SwingSideways)
+		{
+			if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
+				weaponTransform.translation *= new Vector3(1, 0.5f, 1);
+			else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
+				weaponTransform.translation *= new Vector3(0.5f, 1, 1);
+		}
 		weaponTransform = Matrix.CreateTranslation(0, player.getWeaponOrigin(mainHand).y, 0) * weaponTransform;
 		if (flip)
 			weaponTransform = Matrix.CreateRotation(Vector3.UnitY, MathF.PI) * weaponTransform;

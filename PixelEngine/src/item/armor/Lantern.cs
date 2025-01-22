@@ -64,14 +64,14 @@ public class Lantern : Item
 
 			rotation += rotationVelocity * Time.deltaTime;
 
-			Renderer.DrawSprite(player.position.x - 0.5f, player.position.y, Entity.LAYER_PLAYER_BG, 1, 1, 0.0f, stick, player.direction == -1);
-			Renderer.DrawSprite(player.position.x - player.direction * 0.25f - 0.5f, player.position.y + 0.75f - 0.5f, Entity.LAYER_PLAYER_BG, 1, 1, rotation, lanternMini, false);
+			Renderer.DrawSprite(player.position.x - 0.5f, player.position.y + 0.25f, Entity.LAYER_PLAYER_BG, 1, 1, 0.0f, stick, player.direction == -1);
+			Renderer.DrawSprite(player.position.x - player.direction * 0.25f - 0.5f, player.position.y + 1.0f - 0.5f, Entity.LAYER_PLAYER_BG, 1, 1, rotation, lanternMini, false);
 
 			Debug.Assert(particles != null);
 			particles.offset.x = -player.direction * 0.25f + MathF.Sin(rotation) * 0.25f;
 			particles.offset.y = 0.5f + MathF.Cos(rotation) * 0.25f;
 		}
 
-		Renderer.DrawLight(entity.position + new Vector2(0, 0.5f), new Vector3(1.0f, 0.8f, 0.5f) * 2, 12);
+		Renderer.DrawLight(entity.position + new Vector2(0, 0.75f), new Vector3(1.0f, 0.8f, 0.5f) * 2, 12);
 	}
 }

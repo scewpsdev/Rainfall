@@ -118,6 +118,8 @@ public abstract class NPC : Mob, Interactable
 	public float voicePitch = 1.0f;
 	public int voicePitchVariation = 2;
 
+	public bool turnTowardsPlayer = true;
+
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
 	//int infoPanelHeight = 90;
@@ -351,7 +353,7 @@ public abstract class NPC : Mob, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2)) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || initialDialogue != null || dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0)) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -491,13 +493,16 @@ public abstract class NPC : Mob, Interactable
 			closeScreen();
 		}
 
-		const float lookRange = 3;
-		if (player.position.y >= position.y - 1.0f && (player.position - position).lengthSquared < lookRange * lookRange)
+		if (turnTowardsPlayer)
 		{
-			direction = MathF.Sign(player.position.x - position.x);
+			const float lookRange = 3;
+			if (player.position.y >= position.y - 1.0f && (player.position - position).lengthSquared < lookRange * lookRange)
+			{
+				direction = MathF.Sign(player.position.x - position.x);
+			}
 		}
 
-		animator.update(sprite);
+		animator?.update(sprite);
 	}
 
 	public override void render()

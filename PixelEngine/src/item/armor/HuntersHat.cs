@@ -21,6 +21,6 @@ public class HuntersHat : Item
 		canDrop = false;
 
 		sprite = new Sprite(tileset, 2, 7);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/hunters_hat.png", false), 0, 0, 32, 32);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/hunters_hat.png", false), 0, 0, 32, 32);
 	}
 }

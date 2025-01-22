@@ -16,7 +16,6 @@ public class BrokenSword : Weapon
 		baseDamage = 0.8f;
 		baseAttackRange = 1;
 		baseAttackRate = 2;
-		stab = false;
 		baseWeight = 1;
 
 		value = 2;

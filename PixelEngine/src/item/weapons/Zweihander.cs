@@ -16,13 +16,13 @@ public class Zweihander : Weapon
 		baseDamage = 3.5f;
 		baseAttackRange = 1.6f;
 		baseAttackRate = 1.0f;
-		stab = false;
+		anim = AttackAnim.SwingOverhead;
+		attackAcceleration = 1;
 		twoHanded = true;
 		baseWeight = 2.5f;
-		attackAngleOffset = 0;
-		attackAngle = MathF.PI;
-		doubleBladed = true;
-		sidewaySwing = true;
+		attackAngleOffset = -0.25f * MathF.PI;
+		attackAngle = 1.25f * MathF.PI;
+		//doubleBladed = true;
 
 		value = 18;
 

@@ -16,7 +16,7 @@ public class Shortsword : Weapon
 		baseDamage = 1.25f;
 		baseAttackRange = 1.0f;
 		baseAttackRate = 2.2f;
-		stab = false;
+		anim = AttackAnim.SwingSideways;
 		baseWeight = 1;
 
 		value = 9;
@@ -28,9 +28,9 @@ public class Shortsword : Weapon
 		//ingameSpriteLayer = Entity.LAYER_PLAYER_ITEM_SECONDARY;
 	}
 
-	protected override void getAttackAnim(int idx, out bool stab, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
 	{
-		base.getAttackAnim(idx, out stab, out swingDir, out startAngle, out endAngle);
+		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
 
 		swingDir = 0;
 		if (idx % 3 == 0)
@@ -45,7 +45,7 @@ public class Shortsword : Weapon
 		}
 		else
 		{
-			stab = true;
+			anim = AttackAnim.Stab;
 		}
 	}
 }

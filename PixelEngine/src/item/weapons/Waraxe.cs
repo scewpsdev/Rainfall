@@ -16,7 +16,8 @@ public class Waraxe : Weapon
 		baseDamage = 1.8f;
 		baseAttackRange = 1.5f;
 		baseAttackRate = 1.0f;
-		stab = false;
+		anim = AttackAnim.SwingOverhead;
+		attackAcceleration = 1;
 		baseWeight = 2.5f;
 		doubleBladed = false;
 

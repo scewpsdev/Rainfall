@@ -49,9 +49,21 @@ public class Staff : Item
 		return false;
 	}
 
+	protected virtual void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
+	{
+		anim = this.anim;
+		swingDir = anim != AttackAnim.Stab && doubleBladed ? idx % 2 : 0;
+		startAngle = attackAngleOffset + attackAngle;
+		endAngle = attackAngleOffset;
+	}
+
 	public override bool useSecondary(Player player)
 	{
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, true, 3, 0.5f, 1));
+		int attackIdx = 0;
+		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == this)
+			attackIdx = (player.actions.currentAction as AttackAction).attackIdx + 1;
+		getAttackAnim(attackIdx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle);
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange, startAngle, endAngle) { swingDir = swingDir, attackIdx = attackIdx });
 		return false;
 	}
 }

@@ -17,7 +17,8 @@ public class Greataxe : Weapon
 		baseAttackRange = 1.8f;
 		baseAttackRate = 0.8f;
 		knockback = 8;
-		stab = false;
+		anim = AttackAnim.SwingOverhead;
+		attackAcceleration = 1;
 		twoHanded = true;
 		attackCooldown = 1.0f;
 		baseWeight = 5;

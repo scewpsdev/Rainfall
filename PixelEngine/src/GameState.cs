@@ -86,6 +86,8 @@ public class GameState : State
 
 	public Level level;
 
+	public List<WorldEventListener> worldEventListeners = new List<WorldEventListener>();
+
 	Level newLevel = null;
 	Vector2 newLevelSpawnPosition;
 	long levelSwitchTime = -1;
@@ -379,6 +381,8 @@ public class GameState : State
 			foreach (Level level in areaGardens)
 				level.destroy();
 		}
+
+		worldEventListeners.Clear();
 	}
 
 	public void freeze(float duration)

@@ -23,6 +23,6 @@ public class LostSigil : Item
 		baseWeight = 1;
 
 		sprite = new Sprite(tileset, 13, 8);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/lost_sigil.png", false), 0, 0, 32, 32);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/lost_sigil.png", false), 0, 0, 32, 32);
 	}
 }

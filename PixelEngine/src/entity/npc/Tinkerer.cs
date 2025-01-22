@@ -24,7 +24,6 @@ public class Tinkerer : NPC
 		buysItems = true;
 		buyTax = 0.55f;
 		canCraft = true;
-		canUpgrade = true;
 	}
 
 	public override void init(Level level)

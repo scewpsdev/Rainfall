@@ -16,7 +16,6 @@ public class Longsword : Weapon
 		baseDamage = 2.0f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.2f;
-		stab = false;
 
 		value = 14;
 

@@ -16,8 +16,8 @@ public class WoodenMallet : Weapon
 		baseDamage = 2.25f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.1f;
-		stab = false;
-		sidewaySwing = false;
+		anim = AttackAnim.SwingOverhead;
+		attackAcceleration = 1;
 		twoHanded = true;
 		attackCooldown = 2.5f;
 		attackAngleOffset = 0;

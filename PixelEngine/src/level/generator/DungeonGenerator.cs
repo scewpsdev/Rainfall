@@ -32,7 +32,7 @@ public partial class LevelGenerator
 		areaDungeons[1] = new Level(10, "", 30, 40, TileType.stone, 22, 50) { ambientLight = ambience };
 		areaDungeons[2] = new Level(11, "", 40, 40, TileType.stone, 25, 60) { ambientLight = ambience };
 		areaDungeons[3] = new Level(12, "", 30, 50, TileType.stone, 27, 70) { ambientLight = ambience };
-		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone) { ambientLight = ambience };
+		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone, 27, 70) { ambientLight = ambience }; // loot value will affect what the blacksmith sells in the hub
 
 		List<Mob> createEnemy()
 		{
@@ -51,10 +51,10 @@ public partial class LevelGenerator
 		createContainer = (Item[] items) => new Pot(items);
 		createExplosiveObject = () => new ExplosivePot();
 
-		generateDungeonFloor(seed, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
-		generateDungeonFloor(seed, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 5));
-		generateDungeonFloor(seed, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy().Slice(0, 6));
-		generateDungeonFloor(seed, false, false, areaDungeons[3], areaDungeons[4], areaDungeons[2], areaDungeons[2].exit, () => createEnemy().Slice(0, 7));
+		generateDungeonFloor(seed, 0, true, false, areaDungeons[0], areaDungeons[1], null, null, () => createEnemy().Slice(0, 4));
+		generateDungeonFloor(seed, 1, false, false, areaDungeons[1], areaDungeons[2], areaDungeons[0], areaDungeons[0].exit, () => createEnemy().Slice(0, 5));
+		generateDungeonFloor(seed, 2, false, false, areaDungeons[2], areaDungeons[3], areaDungeons[1], areaDungeons[1].exit, () => createEnemy().Slice(0, 6));
+		generateDungeonFloor(seed, 3, false, false, areaDungeons[3], areaDungeons[4], areaDungeons[2], areaDungeons[2].exit, () => createEnemy().Slice(0, 7));
 
 		generateDungeonBossFloor(areaDungeons[4], null, areaDungeons[3], areaDungeons[3].exit);
 	}
@@ -65,7 +65,6 @@ public partial class LevelGenerator
 		npcs.Add(new TravellingMerchant(random, level));
 		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(NPCManager.logan);
-		npcs.Add(NPCManager.blacksmith);
 		npcs.Add(NPCManager.tinkerer);
 
 		return npcs;
@@ -88,7 +87,7 @@ public partial class LevelGenerator
 		level.addEntity(new DungeonsBossRoom(room));
 	}
 
-	void generateDungeonFloor(string seed, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
+	void generateDungeonFloor(string seed, int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door entrance, Func<List<Mob>> createEnemy)
 	{
 		this.seed = seed;
 		this.level = level;
@@ -363,6 +362,16 @@ public partial class LevelGenerator
 
 
 		spawnEnemies(createEnemy, entrancePosition);
+
+
+		// Anvil
+		if (floor == GameState.instance.areaDungeons.Length - 2)
+		{
+			spawnRoomObject(deadEnds, deadEnds.Count, false, (Vector2i tile, Random random, Room room) =>
+			{
+				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
+			});
+		}
 
 
 		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)
