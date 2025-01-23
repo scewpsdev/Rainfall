@@ -96,10 +96,10 @@ public class Tutorial : Entity
 		level.addEntity(new TutorialText(InputManager.GetBinding("SwitchSpell").ToString() + " to switch spell", 0xFFFFFFFF), (Vector2)level.rooms[0].getMarker(10) + new Vector2(1, 2.5f));
 		level.addEntity(new TutorialText(InputManager.GetBinding("Inventory").ToString() + " to open inventory", 0xFFFFFFFF), (Vector2)level.rooms[0].getMarker(05) + new Vector2(0, 1.5f));
 
-		level.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)level.rooms[0].getMarker(06));
-		level.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)level.rooms[0].getMarker(07));
-		level.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)level.rooms[0].getMarker(08));
-		level.addEntity(new Rat() { itemDropChance = 0, coinDropChance = 0 }, (Vector2)level.rooms[0].getMarker(09));
+		level.addEntity(new Rat() { itemDropChance = 0, dropCoins = false }, (Vector2)level.rooms[0].getMarker(06));
+		level.addEntity(new Rat() { itemDropChance = 0, dropCoins = false }, (Vector2)level.rooms[0].getMarker(07));
+		level.addEntity(new Rat() { itemDropChance = 0, dropCoins = false }, (Vector2)level.rooms[0].getMarker(08));
+		level.addEntity(new Rat() { itemDropChance = 0, dropCoins = false }, (Vector2)level.rooms[0].getMarker(09));
 
 		//level.addEntity(new ItemGate(), (Vector2)level.rooms[0].getMarker(09));
 

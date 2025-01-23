@@ -21,11 +21,11 @@ namespace Rainfall
 			size = new Vector2i(w, h) * spriteSheet.spriteSize;
 		}
 
-		public Sprite(SpriteSheet spriteSheet, float x, float y, int w = 1, int h = 1)
+		public Sprite(SpriteSheet spriteSheet, float x, float y, float w = 1, float h = 1)
 		{
 			this.spriteSheet = spriteSheet;
 			position = (Vector2i)Vector2.Round(new Vector2(x, y) * spriteSheet.spriteSize);
-			size = new Vector2i(w, h) * spriteSheet.spriteSize;
+			size = (Vector2i)Vector2.Round(new Vector2(w, h) * spriteSheet.spriteSize);
 		}
 
 		public Sprite(Texture texture, int x, int y, int width, int height)

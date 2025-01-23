@@ -49,7 +49,7 @@ public class HUD
 		armor = new Sprite(tileset, 4, 0);
 		armorEmpty = new Sprite(tileset, 5, 0);
 
-		gold = new Sprite(tileset, 3, 0);
+		gold = new Sprite(tileset, 3, 1);
 
 		staffCharge = new Sprite(tileset, 6, 1);
 
@@ -296,7 +296,8 @@ public class HUD
 		Renderer.DrawUISprite(x, y, size, size, gold, false);
 
 		string moneyStr = player.money.ToString();
-		Renderer.DrawUITextBMP(x - 3 - Renderer.MeasureUITextBMP(moneyStr).x, y, moneyStr, 1, 0xFFd2b459);
+		uint moneyColor = 0xFF926c5c; // 0xFFd2b459;
+		Renderer.DrawUITextBMP(x - 3 - Renderer.MeasureUITextBMP(moneyStr).x, y, moneyStr, 1, moneyColor);
 	}
 
 	void ___renderArmor()

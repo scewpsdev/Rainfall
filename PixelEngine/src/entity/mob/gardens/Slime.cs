@@ -35,15 +35,16 @@ public class Slime : Mob
 			sprite = new Sprite(Resource.GetTexture("sprites/mob/slime2.png", false), 0, 0, 16, 16);
 			collider = new FloatRect(-0.2f, 0, 0.4f, 0.6f);
 			itemDropChance = 0;
-			coinDropChance = 0;
+			dropCoins = false;
+			displayName = "Small Slime";
 		}
 		else if (size == 1)
 		{
 			sprite = new Sprite(Resource.GetTexture("sprites/mob/slime1.png", false), 0, 0, 16, 16);
 			collider = new FloatRect(-0.15f, 0, 0.3f, 0.6f);
 			itemDropChance = 0;
-			coinDropChance = 0;
-			displayName = "Small Slime";
+			dropCoins = false;
+			displayName = "Tiny Slime";
 		}
 
 		spriteColor = 0xFFce584e;

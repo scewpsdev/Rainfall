@@ -22,6 +22,14 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	static Sound[] mobHit = Resource.GetSounds("sounds/flesh", 2);
 	static Sound[] mobDeath = Resource.GetSounds("sounds/death", 9);
 
+	static Mob()
+	{
+		foreach (Sound s in mobHit)
+			s.singleInstance = true;
+		foreach (Sound s in mobDeath)
+			s.singleInstance = true;
+	}
+
 
 	const float SPRINT_MULTIPLIER = 1.8f;
 	const float STUN_DURATION = 0.4f;
@@ -35,7 +43,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float itemDropChance = 0.1f;
 	public float itemDropValueMultiplier = 1;
 	public List<Item> itemDrops = new List<Item>();
-	public float coinDropChance = 0.15f;
+	//public float coinDropChance = 0.15f;
+	public bool dropCoins = true;
 	public float spawnRate = 1;
 
 	public float health = 1;
@@ -193,13 +202,15 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			ItemEntity obj = new ItemEntity(itemDrops[i], null, itemVelocity);
 			GameState.instance.level.addEntity(obj, throwOrigin);
 		}
-		if (Random.Shared.NextSingle() < coinDropChance)
+		//if (Random.Shared.NextSingle() < coinDropChance)
+		if (dropCoins)
 		{
 			int amount = MathHelper.RandomInt(1, Math.Max((int)MathF.Round(maxHealth / 2), 1));
-			for (int i = 0; i < amount; i++)
+			while (amount > 0)
 			{
-				Coin coin = new Coin();
-				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, i / (float)amount * 2 * MathF.PI) * 0.2f;
+				CoinType type = Coin.SubtractCoinFromValue(ref amount);
+				Coin coin = new Coin(type);
+				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, MathHelper.RandomFloat(0, 2 * MathF.PI)) * 0.2f;
 				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 1;
 				GameState.instance.level.addEntity(coin, spawnPosition);
 			}

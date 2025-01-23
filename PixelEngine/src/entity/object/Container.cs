@@ -30,10 +30,11 @@ public class Container : Object
 		}
 		items = null;
 
-		for (int i = 0; i < coins; i++)
+		while (coins > 0)
 		{
-			Coin coin = new Coin();
-			Vector2 spawnPosition = position + new Vector2(0, 0.5f) + Vector2.Rotate(Vector2.UnitX, i / (float)coins * 2 * MathF.PI) * 0.2f;
+			CoinType type = Coin.SubtractCoinFromValue(ref coins);
+			Coin coin = new Coin(type);
+			Vector2 spawnPosition = position + new Vector2(0, 0.5f) + Vector2.Rotate(Vector2.UnitX, MathHelper.RandomFloat(0, 2 * MathF.PI)) * 0.2f;
 			coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
 			GameState.instance.level.addEntity(coin, spawnPosition);
 		}

@@ -1913,7 +1913,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (animator.currentAnimation == "idle")
 			animOffset.y = -frame / 2;
 		else if (animator.currentAnimation == "run")
+		{
 			animOffset.y = frame % 4 - frame % 4 / 3 * 2;
+			animOffset.x = -Math.Abs((frame + (mainHand ? 5 : 1)) % 8 - 3) + 2;
+		}
 		else if (animator.currentAnimation == "jump")
 			animOffset = new Vector2i(1, 2);
 		else if (animator.currentAnimation == "fall")
@@ -1922,7 +1925,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = -2;
 		if (isDucked && !isClimbing && isGrounded)
 			animOffset.y = -3;
-		return new Vector2((!mainHand ? 0 / 16.0f : -3 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 7 / 16.0f : 6 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 0 / 16.0f : -2 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 7 / 16.0f : 6 / 16.0f) + animOffset.y / 16.0f);
 	}
 
 	bool renderArms
@@ -1992,7 +1995,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						particles.layer = layer - 0.01f;
 					}
 				}
-				else if (item != DefaultWeapon.instance)
+				else if (!isClimbing && item != DefaultWeapon.instance)
 				{
 					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);

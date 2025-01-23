@@ -24,9 +24,10 @@ public class Skull : Object
 		if (velocity.length > 8)
 		{
 			int numCoins = MathHelper.RandomInt(1, 6); // MathHelper.RandomInt((int)MathF.Round(value / 2), (int)MathF.Round(value * 1.5f));
-			for (int i = 0; i < numCoins; i++)
+			while (numCoins > 0)
 			{
-				Coin coin = new Coin();
+				CoinType type = Coin.SubtractCoinFromValue(ref numCoins);
+				Coin coin = new Coin(type);
 				Vector2 spawnPosition = position + MathHelper.RandomVector2(-0.5f, 0.5f, Random.Shared);
 				coin.velocity = (spawnPosition - position).normalized * 4;
 				GameState.instance.level.addEntity(coin, spawnPosition);

@@ -54,9 +54,10 @@ public class LeprechaunAI : AdvancedAI
 			{
 				int stealAmount = MathHelper.RandomInt(1, (int)MathF.Ceiling(player.money * MathF.Exp(-player.money * 0.004f)));
 				player.money -= stealAmount;
-				for (int i = 0; i < stealAmount; i++)
+				while (stealAmount > 0)
 				{
-					Coin coin = new Coin();
+					CoinType value = Coin.SubtractCoinFromValue(ref stealAmount);
+					Coin coin = new Coin(value);
 					coin.velocity = new Vector2(MathHelper.RandomFloat(-1, 1), 2) * 5;
 					GameState.instance.level.addEntity(coin, e.position);
 					coin.target = mob;

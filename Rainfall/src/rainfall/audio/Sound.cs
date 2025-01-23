@@ -23,7 +23,7 @@ namespace Rainfall
 		{
 			set
 			{
-				Native.Audio.Audio_SoundSetSingleInstance(handle, value);
+				Native.Audio.Audio_SoundSetSingleInstance(handle, (byte)(value ? 1 : 0));
 			}
 		}
 	}

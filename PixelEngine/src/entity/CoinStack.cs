@@ -21,15 +21,16 @@ public class CoinStack : Entity
 	}
 
 	public CoinStack()
-		: this(10)
+		: this(150)
 	{
 	}
 
 	void spawnCoins()
 	{
-		for (int j = 0; j < value; j++)
+		while (value > 0)
 		{
-			Coin coin = new Coin();
+			CoinType type = Coin.SubtractCoinFromValue(ref value);
+			Coin coin = new Coin(type);
 			Vector2 spawnPosition = position + MathHelper.RandomVector2(-0.5f, 0.5f, Random.Shared);
 			coin.velocity = (spawnPosition - position).normalized * 8;
 			GameState.instance.level.addEntity(coin, spawnPosition);

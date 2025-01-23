@@ -45,7 +45,6 @@ public static class EntityType
 		InitType<SpikeTrap>("spike_trap");
 		InitType<Trampoline>("trampoline");
 		InitType<TorchEntity>("torch");
-		InitType<Coin>("coin");
 		InitType<CoinStack>("coin_stack");
 		InitType<Minecart>("minecart");
 		InitType<IronDoor>("iron_door");

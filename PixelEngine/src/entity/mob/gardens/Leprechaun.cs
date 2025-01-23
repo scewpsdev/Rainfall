@@ -36,9 +36,11 @@ public class Leprechaun : Mob
 	public override void onDeath(Entity by)
 	{
 		base.onDeath(by);
-		for (int i = 0; i < money; i++)
+
+		while (money > 0)
 		{
-			GameState.instance.level.addEntity(new Coin(), position);
+			CoinType type = Coin.SubtractCoinFromValue(ref money);
+			GameState.instance.level.addEntity(new Coin(type), position);
 		}
 	}
 }
