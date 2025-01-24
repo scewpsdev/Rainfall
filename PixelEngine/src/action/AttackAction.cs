@@ -209,7 +209,9 @@ public class AttackAction : EntityAction
 			if (inDamageWindow)
 			{
 				trail.setPosition(getWeaponTip(player));
-				secondaryTrail.setPosition(getWeaponTip(player, MathF.Abs(currentProgress - 0.5f) + 0.4f));
+				float thickness = MathHelper.Remap(Vector2.Dot(direction, Vector2.Rotate(Vector2.Right, currentAngle) * new Vector2(MathF.Sign(direction.x), 1)), -1, 1, 0.9f, 0.5f);
+				secondaryTrail.setPosition(getWeaponTip(player, thickness));
+				//secondaryTrail.setPosition(getWeaponTip(player, 0.5f));
 			}
 		}
 
@@ -232,8 +234,8 @@ public class AttackAction : EntityAction
 				Vector2 v1 = trail.points[i + 1];
 				Vector2 v2 = secondaryTrail.points[i];
 				Vector2 v3 = secondaryTrail.points[i + 1];
-				v2 = Vector2.Lerp(v2, v0, i / (float)(trail.points.Length - 1));
-				v3 = Vector2.Lerp(v3, v1, (i + 1) / (float)(trail.points.Length - 1));
+				//v2 = Vector2.Lerp(v2, v0, i / (float)(trail.points.Length - 1));
+				//v3 = Vector2.Lerp(v3, v1, (i + 1) / (float)(trail.points.Length - 1));
 				float alpha = 1 - i / (float)(trail.points.Length - 1);
 				//alpha = alpha * alpha;
 				Renderer.DrawSpriteEx(new Vector3(v2, 0), new Vector3(v0, 0), new Vector3(v1, 0), new Vector3(v3, 0), null, false, new Vector4(1, 1, 1, alpha));

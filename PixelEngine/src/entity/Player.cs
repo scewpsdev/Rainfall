@@ -1949,7 +1949,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 	}
 
-	void renderHand(bool mainHand, float layer, Matrix weaponTransform)
+	void renderHand(bool mainHand, float layer, Vector2 handPosition, float handRotation, bool flip)
 	{
 		Vector4 handColor = 0xFF282828;
 		if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
@@ -1957,18 +1957,28 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
 		{
-			float handRotation = weaponTransform.rotation.angle * MathF.Sign(weaponTransform.rotation.axis.z);
-			Vector2 handPosition = (weaponTransform * Matrix.CreateTranslation(-0.25f, 0, 0)).translation.xy;
-			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, handRotation, null, false, handColor);
+			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 2.0f / 16, layer, 2.0f / 16, 2.0f / 16, handRotation, null, false, handColor);
 		}
 		else
 		{
-			Vector2 handPosition = getWeaponOrigin(mainHand);
 			handPosition.x -= 1 / 16.0f;
-			if (direction == -1)
+			if (flip)
 				handPosition.x *= -1;
-			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, 0, null, false, handColor);
+			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 2.0f / 16, layer, 2.0f / 16, 2.0f / 16, 0, null, false, handColor);
 		}
+	}
+
+	void renderHand(bool mainHand, float layer)
+	{
+		Vector2 handPosition = getWeaponOrigin(mainHand);
+		renderHand(mainHand, layer, handPosition, 0, direction == -1);
+	}
+
+	void renderHand(bool mainHand, float layer, Matrix weaponTransform)
+	{
+		float handRotation = weaponTransform.rotation.angle * MathF.Sign(weaponTransform.rotation.axis.z);
+		Vector2 handPosition = (weaponTransform * Matrix.CreateTranslation(-0.25f, 0, 0)).translation.xy;
+		renderHand(mainHand, layer, handPosition, handRotation, false);
 	}
 
 	void renderHandItem(float layer, bool mainHand, Item item)
@@ -2027,9 +2037,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 
-					renderHand(mainHand, layer, Matrix.Identity);
+					renderHand(mainHand, layer);
 					if (item.twoHanded)
-						renderHand(!mainHand, layer, Matrix.Identity);
+						renderHand(!mainHand, layer, getWeaponOrigin(mainHand) + Vector2.Right * 0.5f, 0, direction == -1);
 
 					if (particles != null)
 					{

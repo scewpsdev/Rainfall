@@ -53,7 +53,7 @@ public class Chest : Container
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 5 / 16.0f);
 		platformCollider = true;
 		tumbles = false;
-		numRestRotations = 2;
+		numRestRotations = 1;
 
 		health = locked ? 5 : 3;
 

@@ -35,8 +35,8 @@ public class BowShootAction : EntityAction
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.03f;
 		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
 
-		Vector2 position = player.position + player.collider.center;
-		Vector2 offset = new Vector2(player.direction * 0.25f, 0.1f);
+		Vector2 position = player.position + Vector2.Up * 0.75f;
+		Vector2 offset = new Vector2(player.direction * 0.25f, 0);
 
 		ArrowProjectile projectile = new ArrowProjectile(direction, offset, player, weapon, arrow);
 		GameState.instance.level.addEntity(projectile, position);

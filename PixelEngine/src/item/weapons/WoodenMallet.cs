@@ -28,9 +28,9 @@ public class WoodenMallet : Weapon
 		value = 20;
 
 		sprite = new Sprite(tileset, 1, 4, 2, 1);
-		icon = new Sprite(tileset.texture, 1 * 16 + 12, 4 * 16, 16, 16);
+		icon = new Sprite(tileset.texture, 1 * 16 + 16, 4 * 16, 16, 16);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.0f;
 
 		hitSound = woodHit;
 	}
