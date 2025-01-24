@@ -61,16 +61,6 @@ public class AttackAction : EntityAction
 	{
 	}
 
-	public override void onQueued(Player player)
-	{
-		duration /= player.getAttackSpeedModifier();
-
-		direction = player.lookDirection.normalized;
-		if (MathF.Abs(direction.x) < 0.001f)
-			direction.x = 0;
-		charDirection = direction.x != 0 ? MathF.Sign(direction.x) : player.direction;
-	}
-
 	Vector2 getWeaponTip(Player player, float fract = 1.0f)
 	{
 		bool flip = charDirection < 0;
@@ -93,10 +83,17 @@ public class AttackAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
+		duration /= player.getAttackSpeedModifier();
+
+		direction = player.lookDirection.normalized;
+		if (MathF.Abs(direction.x) < 0.001f)
+			direction.x = 0;
+		charDirection = direction.x != 0 ? MathF.Sign(direction.x) : player.direction;
+
 		if (anim != AttackAnim.Stab)
 		{
 			trail = new Trail(20, Vector4.One, getWeaponTip(player));
-			secondaryTrail = new Trail(14, new Vector4(1, 1, 1, 0.5f), getWeaponTip(player, 0.9f));
+			secondaryTrail = new Trail(20, new Vector4(1, 1, 1, 0.5f), getWeaponTip(player, 0.9f));
 		}
 	}
 
@@ -150,7 +147,7 @@ public class AttackAction : EntityAction
 						Mob mob = entity as Mob;
 						critical = mob.isStunned && mob.criticalStun
 							|| Random.Shared.NextSingle() < player.criticalChance * weapon.criticalChanceModifier * player.getCriticalChanceModifier()
-							|| mob.ai.target != player && player.getStealthAttackModifier() > 1.5f;
+							|| (mob.ai == null || mob.ai.target != player) && player.getStealthAttackModifier() > 1.5f;
 					}
 					if (critical)
 						damage *= player.getCriticalAttackModifier();
@@ -212,7 +209,7 @@ public class AttackAction : EntityAction
 			if (inDamageWindow)
 			{
 				trail.setPosition(getWeaponTip(player));
-				secondaryTrail.setPosition(getWeaponTip(player, 0.9f));
+				secondaryTrail.setPosition(getWeaponTip(player, MathF.Abs(currentProgress - 0.5f) + 0.4f));
 			}
 		}
 
@@ -226,8 +223,21 @@ public class AttackAction : EntityAction
 	{
 		if (anim != AttackAnim.Stab)
 		{
-			trail.render();
-			secondaryTrail.render();
+			//trail.render();
+			//secondaryTrail.render();
+
+			for (int i = 0; i < trail.points.Length - 1; i++)
+			{
+				Vector2 v0 = trail.points[i];
+				Vector2 v1 = trail.points[i + 1];
+				Vector2 v2 = secondaryTrail.points[i];
+				Vector2 v3 = secondaryTrail.points[i + 1];
+				v2 = Vector2.Lerp(v2, v0, i / (float)(trail.points.Length - 1));
+				v3 = Vector2.Lerp(v3, v1, (i + 1) / (float)(trail.points.Length - 1));
+				float alpha = 1 - i / (float)(trail.points.Length - 1);
+				//alpha = alpha * alpha;
+				Renderer.DrawSpriteEx(new Vector3(v2, 0), new Vector3(v0, 0), new Vector3(v1, 0), new Vector3(v3, 0), null, false, new Vector4(1, 1, 1, alpha));
+			}
 		}
 	}
 

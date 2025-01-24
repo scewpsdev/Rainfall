@@ -13,6 +13,7 @@ public class ExplosivePot : ExplosiveObject
 		displayName = "Explosive Pot";
 
 		sprite = new Sprite(tileset, 13, 0, 1, 2);
+		rect = new(-0.5f, 0, 1, 2);
 		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.0f);
 		platformCollider = true;
 		tumbles = false;

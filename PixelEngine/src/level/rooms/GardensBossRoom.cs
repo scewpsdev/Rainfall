@@ -43,12 +43,12 @@ public class GardensBossRoom : Entity
 	{
 		if (!gate0.isOpen && GameState.instance.currentBoss == null)
 		{
-			GameState.instance.currentBoss = boss;
+			//GameState.instance.currentBoss = boss;
 			GameState.instance.currentBossMaxHealth = boss.health;
 		}
 		else if (gate0.isOpen && GameState.instance.currentBoss == boss)
 		{
-			GameState.instance.currentBoss = null;
+			//GameState.instance.currentBoss = null;
 		}
 	}
 }

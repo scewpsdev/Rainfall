@@ -26,6 +26,8 @@ public class SpellCastAction : EntityAction
 		this.weapon = weapon;
 		this.spell = spell;
 		this.manaCost = manaCost;
+
+		renderWeapon = true;
 	}
 
 	public override void onQueued(Player player)

@@ -25,12 +25,12 @@ public class AmethystRing : Item
 	{
 		if (player.health == player.maxHealth)
 			player.health++;
-		player.hp += 2;
+		player.maxHealth++;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.hp--;
+		player.maxHealth--;
 		player.health = MathF.Min(player.health, player.maxHealth);
 	}
 }

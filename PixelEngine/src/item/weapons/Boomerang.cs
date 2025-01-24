@@ -20,7 +20,8 @@ public class Boomerang : Weapon
 		value = 12;
 
 		sprite = new Sprite(tileset, 3, 1);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.1f;
+		renderOffset.y = 0.1f;
 	}
 
 	public override bool use(Player player)

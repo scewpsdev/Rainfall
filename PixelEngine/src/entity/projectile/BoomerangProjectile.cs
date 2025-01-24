@@ -28,7 +28,8 @@ public class BoomerangProjectile : Projectile
 
 		currentRange = item.attackRange;
 
-		velocity = direction * speed + 0.5f * MathF.Max(Vector2.Dot(direction, startVelocity.normalized), 0) * startVelocity;
+		Player player = shooter as Player;
+		velocity = direction * speed * player.getAttackSpeedModifier() + 0.5f * MathF.Max(Vector2.Dot(direction, startVelocity.normalized), 0) * startVelocity;
 
 		sprite = new Sprite(Item.tileset, 3, 1);
 	}

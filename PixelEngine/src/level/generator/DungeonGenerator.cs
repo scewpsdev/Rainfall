@@ -390,7 +390,7 @@ public partial class LevelGenerator
 			spawnNPC(tile.x, tile.y, getDungeonNPCList());
 		});
 
-		if (level == GameState.instance.areaDungeons[GameState.instance.areaDungeons.Length - 2])
+		if (floor == 3)
 		{
 			spawnRoomObject([exitRoom], 1.0f, false, (Vector2i pos, Random random, Room room) =>
 			{

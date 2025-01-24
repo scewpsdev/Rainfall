@@ -49,6 +49,12 @@ public class DungeonEntrance : Door
 	{
 		return player.getItem("lost_sigil") != null;
 	}
+
+	public override void interact(Player player)
+	{
+		base.interact(player);
+		player.removeItem(player.getItem("lost_sigil"));
+	}
 }
 
 public partial class LevelGenerator
@@ -506,7 +512,7 @@ public partial class LevelGenerator
 			spawnNPC(tile.x, tile.y, getCaveNPCList());
 		});
 
-		if (level == GameState.instance.areaCaves[GameState.instance.areaCaves.Length - 2])
+		if (floor == 4)
 		{
 			spawnRoomObject([exitRoom], 1.0f, false, (Vector2i pos, Random random, Room room) =>
 			{

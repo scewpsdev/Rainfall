@@ -98,8 +98,9 @@ public class GameState : State
 	uint ambientSource;
 	public Sound ambience;
 
-	public Mob currentBoss;
+	public Mob currentBoss { get; private set; }
 	public float currentBossMaxHealth;
+	public long bossFightStarted = -1;
 
 	public bool isPaused = false;
 	public bool consoleOpen = false;
@@ -436,6 +437,20 @@ public class GameState : State
 
 		SaveFile.OnRunFinished(run, save);
 		GameOverScreen.Init();
+	}
+
+	public void setBoss(Mob boss)
+	{
+		currentBoss = boss;
+		if (boss != null)
+		{
+			currentBossMaxHealth = boss.health;
+			bossFightStarted = Time.currentTime;
+		}
+		else
+		{
+			bossFightStarted = -1;
+		}
 	}
 
 	public override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)

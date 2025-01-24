@@ -12,6 +12,7 @@ public class WanderAI : AdvancedAI
 		: base(mob)
 	{
 		aggroRange = 0;
+		loseRange = 0;
 
 		addJumpAction();
 	}

@@ -16,31 +16,33 @@ public enum CoinType
 
 public class Coin : Entity
 {
-	static uint[] TYPE_COLORS = [0xFF926c5c, 0xFFbab6ae, 0xFFCCAA66, 0xFFffc6ae];
-	static Sprite[] TYPE_SPRITES = [new Sprite(tileset, 4, 3, 0.5f, 0.5f), new Sprite(tileset, 4.5f, 3, 0.5f, 0.5f), new Sprite(tileset, 4, 3.5f, 0.5f, 0.5f), new Sprite(tileset, 4.5f, 3.5f, 0.5f, 0.5f)];
-	static int[] TYPE_VALUES = [1, 5, 20, 50];
+	readonly static uint[] TYPE_COLORS = [0xFF926c5c, 0xFFbab6ae, 0xFFCCAA66, 0xFFffc6ae];
+	readonly static Sprite[] TYPE_SPRITES = [new Sprite(tileset, 4, 3, 0.5f, 0.5f), new Sprite(tileset, 4.5f, 3, 0.5f, 0.5f), new Sprite(tileset, 4, 3.5f, 0.5f, 0.5f), new Sprite(tileset, 4.5f, 3.5f, 0.5f, 0.5f)];
+	readonly static int[] TYPE_VALUES = [1, 5, 20, 50];
 
 	public static CoinType SubtractCoinFromValue(ref int value)
 	{
 		for (int i = TYPE_VALUES.Length - 1; i >= 0; i--)
 		{
-			if (value >= 2 * TYPE_VALUES[i])
+			if (value >= TYPE_VALUES[i] * 3 / 2)
 			{
 				value -= TYPE_VALUES[i];
 				return (CoinType)i;
 			}
 		}
+
 		value--;
 		return CoinType.Bronze;
 	}
 
 
-	const float COLLECT_DELAY = 0.25f;
+	const float COLLECT_DELAY = 0.1f;
 
 	CoinType type;
 
 	long spawnTime;
 
+	float rotationSpeed;
 	public Entity target;
 
 	Sound[] collectSound;
@@ -59,6 +61,8 @@ public class Coin : Entity
 	{
 		spawnTime = Time.currentTime;
 		target = GameState.instance.player;
+
+		rotationSpeed = MathHelper.RandomFloat(-1, 1);
 	}
 
 	public override void update()
@@ -147,14 +151,18 @@ public class Coin : Entity
 			velocity.x *= -0.5f;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
 			velocity.y *= -0.5f;
+		if (collisionFlags != 0)
+			rotationSpeed = MathHelper.RandomFloat(-1, 1);
 
 		position += displacement;
+
+		rotation += rotationSpeed * Time.deltaTime;
 	}
 
 	public override void render()
 	{
 		//Renderer.DrawSprite(position.x - 1.0f / 16, position.y - 1.0f / 16, 2 / 16.0f, 2 / 16.0f, null, false, 0xFFFFCC77);
 		float brightness = 1 + MathF.Sin(Time.currentTime / 1e9f * 80 + position.x + position.y) * 0.3f;
-		Renderer.DrawSprite(position.x - 0.25f, position.y - 0.25f, LAYER_FG, 0.5f, 0.5f, 0, TYPE_SPRITES[(int)type], false, /*TYPE_COLORS[(int)type] **/ new Vector4(brightness, brightness, brightness, 1));
+		Renderer.DrawSprite(position.x - 0.25f, position.y - 0.25f, LAYER_FG, 0.5f, 0.5f, rotation, TYPE_SPRITES[(int)type], false, /*TYPE_COLORS[(int)type] **/ new Vector4(brightness, brightness, brightness, 1));
 	}
 }

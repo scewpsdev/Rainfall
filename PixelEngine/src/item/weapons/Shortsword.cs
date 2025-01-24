@@ -40,8 +40,8 @@ public class Shortsword : Weapon
 		}
 		else if (idx % 3 == 1)
 		{
-			startAngle = 1.25f * MathF.PI;
-			endAngle = 0 * MathF.PI;
+			startAngle = MathF.PI;
+			endAngle = -0.25f * MathF.PI;
 		}
 		else
 		{

@@ -13,7 +13,7 @@ public class Zweihander : Weapon
 	{
 		displayName = "Zweihander";
 
-		baseDamage = 3.5f;
+		baseDamage = 2.5f;
 		baseAttackRange = 1.6f;
 		baseAttackRate = 1.0f;
 		anim = AttackAnim.SwingOverhead;
@@ -29,7 +29,7 @@ public class Zweihander : Weapon
 		sprite = new Sprite(tileset, 7, 3, 2, 1);
 		icon = new Sprite(tileset.texture, 7 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.7f;
+		renderOffset.x = 0.4f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 }

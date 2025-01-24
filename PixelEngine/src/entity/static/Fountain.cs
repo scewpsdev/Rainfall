@@ -110,7 +110,7 @@ public class Fountain : Entity, Interactable
 
 	public override void destroy()
 	{
-		level.removeCollider(this);
+		level.removeEntityCollider(this);
 
 		if (particles != null)
 		{

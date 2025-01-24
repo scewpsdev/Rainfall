@@ -17,7 +17,7 @@ public class ChainmailArmor : Item
 		armorSlot = ArmorSlot.Body;
 		baseWeight = 2;
 
-		value = 18;
+		value = 24;
 
 		sprite = new Sprite(tileset, 8, 8);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/chainmail_armor.png", false), 0, 0, 32, 32);

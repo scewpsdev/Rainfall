@@ -17,7 +17,7 @@ struct HUDMessage
 public class HUD
 {
 	const float MESSAGE_SHOW_DURATION = 5.0f;
-	const float LEVEL_PROMPT_DURATION = 4.5f;
+	const float POPUP_DURATION = 4.5f;
 	const float ITEM_NAME_DURATION = 3.0f;
 
 
@@ -154,16 +154,36 @@ public class HUD
 
 	void renderPopup()
 	{
-		float elapsed = (Time.currentTime - lastLevelSwitch) / 1e9f;
-		if (lastLevelSwitch != -1 && elapsed < LEVEL_PROMPT_DURATION && levelName != null)
+		string[] text = null;
+		float elapsed = 0;
+
+		if (GameState.instance.currentBoss != null)
 		{
-			int width = Renderer.MeasureUIText(levelName, levelName.Length, 1).x;
-			float progress = elapsed / LEVEL_PROMPT_DURATION;
-			float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
-			float alpha = elapsed < 1 ? elapsed : elapsed > LEVEL_PROMPT_DURATION - 2 ? (1 - 0.5f * (elapsed - (LEVEL_PROMPT_DURATION - 2))) : 1;
-			uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
-			Renderer.DrawUIText(Renderer.UIWidth / 2 - width / 2, Renderer.UIHeight / 4 + (int)yanim + 1, levelName, 1, MathHelper.ColorAlpha(0xFF000000, alpha));
-			Renderer.DrawUIText(Renderer.UIWidth / 2 - width / 2, Renderer.UIHeight / 4 + (int)yanim, levelName, 1, color);
+			if (GameState.instance.currentBoss.nameSubtitle != null)
+				text = [GameState.instance.currentBoss.displayName, GameState.instance.currentBoss.nameSubtitle];
+			else
+				text = [GameState.instance.currentBoss.displayName];
+			elapsed = (Time.currentTime - GameState.instance.bossFightStarted) / 1e9f;
+		}
+		else if (lastLevelSwitch != -1 && levelName != null)
+		{
+			text = [levelName];
+			elapsed = (Time.currentTime - lastLevelSwitch) / 1e9f;
+		}
+
+		if (text != null && elapsed < POPUP_DURATION)
+		{
+			for (int i = 0; i < text.Length; i++)
+			{
+				Vector2i size = Renderer.MeasureUIText(text[i]);
+				float progress = elapsed / POPUP_DURATION;
+				float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
+				yanim = 0;
+				float alpha = elapsed < 1 ? elapsed : elapsed > POPUP_DURATION - 2 ? (1 - 0.5f * (elapsed - (POPUP_DURATION - 2))) : 1;
+				uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
+				Renderer.DrawUIText(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + i * (size.y + 2) + (int)yanim + 1, text[i], 1, MathHelper.ColorAlpha(0xFF000000, alpha));
+				Renderer.DrawUIText(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + i * (size.y + 2) + (int)yanim, text[i], 1, color);
+			}
 		}
 	}
 
@@ -786,6 +806,7 @@ public class HUD
 				}
 			}
 
+			/*
 			if (GameState.instance.currentBoss != null)
 			{
 				int width = Renderer.UIWidth / 2;
@@ -799,6 +820,7 @@ public class HUD
 				Renderer.DrawUITextBMP(x, y + height + 3, GameState.instance.currentBoss.displayName, 1, 0xFF111111);
 				Renderer.DrawUITextBMP(x, y + height + 2, GameState.instance.currentBoss.displayName, 1, 0xFFAAAAAA);
 			}
+			*/
 		}
 
 		if (screenFade != 1)

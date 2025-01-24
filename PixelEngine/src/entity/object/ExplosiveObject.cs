@@ -8,11 +8,19 @@ using System.Threading.Tasks;
 
 public class ExplosiveObject : Object
 {
+	static Sound fuseSound;
+
+	static ExplosiveObject()
+	{
+		fuseSound = Resource.GetSound("sounds/fuse.ogg");
+		fuseSound.singleInstance = true;
+	}
+
+
 	float fuseTime = 0.75f;
 	float blastRadius = 3.0f;
 	float blastDamage = 8;
 
-	Sound fuseSound;
 	uint source;
 
 	long ignitedTime = -1;
@@ -22,7 +30,6 @@ public class ExplosiveObject : Object
 
 	public ExplosiveObject()
 	{
-		fuseSound = Resource.GetSound("sounds/fuse.ogg");
 		health = 2;
 		damage = 1;
 	}

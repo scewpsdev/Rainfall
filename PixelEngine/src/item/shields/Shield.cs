@@ -13,7 +13,6 @@ public class Shield : Item
 	{
 		isSecondaryItem = true;
 		rarity = 0.2f;
-		renderOffset.x = 0.2f;
 	}
 
 	public override bool use(Player player)

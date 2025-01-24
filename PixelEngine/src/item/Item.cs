@@ -713,11 +713,12 @@ public abstract class Item
 			if (!items[i].canDrop)
 				items.RemoveAt(i--);
 		}
+
 		for (int i = 0; i < items.Count; i++)
 		{
 			float gaussian = items[i].value <= meanValue ?
 				MathHelper.Gaussian(items[i].value / meanValue - 1, 1, 1.0f) :
-				MathHelper.Gaussian((items[i].value - meanValue) / 5, 0, 1);
+				MathHelper.Gaussian((items[i].value - meanValue) / 8, 0, 1);
 			gaussian /= MathHelper.inv_sqrt_2pi;
 			if (random.NextSingle() > gaussian && items.Count > 1)
 				items.RemoveAt(i--);
@@ -831,16 +832,35 @@ public abstract class Item
 
 	public static Item[] CreateRandom(Random random, float[] distribution, float meanValue)
 	{
-		Item item = CreateRandom(itemTypes, random, meanValue);
-		if (item.requiredAmmo != null)
+		ItemType type = ItemType.Count;
+
+		float f = random.NextSingle();
+		float r = 0;
+		for (int i = 0; i < (int)ItemType.Count; i++)
 		{
-			Item ammo = GetItemPrototype(item.requiredAmmo).copy();
-			ammo.stackSize = MathHelper.RandomInt(3, 20, random);
-			return [item, ammo];
+			r += distribution[i];
+			if (f < r)
+			{
+				type = (ItemType)i;
+				break;
+			}
 		}
-		else
+
+		if (type != ItemType.Count)
 		{
-			return [item];
+			Item item = CreateRandom(type, random, meanValue);
+			if (item.requiredAmmo != null)
+			{
+				Item ammo = GetItemPrototype(item.requiredAmmo).copy();
+				ammo.stackSize = MathHelper.RandomInt(3, 20, random);
+				return [item, ammo];
+			}
+			else
+			{
+				return [item];
+			}
 		}
+
+		return null;
 	}
 }

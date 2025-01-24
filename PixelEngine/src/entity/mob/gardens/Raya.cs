@@ -11,7 +11,8 @@ public class Raya : Mob
 	public Raya()
 		: base("raya")
 	{
-		displayName = "Raya, Third Knight of the King";
+		displayName = "Raya";
+		nameSubtitle = "Third Knight of the King";
 
 		health = 65;
 		poise = 10;

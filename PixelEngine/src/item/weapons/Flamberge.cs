@@ -20,7 +20,7 @@ public class Flamberge : Weapon
 		attackAngleOffset = -0.25f * MathF.PI;
 		attackAngle = MathF.PI;
 
-		value = 19;
+		value = 29;
 
 		sprite = new Sprite(tileset, 12, 6, 2, 1);
 		icon = new Sprite(tileset.texture, 12 * 16, 6 * 16, 16, 16);

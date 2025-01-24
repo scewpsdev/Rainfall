@@ -40,7 +40,7 @@ public class MainMenuState : State
 		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splash.width / 2, 64 - splash.height / 2, splash.width, splash.height, 0, splash, 0xFF888888);
 
 		string[] labels = [
-			"Play",
+			"Start",
 			"Daily Run",
 			"Custom Run",
 			"Options",
@@ -62,7 +62,7 @@ public class MainMenuState : State
 		{
 			switch (selection)
 			{
-				case 0: // Play
+				case 0: // Start
 					screen = MainMenuScreen.SaveSelect;
 					currentButton = 0;
 					break;

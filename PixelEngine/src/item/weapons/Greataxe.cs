@@ -20,10 +20,11 @@ public class Greataxe : Weapon
 		anim = AttackAnim.SwingOverhead;
 		attackAcceleration = 1;
 		twoHanded = true;
+		doubleBladed = true;
 		attackCooldown = 1.0f;
 		baseWeight = 5;
 
-		value = 27;
+		value = 47;
 
 		sprite = new Sprite(tileset, 0, 5, 2, 1);
 		size = new Vector2(2, 1);

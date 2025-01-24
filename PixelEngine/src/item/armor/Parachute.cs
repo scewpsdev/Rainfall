@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Parachute : Item
 {
-	float activateSpeed = -15;
+	float activateSpeed = -18;
 	float fallSpeed = -5;
 
 	bool active = false;

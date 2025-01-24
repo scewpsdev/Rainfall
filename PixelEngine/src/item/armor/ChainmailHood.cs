@@ -17,7 +17,7 @@ public class ChainmailHood : Item
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 1;
 
-		value = 6;
+		value = 20;
 
 		sprite = new Sprite(tileset, 3, 2);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/chainmail_hood.png", false), 0, 0, 32, 32);

@@ -437,21 +437,6 @@ public static class Renderer
 		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, 1.0f / 16, 0.00001f) * transform, sprite, flipped, color);
 	}
 
-	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Texture texture, int u0, int v0, int w, int h, Vector4 color)
-	{
-		FloatRect rect = texture != null ? new FloatRect(u0 / (float)texture.width, v0 / (float)texture.height, w / (float)texture.width, h / (float)texture.height) : new FloatRect(0, 0, 0, 0);
-		exDraws.Add(new SpriteExDraw
-		{
-			vertex0 = vertex0,
-			vertex1 = vertex1,
-			vertex2 = vertex2,
-			vertex3 = vertex3,
-			texture = texture,
-			rect = rect,
-			color = color
-		});
-	}
-
 	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Sprite sprite, bool flipped, Vector4 color, bool additive = false, bool solid = false)
 	{
 		float u0 = 0.0f, v0 = 0.0f, u1 = 0.0f, v1 = 0.0f;

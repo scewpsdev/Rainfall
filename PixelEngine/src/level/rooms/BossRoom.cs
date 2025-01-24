@@ -54,8 +54,7 @@ public class BossRoom : Entity
 		{
 			if (boss.level == null && isInRoom(GameState.instance.player))
 			{
-				GameState.instance.currentBoss = boss;
-				GameState.instance.currentBossMaxHealth = boss.health;
+				GameState.instance.setBoss(boss);
 				boss.ai.aggroRange = 100;
 				boss.ai.loseRange = 100;
 
@@ -69,7 +68,7 @@ public class BossRoom : Entity
 		{
 			if (!boss.isAlive)
 			{
-				GameState.instance.currentBoss = null;
+				GameState.instance.setBoss(null);
 				open();
 
 				foreach (WorldEventListener listener in GameState.instance.worldEventListeners)

@@ -8,36 +8,36 @@ using System.Threading.Tasks;
 
 public class Trail
 {
-	Vector2[] trail;
+	public Vector2[] points;
 	Vector4 color;
 
 
 	public Trail(int numPoints, Vector4 color, Vector2 position)
 	{
-		trail = new Vector2[numPoints];
+		points = new Vector2[numPoints];
 		this.color = color;
 
-		Array.Fill(trail, position);
+		Array.Fill(points, position);
 	}
 
 	public void update()
 	{
-		for (int i = trail.Length - 1; i >= 1; i--)
-			trail[i] = trail[i - 1];
+		for (int i = points.Length - 1; i >= 1; i--)
+			points[i] = points[i - 1];
 	}
 
 	public void setPosition(Vector2 position)
 	{
-		trail[0] = position;
+		points[0] = position;
 	}
 
 	public void render()
 	{
-		for (int i = 0; i < trail.Length - 1; i++)
+		for (int i = 0; i < points.Length - 1; i++)
 		{
-			float alpha = 1 - i / (float)(trail.Length - 1);
+			float alpha = 1 - i / (float)(points.Length - 1);
 			alpha = alpha * alpha;
-			Renderer.DrawLine(new Vector3(trail[i], 0), new Vector3(trail[i + 1], 0), color * new Vector4(1, 1, 1, alpha));
+			Renderer.DrawLine(new Vector3(points[i], 0), new Vector3(points[i + 1], 0), color * new Vector4(1, 1, 1, alpha));
 		}
 	}
 }

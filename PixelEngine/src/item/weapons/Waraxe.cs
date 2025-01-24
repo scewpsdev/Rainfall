@@ -21,7 +21,7 @@ public class Waraxe : Weapon
 		baseWeight = 2.5f;
 		doubleBladed = false;
 
-		value = 19;
+		value = 29;
 
 		sprite = new Sprite(tileset, 8, 7, 2, 1);
 		size = new Vector2(2, 1);

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,20 +42,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
 	public const float defaultManaRecoveryRate = 0.04f;
-	public float coinCollectDistance = 4.0f;
+	public float coinCollectDistance = 1.0f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
-	//public float maxHealth = 3;
+	public float maxHealth = 3;
 	public float health = 3;
-	public float maxHealth => hp * 0.5f;
+	//public float maxHealth => hp * 0.5f;
 
-	//public float maxMana = 2;
+	public float maxMana = 2;
 	public float mana = 2;
-	public float maxMana => magic * 0.5f;
+	//public float maxMana => magic * 0.5f;
 
-	public int hp = 6;
-	public int magic = 4;
+	//public int hp = 6;
+	//public int magic = 4;
 	public int strength = 1;
 	public int dexterity = 1;
 	public int intelligence = 1;
@@ -218,8 +219,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		strength = startingClass.strength;
 		dexterity = startingClass.dexterity;
 		intelligence = startingClass.intelligence;
-		hp = startingClass.hp;
-		magic = startingClass.magic;
+		maxHealth = startingClass.hp * 0.5f;
+		maxMana = startingClass.magic * 0.5f;
 
 		health = maxHealth;
 		mana = maxMana;
@@ -797,6 +798,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		carriedObject.velocity = new Vector2(0.5f, 1) * velocity + (lookDirection + Vector2.Up * 0.2f) * 15;
 		carriedObject.rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
 		carriedObject.throwTime = Time.currentTime;
+		carriedObject.thrower = this;
 		carriedObject = null;
 	}
 
@@ -1045,13 +1047,19 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		while (xp >= nextLevelXP)
 		{
 			xp -= nextLevelXP;
-			playerLevel++;
 			onLevelUp();
 		}
 	}
 
 	void onLevelUp()
 	{
+		playerLevel++;
+
+		if (playerLevel % 4 == 0)
+			maxHealth += 0.5f;
+		else if (playerLevel % 4 == 2)
+			maxMana += 0.5f;
+
 		availableStatUpgrades++;
 		//hp++;
 		//magic++;
@@ -1925,7 +1933,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			animOffset.y = -2;
 		if (isDucked && !isClimbing && isGrounded)
 			animOffset.y = -3;
-		return new Vector2((!mainHand ? 0 / 16.0f : -2 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 7 / 16.0f : 6 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 5 / 16.0f : -2 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 7 / 16.0f : 6 / 16.0f) + animOffset.y / 16.0f);
 	}
 
 	bool renderArms
@@ -1938,6 +1946,28 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					return false;
 			}
 			return true;
+		}
+	}
+
+	void renderHand(bool mainHand, float layer, Matrix weaponTransform)
+	{
+		Vector4 handColor = 0xFF282828;
+		if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
+			handColor = passiveItems[gloveSlot].gloveColor;
+
+		if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
+		{
+			float handRotation = weaponTransform.rotation.angle * MathF.Sign(weaponTransform.rotation.axis.z);
+			Vector2 handPosition = (weaponTransform * Matrix.CreateTranslation(-0.25f, 0, 0)).translation.xy;
+			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, handRotation, null, false, handColor);
+		}
+		else
+		{
+			Vector2 handPosition = getWeaponOrigin(mainHand);
+			handPosition.x -= 1 / 16.0f;
+			if (direction == -1)
+				handPosition.x *= -1;
+			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, 0, null, false, handColor);
 		}
 	}
 
@@ -1963,12 +1993,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 					if (item != DefaultWeapon.instance)
 					{
-						Vector4 handColor = 0xFF282828;
-						if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
-							handColor = passiveItems[gloveSlot].gloveColor;
-						float handRotation = weaponTransform.rotation.angle * MathF.Sign(weaponTransform.rotation.axis.z);
-						Vector2 handPosition = (weaponTransform * Matrix.CreateTranslation(-0.25f, 0, 0)).translation.xy;
-						Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, handRotation, null, false, handColor);
+						renderHand(mainHand, layer, weaponTransform);
+						if (item.twoHanded)
+							renderHand(!mainHand, layer, weaponTransform);
 					}
 
 					if (particles != null)
@@ -2000,14 +2027,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 
-					Vector4 handColor = 0xFF282828;
-					if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
-						handColor = passiveItems[gloveSlot].gloveColor;
-					Vector2 handPosition = getWeaponOrigin(mainHand);
-					handPosition.x -= 1 / 16.0f;
-					if (direction == -1)
-						handPosition.x *= -1;
-					Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 1.0f / 16, layer, 2.0f / 16, 2.0f / 16, 0, null, false, handColor);
+					renderHand(mainHand, layer, Matrix.Identity);
+					if (item.twoHanded)
+						renderHand(!mainHand, layer, Matrix.Identity);
 
 					if (particles != null)
 					{

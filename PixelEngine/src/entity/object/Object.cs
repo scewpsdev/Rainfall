@@ -19,6 +19,7 @@ public class Object : Entity, Hittable, Interactable
 	public int numRestRotations = 4;
 
 	public long throwTime = -1;
+	public Entity thrower;
 
 	protected Sprite sprite;
 	protected FloatRect rect;
@@ -42,7 +43,7 @@ public class Object : Entity, Hittable, Interactable
 
 	public override void destroy()
 	{
-		level.removeCollider(this);
+		level.removeEntityCollider(this);
 	}
 
 	public virtual bool canInteract(Player player)
@@ -118,14 +119,14 @@ public class Object : Entity, Hittable, Interactable
 			onCollision(collidesX, collidesY, false);
 		}
 
-		if ((throwTime == -1 || (Time.currentTime - throwTime) / 1e9f > 0.2f) && velocity.length > 8)
+		if (velocity.length > 8)
 		{
 			HitData[] hits = new HitData[32];
 			int numHits = GameState.instance.level.overlap(position + collider.min, position + collider.max, hits, FILTER_MOB | FILTER_PLAYER | FILTER_PROJECTILE | FILTER_OBJECT);
 			bool hitEntity = false;
 			for (int i = 0; i < numHits; i++)
 			{
-				if (hits[i].entity != null && hits[i].entity != this)
+				if (hits[i].entity != null && hits[i].entity != this && (hits[i].entity != thrower || (Time.currentTime - throwTime) / 1e9f > 0.2f))
 				{
 					if (hits[i].entity is Hittable)
 					{

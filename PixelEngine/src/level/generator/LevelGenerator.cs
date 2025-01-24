@@ -267,8 +267,9 @@ public partial class LevelGenerator
 {
 	RoomDefSet specialSet;
 	RoomDefSet cavesSet;
-	RoomDefSet gardensSet;
+	RoomDefSet minesSet;
 	RoomDefSet dungeonsSet;
+	RoomDefSet gardensSet;
 
 	Func<Item[], Container> createContainer = null;
 	Func<ExplosiveObject> createExplosiveObject = null;
@@ -294,8 +295,9 @@ public partial class LevelGenerator
 	{
 		specialSet = new RoomDefSet("level/rooms_special.png", false);
 		cavesSet = new RoomDefSet("level/level1/rooms1.png");
-		gardensSet = new RoomDefSet("level/level2/rooms2.png");
+		minesSet = new RoomDefSet("level/level2/rooms2.png");
 		dungeonsSet = new RoomDefSet("level/level3/rooms3.png");
+		gardensSet = new RoomDefSet("level/level4/rooms4.png");
 	}
 
 	public void setObjectFlag(int x, int y)
@@ -626,7 +628,7 @@ public partial class LevelGenerator
 
 	List<Item[]> generateItems(float minValue, float maxValue, float[] dropRates)
 	{
-		int numItems = rooms.Count / 4;
+		int numItems = MathHelper.RandomInt(3, Math.Max(rooms.Count / 4, 5), random); // rooms.Count / 4;
 		List<Item[]> items = new List<Item[]>();
 		for (int i = 0; i < numItems; i++)
 		{
@@ -885,6 +887,17 @@ public partial class LevelGenerator
 			exitPosition = exitRoom.getMarker(0x67);
 			level.exit = new Door(nextLevel);
 			level.addEntity(level.exit, new Vector2(exitPosition.x + 0.5f, exitPosition.y));
+
+			if (level.getTile(exitPosition.x - 1, exitPosition.y) == null && !objectFlags[exitPosition.x - 1 + exitPosition.y * level.width])
+			{
+				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x - 0.5f, exitPosition.y + 0.5f));
+				objectFlags[exitPosition.x - 1 + exitPosition.y * level.width] = true;
+			}
+			if (level.getTile(exitPosition.x + 1, exitPosition.y) == null && !objectFlags[exitPosition.x + 1 + exitPosition.y * level.width])
+			{
+				level.addEntity(new TorchEntity(), new Vector2(exitPosition.x + 1.5f, exitPosition.y + 0.5f));
+				objectFlags[exitPosition.x + 1 + exitPosition.y * level.width] = true;
+			}
 
 			objectFlags[exitPosition.x + exitPosition.y * level.width] = true;
 		}

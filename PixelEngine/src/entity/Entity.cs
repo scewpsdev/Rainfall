@@ -56,6 +56,7 @@ public class Entity
 
 	public string name;
 	public string displayName;
+	public string nameSubtitle;
 
 
 	public virtual void init(Level level)

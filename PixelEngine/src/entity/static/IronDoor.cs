@@ -123,7 +123,7 @@ public class IronDoor : Entity, Interactable, Hittable
 		}
 		else
 		{
-			level.removeCollider(this);
+			level.removeEntityCollider(this);
 			//level.setTile(tile.x, tile.y, null);
 		}
 

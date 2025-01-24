@@ -22,6 +22,7 @@ public class DungeonsBossRoom : BossRoom
 		if (boss.level != null && secondGolem == null)
 		{
 			secondGolem = new GolemBoss() { health = 60 };
+			secondGolem.ai.aggroRange = 100;
 			level.addEntity(secondGolem, boss.position + Vector2.Right * 3);
 		}
 	}

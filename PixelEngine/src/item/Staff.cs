@@ -63,7 +63,7 @@ public class Staff : Item
 		if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == this)
 			attackIdx = (player.actions.currentAction as AttackAction).attackIdx + 1;
 		getAttackAnim(attackIdx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle);
-		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, baseAttackRate, baseDamage, baseAttackRange, startAngle, endAngle) { swingDir = swingDir, attackIdx = attackIdx });
+		player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, 2, 0.5f, 1, startAngle, endAngle) { swingDir = swingDir, attackIdx = attackIdx });
 		return false;
 	}
 }

@@ -695,7 +695,7 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Talk");
 			if (QuestManager.getQuestList(name, out _))
 				options.Add("Quests");
-			options.Add("Quit");
+			options.Add("Leave");
 
 			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 
@@ -731,7 +731,7 @@ public abstract class NPC : Mob, Interactable
 				{
 					initQuestList();
 				}
-				else if (options[option] == "Quit")
+				else if (options[option] == "Leave")
 					closeScreen();
 			}
 

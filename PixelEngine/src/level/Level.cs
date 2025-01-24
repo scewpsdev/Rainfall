@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 
 public class HitData
@@ -380,7 +379,7 @@ public class Level
 		colliders.Add(collider);
 	}
 
-	public void removeCollider(Entity collider)
+	public void removeEntityCollider(Entity collider)
 	{
 		colliders.Remove(collider);
 	}

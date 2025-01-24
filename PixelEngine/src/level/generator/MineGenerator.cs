@@ -119,7 +119,7 @@ public partial class LevelGenerator
 
 		rooms.Clear();
 		RoomDef? startingRoomDef = spawnStartingRoom ? specialSet.roomDefs[2] : spawnBossRoom ? specialSet.roomDefs[3] : null;
-		generateMainRooms(cavesSet, startingRoomDef);
+		generateMainRooms(minesSet, startingRoomDef);
 		if (spawnBossRoom)
 			rooms.Reverse();
 		Room startingRoom = rooms[0];
@@ -131,7 +131,7 @@ public partial class LevelGenerator
 				exitRoom = rooms[rooms.Count - i++];
 		}
 
-		generateExtraRooms(cavesSet, (Doorway doorway) =>
+		generateExtraRooms(minesSet, (Doorway doorway) =>
 		{
 			int type = random.Next() % 5;
 			Room room = null;
@@ -439,7 +439,7 @@ public partial class LevelGenerator
 			spawnNPC(tile.x, tile.y, getCaveNPCList());
 		});
 
-		if (level == GameState.instance.areaCaves[GameState.instance.areaCaves.Length - 2])
+		if (floor == 3)
 		{
 			spawnRoomObject([exitRoom], 1.0f, false, (Vector2i pos, Random random, Room room) =>
 			{
