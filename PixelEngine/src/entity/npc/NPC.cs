@@ -688,7 +688,7 @@ public abstract class NPC : Mob, Interactable
 					}
 				}
 				if (hasUpgradable)
-					options.Add("Upgrade");
+					options.Add("Smithing");
 			}
 			//if (canAttune && player.hasItemOfType(ItemType.Staff))
 			//	options.Add("Attune");
@@ -714,7 +714,7 @@ public abstract class NPC : Mob, Interactable
 				{
 					initCraftingMenu();
 				}
-				else if (options[option] == "Upgrade")
+				else if (options[option] == "Smithing")
 				{
 					initUpgradeMenu();
 				}
@@ -867,7 +867,7 @@ public abstract class NPC : Mob, Interactable
 			Item upgradedItem = upgradeItems[selectedItem].copy();
 			upgradedItem.upgrade();
 
-			int choice = ItemSelector.Render(menuAnchor, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(menuAnchor, "Smithing", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				if (upgradePrices[selectedItem] <= player.money)

@@ -295,8 +295,16 @@ public class Level
 		Renderer.lightMask = lightmap;
 		Renderer.lightMaskRect = new FloatRect(-0.5f, -0.5f, width + 1, height + 1);
 
-		//if (bg != null)
-		//Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, bg, 0, 0, bg.width, bg.height, new Vector4(1));
+		if (bg != null)
+		{
+			float width = GameState.instance.camera.width;
+			float height = GameState.instance.camera.height;
+			float z = -100;
+			float parallax = (10 - z) / 10;
+			width *= parallax;
+			height *= parallax;
+			Renderer.DrawParallaxSprite(GameState.instance.camera.position.x - 0.5f * width, GameState.instance.camera.position.y - 0.5f * height, z, width, height, 0, bg, 0, 0, bg.width, bg.height, Vector4.One);
+		}
 		//else
 		//	Renderer.DrawSprite(GameState.instance.camera.left, GameState.instance.camera.bottom, 0.9999f, GameState.instance.camera.width, GameState.instance.camera.height, 0, null, false, new Vector4(fogColor, 1));
 

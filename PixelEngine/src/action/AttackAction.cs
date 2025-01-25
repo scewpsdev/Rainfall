@@ -205,7 +205,7 @@ public class AttackAction : EntityAction
 			trail.update();
 			if (inDamageWindow)
 			{
-				float thickness = 0.5f;
+				float thickness = 0.8f;
 				if (anim == AttackAnim.SwingSideways)
 					thickness = MathHelper.Remap(Vector2.Dot(direction, Vector2.Rotate(Vector2.Right, currentAngle) * new Vector2(MathF.Sign(direction.x), 1)), -1, 1, 0.9f, 0.5f);
 				else if (anim == AttackAnim.Stab)

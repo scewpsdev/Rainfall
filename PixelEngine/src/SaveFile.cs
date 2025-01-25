@@ -26,6 +26,7 @@ public class SaveFile
 	public static readonly uint FLAG_TUTORIAL_FINISHED = Hash.hash("tutorial_finished");
 
 	public static readonly uint FLAG_CAVES_FOUND = Hash.hash("caves_found");
+	public static readonly uint FLAG_MINES_FOUND = Hash.hash("mines_found");
 	public static readonly uint FLAG_DUNGEONS_FOUND = Hash.hash("dungeons_found");
 
 	public static readonly uint FLAG_CASTLE_UNLOCKED = Hash.hash("castle_unlocked");

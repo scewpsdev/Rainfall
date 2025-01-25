@@ -13,7 +13,7 @@ public class Pickaxe : Weapon
 	{
 		displayName = "Pickaxe";
 
-		baseDamage = 2;
+		baseDamage = 1.5f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.5f;
 		anim = AttackAnim.SwingOverhead;

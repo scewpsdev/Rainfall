@@ -158,9 +158,10 @@ public class ItemEntity : Entity, Interactable, Hittable
 			}
 			else if (y)
 			{
+				if (MathF.Abs(velocity.y) > 4)
+					velocity.x *= bounciness;
 				position.y -= velocity.y * Time.deltaTime;
 				velocity.y = -velocity.y * bounciness;
-				velocity.x *= bounciness;
 			}
 		}
 

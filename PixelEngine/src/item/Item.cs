@@ -116,7 +116,7 @@ public abstract class Item
 {
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("sprites/items.png", false), 16, 16);
 
-	public static Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 7);
+	public static Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
 	public static Sound[] parryHit = [Resource.GetSound("sounds/parry.ogg")];
 	public static Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 7);
 
@@ -372,13 +372,13 @@ public abstract class Item
 			float r = rarity * MathF.Exp(-0.04f * value);
 			if (r >= 1.0f)
 				return "Garbage";
-			if (r >= 0.5f)
+			if (r >= 0.1f)
 				return "Common";
-			if (r >= 0.05f)
+			if (r >= 0.01f)
 				return "Uncommon";
-			if (r >= 0.005f)
+			if (r >= 0.001f)
 				return "Rare";
-			if (r >= 0.0005f)
+			if (r >= 0.0001f)
 				return "Exceedingly Rare";
 			return "Legendary";
 		}
@@ -410,7 +410,7 @@ public abstract class Item
 
 	public virtual void upgrade()
 	{
-		value += upgradeCost;
+		value += upgradeCost / 2;
 		upgradeLevel++;
 		//value = value + MathHelper.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)

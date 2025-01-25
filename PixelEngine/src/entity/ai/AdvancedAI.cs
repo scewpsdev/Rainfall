@@ -30,6 +30,9 @@ public class AIAction
 
 public class AdvancedAI : AI
 {
+	static int idx = 0;
+
+
 	enum AIState
 	{
 		Default,
@@ -38,6 +41,8 @@ public class AdvancedAI : AI
 		Cooldown,
 	}
 
+
+	int id = idx++;
 
 	AIState state = AIState.Default;
 	public int walkDirection = 1;
@@ -221,7 +226,7 @@ public class AdvancedAI : AI
 				List<AIAction> possibleActions = new List<AIAction>();
 				foreach (AIAction action in actions)
 				{
-					uint h = Hash.combine(Hash.hash(tick), Hash.hash(action.animation));
+					uint h = Hash.combine(Hash.hash(id), Hash.combine(Hash.hash(tick), Hash.hash(action.animation)));
 					if (action.requirementsMet(action, toTarget, distance) && h % (hesitation + 1) == 0)
 						possibleActions.Add(action);
 				}

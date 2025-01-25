@@ -6,49 +6,34 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class GardensBossRoom : Entity
+public class GardensBossRoom : BossRoom
 {
-	Room room;
-
-	Mob boss;
-
-	BossGate gate0;
-	BossGate gate1;
+	GolemBoss secondGolem;
+	Gandalf gandalf1;
+	Gandalf gandalf2;
 
 	public GardensBossRoom(Room room)
+		: base(room, new GolemBoss() { health = 120 })
 	{
-		this.room = room;
-	}
-
-	public override void init(Level level)
-	{
-		boss = new Raya();
-		boss.isBoss = true;
-
-		foreach (Room room in level.rooms)
-		{
-			if (room.tryGetMarker(100, out Vector2i p))
-			{
-				level.addEntity(boss, (Vector2)p);
-
-				level.addEntity(gate0 = new BossGate(boss, room, true), (Vector2)room.getMarker(101));
-				level.addEntity(gate1 = new BossGate(boss, room, false), (Vector2)room.getMarker(102));
-
-				break;
-			}
-		}
 	}
 
 	public override void update()
 	{
-		if (!gate0.isOpen && GameState.instance.currentBoss == null)
+		base.update();
+
+		if (boss.level != null && secondGolem == null && gandalf1 == null && gandalf2 == null)
 		{
-			//GameState.instance.currentBoss = boss;
-			GameState.instance.currentBossMaxHealth = boss.health;
-		}
-		else if (gate0.isOpen && GameState.instance.currentBoss == boss)
-		{
-			//GameState.instance.currentBoss = null;
+			secondGolem = new GolemBoss() { health = 120 };
+			secondGolem.ai.aggroRange = 100;
+			level.addEntity(secondGolem, boss.position - Vector2.Right * 3);
+
+			gandalf1 = new Gandalf() { health = 25 };
+			gandalf1.ai.aggroRange = 100;
+			level.addEntity(gandalf1, boss.position + Vector2.Right * 3);
+
+			gandalf2 = new Gandalf() { health = 25 };
+			gandalf2.ai.aggroRange = 100;
+			level.addEntity(gandalf2, boss.position + Vector2.Right * 4);
 		}
 	}
 }

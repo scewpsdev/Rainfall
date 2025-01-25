@@ -13,7 +13,7 @@ public class ScrollOfMonsterCreation : Item
 	{
 		displayName = "Scroll of Monster Creation";
 
-		value = 9;
+		value = 29;
 
 		sprite = new Sprite(tileset, 12, 2);
 	}

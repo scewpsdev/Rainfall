@@ -24,7 +24,7 @@ public class Gandalf : Mob
 
 		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.75f);
 
-		health = 5;
+		health = 8;
 		speed = 2;
 
 		ai = new GandalfAI(this);

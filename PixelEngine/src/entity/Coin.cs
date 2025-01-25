@@ -85,7 +85,7 @@ public class Coin : Entity
 
 				float maxSpeed = 10;
 				float currentSpeed = velocity.length;
-				velocity = (velocity + toTarget / distance * Time.deltaTime * 40);
+				velocity = (velocity + toTarget / distance * Time.deltaTime * 60);
 				if (velocity.length >= maxSpeed)
 					velocity = velocity.normalized * maxSpeed;
 

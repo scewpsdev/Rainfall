@@ -360,27 +360,6 @@ public partial class LevelGenerator
 			}
 		});
 
-		// Spike Trap
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
-		{
-			if (tile == null && up != null && up.isSolid)
-			{
-				TileType downDown = level.getTile(x, y - 2);
-				TileType downLeft = level.getTile(x - 1, y - 1);
-				TileType downRight = level.getTile(x + 1, y - 1);
-
-				if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null) && x != entrancePosition.x)
-				{
-					float spikeTrapChance = 0.01f;
-					if (random.NextSingle() < spikeTrapChance)
-					{
-						level.addEntity(new SpikeTrap(), new Vector2(x + 0.5f, y + 0.5f));
-						objectFlags[x + y * width] = true;
-					}
-				}
-			}
-		});
-
 		// Torch
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
@@ -423,15 +402,6 @@ public partial class LevelGenerator
 
 
 		spawnEnemies(createEnemy, entrancePosition);
-
-
-		// Anvil
-		{
-			spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
-			{
-				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
-			});
-		}
 
 
 		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>

@@ -13,7 +13,7 @@ public class ScrollOfEarth : Item
 	{
 		displayName = "Scroll of Earth";
 
-		value = 8;
+		value = 28;
 
 		sprite = new Sprite(tileset, 11, 2);
 	}

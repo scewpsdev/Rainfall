@@ -28,11 +28,11 @@ public partial class LevelGenerator
 	{
 		areaDungeons = new Level[5];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
-		areaDungeons[0] = new Level(9, "Weeping Catacombs", 50, 30, TileType.stone, 20, 40) { ambientLight = ambience };
-		areaDungeons[1] = new Level(10, "", 30, 40, TileType.stone, 22, 50) { ambientLight = ambience };
-		areaDungeons[2] = new Level(11, "", 40, 40, TileType.stone, 25, 60) { ambientLight = ambience };
-		areaDungeons[3] = new Level(12, "", 30, 50, TileType.stone, 27, 70) { ambientLight = ambience };
-		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.stone, 27, 70) { ambientLight = ambience }; // loot value will affect what the blacksmith sells in the hub
+		areaDungeons[0] = new Level(9, "Weeping Catacombs", 60, 40, null, 20, 40) { ambientLight = ambience };
+		areaDungeons[1] = new Level(10, "", 40, 50, null, 22, 50) { ambientLight = ambience };
+		areaDungeons[2] = new Level(11, "", 50, 50, null, 25, 60) { ambientLight = ambience };
+		areaDungeons[3] = new Level(12, "", 40, 60, TileType.bricks, 27, 70) { ambientLight = ambience };
+		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.bricks, 27, 70) { ambientLight = ambience }; // loot value will affect what the blacksmith sells in the hub
 
 		List<Mob> createEnemy()
 		{
@@ -303,27 +303,6 @@ public partial class LevelGenerator
 			}
 		});
 
-		// Spike Trap
-		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
-		{
-			if (tile == null && up != null && up.isSolid)
-			{
-				TileType downDown = level.getTile(x, y - 2);
-				TileType downLeft = level.getTile(x - 1, y - 1);
-				TileType downRight = level.getTile(x + 1, y - 1);
-
-				if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null) && x != entrancePosition.x)
-				{
-					float spikeTrapChance = 0.01f;
-					if (random.NextSingle() < spikeTrapChance)
-					{
-						level.addEntity(new SpikeTrap(), new Vector2(x + 0.5f, y + 0.5f));
-						objectFlags[x + y * width] = true;
-					}
-				}
-			}
-		});
-
 		// Sconces
 		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
 		{
@@ -362,16 +341,6 @@ public partial class LevelGenerator
 
 
 		spawnEnemies(createEnemy, entrancePosition);
-
-
-		// Anvil
-		if (floor == GameState.instance.areaDungeons.Length - 2)
-		{
-			spawnRoomObject(deadEnds, deadEnds.Count, false, (Vector2i tile, Random random, Room room) =>
-			{
-				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
-			});
-		}
 
 
 		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && loganQuest.state == QuestState.InProgress)

@@ -318,33 +318,6 @@ public partial class LevelGenerator
 		}
 
 
-		// Starting weapon
-		List<Room> roomsWithStartingWeapon = mainRooms.Slice(0, 2);
-		if (deadEnds.Count > 0)
-			roomsWithStartingWeapon.Add(deadEnds[0]);
-		if (deadEnds.Count > 1)
-			roomsWithStartingWeapon.Add(deadEnds[1]);
-		spawnRoomObject(roomsWithStartingWeapon, 1, false, (Vector2i tile, Random random, Room room) =>
-		{
-			TileType left = level.getTile(tile.x - 1, tile.y);
-			TileType right = level.getTile(tile.x + 1, tile.y);
-			Item item = Item.CreateRandom(ItemType.Weapon, random, getLootValue((Vector2)tile));
-			Item[] items;
-			if (item.requiredAmmo != null)
-			{
-				Item ammo = Item.GetItemPrototype(item.requiredAmmo).copy();
-				ammo.stackSize = MathHelper.RandomInt(20, 36, random);
-				items = [item, ammo];
-			}
-			else
-			{
-				items = [item];
-			}
-			Chest chest = new Chest(items, left != null && right == null);
-			level.addEntity(chest, new Vector2(tile.x + 0.5f, tile.y));
-		});
-
-
 		List<Item[]> items = generateItems(level.minLootValue, level.maxLootValue, DropRates.caves);
 
 		MathHelper.ShuffleList(deadEnds, random);
@@ -496,15 +469,6 @@ public partial class LevelGenerator
 
 
 		spawnEnemies(createEnemy, entrancePosition);
-
-
-		// Anvil
-		{
-			spawnRoomObject(deadEnds, 0.1f, false, (Vector2i tile, Random random, Room room) =>
-			{
-				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
-			});
-		}
 
 
 		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>

@@ -1,4 +1,5 @@
 ﻿using Rainfall;
+using System;
 
 
 public class RunStats
@@ -157,6 +158,7 @@ public class GameState : State
 		generator.generateCaves(run.seed, out areaCaves);
 		generator.generateDungeons(run.seed, out areaDungeons);
 		generator.generateMines(run.seed, out areaMines);
+		generator.generateGardens(run.seed, out areaGardens);
 
 		generator.generateIntroBridge(introBridge);
 		generator.generateCliffside(cliffside);
@@ -223,7 +225,10 @@ public class GameState : State
 		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door, areaMines[areaMines.Length - 1].exit);
 		hubElevator.locked = true;
 		areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door.locked = true;
-		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
+
+		generator.connectDoors(areaDungeons[areaDungeons.Length - 1].exit, areaGardens[0].entrance);
+
+		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
 
 
 		/*
@@ -260,7 +265,15 @@ public class GameState : State
 			switchLevel(hub, spawnPosition);
 			levelSwitchTime = -1;
 
-			player.money = 8;
+			Item startingWeapon = Item.CreateRandom(ItemType.Weapon, generator.random, 3);
+			player.giveItem(startingWeapon);
+			if (startingWeapon.requiredAmmo != null)
+			{
+				Item ammo = Item.GetItemPrototype(startingWeapon.requiredAmmo).copy();
+				ammo.stackSize = 30;
+				player.giveItem(ammo);
+			}
+			//player.money = 8;
 		}
 		else
 		{
@@ -418,6 +431,8 @@ public class GameState : State
 			save.setFlag(SaveFile.FLAG_TUTORIAL_FINISHED);
 		else if (newLevel == areaCaves[0])
 			save.setFlag(SaveFile.FLAG_CAVES_FOUND);
+		else if (newLevel == areaMines[0])
+			save.setFlag(SaveFile.FLAG_MINES_FOUND);
 		else if (newLevel == areaDungeons[0])
 			save.setFlag(SaveFile.FLAG_DUNGEONS_FOUND);
 

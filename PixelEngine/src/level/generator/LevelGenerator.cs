@@ -628,7 +628,7 @@ public partial class LevelGenerator
 
 	List<Item[]> generateItems(float minValue, float maxValue, float[] dropRates)
 	{
-		int numItems = MathHelper.RandomInt(3, Math.Max(rooms.Count / 4, 5), random); // rooms.Count / 4;
+		int numItems = Math.Min(rooms.Count / 5, 5); // rooms.Count / 4;
 		List<Item[]> items = new List<Item[]>();
 		for (int i = 0; i < numItems; i++)
 		{
@@ -837,7 +837,7 @@ public partial class LevelGenerator
 			{
 				Doorway emptyDoorway = emptyDoorways[i];
 				bool specialRoom = random.NextSingle() < 0.5f;
-				if (!(specialRoom && createSpecialRoom(emptyDoorway)))
+				if (!(specialRoom && createSpecialRoom != null && createSpecialRoom(emptyDoorway)))
 					fillDoorway(emptyDoorway, set);
 			}
 		}
@@ -858,7 +858,7 @@ public partial class LevelGenerator
 			{
 				Doorway emptyDoorway = emptyDoorways[i];
 				bool specialRoom = random.NextSingle() < 0.1f;
-				if (!(specialRoom && createSpecialRoom(emptyDoorway)))
+				if (!(specialRoom && createSpecialRoom != null && createSpecialRoom(emptyDoorway)))
 					fillDoorway(emptyDoorway, set);
 			}
 		}

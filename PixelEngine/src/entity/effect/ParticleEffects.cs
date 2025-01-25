@@ -116,7 +116,7 @@ public static unsafe class ParticleEffects
 
 	public static AnimatedEffect CreateCoinBlinkEffect()
 	{
-		return new AnimatedEffect(Resource.GetTexture("sprites/coin_collect.png", false), 15);
+		return new AnimatedEffect(Resource.GetTexture("sprites/coin_collect.png", false), 0.2f);
 	}
 
 	public static ParticleEffect CreatePotionExplodeEffect(Vector3 color)

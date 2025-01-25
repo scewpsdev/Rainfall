@@ -40,11 +40,23 @@ public class Blacksmith : NPC, WorldEventListener
 	public override void init(Level level)
 	{
 		setOneTimeInititalDialogue("""
-			A thousand souls, and yet none strong enough to escape this \bwretched\0 place. What makes you think you'll fare any better?
+			Another wanderer poking their nose in places it don't belong.
+			If you have no interest in my wares keep walking. You disturb my focus.
 			""")?.addCallback(() =>
 		{
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
 		});
+
+		if (initialDialogue == null)
+		{
+			setInititalDialogue("""
+				Take what you need, if you can bear the weight.
+				""");
+		}
+
+		addOneTimeDialogue("""
+			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
+			""");
 
 		addDialogue("""
 			Hmm?
@@ -67,15 +79,37 @@ public class Blacksmith : NPC, WorldEventListener
 	public void onBossKilled(Mob boss)
 	{
 		clearShop();
-		populateShop(GameState.instance.generator.random, 5, 5, boss.level.avgLootValue * 1.5f, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(GameState.instance.generator.random, 5, 10, boss.level.avgLootValue * 1.5f, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 		buysItems = true;
-		canUpgrade = true;
 
-		if (initialDialogue == null)
+		if (GameState.instance.areaCaves.Contains(boss.level))
 		{
 			setInititalDialogue("""
-				Take what you need, if you can bear the weight.
+				Guess I could see about sharpening that blade of yours.
+				Go on, let me have a look.
 				""");
 		}
+		else if (GameState.instance.areaMines.Contains(boss.level))
+		{
+			setInititalDialogue("""
+				Still alive, eh?
+				Let's see about getting that gear of yours in shape.
+				""");
+		}
+		else if (GameState.instance.areaDungeons.Contains(boss.level))
+		{
+			setInititalDialogue("""
+				Serious about this, huh? Reckon you might even stand a chance.
+				Now give me your weapons.
+				""");
+			addDialogue("""
+				Back when the royal knights came to me, they wanted weapons that could slay giants.
+				Look where it got them.
+				\1Promise me you will do better...
+				Ah, don't listen to me.
+				""");
+		}
+
+		canUpgrade = true;
 	}
 }

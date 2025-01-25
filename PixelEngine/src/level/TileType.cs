@@ -43,6 +43,8 @@ public class TileType
 	public static TileType wood;
 	public static TileType bricks;
 	public static TileType rock;
+	public static TileType leaf;
+	public static TileType tree;
 
 
 	static TileType()
@@ -93,7 +95,7 @@ public class TileType
 			name = "stone_path",
 			color = 0xFF333333,
 			particleColor = 0xFF838dad,
-			health = 1,
+			health = 5,
 			sprites = [new Sprite(tileset, 4, 7)],
 			left = [new Sprite(tileset, 3, 7)],
 			right = [new Sprite(tileset, 5, 7)],
@@ -181,6 +183,36 @@ public class TileType
 				new Sprite(tileset, 14, 24),
 				new Sprite(tileset, 15, 24),
 			],
+		});
+		AddTileType(leaf = new TileType()
+		{
+			name = "leaf",
+			color = 0xFF328459,
+			isSolid = true,
+			health = 1,
+			particleColor = 0xFF328459,
+			sprites = [
+				new Sprite(tileset, 4, 28),
+			],
+			left = [new Sprite(tileset, 3, 28)],
+			right = [new Sprite(tileset, 5, 28)],
+			bottom = [new Sprite(tileset, 4, 29)],
+			top = [new Sprite(tileset, 4, 27)],
+		});
+		AddTileType(tree = new TileType()
+		{
+			name = "tree",
+			color = 0xFF452925,
+			isSolid = true,
+			health = 4,
+			particleColor = 0xFF452925,
+			sprites = [
+				new Sprite(tileset, 4, 31),
+			],
+			left = [new Sprite(tileset, 3, 31)],
+			right = [new Sprite(tileset, 5, 31)],
+			bottom = [new Sprite(tileset, 4, 32)],
+			top = [new Sprite(tileset, 4, 30)],
 		});
 	}
 
