@@ -14,7 +14,7 @@ public class Bread : Item
 		displayName = "Bread";
 		stackable = true;
 
-		value = 8;
+		value = 6;
 
 		sprite = new Sprite(tileset, 7, 2);
 

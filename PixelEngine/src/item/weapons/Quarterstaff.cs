@@ -16,7 +16,8 @@ public class Quarterstaff : Weapon
 		baseDamage = 1.0f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 2.5f;
-		attackAngle = MathF.PI * 2;
+		attackStartAngle = 1.25f * MathF.PI;
+		attackEndAngle = -0.75f * MathF.PI;
 		attackCooldown = 0.5f;
 		twoHanded = true;
 		secondaryChargeTime = 0.3f;
@@ -34,9 +35,9 @@ public class Quarterstaff : Weapon
 		blockSound = woodHit;
 	}
 
-	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
-		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
 		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : idx % 2 == 1 ? AttackAnim.Stab : AttackAnim.SwingOverhead;
 	}
 

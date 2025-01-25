@@ -226,6 +226,14 @@ public class GameState : State
 		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
 
 
+		/*
+		level = null;
+		switchLevel(areaMines[4], areaMines[4].entrance.getSpawnPoint());
+		levelSwitchTime = -1;
+		return;
+		*/
+
+
 		if (save.isDaily)
 		{
 			level = null;

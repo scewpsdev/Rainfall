@@ -23,22 +23,23 @@ public class Scimitar : Weapon
 
 		sprite = new Sprite(tileset, 5, 3);
 		renderOffset.x = 0.2f;
+		renderOffset.y = -0.2f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 
-	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
-		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
 		if (idx % 2 == 0)
 		{
-			startAngle = -0.25f * MathF.PI;
-			endAngle = 0.75f * MathF.PI;
+			startAngle = 0.75f * MathF.PI;
+			endAngle = -0.75f * MathF.PI;
 			swingDir = 1;
 		}
 		else
 		{
-			startAngle = -0.75f * MathF.PI;
-			endAngle = 0.25f * MathF.PI;
+			startAngle = 0.25f * MathF.PI;
+			endAngle = -1 * MathF.PI;
 			swingDir = 1;
 		}
 	}

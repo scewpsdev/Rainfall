@@ -165,15 +165,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		rect = new FloatRect(-1, 0, 2, 2);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 0, 0, 32, 0, 4, 4, true);
-		animator.addAnimation("look_up", 4 * 32, 0, 32, 0, 4, 4, true);
-		animator.addAnimation("run", 8 * 32, 0, 32, 0, 8, 12, true);
-		animator.addAnimation("jump", 16 * 32, 0, 32, 0, 2, 1, true);
-		animator.addAnimation("fall", 18 * 32, 0, 32, 0, 3, 10, true);
-		animator.addAnimation("climb", 21 * 32, 0, 32, 0, 2, 4, true);
-		animator.addAnimation("dead", 23 * 32, 0, 32, 0, 1, 12, true);
-		animator.addAnimation("dead_falling", 24 * 32, 0, 32, 0, 1, 12, true);
-		animator.addAnimation("stun", 25 * 32, 0, 32, 0, 1, 1, true);
+		animator.addAnimation("idle", 4, 1, true);
+		animator.addAnimation("look_up", 4, 1, true);
+		animator.addAnimation("run", 8, 0.666f, true);
+		animator.addAnimation("jump", 2, 2, true);
+		animator.addAnimation("fall", 3, 0.333f, true);
+		animator.addAnimation("climb", 2, 0.5f, true);
+		animator.addAnimation("dead", 1, 1, true);
+		animator.addAnimation("dead_falling", 1, 1, true);
+		animator.addAnimation("stun", 1, 1, true);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
@@ -936,11 +936,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return false;
 	}
 
-	void stun()
+	public void stun()
 	{
 		isStunned = true;
 		stunTime = Time.currentTime;
 		addStatusEffect(new StunStatus(STUN_DURATION));
+		if (actions.currentAction != null)
+			actions.currentAction.cancel();
 	}
 
 	void onDeath(Entity by, string byName)
@@ -1056,9 +1058,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		playerLevel++;
 
 		if (playerLevel % 4 == 0)
+		{
 			maxHealth += 0.5f;
-		else if (playerLevel % 4 == 2)
 			maxMana += 0.5f;
+		}
 
 		availableStatUpgrades++;
 		//hp++;
@@ -1515,21 +1518,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			Span<HitData> hits = new HitData[16];
-			int numHits = level.overlap(position + collider.min, position + collider.max, hits, FILTER_MOB);
-			for (int i = 0; i < numHits; i++)
-			{
-				if (hits[i].entity != null && hits[i].entity is Mob)
-				{
-					Mob mob = hits[i].entity as Mob;
-					if (hit(mob.damage, mob, mob.handItem))
-					{
-						if (mob.ai != null)
-							mob.ai.onAttacked(this);
-					}
-				}
-			}
-
 			currentAttackInput = null;
 			if (!isStunned && numOverlaysOpen == 0)
 			{
@@ -1650,7 +1638,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 								}
 								else
 								{
-									if (actions.currentAction == null || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
+									if (actions.currentAction == null && attackInput.isPressed(true) || actions.actionQueue.Count == 1 && actions.currentAction.elapsedTime > 0.8f * actions.currentAction.duration)
 									{
 										if (handItem.use(this))
 											removeItemSingle(handItem);
@@ -1951,6 +1939,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	void renderHand(bool mainHand, float layer, Vector2 handPosition, float handRotation, bool flip)
 	{
+		if (!mainHand)
+			layer += 0.0001f;
+
 		Vector4 handColor = 0xFF282828;
 		if (getArmorItem(ArmorSlot.Gloves, out int gloveSlot))
 			handColor = passiveItems[gloveSlot].gloveColor;
@@ -1996,8 +1987,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
 			{
-				if (actions.currentAction.renderWeapon)
+				if (actions.currentAction.renderWeapon != null)
 				{
+					item = actions.currentAction.renderWeapon;
 					Matrix weaponTransform = actions.currentAction.getItemTransform(this);
 					Renderer.DrawSprite(item.size.x, item.size.y, Matrix.CreateTranslation(position.x, position.y, layer) * weaponTransform, item.sprite, color);
 
@@ -2047,7 +2039,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						particles.layer = layer - 0.01f;
 					}
 				}
-				else if (actions.currentAction == null || !actions.currentAction.renderWeapon)
+				else if (actions.currentAction == null || actions.currentAction.renderWeapon == null)
 				{
 					if (renderArms)
 					{
@@ -2135,7 +2127,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandItem.render(this);
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
-				if (passiveItems[i].ingameSprite != null && show && (passiveItems[i].armorSlot != ArmorSlot.Gloves || renderArms && (actions.currentAction == null || !actions.currentAction.renderWeapon)))
+				if (passiveItems[i].ingameSprite != null && show && (passiveItems[i].armorSlot != ArmorSlot.Gloves || renderArms && (actions.currentAction == null || actions.currentAction.renderWeapon == null)))
 					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}
@@ -2190,6 +2182,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		get => health > 0;
 	}
+
+	public Vector2 center => position + collider.center;
 
 	public float equipLoadModifier => MathF.Exp(-getTotalEquipLoad() * 0.02f);
 

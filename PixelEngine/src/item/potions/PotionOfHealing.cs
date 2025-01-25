@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HealEffect : PotionEffect
+public class HealPotionEffect : PotionEffect
 {
 	public float amount;
 	float duration;
 
-	public HealEffect(float amount = 1.5f, float duration = 2)
+	public HealPotionEffect(float amount = 1.5f, float duration = 1)
 		: base("Healing", 23, new Sprite(Item.tileset, 7, 0), 0xFFFF4D40)
 	{
 		this.amount = amount;
@@ -46,13 +46,13 @@ public class PotionOfHealing : Potion
 	public PotionOfHealing(float amount)
 		: base("potion_of_healing")
 	{
-		addEffect(new HealEffect(amount));
+		addEffect(new HealPotionEffect(amount));
 
 		displayName = "Potion of Healing";
 		stackable = true;
 		canDrop = true;
 
-		value = 16;
+		value = 20;
 		throwableChance = 0.0f;
 
 		sprite = new Sprite(tileset, 7, 0);
@@ -66,6 +66,6 @@ public class PotionOfHealing : Potion
 	public override void upgrade()
 	{
 		base.upgrade();
-		(effects[0] as HealEffect).amount += 0.5f;
+		(effects[0] as HealPotionEffect).amount += 0.5f;
 	}
 }

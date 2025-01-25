@@ -55,7 +55,7 @@ public class Infusion
 {
 	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.1f };
 	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.8f };
-	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, damageMultiplier = 0.95f };
+	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.25f, weightMultiplier = 0.5f, damageMultiplier = 0.8f };
 	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 0.8f, weightMultiplier = 1.5f, damageMultiplier = 1.25f };
 	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f };
 	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.8f };
@@ -116,9 +116,9 @@ public abstract class Item
 {
 	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("sprites/items.png", false), 16, 16);
 
-	public static Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
+	public static Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 7);
 	public static Sound[] parryHit = [Resource.GetSound("sounds/parry.ogg")];
-	public static Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 6);
+	public static Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 7);
 
 	public static Sound[] defaultPickup = [Resource.GetSound("sounds/pickup.ogg")];
 	public static Sound[] weaponPickup = Resource.GetSounds("sounds/pickup_weapon", 2);
@@ -174,8 +174,10 @@ public abstract class Item
 		}
 	}
 
-	public float attackAngle = 1.5f * MathF.PI;
-	public float attackAngleOffset = -0.75f * MathF.PI;
+	//public float attackAngle = 1.5f * MathF.PI;
+	//public float attackAngleOffset = -0.75f * MathF.PI;
+	public float attackStartAngle = 0.75f * MathF.PI;
+	public float attackEndAngle = -0.75f * MathF.PI;
 
 	protected float baseAttackRate = 2.0f;
 	public float attackRate
@@ -239,6 +241,8 @@ public abstract class Item
 	public AttackAnim anim = AttackAnim.SwingSideways;
 	public float attackAcceleration = 3;
 	public float attackCooldown = 1.0f;
+	public bool customAttackRender = false;
+	public float postAttackLinger = 0.25f;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.0f, 0.0f);
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
@@ -374,7 +378,7 @@ public abstract class Item
 				return "Uncommon";
 			if (r >= 0.005f)
 				return "Rare";
-			if (r >= 0.001f)
+			if (r >= 0.0005f)
 				return "Exceedingly Rare";
 			return "Legendary";
 		}
@@ -393,7 +397,7 @@ public abstract class Item
 				return UIColors.TEXT_RARITY_UNCOMMON;
 			if (r >= 0.005f)
 				return UIColors.TEXT_RARITY_RARE;
-			if (r >= 0.001f)
+			if (r >= 0.0005f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
@@ -636,7 +640,7 @@ public abstract class Item
 		InitType(new AstralScepter());
 		InitType(new MissileSpell());
 		InitType(new WoodenShield());
-		InitType(new Waraxe());
+		InitType(new BattleAxe());
 		InitType(new MoonbladeAxe());
 		InitType(new Shortsword());
 		InitType(new IronArmor());
@@ -672,6 +676,7 @@ public abstract class Item
 		InitType(new BlacksteelGlaive());
 		InitType(new RingOfThorns());
 		InitType(new AdventurersHoodBlue());
+		InitType(new Flail());
 	}
 
 	static void InitType(Item item)

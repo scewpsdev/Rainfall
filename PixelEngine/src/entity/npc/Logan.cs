@@ -21,7 +21,7 @@ public class Logan : NPC
 
 		sprite = new Sprite(Resource.GetTexture("sprites/merchant4.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
+		animator.addAnimation("idle", 2, 1, true);
 		animator.setAnimation("idle");
 	}
 

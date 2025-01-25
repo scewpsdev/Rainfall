@@ -15,10 +15,10 @@ public class SkeletonArcher : Mob
 
 		sprite = new Sprite(Resource.GetTexture("sprites/skeleton.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 1, 1, true);
-		animator.addAnimation("charge", 0, 0, 16, 0, 1, 1, true);
-		animator.addAnimation("run", 1 * 16, 0, 16, 0, 4, 6, true);
-		animator.addAnimation("dead", 5 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation_("idle", 0, 0, 16, 0, 1, 1, true);
+		animator.addAnimation_("charge", 0, 0, 16, 0, 1, 1, true);
+		animator.addAnimation_("run", 1 * 16, 0, 16, 0, 4, 6, true);
+		animator.addAnimation_("dead", 5 * 16, 0, 16, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.3f, 0, 0.6f, 0.75f);

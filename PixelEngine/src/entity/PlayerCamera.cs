@@ -131,10 +131,10 @@ public class PlayerCamera : Entity
 		for (int i = 0; i < screenShakes.Count; i++)
 		{
 			float elapsed = (Time.currentTime - screenShakes[i].startTime) / 1e9f;
-			float amplitude = MathF.Exp(-elapsed * screenShakes[i].falloff) * screenShakes[i].intensity;
+			float amplitude = MathF.Exp(-elapsed * 3) * screenShakes[i].intensity;
 
 			float distance = (screenShakes[i].position - position).length;
-			float attenuation = MathF.Exp(-distance * 0.3f);
+			float attenuation = MathF.Exp(-distance * 0.1f * screenShakes[i].falloff);
 			amplitude *= attenuation;
 
 			Vector2 value = new Vector2(simplex.sample1f(elapsed * 20), simplex.sample1f(-elapsed * 20)) * amplitude;

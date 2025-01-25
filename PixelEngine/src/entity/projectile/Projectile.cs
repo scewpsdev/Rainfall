@@ -83,7 +83,7 @@ public class Projectile : Entity
 		offset = Vector2.Lerp(offset, Vector2.Zero, 5 * Time.deltaTime);
 
 		trail.update();
-		trail.setPosition(position);
+		trail.setPosition(position + offset);
 
 		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		if (hit == null)

@@ -20,8 +20,9 @@ public class Zweihander : Weapon
 		attackAcceleration = 1;
 		twoHanded = true;
 		baseWeight = 2.5f;
-		attackAngleOffset = -0.25f * MathF.PI;
-		attackAngle = 1.25f * MathF.PI;
+
+		attackEndAngle = -0.25f * MathF.PI;
+		attackStartAngle = MathF.PI;
 		//doubleBladed = true;
 
 		value = 18;

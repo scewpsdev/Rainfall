@@ -107,6 +107,13 @@ public static unsafe class ParticleEffects
 		return effect;
 	}
 
+	public static ParticleEffect CreateSmithEffect()
+	{
+		ParticleEffect effect = new ParticleEffect(null, "effects/smith.rfs");
+		effect.collision = true;
+		return effect;
+	}
+
 	public static AnimatedEffect CreateCoinBlinkEffect()
 	{
 		return new AnimatedEffect(Resource.GetTexture("sprites/coin_collect.png", false), 15);

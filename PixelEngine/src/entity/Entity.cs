@@ -54,6 +54,8 @@ public class Entity
 	public bool platformCollider = false;
 	public uint filterGroup = FILTER_DEFAULT;
 
+	public FloatRect[] actionColliders;
+
 	public string name;
 	public string displayName;
 	public string nameSubtitle;

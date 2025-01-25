@@ -14,7 +14,7 @@ public class Cheese : Item
 		displayName = "Cheese";
 		stackable = true;
 
-		value = 12;
+		value = 8;
 
 		sprite = new Sprite(tileset, 13, 0);
 

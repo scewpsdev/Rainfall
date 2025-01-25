@@ -18,33 +18,66 @@ public class Raya : Mob
 		poise = 10;
 		speed = 1.5f;
 		damage = 2;
-		jumpPower = 16;
-		gravity = -30;
+		jumpPower = 18;
+		gravity = -35;
 		awareness = 1;
 		itemDropChance = 2;
 		itemDropValueMultiplier = 2;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/mob/gardens/raya.png", false), 0, 0, 64, 64);
 		collider = new FloatRect(-0.25f, 0, 0.5f, 1.4f);
-		rect = new FloatRect(-2, 0, 4, 4);
+		rect = new FloatRect(-2, -1, 4, 4);
 
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 64, 0, 2, 1, true);
-		animator.addAnimation("run", 2 * 64, 0, 64, 0, 8, 8, true);
-		animator.addAnimation("attack_dash_charge", 10 * 64, 0, 64, 0, 3, 3, false);
-		animator.addAnimation("attack_dash", 13 * 64, 0, 64, 0, 2, 6, false);
-		animator.addAnimation("attack_dash_cooldown", 15 * 64, 0, 64, 0, 4, 3, false);
+		animator.addAnimation("idle", 2, 2, true);
+		animator.addAnimation("run", 8, 1, true);
+		animator.addAnimation("dash0", 3, 1, false);
+		animator.addAnimation("dash1", 1, 1, false);
+		animator.addAnimation("dash2", 6, 1, false);
+		animator.addAnimation("jump0", 2, 1, false);
+		animator.addAnimation("jump1", 1, 1, false);
+		animator.addAnimation("jump2", 1, 1, false);
 		animator.setAnimation("idle");
 
 		AdvancedAI ai = new AdvancedAI(this);
 		this.ai = ai;
 
-		const float dashDuration = 0.33f;
-		const float dashDistance = 8;
-		const float dashSpeed = dashDistance / dashDuration;
-		const float dashTriggerDistance = 6;
-		const float dashCharge = 0.5f;
-		const float dashCooldown = 0.7f;
-		AIAction dashAttack = ai.addAction("attack_dash", dashDuration, "attack_dash_charge", dashCharge, "attack_dash_cooldown", dashCooldown, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
+		ai.hesitation = 1;
+
+		{
+			const float dashDuration = 0.2f;
+			const float dashDistance = 8;
+			const float dashSpeed = dashDistance / dashDuration;
+			const float dashTriggerDistance = 6;
+			const float dashCharge = 0.8f;
+			const float dashCooldown = 0.7f;
+
+			AIAction dashAttack = ai.addAction("dash1", dashDuration, "dash0", dashCharge, "dash2", dashCooldown, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
+		}
+
+		{
+			const float jumpCharge = 0.5f;
+			const float jumpCooldown = 0.7f;
+			const float jumpAttackSpeed = 12.0f;
+			const float jumpTriggerDistance = 24;
+
+			AIAction jumpAttack = ai.addAction("jump1", 100, "jump0", jumpCharge, "jump2", jumpCooldown, jumpAttackSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < jumpTriggerDistance && isGrounded && ai.canSeeTarget);
+			jumpAttack.onStarted = (AIAction action) =>
+			{
+				ai.mob.inputJump = true;
+				jumpAttack.walkSpeed = MathF.Abs(ai.target.position.x - position.x) * 0.9f;
+				speed = jumpAttack.walkSpeed;
+			};
+			jumpAttack.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
+			{
+				return !(!ai.mob.inputJump && ai.mob.isGrounded);
+			};
+			jumpAttack.onFinished = (AIAction action) =>
+			{
+				TileType tile = GameState.instance.level.getTile(ai.mob.position - new Vector2(0, 0.5f));
+				if (tile != null)
+					GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Up, 6, 16, MathHelper.ARGBToVector(tile.particleColor).xyz), ai.mob.position + ai.mob.direction * Vector2.Right);
+			};
+		}
 	}
 }

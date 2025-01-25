@@ -19,7 +19,7 @@ struct StuckProjectile
 
 public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 {
-	static Sound[] mobHit = Resource.GetSounds("sounds/flesh", 2);
+	static Sound[] mobHit = Resource.GetSounds("sounds/flesh", 4);
 	static Sound[] mobDeath = Resource.GetSounds("sounds/death", 9);
 
 	static Mob()
@@ -435,6 +435,55 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 
 		//actions.update();
+
+
+		{
+			Span<HitData> hits = new HitData[4];
+			int numHits = level.overlap(position + collider.min, position + collider.max, hits, FILTER_PLAYER);
+			for (int i = 0; i < numHits; i++)
+			{
+				if (hits[i].entity != null && hits[i].entity is Player)
+				{
+					Player player = hits[i].entity as Player;
+					if (player.hit(damage, this, handItem))
+					{
+						if (ai != null)
+							ai.onAttacked(player);
+					}
+				}
+			}
+		}
+
+		if (actionColliders != null)
+		{
+			foreach (FloatRect actionCollider in actionColliders)
+			{
+				Vector2 min = actionCollider.min;
+				Vector2 max = actionCollider.max;
+
+				if (direction == -1)
+				{
+					MathHelper.Swap(ref min.x, ref max.x);
+					min.x *= -1;
+					max.x *= -1;
+				}
+
+				Span<HitData> hits = new HitData[4];
+				int numHits = level.overlap(position + min, position + max, hits, FILTER_PLAYER);
+				for (int i = 0; i < numHits; i++)
+				{
+					if (hits[i].entity != null && hits[i].entity is Player)
+					{
+						Player player = hits[i].entity as Player;
+						if (player.hit(damage, this, handItem))
+						{
+							if (ai != null)
+								ai.onAttacked(player);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void updateAnimation()
@@ -500,4 +549,6 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		get => health > 0;
 	}
+
+	public Vector2 center => position + collider.center;
 }

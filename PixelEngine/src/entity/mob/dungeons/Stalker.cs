@@ -40,8 +40,8 @@ public class Stalker : Mob
 
 		sprite = new Sprite(Resource.GetTexture("sprites/mob/dungeons/stalker.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 4, true);
-		animator.addAnimation("dead", 1 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("idle", 1, 1, true);
+		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);

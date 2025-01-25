@@ -150,9 +150,13 @@ public class Coin : Entity
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 			velocity.x *= -0.5f;
 		if ((collisionFlags & Level.COLLISION_Y) != 0)
+		{
+			if (MathF.Abs(velocity.y) > 4)
+				velocity.x += MathHelper.RandomFloat(-2, 2);
 			velocity.y *= -0.5f;
+		}
 		if (collisionFlags != 0)
-			rotationSpeed = MathHelper.RandomFloat(-1, 1);
+			rotationSpeed = MathHelper.RandomFloat(-2, 2);
 
 		position += displacement;
 

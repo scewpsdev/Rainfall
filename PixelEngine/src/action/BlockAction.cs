@@ -19,7 +19,7 @@ public class BlockAction : EntityAction
 	{
 		this.shield = shield;
 
-		renderWeapon = true;
+		renderWeapon = shield;
 
 		//duration = shield.blockDuration;
 		duration = shield.type == ItemType.Shield ? 1000 : shield.blockDuration;

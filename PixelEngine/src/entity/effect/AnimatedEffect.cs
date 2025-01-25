@@ -22,18 +22,18 @@ public class AnimatedEffect : Entity
 	long startTime;
 
 
-	public AnimatedEffect(Texture texture, int fps, Entity follow = null)
+	public AnimatedEffect(Texture texture, float duration, Entity follow = null)
 	{
 		this.follow = follow;
+		this.duration = duration;
 
 		sprite = new Sprite(texture, 0, 0, texture.height, texture.height);
 		animator = new SpriteAnimator();
-		animator.addAnimation("default", 0, 0, texture.height, 0, texture.width / texture.height, fps, false);
+		animator.addAnimation("default", texture.width / texture.height, duration, false);
 		animator.setAnimation("default");
 
 		float size = texture.height / 16.0f;
 		rect = new FloatRect(-0.5f * size, -0.5f * size, size, size);
-		duration = (texture.width / texture.height) / (float)fps;
 	}
 
 	public override void init(Level level)

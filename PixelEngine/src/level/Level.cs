@@ -210,7 +210,10 @@ public class Level
 		}
 
 		if (lightmap != null)
+		{
 			Renderer.graphics.destroyTexture(lightmap);
+			lightmap = null;
+		}
 	}
 
 	public void addEntity(Entity entity, bool init = true)

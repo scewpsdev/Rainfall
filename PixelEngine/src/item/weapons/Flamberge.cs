@@ -17,8 +17,9 @@ public class Flamberge : Weapon
 		baseAttackRange = 1.7f;
 		baseAttackRate = 1.0f;
 		twoHanded = true;
-		attackAngleOffset = -0.25f * MathF.PI;
-		attackAngle = MathF.PI;
+		attackStartAngle = 0.75f * MathF.PI;
+		attackEndAngle = -0.25f * MathF.PI;
+		anim = AttackAnim.SwingOverhead;
 
 		value = 29;
 

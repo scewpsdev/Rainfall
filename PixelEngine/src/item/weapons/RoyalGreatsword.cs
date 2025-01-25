@@ -28,9 +28,9 @@ public class RoyalGreatsword : Weapon
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 
-	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
-		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
 		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : AttackAnim.Stab;
 	}
 }

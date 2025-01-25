@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 public class Backpack : Item
 {
 	int bonusActiveSlots = 2;
-	int bonusStorageSlots = 3;
+	int bonusStorageSlots = 4;
 
 
 	public Backpack()

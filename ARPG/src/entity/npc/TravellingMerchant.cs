@@ -17,7 +17,7 @@ public class TravellingMerchant : NPC
 
 		sprite = new Sprite(Resource.GetTexture("sprites/merchant2.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 1, true);
+		animator.addAnimation_("idle", 0, 0, 16, 0, 2, 1, true);
 		animator.setAnimation("idle");
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))

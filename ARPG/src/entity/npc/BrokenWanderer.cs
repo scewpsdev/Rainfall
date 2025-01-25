@@ -16,7 +16,7 @@ public class BrokenWanderer : NPC
 
 		sprite = new Sprite(Resource.GetTexture("sprites/npc/traveller.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 0.7f, true);
+		animator.addAnimation_("idle", 0, 0, 16, 0, 2, 0.7f, true);
 		animator.setAnimation("idle");
 	}
 

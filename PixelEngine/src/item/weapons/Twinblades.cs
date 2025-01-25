@@ -15,8 +15,9 @@ public class Twinblades : Weapon
 
 		baseDamage = 1.5f;
 		baseAttackRange = 1.0f;
-		baseAttackRate = 1.2f;
-		attackAngle = MathF.PI * 4;
+		baseAttackRate = 1.0f;
+		attackStartAngle = 2.75f * MathF.PI;
+		attackEndAngle = -1.25f * MathF.PI;
 		twoHanded = true;
 		doubleBladed = true;
 		baseWeight = 2;

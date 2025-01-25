@@ -24,7 +24,6 @@ public class UnconciousAction : EntityAction
 		animation = "dead";
 
 		turnToCrosshair = false;
-		renderWeapon = false;
 		canMove = false;
 
 		duration = 1000;

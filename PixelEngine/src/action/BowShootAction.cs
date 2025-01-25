@@ -24,7 +24,7 @@ public class BowShootAction : EntityAction
 		this.weapon = weapon;
 		this.arrow = arrow;
 
-		renderWeapon = true;
+		renderWeapon = weapon;
 
 		shootSound = Resource.GetSound("sounds/bow_shoot.ogg");
 	}

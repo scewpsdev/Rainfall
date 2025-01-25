@@ -22,7 +22,7 @@ public class RatNPC : NPC
 
 		sprite = new Sprite(Resource.GetTexture("sprites/merchant3.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 2, true);
+		animator.addAnimation("idle", 2, 1, true);
 		animator.setAnimation("idle");
 	}
 

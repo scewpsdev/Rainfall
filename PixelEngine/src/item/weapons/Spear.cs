@@ -13,7 +13,7 @@ public class Spear : Weapon
 	{
 		displayName = "Spear";
 
-		baseDamage = 2;
+		baseDamage = 1.5f;
 		baseAttackRange = 2.0f;
 		baseAttackRate = 1.6f;
 		baseWeight = 1.5f;

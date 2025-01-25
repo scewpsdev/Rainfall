@@ -28,11 +28,11 @@ public class Raya : Mob
 		rect = new FloatRect(-2, 0, 4, 4);
 
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 64, 0, 2, 1, true);
-		animator.addAnimation("run", 2 * 64, 0, 64, 0, 8, 8, true);
-		animator.addAnimation("attack_dash_charge", 10 * 64, 0, 64, 0, 3, 3, false);
-		animator.addAnimation("attack_dash", 13 * 64, 0, 64, 0, 2, 6, false);
-		animator.addAnimation("attack_dash_cooldown", 15 * 64, 0, 64, 0, 4, 3, false);
+		animator.addAnimation_("idle", 0, 0, 64, 0, 2, 1, true);
+		animator.addAnimation_("run", 2 * 64, 0, 64, 0, 8, 8, true);
+		animator.addAnimation_("attack_dash_charge", 10 * 64, 0, 64, 0, 3, 3, false);
+		animator.addAnimation_("attack_dash", 13 * 64, 0, 64, 0, 2, 6, false);
+		animator.addAnimation_("attack_dash_cooldown", 15 * 64, 0, 64, 0, 4, 3, false);
 		animator.setAnimation("idle");
 
 		AdvancedAI ai = new AdvancedAI(this);

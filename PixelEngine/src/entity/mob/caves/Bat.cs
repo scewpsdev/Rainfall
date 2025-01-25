@@ -23,9 +23,9 @@ public class Bat : Mob
 		collider = new FloatRect(-0.4f, -0.4f, 0.8f, 0.8f);
 		sprite = new Sprite(Resource.GetTexture("sprites/bat.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 3, 6, true);
-		animator.addAnimation("dead", 3 * 16, 0, 16, 0, 1, 1, true);
-		animator.addAnimation("hanging", 4 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation("idle", 3, 0.5f, true);
+		animator.addAnimation("dead", 1, 1, true);
+		animator.addAnimation("hanging", 1, 1, true);
 		animator.setAnimation("idle");
 
 		rect = new FloatRect(-0.5f, -0.5f, 1, 1);

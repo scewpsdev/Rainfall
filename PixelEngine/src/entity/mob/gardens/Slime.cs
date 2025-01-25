@@ -50,7 +50,7 @@ public class Slime : Mob
 		spriteColor = 0xFFce584e;
 
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 6, true);
+		animator.addAnimation("idle", 2, 0.333f, true);
 		//animator.addAnimation("dead", 1 * 16, 0, 16, 0, 1, 1, true);
 		animator.setAnimation("idle");
 

@@ -21,8 +21,6 @@ public class DefaultWeapon : Weapon
 		baseAttackRate = 3;
 		knockback = 5;
 		anim = AttackAnim.Stab;
-		attackAngle = 1.0f * MathF.PI;
-		attackAngleOffset = -0.9f * MathF.PI;
 		actionMovementSpeed = 0.8f;
 
 		punchSprite = new Sprite(tileset, 0, 2);

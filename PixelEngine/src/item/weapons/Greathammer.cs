@@ -21,8 +21,8 @@ public class Greathammer : Weapon
 		attackAcceleration = 1;
 		twoHanded = true;
 		attackCooldown = 2.5f;
-		attackAngleOffset = 0;
-		attackAngle = MathF.PI;
+		attackStartAngle = MathF.PI;
+		attackEndAngle = 0;
 		doubleBladed = false;
 		baseWeight = 5;
 

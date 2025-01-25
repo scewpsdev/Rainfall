@@ -53,8 +53,8 @@ public class Staff : Item
 	{
 		anim = this.anim;
 		swingDir = anim != AttackAnim.Stab && doubleBladed ? idx % 2 : 0;
-		startAngle = attackAngleOffset + attackAngle;
-		endAngle = attackAngleOffset;
+		startAngle = attackStartAngle;
+		endAngle = attackEndAngle;
 	}
 
 	public override bool useSecondary(Player player)

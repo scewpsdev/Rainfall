@@ -11,13 +11,13 @@ public class PotionOfGreaterHealing : Potion
 	public PotionOfGreaterHealing()
 		: base("potion_of_greater_healing")
 	{
-		addEffect(new HealEffect(2, 3));
+		addEffect(new HealPotionEffect(2, 3));
 
 		displayName = "Potion of Greater Healing";
 		//stackable = true;
 		canDrop = true;
 
-		value = 34;
+		value = 44;
 
 		sprite = new Sprite(tileset, 7, 0);
 	}
@@ -25,6 +25,6 @@ public class PotionOfGreaterHealing : Potion
 	public override void upgrade()
 	{
 		base.upgrade();
-		(effects[0] as HealEffect).amount += 0.5f;
+		(effects[0] as HealPotionEffect).amount += 0.5f;
 	}
 }

@@ -30,9 +30,9 @@ public class BlacksteelGlaive : Weapon
 		renderOffset.x = 0.2f;
 	}
 
-	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
-		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
 		if (idx % 3 == 0)
 		{
 			anim = AttackAnim.SwingOverhead;

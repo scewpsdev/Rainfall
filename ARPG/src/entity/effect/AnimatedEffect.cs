@@ -28,7 +28,7 @@ public class AnimatedEffect : Entity
 
 		sprite = new Sprite(texture, 0, 0, texture.height, texture.height);
 		animator = new SpriteAnimator();
-		animator.addAnimation("default", 0, 0, texture.height, 0, texture.width / texture.height, fps, false);
+		animator.addAnimation_("default", 0, 0, texture.height, 0, texture.width / texture.height, fps, false);
 		animator.setAnimation("default");
 
 		float size = texture.height / 16.0f;

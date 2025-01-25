@@ -17,9 +17,9 @@ public class Leprechaun : Mob
 
 		sprite = new Sprite(Resource.GetTexture("sprites/leprechaun.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 16, 0, 2, 4, true);
-		animator.addAnimation("run", 2 * 16, 0, 16, 0, 8, 18, true);
-		animator.addAnimation("dead", 11 * 16, 0, 16, 0, 1, 1, true);
+		animator.addAnimation_("idle", 0, 0, 16, 0, 2, 4, true);
+		animator.addAnimation_("run", 2 * 16, 0, 16, 0, 8, 18, true);
+		animator.addAnimation_("dead", 11 * 16, 0, 16, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.3f, 0, 0.6f, 0.75f);

@@ -17,14 +17,14 @@ public class Golem : Mob
 
 		sprite = new Sprite(Resource.GetTexture("sprites/golem.png", false), 0, 0, 48, 48);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 48, 0, 4, 2, true);
-		animator.addAnimation("run", 4 * 48, 0, 48, 0, 4, 3, true);
-		animator.addAnimation("jump", 8 * 48, 0, 48, 0, 1, 1, false);
-		animator.addAnimation("charge", 9 * 48, 0, 48, 0, 1, 1, false);
-		animator.addAnimation("attack", 10 * 48, 0, 48, 0, 2, 6, false);
-		animator.addAnimation("cooldown", 12 * 48, 0, 48, 0, 1, 1, false);
-		animator.addAnimation("dead", 13 * 48, 0, 48, 0, 1, 1, true);
-		animator.addAnimation("dead_falling", 14 * 48, 0, 48, 0, 1, 1, true);
+		animator.addAnimation("idle", 4, 2, true);
+		animator.addAnimation("run", 4, 1, true);
+		animator.addAnimation("jump", 1, 1, false);
+		animator.addAnimation("charge", 1, 1, false);
+		animator.addAnimation("attack", 2, 1, false);
+		animator.addAnimation("cooldown", 1, 1, false);
+		animator.addAnimation("dead", 1, 1, true);
+		animator.addAnimation("dead_falling", 1, 1, true);
 		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.8f);
@@ -39,6 +39,6 @@ public class Golem : Mob
 		itemDropChance = 0.8f;
 		//relicDropChance = 0.5f;
 
-		ai = new GolemAI(this);
+		//ai = new GolemAI(this);
 	}
 }

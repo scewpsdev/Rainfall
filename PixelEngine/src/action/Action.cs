@@ -12,7 +12,7 @@ public class EntityAction
 
 	public string animation = null;
 	public bool mainHand;
-	public bool renderWeapon = false;
+	public Item renderWeapon = null;
 	public bool canMove = true;
 	public bool canJump = true;
 	public bool turnToCrosshair = true;

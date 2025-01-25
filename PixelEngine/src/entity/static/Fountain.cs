@@ -64,10 +64,10 @@ public class Fountain : Entity, Interactable
 				potionEffects.Add(new WaterEffect());
 				break;
 			case FountainEffect.Heal:
-				potionEffects.Add(new HealEffect(Random.Shared.NextSingle() * 2, 2));
+				potionEffects.Add(new HealPotionEffect(Random.Shared.NextSingle() * 2, 2));
 				break;
 			case FountainEffect.Regenerate:
-				potionEffects.Add(new HealEffect(1, 5));
+				potionEffects.Add(new HealPotionEffect(1, 5));
 				break;
 			case FountainEffect.Damage:
 				potionEffects.Add(new WaterEffect(true));

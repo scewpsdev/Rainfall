@@ -89,7 +89,7 @@ public static class CharacterInfoPanel
 		}
 		string formatValue(float value)
 		{
-			return MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
+			return MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)MathF.Round(value)).ToString() : value.ToString("0.0");
 		}
 		void drawRightValue(float value, uint color = 0xFFAAAAAA)
 		{

@@ -16,13 +16,13 @@ public class GolemBoss : Mob
 
 		sprite = new Sprite(Resource.GetTexture("sprites/golem_boss.png", false), 0, 0, 64, 64);
 		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 0, 0, 64, 0, 4, 2, true);
-		animator.addAnimation("run", 4 * 64, 0, 64, 0, 4, 3, true);
-		animator.addAnimation("jump", 8 * 64, 0, 64, 0, 1, 1, false);
-		animator.addAnimation("charge", 9 * 64, 0, 64, 0, 1, 1, false);
-		animator.addAnimation("attack", 10 * 64, 0, 64, 0, 2, 6, false);
-		animator.addAnimation("cooldown", 12 * 64, 0, 64, 0, 1, 1, false);
-		animator.addAnimation("dead", 13 * 64, 0, 64, 0, 1, 1, true);
+		animator.addAnimation_("idle", 0, 0, 64, 0, 4, 2, true);
+		animator.addAnimation_("run", 4 * 64, 0, 64, 0, 4, 3, true);
+		animator.addAnimation_("jump", 8 * 64, 0, 64, 0, 1, 1, false);
+		animator.addAnimation_("charge", 9 * 64, 0, 64, 0, 1, 1, false);
+		animator.addAnimation_("attack", 10 * 64, 0, 64, 0, 2, 6, false);
+		animator.addAnimation_("cooldown", 12 * 64, 0, 64, 0, 1, 1, false);
+		animator.addAnimation_("dead", 13 * 64, 0, 64, 0, 1, 1, true);
 		animator.setAnimation("idle");
 
 		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.8f);

@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-enum NPCState
+public enum NPCState
 {
 	None = 0,
 
@@ -97,7 +97,7 @@ public abstract class NPC : Mob, Interactable
 	const int DEFAULT_DIALOGUE_SPEED = 25;
 
 
-	NPCState state = NPCState.None;
+	protected NPCState state = NPCState.None;
 	protected Player player;
 
 	protected Dialogue initialDialogue;
@@ -509,24 +509,25 @@ public abstract class NPC : Mob, Interactable
 	{
 		base.render();
 
+		Vector2 menuAnchor = GameState.instance.camera.worldToScreen(position + new Vector2(0, 2));
+
 		if (state == NPCState.Dialogue)
 		{
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
 			DialogueScreen voiceLine = currentDialogue.screens[0];
 
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
 			int width = 120;
 			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight + 4;
-			float x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
-			float y = Math.Max(pos.y - height, 2);
+			float x = Math.Min(menuAnchor.x, Renderer.UIWidth - width - 2);
+			float y = Math.Max(menuAnchor.y - height, 2);
 
 			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
 
 			// speech bubble thingy
 			for (int i = 0; i < 5; i++)
 			{
-				float xx = pos.x + 4;
+				float xx = menuAnchor.x + 4;
 				float yy = y + height + i;
 				int ww = 5 - i;
 
@@ -697,9 +698,7 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Quests");
 			options.Add("Leave");
 
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
-			int option = InteractableMenu.Render(pos, displayName, options, out bool closed, ref selectedOption);
+			int option = InteractableMenu.Render(menuAnchor, displayName, options, out bool closed, ref selectedOption);
 
 			if (option != -1)
 			{
@@ -740,8 +739,6 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.Shop)
 		{
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
 			List<Item> items = new List<Item>(shopItems.Count);
 			List<int> prices = new List<int>(shopItems.Count);
 			for (int i = 0; i < shopItems.Count; i++)
@@ -750,7 +747,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add(shopItems[i].Item2);
 			}
 
-			int choice = ItemSelector.Render(pos, "Buy", items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(menuAnchor, "Buy", items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = items[choice];
@@ -787,8 +784,6 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.SellMenu)
 		{
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
 			List<Item> items = new List<Item>(player.items.Count);
 			List<int> prices = new List<int>(player.items.Count);
 			for (int i = 0; i < player.items.Count; i++)
@@ -797,7 +792,7 @@ public abstract class NPC : Mob, Interactable
 				prices.Add(Math.Max((int)MathF.Round(player.items[i].value * buyTax), 1));
 			}
 
-			int itemIdx = ItemSelector.Render(pos, "Sell", items, prices, -player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			int itemIdx = ItemSelector.Render(menuAnchor, "Sell", items, prices, -player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (itemIdx != -1)
 			{
 				Item item = items[itemIdx];
@@ -831,9 +826,7 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.CraftingMenu)
 		{
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
-			int choice = ItemSelector.Render(pos, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(menuAnchor, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				Item item = craftingItems[choice];
@@ -871,12 +864,10 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.UpgradeMenu)
 		{
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
 			Item upgradedItem = upgradeItems[selectedItem].copy();
 			upgradedItem.upgrade();
 
-			int choice = ItemSelector.Render(pos, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(menuAnchor, "Upgrade", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				if (upgradePrices[selectedItem] <= player.money)
@@ -991,8 +982,6 @@ public abstract class NPC : Mob, Interactable
 		}
 		else if (state == NPCState.QuestList)
 		{
-			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
-
 			List<string> labels = new List<string>();
 			if (QuestManager.getQuestList(name, out List<Quest> quests))
 			{
@@ -1030,7 +1019,7 @@ public abstract class NPC : Mob, Interactable
 
 				return (int)MathF.Round(y - top);
 			};
-			NPCSelector.Render(pos, "Quests", labels, renderInfoPanel, out bool secondary, out bool closed, ref selectedItem);
+			NPCSelector.Render(menuAnchor, "Quests", labels, renderInfoPanel, out bool secondary, out bool closed, ref selectedItem);
 
 			if (closed)
 				initMenu();

@@ -20,7 +20,7 @@ public class AIAction
 	public float walkSpeed;
 	public float chargeSpeed;
 	public float cooldownSpeed;
-	public FloatRect actionCollider;
+	public FloatRect[] actionColliders;
 
 	public Func<AIAction, Vector2, float, bool> requirementsMet;
 	public Action<AIAction> onStarted;
@@ -48,11 +48,11 @@ public class AdvancedAI : AI
 	List<Vector2i> currentPath = new List<Vector2i>();
 
 	float walkSpeed;
-	FloatRect collider;
 
 	List<AIAction> actions = new List<AIAction>();
 	AIAction currentAction = null;
-	protected int hesitation = 0;
+	AIAction lastAction = null;
+	public int hesitation = 0;
 
 	long chargeTime;
 	long actionTime;
@@ -71,8 +71,6 @@ public class AdvancedAI : AI
 		loseTime = 3.0f;
 
 		walkSpeed = mob.speed;
-
-		collider = mob.collider;
 	}
 
 	public AIAction addAction(string animation, float duration, string chargeAnimation, float chargeTime, string cooldownAnimation, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, Vector2, bool> onAction = null, Action<AIAction> onFinished = null)
@@ -108,11 +106,25 @@ public class AdvancedAI : AI
 		return jump;
 	}
 
+	public AIAction getAction(string name)
+	{
+		foreach (AIAction action in actions)
+		{
+			if (action.animation == name)
+				return action;
+		}
+		return null;
+	}
+
 	void beginAction()
 	{
 		state = AIState.Action;
 		actionTime = Time.currentTime;
 		mob.speed = currentAction.walkSpeed;
+
+		if (currentAction.actionColliders != null)
+			mob.actionColliders = currentAction.actionColliders;
+
 		if (currentAction.onStarted != null)
 			currentAction.onStarted(currentAction);
 	}
@@ -121,6 +133,10 @@ public class AdvancedAI : AI
 	{
 		if (currentAction.onFinished != null)
 			currentAction.onFinished(currentAction);
+
+		if (currentAction.actionColliders != null)
+			mob.actionColliders = null;
+
 		state = AIState.Cooldown;
 		cooldownTime = Time.currentTime;
 		mob.speed = walkSpeed;
@@ -130,6 +146,14 @@ public class AdvancedAI : AI
 	{
 		currentPath.Clear();
 		return GameState.instance.level.astar.run(currentTile, targetTile, currentPath, false);
+	}
+
+	public void triggerAction(AIAction action)
+	{
+		currentAction = action;
+		state = AIState.Charge;
+		chargeTime = Time.currentTime;
+		actionDirection = walkDirection;
 	}
 
 	void updateTargetFollow()
@@ -192,21 +216,30 @@ public class AdvancedAI : AI
 
 			if (!mob.isStunned)
 			{
+				uint tick = (uint)(Time.currentTime / 500000000);
+
 				List<AIAction> possibleActions = new List<AIAction>();
 				foreach (AIAction action in actions)
 				{
-					if (action.requirementsMet(action, toTarget, distance) && (Time.currentTime / 1000000000 + Hash.hash(action.animation) + Hash.hash(action.duration)) % (hesitation + 1) == 0)
+					uint h = Hash.combine(Hash.hash(tick), Hash.hash(action.animation));
+					if (action.requirementsMet(action, toTarget, distance) && h % (hesitation + 1) == 0)
 						possibleActions.Add(action);
 				}
 
 				if (possibleActions.Count > 0)
 				{
-					currentAction = possibleActions[Random.Shared.Next() % possibleActions.Count];
-					state = AIState.Charge;
-					chargeTime = Time.currentTime;
-					actionDirection = walkDirection;
-					if (currentAction.actionCollider != null)
-						mob.collider = currentAction.actionCollider;
+					if (possibleActions.Count > 1)
+					{
+						MathHelper.ShuffleList(possibleActions);
+						if (possibleActions[0] == lastAction)
+							possibleActions.RemoveAt(0);
+					}
+					AIAction selectedAction = possibleActions[0];
+					triggerAction(selectedAction);
+				}
+				else
+				{
+					lastAction = null;
 				}
 			}
 		}
@@ -292,10 +325,10 @@ public class AdvancedAI : AI
 
 		if (state == AIState.Charge)
 		{
-			mob.animator.setAnimation(currentAction.chargeAnimation);
 			SpriteAnimation anim = mob.animator.getAnimation(currentAction.chargeAnimation);
+			mob.animator.setAnimation(currentAction.chargeAnimation);
 			if (anim != null)
-				anim.fps = anim.length / currentAction.chargeTime;
+				anim.duration = currentAction.chargeTime;
 
 			if (mob.isStunned)
 				chargeTime = Time.currentTime;
@@ -315,10 +348,10 @@ public class AdvancedAI : AI
 		}
 		if (state == AIState.Action)
 		{
-			mob.animator.setAnimation(currentAction.animation);
 			SpriteAnimation anim = mob.animator.getAnimation(currentAction.animation);
+			mob.animator.setAnimation(currentAction.animation);
 			if (anim != null)
-				anim.fps = anim.length / currentAction.duration;
+				anim.duration = currentAction.duration;
 
 			Vector2 toTarget = Vector2.Zero;
 			float distance = 0;
@@ -337,10 +370,10 @@ public class AdvancedAI : AI
 		}
 		if (state == AIState.Cooldown)
 		{
-			mob.animator.setAnimation(currentAction.cooldownAnimation);
 			SpriteAnimation anim = mob.animator.getAnimation(currentAction.cooldownAnimation);
+			mob.animator.setAnimation(currentAction.cooldownAnimation);
 			if (anim != null)
-				anim.fps = anim.length / currentAction.cooldownTime;
+				anim.duration = currentAction.cooldownTime;
 
 			if (currentAction.cooldownSpeed > 0)
 			{
@@ -354,9 +387,8 @@ public class AdvancedAI : AI
 
 			if ((Time.currentTime - cooldownTime) / 1e9f >= currentAction.cooldownTime)
 			{
-				if (currentAction.actionCollider != null)
-					mob.collider = collider;
 				state = AIState.Default;
+				lastAction = currentAction;
 				currentAction = null;
 			}
 		}
