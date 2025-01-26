@@ -132,6 +132,15 @@ public abstract class Item
 	public static Sound[] weaponUse = Resource.GetSounds("sounds/swing", 3);
 	public static Sound[] potionUse = [Resource.GetSound("sounds/use_potion.ogg")];
 
+	static readonly string[] scalingLetters = ["E", "D", "C", "B", "A", "S"];
+
+	public static string GetScalingLetter(float scaling)
+	{
+		int idx = (int)MathF.Round(MathHelper.Remap(scaling, 0, 1, 0, scalingLetters.Length - 1));
+		Debug.Assert(idx >= 0 && idx < scalingLetters.Length);
+		return scalingLetters[idx];
+	}
+
 
 	public string name;
 	public ItemType type;
@@ -151,15 +160,29 @@ public abstract class Item
 	public bool identified = true;
 
 	public float baseDamage = 1;
-	public float attackDamage
+	public float getInfusedDamage()
 	{
-		get
-		{
-			float damage = baseDamage;
-			foreach (Infusion infusion in infusions)
-				damage *= infusion.damageMultiplier;
-			return damage;
-		}
+		float damage = baseDamage;
+
+		foreach (Infusion infusion in infusions)
+			damage *= infusion.damageMultiplier;
+
+		return damage;
+	}
+	public float getAttackDamage(Player player)
+	{
+		float damage = getInfusedDamage();
+
+		float hardCap = 20;
+		float strengthSaturation = (1 - MathF.Pow(1 - player.strength / hardCap, 2)) * hardCap;
+		float dexteritySaturation = (1 - MathF.Pow(1 - player.dexterity / hardCap, 2)) * hardCap;
+		float intelligenceSaturation = (1 - MathF.Pow(1 - player.intelligence / hardCap, 2)) * hardCap;
+
+		damage *= 1 + strengthScaling * strengthSaturation;
+		damage *= 1 + dexterityScaling * dexteritySaturation;
+		damage *= 1 + intelligenceScaling * intelligenceSaturation;
+
+		return damage;
 	}
 
 	protected float baseAttackRange = 1;
@@ -190,6 +213,10 @@ public abstract class Item
 			return rate;
 		}
 	}
+
+	public float strengthScaling = 0;
+	public float dexterityScaling = 0;
+	public float intelligenceScaling = 0;
 
 	public float secondaryChargeTime = 0;
 	public float blockDuration = 0.7f;
@@ -414,7 +441,7 @@ public abstract class Item
 		upgradeLevel++;
 		//value = value + MathHelper.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
-			baseDamage *= 1.2f;
+			baseDamage *= 1.1f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
 			baseArmor++;
 	}

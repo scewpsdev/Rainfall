@@ -23,6 +23,7 @@ public class ItemBuff
 	public float movementSpeedModifier = 1.0f;
 	public float wallControlModifier = 1.0f;
 	public float meleeDamageModifier = 1.0f;
+	public float rangedDamageModifier = 1.0f;
 	public float magicDamageModifier = 1.0f;
 	public float attackSpeedModifier = 1.0f;
 	public float manaCostModifier = 1.0f;

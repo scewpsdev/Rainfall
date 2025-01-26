@@ -2224,7 +2224,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.meleeDamageModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.15f, strength - 1);
+		return value;
+	}
+
+	public float getRangedDamageModifier()
+	{
+		float value = 1;
+		foreach (ItemBuff modifier in itemBuffs)
+			value *= MathF.Pow(modifier.rangedDamageModifier, modifier.item.stackSize);
 		return value;
 	}
 
@@ -2233,7 +2240,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.magicDamageModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.15f, intelligence - 1);
 		return value;
 	}
 
@@ -2242,7 +2248,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
 			value *= MathF.Pow(modifier.attackSpeedModifier, modifier.item.stackSize);
-		value *= MathF.Pow(1.15f, dexterity - 1);
 		return value;
 	}
 

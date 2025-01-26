@@ -12,7 +12,7 @@ public class MagicProjectile : Projectile
 	const float speed = 50; //2;
 
 	public MagicProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item spell, Item staff)
-		: base(direction * speed, startVelocity, offset, player, spell, spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier())
+		: base(direction * speed, startVelocity, offset, player, spell, spell.baseDamage * staff.getAttackDamage(player) * player.getMagicDamageModifier())
 	{
 		//maxSpeed = 40;
 		//acceleration = 50;

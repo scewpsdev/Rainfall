@@ -58,8 +58,8 @@ public class AttackAction : EntityAction
 	{
 	}
 
-	public AttackAction(Item weapon, bool mainHand)
-		: this(weapon, mainHand, weapon.anim, weapon.attackRate, weapon.attackDamage, weapon.attackRange, weapon.attackStartAngle, weapon.attackEndAngle)
+	public AttackAction(Item weapon, bool mainHand, Player player)
+		: this(weapon, mainHand, weapon.anim, weapon.attackRate, weapon.getAttackDamage(player), weapon.attackRange, weapon.attackStartAngle, weapon.attackEndAngle)
 	{
 	}
 

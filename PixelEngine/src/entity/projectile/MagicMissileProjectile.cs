@@ -17,7 +17,7 @@ public class MagicMissileProjectile : Projectile
 		: base(direction * speed, startVelocity, offset, player, spell, 0)
 	{
 		gravity = -20;
-		explosionDamage = spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier();
+		explosionDamage = spell.baseDamage * staff.getAttackDamage(player) * player.getMagicDamageModifier();
 
 		sprite = new Sprite(Item.tileset, 9, 1);
 		spriteColor = new Vector4(1.5f);

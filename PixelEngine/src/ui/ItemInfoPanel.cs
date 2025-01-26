@@ -59,27 +59,36 @@ public static class ItemInfoPanel
 				str = "???";
 			Renderer.DrawUITextBMP(x + 4, y, str, 1, color);
 		}
+		void drawRightStr(string str, uint color = UIColors.TEXT)
+		{
+			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
+			Renderer.DrawUITextBMP(x + width - textWidth - 1, y, str, 1, color);
+		}
 		void drawRight(float value, uint color = UIColors.TEXT)
 		{
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
+			drawRightStr(str, color);
+		}
+		void drawComparisonStr(string str, int comparison)
+		{
 			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
-			Renderer.DrawUITextBMP(x + width - textWidth - 1, y, str, 1, color);
+			uint color = comparison == 1 ? UIColors.TEXT_UPGRADE : comparison == -1 ? UIColors.TEXT_DOWNGRADE : UIColors.TEXT_COMPARABLE;
+			Renderer.DrawUITextBMP(x + width - 1 - textWidth, y, str, 1, color);
 		}
 		void drawComparison(float value, float to, bool flipComparison = false)
 		{
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
-			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
 			int comparison = MathF.Sign(value - to) * (flipComparison ? -1 : 1);
-			uint color = comparison == 1 ? UIColors.TEXT_UPGRADE : comparison == -1 ? UIColors.TEXT_DOWNGRADE : UIColors.TEXT;
-			Renderer.DrawUITextBMP(x + width - 1 - textWidth, y, str, 1, color);
+			drawComparisonStr(str, comparison);
 		}
 
 		if (item.type == ItemType.Weapon || item.type == ItemType.Staff)
 		{
 			drawLeft("Attack");
-			drawRight(item.attackDamage);
+			float infusedDamage = item.getInfusedDamage();
+			drawRight(infusedDamage);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-				drawComparison(item.attackDamage, compareItem.attackDamage);
+				drawComparison(infusedDamage, compareItem.getInfusedDamage());
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Speed");
@@ -150,6 +159,38 @@ public static class ItemInfoPanel
 				}
 				y += Renderer.smallFont.size + 1;
 				*/
+			}
+
+			y += 8;
+
+
+			// Scaling values
+
+			{
+				drawLeft("STR");
+				string scalingStr = Item.GetScalingLetter(item.strengthScaling);
+				drawRightStr(scalingStr);
+				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+					drawComparisonStr(scalingStr, MathF.Sign(compareItem.strengthScaling - item.strengthScaling));
+				y += Renderer.smallFont.size + 1;
+			}
+
+			{
+				drawLeft("DEX");
+				string scalingStr = Item.GetScalingLetter(item.dexterityScaling);
+				drawRightStr(scalingStr);
+				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+					drawComparisonStr(scalingStr, MathF.Sign(compareItem.dexterityScaling - item.dexterityScaling));
+				y += Renderer.smallFont.size + 1;
+			}
+
+			{
+				drawLeft("INT");
+				string scalingStr = Item.GetScalingLetter(item.intelligenceScaling);
+				drawRightStr(scalingStr);
+				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+					drawComparisonStr(scalingStr, MathF.Sign(compareItem.intelligenceScaling - item.intelligenceScaling));
+				y += Renderer.smallFont.size + 1;
 			}
 		}
 		else if (item.type == ItemType.Armor)

@@ -19,8 +19,8 @@ public class BoomerangProjectile : Projectile
 	long throwTime;
 
 
-	public BoomerangProjectile(Vector2 direction, Vector2 offset, Vector2 startVelocity, Entity shooter, Boomerang item)
-		: base(Vector2.Zero, startVelocity, offset, shooter, item, item.attackDamage)
+	public BoomerangProjectile(Vector2 direction, Vector2 offset, Vector2 startVelocity, Player player, Boomerang item)
+		: base(Vector2.Zero, startVelocity, offset, player, item, item.getAttackDamage(player) * player.getRangedDamageModifier())
 	{
 		this.direction = direction;
 
@@ -28,7 +28,6 @@ public class BoomerangProjectile : Projectile
 
 		currentRange = item.attackRange;
 
-		Player player = shooter as Player;
 		velocity = direction * speed * player.getAttackSpeedModifier() + 0.5f * MathF.Max(Vector2.Dot(direction, startVelocity.normalized), 0) * startVelocity;
 
 		sprite = new Sprite(Item.tileset, 3, 1);
@@ -105,10 +104,6 @@ public class BoomerangProjectile : Projectile
 				}
 				else if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
-					float damage = item.attackDamage;
-					if (hit.entity is Player)
-						damage *= (hit.entity as Player).getMeleeDamageModifier();
-
 					Hittable hittable = hit.entity as Hittable;
 					hittable.hit(damage, shooter, item);
 					hitEntities.Add(hit.entity);

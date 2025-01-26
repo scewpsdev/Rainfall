@@ -50,7 +50,7 @@ public class LightningProjectile : Entity
 
 		velocity = direction * speed;
 
-		this.damage = spell.attackDamage * staff.attackDamage * player.getMagicDamageModifier();
+		damage = spell.baseDamage * staff.getAttackDamage(player) * player.getMagicDamageModifier();
 
 		lightning = Resource.GetTexture("sprites/lightning.png", false);
 		trail = new Sprite(new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16), 2, 0);

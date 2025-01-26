@@ -45,7 +45,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		collider = item.collider;
 		filterGroup = FILTER_ITEM;
 
-		damage = item.attackDamage;
+		damage = item.baseDamage;
 		if (item.type == ItemType.Weapon)
 			damage *= 3;
 

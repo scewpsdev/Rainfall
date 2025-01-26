@@ -20,6 +20,7 @@ public static class UIColors
 	public const uint TEXT_SUBTLE = 0xFF666666;
 	public const uint TEXT_UPGRADE = 0xFF5ecb57;
 	public const uint TEXT_DOWNGRADE = 0xFFbd4242;
+	public const uint TEXT_COMPARABLE = 0xFF284590;
 	public const uint TEXT_HEALTH = 0xFFd84343;
 	public const uint TEXT_MANA = 0xFF6555c8;
 	public const uint TEXT_SPEED = 0xFF6c8c50;

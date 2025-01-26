@@ -168,16 +168,16 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size;
 		*/
 
-		drawLevel(0, "Strength", ref player.strength, UIColors.TEXT);
+		drawLevel(0, "STR", ref player.strength, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLevel(1, "Dexterity", ref player.dexterity, UIColors.TEXT);
+		drawLevel(1, "DEX", ref player.dexterity, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLevel(2, "Intelligence", ref player.intelligence, UIColors.TEXT);
+		drawLevel(2, "INT", ref player.intelligence, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLevel(3, "Swiftness", ref player.swiftness, UIColors.TEXT);
+		drawLevel(3, "SWF", ref player.swiftness, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		if (InputManager.IsPressed("Down", true))
