@@ -16,6 +16,7 @@ public class IronShield : Shield
 		baseArmor = 2;
 		value = 8;
 		baseWeight = 2;
+		blockAbsorption = 1;
 
 		sprite = new Sprite(tileset, 3, 3);
 	}

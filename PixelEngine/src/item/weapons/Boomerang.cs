@@ -19,6 +19,9 @@ public class Boomerang : Weapon
 
 		value = 12;
 
+		strengthScaling = 0.3f;
+		dexterityScaling = 0.3f;
+
 		sprite = new Sprite(tileset, 3, 1);
 		renderOffset.x = 0.1f;
 		renderOffset.y = 0.1f;

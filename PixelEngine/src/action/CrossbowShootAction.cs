@@ -21,6 +21,8 @@ public class CrossbowShootAction : EntityAction
 
 		this.weapon = weapon;
 		this.arrow = arrow;
+
+		renderWeapon = weapon;
 	}
 
 	public override void onQueued(Player player)

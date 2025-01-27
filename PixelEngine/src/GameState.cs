@@ -231,12 +231,10 @@ public class GameState : State
 		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
 
 
-		/*
 		level = null;
 		switchLevel(areaMines[4], areaMines[4].entrance.getSpawnPoint());
 		levelSwitchTime = -1;
 		return;
-		*/
 
 
 		if (save.isDaily)
@@ -254,7 +252,15 @@ public class GameState : State
 				player.setStartingClass(startingClass);
 			else
 			{
-				player.money = 8;
+				Item startingWeapon = Item.CreateRandom(ItemType.Weapon, generator.random, 3);
+				player.giveItem(startingWeapon);
+				if (startingWeapon.requiredAmmo != null)
+				{
+					Item ammo = Item.GetItemPrototype(startingWeapon.requiredAmmo).copy();
+					ammo.stackSize = 30;
+					player.giveItem(ammo);
+				}
+				//player.money = 8;
 			}
 			levelSwitchTime = -1;
 		}

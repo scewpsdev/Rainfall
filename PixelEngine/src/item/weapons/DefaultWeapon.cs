@@ -11,21 +11,26 @@ public class DefaultWeapon : Weapon
 	public static readonly DefaultWeapon instance = new DefaultWeapon();
 
 
-	Sprite punchSprite, swingSprite;
-
 	public DefaultWeapon()
 		: base("default_weapon")
 	{
 		baseDamage = 0.8f;
-		baseAttackRange = 0.8f;
-		baseAttackRate = 3;
+		baseAttackRange = 0.7f;
+		baseAttackRate = 2;
 		knockback = 5;
 		anim = AttackAnim.Stab;
 		actionMovementSpeed = 0.8f;
 
-		punchSprite = new Sprite(tileset, 0, 2);
-		swingSprite = new Sprite(tileset, 1, 8);
-		sprite = punchSprite;
+		canParry = true;
+		parrySound = [Resource.GetSound("sounds/punch_hit.ogg")];
+		parryWindow = 0.2f;
+		blockCharge = 0;
+
+		strengthScaling = 0.5f;
+		dexterityScaling = 0.5f;
+
+		//swingSprite = new Sprite(tileset, 1, 8);
+		sprite = new Sprite(tileset, 0, 2);
 
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/default.png", false), 0, 0, 32, 32);
 

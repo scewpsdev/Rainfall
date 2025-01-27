@@ -15,7 +15,7 @@ public class WoodenMallet : Weapon
 
 		baseDamage = 2.25f;
 		baseAttackRange = 1.2f;
-		baseAttackRate = 1.1f;
+		baseAttackRate = 0.9f;
 		anim = AttackAnim.SwingOverhead;
 		attackAcceleration = 1;
 		twoHanded = true;
@@ -25,7 +25,9 @@ public class WoodenMallet : Weapon
 		doubleBladed = false;
 		baseWeight = 2;
 
-		value = 20;
+		strengthScaling = 0.7f;
+
+		value = 25;
 
 		sprite = new Sprite(tileset, 1, 4, 2, 1);
 		icon = new Sprite(tileset.texture, 1 * 16 + 16, 4 * 16, 16, 16);

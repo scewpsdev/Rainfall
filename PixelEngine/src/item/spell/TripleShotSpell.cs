@@ -26,8 +26,6 @@ public class TripleShotSpell : Spell
 		trigger = false;
 
 		spellIcon = new Sprite(tileset, 5, 8);
-
-		useSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
 	public override bool cast(Player player, Item staff, float manaCost, float duration)

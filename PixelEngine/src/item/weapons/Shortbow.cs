@@ -21,6 +21,8 @@ public class Shortbow : Bow
 		trigger = false;
 		baseWeight = 1;
 
+		dexterityScaling = 0.6f;
+
 		value = 16;
 
 		sprite = new Sprite(tileset, 9, 3);

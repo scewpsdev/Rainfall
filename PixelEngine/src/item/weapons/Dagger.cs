@@ -28,6 +28,8 @@ public class Dagger : Weapon
 		actionMovementSpeed = 0.8f;
 		anim = AttackAnim.Stab;
 
+		dexterityScaling = 0.7f;
+
 		value = 4;
 
 		sprite = new Sprite(tileset, 8, 6);

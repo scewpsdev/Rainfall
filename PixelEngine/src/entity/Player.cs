@@ -109,7 +109,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
 	long startTime;
-	long lastHit = -10000000000;
+	long lastIFrameTrigger = -1;
+	float iframeDuration;
+	long lastHit = -1;
 	long stunTime = -1;
 
 	public ActionQueue actions;
@@ -158,7 +160,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		actions = new ActionQueue(this);
 
-		collider = new FloatRect(-0.1f, 0, 0.2f, 0.75f);
+		collider = new FloatRect(-0.15f, 0, 0.3f, 0.9f);
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/player_.png", false), 0, 0, 32, 32);
@@ -826,18 +828,40 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (mob != null)
 			by = mob;
 
-		bool invincible = (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
+		bool invincible = lastIFrameTrigger != -1 && (Time.currentTime - lastIFrameTrigger) / 1e9f < iframeDuration;
 		if (invincible)
 		{
 			return false;
 		}
-		else if (blockingItem != null && ((BlockAction)actions.currentAction).isBlocking)
+		else if (blockingItem != null && (((BlockAction)actions.currentAction).isBlocking || ((BlockAction)actions.currentAction).isParrying))
 		{
+			BlockAction blockAction = actions.currentAction as BlockAction;
+
 			// play sound
 			// play particle effect
 
-			damage *= 1 - blockingItem.blockAbsorption;
-			triggerInvincibility = false;
+			if (blockAction.isParrying)
+			{
+				damage = 0;
+				triggerInvincibility = false;
+
+				blockAction.duration = blockAction.elapsedTime + 0.3f;
+
+				lastIFrameTrigger = Time.currentTime;
+				iframeDuration = 0.25f;
+
+				level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
+
+				Audio.Play(blockingItem.parrySound, new Vector3(position, 0), 2);
+
+				GameState.instance.freeze(0.2f);
+			}
+			else if (blockAction.isBlocking)
+			{
+				damage *= 1 - blockingItem.blockAbsorption;
+
+				Audio.Play(blockingItem.blockSound, new Vector3(position, 0), 2);
+			}
 
 			if (mob != null)
 			{
@@ -864,14 +888,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 					}
 				}
-
-				BlockAction blockAction = actions.currentAction as BlockAction;
-				blockAction.duration = blockAction.elapsedTime + 0.3f;
-
-				level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
-				Audio.PlayOrganic(blockingItem.blockSound, new Vector3(position, 0));
-
-				GameState.instance.freeze(0.1f);
 			}
 
 			if (damage < 0.0001f)
@@ -925,7 +941,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (triggerInvincibility)
 			{
+				lastIFrameTrigger = Time.currentTime;
 				lastHit = Time.currentTime;
+				iframeDuration = HIT_COOLDOWN;
 				GameState.instance.freeze(0.2f);
 			}
 
@@ -1896,7 +1914,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateAnimation();
 
 		Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
-		Audio.Set3DVolume(3.0f);
+		Audio.Set3DVolume(5.0f);
 
 		if (numOverlaysOpen == 0)
 			Input.cursorMode = CursorMode.Hidden;
@@ -2109,8 +2127,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (!isAlive)
 			return;
 
-		bool invincible = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
-		bool show = !invincible || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
+		bool hitCooldown = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
+		bool show = !hitCooldown || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
 
 		if (isVisible)
 		{

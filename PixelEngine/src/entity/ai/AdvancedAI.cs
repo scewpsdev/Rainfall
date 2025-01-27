@@ -78,6 +78,14 @@ public class AdvancedAI : AI
 		walkSpeed = mob.speed;
 	}
 
+	public AIAction addAction(string animation, float charge, float duration, float cooldown, float speed, float maxDistance, float minDistance = 0)
+	{
+		return addAction(animation + "1", duration, animation + "0", charge, animation + "2", cooldown, speed, (AIAction action, Vector2 toTarget, float targetDistance) =>
+		{
+			return targetDistance >= minDistance && targetDistance <= maxDistance && mob.isGrounded && canSeeTarget;
+		});
+	}
+
 	public AIAction addAction(string animation, float duration, string chargeAnimation, float chargeTime, string cooldownAnimation, float cooldownTime, float walkSpeed, Func<AIAction, Vector2, float, bool> requirementsMet, Action<AIAction> onStarted = null, Func<AIAction, float, Vector2, bool> onAction = null, Action<AIAction> onFinished = null)
 	{
 		AIAction action = new AIAction { ai = this, animation = animation, chargeAnimation = chargeAnimation, cooldownAnimation = cooldownAnimation, duration = duration, chargeTime = chargeTime, cooldownTime = cooldownTime, walkSpeed = walkSpeed, requirementsMet = requirementsMet, onStarted = onStarted, onAction = onAction, onFinished = onFinished };

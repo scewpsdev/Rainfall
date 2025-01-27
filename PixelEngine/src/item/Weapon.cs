@@ -49,4 +49,11 @@ public class Weapon : Item
 		base.use(player);
 		return false;
 	}
+
+	public override bool useSecondary(Player player)
+	{
+		if (canParry || canBlock)
+			player.actions.queueAction(new BlockAction(this, player.handItem == this));
+		return false;
+	}
 }

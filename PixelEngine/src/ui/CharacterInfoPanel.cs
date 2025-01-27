@@ -194,16 +194,16 @@ public static class CharacterInfoPanel
 		y += 4;
 
 		drawLeft("Attack Damage", UIColors.TEXT);
-		drawRightValueRelative(player.getMeleeDamageModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 2 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRightValueRelative(player.getMeleeDamageModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Attack Speed", UIColors.TEXT);
-		drawRightValueRelative(player.getAttackSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 3 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRightValueRelative(player.getAttackSpeedModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Magic Damage", UIColors.TEXT);
-		drawRightValueRelative(player.getMagicDamageModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 4 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRightValueRelative(player.getMagicDamageModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Movement Speed", UIColors.TEXT);
-		drawRightValueRelative(player.getMovementSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 5 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRightValueRelative(player.getMovementSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 3 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Mana Recovery Rate", UIColors.TEXT);
@@ -215,6 +215,10 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size;
 		drawLeft("Critical Hit Damage", UIColors.TEXT);
 		drawRightValueRelative(player.getCriticalAttackModifier(), 1, UIColors.TEXT);
+		y += Renderer.smallFont.size;
+
+		drawLeft("Attack Rating", UIColors.TEXT);
+		drawRightValue(player.handItem != null ? player.handItem.getAttackDamage(player) : DefaultWeapon.instance.getAttackDamage(player), player.availableStatUpgrades > 0 && (selectedLevelStat == 0 || selectedLevelStat == 1 || selectedLevelStat == 2) ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		y += -2 + 4;

@@ -13,24 +13,22 @@ public class Rapier : Weapon
 	{
 		displayName = "Rapier";
 
-		baseDamage = 1.25f;
+		baseDamage = 0.9f;
 		baseAttackRange = 1.2f;
-		baseAttackRate = 2.25f;
+		baseAttackRate = 2;
 		attackCooldown = 2;
 		baseWeight = 1.5f;
 		secondaryChargeTime = 0.3f;
 
+		dexterityScaling = 0.9f;
+
 		anim = AttackAnim.Stab;
+		canParry = true;
+		blockCharge = 0;
 
 		value = 12;
 
 		sprite = new Sprite(tileset, 14, 4);
 		renderOffset.x = 0.4f;
-	}
-
-	public override bool useSecondary(Player player)
-	{
-		player.actions.queueAction(new BlockAction(this, player.handItem == this));
-		return false;
 	}
 }

@@ -161,7 +161,7 @@ public static class ItemInfoPanel
 				*/
 			}
 
-			y += 8;
+			y += 4;
 
 
 			// Scaling values

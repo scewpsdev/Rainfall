@@ -24,6 +24,8 @@ public class Twinblades : Weapon
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
+		dexterityScaling = 0.8f;
+
 		value = 26;
 
 		sprite = new Sprite(tileset, 10, 8, 2, 1);

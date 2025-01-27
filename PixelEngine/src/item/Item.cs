@@ -114,29 +114,29 @@ public class Infusion
 
 public abstract class Item
 {
-	public static SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("sprites/items.png", false), 16, 16);
+	public static readonly SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("sprites/items.png", false), 16, 16);
 
-	public static Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
-	public static Sound[] parryHit = [Resource.GetSound("sounds/parry.ogg")];
-	public static Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 7);
+	public static readonly Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
+	public static readonly Sound[] parryHit = [Resource.GetSound("sounds/parry3.ogg")];
+	public static readonly Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 7);
 
-	public static Sound[] defaultPickup = [Resource.GetSound("sounds/pickup.ogg")];
-	public static Sound[] weaponPickup = Resource.GetSounds("sounds/pickup_weapon", 2);
-	public static Sound[] potionPickup = [Resource.GetSound("sounds/pickup_potion.ogg")];
+	public static readonly Sound[] defaultPickup = [Resource.GetSound("sounds/pickup.ogg")];
+	public static readonly Sound[] weaponPickup = Resource.GetSounds("sounds/pickup_weapon", 2);
+	public static readonly Sound[] potionPickup = [Resource.GetSound("sounds/pickup_potion.ogg")];
 
-	public static Sound[] lightEquip = [Resource.GetSound("sounds/equip_light.ogg")];
-	public static Sound[] mediumEquip = [Resource.GetSound("sounds/equip_medium.ogg")];
-	public static Sound[] heavyEquip = [Resource.GetSound("sounds/equip_heavy.ogg")];
-	public static Sound[] ringEquip = [Resource.GetSound("sounds/equip_ring.ogg")];
+	public static readonly Sound[] lightEquip = [Resource.GetSound("sounds/equip_light.ogg")];
+	public static readonly Sound[] mediumEquip = [Resource.GetSound("sounds/equip_medium.ogg")];
+	public static readonly Sound[] heavyEquip = [Resource.GetSound("sounds/equip_heavy.ogg")];
+	public static readonly Sound[] ringEquip = [Resource.GetSound("sounds/equip_ring.ogg")];
 
-	public static Sound[] weaponUse = Resource.GetSounds("sounds/swing", 3);
-	public static Sound[] potionUse = [Resource.GetSound("sounds/use_potion.ogg")];
+	public static readonly Sound[] weaponUse = Resource.GetSounds("sounds/swing", 3);
+	public static readonly Sound[] potionUse = [Resource.GetSound("sounds/use_potion.ogg")];
 
-	static readonly string[] scalingLetters = ["E", "D", "C", "B", "A", "S"];
+	static readonly string[] scalingLetters = ["-", "D", "C", "B", "A", "S"];
 
 	public static string GetScalingLetter(float scaling)
 	{
-		int idx = (int)MathF.Round(MathHelper.Remap(scaling, 0, 1, 0, scalingLetters.Length - 1));
+		int idx = (int)MathF.Ceiling(MathHelper.Remap(scaling, 0, 1, 0, scalingLetters.Length - 1));
 		Debug.Assert(idx >= 0 && idx < scalingLetters.Length);
 		return scalingLetters[idx];
 	}
@@ -174,9 +174,9 @@ public abstract class Item
 		float damage = getInfusedDamage();
 
 		float hardCap = 20;
-		float strengthSaturation = (1 - MathF.Pow(1 - player.strength / hardCap, 2)) * hardCap;
-		float dexteritySaturation = (1 - MathF.Pow(1 - player.dexterity / hardCap, 2)) * hardCap;
-		float intelligenceSaturation = (1 - MathF.Pow(1 - player.intelligence / hardCap, 2)) * hardCap;
+		float strengthSaturation = 1 - MathF.Pow(1 - MathF.Min((player.strength - 1) / (hardCap - 1), 1), 2);
+		float dexteritySaturation = 1 - MathF.Pow(1 - MathF.Min((player.dexterity - 1) / (hardCap - 1), 1), 2);
+		float intelligenceSaturation = 1 - MathF.Pow(1 - MathF.Min((player.intelligence - 1) / (hardCap - 1), 1), 2);
 
 		damage *= 1 + strengthScaling * strengthSaturation;
 		damage *= 1 + dexterityScaling * dexteritySaturation;
@@ -219,10 +219,12 @@ public abstract class Item
 	public float intelligenceScaling = 0;
 
 	public float secondaryChargeTime = 0;
-	public float blockDuration = 0.7f;
+	public bool canParry = false;
+	public bool canBlock = false;
+	public float parryWindow = 0.3f;
 	public float blockCharge = 0.15f;
 	public float actionMovementSpeed = 0.4f;
-	public float blockAbsorption = 1.0f;
+	public float blockAbsorption = 0.8f;
 	public float damageReflect = 0.0f;
 	public bool doubleBladed = false;
 	public float criticalChanceModifier = 1.0f;
@@ -319,6 +321,7 @@ public abstract class Item
 	public Sound[] castSound;
 	public Sound[] hitSound;
 	public Sound[] blockSound;
+	public Sound[] parrySound;
 	public Sound[] pickupSound;
 	public Sound[] equipSound;
 	public Sound[] stepSound;
@@ -339,7 +342,8 @@ public abstract class Item
 
 		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponUse : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
-		blockSound = type == ItemType.Weapon ? parryHit : weaponHit;
+		blockSound = weaponHit;
+		parrySound = parryHit;
 		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
 		equipSound = type == ItemType.Relic ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 
@@ -399,7 +403,7 @@ public abstract class Item
 			float r = rarity * MathF.Exp(-0.04f * value);
 			if (r >= 1.0f)
 				return "Garbage";
-			if (r >= 0.1f)
+			if (r >= 0.3f)
 				return "Common";
 			if (r >= 0.01f)
 				return "Uncommon";

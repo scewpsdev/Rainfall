@@ -129,7 +129,7 @@ public class AttackAction : EntityAction
 			}
 
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f), direction, maxRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
+			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), direction, maxRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;
@@ -205,7 +205,7 @@ public class AttackAction : EntityAction
 			trail.update();
 			if (inDamageWindow)
 			{
-				float thickness = 0.8f;
+				float thickness = 0.9f;
 				if (anim == AttackAnim.SwingSideways)
 					thickness = MathHelper.Remap(Vector2.Dot(direction, Vector2.Rotate(Vector2.Right, currentAngle) * new Vector2(MathF.Sign(direction.x), 1)), -1, 1, 0.9f, 0.5f);
 				else if (anim == AttackAnim.Stab)
@@ -265,7 +265,7 @@ public class AttackAction : EntityAction
 
 	public Vector2 getWorldOrigin(Player player)
 	{
-		return player.position + new Vector2(0, player.getWeaponOrigin(mainHand).y);
+		return player.position + new Vector2(0, 0.5f);
 	}
 
 	public Vector2 worldDirection

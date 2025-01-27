@@ -22,6 +22,9 @@ public class Longbow : Weapon
 		twoHanded = true;
 		accuracy = 3.0f;
 
+		strengthScaling = 0.2f;
+		dexterityScaling = 0.5f;
+
 		value = 25;
 
 		sprite = new Sprite(tileset, 10, 3, 2, 1);

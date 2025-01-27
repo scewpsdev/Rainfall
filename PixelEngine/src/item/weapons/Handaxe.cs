@@ -24,6 +24,9 @@ public class Handaxe : Weapon
 		secondaryChargeTime = 0;
 		anim = AttackAnim.SwingOverhead;
 
+		strengthScaling = 0.3f;
+		dexterityScaling = 0.3f;
+
 		value = 5;
 
 		sprite = new Sprite(tileset, 15, 4);

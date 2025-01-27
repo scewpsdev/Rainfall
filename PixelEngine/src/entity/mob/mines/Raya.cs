@@ -52,20 +52,23 @@ public class Raya : Mob
 			const float dashCharge = 0.8f;
 			const float dashCooldown = 0.7f;
 
-			AIAction dashAttack = ai.addAction("dash1", dashDuration, "dash0", dashCharge, "dash2", dashCooldown, dashSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < dashTriggerDistance);
+			ai.addAction("dash", dashCharge, dashDuration, dashCooldown, dashSpeed, dashTriggerDistance);
 		}
 
 		{
 			const float jumpCharge = 0.5f;
 			const float jumpCooldown = 0.7f;
-			const float jumpAttackSpeed = 12.0f;
-			const float jumpTriggerDistance = 24;
+			const float jumpAttackSpeed = 10.0f;
+			const float jumpMaxDistance = 24;
+			const float jumpMinDistance = 3;
 
-			AIAction jumpAttack = ai.addAction("jump1", 100, "jump0", jumpCharge, "jump2", jumpCooldown, jumpAttackSpeed, (AIAction action, Vector2 toTarget, float targetDistance) => targetDistance < jumpTriggerDistance && isGrounded && ai.canSeeTarget);
+			AIAction jumpAttack = ai.addAction("jump", jumpCharge, 100, jumpCooldown, jumpAttackSpeed, jumpMaxDistance, jumpMinDistance);
 			jumpAttack.onStarted = (AIAction action) =>
 			{
+				float time = MathF.Abs(ai.target.position.x - position.x) / jumpAttackSpeed;
+				ai.mob.jumpPower = -gravity * 0.5f * time;
 				ai.mob.inputJump = true;
-				jumpAttack.walkSpeed = MathF.Abs(ai.target.position.x - position.x) * 0.9f;
+				//jumpAttack.walkSpeed = MathF.Abs(ai.target.position.x - position.x) * 0.9f;
 				speed = jumpAttack.walkSpeed;
 			};
 			jumpAttack.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>

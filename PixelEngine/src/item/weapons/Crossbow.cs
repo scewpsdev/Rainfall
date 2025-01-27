@@ -66,7 +66,8 @@ public class Crossbow : Weapon
 			}
 			if (arrows != null)
 			{
-				player.actions.queueAction(new CrossbowReloadAction(this, player.removeItemSingle(arrows)));
+				loadedArrow = player.removeItemSingle(arrows);
+				Audio.PlayOrganic(reloadSound, new Vector3(player.position, 0), 3);
 			}
 		}
 		return false;

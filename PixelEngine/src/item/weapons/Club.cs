@@ -23,6 +23,8 @@ public class Club : Weapon
 		value = 1;
 		//upgradable = false;
 
+		strengthScaling = 0.7f;
+
 		sprite = new Sprite(tileset, 13, 1);
 		renderOffset.x = 0.2f;
 

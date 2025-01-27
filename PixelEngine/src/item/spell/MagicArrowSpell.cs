@@ -20,6 +20,7 @@ public class MagicArrowSpell : Spell
 		manaCost = 0.1f;
 		knockback = 1.0f;
 		trigger = false;
+		canCastWithoutMana = true;
 
 		spellIcon = new Sprite(tileset, 0, 6);
 

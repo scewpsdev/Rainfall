@@ -25,6 +25,9 @@ public class Quarterstaff : Weapon
 		//stab = false;
 		//attackAngle = MathF.PI * 0.7f;
 
+		dexterityScaling = 0.5f;
+		canBlock = true;
+
 		value = 9;
 
 		sprite = new Sprite(tileset, 4, 1, 2, 1);
@@ -39,11 +42,5 @@ public class Quarterstaff : Weapon
 	{
 		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
 		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : idx % 2 == 1 ? AttackAnim.Stab : AttackAnim.SwingOverhead;
-	}
-
-	public override bool useSecondary(Player player)
-	{
-		player.actions.queueAction(new BlockAction(this, player.handItem == this));
-		return false;
 	}
 }

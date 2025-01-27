@@ -25,6 +25,9 @@ public class Zweihander : Weapon
 		attackStartAngle = MathF.PI;
 		//doubleBladed = true;
 
+		strengthScaling = 0.3f;
+		dexterityScaling = 0.2f;
+
 		value = 18;
 
 		sprite = new Sprite(tileset, 7, 3, 2, 1);

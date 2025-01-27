@@ -43,8 +43,11 @@ public class Staff : Item
 		if (spell != null)
 		{
 			float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
-			player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
-			base.use(player);
+			if (player.mana >= manaCost || spell.canCastWithoutMana)
+			{
+				player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
+				base.use(player);
+			}
 		}
 		return false;
 	}

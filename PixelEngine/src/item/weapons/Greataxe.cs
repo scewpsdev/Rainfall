@@ -24,6 +24,8 @@ public class Greataxe : Weapon
 		attackCooldown = 1.0f;
 		baseWeight = 5;
 
+		strengthScaling = 0.5f;
+
 		value = 47;
 
 		sprite = new Sprite(tileset, 0, 5, 2, 1);

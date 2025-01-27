@@ -15,6 +15,8 @@ public class SpellCastAction : EntityAction
 	Vector2 direction;
 	int charDirection;
 
+	bool cancelled = false;
+
 	public List<Entity> hitEntities = new List<Entity>();
 
 
@@ -42,21 +44,42 @@ public class SpellCastAction : EntityAction
 	{
 		if (player.mana < manaCost)
 			duration *= 2;
-
-		if (spell.cast(player, weapon, manaCost, duration))
-		{
-			player.consumeMana(manaCost);
-
-			if (spell.castSound != null)
-				Audio.PlayOrganic(spell.castSound, new Vector3(player.position, 0));
-		}
 	}
 
 	public override void update(Player player)
 	{
 		base.update(player);
 
-		spell.update(player);
+		direction = player.lookDirection.normalized;
+		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
+
+		if (player.currentAttackInput == null || !player.currentAttackInput.isDown())
+		{
+			cancel();
+			cancelled = true;
+		}
+
+		//spell.update(player);
+	}
+
+	public override void render(Player player)
+	{
+		Vector2 position = player.getWeaponOrigin(mainHand);
+		float progress = MathF.Min(elapsedTime / duration * 1.5f, 1);
+		Renderer.DrawLight(player.position + position + new Vector2(0, progress * 0.3f), new Vector3(0.7f, 1.0f, 0.9f) * progress, 5);
+	}
+
+	public override void onFinished(Player player)
+	{
+		if (!cancelled && spell.cast(player, weapon, manaCost, duration))
+		{
+			player.consumeMana(manaCost);
+			if (weapon.staffCharges > 0)
+				weapon.staffCharges--;
+
+			if (spell.castSound != null)
+				Audio.PlayOrganic(spell.castSound, new Vector3(player.position, 0));
+		}
 	}
 
 	public override Matrix getItemTransform(Player player)
@@ -67,7 +90,8 @@ public class SpellCastAction : EntityAction
 			position += item.renderOffset;
 		float progress = MathF.Min(elapsedTime / duration * 1.5f, 1);
 		return Matrix.CreateRotation(Vector3.UnitY, charDirection == -1 ? MathF.PI : 0)
-			* Matrix.CreateTranslation(position.x, position.y, 0)
-			* Matrix.CreateRotation(Vector3.UnitZ, (direction * new Vector2(charDirection, 1)).angle + MathHelper.Lerp(MathF.PI * 0.75f, -0.25f * MathF.PI, progress));
+			* Matrix.CreateRotation(Vector3.UnitZ, (direction * new Vector2(charDirection, 1)).angle + progress * 0.5f)
+			* Matrix.CreateTranslation(new Vector3(position + new Vector2(MathF.Sin(elapsedTime * 71), MathF.Cos(elapsedTime * 53 + 143.34f)) * 0.04f * progress, 0))
+			;
 	}
 }

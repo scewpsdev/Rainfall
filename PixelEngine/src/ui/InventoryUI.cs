@@ -40,6 +40,20 @@ public class InventoryUI
 		this.player = player;
 	}
 
+	void openScreen()
+	{
+		player.inventoryOpen = true;
+		player.numOverlaysOpen++;
+		selectedCell = new Vector2i(2, 0);
+		CharacterInfoPanel.OnOpen();
+	}
+
+	void closeScreen()
+	{
+		player.inventoryOpen = false;
+		player.numOverlaysOpen--;
+	}
+
 	static void drawItemSlot(int x, int y, int size, Item item, Sprite background, Vector2i cellPosition, ref Vector2i selectedCell, ref Item selectedItem)
 	{
 		ItemSlotUI.Render(x, y, size, item?.icon, item != null ? MathHelper.VectorToARGB(item.spriteColor) : 0xFFFFFFFF, item != null ? item.stackSize : 1, background, cellPosition, ref selectedCell);
@@ -592,20 +606,6 @@ public class InventoryUI
 		y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
 
 		return y - top;
-	}
-
-	void openScreen()
-	{
-		player.inventoryOpen = true;
-		player.numOverlaysOpen++;
-		selectedCell = Vector2i.Zero;
-		CharacterInfoPanel.OnOpen();
-	}
-
-	void closeScreen()
-	{
-		player.inventoryOpen = false;
-		player.numOverlaysOpen--;
 	}
 
 	public void render()

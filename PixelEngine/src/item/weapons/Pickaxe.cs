@@ -18,6 +18,8 @@ public class Pickaxe : Weapon
 		baseAttackRate = 1.5f;
 		anim = AttackAnim.SwingOverhead;
 
+		strengthScaling = 0.4f;
+
 		value = 13;
 
 		sprite = new Sprite(tileset, 0, 1);

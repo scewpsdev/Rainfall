@@ -24,6 +24,9 @@ public class BlacksteelGlaive : Weapon
 
 		value = 35;
 
+		strengthScaling = 0.3f;
+		dexterityScaling = 0.3f;
+
 		sprite = new Sprite(tileset, 11, 9, 2, 1);
 		icon = new Sprite(tileset.texture, 11 * 16 + 16, 9 * 16, 16, 16);
 		size = new Vector2(2, 1);

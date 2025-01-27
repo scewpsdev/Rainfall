@@ -17,6 +17,9 @@ public class MoonbladeAxe : Weapon
 		baseAttackRange = 1.6f;
 		baseAttackRate = 1.0f;
 
+		strengthScaling = 0.2f;
+		dexterityScaling = 0.3f;
+
 		value = 27;
 
 		sprite = new Sprite(tileset, 10, 7, 2, 1);

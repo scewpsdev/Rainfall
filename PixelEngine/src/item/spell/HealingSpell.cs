@@ -22,6 +22,8 @@ public class HealingSpell : Spell
 		upgradable = false;
 
 		spellIcon = new Sprite(tileset, 4, 8);
+
+		castSound = [Resource.GetSound("sounds/heal.ogg")];
 	}
 
 	public override bool cast(Player player, Item staff, float manaCost, float duration)

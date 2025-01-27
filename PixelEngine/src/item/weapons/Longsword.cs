@@ -17,6 +17,9 @@ public class Longsword : Weapon
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.2f;
 
+		strengthScaling = 0.4f;
+		dexterityScaling = 0.2f;
+
 		value = 14;
 
 		sprite = new Sprite(tileset, 1, 1);

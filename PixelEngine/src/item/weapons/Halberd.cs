@@ -20,6 +20,9 @@ public class Halberd : Weapon
 		baseWeight = 2.5f;
 		doubleBladed = false;
 
+		strengthScaling = 0.2f;
+		dexterityScaling = 0.4f;
+
 		value = 16;
 
 		sprite = new Sprite(tileset, 7, 4, 2, 1);

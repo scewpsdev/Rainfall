@@ -19,6 +19,9 @@ public class Shortsword : Weapon
 		anim = AttackAnim.SwingSideways;
 		baseWeight = 1;
 
+		strengthScaling = 0.2f;
+		dexterityScaling = 0.3f;
+
 		value = 9;
 
 		sprite = new Sprite(tileset, 2, 1);

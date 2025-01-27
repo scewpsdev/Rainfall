@@ -15,6 +15,7 @@ public class ThornShield : Shield
 
 		baseArmor = 3;
 		damageReflect = 1.0f;
+		blockAbsorption = 0.9f;
 		value = 14;
 		rarity *= 0.5f;
 

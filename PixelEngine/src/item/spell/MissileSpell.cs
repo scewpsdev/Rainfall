@@ -22,8 +22,6 @@ public class MissileSpell : Spell
 		trigger = false;
 
 		spellIcon = new Sprite(tileset, 14, 7);
-
-		useSound = Resource.GetSounds("sounds/cast", 3);
 	}
 
 	public override bool cast(Player player, Item staff, float manaCost, float duration)

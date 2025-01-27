@@ -19,6 +19,8 @@ public class Scimitar : Weapon
 		attackCooldown = 0.3f;
 		baseWeight = 1.5f;
 
+		dexterityScaling = 0.7f;
+
 		value = 16;
 
 		sprite = new Sprite(tileset, 5, 3);

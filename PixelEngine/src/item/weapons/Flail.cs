@@ -37,6 +37,8 @@ public class Flail : Weapon
 		trigger = false;
 		customAttackRender = true;
 
+		strengthScaling = 0.5f;
+
 		value = 34;
 
 		sprite = new Sprite(tileset, 13, 9);

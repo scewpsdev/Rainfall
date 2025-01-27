@@ -167,28 +167,12 @@ public abstract class NPC : Mob, Interactable
 	{
 		int numItems = MathHelper.RandomInt(minItems, maxItems, random);
 
-		float[] distribution = new float[DropRates.shop.Length];
-		float cumulativeRate = 0;
-		for (int i = 0; i < types.Length; i++)
-		{
-			float rate = DropRates.shop[(int)types[i]];
-			distribution[(int)types[i]] = rate;
-			cumulativeRate += rate;
-		}
-		for (int i = 0; i < distribution.Length; i++)
-			distribution[i] /= cumulativeRate;
-
 		for (int i = 0; i < numItems; i++)
 		{
-			Item[] items = Item.CreateRandom(random, distribution, meanValue);
-			for (int j = 0; j < items.Length; j++)
-			{
-				Item item = items[j];
-				if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
-					addShopItem(item.copy());
-				else
-					i--;
-			}
+			ItemType type = types[random.Next() % types.Length];
+			Item item = Item.CreateRandom(type, random, meanValue);
+			if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
+				addShopItem(item.copy());
 
 			/*
 			float value = MathF.Max(meanValue + meanValue * MathHelper.RandomGaussian(random), 0.0f);

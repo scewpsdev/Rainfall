@@ -26,6 +26,8 @@ public class Greathammer : Weapon
 		doubleBladed = false;
 		baseWeight = 5;
 
+		strengthScaling = 0.5f;
+
 		value = 45;
 
 		sprite = new Sprite(tileset, 10, 4, 2, 1);

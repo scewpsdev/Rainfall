@@ -19,7 +19,9 @@ public class RoyalGreatsword : Weapon
 		twoHanded = true;
 		baseWeight = 3;
 
-		value = 50;
+		strengthScaling = 0.3f;
+
+		value = 100;
 
 		sprite = new Sprite(tileset, 10, 5, 2, 1);
 		icon = new Sprite(tileset, 10.5f, 5);

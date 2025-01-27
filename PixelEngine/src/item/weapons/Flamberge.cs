@@ -21,6 +21,8 @@ public class Flamberge : Weapon
 		attackEndAngle = -0.25f * MathF.PI;
 		anim = AttackAnim.SwingOverhead;
 
+		strengthScaling = 0.5f;
+
 		value = 29;
 
 		sprite = new Sprite(tileset, 12, 6, 2, 1);

@@ -30,7 +30,6 @@ public class LightningStaff : Staff
 	{
 		float manaCost = this.manaCost * spell.manaCost * player.getManaCostModifier();
 		player.actions.queueAction(new SpellCastAction(this, player.handItem == this, spell, manaCost));
-		staffCharges--;
 
 		if (useSound != null)
 			Audio.PlayOrganic(useSound, new Vector3(player.position, 0), 1, 1, 0.0f, 0.15f);

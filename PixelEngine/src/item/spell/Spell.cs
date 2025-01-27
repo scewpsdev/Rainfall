@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 public abstract class Spell : Item
 {
+	public bool canCastWithoutMana = false;
+
+
 	protected Spell(string name)
 		: base(name, ItemType.Spell)
 	{
@@ -15,6 +18,8 @@ public abstract class Spell : Item
 		upgradable = false;
 
 		sprite = new Sprite(tileset, 3, 8);
+
+		useSound = [Resource.GetSound("sounds/cast.ogg")];
 	}
 
 	public override bool use(Player player)

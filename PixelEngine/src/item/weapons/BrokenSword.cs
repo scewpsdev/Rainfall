@@ -20,6 +20,9 @@ public class BrokenSword : Weapon
 
 		value = 2;
 
+		strengthScaling = 0.2f;
+		dexterityScaling = 0.2f;
+
 		sprite = new Sprite(tileset, 15, 3);
 		renderOffset.x = 0.2f;
 
