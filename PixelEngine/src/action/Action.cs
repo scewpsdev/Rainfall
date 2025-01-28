@@ -12,7 +12,8 @@ public class EntityAction
 
 	public string animation = null;
 	public bool mainHand;
-	public Item renderWeapon = null;
+	public Item renderWeaponMain = null;
+	public Item renderWeaponSecondary = null;
 	public bool canMove = true;
 	public bool canJump = true;
 	public bool turnToCrosshair = true;
@@ -64,7 +65,17 @@ public class EntityAction
 	{
 	}
 
-	public virtual Matrix getItemTransform(Player player)
+	public Item getRenderWeapon(bool mainHand) => mainHand ? renderWeaponMain : renderWeaponSecondary;
+
+	public void setRenderWeapon(bool mainHand, Item renderWeapon)
+	{
+		if (mainHand)
+			renderWeaponMain = renderWeapon;
+		else
+			renderWeaponSecondary = renderWeapon;
+	}
+
+	public virtual Matrix getItemTransform(Player player, bool mainHand)
 	{
 		Vector2 position = player.getWeaponOrigin(mainHand);
 		Item item = mainHand ? player.handItem : player.offhandItem;

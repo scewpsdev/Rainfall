@@ -42,7 +42,26 @@ public class Weapon : Item
 			if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == this)
 				attackIdx = (player.actions.currentAction as AttackAction).attackIdx + 1;
 			getAttackAnim(player, attackIdx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range);
-			player.actions.queueAction(new AttackAction(this, player.handItem == this, anim, attackRate, getAttackDamage(player), range, startAngle, endAngle) { swingDir = swingDir, attackIdx = attackIdx });
+
+			float attackDamage = getAttackDamage(player);
+			float attackRate = this.attackRate;
+
+			bool mainHand = player.handItem == this;
+
+			Item powerstancedWeapon = null;
+			if (mainHand && player.offhandItem != null && player.offhandItem.name == name)
+			{
+				powerstancedWeapon = player.offhandItem;
+				attackRate *= 1.25f;
+			}
+			else if (!mainHand && player.handItem != null && player.handItem.name == name)
+			{
+				powerstancedWeapon = player.handItem;
+				attackRate /= 1.5f;
+				attackDamage += 0.5f * powerstancedWeapon.getAttackDamage(player);
+			}
+
+			player.actions.queueAction(new AttackAction(this, mainHand, anim, attackIdx, attackRate, attackDamage, range, startAngle, endAngle, powerstancedWeapon) { swingDir = swingDir });
 			return false;
 		}
 

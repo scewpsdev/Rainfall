@@ -24,7 +24,7 @@ public class BowShootAction : EntityAction
 		this.weapon = weapon;
 		this.arrow = arrow;
 
-		renderWeapon = weapon;
+		setRenderWeapon(mainHand, weapon);
 
 		shootSound = Resource.GetSound("sounds/bow_shoot.ogg");
 	}
@@ -53,7 +53,7 @@ public class BowShootAction : EntityAction
 			duration = 1.0f / weapon.attackRate / player.getAttackSpeedModifier();
 	}
 
-	public override Matrix getItemTransform(Player player)
+	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
 		Vector2 direction = player.lookDirection.normalized;
 		float rotation = direction.angle;

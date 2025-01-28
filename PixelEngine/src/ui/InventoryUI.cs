@@ -44,7 +44,7 @@ public class InventoryUI
 	{
 		player.inventoryOpen = true;
 		player.numOverlaysOpen++;
-		selectedCell = new Vector2i(2, 0);
+		selectedCell = new Vector2i(0, 0);
 		CharacterInfoPanel.OnOpen();
 	}
 

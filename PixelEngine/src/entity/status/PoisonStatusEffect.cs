@@ -48,7 +48,7 @@ public class PoisonStatusEffect : StatusEffect
 
 		Hittable hittable = entity as Hittable;
 		if (hittable is not Player)
-			dmg *= 10;
+			dmg *= 3;
 		if (hittable is Mob && (hittable as Mob).poisonResistant)
 			dmg = 0;
 		if (dmg > 0)

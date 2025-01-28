@@ -492,7 +492,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	bool canEquipOffhandItem(Item item)
 	{
-		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand) && offhandItem == null && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded);
+		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded);
 	}
 
 	public void giveItem(Item item)
@@ -524,7 +524,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
-		if (canEquipOffhandItem(item))
+		if (canEquipOffhandItem(item) && offhandItem == null)
 			equipOffhandItem(item);
 		else if (canEquipHandItem(item))
 			equipHandItem(item);
@@ -867,7 +867,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (projectile == null && itemEntity == null)
 				{
-					mob.stun(3, true);
+					if (blockAction.isParrying)
+						mob.stun(3, true);
 					mob.addImpulse(new Vector2(direction, 0.1f) * 8);
 					if (blockingItem.damageReflect > 0)
 						mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
@@ -1716,7 +1717,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			handItem?.update(this);
+			if (handItem != null)
+				handItem.update(this);
+			else
+				DefaultWeapon.instance.update(this);
 			offhandItem?.update(this);
 			for (int i = 0; i < activeItems.Length; i++)
 			{
@@ -2000,21 +2004,23 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (item == null)
 			item = DefaultWeapon.instance;
+		Item otherItem = mainHand ? offhandItem : handItem;
 
 		if (item.sprite != null)
 		{
-			if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
+			if (actions.currentAction != null && actions.currentAction.getRenderWeapon(mainHand) != null)
 			{
-				if (actions.currentAction.renderWeapon != null)
+				Item renderWeapon = actions.currentAction.getRenderWeapon(mainHand);
+				if (renderWeapon != null)
 				{
-					item = actions.currentAction.renderWeapon;
-					Matrix weaponTransform = actions.currentAction.getItemTransform(this);
+					item = renderWeapon;
+					Matrix weaponTransform = actions.currentAction.getItemTransform(this, mainHand);
 					Renderer.DrawSprite(item.size.x, item.size.y, Matrix.CreateTranslation(position.x, position.y, layer) * weaponTransform, item.sprite, color);
 
 					if (item != DefaultWeapon.instance)
 					{
 						renderHand(mainHand, layer, weaponTransform);
-						if (item.twoHanded)
+						if (item.twoHanded && otherItem == null)
 							renderHand(!mainHand, layer, weaponTransform);
 					}
 
@@ -2048,7 +2054,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 
 					renderHand(mainHand, layer);
-					if (item.twoHanded)
+					if (item.twoHanded && otherItem == null)
 						renderHand(!mainHand, layer, getWeaponOrigin(mainHand) + Vector2.Right * 0.5f, 0, direction == -1);
 
 					if (particles != null)
@@ -2057,12 +2063,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						particles.layer = layer - 0.01f;
 					}
 				}
-				else if (actions.currentAction == null || actions.currentAction.renderWeapon == null)
+				else if (actions.currentAction == null || actions.currentAction.getRenderWeapon(mainHand) == null && actions.currentAction.getRenderWeapon(!mainHand) == null)
 				{
 					if (renderArms)
 					{
 						item = DefaultWeapon.instance;
-						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
+						Renderer.DrawSprite(position.x + rect.min.x * item.ingameSpriteSize, position.y + rect.min.y * item.ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, item.ingameSpriteLayer, rect.size.x * item.ingameSpriteSize, rect.size.y * item.ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, item.ingameSprite, direction == -1, item.ingameSpriteColor);
 					}
 
 					/*
@@ -2145,7 +2151,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandItem.render(this);
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
-				if (passiveItems[i].ingameSprite != null && show && (passiveItems[i].armorSlot != ArmorSlot.Gloves || renderArms && (actions.currentAction == null || actions.currentAction.renderWeapon == null)))
+				if (passiveItems[i].ingameSprite != null && show && (passiveItems[i].armorSlot != ArmorSlot.Gloves || renderArms && (actions.currentAction == null || actions.currentAction.renderWeaponMain == null && actions.currentAction.renderWeaponSecondary == null)))
 					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				passiveItems[i].render(this);
 			}

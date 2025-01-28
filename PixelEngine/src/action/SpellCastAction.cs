@@ -29,7 +29,7 @@ public class SpellCastAction : EntityAction
 		this.spell = spell;
 		this.manaCost = manaCost;
 
-		renderWeapon = weapon;
+		setRenderWeapon(mainHand, weapon);
 	}
 
 	public override void onQueued(Player player)
@@ -82,7 +82,7 @@ public class SpellCastAction : EntityAction
 		}
 	}
 
-	public override Matrix getItemTransform(Player player)
+	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
 		Vector2 position = player.getWeaponOrigin(mainHand);
 		Item item = mainHand ? player.handItem : player.offhandItem;

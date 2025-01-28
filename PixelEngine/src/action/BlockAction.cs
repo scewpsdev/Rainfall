@@ -19,7 +19,7 @@ public class BlockAction : EntityAction
 	{
 		this.shield = shield;
 
-		renderWeapon = shield;
+		setRenderWeapon(mainHand, shield);
 
 		//duration = shield.blockDuration;
 		if (shield.canParry)
@@ -78,17 +78,17 @@ public class BlockAction : EntityAction
 		get => elapsedTime >= shield.blockCharge + shield.parryWindow && elapsedTime < duration;
 	}
 
-	public override Matrix getItemTransform(Player player)
+	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
 		float rotation = MathF.PI * 0.5f;
 		if (shield.canParry)
 		{
-			const float parryRotation = -0.3f * MathF.PI;
+			float parryRotation = shield.parryWeaponRotation;
 			rotation = isParrying ? parryRotation : elapsedTime < shield.blockCharge ? elapsedTime / shield.blockCharge * parryRotation : (1 - (elapsedTime - shield.blockCharge - shield.parryWindow) / postActionLinger) * parryRotation;
 		}
 		Matrix shieldTransform = Matrix.CreateTranslation(progress * 0.5f, 0, 0)
 			* Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, player.getWeaponOrigin(mainHand).y, 0)
-			* (shield.type == ItemType.Weapon ? Matrix.CreateTranslation(0, 0.3f, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation) : Matrix.Identity)
+			* (shield.type == ItemType.Weapon ? Matrix.CreateTranslation(-0.25f, 0.3f, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation) : Matrix.Identity)
 			;
 		bool flip = direction.x < 0;
 		if (flip)

@@ -6,16 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class ReinforcedGlove : Item
+public class GiantsGauntlet : Item
 {
-	public ReinforcedGlove()
-		: base("reinforced_glove", ItemType.Relic)
+	public GiantsGauntlet()
+		: base("giants_gauntlet", ItemType.Relic)
 	{
-		displayName = "Reinforced Glove";
-		description = "Allows the bearer to wield big weapons with a single hand.";
+		displayName = "Giant's Gauntlet";
+		description = "Forced in ancient times for warriors of unmatched strength, enabling it's bearer to wield even the heaviest of weapons with a single hand.";
 
-		isPassiveItem = true;
 		armorSlot = ArmorSlot.Gloves;
+		gloveColor = 0xFF4c3435;
 
 		value = 45;
 

@@ -221,7 +221,8 @@ public abstract class Item
 	public float secondaryChargeTime = 0;
 	public bool canParry = false;
 	public bool canBlock = false;
-	public float parryWindow = 0.3f;
+	public float parryWindow = 0.25f;
+	public float parryWeaponRotation = -0.3f * MathF.PI;
 	public float blockCharge = 0.15f;
 	public float actionMovementSpeed = 0.4f;
 	public float blockAbsorption = 0.8f;
@@ -699,8 +700,8 @@ public abstract class Item
 		InitType(new Jetpack());
 		InitType(new SpectralShield());
 		InitType(new MissileStaff());
-		InitType(new DuelistHarness());
-		InitType(new ReinforcedGlove());
+		InitType(new BlademastersRing());
+		InitType(new GiantsGauntlet());
 		InitType(new Parsley());
 		InitType(new LargeWizardHatRed());
 		InitType(new DankHat());

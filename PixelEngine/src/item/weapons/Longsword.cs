@@ -13,7 +13,7 @@ public class Longsword : Weapon
 	{
 		displayName = "Longsword";
 
-		baseDamage = 2.0f;
+		baseDamage = 1.8f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.2f;
 
@@ -22,8 +22,10 @@ public class Longsword : Weapon
 
 		value = 14;
 
-		sprite = new Sprite(tileset, 1, 1);
-		renderOffset.x = 0.2f;
+		sprite = new Sprite(tileset, 0, 10, 2, 1);
+		size = new Vector2(2, 1);
+		icon = new Sprite(tileset.texture, 12, 10 * 16, 16, 16);
+		renderOffset.x = 0.0f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 }

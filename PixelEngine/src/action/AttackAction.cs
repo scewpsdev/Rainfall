@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 public class AttackAction : EntityAction
 {
 	public Item weapon;
+	public Item powerstancedWeapon;
 	public Vector2 direction;
 	public int charDirection;
 	public AttackAnim anim;
@@ -27,39 +28,56 @@ public class AttackAction : EntityAction
 	public bool useSoundPlayed = false;
 	bool hitSoundPlayed = false;
 
-	public int attackIdx = 0;
+	public int attackIdx { get; private set; }
 
 	int lastSpin = 0;
 
 	WeaponTrail trail;
 
 
-	public AttackAction(Item weapon, bool mainHand, AttackAnim anim, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle)
+	public AttackAction(Item weapon, bool mainHand, AttackAnim anim, int attackIdx, float attackRate, float attackDamage, float attackRange, float startAngle, float endAngle, Item powerstancedWeapon = null)
 		: base("attack", mainHand)
 	{
 		this.weapon = weapon;
 		this.anim = anim;
-		this.duration = 1 / attackRate;
+		this.attackIdx = attackIdx;
 		this.attackRate = attackRate;
 		this.attackDamage = attackDamage;
 		this.attackRange = attackRange;
 		this.startAngle = startAngle;
 		this.endAngle = endAngle;
+		this.powerstancedWeapon = powerstancedWeapon;
 
+		duration = 1 / attackRate;
 		attackCooldown = weapon.attackCooldown;
 
-		renderWeapon = weapon.customAttackRender ? null : weapon;
+		if (powerstancedWeapon != null && mainHand)
+		{
+			if (attackIdx % 2 == 0)
+				setRenderWeapon(mainHand, !weapon.customAttackRender ? weapon : null);
+			else
+				setRenderWeapon(!mainHand, powerstancedWeapon);
+		}
+		else if (powerstancedWeapon != null && !mainHand)
+		{
+			setRenderWeapon(mainHand, !weapon.customAttackRender ? weapon : null);
+			setRenderWeapon(!mainHand, powerstancedWeapon);
+		}
+		else
+		{
+			setRenderWeapon(mainHand, !weapon.customAttackRender ? weapon : null);
+		}
 
 		postActionLinger = weapon.postAttackLinger;
 	}
 
-	public AttackAction(Item weapon, bool mainHand, AttackAnim anim, float attackRate, float attackDamage, float attackRange)
-		: this(weapon, mainHand, anim, attackRate, attackDamage, attackRange, weapon.attackStartAngle, weapon.attackEndAngle)
+	public AttackAction(Item weapon, bool mainHand, AttackAnim anim, int attackIdx, float attackRate, float attackDamage, float attackRange)
+		: this(weapon, mainHand, anim, attackIdx, attackRate, attackDamage, attackRange, weapon.attackStartAngle, weapon.attackEndAngle)
 	{
 	}
 
 	public AttackAction(Item weapon, bool mainHand, Player player)
-		: this(weapon, mainHand, weapon.anim, weapon.attackRate, weapon.getAttackDamage(player), weapon.attackRange, weapon.attackStartAngle, weapon.attackEndAngle)
+		: this(weapon, mainHand, weapon.anim, 0, weapon.attackRate, weapon.getAttackDamage(player), weapon.attackRange, weapon.attackStartAngle, weapon.attackEndAngle)
 	{
 	}
 
@@ -273,7 +291,7 @@ public class AttackAction : EntityAction
 		get => new Vector2(MathF.Cos(currentAngle) * charDirection, MathF.Sin(currentAngle));
 	}
 
-	public override Matrix getItemTransform(Player player)
+	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
 		float rotation = currentAngle;
 		bool flip = charDirection < 0;
@@ -288,7 +306,7 @@ public class AttackAction : EntityAction
 			else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
 				weaponTransform.translation *= new Vector3(0.5f, 1, 1);
 		}
-		weaponTransform = Matrix.CreateTranslation(0, player.getWeaponOrigin(mainHand).y, 0) * weaponTransform;
+		weaponTransform = Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, player.getWeaponOrigin(mainHand).y, 0) * weaponTransform;
 		if (flip)
 			weaponTransform = Matrix.CreateRotation(Vector3.UnitY, MathF.PI) * weaponTransform;
 		return weaponTransform;

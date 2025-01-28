@@ -22,7 +22,7 @@ public class CrossbowShootAction : EntityAction
 		this.weapon = weapon;
 		this.arrow = arrow;
 
-		renderWeapon = weapon;
+		setRenderWeapon(mainHand, weapon);
 	}
 
 	public override void onQueued(Player player)
@@ -60,7 +60,7 @@ public class CrossbowShootAction : EntityAction
 		GameState.instance.level.addEntity(projectile, position);
 	}
 
-	public override Matrix getItemTransform(Player player)
+	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
 		Vector2 direction = player.lookDirection.normalized;
 		float rotation = direction.angle;

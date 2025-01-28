@@ -25,7 +25,7 @@ public class PotionDrinkAction : EntityAction
 
 		duration = 1.5f;
 
-		renderWeapon = potion;
+		setRenderWeapon(true, potion);
 	}
 
 	public override void onFinished(Player player)
@@ -44,7 +44,7 @@ public class PotionDrinkAction : EntityAction
 			GameState.instance.level.addEntity(new ItemEntity(bottle), player.position + Vector2.Up * 0.5f);
 	}
 
-	public override Matrix getItemTransform(Player player)
+	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
 		float rotation = elapsedTime / duration * MathF.PI * 0.75f;
 		Matrix weaponTransform = Matrix.CreateScale(0.5f);

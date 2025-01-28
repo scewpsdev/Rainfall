@@ -15,43 +15,6 @@ public static class CharacterInfoPanel
 		selectedLevelStat = 0;
 	}
 
-	static void RenderPlayer(int x, int y, int width, int height)
-	{
-		Player player = GameState.instance.player;
-
-		int size = 16;
-		int xx = x + width / 2;
-		int yy = y + size * 3 / 4;
-		Renderer.DrawUISprite(xx - size / 2, yy - size / 2, size * 2, size * 2, null, false, 0xFF050505);
-
-		if (player.offhandItem != null)
-		{
-			int w = (int)MathF.Round(player.offhandItem.size.x * size);
-			int h = (int)MathF.Round(player.offhandItem.size.y * size);
-			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(false).x * size + player.offhandItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(false).y * size + player.offhandItem.renderOffset.y * size), w, h, player.offhandItem.sprite);
-		}
-
-		//player.animator.update(player.sprite);
-		Renderer.DrawUISprite(xx, yy, size, size, player.sprite);
-
-		for (int i = 0; i < player.passiveItems.Count; i++)
-		{
-			if (player.passiveItems[i] != null && player.passiveItems[i].ingameSprite != null)
-			{
-				int ss = size * player.passiveItems[i].ingameSpriteSize;
-				//player.animator.update(player.passiveItems[i].ingameSprite);
-				Renderer.DrawUISprite(xx - (ss - size) / 2, yy - (ss - size) / 2, ss, ss, player.passiveItems[i].ingameSprite, false, MathHelper.VectorToARGB(player.passiveItems[i].ingameSpriteColor));
-			}
-		}
-
-		if (player.handItem != null)
-		{
-			int w = (int)MathF.Round(player.handItem.size.x * size);
-			int h = (int)MathF.Round(player.handItem.size.y * size);
-			Renderer.DrawUISprite(xx - (w - size) / 2 + (int)(player.getWeaponOrigin(true).x * size + player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(true).y * size + player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
-		}
-	}
-
 	public static int Render(int x, int y, int width, int height, Player player)
 	{
 		int top = y;
@@ -65,7 +28,7 @@ public static class CharacterInfoPanel
 
 		//y += Renderer.smallFont.size + 4;
 
-		RenderPlayer(x + 4, y, 16, 16);
+		PlayerThumbnail.Render(x + 4, y, 32, 32);
 
 		string className = player.startingClass != null ? player.startingClass.name : "No Class";
 		uint classColor = player.startingClass != null ? player.startingClass.color : UIColors.TEXT_SUBTLE;

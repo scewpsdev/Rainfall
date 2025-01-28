@@ -6,20 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class DuelistHarness : Item
+public class BlademastersRing : Item
 {
-	public DuelistHarness()
-		: base("duelist_harness", ItemType.Relic)
+	public BlademastersRing()
+		: base("blademasters_ring", ItemType.Relic)
 	{
-		displayName = "Duelist Harness";
-		description = "Finely crafted mechanism designed to anchor weapons in the offhand securely.";
-
-		isPassiveItem = true;
-		armorSlot = ArmorSlot.Gloves;
+		displayName = "Blademaster's Ring";
+		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two weapons effortlessly.";
 
 		value = 35;
 
-		sprite = new Sprite(tileset, 7, 6);
+		sprite = new Sprite(tileset, 2, 10);
 	}
 
 	public override void onEquip(Player player)
