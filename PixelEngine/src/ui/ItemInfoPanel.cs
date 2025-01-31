@@ -238,6 +238,23 @@ public static class ItemInfoPanel
 			}
 		}
 
+		y += 4;
+
+		drawLeft("M1 to equip");
+		y += Renderer.smallFont.size + 1;
+		drawLeft("M2 to drop");
+		y += Renderer.smallFont.size + 1;
+
+		Item itemInInv = GameState.instance.player.getItem(item.name);
+		if (itemInInv != null && item.stackable)
+		{
+			y += 4;
+
+			string str = itemInInv.stackSize + "x stored";
+			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(str).x / 2, y, str, 1, UIColors.TEXT);
+			y += Renderer.smallFont.size + 1;
+		}
+
 		return y - top;
 	}
 }

@@ -73,29 +73,20 @@ public class Slime : Mob
 		spawnTime = Time.currentTime;
 	}
 
-	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	public override void onDeath(Entity by)
 	{
-		if ((Time.currentTime - spawnTime) / 1e9f > 0.2f)
+		if (size > 2)
 		{
-			base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
-			if (isAlive && health <= maxHealth - 1)
+			int subSlimes = 4; // MathHelper.RandomInt(1, 4);
+			for (int i = 0; i < subSlimes; i++)
 			{
-				if (size > 1)
-				{
-					int subSlimes = MathHelper.RandomInt(1, 4);
-					for (int i = 0; i < subSlimes; i++)
-					{
-						Slime slime = new Slime(size - 1);
-						slime.spriteColor = spriteColor;
-						GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(collider.min.x - slime.collider.min.x, collider.max.x - slime.collider.max.x), MathHelper.RandomFloat(collider.min.y - slime.collider.min.y, collider.max.y - slime.collider.max.y)));
-					}
-				}
-
-				remove();
+				Slime slime = new Slime(size - 2);
+				slime.spriteColor = spriteColor;
+				GameState.instance.level.addEntity(slime, position + new Vector2(MathHelper.RandomFloat(collider.min.x - slime.collider.min.x, collider.max.x - slime.collider.max.x), MathHelper.RandomFloat(collider.min.y - slime.collider.min.y, collider.max.y - slime.collider.max.y)));
 			}
-			return true;
 		}
-		return false;
+
+		base.onDeath(by);
 	}
 
 	/*

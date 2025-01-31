@@ -39,7 +39,7 @@ public class Garran : Mob
 		AdvancedAI ai = new AdvancedAI(this);
 		this.ai = ai;
 
-		ai.hesitation = 0;
+		ai.hesitation = 1;
 
 		{
 			const float charge = 1.0f;

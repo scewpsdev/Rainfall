@@ -145,7 +145,7 @@ namespace Rainfall
 		}
 
 
-		public readonly uint seed;
+		public uint seed;
 
 		public readonly int octaves = 1;
 		public readonly float lacunarity = 2.0f;

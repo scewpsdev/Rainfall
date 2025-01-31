@@ -556,8 +556,8 @@ public class Level
 			direction.y = 0.00001f;
 
 		Vector2i pos = (Vector2i)Vector2.Floor(origin);
-		//Vector2 ri = 1.0f / direction;
-		Vector2 ri = 1.0f / new Vector2(direction.x != 0 ? direction.x : 0, direction.y != 0 ? direction.y : 0);
+		Vector2 ri = 1.0f / direction;
+		//Vector2 ri = new Vector2(direction.x != 0 ? 1.0f / direction.x : 1000, direction.y != 0 ? 1.0f / direction.y : 1000);
 		Vector2i rs = Vector2.Sign(direction);
 		Vector2 dis = (pos - origin + 0.5f + rs * 0.5f) * ri;
 

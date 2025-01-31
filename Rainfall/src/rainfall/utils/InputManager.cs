@@ -171,22 +171,46 @@ public static class InputManager
 				if (binding.value.type == DatValueType.Identifier)
 				{
 					string valueStr = binding.value.identifier;
-					TryGetButton(valueStr, ref button);
-					if (TryGetKey(valueStr, out KeyCode key))
-						keys.Add(key);
-					TryGetGamepadButton(valueStr, ref gamepadButton);
-					TryGetScroll(valueStr, ref scrollDelta);
-				}
-				else if (binding.value.type == DatValueType.Array)
-				{
-					foreach (DatValue value in binding.value.array.values)
+					if (valueStr != null)
 					{
-						string valueStr = value.identifier;
 						TryGetButton(valueStr, ref button);
 						if (TryGetKey(valueStr, out KeyCode key))
 							keys.Add(key);
 						TryGetGamepadButton(valueStr, ref gamepadButton);
 						TryGetScroll(valueStr, ref scrollDelta);
+					}
+				}
+				else if (binding.value.type == DatValueType.Array)
+				{
+					foreach (DatValue value in binding.value.array.values)
+					{
+						if (value.type == DatValueType.Identifier)
+						{
+							string valueStr = value.identifier;
+							if (valueStr != null)
+							{
+								TryGetButton(valueStr, ref button);
+								if (TryGetKey(valueStr, out KeyCode key))
+									keys.Add(key);
+								TryGetGamepadButton(valueStr, ref gamepadButton);
+								TryGetScroll(valueStr, ref scrollDelta);
+							}
+						}
+						else if (value.type == DatValueType.Array)
+						{
+							foreach (DatValue value2 in value.array.values)
+							{
+								string valueStr = value2.identifier;
+								if (valueStr != null)
+								{
+									TryGetButton(valueStr, ref button);
+									if (TryGetKey(valueStr, out KeyCode key))
+										keys.Add(key);
+									TryGetGamepadButton(valueStr, ref gamepadButton);
+									TryGetScroll(valueStr, ref scrollDelta);
+								}
+							}
+						}
 					}
 				}
 

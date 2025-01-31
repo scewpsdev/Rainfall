@@ -31,7 +31,7 @@ public class AK47 : Weapon
 	public override bool use(Player player)
 	{
 		base.use(player);
-		player.actions.queueAction(new RevolverShootAction(this, player.handItem == this));
+		player.actions.queueAction(new GunShootAction(this, player.handItem == this));
 		return false;
 	}
 
@@ -40,7 +40,7 @@ public class AK47 : Weapon
 		if (entity is Player)
 		{
 			Player player = entity as Player;
-			if (player.actions.currentAction != null && player.actions.currentAction is RevolverShootAction && player.actions.currentAction.elapsedTime < 0.1f)
+			if (player.actions.currentAction != null && player.actions.currentAction is GunShootAction && player.actions.currentAction.elapsedTime < 0.1f)
 				Renderer.DrawLight(player.position + new Vector2(0, 0.5f), Vector3.One * 3, 6.0f);
 		}
 	}

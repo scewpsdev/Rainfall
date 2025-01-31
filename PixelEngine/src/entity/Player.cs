@@ -31,7 +31,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 #endif
 
 
-	public const float defaultSpeed = 6;
+	public const float defaultSpeed = 8;
 	public float speed = defaultSpeed;
 	public float climbingSpeed = 5;
 	public float jumpPower = 11; //12; //10.5f;
@@ -130,7 +130,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public List<Spell> spellItems = new List<Spell>();
 	public int spellCapacity = 3;
 	public int selectedSpellItem = 0;
-	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem = MathHelper.Clamp(selectedSpellItem, 0, spellItems.Count)] : null;
+	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem = MathHelper.Clamp(selectedSpellItem, 0, spellItems.Count - 1)] : null;
 	public List<Item> passiveItems = new List<Item>();
 	public List<Item> storedItems = new List<Item>();
 	public int storeCapacity = 4;
@@ -150,6 +150,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Object carriedObject = null;
 
 	Sound[] stepSound;
+	Sound jumpSound;
 	Sound landSound;
 	Sound[] ladderSound;
 	Sound[] hitSound;
@@ -188,6 +189,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		inventoryUI = new InventoryUI(this);
 
 		stepSound = Resource.GetSounds("sounds/step", 6);
+		jumpSound = Resource.GetSound("sounds/jump_bare.ogg");
 		landSound = Resource.GetSound("sounds/land.ogg");
 		ladderSound = Resource.GetSounds("sounds/step_wood", 3);
 		hitSound = Resource.GetSounds("sounds/flesh", 2);
@@ -867,8 +869,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (projectile == null && itemEntity == null)
 				{
-					if (blockAction.isParrying)
-						mob.stun(3, true);
+					mob.stun(3, blockAction.isParrying);
 					mob.addImpulse(new Vector2(direction, 0.1f) * 8);
 					if (blockingItem.damageReflect > 0)
 						mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
@@ -1162,7 +1163,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 					lastWallTouchRight = Time.currentTime;
 				}
-				if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, 0.9f)))
+				if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.1f)))
 				{
 					//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
@@ -1209,6 +1210,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (isGrounded || (Time.currentTime - lastGrounded) / 1e9f < COYOTE_TIME)
 					{
 						velocity.y = jumpPower;
+						Audio.Play(jumpSound, new Vector3(position, 0));
 						lastJumpInput = 0;
 						lastGrounded = 0;
 					}
@@ -1244,6 +1246,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (isGrounded || (Time.currentTime - lastGrounded) / 1e9f < COYOTE_TIME)
 				{
 					velocity.y = jumpPower;
+					Audio.Play(jumpSound, new Vector3(position, 0));
 					lastJumpInput = 0;
 					lastGrounded = 0;
 				}
@@ -1418,7 +1421,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				float fallDmg = (fallDistance - FALL_DAMAGE_DISTANCE) * 0.5f / equipLoadModifier;
 				hit(fallDmg, null, null, "A high fall", false);
 			}
-			if (velocity.y < -10)
+			if (velocity.y < -2)
 				onLand();
 
 			if (velocity.y < 0)
@@ -1887,9 +1890,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	void onLand()
 	{
-		TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
-		if (tile != null)
-			GameState.instance.level.addEntity(ParticleEffects.CreateStepEffect(MathHelper.RandomInt(4, 8), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+		if (velocity.y < -10)
+		{
+			TileType tile = GameState.instance.level.getTile(position - new Vector2(0, 0.5f));
+			if (tile != null)
+				GameState.instance.level.addEntity(ParticleEffects.CreateStepEffect(MathHelper.RandomInt(4, 8), MathHelper.ARGBToVector(tile.particleColor).xyz), position);
+		}
 
 		Audio.PlayOrganic(landSound, new Vector3(position, 0));
 		Item boots = getArmorItem(ArmorSlot.Boots) ?? DefaultWeapon.instance;
@@ -1905,13 +1911,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public override void update()
 	{
-		if (Input.IsKeyPressed(KeyCode.M) && GameState.instance.currentBoss != null)
-		{
-			Bomb bomb = new Bomb();
-			bomb.ignite();
-			level.addEntity(new ItemEntity(bomb, this), GameState.instance.currentBoss.position);
-		}
-
 		updateMovement();
 		updateActions();
 		updateStatus();
@@ -1926,7 +1925,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public Vector2 getWeaponOrigin(bool mainHand)
 	{
-		int frame = mainHand ? ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length) : animator.lastFrameIdx; // sway
+		int frame = mainHand ?
+			((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length)
+			: ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length); // sway
+
 		Vector2i animOffset = Vector2i.Zero;
 		if (animator.currentAnimation == "idle")
 			animOffset.y = -frame / 2;
@@ -2008,7 +2010,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (item.sprite != null)
 		{
-			if (actions.currentAction != null && actions.currentAction.getRenderWeapon(mainHand) != null)
+			if (actions.currentAction != null && (actions.currentAction.getRenderWeapon(mainHand) != null || item.customAttackRender))
 			{
 				Item renderWeapon = actions.currentAction.getRenderWeapon(mainHand);
 				if (renderWeapon != null)

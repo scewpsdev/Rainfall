@@ -26,8 +26,8 @@ public class BossRoom : Entity
 	{
 		boss.isBoss = true;
 
-		level.addEntity(gate0 = new BossGate(boss, room, true), (Vector2)room.getMarker(2));
-		level.addEntity(gate1 = new BossGate(boss, room, true), (Vector2)room.getMarker(3));
+		level.addEntity(gate0 = new BossGate(true), (Vector2)room.getMarker(2));
+		level.addEntity(gate1 = new BossGate(true), (Vector2)room.getMarker(3));
 	}
 
 	void open()

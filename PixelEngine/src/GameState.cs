@@ -231,12 +231,6 @@ public class GameState : State
 		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
 
 
-		level = null;
-		switchLevel(areaMines[4], areaMines[4].entrance.getSpawnPoint());
-		levelSwitchTime = -1;
-		return;
-
-
 		if (save.isDaily)
 		{
 			level = null;

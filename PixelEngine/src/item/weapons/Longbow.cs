@@ -7,16 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Longbow : Weapon
+public class Longbow : Bow
 {
 	public Longbow()
-		: base("longbow", WeaponType.Ranged)
+		: base("longbow")
 	{
 		displayName = "Longbow";
 
-		baseDamage = 2.5f;
-		baseAttackRate = 0.7f;
-		baseAttackRange = 50; // arrow speed
+		baseDamage = 1.8f;
+		baseAttackRate = 1.8f;
+		baseAttackRange = 40; // arrow speed
 		knockback = 8.0f;
 		trigger = false;
 		twoHanded = true;
@@ -31,22 +31,5 @@ public class Longbow : Weapon
 		icon = new Sprite(tileset.texture, 10 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
-	}
-
-	public override bool use(Player player)
-	{
-		Item arrows = player.getItem(requiredAmmo);
-		if (player.unlimitedArrows && arrows == null)
-		{
-			arrows = new Arrow();
-			player.giveItem(arrows);
-		}
-		if (arrows != null)
-		{
-			base.use(player);
-			Item arrow = player.removeItemSingle(arrows);
-			player.actions.queueAction(new BowShootAction(this, arrow, player.handItem == this));
-		}
-		return false;
 	}
 }

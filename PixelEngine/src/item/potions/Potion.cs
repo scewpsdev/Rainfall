@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 public class Potion : Item
 {
 	public List<PotionEffect> effects = new List<PotionEffect>();
-	public float throwableChance = 0.0f;
 	bool throwable = false;
 
 	public float spillRadius = 1.5f;
@@ -67,8 +66,12 @@ public class Potion : Item
 		}
 		else
 		{
-			player.actions.queueAction(new PotionDrinkAction(this));
-			return true;
+			if (player.actions.actionQueue.Count <= 1)
+			{
+				player.actions.queueAction(new PotionDrinkAction(this));
+				return true;
+			}
+			return false;
 		}
 	}
 

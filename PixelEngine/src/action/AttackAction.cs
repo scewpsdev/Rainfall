@@ -110,7 +110,7 @@ public class AttackAction : EntityAction
 
 		duration /= player.getAttackSpeedModifier();
 
-		trail = new WeaponTrail(20, null, Vector4.One, true, getWeaponTip(player), getWeaponTip(player, 0.9f));
+		trail = new WeaponTrail(20, null, Vector4.One, true, getWeaponTip(player), getWeaponTip(player, 0.99f));
 	}
 
 	public override void onFinished(Player player)
@@ -143,6 +143,7 @@ public class AttackAction : EntityAction
 			if (tileHit2 != null)
 			{
 				Debug.Assert(tileHit != null);
+				GameState.instance.level.raycastTiles(origin, direction, currentRange);
 				maxRange = tileHit.distance;
 			}
 
@@ -175,8 +176,11 @@ public class AttackAction : EntityAction
 						if (entity is Mob)
 						{
 							Mob mob = entity as Mob;
-							Vector2 knockback = (entity.position - (player.position + player.collider.center)).normalized * weapon.knockback;
-							mob.addImpulse(knockback);
+							if (damage > mob.poise)
+							{
+								Vector2 knockback = (entity.position - (player.position + player.collider.center)).normalized * weapon.knockback;
+								mob.addImpulse(knockback);
+							}
 						}
 
 						if (hittable is Mob)
@@ -226,6 +230,8 @@ public class AttackAction : EntityAction
 				float thickness = 0.9f;
 				if (anim == AttackAnim.SwingSideways)
 					thickness = MathHelper.Remap(Vector2.Dot(direction, Vector2.Rotate(Vector2.Right, currentAngle) * new Vector2(MathF.Sign(direction.x), 1)), -1, 1, 0.9f, 0.5f);
+				else if (anim == AttackAnim.SwingOverhead)
+					thickness = MathHelper.Remap(Vector2.Dot(direction, Vector2.Rotate(Vector2.Right, currentAngle) * new Vector2(MathF.Sign(direction.x), 1)), -1, 1, 0.99f, 0.9f);
 				else if (anim == AttackAnim.Stab)
 					thickness = 0.9f;
 				trail.setPosition(getWeaponTip(player), getWeaponTip(player, thickness));
@@ -263,7 +269,7 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => (anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.35f;
+		get => (anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.5f;
 	}
 
 	public float currentAngle

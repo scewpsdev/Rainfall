@@ -31,7 +31,7 @@ public class BowShootAction : EntityAction
 
 	public override void onFinished(Player player)
 	{
-		Vector2 direction = (player.lookDirection.normalized * 1.1f + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
+		Vector2 direction = (player.lookDirection * weapon.attackRange / 30 + Vector2.Up * 0.1f).normalized;
 		Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.03f;
 		direction = (direction + inaccuracy / (weapon.accuracy * player.getAccuracyModifier())).normalized;
 

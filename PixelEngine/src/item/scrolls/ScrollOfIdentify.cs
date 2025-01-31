@@ -42,7 +42,7 @@ public class ScrollOfIdentify : Item
 				if (choice != -1)
 				{
 					Item item = items[choice];
-					item.identify();
+					//item.identify();
 					player.hud.showMessage(item.displayName + " identified.");
 					player.removeItemSingle(this);
 				}

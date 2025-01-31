@@ -85,7 +85,7 @@ public static class CharacterInfoPanel
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
 					float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, MathHelper.ColorAlpha(UIColors.WINDOW_FRAME, alpha));
-					if (Input.IsMouseButtonPressed(MouseButton.Left, true) || Input.IsKeyPressed(KeyCode.Return))
+					if (hovered && (Input.IsKeyPressed(KeyCode.Return) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 					{
 						value++;
 						player.availableStatUpgrades--;

@@ -129,7 +129,8 @@ public abstract class Item
 	public static readonly Sound[] heavyEquip = [Resource.GetSound("sounds/equip_heavy.ogg")];
 	public static readonly Sound[] ringEquip = [Resource.GetSound("sounds/equip_ring.ogg")];
 
-	public static readonly Sound[] weaponUse = Resource.GetSounds("sounds/swing", 3);
+	public static readonly Sound[] weaponSwing = Resource.GetSounds("sounds/swing", 3);
+	public static readonly Sound[] weaponThrust = Resource.GetSounds("sounds/swing_dagger", 4);
 	public static readonly Sound[] potionUse = [Resource.GetSound("sounds/use_potion.ogg")];
 
 	static readonly string[] scalingLetters = ["-", "D", "C", "B", "A", "S"];
@@ -157,7 +158,6 @@ public abstract class Item
 	public bool isSecondaryItem = false;
 	public bool twoHanded = false;
 	public ArmorSlot armorSlot = ArmorSlot.None;
-	public bool identified = true;
 
 	public float baseDamage = 1;
 	public float getInfusedDamage()
@@ -341,7 +341,7 @@ public abstract class Item
 		stackable = type == ItemType.Food || type == ItemType.Potion || type == ItemType.Relic || type == ItemType.Scroll || type == ItemType.Gem || type == ItemType.Ammo;
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor;
 
-		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponUse : type == ItemType.Potion ? potionUse : null;
+		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponSwing : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
 		blockSound = weaponHit;
 		parrySound = parryHit;
@@ -435,11 +435,6 @@ public abstract class Item
 		}
 	}
 
-	public void identify()
-	{
-		identified = true;
-	}
-
 	public virtual void upgrade()
 	{
 		value += upgradeCost / 2;
@@ -455,10 +450,15 @@ public abstract class Item
 	{
 		get
 		{
-			if (type == ItemType.Weapon || type == ItemType.Staff)
+			if (type == ItemType.Weapon)
 			{
 				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
 				return (int)(dps * 10 * (1 + upgradeLevel * 0.5f));
+			}
+			else if (type == ItemType.Staff)
+			{
+				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
+				return (int)(dps * 15 * (1 + upgradeLevel * 0.5f));
 			}
 			else if (type == ItemType.Armor)
 			{
@@ -811,12 +811,14 @@ public abstract class Item
 			newItem.stackSize += MathHelper.RandomInt(1, difference, random);
 		}
 
+		/*
 		if (newItem.type == ItemType.Potion)
 		{
 			Potion potion = newItem as Potion;
 			if (random.NextSingle() < potion.throwableChance)
 				potion.makeThrowable();
 		}
+		*/
 
 		return newItem;
 

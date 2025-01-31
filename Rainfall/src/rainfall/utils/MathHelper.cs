@@ -348,5 +348,23 @@ namespace Rainfall
 				list[n] = value;
 			}
 		}
+
+		public static T ChooseRandom<T>(List<T> list, Func<T, float> getRarity, Random random = null) where T : class
+		{
+			if (random == null)
+				random = Random.Shared;
+			float raritySum = 0;
+			for (int i = 0; i < list.Count; i++)
+				raritySum += getRarity(list[i]);
+			float r = random.NextSingle();
+			float f = 0;
+			for (int i = 0; i < list.Count; i++)
+			{
+				f += getRarity(list[i]) / raritySum;
+				if (r <= f)
+					return list[i];
+			}
+			return null;
+		}
 	}
 }

@@ -175,14 +175,14 @@ public class HUD
 		{
 			for (int i = 0; i < text.Length; i++)
 			{
-				Vector2i size = Renderer.MeasureUIText(text[i]);
+				Vector2i size = Renderer.MeasureUITextBMP(text[i]);
 				float progress = elapsed / POPUP_DURATION;
 				float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
 				yanim = 0;
 				float alpha = elapsed < 1 ? elapsed : elapsed > POPUP_DURATION - 2 ? (1 - 0.5f * (elapsed - (POPUP_DURATION - 2))) : 1;
 				uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
-				Renderer.DrawUIText(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + i * (size.y + 2) + (int)yanim + 1, text[i], 1, MathHelper.ColorAlpha(0xFF000000, alpha));
-				Renderer.DrawUIText(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + i * (size.y + 2) + (int)yanim, text[i], 1, color);
+				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + (-text.Length + i) * (size.y + 1) + (int)yanim + 1, text[i], 1, MathHelper.ColorAlpha(0xFF000000, alpha));
+				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + (-text.Length + i) * (size.y + 1) + (int)yanim, text[i], 1, color);
 			}
 		}
 	}

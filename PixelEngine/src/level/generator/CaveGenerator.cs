@@ -467,6 +467,27 @@ public partial class LevelGenerator
 			}
 		});
 
+		// Rock
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && down.isSolid && down.visible)
+			{
+				float rockChance = 0.01f;
+				if (random.NextSingle() < rockChance)
+				{
+					if (random.NextSingle() < 0.9f)
+					{
+						level.addEntity(new Rock(), new Vector2(x + 0.5f, y));
+					}
+					else
+					{
+						level.addEntity(new Skull(), new Vector2(x + 0.5f, y));
+					}
+					objectFlags[x + y * width] = true;
+				}
+			}
+		});
+
 
 		spawnEnemies(createEnemy, entrancePosition);
 

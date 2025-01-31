@@ -41,7 +41,7 @@ public class Cliffside : Entity
 
 		level.addEntity(new CameraFrame(new Vector2(20, 40)), new Vector2(33, 70));
 
-		level.addEntity(level.exit = new LevelTransition(GameState.instance.hub, GameState.instance.hub.entrance, new Vector2i(1, 2), Vector2i.Right), new Vector2(room.width, 38));
+		level.addEntity(level.exit = new LevelTransition(GameState.instance.hub, GameState.instance.hub.entrance, new Vector2i(2, 2), Vector2i.Right), new Vector2(room.width, 38));
 
 		/*
 		level.addEntity(new EventTrigger(new Vector2(1, 3), null, (Player player) =>
