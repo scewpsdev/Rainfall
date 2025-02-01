@@ -16,7 +16,7 @@ public class LightningSpell : Spell
 		value = 27;
 
 		baseAttackRate = 1;
-		baseDamage = 1.2f;
+		baseDamage = 2.5f;
 		manaCost = 0.15f;
 		trigger = false;
 

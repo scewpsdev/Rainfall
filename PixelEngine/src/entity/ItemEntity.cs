@@ -119,7 +119,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 	void onHit(bool x, bool y)
 	{
-		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity.normalized * collider.size);
+		Vector2i pos = (Vector2i)Vector2.Floor(position + velocity * Time.deltaTime + velocity.normalized * 0.5f * collider.size.x);
 
 		if (velocity.lengthSquared > 4 * 4)
 		{
@@ -175,10 +175,15 @@ public class ItemEntity : Entity, Interactable, Hittable
 		if (stuck)
 		{
 			TileType tile = GameState.instance.level.getTile(stuckTile.x, stuckTile.y);
-			if (stuckTile != Vector2i.Zero && (tile == null || !tile.isSolid))
+			if (stuckTile == Vector2i.Zero || (tile == null || !tile.isSolid))
+			{
 				stuck = false;
+				gravity = -20;
+			}
 			else
+			{
 				return;
+			}
 		}
 
 		velocity.y += gravity * Time.deltaTime;

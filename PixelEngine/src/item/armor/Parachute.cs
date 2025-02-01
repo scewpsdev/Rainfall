@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Parachute : Item
 {
-	float activateSpeed = -18;
+	float activateSpeed = -12;
 	float fallSpeed = -5;
 
 	bool active = false;
@@ -37,13 +37,13 @@ public class Parachute : Item
 		{
 			Player player = entity as Player;
 
-			if (!active && player.velocity.y < activateSpeed)
+			if (!active && player.velocity.y < activateSpeed && InputManager.IsDown("Jump"))
 				active = true;
 
 			if (active)
 			{
 				player.velocity.y = MathF.Max(player.velocity.y, fallSpeed);
-				if (player.isGrounded || player.velocity.y > 0)
+				if (player.isGrounded || player.velocity.y > 0 || !InputManager.IsDown("Jump"))
 					active = false;
 			}
 		}

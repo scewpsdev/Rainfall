@@ -16,7 +16,8 @@ public class ScrollOfWeaponEnchantment : Item
 		value = 35;
 		rarity = 4;
 
-		sprite = new Sprite(tileset, 15, 2);
+		sprite = new Sprite(tileset, 4, 10);
+		spellIcon = new Sprite(tileset, 15, 2);
 	}
 
 	public override bool use(Player player)

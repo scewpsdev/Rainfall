@@ -96,6 +96,7 @@ public class WeaponTrail
 			//v2 = Vector2.Lerp(v2, v0, i / (float)(trail.points.Length - 1));
 			//v3 = Vector2.Lerp(v3, v1, (i + 1) / (float)(trail.points.Length - 1));
 			float alpha = 1 - i / (float)(points0.Length - 1);
+			alpha = 1;
 			//alpha = alpha * alpha;
 
 			Texture texture = null;

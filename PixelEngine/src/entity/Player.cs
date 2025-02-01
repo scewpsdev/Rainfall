@@ -494,7 +494,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	bool canEquipOffhandItem(Item item)
 	{
-		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded);
+		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand && (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded);
 	}
 
 	public void giveItem(Item item)
@@ -763,7 +763,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public ItemEntity throwItem(Item item, Vector2 direction, float speed = 14, bool throws = true)
 	{
 		direction = direction.normalized;
-		Vector2 itemVelocity = velocity * 0.5f + direction * speed;
+		Vector2 itemVelocity = /*velocity * 0.5f +*/ direction * speed;
 		if (!isGrounded && Vector2.Dot(direction, Vector2.UnitY) < -0.8f)
 			velocity.y = MathF.Max(velocity.y, 0) + 5.0f;
 		Vector2 throwOrigin = position + new Vector2(0, 0.5f) + direction.normalized * 0.1f;
@@ -1526,8 +1526,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (activeItems[selectedActiveItem] != null)
 				{
 					useActiveItem(activeItems[selectedActiveItem]);
-					if (activeItems[selectedActiveItem] == null && numActiveItems > 0)
-						switchActiveItem();
+					//if (activeItems[selectedActiveItem] == null && numActiveItems > 0)
+					//	switchActiveItem();
 				}
 			}
 			for (int i = 0; i < Math.Min(activeItems.Length, 9); i++)
@@ -1730,9 +1730,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				if (activeItems[i] != null)
 					activeItems[i].update(this);
 			}
+			for (int i = 0; i < spellItems.Count; i++)
+			{
+				if (spellItems[i] != null)
+					spellItems[i].update(this);
+			}
 			for (int i = 0; i < passiveItems.Count; i++)
 			{
 				passiveItems[i].update(this);
+			}
+			for (int i = 0; i < storedItems.Count; i++)
+			{
+				storedItems[i].update(this);
 			}
 
 			actions.update();

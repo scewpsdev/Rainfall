@@ -179,8 +179,7 @@ public class Fountain : Entity, Interactable
 
 	public override void onLevelSwitch(Level newLevel)
 	{
-		if (source != 0)
-			Audio.SetPaused(source, newLevel != level);
+		Audio.SetPaused(source, newLevel != level);
 	}
 
 	public override void update()

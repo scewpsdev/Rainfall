@@ -693,10 +693,8 @@ public class HUD
 
 	void renderSpells()
 	{
-		if (!(player.handItem != null && player.handItem.type == ItemType.Staff))
+		if (!(player.handItem != null && player.handItem.type == ItemType.Staff || player.offhandItem != null && player.offhandItem.type == ItemType.Staff))
 			return;
-
-		Staff staff = player.handItem as Staff;
 
 		int size = 16;
 		int width = player.spellItems.Count * (size + 1) - 1;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class ThrowingKnife : Item
 {
-	float speed = 24;
+	float speed = 32;
 
 	public ThrowingKnife()
 		: base("throwing_knife", ItemType.Ammo)
@@ -34,7 +34,8 @@ public class ThrowingKnife : Item
 	public override bool use(Player player)
 	{
 		Item knife = player.removeItemSingle(this);
-		player.throwItem(knife, player.lookDirection.normalized, speed);
+		ItemEntity entity = player.throwItem(knife, player.lookDirection.normalized, speed);
+		entity.gravity = -1;
 		return true;
 	}
 }

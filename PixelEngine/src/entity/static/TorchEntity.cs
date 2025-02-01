@@ -41,6 +41,12 @@ public class TorchEntity : Entity, Interactable
 
 	public override void destroy()
 	{
+		if (source != 0)
+		{
+			Audio.FadeoutSource(source, 1);
+			source = 0;
+		}
+
 		particles.remove();
 	}
 
@@ -67,8 +73,7 @@ public class TorchEntity : Entity, Interactable
 
 	public override void onLevelSwitch(Level newLevel)
 	{
-		if (source != 0)
-			Audio.SetPaused(source, newLevel != level);
+		Audio.SetPaused(source, newLevel != level);
 	}
 
 	public override unsafe void update()

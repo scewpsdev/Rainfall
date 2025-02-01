@@ -97,7 +97,7 @@ public class AttackAction : EntityAction
 		position += new Vector2(0, player.getWeaponOrigin(mainHand).y);
 		if (flip)
 			position.x *= -1;
-		position += player.position;
+		//position += player.position;
 		return position;
 	}
 
@@ -248,7 +248,7 @@ public class AttackAction : EntityAction
 	{
 		if (trail != null)
 		{
-			trail.render();
+			trail.render(player.position);
 		}
 	}
 

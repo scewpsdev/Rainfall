@@ -85,23 +85,26 @@ public class Object : Entity, Hittable, Interactable
 
 	protected virtual void onCollision(bool x, bool y, bool isEntity)
 	{
-		if (x)
+		if (!isEntity)
 		{
-			position.x -= velocity.x * Time.deltaTime;
-			velocity.x = -velocity.x * bounciness;
-		}
-		if (y)
-		{
-			if (velocity.y < -4)
-				velocity.x += MathHelper.RandomFloat(-0.1f, 0.1f) * bounciness;
+			if (x)
+			{
+				position.x -= velocity.x * Time.deltaTime;
+				velocity.x = -velocity.x * bounciness;
+			}
+			if (y)
+			{
+				if (velocity.y < -4)
+					velocity.x += MathHelper.RandomFloat(-0.1f, 0.1f) * bounciness;
 
-			//position.y -= velocity.y * Time.deltaTime;
-			velocity.y = -velocity.y * bounciness;
-			velocity.x *= bounciness;
-		}
+				//position.y -= velocity.y * Time.deltaTime;
+				velocity.y = -velocity.y * bounciness;
+				velocity.x *= bounciness;
+			}
 
-		if (velocity.lengthSquared > 4 && tumbles)
-			rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
+			if (velocity.lengthSquared > 4 && tumbles)
+				rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
+		}
 	}
 
 	public override void update()

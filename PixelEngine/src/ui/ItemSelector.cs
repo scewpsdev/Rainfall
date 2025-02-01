@@ -125,12 +125,12 @@ public static class ItemSelector
 
 			if (takeInput)
 			{
-				if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
+				if (selected && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true) && Renderer.IsHovered(x, y, shopWidth, lineHeight)))
 				{
 					choice = i;
 					Audio.PlayBackground(UISound.uiConfirm2);
 				}
-				if (selected && (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true)))
+				if (selected && (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true) && Renderer.IsHovered(x, y, shopWidth, lineHeight)))
 				{
 					choice = i;
 					secondary = true;

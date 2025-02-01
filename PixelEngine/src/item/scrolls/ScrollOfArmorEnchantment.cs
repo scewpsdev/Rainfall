@@ -15,7 +15,8 @@ public class ScrollOfArmorEnchantment : Item
 
 		value = 22;
 
-		sprite = new Sprite(tileset, 14, 2);
+		sprite = new Sprite(tileset, 4, 10);
+		spellIcon = new Sprite(tileset, 14, 2);
 	}
 
 	public override bool use(Player player)

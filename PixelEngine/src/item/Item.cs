@@ -524,6 +524,21 @@ public abstract class Item
 
 	public virtual void update(Entity entity)
 	{
+		if (entity is Player && type == ItemType.Ammo)
+		{
+			Player player = entity as Player;
+			HitData[] hits = new HitData[16];
+			int numHits = player.level.overlap(player.position + player.collider.center - 1, player.position + player.collider.center + 1, hits, Entity.FILTER_ITEM);
+			for (int i = 0; i < numHits; i++)
+			{
+				Debug.Assert(hits[i].entity is ItemEntity);
+				ItemEntity item = hits[i].entity as ItemEntity;
+				if (item.velocity.length < 1 && item.item.name == name)
+					item.interact(player);
+			}
+		}
+
+		/*
 		if (entity is Player && requiredAmmo != null)
 		{
 			Player player = entity as Player;
@@ -540,6 +555,7 @@ public abstract class Item
 				}
 			}
 		}
+		*/
 	}
 
 	public virtual void render(Entity entity)

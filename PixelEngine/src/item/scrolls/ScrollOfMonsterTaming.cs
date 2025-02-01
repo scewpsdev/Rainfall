@@ -15,7 +15,8 @@ public class ScrollOfMonsterTaming : Item
 
 		value = 15;
 
-		sprite = new Sprite(tileset, 12, 2);
+		sprite = new Sprite(tileset, 4, 10);
+		spellIcon = new Sprite(tileset, 12, 2);
 	}
 
 	Vector2i getSpawnTile(Vector2 position)

@@ -18,7 +18,7 @@ public static class ItemInfoPanel
 
 		y += 4;
 
-		Sprite sprite = item.type == ItemType.Spell ? item.spellIcon : item.sprite;
+		Sprite sprite = item.spellIcon != null ? item.spellIcon : item.sprite;
 		Renderer.DrawUIOutline(x + width / 2 - sprite.width / 2, y, sprite.width, sprite.height, sprite, false, 0xFF000000);
 		Renderer.DrawUISprite(x + width / 2 - sprite.width / 2, y, sprite.width, sprite.height, sprite, false, MathHelper.VectorToARGB(item.spriteColor));
 		y += sprite.height + 1;
@@ -237,13 +237,6 @@ public static class ItemInfoPanel
 				y += Renderer.smallFont.size;
 			}
 		}
-
-		y += 4;
-
-		drawLeft("M1 to equip");
-		y += Renderer.smallFont.size + 1;
-		drawLeft("M2 to drop");
-		y += Renderer.smallFont.size + 1;
 
 		Item itemInInv = GameState.instance.player.getItem(item.name);
 		if (itemInInv != null && item.stackable)

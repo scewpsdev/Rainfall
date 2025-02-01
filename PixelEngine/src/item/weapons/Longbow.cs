@@ -14,7 +14,7 @@ public class Longbow : Bow
 	{
 		displayName = "Longbow";
 
-		baseDamage = 1.8f;
+		baseDamage = 2.5f;
 		baseAttackRate = 1.8f;
 		baseAttackRange = 40; // arrow speed
 		knockback = 8.0f;
