@@ -73,7 +73,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int direction = 1;
 	public Vector2i aimPosition;
 	public Vector2 lookDirection = Vector2.Right;
-	public Vector2 impulseVelocity;
+	public float impulseVelocity;
 	float wallJumpVelocity;
 	float wallJumpFactor;
 	public bool isGrounded = false;
@@ -808,7 +808,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public void addImpulse(Vector2 impulse)
 	{
-		impulseVelocity.x += impulse.x;
+		impulseVelocity += impulse.x;
 		velocity.y += impulse.y;
 	}
 
@@ -1384,13 +1384,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, wallControl * getWallControlModifier() * Time.deltaTime);
 			velocity.x = MathHelper.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
 
-			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
-			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
-				impulseVelocity.x = 0;
+			impulseVelocity = MathHelper.Lerp(impulseVelocity, 0, 8 * Time.deltaTime);
+			if (MathF.Sign(impulseVelocity) == MathF.Sign(velocity.x))
+				impulseVelocity = 0;
 			else if (velocity.x == 0)
-				impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
+				impulseVelocity = MathF.Sign(impulseVelocity) * MathF.Min(MathF.Abs(impulseVelocity), speed);
 			//impulseVelocity.x = impulseVelocity.x - velocity.x;
-			velocity += impulseVelocity;
+			velocity.x += impulseVelocity;
 
 			if (isGrounded && lastLadderJumpedFrom != null)
 				lastLadderJumpedFrom = null;
@@ -1428,13 +1428,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				isGrounded = true;
 
 			velocity.y = 0;
-			impulseVelocity.y = 0;
 			//impulseVelocity.x *= 0.5f;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{
-			impulseVelocity.x = 0;
-			impulseVelocity.y *= 0.5f;
+			impulseVelocity = 0;
 			wallJumpFactor = 0;
 		}
 
@@ -1568,7 +1566,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down")) && lastLadderJumpedFrom != hoveredLadder)
 					{
 						currentLadder = hoveredLadder;
-						impulseVelocity = Vector2.Zero;
+						impulseVelocity = 0;
 						wallJumpFactor = 0;
 						isClimbing = true;
 						velocity = Vector2.Zero;

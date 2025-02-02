@@ -188,6 +188,7 @@ public class MainMenuState : State
 		drawLineRight("Visual Studio");
 		drawLineRight("Aseprite");
 		drawLineRight("OneNote");
+		drawLineRight("Audacity");
 	}
 
 	public override void onCharEvent(byte length, uint value)

@@ -124,7 +124,7 @@ public class ParticleEffect : Entity
 				ParticleData particle = systemData[i];
 				if (particle.active)
 				{
-					float size = particle.size / 0.1f / 16;
+					float size = MathF.Floor(particle.size * 16) / 16.0f;
 					size = MathF.Max(size, 1.0f / 16);
 					int u0 = 0, v0 = 0, w = 1, h = 1;
 					if (textureAtlases[j] != null)

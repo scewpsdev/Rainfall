@@ -124,7 +124,7 @@ public class Coin : Entity
 		if (target == null)
 		{
 			velocity.x = MathHelper.Lerp(velocity.x, 0, 5 * Time.deltaTime);
-			velocity.y += -10 * Time.deltaTime;
+			velocity.y += -20 * Time.deltaTime;
 
 			HitData[] hits = new HitData[32];
 			int numHits = GameState.instance.level.overlap(position - followDistance, position + followDistance, hits, FILTER_PLAYER | FILTER_MOB);

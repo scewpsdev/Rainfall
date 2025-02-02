@@ -12,7 +12,7 @@ public static class Level2
 	{
 		// Merchant 1
 		{
-			Level level = new Level(-1, "Level 2");
+			Level level = new Level(2, "Level 2");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -39,7 +39,7 @@ public static class Level2
 
 		// Slime
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -52,7 +52,7 @@ public static class Level2
 
 		// Blue Slime
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -65,7 +65,7 @@ public static class Level2
 
 		// Skeleton
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -76,9 +76,34 @@ public static class Level2
 			lastLevel = level;
 		}
 
+		// Merchant 4
+		{
+			Level level = new Level(2, "");
+			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.stone, TileType.rock);
+			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
+
+			Tinkerer merchant = new Tinkerer();
+			merchant.addShopItem(new ChainmailArmor());
+			merchant.addShopItem(new ChainmailHood());
+			merchant.addShopItem(new ChainmailGauntlets());
+			merchant.addShopItem(new ChainmailBoots());
+			merchant.addShopItem(new RingOfSwiftness());
+			merchant.addShopItem(new RingOfTears());
+			merchant.addShopItem(new RingOfThorns());
+			merchant.addShopItem(new ThrowingKnife() { stackSize = 30 }, 3);
+			merchant.addShopItem(new Cheese() { stackSize = 3 });
+			merchant.addShopItem(new PoisonVial() { stackSize = 3 });
+			merchant.addShopItem(new Arrow() { stackSize = 50 }, 1);
+			level.addEntity(merchant, (Vector2)level.rooms[0].getMarker(0x1));
+
+			generator.connectDoors(lastLevel.exit, level.entrance);
+			levels.Add(level);
+			lastLevel = level;
+		}
+
 		// Stalker
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -99,7 +124,7 @@ public static class Level2
 
 		// Combo 3
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -112,7 +137,7 @@ public static class Level2
 
 		// Merchant 4
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -136,19 +161,9 @@ public static class Level2
 			merchant.addShopItem(new Rapier());
 			merchant.addShopItem(new MoonbladeAxe());
 			merchant.addShopItem(new IronShield());
-			merchant.addShopItem(new ChainmailArmor());
-			merchant.addShopItem(new ChainmailHood());
-			merchant.addShopItem(new ChainmailGauntlets());
-			merchant.addShopItem(new ChainmailBoots());
 			merchant.addShopItem(new SpectralShield());
 			merchant.addShopItem(new MissileSpell());
-			merchant.addShopItem(new RingOfSwiftness());
-			merchant.addShopItem(new RingOfTears());
-			merchant.addShopItem(new RingOfThorns());
-			merchant.addShopItem(new ThrowingKnife() { stackSize = 30 }, 3);
 			merchant.addShopItem(new GoldenApple());
-			merchant.addShopItem(new PoisonVial() { stackSize = 3 });
-			merchant.addShopItem(new Arrow() { stackSize = 50 }, 1);
 			level.addEntity(merchant, (Vector2)level.rooms[0].getMarker(0x1));
 
 			Blacksmith blacksmith = NPCManager.blacksmith;
@@ -161,7 +176,7 @@ public static class Level2
 
 		// Gandalf
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -174,7 +189,7 @@ public static class Level2
 
 		// Combo
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -187,7 +202,7 @@ public static class Level2
 
 		// Combo
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -200,7 +215,7 @@ public static class Level2
 
 		// Merchant 4
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -221,7 +236,7 @@ public static class Level2
 
 		// Raya
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 5, TileType.stone, TileType.rock);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 
@@ -234,7 +249,7 @@ public static class Level2
 
 		// Exit
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(2, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 4, TileType.stone, TileType.rock, 0, 0x1);
 			generator.generateCaveBackground(level, simplex, TileType.stone, TileType.rock);
 

@@ -24,6 +24,7 @@ public class Rapier : Weapon
 
 		anim = AttackAnim.Stab;
 		canParry = true;
+		parryWeaponRotation = -0.3f * MathF.PI;
 		blockCharge = 0;
 
 		value = 12;

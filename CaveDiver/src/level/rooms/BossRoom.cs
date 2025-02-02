@@ -79,6 +79,7 @@ public class BossRoom : Entity
 				}
 
 				spawned = true;
+				SoundtrackManager.SetLayer(3);
 
 				close();
 			}
@@ -98,10 +99,13 @@ public class BossRoom : Entity
 
 			if (bossesDead)
 			{
+				if (bosses.Length == 1 && (bosses[0] is GolemBoss || bosses[0] is Raya || bosses[0] is Garran))
+					GameState.instance.player.hud.onBossDefeat();
+
 				GameState.instance.setBoss(null);
 				open();
 
-				GameState.instance.player.hud.onBossDefeat();
+				SoundtrackManager.SetLayer(2);
 
 				foreach (WorldEventListener listener in GameState.instance.worldEventListeners)
 					listener.onBossKilled(bosses);

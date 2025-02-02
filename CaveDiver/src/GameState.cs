@@ -116,6 +116,8 @@ public class GameState : State
 		QuestManager.Init();
 		NPCManager.Init();
 
+		SoundtrackManager.Init();
+
 		reset();
 	}
 
@@ -316,6 +318,19 @@ public class GameState : State
 		{
 			if (!save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
 				save.setFlag(SaveFile.FLAG_TUTORIAL_FINISHED);
+		}
+
+		if (newLevel.width == 30) // boss room
+		{
+			SoundtrackManager.SetLayer(2);
+		}
+		else if (newLevel == tutorial)
+		{
+			SoundtrackManager.SetLayer(0);
+		}
+		else
+		{
+			SoundtrackManager.SetLayer(1);
 		}
 
 		this.newLevel = newLevel;

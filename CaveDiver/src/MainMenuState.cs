@@ -146,6 +146,10 @@ public class MainMenuState : State
 
 		drawLine("A Game by Scewps");
 		drawLine("");
+		drawLine("Art and music");
+		back();
+		drawLineRight("Scewps");
+		drawLine("");
 		drawLine("Tools:");
 		back();
 		drawLineRight("C++");
@@ -157,7 +161,8 @@ public class MainMenuState : State
 		back();
 		drawLineRight("Visual Studio");
 		drawLineRight("Aseprite");
-		drawLineRight("OneNote");
+		drawLineRight("Reaper");
+		drawLineRight("Audacity");
 	}
 
 	public override void onCharEvent(byte length, uint value)

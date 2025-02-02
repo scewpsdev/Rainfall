@@ -53,6 +53,9 @@ namespace Rainfall.Native
 		internal static extern void Audio_SourceFadeinVolume(uint source, float time);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceFadeVolume(uint source, float volume, float time);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceSetPosition(uint source, Vector3 position);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]

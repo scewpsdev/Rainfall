@@ -223,7 +223,7 @@ public abstract class Item
 	public bool canParry = false;
 	public bool canBlock = false;
 	public float parryWindow = 0.25f;
-	public float parryWeaponRotation = -0.3f * MathF.PI;
+	public float parryWeaponRotation = 0.5f * MathF.PI;
 	public float blockCharge = 0.15f;
 	public float actionMovementSpeed = 0.4f;
 	public float blockAbsorption = 0.8f;
@@ -424,13 +424,13 @@ public abstract class Item
 			float r = rarity * MathF.Exp(-0.04f * value);
 			if (r >= 1.0f)
 				return UIColors.TEXT_RARITY_GARBAGE;
-			if (r >= 0.5f)
+			if (r >= 0.3f)
 				return UIColors.TEXT_RARITY_COMMON;
-			if (r >= 0.05f)
+			if (r >= 0.01f)
 				return UIColors.TEXT_RARITY_UNCOMMON;
-			if (r >= 0.005f)
+			if (r >= 0.001f)
 				return UIColors.TEXT_RARITY_RARE;
-			if (r >= 0.0005f)
+			if (r >= 0.0001f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}

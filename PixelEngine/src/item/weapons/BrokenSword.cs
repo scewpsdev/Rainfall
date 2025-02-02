@@ -17,6 +17,8 @@ public class BrokenSword : Weapon
 		baseAttackRange = 1;
 		baseAttackRate = 2;
 		baseWeight = 1;
+		canBlock = true;
+		parryWeaponRotation = -0.3f * MathF.PI;
 
 		value = 2;
 

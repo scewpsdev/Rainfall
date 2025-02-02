@@ -21,6 +21,8 @@ public class Zweihander : Weapon
 		twoHanded = true;
 		baseWeight = 2.5f;
 
+		canBlock = true;
+
 		attackEndAngle = -0.25f * MathF.PI;
 		attackStartAngle = MathF.PI;
 		//doubleBladed = true;

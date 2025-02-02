@@ -12,7 +12,7 @@ public static class Level1
 	{
 		// Merchant 1
 		{
-			Level level = new Level(-1, "Level 1");
+			Level level = new Level(1, "Level 1");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -36,7 +36,7 @@ public static class Level1
 
 		// Rat
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -49,7 +49,7 @@ public static class Level1
 
 		// Snake
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -62,7 +62,7 @@ public static class Level1
 
 		// Spider
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -75,7 +75,7 @@ public static class Level1
 
 		// Bat
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -88,7 +88,7 @@ public static class Level1
 
 		// Merchant 2
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -111,7 +111,7 @@ public static class Level1
 
 		// Green Spider
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -124,7 +124,7 @@ public static class Level1
 
 		// Orange Bat
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -135,9 +135,10 @@ public static class Level1
 			lastLevel = level;
 		}
 
+		/*
 		// Combo 1
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -150,7 +151,7 @@ public static class Level1
 
 		// Combo 2
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -160,10 +161,11 @@ public static class Level1
 			levels.Add(level);
 			lastLevel = level;
 		}
+		*/
 
 		// Merchant 3
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 2, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -193,7 +195,7 @@ public static class Level1
 
 		// Golem
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 3, TileType.dirt, TileType.stone);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 
@@ -206,7 +208,7 @@ public static class Level1
 
 		// Exit
 		{
-			Level level = new Level(-1, "");
+			Level level = new Level(1, "");
 			generator.generateSingleRoomLevel(level, generator.specialSet, 4, TileType.dirt, TileType.stone, 0, 0x1);
 			generator.generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
 

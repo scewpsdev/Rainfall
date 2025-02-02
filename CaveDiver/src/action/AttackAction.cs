@@ -97,7 +97,6 @@ public class AttackAction : EntityAction
 		position += new Vector2(0, player.getWeaponOrigin(mainHand).y);
 		if (flip)
 			position.x *= -1;
-		position += player.position;
 		return position;
 	}
 
@@ -147,7 +146,7 @@ public class AttackAction : EntityAction
 			}
 
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), direction, maxRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
+			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), direction, currentRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;
@@ -194,8 +193,9 @@ public class AttackAction : EntityAction
 
 						if (!player.isGrounded)
 						{
-							if (Vector2.Dot(player.impulseVelocity, -direction) < 4)
-								player.addImpulse(-direction * (4 - Vector2.Dot(player.impulseVelocity, -direction)));
+							Vector2 currentImpulse = new Vector2(player.impulseVelocity, player.velocity.y);
+							if (Vector2.Dot(currentImpulse, -direction) < 4)
+								player.addImpulse(-direction * (4 - Vector2.Dot(currentImpulse, -direction)));
 
 							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
 							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
@@ -246,7 +246,7 @@ public class AttackAction : EntityAction
 	{
 		if (trail != null)
 		{
-			trail.render();
+			trail.render(player.position);
 		}
 	}
 

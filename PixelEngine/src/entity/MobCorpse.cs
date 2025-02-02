@@ -23,7 +23,7 @@ public class MobCorpse : Entity
 	bool particlesEmitted = false;
 
 
-	public MobCorpse(Sprite sprite, Vector4 spriteColor, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, Vector2 impulseVelocity, FloatRect collider, bool renderLight = false, List<Item> passiveItems = null)
+	public MobCorpse(Sprite sprite, Vector4 spriteColor, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, float impulseVelocity, FloatRect collider, bool renderLight = false, List<Item> passiveItems = null)
 	{
 		this.sprite = sprite;
 		this.spriteColor = spriteColor;
@@ -33,7 +33,7 @@ public class MobCorpse : Entity
 		this.renderLight = renderLight;
 		this.passiveItems = passiveItems;
 
-		this.velocity = velocity * 0.5f + impulseVelocity;
+		this.velocity = velocity * 0.5f + new Vector2(impulseVelocity, 0);
 
 		this.collider = collider;
 		filterGroup = FILTER_DECORATION | FILTER_MOB;

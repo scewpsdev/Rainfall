@@ -36,12 +36,6 @@ public class PotionDrinkAction : EntityAction
 
 		if (potion.useSound != null)
 			Audio.PlayOrganic(potion.useSound, new Vector3(player.position, 0), 1, 1, 0.0f, 0.15f);
-
-		GlassBottle bottle = new GlassBottle();
-		if (player.storedItems.Count < player.storeCapacity || player.getItem(bottle.name) != null)
-			player.giveItem(bottle);
-		else
-			GameState.instance.level.addEntity(new ItemEntity(bottle), player.position + Vector2.Up * 0.5f);
 	}
 
 	public override Matrix getItemTransform(Player player, bool mainHand)

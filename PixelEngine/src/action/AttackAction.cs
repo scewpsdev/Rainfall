@@ -97,7 +97,6 @@ public class AttackAction : EntityAction
 		position += new Vector2(0, player.getWeaponOrigin(mainHand).y);
 		if (flip)
 			position.x *= -1;
-		//position += player.position;
 		return position;
 	}
 
@@ -143,7 +142,6 @@ public class AttackAction : EntityAction
 			if (tileHit2 != null)
 			{
 				Debug.Assert(tileHit != null);
-				GameState.instance.level.raycastTiles(origin, direction, currentRange);
 				maxRange = tileHit.distance;
 			}
 
@@ -195,9 +193,9 @@ public class AttackAction : EntityAction
 
 						if (!player.isGrounded)
 						{
-							Vector2 knockback = -direction * 4;
-							if (Vector2.Dot(player.impulseVelocity, -direction) < 4)
-								player.addImpulse(knockback);
+							Vector2 currentImpulse = new Vector2(player.impulseVelocity, player.velocity.y);
+							if (Vector2.Dot(currentImpulse, -direction) < 4)
+								player.addImpulse(-direction * (4 - Vector2.Dot(currentImpulse, -direction)));
 
 							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
 							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
@@ -294,7 +292,18 @@ public class AttackAction : EntityAction
 
 	public Vector2 worldDirection
 	{
-		get => new Vector2(MathF.Cos(currentAngle) * charDirection, MathF.Sin(currentAngle));
+		get
+		{
+			Vector2 direction = new Vector2(MathF.Cos(currentAngle) * charDirection, MathF.Sin(currentAngle));
+			if (anim == AttackAnim.SwingSideways)
+			{
+				if (MathF.Abs(Vector2.Dot(direction, Vector2.Right)) > 0.9f)
+					direction.y *= 0.5f;
+				else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
+					direction.x *= 0.5f;
+			}
+			return direction;
+		}
 	}
 
 	public override Matrix getItemTransform(Player player, bool mainHand)

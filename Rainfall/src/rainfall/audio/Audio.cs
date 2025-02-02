@@ -141,6 +141,16 @@ namespace Rainfall
 			Native.Audio.Audio_SourceFadeinVolume(source, time);
 		}
 
+		public static void FadeVolume(uint source, float volume, float time)
+		{
+			Native.Audio.Audio_SourceFadeVolume(source, volume, time);
+		}
+
+		public static void SetInaudibleBehavior(uint source, bool mustTick, bool kill)
+		{
+			Audio_SourceSetInaudibleBehavior(source, (byte)(mustTick ? 1 : 0), (byte)(kill ? 1 : 0));
+		}
+
 		public static void SetEffect(AudioEffect effect)
 		{
 			if (effect == AudioEffect.Reverb)
@@ -154,5 +164,8 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_Set3DVolume(float volume);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceSetInaudibleBehavior(uint source, byte mustTick, byte kill);
 	}
 }

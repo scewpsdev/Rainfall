@@ -222,7 +222,7 @@ public abstract class Item
 	public bool canParry = false;
 	public bool canBlock = false;
 	public float parryWindow = 0.25f;
-	public float parryWeaponRotation = -0.3f * MathF.PI;
+	public float parryWeaponRotation = 0.5f * MathF.PI;
 	public float blockCharge = 0.15f;
 	public float actionMovementSpeed = 0.4f;
 	public float blockAbsorption = 0.8f;

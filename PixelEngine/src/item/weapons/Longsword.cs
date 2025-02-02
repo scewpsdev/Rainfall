@@ -17,6 +17,9 @@ public class Longsword : Weapon
 		baseAttackRange = 1.2f;
 		baseAttackRate = 1.2f;
 
+		canBlock = true;
+		parryWeaponRotation = -0.3f * MathF.PI;
+
 		strengthScaling = 0.4f;
 		dexterityScaling = 0.2f;
 

@@ -67,7 +67,7 @@ public class Raya : Mob
 			const float dashDistance = 8;
 			const float dashSpeed = dashDistance / dashDuration;
 			const float dashTriggerDistance = 8;
-			const float dashCharge = 0.8f;
+			const float dashCharge = 1.0f;
 			const float dashCooldown = 0.8f;
 
 			AIAction dash = ai.addAction("dash", dashCharge, dashDuration, dashCooldown, dashSpeed, dashTriggerDistance);

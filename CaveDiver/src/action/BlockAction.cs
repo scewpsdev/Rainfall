@@ -31,8 +31,6 @@ public class BlockAction : EntityAction
 		{
 			duration = 1000;
 		}
-
-		speedMultiplier = shield.actionMovementSpeed;
 	}
 
 	public override void onQueued(Player player)
@@ -61,6 +59,8 @@ public class BlockAction : EntityAction
 			if (!input || player.actions.actionQueue.Count > 1)
 				cancel();
 		}
+
+		speedMultiplier = elapsedTime >= shield.blockCharge && player.isGrounded ? shield.actionMovementSpeed : 1;
 	}
 
 	public float progress
@@ -80,7 +80,7 @@ public class BlockAction : EntityAction
 
 	public override Matrix getItemTransform(Player player, bool mainHand)
 	{
-		float rotation = MathF.PI * 0.5f;
+		float rotation = shield.parryWeaponRotation;
 		if (shield.canParry)
 		{
 			float parryRotation = shield.parryWeaponRotation;
@@ -88,7 +88,7 @@ public class BlockAction : EntityAction
 		}
 		Matrix shieldTransform = Matrix.CreateTranslation(progress * 0.5f, 0, 0)
 			* Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, player.getWeaponOrigin(mainHand).y, 0)
-			* (shield.type == ItemType.Weapon ? Matrix.CreateTranslation(-0.25f, 0.3f, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation) : Matrix.Identity)
+			* (shield.type == ItemType.Weapon ? Matrix.CreateTranslation(-0.2f, 0.3f, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation) : Matrix.Identity)
 			;
 		bool flip = direction.x < 0;
 		if (flip)

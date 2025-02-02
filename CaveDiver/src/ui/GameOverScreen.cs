@@ -130,11 +130,11 @@ public static class GameOverScreen
 		Vector2i selectedCell = Vector2i.Zero;
 		InventoryUI.DrawEquipment3(x + width / 2 + padding, y + padding, width / 2 - 2 * padding, (height - 2 * padding) - playerViewSize, GameState.instance.player, ref selectedCell, out _);
 
-		string prompt1 = InputManager.GetBinding("UIConfirm").ToString() + " to quick restart";
+		string prompt1 = InputManager.GetBinding("UIConfirm").ToString() + " to restart";
 		Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt1).x / 2, y + height - padding - 12 - Renderer.MeasureUITextBMP(prompt1).y, prompt1);
 
-		string prompt2 = InputManager.GetBinding("UIConfirm2").ToString() + " to return to hub";
-		Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt2).x / 2, y + height - padding - Renderer.MeasureUITextBMP(prompt2).y, prompt2);
+		//string prompt2 = InputManager.GetBinding("UIConfirm2").ToString() + " to return to hub";
+		//Renderer.DrawUITextBMP(x + width / 2 + width / 4 - Renderer.MeasureUITextBMP(prompt2).x / 2, y + height - padding - Renderer.MeasureUITextBMP(prompt2).y, prompt2);
 
 		scoreRecordParticles?.update();
 		floorRecordParticles?.update();

@@ -142,6 +142,11 @@ RFAPI void Audio_SourceFadeinVolume(uint32_t source, float time)
 	soloud.fadeVolume(source, 1.0f, time);
 }
 
+RFAPI void Audio_SourceFadeVolume(uint32_t source, float volume, float time)
+{
+	soloud.fadeVolume(source, volume, time);
+}
+
 RFAPI void Audio_SourceSetPosition(uint32_t source, const Vector3& position)
 {
 	soloud.set3dSourcePosition(source, position.x, position.y, position.z);
@@ -160,6 +165,11 @@ RFAPI void Audio_SourceSetPitch(uint32_t source, float pitch)
 RFAPI void Audio_SourceSetLooping(uint32_t source, bool looping)
 {
 	soloud.setLooping(source, looping);
+}
+
+RFAPI void Audio_SourceSetInaudibleBehavior(uint32_t source, bool mustTick, bool kill)
+{
+	soloud.setInaudibleBehavior(source, mustTick, kill);
 }
 
 RFAPI void Audio_SoundSetSingleInstance(AudioSource* sound, bool singleInstance)

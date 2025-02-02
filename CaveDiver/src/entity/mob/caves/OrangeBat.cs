@@ -13,7 +13,7 @@ public class OrangeBat : Mob
 	{
 		displayName = "Orange Bat";
 
-		health = 5;
+		health = 7;
 		gravity = 0;
 		speed = 2;
 		canFly = true;

@@ -172,12 +172,6 @@ public class AdvancedAI : AI
 
 	void updateTargetFollow()
 	{
-		if (target is Player && !(target as Player).isAlive || target is Mob && !(target as Mob).isAlive)
-		{
-			setTarget(null);
-			return;
-		}
-
 		canSeeTarget = false;
 		if (canSeeEntity(target, out Vector2 toTarget, out float distance))
 		{
@@ -253,6 +247,15 @@ public class AdvancedAI : AI
 					lastAction = null;
 				}
 			}
+		}
+
+		if (target is Player && !(target as Player).isAlive || target is Mob && !(target as Mob).isAlive)
+		{
+			if (state == AIState.Action)
+				endAction();
+			state = AIState.Default;
+			setTarget(null);
+			return;
 		}
 	}
 

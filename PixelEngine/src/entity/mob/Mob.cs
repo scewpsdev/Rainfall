@@ -72,7 +72,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public int direction = 1;
 	float currentSpeed;
-	public Vector2 impulseVelocity;
+	public float impulseVelocity;
 	public bool isGrounded = false;
 	bool isSprinting = false;
 	bool isClimbing = false;
@@ -276,7 +276,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	public void addImpulse(Vector2 impulse)
 	{
-		impulseVelocity.x += impulse.x;
+		impulseVelocity += impulse.x;
 		velocity.y += impulse.y;
 	}
 
@@ -356,15 +356,15 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		{
 			velocity.y += gravity * Time.deltaTime;
 
-			impulseVelocity.x = MathHelper.Lerp(impulseVelocity.x, 0, 8 * Time.deltaTime);
-			if (MathF.Abs(impulseVelocity.x) < 0.01f)
-				impulseVelocity.x = 0;
-			if (MathF.Sign(impulseVelocity.x) == MathF.Sign(velocity.x))
+			impulseVelocity = MathHelper.Lerp(impulseVelocity, 0, 8 * Time.deltaTime);
+			if (MathF.Abs(impulseVelocity) < 0.01f)
+				impulseVelocity = 0;
+			if (MathF.Sign(impulseVelocity) == MathF.Sign(velocity.x))
 				velocity.x = 0;
 			//else if (velocity.x == 0)
 			//	impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
 			//impulseVelocity.x = impulseVelocity.x - velocity.x;
-			velocity += impulseVelocity;
+			velocity.x += impulseVelocity;
 		}
 		else
 		{
@@ -381,13 +381,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				isGrounded = true;
 
 			velocity.y = 0;
-			impulseVelocity.y = 0;
 			//impulseVelocity.x *= 0.5f;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{
-			impulseVelocity.x = 0;
-			impulseVelocity.y *= 0.5f;
+			impulseVelocity = 0;
 		}
 
 		position += displacement;

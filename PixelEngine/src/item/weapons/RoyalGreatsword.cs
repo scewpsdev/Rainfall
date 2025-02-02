@@ -13,11 +13,12 @@ public class RoyalGreatsword : Weapon
 	{
 		displayName = "Royal Greatsword";
 
-		baseDamage = 4;
+		baseDamage = 3;
 		baseAttackRange = 1.8f;
 		baseAttackRate = 1.5f;
 		twoHanded = true;
 		baseWeight = 3;
+		canBlock = true;
 
 		strengthScaling = 0.3f;
 

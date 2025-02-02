@@ -135,7 +135,7 @@ public static class CharacterInfoPanel
 		drawRightValueCompare(player.criticalChance * player.getCriticalChanceModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
-		drawLeft("Attack Rating", UIColors.TEXT);
+		drawLeft("Damage", UIColors.TEXT);
 		drawRightValue(player.handItem != null ? player.handItem.getAttackDamage(player) : DefaultWeapon.instance.getAttackDamage(player), player.availableStatUpgrades > 0 && (selectedLevelStat == 0 || selectedLevelStat == 1 || selectedLevelStat == 2) ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 

@@ -18,6 +18,8 @@ public class Shortsword : Weapon
 		baseAttackRate = 2.2f;
 		anim = AttackAnim.SwingSideways;
 		baseWeight = 1;
+		canBlock = true;
+		parryWeaponRotation = -0.3f * MathF.PI;
 
 		strengthScaling = 0.2f;
 		dexterityScaling = 0.3f;

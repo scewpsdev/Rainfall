@@ -531,7 +531,7 @@ public abstract class NPC : Mob, Interactable
 				currentCharacter += numChars;
 				lastCharacterTime = Time.currentTime;
 			}
-			if (!dialogueFinished && InputManager.IsPressed("Interact", true))
+			if (!dialogueFinished && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 				currentCharacter = 1000;
 
 			if (numChars > 0 && !dialogueFinished && currentCharacter % 2 == 0)
@@ -625,7 +625,7 @@ public abstract class NPC : Mob, Interactable
 				y += lineHeight;
 			}
 
-			if (dialogueFinished && InputManager.IsPressed("Interact", true))
+			if (dialogueFinished && (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 			{
 				DialogueScreen screen = currentDialogue.screens[0];
 				currentDialogue.screens.RemoveAt(0);
