@@ -876,18 +876,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 				else
 				{
-					if (blockingItem.type == ItemType.Shield)
+					if (projectile != null)
 					{
-						if (projectile != null)
-						{
-							projectile.velocity.x *= -1.0f;
-							projectile.velocity.y = MathF.Max(projectile.velocity.y, 0);
-						}
-						else if (itemEntity != null)
-						{
-							itemEntity.velocity.x *= -1.0f;
-							itemEntity.velocity.y = MathF.Max(itemEntity.velocity.y, 0);
-						}
+						projectile.velocity.x *= -1.0f;
+						projectile.velocity.y = MathF.Max(projectile.velocity.y, 0);
+					}
+					else if (itemEntity != null)
+					{
+						itemEntity.velocity.x *= -1.0f;
+						itemEntity.velocity.y = MathF.Max(itemEntity.velocity.y, 0);
 					}
 				}
 			}

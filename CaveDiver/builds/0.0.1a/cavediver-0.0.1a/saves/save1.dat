@@ -1,0 +1,61 @@
+flags = [ 1615716108 ]
+runs_finished = 4
+highscores = [ {
+score = 26709
+floor = 3
+time = 595.8609008789062
+kills = 79
+items0 = [ 2672026993, 0 ]
+items1 = [ 2299240343, 556032926, 2975214418, 0 ]
+items2 = [ 3053780000, 1067816680, 2596692361, 4095562195, 3587126076 ]
+}, {
+score = 27511
+floor = 3
+time = 649.845458984375
+kills = 78
+items0 = [ 711952859, 1751301209 ]
+items1 = [ 0, 0, 0, 0 ]
+items2 = [ 3053780000, 1067816680, 1597780868, 1505714389 ]
+}, {
+score = 26709
+floor = 3
+time = 595.8609008789062
+kills = 79
+items0 = [ 2672026993, 0 ]
+items1 = [ 2299240343, 556032926, 2975214418, 0 ]
+items2 = [ 3053780000, 1067816680, 2596692361, 4095562195, 3587126076 ]
+}, {
+score = 26709
+floor = 3
+time = 595.8609008789062
+kills = 79
+items0 = [ 2672026993, 0 ]
+items1 = [ 2299240343, 556032926, 2975214418, 0 ]
+items2 = [ 3053780000, 1067816680, 2596692361, 4095562195, 3587126076 ]
+} ]
+npcs = [ {
+name = rat_npc
+dialogues = [  ]
+quests = [ {
+name = cheese_quest
+state = Uninitialized
+snake_kills = 0
+} ]
+}, {
+name = logan
+dialogues = [  ]
+quests = [ {
+name = logan_quest
+state = Uninitialized
+staff_found = 0
+} ]
+}, {
+name = builder_merchant
+dialogues = [  ]
+}, {
+name = blacksmith
+dialogues = [ 1971503161, 583095836, 3748389534 ]
+}, {
+name = tinkerer
+dialogues = [  ]
+} ]

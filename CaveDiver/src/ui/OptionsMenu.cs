@@ -24,7 +24,6 @@ class InputOption : Option
 	{
 		this.name = displayName;
 		input = InputManager.GetBinding(name);
-		callback = (string str) => { ControlsSettings.SetBinding(name, str); };
 	}
 }
 
@@ -60,6 +59,7 @@ public static class OptionsMenu
 			new InputOption("Attack2", "Attack Secondary"),
 			new InputOption("UseItem", "Use Quick Item"),
 			new InputOption("SwitchItem", "Switch Quick Item"),
+			new InputOption("SwitchSpell", "Switch Spell Item"),
 			new InputOption("Inventory", "Open Inventory"),
 			new InputOption("UIConfirm", "Menu Confirm"),
 			new InputOption("UIConfirm2", "Menu Confirm Secondary"),
