@@ -972,12 +972,9 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	init.resolution.height = height;
 	init.resolution.reset = reset;
 	init.callback = new BGFXCallbacks();
+	init.debug = false;
+	init.profile = false;
 	SetBGFXWindow(window, init.platformData);
-
-#if _DEBUG
-	init.debug = true;
-	init.profile = true;
-#endif
 
 	if (!bgfx::init(init))
 	{

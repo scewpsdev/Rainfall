@@ -123,9 +123,12 @@ void SpriteBatch::submitDrawCall(int idx, bgfx::ViewId pass, bgfx::ProgramHandle
 	DrawCall2D& drawCall = drawCalls[idx];
 	bgfx::setIndexBuffer(&indexBuffer, drawCall.offset * 6, drawCall.count * 6);
 
-	for (int j = drawCall.firstTexture; j < drawCall.firstTexture + MAX_SPRITE_TEXTURES && j < textures.size; j++)
+	for (int i = 0; i < MAX_SPRITE_TEXTURES; i++)
 	{
-		bgfx::setTexture(j - drawCall.firstTexture, s_textures[j - drawCall.firstTexture], { textures[j] }, textureFlags[j]);
+		int ii = drawCall.firstTexture + i;
+		bgfx::TextureHandle texture = ii < textures.size ? bgfx::TextureHandle{ textures[ii] } : bgfx::TextureHandle BGFX_INVALID_HANDLE;
+		uint32_t flags = ii < textures.size ? textureFlags[ii] : UINT32_MAX;
+		bgfx::setTexture(i, s_textures[i], texture, flags);
 	}
 
 	bgfx::submit(pass, shader);
