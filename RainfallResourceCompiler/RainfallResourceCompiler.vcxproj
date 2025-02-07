@@ -173,10 +173,13 @@
     <ClCompile Include="src\GeometryCompiler.cpp" />
     <ClCompile Include="src\ModelWriter.cpp" />
     <ClCompile Include="src\ResourceCompiler.cpp" />
+    <ClCompile Include="src\ResourcePackager.cpp" />
     <ClCompile Include="src\ShaderCompiler.cpp" />
     <ClCompile Include="src\TextureCompiler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ResourceCompiler.h" />
+    <ClInclude Include="src\ResourcePackager.h" />
     <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\GeometryCompiler.h" />
     <ClInclude Include="src\ModelWriter.h" />

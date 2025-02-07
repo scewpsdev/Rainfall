@@ -8,22 +8,22 @@ namespace Rainfall
 {
 	public class Sound
 	{
-		internal IntPtr handle;
-
-		public readonly float duration;
+		internal IntPtr resource;
 
 
-		internal Sound(IntPtr handle, float duration)
+		internal Sound(IntPtr resource)
 		{
-			this.handle = handle;
-			this.duration = duration;
+			this.resource = resource;
 		}
+
+		public IntPtr handle => Resource.Resource_SoundGetHandle(resource);
+		public float duration => Resource.Resource_SoundGetDuration(resource);
 
 		public bool singleInstance
 		{
 			set
 			{
-				Native.Audio.Audio_SoundSetSingleInstance(handle, (byte)(value ? 1 : 0));
+				Audio.Audio_SoundSetSingleInstance(handle, (byte)(value ? 1 : 0));
 			}
 		}
 	}

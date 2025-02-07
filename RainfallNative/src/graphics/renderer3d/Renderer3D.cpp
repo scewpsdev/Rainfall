@@ -336,7 +336,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	const bgfx::Memory* boxIndicesMemory = Graphics_CreateVideoMemoryRef(sizeof(boxIndices), boxIndices, nullptr);
 	boxIBO = Graphics_CreateIndexBuffer(boxIndicesMemory, BufferFlags::None);
 
-	sphereData = Resource_CreateSceneDataFromFile("res/rainfall/sphere.gltf.bin", 0);
+	sphereData = Resource_GetScene("res/rainfall/sphere.gltf.bin", 0)->handle;
 	sphere = sphereData->meshes[0].vertexNormalTangentBuffer.idx;
 	sphereIBO = sphereData->meshes[0].indexBuffer.idx;
 
@@ -354,7 +354,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	bgfx::TextureInfo cubemapInfo;
 	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, 0, &cubemapInfo);
 
-	blueNoise64 = bgfx::TextureHandle{ Resource_CreateTexture2DFromFile("res/rainfall/LDR_LLL1_0.png.bin", BGFX_SAMPLER_POINT, nullptr) };
+	blueNoise64 = Resource_GetTexture("res/rainfall/LDR_LLL1_0.png.bin", BGFX_SAMPLER_POINT, false)->handle;
 
 	s_hzb = bgfx::createUniform("s_hzb", bgfx::UniformType::Sampler);
 	u_params = bgfx::createUniform("u_params", bgfx::UniformType::Vec4);

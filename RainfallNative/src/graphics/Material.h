@@ -1,12 +1,14 @@
 #pragma once
 
-#include "Shader.h"
-#include "Geometry.h"
+#include "Rainfall.h"
 
 #include "vector/Vector.h"
 
 #include <bgfx/bgfx.h>
 
+
+struct Shader;
+struct MaterialData;
 
 struct Material
 {

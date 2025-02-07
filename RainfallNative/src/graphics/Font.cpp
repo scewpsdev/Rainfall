@@ -14,13 +14,43 @@
 #include <stb_truetype.h>
 
 
+RFAPI FontData* FontData_Create(char* data, int size)
+{
+	FontData* fontData = BX_NEW(Application_GetAllocator(), FontData);
+
+	fontData->bufferLen = size;
+	fontData->bytes = (uint8_t*)data;
+
+	if (!stbtt_InitFont(&fontData->info, (uint8_t*)data, 0))
+		return {};
+
+	return fontData;
+}
+
+RFAPI void FontData_Destroy(FontData* fontData)
+{
+	BX_FREE(Application_GetAllocator(), fontData);
+}
+
+RFAPI Font* Resource_CreateFontFromData(FontData* data, float size, bool antialiased)
+{
+	Font* font = BX_NEW(Application_GetAllocator(), Font)(data, size, antialiased);
+	return font;
+}
+
+RFAPI int Resource_FontMeasureText(Font* font, const char* text, int offset, int count)
+{
+	return font->measureText(text, offset, count);
+}
+
+
 Font::Font(FontData* data, float size, bool antialiased, int atlasWidth, int atlasHeight, int charOffset)
 	: data(data), size(size), atlasWidth(atlasWidth), atlasHeight(atlasHeight), charOffset(charOffset)
 {
 	pixels = (uint8_t*)BX_ALLOC(Application_GetAllocator(), atlasWidth * atlasHeight);
 
 	int numChars = 255 - charOffset;
-	characters = (CharacterData*)BX_ALLOC(Application_GetAllocator(), sizeof(CharacterData) * numChars);
+	characters = (stbtt_bakedchar*)BX_ALLOC(Application_GetAllocator(), sizeof(stbtt_bakedchar) * numChars);
 	stbtt_BakeFontBitmap(data->bytes, 0, size, pixels, atlasWidth, atlasHeight, charOffset, numChars, characters);
 
 	texture = bgfx::createTexture2D(atlasWidth, atlasHeight, false, 1, bgfx::TextureFormat::R8, antialiased ? 0 : BGFX_SAMPLER_POINT, bgfx::makeRef(pixels, atlasWidth * atlasHeight));
@@ -29,19 +59,19 @@ Font::Font(FontData* data, float size, bool antialiased, int atlasWidth, int atl
 int Font::measureText(const char* text, int offset, int count)
 {
 	float textScale = 1.0f;
-	float scale = stbtt_ScaleForPixelHeight(data->info, size * textScale);
+	float scale = stbtt_ScaleForPixelHeight(&data->info, size * textScale);
 
 	int ascent, descent, lineGap;
-	stbtt_GetFontVMetrics(data->info, &ascent, &descent, &lineGap);
+	stbtt_GetFontVMetrics(&data->info, &ascent, &descent, &lineGap);
 	ascent = (int)roundf(ascent * scale);
 
 	float advance = 0;
 	for (int i = offset; i < offset + count; i++)
 	{
 		int advanceWidth, leftSideBearing;
-		stbtt_GetCodepointHMetrics(this->data->info, text[i], &advanceWidth, &leftSideBearing);
+		stbtt_GetCodepointHMetrics(&data->info, text[i], &advanceWidth, &leftSideBearing);
 
-		int kerning = stbtt_GetCodepointKernAdvance(this->data->info, text[i], text[i + 1]);
+		int kerning = stbtt_GetCodepointKernAdvance(&data->info, text[i], text[i + 1]);
 		if (i == offset + count - 1)
 			kerning = 0;
 		advance += roundf((advanceWidth - kerning + leftSideBearing) * scale);
@@ -52,10 +82,10 @@ int Font::measureText(const char* text, int offset, int count)
 
 void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, int viewportHeight, const char* text, int offset, int count, uint32_t color, SpriteBatch* batch)
 {
-	float scale = stbtt_ScaleForPixelHeight(this->data->info, this->size * textScale);
+	float scale = stbtt_ScaleForPixelHeight(&data->info, this->size * textScale);
 
 	int ascent, descent, lineGap;
-	stbtt_GetFontVMetrics(this->data->info, &ascent, &descent, &lineGap);
+	stbtt_GetFontVMetrics(&data->info, &ascent, &descent, &lineGap);
 	ascent = (int)roundf(ascent * scale);
 
 	float advance = 0;
@@ -69,7 +99,7 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, i
 		}
 
 		int advanceWidth, leftSideBearing;
-		stbtt_GetCodepointHMetrics(this->data->info, text[i], &advanceWidth, &leftSideBearing);
+		stbtt_GetCodepointHMetrics(&data->info, text[i], &advanceWidth, &leftSideBearing);
 
 		//int x0, x1, y0, y1;
 		//stbtt_GetCodepointBitmapBox(this->data->info, text[i], scale, scale, &x0, &y0, &x1, &y1);
@@ -152,7 +182,7 @@ void Font::drawText(bgfx::ViewId view, int x, int y, float z, float textScale, i
 			1.0f,
 			texture, flags);
 
-		int kerning = stbtt_GetCodepointKernAdvance(this->data->info, text[i], text[i + 1]);
+		int kerning = stbtt_GetCodepointKernAdvance(&data->info, text[i], text[i + 1]);
 		advance += roundf((advanceWidth - kerning + leftSideBearing) * scale);
 	}
 }

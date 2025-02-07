@@ -1,8 +1,12 @@
 #pragma once
 
-#include "Geometry.h"
 
-#include <bx/readerwriter.h>
+namespace bx
+{
+	struct FileReaderI;
+}
+
+struct SceneData;
 
 
 bool ReadSceneData(bx::FileReaderI* reader, const char* path, SceneData& scene);

@@ -254,6 +254,7 @@ namespace Rainfall
 
 	public class Model
 	{
+		internal IntPtr resource;
 		public unsafe SceneData* scene { get; private set; }
 		public unsafe BoundingBox boundingBox { get => scene->boundingBox; }
 		public unsafe BoundingSphere boundingSphere { get => scene->boundingSphere; }
@@ -265,9 +266,11 @@ namespace Rainfall
 		public float maxDistance = float.MaxValue;
 
 
-		unsafe internal Model(SceneData* scene)
+		unsafe internal Model(IntPtr resource)
 		{
-			this.scene = scene;
+			this.resource = resource;
+
+			scene = Resource.Resource_SceneGetHandle(resource);
 			skeleton = new Skeleton(scene);
 		}
 

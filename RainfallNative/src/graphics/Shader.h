@@ -2,12 +2,9 @@
 
 #include "Rainfall.h"
 
-#include <bgfx/bgfx.h>
-#include <tinystl/allocator.h>
-#include <tinystl/unordered_map.h>
-
-#include <tinystl/string.h>
 #include <unordered_map>
+
+#include <bgfx/bgfx.h>
 
 
 struct Shader
@@ -20,6 +17,5 @@ struct Shader
 };
 
 
-RFAPI Shader* Shader_Create(const char* vertexPath, const char* fragmentPath);
-RFAPI Shader* Shader_CreateCompute(const char* computePath);
-RFAPI void Shader_Destroy(Shader* shader);
+Shader* Shader_Create(const char* vertexPath, const char* fragmentPath);
+Shader* Shader_CreateCompute(const char* computePath);

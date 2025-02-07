@@ -20,12 +20,14 @@ namespace Rainfall
 
 	public class Shader
 	{
-		internal IntPtr handle;
+		internal IntPtr resource;
 
-		internal Shader(IntPtr handle)
+		internal Shader(IntPtr resource)
 		{
-			this.handle = handle;
+			this.resource = resource;
 		}
+
+		public IntPtr handle => Resource.Resource_ShaderGetHandle(resource);
 
 		public ushort getUniform(Span<byte> name, UniformType type, int num = 1)
 		{

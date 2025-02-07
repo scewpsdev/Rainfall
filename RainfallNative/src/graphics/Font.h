@@ -15,14 +15,11 @@
 #define DEFAULT_FONT_ATLAS_HEIGHT 1024
 
 
-struct FontInfo : stbtt_fontinfo {};
-struct CharacterData : stbtt_bakedchar {};
-
 struct FontData
 {
 	int bufferLen;
 	uint8_t* bytes;
-	FontInfo* info;
+	stbtt_fontinfo info;
 };
 
 struct Font
@@ -30,7 +27,7 @@ struct Font
 	float size;
 	FontData* data;
 
-	CharacterData* characters = nullptr;
+	stbtt_bakedchar* characters = nullptr;
 	int charOffset = -1;
 
 	uint8_t* pixels;

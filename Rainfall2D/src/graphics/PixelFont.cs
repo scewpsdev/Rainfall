@@ -19,16 +19,17 @@ namespace Rainfall2D
 	public class PixelFont
 	{
 		public Texture texture;
-		uint[] pixels;
 
 		List<CharData> characters = new List<CharData>();
 		Dictionary<char, int> charMap = new Dictionary<char, int>();
 
 
-		public PixelFont(string path)
+		public unsafe PixelFont(string path)
 		{
 			texture = Resource.GetTexture(path, false);
-			pixels = Resource.ReadImagePixels(path, out _);
+			texture.getImageData(out ImageData image);
+
+			uint* pixels = image.data;
 
 			char currentCharacter = ' ';
 			int currentWidth = 0;
@@ -59,6 +60,8 @@ namespace Rainfall2D
 					currentWidth++;
 				}
 			}
+
+			image.free();
 		}
 
 		public IntRect getCharacterRect(char character)

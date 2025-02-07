@@ -29,12 +29,12 @@ namespace Rainfall
 		{
 			this.position = position;
 			if (source != 0)
-				Native.Audio.Audio_SourceSetPosition(source, position);
+				Audio.Audio_SourceSetPosition(source, position);
 		}
 
 		public void playSound(Sound sound, float gain = 1.0f, float pitch = 1.0f, float rolloff = 0.2f)
 		{
-			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gain, pitch, rolloff);
+			source = Audio.Audio_SourcePlay(sound.handle, position, gain, pitch, rolloff);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
@@ -43,7 +43,7 @@ namespace Rainfall
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
-			source = Native.Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
+			source = Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
@@ -55,39 +55,39 @@ namespace Rainfall
 
 		public void stop()
 		{
-			Native.Audio.Audio_SourceStop(source);
+			Audio.Audio_SourceStop(source);
 			currentSound = null;
 			lastPlayed = 0;
 		}
 
 		public void pause()
 		{
-			Native.Audio.Audio_SourcePause(source);
+			Audio.Audio_SourcePause(source);
 		}
 
 		public void resume()
 		{
-			Native.Audio.Audio_SourceResume(source);
+			Audio.Audio_SourceResume(source);
 		}
 
 		public void rewind()
 		{
-			Native.Audio.Audio_SourceRewind(source);
+			Audio.Audio_SourceRewind(source);
 		}
 
 		public float gain
 		{
-			set { Native.Audio.Audio_SourceSetGain(source, value); }
+			set { Audio.Audio_SourceSetGain(source, value); }
 		}
 
 		public float pitch
 		{
-			set { Native.Audio.Audio_SourceSetPitch(source, value); }
+			set { Audio.Audio_SourceSetPitch(source, value); }
 		}
 
 		public bool isLooping
 		{
-			set { Native.Audio.Audio_SourceSetLooping(source, (byte)(value ? 1 : 0)); }
+			set { Audio.Audio_SourceSetLooping(source, (byte)(value ? 1 : 0)); }
 		}
 
 		public float timePlaying

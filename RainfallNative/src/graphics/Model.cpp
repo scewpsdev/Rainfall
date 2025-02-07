@@ -16,11 +16,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <map>
-
-
-std::map<uint32_t, bgfx::TextureHandle> loadedTextures;
-
 
 static void SubmitMesh(bgfx::ViewId view, SceneData* scene, int id, Shader* shader, const Matrix& transform)
 {
@@ -274,28 +269,14 @@ static void InitializeTexture(TextureData& texture, const char* scenePath, uint6
 				sprintf(fullPath, "%s.bin", texture.path);
 			}
 
-			uint32_t pathHash = hash(fullPath);
-			auto it = loadedTextures.find(pathHash);
-			if (it != loadedTextures.end())
+			if (TextureResource* tex = Resource_GetTexture(fullPath, flags, false))
 			{
-				texture.handle = it->second;
+				texture.handle = tex->handle;
 			}
 			else
 			{
-				char compiledPath[256];
-				strcpy(compiledPath, fullPath);
-				strcat(compiledPath, ".bin");
-
-				if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), compiledPath))
-				{
-					texture.handle = bgfx::createTexture(memory, flags);
-					loadedTextures.emplace(pathHash, texture.handle);
-				}
-				else
-				{
-					Console_Error("Failed to read model texture file '%s'", fullPath);
-					texture.handle = BGFX_INVALID_HANDLE;
-				}
+				Console_Error("Failed to read model texture file '%s'", fullPath);
+				texture.handle = BGFX_INVALID_HANDLE;
 			}
 		}
 	}

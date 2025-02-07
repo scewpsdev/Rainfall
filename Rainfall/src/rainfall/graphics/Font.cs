@@ -3,24 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Rainfall
 {
 	public class FontData
 	{
-		internal IntPtr handle;
+		internal IntPtr resource;
+		IntPtr handle;
 
 
-		internal FontData(IntPtr handle)
+		internal unsafe FontData(IntPtr resource)
 		{
-			this.handle = handle;
+			this.resource = resource;
+			byte* data = Resource.Resource_MiscGetData(resource, out int size);
+			handle = FontData_Create(data, size);
 		}
 
 		public Font createFont(float size, bool antialiased)
 		{
-			IntPtr fontHandle = Native.Resource.Resource_CreateFontFromData(handle, size, (byte)(antialiased ? 1 : 0));
+			IntPtr fontHandle = Resource.Resource_CreateFontFromData(handle, size, (byte)(antialiased ? 1 : 0));
 			return new Font(fontHandle, this, size, antialiased);
 		}
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe IntPtr FontData_Create(byte* data, int size);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void FontData_Destroy(IntPtr fontData);
 	}
 
 	public class Font
@@ -45,7 +55,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (byte* textPtr = text)
-					return Native.Resource.Resource_FontMeasureText(handle, textPtr, offset, length);
+					return Resource.Resource_FontMeasureText(handle, textPtr, offset, length);
 			}
 		}
 
@@ -61,7 +71,7 @@ namespace Rainfall
 
 		public int measureText(string text, int offset, int length)
 		{
-			return Native.Resource.Resource_FontMeasureText(handle, text, offset, length);
+			return Resource.Resource_FontMeasureText(handle, text, offset, length);
 		}
 
 		public int measureText(string text, int length)

@@ -22,10 +22,8 @@ bgfx::UniformHandle Shader::getUniform(const char* name, bgfx::UniformType::Enum
 	return it->second;
 }
 
-RFAPI Shader* Shader_Create(const char* vertexPath, const char* fragmentPath)
+Shader* Shader_Create(const char* vertexPath, const char* fragmentPath)
 {
-	//printf("Reading shaders '%s', '%s'\n", vertexPath, fragmentPath);
-
 	const bgfx::Memory* vertexMemory = ReadFileBinary(Application_GetFileReader(), vertexPath);
 	const bgfx::Memory* fragmentMemory = ReadFileBinary(Application_GetFileReader(), fragmentPath);
 
@@ -40,7 +38,7 @@ RFAPI Shader* Shader_Create(const char* vertexPath, const char* fragmentPath)
 	return nullptr;
 }
 
-RFAPI Shader* Shader_CreateCompute(const char* computePath)
+Shader* Shader_CreateCompute(const char* computePath)
 {
 	const bgfx::Memory* computeMemory = ReadFileBinary(Application_GetFileReader(), computePath);
 

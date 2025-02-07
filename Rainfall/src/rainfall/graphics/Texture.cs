@@ -198,12 +198,19 @@ namespace Rainfall
 
 	public class Texture
 	{
-		public ushort handle;
-
+		internal IntPtr resource;
+		public readonly ushort handle;
 		public readonly TextureInfo info;
 
 
-		internal Texture(ushort handle, TextureInfo info)
+		internal unsafe Texture(IntPtr resource)
+		{
+			this.resource = resource;
+			handle = Resource.Resource_TextureGetHandle(resource);
+			info = *Resource.Resource_TextureGetInfo(resource);
+		}
+
+		public Texture(ushort handle, TextureInfo info)
 		{
 			this.handle = handle;
 			this.info = info;
@@ -213,5 +220,10 @@ namespace Rainfall
 		public int height { get => info.height; }
 		public int depth { get => info.depth; }
 		public Vector3i size { get => new Vector3i(info.width, info.height, info.depth); }
+
+		public void getImageData(out ImageData image)
+		{
+			Resource.Resource_TextureGetImage(resource, out image);
+		}
 	}
 }

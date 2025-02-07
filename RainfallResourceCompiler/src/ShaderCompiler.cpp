@@ -2,6 +2,9 @@
 
 #include <bgfx/bgfx.h>
 
+#include <bx/bx.h>
+#include <bx/commandline.h>
+
 
 static const char* rendererNames[] =
 {

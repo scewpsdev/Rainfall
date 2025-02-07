@@ -1,13 +1,13 @@
-
+#include "ResourceCompiler.h"
 
 #include "ShaderCompiler.h"
 #include "TextureCompiler.h"
 #include "GeometryCompiler.h"
+#include "ResourcePackager.h"
 
 #include <bx/file.h>
 
 #include <iostream>
-#include <filesystem>
 #include <fstream>
 
 #include <vector>
@@ -15,17 +15,9 @@
 #include <future>
 #include <mutex>
 
-namespace fs = std::filesystem;
-
-
-struct ResourceTask
-{
-	fs::path path;
-	std::string outpath;
-};
-
 
 static bool optimizeSceneGraph = true;
+static bool package = false;
 
 static int assetsCompiled = 0;
 static int assetsUpToDate = 0;
@@ -95,7 +87,7 @@ static void CreateDirectory(fs::path directory)
 		fs::create_directories(directory);
 }
 
-static bool CopyFile(const char* path, const char* out)
+static bool CompileOtherResource(const char* path, const char* out)
 {
 	bx::FileReader reader;
 	if (bx::open(&reader, path))
@@ -128,7 +120,27 @@ static bool CopyFile(const char* path, const char* out)
 	return false;
 }
 
-static void CompileFile(const fs::path& file, const std::string& outpath)
+static bool IsShader(const std::string& extension)
+{
+	return extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh";
+}
+
+static bool IsTexture(const std::string& extension)
+{
+	return extension == ".png" || extension == ".jpg" || extension == ".hdr";
+}
+
+static bool IsGeometry(const std::string& extension)
+{
+	return extension == ".glb" || extension == ".gltf";
+}
+
+static bool IsSound(const std::string& extension)
+{
+	return extension == ".ogg" || extension == ".wav";
+}
+
+static void CompileFile(const fs::path& file, const char* outpath)
 {
 	std::string filepathStr = file.string();
 	std::string extension = file.extension().string();
@@ -137,7 +149,7 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 
 	bool success = true;
 
-	if (extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh")
+	if (IsShader(extension))
 	{
 		std::string name = file.stem().string();
 
@@ -146,106 +158,109 @@ static void CompileFile(const fs::path& file, const std::string& outpath)
 		bool compute = extension == ".csh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".csh", 4) == 0;
 
 		if (vertex)
-			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "vertex") && success;
+			success = CompileShader(filepathStr.c_str(), outpath, "vertex") && success;
 		if (fragment)
-			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "fragment") && success;
+			success = CompileShader(filepathStr.c_str(), outpath, "fragment") && success;
 		if (compute)
-			success = CompileShader(filepathStr.c_str(), outpath.c_str(), "compute") && success;
+			success = CompileShader(filepathStr.c_str(), outpath, "compute") && success;
 	}
-	else if (extension == ".png")
+	else if (IsTexture(extension))
 	{
-		std::string name = file.stem().string();
-		std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) {return std::tolower(c); });
+		if (extension == ".png")
+		{
+			std::string name = file.stem().string();
+			std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) {return std::tolower(c); });
 
-		if (name.find("cubemap") != std::string::npos)
-		{
-			bool equirect = name.find("equirect") != std::string::npos;
-			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, true, false, true, equirect, !equirect);
-		}
-		else
-		{
-			std::string format;
-			bool linear = false, normal = false, mipmaps = false;
-			if (name.find("basecolor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
+			if (name.find("cubemap") != std::string::npos)
 			{
-				format = "BC3";
-				linear = true;
-				mipmaps = true;
-			}
-			else if (name.find("normal") != std::string::npos)
-			{
-				format = "BC3";
-				linear = true;
-				normal = true;
-				mipmaps = true;
-			}
-			else if (name.find("roughnessmetallic") != std::string::npos)
-			{
-				format = "BC3";
-				linear = true;
-				mipmaps = true;
-			}
-			else if (name.find("roughness") != std::string::npos)
-			{
-				format = "BC3";
-				linear = true;
-				mipmaps = true;
-			}
-			else if (name.find("metallic") != std::string::npos)
-			{
-				format = "BC3";
-				linear = true;
-				mipmaps = true;
-			}
-			else if (name.find("height") != std::string::npos || name.find("displacement") != std::string::npos)
-			{
-				format = "BC4";
-				linear = true;
-				mipmaps = true;
-			}
-			else if (name.find("emissive") != std::string::npos || name.find("emission") != std::string::npos)
-			{
-				format = "BC3";
-				//linear = true;
-				mipmaps = true;
-			}
-			else if (name.find("_ao") != std::string::npos)
-			{
-				format = "BC4";
-				linear = true;
-				mipmaps = true;
+				bool equirect = name.find("equirect") != std::string::npos;
+				success = CompileTexture(filepathStr.c_str(), outpath, nullptr, true, false, true, equirect, !equirect);
 			}
 			else
 			{
-				format = "BGRA8";
-				linear = true;
-			}
+				std::string format;
+				bool linear = false, normal = false, mipmaps = false;
+				if (name.find("basecolor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
+				{
+					format = "BC3";
+					linear = true;
+					mipmaps = true;
+				}
+				else if (name.find("normal") != std::string::npos)
+				{
+					format = "BC3";
+					linear = true;
+					normal = true;
+					mipmaps = true;
+				}
+				else if (name.find("roughnessmetallic") != std::string::npos)
+				{
+					format = "BC3";
+					linear = true;
+					mipmaps = true;
+				}
+				else if (name.find("roughness") != std::string::npos)
+				{
+					format = "BC3";
+					linear = true;
+					mipmaps = true;
+				}
+				else if (name.find("metallic") != std::string::npos)
+				{
+					format = "BC3";
+					linear = true;
+					mipmaps = true;
+				}
+				else if (name.find("height") != std::string::npos || name.find("displacement") != std::string::npos)
+				{
+					format = "BC4";
+					linear = true;
+					mipmaps = true;
+				}
+				else if (name.find("emissive") != std::string::npos || name.find("emission") != std::string::npos)
+				{
+					format = "BC3";
+					//linear = true;
+					mipmaps = true;
+				}
+				else if (name.find("_ao") != std::string::npos)
+				{
+					format = "BC4";
+					linear = true;
+					mipmaps = true;
+				}
+				else
+				{
+					format = "BGRA8";
+					linear = true;
+				}
 
-			success = CompileTexture(filepathStr.c_str(), outpath.c_str(), format.c_str(), linear, normal, mipmaps);
+				success = CompileTexture(filepathStr.c_str(), outpath, format.c_str(), linear, normal, mipmaps);
+			}
+		}
+		else if (extension == ".jpg")
+		{
+			std::string name = file.stem().string();
+
+			std::string format = "BC3";
+			bool linear = false, normal = false, mipmaps = false;
+
+			success = CompileTexture(filepathStr.c_str(), outpath, format.c_str(), linear, normal, mipmaps);
+		}
+		else if (extension == ".hdr")
+		{
+			std::string name = file.stem().string();
+
+			success = CompileTexture(filepathStr.c_str(), outpath, nullptr, true, false, true, true, false);
 		}
 	}
-	else if (extension == ".jpg")
+	else if (IsGeometry(extension))
 	{
-		std::string name = file.stem().string();
-
-		std::string format = "BC3";
-		bool linear = false, normal = false, mipmaps = false;
-
-		success = CompileTexture(filepathStr.c_str(), outpath.c_str(), format.c_str(), linear, normal, mipmaps);
-	}
-	else if (extension == ".hdr")
-	{
-		std::string name = file.stem().string();
-
-		success = CompileTexture(filepathStr.c_str(), outpath.c_str(), nullptr, true, false, true, true, false);
-	}
-	else if (extension == ".glb" || extension == ".gltf")
-	{
-		success = CompileGeometry(filepathStr.c_str(), outpath.c_str(), optimizeSceneGraph);
+		success = CompileGeometry(filepathStr.c_str(), outpath, optimizeSceneGraph);
 	}
 	else
 	{
-		success = CopyFile(filepathStr.c_str(), outpath.c_str());
+		success = CompileOtherResource(filepathStr.c_str(), outpath);
 	}
 
 	if (success)
@@ -356,33 +371,44 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	return false;
 }
 
-static void ProcessFile(fs::path file, const std::string& outputDirectory, fs::path rootDirectory)
+static void ProcessFile(fs::path file, const std::string& outputDirectory, fs::path rootDirectory, bool package)
 {
-	std::string extension = file.extension().string();
-	std::string filepathStr = file.string();
 	std::string outdir = outputDirectory + file.parent_path().string().substr(rootDirectory.string().size());
-	std::string outpath = outdir + "\\" + file.filename().string() + ".bin";
+	std::string outpath = outdir + "\\" + file.filename().string();
 
-	bool fileOutdated = FileHasChanged(file, outpath, extension, assetTable);
-	if (fileOutdated)
+	if (package)
 	{
-		assetsCompiled++;
-		CreateDirectory(outdir);
+		std::string file = outpath.substr(0, outpath.length() - 4);
 		resourcesToCompile.push_back({ file, outpath });
 	}
 	else
 	{
-		assetsUpToDate++;
+		outpath = outpath + ".bin";
+
+		std::string extension = file.extension().string();
+		std::string filepathStr = file.string();
+
+		bool fileOutdated = FileHasChanged(file, outpath, extension, assetTable);
+		if (fileOutdated)
+		{
+			assetsCompiled++;
+			CreateDirectory(outdir);
+			resourcesToCompile.push_back({ file, outpath });
+		}
+		else
+		{
+			assetsUpToDate++;
+		}
 	}
 }
 
-static void ProcessDirectory(fs::path directory, const std::string& outputDirectory, fs::path rootDirectory, const std::vector<std::string>& formats)
+static void ProcessDirectory(fs::path directory, const std::string& outputDirectory, fs::path rootDirectory, const std::vector<std::string>& formats, bool package)
 {
 	for (auto entry : fs::directory_iterator(directory))
 	{
 		if (fs::is_directory(entry))
 		{
-			ProcessDirectory(entry, outputDirectory, rootDirectory, formats);
+			ProcessDirectory(entry, outputDirectory, rootDirectory, formats, package);
 		}
 		else
 		{
@@ -392,12 +418,12 @@ static void ProcessDirectory(fs::path directory, const std::string& outputDirect
 				{
 					std::string extension = entry.path().extension().string().substr(1);
 					if (std::find(formats.begin(), formats.end(), extension) != formats.end())
-						ProcessFile(entry, outputDirectory, rootDirectory);
+						ProcessFile(entry, outputDirectory, rootDirectory, package);
 				}
 			}
 			else
 			{
-				ProcessFile(entry, outputDirectory, rootDirectory);
+				ProcessFile(entry, outputDirectory, rootDirectory, package);
 			}
 		}
 	}
@@ -422,6 +448,8 @@ int main(int argc, char* argv[])
 					singleFile = true;
 				else if (strcmp(arg, "--preserve-scenegraph") == 0)
 					optimizeSceneGraph = false;
+				else if (strcmp(arg, "--package") == 0)
+					package = true;
 			}
 			else
 			{
@@ -438,9 +466,47 @@ int main(int argc, char* argv[])
 		}
 
 
-		if (singleFile)
+		if (package)
 		{
-			CompileFile(rootDirectory, outputDirectory + ".bin");
+			ProcessDirectory(rootDirectory, rootDirectory.string(), rootDirectory, {}, true);
+
+			std::vector<ResourceTask> shaders;
+			std::vector<ResourceTask> textures;
+			std::vector<ResourceTask> geometries;
+			std::vector<ResourceTask> sounds;
+			std::vector<ResourceTask> misc;
+
+			for (int i = 0; i < (int)resourcesToCompile.size(); i++)
+			{
+				fs::path file = resourcesToCompile[i].path;
+				std::string extension = file.extension().string();
+				if (IsShader(extension))
+					shaders.push_back(resourcesToCompile[i]);
+				else if (IsTexture(extension))
+					textures.push_back(resourcesToCompile[i]);
+				else if (IsGeometry(extension))
+					geometries.push_back(resourcesToCompile[i]);
+				else if (IsSound(extension))
+					sounds.push_back(resourcesToCompile[i]);
+				else
+					misc.push_back(resourcesToCompile[i]);
+			}
+
+			if (shaders.size() > 0)
+				PackageResources(shaders, rootDirectory.string() + "\\datas.dat");
+			if (textures.size() > 0)
+				PackageResources(textures, rootDirectory.string() + "\\datat.dat");
+			if (geometries.size() > 0)
+				PackageResources(geometries, rootDirectory.string() + "\\datag.dat");
+			if (sounds.size() > 0)
+				PackageResources(sounds, rootDirectory.string() + "\\dataa.dat");
+			if (misc.size() > 0)
+				PackageResources(misc, rootDirectory.string() + "\\datam.dat");
+		}
+		else if (singleFile)
+		{
+			std::string outpath = outputDirectory + ".bin";
+			CompileFile(rootDirectory, outpath.c_str());
 		}
 		else
 		{
@@ -455,7 +521,7 @@ int main(int argc, char* argv[])
 
 			TryLoadAssetTable(assetTableFile.c_str());
 
-			ProcessDirectory(rootDirectory, outputDirectory, rootDirectory, formats);
+			ProcessDirectory(rootDirectory, outputDirectory, rootDirectory, formats, false);
 
 			for (size_t i = 0; i < changedDependencies.size(); i++)
 			{
@@ -468,8 +534,8 @@ int main(int argc, char* argv[])
 			for (size_t i = 0; i < resourcesToCompile.size(); i++)
 			{
 				ResourceTask task = resourcesToCompile[i];
-				resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath);
-				//CompileFile(task.path, task.outpath);
+				//resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath.c_str());
+				CompileFile(task.path, task.outpath.c_str());
 			}
 
 			bool allResourcesCompiled = false;

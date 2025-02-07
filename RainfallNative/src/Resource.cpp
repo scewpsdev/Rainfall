@@ -10,12 +10,17 @@
 #include "graphics/Graphics.h"
 #include "graphics/Font.h"
 
+#include "Hash.h"
+
 #include <stdio.h>
 #include <string.h>
+#include <map>
 
-#include <bx/file.h>
 #include <bimg/decode.h>
 #include <stb_truetype.h>
+
+#include <bx/bx.h>
+#include <bx/file.h>
 //#include <stb_vorbis.h>
 
 #include <soloud.h>
@@ -24,6 +29,8 @@
 
 struct ImageData
 {
+	bimg::ImageContainer* image;
+
 	void* data;
 	uint32_t size;
 
@@ -32,9 +39,19 @@ struct ImageData
 };
 
 
+static std::map<uint32_t, ShaderResource*> loadedShaders;
+static std::map<uint32_t, TextureResource*> loadedTextures;
+static std::map<uint32_t, SceneResource*> loadedScenes;
+static std::map<uint32_t, SoundResource*> loadedSounds;
+static std::map<uint32_t, MiscResource*> loadedMiscs;
+
+
 const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path)
 {
-	if (bx::open(reader, path))
+	char compiledPath[256];
+	sprintf(compiledPath, "%s.bin", path);
+
+	if (bx::open(reader, compiledPath))
 	{
 		uint32_t size = (uint32_t)bx::getSize(reader);
 		const bgfx::Memory* memory = bgfx::alloc(size + 1);
@@ -47,78 +64,32 @@ const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path)
 	return nullptr;
 }
 
-
-RFAPI bimg::ImageContainer* Resource_ReadImageFromFile(const char* path, bgfx::TextureInfo* info)
+static bgfx::TextureHandle ReadTexture(const char* path, uint64_t flags, bgfx::TextureInfo* info, const bgfx::Memory** outMem)
 {
 	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))
 	{
-		bx::Error err;
-		if (bimg::ImageContainer* image = bimg::imageParseKtx(Application_GetAllocator(), memory->data, memory->size, &err))
-		{
-			bgfx::calcTextureSize(*info, image->m_width, image->m_height, image->m_depth, image->m_cubeMap, image->m_numMips, image->m_numLayers, (bgfx::TextureFormat::Enum)image->m_format);
-			return image;
-		}
-	}
-	return nullptr;
-}
-
-RFAPI void* Resource_ImageGetData(bimg::ImageContainer* image)
-{
-	return image->m_data;
-}
-
-RFAPI void Resource_FreeImage(bimg::ImageContainer* image)
-{
-	bimg::imageFree(image);
-}
-
-RFAPI uint16_t Resource_CreateTexture2DFromFile(const char* path, uint64_t flags, bgfx::TextureInfo* info)
-{
-	//printf("Reading texture '%s'\n", path);
-
-	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))
-	{
-		return Graphics_CreateTextureFromMemory(memory, flags, info);
+		*outMem = memory;
+		return { Graphics_CreateTextureFromMemory(memory, flags, info) };
 	}
 
 	Console_Error("Failed to read texture '%s'", path);
-	return bgfx::kInvalidHandle;
+	return BGFX_INVALID_HANDLE;
 }
 
-RFAPI bool Resource_ReadImageData(const char* path, ImageData* imageData)
+static bgfx::TextureHandle ReadCubemap(const char* path, int64_t flags, bgfx::TextureInfo* info, const bgfx::Memory** outMem)
 {
 	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))
 	{
-		if (bimg::ImageContainer* image = bimg::imageParse(Application_GetAllocator(), memory->data, memory->size))
-		{
-			imageData->data = image->m_data;
-			imageData->size = image->m_size;
-			imageData->format = image->m_format;
-			imageData->width = image->m_width;
-			imageData->height = image->m_height;
-			return true;
-		}
-	}
-	return false;
-}
-
-RFAPI uint16_t Resource_CreateCubemapFromFile(const char* path, int64_t flags, bgfx::TextureInfo* info)
-{
-	//printf("Reading cubemap '%s'\n", path);
-
-	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))
-	{
-		return Graphics_CreateCubemapFromMemory(memory, flags, info);
+		*outMem = memory;
+		return { Graphics_CreateCubemapFromMemory(memory, flags, info) };
 	}
 
 	Console_Error("Failed to read cubemap '%s'", path);
-	return bgfx::kInvalidHandle;
+	return BGFX_INVALID_HANDLE;
 }
 
-RFAPI SceneData* Resource_CreateSceneDataFromFile(const char* path, uint64_t textureFlags)
+static SceneData* ReadScene(const char* path, uint64_t textureFlags)
 {
-	//printf("Reading model '%s'\n", path);
-
 	SceneData* scene = BX_NEW(Application_GetAllocator(), SceneData);
 	if (ReadSceneData(Application_GetFileReader(), path, *scene))
 	{
@@ -131,77 +102,293 @@ RFAPI SceneData* Resource_CreateSceneDataFromFile(const char* path, uint64_t tex
 	return nullptr;
 }
 
-RFAPI void Resource_DestroySceneData(SceneData* scene)
+static SoLoud::Wav* ReadSound(const char* path, float* outLength)
 {
-	BX_FREE(Application_GetAllocator(), scene);
-}
+	char compiledPath[256];
+	sprintf(compiledPath, "%s.bin", path);
 
-RFAPI FontData* Resource_CreateFontDataFromFile(const char* path)
-{
-	//printf("Reading font '%s'\n", path);
-
-	FontData* data = BX_NEW(Application_GetAllocator(), FontData);
-
-	if (const bgfx::Memory* memory = ReadFileBinary(Application_GetFileReader(), path))
+	SoLoud::Wav* wav = BX_NEW(Application_GetAllocator(), SoLoud::Wav);
+	if (wav->load(compiledPath))
 	{
-		data->bufferLen = memory->size;
-		data->bytes = memory->data;
-
-		data->info = BX_NEW(Application_GetAllocator(), FontInfo);
-		if (!stbtt_InitFont(data->info, data->bytes, 0))
-			return {};
-
-		return data;
+		Console_Error("Failed to read sound file '%s'", path);
+		return nullptr;
 	}
 
-	Console_Error("Failed to read font '%s'", path);
+	*outLength = (float)wav->getLength();
+
+	return wav;
+}
+
+static char* ReadBinary(const char* path, int* outSize)
+{
+	char compiledPath[256];
+	sprintf(compiledPath, "%s.bin", path);
+
+	bx::FileReader reader;
+	if (bx::open(&reader, compiledPath))
+	{
+		int size = (int)bx::getSize(&reader);
+		char* buffer = (char*)BX_ALLOC(Application_GetAllocator(), size + 1);
+		bx::read(&reader, buffer, size, bx::ErrorAssert{});
+		bx::close(&reader);
+		buffer[size] = '\0';
+		*outSize = size;
+		return buffer;
+	}
 	return nullptr;
 }
 
-RFAPI Font* Resource_CreateFontFromData(FontData* data, float size, bool antialiased)
+RFAPI ShaderResource* Resource_GetShader(const char* vertex, const char* fragment)
 {
-	Font* font = BX_NEW(Application_GetAllocator(), Font)(data, size, antialiased);
-	return font;
-}
-
-RFAPI int Resource_FontMeasureText(Font* font, const char* text, int offset, int count)
-{
-	return font->measureText(text, offset, count);
-}
-
-RFAPI SoLoud::Wav* Resource_CreateSoundFromFile(const char* path, float* outFloat)
-{
-	/*
-	int error = 0;
-	stb_vorbis* vorbis = stb_vorbis_open_filename(path, &error, NULL);
-	if (error)
+	uint32_t h = hashCombine(hash(vertex), hash(fragment));
+	auto it = loadedShaders.find(h);
+	if (it != loadedShaders.end())
 	{
-		Console_Error("Failed to read sound file '%s'", path);
-		return nullptr;
+		it->second->refCount++;
+		return it->second;
 	}
 
-	stb_vorbis_info info = stb_vorbis_get_info(vorbis);
+	ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
+	resource->handle = Shader_Create(vertex, fragment);
+	resource->hash = h;
+	resource->refCount = 1;
+	loadedShaders.emplace(h, resource);
+	return resource;
+}
 
-	int sampleRate = info.sample_rate;
-	int bps = 16;
-	int samples = stb_vorbis_stream_length_in_samples(vorbis);
-
-	int size = samples * info.channels * sizeof(short);
-	short* buffer = (short*)BX_ALLOC(Application_GetAllocator(), size);
-
-	stb_vorbis_get_samples_short_interleaved(vorbis, info.channels, buffer, samples * info.channels);
-
-	return BX_NEW(Application_GetAllocator(), Sound)(buffer, size, info.channels, sampleRate, bps);
-	*/
-
-	SoLoud::Wav* wav = BX_NEW(Application_GetAllocator(), SoLoud::Wav);
-	if (wav->load(path))
+RFAPI ShaderResource* Resource_GetShaderCompute(const char* compute)
+{
+	uint32_t h = hash(compute);
+	auto it = loadedShaders.find(h);
+	if (it != loadedShaders.end())
 	{
-		Console_Error("Failed to read sound file '%s'", path);
-		return nullptr;
+		it->second->refCount++;
+		return it->second;
 	}
 
-	*outFloat = (float)wav->getLength();
+	ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
+	resource->handle = Shader_CreateCompute(compute);
+	resource->hash = h;
+	resource->refCount = 1;
+	loadedShaders.emplace(h, resource);
+	return resource;
+}
 
-	return wav;
+RFAPI bool Resource_FreeShader(ShaderResource* resource)
+{
+	auto it = loadedShaders.find(resource->hash);
+	if (it == loadedShaders.end())
+		__debugbreak();
+
+	resource->refCount--;
+	if (resource->refCount == 0)
+	{
+		Graphics_DestroyShader(resource->handle);
+		loadedShaders.erase(it);
+		BX_FREE(Application_GetAllocator(), resource);
+		return false;
+	}
+
+	return true;
+}
+
+RFAPI Shader* Resource_ShaderGetHandle(ShaderResource* resource)
+{
+	return resource->handle;
+}
+
+RFAPI TextureResource* Resource_GetTexture(const char* path, uint64_t flags, bool cubemap)
+{
+	uint32_t h = hash(path);
+	auto it = loadedTextures.find(h);
+	if (it != loadedTextures.end())
+	{
+		it->second->refCount++;
+		return it->second;
+	}
+
+	TextureResource* resource = BX_NEW(Application_GetAllocator(), TextureResource);
+	resource->handle = cubemap ? ReadCubemap(path, flags, &resource->info, &resource->memory) : ReadTexture(path, flags, &resource->info, &resource->memory);
+	resource->hash = h;
+	resource->refCount = 1;
+	loadedTextures.emplace(h, resource);
+	return resource;
+}
+
+RFAPI bool Resource_FreeTexture(TextureResource* resource)
+{
+	auto it = loadedTextures.find(resource->hash);
+	if (it == loadedTextures.end())
+		__debugbreak();
+
+	resource->refCount--;
+	if (resource->refCount == 0)
+	{
+		Graphics_DestroyTexture(resource->handle.idx);
+		loadedTextures.erase(it);
+		BX_FREE(Application_GetAllocator(), resource);
+		return false;
+	}
+
+	return true;
+}
+
+RFAPI uint16_t Resource_TextureGetHandle(TextureResource* resource)
+{
+	return resource->handle.idx;
+}
+
+RFAPI bgfx::TextureInfo* Resource_TextureGetInfo(TextureResource* resource)
+{
+	return &resource->info;
+}
+
+RFAPI bool Resource_TextureGetImage(TextureResource* resource, ImageData* imageData)
+{
+	if (bimg::ImageContainer* image = bimg::imageParse(Application_GetAllocator(), resource->memory->data, resource->memory->size))
+	{
+		imageData->image = image;
+		imageData->data = image->m_data;
+		imageData->size = image->m_size;
+		imageData->format = image->m_format;
+		imageData->width = image->m_width;
+		imageData->height = image->m_height;
+
+		return true;
+	}
+	return false;
+}
+
+RFAPI void Resource_FreeImage(bimg::ImageContainer* image)
+{
+	bimg::imageFree(image);
+}
+
+RFAPI SceneResource* Resource_GetScene(const char* path, uint64_t textureFlags)
+{
+	uint32_t h = hash(path);
+	auto it = loadedScenes.find(h);
+	if (it != loadedScenes.end())
+	{
+		it->second->refCount++;
+		return it->second;
+	}
+
+	SceneResource* resource = BX_NEW(Application_GetAllocator(), SceneResource);
+	resource->handle = ReadScene(path, textureFlags);
+	resource->hash = h;
+	resource->refCount = 1;
+	loadedScenes.emplace(h, resource);
+	return resource;
+}
+
+RFAPI bool Resource_FreeScene(SceneResource* resource)
+{
+	auto it = loadedScenes.find(resource->hash);
+	if (it == loadedScenes.end())
+		__debugbreak();
+
+	resource->refCount--;
+	if (resource->refCount == 0)
+	{
+		Model_Destroy(resource->handle);
+		loadedScenes.erase(it);
+		BX_FREE(Application_GetAllocator(), resource);
+		return false;
+	}
+
+	return true;
+}
+
+RFAPI SceneData* Resource_SceneGetHandle(SceneResource* resource)
+{
+	return resource->handle;
+}
+
+RFAPI SoundResource* Resource_GetSound(const char* path)
+{
+	uint32_t h = hash(path);
+	auto it = loadedSounds.find(h);
+	if (it != loadedSounds.end())
+	{
+		it->second->refCount++;
+		return it->second;
+	}
+
+	SoundResource* resource = BX_NEW(Application_GetAllocator(), SoundResource);
+	resource->handle = ReadSound(path, &resource->length);
+	resource->hash = h;
+	resource->refCount = 1;
+	loadedSounds.emplace(h, resource);
+	return resource;
+}
+
+RFAPI bool Resource_FreeSound(SoundResource* resource)
+{
+	auto it = loadedSounds.find(resource->hash);
+	if (it == loadedSounds.end())
+		__debugbreak();
+
+	resource->refCount--;
+	if (resource->refCount == 0)
+	{
+		BX_FREE(Application_GetAllocator(), resource->handle);
+		loadedSounds.erase(it);
+		BX_FREE(Application_GetAllocator(), resource);
+		return false;
+	}
+
+	return true;
+}
+
+RFAPI SoLoud::Wav* Resource_SoundGetHandle(SoundResource* resource)
+{
+	return resource->handle;
+}
+
+RFAPI float Resource_SoundGetDuration(SoundResource* resource)
+{
+	return resource->length;
+}
+
+RFAPI MiscResource* Resource_GetMisc(const char* path)
+{
+	uint32_t h = hash(path);
+	auto it = loadedMiscs.find(h);
+	if (it != loadedMiscs.end())
+	{
+		it->second->refCount++;
+		return it->second;
+	}
+
+	MiscResource* resource = BX_NEW(Application_GetAllocator(), MiscResource);
+	resource->data = ReadBinary(path, &resource->size);
+	resource->hash = h;
+	resource->refCount = 1;
+	loadedMiscs.emplace(h, resource);
+	return resource;
+}
+
+RFAPI bool Resource_FreeMisc(MiscResource* resource)
+{
+	auto it = loadedMiscs.find(resource->hash);
+	if (it == loadedMiscs.end())
+		__debugbreak();
+
+	resource->refCount--;
+	if (resource->refCount == 0)
+	{
+		BX_FREE(Application_GetAllocator(), resource->data);
+		loadedMiscs.erase(it);
+		BX_FREE(Application_GetAllocator(), resource);
+		return false;
+	}
+
+	return true;
+}
+
+RFAPI char* Resource_MiscGetData(MiscResource* resource, int* outSize)
+{
+	*outSize = resource->size;
+	return resource->data;
 }
