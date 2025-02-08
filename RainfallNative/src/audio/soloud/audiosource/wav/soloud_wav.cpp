@@ -272,7 +272,6 @@ namespace SoLoud
 		if (tag == MAKEDWORD('O','g','g','S')) 
         {
 			return loadogg(aReader);
-
 		} 
         else if (tag == MAKEDWORD('R','I','F','F')) 
         {

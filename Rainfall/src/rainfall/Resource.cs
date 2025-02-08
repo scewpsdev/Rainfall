@@ -38,6 +38,11 @@ namespace Rainfall
 		static Dictionary<IntPtr, FontData> fonts = new Dictionary<nint, FontData>();
 
 
+		public static void LoadPackageHeader(string path)
+		{
+			Resource_LoadPackageHeader($"{ASSET_DIRECTORY}/{path}");
+		}
+
 		public static Shader GetShader(string vertexPath, string fragmentPath)
 		{
 			IntPtr resource = Resource_GetShader($"{ASSET_DIRECTORY}/{vertexPath}", $"{ASSET_DIRECTORY}/{fragmentPath}");
@@ -64,9 +69,9 @@ namespace Rainfall
 				shaders.Remove(shader.resource);
 		}
 
-		public static Texture GetTexture(string path, ulong flags = 0)
+		public static Texture GetTexture(string path, ulong flags = 0, bool keepCpuData = false)
 		{
-			IntPtr resource = Resource_GetTexture($"{ASSET_DIRECTORY}/{path}", flags, 0);
+			IntPtr resource = Resource_GetTexture($"{ASSET_DIRECTORY}/{path}", flags, 0, (byte)(keepCpuData ? 1 : 0));
 			if (textures.TryGetValue(resource, out Texture texture))
 				return texture;
 			texture = new Texture(resource);
@@ -74,9 +79,9 @@ namespace Rainfall
 			return texture;
 		}
 
-		public static Texture GetTexture(string path, bool linear)
+		public static Texture GetTexture(string path, bool linear, bool keepCpuData = false)
 		{
-			return GetTexture(path, linear ? 0 : (uint)SamplerFlags.Point);
+			return GetTexture(path, linear ? 0 : (uint)SamplerFlags.Point, keepCpuData);
 		}
 
 		public static void FreeTexture(Texture texture)
@@ -85,9 +90,9 @@ namespace Rainfall
 				textures.Remove(texture.resource);
 		}
 
-		public static Cubemap GetCubemap(string path, ulong flags = 0)
+		public static Cubemap GetCubemap(string path, ulong flags = 0, bool keepCpuData = false)
 		{
-			IntPtr resource = Resource_GetTexture($"{ASSET_DIRECTORY}/{path}", flags, 1);
+			IntPtr resource = Resource_GetTexture($"{ASSET_DIRECTORY}/{path}", flags, 1, (byte)(keepCpuData ? 1 : 0));
 			if (cubemaps.TryGetValue(resource, out Cubemap cubemap))
 				return cubemap;
 			cubemap = new Cubemap(resource);
@@ -203,6 +208,8 @@ namespace Rainfall
 
 
 
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Resource_LoadPackageHeader(string path);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Resource_GetShader(string vertexPath, string fragmentPath);
@@ -217,7 +224,7 @@ namespace Rainfall
 		internal static extern IntPtr Resource_ShaderGetHandle(IntPtr resource);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr Resource_GetTexture(string path, ulong flags, byte cubemap);
+		internal static extern IntPtr Resource_GetTexture(string path, ulong flags, byte cubemap, byte keepCPUData);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern byte Resource_FreeTexture(IntPtr resource);
@@ -230,6 +237,9 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern byte Resource_TextureGetImage(IntPtr resource, out ImageData imageData);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Resource_TextureFreeCPUData(IntPtr resource);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Resource_FreeImage(IntPtr handle);

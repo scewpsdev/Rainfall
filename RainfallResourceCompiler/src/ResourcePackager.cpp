@@ -4,17 +4,29 @@
 #include <bx/readerwriter.h>
 #include <bx/file.h>
 
+#include <zlib/zlib.h>
+
+#include <vector>
+
 
 struct ResourceHeaderElement
 {
 	char path[256];
 	int offset;
 	int size;
+	int decompressedSize;
+	int padding;
+};
+
+struct Resource
+{
+	ResourceHeaderElement header;
+	char* data;
 };
 
 static char* ReadFile(const char* path, int* size)
 {
-	FILE* fp = fopen(path, "r");
+	FILE* fp = fopen(path, "rb");
 	if (!fp)
 		return nullptr;
 
@@ -26,7 +38,7 @@ static char* ReadFile(const char* path, int* size)
 
 	char* buffer = (char*)malloc(bufsize);
 	memset(buffer, 0, bufsize);
-	fread(buffer, sizeof(char), bufsize, fp);
+	size_t readBytes = fread(buffer, sizeof(char), bufsize, fp);
 	*size = (int)bufsize;
 
 	fclose(fp);
@@ -34,7 +46,7 @@ static char* ReadFile(const char* path, int* size)
 	return buffer;
 }
 
-bool PackageResources(const std::vector<ResourceTask>& resources, const std::string packageOut)
+bool PackageResources(const std::vector<ResourceTask>& resources, const std::string packageOut, fs::path rootDirectory, bool compressData)
 {
 	bx::FileWriter* writer = new bx::FileWriter();
 	if (!bx::open(writer, packageOut.c_str()))
@@ -44,35 +56,70 @@ bool PackageResources(const std::vector<ResourceTask>& resources, const std::str
 
 	bx::ErrorAssert err;
 
-	int numResources = (int)resources.size();
+	int64_t numResources = (int64_t)resources.size();
 	bx::write(writer, numResources, &err);
 
 	int currentMemoryBlockOffset = 0;
-
+	std::vector<Resource> files;
 	for (int i = 0; i < numResources; i++)
 	{
 		ResourceHeaderElement header = {};
 
 		std::string file = resources[i].path.string();
-		if (file.length() >= 256)
-			__debugbreak();
+		file = file.substr(rootDirectory.parent_path().string().length() + 1);
+		BX_ASSUME(file.length() < 256);
 		strcpy(header.path, file.c_str());
 
-		int size = (int)std::filesystem::file_size(resources[i].outpath);
+		int size;
+		char* buffer = ReadFile(resources[i].outpath.c_str(), &size);
+
+		int compressedSize = size;
+
+		if (compressData)
+		{
+			compressedSize = compressBound(size);
+			Bytef* compressedData = new Bytef[compressedSize];
+			if (compress(compressedData, (uLong*)&compressedSize, (const Bytef*)buffer, size) != Z_OK)
+			{
+				printf("Compression failed: %s\n", file.c_str());
+				delete[] compressedData;
+				continue;
+			}
+			free(buffer);
+			buffer = (char*)compressedData;
+		}
 
 		header.offset = currentMemoryBlockOffset;
-		header.size = size;
-		currentMemoryBlockOffset += size;
+		header.size = compressedSize;
+		header.decompressedSize = size;
 
-		bx::write(writer, header, &err);
+		int paddedSize = (compressedSize + 7) / 8 * 8;
+		currentMemoryBlockOffset += paddedSize;
+
+		Resource r;
+		r.header = header;
+		r.data = buffer;
+		files.push_back(r);
 	}
 
 	for (int i = 0; i < numResources; i++)
 	{
-		int size;
-		char* buffer = ReadFile(resources[i].outpath.c_str(), &size);
-		bx::write(writer, buffer, size, &err);
-		delete buffer;
+		Resource r = files[i];
+		bx::write(writer, r.header, &err);
+	}
+
+	for (int i = 0; i < numResources; i++)
+	{
+		Resource r = files[i];
+		bx::write(writer, r.data, r.header.size, &err);
+
+		int paddedSize = (r.header.size + 7) / 8 * 8;
+		int padding = paddedSize - r.header.size;
+		for (int i = 0; i < padding; i++)
+		{
+			unsigned char c = 0;
+			bx::write(writer, c, &err);
+		}
 	}
 
 	bx::close(writer);

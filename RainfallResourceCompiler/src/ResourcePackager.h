@@ -5,4 +5,4 @@
 #include <vector>
 
 
-bool PackageResources(const std::vector<ResourceTask>& resources, const std::string packageOut);
+bool PackageResources(const std::vector<ResourceTask>& resources, const std::string packageOut, fs::path rootDirectory, bool compressData);

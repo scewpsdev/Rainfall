@@ -137,8 +137,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)RainfallNative\lib\lib\bgfx;$(ProjectDir)lib\lib\assimp\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_encode$(Configuration).lib;bimg_decode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)RainfallNative\lib\lib\bgfx;$(ProjectDir)lib\lib\assimp\$(Configuration);$(ProjectDir)lib\lib\zlib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_encode$(Configuration).lib;bimg_decode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;assimp-vc143-mtd.lib;zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(ProjectDir)lib\dll\$(Configuration)\*.dll" "$(OutDir)"</Command>
@@ -162,8 +162,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)RainfallNative\lib\lib\bgfx;$(ProjectDir)lib\lib\assimp\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_encode$(Configuration).lib;bimg_decode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)RainfallNative\lib\lib\bgfx;$(ProjectDir)lib\lib\assimp\$(Configuration);$(ProjectDir)lib\lib\zlib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_encode$(Configuration).lib;bimg_decode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;assimp-vc143-mt.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(ProjectDir)lib\dll\$(Configuration)\*.dll" "$(OutDir)"</Command>

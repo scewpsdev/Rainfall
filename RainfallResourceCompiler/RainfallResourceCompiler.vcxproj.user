@@ -14,9 +14,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>res D:\Dev\Rainfall\PixelEngine\bin\Debug\net8.0\assets png ogg vsh fsh csh ttf rfs gltf --preserve-scenegraph</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>D:\Dev\Rainfall\PixelEngine\bin\Debug\net8.0\assets --package --compress</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\Dev\Rainfall\RainfallNative\</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>res $(OutDir)net6.0\res gltf glb png jpg hdr tif ogg dat glsl shader ttf</LocalDebuggerCommandArguments>

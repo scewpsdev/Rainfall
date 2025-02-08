@@ -14,7 +14,6 @@ namespace bx
 
 
 bx::AllocatorI* Application_GetAllocator();
-bx::FileReaderI* Application_GetFileReader();
 
 RFAPI int64_t Application_GetTimestamp();
 RFAPI int64_t Application_GetCurrentTime();

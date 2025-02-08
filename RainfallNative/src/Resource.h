@@ -29,7 +29,8 @@ struct TextureResource
 {
 	bgfx::TextureHandle handle;
 	bgfx::TextureInfo info;
-	const bgfx::Memory* memory;
+	char* data = nullptr;
+	int size = 0;
 	uint32_t hash;
 	int refCount = 0;
 };
@@ -58,7 +59,15 @@ struct MiscResource
 };
 
 
-const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path);
+//const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path);
 
-RFAPI TextureResource* Resource_GetTexture(const char* path, uint64_t flags, bool cubemap);
+
+Shader* ReadShader(const char* vertexPath, const char* fragmentPath);
+Shader* ReadShaderCompute(const char* computePath);
+bgfx::TextureHandle ReadTexture(const char* path, uint64_t flags, bgfx::TextureInfo* info, char** outData, int* outSize);
+SceneData* ReadScene(const char* path, uint64_t textureFlags);
+
+RFAPI ShaderResource* Resource_GetShader(const char* vertex, const char* fragment);
+RFAPI ShaderResource* Resource_GetShaderCompute(const char* compute);
+RFAPI TextureResource* Resource_GetTexture(const char* path, uint64_t flags, bool cubemap, bool keepCPUData);
 RFAPI SceneResource* Resource_GetScene(const char* path, uint64_t textureFlags);

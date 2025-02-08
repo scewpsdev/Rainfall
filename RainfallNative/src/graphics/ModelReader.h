@@ -3,10 +3,10 @@
 
 namespace bx
 {
-	struct FileReaderI;
+	struct ReaderI;
 }
 
 struct SceneData;
 
 
-bool ReadSceneData(bx::FileReaderI* reader, const char* path, SceneData& scene);
+void ReadSceneData(bx::ReaderI* reader, SceneData& scene);

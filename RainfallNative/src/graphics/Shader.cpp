@@ -22,31 +22,3 @@ bgfx::UniformHandle Shader::getUniform(const char* name, bgfx::UniformType::Enum
 	return it->second;
 }
 
-Shader* Shader_Create(const char* vertexPath, const char* fragmentPath)
-{
-	const bgfx::Memory* vertexMemory = ReadFileBinary(Application_GetFileReader(), vertexPath);
-	const bgfx::Memory* fragmentMemory = ReadFileBinary(Application_GetFileReader(), fragmentPath);
-
-	if (!vertexMemory)
-		Console_Error("Failed to read vertex shader '%s'", vertexPath);
-	if (!fragmentMemory)
-		Console_Error("Failed to read fragment shader '%s'", fragmentPath);
-
-	if (vertexMemory && fragmentMemory)
-		return Graphics_CreateShader(vertexMemory, fragmentMemory);
-
-	return nullptr;
-}
-
-Shader* Shader_CreateCompute(const char* computePath)
-{
-	const bgfx::Memory* computeMemory = ReadFileBinary(Application_GetFileReader(), computePath);
-
-	if (!computeMemory)
-		Console_Error("Failed to read compute shader '%s'", computePath);
-
-	if (computeMemory)
-		return Graphics_CreateShaderCompute(computeMemory);
-
-	return nullptr;
-}

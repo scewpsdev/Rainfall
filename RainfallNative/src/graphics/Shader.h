@@ -15,7 +15,3 @@ struct Shader
 
 	bgfx::UniformHandle getUniform(const char* name, bgfx::UniformType::Enum type, int16_t num = 1);
 };
-
-
-Shader* Shader_Create(const char* vertexPath, const char* fragmentPath);
-Shader* Shader_CreateCompute(const char* computePath);

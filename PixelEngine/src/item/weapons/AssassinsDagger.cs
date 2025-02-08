@@ -30,6 +30,6 @@ public class AssassinsDagger : Weapon
 		renderOffset.x = 0.0f;
 		renderOffset.y = -0.25f;
 
-		useSound = Resource.GetSounds("sounds/swing_dagger", 6);
+		useSound = Resource.GetSounds("sounds/swing_dagger", 4);
 	}
 }

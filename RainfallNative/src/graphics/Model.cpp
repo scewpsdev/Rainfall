@@ -269,7 +269,7 @@ static void InitializeTexture(TextureData& texture, const char* scenePath, uint6
 				sprintf(fullPath, "%s.bin", texture.path);
 			}
 
-			if (TextureResource* tex = Resource_GetTexture(fullPath, flags, false))
+			if (TextureResource* tex = Resource_GetTexture(fullPath, flags, false, false))
 			{
 				texture.handle = tex->handle;
 			}

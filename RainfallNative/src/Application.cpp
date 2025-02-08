@@ -237,12 +237,6 @@ bx::AllocatorI* Application_GetAllocator()
 	BX_PRAGMA_DIAGNOSTIC_POP();
 }
 
-bx::FileReaderI* Application_GetFileReader()
-{
-	static bx::FileReader fileReader;
-	return &fileReader;
-}
-
 RFAPI void Application_GetTopAllocators(int num, char* files, int64_t* sizes)
 {
 #if TRACK_ALLOCATION_FILES

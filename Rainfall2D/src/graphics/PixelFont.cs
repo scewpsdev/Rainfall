@@ -26,8 +26,9 @@ namespace Rainfall2D
 
 		public unsafe PixelFont(string path)
 		{
-			texture = Resource.GetTexture(path, false);
+			texture = Resource.GetTexture(path, false, true);
 			texture.getImageData(out ImageData image);
+			texture.freeCPUData();
 
 			uint* pixels = image.data;
 

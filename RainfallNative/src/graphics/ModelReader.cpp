@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 
-static void ReadAABB(bx::FileReaderI* reader, AABB& aabb, bx::Error* err)
+static void ReadAABB(bx::ReaderI* reader, AABB& aabb, bx::Error* err)
 {
 	bx::read(reader, aabb.x0, err);
 	bx::read(reader, aabb.y0, err);
@@ -23,7 +23,7 @@ static void ReadAABB(bx::FileReaderI* reader, AABB& aabb, bx::Error* err)
 	bx::read(reader, aabb.z1, err);
 }
 
-static void ReadSphere(bx::FileReaderI* reader, Sphere& sphere, bx::Error* err)
+static void ReadSphere(bx::ReaderI* reader, Sphere& sphere, bx::Error* err)
 {
 	bx::read(reader, sphere.xcenter, err);
 	bx::read(reader, sphere.ycenter, err);
@@ -31,7 +31,7 @@ static void ReadSphere(bx::FileReaderI* reader, Sphere& sphere, bx::Error* err)
 	bx::read(reader, sphere.radius, err);
 }
 
-static void ReadMesh(bx::FileReaderI* reader, MeshData& mesh, bx::Error* err)
+static void ReadMesh(bx::ReaderI* reader, MeshData& mesh, bx::Error* err)
 {
 	mesh = {};
 
@@ -112,7 +112,7 @@ static void ReadMesh(bx::FileReaderI* reader, MeshData& mesh, bx::Error* err)
 	mesh.indexBuffer = BGFX_INVALID_HANDLE;
 }
 
-static void ReadMeshes(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
+static void ReadMeshes(bx::ReaderI* reader, SceneData& scene, bx::Error* err)
 {
 	for (int i = 0; i < scene.numMeshes; i++)
 	{
@@ -120,7 +120,7 @@ static void ReadMeshes(bx::FileReaderI* reader, SceneData& scene, bx::Error* err
 	}
 }
 
-static void ReadTexture(bx::FileReaderI* reader, TextureData& texture, bx::Error* err)
+static void ReadTexture(bx::ReaderI* reader, TextureData& texture, bx::Error* err)
 {
 	texture = {};
 
@@ -150,7 +150,7 @@ static void ReadTexture(bx::FileReaderI* reader, TextureData& texture, bx::Error
 	texture.handle = BGFX_INVALID_HANDLE;
 }
 
-static void ReadMaterial(bx::FileReaderI* reader, MaterialData& material, bx::Error* err)
+static void ReadMaterial(bx::ReaderI* reader, MaterialData& material, bx::Error* err)
 {
 	material = {};
 
@@ -213,7 +213,7 @@ static void ReadMaterial(bx::FileReaderI* reader, MaterialData& material, bx::Er
 	}
 }
 
-static void ReadMaterials(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
+static void ReadMaterials(bx::ReaderI* reader, SceneData& scene, bx::Error* err)
 {
 	for (int i = 0; i < scene.numMaterials; i++)
 	{
@@ -221,7 +221,7 @@ static void ReadMaterials(bx::FileReaderI* reader, SceneData& scene, bx::Error* 
 	}
 }
 
-static void ReadSkeleton(bx::FileReaderI* reader, SkeletonData& skeleton, bx::Error* err)
+static void ReadSkeleton(bx::ReaderI* reader, SkeletonData& skeleton, bx::Error* err)
 {
 	bx::read(reader, skeleton.boneCount, err);
 	skeleton.bones = (BoneData*)BX_ALLOC(Application_GetAllocator(), sizeof(BoneData) * skeleton.boneCount);
@@ -236,7 +236,7 @@ static void ReadSkeleton(bx::FileReaderI* reader, SkeletonData& skeleton, bx::Er
 	skeleton.inverseBindPose = Matrix::Identity;
 }
 
-static void ReadSkeletons(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
+static void ReadSkeletons(bx::ReaderI* reader, SceneData& scene, bx::Error* err)
 {
 	for (int i = 0; i < scene.numSkeletons; i++)
 	{
@@ -244,7 +244,7 @@ static void ReadSkeletons(bx::FileReaderI* reader, SceneData& scene, bx::Error* 
 	}
 }
 
-static void ReadAnimation(bx::FileReaderI* reader, AnimationData& animation, bx::Error* err)
+static void ReadAnimation(bx::ReaderI* reader, AnimationData& animation, bx::Error* err)
 {
 	bx::read(reader, animation.name, sizeof(animation.name), err);
 
@@ -276,7 +276,7 @@ static void ReadAnimation(bx::FileReaderI* reader, AnimationData& animation, bx:
 	}
 }
 
-static void ReadAnimations(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
+static void ReadAnimations(bx::ReaderI* reader, SceneData& scene, bx::Error* err)
 {
 	for (int i = 0; i < scene.numAnimations; i++)
 	{
@@ -284,7 +284,7 @@ static void ReadAnimations(bx::FileReaderI* reader, SceneData& scene, bx::Error*
 	}
 }
 
-static void ReadNode(bx::FileReaderI* reader, NodeData& node, bx::Error* err)
+static void ReadNode(bx::ReaderI* reader, NodeData& node, bx::Error* err)
 {
 	bx::read(reader, node.id, err);
 	bx::read(reader, node.name, sizeof(node.name), err);
@@ -303,7 +303,7 @@ static void ReadNode(bx::FileReaderI* reader, NodeData& node, bx::Error* err)
 	node.parent = nullptr;
 }
 
-static void ReadNodes(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
+static void ReadNodes(bx::ReaderI* reader, SceneData& scene, bx::Error* err)
 {
 	for (int i = 0; i < scene.numNodes; i++)
 	{
@@ -311,7 +311,7 @@ static void ReadNodes(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
 	}
 }
 
-static void ReadLight(bx::FileReaderI* reader, LightData& light, bx::Error* err)
+static void ReadLight(bx::ReaderI* reader, LightData& light, bx::Error* err)
 {
 	bx::read(reader, light.name, sizeof(light.name), err);
 
@@ -325,7 +325,7 @@ static void ReadLight(bx::FileReaderI* reader, LightData& light, bx::Error* err)
 	bx::read(reader, light.color, err);
 }
 
-static void ReadLights(bx::FileReaderI* reader, SceneData& scene, bx::Error* err)
+static void ReadLights(bx::ReaderI* reader, SceneData& scene, bx::Error* err)
 {
 	for (int i = 0; i < scene.numLights; i++)
 	{
@@ -333,43 +333,31 @@ static void ReadLights(bx::FileReaderI* reader, SceneData& scene, bx::Error* err
 	}
 }
 
-bool ReadSceneData(bx::FileReaderI* reader, const char* path, SceneData& scene)
+void ReadSceneData(bx::ReaderI* reader, SceneData& scene)
 {
-	char compiledPath[256];
-	sprintf(compiledPath, "%s.bin", path);
-
 	bx::Error err;
 
-	if (open(reader, compiledPath))
-	{
-		bx::read(reader, scene.numMeshes, &err);
-		bx::read(reader, scene.numMaterials, &err);
-		bx::read(reader, scene.numSkeletons, &err);
-		bx::read(reader, scene.numAnimations, &err);
-		bx::read(reader, scene.numNodes, &err);
-		bx::read(reader, scene.numLights, &err);
+	bx::read(reader, scene.numMeshes, &err);
+	bx::read(reader, scene.numMaterials, &err);
+	bx::read(reader, scene.numSkeletons, &err);
+	bx::read(reader, scene.numAnimations, &err);
+	bx::read(reader, scene.numNodes, &err);
+	bx::read(reader, scene.numLights, &err);
 
-		if (scene.numMeshes > 0) scene.meshes = (MeshData*)BX_ALLOC(Application_GetAllocator(), sizeof(MeshData) * scene.numMeshes);
-		if (scene.numMaterials > 0) scene.materials = (MaterialData*)BX_ALLOC(Application_GetAllocator(), sizeof(MaterialData) * scene.numMaterials);
-		if (scene.numSkeletons > 0) scene.skeletons = (SkeletonData*)BX_ALLOC(Application_GetAllocator(), sizeof(SkeletonData) * scene.numSkeletons);
-		if (scene.numAnimations > 0) scene.animations = (AnimationData*)BX_ALLOC(Application_GetAllocator(), sizeof(AnimationData) * scene.numAnimations);
-		if (scene.numNodes > 0) scene.nodes = (NodeData*)BX_ALLOC(Application_GetAllocator(), sizeof(NodeData) * scene.numNodes);
-		if (scene.numLights > 0) scene.lights = (LightData*)BX_ALLOC(Application_GetAllocator(), sizeof(LightData) * scene.numLights);
+	if (scene.numMeshes > 0) scene.meshes = (MeshData*)BX_ALLOC(Application_GetAllocator(), sizeof(MeshData) * scene.numMeshes);
+	if (scene.numMaterials > 0) scene.materials = (MaterialData*)BX_ALLOC(Application_GetAllocator(), sizeof(MaterialData) * scene.numMaterials);
+	if (scene.numSkeletons > 0) scene.skeletons = (SkeletonData*)BX_ALLOC(Application_GetAllocator(), sizeof(SkeletonData) * scene.numSkeletons);
+	if (scene.numAnimations > 0) scene.animations = (AnimationData*)BX_ALLOC(Application_GetAllocator(), sizeof(AnimationData) * scene.numAnimations);
+	if (scene.numNodes > 0) scene.nodes = (NodeData*)BX_ALLOC(Application_GetAllocator(), sizeof(NodeData) * scene.numNodes);
+	if (scene.numLights > 0) scene.lights = (LightData*)BX_ALLOC(Application_GetAllocator(), sizeof(LightData) * scene.numLights);
 
-		ReadMeshes(reader, scene, &err);
-		ReadMaterials(reader, scene, &err);
-		ReadSkeletons(reader, scene, &err);
-		ReadAnimations(reader, scene, &err);
-		ReadNodes(reader, scene, &err);
-		ReadLights(reader, scene, &err);
+	ReadMeshes(reader, scene, &err);
+	ReadMaterials(reader, scene, &err);
+	ReadSkeletons(reader, scene, &err);
+	ReadAnimations(reader, scene, &err);
+	ReadNodes(reader, scene, &err);
+	ReadLights(reader, scene, &err);
 
-		bx::read(reader, scene.boundingBox, &err);
-		bx::read(reader, scene.boundingSphere, &err);
-
-		close(reader);
-
-		return true;
-	}
-
-	return false;
+	bx::read(reader, scene.boundingBox, &err);
+	bx::read(reader, scene.boundingSphere, &err);
 }

@@ -102,6 +102,15 @@ struct List
 		this->buffer[this->size++] = t;
 	}
 
+	T& add()
+	{
+		while (this->size + 1 > this->capacity)
+		{
+			reserve(this->capacity + __max(this->capacity / 2, 1));
+		}
+		return *(new (&this->buffer[this->size++]) T());
+	}
+
 	void addAll(const List<T>& list)
 	{
 		while (this->size + list.size > this->capacity)

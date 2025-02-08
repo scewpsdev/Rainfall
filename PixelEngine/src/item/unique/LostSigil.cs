@@ -14,7 +14,7 @@ public class LostSigil : Item
 		displayName = "Lost Crown of the King";
 		description = "Once the symbol of a prosperous reign, now a tarnished relic of a descent into darkness.";
 
-		value = 100;
+		value = 0;
 		canDrop = false;
 		tumbles = false;
 

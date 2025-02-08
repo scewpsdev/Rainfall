@@ -52,7 +52,7 @@ public class RoomDefSet
 
 	public unsafe RoomDefSet(string path, bool createMirroredRooms = true)
 	{
-		Texture roomsTexture = Resource.GetTexture(path);
+		Texture roomsTexture = Resource.GetTexture(path, false, true);
 		roomsTexture.getImageData(out ImageData image);
 		rooms = new uint[image.width * image.height];
 		for (int i = 0; i < image.width * image.height; i++)

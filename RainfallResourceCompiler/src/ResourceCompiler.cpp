@@ -17,7 +17,6 @@
 
 
 static bool optimizeSceneGraph = true;
-static bool package = false;
 
 static int assetsCompiled = 0;
 static int assetsUpToDate = 0;
@@ -140,8 +139,10 @@ static bool IsSound(const std::string& extension)
 	return extension == ".ogg" || extension == ".wav";
 }
 
-static void CompileFile(const fs::path& file, const char* outpath)
+static void CompileFile(const fs::path& file, const std::string& outpathStr)
 {
+	const char* outpath = outpathStr.c_str();
+
 	std::string filepathStr = file.string();
 	std::string extension = file.extension().string();
 
@@ -412,18 +413,24 @@ static void ProcessDirectory(fs::path directory, const std::string& outputDirect
 		}
 		else
 		{
-			if (formats.size() > 0)
+			std::string name = entry.path().stem().string();
+			std::string extension = entry.path().extension().string();
+			bool packageFile = extension == ".dat" && name.substr(0, 4) == "data";
+			if (!packageFile)
 			{
-				if (entry.path().has_extension())
+				if (formats.size() > 0)
 				{
-					std::string extension = entry.path().extension().string().substr(1);
-					if (std::find(formats.begin(), formats.end(), extension) != formats.end())
-						ProcessFile(entry, outputDirectory, rootDirectory, package);
+					if (entry.path().has_extension())
+					{
+						std::string extension = entry.path().extension().string().substr(1);
+						if (std::find(formats.begin(), formats.end(), extension) != formats.end())
+							ProcessFile(entry, outputDirectory, rootDirectory, package);
+					}
 				}
-			}
-			else
-			{
-				ProcessFile(entry, outputDirectory, rootDirectory, package);
+				else
+				{
+					ProcessFile(entry, outputDirectory, rootDirectory, package);
+				}
 			}
 		}
 	}
@@ -437,6 +444,8 @@ int main(int argc, char* argv[])
 		std::string outputDirectory;
 		std::vector<std::string> formats;
 		bool singleFile = false;
+		bool package = false;
+		bool packageCompress = false;
 
 		int argIndex = 0;
 		for (int i = 1; i < argc; i++)
@@ -450,6 +459,8 @@ int main(int argc, char* argv[])
 					optimizeSceneGraph = false;
 				else if (strcmp(arg, "--package") == 0)
 					package = true;
+				else if (strcmp(arg, "--compress") == 0)
+					packageCompress = true;
 			}
 			else
 			{
@@ -493,15 +504,17 @@ int main(int argc, char* argv[])
 			}
 
 			if (shaders.size() > 0)
-				PackageResources(shaders, rootDirectory.string() + "\\datas.dat");
+				PackageResources(shaders, rootDirectory.string() + "\\datas.dat", rootDirectory, packageCompress);
 			if (textures.size() > 0)
-				PackageResources(textures, rootDirectory.string() + "\\datat.dat");
+				PackageResources(textures, rootDirectory.string() + "\\datat.dat", rootDirectory, packageCompress);
 			if (geometries.size() > 0)
-				PackageResources(geometries, rootDirectory.string() + "\\datag.dat");
+				PackageResources(geometries, rootDirectory.string() + "\\datag.dat", rootDirectory, packageCompress);
 			if (sounds.size() > 0)
-				PackageResources(sounds, rootDirectory.string() + "\\dataa.dat");
+				PackageResources(sounds, rootDirectory.string() + "\\dataa.dat", rootDirectory, packageCompress);
 			if (misc.size() > 0)
-				PackageResources(misc, rootDirectory.string() + "\\datam.dat");
+				PackageResources(misc, rootDirectory.string() + "\\datam.dat", rootDirectory, packageCompress);
+
+			printf("%d assets packaged.\n", (int)resourcesToCompile.size());
 		}
 		else if (singleFile)
 		{
@@ -534,8 +547,8 @@ int main(int argc, char* argv[])
 			for (size_t i = 0; i < resourcesToCompile.size(); i++)
 			{
 				ResourceTask task = resourcesToCompile[i];
-				//resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath.c_str());
-				CompileFile(task.path, task.outpath.c_str());
+				resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath);
+				//CompileFile(task.path, task.outpath.c_str());
 			}
 
 			bool allResourcesCompiled = false;

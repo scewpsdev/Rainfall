@@ -25,7 +25,8 @@ public class ParticleEffect : Entity
 	{
 		this.follow = follow;
 
-		FileStream stream = new FileStream(Resource.ASSET_DIRECTORY + "/" + file + ".bin", FileMode.Open);
+		string str = Resource.GetText(file);
+		MemoryStream stream = new MemoryStream(Encoding.ASCII.GetBytes(str));
 		SceneFormat.DeserializeScene(stream, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
 		stream.Close();
 

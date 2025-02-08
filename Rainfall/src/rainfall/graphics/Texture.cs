@@ -221,9 +221,14 @@ namespace Rainfall
 		public int depth { get => info.depth; }
 		public Vector3i size { get => new Vector3i(info.width, info.height, info.depth); }
 
-		public void getImageData(out ImageData image)
+		public bool getImageData(out ImageData image)
 		{
-			Resource.Resource_TextureGetImage(resource, out image);
+			return Resource.Resource_TextureGetImage(resource, out image) != 0;
+		}
+
+		public void freeCPUData()
+		{
+			Resource.Resource_TextureFreeCPUData(resource);
 		}
 	}
 }

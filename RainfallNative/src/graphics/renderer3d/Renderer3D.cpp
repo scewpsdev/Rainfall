@@ -303,27 +303,27 @@ RFAPI void Renderer3D_Init(int width, int height)
 
 	Renderer3D_Resize(width, height);
 
-	defaultShader = Shader_Create("res/rainfall/shaders/default/default.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
-	defaultAnimatedShader = Shader_Create("res/rainfall/shaders/default/default_animated.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
-	deferredPointShader = Shader_Create("res/rainfall/shaders/deferred/deferred_point.vsh.bin", "res/rainfall/shaders/deferred/deferred_point.fsh.bin");
-	deferredDirectionalShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_directional.fsh.bin");
-	deferredEmissiveShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_emissive.fsh.bin");
-	deferredEnvironmentShader = Shader_Create("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_environment.fsh.bin");
-	deferredReflectionProbeShader = Shader_Create("res/rainfall/shaders/deferred/deferred_reflection_probe.vsh.bin", "res/rainfall/shaders/deferred/deferred_reflection_probe.fsh.bin");
-	hzbDownsampleShader = Shader_CreateCompute("res/rainfall/shaders/hzb/hzb_downsample.csh.bin");
-	meshIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/mesh_indirect.csh.bin");
-	lightIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/light_indirect.csh.bin");
-	streamCompactionShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/stream_compaction.csh.bin");
-	particleIndirectShader = Shader_CreateCompute("res/rainfall/shaders/occlusion_culling/particle_indirect.csh.bin");
-	tonemappingShader = Shader_Create("res/rainfall/shaders/tonemapping/tonemapping.vsh.bin", "res/rainfall/shaders/tonemapping/tonemapping.fsh.bin");
-	particleShader = Shader_Create("res/rainfall/shaders/particle/particle.vsh.bin", "res/rainfall/shaders/particle/particle.fsh.bin");
-	skyShader = Shader_Create("res/rainfall/shaders/sky/sky.vsh.bin", "res/rainfall/shaders/sky/sky.fsh.bin");
-	clothShader = Shader_Create("res/rainfall/shaders/cloth/cloth.vsh.bin", "res/rainfall/shaders/cloth/cloth.fsh.bin");
-	ssaoShader = Shader_Create("res/rainfall/shaders/ao/ssao.vsh.bin", "res/rainfall/shaders/ao/ssao.fsh.bin");
-	ssaoBlurShader = Shader_Create("res/rainfall/shaders/ao/ssao_blur.vsh.bin", "res/rainfall/shaders/ao/ssao_blur.fsh.bin");
-	bloomDownsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_downsample.fsh.bin");
-	bloomUpsampleShader = Shader_Create("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_upsample.fsh.bin");
-	debugShader = Shader_Create("res/rainfall/shaders/debug/debug.vsh.bin", "res/rainfall/shaders/debug/debug.fsh.bin");
+	defaultShader = ReadShader("res/rainfall/shaders/default/default.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
+	defaultAnimatedShader = ReadShader("res/rainfall/shaders/default/default_animated.vsh.bin", "res/rainfall/shaders/default/default.fsh.bin");
+	deferredPointShader = ReadShader("res/rainfall/shaders/deferred/deferred_point.vsh.bin", "res/rainfall/shaders/deferred/deferred_point.fsh.bin");
+	deferredDirectionalShader = ReadShader("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_directional.fsh.bin");
+	deferredEmissiveShader = ReadShader("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_emissive.fsh.bin");
+	deferredEnvironmentShader = ReadShader("res/rainfall/shaders/deferred/deferred.vsh.bin", "res/rainfall/shaders/deferred/deferred_environment.fsh.bin");
+	deferredReflectionProbeShader = ReadShader("res/rainfall/shaders/deferred/deferred_reflection_probe.vsh.bin", "res/rainfall/shaders/deferred/deferred_reflection_probe.fsh.bin");
+	hzbDownsampleShader = ReadShaderCompute("res/rainfall/shaders/hzb/hzb_downsample.csh.bin");
+	meshIndirectShader = ReadShaderCompute("res/rainfall/shaders/occlusion_culling/mesh_indirect.csh.bin");
+	lightIndirectShader = ReadShaderCompute("res/rainfall/shaders/occlusion_culling/light_indirect.csh.bin");
+	streamCompactionShader = ReadShaderCompute("res/rainfall/shaders/occlusion_culling/stream_compaction.csh.bin");
+	particleIndirectShader = ReadShaderCompute("res/rainfall/shaders/occlusion_culling/particle_indirect.csh.bin");
+	tonemappingShader = ReadShader("res/rainfall/shaders/tonemapping/tonemapping.vsh.bin", "res/rainfall/shaders/tonemapping/tonemapping.fsh.bin");
+	particleShader = ReadShader("res/rainfall/shaders/particle/particle.vsh.bin", "res/rainfall/shaders/particle/particle.fsh.bin");
+	skyShader = ReadShader("res/rainfall/shaders/sky/sky.vsh.bin", "res/rainfall/shaders/sky/sky.fsh.bin");
+	clothShader = ReadShader("res/rainfall/shaders/cloth/cloth.vsh.bin", "res/rainfall/shaders/cloth/cloth.fsh.bin");
+	ssaoShader = ReadShader("res/rainfall/shaders/ao/ssao.vsh.bin", "res/rainfall/shaders/ao/ssao.fsh.bin");
+	ssaoBlurShader = ReadShader("res/rainfall/shaders/ao/ssao_blur.vsh.bin", "res/rainfall/shaders/ao/ssao_blur.fsh.bin");
+	bloomDownsampleShader = ReadShader("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_downsample.fsh.bin");
+	bloomUpsampleShader = ReadShader("res/rainfall/shaders/bloom/bloom.vsh.bin", "res/rainfall/shaders/bloom/bloom_upsample.fsh.bin");
+	debugShader = ReadShader("res/rainfall/shaders/debug/debug.vsh.bin", "res/rainfall/shaders/debug/debug.fsh.bin");
 
 	VertexElement quadLayout(VertexAttribute::Position, VertexAttributeType::Vector3);
 	const bgfx::Memory* quadMemory = Graphics_CreateVideoMemoryRef(sizeof(quadVertices), quadVertices, nullptr);
@@ -336,7 +336,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	const bgfx::Memory* boxIndicesMemory = Graphics_CreateVideoMemoryRef(sizeof(boxIndices), boxIndices, nullptr);
 	boxIBO = Graphics_CreateIndexBuffer(boxIndicesMemory, BufferFlags::None);
 
-	sphereData = Resource_GetScene("res/rainfall/sphere.gltf.bin", 0)->handle;
+	sphereData = ReadScene("res/rainfall/sphere.gltf.bin", 0);
 	sphere = sphereData->meshes[0].vertexNormalTangentBuffer.idx;
 	sphereIBO = sphereData->meshes[0].indexBuffer.idx;
 
@@ -354,7 +354,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	bgfx::TextureInfo cubemapInfo;
 	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, 0, &cubemapInfo);
 
-	blueNoise64 = Resource_GetTexture("res/rainfall/LDR_LLL1_0.png.bin", BGFX_SAMPLER_POINT, false)->handle;
+	blueNoise64 = ReadTexture("res/rainfall/LDR_LLL1_0.png.bin", BGFX_SAMPLER_POINT, nullptr, nullptr, nullptr);
 
 	s_hzb = bgfx::createUniform("s_hzb", bgfx::UniformType::Sampler);
 	u_params = bgfx::createUniform("u_params", bgfx::UniformType::Vec4);
