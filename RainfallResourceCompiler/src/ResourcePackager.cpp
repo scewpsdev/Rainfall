@@ -11,11 +11,11 @@
 
 struct ResourceHeaderElement
 {
-	char path[256];
+	int pathLen;
+	char* path;
 	int offset;
 	int size;
 	int decompressedSize;
-	int padding;
 };
 
 struct Resource
@@ -56,7 +56,7 @@ bool PackageResources(const std::vector<ResourceTask>& resources, const std::str
 
 	bx::ErrorAssert err;
 
-	int64_t numResources = (int64_t)resources.size();
+	int numResources = (int)resources.size();
 	bx::write(writer, numResources, &err);
 
 	int currentMemoryBlockOffset = 0;
@@ -67,8 +67,8 @@ bool PackageResources(const std::vector<ResourceTask>& resources, const std::str
 
 		std::string file = resources[i].path.string();
 		file = file.substr(rootDirectory.parent_path().string().length() + 1);
-		BX_ASSUME(file.length() < 256);
-		strcpy(header.path, file.c_str());
+		header.path = _strdup(file.c_str());
+		header.pathLen = (int)strlen(header.path);
 
 		int size;
 		char* buffer = ReadFile(resources[i].outpath.c_str(), &size);
@@ -93,8 +93,7 @@ bool PackageResources(const std::vector<ResourceTask>& resources, const std::str
 		header.size = compressedSize;
 		header.decompressedSize = size;
 
-		int paddedSize = (compressedSize + 7) / 8 * 8;
-		currentMemoryBlockOffset += paddedSize;
+		currentMemoryBlockOffset += compressedSize;
 
 		Resource r;
 		r.header = header;
@@ -105,21 +104,17 @@ bool PackageResources(const std::vector<ResourceTask>& resources, const std::str
 	for (int i = 0; i < numResources; i++)
 	{
 		Resource r = files[i];
-		bx::write(writer, r.header, &err);
+		bx::write(writer, r.header.pathLen, &err);
+		bx::write(writer, r.header.path, r.header.pathLen, &err);
+		bx::write(writer, r.header.offset, &err);
+		bx::write(writer, r.header.size, &err);
+		bx::write(writer, r.header.decompressedSize, &err);
 	}
 
 	for (int i = 0; i < numResources; i++)
 	{
 		Resource r = files[i];
 		bx::write(writer, r.data, r.header.size, &err);
-
-		int paddedSize = (r.header.size + 7) / 8 * 8;
-		int padding = paddedSize - r.header.size;
-		for (int i = 0; i < padding; i++)
-		{
-			unsigned char c = 0;
-			bx::write(writer, c, &err);
-		}
 	}
 
 	bx::close(writer);

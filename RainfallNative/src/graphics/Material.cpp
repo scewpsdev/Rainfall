@@ -21,7 +21,7 @@ static TextureData* CreateTextureData(bgfx::TextureHandle handle)
 	return texture;
 }
 
-RFAPI void Material_CreateMaterialsForScene(SceneData* scene)
+void CreateSceneMaterials(SceneData* scene)
 {
 	for (int i = 0; i < scene->numMeshes; i++)
 	{

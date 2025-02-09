@@ -9,6 +9,7 @@
 #include "graphics/ModelReader.h"
 #include "graphics/Graphics.h"
 #include "graphics/Font.h"
+#include "graphics/Material.h"
 
 #include "Hash.h"
 
@@ -31,17 +32,17 @@
 
 struct ResourceHeaderElement
 {
-	char path[256];
+	int pathLen;
+	char* path;
 	int offset;
 	int size;
 	int decompressedSize;
-	int padding;
 };
 
 struct ResourcePackage
 {
 	// Header
-	int64_t numResources;
+	int numResources;
 	ResourceHeaderElement* headerElements;
 	std::map<uint32_t, int> pathIdx;
 	int dataBlockOffset;
@@ -208,7 +209,13 @@ RFAPI void Resource_LoadPackageHeader(const char* path)
 
 		for (int i = 0; i < package.numResources; i++)
 		{
-			bx::read(reader, package.headerElements[i], &err);
+			bx::read(reader, package.headerElements[i].pathLen, &err);
+			package.headerElements[i].path = (char*)BX_ALLOC(Application_GetAllocator(), package.headerElements[i].pathLen + 1);
+			bx::read(reader, package.headerElements[i].path, package.headerElements[i].pathLen, &err);
+			package.headerElements[i].path[package.headerElements[i].pathLen] = 0;
+			bx::read(reader, package.headerElements[i].offset, &err);
+			bx::read(reader, package.headerElements[i].size, &err);
+			bx::read(reader, package.headerElements[i].decompressedSize, &err);
 
 			uint32_t h = hashPath(package.headerElements[i].path);
 			package.pathIdx.emplace(h, i);
@@ -296,9 +303,11 @@ SceneData* ReadScene(const char* path, uint64_t textureFlags)
 		SceneData* scene = BX_NEW(Application_GetAllocator(), SceneData);
 		ReadSceneData(&reader, *scene);
 
+		InitializeScene(*scene, path, textureFlags);
+		CreateSceneMaterials(scene);
+
 		BX_FREE(Application_GetAllocator(), data);
 
-		InitializeScene(*scene, path, textureFlags);
 		return scene;
 	}
 	else
@@ -314,6 +323,8 @@ SceneData* ReadScene(const char* path, uint64_t textureFlags)
 			bx::close(&reader);
 
 			InitializeScene(*scene, path, textureFlags);
+			CreateSceneMaterials(scene);
+
 			return scene;
 		}
 	}
@@ -391,12 +402,17 @@ RFAPI ShaderResource* Resource_GetShader(const char* vertex, const char* fragmen
 		return it->second;
 	}
 
-	ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
-	resource->handle = ReadShader(vertex, fragment);
-	resource->hash = h;
-	resource->refCount = 1;
-	loadedShaders.emplace(h, resource);
-	return resource;
+	if (Shader* shader = ReadShader(vertex, fragment))
+	{
+		ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
+		resource->handle = shader;
+		resource->hash = h;
+		resource->refCount = 1;
+		loadedShaders.emplace(h, resource);
+		return resource;
+	}
+
+	return nullptr;
 }
 
 RFAPI ShaderResource* Resource_GetShaderCompute(const char* compute)
@@ -409,12 +425,17 @@ RFAPI ShaderResource* Resource_GetShaderCompute(const char* compute)
 		return it->second;
 	}
 
-	ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
-	resource->handle = ReadShaderCompute(compute);
-	resource->hash = h;
-	resource->refCount = 1;
-	loadedShaders.emplace(h, resource);
-	return resource;
+	if (Shader* shader = ReadShaderCompute(compute))
+	{
+		ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
+		resource->handle = shader;
+		resource->hash = h;
+		resource->refCount = 1;
+		loadedShaders.emplace(h, resource);
+		return resource;
+	}
+
+	return nullptr;
 }
 
 RFAPI bool Resource_FreeShader(ShaderResource* resource)
@@ -449,12 +470,25 @@ RFAPI TextureResource* Resource_GetTexture(const char* path, uint64_t flags, boo
 		return it->second;
 	}
 
-	TextureResource* resource = BX_NEW(Application_GetAllocator(), TextureResource);
-	resource->handle = cubemap ? ReadCubemap(path, flags, &resource->info, keepCPUData ? &resource->data : nullptr, &resource->size) : ReadTexture(path, flags, &resource->info, keepCPUData ? &resource->data : nullptr, &resource->size);
-	resource->hash = h;
-	resource->refCount = 1;
-	loadedTextures.emplace(h, resource);
-	return resource;
+	char* data = nullptr;
+	int size = 0;
+
+	bgfx::TextureInfo info;
+	bgfx::TextureHandle handle = cubemap ? ReadCubemap(path, flags, &info, keepCPUData ? &data : nullptr, &size) : ReadTexture(path, flags, &info, keepCPUData ? &data : nullptr, &size);
+	if (handle.idx != bgfx::kInvalidHandle)
+	{
+		TextureResource* resource = BX_NEW(Application_GetAllocator(), TextureResource);
+		resource->handle = handle;
+		resource->info = info;
+		resource->data = data;
+		resource->size = size;
+		resource->hash = h;
+		resource->refCount = 1;
+		loadedTextures.emplace(h, resource);
+		return resource;
+	}
+
+	return nullptr;
 }
 
 RFAPI bool Resource_FreeTexture(TextureResource* resource)
@@ -527,12 +561,17 @@ RFAPI SceneResource* Resource_GetScene(const char* path, uint64_t textureFlags)
 		return it->second;
 	}
 
-	SceneResource* resource = BX_NEW(Application_GetAllocator(), SceneResource);
-	resource->handle = ReadScene(path, textureFlags);
-	resource->hash = h;
-	resource->refCount = 1;
-	loadedScenes.emplace(h, resource);
-	return resource;
+	if (SceneData* scene = ReadScene(path, textureFlags))
+	{
+		SceneResource* resource = BX_NEW(Application_GetAllocator(), SceneResource);
+		resource->handle = scene;
+		resource->hash = h;
+		resource->refCount = 1;
+		loadedScenes.emplace(h, resource);
+		return resource;
+	}
+
+	return nullptr;
 }
 
 RFAPI bool Resource_FreeScene(SceneResource* resource)
@@ -567,12 +606,19 @@ RFAPI SoundResource* Resource_GetSound(const char* path)
 		return it->second;
 	}
 
-	SoundResource* resource = BX_NEW(Application_GetAllocator(), SoundResource);
-	resource->handle = ReadSound(path, &resource->length);
-	resource->hash = h;
-	resource->refCount = 1;
-	loadedSounds.emplace(h, resource);
-	return resource;
+	float length;
+	if (SoLoud::Wav* sound = ReadSound(path, &length))
+	{
+		SoundResource* resource = BX_NEW(Application_GetAllocator(), SoundResource);
+		resource->handle = sound;
+		resource->length = length;
+		resource->hash = h;
+		resource->refCount = 1;
+		loadedSounds.emplace(h, resource);
+		return resource;
+	}
+
+	return nullptr;
 }
 
 RFAPI bool Resource_FreeSound(SoundResource* resource)
@@ -612,12 +658,19 @@ RFAPI MiscResource* Resource_GetMisc(const char* path)
 		return it->second;
 	}
 
-	MiscResource* resource = BX_NEW(Application_GetAllocator(), MiscResource);
-	resource->data = ReadBinary(path, &resource->size);
-	resource->hash = h;
-	resource->refCount = 1;
-	loadedMiscs.emplace(h, resource);
-	return resource;
+	int size = 0;
+	if (char* data = ReadBinary(path, &size))
+	{
+		MiscResource* resource = BX_NEW(Application_GetAllocator(), MiscResource);
+		resource->data = data;
+		resource->size = size;
+		resource->hash = h;
+		resource->refCount = 1;
+		loadedMiscs.emplace(h, resource);
+		return resource;
+	}
+
+	return nullptr;
 }
 
 RFAPI bool Resource_FreeMisc(MiscResource* resource)

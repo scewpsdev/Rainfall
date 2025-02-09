@@ -46,21 +46,29 @@ namespace Rainfall
 		public static Shader GetShader(string vertexPath, string fragmentPath)
 		{
 			IntPtr resource = Resource_GetShader($"{ASSET_DIRECTORY}/{vertexPath}", $"{ASSET_DIRECTORY}/{fragmentPath}");
-			if (shaders.TryGetValue(resource, out Shader shader))
+			if (resource != IntPtr.Zero)
+			{
+				if (shaders.TryGetValue(resource, out Shader shader))
+					return shader;
+				shader = new Shader(resource);
+				shaders.Add(resource, shader);
 				return shader;
-			shader = new Shader(resource);
-			shaders.Add(resource, shader);
-			return shader;
+			}
+			return null;
 		}
 
 		public static Shader GetShader(string computePath)
 		{
 			IntPtr resource = Resource_GetShaderCompute($"{ASSET_DIRECTORY}/{computePath}");
-			if (shaders.TryGetValue(resource, out Shader shader))
+			if (resource != IntPtr.Zero)
+			{
+				if (shaders.TryGetValue(resource, out Shader shader))
+					return shader;
+				shader = new Shader(resource);
+				shaders.Add(resource, shader);
 				return shader;
-			shader = new Shader(resource);
-			shaders.Add(resource, shader);
-			return shader;
+			}
+			return null;
 		}
 
 		public static void FreeShader(Shader shader)
@@ -72,11 +80,15 @@ namespace Rainfall
 		public static Texture GetTexture(string path, ulong flags = 0, bool keepCpuData = false)
 		{
 			IntPtr resource = Resource_GetTexture($"{ASSET_DIRECTORY}/{path}", flags, 0, (byte)(keepCpuData ? 1 : 0));
-			if (textures.TryGetValue(resource, out Texture texture))
+			if (resource != IntPtr.Zero)
+			{
+				if (textures.TryGetValue(resource, out Texture texture))
+					return texture;
+				texture = new Texture(resource);
+				textures.Add(resource, texture);
 				return texture;
-			texture = new Texture(resource);
-			textures.Add(resource, texture);
-			return texture;
+			}
+			return null;
 		}
 
 		public static Texture GetTexture(string path, bool linear, bool keepCpuData = false)
@@ -93,11 +105,15 @@ namespace Rainfall
 		public static Cubemap GetCubemap(string path, ulong flags = 0, bool keepCpuData = false)
 		{
 			IntPtr resource = Resource_GetTexture($"{ASSET_DIRECTORY}/{path}", flags, 1, (byte)(keepCpuData ? 1 : 0));
-			if (cubemaps.TryGetValue(resource, out Cubemap cubemap))
+			if (resource != IntPtr.Zero)
+			{
+				if (cubemaps.TryGetValue(resource, out Cubemap cubemap))
+					return cubemap;
+				cubemap = new Cubemap(resource);
+				cubemaps.Add(resource, cubemap);
 				return cubemap;
-			cubemap = new Cubemap(resource);
-			cubemaps.Add(resource, cubemap);
-			return cubemap;
+			}
+			return null;
 		}
 
 		public static void FreeCubemap(Cubemap cubemap)
@@ -109,7 +125,9 @@ namespace Rainfall
 		public static Model GetModel(string path, ulong textureFlags = 0)
 		{
 			IntPtr resource = Resource_GetScene($"{ASSET_DIRECTORY}/{path}", textureFlags);
-			return new Model(resource);
+			if (resource != IntPtr.Zero)
+				return new Model(resource);
+			return null;
 		}
 
 		public static Model GetModel(string path, bool linearTextures)
@@ -125,11 +143,15 @@ namespace Rainfall
 		public static Sound GetSound(string path)
 		{
 			IntPtr resource = Resource_GetSound($"{ASSET_DIRECTORY}/{path}");
-			if (sounds.TryGetValue(resource, out Sound sound))
+			if (resource != IntPtr.Zero)
+			{
+				if (sounds.TryGetValue(resource, out Sound sound))
+					return sound;
+				sound = new Sound(resource);
+				sounds.Add(resource, sound);
 				return sound;
-			sound = new Sound(resource);
-			sounds.Add(resource, sound);
-			return sound;
+			}
+			return null;
 		}
 
 		public static Sound[] GetSounds(string path, int count)
@@ -149,20 +171,28 @@ namespace Rainfall
 		public static unsafe string GetText(string path)
 		{
 			IntPtr resource = Resource_GetMisc($"{ASSET_DIRECTORY}/{path}");
-			byte* data = Resource_MiscGetData(resource, out int size);
-			string str = new string((sbyte*)data, 0, size);
-			Resource_FreeMisc(resource);
-			return str;
+			if (resource != IntPtr.Zero)
+			{
+				byte* data = Resource_MiscGetData(resource, out int size);
+				string str = new string((sbyte*)data, 0, size);
+				Resource_FreeMisc(resource);
+				return str;
+			}
+			return null;
 		}
 
 		public static FontData GetFontData(string path)
 		{
 			IntPtr resource = Resource_GetMisc($"{ASSET_DIRECTORY}/{path}");
-			if (fonts.TryGetValue(resource, out FontData fontData))
+			if (resource != IntPtr.Zero)
+			{
+				if (fonts.TryGetValue(resource, out FontData fontData))
+					return fontData;
+				fontData = new FontData(resource);
+				fonts.Add(resource, fontData);
 				return fontData;
-			fontData = new FontData(resource);
-			fonts.Add(resource, fontData);
-			return fontData;
+			}
+			return null;
 		}
 
 		public static void FreeFontData(FontData fontData)

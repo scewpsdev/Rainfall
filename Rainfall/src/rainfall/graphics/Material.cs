@@ -80,8 +80,5 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Material_GetDefault();
-
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe void Material_CreateMaterialsForScene(SceneData* scene);
 	}
 }
