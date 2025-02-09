@@ -541,6 +541,33 @@ public static class SceneFormat
 		return entity;
 	}
 
+	public static void DeserializeScene(string src, out List<EntityData> entities, out uint selectedEntity)
+	{
+		entities = new List<EntityData>();
+		selectedEntity = 0;
+
+		DatFile file = new DatFile(src, null);
+
+		if (file.getArray("entities", out DatArray arr))
+		{
+			for (int i = 0; i < arr.size; i++)
+			{
+				if (arr[i].type == DatValueType.Object)
+				{
+					EntityData entity = DeserializeEntity(arr[i].obj);
+					entities.Add(entity);
+				}
+				else
+				{
+					Debug.Assert(false);
+				}
+			}
+		}
+
+		if (file.getStringContent("selectedEntity", out string selectedEntityIDStr))
+			selectedEntity = uint.Parse(selectedEntityIDStr);
+	}
+
 	public static void DeserializeScene(Stream stream, out List<EntityData> entities, out uint selectedEntity)
 	{
 		entities = new List<EntityData>();

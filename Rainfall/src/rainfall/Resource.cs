@@ -150,7 +150,7 @@ namespace Rainfall
 		{
 			IntPtr resource = Resource_GetMisc($"{ASSET_DIRECTORY}/{path}");
 			byte* data = Resource_MiscGetData(resource, out int size);
-			string str = new string((sbyte*)data);
+			string str = new string((sbyte*)data, 0, size);
 			Resource_FreeMisc(resource);
 			return str;
 		}
