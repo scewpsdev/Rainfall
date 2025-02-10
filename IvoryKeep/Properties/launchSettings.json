@@ -1,9 +1,8 @@
 {
   "profiles": {
-    "TopDownGaem": {
+    "PixelEngine": {
       "commandName": "Project",
-      "nativeDebugging": true,
-      "hotReloadEnabled": false
+      "nativeDebugging": true
     }
   }
 }

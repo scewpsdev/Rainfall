@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "TopDownGaem": {
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "hotReloadEnabled": false
+    }
+  }
+}

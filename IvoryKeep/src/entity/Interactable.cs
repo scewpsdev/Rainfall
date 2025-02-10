@@ -1,11 +1,16 @@
-﻿using System;
+﻿using Rainfall;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 public interface Interactable
 {
-	bool canInteract(Entity by);
-	void interact(Entity by);
+	public void interact(Player player);
+	public bool canInteract(Player player) { return true; }
+	public float getRange() { return 1; }
+	public void onFocusEnter(Player player);
+	public void onFocusLeft(Player player);
 }

@@ -1,12 +1,11 @@
-﻿using Rainfall;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 
-interface Hittable
+public interface Hittable
 {
-	bool hit(float damage, float poiseDamage, Entity from, Item item, Vector3 hitPosition, Vector3 hitDirection, RigidBody body);
+	bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false);
 }

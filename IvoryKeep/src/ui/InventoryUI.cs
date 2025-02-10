@@ -1,739 +1,758 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
+
 
 public class InventoryUI
 {
+	public static Sprite weaponSprite, shieldSprite, helmetSprite, bagSprite, ringSprite, spellSprite;
+	public static Sprite backpackSprite, armorSprite, glovesSprite, bootsSprite;
+
+	static InventoryUI()
+	{
+		weaponSprite = new Sprite(HUD.tileset, 0, 2, 2, 2);
+		shieldSprite = new Sprite(HUD.tileset, 2, 2, 2, 2);
+		bagSprite = new Sprite(HUD.tileset, 4, 2, 2, 2);
+		helmetSprite = new Sprite(HUD.tileset, 6, 2, 2, 2);
+		ringSprite = new Sprite(HUD.tileset, 6, 4, 2, 2);
+		spellSprite = new Sprite(HUD.tileset, 0, 4, 2, 2);
+		backpackSprite = new Sprite(HUD.tileset, 0, 6, 2, 2);
+		armorSprite = new Sprite(HUD.tileset, 2, 6, 2, 2);
+		glovesSprite = new Sprite(HUD.tileset, 4, 6, 2, 2);
+		bootsSprite = new Sprite(HUD.tileset, 6, 6, 2, 2);
+	}
+
+
 	Player player;
 
-	public bool inventoryOpen = false;
-	ItemContainerEntity openContainer = null;
-	static int currentUIScale = 2;
-	int slotSize = 48;
-
-	Item grabbedItem = null;
-	int grabbedItemStackSize = 0;
-	Vector2i grabbedItemOffset = Vector2i.Zero;
-
-	//Vector2 hoveredSlotPosition = new Vector2(-100);
-	ItemSlot hoveredSlot = null;
-
-	static int tooltipCurrentContentHeight = 100;
-
-	Texture equipmentHandRight, equipmentHandLeft;
-	Texture equipmentArmorHelmet, equipmentArmorTorso, equipmentArmorPants, equipmentArmorBoots;
-	Texture equipmentHotbarItem;
-	Texture equipmentArrows, equipmentSpells;
-
-	Font mediumFont;
-	Font stackSizeFont;
-	static Font tooltipFontBig, tooltipFontMedium;
+	Vector2i selectedCell = Vector2i.Zero;
+	int sidePanelHeight = 40;
+	int inventoryHeight = 120;
+	int characterHeight = 150;
 
 
 	public InventoryUI(Player player)
 	{
 		this.player = player;
-
-		equipmentHandRight = Resource.GetTexture("res/texture/ui/equipment_hand_right.png");
-		equipmentHandLeft = Resource.GetTexture("res/texture/ui/equipment_hand_left.png");
-		equipmentArmorHelmet = Resource.GetTexture("res/texture/ui/equipment_armor_helmet.png");
-		equipmentArmorTorso = Resource.GetTexture("res/texture/ui/equipment_armor_torso.png");
-		equipmentArmorPants = Resource.GetTexture("res/texture/ui/equipment_armor_pants.png");
-		equipmentArmorBoots = Resource.GetTexture("res/texture/ui/equipment_armor_boots.png");
-		equipmentHotbarItem = Resource.GetTexture("res/texture/ui/equipment_hotbar_item.png");
-		equipmentArrows = Resource.GetTexture("res/texture/ui/equipment_arrows.png");
-		equipmentSpells = Resource.GetTexture("res/texture/ui/equipment_spells.png");
-
-		mediumFont = FontManager.GetFont("default", 24, true);
-		stackSizeFont = FontManager.GetFont("default", 20, true);
-		tooltipFontBig = FontManager.GetFont("default", 24, true);
-		tooltipFontMedium = FontManager.GetFont("default", 18, true);
 	}
 
-	public void openChestUI(ItemContainerEntity container)
+	void openScreen()
 	{
-		openContainer = container;
-		inventoryOpen = true;
-		Input.mouseLocked = false;
+		player.inventoryOpen = true;
+		player.numOverlaysOpen++;
+		selectedCell = new Vector2i(0, 0);
+		CharacterInfoPanel.OnOpen();
 	}
 
-	void grabItem(Item item, int amount)
+	void closeScreen()
 	{
-		grabbedItem = item;
-		grabbedItemStackSize = amount;
-		//grabbedItemOffset = new Vector2i((gridX - topLeftSlot.gridX) * 64 + (Input.cursorPosition.x - x), (gridY - topLeftSlot.gridY) * 64 + (Input.cursorPosition.y - y));
-		if (item != null)
-			grabbedItemOffset = Vector2i.One * 32 / 2;
-		else
-			grabbedItemOffset = Vector2i.Zero;
+		player.inventoryOpen = false;
+		player.numOverlaysOpen--;
 	}
 
-	void drawItemSlotGrid(int x, int y, ItemSlot slot, int gridX, int gridY, ItemContainer container, ItemContainer lootDst)
+	static void drawItemSlot(int x, int y, int size, Item item, Sprite background, Vector2i cellPosition, ref Vector2i selectedCell, ref Item selectedItem)
 	{
-		bool isHovered = GUI.IsHovered(x, y, slotSize, slotSize);
-		if (isHovered)
-			hoveredSlot = slot;
+		ItemSlotUI.Render(x, y, size, item?.icon, item != null ? MathHelper.VectorToARGB(item.spriteColor) : 0xFFFFFFFF, item != null ? item.stackSize : 1, background, cellPosition, ref selectedCell);
+		if (cellPosition == selectedCell)
+			selectedItem = item;
+	}
 
-		bool isHighlighted = isHovered;
-		if (slot != null)
+	/*
+	public static void DrawEquipment(int x, int y, int width, int height, Player player)
+	{
+		int xpadding = 4;
+		int ypadding = 4;
+		int slotSize = 16;
+
+		y += 16;
+
+		Renderer.DrawUISprite(x, y, 16, 16, shieldSprite);
+		Renderer.DrawUISprite(x, y, 16, 16, weaponSprite);
+		drawItemSlot(x + 16 + 2, y, slotSize, player.offhandItem);
+		drawItemSlot(x + 16 + 2 + slotSize + xpadding, y, slotSize, player.handItem);
+		y += slotSize + ypadding;
+
+		Renderer.DrawUISprite(x, y, 16, 16, bagSprite);
+		for (int i = 0; i < player.activeItems.Length; i++)
+			drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.activeItems[i]);
+		y += slotSize + ypadding;
+
+		int idx = 0;
+		for (int i = 0; i < player.items.Count; i++)
 		{
-			if (hoveredSlot != null && hoveredSlot.container == container && hoveredSlot.gridX != -1 &&
-				hoveredSlot.gridX == slot.gridX && hoveredSlot.gridY == slot.gridY)
+			Item item = player.items[i];
+			if (!player.isEquipped(item))
 			{
-				isHighlighted = true;
+				drawItemSlot(x + 16 + 2 + idx * (slotSize + xpadding), y, slotSize, item);
+				idx++;
 			}
 		}
-		/*
-		if (grabbedItem != null && hoveredSlot != null && hoveredSlot.container == container && hoveredSlot.gridX != -1)
+		y += slotSize + ypadding;
+
+		Renderer.DrawUISprite(x, y, 16, 16, helmetSprite);
+		for (int i = 0; i < (int)ArmorSlot.Count; i++)
 		{
-			int x0 = (int)MathF.Round(hoveredSlot.gridX + hoveredSlotFract.x - grabbedItemOffset.x / (float)width);
-			int x1 = x0 + grabbedItem.inventorySize.x - 1;
-			int y0 = (int)MathF.Round(hoveredSlot.gridY + hoveredSlotFract.y - grabbedItemOffset.y / (float)height);
-			int y1 = y0 + grabbedItem.inventorySize.y - 1;
-			if (gridX >= x0 && gridX <= x1 && gridY >= y0 && gridY <= y1)
-				isHighlighted = true;
+			if (player.getArmorItem((ArmorSlot)i, out int slot))
+				drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, player.passiveItems[slot]);
 			else
-				isHighlighted = false;
+				drawItemSlot(x + 16 + 2 + i * (slotSize + xpadding), y, slotSize, null);
 		}
-		*/
-		if (slot != null && slot.item != null && isHovered && Input.IsMouseButtonPressed(MouseButton.Left) && grabbedItem == null)
+		y += slotSize + ypadding;
+
+		Renderer.DrawUISprite(x, y, 16, 16, ringSprite);
 		{
-			if (lootDst != null)
+			int xx = x + 16 + 2;
+			for (int i = 0; i < player.passiveItems.Count; i++)
 			{
-				ItemSlot addedTo = lootDst.addItem(slot.item, slot.stackSize);
-				if (addedTo == null)
-					grabItem(slot.item, slot.stackSize);
-			}
-			else
-			{
-				grabItem(slot.item, slot.stackSize);
-			}
-			slot.setItem(null);
-			slot.stackSize = 0;
-		}
-		else if (slot != null && slot.item != null && isHovered && Input.IsMouseButtonPressed(MouseButton.Right) && grabbedItem == null && lootDst == null)
-		{
-			if (container is Inventory)
-			{
-				Inventory inventory = container as Inventory;
-				inventory.equipItem(slot);
-			}
-		}
-		else if (isHovered && Input.IsMouseButtonPressed(MouseButton.Left) && grabbedItem != null)
-		{
-			{
-				bool overlaps = hoveredSlot.item != null;
-				if (!overlaps)
+				if (player.passiveItems[i].armorSlot == ArmorSlot.None)
 				{
-					hoveredSlot.setItem(grabbedItem);
-					hoveredSlot.stackSize = grabbedItemStackSize;
-					grabItem(null, 0);
+					drawItemSlot(xx, y, slotSize, player.passiveItems[i]);
+					xx += slotSize + xpadding;
 				}
+			}
+		}
+	}
+
+	public static int DrawEquipment2(int x, int y, int width, int height, Player player, ref int selectedItem, out Item item)
+	{
+		item = null;
+
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
+		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);
+
+		int xpadding = 4;
+		int ypadding = 4;
+		int slotSize = 16;
+
+		int top = y;
+
+		y += 8;
+
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP("Inventory").x / 2, y, "Inventory", 1, 0xFFAAAAAA);
+
+		y += Renderer.smallFont.size + 8;
+
+		int firstEquipmentItem = 0;
+		int firstActiveItem = 7;
+		int firstSpellItem = firstActiveItem + player.activeItems.Length;
+		int firstStoredItem = firstSpellItem + player.spellCapacity;
+		int firstPassiveItem = firstStoredItem + player.storeCapacity;
+
+		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.offhandItem, shieldSprite, selectedItem == firstEquipmentItem + 0))
+			selectedItem = firstEquipmentItem + 0;
+		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Helmet), helmetSprite, selectedItem == firstEquipmentItem + 1))
+			selectedItem = firstEquipmentItem + 1;
+		if (drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.handItem, weaponSprite, selectedItem == firstEquipmentItem + 2))
+			selectedItem = firstEquipmentItem + 2;
+
+		if (selectedItem == firstEquipmentItem + 0)
+			item = player.offhandItem;
+		else if (selectedItem == firstEquipmentItem + 1)
+			item = player.getArmorItem(ArmorSlot.Helmet);
+		else if (selectedItem == firstEquipmentItem + 2)
+			item = player.handItem;
+
+		y += slotSize + ypadding;
+
+		if (drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.getArmorItem(ArmorSlot.Back), armorSprite, selectedItem == firstEquipmentItem + 3))
+			selectedItem = firstEquipmentItem + 3;
+		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Body), armorSprite, selectedItem == firstEquipmentItem + 4))
+			selectedItem = firstEquipmentItem + 4;
+		if (drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.getArmorItem(ArmorSlot.Gloves), glovesSprite, selectedItem == firstEquipmentItem + 5))
+			selectedItem = firstEquipmentItem + 5;
+
+		if (selectedItem == firstEquipmentItem + 3)
+			item = player.getArmorItem(ArmorSlot.Back);
+		else if (selectedItem == firstEquipmentItem + 4)
+			item = player.getArmorItem(ArmorSlot.Body);
+		else if (selectedItem == firstEquipmentItem + 5)
+			item = player.getArmorItem(ArmorSlot.Gloves);
+
+		y += slotSize + ypadding;
+
+		if (drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Boots), bootsSprite, selectedItem == firstEquipmentItem + 6))
+			selectedItem = firstEquipmentItem + 6;
+
+		if (selectedItem == firstEquipmentItem + 6)
+			item = player.getArmorItem(ArmorSlot.Boots);
+
+		if (selectedItem >= firstEquipmentItem && selectedItem < firstActiveItem)
+		{
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.L);
+				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 1) % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.J);
+				selectedItem = (selectedItem / 3) * 3 + (selectedItem + 3 - 1) % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.K);
+				selectedItem = (selectedItem / 3 + 1) * 3 + selectedItem % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.I);
+				if (selectedItem == firstActiveItem - 1)
+					selectedItem -= 2;
 				else
+					selectedItem = (selectedItem / 3 - 1) * 3 + selectedItem % 3;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (selectedItem < firstEquipmentItem)
+				selectedItem = firstEquipmentItem;
+			else if (selectedItem >= firstEquipmentItem + 6 + 3)
+				selectedItem = firstActiveItem;
+			else if (selectedItem >= firstActiveItem)
+				selectedItem = firstActiveItem - 1;
+		}
+
+		y += slotSize + 8;
+
+		// Active items
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			bool selected = selectedItem == firstActiveItem + i;
+
+			if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.activeItems[i], bagSprite, selected))
+				selectedItem = firstActiveItem + i;
+
+			if (selected)
+				item = player.activeItems[i];
+		}
+
+		if (selectedItem >= firstActiveItem && selectedItem < firstSpellItem)
+		{
+			selectedItem -= firstActiveItem;
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.L);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.J);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.K);
+				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.I);
+				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (selectedItem < 0)
+				selectedItem = -1;
+			selectedItem += firstActiveItem;
+			if (selectedItem >= firstSpellItem)
+				selectedItem = Math.Min(selectedItem, firstSpellItem + player.spellCapacity - 1);
+
+		}
+
+		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Spell items
+
+		for (int i = 0; i < player.spellCapacity; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			bool selected = selectedItem == firstSpellItem + i;
+
+			if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.spellItems.Count ? player.spellItems[i] : null, spellSprite, selected))
+				selectedItem = firstSpellItem + i;
+
+			if (selected)
+				item = i < player.spellItems.Count ? player.spellItems[i] : null;
+		}
+
+		if (selectedItem >= firstSpellItem && selectedItem < firstStoredItem)
+		{
+			selectedItem -= firstSpellItem;
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.L);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4 % (player.spellCapacity % 4);
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.J);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + player.spellCapacity - 1) % player.spellCapacity;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.K);
+				selectedItem = Math.Min((selectedItem / 4 + 1) * 4, player.spellCapacity) + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.I);
+				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (selectedItem < 0)
+				selectedItem = -1;
+			selectedItem += firstSpellItem;
+			if (selectedItem >= firstStoredItem)
+				selectedItem = Math.Min(selectedItem, firstStoredItem + player.storeCapacity - 1);
+
+		}
+
+		y += (player.spellCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Stored items
+		{
+			for (int i = 0; i < player.storeCapacity; i++)
+			{
+				int xx = i % 4;
+				int yy = i / 4;
+
+				bool selected = selectedItem == firstStoredItem + i;
+
+				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.storedItems.Count ? player.storedItems[i] : null, backpackSprite, selected))
+					selectedItem = firstStoredItem + i;
+
+				if (selected)
+					item = i < player.storedItems.Count ? player.storedItems[i] : null;
+			}
+
+			if (selectedItem >= firstStoredItem && selectedItem < firstPassiveItem)
+			{
+				selectedItem -= firstStoredItem;
+				if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
 				{
-					if (hoveredSlot.item == grabbedItem && grabbedItem.stackable)
+					Input.ConsumeKeyEvent(KeyCode.L);
+					selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+				{
+					Input.ConsumeKeyEvent(KeyCode.J);
+					selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+				{
+					Input.ConsumeKeyEvent(KeyCode.K);
+					selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+				{
+					Input.ConsumeKeyEvent(KeyCode.I);
+					selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+					Audio.PlayBackground(UISound.uiClick);
+				}
+				if (selectedItem < 0)
+					selectedItem = -1;
+				selectedItem += firstStoredItem;
+			}
+
+			y += (player.storeCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+		}
+
+		int idx = 0;
+		for (int i = 0; i < player.passiveItems.Count; i++)
+		{
+			if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+			{
+				int xx = idx % 4;
+				int yy = idx / 4;
+
+				bool selected = selectedItem == firstPassiveItem + idx;
+
+				if (drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.passiveItems[i], ringSprite, selected))
+					selectedItem = firstPassiveItem + idx;
+
+				if (selected)
+					item = player.passiveItems[i];
+
+				idx++;
+			}
+		}
+
+		if (selectedItem >= firstPassiveItem && selectedItem < firstPassiveItem + idx)
+		{
+			selectedItem -= firstPassiveItem;
+			if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.L);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.J);
+				selectedItem = (selectedItem / 4) * 4 + (selectedItem + 4 - 1) % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.K);
+				selectedItem = (selectedItem / 4 + 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+			{
+				Input.ConsumeKeyEvent(KeyCode.I);
+				selectedItem = (selectedItem / 4 - 1) * 4 + selectedItem % 4;
+				Audio.PlayBackground(UISound.uiClick);
+			}
+			if (selectedItem >= idx)
+				selectedItem = idx - 1;
+			selectedItem += firstPassiveItem;
+		}
+
+		if (selectedItem >= firstPassiveItem + idx)
+			selectedItem = firstPassiveItem + idx - 1;
+
+		y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
+
+		return y - top;
+	}
+	*/
+
+	public static int DrawEquipment3(int x, int y, int width, int height, Player player, ref Vector2i selectedCell, out Item item)
+	{
+		item = null;
+
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, UIColors.WINDOW_FRAME);
+		Renderer.DrawUISprite(x, y, width, height, null, false, UIColors.WINDOW_BACKGROUND);
+
+		int xpadding = 4;
+		int ypadding = 4;
+		int slotSize = 16;
+
+		int top = y;
+
+		y += 8;
+
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP("Inventory").x / 2, y, "Inventory", 1, 0xFFAAAAAA);
+
+		y += Renderer.smallFont.size + 8;
+
+		if (Input.IsKeyPressed(KeyCode.L) || InputManager.IsPressed("UIRight", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.L);
+			selectedCell.x++;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.J);
+			selectedCell.x--;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.K);
+			selectedCell.y++;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
+		{
+			Input.ConsumeKeyEvent(KeyCode.I);
+			selectedCell.y--;
+			Audio.PlayBackground(UISound.uiClick);
+		}
+
+		int numPassiveItems = 0;
+		for (int i = 0; i < player.passiveItems.Count; i++)
+		{
+			if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+				numPassiveItems++;
+		}
+
+		Vector2i firstEquipmentItem = Vector2i.Zero;
+		Vector2i firstActiveItem = new Vector2i(0, 3);
+		Vector2i firstSpellItem = firstActiveItem + new Vector2i(0, (player.activeItems.Length + 3) / 4);
+		Vector2i firstStoredItem = firstSpellItem + new Vector2i(0, (player.spellCapacity + 3) / 4);
+		Vector2i firstPassiveItem = firstStoredItem + new Vector2i(0, (player.storeCapacity + 3) / 4);
+		Vector2i wrapPoint = firstPassiveItem + new Vector2i(0, (numPassiveItems + 3) / 4);
+
+		if (selectedCell.y < 0)
+			selectedCell.y += wrapPoint.y;
+		else if (selectedCell.y >= wrapPoint.y)
+			selectedCell.y -= wrapPoint.y;
+
+		// Equipment items
+
+		drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.offhandItem, shieldSprite, firstEquipmentItem, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Helmet), helmetSprite, firstEquipmentItem + Vector2i.Right, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.handItem, weaponSprite, firstEquipmentItem + 2 * Vector2i.Right, ref selectedCell, ref item);
+
+		y += slotSize + ypadding;
+
+		drawItemSlot(x + width / 2 - slotSize / 2 - xpadding - slotSize, y, slotSize, player.getArmorItem(ArmorSlot.Back), backpackSprite, firstEquipmentItem + Vector2i.Up, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Body), armorSprite, firstEquipmentItem + Vector2i.One, ref selectedCell, ref item);
+		drawItemSlot(x + width / 2 + slotSize / 2 + xpadding, y, slotSize, player.getArmorItem(ArmorSlot.Gloves), glovesSprite, firstEquipmentItem + new Vector2i(2, 1), ref selectedCell, ref item);
+
+		y += slotSize + ypadding;
+
+		drawItemSlot(x + width / 2 - slotSize / 2, y, slotSize, player.getArmorItem(ArmorSlot.Boots), bootsSprite, firstEquipmentItem + new Vector2i(1, 2), ref selectedCell, ref item);
+
+		if (selectedCell.y == firstEquipmentItem.y || selectedCell.y == firstEquipmentItem.y + 1)
+			selectedCell.x = (selectedCell.x + 3) % 3;
+		else if (selectedCell.y == firstEquipmentItem.y + 2)
+			selectedCell.x = 1;
+
+		y += slotSize + 8;
+
+		// Active items
+
+		for (int i = 0; i < player.activeItems.Length; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.activeItems[i], bagSprite, firstActiveItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+		}
+
+		if (selectedCell.y >= firstActiveItem.y && selectedCell.y < firstSpellItem.y)
+		{
+			int localy = selectedCell.y - firstActiveItem.y;
+			int cols = Math.Min(player.activeItems.Length - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (player.activeItems.Length + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Spell items
+
+		for (int i = 0; i < player.spellCapacity; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.spellItems.Count ? player.spellItems[i] : null, spellSprite, firstSpellItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+		}
+
+		if (selectedCell.y >= firstSpellItem.y && selectedCell.y < firstStoredItem.y)
+		{
+			int localy = selectedCell.y - firstSpellItem.y;
+			int cols = Math.Min(player.spellCapacity - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (player.spellCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Stored items
+
+		for (int i = 0; i < player.storeCapacity; i++)
+		{
+			int xx = i % 4;
+			int yy = i / 4;
+
+			drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, i < player.storedItems.Count ? player.storedItems[i] : null, backpackSprite, firstStoredItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+		}
+
+		if (selectedCell.y >= firstStoredItem.y && selectedCell.y < firstPassiveItem.y)
+		{
+			int localy = selectedCell.y - firstStoredItem.y;
+			int cols = Math.Min(player.storeCapacity - localy * 4, 4);
+			selectedCell.x = (selectedCell.x + cols) % cols;
+		}
+
+		y += (player.storeCapacity + 3) / 4 * (slotSize + ypadding) + 8;
+
+		// Passive items
+
+		if (player.passiveItems.Count > 0)
+		{
+			int idx = 0;
+			for (int i = 0; i < player.passiveItems.Count; i++)
+			{
+				if (player.passiveItems[i].armorSlot == ArmorSlot.None)
+				{
+					int xx = idx % 4;
+					int yy = idx / 4;
+
+					drawItemSlot(x + width / 2 - xpadding / 2 - slotSize - xpadding - slotSize + xx * (slotSize + xpadding), y + yy * (slotSize + ypadding), slotSize, player.passiveItems[i], ringSprite, firstPassiveItem + new Vector2i(xx, yy), ref selectedCell, ref item);
+
+					idx++;
+				}
+			}
+
+			if (selectedCell.y >= firstPassiveItem.y && selectedCell.y < wrapPoint.y)
+			{
+				int localy = selectedCell.y - firstPassiveItem.y;
+				int cols = Math.Min(numPassiveItems - localy * 4, 4);
+				selectedCell.x = (selectedCell.x + cols) % cols;
+			}
+
+			y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
+		}
+
+		Renderer.DrawUITextBMP(x + 4, y, "M1 to equip", 1, 0xFF7F7F7F);
+		y += Renderer.smallFont.size + 1;
+		Renderer.DrawUITextBMP(x + 4, y, "M2 to drop", 1, 0xFF7F7F7F);
+		y += Renderer.smallFont.size + 1;
+
+		y += 4;
+
+		return y - top;
+	}
+
+	public void render()
+	{
+		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory", true))
+		{
+			openScreen();
+			Audio.PlayBackground(UISound.uiClick);
+		}
+		else if (player.inventoryOpen)
+		{
+			if (InputManager.IsPressed("Inventory", true) || InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true))
+			{
+				closeScreen();
+				Audio.PlayBackground(UISound.uiBack);
+			}
+		}
+
+		if (player.inventoryOpen)
+		{
+			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
+
+			characterHeight = CharacterInfoPanel.Render(5, 5, 140, characterHeight, player);
+
+			int width = 90;
+			int x = Renderer.UIWidth - 5 - width;
+			int y = 5;
+
+			inventoryHeight = DrawEquipment3(x, y, width, inventoryHeight, player, ref selectedCell, out Item selected);
+			if (selected != null)
+			{
+				int sidePanelWidth = 90;
+				sidePanelHeight = (int)ItemInfoPanel.Render(selected, x - sidePanelWidth - 1, y, sidePanelWidth, sidePanelHeight);
+
+				if (InputManager.IsPressed("UIConfirm", true) || Input.IsMouseButtonPressed(MouseButton.Left, true))
+				{
+					if (!player.isEquipped(selected))
+						player.equipItem(selected);
+					else if (player.isEquipped(selected))
 					{
-						hoveredSlot.stackSize += grabbedItemStackSize;
-						grabItem(null, 0);
-					}
-					else
-					{
-						Item tmp = hoveredSlot.item;
-						int tmp2 = hoveredSlot.stackSize;
-						hoveredSlot.setItem(grabbedItem);
-						hoveredSlot.stackSize = grabbedItemStackSize;
-						grabItem(tmp, tmp2);
+						if (player.storeItem(selected) || player.dropItem(selected) != null)
+							player.unequipItem(selected);
 					}
 				}
-			}
-		}
-
-		uint background = isHighlighted ? 0xFF666666 : 0xFF333333;
-		GUI.Rect(x + 1, y + 1, slotSize - 2, slotSize - 2, background);
-		if (slot.item != null)
-		{
-			GUI.Texture(x, y, slotSize, slotSize, slot.item.icon);
-			if (slot.item.stackable && slot.stackSize > 1)
-			{
-				string stackSizeStr = slot.stackSize.ToString();
-				int stackSizeWidth = stackSizeFont.measureText(stackSizeStr);
-				GUI.Text(x + slotSize - stackSizeWidth, y + slotSize - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
-			}
-		}
-	}
-
-	void drawItemSlot(int x, int y, int width, int height, ItemSlot slot, Texture emptyTexture = null)
-	{
-		bool isHovered = GUI.IsHovered(x, y, width, height);
-		if (isHovered)
-			hoveredSlot = slot;
-
-		if (slot.item != null && isHovered && Input.IsMouseButtonPressed(MouseButton.Left) && grabbedItem == null)
-		{
-			grabItem(slot.item, slot.stackSize);
-			slot.setItem(null);
-			slot.stackSize = 0;
-		}
-		else if (isHovered && Input.IsMouseButtonPressed(MouseButton.Left) && grabbedItem != null)
-		{
-			if (slot.canPlaceItem(grabbedItem))
-			{
-				if (slot.item == null)
+				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 				{
-					slot.setItem(grabbedItem);
-					slot.stackSize = grabbedItemStackSize;
-					grabItem(null, 0);
-				}
-				else
-				{
-					if (slot.item == grabbedItem && grabbedItem.stackable)
-					{
-						slot.stackSize += grabbedItemStackSize;
-						grabItem(null, 0);
-					}
-					else
-					{
-						Item tmp = slot.item;
-						int tmp2 = slot.stackSize;
-						slot.setItem(grabbedItem);
-						slot.stackSize = grabbedItemStackSize;
-						grabItem(tmp, tmp2);
-					}
+					player.throwItem(selected, true);
+					player.removeItem(selected);
 				}
 			}
-		}
-
-		uint background = isHovered ? 0xFF666666 : 0xFF333333;
-		GUI.Rect(x + 1, y + 1, width - 2, height - 2, background);
-		if (slot.item != null)
-		{
-			GUI.Texture(x, y, width, height, slot.item.icon);
-			if (slot.item.stackable && slot.stackSize > 1)
-			{
-				string stackSizeStr = slot.stackSize.ToString();
-				int stackSizeWidth = stackSizeFont.measureText(stackSizeStr);
-				GUI.Text(x + width - stackSizeWidth, y + height - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
-			}
-		}
-		else if (emptyTexture != null)
-		{
-			GUI.Texture(x, y, width, height, emptyTexture, 0, 0, emptyTexture.width, emptyTexture.height, 0xFF000000);
-		}
-	}
-
-	void drawGrabbedItem(/*int paneX, int paneY, int paneWidth, int paneHeight*/)
-	{
-		// Grabbed item
-		{
-			if (grabbedItem != null)
-			{
-				Vector2i cursorPosition = Input.cursorPosition;
-				int xx = cursorPosition.x - grabbedItemOffset.x;
-				int yy = cursorPosition.y - grabbedItemOffset.y;
-				int iconSize = slotSize;
-
-				GUI.Texture(xx, yy, iconSize, iconSize, grabbedItem.icon);
-				if (grabbedItem.stackable && grabbedItemStackSize > 1)
-				{
-					string stackSizeStr = grabbedItemStackSize.ToString();
-					int stackSizeWidth = stackSizeFont.measureText(stackSizeStr);
-					GUI.Text(xx + iconSize - stackSizeWidth, yy + iconSize - (int)stackSizeFont.size, 1.0f, stackSizeStr, stackSizeFont, 0xffaaaaaa);
-				}
-
-				/*
-				if (Input.IsMouseButtonPressed(MouseButton.Left) &&
-					(cursorPosition.x < paneX || cursorPosition.x >= paneX + paneWidth || cursorPosition.y < paneY || cursorPosition.y >= paneY + paneHeight))
-				{
-					//player.throwItem(grabbedItem, grabbedItemStackSize);
-					grabItem(null, 0);
-				}
-				*/
-			}
-		}
-	}
-
-	public static void DrawTooltip(ItemSlot hoveredSlot)
-	{
-		ItemSlot hoveredItem = hoveredSlot;
-		if (hoveredSlot.item == null && hoveredSlot.gridX != -1)
-			hoveredItem = hoveredSlot.container.getItemAtPos(hoveredSlot.gridX, hoveredSlot.gridY);
-		if (hoveredItem != null && hoveredItem.item != null)
-		{
-			int padding = 4;
-			int tooltipWidth = 400;
-			int tooltipHeight = tooltipCurrentContentHeight + 2 * 2 + 2 * padding + 2 * 10;
-			int tooltipX = Math.Min(Input.cursorPosition.x, Display.width - tooltipWidth);
-			int tooltipY = Math.Min(Input.cursorPosition.y, Display.height - tooltipHeight);
-
-			int yscroll = 2 + padding + 5 * currentUIScale;
-
-			GUI.Rect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 0xFFAAAAAA);
-			GUI.Rect(tooltipX + 1, tooltipY + 1, tooltipWidth - 2, tooltipHeight - 2, 0xFF000000);
-			GUI.Rect(tooltipX + 2, tooltipY + 2, tooltipWidth - 4, tooltipHeight - 4, 0xFF222222);
-
-			Texture icon = hoveredItem.item.icon;
-			int iconSize = 64 * currentUIScale;
-			GUI.Texture(tooltipX + tooltipWidth / 2 - iconSize / 2, tooltipY + yscroll, iconSize, iconSize, icon);
-			yscroll += iconSize + 5 * currentUIScale;
-
-			string nameStr = hoveredItem.item.displayName;
-			int nameStrWidth = tooltipFontBig.measureText(nameStr);
-			GUI.Text(tooltipX + tooltipWidth / 2 - nameStrWidth / 2, tooltipY + yscroll, 1.0f, nameStr, tooltipFontBig, 0xFFAAAAAA);
-			yscroll += (int)tooltipFontBig.size + 2 * currentUIScale;
-
-			string categoryStr = hoveredItem.item.typeSpecifier;
-			int categoryStrWidth = tooltipFontMedium.measureText(categoryStr);
-			GUI.Text(tooltipX + tooltipWidth / 2 - categoryStrWidth / 2, tooltipY + yscroll, 1.0f, categoryStr, tooltipFontMedium, 0xFF777777);
-			yscroll += (int)tooltipFontMedium.size + 2 * currentUIScale;
-
-			if (hoveredItem.item.twoHanded)
-			{
-				string twoHandedStr = "Two-handed";
-				int twoHandedStrWidth = tooltipFontMedium.measureText(twoHandedStr);
-				GUI.Text(tooltipX + tooltipWidth / 2 - twoHandedStrWidth / 2, tooltipY + yscroll, 1.0f, twoHandedStr, tooltipFontMedium, 0xFF777777);
-				yscroll += (int)tooltipFontMedium.size + 2 * currentUIScale;
-			}
-
-			yscroll += 10 * currentUIScale;
-
-			int lineHeight = (int)tooltipFontMedium.size + 5 * currentUIScale;
-
-			if (hoveredItem.item.description != null)
-			{
-				int descriptionLines = GUI.TextWrapped(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, tooltipWidth - 14 - 2 * padding, 1.5f, hoveredItem.item.description, tooltipFontMedium, 0xFF777777);
-				yscroll += descriptionLines * lineHeight;
-				yscroll += 10 * currentUIScale;
-			}
-
-			void drawTooltipInfo(string value)
-			{
-				GUI.Text(tooltipX + 2 + 5 + padding, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
-			}
-			void drawTooltipInfoRight(string value)
-			{
-				int valueStrWidth = tooltipFontMedium.measureText(value);
-				GUI.Text(tooltipX + tooltipWidth - 2 - 5 - padding - valueStrWidth, tooltipY + yscroll, 1.0f, value, tooltipFontMedium, 0xFF777777);
-			}
-
-			if (hoveredItem.item.category == ItemCategory.Weapon)
-			{
-				drawTooltipInfo("Damage");
-				drawTooltipInfoRight(hoveredItem.item.baseDamage.ToString());
-				yscroll += lineHeight;
-
-				if (hoveredItem.item.baseAbsorption > 0)
-				{
-					drawTooltipInfo("Blocking");
-					drawTooltipInfoRight(hoveredItem.item.baseAbsorption.ToString());
-					yscroll += lineHeight;
-				}
-
-				if (hoveredItem.item.blockStability > 0)
-				{
-					drawTooltipInfo("Stability");
-					drawTooltipInfoRight(hoveredItem.item.blockStability.ToString());
-					yscroll += lineHeight;
-				}
-			}
-			else if (hoveredItem.item.category == ItemCategory.Armor)
-			{
-				drawTooltipInfo("Protection");
-				drawTooltipInfoRight(hoveredItem.item.baseAbsorption.ToString());
-				yscroll += lineHeight;
-			}
-
-			tooltipCurrentContentHeight = yscroll - 5 * currentUIScale;
-		}
-	}
-
-	void drawItemContainer(int x, int y, ItemContainer container, ItemContainer lootDst)
-	{
-		// Items
-		{
-			for (int i = container.width - 1; i >= 0; i--)
-			{
-				for (int j = container.height - 1; j >= 0; j--)
-				{
-					int xx = x + i * slotSize;
-					int yy = y + j * slotSize;
-					drawItemSlotGrid(xx, yy, container.items[i + j * container.width], i, j, container, lootDst);
-				}
-			}
-		}
-	}
-
-	void drawItemSlotArray(int x, int y, int width, int height, int dx, int dy, ItemSlot[] slots)
-	{
-		for (int i = 0; i < slots.Length; i++)
-		{
-			int xx = x + i * dx;
-			int yy = y + i * dy;
-			if (GUI.IsHovered(xx, yy, width, height))
-				hoveredSlot = slots[i];
-		}
-
-		for (int i = 0; i < slots.Length; i++)
-		{
-			int xx = x + i * dx;
-			int yy = y + i * dy;
-			drawItemSlot(xx, yy, width, height, slots[i]);
-		}
-	}
-
-	void drawInventory(int x, int y)
-	{
-		GUI.PushLayer();
-		{
-			int left = 10;// width / 2 - totalWidth / 2;
-			int top = 10; // height - totalHeight - 20 * currentUIScale;
-			drawItemContainer(x + left, y + top, player.inventory, null);
-		}
-		GUI.PopLayer();
-	}
-
-	void drawChest(int x, int y)
-	{
-		GUI.PushLayer();
-
-		int left = 10;
-		int top = 10;
-		drawItemContainer(x + left, y + top, openContainer.getContainer(), player.inventory);
-
-		GUI.PopLayer();
-	}
-
-	void drawEquipment(int x, int y)
-	{
-		int padding = 10;
-
-		GUI.PushLayer();
-		{
-			drawItemSlot(x + padding, y + padding, slotSize, slotSize, player.inventory.rightHand[0], equipmentHandRight);
-			drawItemSlot(x + padding, y + padding + slotSize, slotSize, slotSize, player.inventory.leftHand[0], equipmentHandLeft);
-			drawItemSlot(x + padding, y + padding + 2 * slotSize, slotSize, slotSize, player.inventory.rightHand[1]);
-			drawItemSlot(x + padding, y + padding + 3 * slotSize, slotSize, slotSize, player.inventory.leftHand[1]);
-
-			drawItemSlot(x + padding + 5 * slotSize, y + padding + 0 * slotSize, slotSize, slotSize, player.inventory.armor[0], equipmentArmorHelmet);
-			drawItemSlot(x + padding + 5 * slotSize, y + padding + 1 * slotSize, slotSize, slotSize, player.inventory.armor[1], equipmentArmorTorso);
-			drawItemSlot(x + padding + 5 * slotSize, y + padding + 2 * slotSize, slotSize, slotSize, player.inventory.armor[2], equipmentArmorPants);
-			drawItemSlot(x + padding + 5 * slotSize, y + padding + 3 * slotSize, slotSize, slotSize, player.inventory.armor[3], equipmentArmorBoots);
-
-			drawItemSlot(x + padding + 4 * slotSize, y + padding + 3 * slotSize, slotSize, slotSize, player.inventory.arrows, equipmentArrows);
-
-			drawItemSlot(x + padding, y + padding + 4 * slotSize + padding, slotSize, slotSize, player.inventory.hotbar[0], equipmentHotbarItem);
-			drawItemSlot(x + padding + slotSize, y + padding + 4 * slotSize + padding, slotSize, slotSize, player.inventory.hotbar[1]);
-			drawItemSlot(x + padding + 2 * slotSize, y + padding + 4 * slotSize + padding, slotSize, slotSize, player.inventory.hotbar[2]);
-			drawItemSlot(x + padding + 3 * slotSize, y + padding + 4 * slotSize + padding, slotSize, slotSize, player.inventory.hotbar[3]);
-			drawItemSlot(x + padding + 4 * slotSize, y + padding + 4 * slotSize + padding, slotSize, slotSize, player.inventory.hotbar[4]);
-			drawItemSlot(x + padding + 5 * slotSize, y + padding + 4 * slotSize + padding, slotSize, slotSize, player.inventory.hotbar[5]);
-
-			drawItemSlot(x + padding, y + padding + 4 * slotSize + padding + slotSize + padding, slotSize, slotSize, player.inventory.spells[0], equipmentSpells);
-			drawItemSlot(x + padding + slotSize, y + padding + 4 * slotSize + padding + slotSize + padding, slotSize, slotSize, player.inventory.spells[1]);
-			drawItemSlot(x + padding + 2 * slotSize, y + padding + 4 * slotSize + padding + slotSize + padding, slotSize, slotSize, player.inventory.spells[2]);
-			drawItemSlot(x + padding + 3 * slotSize, y + padding + 4 * slotSize + padding + slotSize + padding, slotSize, slotSize, player.inventory.spells[3]);
-			drawItemSlot(x + padding + 4 * slotSize, y + padding + 4 * slotSize + padding + slotSize + padding, slotSize, slotSize, player.inventory.spells[4]);
-			drawItemSlot(x + padding + 5 * slotSize, y + padding + 4 * slotSize + padding + slotSize + padding, slotSize, slotSize, player.inventory.spells[5]);
-
 
 			/*
-			// Armor slots
-			{
-				int slotSize = 32 * currentUIScale;
-				int topPadding = 20 * currentUIScale;
-				int padding = 12 * currentUIScale;
+			List<Item> items = player.items;
+			int choice = ItemSelector.Render(10, 50, "Inventory", items, null, player.money, player, false, null, false, out bool secondary, out bool closed, ref selectedItem);
 
-				drawItemSlotArray(x + width / 2 - slotSize / 2, y + topPadding, slotSize, slotSize, 0, slotSize + padding, player.inventory.armor);
+			if (choice != -1)
+			{
+				Item item = items[choice];
+
+				if (item.isActiveItem)
+				{
+					if (!secondary)
+					{
+						if (player.isActiveItem(item, out _))
+							player.unequipItem(item);
+						else
+							player.equipItem(item);
+					}
+					else
+					{
+						if (player.useActiveItem(item))
+						{
+							if (selectedItem == player.items.Count)
+								selectedItem--;
+						}
+					}
+				}
+				if ((item.isHandItem || item.isPassiveItem) && secondary)
+				{
+					player.throwItem(item, true);
+					player.removeItem(item);
+					if (choice <= selectedItem)
+						selectedItem--;
+				}
+				if (item.isHandItem && item.isSecondaryItem && !secondary)
+				{
+					if (item == player.handItem)
+					{
+						player.unequipItem(item);
+						player.equipOffhandItem(item);
+					}
+					else if (item == player.offhandItem)
+					{
+						player.unequipItem(item);
+						player.equipHandItem(item);
+					}
+				}
+
+				selectedItem = Math.Max(Math.Min(selectedItem, items.Count - 1), 0);
 			}
 
-			// Left weapon slots
+			// Item info panel
+			if (items.Count > 0)
 			{
-				int slotSize = 64 * currentUIScale;
-				int padding = 2 * currentUIScale;
-
-				int xx = x + width / 2 - 26 * currentUIScale - padding - slotSize;
-				int yy = y + 42 * currentUIScale;
-
-				drawItemSlotArray(xx, yy, slotSize, slotSize, -(slotSize + padding), 0, player.inventory.leftHand);
-			}
-			// Right weapon slots
-			{
-				int slotSize = 64 * currentUIScale;
-				int padding = 2 * currentUIScale;
-
-				int xx = x + width / 2 + 26 * currentUIScale + padding;
-				int yy = y + 42 * currentUIScale;
-
-				drawItemSlotArray(xx, yy, slotSize, slotSize, slotSize + padding, 0, player.inventory.rightHand);
-			}
-
-			// Hotbar items
-			{
-				int slotSize = 32 * currentUIScale;
-				int padding = 2 * currentUIScale;
-				int totalWidth = padding + player.inventory.hotbar.Length * (slotSize + padding);
-				int xx = x + width / 2 - totalWidth / 2 + padding;
-				int yy = y + 196 * currentUIScale;
-
-				drawItemSlotArray(xx, yy, slotSize, slotSize, slotSize + padding, 0, player.inventory.hotbar);
+				int sidePanelWidth = 80;
+				int x = Renderer.UIWidth - 10 - sidePanelWidth;
+				int y = 50;
+				sidePanelHeight = ItemInfoPanel.Render(items[selectedItem], x, y, sidePanelWidth, sidePanelHeight);
 			}
 			*/
 		}
-		GUI.PopLayer();
-	}
 
-	void drawStats(int x, int y, int width, int height)
-	{
-		GUI.PushLayer();
+		// Minimap
+		if (player.inventoryOpen)
+		{
+			int width = 64;
+			int height = 48;
+			int x = Renderer.UIWidth - 5 - width;
+			int y = Renderer.UIHeight - 5 - height;
 
-		GUI.Text(x + width / 2 - tooltipFontBig.measureText(player.name) / 2, y, 1, player.name, tooltipFontBig, 0xFFAAAAAA);
-		y += (int)tooltipFontBig.size + 30;
+			Vector2i playerTile = (Vector2i)Vector2.Floor(player.position + new Vector2(0, 0.5f));
+			int scrollx = playerTile.x - width / 2;
+			int scrolly = playerTile.y - height / 2;
 
-		void drawTooltipInfo(string value, uint color = 0xFFAAAAAA)
-		{
-			GUI.Text(x, y, 1.0f, value, tooltipFontMedium, color);
-		}
-		void drawTooltipInfoRight(string value, uint color = 0xFFFFFFFF)
-		{
-			int valueStrWidth = tooltipFontMedium.measureText(value);
-			GUI.Text(x + width - valueStrWidth, y, 1.0f, value, tooltipFontMedium, color);
-		}
-		void drawLevelBackground(int x, int y, int width, int height, ref int lvl)
-		{
-			if (player.stats.availablePoints > 0)
+			for (int yy = scrolly; yy < scrolly + height; yy++)
 			{
-				bool hovered = GUI.IsHovered(x, y, width, height);
-				if (hovered)
+				for (int xx = scrollx; xx < scrollx + width; xx++)
 				{
-					int padding = 3;
-					GUI.Rect(x - padding, y - padding, width + 2 * padding, height + 2 * padding, 0xFF444444);
-					if (Input.IsMouseButtonPressed(MouseButton.Left))
+					TileType tile = GameState.instance.level.getTile(xx, yy);
+					if (tile != null)
 					{
-						lvl++;
-						player.stats.availablePoints--;
+						Renderer.DrawUISprite(x + xx - scrollx, y + height - (yy - scrolly) - 1, 1, 1, null, false, tile.particleColor);
 					}
 				}
 			}
-		}
 
-		int lineHeight = (int)tooltipFontMedium.size + 10;
-
-		drawTooltipInfo("Health", 0xffCC7C7C);
-		drawTooltipInfoRight(player.stats.health.ToString() + "/" + player.stats.getMaxHealth().ToString());
-		y += lineHeight;
-
-		drawTooltipInfo("Stamina", 0xff7EA07E);
-		drawTooltipInfoRight((player.stats.stamina).ToString() + "/" + player.stats.getMaxStamina().ToString());
-		y += lineHeight;
-
-		drawTooltipInfo("Mana", 0xffB2B8F4);
-		drawTooltipInfoRight(player.stats.mana.ToString() + "/" + player.stats.getMaxMana().ToString());
-		y += lineHeight;
-
-		y += lineHeight;
-
-		if (player.stats.availablePoints > 0)
-		{
-			drawTooltipInfo("Available Points:");
-			drawTooltipInfoRight(player.stats.availablePoints.ToString(), 0xFF00FF00);
-			y += lineHeight;
-			y += lineHeight;
-		}
-
-		drawLevelBackground(x, y, width, (int)tooltipFontMedium.size, ref player.stats.levels.vitality);
-		drawTooltipInfo("Vitality");
-		drawTooltipInfoRight(player.stats.levels.vitality.ToString());
-		y += lineHeight;
-
-		drawLevelBackground(x, y, width, (int)tooltipFontMedium.size, ref player.stats.levels.endurance);
-		drawTooltipInfo("Endurance");
-		drawTooltipInfoRight(player.stats.levels.endurance.ToString());
-		y += lineHeight;
-
-		drawLevelBackground(x, y, width, (int)tooltipFontMedium.size, ref player.stats.levels.agility);
-		drawTooltipInfo("Agility");
-		drawTooltipInfoRight(player.stats.levels.agility.ToString());
-		y += lineHeight;
-
-		drawLevelBackground(x, y, width, (int)tooltipFontMedium.size, ref player.stats.levels.strength);
-		drawTooltipInfo("Strength");
-		drawTooltipInfoRight(player.stats.levels.strength.ToString());
-		y += lineHeight;
-
-		drawLevelBackground(x, y, width, (int)tooltipFontMedium.size, ref player.stats.levels.finesse);
-		drawTooltipInfo("Finesse");
-		drawTooltipInfoRight(player.stats.levels.finesse.ToString());
-		y += lineHeight;
-
-		drawLevelBackground(x, y, width, (int)tooltipFontMedium.size, ref player.stats.levels.intelligence);
-		drawTooltipInfo("Intelligence");
-		drawTooltipInfoRight(player.stats.levels.intelligence.ToString());
-		y += lineHeight;
-
-		y += lineHeight;
-
-		drawTooltipInfo("Gold");
-		drawTooltipInfoRight(player.stats.xp.ToString());
-		y += lineHeight;
-
-		GUI.PopLayer();
-	}
-
-	public void draw()
-	{
-		if (inventoryOpen /*&& openContainer == null*/)
-		{
-			hoveredSlot = null;
-
-			currentUIScale = Display.height / 480;
-			if (currentUIScale == 0)
-			{
-				slotSize = 32;
-			}
-			else if (currentUIScale == 1)
-			{
-				slotSize = 48;
-			}
-			else if (currentUIScale >= 2)
-			{
-				slotSize = 64;
-			}
-
-			bool inventoryHovered, equipmentHovered;
-			int inventoryWidth, inventoryHeight;
-
-			// Inventory screen
-			{
-				int padding = 10;
-				int width = player.inventory.width * slotSize + 2 * padding;
-				int height = player.inventory.height * slotSize + 2 * padding;
-				int x = 32;
-				int y = Display.height - 32 - height;
-
-				GUI.Rect(x, y, width, height, 0xff111111);
-				drawInventory(x, y);
-
-				inventoryHovered = GUI.IsHovered(x, y, width, height);
-				inventoryWidth = width;
-				inventoryHeight = height;
-			}
-
-			// Equipment screen
-			{
-				int padding = 10;
-				int width = 6 * slotSize + 2 * padding;
-				int height = 6 * slotSize + 4 * padding;
-				int x = 32;
-				int y = Display.height - 32 - height - padding - inventoryHeight;
-
-				GUI.Rect(x, y, width, height, 0xff111111);
-				drawEquipment(x, y);
-
-				equipmentHovered = GUI.IsHovered(x, y, width, height);
-			}
-
-			// Item container screen
-			if (openContainer != null)
-			{
-				int padding = 10;
-				int width = openContainer.getContainer().width * slotSize + 2 * padding;
-				int height = openContainer.getContainer().height * slotSize + 2 * padding;
-				int x = 32 + inventoryWidth + padding;
-				int y = Display.height - 32 - height;
-
-				GUI.Rect(x, y, width, height, 0xff111111);
-				drawChest(x, y);
-			}
-
-			// Player stats screen
-			{
-				int padding = 20;
-				int width = 280;
-				int height = 470;
-				int x = Display.width - 32 - width;
-				int y = Display.height - 32 - height;
-
-				GUI.Rect(x, y, width, height, 0xff111111);
-				drawStats(x + padding, y + padding, width - 2 * padding, height - 2 * padding);
-			}
-
-			if (grabbedItem != null && Input.IsMouseButtonPressed(MouseButton.Left) && !inventoryHovered && !equipmentHovered)
-			{
-				//player.dropItem(grabbedItem, grabbedItemStackSize);
-				grabItem(null, 0);
-			}
-
-			GUI.PushLayer();
-			drawGrabbedItem(/*x, y, width, height*/);
-			if (grabbedItem == null && hoveredSlot != null)
-				DrawTooltip(hoveredSlot);
-			GUI.PopLayer();
-
-			if (InputManager.IsPressed("UIBack") || InputManager.IsPressed("UIClose") || InputManager.IsPressed("Inventory"))
-			{
-				inventoryOpen = false;
-				if (openContainer != null)
-				{
-					openContainer.onClose();
-					openContainer = null;
-				}
-				Input.mouseLocked = true;
-
-				if (grabbedItem != null)
-				{
-					//player.dropItem(grabbedItem, grabbedItemStackSize);
-					grabItem(null, 0);
-				}
-			}
-		}
-		/*
-		else if (openContainer != null)
-		{
-			hoveredSlot = null;
-
-			int inventoryWidth = 360 * currentUIScale;
-			int chestPaneWidth = 360 * currentUIScale;
-			int height = 460 * currentUIScale;
-			int x = Display.width / 2 - inventoryWidth;
-			int y = Display.height / 2 - height / 2;
-			int width = inventoryWidth + chestPaneWidth;
-
-			GUI.Rect(x, y, width, height, 0xff111111);
-
-			drawInventory(x, y, inventoryWidth, height);
-			drawChest(x + inventoryWidth, y, chestPaneWidth, height);
-
-			GUI.PushLayer();
-			drawGrabbedItem(x, y, width, height);
-			drawTooltip();
-			GUI.PopLayer();
-
-			if (InputManager.IsPressed("UIBack") || InputManager.IsPressed("UIClose") || InputManager.IsPressed("OpenInventory"))
-			{
-				inventoryOpen = false;
-				openContainer.onClose();
-				openContainer = null;
-				player.setCursorLocked(true);
-
-				if (grabbedItem != null)
-				{
-					player.throwItem(grabbedItem, grabbedItemStackSize);
-					grabItem(null, 0);
-				}
-			}
-		}
-		*/
-		else
-		{
-			if (InputManager.IsPressed("Inventory"))
-			{
-				inventoryOpen = true;
-				Input.mouseLocked = false;
-			}
+			Renderer.DrawUISprite(x + playerTile.x - scrollx, y + height - (playerTile.y - scrolly) - 1, 1, 1, null, false, 0xFF00FF00);
 		}
 	}
 }

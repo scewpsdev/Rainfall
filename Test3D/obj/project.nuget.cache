@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "Cd3iQC2gJ8R5qV+uCcFfxZJQHihHEpVT20JgWGrZnJIeBuiteSOGKOyzOaBrzAA3xZ6H2b4Yz5Xgdh5SsKBc/A==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\Test3D\\Test3D.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}
