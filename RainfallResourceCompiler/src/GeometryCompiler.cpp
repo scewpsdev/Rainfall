@@ -330,17 +330,13 @@ static void ProcessNode(NodeData& node, SceneData& scene, aiNode* ainode, int& i
 	}
 }
 
-static std::unordered_map<aiNode*, int> nodeMap;
-
-static void ProcessNodes(SceneData& scene, const aiScene* aiscene)
+static void ProcessNodes(SceneData& scene, const aiScene* aiscene, std::unordered_map<aiNode*, int>& nodeMap)
 {
-	nodeMap.clear();
-
 	int idCounter = 0;
 	ProcessNode(scene.nodes[0], scene, aiscene->mRootNode, idCounter, nodeMap);
 }
 
-static void ProcessSkeleton(SkeletonData& skeleton, aiMesh* aimesh, SceneData& scene)
+static void ProcessSkeleton(SkeletonData& skeleton, aiMesh* aimesh, SceneData& scene, std::unordered_map<aiNode*, int>& nodeMap)
 {
 	skeleton.boneCount = aimesh->mNumBones;
 	skeleton.bones = new BoneData[skeleton.boneCount];
@@ -358,7 +354,7 @@ static void ProcessSkeleton(SkeletonData& skeleton, aiMesh* aimesh, SceneData& s
 	}
 }
 
-static void ProcessMeshesAndSkeletons(SceneData& scene, const aiScene* aiscene)
+static void ProcessMeshesAndSkeletons(SceneData& scene, const aiScene* aiscene, std::unordered_map<aiNode*, int>& nodeMap)
 {
 	int numSkeletons = 0;
 	for (int i = 0; i < scene.numMeshes; i++)
@@ -369,7 +365,7 @@ static void ProcessMeshesAndSkeletons(SceneData& scene, const aiScene* aiscene)
 		if (aimesh->HasBones())
 		{
 			skeletonID = numSkeletons++;
-			ProcessSkeleton(scene.skeletons[skeletonID], aimesh, scene);
+			ProcessSkeleton(scene.skeletons[skeletonID], aimesh, scene, nodeMap);
 		}
 
 		ProcessMesh(scene.meshes[i], aimesh, skeletonID);
@@ -683,8 +679,10 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 		scene.nodes = new NodeData[scene.numNodes];
 		scene.lights = new LightData[scene.numLights];
 
-		ProcessNodes(scene, aiscene);
-		ProcessMeshesAndSkeletons(scene, aiscene);
+		std::unordered_map<aiNode*, int> nodeMap;
+
+		ProcessNodes(scene, aiscene, nodeMap);
+		ProcessMeshesAndSkeletons(scene, aiscene, nodeMap);
 		ProcessMaterials(scene, aiscene, path);
 		ProcessAnimations(scene, aiscene);
 		ProcessLights(scene, aiscene);

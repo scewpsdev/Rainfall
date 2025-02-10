@@ -144,6 +144,7 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 	const char* outpath = outpathStr.c_str();
 
 	std::string filepathStr = file.string();
+	std::string name = file.stem().string();
 	std::string extension = file.extension().string();
 
 	fprintf(stderr, "%s\n", filepathStr.c_str());
@@ -152,8 +153,6 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 
 	if (IsShader(extension))
 	{
-		std::string name = file.stem().string();
-
 		bool vertex = extension == ".vsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".vsh", 4) == 0;
 		bool fragment = extension == ".fsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".fsh", 4) == 0;
 		bool compute = extension == ".csh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".csh", 4) == 0;
@@ -167,93 +166,7 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 	}
 	else if (IsTexture(extension))
 	{
-		if (extension == ".png")
-		{
-			std::string name = file.stem().string();
-			std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) {return std::tolower(c); });
-
-			if (name.find("cubemap") != std::string::npos)
-			{
-				bool equirect = name.find("equirect") != std::string::npos;
-				success = CompileTexture(filepathStr.c_str(), outpath, nullptr, true, false, true, equirect, !equirect);
-			}
-			else
-			{
-				std::string format;
-				bool linear = false, normal = false, mipmaps = false;
-				if (name.find("basecolor") != std::string::npos || name.find("albedo") != std::string::npos || name.find("diffuse") != std::string::npos)
-				{
-					format = "BC3";
-					linear = true;
-					mipmaps = true;
-				}
-				else if (name.find("normal") != std::string::npos)
-				{
-					format = "BC3";
-					linear = true;
-					normal = true;
-					mipmaps = true;
-				}
-				else if (name.find("roughnessmetallic") != std::string::npos)
-				{
-					format = "BC3";
-					linear = true;
-					mipmaps = true;
-				}
-				else if (name.find("roughness") != std::string::npos)
-				{
-					format = "BC3";
-					linear = true;
-					mipmaps = true;
-				}
-				else if (name.find("metallic") != std::string::npos)
-				{
-					format = "BC3";
-					linear = true;
-					mipmaps = true;
-				}
-				else if (name.find("height") != std::string::npos || name.find("displacement") != std::string::npos)
-				{
-					format = "BC4";
-					linear = true;
-					mipmaps = true;
-				}
-				else if (name.find("emissive") != std::string::npos || name.find("emission") != std::string::npos)
-				{
-					format = "BC3";
-					//linear = true;
-					mipmaps = true;
-				}
-				else if (name.find("_ao") != std::string::npos)
-				{
-					format = "BC4";
-					linear = true;
-					mipmaps = true;
-				}
-				else
-				{
-					format = "BGRA8";
-					linear = true;
-				}
-
-				success = CompileTexture(filepathStr.c_str(), outpath, format.c_str(), linear, normal, mipmaps);
-			}
-		}
-		else if (extension == ".jpg")
-		{
-			std::string name = file.stem().string();
-
-			std::string format = "BC3";
-			bool linear = false, normal = false, mipmaps = false;
-
-			success = CompileTexture(filepathStr.c_str(), outpath, format.c_str(), linear, normal, mipmaps);
-		}
-		else if (extension == ".hdr")
-		{
-			std::string name = file.stem().string();
-
-			success = CompileTexture(filepathStr.c_str(), outpath, nullptr, true, false, true, true, false);
-		}
+		success = CompileTexture(name, extension, filepathStr.c_str(), outpath);
 	}
 	else if (IsGeometry(extension))
 	{

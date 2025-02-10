@@ -116,7 +116,8 @@ void main()
 	float metallic = mix(metallicFactor, texture2D(s_metallic, v_texcoord0).b, u_hasTexCoords * u_hasMetallic);
 	vec3 emissive = mix(emissionColor, texture2D(s_emissive, v_texcoord0).rgb, u_hasTexCoords * u_hasEmissive);
     
-	vec3 normalMapValue = 2.0 * texture2D(s_normal, v_texcoord0).rgb - 1.0;
+	vec3 normalMapValue = texture2D(s_normal, v_texcoord0).rgb;
+	normalMapValue = vec3(2.0 * normalMapValue.rg - 1.0, 1);
 
 	vec3 normal = (u_hasTexCoords * u_hasNormal > 0.5) ? mul(tbn, normalMapValue) : norm;
 
