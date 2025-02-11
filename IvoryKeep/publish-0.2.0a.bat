@@ -28,8 +28,6 @@ move bin\Release\net8.0\publish\datat.dat bin\Release\net8.0\publish\assets
 
 xcopy /y ..\RainfallNative\bin\x64\ReleaseLight\RainfallNative.dll bin\Release\net8.0\publish\
 
-ren bin\Release\net8.0\publish\PixelEngine.exe IvoryKeep.exe
-
 mkdir bin\Release\net8.0\publish\saves
 
 echo cmd /k IvoryKeep.exe > bin\Release\net8.0\publish\launch.bat

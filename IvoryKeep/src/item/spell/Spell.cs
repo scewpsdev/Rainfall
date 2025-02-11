@@ -34,5 +34,10 @@ public abstract class Spell : Item
 		return false;
 	}
 
+	public virtual bool charge(Player player, Item staff, float manaCost, float duration)
+	{
+		return true;
+	}
+
 	public abstract bool cast(Player player, Item staff, float manaCost, float duration);
 }

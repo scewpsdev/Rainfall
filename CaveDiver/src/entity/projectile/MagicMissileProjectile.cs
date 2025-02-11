@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 public class MagicMissileProjectile : Projectile
 {
-	const float speed = 30;
+	const float speed = 16;
 	const float radius = 2;
 	float explosionDamage;
 
 	public MagicMissileProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item staff, Item spell)
 		: base(direction * speed, startVelocity, offset, player, spell, 0)
 	{
-		gravity = -20;
+		gravity = -30;
 		explosionDamage = spell.baseDamage * staff.getAttackDamage(player) * player.getMagicDamageModifier();
 
 		sprite = new Sprite(Item.tileset, 9, 1);

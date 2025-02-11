@@ -128,7 +128,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Item[] activeItems = new Item[4];
 	public int selectedActiveItem = 0;
 	public List<Spell> spellItems = new List<Spell>();
-	public int spellCapacity = 3;
+	public int spellCapacity = 4;
 	public int selectedSpellItem = 0;
 	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem = MathHelper.Clamp(selectedSpellItem, 0, spellItems.Count - 1)] : null;
 	public List<Item> passiveItems = new List<Item>();

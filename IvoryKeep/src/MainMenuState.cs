@@ -43,7 +43,9 @@ public class MainMenuState : State
 
 	void mainScreen()
 	{
-		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splash.width / 2, 64 - splash.height / 2, splash.width, splash.height, 0, splash, 0xFF888888);
+		float elapsed = (Time.currentTime - startTime) / 1e9f;
+		float anim = MathF.Pow(MathF.Min(elapsed / FADEIN, 1), 0.3f);
+		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splash.width / 2, 64 - splash.height / 2 + (1 - anim) * splash.height, splash.width, (int)(anim * splash.height), splash.spriteSheet.texture, splash.position.x, splash.position.y, splash.size.x, (int)(splash.size.y * anim), 0xFF888888);
 
 		string[] labels = [
 			"Start",
@@ -63,7 +65,11 @@ public class MainMenuState : State
 			true
 		];
 
-		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton);
+		float[] fade = new float[labels.Length];
+		for (int i = 0; i < fade.Length; i++)
+			fade[i] = MathHelper.Clamp(elapsed - FADEIN - i * 0.2f, 0, 1);
+
+		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton, fade);
 		if (selection != -1)
 		{
 			switch (selection)

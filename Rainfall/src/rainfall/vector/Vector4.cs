@@ -100,6 +100,16 @@ namespace Rainfall
 			return "{" + x.ToString(CultureInfo.InvariantCulture) + "," + y.ToString(CultureInfo.InvariantCulture) + "," + z.ToString(CultureInfo.InvariantCulture) + "," + w.ToString(CultureInfo.InvariantCulture) + "}";
 		}
 
+		public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
+		{
+			return new Vector4(
+				(1.0f - t) * a.x + t * b.x,
+				(1.0f - t) * a.y + t * b.y,
+				(1.0f - t) * a.z + t * b.z,
+				(1.0f - t) * a.w + t * b.w
+			);
+		}
+
 		public static Vector4 operator *(Vector4 a, float b)
 		{
 			return new Vector4(a.x * b, a.y * b, a.z * b, a.w * b);

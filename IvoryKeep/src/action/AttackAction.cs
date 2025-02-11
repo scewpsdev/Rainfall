@@ -109,7 +109,8 @@ public class AttackAction : EntityAction
 
 		duration /= player.getAttackSpeedModifier();
 
-		trail = new WeaponTrail(20, null, Vector4.One, true, getWeaponTip(player), getWeaponTip(player, 0.99f));
+		if (anim != AttackAnim.Stab)
+			trail = new WeaponTrail(20, null, Vector4.One, true, getWeaponTip(player), getWeaponTip(player, 0.99f));
 	}
 
 	public override void onFinished(Player player)

@@ -732,7 +732,7 @@ public abstract class NPC : Mob, Interactable
 			}
 
 			int choice = ItemSelector.Render(menuAnchor, "Buy", items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
-			if (choice != -1)
+			if (choice != -1 && !secondary)
 			{
 				Item item = items[choice];
 				int price = prices[choice];

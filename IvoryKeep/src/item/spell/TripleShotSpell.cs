@@ -19,7 +19,7 @@ public class TripleShotSpell : Spell
 
 		value = 19;
 
-		baseDamage = 0.7f;
+		baseDamage = 1.5f;
 		baseAttackRate = 1;
 		manaCost = 0.3f;
 		knockback = 1.0f;

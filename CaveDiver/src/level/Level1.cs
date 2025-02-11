@@ -182,6 +182,7 @@ public static class Level1
 			merchant.addShopItem(new LeatherGauntlets());
 			merchant.addShopItem(new LeatherBoots());
 			merchant.addShopItem(new TripleShotSpell());
+			merchant.addShopItem(new BurstShotSpell());
 			merchant.addShopItem(new LightningSpell());
 			merchant.addShopItem(new PotionOfHealing());
 			merchant.addShopItem(new Bread() { stackSize = 2 });

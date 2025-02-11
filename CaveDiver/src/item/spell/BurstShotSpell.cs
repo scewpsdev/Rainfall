@@ -23,7 +23,7 @@ public class BurstShotSpell : Spell
 
 		value = 17;
 
-		baseDamage = 0.7f;
+		baseDamage = 1;
 		baseAttackRate = 1;
 		manaCost = 0.3f;
 		knockback = 1.0f;
@@ -32,14 +32,20 @@ public class BurstShotSpell : Spell
 		spellIcon = new Sprite(tileset, 4, 7);
 	}
 
-	public override bool cast(Player player, Item staff, float manaCost, float duration)
+	public override bool charge(Player player, Item staff, float manaCost, float duration)
 	{
 		this.player = player;
 		this.staff = staff;
-		this.speed = duration * attackRate;
+		this.speed = 1 / duration * attackRate;
+
 		castTime = Time.currentTime;
 		castedProjectiles = 0;
 
+		return true;
+	}
+
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
+	{
 		return true;
 	}
 
@@ -60,8 +66,6 @@ public class BurstShotSpell : Spell
 
 	public override void update(Entity entity)
 	{
-		base.update(entity);
-
 		if (castTime != -1)
 		{
 			float elapsed = (Time.currentTime - castTime) / 1e9f * speed;

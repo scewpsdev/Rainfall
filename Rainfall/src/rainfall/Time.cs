@@ -14,40 +14,21 @@ namespace Rainfall
 			set { Native.Application.Application_SetTimerPaused((byte)(value ? 1 : 0)); }
 		}
 
-		public static long currentTime
-		{
-			get { return Native.Application.Application_GetCurrentTime(); }
-		}
+		public static long currentTime => Native.Application.Application_GetCurrentTime();
 
-		public static long timestamp
-		{
-			get { return Native.Application.Application_GetTimestamp(); }
-		}
+		public static float gameTime => Native.Application.Application_GetCurrentTime() / 1e9f;
 
-		public static float deltaTime
-		{
-			get { return Native.Application.Application_GetFrameTime() / 1e9f; }
-		}
+		public static long timestamp => Native.Application.Application_GetTimestamp();
 
-		public static int fps
-		{
-			get { return Native.Application.Application_GetFPS(); }
-		}
+		public static float deltaTime => Native.Application.Application_GetFrameTime() / 1e9f;
 
-		public static float ms
-		{
-			get { return Native.Application.Application_GetMS(); }
-		}
+		public static int fps => Native.Application.Application_GetFPS();
 
-		public static long nativeMemory
-		{
-			get { return Native.Application.Application_GetMemoryUsage(); }
-		}
+		public static float ms => Native.Application.Application_GetMS();
 
-		public static int numAllocations
-		{
-			get { return Native.Application.Application_GetNumAllocations(); }
-		}
+		public static long nativeMemory => Native.Application.Application_GetMemoryUsage();
+
+		public static int numAllocations => Native.Application.Application_GetNumAllocations();
 
 		public static void GetTopAllocators(int num, Span<byte> files, Span<long> sizes)
 		{

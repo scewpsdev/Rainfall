@@ -48,6 +48,12 @@ public class CaveDiver : Game
 		width = (int)MathF.Ceiling(Display.width / (float)scale);
 		height = (int)MathF.Ceiling(Display.height / (float)scale);
 
+		Resource.LoadPackageHeader("datas.dat");
+		Resource.LoadPackageHeader("datat.dat");
+		Resource.LoadPackageHeader("datag.dat");
+		Resource.LoadPackageHeader("dataa.dat");
+		Resource.LoadPackageHeader("datam.dat");
+
 		Renderer.Init(graphics, width, height);
 
 		Audio.Init();
@@ -210,6 +216,19 @@ public class CaveDiver : Game
 		process.WaitForExit();
 	}
 
+	static void PackageFolder(string dir)
+	{
+		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\bin\\x64\\Debug";
+		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+		startInfo.FileName = "cmd.exe";
+		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe --package --compress " + dir;
+		process.StartInfo = startInfo;
+		process.Start();
+		process.WaitForExit();
+	}
+
 	public static void Main(string[] args)
 	{
 #if COMPILE_RESOURCES
@@ -220,7 +239,8 @@ public class CaveDiver : Game
 #endif
 
 		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\assets");
-		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\assets");
+		//CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\assets");
+		PackageFolder($"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
 
 		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 		//Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");

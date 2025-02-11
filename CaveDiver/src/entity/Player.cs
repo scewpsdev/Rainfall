@@ -124,7 +124,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Item[] activeItems = new Item[4];
 	public int selectedActiveItem = 0;
 	public List<Spell> spellItems = new List<Spell>();
-	public int spellCapacity = 3;
+	public int spellCapacity = 4;
 	public int selectedSpellItem = 0;
 	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem = MathHelper.Clamp(selectedSpellItem, 0, spellItems.Count - 1)] : null;
 	public List<Item> passiveItems = new List<Item>();
@@ -1362,7 +1362,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			float gravityMultiplier = 1;
 			if (!isAlive || !InputManager.IsDown("Jump"))
 			{
-				gravityMultiplier = 1.5f;
+				gravityMultiplier = 2;
 				if (InputManager.IsReleased("Jump"))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}

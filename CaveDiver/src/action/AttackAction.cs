@@ -94,7 +94,7 @@ public class AttackAction : EntityAction
 			else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
 				position *= new Vector2(0.5f, 1);
 		}
-		position += new Vector2(0, player.getWeaponOrigin(mainHand).y);
+		position += new Vector2(0, Vector2.Dot(direction, Vector2.Down) > 0.9f ? 0 : Vector2.Dot(direction, Vector2.Up) > 0.9f ? 1 : player.getWeaponOrigin(mainHand).y);
 		if (flip)
 			position.x *= -1;
 		return position;
@@ -109,7 +109,8 @@ public class AttackAction : EntityAction
 
 		duration /= player.getAttackSpeedModifier();
 
-		trail = new WeaponTrail(20, null, Vector4.One, true, getWeaponTip(player), getWeaponTip(player, 0.99f));
+		if (anim != AttackAnim.Stab)
+			trail = new WeaponTrail(20, null, Vector4.One, true, getWeaponTip(player), getWeaponTip(player, 0.99f));
 	}
 
 	public override void onFinished(Player player)
@@ -146,7 +147,7 @@ public class AttackAction : EntityAction
 			}
 
 			Span<HitData> hits = new HitData[16];
-			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), direction, currentRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
+			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), direction, maxRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].entity;
@@ -287,7 +288,7 @@ public class AttackAction : EntityAction
 
 	public Vector2 getWorldOrigin(Player player)
 	{
-		return player.position + new Vector2(0, 0.5f);
+		return player.position + new Vector2(0, Vector2.Dot(direction, Vector2.Down) > 0.9f ? 0 : Vector2.Dot(direction, Vector2.Up) > 0.9f ? 1 : player.getWeaponOrigin(mainHand).y);
 	}
 
 	public Vector2 worldDirection
@@ -321,7 +322,7 @@ public class AttackAction : EntityAction
 			else if (MathF.Abs(Vector2.Dot(direction, Vector2.Up)) > 0.9f)
 				weaponTransform.translation *= new Vector3(0.5f, 1, 1);
 		}
-		weaponTransform = Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, player.getWeaponOrigin(mainHand).y, 0) * weaponTransform;
+		weaponTransform = Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, Vector2.Dot(direction, Vector2.Down) > 0.9f ? 0 : Vector2.Dot(direction, Vector2.Up) > 0.9f ? 1 : player.getWeaponOrigin(mainHand).y, 0) * weaponTransform;
 		if (flip)
 			weaponTransform = Matrix.CreateRotation(Vector3.UnitY, MathF.PI) * weaponTransform;
 		return weaponTransform;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public static class FullscreenMenu
 {
-	public static int Render(string[] labels, bool[] enabled, ref int currentButton)
+	public static int Render(string[] labels, bool[] enabled, ref int currentButton, float[] fade = null)
 	{
 		int linePadding = 3;
 
@@ -43,8 +43,19 @@ public static class FullscreenMenu
 			}
 			bool selected = currentButton == i;
 
-			uint color = enabled == null || enabled[i] ? (selected ? 0xFFFFFFFF : 0xFF777777) : 0xFF444444;
+			uint color = 0xFF777777;
+			if (enabled != null && !enabled[i])
+				color = 0xFF444444;
+			else if (selected)
+				color = MathHelper.VectorToARGB(Vector4.Lerp(0xFFFFFFFF, 0xFF444444, MathF.Sin(Time.timestamp / 1e9f * 3) * 0.5f + 0.5f));
 			uint bgColor = 0xFF444444;
+
+			if (fade != null)
+			{
+				color = MathHelper.ColorAlpha(color, fade[i]);
+				bgColor = MathHelper.ColorAlpha(bgColor, fade[i]);
+			}
+
 			if (selected)
 			{
 				Renderer.DrawUITextBMP(x, y, txt, 1, color);

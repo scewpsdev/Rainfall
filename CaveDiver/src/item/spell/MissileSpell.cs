@@ -31,7 +31,7 @@ public class MissileSpell : Spell
 			Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
 			Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
 
-			Vector2 direction = player.lookDirection.normalized;
+			Vector2 direction = (player.lookDirection.normalized + Vector2.Up * 0.75f).normalized;
 			Vector2 inaccuracy = MathHelper.RandomPointOnCircle(Random.Shared) * 0.05f;
 			direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 

@@ -27,7 +27,7 @@ class SpectralShieldEntity : Entity, Hittable
 
 		sprite = new Sprite(tileset, 7, 1);
 
-		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+		collider = new FloatRect(-0.5f, -0.5f, 1, 1);
 	}
 
 	public override void onLevelSwitch(Level newLevel)
