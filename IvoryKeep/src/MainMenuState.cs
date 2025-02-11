@@ -32,8 +32,8 @@ public class MainMenuState : State
 
 	public MainMenuState()
 	{
-		splash = new Sprite(Resource.GetTexture("sprites/splash.png", false), 0, 0, 256, 64);
-		splashSmall = new Sprite(Resource.GetTexture("sprites/splash.png", false), 0, 64, 256, 32);
+		splash = new Sprite(Resource.GetTexture("sprites/ui/splash2.png", false), 0, 0, 256, 64);
+		splashSmall = new Sprite(Resource.GetTexture("sprites/ui/splash2.png", false), 0, 64, 256, 32);
 	}
 
 	public override void onSwitchTo(State from)
