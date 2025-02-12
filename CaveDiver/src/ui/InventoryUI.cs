@@ -460,25 +460,25 @@ public class InventoryUI
 		{
 			Input.ConsumeKeyEvent(KeyCode.L);
 			selectedCell.x++;
-			Audio.PlayBackground(UISound.uiClick);
+			Audio.PlayBackgroundClocked(UISound.uiClick);
 		}
 		if (Input.IsKeyPressed(KeyCode.J) || InputManager.IsPressed("UILeft", true))
 		{
 			Input.ConsumeKeyEvent(KeyCode.J);
 			selectedCell.x--;
-			Audio.PlayBackground(UISound.uiClick);
+			Audio.PlayBackgroundClocked(UISound.uiClick);
 		}
 		if (Input.IsKeyPressed(KeyCode.K) || InputManager.IsPressed("UIDown", true))
 		{
 			Input.ConsumeKeyEvent(KeyCode.K);
 			selectedCell.y++;
-			Audio.PlayBackground(UISound.uiClick);
+			Audio.PlayBackgroundClocked(UISound.uiClick);
 		}
 		if (Input.IsKeyPressed(KeyCode.I) || InputManager.IsPressed("UIUp", true))
 		{
 			Input.ConsumeKeyEvent(KeyCode.I);
 			selectedCell.y--;
-			Audio.PlayBackground(UISound.uiClick);
+			Audio.PlayBackgroundClocked(UISound.uiClick);
 		}
 
 		int numPassiveItems = 0;
@@ -623,14 +623,14 @@ public class InventoryUI
 		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory", true))
 		{
 			openScreen();
-			Audio.PlayBackground(UISound.uiClick);
+			Audio.PlayBackgroundClocked(UISound.uiClick);
 		}
 		else if (player.inventoryOpen)
 		{
 			if (InputManager.IsPressed("Inventory", true) || InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true))
 			{
 				closeScreen();
-				Audio.PlayBackground(UISound.uiBack);
+				Audio.PlayBackgroundClocked(UISound.uiBack);
 			}
 		}
 

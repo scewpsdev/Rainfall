@@ -26,6 +26,9 @@ public class SoundtrackManager
 		Audio.SetInaudibleBehavior(source1, true, false);
 		Audio.SetInaudibleBehavior(source2, true, false);
 		Audio.SetInaudibleBehavior(source3, true, false);
+		Audio.SetProtect(source1, true);
+		Audio.SetProtect(source2, true);
+		Audio.SetProtect(source3, true);
 	}
 
 	public static void SetLayer(int layer)

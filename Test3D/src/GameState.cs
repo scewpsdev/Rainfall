@@ -13,7 +13,7 @@ public class GameState : State
 
 	public Scene scene;
 
-	Camera camera;
+	FirstPersonCamera camera;
 	DirectionalLight sun;
 
 
@@ -26,13 +26,12 @@ public class GameState : State
 	{
 		scene = new Scene();
 
-		scene.addEntity(camera = new Camera());
+		scene.load("testmap.rfs");
+
+		scene.addEntity(camera = new FirstPersonCamera());
+		scene.addEntity(new Player(camera));
 
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
-
-		Entity entity = new Entity();
-		entity.model = Resource.GetModel("testmap.gltf");
-		scene.addEntity(entity);
 	}
 
 	public override void destroy()

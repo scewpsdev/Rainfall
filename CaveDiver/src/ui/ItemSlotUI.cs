@@ -28,7 +28,10 @@ public static class ItemSlotUI
 			Renderer.DrawUISprite(x, y, size, size, background, false, 0x7FFFFFFF);
 		}
 
-		if (Input.cursorHasMoved && Renderer.IsHovered(x, y, size, size))
+		if (Input.cursorHasMoved && Renderer.IsHovered(x, y, size, size) && selectedCell != cellPosition)
+		{
 			selectedCell = cellPosition;
+			Audio.PlayBackgroundClocked(UISound.uiClick);
+		}
 	}
 }

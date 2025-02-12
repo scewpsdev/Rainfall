@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Threading.Tasks.Dataflow;
+using static System.Formats.Asn1.AsnWriter;
 
 
 public class Scene
@@ -31,6 +32,37 @@ public class Scene
 			entityList.Clear();
 		}
 		entities.Clear();
+	}
+
+	public bool load(string path)
+	{
+		if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out _))
+		{
+			for (int i = 0; i < entities.Count; i++)
+			{
+				SceneFormat.EntityData entityData = entities[i];
+
+				if (entityData.name.StartsWith("__"))
+				{
+					string entityName = entityData.name.Substring(2);
+					if (int.TryParse(entityName.Substring(entityName.LastIndexOf('_') + 1), out int _))
+						entityName = entityName.Substring(0, entityName.LastIndexOf('_'));
+
+					Entity entity = null;
+
+					if (entity != null)
+						addEntity(entity, entityData.position, entityData.rotation, entityData.scale);
+				}
+				else
+				{
+					Entity entity = new Entity();
+					addEntity(entity, entityData.position, entityData.rotation, entityData.scale);
+					entity.load(entityData);
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	Vector3i getEntityTile(Vector3 position)

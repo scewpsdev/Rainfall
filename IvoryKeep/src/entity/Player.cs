@@ -1919,8 +1919,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateStatus();
 		updateAnimation();
 
-		Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
-		Audio.Set3DVolume(5.0f);
+		//Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
+		Audio.UpdateListener(new Vector3(GameState.instance.camera.position, 20), Quaternion.Identity);
+		Audio.Set3DVolume(20.0f);
 
 		if (numOverlaysOpen == 0)
 			Input.cursorMode = CursorMode.Hidden;

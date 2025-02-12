@@ -337,7 +337,7 @@ public static partial class EditorUI
 				Vector2i screenPosition = MathHelper.WorldToScreenSpace(lightGlobalPosition, pv, Display.viewportSize);
 				int width = 64;
 				int height = 64;
-				Texture lightGizmo = Resource.GetTexture("res/textures/light_gizmo.png");
+				Texture lightGizmo = Resource.GetTexture("textures/light_gizmo.png");
 				GUI.Texture(screenPosition.x - width / 2, screenPosition.y - height / 2, width, height, lightGizmo);
 			}
 

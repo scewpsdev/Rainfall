@@ -64,9 +64,24 @@ RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3&
 	soloud.set3dListenerParameters(position.x, position.y, position.z, forward.x, forward.y, forward.z, up.x, up.y, up.z);
 }
 
-RFAPI uint32_t Audio_PlayBackground(AudioSource* sound, float gain, float pitch, bool looping, float fadein)
+RFAPI uint32_t Audio_SourcePlayBackground(AudioSource* sound, float gain, float pitch, bool looping, float fadein)
 {
 	handle source = soloud.playBackground(*sound, gain, true);
+	soloud.setRelativePlaySpeed(source, pitch);
+	soloud.setLooping(source, looping);
+	if (fadein > 0)
+	{
+		soloud.setVolume(source, 0.0f);
+		soloud.fadeVolume(source, gain, fadein);
+	}
+	soloud.setPause(source, false);
+	return source;
+}
+
+RFAPI uint32_t Audio_SourcePlayBackgroundClocked(AudioSource* sound, float deltaTime, float gain, float pitch, bool looping, float fadein)
+{
+	handle source = soloud.playClocked(deltaTime, *sound, gain);
+	soloud.setPause(source, true);
 	soloud.setRelativePlaySpeed(source, pitch);
 	soloud.setLooping(source, looping);
 	if (fadein > 0)
@@ -170,6 +185,11 @@ RFAPI void Audio_SourceSetLooping(uint32_t source, bool looping)
 RFAPI void Audio_SourceSetInaudibleBehavior(uint32_t source, bool mustTick, bool kill)
 {
 	soloud.setInaudibleBehavior(source, mustTick, kill);
+}
+
+RFAPI void Audio_SourceSetProtect(uint32_t source, bool protect)
+{
+	soloud.setProtectVoice(source, protect);
 }
 
 RFAPI void Audio_SoundSetSingleInstance(AudioSource* sound, bool singleInstance)

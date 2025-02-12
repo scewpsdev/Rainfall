@@ -1,0 +1,32 @@
+entities = [ {
+name = "Entity"
+id = "4064314997"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "testmap.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 20, 2, 20 ]
+offset = [ 0, -1, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 2, 2, 2 ]
+offset = [ -1.8140000104904175, 1, -2.806999921798706 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 2, 2, 2 ]
+offset = [ 6.021999835968018, 1, 2.1019999980926514 ]
+rotation = [ 0, 0.6665412187576294, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "4064314997"

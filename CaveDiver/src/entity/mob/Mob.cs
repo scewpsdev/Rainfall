@@ -219,7 +219,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 		for (int i = 0; i < stuckProjectiles.Count; i++)
 		{
-			float dropChance = 0.9f;
+			float dropChance = 1;
 			if (Random.Shared.NextSingle() < dropChance)
 			{
 				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;

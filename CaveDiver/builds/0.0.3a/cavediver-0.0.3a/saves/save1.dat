@@ -1,5 +1,5 @@
-flags = [  ]
-runs_finished = 0
+flags = [ 1615716108 ]
+runs_finished = 1
 highscores = [ {
 score = 0
 floor = -1
@@ -9,29 +9,29 @@ items0 = [ 0, 0 ]
 items1 = [ 0, 0, 0, 0, 0 ]
 items2 = [ 0, 0, 0, 0 ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0, 0 ]
-items2 = [ 0, 0, 0, 0 ]
+score = 20246
+floor = 3
+time = 378.00469970703125
+kills = 74
+items0 = [ 2672026993, 0 ]
+items1 = [ 0, 0, 0, 0 ]
+items2 = [ 2596692361, 2654262244 ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0, 0 ]
-items2 = [ 0, 0, 0, 0 ]
+score = 20246
+floor = 3
+time = 378.00469970703125
+kills = 74
+items0 = [ 2672026993, 0 ]
+items1 = [ 0, 0, 0, 0 ]
+items2 = [ 2596692361, 2654262244 ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
-items0 = [ 0, 0 ]
-items1 = [ 0, 0, 0, 0, 0 ]
-items2 = [ 0, 0, 0, 0 ]
+score = 20246
+floor = 3
+time = 378.00469970703125
+kills = 74
+items0 = [ 2672026993, 0 ]
+items1 = [ 0, 0, 0, 0 ]
+items2 = [ 2596692361, 2654262244 ]
 } ]
 npcs = [ {
 name = rat_npc
@@ -54,7 +54,7 @@ name = builder_merchant
 dialogues = [  ]
 }, {
 name = blacksmith
-dialogues = [  ]
+dialogues = [ 1971503161 ]
 }, {
 name = tinkerer
 dialogues = [  ]

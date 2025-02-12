@@ -60,6 +60,7 @@ public class AdvancedAI : AI
 	AIAction lastAction = null;
 	AIAction triggeredAction = null;
 	public int hesitation = 0;
+	public float minRunDistance = 0;
 
 	long chargeTime;
 	long actionTime;
@@ -182,8 +183,6 @@ public class AdvancedAI : AI
 
 		if (state == AIState.Default)
 		{
-			mob.animator.setAnimation(runAnim);
-
 			if (useAStar)
 			{
 				Vector2i currentTile = (Vector2i)Vector2.Floor(mob.position);
@@ -212,15 +211,24 @@ public class AdvancedAI : AI
 						mob.inputUp = true;
 				}
 			}
-			else
+			else if (distance >= minRunDistance)
 			{
 				walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
 
 				if (walkDirection == -1)
 					mob.inputLeft = true;
-				else
+				else if (walkDirection == 1)
 					mob.inputRight = true;
 			}
+			else
+			{
+				walkDirection = 0;
+			}
+
+			if (walkDirection != 0)
+				mob.animator.setAnimation(runAnim);
+			else
+				mob.animator.setAnimation("idle");
 
 			if (!mob.isStunned)
 			{

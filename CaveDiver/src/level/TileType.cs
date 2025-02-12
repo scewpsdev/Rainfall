@@ -138,6 +138,7 @@ public class TileType
 			name = "bricks",
 			color = 0xFF3a3a3a,
 			isSolid = true,
+			breaksArrows = true,
 			health = 3,
 			particleColor = 0xFF3a3a3a,
 			sprites = [
@@ -162,6 +163,7 @@ public class TileType
 			name = "rock",
 			color = 0xFF4a5062,
 			isSolid = true,
+			breaksArrows = true,
 			health = 3,
 			particleColor = 0xFF4a5062,
 			sprites = [

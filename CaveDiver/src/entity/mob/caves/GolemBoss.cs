@@ -49,6 +49,7 @@ public class GolemBoss : Mob
 		ai.loseRange = 100;
 		ai.patrol = false;
 		ai.hesitation = 4;
+		ai.minRunDistance = 4;
 
 
 		Sound impactSound = Resource.GetSound("sounds/explosion.ogg");

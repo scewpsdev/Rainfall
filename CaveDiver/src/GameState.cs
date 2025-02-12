@@ -308,7 +308,10 @@ public class GameState : State
 			ambientSource = 0;
 		}
 		if (ambience != null)
+		{
 			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 2);
+			Audio.SetProtect(ambientSource, true);
+		}
 		this.ambience = ambience;
 	}
 
@@ -436,17 +439,21 @@ public class GameState : State
 
 		if (newLevel != null && (Time.currentTime - levelSwitchTime) / 1e9f >= LEVEL_FADE)
 		{
+			List<Entity> newLevelEntitiesCopy = new List<Entity>(newLevel.entities);
+
 			if (level != null)
 			{
-				for (int i = 0; i < level.entities.Count; i++)
-					level.entities[i].onLevelSwitch(newLevel);
+				List<Entity> levelEntitiesCopy = new List<Entity>(level.entities);
+
+				for (int i = 0; i < levelEntitiesCopy.Count; i++)
+					levelEntitiesCopy[i].onLevelSwitch(newLevel);
 
 				level.removeEntity(player);
 				level.removeEntity(camera);
 			}
 
-			for (int i = 0; i < newLevel.entities.Count; i++)
-				newLevel.entities[i].onLevelSwitch(newLevel);
+			for (int i = 0; i < newLevelEntitiesCopy.Count; i++)
+				newLevelEntitiesCopy[i].onLevelSwitch(newLevel);
 
 			newLevel.addEntity(player, newLevelSpawnPosition, level == null);
 			newLevel.addEntity(camera, level == null);

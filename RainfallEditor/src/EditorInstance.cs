@@ -41,8 +41,8 @@ public class EditorInstance
 			RainfallEditor.instance.readScene(this, path);
 		}
 
-		invertedBox = Resource.GetModel("res/models/inverted_box.gltf");
-		environmentMap = Resource.GetCubemap("res/textures/cubemap_equirect.png");
+		invertedBox = Resource.GetModel("models/inverted_box.gltf");
+		environmentMap = Resource.GetCubemap("textures/cubemap_equirect.png");
 
 		RendererSettings settings = new RendererSettings(0);
 		settings.showFrame = false;

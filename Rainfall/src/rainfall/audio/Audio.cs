@@ -71,7 +71,12 @@ namespace Rainfall
 
 		public static uint PlayBackground(Sound sound, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
 		{
-			return Audio_PlayBackground(Resource.Resource_SoundGetHandle(sound.resource), gain, pitch, (byte)(looping ? 1 : 0), fadein);
+			return Audio_SourcePlayBackground(Resource.Resource_SoundGetHandle(sound.resource), gain, pitch, (byte)(looping ? 1 : 0), fadein);
+		}
+
+		public static uint PlayBackgroundClocked(Sound sound, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
+		{
+			return Audio_SourcePlayBackgroundClocked(Resource.Resource_SoundGetHandle(sound.resource), Time.deltaTime, gain, pitch, (byte)(looping ? 1 : 0), fadein);
 		}
 
 		public static void PlayBackground(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
@@ -83,7 +88,7 @@ namespace Rainfall
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
-			return Audio_PlayBackground(Resource.Resource_SoundGetHandle(sound.resource), gainFactor * gain, pitchFactor * pitch, 0, 0);
+			return Audio_SourcePlayBackground(Resource.Resource_SoundGetHandle(sound.resource), gainFactor * gain, pitchFactor * pitch, 0, 0);
 		}
 
 		public static void PlayBackgroundOrganic(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
@@ -151,6 +156,11 @@ namespace Rainfall
 			Audio_SourceSetInaudibleBehavior(source, (byte)(mustTick ? 1 : 0), (byte)(kill ? 1 : 0));
 		}
 
+		public static void SetProtect(uint source, bool protect)
+		{
+			Audio_SourceSetProtect(source, (byte)(protect ? 1 : 0));
+		}
+
 		public static void SetEffect(AudioEffect effect)
 		{
 			if (effect == AudioEffect.Reverb)
@@ -166,9 +176,6 @@ namespace Rainfall
 		internal static extern void Audio_Set3DVolume(float volume);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Audio_SourceSetInaudibleBehavior(uint source, byte mustTick, byte kill);
-
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_Init();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -181,7 +188,10 @@ namespace Rainfall
 		internal static extern void Audio_ListenerUpdateTransform(Vector3 position, Vector3 forward, Vector3 up);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern uint Audio_PlayBackground(IntPtr sound, float gain, float pitch, byte looping, float fadein);
+		internal static extern uint Audio_SourcePlayBackground(IntPtr sound, float gain, float pitch, byte looping, float fadein);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint Audio_SourcePlayBackgroundClocked(IntPtr sound, float deltaTime, float gain, float pitch, byte looping, float fadein);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint Audio_SourcePlay(IntPtr sound, Vector3 position, float gain, float pitch, float rolloff);
@@ -224,6 +234,12 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceSetLooping(uint source, byte looping);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceSetInaudibleBehavior(uint source, byte mustTick, byte kill);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceSetProtect(uint source, byte protect);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SoundSetSingleInstance(IntPtr sound, byte singleInstance);

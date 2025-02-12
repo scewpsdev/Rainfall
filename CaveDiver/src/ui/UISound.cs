@@ -8,9 +8,24 @@ using System.Threading.Tasks;
 
 public static class UISound
 {
-	public static Sound uiClick = Resource.GetSound("sounds/ui_back.ogg");
-	public static Sound uiSwitch = Resource.GetSound("sounds/ui_switch.ogg");
-	public static Sound uiConfirm = Resource.GetSound("sounds/ui_confirm.ogg");
-	public static Sound uiConfirm2 = Resource.GetSound("sounds/ui_confirm2.ogg");
-	public static Sound uiBack = Resource.GetSound("sounds/ui_back.ogg");
+	public static Sound uiClick;
+	public static Sound uiSwitch;
+	public static Sound uiConfirm;
+	public static Sound uiConfirm2;
+	public static Sound uiBack;
+
+	static UISound()
+	{
+		uiClick = Resource.GetSound("sounds/ui_back.ogg");
+		uiSwitch = Resource.GetSound("sounds/ui_switch.ogg");
+		uiConfirm = Resource.GetSound("sounds/ui_confirm.ogg");
+		uiConfirm2 = Resource.GetSound("sounds/ui_confirm2.ogg");
+		uiBack = Resource.GetSound("sounds/ui_back.ogg");
+
+		//uiClick.singleInstance = true;
+		//uiSwitch.singleInstance = true;
+		//uiConfirm.singleInstance = true;
+		//uiConfirm2.singleInstance = true;
+		//uiBack.singleInstance = true;
+	}
 }

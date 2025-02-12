@@ -308,15 +308,6 @@ namespace Rainfall
 
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe IntPtr Shader_Create(byte* vertexPath, byte* fragmentPath);
-
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern unsafe IntPtr Shader_CreateCompute(byte* computePath);
-
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Shader_Destroy(IntPtr shader);
-
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe IntPtr Resource_ReadImageFromFile(byte* path, out TextureInfo info);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
