@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <map>
+#include <filesystem>
 
 #include <bimg/decode.h>
 #include <stb_truetype.h>
@@ -28,6 +29,9 @@
 #include <soloud_wav.h>
 
 #include <zlib.h>
+
+
+namespace fs = std::filesystem;
 
 
 struct ResourceHeaderElement
@@ -71,17 +75,28 @@ static std::map<uint32_t, MiscResource*> loadedMiscs;
 static List<ResourcePackage> packages;
 
 
-static uint32_t hashPath(const char* path)
+static uint32_t hashPath(const char* _path)
 {
-	uint32_t hash = 7;
-	int i = 0;
-	while (char c = path[i++])
+	std::string s = _path;
+	std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return c == '\\' ? '/' : c; });
+
+	size_t idx = std::string::npos;
+	while ((idx = s.find(std::string("../"))) != std::string::npos)
 	{
-		if (c == '\\')
-			c = '/';
-		hash = hash * 31 + c;
+		std::string first = s.substr(0, idx - 1);
+		size_t prevSlash = first.find_last_of('/');
+		if (prevSlash != std::string::npos)
+		{
+			s = first.substr(0, prevSlash + 1) + s.substr(idx + 3);
+		}
+		else
+		{
+			break;
+		}
 	}
-	return hash;
+
+	const char* path = s.c_str();
+	return hash(path);
 }
 
 ResourcePackage* GetPackageForFile(const char* path, int* outIdx)

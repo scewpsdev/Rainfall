@@ -1,0 +1,534 @@
+<REAPER_PROJECT 0.1 "7.30/win64" 1739402527
+  <NOTES 0 2
+  >
+  RIPPLE 0
+  GROUPOVERRIDE 0 0 0
+  AUTOXFADE 129
+  ENVATTACH 3
+  POOLEDENVATTACH 0
+  MIXERUIFLAGS 11 48
+  ENVFADESZ10 40
+  PEAKGAIN 1
+  FEEDBACK 0
+  PANLAW 1
+  PROJOFFS 0 0 0
+  MAXPROJLEN 0 0
+  GRID 3199 8 1 8 1 0 0 0
+  TIMEMODE 1 5 -1 30 0 0 -1
+  VIDEO_CONFIG 0 0 65792
+  PANMODE 3
+  PANLAWFLAGS 3
+  CURSOR 12.67605633802817
+  ZOOM 50.47430263272115 0 0
+  VZOOMEX 6 0
+  USE_REC_CFG 0
+  RECMODE 1
+  SMPTESYNC 0 30 100 40 1000 300 0 0 1 0 0
+  LOOP 0
+  LOOPGRAN 0 4
+  RECORD_PATH "Media" ""
+  <RECORD_CFG
+    ZXZhdxgAAQ==
+  >
+  <APPLYFX_CFG
+  >
+  RENDER_FILE ""
+  RENDER_PATTERN ""
+  RENDER_FMT 0 2 0
+  RENDER_1X 0
+  RENDER_RANGE 1 0 0 18 1000
+  RENDER_RESAMPLE 3 0 1
+  RENDER_ADDTOPROJ 0
+  RENDER_STEMS 0
+  RENDER_DITHER 0
+  TIMELOCKMODE 1
+  TEMPOENVLOCKMODE 1
+  ITEMMIX 1
+  DEFPITCHMODE 589824 0
+  TAKELANE 1
+  SAMPLERATE 44100 0 0
+  <RENDER_CFG
+    ZXZhdxgAAQ==
+  >
+  LOCK 1
+  <METRONOME 6 2
+    VOL 0.25 0.125
+    BEATLEN 4
+    FREQ 1760 880 1
+    SAMPLES "" "" "" ""
+    SPLIGNORE 0 0
+    SPLDEF 2 660 "" 0 ""
+    SPLDEF 3 440 "" 0 ""
+    PATTERN 0 169
+    PATTERNSTR ABBB
+    MULT 1
+  >
+  GLOBAL_AUTO -1
+  TEMPO 71 4 4
+  PLAYRATE 1 0 0.25 4
+  SELECTION 0 0
+  SELECTION2 0 0
+  MASTERAUTOMODE 0
+  MASTERTRACKHEIGHT 0 0
+  MASTERPEAKCOL 16576
+  MASTERMUTESOLO 0
+  MASTERTRACKVIEW 0 0.6667 0.5 0.5 0 0 0 0 0 0 0 0 0 0
+  MASTERHWOUT 0 0 1 0 0 0 0 -1
+  MASTER_NCH 2 2
+  MASTER_VOLUME 1 0 -1 -1 1
+  MASTER_PANMODE 3
+  MASTER_PANLAWFLAGS 3
+  MASTER_FX 1
+  MASTER_SEL 0
+  <MASTERPLAYSPEEDENV
+    EGUID {0991FBF6-C535-4654-83C7-8F9A512C6587}
+    ACT 0 -1
+    VIS 0 1 1
+    LANEHEIGHT 0 0
+    ARM 0
+    DEFSHAPE 0 -1 -1
+  >
+  <TEMPOENVEX
+    EGUID {D83CADEC-9F34-4132-B85D-DF9B443FE82D}
+    ACT 0 -1
+    VIS 1 0 1
+    LANEHEIGHT 0 0
+    ARM 0
+    DEFSHAPE 1 -1 -1
+  >
+  <PROJBAY
+  >
+  <TRACK {48863DE0-B616-4C63-B601-B813DF80931E}
+    NAME sforzando
+    PEAKCOL 16576
+    BEAT -1
+    AUTOMODE 0
+    PANLAWFLAGS 3
+    VOLPAN 0.28746169243863 0 -1 -1 1
+    MUTESOLO 0 0 0
+    IPHASE 0
+    PLAYOFFS 0 1
+    ISBUS 0 0
+    BUSCOMP 0 0 0 0 0
+    SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
+    FIXEDLANES 9 0 0 0 0
+    SEL 0
+    REC 1 5088 1 0 0 0 0 0
+    VU 2
+    TRACKHEIGHT 0 0 0 0 0 0 0
+    INQ 0 0 0 0.5 100 0 0 100
+    NCHAN 2
+    FX 1
+    TRACKID {48863DE0-B616-4C63-B601-B813DF80931E}
+    PERF 0
+    MIDIOUT -1
+    MAINSEND 1 0
+    <FXCHAIN
+      WNDRECT 24 52 655 408
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      BYPASS 0 0 0
+      <VST "VST3i: sforzando (Plogue Art et Technologie, Inc)" sforzando.vst3 0 "" 395535903{5C5CA79682FC437AB6539BA204BAB349} ""
+        H2aTF+5e7f4AAAAAAgAAAAEAAAAAAAAAAgAAAAAAAAD2AQAAAQAAAP//EAA=
+        5gEAAAEAAAAAAAAA3gEAAENFR1D9BAAAeJyNVE1vm0AQvVfqf1jtPWHXoY4tQSO3iSoOqJFwlCMalrWz6n64sKD033fAGHNIBFzYefN2Ph7MRA/vRpNWVrVyNqb8llHy
+        8P3rl2hXKciglRPf9n5DyalyZSN88ogA4yFFLsEnyqT3yh5r8rcBrfw/dFNS+0qCQTimdytKDLxnPbLT2on0R0xXLMSYafKY/G586krZX4PGOwMes2ba+ZiyKaRlK3VM
+        lcXgjZHWU6JVK8+XkVmLmG66F2hAgJMbIruabmuhB/gn3pJVTNdIP2pXgN43tq8SgWDsCHMTVfagBYPR68Mq2L/J/EV7hcXIPJVHKCvMnmeuseXBWZ93JMZYwDbb/BUq
+        kz9DSUkB9k+CsUJ00aumeBZvYG3X0Q12fnIalVuHlPhrRacir8Ae5UDxaNS9w0yOTnj8WqMCa4Qa39tDP31PKSh76akF3Zz1Dj6k8JHCPqOs5il385RwnvJtnrKep9zP
+        UzbzlO08hbMFnAX68gUC8wUK8wUS8881foYKzJCMf/TjREE3LBfj6XCQwk/HZ5jJ8xTtTKGkFfI6FP0imS6acNsvGjEO9Zjo10tyCQrC4+Ql1xXR20+jXUuNZchyD8V5
+        crogUXBZbGj8B+NzVLUAAAAAAAAAAA==
+        AAAQAAAA
+      >
+      FLOATPOS 0 0 0 0
+      FXID {40687151-F9A0-46E0-A63F-734086A7E94E}
+      WAK 0 0
+    >
+    <ITEM
+      POSITION 0
+      SNAPOFFS 0
+      LENGTH 13.52112676056338
+      LOOP 1
+      ALLTAKES 0
+      FADEIN 1 0 0 1 0 0 0
+      FADEOUT 1 0 0 1 0 0 0
+      MUTE 0 0
+      SEL 0
+      IGUID {8450B314-C234-4029-B767-C98EDB39C5A5}
+      IID 1
+      NAME 01-sforzando-MIDI
+      VOLPAN 1 0 1 -1
+      SOFFS 0 0
+      PLAYRATE 1 1 0 -1 0 0.0025
+      CHANMODE 0
+      GUID {F2EFBC44-412B-4946-8982-B1395AA2C9AC}
+      <SOURCE MIDI
+        HASDATA 1 960 QN
+        CCINTERP 32
+        POOLEDEVTS {538D82EC-38C7-4B03-B063-C7C425BFC7AE}
+        E 0 90 24 7f
+        E 3840 80 24 00
+        E 0 90 26 7f
+        E 3840 80 26 00
+        e 0 90 28 7f
+        e 7680 80 28 00
+        E 0 b0 7b 00
+        CCINTERP 32
+        CHASE_CC_TAKEOFFS 1
+        GUID {26D826F5-AE24-4ADC-B26F-DCCD331C56D8}
+        IGNTEMPO 0 120 4 4
+        SRCCOLOR 81
+        VELLANE -1 100 0 0 1
+        CFGEDITVIEW 0 0.099132 40 12 0 -1 0 0 0 0.5
+        KEYSNAP 0
+        TRACKSEL 0
+        EVTFILTER 0 -1 -1 -1 -1 0 0 0 0 -1 -1 -1 -1 0 -1 0 -1 -1
+        CFGEDIT 1 1 0 1 0 0 1 1 1 1 1 0.125 0 0 0 0 0 0 0 0 0 0 0 1 0 0.5 0 0 1 64
+      >
+    >
+  >
+  <TRACK {C4DE954B-5905-4BD2-A5E6-BE662037A74C}
+    NAME sforzando
+    PEAKCOL 16576
+    BEAT -1
+    AUTOMODE 0
+    PANLAWFLAGS 3
+    VOLPAN 0.59770560311481 0 -1 -1 1
+    MUTESOLO 0 0 0
+    IPHASE 0
+    PLAYOFFS 0 1
+    ISBUS 0 0
+    BUSCOMP 0 0 0 0 0
+    SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
+    FIXEDLANES 9 0 0 0 0
+    SEL 1
+    REC 1 5088 1 0 0 0 0 0
+    VU 2
+    TRACKHEIGHT 0 0 0 0 0 0 0
+    INQ 0 0 0 0.5 100 0 0 100
+    NCHAN 2
+    FX 1
+    TRACKID {C4DE954B-5905-4BD2-A5E6-BE662037A74C}
+    PERF 0
+    MIDIOUT -1
+    MAINSEND 1 0
+    <FXCHAIN
+      WNDRECT 24 52 716 182
+      SHOW 0
+      LASTSEL 1
+      DOCKED 0
+      BYPASS 0 0 0
+      <VST "VST3i: sforzando (Plogue Art et Technologie, Inc)" sforzando.vst3 0 "" 395535903{5C5CA79682FC437AB6539BA204BAB349} ""
+        H2aTF+5e7f4AAAAAAgAAAAEAAAAAAAAAAgAAAAAAAADzAQAAAQAAAP//EAA=
+        4wEAAAEAAAAAAAAA2wEAAENFR1D9BAAAeJyNVE1vm0AQvVfqf1jtPYF1qB1L0MhNoooDaiWcMxqWsb3qsuvCgtJ/3wFjzCERcGHn7ZuvBzPh03upWYtVrayJuLj3OXv6
+        /vVLuKsUpNDi5G67eeTsXNmikS5+IcAXAScuoydM0TlljjX724BW7h9dc1a7CqEkOOIPK85KeE97ZKe1lcmPiK/8gGIm8Uv8q3GJLbB3g8bZEhxlTbV1EfenkMYWdcSV
+        oeBNicZxplWLF2di1jLi2+4FGggQ7I5hV9N9LfUAP5MXVhFfE/2obQ5635i+SgK8sSPKzVTRgwZKil4fVt7+hNmbdoqKwSzBIxQVZc9S25jiYI3LOpLv+x6Jkz2fVIl1
+        FnCWg/kTU6yArvhNUzrLExjTdXRHnZ+tJuXW5OBuFZ3zrAJzxIHiyKj7i3JytNLR1xoV2BDUuN4e+ul7SkCZa08t6Oait/chRYwU/zPKap7yME8J5inf5inrecpmnvI4
+        T9nOU4S/gLNAX7FAYLFAYbFAYvG5xr+hgnJIJj76cUKvG5ar8Xo4oHTT8Rlm8jJFuzJXaCTehqJfJNNFE2z7RSPHoR4T/XyLr0FBOpq8+LYievt1tGvUVAYWe8gvk9MF
+        Cb3rYiPjP1AeVI0AAAAAAAAAAA==
+        AAAQAAAA
+      >
+      FLOATPOS 0 0 0 0
+      FXID {A1771E58-A70C-476D-858D-A9470505F45F}
+      WAK 0 0
+      BYPASS 0 0 0
+      <JS filters/resonantlowpass ""
+        4515.5 0.8 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      >
+      FLOATPOS 0 0 0 0
+      FXID {881EB9F5-0944-47DA-B9DB-CBC6B5A48145}
+      WAK 0 0
+      BYPASS 0 0 0
+      <VST "VST: ReaVerbate (Cockos)" reaverbate.dll 0 "" 1920361016<56535472766238726561766572626174> ""
+        OGJ2cu9e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAIAAAABAAAAAAAAAAIAAAAAAAAAKAAAAAAAAAAAABAA
+        776t3g3wrd5DAgA/AACAPwAAgD8AAAA/AACAPwAAAAAAAIA/AAAAAA==
+        AAAQAAAA
+      >
+      FLOATPOS 0 0 0 0
+      FXID {D86F1CF0-7FBF-4A1C-8F93-6D3924FFFA82}
+      WAK 0 0
+    >
+    <ITEM
+      POSITION 0
+      SNAPOFFS 0
+      LENGTH 13.52112676056338
+      LOOP 1
+      ALLTAKES 0
+      FADEIN 1 0 0 1 0 0 0
+      FADEOUT 1 0 0 1 0 0 0
+      MUTE 0 0
+      SEL 1
+      IGUID {BBEF0AEC-0964-4704-84DC-92CB62CD44BB}
+      IID 2
+      NAME 01-sforzando-MIDI
+      VOLPAN 1 0 1 -1
+      SOFFS 0 0
+      PLAYRATE 1 1 0 -1 0 0.0025
+      CHANMODE 0
+      GUID {ADDA49A6-08C1-4A57-AB89-56548163150B}
+      <SOURCE MIDI
+        HASDATA 1 960 QN
+        CCINTERP 32
+        POOLEDEVTS {B2AF83DA-4244-4B14-9727-40B82B889F02}
+        E 0 90 3b 3f
+        E 240 90 40 7f
+        E 240 90 42 7f
+        E 240 80 3b 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3b 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3b 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3b 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3b 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3b 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3b 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3e 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3e 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3e 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3e 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3e 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3e 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 3e 3f
+        E 240 80 42 00
+        E 0 90 40 7f
+        E 240 80 47 00
+        E 0 90 42 7f
+        E 240 80 3e 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 40 55
+        E 240 80 42 00
+        E 0 90 42 7f
+        E 240 80 47 00
+        E 0 90 4a 7f
+        E 240 80 40 00
+        E 0 90 47 7f
+        E 240 80 42 00
+        E 0 90 45 7f
+        E 240 80 4a 00
+        E 0 90 40 55
+        E 240 80 47 00
+        E 0 90 4a 7f
+        E 240 80 45 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 45 7f
+        E 240 80 4a 00
+        E 0 90 40 55
+        E 240 80 47 00
+        E 0 90 4a 7f
+        E 240 80 45 00
+        E 0 90 47 7f
+        E 240 80 40 00
+        E 0 90 43 7f
+        E 240 80 4a 00
+        E 0 90 45 7f
+        E 240 80 47 00
+        E 0 90 40 55
+        E 240 80 43 00
+        E 0 90 4a 7f
+        E 240 80 45 00
+        E 0 90 43 7f
+        E 240 80 40 00
+        E 0 90 45 7f
+        E 240 80 4a 00
+        E 0 90 40 7f
+        E 240 80 43 00
+        E 0 90 4a 7f
+        E 240 80 45 00
+        E 0 90 43 7f
+        E 240 80 40 00
+        E 0 90 45 7f
+        E 240 80 4a 00
+        E 0 90 4e 71
+        E 240 80 43 00
+        E 0 90 4a 7f
+        E 240 80 45 00
+        E 0 90 43 7f
+        E 240 80 4e 00
+        E 0 90 45 7f
+        E 240 80 4a 00
+        e 0 90 4e 72
+        E 240 80 43 00
+        E 0 90 4a 7f
+        E 240 80 45 00
+        E 0 90 43 7f
+        e 240 80 4e 00
+        E 0 90 45 7f
+        E 240 80 4a 00
+        E 0 90 4a 7f
+        E 240 80 43 00
+        E 0 90 4e 7f
+        E 240 80 45 00
+        E 0 80 4a 00
+        E 0 80 4e 00
+        E 0 b0 7b 00
+        CCINTERP 32
+        CHASE_CC_TAKEOFFS 1
+        GUID {074F2A5C-0AD3-4799-BD6E-A0A2EE5F2E7D}
+        IGNTEMPO 0 120 4 4
+        SRCCOLOR 82
+        VELLANE -1 100 0 0 1
+        CFGEDITVIEW 6004.184679 0.132883 30 13 0 -1 0 0 0 0.5
+        KEYSNAP 0
+        TRACKSEL 0
+        EVTFILTER 0 -1 -1 -1 -1 0 0 0 0 -1 -1 -1 -1 0 -1 0 -1 -1
+        CFGEDIT 1 1 0 1 0 0 1 1 1 1 1 0.125 0 0 0 0 0 0 0 0 0 0 0 1 0 0.5 0 0 1 64
+      >
+    >
+  >
+  <TRACK {FF9F2431-5A3D-436A-9EB5-EC290FAB5B04}
+    NAME sforzando
+    PEAKCOL 16576
+    BEAT -1
+    AUTOMODE 0
+    PANLAWFLAGS 3
+    VOLPAN 0.24448276984837 0 -1 -1 1
+    MUTESOLO 0 0 0
+    IPHASE 0
+    PLAYOFFS 0 1
+    ISBUS 0 0
+    BUSCOMP 0 0 0 0 0
+    SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
+    FIXEDLANES 9 0 0 0 0
+    SEL 0
+    REC 1 5088 1 0 0 0 0 0
+    VU 2
+    TRACKHEIGHT 0 0 0 0 0 0 0
+    INQ 0 0 0 0.5 100 0 0 100
+    NCHAN 2
+    FX 1
+    TRACKID {FF9F2431-5A3D-436A-9EB5-EC290FAB5B04}
+    PERF 0
+    MIDIOUT -1
+    MAINSEND 1 0
+    <FXCHAIN
+      WNDRECT 24 52 643 345
+      SHOW 0
+      LASTSEL 1
+      DOCKED 0
+      BYPASS 0 0 0
+      <VST "VST3i: sforzando (Plogue Art et Technologie, Inc)" sforzando.vst3 0 "" 395535903{5C5CA79682FC437AB6539BA204BAB349} ""
+        H2aTF+5e7f4AAAAAAgAAAAEAAAAAAAAAAgAAAAAAAAD2AQAAAQAAAP//EAA=
+        5gEAAAEAAAAAAAAA3gEAAENFR1AABQAAeJyNVE1vnDAQvVfqf7B8T8CE7gYJEm2bqOKAGonNGQ1mdoNq7C0Ymv77DizLckgEXPC8eZ6PBzPh43ulWId1UxodcXHrcvb4
+        8PVLuKtLSKHDmS/Y3nN2qk3RShs/EeAKnxOX0ROmaG2pjw3704Iq7T9yc9bYGqEiOOJ3HmcVvKcDslPKyOR7xD3Xp5hJ/BT/am1iChyuQWtNBZaypsrYiLtzSGGHKuKl
+        puBthdpypsoOz5eJ2ciIB/0LFBAg2A3DvqbbRqoR/kG3sI74huhHZXJQ+1YPVRLgTB1RblYWA6ihoujNwXP2b5i9KltSMZgleISipuxZalpdHIy2WU9yXddxAy9L/yKe
+        shcoMuo+B/07pnA+eflVVjrLN9C6b+qGmj8ZReJtfM7stahTntWgjzhSLBnN4KhmRyMtfbBJhC1BrR3ssaWhrQRKfWmrA9WeJXc+pIiJ4n5G8ZYpd8sUf5nybZmyWaZs
+        lyn3y5RgmSLcFZwV+ooVAosVCosVEovPNX6BGqoxmfjoxwmdfl4uxvPhgNLOJ2gcy/Mg7aq8RC3xOhTDLpnvGj8Ydo2c5npK9PM1vgQFaWn44uuWGOznyW5QURlY7CE/
+        T04fJHQuu42M/722VbAAAAAAAAAAAA==
+        AAAQAAAA
+      >
+      FLOATPOS 0 0 0 0
+      FXID {E16CEF22-5F80-4859-81EA-9C53197FFE88}
+      WAK 0 0
+      BYPASS 0 0 0
+      <VST "VST: ReaVerbate (Cockos)" reaverbate.dll 0 "" 1920361016<56535472766238726561766572626174> ""
+        OGJ2cu9e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAIAAAABAAAAAAAAAAIAAAAAAAAAKAAAAAAAAAAAABAA
+        776t3g3wrd5DAgA/AACAP5eWlj4AAAA/AACAPwAAAAAAAIA/AAAAAA==
+        AAAQAAAA
+      >
+      FLOATPOS 0 0 0 0
+      FXID {F98B6595-7CB3-465E-AA7A-7D3A7C67C134}
+      WAK 0 0
+    >
+    <ITEM
+      POSITION 0
+      SNAPOFFS 0
+      LENGTH 13.52112676056338
+      LOOP 1
+      ALLTAKES 0
+      FADEIN 1 0 0 1 0 0 0
+      FADEOUT 1 0 0 1 0 0 0
+      MUTE 0 0
+      SEL 0
+      IGUID {19F0C8C1-1007-4EE2-941C-527528DE3B7B}
+      IID 3
+      NAME 01-sforzando-MIDI
+      VOLPAN 1 0 1 -1
+      SOFFS 0 0
+      PLAYRATE 1 1 0 -1 0 0.0025
+      CHANMODE 0
+      GUID {83C1B904-399D-4A24-BE7B-DE2C386CFDE7}
+      <SOURCE MIDI
+        HASDATA 1 960 QN
+        CCINTERP 32
+        POOLEDEVTS {957F193E-B639-410E-A018-EAE28E5D2F0A}
+        E 0 90 4c 7f
+        E 0 90 53 7f
+        E 0 90 24 7f
+        E 3840 80 4c 00
+        E 0 80 53 00
+        E 0 80 24 00
+        E 0 90 4e 7f
+        E 0 90 53 7f
+        E 0 90 26 7f
+        E 3840 80 4e 00
+        E 0 80 53 00
+        E 0 80 26 00
+        E 0 90 4f 7f
+        E 0 90 53 7f
+        E 0 90 28 7f
+        E 3840 80 4f 00
+        E 0 80 53 00
+        E 0 80 28 00
+        E 0 90 4e 7f
+        E 0 90 56 43
+        E 0 90 53 7f
+        e 0 90 2b 7f
+        E 1920 80 4e 00
+        E 0 90 4a 7f
+        E 1920 80 56 00
+        E 0 80 53 00
+        e 0 80 2b 00
+        E 0 80 4a 00
+        E 0 b0 7b 00
+        CCINTERP 32
+        CHASE_CC_TAKEOFFS 1
+        GUID {C10432FC-F103-4586-A876-7EFEF3F3B98C}
+        IGNTEMPO 0 120 4 4
+        SRCCOLOR 83
+        VELLANE -1 100 0 0 1
+        CFGEDITVIEW 0 0.099132 41 13 0 -1 0 0 0 0.5
+        KEYSNAP 0
+        TRACKSEL 0
+        EVTFILTER 0 -1 -1 -1 -1 0 0 0 0 -1 -1 -1 -1 0 -1 0 -1 -1
+        CFGEDIT 1 1 0 1 0 0 1 1 1 1 1 0.125 0 0 0 0 0 0 0 0 0 0 0 1 0 0.5 0 0 1 64
+      >
+    >
+  >
+>

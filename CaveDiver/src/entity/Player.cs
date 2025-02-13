@@ -67,7 +67,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
 
 	public int direction = 1;
-	public Vector2i aimPosition;
 	public Vector2 lookDirection = Vector2.Right;
 	public float impulseVelocity;
 	float wallJumpVelocity;
@@ -1289,9 +1288,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (isAlive && numOverlaysOpen == 0)
 		{
+			float maxCursorDistance = 2; // (handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f) * 0.2f;
+
 			Vector2 controllerAim = Input.GamepadAxisRight;
 			if (controllerAim.lengthSquared > 0.25f)
-				lookDirection = controllerAim;
+				lookDirection = controllerAim * maxCursorDistance;
 
 			if (Settings.game.aimMode == AimMode.Simple)
 			{
@@ -1308,7 +1309,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (Input.cursorHasMoved)
 				{
-					float maxCursorDistance = handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
 					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
 					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * CaveDiver.instance.scale ||
 						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * CaveDiver.instance.scale)
@@ -1318,18 +1318,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						Vector2i newCursorPos = new Vector2i(x, y);
 						Input.cursorPosition = newCursorPos; // * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
 					}
-					/*
-					if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
-					{
-						Vector2i newCursorPos = playerScreenPos + (Vector2i)Vector2.Round((Renderer.cursorPosition - playerScreenPos).normalized * maxCursorDistance * 16);
-						Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
-					}
-					*/
-					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - GameState.instance.camera.screenToWorld(Renderer.size / 2); // (position + collider.center);
-					if (MathF.Abs(lookDirection.x) > maxCursorDistance)
-						lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
-					if (MathF.Abs(lookDirection.y) > maxCursorDistance)
-						lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
+					Vector2 dest = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - GameState.instance.camera.screenToWorld(Renderer.size / 2); // (position + collider.center);
+					lookDirection = Vector2.Lerp(lookDirection, dest.normalized, 0.5f).normalized;
+
+					//if (MathF.Abs(lookDirection.x) > maxCursorDistance)
+					//	lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
+					//if (MathF.Abs(lookDirection.y) > maxCursorDistance)
+					//	lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
 				}
 
 				if (actions.currentAction != null && actions.currentAction.turnToCrosshair)
@@ -1350,7 +1345,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					direction = MathF.Sign(delta.x);
 			}
 
-			lookDirection = Vector2.Rotate(Vector2.Right, MathF.Floor((lookDirection.angle + MathF.PI * 0.125f) / (MathF.PI * 0.25f)) * MathF.PI * 0.25f);
+			//lookDirection = Vector2.Rotate(Vector2.Right, MathF.Floor((lookDirection.angle + MathF.PI * 0.125f) / (MathF.PI * 0.25f)) * MathF.PI * 0.25f);
 			if (MathF.Abs(lookDirection.x) < 0.001f)
 				lookDirection.x = 0;
 			if (MathF.Abs(lookDirection.y) < 0.001f)
@@ -1624,7 +1619,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					{
 						currentAttackInput = attackInput;
 
-						lookDirection = directionalAttackDir.normalized;
+						lookDirection = directionalAttackDir;
 						if (directionalAttackDir.x != 0)
 							direction = MathF.Sign(directionalAttackDir.x);
 

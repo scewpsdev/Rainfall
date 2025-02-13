@@ -1430,5 +1430,6 @@ public static class Renderer
 		textDraws.Clear();
 		lineDraws.Clear();
 		lightDraws.Clear();
+		lightMask = null;
 	}
 }

@@ -19,10 +19,10 @@ using System.Reflection;
 
 public class IvoryKeep : Game
 {
-	const int VERSION_MAJOR = 0;
-	const int VERSION_MINOR = 2;
-	const int VERSION_PATCH = 0;
-	const char VERSION_SUFFIX = 'a';
+	public const int VERSION_MAJOR = 0;
+	public const int VERSION_MINOR = 2;
+	public const int VERSION_PATCH = 0;
+	public const char VERSION_SUFFIX = 'a';
 
 
 	public static new IvoryKeep instance { get => (IvoryKeep)Game.instance; }
@@ -159,25 +159,6 @@ public class IvoryKeep : Game
 
 		if (debugStats)
 			drawDebugStats();
-		else
-			drawVersion();
-	}
-
-	void drawVersion()
-	{
-		Span<byte> str = stackalloc byte[128];
-
-		int y = 0;
-
-		StringUtils.WriteString(str, "Test Build ");
-		StringUtils.AppendInteger(str, VERSION_MAJOR);
-		StringUtils.AppendCharacter(str, '.');
-		StringUtils.AppendInteger(str, VERSION_MINOR);
-		StringUtils.AppendCharacter(str, '.');
-		StringUtils.AppendInteger(str, VERSION_PATCH);
-		StringUtils.AppendCharacter(str, VERSION_SUFFIX);
-
-		graphics.drawDebugText(0, y++, 0x1F, str);
 	}
 
 	void drawDebugStats()
@@ -186,6 +167,7 @@ public class IvoryKeep : Game
 
 		int y = 0;
 
+		/*
 		StringUtils.WriteString(str, "Test Build ");
 		StringUtils.AppendInteger(str, VERSION_MAJOR);
 		StringUtils.AppendCharacter(str, '.');
@@ -197,6 +179,10 @@ public class IvoryKeep : Game
 		StringUtils.AppendString(str, " Debug");
 #endif
 		graphics.drawDebugText(0, y++, 0x1F, str);
+		*/
+
+		y++;
+		y++;
 
 		y = graphics.drawDebugInfo(0, y, 0x1F);
 

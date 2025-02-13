@@ -13,12 +13,12 @@ public class RingOfDexterity : Item
 	{
 		displayName = "Ring of Dexterity";
 
-		description = "Increases attack speed by 10%";
+		description = "Increases attack speed by 25%";
 		value = 60;
 
 		sprite = new Sprite(tileset, 9, 0);
 
-		buff = new ItemBuff(this) { attackSpeedModifier = 1.1f };
+		buff = new ItemBuff(this) { attackSpeedModifier = 1.25f };
 	}
 
 	public override void onEquip(Player player)

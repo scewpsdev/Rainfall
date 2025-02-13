@@ -99,7 +99,10 @@ namespace Rainfall
 		public static void FreeTexture(Texture texture)
 		{
 			if (Resource_FreeTexture(texture.resource) == 0)
+			{
 				textures.Remove(texture.resource);
+				texture.destroy();
+			}
 		}
 
 		public static Cubemap GetCubemap(string path, ulong flags = 0, bool keepCpuData = false)

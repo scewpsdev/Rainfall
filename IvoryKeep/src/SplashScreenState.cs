@@ -29,19 +29,19 @@ public class SplashScreenState : State
 
 	public override void init()
 	{
-		startTime = Time.currentTime;
+		startTime = Time.timestamp;
 	}
 
 	public override void update()
 	{
-		float elapsed = (Time.currentTime - startTime) / 1e9f - 1;
+		float elapsed = (Time.timestamp - startTime) / 1e9f - 1;
 		if (elapsed > DURATION || InputManager.IsPressed("UIConfirm", true))
 			IvoryKeep.instance.popState();
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		float elapsed = (Time.currentTime - startTime) / 1e9f - 1;
+		float elapsed = (Time.timestamp - startTime) / 1e9f - 1;
 		float alpha = MathF.Max(elapsed < FADEIN ? elapsed / FADEIN : elapsed > FADEIN + SHOW ? 1 - (elapsed - FADEIN - SHOW) / FADEOUT : 1, 0);
 		uint color = MathHelper.ColorAlpha(0xFFFFFFFF, alpha);
 		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splash.width / 2, Renderer.UIHeight / 2 - splash.height / 2, splash.width, splash.height, splash, false, color);

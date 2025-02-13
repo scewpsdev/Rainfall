@@ -199,7 +199,7 @@ namespace Rainfall
 	public class Texture
 	{
 		internal IntPtr resource;
-		public readonly ushort handle;
+		public ushort handle;
 		public readonly TextureInfo info;
 
 
@@ -214,6 +214,12 @@ namespace Rainfall
 		{
 			this.handle = handle;
 			this.info = info;
+		}
+
+		public void destroy()
+		{
+			resource = IntPtr.Zero;
+			handle = ushort.MaxValue;
 		}
 
 		public int width { get => info.width; }

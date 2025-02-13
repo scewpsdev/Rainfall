@@ -27,7 +27,7 @@ public class MainMenuState : State
 
 	Sprite splash, splashSmall;
 
-	long startTime;
+	long startTime = -1;
 
 
 	public MainMenuState()
@@ -38,12 +38,12 @@ public class MainMenuState : State
 
 	public override void onSwitchTo(State from)
 	{
-		startTime = Time.currentTime;
+		startTime = Time.timestamp;
 	}
 
 	void mainScreen()
 	{
-		float elapsed = (Time.currentTime - startTime) / 1e9f;
+		float elapsed = (Time.timestamp - startTime) / 1e9f;
 		float anim = MathF.Pow(MathF.Min(elapsed / FADEIN, 1), 0.3f);
 		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splash.width / 2, 64 - splash.height / 2 + (1 - anim) * splash.height, splash.width, (int)(anim * splash.height), splash.spriteSheet.texture, splash.position.x, splash.position.y, splash.size.x, (int)(splash.size.y * anim), 0xFF888888);
 
@@ -67,7 +67,7 @@ public class MainMenuState : State
 
 		float[] fade = new float[labels.Length];
 		for (int i = 0; i < fade.Length; i++)
-			fade[i] = MathHelper.Clamp(elapsed - FADEIN - i * 0.2f, 0, 1);
+			fade[i] = MathHelper.Clamp(elapsed - 0.5f * FADEIN - i * 0.1f, 0, 1);
 
 		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton, fade);
 		if (selection != -1)
@@ -110,6 +110,13 @@ public class MainMenuState : State
 					break;
 			}
 		}
+
+#if DEBUG
+		string versionStr = $"Test Build {IvoryKeep.VERSION_MAJOR}.{IvoryKeep.VERSION_MINOR}.{IvoryKeep.VERSION_PATCH}{IvoryKeep.VERSION_SUFFIX} DEBUG";
+#else
+		string versionStr = $"Test Build {IvoryKeep.VERSION_MAJOR}.{IvoryKeep.VERSION_MINOR}.{IvoryKeep.VERSION_PATCH}{IvoryKeep.VERSION_SUFFIX}";
+#endif
+		Renderer.DrawUITextBMP(0, 0, versionStr);
 	}
 
 	void saveSelect()
@@ -279,7 +286,7 @@ public class MainMenuState : State
 		else if (screen == MainMenuScreen.Credits)
 			credits();
 
-		float elapsed = (Time.currentTime - startTime) / 1e9f;
+		float elapsed = (Time.timestamp - startTime) / 1e9f;
 		if (elapsed < FADEIN)
 		{
 			float alpha = 1 - elapsed / FADEIN;

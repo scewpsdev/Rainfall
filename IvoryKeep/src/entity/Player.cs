@@ -71,7 +71,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
 
 	public int direction = 1;
-	public Vector2i aimPosition;
 	public Vector2 lookDirection = Vector2.Right;
 	public float impulseVelocity;
 	float wallJumpVelocity;
@@ -1353,7 +1352,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					direction = MathF.Sign(delta.x);
 			}
 
-			lookDirection = Vector2.Rotate(Vector2.Right, MathF.Floor((lookDirection.angle + MathF.PI * 0.125f) / (MathF.PI * 0.25f)) * MathF.PI * 0.25f);
+			//lookDirection = Vector2.Rotate(Vector2.Right, MathF.Floor((lookDirection.angle + MathF.PI * 0.125f) / (MathF.PI * 0.25f)) * MathF.PI * 0.25f);
 			if (MathF.Abs(lookDirection.x) < 0.001f)
 				lookDirection.x = 0;
 			if (MathF.Abs(lookDirection.y) < 0.001f)

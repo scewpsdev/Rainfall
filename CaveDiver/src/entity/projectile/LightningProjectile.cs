@@ -90,13 +90,11 @@ public class LightningProjectile : Entity
 
 		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
 
-		HitData hit = GameState.instance.level.raycast(lastPosition, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit == null)
-			hit = GameState.instance.level.raycast(lastPosition + tangent * 0.1f, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit == null)
-			hit = GameState.instance.level.raycast(lastPosition - tangent * 0.1f, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit != null)
+		HitData[] hits = new HitData[16];
+		int numHits = GameState.instance.level.raycastNoBlock(lastPosition, displacement.normalized, displacement.length, hits, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		for (int i = 0; i < numHits; i++)
 		{
+			HitData hit = hits[i];
 			if (hit.entity != null)
 			{
 				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
@@ -133,6 +131,7 @@ public class LightningProjectile : Entity
 					//position += velocity * Time.deltaTime;
 					cornerPoints.Add(new Vector3(position, Time.currentTime / 1e9f));
 					ricochets++;
+					break;
 				}
 			}
 		}

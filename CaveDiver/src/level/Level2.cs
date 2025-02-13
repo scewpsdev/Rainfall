@@ -23,9 +23,7 @@ public static class Level2
 			merchant.addShopItem(new ElderwoodStaff());
 			merchant.addShopItem(new HealingSpell());
 			merchant.addShopItem(new AmethystRing());
-			merchant.addShopItem(new BerserkersChain());
 			merchant.addShopItem(new BlademastersRing());
-			merchant.addShopItem(new RingOfDexterity());
 			merchant.addShopItem(new Shortsword());
 			merchant.addShopItem(new Scimitar());
 			merchant.addShopItem(new Spear());
@@ -87,6 +85,8 @@ public static class Level2
 			merchant.addShopItem(new ChainmailHood());
 			merchant.addShopItem(new ChainmailGauntlets());
 			merchant.addShopItem(new ChainmailBoots());
+			merchant.addShopItem(new BerserkersChain());
+			merchant.addShopItem(new RingOfDexterity());
 			merchant.addShopItem(new RingOfSwiftness());
 			merchant.addShopItem(new RingOfTears());
 			merchant.addShopItem(new RingOfThorns());

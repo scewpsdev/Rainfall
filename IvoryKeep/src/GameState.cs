@@ -265,6 +265,7 @@ public class GameState : State
 			switchLevel(hub, spawnPosition);
 			levelSwitchTime = -1;
 
+			/*
 			Item startingWeapon = Item.CreateRandom(ItemType.Weapon, generator.random, 3);
 			player.giveItem(startingWeapon);
 			if (startingWeapon.requiredAmmo != null)
@@ -273,7 +274,9 @@ public class GameState : State
 				ammo.stackSize = 30;
 				player.giveItem(ammo);
 			}
-			//player.money = 8;
+			*/
+
+			player.money = 8;
 		}
 		else
 		{
@@ -423,6 +426,7 @@ public class GameState : State
 		if (ambience != null)
 		{
 			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 2);
+			Audio.SetInaudibleBehavior(ambientSource, true, false);
 			Audio.SetProtect(ambientSource, true);
 		}
 		this.ambience = ambience;

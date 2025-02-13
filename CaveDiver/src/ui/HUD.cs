@@ -809,7 +809,7 @@ public class HUD
 				// Aim indicator
 				else if (Settings.game.aimMode == AimMode.Directional)
 				{
-					Vector2 pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection);
+					Vector2 pos = GameState.instance.camera.worldToScreen(player.position + player.collider.center + player.lookDirection * 1.5f);
 					Renderer.DrawUISprite(pos.x - aimIndicator.width / 2, pos.y - aimIndicator.height / 2, aimIndicator.width, aimIndicator.height, player.lookDirection.angle, aimIndicator);
 				}
 				// Crosshair
