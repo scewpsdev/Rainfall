@@ -31,7 +31,7 @@ public class HealPotionEffect : PotionEffect
 
 			float overshoot = player.health + amount - player.maxHealth;
 			if (MathF.Floor(overshoot / 2 + 0.001f) >= 1)
-				player.maxHealth += 0.5f * (int)MathF.Floor(overshoot / 2 + 0.001f);
+				player.hp += (int)MathF.Floor(overshoot / 2 + 0.001f);
 
 			if (Random.Shared.NextSingle() < 0.5f)
 				player.hud.showMessage("You feel refreshed.");

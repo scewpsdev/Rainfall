@@ -27,6 +27,8 @@ public class MainMenuState : State
 
 	Sprite splash, splashSmall;
 
+	UIParticleEffect particles;
+
 	long startTime = -1;
 
 
@@ -34,6 +36,8 @@ public class MainMenuState : State
 	{
 		splash = new Sprite(Resource.GetTexture("sprites/ui/splash2.png", false), 0, 0, 256, 64);
 		splashSmall = new Sprite(Resource.GetTexture("sprites/ui/splash2.png", false), 0, 64, 256, 32);
+
+		particles = new UIParticleEffect(null, "effects/menu.rfs");
 	}
 
 	public override void onSwitchTo(State from)
@@ -273,6 +277,11 @@ public class MainMenuState : State
 		}
 	}
 
+	public override void update()
+	{
+		particles.update();
+	}
+
 	public override void draw(GraphicsDevice graphics)
 	{
 		if (screen == MainMenuScreen.Main)
@@ -293,5 +302,7 @@ public class MainMenuState : State
 			uint color = MathHelper.ColorAlpha(0xFF000000, alpha);
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, null, false, color);
 		}
+
+		particles.render();
 	}
 }

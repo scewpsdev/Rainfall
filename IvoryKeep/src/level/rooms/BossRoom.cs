@@ -15,11 +15,17 @@ public class BossRoom : Entity
 	BossGate gate0;
 	BossGate gate1;
 
+	EventTrigger activateTrigger;
+
+	MultilayerTrack track;
+
 
 	public BossRoom(Room room, Mob boss)
 	{
 		this.room = room;
 		this.boss = boss;
+
+		track = new MultilayerTrack("sounds/ost/battle/ost", 2);
 	}
 
 	public override void init(Level level)
@@ -30,16 +36,58 @@ public class BossRoom : Entity
 		level.addEntity(gate1 = new BossGate(true), (Vector2)room.getMarker(3));
 	}
 
-	void open()
+	public override void destroy()
 	{
-		gate0.open();
-		gate1.open();
+		if (track != null)
+		{
+			track.stop();
+			track = null;
+		}
 	}
 
-	void close()
+	public void setActivateTrigger(Vector2 position, Vector2 size)
 	{
+		level.addEntity(activateTrigger = new EventTrigger(size, (Player player) =>
+		{
+			if (GameState.instance.currentBoss == null && boss.level == null)
+			{
+				startBossfight();
+			}
+		}, null), position);
+	}
+
+	public void onPhaseTransition()
+	{
+		track.setLayer(1);
+	}
+
+	void startBossfight()
+	{
+		GameState.instance.setBoss(boss, this);
+		boss.ai.aggroRange = 100;
+		boss.ai.loseRange = 100;
+
+		level.addEntity(boss, room.getMarker(1) + new Vector2(0.5f));
+
 		gate0.close();
 		gate1.close();
+
+		track.start();
+		track.setLayer(0);
+	}
+
+	void stopBossfight()
+	{
+		GameState.instance.setBoss(null, null);
+
+		gate0.open();
+		gate1.open();
+
+		track.stop();
+		track = null;
+
+		foreach (WorldEventListener listener in GameState.instance.worldEventListeners)
+			listener.onBossKilled(boss);
 	}
 
 	bool isInRoom(Entity entity)
@@ -52,15 +100,9 @@ public class BossRoom : Entity
 	{
 		if (GameState.instance.currentBoss == null)
 		{
-			if (boss.level == null && isInRoom(GameState.instance.player))
+			if (boss.level == null && activateTrigger == null && isInRoom(GameState.instance.player))
 			{
-				GameState.instance.setBoss(boss);
-				boss.ai.aggroRange = 100;
-				boss.ai.loseRange = 100;
-
-				level.addEntity(boss, room.getMarker(1) + new Vector2(0.5f));
-
-				close();
+				startBossfight();
 			}
 		}
 
@@ -68,11 +110,7 @@ public class BossRoom : Entity
 		{
 			if (!boss.isAlive)
 			{
-				GameState.instance.setBoss(null);
-				open();
-
-				foreach (WorldEventListener listener in GameState.instance.worldEventListeners)
-					listener.onBossKilled(boss);
+				stopBossfight();
 			}
 		}
 	}

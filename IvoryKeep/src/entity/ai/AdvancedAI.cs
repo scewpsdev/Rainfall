@@ -55,7 +55,7 @@ public class AdvancedAI : AI
 
 	float walkSpeed;
 
-	List<AIAction> actions = new List<AIAction>();
+	public List<AIAction> actions = new List<AIAction>();
 	AIAction currentAction = null;
 	AIAction lastAction = null;
 	AIAction triggeredAction = null;
@@ -168,7 +168,20 @@ public class AdvancedAI : AI
 
 	public void triggerAction(AIAction action)
 	{
+		if (state == AIState.Action)
+			endAction();
+
 		triggeredAction = action;
+
+		lastAction = currentAction;
+		currentAction = triggeredAction;
+		state = AIState.Charge;
+		chargeTime = Time.currentTime;
+		actionDirection = walkDirection;
+
+		triggeredAction = null;
+
+		//triggeredAction = action;
 	}
 
 	void updateTargetFollow()
@@ -248,7 +261,14 @@ public class AdvancedAI : AI
 					currentAction = selectedAction;
 					state = AIState.Charge;
 					chargeTime = Time.currentTime;
+
+					walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
 					actionDirection = walkDirection;
+
+					if (walkDirection == 1)
+						mob.inputRight = true;
+					else if (walkDirection == -1)
+						mob.inputLeft = true;
 				}
 				else
 				{

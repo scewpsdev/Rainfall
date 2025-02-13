@@ -46,16 +46,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
-	public float maxHealth = 3;
+	//public float maxHealth = 3;
 	public float health = 3;
-	//public float maxHealth => hp * 0.5f;
+	public float maxHealth => hp * 0.5f;
 
-	public float maxMana = 2;
+	//public float maxMana = 2;
 	public float mana = 2;
-	//public float maxMana => magic * 0.5f;
+	public float maxMana => magic * 0.5f;
 
-	//public int hp = 6;
-	//public int magic = 4;
+	public int hp = 6;
+	public int magic = 4;
 	public int strength = 1;
 	public int dexterity = 1;
 	public int intelligence = 1;
@@ -219,11 +219,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		for (int i = 0; i < startingClass.items.Length; i++)
 			giveItem(startingClass.items[i].copy());
 
+		hp = startingClass.hp;
+		magic = startingClass.magic;
 		strength = startingClass.strength;
 		dexterity = startingClass.dexterity;
 		intelligence = startingClass.intelligence;
-		maxHealth = startingClass.hp * 0.5f;
-		maxMana = startingClass.magic * 0.5f;
 
 		health = maxHealth;
 		mana = maxMana;
@@ -951,10 +951,15 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return false;
 	}
 
-	public void stun()
+	public void stun(Entity by)
 	{
 		isStunned = true;
 		stunTime = Time.currentTime;
+		if (by != null)
+		{
+			velocity.y = MathF.Max(velocity.y, 9);
+			impulseVelocity += MathF.Sign(position.x - by.position.x) * 5;
+		}
 		addStatusEffect(new StunStatus(STUN_DURATION));
 		if (actions.currentAction != null)
 			actions.currentAction.cancel();
@@ -1072,11 +1077,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		playerLevel++;
 
+		/*
 		if (playerLevel % 4 == 0)
 		{
 			maxHealth += 0.5f;
 			maxMana += 0.5f;
 		}
+		*/
 
 		availableStatUpgrades++;
 		//hp++;
@@ -1152,13 +1159,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (canWallJump)
 			{
-				if (/*InputManager.IsDown("Right") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, collider.max.y - 0.1f)))
+				if (/*InputManager.IsDown("Right") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, collider.max.y - 0.05f)))
 				{
 					//if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 					lastWallTouchRight = Time.currentTime;
 				}
-				if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.1f)))
+				if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapTiles(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.05f)))
 				{
 					//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
@@ -1364,7 +1371,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			float gravityMultiplier = 1;
 			if (!isAlive || !InputManager.IsDown("Jump"))
 			{
-				gravityMultiplier = 1.5f;
+				gravityMultiplier = 2;
 				if (InputManager.IsReleased("Jump"))
 					velocity.y = MathF.Min(velocity.y, 0);
 			}
@@ -1379,7 +1386,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			wallJumpFactor = MathHelper.Linear(wallJumpFactor, 0, wallControl * getWallControlModifier() * Time.deltaTime);
 			velocity.x = MathHelper.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
 
-			impulseVelocity = MathHelper.Lerp(impulseVelocity, 0, 8 * Time.deltaTime);
+			if (!isStunned || isGrounded)
+				impulseVelocity = MathHelper.Lerp(impulseVelocity, 0, 8 * Time.deltaTime);
 			if (MathF.Sign(impulseVelocity) == MathF.Sign(velocity.x))
 				impulseVelocity = 0;
 			else if (velocity.x == 0)
@@ -1409,7 +1417,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			if (fallDistance >= FALL_STUN_DISTANCE && velocity.y <= MAX_FALL_SPEED)
 			{
-				stun();
+				stun(null);
 			}
 			if (fallDistance >= FALL_DAMAGE_DISTANCE && velocity.y <= MAX_FALL_SPEED)
 			{
@@ -1770,7 +1778,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (isStunned)
 				{
-					animator.setAnimation("stun");
+					if (isGrounded)
+					{
+						animator.setAnimation("stun");
+					}
+					else
+					{
+						animator.setAnimation("fall");
+					}
 				}
 				else
 				{

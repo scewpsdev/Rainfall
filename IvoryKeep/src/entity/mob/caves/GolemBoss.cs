@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 public class GolemBoss : Mob
 {
+	int phase = 0;
+
+	AIAction jumpAttack;
+
+
 	public GolemBoss()
 		: base("golem_boss")
 	{
@@ -21,9 +26,9 @@ public class GolemBoss : Mob
 		animator.addAnimation("jump0", 1, 1, false);
 		animator.addAnimation("jump1", 1, 1, false);
 		animator.addAnimation("jump2", 1, 1, false);
-		animator.addAnimation("dash0", 2, 1, false);
-		animator.addAnimation("dash1", 3, 1, false);
-		animator.addAnimation("dash2", 2, 1, false);
+		animator.addAnimation("dash0", 1, 1, false);
+		animator.addAnimation("dash1", 1, 1, false);
+		animator.addAnimation("dash2", 5, 1, false);
 		animator.addAnimation("slam0", 2, 1, false);
 		animator.addAnimation("slam1", 1, 1, false);
 		animator.addAnimation("slam2", 3, 1, false);
@@ -33,7 +38,7 @@ public class GolemBoss : Mob
 		collider = new FloatRect(-0.375f, 0.0f, 0.75f, 1.8f);
 		rect = new FloatRect(-4, -1, 8, 4);
 
-		health = 30;
+		health = 40;
 		poise = 10;
 		speed = 3;
 		damage = 1.0f;
@@ -49,18 +54,20 @@ public class GolemBoss : Mob
 		ai.loseRange = 100;
 		ai.patrol = false;
 		//ai.hesitation = 4;
-		ai.hesitation = 0;
+		ai.hesitation = 4;
 		ai.minRunDistance = 4;
 
 
 		Sound impactSound = Resource.GetSound("sounds/explosion.ogg");
+		Sound jumpSound = Resource.GetSound("sounds/jump_bare.ogg");
+		Sound landSound = Resource.GetSound("sounds/land.ogg");
 
 
 		const float jumpSpeed = 1.5f;
 
 
 		{
-			const float slamCharge = 1.0f;
+			const float slamCharge = 1.2f;
 			const float slamCooldown = 1.0f;
 			const float slamDistance = 1;
 			const float slamDuration = 0.1f;
@@ -86,15 +93,14 @@ public class GolemBoss : Mob
 		{
 			const float dashChargeTime = 1.25f;
 			const float dashCooldownTime = 1.0f;
-			const float dashSpeed = 16.0f;
 			const float dashDistance = 6;
+			const float dashDuration = 0.25f;
+			const float dashSpeed = dashDistance / dashDuration;
 			const float dashTriggerDistance = 8;
 
-			AIAction dash = ai.addAction("dash", dashChargeTime, dashDistance / dashSpeed, dashCooldownTime, dashSpeed, dashTriggerDistance, 3);
+			AIAction dash = ai.addAction("dash", dashChargeTime, dashDuration, dashCooldownTime, dashSpeed, dashTriggerDistance, 3);
 			dash.onStarted = (AIAction action) =>
 			{
-				level.addEntity(new MobWeaponTrail(this, new Vector2(21, 21) / 16.0f, MathF.PI * -0.75f, MathF.PI * 0.75f, 32 / 16.0f, 0.1f, dashDistance / dashSpeed + dashCooldownTime));
-				Audio.Play(Item.weaponSwing, new Vector3(ai.mob.position, 0), 1, 0.5f);
 			};
 			dash.onFinished = (AIAction action) =>
 			{
@@ -102,6 +108,9 @@ public class GolemBoss : Mob
 				if (tile != null)
 					GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Up, 6, 40, MathHelper.ARGBToVector(tile.particleColor).xyz), ai.mob.position + ai.mob.direction * Vector2.Right);
 				GameState.instance.camera.addScreenShake(ai.mob.position, 1, 1);
+
+				level.addEntity(new MobWeaponTrail(this, new Vector2(21, 21) / 16.0f, MathF.PI * -0.75f, MathF.PI * 0.75f, 32 / 16.0f, 0.1f, dashDistance / dashSpeed + dashCooldownTime));
+				Audio.Play(Item.weaponSwing, new Vector3(ai.mob.position, 0), 1, 0.5f);
 			};
 			dash.actionColliders = [new FloatRect(0, 0, 3, 2)];
 		}
@@ -110,10 +119,11 @@ public class GolemBoss : Mob
 			const float jumpAttackSpeed = 7.0f;
 			const float jumpTriggerDistance = 16;
 
-			AIAction jumpAttack = ai.addAction("jump", 0.5f, 100, 1, jumpAttackSpeed, jumpTriggerDistance, 5);
+			jumpAttack = ai.addAction("jump", 0.5f, 100, 1, jumpAttackSpeed, jumpTriggerDistance, 5);
 			jumpAttack.onStarted = (AIAction action) =>
 			{
 				ai.mob.inputJump = true;
+				ai.mob.jumpPower = 16;
 			};
 			jumpAttack.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
 			{
@@ -132,14 +142,79 @@ public class GolemBoss : Mob
 
 				float stunRange = 3;
 				if ((player.center - ai.mob.center).length < stunRange && player.isGrounded)
-					player.stun();
+					player.stun(this);
+			};
+		}
+
+		{
+			AIAction stepback = ai.addAction("jump", 0.2f, 100, 0.2f, -8, 5);
+			stepback.onStarted = (AIAction action) =>
+			{
+				ai.mob.inputJump = true;
+				ai.mob.jumpPower = 10;
+
+				Audio.Play(jumpSound, new Vector3(ai.mob.position, 0));
+			};
+			stepback.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
+			{
+				if (!ai.mob.inputJump && ai.mob.isGrounded)
+					return false;
+				//ai.actionDirection = 0;
+				//ai.mob.actionInput = new Vector2(-ai.mob.direction, 0);
+				return true;
+			};
+			stepback.onFinished = (AIAction action) =>
+			{
+				Audio.Play(landSound, new Vector3(ai.mob.position, 0));
 			};
 		}
 	}
 
 	public override void init(Level level)
 	{
+		base.init(level);
+
 		AdvancedAI ai = this.ai as AdvancedAI;
-		ai.triggerAction(ai.getAction("jump1"));
+		ai.triggerAction(jumpAttack);
+		ai.actionDirection = 1;
+	}
+
+	public override void update()
+	{
+		base.update();
+
+		AdvancedAI ai = this.ai as AdvancedAI;
+
+		if (health < maxHealth / 2 && phase == 0)
+		{
+			ai.hesitation = 2;
+			speed = 8;
+			foreach (AIAction action in ai.actions)
+			{
+				action.chargeTime *= 0.8f;
+				action.walkSpeed *= 1.35f;
+			}
+			GameState.instance.currentBossRoom.onPhaseTransition();
+			phase++;
+		}
+
+		if (!isGrounded)
+		{
+			bool hitsWall = false;
+			for (int i = (int)MathF.Floor(collider.min.y + 0.01f); i <= (int)MathF.Floor(collider.max.y - 0.01f); i++)
+			{
+				TileType forwardTile = GameState.instance.level.getTile(position + new Vector2(ai.walkDirection == 1 ? collider.max.x + 0.1f : ai.walkDirection == -1 ? collider.min.x - 0.1f : 0, 0.5f + i));
+				if (forwardTile != null && forwardTile.isSolid)
+				{
+					hitsWall = true;
+					break;
+				}
+			}
+			if (hitsWall)
+			{
+				ai.walkDirection *= -1;
+				ai.actionDirection *= -1;
+			}
+		}
 	}
 }

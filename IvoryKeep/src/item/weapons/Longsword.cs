@@ -28,7 +28,7 @@ public class Longsword : Weapon
 		sprite = new Sprite(tileset, 0, 10, 2, 1);
 		size = new Vector2(2, 1);
 		icon = new Sprite(tileset.texture, 12, 10 * 16, 16, 16);
-		renderOffset.x = 0.0f;
+		renderOffset.x = -0.2f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 }

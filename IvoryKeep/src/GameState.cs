@@ -101,6 +101,7 @@ public class GameState : State
 
 	public Mob currentBoss { get; private set; }
 	public float currentBossMaxHealth;
+	public BossRoom currentBossRoom;
 	public long bossFightStarted = -1;
 
 	public bool isPaused = false;
@@ -158,7 +159,7 @@ public class GameState : State
 		generator.generateCaves(run.seed, out areaCaves);
 		generator.generateDungeons(run.seed, out areaDungeons);
 		generator.generateMines(run.seed, out areaMines);
-		generator.generateGardens(run.seed, out areaGardens);
+		//generator.generateGardens(run.seed, out areaGardens);
 
 		generator.generateIntroBridge(introBridge);
 		generator.generateCliffside(cliffside);
@@ -226,9 +227,10 @@ public class GameState : State
 		hubElevator.locked = true;
 		areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door.locked = true;
 
-		generator.connectDoors(areaDungeons[areaDungeons.Length - 1].exit, areaGardens[0].entrance);
+		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
 
-		areaGardens[areaGardens.Length - 1].exit.finalExit = true;
+		//generator.connectDoors(areaDungeons[areaDungeons.Length - 1].exit, areaGardens[0].entrance);
+		//areaGardens[areaGardens.Length - 1].exit.finalExit = true;
 
 
 		if (save.isDaily)
@@ -246,6 +248,7 @@ public class GameState : State
 				player.setStartingClass(startingClass);
 			else
 			{
+				/*
 				Item startingWeapon = Item.CreateRandom(ItemType.Weapon, generator.random, 3);
 				player.giveItem(startingWeapon);
 				if (startingWeapon.requiredAmmo != null)
@@ -254,7 +257,8 @@ public class GameState : State
 					ammo.stackSize = 30;
 					player.giveItem(ammo);
 				}
-				//player.money = 8;
+				*/
+				player.money = 8;
 			}
 			levelSwitchTime = -1;
 		}
@@ -469,9 +473,10 @@ public class GameState : State
 		GameOverScreen.Init();
 	}
 
-	public void setBoss(Mob boss)
+	public void setBoss(Mob boss, BossRoom bossRoom)
 	{
 		currentBoss = boss;
+		currentBossRoom = bossRoom;
 		if (boss != null)
 		{
 			currentBossMaxHealth = boss.health;

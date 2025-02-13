@@ -156,6 +156,9 @@ public static class DebugConsole
 					{
 						if (floor >= 1 && floor <= area.Length)
 						{
+							Level level = area[floor - 1];
+							GameState.instance.switchLevel(level, level.entrance.getSpawnPoint());
+							/*
 							for (int i = 0; i < area.Length; i++)
 							{
 								if (area[i].floor - area[0].floor == floor - 1)
@@ -165,6 +168,7 @@ public static class DebugConsole
 									break;
 								}
 							}
+							*/
 						}
 					}
 				}

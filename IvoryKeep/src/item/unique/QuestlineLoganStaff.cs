@@ -15,6 +15,6 @@ public class QuestlineLoganStaff : ElderwoodStaff
 		description = "A long forgotten staff once wielded by one of the royal knights. What is it doing in these catacombs?";
 
 		canDrop = false;
-		value = 1000;
+		value = 0;
 	}
 }
