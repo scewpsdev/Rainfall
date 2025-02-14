@@ -42,6 +42,11 @@ namespace Rainfall
 			Audio_Set3DVolume(volume);
 		}
 
+		public static void SetMusicVolume(float volume)
+		{
+			Audio_SetMusicVolume(volume);
+		}
+
 		public static void UpdateListener(Vector3 position, Quaternion rotation)
 		{
 			Audio_ListenerUpdateTransform(position, rotation.forward, rotation.up);
@@ -49,7 +54,7 @@ namespace Rainfall
 
 		public static uint Play(Sound sound, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 0.5f)
 		{
-			return Audio_SourcePlay(sound.handle, position, gain, pitch, rolloff);
+			return Audio_SourcePlay(sound.handle, Time.deltaTime, position, gain, pitch, rolloff);
 		}
 
 		public static uint Play(Sound[] sounds, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 0.5f)
@@ -61,7 +66,7 @@ namespace Rainfall
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
-			return Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
+			return Audio_SourcePlay(sound.handle, Time.deltaTime, position, gainFactor * gain, pitchFactor * pitch, rolloff);
 		}
 
 		public static uint PlayOrganic(Sound[] sounds, Vector3 position, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.0f, float pitchVariation = 0.25f, float rolloff = 0.5f)
@@ -79,9 +84,9 @@ namespace Rainfall
 			return Audio_SourcePlayBackgroundClocked(Resource.Resource_SoundGetHandle(sound.resource), Time.deltaTime, gain, pitch, (byte)(looping ? 1 : 0), fadein);
 		}
 
-		public static void PlayBackground(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
+		public static uint PlayBackground(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, bool looping = false, float fadein = 0)
 		{
-			PlayBackground(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, looping, fadein);
+			return PlayBackground(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, looping, fadein);
 		}
 
 		public static uint PlayBackgroundOrganic(Sound sound, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.05f)
@@ -91,9 +96,14 @@ namespace Rainfall
 			return Audio_SourcePlayBackground(Resource.Resource_SoundGetHandle(sound.resource), gainFactor * gain, pitchFactor * pitch, 0, 0);
 		}
 
-		public static void PlayBackgroundOrganic(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
+		public static uint PlayBackgroundOrganic(Sound[] sounds, float gain = 1.0f, float pitch = 1.0f, float gainVariation = 0.2f, float pitchVariation = 0.25f)
 		{
-			PlayBackgroundOrganic(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, gainVariation, pitchVariation);
+			return PlayBackgroundOrganic(sounds[Random.Shared.Next() % sounds.Length], gain, pitch, gainVariation, pitchVariation);
+		}
+
+		public static uint PlayMusic(Sound sound, float gain = 1.0f, bool looping = false, float fadein = 0)
+		{
+			return Audio_SourcePlayMusic(Resource.Resource_SoundGetHandle(sound.resource), gain, (byte)(looping ? 1 : 0), fadein);
 		}
 
 		public static void Stop(uint source)
@@ -176,6 +186,9 @@ namespace Rainfall
 		internal static extern void Audio_Set3DVolume(float volume);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SetMusicVolume(float volume);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_Init();
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -194,7 +207,10 @@ namespace Rainfall
 		internal static extern uint Audio_SourcePlayBackgroundClocked(IntPtr sound, float deltaTime, float gain, float pitch, byte looping, float fadein);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern uint Audio_SourcePlay(IntPtr sound, Vector3 position, float gain, float pitch, float rolloff);
+		internal static extern uint Audio_SourcePlayMusic(IntPtr sound, float gain, byte looping, float fadein);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint Audio_SourcePlay(IntPtr sound, float deltaTime, Vector3 position, float gain, float pitch, float rolloff);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceStop(uint source);

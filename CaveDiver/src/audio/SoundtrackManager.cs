@@ -17,9 +17,9 @@ public class SoundtrackManager
 		ost1 = Resource.GetSound("sounds/ost/ost1.ogg");
 		ost2 = Resource.GetSound("sounds/ost/ost2.ogg");
 		ost3 = Resource.GetSound("sounds/ost/ost3.ogg");
-		source1 = Audio.PlayBackground(ost1, 0);
-		source2 = Audio.PlayBackground(ost2, 0);
-		source3 = Audio.PlayBackground(ost3, 0);
+		source1 = Audio.PlayMusic(ost1, 0);
+		source2 = Audio.PlayMusic(ost2, 0);
+		source3 = Audio.PlayMusic(ost3, 0);
 		Audio.SetSourceLooping(source1, true);
 		Audio.SetSourceLooping(source2, true);
 		Audio.SetSourceLooping(source3, true);

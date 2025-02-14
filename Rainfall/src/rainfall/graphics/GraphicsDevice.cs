@@ -501,6 +501,11 @@ namespace Rainfall
 			Native.Graphics.Graphics_SetDepthTest(depthTest);
 		}
 
+		public void setDepthWrite(bool write)
+		{
+			Native.Graphics.Graphics_SetDepthWrite((byte)(write ? 1 : 0));
+		}
+
 		public void setCullState(CullState cullState)
 		{
 			Native.Graphics.Graphics_SetCullState(cullState);
@@ -721,6 +726,11 @@ namespace Rainfall
 		public void nextPass()
 		{
 			currentPass++;
+		}
+
+		public void setViewMode(ViewMode viewMode)
+		{
+			Native.Graphics.Graphics_SetViewMode(currentPass, (int)viewMode);
 		}
 
 		public void setRenderTarget(RenderTarget renderTarget, bool clear = true, uint rgba = 0x0, float depth = 1.0f)

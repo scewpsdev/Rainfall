@@ -399,6 +399,14 @@ RFAPI void Graphics_SetDepthTest(DepthTest depthTest)
 	bgfx::setState(state);
 }
 
+RFAPI void Graphics_SetDepthWrite(bool write)
+{
+	state &= ~BGFX_STATE_WRITE_Z;
+	if (write)
+		state |= BGFX_STATE_WRITE_Z;
+	bgfx::setState(state);
+}
+
 RFAPI void Graphics_SetCullState(CullState cullState)
 {
 	state &= 0xffffffffffffffff ^ BGFX_STATE_CULL_MASK;
@@ -471,6 +479,11 @@ RFAPI void Graphics_SetTexture(Uniform sampler, int unit, Texture texture, uint3
 RFAPI void Graphics_SetComputeTexture(int stage, Texture texture, int mip, bgfx::Access::Enum access)
 {
 	bgfx::setImage(stage, bgfx::TextureHandle{ texture }, mip, access);
+}
+
+RFAPI void Graphics_SetViewMode(int pass, int viewMode)
+{
+	bgfx::setViewMode((bgfx::ViewId)pass, (bgfx::ViewMode::Enum)viewMode);
 }
 
 RFAPI void Graphics_SetRenderTarget(int pass, RenderTarget handle, int width, int height)

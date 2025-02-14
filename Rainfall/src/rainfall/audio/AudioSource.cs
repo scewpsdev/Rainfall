@@ -34,7 +34,7 @@ namespace Rainfall
 
 		public void playSound(Sound sound, float gain = 1.0f, float pitch = 1.0f, float rolloff = 0.2f)
 		{
-			source = Audio.Audio_SourcePlay(sound.handle, position, gain, pitch, rolloff);
+			source = Audio.Audio_SourcePlay(sound.handle, Time.deltaTime, position, gain, pitch, rolloff);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}
@@ -43,7 +43,7 @@ namespace Rainfall
 		{
 			float gainFactor = MathHelper.RandomFloat(1.0f - gainVariation, 1.0f + gainVariation);
 			float pitchFactor = MathHelper.RandomFloat(1.0f - pitchVariation, 1.0f + pitchVariation);
-			source = Audio.Audio_SourcePlay(sound.handle, position, gainFactor * gain, pitchFactor * pitch, rolloff);
+			source = Audio.Audio_SourcePlay(sound.handle, Time.deltaTime, position, gainFactor * gain, pitchFactor * pitch, rolloff);
 			currentSound = sound;
 			lastPlayed = Time.currentTime;
 		}

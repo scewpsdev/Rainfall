@@ -206,6 +206,22 @@ public static class ItemInfoPanel
 			}
 		}
 
+		if (item.type == ItemType.Spell)
+		{
+			drawLeft("Attack");
+			float infusedDamage = item.getInfusedDamage();
+			drawRight(infusedDamage);
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+				drawComparison(infusedDamage, compareItem.getInfusedDamage());
+			y += Renderer.smallFont.size + 1;
+
+			drawLeft("Speed");
+			drawRight(item.attackRate);
+			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+				drawComparison(item.attackRate, compareItem.attackRate);
+			y += Renderer.smallFont.size + 1;
+		}
+
 		Item itemInInv = GameState.instance.player.getItem(item.name);
 		if (itemInInv != null && item.stackable)
 		{

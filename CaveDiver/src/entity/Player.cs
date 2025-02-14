@@ -1288,16 +1288,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (isAlive && numOverlaysOpen == 0)
 		{
-			float maxCursorDistance = 2; // (handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f) * 0.2f;
+			float maxCursorDistance = 5; // (handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f) * 0.2f;
 
 			Vector2 controllerAim = Input.GamepadAxisRight;
 			if (controllerAim.lengthSquared > 0.25f)
 				lookDirection = controllerAim * maxCursorDistance;
 
+			if (delta.x != 0)
+				direction = MathF.Sign(delta.x);
+
 			if (Settings.game.aimMode == AimMode.Simple)
 			{
-				if (delta.x != 0)
-					direction = MathF.Sign(delta.x);
 				if (InputManager.IsDown("Up"))
 					lookDirection = Vector2.Up;
 				else if (/*!isGrounded &&*/ InputManager.IsDown("Down"))
@@ -1309,28 +1310,39 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (Input.cursorHasMoved)
 				{
-					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
-					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * CaveDiver.instance.scale ||
-						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * CaveDiver.instance.scale)
+					/*
+					if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
 					{
-						int x = Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * CaveDiver.instance.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * CaveDiver.instance.scale));
-						int y = Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * CaveDiver.instance.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * CaveDiver.instance.scale));
+						Vector2i newCursorPos = playerScreenPos + (Vector2i)Vector2.Round((Renderer.cursorPosition - playerScreenPos).normalized * maxCursorDistance * 16);
+						Input.cursorPosition = newCursorPos * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+					}
+					*/
+					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - GameState.instance.camera.screenToWorld(Renderer.size / 2); // (position + collider.center);
+					if (lookDirection.length > maxCursorDistance)
+						lookDirection = lookDirection.normalized * maxCursorDistance;
+
+					/*
+					if (MathF.Abs(lookDirection.x) > maxCursorDistance)
+						lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
+					if (MathF.Abs(lookDirection.y) > maxCursorDistance)
+						lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
+					*/
+
+					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
+					if ((Input.cursorPosition - playerScreenPos).length > maxCursorDistance * 16 * CaveDiver.instance.scale)
+					//if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * IvoryKeep.instance.scale ||
+					//	MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * IvoryKeep.instance.scale)
+					{
+						Vector2 dir = (Vector2)(Input.cursorPosition - playerScreenPos);
+						dir = dir.normalized * maxCursorDistance * 16 * CaveDiver.instance.scale;
+						dir += playerScreenPos;
+
+						int x = (int)dir.x; //Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * IvoryKeep.instance.scale));
+						int y = (int)dir.y; //Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * IvoryKeep.instance.scale));
 						Vector2i newCursorPos = new Vector2i(x, y);
 						Input.cursorPosition = newCursorPos; // * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
 					}
-					Vector2 dest = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - GameState.instance.camera.screenToWorld(Renderer.size / 2); // (position + collider.center);
-					lookDirection = Vector2.Lerp(lookDirection, dest.normalized, 0.5f).normalized;
-
-					//if (MathF.Abs(lookDirection.x) > maxCursorDistance)
-					//	lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
-					//if (MathF.Abs(lookDirection.y) > maxCursorDistance)
-					//	lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
 				}
-
-				if (actions.currentAction != null && actions.currentAction.turnToCrosshair)
-					direction = Math.Sign(lookDirection.x);
-				else if (delta.x != 0)
-					direction = MathF.Sign(delta.x);
 			}
 			else if (Settings.game.aimMode == AimMode.Crosshair)
 			{

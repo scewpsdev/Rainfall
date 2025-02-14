@@ -1298,14 +1298,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (isAlive && numOverlaysOpen == 0)
 		{
+			float maxCursorDistance = 5; // (handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f) * 0.2f;
+
 			Vector2 controllerAim = Input.GamepadAxisRight;
 			if (controllerAim.lengthSquared > 0.25f)
-				lookDirection = controllerAim;
+				lookDirection = controllerAim * maxCursorDistance;
+
+			if (delta.x != 0)
+				direction = MathF.Sign(delta.x);
 
 			if (Settings.game.aimMode == AimMode.Simple)
 			{
-				if (delta.x != 0)
-					direction = MathF.Sign(delta.x);
 				if (InputManager.IsDown("Up"))
 					lookDirection = Vector2.Up;
 				else if (/*!isGrounded &&*/ InputManager.IsDown("Down"))
@@ -1317,8 +1320,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (Input.cursorHasMoved)
 				{
-					float maxCursorDistance = 5; // handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
-
 					/*
 					if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
 					{

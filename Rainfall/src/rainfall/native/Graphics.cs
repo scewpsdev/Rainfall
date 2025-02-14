@@ -18,11 +18,21 @@ namespace Rainfall
 		Index32 = 0x1000,
 	}
 
-	public enum ComputeAccess
+	public enum ComputeAccess : int
 	{
 		Read,      //!< Read
 		Write,     //!< Write
 		ReadWrite, //!< Read and write
+
+		Count
+	}
+
+	public enum ViewMode : int
+	{
+		Default,         //!< Default sort order.
+		Sequential,      //!< Sort in the same order in which submit calls were called.
+		DepthAscending,  //!< Sort draw call depth in ascending order.
+		DepthDescending, //!< Sort draw call depth in descending order.
 
 		Count
 	}
@@ -264,6 +274,9 @@ namespace Rainfall
 			internal static extern void Graphics_SetDepthTest(DepthTest depthTest);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetDepthWrite(byte write);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetCullState(CullState cullState);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -308,6 +321,9 @@ namespace Rainfall
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetComputeTexture(int stage, ushort texture, int mip, ComputeAccess access);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_SetViewMode(int pass, int viewMode);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_SetRenderTarget(int pass, ushort renderTarget, int width, int height);

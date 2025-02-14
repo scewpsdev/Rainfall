@@ -85,10 +85,8 @@ public static class Level2
 			merchant.addShopItem(new ChainmailHood());
 			merchant.addShopItem(new ChainmailGauntlets());
 			merchant.addShopItem(new ChainmailBoots());
-			merchant.addShopItem(new BerserkersChain());
 			merchant.addShopItem(new RingOfDexterity());
 			merchant.addShopItem(new RingOfSwiftness());
-			merchant.addShopItem(new RingOfTears());
 			merchant.addShopItem(new RingOfThorns());
 			merchant.addShopItem(new ThrowingKnife() { stackSize = 30 }, 3);
 			merchant.addShopItem(new Cheese() { stackSize = 3 });
@@ -163,6 +161,8 @@ public static class Level2
 			merchant.addShopItem(new IronShield());
 			merchant.addShopItem(new SpectralShield());
 			merchant.addShopItem(new MissileSpell());
+			merchant.addShopItem(new BerserkersChain());
+			merchant.addShopItem(new RingOfTears());
 			merchant.addShopItem(new GoldenApple());
 			level.addEntity(merchant, (Vector2)level.rooms[0].getMarker(0x1));
 

@@ -991,6 +991,7 @@ public static class Renderer
 	{
 		graphics.resetState();
 		graphics.setPass((int)RenderPass.Geometry);
+		graphics.setViewMode(ViewMode.Sequential);
 		graphics.setRenderTarget(gbuffer);
 
 		graphics.setViewTransform(ortho, orthoView);
@@ -1107,6 +1108,7 @@ public static class Renderer
 		{
 			graphics.setCullState(CullState.None);
 			graphics.setBlendState(BlendState.Additive);
+			graphics.setDepthWrite(false);
 
 			additiveBatch.submitDrawCall(i, spriteShader);
 		}

@@ -14,12 +14,15 @@ using namespace SoLoud;
 static Soloud soloud;
 static Bus defaultBus;
 static Bus reverbBus;
+static Bus musicBus;
+static handle musicBusHandle;
 static handle reverbBusSource;
 static bool reverbEnabled = false;
 
 static FreeverbFilter reverb;
 
 static float _3dVolume = 1.0f;
+static float musicVolume = 1.0f;
 
 
 RFAPI void Audio_Init()
@@ -36,6 +39,8 @@ RFAPI void Audio_Init()
 	soloud.play(defaultBus);
 
 	reverbBusSource = soloud.play(reverbBus);
+
+	musicBusHandle = soloud.playBackground(musicBus);
 }
 
 RFAPI void Audio_Shutdown()
@@ -59,6 +64,13 @@ RFAPI void Audio_Set3DVolume(float volume)
 	_3dVolume = volume;
 }
 
+RFAPI void Audio_SetMusicVolume(float volume)
+{
+	soloud.setVolume(musicBusHandle, volume);
+	//musicBus.setVolume(volume);
+	//musicVolume = volume;
+}
+
 RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3& forward, const Vector3& up)
 {
 	soloud.set3dListenerParameters(position.x, position.y, position.z, forward.x, forward.y, forward.z, up.x, up.y, up.z);
@@ -66,14 +78,11 @@ RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3&
 
 RFAPI uint32_t Audio_SourcePlayBackground(AudioSource* sound, float gain, float pitch, bool looping, float fadein)
 {
-	handle source = soloud.playBackground(*sound, gain, true);
+	handle source = soloud.playBackground(*sound, fadein > 0 ? 0 : gain, true);
 	soloud.setRelativePlaySpeed(source, pitch);
 	soloud.setLooping(source, looping);
 	if (fadein > 0)
-	{
-		soloud.setVolume(source, 0.0f);
 		soloud.fadeVolume(source, gain, fadein);
-	}
 	soloud.setPause(source, false);
 	return source;
 }
@@ -93,9 +102,22 @@ RFAPI uint32_t Audio_SourcePlayBackgroundClocked(AudioSource* sound, float delta
 	return source;
 }
 
-RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, const Vector3& position, float gain, float pitch, float rolloff)
+RFAPI uint32_t Audio_SourcePlayMusic(AudioSource* sound, float gain, bool looping, float fadein)
 {
-	handle source = defaultBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0, true);
+	handle source = musicBus.play(*sound, fadein > 0 ? 0 : gain * musicVolume, 0, true);
+	soloud.setLooping(source, looping);
+	if (fadein > 0)
+		soloud.fadeVolume(source, gain * musicVolume, fadein);
+	soloud.setPause(source, false);
+	return source;
+}
+
+RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, float deltaTime, const Vector3& position, float gain, float pitch, float rolloff)
+{
+	sound->setSingleInstance(true);
+
+	handle source = defaultBus.play3dClocked(deltaTime, *sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0);
+	soloud.setPause(source, true);
 	soloud.setRelativePlaySpeed(source, pitch);
 	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
 	soloud.set3dSourceMinMaxDistance(source, 1, 500);

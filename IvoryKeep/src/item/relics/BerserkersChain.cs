@@ -19,7 +19,7 @@ public class BerserkersChain : Item
 		: base("berserkers_chain", ItemType.Relic)
 	{
 		displayName = "Berserker's Chain";
-		description = "Consecutive kills temporarily increase attack";
+		description = "Consecutive kills temporarily increase attack speed";
 		stackable = true;
 		tumbles = false;
 		canDrop = false;
@@ -43,7 +43,7 @@ public class BerserkersChain : Item
 		if (buffLevel > threshhold && lastBuffLevel <= threshhold)
 			onActivate(player);
 
-		buff.meleeDamageModifier = damageMultiplier;
+		buff.attackSpeedModifier = damageMultiplier;
 
 		lastKill = Time.currentTime;
 	}
@@ -76,7 +76,7 @@ public class BerserkersChain : Item
 				if (buffLevel <= threshhold && lastBuffLevel > threshhold)
 					onDeactivate(player);
 
-				buff.meleeDamageModifier = damageMultiplier;
+				buff.attackSpeedModifier = damageMultiplier;
 			}
 
 			buff.auraStrength = damageMultiplier;
