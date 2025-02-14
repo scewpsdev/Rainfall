@@ -149,15 +149,15 @@ public class AdvancedAI : AI
 
 	void endAction()
 	{
+		state = AIState.Cooldown;
+		cooldownTime = Time.currentTime;
+		mob.speed = walkSpeed;
+
 		if (currentAction.onFinished != null)
 			currentAction.onFinished(currentAction);
 
 		if (currentAction.actionColliders != null)
 			mob.actionColliders = null;
-
-		state = AIState.Cooldown;
-		cooldownTime = Time.currentTime;
-		mob.speed = walkSpeed;
 	}
 
 	bool updatePath(Vector2i currentTile, Vector2i targetTile)

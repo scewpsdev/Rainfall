@@ -797,7 +797,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public void throwObject()
 	{
 		level.addEntity(carriedObject, position + new Vector2(0, 0.5f - carriedObject.collider.center.y), false);
-		carriedObject.velocity = new Vector2(0.5f, 1) * velocity + (lookDirection + Vector2.Up * 0.2f) * 15;
+		carriedObject.velocity = new Vector2(0.5f, 1) * velocity + (lookDirection.normalized + Vector2.Up * 0.2f) * 15;
 		carriedObject.rotationVelocity = MathHelper.RandomFloat(-1, 1) * 10;
 		carriedObject.throwTime = Time.currentTime;
 		carriedObject.thrower = this;
@@ -1317,16 +1317,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (Input.cursorHasMoved)
 				{
-					float maxCursorDistance = handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
-					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
-					if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * IvoryKeep.instance.scale ||
-						MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * IvoryKeep.instance.scale)
-					{
-						int x = Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * IvoryKeep.instance.scale));
-						int y = Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * IvoryKeep.instance.scale));
-						Vector2i newCursorPos = new Vector2i(x, y);
-						Input.cursorPosition = newCursorPos; // * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
-					}
+					float maxCursorDistance = 5; // handItem != null ? MathF.Min(handItem.attackRange * 2, 5) : 1.8f;
+
 					/*
 					if ((Renderer.cursorPosition - playerScreenPos).length > maxCursorDistance * 16)
 					{
@@ -1335,10 +1327,30 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					}
 					*/
 					lookDirection = GameState.instance.camera.screenToWorld(Renderer.cursorPosition) - GameState.instance.camera.screenToWorld(Renderer.size / 2); // (position + collider.center);
+					if (lookDirection.length > maxCursorDistance)
+						lookDirection = lookDirection.normalized * maxCursorDistance;
+
+					/*
 					if (MathF.Abs(lookDirection.x) > maxCursorDistance)
 						lookDirection.x = MathF.Sign(lookDirection.x) * maxCursorDistance;
 					if (MathF.Abs(lookDirection.y) > maxCursorDistance)
 						lookDirection.y = MathF.Sign(lookDirection.y) * maxCursorDistance;
+					*/
+
+					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
+					if ((Input.cursorPosition - playerScreenPos).length > maxCursorDistance * 16 * IvoryKeep.instance.scale)
+					//if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * IvoryKeep.instance.scale ||
+					//	MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * IvoryKeep.instance.scale)
+					{
+						Vector2 dir = (Vector2)(Input.cursorPosition - playerScreenPos);
+						dir = dir.normalized * maxCursorDistance * 16 * IvoryKeep.instance.scale;
+						dir += playerScreenPos;
+
+						int x = (int)dir.x; //Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * IvoryKeep.instance.scale));
+						int y = (int)dir.y; //Math.Clamp(Input.cursorPosition.y, (int)MathF.Round(playerScreenPos.y - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.y + maxCursorDistance * 16 * IvoryKeep.instance.scale));
+						Vector2i newCursorPos = new Vector2i(x, y);
+						Input.cursorPosition = newCursorPos; // * Display.viewportSize / new Vector2i(Renderer.UIWidth, Renderer.UIHeight);
+					}
 				}
 
 				if (actions.currentAction != null && actions.currentAction.turnToCrosshair)
@@ -1634,7 +1646,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					{
 						currentAttackInput = attackInput;
 
-						lookDirection = directionalAttackDir.normalized;
+						lookDirection = directionalAttackDir;
 						if (directionalAttackDir.x != 0)
 							direction = MathF.Sign(directionalAttackDir.x);
 
