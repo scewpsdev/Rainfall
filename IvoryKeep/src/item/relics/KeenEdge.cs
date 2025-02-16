@@ -22,14 +22,4 @@ public class KeenEdge : Item
 
 		buff = new ItemBuff(this) { criticalChanceModifier = 2.0f };
 	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 }

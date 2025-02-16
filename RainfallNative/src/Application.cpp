@@ -664,18 +664,18 @@ static inline T clamp(const T& a, const T& v0, const T& v1)
 
 static bool Loop(const ApplicationCallbacks& callbacks)
 {
-	int64_t now = Application_GetTimestamp();
+	int64_t beforeFrame = Application_GetTimestamp();
 	if (!isPaused)
-		currentFrame += now - lastFrame;
+		currentFrame += beforeFrame - lastFrame;
 
 	int64_t maxDelta = 1000000000 / 10;
-	delta = max(min(now - lastFrame, maxDelta), (int64_t)0);
+	delta = max(min(beforeFrame - lastFrame, maxDelta), (int64_t)0);
 
 	bool exit = !ProcessEvents(callbacks);
 
-	if (now - lastSecond > 1000000000)
+	if (beforeFrame - lastSecond > 1000000000)
 	{
-		lastSecond = now;
+		lastSecond = beforeFrame;
 
 		ms = msCounter / frameCounter;
 		msCounter = 0.0f;
@@ -706,7 +706,7 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 	if (fpsCap)
 	{
 
-		int64_t frameLength = afterFrame - currentFrame;
+		int64_t frameLength = afterFrame - beforeFrame;
 		int64_t remaining = 1000000000 / fpsCap - frameLength;
 		if (remaining > 0)
 		{
@@ -714,10 +714,10 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 		}
 	}
 
-	msCounter += (afterFrame - currentFrame) / 1e6f;
+	msCounter += (afterFrame - beforeFrame) / 1e6f;
 	frameCounter++;
 
-	lastFrame = currentFrame;
+	lastFrame = beforeFrame;
 
 	return !exit;
 }

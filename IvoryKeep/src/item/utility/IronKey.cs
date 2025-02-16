@@ -15,7 +15,7 @@ public class IronKey : Item
 
 		value = 25;
 
-		//canDrop = false;
+		canDrop = false;
 		isActiveItem = false;
 		upgradable = false;
 		stackable = true;

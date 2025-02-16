@@ -13,6 +13,7 @@ public class Rope : Item
 	{
 		displayName = "Rope";
 		stackable = true;
+		canDrop = false;
 
 		value = 1;
 

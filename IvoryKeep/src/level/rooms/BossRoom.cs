@@ -38,11 +38,8 @@ public class BossRoom : Entity
 
 	public override void destroy()
 	{
-		if (track != null)
-		{
+		if (track != null && track.running)
 			track.stop();
-			track = null;
-		}
 	}
 
 	public void setActivateTrigger(Vector2 position, Vector2 size)

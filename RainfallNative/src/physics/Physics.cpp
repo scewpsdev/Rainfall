@@ -681,7 +681,9 @@ static void AddCollider(PxRigidActor* actor, const PxGeometry& geometry, uint32_
 	actor->attachShape(*shape);
 
 	if (isDynamic)
-		PxRigidBodyExt::updateMassAndInertia(*(PxRigidBody*)actor, density, (PxVec3*)&centerOfMass);
+	{
+		PxRigidBodyExt::updateMassAndInertia(*(PxRigidBody*)actor, density);
+	}
 }
 
 static void AddTrigger(PxRigidActor* actor, const PxGeometry& geometry, uint32_t filterGroup, uint32_t filterMask, const Vector3& position, const Quaternion& rotation)
@@ -896,6 +898,15 @@ RFAPI void Physics_RigidBodySetRotationVelocity(RigidBody* body, const Vector3& 
 	}
 }
 
+RFAPI void Physics_RigidBodySetCenterOfMass(RigidBody* body, Vector3 centerOfMass)
+{
+	if (PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>())
+	{
+		PxTransform pose(PxVec3(centerOfMass.x, centerOfMass.y, centerOfMass.z));
+		dynamic->setCMassLocalPose(pose);
+	}
+}
+
 RFAPI void Physics_RigidBodyLockAxis(RigidBody* body, bool x, bool y, bool z)
 {
 	if (PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>())
@@ -930,6 +941,15 @@ RFAPI void Physics_RigidBodyAddForce(RigidBody* body, const Vector3& force)
 	{
 		PxRigidBody* dynamic = body->actor->is<PxRigidBody>();
 		dynamic->addForce(PxVec3(force.x, force.y, force.z), PxForceMode::eFORCE);
+	}
+}
+
+RFAPI void Physics_RigidBodyAddTorque(RigidBody* body, const Vector3& torque)
+{
+	if (body->type == RigidBodyType::Dynamic)
+	{
+		PxRigidBody* dynamic = body->actor->is<PxRigidBody>();
+		dynamic->addTorque(PxVec3(torque.x, torque.y, torque.z), PxForceMode::eFORCE);
 	}
 }
 
@@ -985,6 +1005,24 @@ RFAPI void Physics_RigidBodyGetVelocity(RigidBody* body, Vector3* outVelocity)
 	{
 		PxVec3 velocity = dynamic->getLinearVelocity();
 		*outVelocity = Vector3(velocity.x, velocity.y, velocity.z);
+	}
+}
+
+RFAPI void Physics_RigidBodyGetAngularVelocity(RigidBody* body, Vector3* outAngularVelocity)
+{
+	if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
+	{
+		PxVec3 velocity = dynamic->getAngularVelocity();
+		*outAngularVelocity = Vector3(velocity.x, velocity.y, velocity.z);
+	}
+}
+
+RFAPI void Physics_RigidBodyGetCenterOfMass(RigidBody* body, Vector3* outPosition)
+{
+	if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
+	{
+		PxTransform centerOfMass = dynamic->getCMassLocalPose();
+		*outPosition = Vector3(centerOfMass.p.x, centerOfMass.p.y, centerOfMass.p.z);
 	}
 }
 

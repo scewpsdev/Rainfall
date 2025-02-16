@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class RingOfTears : Item
 {
-	bool active = false;
-
 	float dmgBuff = 0.5f;
 
 
@@ -25,24 +23,7 @@ public class RingOfTears : Item
 		sprite = new Sprite(tileset, 10, 2);
 
 		buff = new ItemBuff(this);
-	}
-
-	void activate(Player player)
-	{
-		player.itemBuffs.Add(buff);
-		active = true;
-	}
-
-	void deactivate(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-		active = false;
-	}
-
-	public override void onUnequip(Player player)
-	{
-		if (active)
-			deactivate(player);
+		buff.auraColor = 0xFFd82b2b;
 	}
 
 	public override void update(Entity entity)
@@ -50,11 +31,7 @@ public class RingOfTears : Item
 		if (entity is Player)
 		{
 			Player player = entity as Player;
-
-			if (player.health <= 1.1f && !active)
-				activate(player);
-			else if (player.health > 1.1f && active)
-				deactivate(player);
+			buff.active = player.health <= 1.1f;
 		}
 
 		buff.meleeDamageModifier = 1 + dmgBuff;

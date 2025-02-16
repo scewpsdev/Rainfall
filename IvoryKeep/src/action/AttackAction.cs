@@ -177,8 +177,11 @@ public class AttackAction : EntityAction
 							Mob mob = entity as Mob;
 							if (damage > mob.poise)
 							{
-								Vector2 knockback = (entity.position - (player.position + player.collider.center)).normalized * weapon.knockback;
-								mob.addImpulse(knockback);
+								Vector2 knockback = ((entity.position - player.position).normalized + Vector2.Up * 0.1f) * weapon.knockback;
+								if (mob.isAlive)
+									mob.addImpulse(knockback);
+								else
+									mob.corpse.addImpulse(knockback);
 							}
 						}
 
@@ -288,7 +291,7 @@ public class AttackAction : EntityAction
 
 	public Vector2 getWorldOrigin(Player player)
 	{
-		return player.position + new Vector2(0, Vector2.Dot(direction, Vector2.Down) > 0.9f ? 0 : Vector2.Dot(direction, Vector2.Up) > 0.9f ? 1 : player.getWeaponOrigin(mainHand).y);
+		return player.position + new Vector2(0, /*Vector2.Dot(direction, Vector2.Down) > 0.9f ? 0 : Vector2.Dot(direction, Vector2.Up) > 0.9f ? 1 : */player.getWeaponOrigin(mainHand).y);
 	}
 
 	public Vector2 worldDirection

@@ -12,7 +12,7 @@ public class WizardsLegacy : Item
 		: base("wizards_legacy", ItemType.Relic)
 	{
 		displayName = "Wizard's Legacy";
-		description = "Increases mana recovery rate by 100%";
+		description = "Increases mana recovery rate by 50%";
 		stackable = true;
 		tumbles = false;
 		canDrop = false;
@@ -21,16 +21,6 @@ public class WizardsLegacy : Item
 
 		sprite = new Sprite(tileset, 5, 6);
 
-		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
-	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
+		buff = new ItemBuff(this) { manaRecoveryModifier = 1.5f };
 	}
 }

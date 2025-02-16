@@ -73,7 +73,7 @@ public class Slime : Mob
 		spawnTime = Time.currentTime;
 	}
 
-	public override void onDeath(Entity by)
+	public override void onDeath(Entity by, Item item)
 	{
 		if (size > 2)
 		{
@@ -86,7 +86,7 @@ public class Slime : Mob
 			}
 		}
 
-		base.onDeath(by);
+		base.onDeath(by, item);
 	}
 
 	/*

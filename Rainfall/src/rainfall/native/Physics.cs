@@ -120,6 +120,9 @@ namespace Rainfall.Native
 		internal static extern void Physics_RigidBodySetRotationVelocity(IntPtr body, Vector3 rotvelocity);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetCenterOfMass(IntPtr body, Vector3 centerOfMass);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyLockAxis(IntPtr body, byte x, byte y, byte z);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -127,6 +130,9 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyAddForce(IntPtr body, Vector3 force);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddTorque(IntPtr body, Vector3 torque);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyAddAcceleration(IntPtr body, Vector3 acceleration);
@@ -139,6 +145,12 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Physics_RigidBodyGetVelocity(IntPtr body, out Vector3 position);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyGetAngularVelocity(IntPtr body, out Vector3 angularVelocity);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyGetCenterOfMass(IntPtr body, out Vector3 centerOfMass);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr Physics_CreateCharacterController(float radius, float height, Vector3 offset, float stepOffset, Vector3 position);

@@ -36,6 +36,7 @@ public class ItemBuff
 
 	public bool renderAura = true;
 	public float auraStrength = 1.0f;
+	public uint auraColor = 0xFFFFFFFF;
 	Sprite aura;
 
 
@@ -56,8 +57,7 @@ public class ItemBuff
 			float animation = 1.5f + MathF.Sin(Time.currentTime / 1e9f * 50) * 0.2f;
 			float size = MathF.Ceiling(entity.collider.size.x) * animation;
 			float alpha = 1 - MathF.Exp(-(auraStrength - 1) * 1.0f);
-			uint color = 0xFFFFFFFF; // 0xFFd5a58f;
-			Renderer.DrawSprite(center.x - 0.5f * size, center.y - 0.5f * size, Entity.LAYER_PLAYER_BG, size, size, 0, aura, false, MathHelper.ARGBToVector(color) * new Vector4(alpha, alpha, alpha, 1), true);
+			Renderer.DrawSprite(center.x - 0.5f * size, center.y - 0.5f * size, Entity.LAYER_BG, size, size, 0, aura, false, MathHelper.ARGBToVector(auraColor) * new Vector4(alpha, alpha, alpha, 1), true);
 		}
 	}
 }

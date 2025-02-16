@@ -33,9 +33,9 @@ public class Leprechaun : Mob
 		//damage = 0.5f;
 	}
 
-	public override void onDeath(Entity by)
+	public override void onDeath(Entity by, Item item)
 	{
-		base.onDeath(by);
+		base.onDeath(by, item);
 
 		while (money > 0)
 		{

@@ -285,6 +285,10 @@ public partial class LevelGenerator
 
 		List<Item[]> items = generateItems(level.minLootValue, level.maxLootValue, DropRates.gardens);
 
+		float keyChance = 0.25f;
+		if (random.NextSingle() < keyChance)
+			items.Add([new IronKey()]);
+
 		MathHelper.ShuffleList(deadEnds, random);
 		MathHelper.ShuffleList(mainRooms, random);
 
@@ -292,15 +296,6 @@ public partial class LevelGenerator
 
 		spawnItems(items, deadEnds);
 
-
-		// Guaranteed key per floor
-		if (lockedDoorSpawned)
-		{
-			spawnRoomObject(rooms, 0.5f, false, (Vector2i tile, Random random, Room room) =>
-			{
-				spawnItem(tile.x, tile.y, [new IronKey()]);
-			});
-		}
 
 		// Fountain
 		spawnRoomObject(deadEnds, 1, false, (Vector2i tile, Random random, Room room) =>

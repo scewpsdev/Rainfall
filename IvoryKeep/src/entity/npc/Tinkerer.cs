@@ -50,7 +50,7 @@ public class Tinkerer : NPC
 			addDialogue(dialogue);
 		}
 
-		populateShop(GameState.instance.generator.random, 3, 9, level.avgLootValue * 2, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Weapon, ItemType.Armor, ItemType.Ammo);
+		populateShop(GameState.instance.generator.random, 5, 7, level.avgLootValue * 2, ItemType.Food, ItemType.Potion, ItemType.Scroll, ItemType.Gem, ItemType.Utility, ItemType.Weapon, ItemType.Armor, ItemType.Ammo);
 	}
 
 	public override Item craftItem(Item item1, Item item2)

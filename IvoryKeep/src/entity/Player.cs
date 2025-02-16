@@ -65,7 +65,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(30 * (1 + 0.4f * (playerLevel - 1)));
+	public int nextLevelXP => (int)MathF.Round(50 * (1 + 0.4f * (playerLevel - 1)));
 	public int availableStatUpgrades = 0;
 
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
@@ -149,8 +149,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Object carriedObject = null;
 
 	Sound[] stepSound;
-	Sound jumpSound;
-	Sound landSound;
+	public Sound jumpSound;
+	public Sound landSound;
 	Sound[] ladderSound;
 	Sound[] hitSound;
 	Sound wallTouchSound;
@@ -176,6 +176,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		animator.addAnimation("dead", 1, 1, true);
 		animator.addAnimation("dead_falling", 1, 1, true);
 		animator.addAnimation("stun", 1, 1, true);
+		animator.addAnimation("backhop", 16, 3, 0.2f, false);
 
 		animator.addAnimationEvent("run", 3, onStep);
 		animator.addAnimationEvent("run", 7, onStep);
@@ -829,6 +830,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			by = mob;
 
 		bool invincible = lastIFrameTrigger != -1 && (Time.currentTime - lastIFrameTrigger) / 1e9f < iframeDuration;
+		if (actions.currentAction != null)
+			invincible = invincible || (actions.currentAction.elapsedTime >= actions.currentAction.iframesStartTime && actions.currentAction.elapsedTime <= actions.currentAction.iframesEndTime);
 		if (invincible)
 		{
 			return false;
@@ -1173,7 +1176,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
+			//isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
+			if (InputManager.IsPressed("Sprint") && isGrounded)
+				actions.queueAction(new BackhopAction());
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
@@ -2167,7 +2172,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return;
 
 		bool hitCooldown = isAlive && (Time.currentTime - lastHit) / 1e9f < HIT_COOLDOWN;
-		bool show = !hitCooldown || ((int)(Time.currentTime / 1e9f * 20) % 2 == 1);
+		bool show = !hitCooldown || ((int)((Time.currentTime - lastHit) / 1e9f * 20) % 2 == 0);
 
 		if (isVisible)
 		{
@@ -2223,7 +2228,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		}
 		for (int i = 0; i < itemBuffs.Count; i++)
 		{
-			itemBuffs[i].render(this);
+			if (itemBuffs[i].active)
+				itemBuffs[i].render(this);
 		}
 
 		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
@@ -2263,7 +2269,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.movementSpeedModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.movementSpeedModifier, modifier.item.stackSize);
+		}
 		value *= MathF.Pow(1.08f, swiftness - 1);
 		return value;
 	}
@@ -2272,7 +2281,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.wallControlModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.wallControlModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2280,7 +2292,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.meleeDamageModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.meleeDamageModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2288,7 +2303,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.rangedDamageModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.rangedDamageModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2296,7 +2314,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.magicDamageModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.magicDamageModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2304,7 +2325,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.attackSpeedModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.attackSpeedModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2312,7 +2336,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.manaCostModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.manaCostModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2320,7 +2347,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.manaRecoveryModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.manaRecoveryModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2328,7 +2358,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.stealthAttackModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.stealthAttackModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2336,7 +2369,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.defenseModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.defenseModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2344,7 +2380,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.accuracyModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.accuracyModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2352,7 +2391,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 1;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.criticalChanceModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.criticalChanceModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 
@@ -2360,7 +2402,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		float value = 2;
 		foreach (ItemBuff modifier in itemBuffs)
-			value *= MathF.Pow(modifier.criticalAttackModifier, modifier.item.stackSize);
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.criticalAttackModifier, modifier.item.stackSize);
+		}
 		return value;
 	}
 

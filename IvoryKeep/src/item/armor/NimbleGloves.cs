@@ -26,14 +26,4 @@ public class NimbleGloves : Item
 
 		gloveColor = 0xFF849be4;
 	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 }

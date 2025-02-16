@@ -13,8 +13,10 @@ public class GameState : State
 
 	public Scene scene;
 
-	FirstPersonCamera camera;
+	Cart cart;
+	Camera camera;
 	DirectionalLight sun;
+	Cubemap skybox;
 
 
 	public GameState()
@@ -28,10 +30,11 @@ public class GameState : State
 
 		scene.load("testmap.rfs");
 
-		scene.addEntity(camera = new FirstPersonCamera());
-		scene.addEntity(new Player(camera));
+		scene.addEntity(cart = new Cart(), new Vector3(0, 1, 0));
+		scene.addEntity(camera = new FreeCamera(), new Vector3(0, 3, 4));
 
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
+		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
 	}
 
 	public override void destroy()
@@ -52,5 +55,7 @@ public class GameState : State
 		scene.draw(graphics);
 
 		Renderer.DrawDirectionalLight(sun);
+		Renderer.DrawSky(skybox, 1, Quaternion.Identity);
+		Renderer.DrawEnvironmentMap(skybox, 0.25f);
 	}
 }

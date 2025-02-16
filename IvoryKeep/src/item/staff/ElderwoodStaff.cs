@@ -14,7 +14,7 @@ public class ElderwoodStaff : Staff
 		displayName = "Elderwood Staff";
 
 		baseDamage = 0.6f;
-		baseAttackRate = 2;
+		baseAttackRate = 1.8f;
 		manaCost = 0.7f;
 		trigger = false;
 		//isSecondaryItem = true;
@@ -25,7 +25,7 @@ public class ElderwoodStaff : Staff
 		value = 37;
 
 		sprite = new Sprite(tileset, 1, 6);
-		renderOffset.x = 0.4f;
+		renderOffset.x = 0.2f;
 
 		castSound = Resource.GetSounds("sounds/cast", 3);
 	}

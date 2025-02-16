@@ -22,14 +22,4 @@ public class Spellweaver : Item
 
 		buff = new ItemBuff(this) { manaCostModifier = 0.8f };
 	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 }

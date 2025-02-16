@@ -295,8 +295,6 @@ public partial class LevelGenerator
 
 	List<Type> spawnedNPCs = new List<Type>();
 
-	bool lockedDoorSpawned = false;
-
 
 	public LevelGenerator()
 	{
@@ -1028,7 +1026,7 @@ public partial class LevelGenerator
 
 				if (up != null && up.isSolid && down != null && down.isSolid)
 				{
-					float lockedChance = 1; // 0.25f;
+					float lockedChance = 0.25f;
 					if (random.NextSingle() < lockedChance)
 					{
 						Debug.Assert(doorPosition != Vector2i.Zero);
@@ -1057,7 +1055,6 @@ public partial class LevelGenerator
 							*/
 
 						level.addEntity(new IronDoor("iron_key"), doorPosition + new Vector2(0.5f, 0));
-						lockedDoorSpawned = true;
 
 						break;
 					}

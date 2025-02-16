@@ -23,13 +23,16 @@ public class Player : Entity
 	{
 		this.camera = camera;
 
-		controller = new FirstPersonController(this, PhysicsFilter.Default);
-
 		model = Resource.GetModel("viewmodel.gltf");
 		animator = Animator.Create(model, this);
 
 		idleAnim = Animator.CreateAnimation(model, "idle", true);
 		animator.setAnimation(idleAnim);
+	}
+
+	public override void init()
+	{
+		controller = new FirstPersonController(this, PhysicsFilter.Default);
 	}
 
 	public override void update()

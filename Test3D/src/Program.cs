@@ -37,6 +37,8 @@ public class Program : Game
 
 	public override void init()
 	{
+		Display.windowTitle = "Hyper Cart Drifter";
+
 		Resource.LoadPackageHeader("datas.dat");
 		Resource.LoadPackageHeader("datat.dat");
 		Resource.LoadPackageHeader("datag.dat");
@@ -44,6 +46,10 @@ public class Program : Game
 		Resource.LoadPackageHeader("datam.dat");
 
 		Renderer.Init(Display.width, Display.height, graphics);
+		RendererSettings renderSettings = new RendererSettings(0);
+		renderSettings.bloomEnabled = false;
+		renderSettings.ssaoEnabled = false;
+		Renderer.SetSettings(renderSettings);
 
 		Physics.Init();
 		Audio.Init();
@@ -235,7 +241,7 @@ public class Program : Game
 #if DEBUG
 		launchParams.width = 1600; //1280;
 		launchParams.height = 900; //720;
-		launchParams.maximized = true;
+		//launchParams.maximized = true;
 #else
 		launchParams.width = 1280;
 		launchParams.height = 720;

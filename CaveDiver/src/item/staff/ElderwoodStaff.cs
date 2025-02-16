@@ -14,7 +14,7 @@ public class ElderwoodStaff : Staff
 		displayName = "Elderwood Staff";
 
 		baseDamage = 0.6f;
-		baseAttackRate = 2;
+		baseAttackRate = 1.8f;
 		manaCost = 0.7f;
 		trigger = false;
 		//isSecondaryItem = true;

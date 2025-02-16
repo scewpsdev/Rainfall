@@ -29,6 +29,7 @@ public class BerserkersChain : Item
 		sprite = new Sprite(tileset, 9, 6);
 
 		buff = new ItemBuff(this);
+		buff.auraColor = 0xFFd82b2b;
 	}
 
 	public override void onEquip(Player player)
@@ -80,7 +81,7 @@ public class BerserkersChain : Item
 				buff.attackSpeedModifier = damageMultiplier;
 			}
 
-			buff.auraStrength = damageMultiplier;
+			buff.auraStrength = damageMultiplier - 1;
 		}
 	}
 }

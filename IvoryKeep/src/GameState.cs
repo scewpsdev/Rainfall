@@ -400,6 +400,11 @@ public class GameState : State
 			foreach (Level level in areaCaves)
 				level.destroy();
 		}
+		if (areaMines != null)
+		{
+			foreach (Level level in areaMines)
+				level.destroy();
+		}
 		if (areaDungeons != null)
 		{
 			foreach (Level level in areaDungeons)
@@ -416,7 +421,7 @@ public class GameState : State
 
 	public void freeze(float duration)
 	{
-		lastFreezeTime = Time.currentTime;
+		lastFreezeTime = Time.timestamp;
 		freezeDuration = duration;
 	}
 
@@ -544,7 +549,9 @@ public class GameState : State
 			PauseMenu.OnUnpause();
 		}
 
-		Time.paused = isPaused || onscreenPrompt;
+		bool freeze = lastFreezeTime != -1 && (Time.timestamp - lastFreezeTime) / 1e9f < freezeDuration;
+
+		Time.paused = isPaused || onscreenPrompt || freeze;
 
 		run.update(isPaused || onscreenPrompt);
 		QuestManager.Update();
@@ -589,8 +596,6 @@ public class GameState : State
 
 		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
 		{
-			bool freeze = lastFreezeTime != -1 && (Time.currentTime - lastFreezeTime) / 1e9f < freezeDuration;
-
 			if (!freeze)
 			{
 				long beforeEntityUpdate = Time.timestamp;

@@ -29,6 +29,7 @@ public class BerserkersChain : Item
 		sprite = new Sprite(tileset, 9, 6);
 
 		buff = new ItemBuff(this);
+		buff.auraColor = 0xFFd82b2b;
 	}
 
 	public override void onEquip(Player player)
@@ -41,7 +42,7 @@ public class BerserkersChain : Item
 		int lastBuffLevel = buffLevel;
 		buffLevel = Math.Min(buffLevel + 3, (2 - 1) * 20 + threshhold);
 		if (buffLevel > threshhold && lastBuffLevel <= threshhold)
-			onActivate(player);
+			buff.active = true;
 
 		buff.attackSpeedModifier = damageMultiplier;
 
@@ -49,16 +50,6 @@ public class BerserkersChain : Item
 	}
 
 	float damageMultiplier => 1 + MathF.Max(buffLevel - threshhold, 0) * 0.05f;
-
-	void onActivate(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	void onDeactivate(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 
 	public override void update(Entity entity)
 	{
@@ -70,16 +61,19 @@ public class BerserkersChain : Item
 			{
 				lastTick = Time.currentTime;
 
-				int lastBuffLevel = buffLevel;
-				int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 4);
-				buffLevel = Math.Max(buffLevel - cooldown, 0);
-				if (buffLevel <= threshhold && lastBuffLevel > threshhold)
-					onDeactivate(player);
+				if (buff.active)
+				{
+					int lastBuffLevel = buffLevel;
+					int cooldown = (int)Math.Ceiling((Time.currentTime - lastKill) / 1e9f / 4);
+					buffLevel = Math.Max(buffLevel - cooldown, 0);
+					if (buffLevel <= threshhold && lastBuffLevel > threshhold)
+						buff.active = false;
 
-				buff.attackSpeedModifier = damageMultiplier;
+					buff.attackSpeedModifier = damageMultiplier;
+				}
 			}
 
-			buff.auraStrength = damageMultiplier;
+			buff.auraStrength = damageMultiplier - 1;
 		}
 	}
 }

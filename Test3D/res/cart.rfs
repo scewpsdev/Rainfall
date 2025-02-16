@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "347059364"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "cart.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 1.159999966621399, 1.559999942779541, 2.240000009536743 ]
+offset = [ 0, 1.1399999856948853, 0.03999999910593033 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "347059364"

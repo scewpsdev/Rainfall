@@ -55,6 +55,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	protected float maxHealth;
 
 	public bool isBoss = false;
+	protected int phase = 0;
+	protected float phaseTransitionHealth = 0;
+
 	public bool canClimb = false;
 	public bool canFly = false;
 	public bool poisonResistant = false;
@@ -82,6 +85,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public bool criticalStun = false;
 	long stunTime = -1;
 	public bool isVisible = true;
+
+	public MobCorpse corpse;
 
 	Climbable currentLadder = null;
 
@@ -150,7 +155,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		}
 		else
 		{
-			onDeath(by);
+			onDeath(by, item);
 		}
 
 		ai?.onHit(by);
@@ -161,7 +166,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		return true;
 	}
 
-	public virtual void onDeath(Entity by)
+	public virtual void onDeath(Entity by, Item item)
 	{
 		Player player = null;
 		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player || by is Projectile && ((Projectile)by).shooter is Player)
@@ -183,13 +188,13 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
 		{
-			Item[] items = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue * itemDropValueMultiplier);
+			Item[] drops = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue * itemDropValueMultiplier);
 
-			foreach (Item item in items)
+			foreach (Item drop in drops)
 			{
 				Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
 				Vector2 throwOrigin = position + collider.center;
-				ItemEntity obj = new ItemEntity(item, null, itemVelocity);
+				ItemEntity obj = new ItemEntity(drop, null, itemVelocity);
 				GameState.instance.level.addEntity(obj, throwOrigin);
 			}
 
@@ -242,7 +247,14 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			statusEffects[i].destroy(this);
 		statusEffects.Clear();
 
-		GameState.instance.level.addEntity(new MobCorpse(sprite, spriteColor * new Vector4(0.5f, 0.5f, 0.5f, 0.5f), animator, rect, direction, Vector2.Zero, impulseVelocity, collider), position);
+		{
+			float corpseVelocity = 0;
+			if (by is Projectile)
+				corpseVelocity = MathF.Sign(by.velocity.x) * 6 * 0.5f;
+			else if (item != null)
+				corpseVelocity = MathF.Sign(position.x - by.position.x) * item.knockback * 0.5f;
+			GameState.instance.level.addEntity(corpse = new MobCorpse(sprite, spriteColor * new Vector4(0.5f, 0.5f, 0.5f, 1), animator, rect, direction, Vector2.Zero, impulseVelocity + corpseVelocity, collider), position);
+		}
 
 		remove();
 	}
@@ -489,6 +501,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		animator?.update(sprite);
 	}
 
+	public virtual void onPhaseTransition()
+	{
+	}
+
 	public override void update()
 	{
 		if (!isAlive)
@@ -502,6 +518,13 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		updateMovement();
 		updateActions();
 		updateAnimation();
+
+		if (health < phaseTransitionHealth * maxHealth && phase == 0)
+		{
+			phase++;
+			onPhaseTransition();
+			GameState.instance.currentBossRoom.onPhaseTransition();
+		}
 
 		for (int i = 0; i < statusEffects.Count; i++)
 		{

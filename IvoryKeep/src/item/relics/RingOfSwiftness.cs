@@ -21,14 +21,4 @@ public class RingOfSwiftness : Item
 
 		buff = new ItemBuff(this) { movementSpeedModifier = 1.2f };
 	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 }

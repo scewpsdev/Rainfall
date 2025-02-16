@@ -24,6 +24,7 @@ public class Raya : Mob
 		awareness = 1;
 		itemDropChance = 2;
 		itemDropValueMultiplier = 2;
+		phaseTransitionHealth = 0.5f;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/mob/gardens/raya.png", false), 0, 0, 128, 64);
 		collider = new FloatRect(-0.25f, 0, 0.5f, 1.4f);

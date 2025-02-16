@@ -175,14 +175,14 @@ public class HUD
 		{
 			for (int i = 0; i < text.Length; i++)
 			{
-				Vector2i size = Renderer.MeasureUITextBMP(text[i]);
+				Vector2i size = Renderer.MeasureUIText(text[i]);
 				float progress = elapsed / POPUP_DURATION;
 				float yanim = MathHelper.Lerp(0, -Renderer.UIHeight / 8, progress);
 				yanim = 0;
 				float alpha = elapsed < 1 ? elapsed : elapsed > POPUP_DURATION - 2 ? (1 - 0.5f * (elapsed - (POPUP_DURATION - 2))) : 1;
 				uint color = MathHelper.ColorAlpha(0xFFAAAAAA, alpha);
-				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + (-text.Length + i) * (size.y + 1) + (int)yanim + 1, text[i], 1, MathHelper.ColorAlpha(0xFF000000, alpha));
-				Renderer.DrawUITextBMP(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + (-text.Length + i) * (size.y + 1) + (int)yanim, text[i], 1, color);
+				Renderer.DrawUIText(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + (-text.Length + i) * (size.y + 1) + (int)yanim + 1, text[i], 1, MathHelper.ColorAlpha(0xFF000000, alpha));
+				Renderer.DrawUIText(Renderer.UIWidth / 2 - size.x / 2, Renderer.UIHeight / 4 + (-text.Length + i) * (size.y + 1) + (int)yanim, text[i], 1, color);
 			}
 		}
 	}
@@ -398,23 +398,35 @@ public class HUD
 		for (int i = 0; i < player.itemBuffs.Count; i++)
 		{
 			ItemBuff modifier = player.itemBuffs[i];
-
-			if (modifier.movementSpeedModifier != 1)
-				renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.movementSpeedModifier > 1);
-			if (modifier.meleeDamageModifier != 1)
-				renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
-			if (modifier.attackSpeedModifier != 1)
-				renderIcon(ItemBuff.attackSpeedModifierIcon, 0xFFFFFFFF, modifier.attackSpeedModifier > 1);
-			if (modifier.manaCostModifier != 1)
-				renderIcon(ItemBuff.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaCostModifier < 1);
-			if (modifier.stealthAttackModifier != 1)
-				renderIcon(ItemBuff.stealthAttackModifierIcon, 0xFFFFFFFF, modifier.stealthAttackModifier > 1);
-			if (modifier.defenseModifier != 1)
-				renderIcon(ItemBuff.defenseModifierIcon, 0xFFFFFFFF, modifier.defenseModifier > 1);
-			if (modifier.accuracyModifier != 1)
-				renderIcon(ItemBuff.accuracyModifierIcon, 0xFFFFFFFF, modifier.accuracyModifier > 1);
-			if (modifier.criticalAttackModifier != 1)
-				renderIcon(ItemBuff.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalAttackModifier > 1);
+			if (modifier.active)
+			{
+				if (modifier.movementSpeedModifier != 1)
+					renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.movementSpeedModifier > 1);
+				if (modifier.wallControlModifier != 1)
+					renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.movementSpeedModifier > 1);
+				if (modifier.meleeDamageModifier != 1)
+					renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
+				if (modifier.rangedDamageModifier != 1)
+					renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
+				if (modifier.magicDamageModifier != 1)
+					renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
+				if (modifier.attackSpeedModifier != 1)
+					renderIcon(ItemBuff.attackSpeedModifierIcon, 0xFFFFFFFF, modifier.attackSpeedModifier > 1);
+				if (modifier.manaCostModifier != 1)
+					renderIcon(ItemBuff.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaCostModifier < 1);
+				if (modifier.manaRecoveryModifier != 1)
+					renderIcon(ItemBuff.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaCostModifier < 1);
+				if (modifier.stealthAttackModifier != 1)
+					renderIcon(ItemBuff.stealthAttackModifierIcon, 0xFFFFFFFF, modifier.stealthAttackModifier > 1);
+				if (modifier.defenseModifier != 1)
+					renderIcon(ItemBuff.defenseModifierIcon, 0xFFFFFFFF, modifier.defenseModifier > 1);
+				if (modifier.accuracyModifier != 1)
+					renderIcon(ItemBuff.accuracyModifierIcon, 0xFFFFFFFF, modifier.accuracyModifier > 1);
+				if (modifier.criticalAttackModifier != 1)
+					renderIcon(ItemBuff.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalAttackModifier > 1);
+				if (modifier.criticalChanceModifier != 1)
+					renderIcon(ItemBuff.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalAttackModifier > 1);
+			}
 		}
 
 		for (int i = 0; i < player.statusEffects.Count; i++)

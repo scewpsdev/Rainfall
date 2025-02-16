@@ -26,14 +26,4 @@ public class LargeWizardHat : Item
 
 		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
 	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 }

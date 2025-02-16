@@ -252,9 +252,25 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodySetRotationVelocity(body, rotationVelocity);
 		}
 
+		public void setCenterOfMass(Vector3 centerOfMass)
+		{
+			Native.Physics.Physics_RigidBodySetCenterOfMass(body, centerOfMass);
+		}
+
 		public void addForce(Vector3 force)
 		{
 			Native.Physics.Physics_RigidBodyAddForce(body, force);
+		}
+
+		public void addTorque(Vector3 torque)
+		{
+			Native.Physics.Physics_RigidBodyAddTorque(body, torque);
+		}
+
+		public void addForceAtPosition(Vector3 force, Vector3 position)
+		{
+			addForce(force);
+			addTorque(Vector3.Cross(position - getCenterOfMass(), force));
 		}
 
 		public void addAcceleration(Vector3 acceleration)
@@ -282,16 +298,33 @@ namespace Rainfall
 			Native.Physics.Physics_RigidBodyGetTransform(body, out position, out rotation);
 		}
 
-		public Vector3 getPosition()
-		{
-			getTransform(out Vector3 position, out Quaternion _);
-			return position;
-		}
-
 		public Vector3 getVelocity()
 		{
 			Native.Physics.Physics_RigidBodyGetVelocity(body, out Vector3 velocity);
 			return velocity;
+		}
+
+		public Vector3 getAngularVelocity()
+		{
+			Native.Physics.Physics_RigidBodyGetAngularVelocity(body, out Vector3 angularVelocity);
+			return angularVelocity;
+		}
+
+		public Vector3 getCenterOfMass()
+		{
+			Native.Physics.Physics_RigidBodyGetCenterOfMass(body, out Vector3 centerOfMass);
+			return entity.getPosition() + centerOfMass;
+		}
+
+		public Vector3 getPointVelocity(Vector3 point)
+		{
+			return getVelocity() + Vector3.Cross(getAngularVelocity(), point - entity.getPosition() - getCenterOfMass());
+		}
+
+		public Vector3 getPosition()
+		{
+			getTransform(out Vector3 position, out Quaternion _);
+			return position;
 		}
 
 		internal static RigidBody GetBodyFromHandle(IntPtr handle)

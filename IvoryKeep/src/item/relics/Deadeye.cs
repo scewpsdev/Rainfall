@@ -21,14 +21,4 @@ public class Deadeye : Item
 
 		buff = new ItemBuff(this) { accuracyModifier = 1.5f };
 	}
-
-	public override void onEquip(Player player)
-	{
-		player.itemBuffs.Add(buff);
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.itemBuffs.Remove(buff);
-	}
 }

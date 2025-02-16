@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 
 public class GolemBoss : Mob
 {
-	int phase = 0;
-
 	AIAction jumpAttack;
 
 
@@ -38,7 +36,7 @@ public class GolemBoss : Mob
 		collider = new FloatRect(-0.375f, 0.0f, 0.75f, 1.8f);
 		rect = new FloatRect(-4, -1, 8, 4);
 
-		health = 40;
+		health = 50;
 		poise = 10;
 		speed = 3;
 		damage = 1.0f;
@@ -47,6 +45,8 @@ public class GolemBoss : Mob
 		awareness = 1;
 		itemDropChance = 2;
 		itemDropValueMultiplier = 2;
+
+		phaseTransitionHealth = 0.5f;
 
 		AdvancedAI ai = new AdvancedAI(this);
 		this.ai = ai;
@@ -179,24 +179,23 @@ public class GolemBoss : Mob
 		ai.actionDirection = 1;
 	}
 
+	public override void onPhaseTransition()
+	{
+		AdvancedAI ai = this.ai as AdvancedAI;
+		ai.hesitation = 2;
+		speed = 8;
+		foreach (AIAction action in ai.actions)
+		{
+			action.chargeTime *= 0.7f;
+			action.walkSpeed *= 1.5f;
+		}
+	}
+
 	public override void update()
 	{
 		base.update();
 
 		AdvancedAI ai = this.ai as AdvancedAI;
-
-		if (health < maxHealth / 2 && phase == 0)
-		{
-			ai.hesitation = 2;
-			speed = 8;
-			foreach (AIAction action in ai.actions)
-			{
-				action.chargeTime *= 0.8f;
-				action.walkSpeed *= 1.35f;
-			}
-			GameState.instance.currentBossRoom.onPhaseTransition();
-			phase++;
-		}
 
 		if (!isGrounded)
 		{

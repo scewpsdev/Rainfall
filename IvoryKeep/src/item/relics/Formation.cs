@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 public class Formation : Item
 {
-	bool active = false;
-
 	public Formation()
 		: base("formation", ItemType.Relic)
 	{
 		displayName = "Formation";
-		description = "Ducking increases armor";
+		description = "Ducking increases defense";
 		stackable = false;
 		tumbles = false;
 
@@ -22,19 +20,7 @@ public class Formation : Item
 
 		sprite = new Sprite(tileset, 13, 7);
 
-		buff = new ItemBuff(this) { defenseModifier = 2, movementSpeedModifier = 0.5f };
-	}
-
-	void activate(Player player)
-	{
-		active = true;
-		player.itemBuffs.Add(buff);
-	}
-
-	void deactivate(Player player)
-	{
-		active = false;
-		player.itemBuffs.Remove(buff);
+		buff = new ItemBuff(this) { defenseModifier = 5, movementSpeedModifier = 0.2f };
 	}
 
 	public override void update(Entity entity)
@@ -42,10 +28,7 @@ public class Formation : Item
 		if (entity is Player)
 		{
 			Player player = entity as Player;
-			if (player.isDucked && !active)
-				activate(player);
-			else if (!player.isDucked && active)
-				deactivate(player);
+			buff.active = player.isDucked;
 		}
 	}
 }

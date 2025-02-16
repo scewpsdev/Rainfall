@@ -453,16 +453,16 @@ public abstract class Item
 			if (type == ItemType.Weapon)
 			{
 				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
-				return (int)(dps * 10 * (1 + upgradeLevel * 0.5f));
+				return (int)(dps * 10 * (1 + upgradeLevel * 1.2f));
 			}
 			else if (type == ItemType.Staff)
 			{
 				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
-				return (int)(dps * 15 * (1 + upgradeLevel * 0.5f));
+				return (int)(dps * 15 * (1 + upgradeLevel * 1.2f));
 			}
 			else if (type == ItemType.Armor)
 			{
-				return (int)(armor * 10 + (1 + upgradeLevel * 0.5f));
+				return (int)(armor * 10 + (1 + upgradeLevel * 1.2f));
 			}
 			return value * 2;
 		}

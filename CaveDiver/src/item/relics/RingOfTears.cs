@@ -25,6 +25,7 @@ public class RingOfTears : Item
 		sprite = new Sprite(tileset, 10, 2);
 
 		buff = new ItemBuff(this);
+		buff.auraColor = 0xFFd82b2b;
 	}
 
 	void activate(Player player)

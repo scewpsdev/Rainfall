@@ -12,6 +12,8 @@ public class MultilayerTrack
 	uint[] sources;
 	Sound[] sounds;
 
+	public bool running = false;
+
 
 	public MultilayerTrack(string name, int count)
 	{
@@ -33,14 +35,17 @@ public class MultilayerTrack
 			Audio.SetInaudibleBehavior(sources[i], true, false);
 			Audio.SetProtect(sources[i], true);
 		}
+		running = true;
 	}
 
 	public void stop(float fadeout = 3)
 	{
 		for (int i = 0; i < sources.Length; i++)
 		{
+			Audio.SetProtect(sources[i], false);
 			Audio.FadeoutSource(sources[i], fadeout);
 		}
+		running = false;
 	}
 
 	public void setLayer(int layer, float volume = 0.25f, float fadein = 3, float fadeout = 3)

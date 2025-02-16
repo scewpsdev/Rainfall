@@ -42,6 +42,11 @@ public class MobCorpse : Entity
 		gravity = -30;
 	}
 
+	public void addImpulse(Vector2 impulse)
+	{
+		velocity += impulse;
+	}
+
 	public override void update()
 	{
 		velocity.y += gravity * Time.deltaTime;
@@ -56,7 +61,7 @@ public class MobCorpse : Entity
 		{
 			if (velocity.y < 0)
 				isGrounded = true;
-			velocity.y = 0.0f;
+			velocity.y = -0.3f * velocity.y;
 		}
 		if ((collisionFlags & Level.COLLISION_X) != 0)
 		{

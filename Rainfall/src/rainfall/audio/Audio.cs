@@ -106,11 +106,6 @@ namespace Rainfall
 			return Audio_SourcePlayMusic(Resource.Resource_SoundGetHandle(sound.resource), gain, (byte)(looping ? 1 : 0), fadein);
 		}
 
-		public static void Stop(uint source)
-		{
-			Audio_SourceStop(source);
-		}
-
 		public static void SetPaused(uint source, bool paused)
 		{
 			Audio_SourceSetPaused(source, (byte)(paused ? 1 : 0));

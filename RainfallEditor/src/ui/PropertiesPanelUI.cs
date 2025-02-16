@@ -153,7 +153,7 @@ public static partial class EditorUI
 				}
 				else if (collider.type == SceneFormat.ColliderType.Mesh || collider.type == SceneFormat.ColliderType.ConvexMesh)
 				{
-					if (FileSelect(null, "mesh_collider" + i, ref collider.meshColliderPath, "gltf"))
+					if (FileSelect(null, "mesh_collider" + i, ref collider.meshColliderPath, "gltf, glb"))
 					{
 						collider.meshCollider = collider.meshColliderPath != null ? Resource.GetModel(RainfallEditor.CompileAsset(collider.meshColliderPath)) : null;
 						instance.notifyEdit();

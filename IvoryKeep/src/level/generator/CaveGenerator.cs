@@ -320,22 +320,31 @@ public partial class LevelGenerator
 
 		List<Item[]> items = generateItems(level.minLootValue, level.maxLootValue, DropRates.caves);
 
+		if (floor == 0)
+		{
+			Item startingWeapon = Item.CreateRandom(ItemType.Weapon, random, 0);
+			if (startingWeapon.requiredAmmo != null)
+			{
+				Item ammo = Item.GetItemPrototype(startingWeapon.requiredAmmo).copy();
+				ammo.stackSize = 30;
+				items.Add([startingWeapon, ammo]);
+			}
+			else
+			{
+				items.Add([startingWeapon]);
+			}
+		}
+
+		float keyChance = 0.25f;
+		if (random.NextSingle() < keyChance)
+			items.Add([new IronKey()]);
+
 		MathHelper.ShuffleList(deadEnds, random);
 		MathHelper.ShuffleList(mainRooms, random);
 
 		lockDeadEnds(deadEnds, items);
 
 		spawnItems(items, deadEnds);
-
-
-		// Guaranteed key per floor
-		if (lockedDoorSpawned)
-		{
-			spawnRoomObject(rooms, 0.5f, false, (Vector2i tile, Random random, Room room) =>
-			{
-				spawnItem(tile.x, tile.y, [new IronKey()]);
-			});
-		}
 
 
 		// Fountain
