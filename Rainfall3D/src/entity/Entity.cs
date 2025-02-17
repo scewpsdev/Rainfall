@@ -24,6 +24,7 @@ public class Entity : PhysicsEntity
 
 	public RigidBody body = null;
 	public RigidBodyType bodyType = RigidBodyType.Null;
+	public float bodyDensity = 1;
 	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
 	public float bodyFriction = 0.5f;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
@@ -47,27 +48,28 @@ public class Entity : PhysicsEntity
 			Vector3 centerOfMass = Vector3.Zero;
 			if (entity.model != null)
 				centerOfMass = entity.model.boundingSphere.center;
-			body = new RigidBody(this, entity.rigidBodyType, 1, centerOfMass, filterGroup, filterMask);
+			body = new RigidBody(this, entity.rigidBodyType, bodyDensity, centerOfMass, filterGroup, filterMask);
 			for (int i = 0; i < entity.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData collider = entity.colliders[i];
+				Quaternion rotation = Quaternion.FromEulerAngles(collider.eulers);
 				if (collider.trigger)
 				{
 					if (collider.type == SceneFormat.ColliderType.Box)
-						body.addBoxTrigger(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+						body.addBoxTrigger(collider.size * 0.5f, collider.offset, rotation);
 					else if (collider.type == SceneFormat.ColliderType.Sphere)
 						body.addSphereTrigger(collider.radius, collider.offset);
 					else if (collider.type == SceneFormat.ColliderType.Capsule)
-						body.addCapsuleTrigger(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+						body.addCapsuleTrigger(collider.radius, collider.size.y, collider.offset, rotation);
 					else if (collider.type == SceneFormat.ColliderType.Mesh)
 					{
 						if (collider.meshCollider != null)
-							body.addMeshTriggers(collider.meshCollider, Matrix.Identity);
+							body.addMeshTriggers(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation));
 					}
 					else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
 					{
 						if (collider.meshCollider != null)
-							body.addConvexMeshTriggers(collider.meshCollider, Matrix.Identity);
+							body.addConvexMeshTriggers(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation));
 					}
 					else
 						Debug.Assert(false);
@@ -75,20 +77,20 @@ public class Entity : PhysicsEntity
 				else
 				{
 					if (collider.type == SceneFormat.ColliderType.Box)
-						body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+						body.addBoxCollider(collider.size * 0.5f, collider.offset, rotation);
 					else if (collider.type == SceneFormat.ColliderType.Sphere)
 						body.addSphereCollider(collider.radius, collider.offset);
 					else if (collider.type == SceneFormat.ColliderType.Capsule)
-						body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+						body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, rotation);
 					else if (collider.type == SceneFormat.ColliderType.Mesh)
 					{
 						if (collider.meshCollider != null)
-							body.addMeshColliders(collider.meshCollider, Matrix.Identity);
+							body.addMeshColliders(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation));
 					}
 					else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
 					{
 						if (collider.meshCollider != null)
-							body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity);
+							body.addConvexMeshColliders(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation));
 					}
 					else
 						Debug.Assert(false);
@@ -260,6 +262,10 @@ public class Entity : PhysicsEntity
 			//if (Renderer.IsInFrustum(particles[i].boundingSphere.center, particles[i].boundingSphere.radius, transform, Renderer.pv))
 			particles[i].setTransform(transform, particles[i].handle->applyEntityVelocity);
 		}
+	}
+
+	public virtual void fixedUpdate(float delta)
+	{
 	}
 
 	public virtual void draw(GraphicsDevice graphics)

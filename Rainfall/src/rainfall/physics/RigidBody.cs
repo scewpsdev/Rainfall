@@ -313,12 +313,12 @@ namespace Rainfall
 		public Vector3 getCenterOfMass()
 		{
 			Native.Physics.Physics_RigidBodyGetCenterOfMass(body, out Vector3 centerOfMass);
-			return entity.getPosition() + centerOfMass;
+			return entity.getPosition() + entity.getRotation() * centerOfMass;
 		}
 
 		public Vector3 getPointVelocity(Vector3 point)
 		{
-			return getVelocity() + Vector3.Cross(getAngularVelocity(), point - entity.getPosition() - getCenterOfMass());
+			return getVelocity() + Vector3.Cross(getAngularVelocity(), point - getCenterOfMass());
 		}
 
 		public Vector3 getPosition()

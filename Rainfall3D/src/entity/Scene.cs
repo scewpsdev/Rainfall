@@ -207,6 +207,17 @@ public class Scene
 		reorderBuffer.Clear();
 	}
 
+	public void fixedUpdate(float delta)
+	{
+		foreach (List<Entity> entityList in entities.Values)
+		{
+			for (int i = 0; i < entityList.Count; i++)
+			{
+				entityList[i].fixedUpdate(delta);
+			}
+		}
+	}
+
 	public unsafe void draw(GraphicsDevice graphics)
 	{
 		foreach (List<Entity> entityList in entities.Values)

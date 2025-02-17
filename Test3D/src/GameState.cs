@@ -28,10 +28,12 @@ public class GameState : State
 	{
 		scene = new Scene();
 
-		scene.load("testmap.rfs");
+		//scene.load("testmap.rfs");
+		scene.load("supermarket.rfs");
 
-		scene.addEntity(cart = new Cart(), new Vector3(0, 1, 0));
-		scene.addEntity(camera = new FreeCamera(), new Vector3(0, 3, 4));
+		scene.addEntity(cart = new Cart(), new Vector3(-14, 0, 18));
+		//scene.addEntity(camera = new FreeCamera(), new Vector3(0, 3, 4));
+		scene.addEntity(camera = new FollowCamera(cart));
 
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
 		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
@@ -48,6 +50,11 @@ public class GameState : State
 		ParticleSystem.Update(camera.position);
 
 		scene.update();
+	}
+
+	public override void fixedUpdate(float delta)
+	{
+		scene.fixedUpdate(delta);
 	}
 
 	public override void draw(GraphicsDevice graphics)

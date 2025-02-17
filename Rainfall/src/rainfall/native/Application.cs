@@ -11,6 +11,7 @@ namespace Rainfall.Native
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void GameInit_t();
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void GameDestroy_t();
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void GameUpdate_t();
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void GameFixedUpdate_t(float delta);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void GameDraw_t();
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void OnInternalErrorEvent_t([MarshalAs(UnmanagedType.LPStr)] string msg);
@@ -30,6 +31,7 @@ namespace Rainfall.Native
 		internal GameInit_t init;
 		internal GameDestroy_t destroy;
 		internal GameUpdate_t update;
+		internal GameFixedUpdate_t fixedUpdate;
 		internal GameDraw_t draw;
 
 		internal OnInternalErrorEvent_t onInternalError;

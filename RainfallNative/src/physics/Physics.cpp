@@ -291,6 +291,8 @@ static std::vector<CharacterController*> controllers;
 
 static std::unordered_map<uint32_t, PxMaterial*> materialCache;
 
+void(*fixedUpdateCallback)(float delta);
+
 
 static PxTransform MatrixToPxTransform(Matrix matrix)
 {
@@ -366,7 +368,7 @@ RFAPI void Physics_Shutdown()
 	foundation->release();
 }
 
-RFAPI void Physics_Update()
+RFAPI int Physics_Update()
 {
 	float timeStep = 1.0f / UPDATES_PER_SECOND;
 	int64_t currentFrameTime = Application_GetCurrentTime();
@@ -385,6 +387,8 @@ RFAPI void Physics_Update()
 			timeAccumulator = 0.0f;
 			break;
 		}
+
+		fixedUpdateCallback(timeStep);
 
 		for (size_t i = 0; i < rigidBodies.size(); i++)
 		{
@@ -477,6 +481,8 @@ RFAPI void Physics_Update()
 	int64_t afterUpdate = Application_GetTimestamp();
 	if (numSteps > 0)
 		simulationDelta = (afterUpdate - beforeUpdate) / numSteps;
+
+	return numSteps;
 }
 
 RFAPI int64_t Physics_GetSimulationDelta()
@@ -1324,9 +1330,9 @@ RFAPI int Physics_Raycast(const Vector3& origin, const Vector3& direction, float
 
 	if (scene->raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
 	{
-		for (uint32_t i = 0; i < hitBuffer.getNbTouches(); i++)
+		for (uint32_t i = 0; i < hitBuffer.getNbAnyHits(); i++)
 		{
-			const PxRaycastHit* hit = &hitBuffer.getTouches()[i];
+			const PxRaycastHit* hit = &hitBuffer.getAnyHit(i);
 
 			hits[i].distance = hit->distance;
 			hits[i].position = Vector3(hit->position.x, hit->position.y, hit->position.z);
@@ -1336,7 +1342,32 @@ RFAPI int Physics_Raycast(const Vector3& origin, const Vector3& direction, float
 		}
 	}
 
-	return hitBuffer.getNbTouches();
+	return (int)hitBuffer.getNbTouches();
+}
+
+RFAPI bool Physics_RaycastCheck(const Vector3& origin, const Vector3& direction, float maxDistance, HitData* hit, PxQueryFlag::Enum flags, uint32_t filterMask)
+{
+	if (direction.lengthSquared() == 0.0f)
+		return 0;
+
+	PxHitFlags hitFlags = PxHitFlags(PxHitFlag::eDEFAULT);
+	PxQueryFilterData queryFilterData = PxQueryFilterData(flags);
+	queryFilterData.data.word0 = filterMask;
+
+	PxRaycastBuffer hitBuffer;
+
+	if (scene->raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
+	{
+		hit->distance = hitBuffer.block.distance;
+		hit->position = Vector3(hitBuffer.block.position.x, hitBuffer.block.position.y, hitBuffer.block.position.z);
+		hit->normal = Vector3(hitBuffer.block.normal.x, hitBuffer.block.normal.y, hitBuffer.block.normal.z);
+		hit->isTrigger = hitBuffer.block.shape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE ? 1 : 0;
+		hit->userData = hitBuffer.block.actor->userData;
+
+		return true;
+	}
+
+	return false;
 }
 
 static int Sweep(const PxGeometry& geometry, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)

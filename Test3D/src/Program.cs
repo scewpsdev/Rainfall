@@ -132,6 +132,12 @@ public class Program : Game
 		Physics.Update();
 	}
 
+	public override void fixedUpdate(float delta)
+	{
+		if (stateMachine.TryPeek(out State state))
+			state.fixedUpdate(delta);
+	}
+
 	public override void draw()
 	{
 		Renderer.Begin();
@@ -239,9 +245,9 @@ public class Program : Game
 		LaunchParams launchParams = new LaunchParams(args);
 		launchParams.fpsCap = 120;
 #if DEBUG
-		launchParams.width = 1600; //1280;
-		launchParams.height = 900; //720;
-		//launchParams.maximized = true;
+		launchParams.width = 1600;//1280;
+		launchParams.height = 900;//720;
+								  //launchParams.maximized = true;
 #else
 		launchParams.width = 1280;
 		launchParams.height = 720;

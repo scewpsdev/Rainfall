@@ -1,0 +1,21 @@
+entities = [ {
+name = "Entity"
+id = "3973579685"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "supermarket.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Mesh
+trigger = 0
+size = [ 2, 2, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+mesh = "supermarket.gltf"
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3973579685"

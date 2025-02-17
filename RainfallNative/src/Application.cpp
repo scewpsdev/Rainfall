@@ -8,6 +8,8 @@
 
 #include "audio/Audio.h"
 
+#include "physics/Physics.h"
+
 #include "utils/ImGuiLayer.h"
 
 #include <mutex>
@@ -65,6 +67,7 @@ struct ApplicationCallbacks
 	void (*init)();
 	void (*destroy)();
 	void (*update)();
+	void (*fixedUpdate)(float delta);
 	void (*draw)();
 
 	void (*onInternalErrorEvent)(const char* msg);
@@ -997,6 +1000,8 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	bgfx::frame();
 
 	Console_SetErrorCallback(callbacks.onInternalErrorEvent);
+
+	fixedUpdateCallback = callbacks.fixedUpdate;
 
 	ImGuiLayerInit();
 
