@@ -34,7 +34,7 @@ public class Scene
 		entities.Clear();
 	}
 
-	public bool load(string path)
+	public bool load(string path, Func<Entity> createEntityCallback = null)
 	{
 		if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out _))
 		{
@@ -55,7 +55,7 @@ public class Scene
 				}
 				else
 				{
-					Entity entity = new Entity();
+					Entity entity = createEntityCallback != null ? createEntityCallback() : new Entity();
 					addEntity(entity, entityData.position, entityData.rotation, entityData.scale);
 					entity.load(entityData);
 				}

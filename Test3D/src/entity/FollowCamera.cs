@@ -17,6 +17,8 @@ public class FollowCamera : Camera
 	public FollowCamera(Entity follow)
 	{
 		this.follow = follow;
+
+		far = 500;
 	}
 
 	public override void init()
@@ -34,7 +36,7 @@ public class FollowCamera : Camera
 		pitch -= Input.cursorMove.y * CAMERA_SENSITIVITY;
 		pitch = MathHelper.Clamp(pitch, -0.5f * MathF.PI, 0.5f * MathF.PI);
 
-		Matrix transform = Matrix.CreateTranslation(0, 4, 3);
+		Matrix transform = Matrix.CreateTranslation(0, 3, 1);
 		transform = Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * transform;
 		transform = Matrix.CreateTranslation(follow.position) * transform;
 

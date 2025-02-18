@@ -9,7 +9,6 @@ public class Entity : PhysicsEntity
 {
 	public string name;
 	public bool isStatic;
-	public bool isOccluder;
 
 	public Vector3 position = Vector3.Zero;
 	public Quaternion rotation = Quaternion.Identity;
@@ -27,6 +26,7 @@ public class Entity : PhysicsEntity
 	public float bodyDensity = 1;
 	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
 	public float bodyFriction = 0.5f;
+	public float bodyRestitution = 0.1f;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
 	public Dictionary<string, RigidBody> hitboxes;
 	public uint hitboxFilterGroup = 1, hitboxFilterMask = 1;
@@ -77,20 +77,20 @@ public class Entity : PhysicsEntity
 				else
 				{
 					if (collider.type == SceneFormat.ColliderType.Box)
-						body.addBoxCollider(collider.size * 0.5f, collider.offset, rotation);
+						body.addBoxCollider(collider.size * 0.5f, collider.offset, rotation, bodyFriction, bodyRestitution);
 					else if (collider.type == SceneFormat.ColliderType.Sphere)
-						body.addSphereCollider(collider.radius, collider.offset);
+						body.addSphereCollider(collider.radius, collider.offset, bodyFriction, bodyRestitution);
 					else if (collider.type == SceneFormat.ColliderType.Capsule)
-						body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, rotation);
+						body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, rotation, bodyFriction, bodyRestitution);
 					else if (collider.type == SceneFormat.ColliderType.Mesh)
 					{
 						if (collider.meshCollider != null)
-							body.addMeshColliders(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation));
+							body.addMeshColliders(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation), bodyFriction, bodyRestitution);
 					}
 					else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
 					{
 						if (collider.meshCollider != null)
-							body.addConvexMeshColliders(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation));
+							body.addConvexMeshColliders(collider.meshCollider, Matrix.CreateTranslation(collider.offset) * Matrix.CreateRotation(rotation), bodyFriction, bodyRestitution);
 					}
 					else
 						Debug.Assert(false);
