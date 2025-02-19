@@ -15,13 +15,14 @@ void main()
 	float rotation = i_data0.w;
 	vec4 color = i_data1;
 	float size = i_data2.x;
-	float animation = i_data2.y;
+	float xscale = i_data2.y;
+	float animation = i_data2.z;
 	
-	vec2 localPosition = vec2(a_position.x * cos(rotation) - a_position.y * sin(rotation),
-							  cos(rotation) * a_position.y + sin(rotation) * a_position.x);
+	vec2 localPosition = vec2(a_position.x * size * xscale * cos(rotation) - a_position.y * size * sin(rotation),
+							  cos(rotation) * size * a_position.y + sin(rotation) * a_position.x * size * xscale);
 	vec2 texcoord = a_position * vec2(1, -1) + 0.5;
 
-	position += localPosition.x * size * u_cameraAxisRight.xyz + localPosition.y * size * u_cameraAxisUp.xyz;
+	position += localPosition.x * u_cameraAxisRight.xyz + localPosition.y * u_cameraAxisUp.xyz;
 
 	gl_Position = mul(u_viewProj, vec4(position, 1.0));
 

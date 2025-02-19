@@ -61,7 +61,7 @@ namespace Rainfall.Native
 		internal static extern long Application_GetCurrentTime();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern long Application_GetFrameTime();
+		internal static extern float Application_GetFrameTime();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int Application_GetFPS();

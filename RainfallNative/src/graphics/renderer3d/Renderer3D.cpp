@@ -1553,7 +1553,8 @@ static void RenderParticles()
 					particleData->rotation = particle->rotation;
 					particleData->color = particle->color;
 					particleData->sizeAnimation.x = particle->size;
-					particleData->sizeAnimation.y = particle->animationFrame;
+					particleData->sizeAnimation.y = particle->xscale;
+					particleData->sizeAnimation.z = particle->animationFrame;
 				}
 			}
 

@@ -41,11 +41,11 @@ RFAPI void ParticleSystem_Restart(ParticleSystem* system)
 		system->bursts[i].emitted = 0;
 }
 
-RFAPI void ParticleSystem_SetTransform(ParticleSystem* system, Matrix transform, bool applyVelocity)
+RFAPI void ParticleSystem_SetTransform(ParticleSystem* system, Matrix transform, float delta, bool applyVelocity)
 {
 	if (applyVelocity)
 	{
-		system->entityVelocity = (transform.translation() - system->transform.translation()) / Application_GetDelta();
+		system->entityVelocity = (transform.translation() - system->transform.translation()) / delta;
 		system->entityRotationVelocity = transform.rotation() * system->transform.rotation().conjugated();
 	}
 	system->transform = transform;
@@ -65,7 +65,7 @@ static int GetNewParticle(ParticleSystem* system)
 	return -1;
 }
 
-RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
+RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta)
 {
 	int particleID = GetNewParticle(system);
 	if (particleID == -1)
@@ -119,7 +119,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 		{
 			Vector3 rotationAxis = system->entityRotationVelocity.getAxis();
 			// to be exact, angular velocity would be w = angle / 2pi / t. but we would multiply by 2pi anyways for calculating the linear velocity (v = w * 2pi * r)
-			float angularVelocity = rotationAngle / Application_GetDelta();
+			float angularVelocity = rotationAngle / delta;
 			Vector3 fromCenter = position - system->transform.translation();
 			Vector3 projectedCenter = system->transform.translation() + rotationAxis * dot(rotationAxis, fromCenter);
 			Vector3 fromRotationAxis = position - projectedCenter;
@@ -166,7 +166,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 	}
 }
 
-RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRotation)
+RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRotation, float delta)
 {
 	int64_t now = Application_GetCurrentTime();
 	if (system->emissionRate > 0.0f)
@@ -176,7 +176,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 			int numParticles = (int)floorf((now - system->lastEmitted) / 1e9f * system->emissionRate);
 			numParticles = min(numParticles, (int)ceilf(system->emissionRate * 2));
 			for (int i = 0; i < numParticles; i++)
-				ParticleSystem_EmitParticle(system);
+				ParticleSystem_EmitParticle(system, delta);
 			system->lastEmitted = now;
 		}
 	}
@@ -189,11 +189,11 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 			if (elapsed >= burst->time && burst->emitted < burst->count)
 			{
 				int shouldEmitted = burst->duration > 0 ? (int)(fminf((elapsed - burst->time) / burst->duration, 1.0f) * burst->count) : burst->count;
-				int delta = shouldEmitted - burst->emitted;
-				if (delta > 0)
+				int d = shouldEmitted - burst->emitted;
+				if (d > 0)
 				{
-					for (int j = 0; j < delta; j++)
-						ParticleSystem_EmitParticle(system);
+					for (int j = 0; j < d; j++)
+						ParticleSystem_EmitParticle(system, delta);
 					burst->emitted = shouldEmitted;
 				}
 			}
@@ -214,28 +214,28 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 
 			float particleTimer = (now - particle->birthTime) / 1e9f;
 
-			particle->velocity.y += 0.5f * system->gravity * Application_GetDelta();
+			particle->velocity.y += 0.5f * system->gravity * delta;
 			particle->velocity += system->drag * particle->velocity.lengthSquared() * -particle->velocity.normalized() / 2;
-			particle->position += particle->velocity * Application_GetDelta();
+			particle->position += particle->velocity * delta;
 			if (system->velocityNoise > 0)
 			{
 				float t = (Application_GetCurrentTime() + hash(i)) / 1e9f;
 				Vector3 velocityNoise = Vector3(system->simplex.sample1f(t), system->simplex.sample1f(t + 100), system->simplex.sample1f(t + 200)).normalized();
-				particle->position += system->velocityNoise * velocityNoise * Application_GetDelta();
+				particle->position += system->velocityNoise * velocityNoise * delta;
 			}
-			particle->velocity.y += 0.5f * system->gravity * Application_GetDelta();
+			particle->velocity.y += 0.5f * system->gravity * delta;
 
 			minpos = min(minpos, particle->position - particle->size);
 			maxpos = max(maxpos, particle->position + particle->size);
 			maxRadiusSq = fmaxf(maxRadiusSq, (particle->position - system->boundingSphere.center).lengthSquared());
 
-			particle->rotation += particle->rotationVelocity * Application_GetDelta();
+			particle->rotation += particle->rotationVelocity * delta;
 
 			if (system->rotateAlongMovement)
 			{
 				Vector3 screenSpaceVelocity = invCameraRotation * particle->velocity;
 				particle->rotation = atan2f(screenSpaceVelocity.y, screenSpaceVelocity.x);
-				particle->xscale = 1 + system->movementStretch * particle->velocity.length();
+				particle->xscale = 1 + system->movementStretch * screenSpaceVelocity.xy.length();
 			}
 
 			float progress = particleTimer / particle->lifetime;

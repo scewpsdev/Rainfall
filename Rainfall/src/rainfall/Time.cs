@@ -20,7 +20,7 @@ namespace Rainfall
 
 		public static long timestamp => Native.Application.Application_GetTimestamp();
 
-		public static float deltaTime => Native.Application.Application_GetFrameTime() / 1e9f;
+		public static float deltaTime => Native.Application.Application_GetFrameTime();
 
 		public static int fps => Native.Application.Application_GetFPS();
 

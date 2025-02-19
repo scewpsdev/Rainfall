@@ -56,7 +56,7 @@ public class GameState : State
 		scene.addEntity(player = new Player(cart), spawnPoint);
 		scene.addEntity(camera = new FollowCamera(player));
 
-		scene.addEntity(new CapItem(), new Vector3(50, 2.5f, 0));
+		scene.addEntity(new CapItem(), new Vector3(50, 3f, -7));
 		scene.addEntity(new GlassesItem(), new Vector3(102, 4, -40.3f));
 		scene.addEntity(new ChainItem(), new Vector3(80, 5, -90));
 
@@ -152,8 +152,11 @@ public class GameState : State
 			nextLevel = null;
 		}
 
+		if (cart.body.getVelocity().y < -1000)
+			cart.respawn();
+
 		Animator.Update(camera.getModelMatrix());
-		ParticleSystem.Update(camera.position);
+		ParticleSystem.Update(camera.position, camera.rotation);
 
 		scene.update();
 	}

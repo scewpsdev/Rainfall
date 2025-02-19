@@ -94,9 +94,6 @@ namespace Rainfall
 	public unsafe struct ParticleSystemData
 	{
 		public fixed byte name[32];
-		public Matrix transform = Matrix.Identity;
-		public Vector3 entityVelocity;
-		public Quaternion entityRotationVelocity = Quaternion.Identity;
 
 		public float lifetime = 1;
 		public float size = 0.1f;
@@ -207,9 +204,11 @@ namespace Rainfall
 			}
 			*/
 
+			Quaternion invCameraRotation = cameraRotation.conjugated;
+
 			void updateParticleSystem(int idx)
 			{
-				particleSystems[idx].update();
+				particleSystems[idx].update(invCameraRotation);
 			}
 			Parallel.For(0, particleSystems.Count, updateParticleSystem);
 		}
@@ -226,6 +225,15 @@ namespace Rainfall
 		ParticleSystem(int maxParticles, Matrix transform)
 		{
 			handle = Native.ParticleSystem.ParticleSystem_Create(maxParticles, transform);
+		}
+
+		public void load(string path)
+		{
+			if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out uint _))
+			{
+				SceneFormat.EntityData entity = entities[0];
+				setData(entity.particles[0]);
+			}
 		}
 
 		void destroy()
@@ -247,21 +255,21 @@ namespace Rainfall
 		public void emitParticle(int num = 1)
 		{
 			for (int i = 0; i < num; i++)
-				Native.ParticleSystem.ParticleSystem_EmitParticle(handle);
+				Native.ParticleSystem.ParticleSystem_EmitParticle(handle, Time.deltaTime);
 		}
 
 		public void setTransform(Matrix transform, bool applyVelocity = false)
 		{
-			Native.ParticleSystem.ParticleSystem_SetTransform(handle, transform, (byte)(applyVelocity ? 1 : 0));
+			Native.ParticleSystem.ParticleSystem_SetTransform(handle, transform, Time.deltaTime, (byte)(applyVelocity ? 1 : 0));
 		}
 
 		public void setCameraAxis(Vector3 cameraAxis)
 		{
 		}
 
-		public void update(Quaternion )
+		void update(Quaternion invCameraRotation)
 		{
-			Native.ParticleSystem.ParticleSystem_Update(handle);
+			Native.ParticleSystem.ParticleSystem_Update(handle, invCameraRotation, Time.deltaTime);
 		}
 
 		public int numParticles
@@ -295,13 +303,13 @@ namespace Rainfall.Native
 		public static extern unsafe void ParticleSystem_Restart(ParticleSystemData* system);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern unsafe void ParticleSystem_SetTransform(ParticleSystemData* system, Matrix transform, byte applyVelocity);
+		public static extern unsafe void ParticleSystem_SetTransform(ParticleSystemData* system, Matrix transform, float delta, byte applyVelocity);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern unsafe void ParticleSystem_EmitParticle(ParticleSystemData* system);
+		public static extern unsafe void ParticleSystem_EmitParticle(ParticleSystemData* system, float delta);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern unsafe void ParticleSystem_Update(ParticleSystemData* system);
+		public static extern unsafe void ParticleSystem_Update(ParticleSystemData* system, Quaternion invCameraRotation, float delta);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern unsafe int ParticleSystem_GetNumParticles(ParticleSystemData* system);

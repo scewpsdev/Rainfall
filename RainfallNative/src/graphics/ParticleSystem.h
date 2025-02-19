@@ -50,9 +50,6 @@ struct ParticleBurst
 struct ParticleSystem
 {
 	char name[32] = "";
-	Matrix transform = Matrix::Identity;
-	Vector3 entityVelocity = Vector3::Zero;
-	Quaternion entityRotationVelocity = Quaternion::Identity;
 
 	float lifetime = 1;
 	float size = 0.1f;
@@ -109,6 +106,10 @@ struct ParticleSystem
 
 	int64_t systemStarted, lastEmitted;
 
+	Matrix transform = Matrix::Identity;
+	Vector3 entityVelocity = Vector3::Zero;
+	Quaternion entityRotationVelocity = Quaternion::Identity;
+
 	AABB boundingBox;
 	Sphere boundingSphere;
 };
@@ -117,6 +118,6 @@ struct ParticleSystem
 RFAPI ParticleSystem* ParticleSystem_Create(int maxParticles, Matrix transform);
 RFAPI void ParticleSystem_Destroy(ParticleSystem* system);
 RFAPI void ParticleSystem_Restart(ParticleSystem* system);
-RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system);
-RFAPI void ParticleSystem_Update(ParticleSystem* system);
+RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta);
+RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRotation, float delta);
 RFAPI bool ParticleSystem_HasFinished(ParticleSystem* system);

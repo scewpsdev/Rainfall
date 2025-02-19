@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ public class Cart : Entity
 
 	float maxSpeed = 30;
 	float acceleration = 3;
-	float rollingFriction = 1;
+	float rollingFriction = 0.3f;
 
 	float[] tireHeights = new float[4];
 	Vector3[] suspensionForces = new Vector3[4];
@@ -54,6 +55,8 @@ public class Cart : Entity
 
 	Model wheel;
 
+	ParticleSystem[] wheelParticles = new ParticleSystem[4];
+
 
 	public Cart()
 	{
@@ -68,14 +71,23 @@ public class Cart : Entity
 		wheel = Resource.GetModel("cart_wheel.gltf");
 	}
 
-	public override void init()
+	public override unsafe void init()
 	{
 		base.init();
+
+		for (int i = 0; i < wheelParticles.Length; i++)
+		{
+			wheelParticles[i] = ParticleSystem.Create(getModelMatrix(), 100);
+			wheelParticles[i].load("drift.rfs");
+			wheelParticles[i].handle->spawnOffset = tireLocalPositions[i];
+			wheelParticles[i].handle->emissionRate = 0;
+			particles.Add(wheelParticles[i]);
+		}
 
 		//body.setCenterOfMass(Vector3.Zero);
 	}
 
-	void simulateTire(int i, bool frontWheel, float delta)
+	unsafe void simulateTire(int i, bool frontWheel, float delta)
 	{
 		// Suspension
 
@@ -124,6 +136,10 @@ public class Cart : Entity
 
 		wheelGrounded[i] = true;
 
+		// Autocorrect rotation mid air for each wheel thats grounded
+		body.addForceAtPosition(hit.Value.normal * 2, position + rotation.up * 3);
+		body.addForceAtPosition(-hit.Value.normal * 2, position + rotation.down * 3);
+
 		float offset = suspensionRestPosition - hit.Value.distance;
 		float velocity = Vector3.Dot(springDir, tireVelocity);
 
@@ -147,13 +163,16 @@ public class Cart : Entity
 		float slideAmount = Vector3.Dot(tireVelocity, steeringDirectionRight);
 		Vector3 slide = slideAmount * steeringDirectionRight;
 		float grip = frontWheel ? frontWheelGrip : rearWheelGrip;
-		float gripMultiplier = 1 - MathF.Abs(Vector3.Dot(tireVelocity.normalized, steeringDirectionRight));
+		//float gripMultiplier = 1 - MathF.Abs(Vector3.Dot(tireVelocity.normalized, steeringDirectionRight));
 		//Console.WriteLine(gripMultiplier);
+
+		wheelParticles[i].handle->emissionRate = MathF.Max(MathF.Abs(slideAmount) - 2, 0) * 20;
+		wheelParticles[i].handle->startVelocity.x = slideAmount;
 
 		//float gripLoseThreshold = 0.7f;
 		//gripMultiplier = gripMultiplier > gripLoseThreshold ? MathHelper.Remap(gripMultiplier, gripLoseThreshold, 1.0f, 0.1f, 1.0f) : MathHelper.Remap(gripMultiplier, 0.0f, gripLoseThreshold, 0.05f, 0.1f);
 		Vector3 steerAcceleration = -slide * grip; // * gripMultiplier;
-		float tireMass = 4 / 60.0f;
+		float tireMass = 2 / 60.0f;
 		Vector3 steerForce = steerAcceleration * tireMass / delta;
 		//body.addForceAtPosition(steerForce, tireTransform.translation);
 
@@ -175,8 +194,17 @@ public class Cart : Entity
 		float frictionCoefficient = 5;
 		float maxFrictionForce = frictionCoefficient * MathF.Abs(suspensionForce);
 		if (steerForce.length > maxFrictionForce)
+		{
 			steerForce = steerForce.normalized * maxFrictionForce;
+		}
 		body.addForceAtPosition(steerForce, tireTransform.translation);
+
+		// Rolling Friction
+
+		if (currentMotor == 0)
+		{
+			body.addForceAtPosition(-tireVelocity * 0.25f * rollingFriction, tireTransform.translation);
+		}
 	}
 
 	public override void fixedUpdate(float delta)
@@ -194,7 +222,7 @@ public class Cart : Entity
 		if (Input.IsKeyDown(KeyCode.S) && !ejected)
 			currentMotor = MathHelper.Linear(currentMotor, forwardSpeed > 0 ? -2 * acceleration : -3, motorIncrease * delta);
 		if (!Input.IsKeyDown(KeyCode.W) && !Input.IsKeyDown(KeyCode.S) || ejected)
-			currentMotor = MathHelper.Linear(currentMotor, -MathF.Sign(forwardSpeed) * rollingFriction, motorIncrease * delta);
+			currentMotor = MathHelper.Linear(currentMotor, 0, motorIncrease * delta);
 
 		float steer = 2.0f;
 		if (Input.IsKeyDown(KeyCode.D) && !ejected)
@@ -204,7 +232,7 @@ public class Cart : Entity
 		if (!Input.IsKeyDown(KeyCode.D) && !Input.IsKeyDown(KeyCode.A) || ejected)
 			currentWheelSteer = MathHelper.Linear(currentWheelSteer, 0, delta * steer);
 
-		float maxSteer = 0.2f * MathF.PI * (1 / (1 + MathF.Abs(forwardSpeed) * 0.3f));
+		float maxSteer = 0.3f * MathF.PI * (1 / (1 + MathF.Abs(forwardSpeed) * 0.3f));
 		currentWheelSteer = MathHelper.Clamp(currentWheelSteer, -maxSteer, maxSteer);
 
 		float rocketForce = 40;
@@ -214,23 +242,6 @@ public class Cart : Entity
 		for (int i = 0; i < tireLocalPositions.Length; i++)
 			simulateTire(i, i >= 2, delta);
 
-
-		// Autocorrect rotation mid air
-		bool isGrounded = false;
-		for (int i = 0; i < wheelGrounded.Length; i++)
-		{
-			if (wheelGrounded[i])
-				isGrounded = true;
-		}
-		if (isGrounded)
-		{
-			HitData? hit = Physics.Raycast(getModelMatrix().translation + rotation.up, rotation.down, 2, QueryFilterFlags.Static);
-			if (hit != null)
-			{
-				body.addForceAtPosition(hit.Value.normal * 10, position + rotation.up * 3);
-				body.addForceAtPosition(-hit.Value.normal * 10, position + rotation.down * 3);
-			}
-		}
 
 		if (rotation.up.y < 0.1f)
 		{
@@ -257,16 +268,19 @@ public class Cart : Entity
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
 	{
-		if (!ejected)
+		if (!isTrigger && !otherTrigger)
 		{
-			Vector3 velocity = body.getVelocity();
-			Vector3 sum = lastVelocity - velocity;
-			float d = sum.length;
-			if (d > 20)
+			if (!ejected)
 			{
-				// eject jerome
-				GameState.instance.player.eject(lastVelocity);
-				ejected = true;
+				Vector3 velocity = body.getVelocity();
+				Vector3 sum = lastVelocity - velocity;
+				float d = sum.length;
+				if (d > 20)
+				{
+					// eject jerome
+					GameState.instance.player.eject(lastVelocity);
+					ejected = true;
+				}
 			}
 		}
 	}

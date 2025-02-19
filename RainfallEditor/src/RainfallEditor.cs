@@ -314,7 +314,7 @@ public unsafe class RainfallEditor : Game
 		if (currentTab != null)
 		{
 			Animator.Update(currentTab.camera.getModelMatrix());
-			ParticleSystem.Update(currentTab.camera.position);
+			ParticleSystem.Update(currentTab.camera.position, currentTab.camera.rotation);
 		}
 
 		currentTab?.update();

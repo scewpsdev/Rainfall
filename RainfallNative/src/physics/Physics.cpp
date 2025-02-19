@@ -368,9 +368,10 @@ RFAPI void Physics_Shutdown()
 	foundation->release();
 }
 
-RFAPI int Physics_Update(float delta)
+RFAPI void Physics_Update(float delta)
 {
 	float timeStep = 1.0f / UPDATES_PER_SECOND;
+
 	//int64_t currentFrameTime = Application_GetCurrentTime();
 	//int64_t delta = currentFrameTime - lastFrameTime;
 	//lastFrameTime = currentFrameTime;
@@ -481,8 +482,6 @@ RFAPI int Physics_Update(float delta)
 	int64_t afterUpdate = Application_GetTimestamp();
 	if (numSteps > 0)
 		simulationDelta = (afterUpdate - beforeUpdate) / numSteps;
-
-	return numSteps;
 }
 
 RFAPI int64_t Physics_GetSimulationDelta()

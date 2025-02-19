@@ -137,7 +137,7 @@ int vsync;
 CursorMode cursorMode = CursorMode::Normal;
 
 int64_t currentFrame = 0;
-int64_t delta = 0;
+float delta = 0;
 int fps = 0;
 float ms = 0.0f;
 bool isPaused = false;
@@ -672,7 +672,9 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 		currentFrame += beforeFrame - lastFrame;
 
 	int64_t maxDelta = 1000000000 / 10;
-	delta = max(min(beforeFrame - lastFrame, maxDelta), (int64_t)0);
+	delta = max(min(beforeFrame - lastFrame, maxDelta), (int64_t)0) / 1e9f;
+	if (fpsCap != 0)
+		delta = 1.0f / fpsCap;
 
 	bool exit = !ProcessEvents(callbacks);
 
@@ -1272,7 +1274,7 @@ RFAPI int64_t Application_GetCurrentTime()
 	return currentFrame;
 }
 
-RFAPI int64_t Application_GetFrameTime()
+RFAPI float Application_GetFrameTime()
 {
 	return delta;
 }

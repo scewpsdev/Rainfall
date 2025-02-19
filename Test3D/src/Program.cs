@@ -48,7 +48,7 @@ public class Program : Game
 		Renderer.Init(Display.width, Display.height, graphics);
 		RendererSettings renderSettings = new RendererSettings(0);
 		renderSettings.bloomEnabled = false;
-		renderSettings.ssaoEnabled = false;
+		//renderSettings.ssaoEnabled = false;
 		Renderer.SetSettings(renderSettings);
 
 		Physics.Init();
@@ -126,10 +126,10 @@ public class Program : Game
 		Audio.Update();
 		AudioManager.Update();
 
+		Physics.Update();
+
 		if (stateMachine.TryPeek(out State state))
 			state.update();
-
-		Physics.Update();
 	}
 
 	public override void fixedUpdate(float delta)
