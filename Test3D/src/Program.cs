@@ -192,6 +192,8 @@ public class Program : Game
 
 		y = graphics.drawDebugInfo(0, y, 0x1F);
 
+		y = Renderer.DrawDebugStats(0, y, 0x1F);
+
 		y++;
 
 		if (stateMachine.TryPeek(out State state))
@@ -206,7 +208,7 @@ public class Program : Game
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = $"/C {resCompilerDir}\\RainfallResourceCompiler.exe res {outDir} png ogg vsh fsh csh ttf rfs gltf --preserve-scenegraph";
+		startInfo.Arguments = $"/C {resCompilerDir}\\RainfallResourceCompiler.exe res {outDir} png ogg vsh fsh csh ttf rfs gltf";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();
@@ -243,10 +245,10 @@ public class Program : Game
 #endif
 
 		LaunchParams launchParams = new LaunchParams(args);
-		launchParams.fpsCap = 120;
+		launchParams.fpsCap = 60;
 #if DEBUG
-		launchParams.width = 1600;//1280;
-		launchParams.height = 900;//720;
+		launchParams.width = 1280;
+		launchParams.height = 720;
 								  //launchParams.maximized = true;
 #else
 		launchParams.width = 1280;

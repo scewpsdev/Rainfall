@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Test3D")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+723c051503aaee2d37b3c423d71e7b191dc871cd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9ad5a8b78bdac6d5359981570ec4cc70b0f5ee5")]
 [assembly: System.Reflection.AssemblyProductAttribute("Test3D")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Test3D")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

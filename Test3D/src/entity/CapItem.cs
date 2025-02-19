@@ -13,8 +13,8 @@ public class CapItem : Item
 		model = Resource.GetModel("cap_item.gltf");
 	}
 
-	protected override void onCollect(Cart cart)
+	protected override void onCollect(Player player)
 	{
-		cart.hasCap = true;
+		player.hasCap = true;
 	}
 }

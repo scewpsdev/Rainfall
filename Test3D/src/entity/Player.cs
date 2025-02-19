@@ -8,53 +8,128 @@ using System.Threading.Tasks;
 
 public class Player : Entity
 {
-	const float CAMERA_HEIGHT = 1.5f;
-	const float CAMERA_HEIGHT_DUCKED = 0.9f;
+	Cart cart;
 
-	FirstPersonCamera camera;
-	float cameraHeight = CAMERA_HEIGHT;
+	Model cap;
+	Model chain;
+	Model glasses;
 
-	public FirstPersonController controller;
+	AnimationState defaultPose;
+	AnimationState rideForwardAnim, rideLeftForwardAnim, rideRightForwardAnim;
+	AnimationState rideAnim, rideLeftAnim, rideRightAnim;
+	AnimationState rideBackwardsAnim, rideLeftBackwardsAnim, rideRightBackwardsAnim;
 
-	AnimationState idleAnim;
+	Ragdoll ragdoll;
+
+	public bool hasCap = false;
+	public bool hasChain = false;
+	public bool hasGlasses = false;
 
 
-	public Player(FirstPersonCamera camera)
+	public Player(Cart cart)
 	{
-		this.camera = camera;
+		this.cart = cart;
 
-		model = Resource.GetModel("viewmodel.gltf");
+		model = Resource.GetModel("bob.gltf");
+		cap = Resource.GetModel("cap.gltf");
+		chain = Resource.GetModel("chain.gltf");
+		glasses = Resource.GetModel("glasses.gltf");
+
 		animator = Animator.Create(model, this);
-
-		idleAnim = Animator.CreateAnimation(model, "idle", true);
-		animator.setAnimation(idleAnim);
+		defaultPose = Animator.CreateAnimation(model, "default");
+		rideForwardAnim = Animator.CreateAnimation(model, "ride_forward", true, 0.5f);
+		rideLeftForwardAnim = Animator.CreateAnimation(model, "ride_left_forward", true, 0.5f);
+		rideRightForwardAnim = Animator.CreateAnimation(model, "ride_right_forward", true, 0.5f);
+		rideAnim = Animator.CreateAnimation(model, "ride", true, 0.5f);
+		rideLeftAnim = Animator.CreateAnimation(model, "ride_left", true, 0.5f);
+		rideRightAnim = Animator.CreateAnimation(model, "ride_right", true, 0.5f);
+		rideBackwardsAnim = Animator.CreateAnimation(model, "ride_backwards", true, 0.5f);
+		rideLeftBackwardsAnim = Animator.CreateAnimation(model, "ride_left_backwards", true, 0.5f);
+		rideRightBackwardsAnim = Animator.CreateAnimation(model, "ride_right_backwards", true, 0.5f);
+		animator.setAnimation(rideAnim);
 	}
 
-	public override void init()
+	public void eject(Vector3 velocity)
 	{
-		controller = new FirstPersonController(this, PhysicsFilter.Default);
+		position += Vector3.Up + -velocity.normalized;
+
+		if (velocity.length > 10)
+			velocity = velocity.normalized * 10;
+
+		animator.setAnimation(defaultPose, true);
+		animator.update();
+		animator.applyAnimation();
+
+		if (SceneFormat.Read("ragdoll.rfs", out List<SceneFormat.EntityData> entities, out uint _))
+		{
+			SceneFormat.EntityData entityData = entities[0];
+			ragdoll = new Ragdoll(this, model.skeleton.getNode("Hip"), animator, getModelMatrix(), velocity, entityData.boneColliders, PhysicsFilter.Ragdoll, PhysicsFilter.Default);
+		}
 	}
 
 	public override void update()
 	{
-		base.update();
+		if (Input.IsKeyPressed(KeyCode.P))
+			eject(Vector3.Forward * 5);
 
-		controller.inputLeft = Input.IsKeyDown(KeyCode.A);
-		controller.inputRight = Input.IsKeyDown(KeyCode.D);
-		controller.inputUp = Input.IsKeyDown(KeyCode.W);
-		controller.inputDown = Input.IsKeyDown(KeyCode.S);
-		controller.inputJump = Input.IsKeyPressed(KeyCode.Space);
-		controller.inputDuck = Input.IsKeyDown(KeyCode.Ctrl);
+		if (ragdoll == null)
+		{
+			position = cart.position;
+			rotation = cart.rotation;
 
-		controller.update();
+			Vector2i directionInput = Vector2i.Zero;
+			if (Input.IsKeyDown(KeyCode.W))
+				directionInput.y++;
+			if (Input.IsKeyDown(KeyCode.S))
+				directionInput.y--;
+			if (Input.IsKeyDown(KeyCode.A))
+				directionInput.x--;
+			if (Input.IsKeyDown(KeyCode.D))
+				directionInput.x++;
 
-		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
-			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
-			MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime);
+			if (directionInput == new Vector2i(1, 1))
+				animator.setAnimation(rideRightForwardAnim);
+			else if (directionInput == new Vector2i(0, 1))
+				animator.setAnimation(rideForwardAnim);
+			else if (directionInput == new Vector2i(-1, 1))
+				animator.setAnimation(rideLeftForwardAnim);
+			else if (directionInput == new Vector2i(1, 0))
+				animator.setAnimation(rideRightAnim);
+			else if (directionInput == new Vector2i(0, 0))
+				animator.setAnimation(rideAnim);
+			else if (directionInput == new Vector2i(-1, 0))
+				animator.setAnimation(rideLeftAnim);
+			else if (directionInput == new Vector2i(1, -1))
+				animator.setAnimation(rideRightBackwardsAnim);
+			else if (directionInput == new Vector2i(0, -1))
+				animator.setAnimation(rideBackwardsAnim);
+			else if (directionInput == new Vector2i(-1, -1))
+				animator.setAnimation(rideLeftBackwardsAnim);
 
-		camera.position = position + new Vector3(0, cameraHeight, 0);
-		rotation = Quaternion.FromAxisAngle(Vector3.Up, camera.yaw);
+			//animator.update();
 
-		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Right, camera.pitch) * Matrix.CreateRotation(Vector3.Up, MathF.PI);
+			base.update();
+		}
+	}
+
+	public override void fixedUpdate(float delta)
+	{
+		if (ragdoll != null)
+		{
+			ragdoll.update();
+			ragdoll.getTransform().decompose(out position, out rotation);
+		}
+	}
+
+	public override void draw(GraphicsDevice graphics)
+	{
+		base.draw(graphics);
+
+		if (hasCap)
+			Renderer.DrawModel(cap, getModelMatrix(), animator);
+		if (hasChain)
+			Renderer.DrawModel(chain, getModelMatrix(), animator);
+		if (hasGlasses)
+			Renderer.DrawModel(glasses, getModelMatrix(), animator);
 	}
 }

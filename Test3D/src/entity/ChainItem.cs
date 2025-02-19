@@ -13,8 +13,8 @@ public class ChainItem : Item
 		model = Resource.GetModel("chain_item.gltf");
 	}
 
-	protected override void onCollect(Cart cart)
+	protected override void onCollect(Player player)
 	{
-		cart.hasChain = true;
+		player.hasChain = true;
 	}
 }

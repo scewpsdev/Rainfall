@@ -138,14 +138,17 @@ namespace Rainfall
 
 		public void update()
 		{
-			lastAnimUpdateTime = currentUpdateTime;
-			currentUpdateTime = Time.currentTime;
+			if (currentUpdateTime != Time.currentTime)
+			{
+				lastAnimUpdateTime = currentUpdateTime;
+				currentUpdateTime = Time.currentTime;
 
-			for (int i = 0; i < states.Count; i++)
-				stateAnimationTimers[i] += Time.deltaTime * states[i].animationSpeed;
+				for (int i = 0; i < states.Count; i++)
+					stateAnimationTimers[i] += Time.deltaTime * states[i].animationSpeed;
 
-			for (int i = 0; i < states.Count; i++)
-				stateTransitionTimers[i] += Time.deltaTime;
+				for (int i = 0; i < states.Count; i++)
+					stateTransitionTimers[i] += Time.deltaTime;
+			}
 
 			if (states.Count > 0)
 			{
@@ -178,7 +181,7 @@ namespace Rainfall
 					//states[i].update(model, stateAnimationTimers[i]);
 
 					float transitionDuration = getTransitionDuration(states[i - 1], states[i]);
-					float transitionProgress = Math.Clamp(stateTransitionTimers[i] / transitionDuration, 0.0f, 1.0f);
+					float transitionProgress = transitionDuration != 0 ? Math.Clamp(stateTransitionTimers[i] / transitionDuration, 0.0f, 1.0f) : 1;
 					Matrix[] transforms0 = nodeLocalTransforms;
 					Matrix[] transforms1 = states[i].nodeAnimationLocalTransforms;
 					for (int j = 0; j < nodeLocalTransforms.Length; j++)
@@ -193,6 +196,8 @@ namespace Rainfall
 						Quaternion rotation = Quaternion.Slerp(rotation0, rotation1, transitionProgress);
 						Vector3 scale = Vector3.Lerp(scale0, scale1, transitionProgress);
 						nodeLocalTransforms[j] = Matrix.CreateTransform(position, rotation, scale);
+						if (float.IsNaN(nodeLocalTransforms[j].m00))
+							Debug.Assert(false);
 					}
 				}
 			}

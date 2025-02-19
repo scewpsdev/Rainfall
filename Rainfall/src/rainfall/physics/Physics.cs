@@ -81,7 +81,7 @@ namespace Rainfall
 
 		public static void Update()
 		{
-			Native.Physics.Physics_Update();
+			Native.Physics.Physics_Update(Time.deltaTime);
 		}
 
 		public static float SimulationDelta

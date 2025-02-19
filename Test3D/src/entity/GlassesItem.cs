@@ -13,8 +13,8 @@ public class GlassesItem : Item
 		model = Resource.GetModel("glasses_item.gltf");
 	}
 
-	protected override void onCollect(Cart cart)
+	protected override void onCollect(Player player)
 	{
-		cart.hasGlasses = true;
+		player.hasGlasses = true;
 	}
 }

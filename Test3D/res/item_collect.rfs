@@ -8,16 +8,16 @@ scale = [ 1, 1, 1 ]
 colliders = [  ]
 lights = [  ]
 particles = [ {
-lifetime = 3
+lifetime = 1.340000033378601
 size = 0.10000000149011612
-follow = 0
+follow = 1
 emissionRate = 0
 spawnShape = Point
 spawnOffset = [ 0, 0, 0 ]
 gravity = 0
-drag = 0.03200000151991844
+drag = 0.04800000041723251
 startVelocity = [ 0, 0, 0 ]
-radialVelocity = 4.679999828338623
+radialVelocity = 6.519999980926514
 startRotation = 0
 rotationSpeed = 0
 applyEntityVelocity = 1
@@ -32,13 +32,13 @@ randomRotationSpeed = 0.8203047513961792
 randomLifetime = 0.7200000286102295
 velocityNoise = 0.3319999873638153
 sizeAnim = [ 0.10000000149011612, 0.05000000074505806, 0 ]
-colorAnim0 = [ 1, 0.1853281855583191, 0, 1 ]
-colorAnim1 = [ 1, 0.4936121702194214, 0.2239382266998291, 1 ]
+colorAnim0 = [ 1, 0.6949806809425354, 0, 1 ]
+colorAnim1 = [ 1, 0.8363023996353149, 0.46332043409347534, 1 ]
 colorAnim2 = [ 1, 0.8641641736030579, 0.4749034643173218, 1 ]
 bursts = [ {
 time = 0
 count = 122
-duration = 0.6880000233650208
+duration = 0.035999998450279236
 } ]
 } ]
 } ]

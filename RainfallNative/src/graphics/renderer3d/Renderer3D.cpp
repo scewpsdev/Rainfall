@@ -693,10 +693,10 @@ static bool FrustumCulling(const Sphere& boundingSphere, Vector4 planes[6])
 	return true;
 }
 
-static bool FrustumCulling(const Sphere& boundingSphere, Matrix transform, Vector4 planes[6])
+static bool FrustumCulling(const Sphere& boundingSphere, Matrix transform, bool isAnimated, Vector4 planes[6])
 {
 	Vector4 boundingSpherePos = (transform * Vector4(boundingSphere.center, 1.0f));
-	float boundingSphereRadius = sqrtf(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * boundingSphere.radius;
+	float boundingSphereRadius = sqrtf(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * boundingSphere.radius * (isAnimated ? 2 : 1);
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -735,13 +735,13 @@ static void FrustumCullObjects()
 	numVisibleMeshes = 0;
 	for (int i = 0; i < meshDraws.size; i++)
 	{
-		meshDraws[i].culled = !FrustumCulling(meshDraws[i].mesh->boundingSphere, meshDraws[i].transform, frustumPlanes);
+		meshDraws[i].culled = !FrustumCulling(meshDraws[i].mesh->boundingSphere, meshDraws[i].transform, meshDraws[i].animation != nullptr, frustumPlanes);
 		if (!meshDraws[i].culled)
 			numVisibleMeshes++;
 	}
 	for (int i = 0; i < occluderMeshes.size; i++)
 	{
-		occluderMeshes[i].culled = !FrustumCulling(occluderMeshes[i].mesh->boundingSphere, occluderMeshes[i].transform, frustumPlanes);
+		occluderMeshes[i].culled = !FrustumCulling(occluderMeshes[i].mesh->boundingSphere, occluderMeshes[i].transform, meshDraws[i].animation != nullptr, frustumPlanes);
 	}
 
 	qsort(meshDraws.buffer, meshDraws.size, sizeof(MeshDraw), (_CoreCrtNonSecureSearchSortCompareFunction)MeshDrawComparator);

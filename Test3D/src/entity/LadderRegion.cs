@@ -48,11 +48,11 @@ public class LadderRegion : Entity
 
 			if (contactType == ContactType.Found)
 			{
-				player.controller.initLadder(this);
+				//player.controller.initLadder(this);
 			}
 			else if (contactType == ContactType.Lost)
 			{
-				player.controller.endLadder();
+				//player.controller.endLadder();
 			}
 		}
 		if (body != null && body.entity is Player)

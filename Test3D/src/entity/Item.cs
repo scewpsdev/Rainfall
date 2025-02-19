@@ -20,13 +20,13 @@ public abstract class Item : Entity
 		body.addSphereTrigger(RADIUS, Vector3.Zero);
 	}
 
-	protected abstract void onCollect(Cart cart);
+	protected abstract void onCollect(Player player);
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
 	{
 		if (other != null && other.entity is Cart)
 		{
-			onCollect(other.entity as Cart);
+			onCollect(GameState.instance.player);
 			GameState.instance.scene.addEntity(new ItemCollectEffect(other.entity as Cart), other.entity.getPosition() + Vector3.Up);
 			remove();
 		}

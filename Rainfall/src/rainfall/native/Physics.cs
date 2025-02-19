@@ -36,7 +36,7 @@ namespace Rainfall.Native
 		internal static extern void Physics_Shutdown();
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void Physics_Update();
+		internal static extern void Physics_Update(float delta);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern long Physics_GetSimulationDelta();

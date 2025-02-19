@@ -13,9 +13,13 @@ public class GameState : State
 
 	public Scene scene;
 
+	string nextLevel = null;
+
 	public Matrix spawnPoint;
 
-	Cart cart;
+	public Cart cart;
+	public Player player;
+
 	Camera camera;
 	DirectionalLight sun;
 	Cubemap skybox;
@@ -29,6 +33,7 @@ public class GameState : State
 	public override void init()
 	{
 		loadSupermarket();
+		//loadStreet();
 	}
 
 	void loadScene(string path)
@@ -48,13 +53,77 @@ public class GameState : State
 		spawnPoint = Matrix.CreateTranslation(-14, 0, 18);
 
 		scene.addEntity(cart = new Cart(), spawnPoint);
-		scene.addEntity(camera = new FollowCamera(cart));
+		scene.addEntity(player = new Player(cart), spawnPoint);
+		scene.addEntity(camera = new FollowCamera(player));
 
 		scene.addEntity(new CapItem(), new Vector3(50, 2.5f, 0));
 		scene.addEntity(new GlassesItem(), new Vector3(102, 4, -40.3f));
 		scene.addEntity(new ChainItem(), new Vector3(80, 5, -90));
 
+		scene.addEntity(new EventTrigger(new Vector3(2, 10, 22), Vector3.Zero, (RigidBody body) =>
+		{
+			if (body.entity is Cart)
+			{
+				if (player.hasCap && player.hasChain && player.hasGlasses)
+				{
+					nextLevel = "street";
+				}
+				else
+				{
+					cart.respawn();
+				}
+			}
+		}, PhysicsFilter.Cart), new Vector3(-27, 12, 9));
+
 		skybox = Resource.GetCubemap("supermarket_cubemap_equirect.png");
+	}
+
+	void loadStreet()
+	{
+		loadScene("street.rfs");
+
+		spawnPoint = Matrix.CreateTranslation(50, 0, 0) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
+
+		scene.addEntity(cart = new Cart(), spawnPoint);
+		scene.addEntity(player = new Player(cart), spawnPoint);
+		scene.addEntity(camera = new FollowCamera(player));
+
+		scene.addEntity(new EventTrigger(new Vector3(143.729f, 39.2209f, 67.3469f), Vector3.Zero, (RigidBody body) =>
+		{
+			if (body.entity is Cart)
+			{
+				nextLevel = "river";
+			}
+		}, PhysicsFilter.Cart), new Vector3(-86f, -213.584f, 570f));
+
+		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
+		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
+	}
+
+	void loadRiver()
+	{
+		loadScene("river.rfs");
+
+		spawnPoint = Matrix.CreateTranslation(-100, 0, 0) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
+
+		scene.addEntity(cart = new Cart(), spawnPoint);
+		scene.addEntity(player = new Player(cart), spawnPoint);
+		scene.addEntity(camera = new FollowCamera(player));
+
+		cart.waterLevel = -15;
+
+		scene.addEntity(new CapItem(), new Vector3(2024.28f, -11.0571f, 31.153f));
+
+		scene.addEntity(new EventTrigger(new Vector3(143.729f, 39.2209f, 67.3469f), Vector3.Zero, (RigidBody body) =>
+		{
+			if (body.entity is Cart)
+			{
+				nextLevel = "racetrack";
+			}
+		}, PhysicsFilter.Cart), new Vector3(2007.04f, -5.42714f, 39.3736f));
+
+		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
+		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
 	}
 
 	public override void destroy()
@@ -73,6 +142,16 @@ public class GameState : State
 
 	public override void update()
 	{
+		if (nextLevel != null)
+		{
+			if (nextLevel == "street")
+				loadStreet();
+			else if (nextLevel == "river")
+				loadRiver();
+
+			nextLevel = null;
+		}
+
 		Animator.Update(camera.getModelMatrix());
 		ParticleSystem.Update(camera.position);
 

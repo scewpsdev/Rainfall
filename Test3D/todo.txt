@@ -1,10 +1,12 @@
-[ ] jerome ejection
-[ ] ragdoll
-[ ] street level
+[X] jerome ejection
+[X] ragdoll
+[X] street level
 [ ] river level
 [ ] race track
 [ ] victory condition
 [ ] game over condition
 [ ] sound effects
 [ ] music
+[ ] speedrun timer
+[ ] racing against ghost
 [ ] polish

@@ -32,7 +32,7 @@ namespace Rainfall
 		public readonly Animator animator;
 
 
-		public Ragdoll(PhysicsEntity entity, Node rootNode, Animator animator, Matrix transform, Vector3 initialVelocity, Dictionary<string, SceneFormat.ColliderData> hitboxData = null, uint filterGroup = 1, uint filterMask = 1)
+		public Ragdoll(PhysicsEntity entity, Node rootNode, Animator animator, Matrix transform, Vector3 initialVelocity, Dictionary<string, SceneFormat.ColliderData> hitboxData, uint filterGroup = 1, uint filterMask = 1)
 		{
 			this.entity = entity;
 			this.rootNode = rootNode;
@@ -106,6 +106,10 @@ namespace Rainfall
 
 					boneLinks.Add(link);
 					nodes.Add(node);
+				}
+				else
+				{
+					Debug.Assert(parentLink != IntPtr.Zero);
 				}
 
 				if (node.children != null)

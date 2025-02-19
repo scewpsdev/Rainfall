@@ -282,7 +282,7 @@ static RigidBodyContactCallback_t rigidBodyOnContact;
 static CharacterControllerSetPositionCallback_t controllerSetPosition;
 static CharacterControllerOnHitCallback_t controllerOnHit;
 
-static int64_t lastFrameTime;
+//static int64_t lastFrameTime;
 static float timeAccumulator;
 static int64_t simulationDelta;
 
@@ -354,7 +354,7 @@ RFAPI void Physics_Init(RigidBodySetTransformCallback_t rigidBodySetTransform, R
 	::controllerOnHit = controllerOnHit;
 
 
-	lastFrameTime = Application_GetCurrentTime();
+	//lastFrameTime = Application_GetCurrentTime();
 	timeAccumulator = 0.0f;
 }
 
@@ -368,13 +368,13 @@ RFAPI void Physics_Shutdown()
 	foundation->release();
 }
 
-RFAPI int Physics_Update()
+RFAPI int Physics_Update(float delta)
 {
 	float timeStep = 1.0f / UPDATES_PER_SECOND;
-	int64_t currentFrameTime = Application_GetCurrentTime();
-	int64_t delta = currentFrameTime - lastFrameTime;
-	lastFrameTime = currentFrameTime;
-	timeAccumulator += delta / 1e9f;
+	//int64_t currentFrameTime = Application_GetCurrentTime();
+	//int64_t delta = currentFrameTime - lastFrameTime;
+	//lastFrameTime = currentFrameTime;
+	timeAccumulator += delta;
 
 	int64_t beforeUpdate = Application_GetTimestamp();
 

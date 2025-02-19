@@ -24,9 +24,13 @@ public class Cart : Entity
 		new Vector3(-0.37931f, 0.138185f, -0.598f) * 0.56f
 	];
 
-	DriveMode driveMode = DriveMode.AllWheel;
-	float frontWheelGrip = 1;
-	float rearWheelGrip = 1;
+	DriveMode driveMode = DriveMode.FrontWheel;
+	float frontWheelGrip = 0.5f;
+	float rearWheelGrip = 0.7f;
+
+	float maxSpeed = 30;
+	float acceleration = 3;
+	float rollingFriction = 1;
 
 	float[] tireHeights = new float[4];
 	Vector3[] suspensionForces = new Vector3[4];
@@ -34,6 +38,7 @@ public class Cart : Entity
 	Vector3[] forwardForces = new Vector3[4];
 	Vector3[] tireVelocities = new Vector3[4];
 	float[] wheelRotations = new float[4];
+	bool[] wheelGrounded = new bool[4];
 
 	float currentWheelSteer = 0;
 	Vector3 currentSteerDirection;
@@ -41,21 +46,13 @@ public class Cart : Entity
 
 	long turnedAroundSince = -1;
 
+	Vector3 lastVelocity;
+
+	bool ejected = false;
+
+	public float waterLevel = float.MaxValue;
+
 	Model wheel;
-
-	Model jerome;
-	Model cap;
-	Model chain;
-	Model glasses;
-
-	Animator animator;
-	AnimationState rideForwardAnim, rideLeftForwardAnim, rideRightForwardAnim;
-	AnimationState rideAnim, rideLeftAnim, rideRightAnim;
-	AnimationState rideBackwardsAnim, rideLeftBackwardsAnim, rideRightBackwardsAnim;
-
-	public bool hasCap = false;
-	public bool hasChain = false;
-	public bool hasGlasses = false;
 
 
 	public Cart()
@@ -63,26 +60,12 @@ public class Cart : Entity
 		bodyFriction = 0.0f;
 		bodyRestitution = 1.0f;
 
+		bodyFilterGroup = PhysicsFilter.Cart;
+		bodyFilterMask = PhysicsFilter.Default;
+
 		load("cart.rfs");
 
 		wheel = Resource.GetModel("cart_wheel.gltf");
-
-		jerome = Resource.GetModel("bob.gltf");
-		cap = Resource.GetModel("cap.gltf");
-		chain = Resource.GetModel("chain.gltf");
-		glasses = Resource.GetModel("glasses.gltf");
-
-		animator = Animator.Create(jerome, this);
-		rideForwardAnim = Animator.CreateAnimation(jerome, "ride_forward", true, 0.5f);
-		rideLeftForwardAnim = Animator.CreateAnimation(jerome, "ride_left_forward", true, 0.5f);
-		rideRightForwardAnim = Animator.CreateAnimation(jerome, "ride_right_forward", true, 0.5f);
-		rideAnim = Animator.CreateAnimation(jerome, "ride", true, 0.5f);
-		rideLeftAnim = Animator.CreateAnimation(jerome, "ride_left", true, 0.5f);
-		rideRightAnim = Animator.CreateAnimation(jerome, "ride_right", true, 0.5f);
-		rideBackwardsAnim = Animator.CreateAnimation(jerome, "ride_backwards", true, 0.5f);
-		rideLeftBackwardsAnim = Animator.CreateAnimation(jerome, "ride_left_backwards", true, 0.5f);
-		rideRightBackwardsAnim = Animator.CreateAnimation(jerome, "ride_right_backwards", true, 0.5f);
-		animator.setAnimation(rideAnim);
 	}
 
 	public override void init()
@@ -97,8 +80,8 @@ public class Cart : Entity
 		// Suspension
 
 		//const float suspensionRestPosition = 0.138185f;
-		const float springStrength = 400;
-		const float springDamper = 25;
+		const float springStrength = 200;
+		const float springDamper = 15;
 
 		Matrix tireTransform = getModelMatrix() * Matrix.CreateTranslation(tireLocalPositions[i]);
 		Vector3 springDir = tireTransform.rotation.up;
@@ -111,23 +94,42 @@ public class Cart : Entity
 
 		float raycastHeight = 1;
 		float suspensionRestPosition = raycastHeight;
-		HitData? hit = Physics.Raycast(getModelMatrix() * (tireLocalPositions[i] * new Vector3(1, 0, 1)) + raycastHeight * tireTransform.rotation.up, tireTransform.rotation.down, raycastHeight + 2 * wheelRadius, QueryFilterFlags.Static);
+		HitData? hit = Physics.Raycast(getModelMatrix() * (tireLocalPositions[i] * new Vector3(1, 0, 1)) + raycastHeight * tireTransform.rotation.up, tireTransform.rotation.down, raycastHeight + wheelRadius, QueryFilterFlags.Static);
 
-		if (hit == null)
+		if (hit == null && waterLevel != float.MaxValue)
+		{
+			Vector3 origin = getModelMatrix() * (tireLocalPositions[i] * new Vector3(1, 0, 1)) + raycastHeight * tireTransform.rotation.up;
+			float range = raycastHeight + wheelRadius;
+			Vector3 dir = tireTransform.rotation.down;
+			Vector3 dest = origin + range * dir;
+			if (dest.y <= waterLevel)
+			{
+				hit = new HitData()
+				{
+					distance = (origin.y - waterLevel) / dir.y,
+					normal = Vector3.Up
+				};
+			}
+		}
+
+		if (hit == null || hit.Value.normal.y < 0.5f)
 		{
 			tireHeights[i] = -wheelRadius;
+			wheelGrounded[i] = false;
 			suspensionForces[i] = Vector3.Zero;
 			steeringForces[i] = Vector3.Zero;
 			forwardForces[i] = Vector3.Zero;
 			return;
 		}
 
+		wheelGrounded[i] = true;
+
 		float offset = suspensionRestPosition - hit.Value.distance;
 		float velocity = Vector3.Dot(springDir, tireVelocity);
 
 		// more ground sucction
 		if (offset < 0)
-			offset *= 4;
+			offset *= 8;
 
 		float suspensionForce = (offset * springStrength) - (velocity * springDamper);
 		body.addForceAtPosition(springDir * suspensionForce, tireTransform.translation);
@@ -151,7 +153,7 @@ public class Cart : Entity
 		//float gripLoseThreshold = 0.7f;
 		//gripMultiplier = gripMultiplier > gripLoseThreshold ? MathHelper.Remap(gripMultiplier, gripLoseThreshold, 1.0f, 0.1f, 1.0f) : MathHelper.Remap(gripMultiplier, 0.0f, gripLoseThreshold, 0.05f, 0.1f);
 		Vector3 steerAcceleration = -slide * grip; // * gripMultiplier;
-		float tireMass = 2 / 60.0f;
+		float tireMass = 4 / 60.0f;
 		Vector3 steerForce = steerAcceleration * tireMass / delta;
 		//body.addForceAtPosition(steerForce, tireTransform.translation);
 
@@ -183,46 +185,61 @@ public class Cart : Entity
 
 		currentSteerDirection = new Vector3(Vector2.Rotate(Vector2.Down, -currentWheelSteer), 0).xzy;
 
-		float maxSpeed = 20;
+		lastVelocity = body.getVelocity();
+
 		float forwardSpeed = Vector3.Dot(rotation * currentSteerDirection, body.getVelocity());
 		float motorIncrease = 15;
-		float acceleration = 5;
-		float rollingFriction = 1;
-		if (Input.IsKeyDown(KeyCode.W))
+		if (Input.IsKeyDown(KeyCode.W) && !ejected)
 			currentMotor = MathHelper.Linear(currentMotor, acceleration * MathF.Max(1 - MathF.Max(forwardSpeed, 0) / maxSpeed, 0), motorIncrease * delta);
-		if (Input.IsKeyDown(KeyCode.S))
-			currentMotor = MathHelper.Linear(currentMotor, forwardSpeed > 0 ? -acceleration : -3, motorIncrease * delta);
-		if (!Input.IsKeyDown(KeyCode.W) && !Input.IsKeyDown(KeyCode.S))
+		if (Input.IsKeyDown(KeyCode.S) && !ejected)
+			currentMotor = MathHelper.Linear(currentMotor, forwardSpeed > 0 ? -2 * acceleration : -3, motorIncrease * delta);
+		if (!Input.IsKeyDown(KeyCode.W) && !Input.IsKeyDown(KeyCode.S) || ejected)
 			currentMotor = MathHelper.Linear(currentMotor, -MathF.Sign(forwardSpeed) * rollingFriction, motorIncrease * delta);
 
 		float steer = 2.0f;
-		if (Input.IsKeyDown(KeyCode.D))
+		if (Input.IsKeyDown(KeyCode.D) && !ejected)
 			currentWheelSteer -= delta * steer;
-		if (Input.IsKeyDown(KeyCode.A))
+		if (Input.IsKeyDown(KeyCode.A) && !ejected)
 			currentWheelSteer += delta * steer;
-		if (!Input.IsKeyDown(KeyCode.D) && !Input.IsKeyDown(KeyCode.A))
+		if (!Input.IsKeyDown(KeyCode.D) && !Input.IsKeyDown(KeyCode.A) || ejected)
 			currentWheelSteer = MathHelper.Linear(currentWheelSteer, 0, delta * steer);
 
 		float maxSteer = 0.2f * MathF.PI * (1 / (1 + MathF.Abs(forwardSpeed) * 0.3f));
 		currentWheelSteer = MathHelper.Clamp(currentWheelSteer, -maxSteer, maxSteer);
 
 		float rocketForce = 40;
-		if (Input.IsKeyDown(KeyCode.Shift))
+		if (Input.IsKeyDown(KeyCode.Shift) && !ejected)
 			body.addForce(rotation.forward * rocketForce);
 
 		for (int i = 0; i < tireLocalPositions.Length; i++)
 			simulateTire(i, i >= 2, delta);
 
-		if (rotation.up.y < 0)
+
+		// Autocorrect rotation mid air
+		bool isGrounded = false;
+		for (int i = 0; i < wheelGrounded.Length; i++)
+		{
+			if (wheelGrounded[i])
+				isGrounded = true;
+		}
+		if (isGrounded)
+		{
+			HitData? hit = Physics.Raycast(getModelMatrix().translation + rotation.up, rotation.down, 2, QueryFilterFlags.Static);
+			if (hit != null)
+			{
+				body.addForceAtPosition(hit.Value.normal * 10, position + rotation.up * 3);
+				body.addForceAtPosition(-hit.Value.normal * 10, position + rotation.down * 3);
+			}
+		}
+
+		if (rotation.up.y < 0.1f)
 		{
 			if (turnedAroundSince == -1)
 				turnedAroundSince = Time.currentTime;
 
 			if ((Time.currentTime - turnedAroundSince) / 1e9f > 3)
 			{
-				setTransform(GameState.instance.spawnPoint);
-				body.setVelocity(Vector3.Zero);
-				body.setRotationVelocity(Vector3.Zero);
+				respawn();
 			}
 		}
 		else
@@ -231,41 +248,27 @@ public class Cart : Entity
 		}
 	}
 
-	public override void update()
+	public void respawn()
 	{
-		base.update();
+		setTransform(GameState.instance.spawnPoint);
+		body.setVelocity(Vector3.Zero);
+		body.setRotationVelocity(Vector3.Zero);
+	}
 
-		Vector2i directionInput = Vector2i.Zero;
-		if (Input.IsKeyDown(KeyCode.W))
-			directionInput.y++;
-		if (Input.IsKeyDown(KeyCode.S))
-			directionInput.y--;
-		if (Input.IsKeyDown(KeyCode.A))
-			directionInput.x--;
-		if (Input.IsKeyDown(KeyCode.D))
-			directionInput.x++;
-
-		if (directionInput == new Vector2i(1, 1))
-			animator.setAnimation(rideRightForwardAnim);
-		else if (directionInput == new Vector2i(0, 1))
-			animator.setAnimation(rideForwardAnim);
-		else if (directionInput == new Vector2i(-1, 1))
-			animator.setAnimation(rideLeftForwardAnim);
-		else if (directionInput == new Vector2i(1, 0))
-			animator.setAnimation(rideRightAnim);
-		else if (directionInput == new Vector2i(0, 0))
-			animator.setAnimation(rideAnim);
-		else if (directionInput == new Vector2i(-1, 0))
-			animator.setAnimation(rideLeftAnim);
-		else if (directionInput == new Vector2i(1, -1))
-			animator.setAnimation(rideRightBackwardsAnim);
-		else if (directionInput == new Vector2i(0, -1))
-			animator.setAnimation(rideBackwardsAnim);
-		else if (directionInput == new Vector2i(-1, -1))
-			animator.setAnimation(rideLeftBackwardsAnim);
-
-		animator.update();
-		animator.applyAnimation();
+	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
+	{
+		if (!ejected)
+		{
+			Vector3 velocity = body.getVelocity();
+			Vector3 sum = lastVelocity - velocity;
+			float d = sum.length;
+			if (d > 20)
+			{
+				// eject jerome
+				GameState.instance.player.eject(lastVelocity);
+				ejected = true;
+			}
+		}
 	}
 
 	public override void draw(GraphicsDevice graphics)
@@ -285,14 +288,5 @@ public class Cart : Entity
 			Renderer.DrawDebugLine(wheelTransform.translation, wheelTransform.translation + steeringForces[i] * 0.1f, 0xFFFF0000);
 			Renderer.DrawDebugLine(wheelTransform.translation, wheelTransform.translation + forwardForces[i] * 0.1f, 0xFF00FF00);
 		}
-
-		Renderer.DrawModel(jerome, getModelMatrix(), animator);
-
-		if (hasCap)
-			Renderer.DrawModel(cap, getModelMatrix(), animator);
-		if (hasChain)
-			Renderer.DrawModel(chain, getModelMatrix(), animator);
-		if (hasGlasses)
-			Renderer.DrawModel(glasses, getModelMatrix(), animator);
 	}
 }
