@@ -153,6 +153,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 	particle->velocity = velocity;
 	particle->rotationVelocity = rotationVelocity;
 	particle->size = system->size;
+	particle->xscale = 1;
 	particle->lifetime = particleLifetime;
 	particle->animationFrame = 0;
 	particle->color = system->color;
@@ -165,7 +166,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system)
 	}
 }
 
-RFAPI void ParticleSystem_Update(ParticleSystem* system)
+RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRotation)
 {
 	int64_t now = Application_GetCurrentTime();
 	if (system->emissionRate > 0.0f)
@@ -229,6 +230,13 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system)
 			maxRadiusSq = fmaxf(maxRadiusSq, (particle->position - system->boundingSphere.center).lengthSquared());
 
 			particle->rotation += particle->rotationVelocity * Application_GetDelta();
+
+			if (system->rotateAlongMovement)
+			{
+				Vector3 screenSpaceVelocity = invCameraRotation * particle->velocity;
+				particle->rotation = atan2f(screenSpaceVelocity.y, screenSpaceVelocity.x);
+				particle->xscale = 1 + system->movementStretch * particle->velocity.length();
+			}
 
 			float progress = particleTimer / particle->lifetime;
 

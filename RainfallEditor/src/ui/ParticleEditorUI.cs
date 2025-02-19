@@ -190,6 +190,15 @@ public partial class EditorUI
 
 					DragFloat(instance, "Rotation Speed", "particle_rotation_speed" + i, ref particles->rotationSpeed, 0.02f);
 
+					bool rotateAlongMovement = particles->rotateAlongMovement;
+					Checkbox(instance, "Rotate Along Movement", "particle_rotate_along_movement" + i, ref rotateAlongMovement);
+					particles->rotateAlongMovement = rotateAlongMovement;
+
+					if (rotateAlongMovement)
+					{
+						DragFloat(instance, "Movement Stretch", "particle_movement_stretch" + i, ref particles->movementStretch, 0.01f, -10, 10);
+					}
+
 					//ImGui.TextUnformatted("Rotation Speed");
 					//ImGui.SameLine(SPACING_X);
 					//ImGui.SetNextItemWidth(ITEM_WIDTH);

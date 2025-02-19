@@ -116,8 +116,11 @@ namespace Rainfall
 		public float rotationSpeed;
 		byte _applyEntityVelocity;
 		byte _applyCentrifugalForce;
+		byte _rotateAlongMovement;
 		public bool applyEntityVelocity { get => _applyEntityVelocity != 0; set { _applyEntityVelocity = (byte)(value ? 1 : 0); } }
 		public bool applyCentrifugalForce { get => _applyCentrifugalForce != 0; set { _applyCentrifugalForce = (byte)(value ? 1 : 0); } }
+		public bool rotateAlongMovement { get => _rotateAlongMovement != 0; set { _rotateAlongMovement = (byte)(value ? 1 : 0); } }
+		public float movementStretch = 0;
 
 		public fixed byte textureAtlasPath[256];
 		public ushort textureAtlas = ushort.MaxValue;
@@ -159,6 +162,7 @@ namespace Rainfall
 		public Vector3 velocity;
 		public float rotationVelocity;
 		public float size;
+		public float xscale;
 		public float lifetime;
 		public float animationFrame;
 		public Vector4 color;
@@ -190,7 +194,7 @@ namespace Rainfall
 				particleSystems.Remove(particleSystem);
 		}
 
-		public static void Update(Vector3 cameraPosition)
+		public static void Update(Vector3 cameraPosition, Quaternion cameraRotation)
 		{
 			/*
 			for (int i = 0; i < particleSystems.Count; i++)
@@ -255,7 +259,7 @@ namespace Rainfall
 		{
 		}
 
-		public void update()
+		public void update(Quaternion )
 		{
 			Native.ParticleSystem.ParticleSystem_Update(handle);
 		}
