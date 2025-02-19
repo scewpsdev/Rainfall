@@ -23,6 +23,10 @@ public class State
 	{
 	}
 
+	public virtual void fixedUpdate(float delta)
+	{
+	}
+
 	public virtual void draw(GraphicsDevice graphics)
 	{
 	}

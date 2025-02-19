@@ -1,0 +1,10 @@
+[ ] jerome ejection
+[ ] ragdoll
+[ ] street level
+[ ] river level
+[ ] race track
+[ ] victory condition
+[ ] game over condition
+[ ] sound effects
+[ ] music
+[ ] polish

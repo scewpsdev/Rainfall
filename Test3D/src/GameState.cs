@@ -13,6 +13,8 @@ public class GameState : State
 
 	public Scene scene;
 
+	public Matrix spawnPoint;
+
 	Cart cart;
 	Camera camera;
 	DirectionalLight sun;
@@ -26,20 +28,47 @@ public class GameState : State
 
 	public override void init()
 	{
+		loadSupermarket();
+	}
+
+	void loadScene(string path)
+	{
+		destroy();
+
 		scene = new Scene();
+		scene.load(path, () => { Entity entity = new Entity(); entity.bodyFriction = 0; entity.bodyRestitution = 1.0f; entity.isStatic = true; return entity; });
 
-		scene.load("testmap.rfs");
+		//sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
+	}
 
-		scene.addEntity(cart = new Cart(), new Vector3(0, 1, 0));
-		scene.addEntity(camera = new FreeCamera(), new Vector3(0, 3, 4));
+	void loadSupermarket()
+	{
+		loadScene("supermarket.rfs");
 
-		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
-		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
+		spawnPoint = Matrix.CreateTranslation(-14, 0, 18);
+
+		scene.addEntity(cart = new Cart(), spawnPoint);
+		scene.addEntity(camera = new FollowCamera(cart));
+
+		scene.addEntity(new CapItem(), new Vector3(50, 2.5f, 0));
+		scene.addEntity(new GlassesItem(), new Vector3(102, 4, -40.3f));
+		scene.addEntity(new ChainItem(), new Vector3(80, 5, -90));
+
+		skybox = Resource.GetCubemap("supermarket_cubemap_equirect.png");
 	}
 
 	public override void destroy()
 	{
-		scene.destroy();
+		if (scene != null)
+		{
+			scene.destroy();
+			scene = null;
+
+			sun = null;
+			skybox = null;
+
+			spawnPoint = Matrix.Identity;
+		}
 	}
 
 	public override void update()
@@ -50,12 +79,21 @@ public class GameState : State
 		scene.update();
 	}
 
+	public override void fixedUpdate(float delta)
+	{
+		scene.fixedUpdate(delta);
+	}
+
 	public override void draw(GraphicsDevice graphics)
 	{
 		scene.draw(graphics);
 
-		Renderer.DrawDirectionalLight(sun);
-		Renderer.DrawSky(skybox, 1, Quaternion.Identity);
-		Renderer.DrawEnvironmentMap(skybox, 0.25f);
+		if (sun != null)
+			Renderer.DrawDirectionalLight(sun);
+		if (skybox != null)
+		{
+			Renderer.DrawSky(skybox, 1, Quaternion.Identity);
+			Renderer.DrawEnvironmentMap(skybox, 0.5f);
+		}
 	}
 }

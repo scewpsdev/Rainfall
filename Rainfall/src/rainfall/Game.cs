@@ -60,6 +60,11 @@ namespace Rainfall
 			instance.update();
 		}
 
+		static void Game_FixedUpdate(float delta)
+		{
+			instance.fixedUpdate(delta);
+		}
+
 		static void Game_Draw()
 		{
 			instance.draw();
@@ -145,6 +150,7 @@ namespace Rainfall
 			callbacks.init = Game_Init;
 			callbacks.destroy = Game_Destroy;
 			callbacks.update = Game_Update;
+			callbacks.fixedUpdate = Game_FixedUpdate;
 			callbacks.draw = Game_Draw;
 			callbacks.onInternalError = Game_OnInternalErrorEvent;
 			callbacks.onAxisEvent = Game_OnAxisEvent;
@@ -168,6 +174,7 @@ namespace Rainfall
 		public abstract void init();
 		public abstract void destroy();
 		public abstract void update();
+		public virtual void fixedUpdate(float delta) { }
 		public abstract void draw();
 
 		protected virtual void onAxisEvent(GamepadAxis axis, int value, ushort gamepadHandle)

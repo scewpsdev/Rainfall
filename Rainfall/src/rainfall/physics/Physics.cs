@@ -225,12 +225,8 @@ namespace Rainfall
 
 		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
-			Span<HitData> hits = stackalloc HitData[16];
-			int numHits = Raycast(origin, direction, distance, hits, filterData, filterMask);
-
-			if (numHits > 0)
-				return hits[0];
-
+			if (Native.Physics.Physics_RaycastCheck(origin, direction, distance, out HitData hit, filterData, filterMask) != 0)
+				return hit;
 			return null;
 		}
 
@@ -273,7 +269,7 @@ namespace Rainfall
 		public static HitData? SweepSphere(float radius, Vector3 position, Vector3 direction, float distance, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
 			Span<HitData> hits = stackalloc HitData[16];
-			int numHits = SweepSphere(radius, position, direction, distance, hits, filterData, filterMask);
+			int numHits = SweepSphere(radius, position, direction, distance, hits, filterData | QueryFilterFlags.AnyHit, filterMask);
 
 			if (numHits > 0)
 				return hits[0];

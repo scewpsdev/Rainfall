@@ -213,6 +213,9 @@ namespace Rainfall.Native
 		internal static extern unsafe int Physics_Raycast(Vector3 origin, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe byte Physics_RaycastCheck(Vector3 origin, Vector3 direction, float maxDistance, out HitData hit, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern unsafe int Physics_SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
