@@ -29,6 +29,7 @@ struct Particle
 	Vector3 velocity;
 	float rotationVelocity;
 	float size;
+	float xscale;
 	float lifetime;
 	float animationFrame;
 	Vector4 color;
@@ -71,6 +72,8 @@ struct ParticleSystem
 	float rotationSpeed = 0;
 	bool applyEntityVelocity = false;
 	bool applyCentrifugalForce = false;
+	bool rotateAlongMovement = false;
+	float movementStretch = 0;
 
 	char textureAtlasPath[256] = "";
 	uint16_t textureAtlas = bgfx::kInvalidHandle;
