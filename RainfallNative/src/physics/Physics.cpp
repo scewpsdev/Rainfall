@@ -72,8 +72,8 @@ struct RigidBody
 
 	physx::PxRigidActor* actor;
 
-	Vector3 position0, position1, interpolatedPosition;
-	Quaternion rotation0, rotation1, interpolatedRotation;
+	Vector3 position0, position1;
+	Quaternion rotation0, rotation1;
 };
 
 
@@ -405,6 +405,15 @@ RFAPI void Physics_Update(float delta)
 			}
 			case RigidBodyType::Kinematic:
 			{
+				Vector3 position;
+				Quaternion rotation;
+				rigidBodyGetTransform(&position, &rotation, body);
+
+				PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>();
+				PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+				dynamic->setKinematicTarget(transform);
+
+
 				/*
 				if (!(body->actor->getActorFlags() & PxActorFlag::eDISABLE_SIMULATION))
 				{
@@ -473,8 +482,7 @@ RFAPI void Physics_Update(float delta)
 			PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>();
 			Vector3 position = mix(body->position0, body->position1, interpFactor);
 			Quaternion rotation = slerp(body->rotation0, body->rotation1, interpFactor);
-			body->interpolatedPosition = position;
-			body->interpolatedRotation = rotation;
+			rigidBodySetTransform(position, rotation, body);
 			//body->setTransform(position, rotation, body->userPtr);
 		}
 	}
@@ -527,9 +535,6 @@ RFAPI RigidBody* Physics_CreateRigidBody(RigidBodyType type, float density, Vect
 	body->centerOfMass = centerOfMass;
 	body->actor = CreateRigidBody(position, rotation, type);
 	body->actor->userData = body;
-
-	body->interpolatedPosition = position;
-	body->interpolatedRotation = rotation;
 
 	rigidBodies.push_back(body);
 
@@ -823,8 +828,8 @@ RFAPI void Physics_RigidBodySetTransform(RigidBody* body, const Vector3& positio
 		if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
 		{
 			dynamic->setGlobalPose(transform);
-			body->position0 = body->position1 = body->interpolatedPosition = position;
-			body->rotation0 = body->rotation1 = body->interpolatedRotation = rotation;
+			body->position0 = body->position1 = position;
+			body->rotation0 = body->rotation1 = rotation;
 		}
 		else
 		{
@@ -865,7 +870,7 @@ RFAPI void Physics_RigidBodySetRotation(RigidBody* body, const Quaternion& rotat
 		if (PxRigidBody* dynamic = body->actor->is<PxRigidBody>())
 		{
 			dynamic->setGlobalPose(transform);
-			body->rotation0 = body->rotation1 = body->interpolatedRotation = rotation;
+			body->rotation0 = body->rotation1 = rotation;
 		}
 		else
 		{
@@ -997,8 +1002,8 @@ RFAPI void Physics_RigidBodyGetTransform(RigidBody* body, Vector3* outPosition, 
 			}
 			else
 			{
-				*outPosition = body->interpolatedPosition;
-				*outRotation = body->interpolatedRotation;
+				*outPosition = body->position1;
+				*outRotation = body->rotation1;
 			}
 		}
 	}

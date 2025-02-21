@@ -23,7 +23,7 @@ namespace Rainfall
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct HitData
+	public unsafe struct HitData
 	{
 		public float distance;
 		public Vector3 position;
@@ -35,7 +35,7 @@ namespace Rainfall
 
 		public RigidBody body
 		{
-			get => RigidBody.GetBodyFromHandle(userData);
+			get => RigidBody.GetBodyFromHandle((RigidBodyData*)userData);
 		}
 
 		public CharacterController controller
@@ -59,34 +59,51 @@ namespace Rainfall
 		Default = Static | Dynamic,
 	}
 
-	public static class Physics
+	internal enum JointType
 	{
-		static readonly Native.Physics.RigidBodySetTransformCallback_t rigidBodySetTransformCallback = RigidBodySetTransform;
-		static readonly Native.Physics.RigidBodyGetTransformCallback_t rigidBodyGetTransformCallback = RigidBodyGetTransform;
-		static readonly Native.Physics.RigidBodyContactCallback_t rigidBodyContactCallback = RigidBodyContactCallback;
+		Fix = 0,                   //!< All joint axes, i.e. degrees of freedom (DOFs) locked
+		Prismatic = 1,             //!< Single linear DOF, e.g. cart on a rail
+		Revolute = 2,              //!< Single rotational DOF, e.g. an elbow joint or a rotational motor, position wrapped at 2pi radians
+		RevoluteUnwrapped = 3,    //!< Single rotational DOF, e.g. an elbow joint or a rotational motor, position not wrapped
+		Spherical = 4,             //!< Ball and socket joint with two or three DOFs
+		Undefined = 5
+	}
 
-		static readonly Native.Physics.CharacterControllerSetPositionCallback_t characterControllerSetPositionCallback = SetCharacterControllerPosition;
-		static readonly Native.Physics.CharacterControllerOnHitCallback_t characterControllerOnHitCallback = CharacterControllerOnHit;
+	public static unsafe class Physics
+	{
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodySetTransformCallback_t(Vector3 position, Quaternion rotation, IntPtr userPtr);
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodyGetTransformCallback_t(ref Vector3 position, ref Quaternion rotation, IntPtr userPtr);
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodyContactCallback_t(RigidBodyData* body, RigidBodyData* other, int shapeID, int otherShapeID, byte isTrigger, byte otherTrigger, ContactType contactType, IntPtr otherController);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void CharacterControllerOnHitCallback_t(ControllerHit hit, IntPtr userPtr);
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void CharacterControllerSetPositionCallback_t(Vector3 position, IntPtr userPtr);
+
+		static readonly RigidBodySetTransformCallback_t rigidBodySetTransformCallback = RigidBodySetTransform;
+		static readonly RigidBodyGetTransformCallback_t rigidBodyGetTransformCallback = RigidBodyGetTransform;
+		static readonly RigidBodyContactCallback_t rigidBodyContactCallback = RigidBodyContactCallback;
+
+		static readonly CharacterControllerSetPositionCallback_t characterControllerSetPositionCallback = SetCharacterControllerPosition;
+		static readonly CharacterControllerOnHitCallback_t characterControllerOnHitCallback = CharacterControllerOnHit;
 
 
 		public static void Init()
 		{
-			Native.Physics.Physics_Init(rigidBodySetTransformCallback, rigidBodyGetTransformCallback, rigidBodyContactCallback, characterControllerSetPositionCallback, characterControllerOnHitCallback);
+			Physics_Init(rigidBodySetTransformCallback, rigidBodyGetTransformCallback, rigidBodyContactCallback, characterControllerSetPositionCallback, characterControllerOnHitCallback);
 		}
 
 		public static void Shutdown()
 		{
-			Native.Physics.Physics_Shutdown();
+			Physics_Shutdown();
 		}
 
 		public static void Update()
 		{
-			Native.Physics.Physics_Update(Time.deltaTime);
+			Physics_Update(Time.deltaTime);
 		}
 
 		public static float SimulationDelta
 		{
-			get => Native.Physics.Physics_GetSimulationDelta() / 1e9f;
+			get => Physics_GetSimulationDelta() / 1e9f;
 		}
 
 		static unsafe Matrix GetNodeTransform(Model model, int idx)
@@ -106,7 +123,7 @@ namespace Rainfall
 		public static unsafe MeshCollider CreateMeshCollider(Model model, int meshIdx)
 		{
 			MeshData mesh = model.scene->meshes[meshIdx];
-			IntPtr handle = Native.Physics.Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, sizeof(PositionNormalTangent), mesh.indices, mesh.indexCount);
+			IntPtr handle = Physics_CreateMeshCollider(mesh.vertices, mesh.vertexCount, sizeof(PositionNormalTangent), mesh.indices, mesh.indexCount);
 			Matrix transform = GetNodeTransform(model, meshIdx);
 			return new MeshCollider(handle, transform);
 		}
@@ -144,7 +161,7 @@ namespace Rainfall
 			fixed (Vector3* verticesPtr = vertices)
 			fixed (int* indicesPtr = indices)
 			{
-				IntPtr handle = Native.Physics.Physics_CreateMeshCollider(verticesPtr, numVertices, sizeof(Vector3), indicesPtr, numIndices);
+				IntPtr handle = Physics_CreateMeshCollider(verticesPtr, numVertices, sizeof(Vector3), indicesPtr, numIndices);
 				return new MeshCollider(handle, Matrix.Identity);
 			}
 		}
@@ -152,7 +169,7 @@ namespace Rainfall
 		public static unsafe ConvexMeshCollider CreateConvexMeshCollider(Model model, int meshIdx)
 		{
 			MeshData mesh = model.scene->meshes[meshIdx];
-			IntPtr handle = Native.Physics.Physics_CreateConvexMeshCollider(mesh.vertices, mesh.vertexCount, sizeof(PositionNormalTangent), mesh.indices, mesh.indexCount);
+			IntPtr handle = Physics_CreateConvexMeshCollider(mesh.vertices, mesh.vertexCount, sizeof(PositionNormalTangent), mesh.indices, mesh.indexCount);
 			Matrix transform = GetNodeTransform(model, meshIdx);
 			return new ConvexMeshCollider(handle, transform);
 		}
@@ -190,19 +207,19 @@ namespace Rainfall
 			fixed (Vector3* verticesPtr = vertices)
 			fixed (int* indicesPtr = indices)
 			{
-				IntPtr handle = Native.Physics.Physics_CreateConvexMeshCollider(verticesPtr, numVertices, sizeof(Vector3), indicesPtr, numIndices);
+				IntPtr handle = Physics_CreateConvexMeshCollider(verticesPtr, numVertices, sizeof(Vector3), indicesPtr, numIndices);
 				return new ConvexMeshCollider(handle, Matrix.Identity);
 			}
 		}
 
 		public static IntPtr CreateHeightField(int width, int height, HeightFieldSample[] data)
 		{
-			return Native.Physics.Physics_CreateHeightField(width, height, ref data[0]);
+			return Physics_CreateHeightField(width, height, ref data[0]);
 		}
 
 		public static void DestroyHeightField(IntPtr heightField)
 		{
-			Native.Physics.Physics_DestroyHeightField(heightField);
+			Physics_DestroyHeightField(heightField);
 		}
 
 		public static int Raycast(Vector3 origin, Vector3 direction, float distance, Span<HitData> hits, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
@@ -210,7 +227,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_Raycast(origin, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_Raycast(origin, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -219,13 +236,13 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_Raycast(origin, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_Raycast(origin, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
 		public static HitData? Raycast(Vector3 origin, Vector3 direction, float distance, QueryFilterFlags filterData = QueryFilterFlags.Default, uint filterMask = 1)
 		{
-			if (Native.Physics.Physics_RaycastCheck(origin, direction, distance, out HitData hit, filterData, filterMask) != 0)
+			if (Physics_RaycastCheck(origin, direction, distance, out HitData hit, filterData, filterMask) != 0)
 				return hit;
 			return null;
 		}
@@ -235,7 +252,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -244,7 +261,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_SweepBox(halfExtents, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -253,7 +270,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -262,7 +279,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_SweepSphere(radius, position, Quaternion.Identity, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -282,7 +299,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -291,7 +308,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
+					return Physics_SweepCapsule(radius, height, position, rotation, direction, distance, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -300,7 +317,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData, filterMask);
+					return Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -309,7 +326,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData, filterMask);
+					return Physics_OverlapBox(halfExtents, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -318,7 +335,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapSphere(radius, position, data, hits.Length, filterData, filterMask);
+					return Physics_OverlapSphere(radius, position, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -327,7 +344,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapSphere(radius, position, data, hits.Length, filterData, filterMask);
+					return Physics_OverlapSphere(radius, position, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -336,7 +353,7 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData, filterMask);
+					return Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
@@ -345,44 +362,44 @@ namespace Rainfall
 			unsafe
 			{
 				fixed (HitData* data = hits)
-					return Native.Physics.Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData, filterMask);
+					return Physics_OverlapCapsule(radius, height, position, rotation, data, hits.Length, filterData, filterMask);
 			}
 		}
 
 
 		static void RigidBodySetTransform(Vector3 position, Quaternion rotation, IntPtr userPtr)
 		{
-			RigidBody body = RigidBody.GetBodyFromHandle(userPtr);
+			RigidBody body = RigidBody.GetBodyFromHandle((RigidBodyData*)userPtr);
 			body.entity.setPosition(position);
 			body.entity.setRotation(rotation);
 		}
 
 		static void RigidBodyGetTransform(ref Vector3 position, ref Quaternion rotation, IntPtr userPtr)
 		{
-			RigidBody body = RigidBody.GetBodyFromHandle(userPtr);
+			RigidBody body = RigidBody.GetBodyFromHandle((RigidBodyData*)userPtr);
 			position = body.entity.getPosition();
 			rotation = body.entity.getRotation();
 		}
 
-		static void RigidBodyContactCallback(IntPtr bodyHandle, IntPtr otherHandle, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType, IntPtr otherControllerHandle)
+		static void RigidBodyContactCallback(RigidBodyData* bodyHandle, RigidBodyData* otherHandle, int shapeID, int otherShapeID, byte isTrigger, byte otherTrigger, ContactType contactType, IntPtr otherControllerHandle)
 		{
 			RigidBody body = RigidBody.GetBodyFromHandle(bodyHandle);
-			RigidBody other = otherHandle != IntPtr.Zero ? RigidBody.GetBodyFromHandle(otherHandle) : null;
+			RigidBody other = otherHandle != null ? RigidBody.GetBodyFromHandle(otherHandle) : null;
 			CharacterController otherController = otherControllerHandle != IntPtr.Zero ? CharacterController.GetControllerFromHandle(otherControllerHandle) : null;
 
 			if (body != null)
 			{
-				body.entity?.onContact(other, otherController, shapeID, otherShapeID, isTrigger, otherTrigger, contactType);
+				body.entity?.onContact(other, otherController, shapeID, otherShapeID, isTrigger != 0, otherTrigger != 0, contactType);
 
 				if (other != null)
 				{
 					Debug.Assert(otherController == null);
-					other.entity?.onContact(body, null, otherShapeID, shapeID, otherTrigger, isTrigger, contactType);
+					other.entity?.onContact(body, null, otherShapeID, shapeID, otherTrigger != 0, isTrigger != 0, contactType);
 				}
 				if (otherController != null)
 				{
 					Debug.Assert(other == null);
-					otherController.entity?.onContact(null, otherController, otherShapeID, shapeID, otherTrigger, isTrigger, contactType);
+					otherController.entity?.onContact(null, otherController, otherShapeID, shapeID, otherTrigger != 0, isTrigger != 0, contactType);
 				}
 			}
 		}
@@ -399,5 +416,210 @@ namespace Rainfall
 			if (controller.hitCallback != null)
 				controller.hitCallback.onShapeHit(hit);
 		}
+
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_Init(RigidBodySetTransformCallback_t setTransform, RigidBodyGetTransformCallback_t getTransform, RigidBodyContactCallback_t contactCallback, CharacterControllerSetPositionCallback_t setPosition, CharacterControllerOnHitCallback_t onHit);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_Shutdown();
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_Update(float delta);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern long Physics_GetSimulationDelta();
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe RigidBodyData* Physics_CreateRigidBody(RigidBodyType type, float density, Vector3 centerOfMass, Vector3 position, Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyRigidBody(RigidBodyData* body);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe IntPtr Physics_CreateMeshCollider(void* vertices, int numVertices, int vertexStride, int* indices, int numIndices);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyMeshCollider(IntPtr mesh);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe IntPtr Physics_CreateConvexMeshCollider(void* vertices, int numVertices, int vertexStride, int* indices, int numIndices);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyConvexMeshCollider(IntPtr mesh);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr Physics_CreateHeightField(int width, int height, ref HeightFieldSample data);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyHeightField(IntPtr heightField);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddSphereCollider(RigidBodyData* body, float radius, Vector3 position, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddBoxCollider(RigidBodyData* body, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddCapsuleCollider(RigidBodyData* body, float radius, float height, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddMeshCollider(RigidBodyData* body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe void Physics_RigidBodyAddConvexMeshCollider(RigidBodyData* body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddHeightFieldCollider(RigidBodyData* body, IntPtr heightField, Vector3 scale, Matrix transform, uint filterGroup, uint filterMask, float staticFriction, float dynamicFriction, float restitution);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddSphereTrigger(RigidBodyData* body, float radius, Vector3 position, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddBoxTrigger(RigidBodyData* body, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddCapsuleTrigger(RigidBodyData* body, float radius, float height, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddMeshTrigger(RigidBodyData* body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddConvexMeshTrigger(RigidBodyData* body, IntPtr mesh, Matrix transform, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyClearColliders(RigidBodyData* body);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetSimulationEnabled(RigidBodyData* body, byte enabled);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetGravityEnabled(RigidBodyData* body, byte enabled);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetTransform(RigidBodyData* body, Vector3 position, Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetRotation(RigidBodyData* body, Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetVelocity(RigidBodyData* body, Vector3 velocity);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetRotationVelocity(RigidBodyData* body, Vector3 rotvelocity);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodySetCenterOfMass(RigidBodyData* body, Vector3 centerOfMass);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyLockAxis(RigidBodyData* body, byte x, byte y, byte z);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyLockRotationAxis(RigidBodyData* body, byte x, byte y, byte z);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddForce(RigidBodyData* body, Vector3 force);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddTorque(RigidBodyData* body, Vector3 torque);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddAcceleration(RigidBodyData* body, Vector3 acceleration);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyAddImpulse(RigidBodyData* body, Vector3 impulse);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyGetTransform(RigidBodyData* body, out Vector3 position, out Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyGetVelocity(RigidBodyData* body, out Vector3 position);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyGetAngularVelocity(RigidBodyData* body, out Vector3 angularVelocity);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RigidBodyGetCenterOfMass(RigidBodyData* body, out Vector3 centerOfMass);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr Physics_CreateCharacterController(float radius, float height, Vector3 offset, float stepOffset, Vector3 position);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyCharacterController(IntPtr controller);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_ResizeCharacterController(IntPtr controller, float height);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_CharacterControllerSetRadius(IntPtr controller, float radius);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_CharacterControllerSetOffset(IntPtr controller, Vector3 offset);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_CharacterControllerSetHeight(IntPtr controller, float height);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_CharacterControllerSetPosition(IntPtr controller, Vector3 position);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern ControllerCollisionFlag Physics_MoveCharacterController(IntPtr controller, Vector3 delta, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr Physics_CreateRagdoll();
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_SpawnRagdoll(IntPtr ragdoll);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_DestroyRagdoll(IntPtr ragdoll);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr Physics_RagdollCreateLink(IntPtr ragdoll, IntPtr parentLink, JointType jointType, Matrix linkTransform, Vector3 jointPosition, Vector3 jointRotation, Vector3 velocity, Vector3 rotationVelocity);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkAddBoxCollider(IntPtr link, Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkAddSphereCollider(IntPtr link, float radius, Vector3 colliderPosition, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkAddCapsuleCollider(IntPtr link, float radius, float height, Vector3 colliderPosition, Quaternion colliderRotation, uint filterGroup, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkGetGlobalTransform(IntPtr link, out Vector3 position, out Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkSetSwingXLimit(IntPtr link, float min, float max);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkSetSwingZLimit(IntPtr link, float min, float max);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Physics_RagdollLinkSetTwistLimit(IntPtr link, float min, float max);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_Raycast(Vector3 origin, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe byte Physics_RaycastCheck(Vector3 origin, Vector3 direction, float maxDistance, out HitData hit, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_SweepBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_SweepSphere(float radius, Vector3 position, Quaternion rotation, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_SweepCapsule(float radius, float height, Vector3 position, Quaternion rotation, Vector3 direction, float maxDistance, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_OverlapBox(Vector3 halfExtents, Vector3 position, Quaternion rotation, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_OverlapSphere(float radius, Vector3 position, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe int Physics_OverlapCapsule(float radius, float height, Vector3 position, Quaternion rotation, HitData* hits, int maxHits, QueryFilterFlags filterData, uint filterMask);
 	}
 }

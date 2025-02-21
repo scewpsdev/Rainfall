@@ -267,7 +267,7 @@ namespace Rainfall
 		{
 		}
 
-		void update(Quaternion invCameraRotation)
+		public void update(Quaternion invCameraRotation)
 		{
 			Native.ParticleSystem.ParticleSystem_Update(handle, invCameraRotation, Time.deltaTime);
 		}

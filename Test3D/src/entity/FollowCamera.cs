@@ -35,7 +35,10 @@ public class FollowCamera : Camera
 		yaw -= Input.cursorMove.x * CAMERA_SENSITIVITY;
 		pitch -= Input.cursorMove.y * CAMERA_SENSITIVITY;
 		pitch = MathHelper.Clamp(pitch, -0.5f * MathF.PI, 0.5f * MathF.PI);
+	}
 
+	public override void draw(GraphicsDevice graphics)
+	{
 		Matrix transform = Matrix.CreateTranslation(0, 3, 1);
 		transform = Matrix.CreateRotation(Vector3.Up, yaw) * Matrix.CreateRotation(Vector3.Right, pitch) * transform;
 		transform = Matrix.CreateTranslation(follow.position) * transform;
@@ -43,5 +46,7 @@ public class FollowCamera : Camera
 		position = transform.translation;
 		rotation = transform.rotation * Quaternion.FromAxisAngle(Vector3.Right, -0.25f * MathF.PI);
 		//rotation = Quaternion.LookAt((follow.position - position) * new Vector3(1, 0, 1));
+
+		base.draw(graphics);
 	}
 }

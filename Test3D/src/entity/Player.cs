@@ -20,6 +20,7 @@ public class Player : Entity
 	AnimationState rideBackwardsAnim, rideLeftBackwardsAnim, rideRightBackwardsAnim;
 
 	Ragdoll ragdoll;
+	long ragdollSince = -1;
 
 	public bool hasCap = false;
 	public bool hasChain = false;
@@ -51,7 +52,7 @@ public class Player : Entity
 
 	public void eject(Vector3 velocity)
 	{
-		position += Vector3.Up + -velocity.normalized;
+		position += Vector3.Up;
 
 		if (velocity.length > 10)
 			velocity = velocity.normalized * 10;
@@ -64,15 +65,26 @@ public class Player : Entity
 		{
 			SceneFormat.EntityData entityData = entities[0];
 			ragdoll = new Ragdoll(this, model.skeleton.getNode("Hip"), animator, getModelMatrix(), velocity, entityData.boneColliders, PhysicsFilter.Ragdoll, PhysicsFilter.Default);
+			ragdollSince = Time.currentTime;
 		}
 	}
 
 	public override void update()
 	{
-		if (Input.IsKeyPressed(KeyCode.P))
-			eject(Vector3.Forward * 5);
+		if (ragdoll != null)
+		{
+			ragdoll.update();
+			ragdoll.getTransform().decompose(out position, out rotation);
 
-		if (ragdoll == null)
+			if (ragdollSince != -1 && (Time.currentTime - ragdollSince) / 1e9f >= 3 && ragdoll.getHitboxForNode(ragdoll.rootNode).getVelocity().length < 0.5f)
+			{
+				cart.respawn();
+				ragdoll.destroy();
+				ragdoll = null;
+				ragdollSince = -1;
+			}
+		}
+		else
 		{
 			position = cart.position;
 			rotation = cart.rotation;
@@ -109,15 +121,6 @@ public class Player : Entity
 			//animator.update();
 
 			base.update();
-		}
-	}
-
-	public override void fixedUpdate(float delta)
-	{
-		if (ragdoll != null)
-		{
-			ragdoll.update();
-			ragdoll.getTransform().decompose(out position, out rotation);
 		}
 	}
 

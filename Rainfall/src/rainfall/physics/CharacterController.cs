@@ -49,29 +49,29 @@ namespace Rainfall
 
 			this.hitCallback = hitCallback;
 
-			controller = Native.Physics.Physics_CreateCharacterController(radius, height, offset, stepOffset, entity.getPosition());
+			controller = Physics.Physics_CreateCharacterController(radius, height, offset, stepOffset, entity.getPosition());
 			controllers.Add(controller, this);
 		}
 
 		public void destroy()
 		{
-			Native.Physics.Physics_DestroyCharacterController(controller);
+			Physics.Physics_DestroyCharacterController(controller);
 		}
 
 		public void resize(float height)
 		{
-			Native.Physics.Physics_ResizeCharacterController(controller, height);
+			Physics.Physics_ResizeCharacterController(controller, height);
 			_height = height;
 		}
 
 		public ControllerCollisionFlag move(Vector3 delta)
 		{
-			return Native.Physics.Physics_MoveCharacterController(controller, delta, filterMask);
+			return Physics.Physics_MoveCharacterController(controller, delta, filterMask);
 		}
 
 		public void setPosition(Vector3 position)
 		{
-			Native.Physics.Physics_CharacterControllerSetPosition(controller, position);
+			Physics.Physics_CharacterControllerSetPosition(controller, position);
 		}
 
 		public float height
@@ -79,7 +79,7 @@ namespace Rainfall
 			get { return _height; }
 			set
 			{
-				Native.Physics.Physics_CharacterControllerSetHeight(controller, value);
+				Physics.Physics_CharacterControllerSetHeight(controller, value);
 				_height = value;
 			}
 		}
@@ -89,7 +89,7 @@ namespace Rainfall
 			get { return _radius; }
 			set
 			{
-				Native.Physics.Physics_CharacterControllerSetRadius(controller, value);
+				Physics.Physics_CharacterControllerSetRadius(controller, value);
 				_radius = value;
 			}
 		}
@@ -99,7 +99,7 @@ namespace Rainfall
 			get { return _offset; }
 			set
 			{
-				Native.Physics.Physics_CharacterControllerSetOffset(controller, value);
+				Physics.Physics_CharacterControllerSetOffset(controller, value);
 				_offset = value;
 			}
 		}

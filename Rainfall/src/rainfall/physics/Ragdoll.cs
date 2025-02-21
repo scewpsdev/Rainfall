@@ -27,7 +27,7 @@ namespace Rainfall
 		public readonly List<IntPtr> boneLinks = new List<IntPtr>();
 		public readonly List<Node> nodes = new List<Node>();
 
-		Node rootNode;
+		public Node rootNode;
 
 		public readonly Animator animator;
 
@@ -73,30 +73,30 @@ namespace Rainfall
 						velocity += initialVelocity;
 
 					Matrix localPose = node.transform.inverted * animator.getNodeLocalTransform(node);
-					link = Native.Physics.Physics_RagdollCreateLink(ragdoll, parentLink, jointType, globalTransform, localPose.translation, localPose.rotation.eulers, velocity, rotationVelocity.eulers);
+					link = Physics.Physics_RagdollCreateLink(ragdoll, parentLink, jointType, globalTransform, localPose.translation, localPose.rotation.eulers, velocity, rotationVelocity.eulers);
 
 					if (hitbox.type == SceneFormat.ColliderType.Box)
-						Native.Physics.Physics_RagdollLinkAddBoxCollider(link, hitbox.size * 0.5f, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
+						Physics.Physics_RagdollLinkAddBoxCollider(link, hitbox.size * 0.5f, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
 					else if (hitbox.type == SceneFormat.ColliderType.Sphere)
-						Native.Physics.Physics_RagdollLinkAddSphereCollider(link, hitbox.radius, hitbox.offset, filterGroup, filterMask);
+						Physics.Physics_RagdollLinkAddSphereCollider(link, hitbox.radius, hitbox.offset, filterGroup, filterMask);
 					else if (hitbox.type == SceneFormat.ColliderType.Capsule)
-						Native.Physics.Physics_RagdollLinkAddCapsuleCollider(link, hitbox.radius, hitbox.height, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
+						Physics.Physics_RagdollLinkAddCapsuleCollider(link, hitbox.radius, hitbox.height, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
 
 					if (parentLink != IntPtr.Zero)
 					{
 						if (knee)
 						{
-							Native.Physics.Physics_RagdollLinkSetSwingXLimit(link, 0.0f, 0.9f * 3.1415f);
+							Physics.Physics_RagdollLinkSetSwingXLimit(link, 0.0f, 0.9f * 3.1415f);
 						}
 						else if (elbow)
 						{
-							Native.Physics.Physics_RagdollLinkSetSwingZLimit(link, -0.9f * 3.1415f, 0.0f);
+							Physics.Physics_RagdollLinkSetSwingZLimit(link, -0.9f * 3.1415f, 0.0f);
 						}
 						else
 						{
-							Native.Physics.Physics_RagdollLinkSetSwingXLimit(link, -0.3f * 3.1415f, 0.3f * 3.1415f);
-							Native.Physics.Physics_RagdollLinkSetTwistLimit(link, -0.1f * 3.1415f, 0.1f * 3.1415f);
-							Native.Physics.Physics_RagdollLinkSetSwingZLimit(link, -0.3f * 3.1415f, 0.3f * 3.1415f);
+							Physics.Physics_RagdollLinkSetSwingXLimit(link, -0.3f * 3.1415f, 0.3f * 3.1415f);
+							Physics.Physics_RagdollLinkSetTwistLimit(link, -0.1f * 3.1415f, 0.1f * 3.1415f);
+							Physics.Physics_RagdollLinkSetSwingZLimit(link, -0.3f * 3.1415f, 0.3f * 3.1415f);
 						}
 					}
 
@@ -124,31 +124,31 @@ namespace Rainfall
 
 		void init(Matrix transform, Vector3 initialVelocity)
 		{
-			ragdoll = Native.Physics.Physics_CreateRagdoll();
+			ragdoll = Physics.Physics_CreateRagdoll();
 			ragdolls.Add(ragdoll, this);
 
 			Matrix armatureTransform = transform * animator.getNodeTransform(rootNode.parent);
 			processNode(rootNode, armatureTransform, IntPtr.Zero, initialVelocity);
 
-			Native.Physics.Physics_SpawnRagdoll(ragdoll);
+			Physics.Physics_SpawnRagdoll(ragdoll);
 		}
 
 		public void destroy()
 		{
 			ragdolls.Remove(ragdoll);
-			Native.Physics.Physics_DestroyRagdoll(ragdoll);
+			Physics.Physics_DestroyRagdoll(ragdoll);
 		}
 
 		public void update()
 		{
-			Native.Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[0], out Vector3 rootPosition, out Quaternion rootRotation);
+			Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[0], out Vector3 rootPosition, out Quaternion rootRotation);
 			Matrix transform = Matrix.CreateTranslation(rootPosition) * Matrix.CreateRotation(rootRotation);
 
 			for (int i = 0; i < nodes.Count; i++)
 			{
 				Node node = nodes[i];
 
-				Native.Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[i], out Vector3 position, out Quaternion rotation);
+				Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[i], out Vector3 position, out Quaternion rotation);
 				Matrix globalTransform = Matrix.CreateTranslation(position) * Matrix.CreateRotation(rotation);
 				Matrix parentTransform = transform * animator.getNodeTransform(node.parent, 0);
 				Matrix localTransform = parentTransform.inverted * globalTransform;
@@ -160,14 +160,14 @@ namespace Rainfall
 
 		public Matrix getTransform()
 		{
-			Native.Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[0], out Vector3 position, out Quaternion rotation);
+			Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[0], out Vector3 position, out Quaternion rotation);
 			Matrix transform = Matrix.CreateTransform(position, rotation);
 			return transform;
 		}
 
 		public void getLinkTransform(int nodeIdx, out Vector3 position, out Quaternion rotation)
 		{
-			Native.Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[nodeIdx], out position, out rotation);
+			Physics.Physics_RagdollLinkGetGlobalTransform(boneLinks[nodeIdx], out position, out rotation);
 		}
 
 		public RigidBody getHitboxForNode(Node node)

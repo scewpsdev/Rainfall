@@ -12,13 +12,9 @@ public class Camera : Entity
 	public float far = 100.0f;
 
 
-	public override void update()
-	{
-		Audio.UpdateListener(position, rotation);
-	}
-
 	public override void draw(GraphicsDevice graphics)
 	{
+		Audio.UpdateListener(position, rotation);
 		Renderer.SetCamera(position, rotation, fov, Display.aspectRatio, near, far);
 	}
 

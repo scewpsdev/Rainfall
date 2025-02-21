@@ -32,8 +32,10 @@ public class GameState : State
 
 	public override void init()
 	{
-		loadSupermarket();
+		//loadSupermarket();
 		//loadStreet();
+		//loadRiver();
+		loadRacetrack();
 	}
 
 	void loadScene(string path)
@@ -88,13 +90,13 @@ public class GameState : State
 		scene.addEntity(player = new Player(cart), spawnPoint);
 		scene.addEntity(camera = new FollowCamera(player));
 
-		scene.addEntity(new EventTrigger(new Vector3(143.729f, 39.2209f, 67.3469f), Vector3.Zero, (RigidBody body) =>
+		scene.addEntity(new EventTrigger(new Vector3(206, 20, 137), Vector3.Zero, (RigidBody body) =>
 		{
 			if (body.entity is Cart)
 			{
 				nextLevel = "river";
 			}
-		}, PhysicsFilter.Cart), new Vector3(-86f, -213.584f, 570f));
+		}, PhysicsFilter.Cart), new Vector3(-57, -147, -401));
 
 		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
@@ -104,23 +106,37 @@ public class GameState : State
 	{
 		loadScene("river.rfs");
 
-		spawnPoint = Matrix.CreateTranslation(-100, 0, 0) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
+		spawnPoint = Matrix.CreateTranslation(0, -4, 0) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
 
 		scene.addEntity(cart = new Cart(), spawnPoint);
 		scene.addEntity(player = new Player(cart), spawnPoint);
 		scene.addEntity(camera = new FollowCamera(player));
 
-		cart.waterLevel = -15;
+		//cart.waterLevel = -4;
 
-		scene.addEntity(new CapItem(), new Vector3(2024.28f, -11.0571f, 31.153f));
+		scene.addEntity(new CapItem(), new Vector3(2024.28f, -11.0571f, 20.153f) * 0.25f);
 
-		scene.addEntity(new EventTrigger(new Vector3(143.729f, 39.2209f, 67.3469f), Vector3.Zero, (RigidBody body) =>
+		scene.addEntity(new EventTrigger(new Vector3(143.729f, 39.2209f, 67.3469f) * 0.5f, Vector3.Zero, (RigidBody body) =>
 		{
 			if (body.entity is Cart)
 			{
 				nextLevel = "racetrack";
 			}
-		}, PhysicsFilter.Cart), new Vector3(2007.04f, -5.42714f, 39.3736f));
+		}, PhysicsFilter.Cart), new Vector3(2007.04f, -5.42714f, 39.3736f) * 0.25f);
+
+		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
+		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
+	}
+
+	void loadRacetrack()
+	{
+		loadScene("racetrack.rfs");
+
+		spawnPoint = Matrix.CreateTranslation(-116.315f * 2, 2.08148f, 8.08349f * 2) * Matrix.CreateRotation(Vector3.Up, MathHelper.ToRadians(-116));
+
+		scene.addEntity(cart = new Cart(), spawnPoint);
+		scene.addEntity(player = new Player(cart), spawnPoint);
+		scene.addEntity(camera = new FollowCamera(player));
 
 		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);

@@ -1003,7 +1003,9 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 
 	Console_SetErrorCallback(callbacks.onInternalErrorEvent);
 
+#ifndef RAINFALL_EXCLUDE_PHYSICS
 	fixedUpdateCallback = callbacks.fixedUpdate;
+#endif
 
 	ImGuiLayerInit();
 

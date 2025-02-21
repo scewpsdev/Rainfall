@@ -48,7 +48,7 @@ public class Program : Game
 		Renderer.Init(Display.width, Display.height, graphics);
 		RendererSettings renderSettings = new RendererSettings(0);
 		renderSettings.bloomEnabled = false;
-		//renderSettings.ssaoEnabled = false;
+		renderSettings.ssaoEnabled = false;
 		Renderer.SetSettings(renderSettings);
 
 		Physics.Init();
@@ -245,7 +245,7 @@ public class Program : Game
 #endif
 
 		LaunchParams launchParams = new LaunchParams(args);
-		launchParams.fpsCap = 60;
+		launchParams.fpsCap = 120;
 #if DEBUG
 		launchParams.width = 1280;
 		launchParams.height = 720;

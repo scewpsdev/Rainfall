@@ -92,7 +92,7 @@ public class Cart : Entity
 		// Suspension
 
 		//const float suspensionRestPosition = 0.138185f;
-		const float springStrength = 200;
+		const float springStrength = 100;
 		const float springDamper = 15;
 
 		Matrix tireTransform = getModelMatrix() * Matrix.CreateTranslation(tireLocalPositions[i]);
@@ -114,11 +114,11 @@ public class Cart : Entity
 			float range = raycastHeight + wheelRadius;
 			Vector3 dir = tireTransform.rotation.down;
 			Vector3 dest = origin + range * dir;
-			if (dest.y <= waterLevel)
+			if (dest.y <= waterLevel - raycastHeight)
 			{
 				hit = new HitData()
 				{
-					distance = (origin.y - waterLevel) / dir.y,
+					distance = (origin.y - (waterLevel - raycastHeight)) / dir.y,
 					normal = Vector3.Up
 				};
 			}
@@ -264,6 +264,7 @@ public class Cart : Entity
 		setTransform(GameState.instance.spawnPoint);
 		body.setVelocity(Vector3.Zero);
 		body.setRotationVelocity(Vector3.Zero);
+		ejected = false;
 	}
 
 	public override void onContact(RigidBody other, CharacterController otherController, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType)
@@ -273,9 +274,10 @@ public class Cart : Entity
 			if (!ejected)
 			{
 				Vector3 velocity = body.getVelocity();
-				Vector3 sum = lastVelocity - velocity;
+				Vector2 sum = (lastVelocity - velocity).xz;
 				float d = sum.length;
-				if (d > 20)
+				Console.WriteLine(d);
+				if (d > 15)
 				{
 					// eject jerome
 					GameState.instance.player.eject(lastVelocity);

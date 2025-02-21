@@ -11,36 +11,47 @@
 				0,
 				1,
 				2,
-				3
+				3,
+				4
 			]
 		}
 	],
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Plane"
+			"name":"Plane",
+			"scale":[
+				0.25,
+				0.25,
+				0.25
+			]
 		},
 		{
 			"mesh":1,
 			"name":"Plane.001",
+			"scale":[
+				0.5,
+				0.5,
+				0.5
+			],
 			"translation":[
-				1998.5576171875,
-				-13.001784324645996,
-				-34.09523391723633
+				499.639404296875,
+				-3.250446319580078,
+				-8.523807525634766
 			]
 		},
 		{
 			"mesh":2,
 			"name":"Cube.001",
 			"scale":[
-				10,
-				10,
-				10
+				2.5,
+				2.5,
+				2.5
 			],
 			"translation":[
-				2307.268798828125,
-				-13.001784324645996,
-				-34.09523391723633
+				576.817138671875,
+				-3.250446319580078,
+				-8.523807525634766
 			]
 		},
 		{
@@ -55,6 +66,15 @@
 				-1187.715087890625,
 				-13.001784324645996,
 				-34.09523391723633
+			]
+		},
+		{
+			"mesh":4,
+			"name":"Plane.002",
+			"translation":[
+				0,
+				-4,
+				0
 			]
 		}
 	],
@@ -110,6 +130,19 @@
 					"indices":11
 				}
 			]
+		},
+		{
+			"name":"Plane",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":15,
+						"NORMAL":16,
+						"TEXCOORD_0":17
+					},
+					"indices":18
+				}
+			]
 		}
 	],
 	"accessors":[
@@ -123,7 +156,7 @@
 				448.1235046386719
 			],
 			"min":[
-				-2253.762939453125,
+				-421.76251220703125,
 				-27.373058319091797,
 				-448.1235046386719
 			],
@@ -242,6 +275,40 @@
 			"componentType":5126,
 			"count":72,
 			"type":"VEC2"
+		},
+		{
+			"bufferView":15,
+			"componentType":5126,
+			"count":4,
+			"max":[
+				566.5496826171875,
+				0,
+				44.65251159667969
+			],
+			"min":[
+				-108.5496826171875,
+				0,
+				-44.65251159667969
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":16,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":17,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":18,
+			"componentType":5123,
+			"count":6,
+			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
@@ -334,11 +401,35 @@
 			"byteLength":576,
 			"byteOffset":30528,
 			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":31104,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":31152,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":32,
+			"byteOffset":31200,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":31232,
+			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":31104,
+			"byteLength":31244,
 			"uri":"river.bin"
 		}
 	]

@@ -72,7 +72,7 @@ public class ParticleEffect : Entity
 		for (int i = 0; i < systems.Length; i++)
 		{
 			systems[i].setTransform(Matrix.CreateTranslation(position.x, position.y, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation), true);
-			systems[i].update();
+			systems[i].update(Quaternion.Identity);
 
 			if (collision)
 			{

@@ -241,13 +241,6 @@ public class Entity : PhysicsEntity
 	{
 		Matrix transform = getModelMatrix();
 
-		if (body != null)
-		{
-			if (body.type == RigidBodyType.Dynamic)
-				body.getTransform(out position, out rotation);
-			else if (body.type == RigidBodyType.Kinematic)
-				body.setTransform(position, rotation);
-		}
 		if (hitboxes != null && model != null && animator != null)
 			updateBoneHitbox(model.skeleton.rootNode, transform * animator.getNodeLocalTransform(model.skeleton.rootNode));
 

@@ -30,6 +30,7 @@ public class AttackAction : EntityAction
 
 	public int attackIdx { get; private set; }
 
+	Vector2 lastTip;
 	int lastSpin = 0;
 
 	WeaponTrail trail;
@@ -117,9 +118,81 @@ public class AttackAction : EntityAction
 	{
 	}
 
+	void processHit(HitData hit, Player player)
+	{
+		Entity entity = hit.entity;
+		if (hit.entity != null && hit.entity != player && hit.entity is Hittable && !hitEntities.Contains(hit.entity))
+		{
+			Hittable hittable = hit.entity as Hittable;
+
+			float damage = attackDamage * player.getMeleeDamageModifier();
+
+			bool critical = false;
+			if (entity is Mob)
+			{
+				Mob mob = entity as Mob;
+				critical = mob.isStunned && mob.criticalStun
+				|| Random.Shared.NextSingle() < player.criticalChance * weapon.criticalChanceModifier * player.getCriticalChanceModifier()
+					|| (mob.ai == null || mob.ai.target != player) && player.getStealthAttackModifier() > 1.5f;
+			}
+			if (critical)
+				damage *= player.getCriticalAttackModifier();
+
+			if (hittable.hit(damage, player, weapon, null, true, critical))
+			{
+				hitEntities.Add(entity);
+
+				if (entity is Mob)
+				{
+					Mob mob = entity as Mob;
+					if (damage > mob.poise)
+					{
+						Vector2 knockback = ((entity.position - player.position).normalized + Vector2.Up * 0.1f) * weapon.knockback;
+						if (mob.isAlive)
+							mob.addImpulse(knockback);
+						else
+							mob.corpse.addImpulse(knockback);
+					}
+				}
+
+				if (hittable is Mob)
+				{
+					Mob mob = hittable as Mob;
+					for (int j = 0; j < player.items.Count; j++)
+					{
+						if (player.isEquipped(player.items[j]))
+							player.items[j].onEnemyHit(player, mob, damage, critical);
+					}
+				}
+
+				if (!player.isGrounded)
+				{
+					Vector2 currentImpulse = new Vector2(player.impulseVelocity, player.velocity.y);
+					if (Vector2.Dot(currentImpulse, -direction) < 4)
+						player.addImpulse(-direction * (4 - Vector2.Dot(currentImpulse, -direction)));
+
+					float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
+					player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
+				}
+
+				if (weapon.hitSound != null && !hitSoundPlayed)
+				{
+					Audio.PlayOrganic(weapon.hitSound, new Vector3(hit.entity.position + hit.entity.collider.center, 0));
+					hitSoundPlayed = true;
+				}
+
+				//if (critical)
+				//	GameState.instance.level.addEntity(Effects.CreateCriticalEffect(), hit.entity.position + hit.entity.collider.center);
+			}
+		}
+	}
+
 	public override void update(Player player)
 	{
 		base.update(player);
+
+		Vector2 origin = getWorldOrigin(player);
+		Vector2 direction = worldDirection;
 
 		if (inDamageWindow)
 		{
@@ -129,9 +202,6 @@ public class AttackAction : EntityAction
 				hitEntities.Clear();
 				lastSpin = currentSpin;
 			}
-
-			Vector2 origin = getWorldOrigin(player);
-			Vector2 direction = worldDirection;
 
 			HitData tileHit = GameState.instance.level.raycastTiles(origin, direction, currentRange);
 			if (tileHit != null)
@@ -149,72 +219,16 @@ public class AttackAction : EntityAction
 			Span<HitData> hits = new HitData[16];
 			int numHits = GameState.instance.level.sweepNoBlock(origin, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), direction, maxRange, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
 			for (int i = 0; i < numHits; i++)
+				processHit(hits[i], player);
+
+			if (lastTip != Vector2.Zero)
 			{
-				Entity entity = hits[i].entity;
-				if (hits[i].entity != null && hits[i].entity != player && hits[i].entity is Hittable && !hitEntities.Contains(hits[i].entity))
-				{
-					Hittable hittable = hits[i].entity as Hittable;
-
-					float damage = attackDamage * player.getMeleeDamageModifier();
-
-					bool critical = false;
-					if (entity is Mob)
-					{
-						Mob mob = entity as Mob;
-						critical = mob.isStunned && mob.criticalStun
-							|| Random.Shared.NextSingle() < player.criticalChance * weapon.criticalChanceModifier * player.getCriticalChanceModifier()
-							|| (mob.ai == null || mob.ai.target != player) && player.getStealthAttackModifier() > 1.5f;
-					}
-					if (critical)
-						damage *= player.getCriticalAttackModifier();
-
-					if (hittable.hit(damage, player, weapon, null, true, critical))
-					{
-						hitEntities.Add(entity);
-
-						if (entity is Mob)
-						{
-							Mob mob = entity as Mob;
-							if (damage > mob.poise)
-							{
-								Vector2 knockback = ((entity.position - player.position).normalized + Vector2.Up * 0.1f) * weapon.knockback;
-								if (mob.isAlive)
-									mob.addImpulse(knockback);
-								else
-									mob.corpse.addImpulse(knockback);
-							}
-						}
-
-						if (hittable is Mob)
-						{
-							Mob mob = hittable as Mob;
-							for (int j = 0; j < player.items.Count; j++)
-							{
-								if (player.isEquipped(player.items[j]))
-									player.items[j].onEnemyHit(player, mob, damage, critical);
-							}
-						}
-
-						if (!player.isGrounded)
-						{
-							Vector2 currentImpulse = new Vector2(player.impulseVelocity, player.velocity.y);
-							if (Vector2.Dot(currentImpulse, -direction) < 4)
-								player.addImpulse(-direction * (4 - Vector2.Dot(currentImpulse, -direction)));
-
-							float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
-							player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
-						}
-
-						if (weapon.hitSound != null && !hitSoundPlayed)
-						{
-							Audio.PlayOrganic(weapon.hitSound, new Vector3(hits[i].entity.position + hits[i].entity.collider.center, 0));
-							hitSoundPlayed = true;
-						}
-
-						//if (critical)
-						//	GameState.instance.level.addEntity(Effects.CreateCriticalEffect(), hits[i].entity.position + hits[i].entity.collider.center);
-					}
-				}
+				Vector2 dest = origin + maxRange * direction;
+				Vector2 fromLast = dest - lastTip;
+				hits = new HitData[16];
+				numHits = GameState.instance.level.sweepNoBlock(lastTip, new FloatRect(-0.125f, -0.125f, 0.25f, 0.25f), fromLast.normalized, fromLast.length, hits, Entity.FILTER_MOB | Entity.FILTER_DEFAULT);
+				for (int i = 0; i < numHits; i++)
+					processHit(hits[i], player);
 			}
 
 			if (!useSoundPlayed && weapon.useSound != null)
@@ -223,6 +237,8 @@ public class AttackAction : EntityAction
 				useSoundPlayed = true;
 			}
 		}
+
+		lastTip = origin + direction * maxRange;
 
 		if (trail != null)
 		{
@@ -259,7 +275,7 @@ public class AttackAction : EntityAction
 		get
 		{
 			float value = MathF.Min(elapsedTime / duration * (1 + attackCooldown), 1);
-			value = 1 - MathF.Pow(1 - value, weapon.attackAcceleration);
+			value = 1 - MathF.Pow(1 - value, weapon.attackAcceleration * 2);
 			return value;
 		}
 	}

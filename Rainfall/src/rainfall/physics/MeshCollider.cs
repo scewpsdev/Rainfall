@@ -20,7 +20,7 @@ namespace Rainfall
 
 		public void destroy()
 		{
-			Native.Physics.Physics_DestroyMeshCollider(handle);
+			Physics.Physics_DestroyMeshCollider(handle);
 		}
 	}
 
@@ -38,7 +38,7 @@ namespace Rainfall
 
 		public void destroy()
 		{
-			Native.Physics.Physics_DestroyConvexMeshCollider(handle);
+			Physics.Physics_DestroyConvexMeshCollider(handle);
 		}
 	}
 }
