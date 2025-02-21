@@ -16,7 +16,7 @@ public class RingOfDexterity : Item
 		description = "Increases attack speed by 10%";
 		value = 60;
 
-		sprite = new Sprite(tileset, 9, 0);
+		sprite = new Sprite(tileset, 14, 10);
 
 		buff = new ItemBuff(this) { attackSpeedModifier = 1.1f };
 	}

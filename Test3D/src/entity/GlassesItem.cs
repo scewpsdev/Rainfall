@@ -15,6 +15,6 @@ public class GlassesItem : Item
 
 	protected override void onCollect(Player player)
 	{
-		player.hasGlasses = true;
+		GameState.instance.hasGlasses = true;
 	}
 }

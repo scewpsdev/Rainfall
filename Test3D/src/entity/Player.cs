@@ -22,10 +22,6 @@ public class Player : Entity
 	Ragdoll ragdoll;
 	long ragdollSince = -1;
 
-	public bool hasCap = false;
-	public bool hasChain = false;
-	public bool hasGlasses = false;
-
 
 	public Player(Cart cart)
 	{
@@ -76,12 +72,16 @@ public class Player : Entity
 			ragdoll.update();
 			ragdoll.getTransform().decompose(out position, out rotation);
 
-			if (ragdollSince != -1 && (Time.currentTime - ragdollSince) / 1e9f >= 3 && ragdoll.getHitboxForNode(ragdoll.rootNode).getVelocity().length < 0.5f)
+			if (ragdollSince != -1 && (Time.currentTime - ragdollSince) / 1e9f >= 3)
 			{
-				cart.respawn();
-				ragdoll.destroy();
-				ragdoll = null;
-				ragdollSince = -1;
+				Vector3 velocity = ragdoll.getHitboxForNode(ragdoll.rootNode).getVelocity();
+				if (velocity.length < 0.5f || velocity.y < -1000)
+				{
+					cart.respawn();
+					ragdoll.destroy();
+					ragdoll = null;
+					ragdollSince = -1;
+				}
 			}
 		}
 		else
@@ -128,11 +128,11 @@ public class Player : Entity
 	{
 		base.draw(graphics);
 
-		if (hasCap)
+		if (GameState.instance.hasCap)
 			Renderer.DrawModel(cap, getModelMatrix(), animator);
-		if (hasChain)
+		if (GameState.instance.hasChain)
 			Renderer.DrawModel(chain, getModelMatrix(), animator);
-		if (hasGlasses)
+		if (GameState.instance.hasGlasses)
 			Renderer.DrawModel(glasses, getModelMatrix(), animator);
 	}
 }

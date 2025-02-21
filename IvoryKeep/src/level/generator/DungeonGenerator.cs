@@ -28,11 +28,11 @@ public partial class LevelGenerator
 	{
 		areaDungeons = new Level[5];
 		Vector3 ambience = MathHelper.ARGBToVector(0xFF3b3159).xyz;
-		areaDungeons[0] = new Level(9, "Weeping Catacombs", 60, 40, null, 20, 40) { ambientLight = ambience };
-		areaDungeons[1] = new Level(10, "", 40, 50, null, 22, 50) { ambientLight = ambience };
-		areaDungeons[2] = new Level(11, "", 50, 50, null, 25, 60) { ambientLight = ambience };
-		areaDungeons[3] = new Level(12, "", 40, 60, TileType.bricks, 27, 70) { ambientLight = ambience };
-		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.bricks, 27, 70) { ambientLight = ambience }; // loot value will affect what the blacksmith sells in the hub
+		areaDungeons[0] = new Level(9, "Weeping Catacombs", 60, 40, null, 20, 50) { ambientLight = ambience };
+		areaDungeons[1] = new Level(10, "", 40, 50, null, 22, 60) { ambientLight = ambience };
+		areaDungeons[2] = new Level(11, "", 50, 50, null, 25, 70) { ambientLight = ambience };
+		areaDungeons[3] = new Level(12, "", 40, 60, TileType.bricks, 27, 80) { ambientLight = ambience };
+		areaDungeons[4] = new Level(-1, "Forgotten Chamber", 40, 20, TileType.bricks, 27, 80) { ambientLight = ambience }; // loot value will affect what the blacksmith sells in the hub
 
 		List<Mob> createEnemy()
 		{

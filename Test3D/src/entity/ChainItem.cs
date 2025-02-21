@@ -15,6 +15,6 @@ public class ChainItem : Item
 
 	protected override void onCollect(Player player)
 	{
-		player.hasChain = true;
+		GameState.instance.hasChain = true;
 	}
 }

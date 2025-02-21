@@ -725,6 +725,10 @@ public abstract class Item
 		InitType(new RingOfThorns());
 		InitType(new AdventurersHoodBlue());
 		InitType(new Flail());
+		InitType(new SteelHammer());
+		InitType(new Shir());
+		InitType(new Katana());
+		InitType(new IronHelmet());
 	}
 
 	static void InitType(Item item)

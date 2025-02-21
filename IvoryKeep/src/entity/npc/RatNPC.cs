@@ -96,7 +96,7 @@ public class RatNPC : NPC
 
 		if (level.floor != -1)
 		{
-			populateShop(GameState.instance.generator.random, 1, 4, 5, ItemType.Food);
+			populateShop(GameState.instance.generator.random, 3, 5, 5, ItemType.Food);
 			addShopItem(new Cheese() { name = "wondrous_cheese", displayName = "Wondrous Cheese", stackable = false }, 0);
 		}
 	}

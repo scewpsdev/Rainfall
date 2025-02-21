@@ -15,9 +15,9 @@ public class BarbarianHelmet : Item
 
 		baseArmor = 5;
 		armorSlot = ArmorSlot.Helmet;
-		baseWeight = 2;
+		baseWeight = 2.5f;
 
-		value = 40;
+		value = 50;
 
 		sprite = new Sprite(tileset, 11, 0);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/barbarian_helmet.png", false), 0, 0, 32, 32);

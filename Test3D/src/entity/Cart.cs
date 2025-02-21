@@ -54,6 +54,7 @@ public class Cart : Entity
 	public float waterLevel = float.MaxValue;
 
 	Model wheel;
+	CartEngine engine;
 
 	ParticleSystem[] wheelParticles = new ParticleSystem[4];
 
@@ -235,9 +236,12 @@ public class Cart : Entity
 		float maxSteer = 0.3f * MathF.PI * (1 / (1 + MathF.Abs(forwardSpeed) * 0.3f));
 		currentWheelSteer = MathHelper.Clamp(currentWheelSteer, -maxSteer, maxSteer);
 
-		float rocketForce = 40;
-		if (Input.IsKeyDown(KeyCode.Shift) && !ejected)
-			body.addForce(rotation.forward * rocketForce);
+		if (GameState.instance.hasEngine)
+		{
+			float rocketForce = 40;
+			if (Input.IsKeyDown(KeyCode.Shift) && !ejected)
+				body.addForce(rotation.forward * rocketForce);
+		}
 
 		for (int i = 0; i < tireLocalPositions.Length; i++)
 			simulateTire(i, i >= 2, delta);
@@ -284,6 +288,26 @@ public class Cart : Entity
 					ejected = true;
 				}
 			}
+		}
+	}
+
+	public override void update()
+	{
+		base.update();
+
+		if (GameState.instance.hasEngine && engine == null)
+		{
+			GameState.instance.scene.addEntity(engine = new CartEngine(), position);
+		}
+		else if (!GameState.instance.hasEngine && engine != null)
+		{
+			engine.destroy();
+			engine = null;
+		}
+
+		if (engine != null)
+		{
+			engine.active = Input.IsKeyDown(KeyCode.Shift);
 		}
 	}
 

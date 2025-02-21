@@ -20,9 +20,16 @@ public class GameState : State
 	public Cart cart;
 	public Player player;
 
-	Camera camera;
-	DirectionalLight sun;
-	Cubemap skybox;
+	public Model npcPath;
+
+	public Camera camera;
+	public DirectionalLight sun;
+	public Cubemap skybox;
+
+	public bool hasCap = false;
+	public bool hasChain = false;
+	public bool hasGlasses = false;
+	public bool hasEngine = true;
 
 
 	public GameState()
@@ -32,10 +39,10 @@ public class GameState : State
 
 	public override void init()
 	{
-		//loadSupermarket();
+		loadSupermarket();
 		//loadStreet();
 		//loadRiver();
-		loadRacetrack();
+		//loadRacetrack();
 	}
 
 	void loadScene(string path)
@@ -66,7 +73,7 @@ public class GameState : State
 		{
 			if (body.entity is Cart)
 			{
-				if (player.hasCap && player.hasChain && player.hasGlasses)
+				if (hasCap && hasChain && hasGlasses)
 				{
 					nextLevel = "street";
 				}
@@ -80,15 +87,25 @@ public class GameState : State
 		skybox = Resource.GetCubemap("supermarket_cubemap_equirect.png");
 	}
 
-	void loadStreet()
+	unsafe void loadStreet()
 	{
 		loadScene("street.rfs");
+
+		npcPath = Resource.GetModel("street_path.gltf");
 
 		spawnPoint = Matrix.CreateTranslation(50, 0, 0) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
 
 		scene.addEntity(cart = new Cart(), spawnPoint);
 		scene.addEntity(player = new Player(cart), spawnPoint);
 		scene.addEntity(camera = new FollowCamera(player));
+
+		int numCars = 30;
+		for (int i = 0; i < numCars; i++)
+		{
+			MeshData* pathMesh = npcPath.getMeshData(0);
+			int startPoint = MathHelper.RandomInt(0, pathMesh->vertexCount - 1);
+			scene.addEntity(new Car(startPoint), pathMesh->getVertex(startPoint).position);
+		}
 
 		scene.addEntity(new EventTrigger(new Vector3(206, 20, 137), Vector3.Zero, (RigidBody body) =>
 		{
@@ -102,25 +119,40 @@ public class GameState : State
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
 	}
 
-	void loadRiver()
+	unsafe void loadRiver()
 	{
 		loadScene("river.rfs");
 
-		spawnPoint = Matrix.CreateTranslation(0, -4, 0) * Matrix.CreateRotation(Vector3.Up, -MathF.PI * 0.5f);
+		npcPath = Resource.GetModel("river_path.gltf");
+
+		spawnPoint = Matrix.CreateTranslation(549.223f, -4, 150.594f) * Matrix.CreateRotation(Vector3.Up, MathF.PI * 0.5f);
+
+		scene.addEntity(new WaterSurface(Resource.GetModel("river_water.gltf")), new Vector3(0, -3.2f, 0));
 
 		scene.addEntity(cart = new Cart(), spawnPoint);
 		scene.addEntity(player = new Player(cart), spawnPoint);
 		scene.addEntity(camera = new FollowCamera(player));
 
+		int numShips = 15;
+		for (int i = 0; i < numShips; i++)
+		{
+			MeshData* pathMesh = npcPath.getMeshData(0);
+			int startPoint = MathHelper.RandomInt(0, pathMesh->vertexCount - 1);
+			scene.addEntity(new Ship(startPoint), pathMesh->getVertex(startPoint).position);
+		}
+
 		//cart.waterLevel = -4;
 
-		scene.addEntity(new CapItem(), new Vector3(2024.28f, -11.0571f, 20.153f) * 0.25f);
+		scene.addEntity(new EngineItem(), new Vector3(2024.28f, -11.0571f, 20.153f) * 0.25f);
 
 		scene.addEntity(new EventTrigger(new Vector3(143.729f, 39.2209f, 67.3469f) * 0.5f, Vector3.Zero, (RigidBody body) =>
 		{
 			if (body.entity is Cart)
 			{
-				nextLevel = "racetrack";
+				if (hasEngine)
+				{
+					nextLevel = "racetrack";
+				}
 			}
 		}, PhysicsFilter.Cart), new Vector3(2007.04f, -5.42714f, 39.3736f) * 0.25f);
 
@@ -128,15 +160,25 @@ public class GameState : State
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);
 	}
 
-	void loadRacetrack()
+	unsafe void loadRacetrack()
 	{
 		loadScene("racetrack.rfs");
+
+		npcPath = Resource.GetModel("racetrack_path.gltf");
 
 		spawnPoint = Matrix.CreateTranslation(-116.315f * 2, 2.08148f, 8.08349f * 2) * Matrix.CreateRotation(Vector3.Up, MathHelper.ToRadians(-116));
 
 		scene.addEntity(cart = new Cart(), spawnPoint);
 		scene.addEntity(player = new Player(cart), spawnPoint);
 		scene.addEntity(camera = new FollowCamera(player));
+
+		int numCars = 10;
+		for (int i = 0; i < numCars; i++)
+		{
+			MeshData* pathMesh = npcPath.getMeshData(0);
+			int startPoint = MathHelper.RandomInt(0, pathMesh->vertexCount - 1);
+			scene.addEntity(new Racecar(startPoint), pathMesh->getVertex(startPoint).position);
+		}
 
 		skybox = Resource.GetCubemap("sky_cubemap_equirect.png");
 		sun = new DirectionalLight(new Vector3(-1).normalized, Vector3.One, Renderer.graphics);

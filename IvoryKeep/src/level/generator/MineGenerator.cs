@@ -31,8 +31,8 @@ public partial class LevelGenerator
 		Vector3 darkAmbience = new Vector3(0.001f);
 		areaMines[0] = new Level(5, "Crystal Mines", 30, 70, TileType.dirt, 12, 20) { ambientLight = mediumAmbience };
 		areaMines[1] = new Level(6, "", 70, 30, TileType.dirt, 14, 25) { ambientLight = mediumAmbience };
-		areaMines[2] = new Level(7, "", 40, 40, TileType.dirt, 16, 30) { ambientLight = mediumAmbience };
-		areaMines[3] = new Level(8, "", 30, 80, TileType.dirt, 18, 35) { ambientLight = mediumAmbience };
+		areaMines[2] = new Level(7, "", 40, 40, TileType.dirt, 16, 35) { ambientLight = mediumAmbience };
+		areaMines[3] = new Level(8, "", 30, 80, TileType.dirt, 18, 45) { ambientLight = mediumAmbience };
 		areaMines[4] = new Level(-1, "", 18, 35) { ambientLight = mediumAmbience }; // loot value will affect what the blacksmith sells in the hub
 
 		List<Mob> createEnemy()

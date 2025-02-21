@@ -15,6 +15,6 @@ public class CapItem : Item
 
 	protected override void onCollect(Player player)
 	{
-		player.hasCap = true;
+		GameState.instance.hasCap = true;
 	}
 }

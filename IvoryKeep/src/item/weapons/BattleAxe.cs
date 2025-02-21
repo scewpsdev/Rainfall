@@ -28,6 +28,6 @@ public class BattleAxe : Weapon
 
 		sprite = new Sprite(tileset, 8, 7, 2, 1);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.4f;
 	}
 }

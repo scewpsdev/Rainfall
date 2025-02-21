@@ -644,7 +644,7 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 		| aiProcess_CalcTangentSpace
 		| aiProcess_JoinIdenticalVertices
 		//| aiProcess_SplitLargeMeshes
-		| aiProcess_ImproveCacheLocality
+		//| aiProcess_ImproveCacheLocality
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
 		//| aiProcess_OptimizeGraph
