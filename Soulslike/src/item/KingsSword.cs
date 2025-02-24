@@ -12,5 +12,8 @@ public class KingsSword : Weapon
 		: base("kings_sword", "King's Sword")
 	{
 		twoHanded = true;
+
+		addAttack(new AttackData("attack1", "attack2", 18));
+		addAttack(new AttackData("attack2", "attack1", 18));
 	}
 }

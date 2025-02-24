@@ -97,7 +97,7 @@ public class ActionManager
 			if (currentAction.hasStarted)
 			{
 				bool actionShouldFinish = currentAction.hasFinished ||
-					(currentAction.elapsedTime >= currentAction.followUpCancelTime && actionQueue.Count > 1 && currentAction.type == actionQueue[1].type);
+					(currentAction.elapsedTime >= currentAction.followUpCancelTime && actionQueue.Count > 1);
 				if (actionShouldFinish)
 				{
 					deinitializeAction(currentAction);

@@ -47,11 +47,11 @@ public abstract class Item
 		}
 	}
 
-	public virtual void use(Player player)
+	public virtual void use(Player player, int hand)
 	{
 	}
 
-	public virtual void useSecondary(Player player)
+	public virtual void useSecondary(Player player, int hand)
 	{
 	}
 

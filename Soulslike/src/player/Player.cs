@@ -83,23 +83,20 @@ public class Player : Entity
 		for (int i = 0; i < model.skeleton.nodes.Length; i++)
 		{
 			Node node = model.skeleton.nodes[i];
-			if (isArmNode(node))
+			if (node.name.EndsWith("r"))
+				rightHandBoneMask[i] = true;
+			else if (node.name.EndsWith("l"))
+				leftHandBoneMask[i] = true;
+			else
 			{
-				if (node.name.EndsWith("_r"))
-					rightHandBoneMask[i] = true;
-				else if (node.name.EndsWith("_l"))
-					leftHandBoneMask[i] = true;
+				rightHandBoneMask[i] = true;
+				leftHandBoneMask[i] = true;
 			}
 		}
 
 		actionManager = new ActionManager(this);
 
 		Input.cursorMode = CursorMode.Disabled;
-	}
-
-	bool isArmNode(Node node)
-	{
-		return node.name.Contains("shoulder") || node.name.Contains("arm") || node.name.Contains("hand") || node.name.Contains("thumb") || node.name.Contains("palm") || node.name.StartsWith("f_") || node.name.Contains("weapon");
 	}
 
 	public override void init()
@@ -257,14 +254,14 @@ public class Player : Entity
 		{
 			if (InputManager.IsPressed("AttackRight", true) || InputManager.IsDown("AttackRight") && !rightWeapon.useTrigger && actionManager.currentAction == null)
 			{
-				rightWeapon.use(this);
+				rightWeapon.use(this, 0);
 			}
 		}
 		if (rightWeapon != null && rightWeapon.twoHanded)
 		{
 			if (InputManager.IsPressed("AttackLeft", true) || InputManager.IsDown("AttackLeft") && !rightWeapon.secondaryUseTrigger && actionManager.currentAction == null)
 			{
-				rightWeapon.useSecondary(this);
+				rightWeapon.useSecondary(this, 0);
 			}
 		}
 
@@ -319,15 +316,12 @@ public class Player : Entity
 		for (int i = 0; i < model.skeleton.nodes.Length; i++)
 		{
 			Node node = model.skeleton.nodes[i];
-			if (isArmNode(node))
-			{
-				if (node.name.EndsWith("r"))
-					animator.setNodeLocalTransform(node, rightHandAnimator.getNodeLocalTransform(node));
-				else if (node.name.EndsWith("l"))
-					animator.setNodeLocalTransform(node, leftHandAnimator.getNodeLocalTransform(node));
-				else
-					Console.Error.WriteLine("Invalid arm bone " + node.name);
-			}
+			if (node.name.EndsWith("r"))
+				animator.setNodeLocalTransform(node, rightHandAnimator.getNodeLocalTransform(node));
+			else if (node.name.EndsWith("l"))
+				animator.setNodeLocalTransform(node, leftHandAnimator.getNodeLocalTransform(node));
+			//else
+			//	Console.Error.WriteLine("Invalid arm bone " + node.name);
 		}
 
 		float itemViewmodelAim = rightWeapon != null ? rightWeapon.viewmodelAim : leftWeapon != null ? leftWeapon.viewmodelAim : DEFAULT_VIEWMODEL_AIM;
@@ -367,13 +361,14 @@ public class Player : Entity
 		}
 		*/
 
-		Matrix weaponSway = Matrix.Identity; // calculateWeaponSway();
+		Matrix weaponSway = calculateWeaponSway();
 
 		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
 			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
-			MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime);
+			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime) :
+			CAMERA_HEIGHT;
 		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Right, pitch) * weaponSway * Matrix.CreateRotation(Vector3.Up, MathF.PI);
-		camera.setTransform(getModelMatrix() * modelTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI) * Matrix.CreateRotation(Vector3.Up, camerayaw));
+		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateRotation(Vector3.Up, camerayaw));
 
 		animator.applyAnimation();
 
@@ -388,12 +383,13 @@ public class Player : Entity
 
 	Simplex simplex = new Simplex();
 	float viewmodelVerticalSpeedAnim;
-	Vector2 viewmodelLookSwayAnim;
+	Vector3 viewmodelLookSwayAnim;
 	Matrix calculateWeaponSway()
 	{
 		Vector3 sway = Vector3.Zero;
 		float yawSway = 0;
 		float pitchSway = 0;
+		float rollSway = 0;
 
 		// Idle animation
 		float swayScale = actionManager.currentAction != null ? actionManager.currentAction.swayAmount : 1;
@@ -427,11 +423,13 @@ public class Player : Entity
 		// Look sway
 		float swayYawDst = -1.0f * InputManager.lookVector.x;
 		float swayPitchDst = -1.0f * InputManager.lookVector.y;
-		viewmodelLookSwayAnim = Vector2.Lerp(viewmodelLookSwayAnim, new Vector2(swayPitchDst, swayYawDst), 5.0f * Time.deltaTime);
+		float swayRollDst = -1.0f * InputManager.lookVector.x;
+		viewmodelLookSwayAnim = Vector3.Lerp(viewmodelLookSwayAnim, new Vector3(swayPitchDst, swayYawDst, swayRollDst), 5.0f * Time.deltaTime);
 		pitchSway += viewmodelLookSwayAnim.x;
 		yawSway += viewmodelLookSwayAnim.y;
+		rollSway += viewmodelLookSwayAnim.z;
 
-		return Matrix.CreateTranslation(sway) * Matrix.CreateRotation(Vector3.Up, yawSway) * Matrix.CreateRotation(Vector3.Right, pitchSway);
+		return Matrix.CreateTranslation(sway) * Matrix.CreateRotation(Vector3.Up, yawSway) * Matrix.CreateRotation(Vector3.Right, pitchSway) * Matrix.CreateRotation(Vector3.Back, rollSway);
 	}
 
 	public override void update()

@@ -30,7 +30,7 @@ public class Crossbow : Item
 		loadedAnim = Animator.CreateAnimation(model, "loaded", true);
 	}
 
-	public override void use(Player player)
+	public override void use(Player player, int hand)
 	{
 		if (player.actionManager.currentAction is CrossbowAimAction)
 			player.actionManager.currentAction.cancel();
@@ -38,7 +38,7 @@ public class Crossbow : Item
 		loaded = false;
 	}
 
-	public override void useSecondary(Player player)
+	public override void useSecondary(Player player, int hand)
 	{
 		player.actionManager.queueAction(new CrossbowAimAction(this));
 	}

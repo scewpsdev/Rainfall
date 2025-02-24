@@ -17,7 +17,7 @@ public class Staff : Item
 		moveset = Resource.GetModel("item/staff_moveset.gltf");
 	}
 
-	public override void use(Player player)
+	public override void use(Player player, int hand)
 	{
 		player.actionManager.queueAction(new SpellCastAction(this));
 	}

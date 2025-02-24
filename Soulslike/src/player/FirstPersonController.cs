@@ -34,7 +34,7 @@ public class FirstPersonController
 
 	public const float COLLIDER_RADIUS = 0.35f;
 	public const float COLLIDER_HEIGHT = 1.75f;
-	public const float COLLIDER_HEIGHT_DUCKED = 0.92f;
+	public const float COLLIDER_HEIGHT_DUCKED = 1.15f;
 
 	const float MAX_AIR_SPEED = 0.3f;
 	const float LADDER_SPEED = 1.5f;
@@ -214,8 +214,13 @@ public class FirstPersonController
 			{
 				if (inDuckTimer == -1.0f)
 				{
-					inDuckTimer = 0.0f;
-					//isDucked = true;
+					if (isGrounded)
+						inDuckTimer = 0.0f;
+					else if (!isDucked)
+					{
+						isDucked = true;
+						controller.move(Vector3.Up * (COLLIDER_HEIGHT - COLLIDER_HEIGHT_DUCKED));
+					}
 				}
 			}
 			else
@@ -239,6 +244,11 @@ public class FirstPersonController
 					{
 						isDucked = false;
 						inDuckTimer = -1.0f;
+
+						if (!isGrounded)
+						{
+							controller.move(Vector3.Up * (COLLIDER_HEIGHT_DUCKED - COLLIDER_HEIGHT));
+						}
 					}
 				}
 				else if (inDuckTimer != -1)

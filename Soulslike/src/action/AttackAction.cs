@@ -8,17 +8,29 @@ using System.Threading.Tasks;
 
 public class AttackAction : PlayerAction
 {
-	Weapon weapon;
+	public Weapon weapon;
+	public AttackData attack;
 
 	List<Entity> hitEntities = new List<Entity>();
 
-	public AttackAction(Weapon weapon)
+	public AttackAction(Weapon weapon, AttackData attack, int hand)
 		: base("attack")
 	{
 		this.weapon = weapon;
+		this.attack = attack;
 
-		animationName[0] = "attack1";
-		animationSet[0] = weapon.moveset;
+		animationName[hand] = attack.name;
+		animationSet[hand] = weapon.moveset;
+
+		if (weapon.twoHanded)
+		{
+			animationName[hand ^ 1] = attack.name;
+			animationSet[hand ^ 1] = weapon.moveset;
+		}
+
+		mirrorAnimation = hand == 1;
+
+		followUpCancelTime = attack.cancelFrame / 24.0f;
 
 		viewmodelAim = 1;
 	}
@@ -27,6 +39,7 @@ public class AttackAction : PlayerAction
 	{
 		base.update(player);
 
+		return;
 		if (elapsedTime > 0.1f)
 		{
 			Matrix weaponTransform = player.rightWeaponTransform;
