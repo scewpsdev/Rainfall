@@ -75,6 +75,38 @@ static std::map<uint32_t, MiscResource*> loadedMiscs;
 static List<ResourcePackage> packages;
 
 
+void ResourceInit()
+{
+}
+
+void ResourceTerminate()
+{
+	if (!loadedShaders.empty() || !loadedTextures.empty() || !loadedScenes.empty() || !loadedSounds.empty() && !loadedMiscs.empty())
+	{
+		Console_Warn("Leaked resources!");
+		for (auto pair : loadedShaders)
+		{
+			Console_Warn("%s, %s: %d refs", pair.second->vertex ? pair.second->vertex : "-", pair.second->fragment ? pair.second->fragment : "-", pair.second->refCount);
+		}
+		for (auto pair : loadedTextures)
+		{
+			Console_Warn("%s: %d refs", pair.second->path ? pair.second->path : "-", pair.second->refCount);
+		}
+		for (auto pair : loadedScenes)
+		{
+			Console_Warn("%s: %d refs", pair.second->path ? pair.second->path : "-", pair.second->refCount);
+		}
+		for (auto pair : loadedSounds)
+		{
+			Console_Warn("%s: %d refs", pair.second->path ? pair.second->path : "-", pair.second->refCount);
+		}
+		for (auto pair : loadedMiscs)
+		{
+			Console_Warn("%s: %d refs", pair.second->path ? pair.second->path : "-", pair.second->refCount);
+		}
+	}
+}
+
 static uint32_t hashPath(const char* _path)
 {
 	std::string s = _path;
@@ -422,6 +454,8 @@ RFAPI ShaderResource* Resource_GetShader(const char* vertex, const char* fragmen
 		ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
 		resource->handle = shader;
 		resource->hash = h;
+		resource->vertex = _strdup(vertex);
+		resource->fragment = _strdup(fragment);
 		resource->refCount = 1;
 		loadedShaders.emplace(h, resource);
 		return resource;
@@ -445,6 +479,8 @@ RFAPI ShaderResource* Resource_GetShaderCompute(const char* compute)
 		ShaderResource* resource = BX_NEW(Application_GetAllocator(), ShaderResource);
 		resource->handle = shader;
 		resource->hash = h;
+		resource->vertex = _strdup(compute);
+		resource->fragment = nullptr;
 		resource->refCount = 1;
 		loadedShaders.emplace(h, resource);
 		return resource;
@@ -462,6 +498,10 @@ RFAPI bool Resource_FreeShader(ShaderResource* resource)
 	if (resource->refCount == 0)
 	{
 		Graphics_DestroyShader(resource->handle);
+		if (resource->vertex)
+			free(resource->vertex);
+		if (resource->fragment)
+			free(resource->fragment);
 		loadedShaders.erase(it);
 		BX_FREE(Application_GetAllocator(), resource);
 		return false;
@@ -498,6 +538,7 @@ RFAPI TextureResource* Resource_GetTexture(const char* path, uint64_t flags, boo
 		resource->data = data;
 		resource->size = size;
 		resource->hash = h;
+		resource->path = _strdup(path);
 		resource->refCount = 1;
 		loadedTextures.emplace(h, resource);
 		return resource;
@@ -515,6 +556,8 @@ RFAPI bool Resource_FreeTexture(TextureResource* resource)
 	if (resource->refCount == 0)
 	{
 		Graphics_DestroyTexture(resource->handle.idx);
+		if (resource->path)
+			free(resource->path);
 		loadedTextures.erase(it);
 		BX_FREE(Application_GetAllocator(), resource);
 		return false;
@@ -581,6 +624,7 @@ RFAPI SceneResource* Resource_GetScene(const char* path, uint64_t textureFlags)
 		SceneResource* resource = BX_NEW(Application_GetAllocator(), SceneResource);
 		resource->handle = scene;
 		resource->hash = h;
+		resource->path = _strdup(path);
 		resource->refCount = 1;
 		loadedScenes.emplace(h, resource);
 		return resource;
@@ -598,6 +642,8 @@ RFAPI bool Resource_FreeScene(SceneResource* resource)
 	if (resource->refCount == 0)
 	{
 		Model_Destroy(resource->handle);
+		if (resource->path)
+			free(resource->path);
 		loadedScenes.erase(it);
 		BX_FREE(Application_GetAllocator(), resource);
 		return false;
@@ -628,6 +674,7 @@ RFAPI SoundResource* Resource_GetSound(const char* path)
 		resource->handle = sound;
 		resource->length = length;
 		resource->hash = h;
+		resource->path = _strdup(path);
 		resource->refCount = 1;
 		loadedSounds.emplace(h, resource);
 		return resource;
@@ -645,6 +692,8 @@ RFAPI bool Resource_FreeSound(SoundResource* resource)
 	if (resource->refCount == 0)
 	{
 		BX_FREE(Application_GetAllocator(), resource->handle);
+		if (resource->path)
+			free(resource->path);
 		loadedSounds.erase(it);
 		BX_FREE(Application_GetAllocator(), resource);
 		return false;
@@ -680,6 +729,7 @@ RFAPI MiscResource* Resource_GetMisc(const char* path)
 		resource->data = data;
 		resource->size = size;
 		resource->hash = h;
+		resource->path = _strdup(path);
 		resource->refCount = 1;
 		loadedMiscs.emplace(h, resource);
 		return resource;
@@ -697,6 +747,8 @@ RFAPI bool Resource_FreeMisc(MiscResource* resource)
 	if (resource->refCount == 0)
 	{
 		BX_FREE(Application_GetAllocator(), resource->data);
+		if (resource->path)
+			free(resource->path);
 		loadedMiscs.erase(it);
 		BX_FREE(Application_GetAllocator(), resource);
 		return false;

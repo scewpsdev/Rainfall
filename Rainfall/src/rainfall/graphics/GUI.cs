@@ -60,6 +60,15 @@ namespace Rainfall
 			textBatch = new SpriteBatch(graphics);
 		}
 
+		public static void Terminate()
+		{
+			uiTextureBatch.destroy();
+			textBatch.destroy();
+
+			Resource.FreeShader(uiTextureShader);
+			Resource.FreeShader(textShader);
+		}
+
 		public static void PushLayer()
 		{
 			currentUILayer++;

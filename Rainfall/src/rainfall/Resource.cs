@@ -29,7 +29,7 @@ namespace Rainfall
 
 	public static class Resource
 	{
-		public static string ASSET_DIRECTORY = "res";
+		public static string ASSET_DIRECTORY = "assets";
 
 		static Dictionary<IntPtr, Shader> shaders = new Dictionary<nint, Shader>();
 		static Dictionary<IntPtr, Texture> textures = new Dictionary<nint, Texture>();

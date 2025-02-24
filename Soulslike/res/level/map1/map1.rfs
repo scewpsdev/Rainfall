@@ -1,0 +1,318 @@
+entities = [ {
+name = "creature_hollow_001"
+id = "2195879956"
+static = 0
+position = [ -19.5, 0, 4 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_crate_001"
+id = "3396569518"
+static = 0
+position = [ 0.5335732698440552, 0.5, -0.5738922953605652 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_crate_002"
+id = "3998760581"
+static = 0
+position = [ 2.378807544708252, 0.5, -0.6498240828514099 ]
+rotation = [ 0, 0.10838277637958527, 0, 0.9941093325614929 ]
+scale = [ 0.9999995231628418, 1, 0.9999995827674866 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_crate_003"
+id = "1236339877"
+static = 0
+position = [ 2.4241015911102295, 1.5000476837158203, -0.6195161938667297 ]
+rotation = [ 0.00027295752079226077, -0.15119002759456635, 0, 0.9885047078132629 ]
+scale = [ 0.999999463558197, 0.9999996423721313, 0.9999994039535522 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_crate_004"
+id = "4163733260"
+static = 0
+position = [ -22, 0.500030517578125, 0.5 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_001"
+id = "3564616272"
+static = 0
+position = [ 2, 0, -4.25 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_002"
+id = "3223489295"
+static = 0
+position = [ -2, 0, -4.25 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_003"
+id = "4067938649"
+static = 0
+position = [ -6, 0, -4.25 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_004"
+id = "1848420773"
+static = 0
+position = [ 10, 0, -4.25 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_005"
+id = "2267427427"
+static = 0
+position = [ 9, 0, -7.75 ]
+rotation = [ 0, 1, 0, 0 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_006"
+id = "886223402"
+static = 0
+position = [ 5, 0, -7.75 ]
+rotation = [ 0, 1, 0, 0 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_007"
+id = "4130283130"
+static = 0
+position = [ 1, 0, -7.75 ]
+rotation = [ 0, 1, 0, 0 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_008"
+id = "1573000623"
+static = 0
+position = [ -3, 0, -7.75 ]
+rotation = [ 0, 1, 0, 0 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_009"
+id = "631481790"
+static = 0
+position = [ -7, 0, -7.75 ]
+rotation = [ 0, 1, 0, 0 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_iron_door_010"
+id = "2941224364"
+static = 0
+position = [ -8, 0, -6.5 ]
+rotation = [ 0, 0.7072784900665283, 0.00021143197955098003, 0.7069350481033325 ]
+scale = [ 0.9999998807907104, 0.9999998807907104, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_torch_001"
+id = "2450890541"
+static = 0
+position = [ -16, 2, 4 ]
+rotation = [ 0, -0.7071067690849304, 0, 0.7071067690849304 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_torch_002"
+id = "3046643176"
+static = 0
+position = [ -24.5, 1.5, -9.5367431640625E-07 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 0.9999999403953552, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_torch_003"
+id = "1007874521"
+static = 0
+position = [ -31, 1.5, -17 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 0.9999999403953552, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_torch_004"
+id = "241263374"
+static = 0
+position = [ -12, 1.5, -17 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1.0000001192092896, 0.9999999403953552, 1.0000001192092896 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "entity_torch_005"
+id = "236191051"
+static = 0
+position = [ -9.00146484375, 1.5000003576278687, -13.99853515625 ]
+rotation = [ -0.0001726334885461256, -0.7072793841362, 0, 0.7069341540336609 ]
+scale = [ 1.000000238418579, 1, 1.0000001192092896 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "envir_prison"
+id = "790390150"
+static = 0
+position = [ -16.766876220703125, 3.9016151428222656, -0.5655317306518555 ]
+rotation = [ 0, 1, 0, 0 ]
+scale = [ 1, 1, 1 ]
+rigidBodyType = Static
+colliders = [ {
+type = Box
+trigger = 1
+size = [ 99.9800033569336, 25.84000015258789, 120 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "item_crossbow_001"
+id = "3839120785"
+static = 0
+position = [ -24.06521224975586, 3.6475977897644043, 4.141716003417969 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "item_darkwood_staff_001"
+id = "3959629589"
+static = 0
+position = [ -22.56521224975586, 3.6475977897644043, 5.641716003417969 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "item_kings_sword_001"
+id = "3369458152"
+static = 0
+position = [ -22.56521224975586, 3.6475977897644043, 2.6417160034179688 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "map1_1"
+id = "1437891482"
+static = 1
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "map1_1.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Mesh
+trigger = 0
+size = [ 2, 2, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+mesh = "map1_1.gltf"
+} ]
+lights = [ {
+color = [ 1, 1, 1 ]
+intensity = 1.5
+offset = [ 12.5, 2.5, 20.239999771118164 ]
+}, {
+color = [ 1, 1, 1 ]
+intensity = 1.5
+offset = [ 12.5, 2.5, 8.680000305175781 ]
+}, {
+color = [ 1, 1, 1 ]
+intensity = 1.5
+offset = [ 2.119999885559082, 2.5, 8.539999961853027 ]
+} ]
+particles = [  ]
+}, {
+name = "map1_2"
+id = "2840119765"
+static = 1
+position = [ -38, 12, 48.5 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+rigidBodyType = Static
+colliders = [ {
+type = Mesh
+trigger = 0
+size = [ 2, 2, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "map_001"
+id = "2813144300"
+static = 0
+position = [ 5.352327346801758, 0.0529058612883091, -5.803535461425781 ]
+rotation = [ -0.6828958988189697, 0.1829809993505478, 0.18304140865802765, 0.6831302642822266 ]
+scale = [ 0.9999997615814209, 1.0000001192092896, 1 ]
+model = "..\..\entity\object\iron_door\iron_door.gltf"
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "spawn_001"
+id = "2417852787"
+static = 0
+position = [ -29.49484634399414, 0.0006260738591663539, -0.29369282722473145 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 0.9999979138374329, 0.9999996423721313, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3839120785"

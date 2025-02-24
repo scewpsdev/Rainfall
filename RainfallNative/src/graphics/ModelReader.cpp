@@ -344,12 +344,12 @@ void ReadSceneData(bx::ReaderI* reader, SceneData& scene)
 	bx::read(reader, scene.numNodes, &err);
 	bx::read(reader, scene.numLights, &err);
 
-	if (scene.numMeshes > 0) scene.meshes = (MeshData*)BX_ALLOC(Application_GetAllocator(), sizeof(MeshData) * scene.numMeshes);
-	if (scene.numMaterials > 0) scene.materials = (MaterialData*)BX_ALLOC(Application_GetAllocator(), sizeof(MaterialData) * scene.numMaterials);
-	if (scene.numSkeletons > 0) scene.skeletons = (SkeletonData*)BX_ALLOC(Application_GetAllocator(), sizeof(SkeletonData) * scene.numSkeletons);
-	if (scene.numAnimations > 0) scene.animations = (AnimationData*)BX_ALLOC(Application_GetAllocator(), sizeof(AnimationData) * scene.numAnimations);
-	if (scene.numNodes > 0) scene.nodes = (NodeData*)BX_ALLOC(Application_GetAllocator(), sizeof(NodeData) * scene.numNodes);
-	if (scene.numLights > 0) scene.lights = (LightData*)BX_ALLOC(Application_GetAllocator(), sizeof(LightData) * scene.numLights);
+	scene.meshes = scene.numMeshes > 0 ? (MeshData*)BX_ALLOC(Application_GetAllocator(), sizeof(MeshData) * scene.numMeshes) : nullptr;
+	scene.materials = scene.numMaterials > 0 ? (MaterialData*)BX_ALLOC(Application_GetAllocator(), sizeof(MaterialData) * scene.numMaterials) : nullptr;
+	scene.skeletons = scene.numSkeletons > 0 ? (SkeletonData*)BX_ALLOC(Application_GetAllocator(), sizeof(SkeletonData) * scene.numSkeletons) : nullptr;
+	scene.animations = scene.numAnimations > 0 ? (AnimationData*)BX_ALLOC(Application_GetAllocator(), sizeof(AnimationData) * scene.numAnimations) : nullptr;
+	scene.nodes = scene.numNodes > 0 ? (NodeData*)BX_ALLOC(Application_GetAllocator(), sizeof(NodeData) * scene.numNodes) : nullptr;
+	scene.lights = scene.numLights > 0 ? (LightData*)BX_ALLOC(Application_GetAllocator(), sizeof(LightData) * scene.numLights) : nullptr;
 
 	ReadMeshes(reader, scene, &err);
 	ReadMaterials(reader, scene, &err);

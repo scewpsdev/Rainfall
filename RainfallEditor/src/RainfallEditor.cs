@@ -341,7 +341,7 @@ public unsafe class RainfallEditor : Game
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + outDir + "\\res gltf fbx png hdr ogg dat shader vsh fsh csh ttf rfs";
+		startInfo.Arguments = "/C " + resCompilerDir + "\\RainfallResourceCompiler.exe res " + outDir + "\\assets gltf fbx png hdr ogg dat shader vsh fsh csh ttf rfs";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();

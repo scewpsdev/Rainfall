@@ -76,6 +76,11 @@ RFAPI void Audio_ListenerUpdateTransform(const Vector3& position, const Vector3&
 	soloud.set3dListenerParameters(position.x, position.y, position.z, forward.x, forward.y, forward.z, up.x, up.y, up.z);
 }
 
+RFAPI void Audio_ListenerSetVelocity(Vector3 velocity)
+{
+	soloud.set3dListenerVelocity(velocity.x, velocity.y, velocity.z);
+}
+
 RFAPI uint32_t Audio_SourcePlayBackground(AudioSource* sound, float gain, float pitch, bool looping, float fadein)
 {
 	handle source = soloud.playBackground(*sound, fadein > 0 ? 0 : gain, true);
@@ -114,7 +119,7 @@ RFAPI uint32_t Audio_SourcePlayMusic(AudioSource* sound, float gain, bool loopin
 
 RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, float deltaTime, const Vector3& position, float gain, float pitch, float rolloff)
 {
-	sound->setSingleInstance(true);
+	//sound->setSingleInstance(true);
 
 	handle source = defaultBus.play3dClocked(deltaTime, *sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0);
 	soloud.setPause(source, true);
@@ -187,6 +192,11 @@ RFAPI void Audio_SourceFadeVolume(uint32_t source, float volume, float time)
 RFAPI void Audio_SourceSetPosition(uint32_t source, const Vector3& position)
 {
 	soloud.set3dSourcePosition(source, position.x, position.y, position.z);
+}
+
+RFAPI void Audio_SourceSetVelocity(uint32_t source, Vector3 velocity)
+{
+	soloud.set3dSourceVelocity(source, velocity.x, velocity.y, velocity.z);
 }
 
 RFAPI void Audio_SourceSetGain(uint32_t source, float gain)

@@ -76,6 +76,8 @@ namespace Rainfall
 
 		public static void Terminate()
 		{
+			GUI.Terminate();
+
 			Renderer3D_Terminate();
 		}
 

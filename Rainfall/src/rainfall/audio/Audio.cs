@@ -52,6 +52,11 @@ namespace Rainfall
 			Audio_ListenerUpdateTransform(position, rotation.forward, rotation.up);
 		}
 
+		public static void SetListenerVelocity(Vector3 velocity)
+		{
+			Audio_ListenerSetVelocity(velocity);
+		}
+
 		public static uint Play(Sound sound, Vector3 position, float gain = 1, float pitch = 1, float rolloff = 0.5f)
 		{
 			return Audio_SourcePlay(sound.handle, Time.deltaTime, position, gain, pitch, rolloff);
@@ -114,6 +119,11 @@ namespace Rainfall
 		public static void SetSourcePosition(uint source, Vector3 position)
 		{
 			Audio_SourceSetPosition(source, position);
+		}
+
+		public static void SetSourceVelocity(uint source, Vector3 velocity)
+		{
+			Audio_SourceSetVelocity(source, velocity);
 		}
 
 		public static void SetSourceGain(uint source, float gain)
@@ -196,6 +206,9 @@ namespace Rainfall
 		internal static extern void Audio_ListenerUpdateTransform(Vector3 position, Vector3 forward, Vector3 up);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_ListenerSetVelocity(Vector3 velocity);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint Audio_SourcePlayBackground(IntPtr sound, float gain, float pitch, byte looping, float fadein);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -236,6 +249,9 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceSetPosition(uint source, Vector3 position);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Audio_SourceSetVelocity(uint source, Vector3 velocity);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void Audio_SourceSetGain(uint source, float gain);

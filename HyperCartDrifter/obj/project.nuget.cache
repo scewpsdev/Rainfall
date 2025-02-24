@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "oDcSHvFMfspBMG8rBNt9rTNePtbcokk5bPrnHyvAUw9Pu2mRu3qhtANubQm4HLcJZmcmz4fg6+mkFI1CC+3/GQ==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\HyperCartDrifter\\HyperCartDrifter.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

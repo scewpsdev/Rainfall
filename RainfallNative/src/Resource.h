@@ -22,6 +22,7 @@ struct ShaderResource
 {
 	Shader* handle;
 	uint32_t hash;
+	char* vertex, * fragment;
 	int refCount = 0;
 };
 
@@ -32,6 +33,7 @@ struct TextureResource
 	char* data = nullptr;
 	int size = 0;
 	uint32_t hash;
+	char* path;
 	int refCount = 0;
 };
 
@@ -39,6 +41,7 @@ struct SceneResource
 {
 	SceneData* handle;
 	uint32_t hash;
+	char* path;
 	int refCount = 0;
 };
 
@@ -47,6 +50,7 @@ struct SoundResource
 	SoLoud::Wav* handle;
 	float length;
 	uint32_t hash;
+	char* path;
 	int refCount = 0;
 };
 
@@ -55,12 +59,16 @@ struct MiscResource
 	char* data;
 	int size;
 	uint32_t hash;
+	char* path;
 	int refCount = 0;
 };
 
 
 //const bgfx::Memory* ReadFileBinary(bx::FileReaderI* reader, const char* path);
 
+
+void ResourceInit();
+void ResourceTerminate();
 
 Shader* ReadShader(const char* vertexPath, const char* fragmentPath);
 Shader* ReadShaderCompute(const char* computePath);

@@ -9,7 +9,7 @@ namespace Rainfall
 {
 	public class AudioSource
 	{
-		uint source;
+		public uint source;
 		Vector3 position;
 
 		public Sound currentSound { get; private set; } = null;
@@ -25,11 +25,17 @@ namespace Rainfall
 		{
 		}
 
-		public void updateTransform(Vector3 position)
+		public void setPosition(Vector3 position)
 		{
 			this.position = position;
 			if (source != 0)
 				Audio.Audio_SourceSetPosition(source, position);
+		}
+
+		public void setVelocity(Vector3 velocity)
+		{
+			if (source != 0)
+				Audio.Audio_SourceSetVelocity(source, velocity);
 		}
 
 		public void playSound(Sound sound, float gain = 1.0f, float pitch = 1.0f, float rolloff = 0.2f)

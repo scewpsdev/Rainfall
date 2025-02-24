@@ -1,0 +1,5 @@
+D:\Dev\Rainfall\HyperCartDrifter\bin\Release\net8.0\publish\credits.txt
+D:\Dev\Rainfall\HyperCartDrifter\bin\Release\net8.0\publish\HyperCartDrifter.exe
+D:\Dev\Rainfall\HyperCartDrifter\bin\Release\net8.0\publish\HyperCartDrifter.pdb
+D:\Dev\Rainfall\HyperCartDrifter\bin\Release\net8.0\publish\Rainfall3D.pdb
+D:\Dev\Rainfall\HyperCartDrifter\bin\Release\net8.0\publish\Rainfall.pdb

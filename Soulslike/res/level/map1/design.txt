@@ -1,0 +1,74 @@
+GOALS
+Make a dungeon level
+tutorial level for the fps soulslike
+teach the player basic movement mechanics and interactions
+introduce the general feel and mood of the game
+feature a tutorial boss that challenges players in an engaging and difficult but fair way
+Short level (5 minutes max)
+
+THEME: Escape the prison
+
+ELEMENTS
+Platforming mechanics
+Hollows with different types of weapons and armor
+Traps you have to either avoid or defuse
+NPCs you can talk to for lore or gameplay tips
+Maybe friendly NPCs with AI that can help you?
+Explosive barrels
+Melee Weapons (Broken Sword, Stick)
+Ranged Weapon (Slingshot?)
+Throwables (Rocks)
+Mechanisms (moving platforms, elevators)
+Destructible objects
+Physics objects
+
+GAMEPLAY BEATS
+Stealthing around monsters roaming the prison
+Starting with nothing
+Pick up gear along the way
+Bossfight at the end to finally escape
+
+QUESTIONS
+How could player escape the first room?
+	Platforming to reach a hole in the wall?
+
+SEQUENCE
+Level starts with player wondering where they are
+Realising theyre in a prison
+First goal: try to figure out where we are and how to get out
+Prison cell section
+	Initially player feels stuck
+	Then they see a gap in the wall and some objects to climb on
+	Player escapes to the neighboring cell, where the door has broken down
+	The direct way outside through the main door is locked
+	NPCs in some of the other cells (freeing them rewards you with helpful items)
+	Player has to find another way out
+	Multiple directions to go in the beginning
+	Prison is full of traps
+	Paths all end up in the same room eventually
+	Player finds a torch they can use to navigate through a dark area
+	An explosive barrel can be blown up to create a hole in the wall that leads out of the cell block through a cave system
+	Player finds stashed basic weapon and some food to heal up
+	A hole in the cave ceiling indicates youre close to the surface (maybe an elevated bridge that teases a later section?)
+	Simple enemies to fight and teach basic combat (rats, bats, spider)
+	Sconces to light up the area
+	The cave loops back to the prison
+	A prison key can be looted from a dead guard
+	The player can now open the locked door from the outside
+	This rewards the player with an indirect checkpoint and allows them to free the NPCs (sending them to the hub area)
+Living area
+	Player enters part of the dungeon that people used to live in (living rooms, armory, library)
+	Clothes and simple armor to loot
+	Books and notes that teach you about the lore of the place
+	Place for a quick rest (fireplace?)
+	First proper checkpoint
+	Gate that leads outside back to the caves
+Cave section
+	Smarter enemies with movesets
+	Enemies can drop proper weapons and armor
+	Player now gets to the outer parts of area closer to the surface
+	Introduce enemies with alternative combat strategies that render a brute force approach ineffective
+	Give the player more tools to deal with different kinds of threats (shield to block arrows, kicking to break stance, throwables to attract enemies individually or weaken them before engaging in melee combat, using the environment to take out groups of enemies)
+	Safe region to cool down
+Boss fight to test what the player has learned (Stone golem with a big club that wakes up when you try to leave?)
+Level ends with player escaping to the overworld (-> sense of relief)

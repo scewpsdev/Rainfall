@@ -5,6 +5,7 @@
 #include "Console.h"
 #include "Hash.h"
 #include "Platform.h"
+#include "Resource.h"
 
 #include "audio/Audio.h"
 
@@ -1009,6 +1010,8 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 
 	ImGuiLayerInit();
 
+	ResourceInit();
+
 	callbacks.init();
 
 	messageQueue.push(BX_NEW(Application_GetAllocator(), Message)(MessageType::WindowShow));
@@ -1023,6 +1026,8 @@ static int RunApp(const LaunchParams& params, const ApplicationCallbacks& callba
 	}
 
 	callbacks.destroy();
+
+	ResourceTerminate();
 
 	ImGuiLayerDestroy();
 

@@ -28,7 +28,7 @@ public class SteelHammer : Weapon
 
 		value = 28;
 
-		sprite = new Sprite(tileset, 0, 10);
+		sprite = new Sprite(tileset, 0, 11);
 		renderOffset.x = 0.2f;
 	}
 }

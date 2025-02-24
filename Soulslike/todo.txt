@@ -1,0 +1,14 @@
+[ ] Viewmodel implementation
+[ ] Viewmodel keeps action transform
+[ ] Ladder animation
+[ ] Door open animation
+[ ] Sword pickup animation
+[ ] Vaulting
+[ ] Attacks
+[ ] Hit slowdown
+[ ] Blocks & Parries
+[ ] Skeleton enemy
+[ ] Bow
+[ ] Healing flask
+[ ] Firebomb & Throwing Knife
+[ ] Starting cave

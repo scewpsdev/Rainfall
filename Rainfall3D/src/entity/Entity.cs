@@ -174,10 +174,43 @@ public class Entity : PhysicsEntity
 		return this;
 	}
 
+	public void unload()
+	{
+		if (body != null)
+		{
+			body.destroy();
+			body = null;
+		}
+		if (hitboxes != null)
+		{
+			foreach (RigidBody hitbox in hitboxes.Values)
+				hitbox.destroy();
+			hitboxes.Clear();
+			hitboxes = null;
+		}
+		if (lights != null)
+		{
+			foreach (PointLight light in lights)
+				light.destroy(Renderer.graphics);
+			lights.Clear();
+			lights = null;
+		}
+		if (particles != null)
+		{
+			foreach (ParticleSystem particle in particles)
+				ParticleSystem.Destroy(particle);
+			particles.Clear();
+			particles = null;
+		}
+	}
+
 	public virtual void init()
 	{
 		if (body != null)
+		{
+			Console.WriteLine(position + "," + rotation);
 			body.setTransform(position, rotation);
+		}
 		if (hitboxes != null)
 		{
 			Matrix entityTransform = getModelMatrix();
@@ -195,28 +228,7 @@ public class Entity : PhysicsEntity
 
 	public virtual void destroy()
 	{
-		model?.destroy();
-		if (animator != null)
-		{
-			Animator.Destroy(animator);
-			animator = null;
-		}
-		body?.destroy();
-		if (hitboxes != null)
-		{
-			foreach (var hitbox in hitboxes.Values)
-				hitbox.destroy();
-		}
-		if (lights != null)
-		{
-			foreach (PointLight light in lights)
-				light.destroy(Renderer.graphics);
-		}
-		if (particles != null)
-		{
-			foreach (ParticleSystem particleSystem in particles)
-				ParticleSystem.Destroy(particleSystem);
-		}
+		unload();
 	}
 
 	protected void updateBoneHitbox(Node node, Matrix nodeTransform)
