@@ -11,6 +11,8 @@ public class AttackAction : PlayerAction
 	public Weapon weapon;
 	public AttackData attack;
 
+	float damageStartTime;
+
 	List<Entity> hitEntities = new List<Entity>();
 
 	public AttackAction(Weapon weapon, AttackData attack, int hand)
@@ -30,14 +32,21 @@ public class AttackAction : PlayerAction
 
 		mirrorAnimation = hand == 1;
 
+		damageStartTime = attack.damageFrame / 24.0f;
 		followUpCancelTime = attack.cancelFrame / 24.0f;
+
+		lockYaw = true;
 
 		viewmodelAim = 1;
 	}
 
+	bool inDamageWindow => elapsedTime >= damageStartTime && elapsedTime < followUpCancelTime;
+
 	public override void update(Player player)
 	{
 		base.update(player);
+
+		lockYaw = inDamageWindow;
 
 		return;
 		if (elapsedTime > 0.1f)
@@ -46,7 +55,7 @@ public class AttackAction : PlayerAction
 			Span<HitData> hits = stackalloc HitData[16];
 			SceneFormat.ColliderData hitbox = weapon.colliders[weapon.colliders.Count - 1];
 			Debug.Assert(hitbox.trigger && hitbox.type == SceneFormat.ColliderType.Capsule);
-			int numHits = Physics.OverlapCapsule(hitbox.radius, hitbox.height, weaponTransform.translation + weaponTransform.rotation * hitbox.offset, weaponTransform.rotation, hits, QueryFilterFlags.Default, PhysicsFiltering.CREATURE_HITBOX);
+			int numHits = Physics.OverlapCapsule(hitbox.radius, hitbox.height, weaponTransform.translation + weaponTransform.rotation * hitbox.offset, weaponTransform.rotation, hits, QueryFilterFlags.Default, PhysicsFilter.CreatureHitbox);
 			for (int i = 0; i < numHits; i++)
 			{
 				Entity entity = hits[i].body.entity as Entity;

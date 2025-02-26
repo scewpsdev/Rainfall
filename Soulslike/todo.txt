@@ -1,6 +1,6 @@
 [X] Viewmodel implementation
-[ ] Viewmodel keeps action transform
-[ ] Ladder animation
+[X] Viewmodel keeps action transform
+[X] Ladder animation
 [ ] Door open animation
 [ ] Sword pickup animation
 [ ] Vaulting

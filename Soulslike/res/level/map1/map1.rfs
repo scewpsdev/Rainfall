@@ -149,6 +149,16 @@ colliders = [  ]
 lights = [  ]
 particles = [  ]
 }, {
+name = "entity_ladder5_001"
+id = "3200448860"
+static = 0
+position = [ -24.165584564208984, 0, 0.5 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
 name = "entity_torch_001"
 id = "2450890541"
 static = 0
@@ -315,4 +325,4 @@ colliders = [  ]
 lights = [  ]
 particles = [  ]
 } ]
-selectedEntity = "3839120785"
+selectedEntity = "3200448860"

@@ -17,7 +17,7 @@ public class Player : Entity
 	const float CAMERA_HEIGHT_DUCKED = 0.9f;
 
 	public Camera camera;
-	float pitch, yaw;
+	public float pitch, yaw;
 	float camerayaw;
 	float cameraHeight;
 
@@ -49,7 +49,7 @@ public class Player : Entity
 
 	Item rightWeapon, leftWeapon;
 
-	Interactable interactableInFocus = null;
+	public Interactable interactableInFocus = null;
 
 
 	public Player(Camera camera)
@@ -83,9 +83,9 @@ public class Player : Entity
 		for (int i = 0; i < model.skeleton.nodes.Length; i++)
 		{
 			Node node = model.skeleton.nodes[i];
-			if (node.name.EndsWith("r"))
+			if (node.name.EndsWith("_r"))
 				rightHandBoneMask[i] = true;
-			else if (node.name.EndsWith("l"))
+			else if (node.name.EndsWith("_l"))
 				leftHandBoneMask[i] = true;
 			else
 			{
@@ -105,7 +105,7 @@ public class Player : Entity
 
 		yaw = rotation.eulers.y;
 
-		controller = new FirstPersonController(this, PhysicsFiltering.DEFAULT | PhysicsFiltering.CREATURE);
+		controller = new FirstPersonController(this, PhysicsFilter.Default | PhysicsFilter.Creature);
 		controller.canJump = () =>
 		{
 			//return stats.stamina > 0;
@@ -154,10 +154,16 @@ public class Player : Entity
 			*/
 		};
 
-		playerBody = new RigidBody(this, RigidBodyType.Kinematic, PhysicsFiltering.PLAYER, 0);
+		playerBody = new RigidBody(this, RigidBodyType.Kinematic, PhysicsFilter.Player, 0);
 		playerBody.addCapsuleCollider(FirstPersonController.COLLIDER_RADIUS, FirstPersonController.COLLIDER_HEIGHT, Vector3.Up * FirstPersonController.COLLIDER_HEIGHT * 0.5f, Quaternion.Identity);
 
-		//setRightWeapon(new KingsSword());
+		setRightWeapon(new Longsword());
+	}
+
+	public void setRotation(float yaw)
+	{
+		this.yaw = yaw;
+		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw);
 	}
 
 	public void setRightWeapon(Item item)
@@ -211,14 +217,21 @@ public class Player : Entity
 		controller.update();
 
 		pitch = MathHelper.Clamp(pitch - Input.cursorMove.y * 0.001f, -MathF.PI * 0.5f, MathF.PI * 0.5f);
-		if (actionManager.currentAction == null || !actionManager.currentAction.lockRotation)
+		if ((actionManager.currentAction == null || !actionManager.currentAction.lockYaw) && controller.currentLadder == null)
 		{
 			yaw -= Input.cursorMove.x * 0.001f;
-			camerayaw = MathHelper.Lerp(camerayaw, 0, 10 * Time.deltaTime);
+			if (camerayaw != 0)
+			{
+				float newCameraYaw = MathHelper.Lerp(camerayaw, 0, 10 * Time.deltaTime);
+				if (MathF.Abs(newCameraYaw) < 0.0001f)
+					newCameraYaw = 0;
+				yaw += camerayaw - newCameraYaw;
+				camerayaw = newCameraYaw;
+			}
 		}
-		else if (actionManager.currentAction == null || !actionManager.currentAction.lockCameraRotation)
+		else if (actionManager.currentAction == null || !actionManager.currentAction.lockCameraRotation || controller.currentLadder != null)
 		{
-			camerayaw = MathHelper.Clamp(camerayaw - Input.cursorMove.x * 0.001f, -MathF.PI * 0.4f, MathF.PI * 0.4f);
+			camerayaw = MathHelper.Clamp(camerayaw - Input.cursorMove.x * 0.001f, -MathF.PI * 0.75f, MathF.PI * 0.75f);
 		}
 
 		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw);
@@ -270,9 +283,9 @@ public class Player : Entity
 
 		actionManager.update();
 
-
+		interactableInFocus = null;
 		Span<HitData> hits = stackalloc HitData[16];
-		int numHits = Physics.Raycast(camera.position, camera.rotation.forward, REACH_DISTANCE, hits, QueryFilterFlags.Default, PhysicsFiltering.INTERACTABLE);
+		int numHits = Physics.Raycast(camera.position, camera.rotation.forward, REACH_DISTANCE, hits, QueryFilterFlags.Default, PhysicsFilter.Interactable);
 		for (int i = 0; i < numHits; i++)
 		{
 			Interactable interactable = hits[i].body.entity as Interactable;
@@ -316,9 +329,9 @@ public class Player : Entity
 		for (int i = 0; i < model.skeleton.nodes.Length; i++)
 		{
 			Node node = model.skeleton.nodes[i];
-			if (node.name.EndsWith("r"))
+			if (node.name.EndsWith("_r"))
 				animator.setNodeLocalTransform(node, rightHandAnimator.getNodeLocalTransform(node));
-			else if (node.name.EndsWith("l"))
+			else if (node.name.EndsWith("_l"))
 				animator.setNodeLocalTransform(node, leftHandAnimator.getNodeLocalTransform(node));
 			//else
 			//	Console.Error.WriteLine("Invalid arm bone " + node.name);
@@ -361,14 +374,19 @@ public class Player : Entity
 		}
 		*/
 
-		Matrix weaponSway = calculateWeaponSway();
+		Matrix weaponSway = actionManager.currentAction == null || !actionManager.currentAction.lockYaw ? calculateWeaponSway() : Matrix.Identity;
 
 		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
 			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
 			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime) :
 			CAMERA_HEIGHT;
-		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Right, pitch) * weaponSway * Matrix.CreateRotation(Vector3.Up, MathF.PI);
-		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Right, pitch) * Matrix.CreateRotation(Vector3.Up, camerayaw));
+
+		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch));
+
+		modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		if (actionManager.currentAction == null || !actionManager.currentAction.ignorePitch)
+			modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * weaponSway * modelTransform;
+		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * modelTransform;
 
 		animator.applyAnimation();
 
@@ -462,6 +480,8 @@ public class Player : Entity
 			Renderer.DrawModel(leftWeaponModel, leftWeaponTransform, leftWeaponAnimator);
 
 		//Renderer.DrawLight(camera.position, new Vector3(2));
+
+		HUD.Draw();
 	}
 
 	public Vector3 center => position + Vector3.Up * controller.controller.height * 0.5f;

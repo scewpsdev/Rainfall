@@ -14,8 +14,8 @@ public class GameState : State
 	public Scene scene;
 	public WorldManager world;
 
-	Camera camera;
-	Player player;
+	public Camera camera;
+	public Player player;
 
 
 	public GameState()

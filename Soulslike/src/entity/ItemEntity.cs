@@ -20,7 +20,7 @@ public class ItemEntity : Entity, Interactable
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Dynamic, PhysicsFiltering.PICKUP | PhysicsFiltering.INTERACTABLE);
+		body = new RigidBody(this, RigidBodyType.Dynamic, PhysicsFilter.Pickup | PhysicsFilter.Interactable);
 		for (int i = 0; i < item.colliders.Count; i++)
 		{
 			SceneFormat.ColliderData collider = item.colliders[i];

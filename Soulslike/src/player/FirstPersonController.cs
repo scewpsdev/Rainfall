@@ -80,7 +80,7 @@ public class FirstPersonController
 	public int lastStep = 0;
 	public float airborneTime = 0.0f;
 
-	LadderRegion currentLadder;
+	public Ladder currentLadder;
 
 	long lastJumpInput = 0;
 
@@ -152,15 +152,17 @@ public class FirstPersonController
 		}
 	}
 
-	public void initLadder(LadderRegion ladder)
+	public void initLadder(Ladder ladder)
 	{
 		moveType = MoveType.Ladder;
 		currentLadder = ladder;
+		controller.setPosition(ladder.getAttachPoint(player));
 	}
 
 	public void endLadder()
 	{
 		moveType = MoveType.Walk;
+		currentLadder = null;
 	}
 
 	Vector3 updateMovementInputs()
@@ -380,7 +382,7 @@ public class FirstPersonController
 		{
 			Vector3 cu = Vector3.Cross(Vector3.Up, n);
 			velocity = u - Vector3.Dot(u, n) * (Vector3.Cross(n, cu / cu.length));
-			velocity *= LADDER_SPEED;
+			velocity *= LADDER_SPEED * 0.5f;
 		}
 		else
 		{
@@ -483,31 +485,32 @@ public class FirstPersonController
 		{
 			Debug.Assert(currentLadder != null);
 
-			/*
-			if (InputManager.IsPressed("Dodge"))
+			if (inputJump)
 			{
-				if (stats.canJump)
+				//if (stats.canJump)
 				{
 					velocity += JUMP_POWER_LADDER * currentLadder.normal;
 					lastJumpInput = 0;
-					stats.consumeStamina(JUMP_STAMINA_COST);
+					//stats.consumeStamina(JUMP_STAMINA_COST);
+					onJump();
 
 					lastJumpedTime = Time.currentTime;
 
-					moveType = MoveType.Walk;
-					currentLadder = null;
+					endLadder();
 
-					if (sfxJump != null)
-						audioMovement.playSoundOrganic(sfxJump);
+					//if (sfxJump != null)
+					//	audioMovement.playSoundOrganic(sfxJump);
 				}
 			}
-			*/
 
 			if (moveType == MoveType.Ladder)
 			{
-				bool topEdge = player.position.y > currentLadder.position.y + currentLadder.offset.y + currentLadder.halfExtents.y - COLLIDER_RADIUS;
-				bool bottomEdge = player.position.y < currentLadder.position.y + currentLadder.offset.y - currentLadder.halfExtents.y + COLLIDER_RADIUS;
+				bool topEdge = player.position.y > currentLadder.position.y + currentLadder.height + 0.01f; // - COLLIDER_RADIUS;
+				bool bottomEdge = player.position.y < currentLadder.position.y + 0.01f; // + currentLadder.offset.y - currentLadder.halfExtents.y - 0.01f; // + COLLIDER_RADIUS;
 				velocity = updateVelocityLadder(velocity, fsu, currentLadder.normal, Time.deltaTime, forward, right, up, topEdge, bottomEdge);
+
+				if (topEdge || bottomEdge)
+					endLadder();
 
 				Vector3 displacement = velocity * Time.deltaTime;
 

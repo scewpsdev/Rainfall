@@ -45,7 +45,8 @@ public class PlayerAction
 	public string[] handItemAnimations = new string[2];
 
 	public float movementSpeedMultiplier = 1.0f;
-	public bool lockRotation = false;
+	public bool lockYaw = false;
+	public bool ignorePitch = false;
 	public bool lockCameraRotation = false;
 	public Vector3 movementInput = Vector3.Zero;
 	public float maxSpeed = 0.0f;

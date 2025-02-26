@@ -57,6 +57,8 @@ public class WorldManager : Entity
 						entity = new IronDoor();
 					else if (entityName == "torch")
 						entity = new Torch();
+					else if (entityName.StartsWith("ladder"))
+						entity = new Ladder(int.Parse(entityName.Substring(6)));
 
 					if (entity != null)
 					{
@@ -112,7 +114,7 @@ public class WorldManager : Entity
 					string envirName = entityData.name.Substring("envir_".Length);
 					EnvirTrigger trigger = new EnvirTrigger(Resource.GetCubemap($"level/map{map}/{envirName}_cubemap_equirect.png"));
 					scene.addEntity(trigger, entityData.position, entityData.rotation, entityData.scale);
-					trigger.load(entityData, 0, PhysicsFiltering.PLAYER);
+					trigger.load(entityData, 0, PhysicsFilter.Player);
 					mapPiece.entities.Add(trigger);
 				}
 				else

@@ -126,7 +126,7 @@ namespace Rainfall
 			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
-		public static unsafe void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)
+		public static void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
 			for (int i = 0; i < model.meshCount; i++)
 			{
@@ -135,11 +135,29 @@ namespace Rainfall
 			//Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
-		public static unsafe void DrawModel(Model model, Matrix transform, Material material, Animator animator = null, bool isOccluder = false)
+		public static void DrawModel(Model model, Matrix transform, Material material, Animator animator = null, bool isOccluder = false)
 		{
 			for (int i = 0; i < model.meshCount; i++)
 			{
 				DrawMesh(model, i, material, transform, animator, isOccluder);
+			}
+		}
+
+		public static void DrawModel(Model model, Vector3 position, Quaternion rotation, Vector3 scale, Animator animator = null, bool isOccluder = false)
+		{
+			Matrix transform = Matrix.CreateTransform(position, rotation, scale);
+			for (int i = 0; i < model.meshCount; i++)
+			{
+				DrawMesh(model, i, transform, animator, isOccluder);
+			}
+		}
+
+		public static void DrawModel(Model model, Vector3 position, Quaternion rotation, Animator animator = null, bool isOccluder = false)
+		{
+			Matrix transform = Matrix.CreateTransform(position, rotation);
+			for (int i = 0; i < model.meshCount; i++)
+			{
+				DrawMesh(model, i, transform, animator, isOccluder);
 			}
 		}
 

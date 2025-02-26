@@ -27,7 +27,7 @@ public abstract class Projectile : Entity
 
 	public override unsafe void init()
 	{
-		load(path, 0, PhysicsFiltering.DEFAULT | PhysicsFiltering.CREATURE_HITBOX | PhysicsFiltering.RAGDOLL);
+		load(path, 0, PhysicsFilter.Default | PhysicsFilter.CreatureHitbox | PhysicsFilter.Ragdoll);
 		velocity = rotation.forward * speed;
 		particleOffset = particles.Count > 0 ? particles[0].handle->spawnOffset : Vector3.Zero;
 	}

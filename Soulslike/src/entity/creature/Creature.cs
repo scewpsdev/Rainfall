@@ -22,9 +22,9 @@ public class Creature : Entity, Hittable
 	{
 		this.name = name;
 
-		hitboxFilterGroup = PhysicsFiltering.CREATURE_HITBOX;
+		hitboxFilterGroup = PhysicsFilter.CreatureHitbox;
 		hitboxFilterMask = 0;
-		load($"entity/creature/{name}/{name}.rfs", PhysicsFiltering.CREATURE);
+		load($"entity/creature/{name}/{name}.rfs", PhysicsFilter.Creature);
 		body.lockRotationAxis(true, true, true);
 
 		if (model != null)

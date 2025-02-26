@@ -95,6 +95,11 @@ namespace Rainfall
 			uiTextures.Add(new UITextureDrawCommand { x = x, y = Display.viewportSize.y - y - height, layer = currentUILayer * 1000 + uiDepthCounter++, width = width, height = height, texture = texture, u0 = 0, v0 = 0, u1 = texture.info.width, v1 = texture.info.height, color = Vector4.One });
 		}
 
+		public static void Texture(int x, int y, Texture texture)
+		{
+			uiTextures.Add(new UITextureDrawCommand { x = x, y = Display.viewportSize.y - y - texture.height, layer = currentUILayer * 1000 + uiDepthCounter++, width = texture.width, height = texture.height, texture = texture, u0 = 0, v0 = 0, u1 = texture.info.width, v1 = texture.info.height, color = Vector4.One });
+		}
+
 		public static void Rect(int x, int y, int width, int height, uint color)
 		{
 			uiTextures.Add(new UITextureDrawCommand { x = x, y = Display.viewportSize.y - y - height, layer = currentUILayer * 1000 + uiDepthCounter++, width = width, height = height, texture = null, u0 = 0, v0 = 0, u1 = 0, v1 = 0, color = MathHelper.ARGBToVector(color) });

@@ -12,5 +12,9 @@ public class Longsword : Weapon
 		: base("longsword", "Longsword")
 	{
 		twoHanded = true;
+
+		addAttack(new AttackData("attack1", "attack2", 15, 40));
+		addAttack(new AttackData("attack2", "attack1", 15, 40));
+		setParry(15);
 	}
 }

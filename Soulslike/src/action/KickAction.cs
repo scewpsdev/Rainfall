@@ -17,7 +17,7 @@ public class KickAction : PlayerAction
 
 		fullBodyAnimation = true;
 
-		lockRotation = true;
+		lockYaw = true;
 		lockCameraRotation = true;
 		movementSpeedMultiplier = 0.0f;
 	}
@@ -35,7 +35,7 @@ public class KickAction : PlayerAction
 			Vector3 origin = player.position + Vector3.Up * 0.5f;
 
 			Span<HitData> hits = stackalloc HitData[16];
-			int numHits = Physics.OverlapCapsule(0.25f, range, origin + direction * 0.5f * range, player.rotation * Quaternion.FromAxisAngle(Vector3.Right, MathF.PI * 0.5f), hits, QueryFilterFlags.Default, PhysicsFiltering.DEFAULT | PhysicsFiltering.CREATURE_HITBOX);
+			int numHits = Physics.OverlapCapsule(0.25f, range, origin + direction * 0.5f * range, player.rotation * Quaternion.FromAxisAngle(Vector3.Right, MathF.PI * 0.5f), hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.CreatureHitbox);
 			for (int i = 0; i < numHits; i++)
 			{
 				RigidBody body = hits[i].body;

@@ -22,7 +22,7 @@ public class SitAction : PlayerAction
 
 		duration = 5;
 		viewmodelAim = 0;
-		lockRotation = true;
+		lockYaw = true;
 		movementSpeedMultiplier = 0.0f;
 	}
 }

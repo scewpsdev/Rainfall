@@ -13,29 +13,6 @@
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
-      },
-      "Rainfall/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v7.0",
-        "compile": {
-          "bin/placeholder/Rainfall.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/Rainfall.dll": {}
-        }
-      },
-      "Rainfall3D/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v7.0",
-        "dependencies": {
-          "Rainfall": "1.0.0"
-        },
-        "compile": {
-          "bin/placeholder/Rainfall3D.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/Rainfall3D.dll": {}
-        }
       }
     }
   },
@@ -120,24 +97,14 @@
         "tools/net8.0/illink.runtimeconfig.json",
         "useSharedDesignerContext.txt"
       ]
-    },
-    "Rainfall/1.0.0": {
-      "type": "project",
-      "path": "../Rainfall/Rainfall.csproj",
-      "msbuildProject": "../Rainfall/Rainfall.csproj"
-    },
-    "Rainfall3D/1.0.0": {
-      "type": "project",
-      "path": "../Rainfall3D/Rainfall3D.csproj",
-      "msbuildProject": "../Rainfall3D/Rainfall3D.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "D:\\Dev\\Rainfall\\Rainfall3D\\Rainfall3D.csproj",
+      "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj",
       "Microsoft.DotNet.ILCompiler >= 8.0.4",
-      "Microsoft.NET.ILLink.Tasks >= 8.0.4",
-      "Rainfall >= 1.0.0",
-      "Rainfall3D >= 1.0.0"
+      "Microsoft.NET.ILLink.Tasks >= 8.0.4"
     ]
   },
   "packageFolders": {
@@ -146,11 +113,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Dev\\Rainfall\\IvoryKeep\\IvoryKeep.csproj",
-      "projectName": "IvoryKeep",
-      "projectPath": "D:\\Dev\\Rainfall\\IvoryKeep\\IvoryKeep.csproj",
+      "projectUniqueName": "D:\\Dev\\Rainfall\\SoulslikeTest\\SoulslikeTest.csproj",
+      "projectName": "SoulslikeTest",
+      "projectPath": "D:\\Dev\\Rainfall\\SoulslikeTest\\SoulslikeTest.csproj",
       "packagesPath": "C:\\Users\\faris\\.nuget\\packages\\",
-      "outputPath": "D:\\Dev\\Rainfall\\IvoryKeep\\obj\\",
+      "outputPath": "D:\\Dev\\Rainfall\\SoulslikeTest\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\faris\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -161,7 +128,8 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {},
+        "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json": {}
       },
       "frameworks": {
         "net8.0": {
@@ -229,5 +197,25 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1105",
+      "level": "Error",
+      "message": "Unable to find project information for 'D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj'. If you are using Visual Studio, this may be because the project is unloaded or not part of the current solution so run a restore from the command-line. Otherwise, the project file may be invalid or missing targets required for restore.",
+      "libraryId": "D:\\Dev\\Rainfall\\Rainfall\\Rainfall.csproj",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1105",
+      "level": "Error",
+      "message": "Unable to find project information for 'D:\\Dev\\Rainfall\\Rainfall3D\\Rainfall3D.csproj'. If you are using Visual Studio, this may be because the project is unloaded or not part of the current solution so run a restore from the command-line. Otherwise, the project file may be invalid or missing targets required for restore.",
+      "libraryId": "D:\\Dev\\Rainfall\\Rainfall3D\\Rainfall3D.csproj",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }
