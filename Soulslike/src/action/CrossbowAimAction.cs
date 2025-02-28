@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 public class CrossbowAimAction : PlayerAction
 {
-	public CrossbowAimAction(Crossbow crossbow)
-		: base("crossbow_aim")
+	public CrossbowAimAction(Crossbow crossbow, int hand)
+		: base("crossbow_aim", hand)
 	{
-		animationName[0] = "aim";
-		animationSet[0] = crossbow.moveset;
-		animationName[1] = "aim";
-		animationSet[1] = crossbow.moveset;
+		animationName[hand] = "aim";
+		animationSet[hand] = crossbow.moveset;
+
+		animationName[hand ^ 1] = "aim";
+		animationSet[hand ^ 1] = crossbow.moveset;
 
 		viewmodelAim = 1;
 		swayAmount = 0.1f;

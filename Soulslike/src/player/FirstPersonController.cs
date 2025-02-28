@@ -37,7 +37,7 @@ public class FirstPersonController
 	public const float COLLIDER_HEIGHT_DUCKED = 1.15f;
 
 	const float MAX_AIR_SPEED = 0.3f;
-	const float LADDER_SPEED = 1.5f;
+	public const float LADDER_SPEED = 1.0f;
 	const float ACCELERATION = 10.0f;
 	const float AIR_ACCELERATION = 10.0f;
 	const float FRICTION = 6.0f;

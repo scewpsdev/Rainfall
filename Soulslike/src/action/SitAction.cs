@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 public class SitAction : PlayerAction
 {
 	public SitAction()
-		: base("sit")
+		: base("sit", 0)
 	{
 		animationName[0] = "sit";
 		animationName[1] = "sit";

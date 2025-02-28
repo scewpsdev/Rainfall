@@ -24,6 +24,8 @@ public abstract class Item
 	public Model moveset;
 	public List<SceneFormat.ColliderData> colliders;
 
+	public Vector3 sfxSourcePosition = Vector3.Zero;
+
 	public bool twoHanded = false;
 	public float viewmodelAim = Player.DEFAULT_VIEWMODEL_AIM;
 
@@ -48,6 +50,10 @@ public abstract class Item
 	}
 
 	public virtual void use(Player player, int hand)
+	{
+	}
+
+	public virtual void useCharged(Player player, int hand)
 	{
 	}
 

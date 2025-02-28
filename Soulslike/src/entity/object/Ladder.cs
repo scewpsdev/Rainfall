@@ -25,11 +25,11 @@ public class Ladder : Entity, Interactable
 
 		model = Resource.GetModel("entity/object/ladder/ladder.gltf");
 
-		sfxStep[0] = Resource.GetSound("entity/object/ladder/sfx/climb1.ogg");
-		sfxStep[1] = Resource.GetSound("entity/object/ladder/sfx/climb2.ogg");
-		sfxStep[2] = Resource.GetSound("entity/object/ladder/sfx/climb3.ogg");
-		sfxStep[3] = Resource.GetSound("entity/object/ladder/sfx/climb4.ogg");
-		sfxStep[4] = Resource.GetSound("entity/object/ladder/sfx/climb5.ogg");
+		sfxStep[0] = Resource.GetSound("audio/climb1.ogg");
+		sfxStep[1] = Resource.GetSound("audio/climb2.ogg");
+		sfxStep[2] = Resource.GetSound("audio/climb3.ogg");
+		sfxStep[3] = Resource.GetSound("audio/climb4.ogg");
+		sfxStep[4] = Resource.GetSound("audio/climb5.ogg");
 	}
 
 	public override void init()

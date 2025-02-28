@@ -11,7 +11,7 @@ public class CreatureStaggerAction : CreatureAction
 		: base("stagger")
 	{
 		animationName = "stagger1";
-		duration = 0.5f;
+		duration = 0.25f;
 		animationTransitionDuration = 0.5f * duration;
 	}
 }

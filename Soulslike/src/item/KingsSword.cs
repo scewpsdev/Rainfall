@@ -13,7 +13,9 @@ public class KingsSword : Weapon
 	{
 		//twoHanded = true;
 
-		addAttack(new AttackData("attack1", "attack2", 10, 18));
-		addAttack(new AttackData("attack2", "attack1", 10, 18));
+		initBlade(0.1f, 0.85f);
+
+		addAttack(new AttackData("attack1", "attack2", null, "attack1", 10, 18));
+		addAttack(new AttackData("attack2", "attack1", null, "attack2", 10, 18));
 	}
 }

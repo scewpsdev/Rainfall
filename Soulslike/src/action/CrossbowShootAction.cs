@@ -10,15 +10,16 @@ public class CrossbowShootAction : PlayerAction
 {
 	Crossbow weapon;
 
-	public CrossbowShootAction(Crossbow weapon)
-		: base("crossbow_shoot")
+	public CrossbowShootAction(Crossbow weapon, int hand)
+		: base("crossbow_shoot", hand)
 	{
 		this.weapon = weapon;
 
-		animationName[0] = "shoot";
-		animationSet[0] = weapon.moveset;
-		animationName[1] = "shoot";
-		animationSet[1] = weapon.moveset;
+		animationName[hand] = "shoot";
+		animationSet[hand] = weapon.moveset;
+
+		animationName[hand ^ 1] = "shoot";
+		animationSet[hand ^ 1] = weapon.moveset;
 
 		viewmodelAim = 1;
 		swayAmount = 0.1f;

@@ -150,7 +150,6 @@ struct RenderTargetAttachment
 
 
 typedef uint16_t VertexBuffer;
-typedef uint16_t DynamicVertexBuffer;
 typedef uint16_t IndexBuffer;
 typedef uint16_t DynamicIndexBuffer;
 typedef uint16_t DynamicVertexBuffer;
@@ -167,8 +166,8 @@ RFAPI const bgfx::Memory* Graphics_CreateVideoMemoryRef(int size, const void* da
 
 RFAPI VertexBuffer Graphics_CreateVertexBuffer(const bgfx::Memory* memory, const VertexElement* layoutElements, int layoutElementsCount, BufferFlags flags);
 RFAPI void Graphics_DestroyVertexBuffer(VertexBuffer buffer);
-RFAPI DynamicVertexBuffer Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags);
-RFAPI void Graphics_DestroyDynamicVertexBuffer(VertexBuffer buffer);
+RFAPI uint16_t Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags);
+RFAPI void Graphics_DestroyDynamicVertexBuffer(uint16_t buffer);
 RFAPI bool Graphics_CreateTransientVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, bgfx::TransientVertexBuffer* buffer);
 RFAPI IndexBuffer Graphics_CreateIndexBuffer(const bgfx::Memory* memory, uint16_t flags);
 RFAPI void Graphics_DestroyIndexBuffer(IndexBuffer buffer);

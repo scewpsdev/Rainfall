@@ -1,23 +1,55 @@
-﻿using System;
+﻿using Rainfall;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 
+public enum DamageType
+{
+	Slash,
+	Thrust,
+	Blunt,
+	Projectile,
+	Magic,
+	Fire,
+}
+
 public struct AttackData
 {
 	public string name;
 	public string nextAttack;
+	public string nextCharged;
+	public string animation;
+	public string chargeAnimation;
 	public int damageFrame;
 	public int cancelFrame;
+	public int chargeCancelFrame;
+	public DamageType damageType;
 
-	public AttackData(string name, string nextAttack, int damageFrame, int cancelFrame)
+	public AttackData(string name, string nextAttack, string nextCharged, string animation, string chargeAnimation, int damageFrame, int cancelFrame, int chargeCancelFrame, DamageType damageType = DamageType.Slash)
 	{
 		this.name = name;
 		this.nextAttack = nextAttack;
+		this.nextCharged = nextCharged;
+		this.animation = animation;
+		this.chargeAnimation = chargeAnimation;
 		this.damageFrame = damageFrame;
 		this.cancelFrame = cancelFrame;
+		this.chargeCancelFrame = chargeCancelFrame;
+		this.damageType = damageType;
+	}
+
+	public AttackData(string name, string nextAttack, string nextCharged, string animation, int damageFrame, int cancelFrame, DamageType damageType = DamageType.Slash)
+	{
+		this.name = name;
+		this.nextAttack = nextAttack;
+		this.nextCharged = nextCharged;
+		this.animation = animation;
+		this.damageFrame = damageFrame;
+		this.cancelFrame = cancelFrame;
+		this.damageType = damageType;
 	}
 }
 
@@ -29,10 +61,19 @@ public class Weapon : Item
 	bool canParry = false;
 	public float parryWindow = 0;
 
+	public Vector3 bladeBase, bladeTip;
+
 
 	public Weapon(string name, string displayName)
 		: base(ItemType.Weapon, name, displayName)
 	{
+	}
+
+	protected void initBlade(float basePoint, float tipPoint)
+	{
+		bladeBase = new Vector3(0, basePoint, 0);
+		bladeTip = new Vector3(0, tipPoint, 0);
+		sfxSourcePosition = bladeTip;
 	}
 
 	protected void addAttack(AttackData attack)
@@ -47,15 +88,89 @@ public class Weapon : Item
 		parryWindow = window / 24.0f;
 	}
 
+	bool getFirstAttack(out int idx)
+	{
+		for (int i = 0; i < attacks.Count; i++)
+		{
+			if (attacks[i].chargeAnimation == null)
+			{
+				idx = i;
+				return true;
+			}
+		}
+		idx = -1;
+		return false;
+	}
+
+	bool getFirstChargedAttack(out int idx)
+	{
+		for (int i = 0; i < attacks.Count; i++)
+		{
+			if (attacks[i].chargeAnimation != null)
+			{
+				idx = i;
+				return true;
+			}
+		}
+		idx = -1;
+		return false;
+	}
+
 	public override void use(Player player, int hand)
 	{
 		if (attacks.Count > 0)
 		{
-			int nextAttack = 0;
+			getFirstAttack(out int nextAttack);
 			if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction)
+			{
 				nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextAttack];
+				lastCancelledAttack = player.actionManager.currentAction;
+			}
+
 			player.actionManager.queueAction(new AttackAction(this, attacks[nextAttack], hand));
 		}
+	}
+
+	PlayerAction lastCancelledAttack;
+
+	public override void useCharged(Player player, int hand)
+	{
+		Debug.Assert(player.actionManager.actionQueue.Count > 0);
+		PlayerAction lastQueuedAction = player.actionManager.actionQueue[player.actionManager.actionQueue.Count - 1];
+		Debug.Assert(lastQueuedAction is AttackAction);
+		if (lastQueuedAction.hasStarted)
+			lastQueuedAction.cancel();
+		else
+			player.actionManager.actionQueue.RemoveAt(player.actionManager.actionQueue.Count - 1);
+
+		getFirstChargedAttack(out int nextAttack);
+		if (player.actionManager.currentAction != null && player.actionManager.currentAction != lastQueuedAction && player.actionManager.currentAction is AttackAction && (player.actionManager.currentAction as AttackAction).attack.nextCharged != null)
+			nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextCharged];
+		else if (lastCancelledAttack != null && (Time.currentTime - lastCancelledAttack.startTime) / 1e9f < lastCancelledAttack.duration / lastCancelledAttack.animationSpeed && lastCancelledAttack is AttackAction && (lastCancelledAttack as AttackAction).attack.nextCharged != null)
+			nextAttack = attackNameMap[(lastCancelledAttack as AttackAction).attack.nextCharged];
+
+		AttackChargeAction chargeAction = new AttackChargeAction(this, attacks[nextAttack], hand);
+		player.actionManager.queueAction(chargeAction);
+		if (lastQueuedAction.hasStarted)
+			chargeAction.animationTransitionDuration = 0;
+		//chargeAction.elapsedTime = lastQueuedAction.elapsedTime;
+		return;
+
+		/*
+		Debug.Assert(player.actionManager.actionQueue.Count > 0);
+		PlayerAction lastQueuedAction = player.actionManager.actionQueue[player.actionManager.actionQueue.Count - 1];
+		Debug.Assert(lastQueuedAction is AttackAction);
+		if (lastQueuedAction.hasStarted)
+			lastQueuedAction.cancel();
+		else
+			player.actionManager.actionQueue.RemoveAt(player.actionManager.actionQueue.Count - 1);
+
+		getFirstChargedAttack(out int nextAttack);
+		if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction)
+			nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextAttack];
+
+		player.actionManager.queueAction(new AttackChargeAction(this, attacks[nextAttack], hand));
+		*/
 	}
 
 	public override void useSecondary(Player player, int hand)

@@ -12,13 +12,13 @@ public class SpellCastAction : PlayerAction
 
 	bool casted = false;
 
-	public SpellCastAction(Staff weapon)
-		: base("spell_cast")
+	public SpellCastAction(Staff weapon, int hand)
+		: base("spell_cast", hand)
 	{
 		this.weapon = weapon;
 
-		animationName[0] = "cast";
-		animationSet[0] = weapon.moveset;
+		animationName[hand] = "cast";
+		animationSet[hand] = weapon.moveset;
 
 		viewmodelAim = 0.5f;
 	}

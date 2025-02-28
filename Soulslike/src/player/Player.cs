@@ -15,6 +15,7 @@ public class Player : Entity
 	const float REACH_DISTANCE = 3.0f;
 	const float CAMERA_HEIGHT = 1.5f;
 	const float CAMERA_HEIGHT_DUCKED = 0.9f;
+	const float WEAPON_CHARGE_TIME = 0.2f;
 
 	public Camera camera;
 	public float pitch, yaw;
@@ -47,7 +48,8 @@ public class Player : Entity
 	AnimationState actionAnim1, actionAnim2;
 	public AnimationState currentActionAnim;
 
-	Item rightWeapon, leftWeapon;
+	public Item rightWeapon, leftWeapon;
+	public long lastRightWeaponDown = -1, lastLeftWeaponDown = -1;
 
 	public Interactable interactableInFocus = null;
 
@@ -204,12 +206,32 @@ public class Player : Entity
 
 	void updateMovement()
 	{
-		controller.inputLeft = Input.IsKeyDown(KeyCode.A);
-		controller.inputRight = Input.IsKeyDown(KeyCode.D);
-		controller.inputUp = Input.IsKeyDown(KeyCode.W);
-		controller.inputDown = Input.IsKeyDown(KeyCode.S);
+		controller.inputLeft = false;
+		controller.inputRight = false;
+		controller.inputUp = false;
+		controller.inputDown = false;
+		controller.inputJump = false;
+		controller.inputDuck = false;
+
+		if (actionManager.currentAction == null || !actionManager.currentAction.lockMovement)
+		{
+			controller.inputLeft = Input.IsKeyDown(KeyCode.A);
+			controller.inputRight = Input.IsKeyDown(KeyCode.D);
+			controller.inputUp = Input.IsKeyDown(KeyCode.W);
+			controller.inputDown = Input.IsKeyDown(KeyCode.S);
+		}
+
+		if (actionManager.currentAction != null)
+		{
+			controller.inputLeft |= actionManager.currentAction.inputLeft;
+			controller.inputRight |= actionManager.currentAction.inputRight;
+			controller.inputUp |= actionManager.currentAction.inputForward;
+			controller.inputDown |= actionManager.currentAction.inputBack;
+		}
+
 		controller.inputJump = Input.IsKeyPressed(KeyCode.Space);
 		controller.inputDuck = InputManager.IsDown("Duck");
+
 
 		isSprinting = InputManager.IsDown("Sprint");
 		controller.maxSpeed = getCurrentMaxSpeed();
@@ -237,6 +259,9 @@ public class Player : Entity
 		rotation = Quaternion.FromAxisAngle(Vector3.Up, yaw);
 
 		playerBody.setTransform(position, rotation);
+
+		rightWeaponTransform = getModelMatrix() * modelTransform * rightHandAnimator.getNodeTransform(weaponRNode);
+		leftWeaponTransform = getModelMatrix() * modelTransform * leftHandAnimator.getNodeTransform(weaponLNode);
 	}
 
 	float getCurrentMaxSpeed()
@@ -257,22 +282,28 @@ public class Player : Entity
 		if (Input.IsKeyPressed(KeyCode.O))
 			actionManager.queueAction(new SitAction());
 		if (Input.IsKeyPressed(KeyCode.P))
-			actionManager.queueAction(new TestSwordHold());
+			actionManager.queueAction(new TestSwordHold(0));
 		if (Input.IsKeyPressed(KeyCode.F))
-			actionManager.queueAction(new HealAction());
+			actionManager.queueAction(new HealAction(1));
 		if (Input.IsKeyPressed(KeyCode.V))
 			actionManager.queueAction(new KickAction());
 
 		if (rightWeapon != null)
 		{
-			if (InputManager.IsPressed("AttackRight", true) || InputManager.IsDown("AttackRight") && !rightWeapon.useTrigger && actionManager.currentAction == null)
+			if (InputManager.IsPressed("Attack1", true) || InputManager.IsDown("Attack1") && !rightWeapon.useTrigger && actionManager.currentAction == null)
 			{
 				rightWeapon.use(this, 0);
+				lastRightWeaponDown = Time.currentTime;
+			}
+			else if (InputManager.IsDown("Attack1") && rightWeapon.useTrigger && lastRightWeaponDown != -1 && (Time.currentTime - lastRightWeaponDown) / 1e9f > WEAPON_CHARGE_TIME)
+			{
+				rightWeapon.useCharged(this, 0);
+				lastRightWeaponDown = -1;
 			}
 		}
 		if (rightWeapon != null && rightWeapon.twoHanded)
 		{
-			if (InputManager.IsPressed("AttackLeft", true) || InputManager.IsDown("AttackLeft") && !rightWeapon.secondaryUseTrigger && actionManager.currentAction == null)
+			if (InputManager.IsPressed("Attack2", true) || InputManager.IsDown("Attack2") && !rightWeapon.secondaryUseTrigger && actionManager.currentAction == null)
 			{
 				rightWeapon.useSecondary(this, 0);
 			}
@@ -314,14 +345,26 @@ public class Player : Entity
 			animator.setAnimation(moveAnim);
 
 		if (actionManager.currentAction != null && actionManager.currentAction.animationName[0] != null)
+		{
 			rightHandAnimator.setAnimation(currentActionAnim);
+			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
+			rightHandAnimator.timer = actionManager.currentAction.elapsedTime;
+		}
 		else
+		{
 			rightHandAnimator.setAnimation(moveAnim);
+		}
 
 		if (actionManager.currentAction != null && actionManager.currentAction.animationName[1] != null)
+		{
 			leftHandAnimator.setAnimation(currentActionAnim);
+			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
+			leftHandAnimator.timer = actionManager.currentAction.elapsedTime;
+		}
 		else
+		{
 			leftHandAnimator.setAnimation(moveAnim);
+		}
 
 		rightHandAnimator.applyAnimation();
 		leftHandAnimator.applyAnimation();
@@ -390,8 +433,7 @@ public class Player : Entity
 
 		animator.applyAnimation();
 
-		rightWeaponTransform = getModelMatrix() * modelTransform * animator.getNodeTransform(weaponRNode);
-		leftWeaponTransform = getModelMatrix() * modelTransform * animator.getNodeTransform(weaponLNode);
+
 
 		if (rightWeaponAnimator != null)
 		{
@@ -457,6 +499,12 @@ public class Player : Entity
 		updateAnimations();
 	}
 
+	public override void fixedUpdate(float delta)
+	{
+		if (actionManager.currentAction != null)
+			actionManager.currentAction.fixedUpdate(this, delta);
+	}
+
 	public AnimationState getNextActionAnimationState()
 	{
 		currentActionAnim = currentActionAnim == actionAnim1 ? actionAnim2 : currentActionAnim == actionAnim2 ? actionAnim1 : actionAnim1;
@@ -478,6 +526,9 @@ public class Player : Entity
 			leftWeaponModel = actionManager.currentAction.weaponModel[1];
 		if (leftWeaponModel != null)
 			Renderer.DrawModel(leftWeaponModel, leftWeaponTransform, leftWeaponAnimator);
+
+		if (actionManager.currentAction != null)
+			actionManager.currentAction.draw(this);
 
 		//Renderer.DrawLight(camera.position, new Vector3(2));
 

@@ -78,7 +78,7 @@ RFAPI Material* Material_CreateDeferred(uint32_t color, float metallicFactor, fl
 {
 	Material* material = BX_NEW(Application_GetAllocator(), Material) {};
 
-	material->shader = defaultShader;
+	material->shader = nullptr;
 	material->isForward = false;
 
 	float r = ((color & 0x000000FF) >> 0) / 255.0f;

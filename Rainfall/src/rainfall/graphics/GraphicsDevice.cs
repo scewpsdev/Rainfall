@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Rainfall
 {
-	public enum BlendState
+	public enum BlendState : int
 	{
 		Default,
 		Alpha,
@@ -40,7 +40,7 @@ namespace Rainfall
 		Count
 	}
 
-	public enum PrimitiveType
+	public enum PrimitiveType : int
 	{
 		Triangle,
 		TriangleStrip,
@@ -81,6 +81,15 @@ namespace Rainfall
 			Unsafe.CopyBlock((void*)dstPtr, data, (uint)length);
 
 			return new VideoMemory(memoryHandle, dstPtr, length);
+		}
+
+		public VideoMemory createVideoMemory<T>(Span<T> data) where T : struct
+		{
+			unsafe
+			{
+				fixed (void* dataPtr = data)
+					return createVideoMemory(dataPtr, sizeof(T) * data.Length);
+			}
 		}
 
 		public VideoMemory createVideoMemory(Span<byte> data)
@@ -199,9 +208,26 @@ namespace Rainfall
 			}
 		}
 
+		public DynamicVertexBuffer createDynamicVertexBuffer(VideoMemory memory, Span<VertexElement> layout, BufferFlags flags = BufferFlags.None)
+		{
+			unsafe
+			{
+				fixed (VertexElement* layoutPtr = layout)
+				{
+					ushort handle = Native.Graphics.Graphics_CreateDynamicVertexBufferFromMemory(memory.memoryHandle, layoutPtr, layout.Length, flags);
+					return new DynamicVertexBuffer(handle);
+				}
+			}
+		}
+
 		public void destroyDynamicVertexBuffer(DynamicVertexBuffer buffer)
 		{
 			Native.Graphics.Graphics_DestroyDynamicVertexBuffer(buffer.handle);
+		}
+
+		public void updateDynamicVertexBuffer(DynamicVertexBuffer buffer, int startVertex, VideoMemory memory)
+		{
+			Native.Graphics.Graphics_UpdateDynamicVertexBuffer(buffer.handle, startVertex, memory.memoryHandle);
 		}
 
 		public TransientVertexBuffer createTransientVertexBuffer(Span<VertexElement> layout, int vertexCount)

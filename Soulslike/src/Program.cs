@@ -45,7 +45,7 @@ internal class Program : Game3D<Program>
 	public static void Main(string[] args)
 	{
 		LaunchParams launchParams = new LaunchParams(args);
-		launchParams.fpsCap = 60;
+		launchParams.fpsCap = 0;
 #if DEBUG
 		launchParams.width = 1280;
 		launchParams.height = 720;

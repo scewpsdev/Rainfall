@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 public class TestSwordHold : PlayerAction
 {
-	public TestSwordHold()
-		: base("sword_hold")
+	public TestSwordHold(int hand)
+		: base("sword_hold", hand)
 	{
-		animationName[0] = "idle";
-		animationName[1] = "idle";
-		animationSet[0] = Resource.GetModel("item/longsword/longsword_moveset.gltf");
-		animationSet[1] = Resource.GetModel("item/longsword/longsword_moveset.gltf");
-		overrideWeaponModel[0] = true;
-		weaponModel[0] = Resource.GetModel("item/longsword/longsword.gltf");
+		animationName[hand] = "idle";
+		animationName[hand ^ 1] = "idle";
+		animationSet[hand] = Resource.GetModel("item/longsword/longsword_moveset.gltf");
+		animationSet[hand ^ 1] = Resource.GetModel("item/longsword/longsword_moveset.gltf");
+		overrideWeaponModel[hand] = true;
+		weaponModel[hand] = Resource.GetModel("item/longsword/longsword.gltf");
 
 		duration = 5;
 	}

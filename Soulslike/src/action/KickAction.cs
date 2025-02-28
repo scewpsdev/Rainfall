@@ -11,7 +11,7 @@ public class KickAction : PlayerAction
 	bool hasKicked;
 
 	public KickAction()
-		: base("kick")
+		: base("kick", 0)
 	{
 		animationName[2] = "kick";
 

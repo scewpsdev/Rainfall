@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HyperCartDrifter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+607b5d73a8e07e277b5d283b5e6092fbef089040")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a7255f91d8e9afb4ecb9d8a292f611d42a02944")]
 [assembly: System.Reflection.AssemblyProductAttribute("HyperCartDrifter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HyperCartDrifter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

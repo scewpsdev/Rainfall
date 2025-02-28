@@ -167,7 +167,7 @@ namespace Rainfall
 		}
 
 
-		internal static class Graphics
+		internal static unsafe class Graphics
 		{
 			internal unsafe delegate void MemoryReleaseCallback_t(void* ptr, void* userPtr);
 
@@ -192,10 +192,16 @@ namespace Rainfall
 			internal static extern void Graphics_DestroyVertexBuffer(ushort buffer);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern unsafe ushort Graphics_CreateDynamicVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, BufferFlags flags);
+			internal static extern ushort Graphics_CreateDynamicVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, BufferFlags flags);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern ushort Graphics_CreateDynamicVertexBufferFromMemory(IntPtr memoryHandle, VertexElement* layoutElements, int layoutElementsCount, BufferFlags flags);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_DestroyDynamicVertexBuffer(ushort buffer);
+
+			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+			internal static extern void Graphics_UpdateDynamicVertexBuffer(ushort buffer, int startVertex, IntPtr memoryHandle);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern unsafe byte Graphics_CreateTransientVertexBuffer(VertexElement* layoutElements, int layoutElementsCount, int vertexCount, out TransientVertexBufferData buffer);

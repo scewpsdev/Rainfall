@@ -34,19 +34,19 @@ public class Crossbow : Item
 	{
 		if (player.actionManager.currentAction is CrossbowAimAction)
 			player.actionManager.currentAction.cancel();
-		player.actionManager.queueAction(new CrossbowShootAction(this));
+		player.actionManager.queueAction(new CrossbowShootAction(this, hand));
 		loaded = false;
 	}
 
 	public override void useSecondary(Player player, int hand)
 	{
-		player.actionManager.queueAction(new CrossbowAimAction(this));
+		player.actionManager.queueAction(new CrossbowAimAction(this, hand));
 	}
 
 	public override void update(Player player, Animator animator)
 	{
 		//if (loaded)
-			animator.setAnimation(loadedAnim);
+		animator.setAnimation(loadedAnim);
 		//else
 		//	animator.setAnimation(defaultAnim);
 	}

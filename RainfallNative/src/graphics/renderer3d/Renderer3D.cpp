@@ -86,6 +86,18 @@ struct MeshDraw
 	bool culled = false;
 };
 
+struct GeometryDraw
+{
+	uint16_t vertexBuffers[8];
+	int numVertexBuffers;
+	bool dynamicVertexBuffers;
+	uint16_t indexBuffer;
+	PrimitiveType primitiveType;
+	BlendState blendState;
+	Matrix transform;
+	Material* material;
+};
+
 struct ClothDraw
 {
 	Cloth* cloth;
@@ -247,6 +259,8 @@ static bgfx::DynamicVertexBufferHandle aabbBuffer;
 static Shader* hzbDownsampleShader;
 static Shader* meshIndirectShader;
 
+static List<GeometryDraw> geometryDraws;
+static List<ClothDraw> clothDraws;
 static List<MeshDraw> forwardDraws;
 
 static List<PointLightDraw> pointLightDraws;
@@ -264,8 +278,6 @@ static int numVisibleParticleSystems;
 static bgfx::IndirectBufferHandle particleIndirectBuffer;
 static bgfx::DynamicVertexBufferHandle particleAabbBuffer;
 static Shader* particleIndirectShader;
-
-static List<ClothDraw> clothDraws;
 
 static bool renderDirectionalLight;
 static Vector3 directionalLightDirection;
@@ -590,6 +602,26 @@ RFAPI void Renderer3D_DrawScene(SceneData* scene, Matrix transform, AnimationSta
 	}
 }
 
+RFAPI void Renderer3D_DrawCustomGeometry(int numVertexBuffers, uint16_t* vertexBuffers, bool dynamicVertexBuffers, uint16_t indexBuffer, PrimitiveType primitiveType, BlendState blendState, Matrix transform, Material* material)
+{
+	GeometryDraw draw;
+	for (int i = 0; i < numVertexBuffers; i++)
+		draw.vertexBuffers[i] = { vertexBuffers[i] };
+	draw.numVertexBuffers = numVertexBuffers;
+	draw.dynamicVertexBuffers = dynamicVertexBuffers;
+	draw.indexBuffer = { indexBuffer };
+	draw.primitiveType = primitiveType;
+	draw.blendState = blendState;
+	draw.transform = transform;
+	draw.material = material;
+	geometryDraws.add(draw);
+}
+
+RFAPI void Renderer3D_DrawCloth(Cloth* cloth, Material* material, Vector3 position, Quaternion rotation)
+{
+	clothDraws.add({ cloth, material, position, rotation });
+}
+
 static float CalculateLightRadius(Vector3 color)
 {
 	/// 
@@ -636,11 +668,6 @@ RFAPI void Renderer3D_DrawSky(uint16_t sky, float intensity, Quaternion rotation
 	skyTexture = sky;
 	skyIntensity = intensity;
 	skyTransform = Matrix::Rotate(rotation);
-}
-
-RFAPI void Renderer3D_DrawCloth(Cloth* cloth, Material* material, Vector3 position, Quaternion rotation)
-{
-	clothDraws.add({ cloth, material, position, rotation });
 }
 
 RFAPI void Renderer3D_DrawEnvironmentMap(uint16_t envir, float intensity)
@@ -772,6 +799,8 @@ static void FrustumCullObjects()
 
 static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, SkeletonState* skeleton, bgfx::ViewId view, bgfx::IndirectBufferHandle indirect = BGFX_INVALID_HANDLE, int indirectID = 0)
 {
+	Shader* shader = material->shader ? material->shader : skeleton ? defaultAnimatedShader : defaultShader;
+
 	Graphics_SetCullState(CullState::ClockWise);
 
 	bgfx::setTransform(&transform.m00);
@@ -803,39 +832,39 @@ static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, Skele
 		mesh->texcoordBuffer.idx != bgfx::kInvalidHandle
 	);
 
-	bgfx::setUniform(material->shader->getUniform("u_attributeInfo0", bgfx::UniformType::Vec4), &attributeInfo0);
-	bgfx::setUniform(material->shader->getUniform("u_attributeInfo1", bgfx::UniformType::Vec4), &attributeInfo1);
+	bgfx::setUniform(shader->getUniform("u_attributeInfo0", bgfx::UniformType::Vec4), &attributeInfo0);
+	bgfx::setUniform(shader->getUniform("u_attributeInfo1", bgfx::UniformType::Vec4), &attributeInfo1);
 
-	bgfx::setUniform(material->shader->getUniform("u_materialData0", bgfx::UniformType::Vec4), &material->materialData[0]);
-	bgfx::setUniform(material->shader->getUniform("u_materialData1", bgfx::UniformType::Vec4), &material->materialData[1]);
-	bgfx::setUniform(material->shader->getUniform("u_materialData2", bgfx::UniformType::Vec4), &material->materialData[2]);
-	bgfx::setUniform(material->shader->getUniform("u_materialData3", bgfx::UniformType::Vec4), &material->materialData[3]);
+	bgfx::setUniform(shader->getUniform("u_materialData0", bgfx::UniformType::Vec4), &material->materialData[0]);
+	bgfx::setUniform(shader->getUniform("u_materialData1", bgfx::UniformType::Vec4), &material->materialData[1]);
+	bgfx::setUniform(shader->getUniform("u_materialData2", bgfx::UniformType::Vec4), &material->materialData[2]);
+	bgfx::setUniform(shader->getUniform("u_materialData3", bgfx::UniformType::Vec4), &material->materialData[3]);
 
 	if (hasDiffuse)
-		bgfx::setTexture(0, material->shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material->textures[0], UINT32_MAX);
+		bgfx::setTexture(0, shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material->textures[0], UINT32_MAX);
 	if (hasNormal)
-		bgfx::setTexture(1, material->shader->getUniform("s_normal", bgfx::UniformType::Sampler), material->textures[1], UINT32_MAX);
+		bgfx::setTexture(1, shader->getUniform("s_normal", bgfx::UniformType::Sampler), material->textures[1], UINT32_MAX);
 	if (hasRoughness)
-		bgfx::setTexture(2, material->shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material->textures[2], UINT32_MAX);
+		bgfx::setTexture(2, shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material->textures[2], UINT32_MAX);
 	if (hasMetallic)
-		bgfx::setTexture(3, material->shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material->textures[3], UINT32_MAX);
+		bgfx::setTexture(3, shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material->textures[3], UINT32_MAX);
 	if (hasEmissive)
-		bgfx::setTexture(4, material->shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material->textures[4], UINT32_MAX);
+		bgfx::setTexture(4, shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material->textures[4], UINT32_MAX);
 	if (hasHeight)
-		bgfx::setTexture(5, material->shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], UINT32_MAX);
+		bgfx::setTexture(5, shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], UINT32_MAX);
 
-	bgfx::setTexture(6, material->shader->getUniform("s_blueNoise", bgfx::UniformType::Sampler), blueNoise64, UINT32_MAX);
+	bgfx::setTexture(6, shader->getUniform("s_blueNoise", bgfx::UniformType::Sampler), blueNoise64, UINT32_MAX);
 
 	if (skeleton)
-		bgfx::setUniform(material->shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
+		bgfx::setUniform(shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
 	Vector4 u_cameraPosition(cameraPosition, 0);
-	Graphics_SetUniform(material->shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
 
 	if (indirect.idx != bgfx::kInvalidHandle)
-		bgfx::submit(view, material->shader->program, indirect, indirectID, 1);
+		bgfx::submit(view, shader->program, indirect, indirectID, 1);
 	else
-		bgfx::submit(view, material->shader->program);
+		bgfx::submit(view, shader->program);
 }
 
 static void DoDepthPrepass()
@@ -1012,6 +1041,72 @@ static void CullParticles()
 	Graphics_ComputeDispatch(RenderPass::ParticleCulling, particleIndirectShader, numVisibleParticleSystems / 64 + 1, 1, 1);
 }
 
+static void DrawCustomGeometry(bgfx::ViewId view, int numVertexBuffers, uint16_t* vertexBuffers, bool dynamicVertexBuffers, uint16_t indexBuffer, PrimitiveType primitiveType, BlendState blendState, const Matrix& transform, Material* material)
+{
+	Shader* shader = material->shader ? material->shader : defaultShader;
+
+	Graphics_SetCullState(CullState::None);
+	Graphics_SetPrimitiveType(primitiveType);
+	Graphics_SetBlendState(blendState);
+
+	bgfx::setTransform(&transform.m00);
+
+	for (int i = 0; i < numVertexBuffers; i++)
+	{
+		if (dynamicVertexBuffers)
+			bgfx::setVertexBuffer(i, bgfx::DynamicVertexBufferHandle{ vertexBuffers[i] });
+		else
+			bgfx::setVertexBuffer(i, bgfx::VertexBufferHandle{ vertexBuffers[i] });
+	}
+
+	if (indexBuffer != bgfx::kInvalidHandle)
+		bgfx::setIndexBuffer(bgfx::IndexBufferHandle{ indexBuffer });
+
+
+	bool hasDiffuse = material->textures[0].idx != bgfx::kInvalidHandle;
+	bool hasNormal = material->textures[1].idx != bgfx::kInvalidHandle;
+	bool hasRoughness = material->textures[2].idx != bgfx::kInvalidHandle;
+	bool hasMetallic = material->textures[3].idx != bgfx::kInvalidHandle;
+	bool hasEmissive = material->textures[4].idx != bgfx::kInvalidHandle;
+	bool hasHeight = material->textures[5].idx != bgfx::kInvalidHandle;
+
+	Vector4 attributeInfo0(hasDiffuse, hasNormal, hasRoughness, hasMetallic);
+	Vector4 attributeInfo1(
+		hasEmissive,
+		hasHeight,
+		0,
+		0
+	);
+
+	bgfx::setUniform(shader->getUniform("u_attributeInfo0", bgfx::UniformType::Vec4), &attributeInfo0);
+	bgfx::setUniform(shader->getUniform("u_attributeInfo1", bgfx::UniformType::Vec4), &attributeInfo1);
+
+	bgfx::setUniform(shader->getUniform("u_materialData0", bgfx::UniformType::Vec4), &material->materialData[0]);
+	bgfx::setUniform(shader->getUniform("u_materialData1", bgfx::UniformType::Vec4), &material->materialData[1]);
+	bgfx::setUniform(shader->getUniform("u_materialData2", bgfx::UniformType::Vec4), &material->materialData[2]);
+	bgfx::setUniform(shader->getUniform("u_materialData3", bgfx::UniformType::Vec4), &material->materialData[3]);
+
+	if (hasDiffuse)
+		bgfx::setTexture(0, shader->getUniform("s_diffuse", bgfx::UniformType::Sampler), material->textures[0], UINT32_MAX);
+	if (hasNormal)
+		bgfx::setTexture(1, shader->getUniform("s_normal", bgfx::UniformType::Sampler), material->textures[1], UINT32_MAX);
+	if (hasRoughness)
+		bgfx::setTexture(2, shader->getUniform("s_roughness", bgfx::UniformType::Sampler), material->textures[2], UINT32_MAX);
+	if (hasMetallic)
+		bgfx::setTexture(3, shader->getUniform("s_metallic", bgfx::UniformType::Sampler), material->textures[3], UINT32_MAX);
+	if (hasEmissive)
+		bgfx::setTexture(4, shader->getUniform("s_emissive", bgfx::UniformType::Sampler), material->textures[4], UINT32_MAX);
+	if (hasHeight)
+		bgfx::setTexture(5, shader->getUniform("s_height", bgfx::UniformType::Sampler), material->textures[5], UINT32_MAX);
+
+	bgfx::setTexture(6, shader->getUniform("s_blueNoise", bgfx::UniformType::Sampler), blueNoise64, UINT32_MAX);
+
+	Vector4 u_cameraPosition(cameraPosition, 0);
+	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+	bgfx::submit(view, shader->program);
+}
+
 static void DrawCloth(Cloth* cloth, const Matrix& transform, Material* material, bgfx::ViewId view)
 {
 	Shader* shader = clothShader;
@@ -1094,6 +1189,12 @@ static void GeometryPass()
 			skeleton = animation->skeletons[mesh->skeletonID];
 
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::Geometry, indirectBuffer, i);
+	}
+
+	for (int i = 0; i < geometryDraws.size; i++)
+	{
+		if (!geometryDraws[i].material->isForward)
+			DrawCustomGeometry(RenderPass::Geometry, geometryDraws[i].numVertexBuffers, geometryDraws[i].vertexBuffers, geometryDraws[i].dynamicVertexBuffers, geometryDraws[i].indexBuffer, geometryDraws[i].primitiveType, geometryDraws[i].blendState, geometryDraws[i].transform, geometryDraws[i].material);
 	}
 
 	for (int i = 0; i < clothDraws.size; i++)
@@ -1498,6 +1599,12 @@ static void RenderForwardMeshes()
 
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::Forward);
 	}
+
+	for (int i = 0; i < geometryDraws.size; i++)
+	{
+		if (geometryDraws[i].material->isForward)
+			DrawCustomGeometry(RenderPass::Forward, geometryDraws[i].numVertexBuffers, geometryDraws[i].vertexBuffers, geometryDraws[i].dynamicVertexBuffers, geometryDraws[i].indexBuffer, geometryDraws[i].primitiveType, geometryDraws[i].blendState, geometryDraws[i].transform, geometryDraws[i].material);
+	}
 }
 
 struct ParticleInstanceData
@@ -1761,9 +1868,10 @@ RFAPI uint16_t Renderer3D_End()
 
 	meshDraws.clear();
 	occluderMeshes.clear();
+	geometryDraws.clear();
+	clothDraws.clear();
 	forwardDraws.clear();
 	pointLightDraws.clear();
-	clothDraws.clear();
 	renderDirectionalLight = false;
 	particleSystemDraws.clear();
 	skyTexture = bgfx::kInvalidHandle;

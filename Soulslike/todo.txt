@@ -4,11 +4,26 @@
 [ ] Door open animation
 [ ] Sword pickup animation
 [ ] Vaulting
-[ ] Attacks
-[ ] Hit slowdown
+[X] Attacks
+[X] Charged Heavy Attacks
+[X] Weapon trail
+[ ] Blood effect
+[X] 3D Weapon sound
+[X] Hit slowdown
+[ ] Thrust weapon
 [ ] Blocks & Parries
+[ ] Lower body
+[ ] Armor & Equipment
 [ ] Skeleton enemy
 [ ] Bow
+[ ] Crossbow
+[ ] Spells
 [ ] Healing flask
 [ ] Firebomb & Throwing Knife
 [ ] Starting cave
+[ ] Custom shader language
+
+
+Moveset inspiration:
+- raya lucaria knight
+- godskin noble rapier

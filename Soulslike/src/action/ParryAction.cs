@@ -11,7 +11,7 @@ public class ParryAction : PlayerAction
 	public Weapon weapon;
 
 	public ParryAction(Weapon weapon, int hand)
-		: base("parry")
+		: base("parry", hand)
 	{
 		this.weapon = weapon;
 

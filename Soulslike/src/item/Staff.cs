@@ -19,6 +19,6 @@ public class Staff : Item
 
 	public override void use(Player player, int hand)
 	{
-		player.actionManager.queueAction(new SpellCastAction(this));
+		player.actionManager.queueAction(new SpellCastAction(this, hand));
 	}
 }

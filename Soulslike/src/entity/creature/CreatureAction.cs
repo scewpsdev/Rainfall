@@ -64,13 +64,12 @@ public class CreatureAction
 		for (int i = 0; i < soundEffects.Count; i++)
 		{
 			ActionSfx sfx = soundEffects[i];
-			if (elapsedTime >= sfx.time && !sfx.played)
+			if (elapsedTime >= sfx.time && sfx.source == 0)
 			{
 				//if (sfx.organic)
 				//	Audio.PlayOrganic(sfx.sound, player.camera.position + player.camera.rotation.forward);
 				//else
 				//	Audio.Play(sfx.sound, player.camera.position + player.camera.rotation.forward);
-				sfx.played = true;
 				soundEffects[i] = sfx;
 			}
 		}

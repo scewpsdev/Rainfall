@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 public class HealAction : PlayerAction
 {
-	public HealAction()
-		: base("heal")
+	public HealAction(int hand)
+		: base("heal", hand)
 	{
-		animationName[0] = "use";
-		animationSet[0] = Resource.GetModel("item/healing_potion/healing_potion_moveset.gltf");
-		overrideWeaponModel[0] = true;
-		weaponModel[0] = Resource.GetModel("item/healing_potion/healing_potion.gltf");
+		animationName[hand] = "use";
+		animationSet[hand] = Resource.GetModel("item/healing_potion/healing_potion_moveset.gltf");
+		overrideWeaponModel[hand] = true;
+		weaponModel[hand] = Resource.GetModel("item/healing_potion/healing_potion.gltf");
 
 		viewmodelAim = 1;
 	}

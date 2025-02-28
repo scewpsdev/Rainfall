@@ -17,6 +17,8 @@ public class Creature : Entity, Hittable
 
 	public CreatureActionManager actionManager;
 
+	public Sound[] slashSound, stabSound;
+
 
 	public Creature(string name)
 	{
@@ -39,6 +41,9 @@ public class Creature : Entity, Hittable
 		actionAnim2 = Animator.CreateAnimation(model, "default", false, 0.1f);
 
 		actionManager = new CreatureActionManager(this);
+
+		slashSound = Resource.GetSounds("audio/slash", 2);
+		stabSound = Resource.GetSounds("audio/stab", 2);
 	}
 
 	public void hit(Entity by, Item item)
@@ -62,8 +67,6 @@ public class Creature : Entity, Hittable
 			else if (body.type == RigidBodyType.Kinematic)
 				body.setTransform(position, rotation);
 		}
-		if (hitboxes != null && model != null && animator != null)
-			updateBoneHitbox(model.skeleton.rootNode, transform * animator.getNodeLocalTransform(model.skeleton.rootNode));
 
 		if (actionManager.currentAction != null)
 		{
@@ -75,6 +78,9 @@ public class Creature : Entity, Hittable
 		}
 
 		animator.applyAnimation();
+
+		if (hitboxes != null && model != null && animator != null)
+			updateBoneHitbox(model.skeleton.rootNode, transform * animator.getNodeLocalTransform(model.skeleton.rootNode));
 
 		for (int i = 0; i < particles.Count; i++)
 		{

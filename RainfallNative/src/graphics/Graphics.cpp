@@ -119,16 +119,28 @@ RFAPI void Graphics_DestroyVertexBuffer(VertexBuffer buffer)
 	bgfx::destroy(bgfx::VertexBufferHandle{ buffer });
 }
 
-RFAPI DynamicVertexBuffer Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags)
+RFAPI uint16_t Graphics_CreateDynamicVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, uint16_t flags)
 {
 	bgfx::VertexLayout layout = CreateVertexLayout(layoutElements, layoutElementsCount);
 	bgfx::DynamicVertexBufferHandle handle = bgfx::createDynamicVertexBuffer(vertexCount, layout, flags);
 	return handle.idx;
 }
 
-RFAPI void Graphics_DestroyDynamicVertexBuffer(DynamicVertexBuffer buffer)
+RFAPI uint16_t Graphics_CreateDynamicVertexBufferFromMemory(const bgfx::Memory* memory, const VertexElement* layoutElements, int layoutElementsCount, uint16_t flags)
+{
+	bgfx::VertexLayout layout = CreateVertexLayout(layoutElements, layoutElementsCount);
+	bgfx::DynamicVertexBufferHandle handle = bgfx::createDynamicVertexBuffer(memory, layout, flags);
+	return handle.idx;
+}
+
+RFAPI void Graphics_DestroyDynamicVertexBuffer(uint16_t buffer)
 {
 	bgfx::destroy(bgfx::DynamicVertexBufferHandle{ buffer });
+}
+
+RFAPI void Graphics_UpdateDynamicVertexBuffer(uint16_t buffer, int startVertex, const bgfx::Memory* memory)
+{
+	bgfx::update(bgfx::DynamicVertexBufferHandle{ buffer }, startVertex, memory);
 }
 
 RFAPI bool Graphics_CreateTransientVertexBuffer(const VertexElement* layoutElements, int layoutElementsCount, int vertexCount, bgfx::TransientVertexBuffer* buffer)

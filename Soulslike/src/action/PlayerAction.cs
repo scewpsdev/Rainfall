@@ -8,26 +8,31 @@ using System.Threading.Tasks;
 
 public struct ActionSfx
 {
-	internal Sound sound;
+	internal Sound[] sound;
 	internal float gain;
+	internal float pitch;
 	internal float time;
 	internal bool organic;
 
-	internal bool played;
+	internal uint source;
 
-	public ActionSfx(Sound sound, float gain = 1.0f, float time = 0.0f, bool organic = false)
+	public ActionSfx(Sound[] sound, float gain = 1, float pitch = 1, float time = 0, bool organic = false)
 	{
 		this.sound = sound;
 		this.gain = gain;
+		this.pitch = pitch;
 		this.time = time;
 		this.organic = organic;
-		played = false;
+
+		source = 0;
 	}
 }
 
 public class PlayerAction
 {
 	public readonly string type;
+
+	public int hand;
 
 	public string[] animationName = new string[3];
 	public Model[] animationSet = new Model[3];
@@ -48,7 +53,9 @@ public class PlayerAction
 	public bool lockYaw = false;
 	public bool ignorePitch = false;
 	public bool lockCameraRotation = false;
-	public Vector3 movementInput = Vector3.Zero;
+	public bool lockMovement = false;
+	//public Vector3 movementInput = Vector3.Zero;
+	public bool inputLeft, inputRight, inputForward, inputBack;
 	public float maxSpeed = 0.0f;
 	public float viewmodelAim = Player.DEFAULT_VIEWMODEL_AIM;
 	public float swayAmount = 1.0f;
@@ -63,7 +70,7 @@ public class PlayerAction
 	public float manaCostTime = 0.0f;
 
 	public long startTime = 0;
-	public float elapsedTime { get; protected set; } = 0.0f;
+	public float elapsedTime = 0;
 	public float duration = 0.0f;
 
 	List<ActionSfx> soundEffects = new List<ActionSfx>();
@@ -71,9 +78,10 @@ public class PlayerAction
 	bool staminaConsumed = false;
 
 
-	public PlayerAction(string type)
+	public PlayerAction(string type, int hand)
 	{
 		this.type = type;
+		this.hand = hand;
 	}
 
 	protected void addSoundEffect(ActionSfx sfx)
@@ -94,18 +102,31 @@ public class PlayerAction
 		for (int i = 0; i < soundEffects.Count; i++)
 		{
 			ActionSfx sfx = soundEffects[i];
-			if (elapsedTime >= sfx.time && !sfx.played)
+
+			Vector3 sourcePosition = hand == 0 ? (player.rightWeapon != null ? player.rightWeaponTransform * player.rightWeapon.sfxSourcePosition : player.rightWeaponTransform.translation) : (player.leftWeapon != null ? player.leftWeaponTransform.translation * player.leftWeapon.sfxSourcePosition : player.leftWeaponTransform.translation);
+
+			if (elapsedTime >= sfx.time && sfx.source == 0)
 			{
-				/*
 				if (sfx.organic)
-					player.playSoundOrganic(sfx.sound, sfx.gain);
+					sfx.source = Audio.PlayOrganic(sfx.sound, sourcePosition, sfx.gain, sfx.pitch);
 				else
-					player.playSound(sfx.sound, sfx.gain);
-				*/
-				sfx.played = true;
+					sfx.source = Audio.Play(sfx.sound, sourcePosition, sfx.gain, sfx.pitch);
+
 				soundEffects[i] = sfx;
 			}
+			else if (sfx.source != 0)
+			{
+				Audio.SetSourcePosition(sfx.source, sourcePosition);
+			}
 		}
+	}
+
+	public virtual void fixedUpdate(Player player, float delta)
+	{
+	}
+
+	public virtual void draw(Player player)
+	{
 	}
 
 	public virtual void onQueued(Player player)

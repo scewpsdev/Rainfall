@@ -389,8 +389,6 @@ RFAPI void Physics_Update(float delta)
 			break;
 		}
 
-		fixedUpdateCallback(timeStep);
-
 		for (size_t i = 0; i < rigidBodies.size(); i++)
 		{
 			RigidBody* body = rigidBodies[i];
@@ -468,6 +466,8 @@ RFAPI void Physics_Update(float delta)
 		simulationEventCallback.contactEvents.clear();
 
 		Physics_ClothUpdate(timeStep);
+
+		fixedUpdateCallback(timeStep);
 
 		numSteps++;
 	}

@@ -38,7 +38,7 @@ namespace Rainfall
 		}
 	}
 
-	public static class Renderer
+	public static unsafe class Renderer
 	{
 		public static GraphicsDevice graphics { get; private set; }
 
@@ -161,15 +161,33 @@ namespace Rainfall
 			}
 		}
 
-		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)
+		public static void DrawCustomGeometry(Span<VertexBuffer> vertexBuffers, IndexBuffer indexBuffer, Matrix transform, Material material, PrimitiveType primitiveType = PrimitiveType.Triangle, BlendState blendState = BlendState.Default)
 		{
-			Renderer3D_DrawSky(skybox.handle, intensity, rotation);
+			Span<ushort> vertexBufferHandles = stackalloc ushort[8];
+			for (int i = 0; i < vertexBuffers.Length; i++)
+				vertexBufferHandles[i] = vertexBuffers[i].handle;
+			fixed (ushort* vertexBufferHandlesPtr = vertexBufferHandles)
+				Renderer3D_DrawCustomGeometry(vertexBuffers.Length, vertexBufferHandlesPtr, 0, indexBuffer.handle, primitiveType, blendState, transform, material.handle);
 		}
 
-		public static unsafe void DrawCloth(Cloth cloth, MaterialData* materialData, Vector3 position, Quaternion rotation)
+		public static void DrawCustomGeometry(Span<DynamicVertexBuffer> vertexBuffers, IndexBuffer indexBuffer, Matrix transform, Material material, PrimitiveType primitiveType = PrimitiveType.Triangle, BlendState blendState = BlendState.Default)
+		{
+			Span<ushort> vertexBufferHandles = stackalloc ushort[8];
+			for (int i = 0; i < vertexBuffers.Length; i++)
+				vertexBufferHandles[i] = vertexBuffers[i].handle;
+			fixed (ushort* vertexBufferHandlesPtr = vertexBufferHandles)
+				Renderer3D_DrawCustomGeometry(vertexBuffers.Length, vertexBufferHandlesPtr, 1, indexBuffer != null ? indexBuffer.handle : ushort.MaxValue, primitiveType, blendState, transform, material.handle);
+		}
+
+		public static void DrawCloth(Cloth cloth, MaterialData* materialData, Vector3 position, Quaternion rotation)
 		{
 			IntPtr material = Material.Material_GetForData(materialData);
 			Renderer3D_DrawCloth(cloth.handle, material, position, rotation);
+		}
+
+		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)
+		{
+			Renderer3D_DrawSky(skybox.handle, intensity, rotation);
 		}
 
 		public static void DrawEnvironmentMap(Cubemap environmentMap, float intensity)
@@ -489,6 +507,12 @@ namespace Rainfall
 		extern unsafe static void Renderer3D_DrawScene(SceneData* scene, Matrix transform, IntPtr animation, byte isOccluder);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawCustomGeometry(int numVertexBuffers, ushort* vertexBuffers, byte dynamicVertexBuffers, ushort indexBuffer, PrimitiveType primitiveType, BlendState blendState, Matrix transform, IntPtr material);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawCloth(IntPtr cloth, IntPtr material, Vector3 position, Quaternion rotation);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -499,9 +523,6 @@ namespace Rainfall
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawSky(ushort sky, float intensity, Quaternion rotation);
-
-		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_DrawCloth(IntPtr cloth, IntPtr material, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawEnvironmentMap(ushort environmentMap, float intensity);
