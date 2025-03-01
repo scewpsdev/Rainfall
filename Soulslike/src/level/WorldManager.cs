@@ -97,6 +97,8 @@ public class WorldManager : Entity
 						item = new KingsSword();
 					else if (itemName == "broken_sword")
 						item = new BrokenSword();
+					else if (itemName == "dagger")
+						item = new Dagger();
 					else if (itemName == "darkwood_staff")
 						item = new DarkwoodStaff();
 					else if (itemName == "crossbow")

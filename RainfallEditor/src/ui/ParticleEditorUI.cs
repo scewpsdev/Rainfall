@@ -222,10 +222,21 @@ public partial class EditorUI
 					if (FileSelect("Texture Atlas", "particle_atlas" + i, ref textureAtlasPath, "png"))
 					{
 						StringUtils.WriteString(particles->textureAtlasPath, textureAtlasPath != null ? textureAtlasPath : "");
+
+						if (entity.particles[i].textureAtlas != null)
+						{
+							Resource.FreeTexture(entity.particles[i].textureAtlas);
+							entity.particles[i].textureAtlas = null;
+						}
+
 						if (textureAtlasPath != null)
-							particles->textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(textureAtlasPath)).handle;
+						{
+							entity.particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(textureAtlasPath));
+						}
 						else
-							particles->textureAtlas = ushort.MaxValue;
+						{
+							entity.particles[i].textureAtlas = null;
+						}
 
 						instance.notifyEdit();
 					}
@@ -455,8 +466,20 @@ public partial class EditorUI
 
 					bool burstsEnabled = particles->bursts != null;
 					bool burstsOpen = TreeNodeOptional(instance, "Bursts", "particle_bursts" + i, ref burstsEnabled);
-					if (burstsEnabled != (particles->bursts != null))
-						particles->bursts = burstsEnabled ? ((ParticleBurst*)Marshal.AllocHGlobal(sizeof(ParticleBurst) * particles->numBursts)) : null;
+					if (burstsEnabled && particles->bursts == null)
+					{
+						particles->numBursts = 1;
+						particles->bursts = (ParticleBurst*)Marshal.AllocHGlobal(sizeof(ParticleBurst) * particles->numBursts);
+
+						ParticleBurst burst = new ParticleBurst { time = 0.0f, count = (int)particles->emissionRate, duration = 0 };
+						particles->bursts[0] = burst;
+					}
+					else if (!burstsEnabled && particles->bursts != null)
+					{
+						Marshal.FreeHGlobal((IntPtr)particles->bursts);
+						particles->bursts = null;
+						particles->numBursts = 0;
+					}
 					if (burstsOpen)
 					{
 						if (particles->bursts != null)
@@ -476,12 +499,18 @@ public partial class EditorUI
 
 							if (ImGui.Button("Add Burst##particle_bursts" + i + "_add"))
 							{
-								ParticleBurst burst = new ParticleBurst { time = 0.0f, count = 5, duration = 0 };
-								ParticleBurst* oldBuffer = particles->bursts;
-								particles->bursts = (ParticleBurst*)Marshal.AllocHGlobal(sizeof(ParticleBurst) * (particles->numBursts + 1));
-								Unsafe.CopyBlock(oldBuffer, particles->bursts, (uint)(particles->numBursts * sizeof(ParticleBurst)));
-								Marshal.FreeHGlobal((IntPtr)oldBuffer);
-								particles->numBursts++;
+								ParticleBurst* newBuffer = (ParticleBurst*)Marshal.AllocHGlobal(sizeof(ParticleBurst) * (particles->numBursts + 1));
+
+								if (particles->bursts != null)
+								{
+									Unsafe.CopyBlock(newBuffer, particles->bursts, (uint)(particles->numBursts * sizeof(ParticleBurst)));
+									Marshal.FreeHGlobal((IntPtr)particles->bursts);
+								}
+
+								ParticleBurst burst = new ParticleBurst { time = 0.0f, count = (int)particles->emissionRate, duration = 0 };
+								newBuffer[particles->numBursts++] = burst;
+								particles->bursts = newBuffer;
+
 								instance.notifyEdit();
 							}
 						}

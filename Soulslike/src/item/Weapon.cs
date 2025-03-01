@@ -23,31 +23,31 @@ public struct AttackData
 	public string nextCharged;
 	public string animation;
 	public string chargeAnimation;
-	public int damageFrame;
+	public Vector2i damageRange;
 	public int cancelFrame;
 	public int chargeCancelFrame;
 	public DamageType damageType;
 
-	public AttackData(string name, string nextAttack, string nextCharged, string animation, string chargeAnimation, int damageFrame, int cancelFrame, int chargeCancelFrame, DamageType damageType = DamageType.Slash)
+	public AttackData(string name, string nextAttack, string nextCharged, string animation, string chargeAnimation, Vector2i damageRange, int cancelFrame, int chargeCancelFrame, DamageType damageType = DamageType.Slash)
 	{
 		this.name = name;
 		this.nextAttack = nextAttack;
 		this.nextCharged = nextCharged;
 		this.animation = animation;
 		this.chargeAnimation = chargeAnimation;
-		this.damageFrame = damageFrame;
+		this.damageRange = damageRange;
 		this.cancelFrame = cancelFrame;
 		this.chargeCancelFrame = chargeCancelFrame;
 		this.damageType = damageType;
 	}
 
-	public AttackData(string name, string nextAttack, string nextCharged, string animation, int damageFrame, int cancelFrame, DamageType damageType = DamageType.Slash)
+	public AttackData(string name, string nextAttack, string nextCharged, string animation, Vector2i damageRange, int cancelFrame, DamageType damageType = DamageType.Slash)
 	{
 		this.name = name;
 		this.nextAttack = nextAttack;
 		this.nextCharged = nextCharged;
 		this.animation = animation;
-		this.damageFrame = damageFrame;
+		this.damageRange = damageRange;
 		this.cancelFrame = cancelFrame;
 		this.damageType = damageType;
 	}
@@ -118,9 +118,8 @@ public class Weapon : Item
 
 	public override void use(Player player, int hand)
 	{
-		if (attacks.Count > 0)
+		if (getFirstAttack(out int nextAttack))
 		{
-			getFirstAttack(out int nextAttack);
 			if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction)
 			{
 				nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextAttack];
@@ -135,42 +134,27 @@ public class Weapon : Item
 
 	public override void useCharged(Player player, int hand)
 	{
-		Debug.Assert(player.actionManager.actionQueue.Count > 0);
-		PlayerAction lastQueuedAction = player.actionManager.actionQueue[player.actionManager.actionQueue.Count - 1];
-		Debug.Assert(lastQueuedAction is AttackAction);
-		if (lastQueuedAction.hasStarted)
-			lastQueuedAction.cancel();
-		else
-			player.actionManager.actionQueue.RemoveAt(player.actionManager.actionQueue.Count - 1);
+		if (getFirstChargedAttack(out int nextAttack))
+		{
+			Debug.Assert(player.actionManager.actionQueue.Count > 0);
+			PlayerAction lastQueuedAction = player.actionManager.actionQueue[player.actionManager.actionQueue.Count - 1];
+			Debug.Assert(lastQueuedAction is AttackAction);
+			if (lastQueuedAction.hasStarted)
+				lastQueuedAction.cancel();
+			else
+				player.actionManager.actionQueue.RemoveAt(player.actionManager.actionQueue.Count - 1);
 
-		getFirstChargedAttack(out int nextAttack);
-		if (player.actionManager.currentAction != null && player.actionManager.currentAction != lastQueuedAction && player.actionManager.currentAction is AttackAction && (player.actionManager.currentAction as AttackAction).attack.nextCharged != null)
-			nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextCharged];
-		else if (lastCancelledAttack != null && (Time.currentTime - lastCancelledAttack.startTime) / 1e9f < lastCancelledAttack.duration / lastCancelledAttack.animationSpeed && lastCancelledAttack is AttackAction && (lastCancelledAttack as AttackAction).attack.nextCharged != null)
-			nextAttack = attackNameMap[(lastCancelledAttack as AttackAction).attack.nextCharged];
+			if (player.actionManager.currentAction != null && player.actionManager.currentAction != lastQueuedAction && player.actionManager.currentAction is AttackAction && (player.actionManager.currentAction as AttackAction).attack.nextCharged != null)
+				nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextCharged];
+			else if (lastCancelledAttack != null && (Time.currentTime - lastCancelledAttack.startTime) / 1e9f < lastCancelledAttack.duration / lastCancelledAttack.animationSpeed && lastCancelledAttack is AttackAction && (lastCancelledAttack as AttackAction).attack.nextCharged != null)
+				nextAttack = attackNameMap[(lastCancelledAttack as AttackAction).attack.nextCharged];
 
-		AttackChargeAction chargeAction = new AttackChargeAction(this, attacks[nextAttack], hand);
-		player.actionManager.queueAction(chargeAction);
-		if (lastQueuedAction.hasStarted)
-			chargeAction.animationTransitionDuration = 0;
-		//chargeAction.elapsedTime = lastQueuedAction.elapsedTime;
-		return;
-
-		/*
-		Debug.Assert(player.actionManager.actionQueue.Count > 0);
-		PlayerAction lastQueuedAction = player.actionManager.actionQueue[player.actionManager.actionQueue.Count - 1];
-		Debug.Assert(lastQueuedAction is AttackAction);
-		if (lastQueuedAction.hasStarted)
-			lastQueuedAction.cancel();
-		else
-			player.actionManager.actionQueue.RemoveAt(player.actionManager.actionQueue.Count - 1);
-
-		getFirstChargedAttack(out int nextAttack);
-		if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction)
-			nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextAttack];
-
-		player.actionManager.queueAction(new AttackChargeAction(this, attacks[nextAttack], hand));
-		*/
+			AttackChargeAction chargeAction = new AttackChargeAction(this, attacks[nextAttack], hand);
+			player.actionManager.queueAction(chargeAction);
+			if (lastQueuedAction.hasStarted)
+				chargeAction.animationTransitionDuration = 0;
+			//chargeAction.elapsedTime = lastQueuedAction.elapsedTime;
+		}
 	}
 
 	public override void useSecondary(Player player, int hand)

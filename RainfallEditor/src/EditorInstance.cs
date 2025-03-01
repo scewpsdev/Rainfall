@@ -32,7 +32,7 @@ public class EditorInstance
 	{
 		camera = new Camera();
 		camera.pitch = -0.2f * MathF.PI;
-		camera.yaw = MathF.PI * 0.25f;
+		camera.yaw = MathF.PI * -0.25f;
 
 		if (path != null)
 		{

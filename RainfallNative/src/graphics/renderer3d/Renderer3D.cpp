@@ -1687,8 +1687,8 @@ static void RenderParticles()
 				lightPositions[j] = Vector4(pointLightDraws[j].position, 1);
 				lightColors[j] = Vector4(pointLightDraws[j].color, 1);
 			}
-			Graphics_SetUniform(shader->getUniform("u_lightPosition", bgfx::UniformType::Vec4, 16), lightPositions, numLights);
-			Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4, 16), lightColors, numLights);
+			Graphics_SetUniform(shader->getUniform("u_pointLight_position", bgfx::UniformType::Vec4, 16), lightPositions, numLights);
+			Graphics_SetUniform(shader->getUniform("u_pointLight_color", bgfx::UniformType::Vec4, 16), lightColors, numLights);
 
 			Vector4 cameraAxisRight(cameraRight, 1);
 			Vector4 cameraAxisUp(cameraUp, 1);

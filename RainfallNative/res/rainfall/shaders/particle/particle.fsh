@@ -61,14 +61,14 @@ void main()
 	float blend = fract(frameIdx);
 	vec4 textureColor = mix(vec4(1.0, 1.0, 1.0, 1.0), mix(frameColor, nextFrameColor, blend), u_atlasSize.z);
 	vec4 albedo = textureColor * v_color0;
-	//if (albedo.a < 0.001)
-	//	discard;
+	if (albedo.a < 0.001)
+		discard;
 
 	vec4 final = vec4(0, 0, 0, albedo.a);
 	final.rgb += u_emissiveStrength * albedo.rgb;
 
 	vec3 light = CalculatePointLights(v_position);
-	final.rgb += light * u_lightInfluence;
+	final.rgb += light * albedo.rgb;
 
 	if (u_additive > 0.5)
 	{

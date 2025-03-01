@@ -110,7 +110,8 @@ public class Entity : PhysicsEntity
 				hitboxes.Add(nodeName, boneCollider);
 
 				SceneFormat.ColliderData colliderData = entity.boneColliders[nodeName];
-				if (colliderData.trigger)
+				//if (colliderData.trigger)
+				if (true)
 				{
 					switch (colliderData.type)
 					{
@@ -208,7 +209,6 @@ public class Entity : PhysicsEntity
 	{
 		if (body != null)
 		{
-			Console.WriteLine(position + "," + rotation);
 			body.setTransform(position, rotation);
 		}
 		if (hitboxes != null)

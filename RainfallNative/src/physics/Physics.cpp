@@ -38,6 +38,27 @@ using namespace physx;
 using namespace physx::ExtGpu;
 
 
+struct AllocatorCallback : PxAllocatorCallback
+{
+	void* allocate(size_t size, const char* typeName, const char* filename, int line) override
+	{
+		return bx::alloc(Application_GetAllocator(), size, 16, bx::Location(filename, line));
+	}
+
+	void deallocate(void* ptr) override
+	{
+		bx::free(Application_GetAllocator(), ptr, 16);
+	}
+};
+
+struct ErrorCallback : PxErrorCallback
+{
+	void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) override
+	{
+		Console_Error("PhysX Error %d at %s:%d: %s", (int)code, file, line, message);
+	}
+};
+
 enum class ActorType
 {
 	RigidBody,
@@ -269,8 +290,8 @@ static PxPvd* pvd;
 static PxScene* scene;
 static PxControllerManager* controllerManager;
 
-static PxDefaultErrorCallback defaultErrorCallback;
-static PxDefaultAllocator defaultAllocator;
+static ErrorCallback errorHandler;
+static AllocatorCallback allocator;
 static SimulationEventCallback simulationEventCallback;
 static PxTolerancesScale tolerancesScale;
 static PxCookingParams cookingParams(tolerancesScale);
@@ -304,7 +325,7 @@ static PxTransform MatrixToPxTransform(Matrix matrix)
 
 RFAPI void Physics_Init(RigidBodySetTransformCallback_t rigidBodySetTransform, RigidBodyGetTransformCallback_t rigidBodyGetTransform, RigidBodyContactCallback_t rigidBodyOnContact, CharacterControllerSetPositionCallback_t controllerSetPosition, CharacterControllerOnHitCallback_t controllerOnHit)
 {
-	foundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocator, defaultErrorCallback);
+	foundation = PxCreateFoundation(PX_PHYSICS_VERSION, allocator, errorHandler);
 	if (!foundation)
 	{
 		printf("Failed to initialize PhysX foundation\n");
@@ -343,7 +364,7 @@ RFAPI void Physics_Init(RigidBodySetTransformCallback_t rigidBodySetTransform, R
 	controllerManager = PxCreateControllerManager(*scene);
 
 
-	Physics_ClothInit();
+	Physics_ClothInit(&allocator, &errorHandler);
 
 
 	::rigidBodySetTransform = rigidBodySetTransform;

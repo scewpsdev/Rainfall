@@ -285,6 +285,8 @@ public static class SceneFormat
 			particle.addNumber("rotationSpeed", particleData.rotationSpeed);
 			particle.addBoolean("applyEntityVelocity", particleData.applyEntityVelocity);
 			particle.addBoolean("applyCentrifugalForce", particleData.applyCentrifugalForce);
+			particle.addBoolean("rotateAlongMovement", particleData.rotateAlongMovement);
+			particle.addNumber("movementStretch", particleData.movementStretch);
 
 			if (particleData.textureAtlasPath[0] != 0)
 			{
@@ -298,7 +300,6 @@ public static class SceneFormat
 			particle.addVector4("color", particleData.color);
 			particle.addBoolean("additive", particleData.additive);
 			particle.addNumber("emissiveIntensity", particleData.emissiveIntensity);
-			particle.addNumber("lightInfluence", particleData.lightInfluence);
 
 			particle.addVector3("randomVelocity", particleData.randomVelocity);
 			particle.addNumber("randomRotation", particleData.randomRotation);
@@ -475,6 +476,10 @@ public static class SceneFormat
 					particleData.applyEntityVelocity = applyEntityVelocity;
 				if (particle.getBoolean("applyCentrifugalForce", out bool applyCentrifugalForce))
 					particleData.applyCentrifugalForce = applyCentrifugalForce;
+				if (particle.getBoolean("rotateAlongMovement", out bool rotateAlongMovement))
+					particleData.rotateAlongMovement = rotateAlongMovement;
+				if (particle.getNumber("movementStretch", out float movementStretch))
+					particleData.movementStretch = movementStretch;
 
 				if (particle.getStringContent("textureAtlas", out string atlasPath))
 				{
@@ -615,11 +620,10 @@ public static class SceneFormat
 
 	public static bool Read(string path, out List<EntityData> entities, out uint selectedEntity)
 	{
-		if (File.Exists(Resource.ASSET_DIRECTORY + "/" + path + ".bin"))
+		string src = Resource.GetText(path);
+		if (src != null)
 		{
-			FileStream stream = new FileStream(Resource.ASSET_DIRECTORY + "/" + path + ".bin", FileMode.Open);
-			DeserializeScene(stream, out entities, out selectedEntity);
-			stream.Close();
+			DeserializeScene(src, out entities, out selectedEntity);
 			LoadDependencies(entities, path);
 			return true;
 		}

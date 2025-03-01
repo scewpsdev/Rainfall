@@ -30,27 +30,6 @@
 using namespace physx;
 
 
-struct AllocatorCallback : PxAllocatorCallback
-{
-	void* allocate(size_t size, const char* typeName, const char* filename, int line) override
-	{
-		return bx::alloc(Application_GetAllocator(), size, 16, bx::Location(filename, line));
-	}
-
-	void deallocate(void* ptr) override
-	{
-		bx::free(Application_GetAllocator(), ptr, 16);
-	}
-};
-
-struct ErrorCallback : PxErrorCallback
-{
-	void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) override
-	{
-		Console_Error("Cloth Error %d at %s:%d: %s", (int)code, file, line, message);
-	}
-};
-
 struct AssertHandler : nv::cloth::PxAssertHandler
 {
 	void operator()(const char* exp, const char* file, int line, bool& ignore) override
@@ -72,8 +51,6 @@ struct ProfilerCallback : PxProfilerCallback
 };
 
 
-static AllocatorCallback allocatorCallback;
-static ErrorCallback errorCallback;
 static AssertHandler assertHandler;
 static ProfilerCallback profilerCallback;
 
@@ -84,9 +61,9 @@ static nv::cloth::Solver* solver;
 static List<Cloth*> cloths;
 
 
-void Physics_ClothInit()
+void Physics_ClothInit(PxAllocatorCallback* allocator, PxErrorCallback* errorHandler)
 {
-	nv::cloth::InitializeNvCloth(&allocatorCallback, &errorCallback, &assertHandler, &profilerCallback);
+	nv::cloth::InitializeNvCloth(allocator, errorHandler, &assertHandler, &profilerCallback);
 	factory = NvClothCreateFactoryCPU();
 	if (!factory)
 	{

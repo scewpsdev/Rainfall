@@ -7,10 +7,12 @@
 [X] Attacks
 [X] Charged Heavy Attacks
 [X] Weapon trail
-[ ] Blood effect
+[X] Blood effect
 [X] 3D Weapon sound
 [X] Hit slowdown
 [ ] Thrust weapon
+[ ] Blunt impact
+[ ] Wall impact
 [ ] Blocks & Parries
 [ ] Lower body
 [ ] Armor & Equipment

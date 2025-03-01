@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class AttackAction : PlayerAction
 {
 	const float HIT_FREEZE_LENGTH = 0.1f;
-	const float HIT_FREEZE_SPEED = 0.1f;
+	const float HIT_FREEZE_SPEED = 0.3f;
 
 
 	static Sound[] swing = Resource.GetSounds("audio/swing", 3);
@@ -22,6 +22,7 @@ public class AttackAction : PlayerAction
 	float damageMultiplier;
 
 	float damageStartTime;
+	float damageEndTime;
 
 	Vector3 lastTip = Vector3.Zero;
 
@@ -30,7 +31,9 @@ public class AttackAction : PlayerAction
 	WeaponTrail trail;
 
 	long lastEnemyHit = -1;
-	bool inFreeze = false;
+	long slowdownTime = -1;
+	long lastWallHit = -1;
+	bool inReflect = false;
 
 
 	public AttackAction(Weapon weapon, AttackData attack, int hand, float chargeAmount = -1)
@@ -57,7 +60,8 @@ public class AttackAction : PlayerAction
 
 		mirrorAnimation = hand == 1;
 
-		damageStartTime = attack.damageFrame / 24.0f;
+		damageStartTime = attack.damageRange.x / 24.0f;
+		damageEndTime = attack.damageRange.y / 24.0f;
 		followUpCancelTime = attack.cancelFrame / 24.0f;
 
 		lockYaw = true;
@@ -75,12 +79,13 @@ public class AttackAction : PlayerAction
 	void processHit(ref HitData hit, Player player)
 	{
 		Entity entity = hit.body.entity as Entity;
-		if (!hitEntities.Contains(entity))
+		if (entity is Hittable)
 		{
-			hitEntities.Add(entity);
-			if (entity is Hittable)
+			Hittable hittable = entity as Hittable;
+
+			if (!hitEntities.Contains(entity))
 			{
-				Hittable hittable = entity as Hittable;
+				hitEntities.Add(entity);
 				hittable.hit(player, weapon);
 
 				if (hittable is Creature)
@@ -88,26 +93,79 @@ public class AttackAction : PlayerAction
 					Creature creature = entity as Creature;
 					Sound[] hitSound = attack.damageType == DamageType.Thrust ? creature.stabSound : creature.slashSound;
 					Audio.PlayOrganic(hitSound, hit.position);
-
-					// blood particles
 				}
+			}
 
+			if (hittable is Creature)
+			{
+				// blood particles
+				ParticleEffect bloodEffect = new ParticleEffect("effect/blood.rfs", null);
+				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
 				lastEnemyHit = Time.currentTime;
+			}
+		}
+		else
+		{
+			float bladeLength = (weapon.bladeTip - weapon.bladeBase).length;
+			float hitNormalizedDist = hit.distance / bladeLength;
+			if (hitNormalizedDist < 0.5f && lastWallHit == -1)
+			{
+				// wall hit sound
+				Audio.PlayOrganic(Resource.GetSound("audio/hit_wall.ogg"), hit.position);
+
+				// spark particles
+				ParticleEffect bloodEffect = new ParticleEffect("effect/spark.rfs", null);
+				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
+
+				lastWallHit = Time.currentTime;
 			}
 		}
 	}
 
 	public override void update(Player player)
 	{
-		if (lastEnemyHit != -1 && (Time.currentTime - lastEnemyHit) / 1e9f < HIT_FREEZE_LENGTH && !inFreeze)
+		if (attack.damageType == DamageType.Slash)
 		{
-			animationSpeed *= HIT_FREEZE_SPEED;
-			inFreeze = true;
+			if (lastEnemyHit != -1 && (Time.currentTime - lastEnemyHit) / 1e9f < HIT_FREEZE_LENGTH && slowdownTime == -1)
+			{
+				animationSpeed *= HIT_FREEZE_SPEED;
+				slowdownTime = Time.currentTime;
+			}
+			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= HIT_FREEZE_LENGTH)
+			{
+				animationSpeed /= HIT_FREEZE_SPEED;
+				slowdownTime = -1;
+			}
 		}
-		else if (inFreeze)
+		else if (attack.damageType == DamageType.Blunt || attack.damageType == DamageType.Thrust)
 		{
-			animationSpeed /= HIT_FREEZE_SPEED;
-			inFreeze = false;
+			if (lastEnemyHit != -1 && (Time.currentTime - lastEnemyHit) / 1e9f < 0.125f && slowdownTime == -1)
+			{
+				animationSpeed *= 0.1f;
+				slowdownTime = Time.currentTime;
+			}
+			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.125f && animationSpeed > 0)
+			{
+				animationSpeed = 0;
+			}
+			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.4f && animationSpeed >= 0)
+			{
+				animationSpeed = -0.1f;
+			}
+			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.6f)
+			{
+				cancel();
+			}
+		}
+
+		if (lastWallHit != -1 && (Time.currentTime - lastWallHit) / 1e9f < 0.5f && !inReflect)
+		{
+			animationSpeed *= -0.3f;
+			inReflect = true;
+		}
+		else if (lastWallHit != -1 && (Time.currentTime - lastWallHit) / 1e9f >= 0.5f && inReflect)
+		{
+			cancel();
 		}
 
 		base.update(player);
@@ -120,7 +178,9 @@ public class AttackAction : PlayerAction
 		Vector3 origin = player.rightWeaponTransform * weapon.bladeBase;
 		Vector3 tip = player.rightWeaponTransform * weapon.bladeTip;
 
-		trail.update(origin, tip, inDamageWindow ? 1 : 0);
+		float damageWindowProgress = MathHelper.Clamp(MathHelper.Remap(elapsedTime, damageStartTime, damageEndTime, 0, 1), 0, 1);
+		float trailAlpha = 1 - MathF.Pow(damageWindowProgress * 2 - 1, 2);
+		trail.update(origin, tip, trailAlpha);
 
 		if (inDamageWindow)
 		{
@@ -129,28 +189,28 @@ public class AttackAction : PlayerAction
 
 			{
 				Span<HitData> hits = stackalloc HitData[16];
-				int numHits = Physics.Raycast(origin, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Creature | PhysicsFilter.CreatureHitbox);
+				int numHits = Physics.Raycast(origin, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.CreatureHitbox);
 				for (int i = 0; i < numHits; i++)
 				{
 					processHit(ref hits[i], player);
 				}
 			}
 
-			if (lastTip != Vector3.Zero)
+			if (lastTip != Vector3.Zero && lastTip != tip)
 			{
 				direction = tip - lastTip;
 				distance = direction.length;
 
 				Span<HitData> hits = stackalloc HitData[16];
-				int numHits = Physics.Raycast(tip, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Creature | PhysicsFilter.CreatureHitbox);
+				int numHits = Physics.Raycast(tip, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.CreatureHitbox);
 				for (int i = 0; i < numHits; i++)
 				{
-					processHit(ref hits[i], player);
+					//processHit(ref hits[i], player);
 				}
 			}
-
-			lastTip = tip;
 		}
+
+		lastTip = tip;
 	}
 
 	public override void draw(Player player)
@@ -158,5 +218,5 @@ public class AttackAction : PlayerAction
 		trail.draw();
 	}
 
-	bool inDamageWindow => elapsedTime >= damageStartTime && elapsedTime < followUpCancelTime;
+	bool inDamageWindow => elapsedTime >= damageStartTime && elapsedTime < damageEndTime;
 }

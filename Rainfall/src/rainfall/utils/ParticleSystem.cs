@@ -221,6 +221,17 @@ namespace Rainfall
 
 		public ParticleSystemData* handle;
 
+		Texture _textureAtlas;
+		public Texture textureAtlas
+		{
+			get => _textureAtlas;
+			set
+			{
+				_textureAtlas = value;
+				handle->textureAtlas = value != null ? value.handle : ushort.MaxValue;
+			}
+		}
+
 
 		ParticleSystem(int maxParticles, Matrix transform)
 		{

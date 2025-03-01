@@ -41,6 +41,12 @@ public class Entity
 
 	public unsafe void reload()
 	{
+		if (data.model != null)
+		{
+			Resource.FreeModel(data.model);
+			data.model = null;
+		}
+
 		if (data.modelPath != null)
 		{
 			data.model = Resource.GetModel(RainfallEditor.CompileAsset(data.modelPath));
@@ -55,22 +61,19 @@ public class Entity
 		for (int i = 0; i < data.colliders.Count; i++)
 		{
 			SceneFormat.ColliderData collider = data.colliders[i];
+
+			if (collider.meshCollider != null)
+			{
+				Resource.FreeModel(collider.meshCollider);
+				collider.meshCollider = null;
+			}
+
 			if (collider.meshColliderPath != null)
 				collider.meshCollider = Resource.GetModel(RainfallEditor.CompileAsset(collider.meshColliderPath));
 			else
 				collider.meshCollider = null;
-			data.colliders[i] = collider;
-		}
 
-		for (int i = 0; i < data.particles.Length; i++)
-		{
-			ParticleSystemData particleData = data.particles[i];
-			byte* textureAtlasPath = particleData.textureAtlasPath;
-			if (textureAtlasPath[0] != 0)
-				particleData.textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(new string((sbyte*)particleData.textureAtlasPath))).handle;
-			else
-				particleData.textureAtlas = ushort.MaxValue;
-			data.particles[i] = particleData;
+			data.colliders[i] = collider;
 		}
 
 		if (particles != null)
@@ -81,8 +84,14 @@ public class Entity
 		particles = new ParticleSystem[data.particles.Length];
 		for (int i = 0; i < data.particles.Length; i++)
 		{
+			ParticleSystemData particleData = data.particles[i];
+
 			particles[i] = ParticleSystem.Create(getModelMatrix());
-			particles[i].setData(data.particles[i]);
+			particles[i].setData(particleData);
+
+			byte* textureAtlasPath = particleData.textureAtlasPath;
+			if (textureAtlasPath[0] != 0)
+				particles[i].textureAtlas = Resource.GetTexture(RainfallEditor.CompileAsset(new string((sbyte*)particleData.textureAtlasPath)));
 		}
 	}
 

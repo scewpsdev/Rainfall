@@ -401,20 +401,7 @@
     <ClInclude Include="src\zlib-1.3.1\zconf.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\rainfall\shaders\ao\ssao.fsh" />
-    <None Include="res\rainfall\shaders\ao\ssao_blur.fsh" />
-    <None Include="res\rainfall\shaders\default\default.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_directional.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_emissive.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_environment.fsh" />
-    <None Include="res\rainfall\shaders\deferred\deferred_point.fsh" />
     <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
-    <None Include="res\rainfall\shaders\deferred\deferred_reflection_probe.fsh" />
-    <None Include="res\rainfall\shaders\deferred\pbr.shader" />
-    <None Include="res\rainfall\shaders\deferred\shadow_mapping.shader" />
-    <None Include="res\rainfall\shaders\deferred\varying.def.sc" />
-    <None Include="res\rainfall\shaders\occlusion_culling\occlusion_culling.shader" />
-    <None Include="res\rainfall\shaders\tonemapping\tonemapping.fsh" />
     <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
     <None Include="res\shaders\rainfall\common\common.shader" />
     <None Include="res\shaders\rainfall\common\shaderlib.shader" />
@@ -434,52 +421,6 @@
     <None Include="res\shaders\rainfall\tonemapping\tonemapping.fs.shader" />
     <None Include="res\shaders\rainfall\tonemapping\tonemapping.vs.shader" />
     <None Include="res\shaders\rainfall\tonemapping\varying.def.sc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\occlusion_culling\light_indirect.csh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\occlusion_culling\particle_indirect.csh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\deferred\deferred.vsh">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="res\rainfall\shaders\deferred\deferred_point.vsh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\occlusion_culling\mesh_indirect.csh">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="res\rainfall\shaders\occlusion_culling\stream_compaction.csh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\ao\ssao.vsh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\ao\ssao_blur.vsh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\deferred\deferred_reflection_probe.vsh">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\rainfall\shaders\default\default.vsh">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

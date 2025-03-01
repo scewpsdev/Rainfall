@@ -158,10 +158,10 @@ public class Game3D<T> : Game where T : Game
 		if (Input.IsKeyPressed(KeyCode.F11) || ImGui.IsKeyPressed(KeyCode.F11, false))
 			Display.ToggleFullscreen();
 
-#if DEBUG
+//#if DEBUG
 		if (Input.IsKeyPressed(KeyCode.F10) || ImGui.IsKeyPressed(KeyCode.F10, false))
 			debugStats = !debugStats;
-#endif
+//#endif
 
 		Audio.Update();
 		AudioManager.Update();
@@ -189,16 +189,15 @@ public class Game3D<T> : Game where T : Game
 
 		Renderer.End();
 
-#if DEBUG
 		if (debugStats)
 			drawDebugStats();
 		else
 			drawVersion();
-#endif
 	}
 
 	void drawVersion()
 	{
+#if DEBUG
 		Span<byte> str = stackalloc byte[128];
 
 		int y = 0;
@@ -210,11 +209,10 @@ public class Game3D<T> : Game where T : Game
 		StringUtils.AppendCharacter(str, '.');
 		StringUtils.AppendInteger(str, VERSION_PATCH);
 		StringUtils.AppendCharacter(str, VERSION_SUFFIX);
-#if DEBUG
 		StringUtils.AppendString(str, " Debug");
-#endif
 
 		graphics.drawDebugText(0, y++, 0x1F, str);
+#endif
 	}
 
 	void drawDebugStats()

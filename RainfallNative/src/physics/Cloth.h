@@ -6,6 +6,12 @@
 #include <bgfx/bgfx.h>
 
 
+namespace physx
+{
+	class PxAllocatorCallback;
+	class PxErrorCallback;
+}
+
 namespace nv::cloth
 {
 	class Cloth;
@@ -25,6 +31,6 @@ struct Cloth
 };
 
 
-void Physics_ClothInit();
+void Physics_ClothInit(physx::PxAllocatorCallback* allocator, physx::PxErrorCallback* errorHandler);
 void Physics_ClothTerminate();
 void Physics_ClothUpdate(float delta);

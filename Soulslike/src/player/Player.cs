@@ -260,6 +260,21 @@ public class Player : Entity
 
 		playerBody.setTransform(position, rotation);
 
+
+		Matrix weaponSway = actionManager.currentAction == null || !actionManager.currentAction.lockYaw ? calculateWeaponSway() : Matrix.Identity;
+
+		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
+			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
+			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime) :
+			CAMERA_HEIGHT;
+
+		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch));
+
+		modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		if (actionManager.currentAction == null || !actionManager.currentAction.ignorePitch)
+			modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * weaponSway * modelTransform;
+		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * modelTransform;
+
 		rightWeaponTransform = getModelMatrix() * modelTransform * rightHandAnimator.getNodeTransform(weaponRNode);
 		leftWeaponTransform = getModelMatrix() * modelTransform * leftHandAnimator.getNodeTransform(weaponLNode);
 	}
@@ -416,20 +431,6 @@ public class Player : Entity
 			animator.setNodeTransform(shoulderLNode, weaponSway * rotationCorrection * animator.getNodeTransform(shoulderLNode));
 		}
 		*/
-
-		Matrix weaponSway = actionManager.currentAction == null || !actionManager.currentAction.lockYaw ? calculateWeaponSway() : Matrix.Identity;
-
-		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
-			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
-			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime) :
-			CAMERA_HEIGHT;
-
-		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch));
-
-		modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
-		if (actionManager.currentAction == null || !actionManager.currentAction.ignorePitch)
-			modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * weaponSway * modelTransform;
-		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * modelTransform;
 
 		animator.applyAnimation();
 
