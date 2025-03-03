@@ -33,6 +33,9 @@ namespace AST
 		Tuple,
 		Array,
 		String,
+		Vector,
+		Matrix,
+		Sampler,
 	};
 
 	struct Type : Element
@@ -172,5 +175,51 @@ namespace AST
 		StringType(File* file, const SourceLocation& location, Expression* length);
 
 		virtual Element* copy() override;
+	};
+
+	struct VectorType : Type
+	{
+		int size;
+		bool integer;
+
+		VectorType(File* file, const SourceLocation& location, int size, bool integer)
+			: Type(file, location, AST::TypeKind::Vector), size(size), integer(integer)
+		{
+		}
+
+		virtual Element* copy() override
+		{
+			return new VectorType(file, location, size, integer);
+		}
+	};
+
+	struct MatrixType : Type
+	{
+		int size;
+
+		MatrixType(File* file, const SourceLocation& location, int size)
+			: Type(file, location, AST::TypeKind::Matrix), size(size)
+		{
+		}
+
+		virtual Element* copy() override
+		{
+			return new MatrixType(file, location, size);
+		}
+	};
+
+	struct SamplerType : Type
+	{
+		bool cubemap;
+
+		SamplerType(File* file, const SourceLocation& location, bool cubemap)
+			: Type(file, location, AST::TypeKind::Sampler), cubemap(cubemap)
+		{
+		}
+
+		virtual Element* copy() override
+		{
+			return new SamplerType(file, location, cubemap);
+		}
 	};
 }

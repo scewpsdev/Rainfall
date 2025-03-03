@@ -5,6 +5,8 @@
 
 #include <string>
 #include <sstream>
+#include <map>
+#include <vector>
 
 
 void CGLCompiler::init(MessageCallback_t msgCallback)
@@ -395,6 +397,12 @@ class CodegenTCC
 			return "bool";
 		case AST::TypeKind::NamedType:
 			return ((AST::NamedType*)type)->name;
+		case AST::TypeKind::Vector:
+			return (((AST::VectorType*)type)->integer ? "i" : "") + std::string("vec") + std::to_string(((AST::VectorType*)type)->size);
+		case AST::TypeKind::Matrix:
+			return "mat" + std::to_string(((AST::MatrixType*)type)->size);
+		case AST::TypeKind::Sampler:
+			return std::string("sampler") + (((AST::SamplerType*)type)->cubemap ? "Cube" : "2D");
 		default:
 			SnekAssert(false);
 			return "";
@@ -751,6 +759,8 @@ class CodegenTCC
 
 	std::string genExpressionIdentifier(AST::Identifier* expression)
 	{
+		return expression->name;
+
 		if (expression->variable)
 		{
 			return getVariableValue(expression->variable);
@@ -789,6 +799,17 @@ class CodegenTCC
 
 	std::string genExpressionFunctionCall(AST::FunctionCall* expression)
 	{
+		std::stringstream callStream;
+		callStream << genExpression(expression->callee) << "(";
+		for (int i = 0; i < expression->arguments.size; i++)
+		{
+			callStream << genExpression(expression->arguments[i]);
+			if (i < expression->arguments.size - 1)
+				callStream << ", ";
+		}
+		callStream << ")";
+		return callStream.str();
+
 		if (expression->isCast)
 		{
 			SnekAssert(expression->arguments.size == 1);
@@ -796,7 +817,6 @@ class CodegenTCC
 		}
 
 		//auto parentStream = currentStream;
-		std::stringstream callStream;
 		//currentStream = &callStream;
 
 		std::string returnValue = "";
@@ -948,6 +968,8 @@ class CodegenTCC
 
 	std::string genExpressionDotOperator(AST::DotOperator* expression)
 	{
+		return genExpression(expression->operand) + "." + expression->name;
+
 		if (expression->module)
 		{
 			// TODO
@@ -1238,9 +1260,7 @@ class CodegenTCC
 		case AST::BinaryOperatorType::BitshiftRight:
 		case AST::BinaryOperatorType::Assignment:
 		{
-			stream << left << "=" << castValue(right, expression->right->valueType, expression->left->valueType) << ";";
-			newLine();
-			return "";
+			return left + "=" + right;
 		}
 		case AST::BinaryOperatorType::PlusEquals:
 		case AST::BinaryOperatorType::MinusEquals:
@@ -1381,7 +1401,8 @@ class CodegenTCC
 
 	void genStatementExpression(AST::ExpressionStatement* statement)
 	{
-		genExpression(statement->expression);
+		stream << genExpression(statement->expression) << ";";
+		newLine();
 		/*
 		std::string value = genExpression(statement->expression);
 		if (value.size() > 0)
@@ -1759,8 +1780,7 @@ class CodegenTCC
 
 	void genStruct(AST::Struct* strct)
 	{
-		stream << "struct " << strct->name;
-		stream << "{";
+		stream << "struct " << strct->name << " {";
 		indentation++;
 		newLine();
 
@@ -1851,6 +1871,10 @@ class CodegenTCC
 		stream << " " << function->name << "(";
 		for (int i = 0; i < function->paramTypes.size; i++)
 		{
+			if (function->paramFlags[i] & 1)
+				stream << "in ";
+			if (function->paramFlags[i] & 2)
+				stream << "out ";
 			stream << genType(function->paramTypes[i]) << " " << function->paramNames[i];
 			if (i < function->paramTypes.size - 1)
 				stream << ",";
@@ -1859,7 +1883,7 @@ class CodegenTCC
 
 		unnamedLocalId = 0;
 
-		stream << "{";
+		stream << " {";
 		indentation++;
 		newLine();
 		pushScope();
@@ -1942,9 +1966,101 @@ public:
 	{
 	}
 
-	std::string genFile(AST::File* file)
+	AST::Function* getFunction(const char* name)
+	{
+		for (AST::Function* function : file->functions)
+		{
+			if (strcmp(function->name, name) == 0)
+				return function;
+		}
+		return nullptr;
+	}
+
+	AST::Struct* getStruct(const char* name)
+	{
+		for (AST::Struct* strct : file->structs)
+		{
+			if (strcmp(strct->name, name) == 0)
+				return strct;
+		}
+		return nullptr;
+	}
+
+	const char* getAttributeName(std::string semantic)
+	{
+		static std::map<std::string, const char*> semanticNameMap =
+		{
+			{ "POSITION", "a_position" },
+			{ "NORMAL", "a_normal" },
+			{ "TANGENT", "a_tangent" },
+			{ "BITANGENT", "a_bitangent" },
+			{ "COLOR0", "a_color0" },
+			{ "COLOR1", "a_color1" },
+			{ "COLOR2", "a_color2" },
+			{ "COLOR3", "a_color3" },
+			{ "BLENDINDICES", "a_indices" },
+			{ "BLENDWEIGHT", "a_weight" },
+			{ "TEXCOORD0", "a_texcoord0" },
+			{ "TEXCOORD1", "a_texcoord1" },
+			{ "TEXCOORD2", "a_texcoord2" },
+			{ "TEXCOORD3", "i_data4" },
+			{ "TEXCOORD4", "i_data3" },
+			{ "TEXCOORD5", "i_data2" },
+			{ "TEXCOORD6", "i_data1" },
+			{ "TEXCOORD7", "i_data0" },
+		};
+		return semanticNameMap[semantic];
+	}
+
+	const char* getVaryingSemantic(int idx)
+	{
+		static std::vector<const char*> semanticList =
+		{
+			"TEXCOORD0",
+			"TEXCOORD1",
+			"TEXCOORD2",
+			"NORMAL",
+			"TANGENT",
+			"BINORMAL",
+			"COLOR",
+
+		};
+		return semanticList[idx];
+	}
+
+	std::string genFile(AST::File* file, bool vertex)
 	{
 		this->file = file;
+
+		const char* vertexFuncName = "vertex";
+		const char* fragmentFuncName = "fragment";
+
+		AST::Function* vertexFunc = getFunction(vertexFuncName);
+		AST::Function* fragmentFunc = getFunction(fragmentFuncName);
+		SnekAssert(vertexFunc->paramTypes.size == 3 && vertexFunc->paramTypes[0]->typeKind == AST::TypeKind::NamedType && vertexFunc->paramTypes[1]->typeKind == AST::TypeKind::NamedType && vertexFunc->paramTypes[2]->typeKind == AST::TypeKind::Vector && ((AST::VectorType*)vertexFunc->paramTypes[2])->size == 4);
+
+		AST::Struct* attributes = getStruct(((AST::NamedType*)vertexFunc->paramTypes[0])->name);
+		AST::Struct* varyings = getStruct(((AST::NamedType*)vertexFunc->paramTypes[1])->name);
+
+		stream << "$input ";
+		if (vertex)
+		{
+			for (int i = 0; i < attributes->fields.size; i++)
+			{
+				stream << getAttributeName(attributes->fields[i]->semantic);
+				if (i < attributes->fields.size - 1)
+					stream << ", ";
+			}
+			stream << "\n$output ";
+		}
+		for (int i = 0; i < varyings->fields.size; i++)
+		{
+			stream << "__v_" << varyings->fields[i]->name;
+			if (i < varyings->fields.size - 1)
+				stream << ", ";
+		}
+		stream << "\n\n";
+
 
 		for (AST::Struct* strct : file->structs)
 		{
@@ -1955,13 +2071,50 @@ public:
 			genFunction(function);
 		}
 
+		if (vertex)
+		{
+			stream << "\n\nvoid main() {\n";
+			stream << "\t" << attributes->name << " attributes;\n";
+			for (int i = 0; i < attributes->fields.size; i++)
+			{
+				stream << "\tattributes." << attributes->fields[i]->name << " = " << getAttributeName(attributes->fields[i]->semantic) << ";\n";
+			}
+			stream << "\n\t" << varyings->name << " varyings;\n";
+			stream << "\n\t" << vertexFuncName << "(attributes, out varyings, out gl_Position);\n";
+			stream << "}";
+		}
+		else
+		{
+			stream << "\n\nvoid main() {\n";
+			stream << "\t" << varyings->name << " varyings;\n";
+			for (int i = 0; i < varyings->fields.size; i++)
+			{
+				stream << "\tvaryings." << varyings->fields[i]->name << " = __v_" << attributes->fields[i]->name << ";\n";
+			}
+			stream << "\n\t" << fragmentFuncName << "(varyings";
+			for (int i = 1; i < fragmentFunc->paramTypes.size; i++)
+			{
+				stream << ", out gl_FragData[" << std::to_string(i - 1) << "]";
+			}
+			stream << ");\n}";
+		}
+
 		return stream.str();
 	}
 };
 
-int CGLCompiler::output(const char* path, bool printIR)
+void CGLCompiler::output(std::string& vertexSrc, std::string& fragmentSrc, std::string& varyings, bool printIR)
 {
 	CodegenTCC codegen(this);
-	std::string src = codegen.genFile(asts[0]);
-	return 0;
+	vertexSrc = codegen.genFile(asts[0], true);
+	fragmentSrc = codegen.genFile(asts[0], false);
+
+	// gen varyings
+
+
+	if (printIR)
+	{
+		printf("%s\n", vertexSrc.c_str());
+		printf("%s\n", fragmentSrc.c_str());
+	}
 }

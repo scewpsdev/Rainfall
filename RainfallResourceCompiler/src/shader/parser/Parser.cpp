@@ -161,6 +161,34 @@ static AST::Type* ParseElementType(Parser* parser)
 			return new AST::StringType(parser->module, inputState, length);
 		}
 
+		case KEYWORD_TYPE_VEC2:
+			return new AST::VectorType(parser->module, inputState, 2, false);
+
+		case KEYWORD_TYPE_VEC3:
+			return new AST::VectorType(parser->module, inputState, 3, false);
+
+		case KEYWORD_TYPE_VEC4:
+			return new AST::VectorType(parser->module, inputState, 4, false);
+
+		case KEYWORD_TYPE_IVEC2:
+			return new AST::VectorType(parser->module, inputState, 2, true);
+
+		case KEYWORD_TYPE_IVEC3:
+			return new AST::VectorType(parser->module, inputState, 3, true);
+
+		case KEYWORD_TYPE_IVEC4:
+			return new AST::VectorType(parser->module, inputState, 4, true);
+
+		case KEYWORD_TYPE_MAT4:
+			return new AST::MatrixType(parser->module, inputState, 4);
+
+		case KEYWORD_TYPE_SAMPLER2D:
+			return new AST::SamplerType(parser->module, inputState, false);
+
+		case KEYWORD_TYPE_SAMPLERCUBE:
+			return new AST::SamplerType(parser->module, inputState, true);
+
+
 		case KEYWORD_TYPE_ANY:
 		{
 			return new AST::AnyType(parser->module, inputState);
@@ -2239,7 +2267,7 @@ static AST::Declaration* ParseDeclaration(Parser* parser)
 				bool upcomingDeclarator = !NextTokenIs(parser, ')');
 				while (HasNext(parser) && upcomingDeclarator)
 				{
-					bool in, out;
+					bool in = false, out = false;
 					if (NextTokenIsKeyword(parser, KEYWORD_TYPE_IN))
 					{
 						NextToken(parser);

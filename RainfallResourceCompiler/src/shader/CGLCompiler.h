@@ -6,6 +6,8 @@
 #include "utils/Log.h"
 #include "utils/List.h"
 
+#include <string>
+
 
 class CGLCompiler
 {
@@ -27,5 +29,5 @@ public:
 	void addLinkerPath(const char* path);
 	bool compile();
 	int run(int argc, char* argv[], bool printIR);
-	int output(const char* path, bool printIR);
+	void output(std::string& vertexSrc, std::string& fragmentSrc, std::string& varyings, bool printIR);
 };

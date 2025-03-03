@@ -84,6 +84,16 @@
 #define KEYWORD_DECIMAL	  "decimal"
 #define KEYWORD_QUAD      "quad"
 
+#define KEYWORD_VEC2      "vec2"
+#define KEYWORD_VEC3      "vec3"
+#define KEYWORD_VEC4      "vec4"
+#define KEYWORD_IVEC2     "ivec2"
+#define KEYWORD_IVEC3     "ivec3"
+#define KEYWORD_IVEC4     "ivec4"
+#define KEYWORD_MAT4      "mat4"
+#define KEYWORD_SAMPLER2D "sampler2D"
+#define KEYWORD_SAMPLERCUBE "samplerCube"
+
 #define KEYWORD_ANY       "any"
 
 #define KEYWORD_PTR       "Ptr"
