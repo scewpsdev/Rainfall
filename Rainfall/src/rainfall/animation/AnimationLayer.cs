@@ -41,6 +41,13 @@ namespace Rainfall
 			this.looping = looping;
 			this.mask = mask;
 
+			// The bone mask always has to be made for the animation data node set.
+			// If the model the animation is applied to has more bones,
+			// creating a bone mask for it will make it incompatible with the animation since the node ids are different.
+			// Therefore we check here for compatibility to avoid this mistake in the future.
+			if (mask != null)
+				Debug.Assert(mask.Length == animationData.skeleton.nodes.Length);
+
 			this.animationData = animationData;
 		}
 

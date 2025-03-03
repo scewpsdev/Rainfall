@@ -14,9 +14,9 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>res D:\Dev\2024\GoJam\GoJam\bin\Debug\net8.0\res png ogg vsh fsh csh ttf rfs gltf glb</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>res D:\Dev\Rainfall\Soulslike\bin\Debug\net8.0\assets png ogg vsh fsh csh shader ttf rfs gltf glb</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\Dev\2024\GoJam\GoJam</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>D:\Dev\Rainfall\Soulslike</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>res $(OutDir)net6.0\res gltf glb png jpg hdr tif ogg dat glsl shader ttf</LocalDebuggerCommandArguments>

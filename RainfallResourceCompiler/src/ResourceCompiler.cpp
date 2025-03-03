@@ -1,6 +1,6 @@
 #include "ResourceCompiler.h"
 
-#include "ShaderCompiler.h"
+#include "shader/ShaderCompiler.h"
 #include "TextureCompiler.h"
 #include "GeometryCompiler.h"
 #include "ResourcePackager.h"
@@ -158,11 +158,15 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 		bool compute = extension == ".csh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".csh", 4) == 0;
 
 		if (vertex)
-			success = CompileShader(filepathStr.c_str(), outpath, "vertex") && success;
+			success = CompileBGFXShader(filepathStr.c_str(), outpath, "vertex") && success;
 		if (fragment)
-			success = CompileShader(filepathStr.c_str(), outpath, "fragment") && success;
+			success = CompileBGFXShader(filepathStr.c_str(), outpath, "fragment") && success;
 		if (compute)
-			success = CompileShader(filepathStr.c_str(), outpath, "compute") && success;
+			success = CompileBGFXShader(filepathStr.c_str(), outpath, "compute") && success;
+
+		bool rainfallShader = extension == ".shader" && name != "bgfx_shader" && name != "bgfx_compute" && name != "common" && name != "shaderlib" && name != "utils" && name != "material";
+		if (rainfallShader)
+			success = CompileRainfallShader(filepathStr.c_str(), outpath) && success;
 	}
 	else if (IsTexture(extension))
 	{
@@ -219,7 +223,7 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	if (assetTable.size() == 0)
 		return true;
 
-	if (extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh")
+	if (IsShader(extension))
 	{
 		std::string name = file.stem().string();
 		if (extension.size() >= 2 && (
@@ -230,7 +234,8 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 			name.size() > 4 && name[name.size() - 4] == '.' &&
 			(strncmp(&name[name.size() - 3], "vsh", 3) == 0 ||
 				strncmp(&name[name.size() - 3], "fsh", 3) == 0 ||
-				strncmp(&name[name.size() - 3], "csh", 3) == 0))
+				strncmp(&name[name.size() - 3], "csh", 3) == 0) ||
+			extension == ".shader")
 			;
 		else
 		{

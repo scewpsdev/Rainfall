@@ -148,11 +148,11 @@ public class AttackAction : PlayerAction
 			{
 				animationSpeed = 0;
 			}
-			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.4f && animationSpeed >= 0)
+			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.3f && animationSpeed >= 0)
 			{
 				animationSpeed = -0.1f;
 			}
-			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.6f)
+			else if (slowdownTime != -1 && (Time.currentTime - slowdownTime) / 1e9f >= 0.4f)
 			{
 				cancel();
 			}

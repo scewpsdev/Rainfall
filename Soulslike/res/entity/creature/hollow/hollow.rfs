@@ -10,7 +10,7 @@ rigidBodyType = Dynamic
 colliders = [ {
 type = Capsule
 trigger = 0
-size = [ 0.3140000104904175, 1.61899995803833, 2 ]
+size = [ 0.44200000166893005, 1.61899995803833, 2 ]
 offset = [ 0, 0.6690000295639038, 0 ]
 rotation = [ 0, 0, 0 ]
 } ]

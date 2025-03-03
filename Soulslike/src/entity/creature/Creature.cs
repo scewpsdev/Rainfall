@@ -42,8 +42,8 @@ public class Creature : Entity, Hittable
 
 		actionManager = new CreatureActionManager(this);
 
-		slashSound = Resource.GetSounds("audio/slash", 2);
-		stabSound = Resource.GetSounds("audio/stab", 2);
+		slashSound = Resource.GetSounds("audio/hit_slash", 2);
+		stabSound = Resource.GetSounds("audio/hit_stab", 2);
 	}
 
 	public void hit(Entity by, Item item)

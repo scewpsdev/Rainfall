@@ -80,22 +80,6 @@ public class Player : Entity
 		rightHandAnimator = Animator.Create(model, this);
 		leftHandAnimator = Animator.Create(model, this);
 
-		rightHandBoneMask = new bool[model.skeleton.nodes.Length];
-		leftHandBoneMask = new bool[model.skeleton.nodes.Length];
-		for (int i = 0; i < model.skeleton.nodes.Length; i++)
-		{
-			Node node = model.skeleton.nodes[i];
-			if (node.name.EndsWith("_r"))
-				rightHandBoneMask[i] = true;
-			else if (node.name.EndsWith("_l"))
-				leftHandBoneMask[i] = true;
-			else
-			{
-				rightHandBoneMask[i] = true;
-				leftHandBoneMask[i] = true;
-			}
-		}
-
 		actionManager = new ActionManager(this);
 
 		Input.cursorMode = CursorMode.Disabled;
@@ -159,7 +143,7 @@ public class Player : Entity
 		playerBody = new RigidBody(this, RigidBodyType.Kinematic, PhysicsFilter.Player, 0);
 		playerBody.addCapsuleCollider(FirstPersonController.COLLIDER_RADIUS, FirstPersonController.COLLIDER_HEIGHT, Vector3.Up * FirstPersonController.COLLIDER_HEIGHT * 0.5f, Quaternion.Identity);
 
-		setRightWeapon(new Longsword());
+		setRightWeapon(new KingsSword());
 	}
 
 	public void setRotation(float yaw)
@@ -185,6 +169,27 @@ public class Player : Entity
 		rightWeaponMoveset = moveset;
 		if (model.isAnimated)
 			rightWeaponAnimator = Animator.Create(model);
+
+		if (rightHandBoneMask == null)
+		{
+			Debug.Assert(leftHandBoneMask == null);
+
+			rightHandBoneMask = new bool[moveset.skeleton.nodes.Length];
+			leftHandBoneMask = new bool[moveset.skeleton.nodes.Length];
+			for (int i = 0; i < moveset.skeleton.nodes.Length; i++)
+			{
+				Node node = moveset.skeleton.nodes[i];
+				if (node.name.EndsWith("_r"))
+					rightHandBoneMask[i] = true;
+				else if (node.name.EndsWith("_l"))
+					leftHandBoneMask[i] = true;
+				else
+				{
+					//rightHandBoneMask[i] = true;
+					//leftHandBoneMask[i] = true;
+				}
+			}
+		}
 
 		idleAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
 		runAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
@@ -261,7 +266,7 @@ public class Player : Entity
 		playerBody.setTransform(position, rotation);
 
 
-		Matrix weaponSway = actionManager.currentAction == null || !actionManager.currentAction.lockYaw ? calculateWeaponSway() : Matrix.Identity;
+		Matrix weaponSway = calculateWeaponSway(); // actionManager.currentAction == null || !actionManager.currentAction.lockYaw ?  : Matrix.Identity;
 
 		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
 			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
@@ -271,8 +276,9 @@ public class Player : Entity
 		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch));
 
 		modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		modelTransform = weaponSway * modelTransform;
 		if (actionManager.currentAction == null || !actionManager.currentAction.ignorePitch)
-			modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * weaponSway * modelTransform;
+			modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * modelTransform;
 		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * modelTransform;
 
 		rightWeaponTransform = getModelMatrix() * modelTransform * rightHandAnimator.getNodeTransform(weaponRNode);
@@ -352,6 +358,9 @@ public class Player : Entity
 	{
 		runAnim.animationSpeed = isSprinting ? SPRINT_SPEED_MULTIPLIER : 1.0f;
 
+		if (actionManager.currentAction != null)
+			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
+
 		AnimationState moveAnim = !controller.isGrounded ? fallAnim : controller.isMoving ? runAnim : idleAnim;
 
 		if (actionManager.currentAction != null && actionManager.currentAction.fullBodyAnimation)
@@ -362,23 +371,23 @@ public class Player : Entity
 		if (actionManager.currentAction != null && actionManager.currentAction.animationName[0] != null)
 		{
 			rightHandAnimator.setAnimation(currentActionAnim);
-			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
 			rightHandAnimator.timer = actionManager.currentAction.elapsedTime;
 		}
 		else
 		{
 			rightHandAnimator.setAnimation(moveAnim);
+			rightHandAnimator.timer = animator.timer;
 		}
 
 		if (actionManager.currentAction != null && actionManager.currentAction.animationName[1] != null)
 		{
 			leftHandAnimator.setAnimation(currentActionAnim);
-			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
 			leftHandAnimator.timer = actionManager.currentAction.elapsedTime;
 		}
 		else
 		{
 			leftHandAnimator.setAnimation(moveAnim);
+			leftHandAnimator.timer = animator.timer;
 		}
 
 		rightHandAnimator.applyAnimation();
@@ -452,10 +461,11 @@ public class Player : Entity
 		float pitchSway = 0;
 		float rollSway = 0;
 
-		// Idle animation
 		float swayScale = actionManager.currentAction != null ? actionManager.currentAction.swayAmount : 1;
+
+		// Idle animation
 		float idleProgress = Time.currentTime / 1e9f * MathF.PI * 2 / 6.0f;
-		float idleAnimation = (MathF.Cos(idleProgress) * 0.5f - 0.5f) * 0.03f * swayScale;
+		float idleAnimation = (MathF.Cos(idleProgress) * 0.5f - 0.5f) * 0.03f;
 		sway.y += idleAnimation;
 		Vector3 noise = new Vector3(simplex.sample1f(idleProgress * 0.2f), simplex.sample1f(-idleProgress * 0.2f), simplex.sample1f(100 + idleProgress * 0.2f)) * 0.0075f * swayScale;
 		sway += noise;
@@ -489,6 +499,11 @@ public class Player : Entity
 		pitchSway += viewmodelLookSwayAnim.x;
 		yawSway += viewmodelLookSwayAnim.y;
 		rollSway += viewmodelLookSwayAnim.z;
+
+		sway *= swayScale;
+		pitchSway *= swayScale;
+		yawSway *= swayScale;
+		rollSway *= swayScale;
 
 		return Matrix.CreateTranslation(sway) * Matrix.CreateRotation(Vector3.Up, yawSway) * Matrix.CreateRotation(Vector3.Right, pitchSway) * Matrix.CreateRotation(Vector3.Back, rollSway);
 	}

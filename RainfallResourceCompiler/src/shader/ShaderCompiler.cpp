@@ -1,8 +1,14 @@
 #include "ShaderCompiler.h"
 
+#include "CGLCompiler.h"
+#include "SourceFile.h"
+
+#include "parser/Parser.h"
+
 #include <bgfx/bgfx.h>
 
 #include <bx/bx.h>
+#include <bx/file.h>
 #include <bx/commandline.h>
 
 
@@ -83,8 +89,8 @@ static const char* GetShaderOpt(bgfx::RendererType::Enum renderer, int shaderTyp
 {
 	switch (renderer)
 	{
-	//case bgfx::RendererType::Direct3D9:
-	//	return "3";
+		//case bgfx::RendererType::Direct3D9:
+		//	return "3";
 	case bgfx::RendererType::Direct3D11:
 		switch (shaderType)
 		{
@@ -112,7 +118,7 @@ static const char* GetShaderOpt(bgfx::RendererType::Enum renderer, int shaderTyp
 	}
 }
 
-bool CompileShader(const char* path, const char* out, const char* type)
+bool CompileBGFXShader(const char* path, const char* out, const char* type)
 {
 	bgfx::RendererType::Enum renderer = bgfx::RendererType::Direct3D11;
 	int shaderType = strcmp(type, "vertex") == 0 ? 0 : strcmp(type, "fragment") == 0 ? 1 : strcmp(type, "compute") == 0 ? 2 : -1;
@@ -138,4 +144,81 @@ bool CompileShader(const char* path, const char* out, const char* type)
 	int argc = sizeof(argv) / sizeof(const char*);
 
 	return bgfx::compileShader(argc, argv) == 0;
+}
+
+
+
+
+
+static void OnCompilerMessage(CGLCompiler* context, MessageType msgType, const char* filename, int line, int col, const char* msg, ...)
+{
+	if (context->disableError)
+		return;
+
+	static const char* const MSG_TYPE_NAMES[MESSAGE_TYPE_MAX] = {
+		"<null>",
+		"info",
+		"warning",
+		"error",
+		"fatal error",
+	};
+
+	MessageType minMsgType =
+#if _DEBUG
+		MESSAGE_TYPE_INFO
+#else
+		MESSAGE_TYPE_WARNING
+#endif
+		;
+
+	if (msgType >= minMsgType)
+	{
+		static char message[4192] = {};
+		message[0] = 0;
+
+		if (filename)
+			sprintf(message + strlen(message), "%s:%d:%d: ", filename, line, col);
+
+		if (msgType != MESSAGE_TYPE_INFO)
+			sprintf(message + strlen(message), "%s: ", MSG_TYPE_NAMES[msgType]);
+
+		va_list args;
+		va_start(args, msg);
+		vsprintf(message + strlen(message), msg, args);
+		va_end(args);
+
+		fprintf(stderr, "%s\n", message);
+	}
+}
+
+bool CompileRainfallShader(const char* path, const char* out)
+{
+	bx::FileReader reader;
+	if (bx::open(&reader, path))
+	{
+		int64_t size = reader.seek(0, bx::Whence::End);
+		reader.seek(0, bx::Whence::Begin);
+
+		char* src = new char[size + 1];
+		bx::read(&reader, src, (int32_t)size, nullptr);
+		src[size] = 0;
+
+		bx::close(&reader);
+
+		SourceFile sourceFile;
+		sourceFile.source = src;
+		sourceFile.filename = path;
+
+		CGLCompiler compiler;
+		compiler.init(OnCompilerMessage);
+
+		compiler.addFile(path, path, src);
+		compiler.compile();
+		compiler.output(out, true);
+
+		compiler.terminate();
+
+		delete[] src;
+	}
+	return false;
 }

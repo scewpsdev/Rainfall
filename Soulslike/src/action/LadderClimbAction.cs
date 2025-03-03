@@ -33,6 +33,7 @@ public class LadderClimbAction : PlayerAction
 		lockYaw = true;
 		ignorePitch = true;
 		lockMovement = true;
+		swayAmount = 0;
 
 		followUpCancelTime = idx != -1 ? 10 / 24.0f : 0;
 
@@ -46,8 +47,6 @@ public class LadderClimbAction : PlayerAction
 	public override void update(Player player)
 	{
 		base.update(player);
-
-		Console.WriteLine(idx);
 
 		inputForward = false;
 		inputBack = false;

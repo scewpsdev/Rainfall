@@ -10,10 +10,11 @@
 [X] Blood effect
 [X] 3D Weapon sound
 [X] Hit slowdown
-[ ] Thrust weapon
-[ ] Blunt impact
-[ ] Wall impact
+[X] Thrust weapon
+[X] Blunt impact
+[X] Wall impact
 [ ] Blocks & Parries
+[ ] Steps
 [ ] Lower body
 [ ] Armor & Equipment
 [ ] Skeleton enemy
