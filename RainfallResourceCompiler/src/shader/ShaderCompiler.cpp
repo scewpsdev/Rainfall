@@ -316,9 +316,21 @@ vec4 i_data4     : TEXCOORD3;
 			return false;
 		}
 
+		printf("%s\n", varying.c_str());
+
+		printf("%s\n", data);
+
+		std::string commandLineComment = "// shaderc command line:\n//";
+		//for (int32_t ii = 0, num = cmdLine.getNum(); ii < num; ++ii)
+		//{
+		//	commandLineComment += " ";
+		//	commandLineComment += cmdLine.get(ii);
+		//}
+		commandLineComment += "\n\n";
+
 		compiled = bgfx::compileShader(
 			varying != "" ? varying.c_str() : nullptr
-			, nullptr
+			, commandLineComment.c_str()
 			, data
 			, size
 			, options
@@ -413,6 +425,36 @@ bool CompileRainfallShader(const char* path, const char* out)
 		compiler.terminate();
 
 		delete[] src;
+
+		vertexSrc = R"(
+$input a_position, a_normal
+$output v_position, v_texcoord0
+
+
+//#include "../common/common.shader"
+
+
+void main()
+{
+	vec4 worldPosition = mul(u_model[0], vec4(a_position, 1));
+
+	gl_Position = mul(u_viewProj, worldPosition);
+
+	v_position = a_position;
+	v_texcoord0 = a_normal;
+}
+
+)";
+
+		varyings = R"(
+vec3 v_texcoord0 : TEXCOORD0 = vec3(0.0, 0.0, 0.0);
+vec3 v_position  : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
+vec3 v_view      : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
+vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 1.0);
+vec3 v_tangent   : TANGENT   = vec3(1.0, 0.0, 0.0);
+vec3 v_bitangent : BINORMAL  = vec3(0.0, 1.0, 0.0);
+vec4 v_color0    : COLOR     = vec4(0.8, 0.8, 0.8, 1.0);
+)";
 
 		std::string vertexOutPath = std::string(out).substr(0, strrchr(out, '.') - out) + ".vertex.bin";
 		std::string fragmentOutPath = std::string(out).substr(0, strrchr(out, '.') - out) + ".fragment.bin";

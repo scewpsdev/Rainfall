@@ -2028,9 +2028,11 @@ public:
 		return semanticList[idx];
 	}
 
-	std::string genFile(AST::File* file, bool vertex)
+	std::string genFile(AST::File* file, bool vertex, std::string* outVaryingDef = nullptr)
 	{
 		this->file = file;
+
+		stream = std::stringstream();
 
 		const char* vertexFuncName = "vertex";
 		const char* fragmentFuncName = "fragment";
@@ -2052,6 +2054,13 @@ public:
 					stream << ", ";
 			}
 			stream << "\n$output ";
+
+			std::stringstream varyingDef;
+			for (int i = 0; i < varyings->fields.size; i++)
+			{
+				varyingDef << genType(varyings->fields[i]->type) << " __v_" << varyings->fields[i]->name << " : " << getVaryingSemantic(i) << ";\n";
+			}
+			*outVaryingDef = varyingDef.str();
 		}
 		for (int i = 0; i < varyings->fields.size; i++)
 		{
@@ -2080,7 +2089,13 @@ public:
 				stream << "\tattributes." << attributes->fields[i]->name << " = " << getAttributeName(attributes->fields[i]->semantic) << ";\n";
 			}
 			stream << "\n\t" << varyings->name << " varyings;\n";
-			stream << "\n\t" << vertexFuncName << "(attributes, out varyings, out gl_Position);\n";
+			stream << "\tvec4 outPosition;\n";
+			stream << "\n\t" << vertexFuncName << "(attributes, out varyings, out outPosition);\n";
+			stream << "\tgl_Position = outPosition;\n\n";
+			for (int i = 0; i < varyings->fields.size; i++)
+			{
+				stream << "\t__v_" << varyings->fields[i]->name << " = varyings." << attributes->fields[i]->name << ";\n";
+			}
 			stream << "}";
 		}
 		else
@@ -2106,15 +2121,12 @@ public:
 void CGLCompiler::output(std::string& vertexSrc, std::string& fragmentSrc, std::string& varyings, bool printIR)
 {
 	CodegenTCC codegen(this);
-	vertexSrc = codegen.genFile(asts[0], true);
+	vertexSrc = codegen.genFile(asts[0], true, &varyings);
 	fragmentSrc = codegen.genFile(asts[0], false);
-
-	// gen varyings
-
 
 	if (printIR)
 	{
-		printf("%s\n", vertexSrc.c_str());
-		printf("%s\n", fragmentSrc.c_str());
+		//printf("%s\n", vertexSrc.c_str());
+		//printf("%s\n", fragmentSrc.c_str());
 	}
 }
