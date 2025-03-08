@@ -95,6 +95,8 @@ public class WorldManager : Entity
 					Item item = null;
 					if (itemName == "kings_sword")
 						item = new KingsSword();
+					else if (itemName == "longsword")
+						item = new Longsword();
 					else if (itemName == "broken_sword")
 						item = new BrokenSword();
 					else if (itemName == "dagger")
@@ -103,6 +105,8 @@ public class WorldManager : Entity
 						item = new DarkwoodStaff();
 					else if (itemName == "crossbow")
 						item = new LightCrossbow();
+					else if (itemName == "sapphire_ring")
+						item = new SapphireRing();
 
 					if (item != null)
 					{

@@ -163,12 +163,24 @@ namespace Rainfall
 	};
 
 	[StructLayout(LayoutKind.Sequential)]
-	internal unsafe struct SkeletonData
+	public unsafe struct BoneData
 	{
-		internal int boneCount;
-		internal IntPtr bones;
+		public fixed byte name[32];
+		public Matrix offsetMatrix;
 
-		internal Matrix inverseBindPose;
+		int nodeID;
+
+
+		NodeData* node;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct SkeletonData
+	{
+		public int boneCount;
+		public BoneData* bones;
+
+		public Matrix inverseBindPose;
 	};
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -243,7 +255,7 @@ namespace Rainfall
 
 		public MeshData* meshes;
 		public MaterialData* materials;
-		internal SkeletonData* skeletons;
+		public SkeletonData* skeletons;
 		public AnimationData* animations;
 		public NodeData* nodes;
 		public LightData* lights;

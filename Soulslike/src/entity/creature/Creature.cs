@@ -32,7 +32,7 @@ public class Creature : Entity, Hittable
 		if (model != null)
 			rootMotionNode = model.skeleton.getNode("root");
 
-		animator = Animator.Create(model, this);
+		animator = Animator.Create(model);
 
 		idleAnim = Animator.CreateAnimation(model, "idle", true, 0.4f);
 		idleAnim.animationSpeed = 0.005f;

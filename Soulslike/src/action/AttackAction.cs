@@ -64,7 +64,7 @@ public class AttackAction : PlayerAction
 		damageEndTime = attack.damageRange.y / 24.0f;
 		followUpCancelTime = attack.cancelFrame / 24.0f;
 
-		lockYaw = true;
+		//lockYaw = true;
 
 		viewmodelAim = 1;
 
@@ -74,52 +74,6 @@ public class AttackAction : PlayerAction
 	public override void onStarted(Player player)
 	{
 		trail = new WeaponTrail(20, player.rightWeaponTransform.translation);
-	}
-
-	void processHit(ref HitData hit, Player player)
-	{
-		Entity entity = hit.body.entity as Entity;
-		if (entity is Hittable)
-		{
-			Hittable hittable = entity as Hittable;
-
-			if (!hitEntities.Contains(entity))
-			{
-				hitEntities.Add(entity);
-				hittable.hit(player, weapon);
-
-				if (hittable is Creature)
-				{
-					Creature creature = entity as Creature;
-					Sound[] hitSound = attack.damageType == DamageType.Thrust ? creature.stabSound : creature.slashSound;
-					Audio.PlayOrganic(hitSound, hit.position);
-				}
-			}
-
-			if (hittable is Creature)
-			{
-				// blood particles
-				ParticleEffect bloodEffect = new ParticleEffect("effect/blood.rfs", null);
-				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
-				lastEnemyHit = Time.currentTime;
-			}
-		}
-		else
-		{
-			float bladeLength = (weapon.bladeTip - weapon.bladeBase).length;
-			float hitNormalizedDist = hit.distance / bladeLength;
-			if (hitNormalizedDist < 0.5f && lastWallHit == -1)
-			{
-				// wall hit sound
-				Audio.PlayOrganic(Resource.GetSound("audio/hit_wall.ogg"), hit.position);
-
-				// spark particles
-				ParticleEffect bloodEffect = new ParticleEffect("effect/spark.rfs", null);
-				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
-
-				lastWallHit = Time.currentTime;
-			}
-		}
 	}
 
 	public override void update(Player player)
@@ -170,7 +124,55 @@ public class AttackAction : PlayerAction
 
 		base.update(player);
 
-		lockYaw = inDamageWindow;
+		//lockYaw = inDamageWindow;
+	}
+
+	void processHit(ref HitData hit, Player player)
+	{
+		Entity entity = hit.body.entity as Entity;
+		if (entity is Hittable)
+		{
+			Hittable hittable = entity as Hittable;
+
+			lockYaw = true;
+
+			if (!hitEntities.Contains(entity))
+			{
+				hitEntities.Add(entity);
+				hittable.hit(player, weapon);
+
+				if (hittable is Creature)
+				{
+					Creature creature = entity as Creature;
+					Sound[] hitSound = attack.damageType == DamageType.Thrust ? creature.stabSound : creature.slashSound;
+					Audio.PlayOrganic(hitSound, hit.position);
+				}
+			}
+
+			if (hittable is Creature)
+			{
+				// blood particles
+				ParticleEffect bloodEffect = new ParticleEffect("effect/blood.rfs", null);
+				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
+				lastEnemyHit = Time.currentTime;
+			}
+		}
+		else
+		{
+			float bladeLength = (weapon.bladeTip - weapon.bladeBase).length;
+			float hitNormalizedDist = hit.distance / bladeLength;
+			if (hitNormalizedDist < 0.5f && lastWallHit == -1)
+			{
+				// wall hit sound
+				Audio.PlayOrganic(Resource.GetSound("audio/hit_wall.ogg"), hit.position);
+
+				// spark particles
+				ParticleEffect bloodEffect = new ParticleEffect("effect/spark.rfs", null);
+				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
+
+				lastWallHit = Time.currentTime;
+			}
+		}
 	}
 
 	public override void fixedUpdate(Player player, float delta)
@@ -189,7 +191,7 @@ public class AttackAction : PlayerAction
 
 			{
 				Span<HitData> hits = stackalloc HitData[16];
-				int numHits = Physics.Raycast(origin, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.CreatureHitbox);
+				int numHits = Physics.Raycast(origin, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.CreatureHitbox);
 				for (int i = 0; i < numHits; i++)
 				{
 					processHit(ref hits[i], player);
@@ -202,12 +204,16 @@ public class AttackAction : PlayerAction
 				distance = direction.length;
 
 				Span<HitData> hits = stackalloc HitData[16];
-				int numHits = Physics.Raycast(tip, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.CreatureHitbox);
+				int numHits = Physics.Raycast(tip, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.CreatureHitbox);
 				for (int i = 0; i < numHits; i++)
 				{
 					//processHit(ref hits[i], player);
 				}
 			}
+		}
+		else
+		{
+			lockYaw = false;
 		}
 
 		lastTip = tip;

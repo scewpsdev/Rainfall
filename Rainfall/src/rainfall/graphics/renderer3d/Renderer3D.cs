@@ -91,27 +91,10 @@ namespace Rainfall
 			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
-		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null, bool isOccluder = false)
-		{
-			MeshData* mesh = model.getMeshData(meshID);
-			IntPtr material = mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : Material.Material_GetDefault();
-			if (mesh->node != null)
-			{
-				if (animator != null && mesh->node->parent->armatureID != -1)
-				{
-					transform = transform * animator.getNodeTransform(model.skeleton.getNode(mesh->node->id));
-				}
-				else
-				{
-					transform = transform * mesh->node->transform;
-				}
-			}
-			Renderer3D_DrawMesh(mesh, transform, material, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
-		}
-
 		public static unsafe void DrawMesh(Model model, int meshID, Material material, Matrix transform, Animator animator = null, bool isOccluder = false)
 		{
 			MeshData* mesh = model.getMeshData(meshID);
+			IntPtr materialHandle = material != null ? material.handle : mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : Material.Material_GetDefault();
 			if (mesh->node != null)
 			{
 				if (animator != null && mesh->node->parent->armatureID != -1)
@@ -123,7 +106,12 @@ namespace Rainfall
 					transform = transform * mesh->node->transform;
 				}
 			}
-			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+			Renderer3D_DrawMesh(mesh, transform, materialHandle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+		}
+
+		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null, bool isOccluder = false)
+		{
+			DrawMesh(model, meshID, null, transform, animator, isOccluder);
 		}
 
 		public static void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)

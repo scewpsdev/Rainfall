@@ -13,6 +13,8 @@ public enum ItemType
 	Weapon,
 	Staff,
 	Crossbow,
+	Armor,
+	Ring,
 }
 
 public abstract class Item
@@ -31,6 +33,9 @@ public abstract class Item
 
 	public bool useTrigger = true;
 	public bool secondaryUseTrigger = true;
+
+	public bool hidesArms = false;
+	public bool hidesHands = false;
 
 
 	public Item(ItemType type, string name, string displayName)
@@ -62,6 +67,10 @@ public abstract class Item
 	}
 
 	public virtual void update(Player player, Animator animator)
+	{
+	}
+
+	public virtual void draw(Player player, Animator animator)
 	{
 	}
 }

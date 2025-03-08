@@ -28,6 +28,13 @@ public struct ActionSfx
 	}
 }
 
+public struct ActionEvent
+{
+	public Action<Player> callback;
+	public float time;
+	public bool triggered;
+}
+
 public class PlayerAction
 {
 	public readonly string type;
@@ -74,6 +81,7 @@ public class PlayerAction
 	public float duration = 0.0f;
 
 	List<ActionSfx> soundEffects = new List<ActionSfx>();
+	List<ActionEvent> events = new List<ActionEvent>();
 
 	bool staminaConsumed = false;
 
@@ -87,6 +95,11 @@ public class PlayerAction
 	protected void addSoundEffect(ActionSfx sfx)
 	{
 		soundEffects.Add(sfx);
+	}
+
+	protected void addActionEvent(int frame, Action<Player> callback)
+	{
+		events.Add(new ActionEvent() { callback = callback, time = frame / 24.0f, triggered = false });
 	}
 
 	public virtual void update(Player player)
@@ -118,6 +131,19 @@ public class PlayerAction
 			{
 				Audio.SetSourcePosition(sfx.source, sourcePosition);
 			}
+		}
+
+		for (int i = 0; i < events.Count; i++)
+		{
+			ActionEvent ev = events[i];
+
+			if (elapsedTime >= ev.time && !ev.triggered)
+			{
+				ev.callback(player);
+				ev.triggered = true;
+			}
+
+			events[i] = ev;
 		}
 	}
 

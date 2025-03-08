@@ -29,9 +29,9 @@ namespace Rainfall
 		static List<Animator> animators = new List<Animator>();
 		static Mutex activeAnimationsMutex = new Mutex();
 
-		public static Animator Create(Model model, PhysicsEntity entity = null)
+		public static Animator Create(Model model)
 		{
-			Animator animator = new Animator(model, entity);
+			Animator animator = new Animator(model);
 			animators.Add(animator);
 			return animator;
 		}
@@ -76,8 +76,6 @@ namespace Rainfall
 		}
 
 
-		PhysicsEntity entity;
-
 		public IntPtr handle;
 		public Model model { get; private set; }
 
@@ -95,12 +93,11 @@ namespace Rainfall
 		public readonly List<AnimationTransition> transitions = new List<AnimationTransition>();
 
 
-		unsafe Animator(Model model, PhysicsEntity entity)
+		unsafe Animator(Model model)
 		{
 			this.model = model;
-			this.entity = entity;
 
-			handle = Native.Animation.Animation_CreateAnimationState(model.scene);
+			handle = Animation_CreateAnimationState(model.scene);
 
 			unsafe
 			{
@@ -117,7 +114,7 @@ namespace Rainfall
 
 		void destroy()
 		{
-			Native.Animation.Animation_DestroyAnimationState(handle);
+			Animation_DestroyAnimationState(handle);
 			handle = IntPtr.Zero;
 		}
 
@@ -229,7 +226,7 @@ namespace Rainfall
 			Array.Copy(nodeGlobalTransforms, lastNodeGlobalTransforms, nodeGlobalTransforms.Length);
 
 			applyNodeAnimation(model.skeleton.rootNode, Matrix.Identity, nodeLocalTransforms);
-			Native.Animation.Animation_UpdateAnimationState(handle, model.scene, nodeGlobalTransforms, nodeGlobalTransforms.Length);
+			Animation_UpdateAnimationState(handle, model.scene, nodeGlobalTransforms, nodeGlobalTransforms.Length);
 		}
 
 		public void setAnimation(AnimationState state, bool restart = false)
@@ -343,5 +340,14 @@ namespace Rainfall
 				hasLooped = false;
 			}
 		}
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe IntPtr Animation_CreateAnimationState(SceneData* scene);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void Animation_DestroyAnimationState(IntPtr state);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe void Animation_UpdateAnimationState(IntPtr state, SceneData* scene, Matrix[] nodeAnimationTransforms, int numNodes);
 	}
 }

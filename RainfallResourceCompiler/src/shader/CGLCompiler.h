@@ -28,6 +28,6 @@ public:
 	void addLinkerFile(const char* filename);
 	void addLinkerPath(const char* path);
 	bool compile();
-	int run(int argc, char* argv[], bool printIR);
 	void output(std::string& vertexSrc, std::string& fragmentSrc, std::string& varyings, bool printIR);
+	void outputCompute(const char* kernelName, std::string& src, bool printIR);
 };

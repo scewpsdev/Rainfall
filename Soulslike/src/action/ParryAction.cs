@@ -28,7 +28,7 @@ public class ParryAction : PlayerAction
 
 		followUpCancelTime = weapon.parryWindow;
 
-		lockYaw = true;
+		//lockYaw = true;
 
 		viewmodelAim = 1;
 	}

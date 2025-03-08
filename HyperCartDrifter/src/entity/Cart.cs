@@ -280,7 +280,7 @@ public class Cart : Entity
 		for (int i = 0; i < wheelGrounded.Length; i++)
 			numGrounded += wheelGrounded[i] ? 1 : 0;
 		if (numGrounded == 0)
-			body.setRotationVelocity(body.getAngularVelocity() * 0.99f);
+			body.setAngularVelocity(body.getAngularVelocity() * 0.99f);
 
 
 		if (rotation.up.y < 0.1f)
@@ -303,7 +303,7 @@ public class Cart : Entity
 	{
 		setTransform(GameState.instance.spawnPoint);
 		body.setVelocity(Vector3.Zero);
-		body.setRotationVelocity(Vector3.Zero);
+		body.setAngularVelocity(Vector3.Zero);
 		ejected = false;
 	}
 

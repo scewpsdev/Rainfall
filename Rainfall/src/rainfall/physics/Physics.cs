@@ -72,7 +72,7 @@ namespace Rainfall
 	public static unsafe class Physics
 	{
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodySetTransformCallback_t(Vector3 position, Quaternion rotation, IntPtr userPtr);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodyGetTransformCallback_t(ref Vector3 position, ref Quaternion rotation, IntPtr userPtr);
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate byte RigidBodyGetTransformCallback_t(ref Vector3 position, ref Quaternion rotation, IntPtr userPtr);
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void RigidBodyContactCallback_t(RigidBodyData* body, RigidBodyData* other, int shapeID, int otherShapeID, byte isTrigger, byte otherTrigger, ContactType contactType, IntPtr otherController);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void CharacterControllerOnHitCallback_t(ControllerHit hit, IntPtr userPtr);
@@ -374,11 +374,17 @@ namespace Rainfall
 			body.entity.setRotation(rotation);
 		}
 
-		static void RigidBodyGetTransform(ref Vector3 position, ref Quaternion rotation, IntPtr userPtr)
+		static byte RigidBodyGetTransform(ref Vector3 position, ref Quaternion rotation, IntPtr userPtr)
 		{
 			RigidBody body = RigidBody.GetBodyFromHandle((RigidBodyData*)userPtr);
-			position = body.entity.getPosition();
-			rotation = body.entity.getRotation();
+			Debug.Assert(body.type == RigidBodyType.Kinematic);
+			if (body.entityMovesBody)
+			{
+				position = body.entity.getPosition();
+				rotation = body.entity.getRotation();
+				return 1;
+			}
+			return 0;
 		}
 
 		static void RigidBodyContactCallback(RigidBodyData* bodyHandle, RigidBodyData* otherHandle, int shapeID, int otherShapeID, byte isTrigger, byte otherTrigger, ContactType contactType, IntPtr otherControllerHandle)

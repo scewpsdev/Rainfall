@@ -44,7 +44,7 @@ public class KickAction : PlayerAction
 				{
 					Vector3 impulse = direction + new Vector3(0, 0.3f, 0);
 					body.addImpulse(impulse * 350);
-					body.setRotationVelocity(MathHelper.RandomVector3(-1, 1));
+					body.setAngularVelocity(MathHelper.RandomVector3(-1, 1));
 				}
 				if (entity is Hittable)
 				{

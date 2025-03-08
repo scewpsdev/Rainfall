@@ -39,6 +39,6 @@ void fragment(in v2f i, out vec4 outData0, out vec4 outData1, out vec4 outData2,
 
 	outData0 = vec4(i.position, 1);
 	outData1 = vec4(0, 1, 0, 1);
-	//outData2 = vec4(albedo.rgb, 1);
+	outData2 = vec4(0, 0, 0, 1);
 	outData3 = vec4(0, 0, 0, 0);
 }

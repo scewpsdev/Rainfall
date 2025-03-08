@@ -61,6 +61,7 @@ public class FirstPersonController
 
 	Entity player;
 	public CharacterController controller;
+	uint filterMask;
 
 	MoveType moveType = MoveType.Walk;
 
@@ -103,6 +104,7 @@ public class FirstPersonController
 	public FirstPersonController(Entity player, uint filterMask)
 	{
 		this.player = player;
+		this.filterMask = filterMask;
 		controller = new CharacterController(player, COLLIDER_RADIUS, Vector3.Zero, COLLIDER_HEIGHT, 0.2f, filterMask, new CollisionCallback(this));
 	}
 
@@ -455,7 +457,7 @@ public class FirstPersonController
 				if (velocity.y < 0.5f)
 				{
 					Span<HitData> hits = stackalloc HitData[16];
-					int numHits = Physics.OverlapSphere(COLLIDER_RADIUS, player.position + new Vector3(0.0f, COLLIDER_RADIUS - 0.1f, 0.0f), hits, QueryFilterFlags.Static | QueryFilterFlags.Dynamic);
+					int numHits = Physics.OverlapSphere(COLLIDER_RADIUS, player.position + new Vector3(0.0f, COLLIDER_RADIUS - 0.1f, 0.0f), hits, QueryFilterFlags.Static | QueryFilterFlags.Dynamic, filterMask);
 					for (int i = 0; i < numHits; i++)
 					{
 						if (!hits[i].isTrigger && hits[i].body != null && hits[i].body.entity != player)

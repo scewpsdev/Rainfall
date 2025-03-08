@@ -216,6 +216,8 @@
     <ClInclude Include="src\shader\ast\Type.h" />
     <ClInclude Include="src\shader\CGLCompiler.h" />
     <ClInclude Include="src\shader\Common.h" />
+    <ClInclude Include="src\shader\includes\bgfx_compute.h" />
+    <ClInclude Include="src\shader\includes\bgfx_shader.h" />
     <ClInclude Include="src\shader\parser\input.h" />
     <ClInclude Include="src\shader\parser\Keywords.h" />
     <ClInclude Include="src\shader\parser\lexer.h" />

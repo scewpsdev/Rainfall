@@ -15,8 +15,11 @@
 [X] Wall impact
 [ ] Blocks & Parries
 [ ] Steps
-[ ] Lower body
-[ ] Armor & Equipment
+[X] Lower body
+[ ] Shields
+[X] Armor & Equipment
+[ ] Enemy hp bar
+[ ] Ragdolls
 [ ] Skeleton enemy
 [ ] Bow
 [ ] Crossbow
