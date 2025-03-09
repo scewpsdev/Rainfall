@@ -2159,7 +2159,7 @@
 				},
 				{
 					"input":0,
-					"interpolation":"STEP",
+					"interpolation":"LINEAR",
 					"output":70
 				},
 				{
@@ -2354,7 +2354,7 @@
 				},
 				{
 					"input":0,
-					"interpolation":"LINEAR",
+					"interpolation":"STEP",
 					"output":109
 				},
 				{
@@ -2369,7 +2369,7 @@
 				},
 				{
 					"input":0,
-					"interpolation":"LINEAR",
+					"interpolation":"STEP",
 					"output":112
 				},
 				{
@@ -2399,7 +2399,7 @@
 				},
 				{
 					"input":0,
-					"interpolation":"STEP",
+					"interpolation":"LINEAR",
 					"output":118
 				},
 				{

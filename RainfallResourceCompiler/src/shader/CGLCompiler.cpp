@@ -2071,6 +2071,11 @@ public:
 		stream << "\n\n";
 
 
+		stream <<
+#include "includes/bgfx_shader.h"
+			;
+
+
 		for (AST::Struct* strct : file->structs)
 		{
 			genStruct(strct);
@@ -2089,9 +2094,7 @@ public:
 				stream << "\tattributes." << attributes->fields[i]->name << " = " << getAttributeName(attributes->fields[i]->semantic) << ";\n";
 			}
 			stream << "\n\t" << varyings->name << " varyings;\n";
-			stream << "\tvec4 outPosition;\n";
-			stream << "\n\t" << vertexFuncName << "(attributes, out varyings, out outPosition);\n";
-			stream << "\tgl_Position = outPosition;\n\n";
+			stream << "\n\t" << vertexFuncName << "(attributes, varyings, gl_Position);\n\n";
 			for (int i = 0; i < varyings->fields.size; i++)
 			{
 				stream << "\t__v_" << varyings->fields[i]->name << " = varyings." << attributes->fields[i]->name << ";\n";
@@ -2109,10 +2112,38 @@ public:
 			stream << "\n\t" << fragmentFuncName << "(varyings";
 			for (int i = 1; i < fragmentFunc->paramTypes.size; i++)
 			{
-				stream << ", out gl_FragData[" << std::to_string(i - 1) << "]";
+				stream << ", gl_FragData[" << std::to_string(i - 1) << "]";
 			}
 			stream << ");\n}";
 		}
+
+		return stream.str();
+	}
+
+	std::string genFileCompute(AST::File* file, const char* kernelName)
+	{
+		this->file = file;
+
+		stream = std::stringstream();
+
+		AST::Function* kernelFunc = getFunction(kernelName);
+
+		stream <<
+#include "includes/bgfx_compute.h"
+			;
+
+		for (AST::Struct* strct : file->structs)
+		{
+			genStruct(strct);
+		}
+		for (AST::Function* function : file->functions)
+		{
+			genFunction(function);
+		}
+
+		stream << "\n\nvoid main() {\n";
+		stream << "\t" << kernelName << "();\n";
+		stream << "}";
 
 		return stream.str();
 	}
@@ -2126,7 +2157,18 @@ void CGLCompiler::output(std::string& vertexSrc, std::string& fragmentSrc, std::
 
 	if (printIR)
 	{
-		//printf("%s\n", vertexSrc.c_str());
-		//printf("%s\n", fragmentSrc.c_str());
+		printf("%s\n", vertexSrc.c_str());
+		printf("%s\n", fragmentSrc.c_str());
+	}
+}
+
+void CGLCompiler::outputCompute(const char* kernelName, std::string& src, bool printIR)
+{
+	CodegenTCC codegen(this);
+	src = codegen.genFileCompute(asts[0], kernelName);
+
+	if (printIR)
+	{
+		printf("%s\n", src.c_str());
 	}
 }

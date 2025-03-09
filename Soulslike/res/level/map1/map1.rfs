@@ -246,10 +246,20 @@ colliders = [  ]
 lights = [  ]
 particles = [  ]
 }, {
-name = "item_kings_sword_001"
+name = "item_longsword_001"
 id = "3369458152"
 static = 0
 position = [ -22.56521224975586, 3.6475977897644043, 2.6417160034179688 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [  ]
+}, {
+name = "item_sapphire_ring_001"
+id = "3344125040"
+static = 0
+position = [ -23.93157196044922, 0.4996977150440216, 2.3795154094696045 ]
 rotation = [ 0, 0, 0, 1 ]
 scale = [ 1, 1, 1 ]
 colliders = [  ]
@@ -325,4 +335,4 @@ colliders = [  ]
 lights = [  ]
 particles = [  ]
 } ]
-selectedEntity = "3839120785"
+selectedEntity = "3344125040"

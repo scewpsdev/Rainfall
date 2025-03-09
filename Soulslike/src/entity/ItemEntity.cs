@@ -49,7 +49,7 @@ public class ItemEntity : Entity, Interactable
 
 	public void interact(Player player)
 	{
-		player.setRightWeapon(item);
+		player.giveItem(item);
 		remove();
 	}
 

@@ -106,12 +106,12 @@ public class Entity : PhysicsEntity
 			foreach (string nodeName in entity.boneColliders.Keys)
 			{
 				RigidBody boneCollider = new RigidBody(this, RigidBodyType.Kinematic, hitboxFilterGroup, hitboxFilterMask);
+				boneCollider.entityMovesBody = false;
 				hitboxData.Add(nodeName, entity.boneColliders[nodeName]);
 				hitboxes.Add(nodeName, boneCollider);
 
 				SceneFormat.ColliderData colliderData = entity.boneColliders[nodeName];
-				//if (colliderData.trigger)
-				if (true)
+				if (colliderData.trigger)
 				{
 					switch (colliderData.type)
 					{

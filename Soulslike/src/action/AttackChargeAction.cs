@@ -34,6 +34,7 @@ public class AttackChargeAction : PlayerAction
 		followUpCancelTime = attack.chargeCancelFrame / 24.0f;
 
 		viewmodelAim = 1;
+		lockYaw = true;
 	}
 
 	public override void onStarted(Player player)

@@ -1186,7 +1186,12 @@ static void GeometryPass()
 
 		SkeletonState* skeleton = nullptr;
 		if (animation && mesh->skeletonID != -1)
-			skeleton = animation->skeletons[mesh->skeletonID];
+		{
+			if (mesh->skeletonID < animation->numSkeletons)
+				skeleton = animation->skeletons[mesh->skeletonID];
+			else
+				skeleton = animation->skeletons[0];
+		}
 
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::Geometry, indirectBuffer, i);
 	}

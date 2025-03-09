@@ -193,49 +193,51 @@ bool CompileBGFXShader(const char* path, const char* out, const char* type)
 }
 
 
-static bool CompileBGFXShaderFromSrc(const char* src, const char* out, const char* type, const char* varyings)
+static int CompileBGFXShaderFromSrc(const char* src, const char* out, const char* type, const char* varyings)
 {
 	const char* outFilePath = out;
+	const char* filePath = "D:\\Dev\\Rainfall\\Soulslike\\res\\shaders\\weapon_trail\\weapon_trail.shader";
 
 	bgfx::Options options;
-	//options.inputFilePath = nullptr;
+	options.inputFilePath = filePath;
 	options.outputFilePath = outFilePath;
 	options.shaderType = bx::toLower(type[0]);
 
 	bgfx::RendererType::Enum renderer = bgfx::RendererType::Direct3D11;
 	int shaderType = strcmp(type, "vertex") == 0 ? 0 : strcmp(type, "fragment") == 0 ? 1 : strcmp(type, "compute") == 0 ? 2 : -1;
+
 	const char* platform = platforms[renderer];
-	const char* profile = GetShaderProfile(renderer, shaderType);
-	int opt = GetShaderOpt(renderer, shaderType);
+	if (NULL == platform)
+	{
+		platform = "";
+	}
 
 	options.platform = platform;
-	options.profile = profile;
 
-	options.debugInformation = false;
-	options.avoidFlowControl = false;
-	options.noPreshader = false;
-	options.partialPrecision = false;
-	options.preferFlowControl = false;
-	options.backwardsCompatibility = false;
-	options.warningsAreErrors = false;
-	options.keepIntermediate = false;
+	const char* profile = GetShaderProfile(renderer, shaderType);
 
-	uint32_t optimization = opt;
-	if (optimization > 0)
+	if (NULL != profile)
 	{
+		options.profile = profile;
+	}
+
+	{
+		options.debugInformation = false;
+		options.avoidFlowControl = false;
+		options.noPreshader = false;
+		options.partialPrecision = false;
+		options.preferFlowControl = false;
+		options.backwardsCompatibility = false;
+		options.warningsAreErrors = false;
+		options.keepIntermediate = false;
+
 		options.optimize = true;
-		options.optimizationLevel = optimization;
+		options.optimizationLevel = GetShaderOpt(renderer, shaderType);
 	}
 
 	options.depends = false;
 	options.preprocessOnly = false;
-	const char* includeDir = nullptr;
 
-	BX_TRACE("depends: %d", options.depends);
-	BX_TRACE("preprocessOnly: %d", options.preprocessOnly);
-	BX_TRACE("includeDir: %s", includeDir);
-
-	/*
 	std::string dir;
 	{
 		bx::FilePath fp(filePath);
@@ -244,7 +246,14 @@ static bool CompileBGFXShaderFromSrc(const char* src, const char* out, const cha
 		dir.assign(path.getPtr(), path.getTerm());
 		options.includeDirs.push_back(dir);
 	}
-	*/
+
+	std::string commandLineComment = "// shaderc command line:\n//";
+	//for (int32_t ii = 0, num = cmdLine.getNum(); ii < num; ++ii)
+	//{
+	//	commandLineComment += " ";
+	//	commandLineComment += cmdLine.get(ii);
+	//}
+	commandLineComment += "\n\n";
 
 	bool compiled = false;
 
@@ -252,8 +261,9 @@ static bool CompileBGFXShaderFromSrc(const char* src, const char* out, const cha
 
 	if ('c' != options.shaderType)
 	{
-		varying = R"(
-vec3 a_position  : POSITION;
+		const char* varyingdef = "D:\\Dev\\Rainfall\\Soulslike\\res\\shaders\\weapon_trail\\varying.def.sc";
+
+		varying = R"(vec3 a_position  : POSITION;
 vec3 a_normal    : NORMAL;
 vec3 a_tangent   : TANGENT;
 vec4 a_indices   : BLENDINDICES;
@@ -268,14 +278,16 @@ vec4 i_data1     : TEXCOORD6;
 vec4 i_data2     : TEXCOORD5;
 vec4 i_data3     : TEXCOORD4;
 vec4 i_data4     : TEXCOORD3;
-
 )" + std::string(varyings);
+
+		options.dependencies.push_back(varyingdef);
 	}
 
 	int32_t size = (int32_t)strlen(src);
 	const int32_t total = size + 16384;
 	char* data = new char[total];
-	memcpy(data, src, size);
+	data[0] = 0;
+	strcpy(data, src);
 
 	// Trim UTF-8 BOM
 	if (data[0] == '\xef'
@@ -310,23 +322,12 @@ vec4 i_data4     : TEXCOORD3;
 
 	{
 		bx::FileWriter* writer = new bx::FileWriter;
+
 		if (!bx::open(writer, outFilePath))
 		{
 			bx::printf("Unable to open output file '%s'.\n", outFilePath);
-			return false;
+			return bx::kExitFailure;
 		}
-
-		printf("%s\n", varying.c_str());
-
-		printf("%s\n", data);
-
-		std::string commandLineComment = "// shaderc command line:\n//";
-		//for (int32_t ii = 0, num = cmdLine.getNum(); ii < num; ++ii)
-		//{
-		//	commandLineComment += " ";
-		//	commandLineComment += cmdLine.get(ii);
-		//}
-		commandLineComment += "\n\n";
 
 		compiled = bgfx::compileShader(
 			varying != "" ? varying.c_str() : nullptr
@@ -344,13 +345,13 @@ vec4 i_data4     : TEXCOORD3;
 
 	if (compiled)
 	{
-		return true;
+		return bx::kExitSuccess;
 	}
 
 	bx::remove(outFilePath);
 
 	bx::printf("Failed to build shader.\n");
-	return false;
+	return bx::kExitFailure;
 }
 
 static void OnCompilerMessage(CGLCompiler* context, MessageType msgType, const char* filename, int line, int col, const char* msg, ...)
@@ -426,41 +427,16 @@ bool CompileRainfallShader(const char* path, const char* out)
 
 		delete[] src;
 
-		vertexSrc = R"(
-$input a_position, a_normal
-$output v_position, v_texcoord0
-
-
-//#include "../common/common.shader"
-
-
-void main()
-{
-	vec4 worldPosition = mul(u_model[0], vec4(a_position, 1));
-
-	gl_Position = mul(u_viewProj, worldPosition);
-
-	v_position = a_position;
-	v_texcoord0 = a_normal;
-}
-
-)";
-
-		varyings = R"(
-vec3 v_texcoord0 : TEXCOORD0 = vec3(0.0, 0.0, 0.0);
-vec3 v_position  : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
-vec3 v_view      : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
-vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 1.0);
-vec3 v_tangent   : TANGENT   = vec3(1.0, 0.0, 0.0);
-vec3 v_bitangent : BINORMAL  = vec3(0.0, 1.0, 0.0);
-vec4 v_color0    : COLOR     = vec4(0.8, 0.8, 0.8, 1.0);
-)";
-
 		std::string vertexOutPath = std::string(out).substr(0, strrchr(out, '.') - out) + ".vertex.bin";
 		std::string fragmentOutPath = std::string(out).substr(0, strrchr(out, '.') - out) + ".fragment.bin";
 
-		CompileBGFXShaderFromSrc(vertexSrc.c_str(), vertexOutPath.c_str(), "vertex", varyings.c_str());
-		CompileBGFXShaderFromSrc(fragmentSrc.c_str(), fragmentOutPath.c_str(), "fragment", varyings.c_str());
+		if (CompileBGFXShaderFromSrc(vertexSrc.c_str(), vertexOutPath.c_str(), "vertex", varyings.c_str()) != 0)
+			return false;
+
+		if (CompileBGFXShaderFromSrc(fragmentSrc.c_str(), fragmentOutPath.c_str(), "fragment", varyings.c_str()) != 0)
+			return false;
+
+		return true;
 	}
 	return false;
 }

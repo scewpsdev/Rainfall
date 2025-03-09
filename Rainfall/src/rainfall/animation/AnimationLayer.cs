@@ -67,7 +67,7 @@ namespace Rainfall
 			{
 				if (looping)
 				{
-					timer %= animation->duration;
+					timer = (timer + animation->duration) % animation->duration;
 				}
 				else
 				{
@@ -106,10 +106,10 @@ namespace Rainfall
 					Node node = animationData.skeleton.getNode(rootMotionNode.name);
 
 					Matrix rootNodeInitialTransform = Matrix.Identity;
-					Native.Animation.Animation_AnimateNode(node.id, animation, 0.0f, 0, ref rootNodeInitialTransform);
+					Animation_AnimateNode(node.id, animation, 0.0f, 0, ref rootNodeInitialTransform);
 
 					Matrix rootTransform = Matrix.Identity;
-					Native.Animation.Animation_AnimateNode(node.id, animation, timer, (byte)(looping ? 1 : 0), ref rootTransform);
+					Animation_AnimateNode(node.id, animation, timer, (byte)(looping ? 1 : 0), ref rootTransform);
 
 					rootMotionDisplacement = rootTransform * rootNodeInitialTransform.inverted;
 
@@ -155,7 +155,7 @@ namespace Rainfall
 				}
 				if (nodeID != -1)
 				{
-					Native.Animation.Animation_AnimateNode(nodeID, animation, timer, (byte)(looping ? 1 : 0), ref nodeAnimationLocalTransforms[node.id]);
+					Animation_AnimateNode(nodeID, animation, timer, (byte)(looping ? 1 : 0), ref nodeAnimationLocalTransforms[node.id]);
 					if (mirrored)
 					{
 						nodeAnimationLocalTransforms[node.id].m30 *= -1.0f;
@@ -213,5 +213,8 @@ namespace Rainfall
 		{
 			get => getAnimationByName(animationData.scene, animationName)->duration;
 		}
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern unsafe void Animation_AnimateNode(int nodeID, AnimationData* animation, float timer, byte looping, ref Matrix outTransform);
 	}
 }

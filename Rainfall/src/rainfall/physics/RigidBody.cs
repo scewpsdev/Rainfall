@@ -56,6 +56,8 @@ namespace Rainfall
 		public PhysicsEntity entity;
 		public readonly uint filterGroup, filterMask;
 
+		public bool entityMovesBody = true;
+
 		public readonly Ragdoll ragdoll = null;
 
 
@@ -270,7 +272,7 @@ namespace Rainfall
 			Physics.Physics_RigidBodySetVelocity(body, new Vector3(velocity.x, velocity.y, z));
 		}
 
-		public void setRotationVelocity(Vector3 rotationVelocity)
+		public void setAngularVelocity(Vector3 rotationVelocity)
 		{
 			Physics.Physics_RigidBodySetRotationVelocity(body, rotationVelocity);
 		}

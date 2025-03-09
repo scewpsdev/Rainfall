@@ -80,7 +80,7 @@ enum class ContactType
 };
 
 typedef void (*RigidBodySetTransformCallback_t)(Vector3 position, Quaternion rotation, struct RigidBody* userPtr);
-typedef void (*RigidBodyGetTransformCallback_t)(Vector3* outPosition, Quaternion* outRotation, struct RigidBody* userPtr);
+typedef bool (*RigidBodyGetTransformCallback_t)(Vector3* outPosition, Quaternion* outRotation, struct RigidBody* userPtr);
 typedef void (*RigidBodyContactCallback_t)(struct RigidBody* body, struct RigidBody* other, int shapeID, int otherShapeID, bool isTrigger, bool otherTrigger, ContactType contactType, struct CharacterController* otherController);
 
 struct RigidBody
@@ -426,11 +426,12 @@ RFAPI void Physics_Update(float delta)
 			{
 				Vector3 position;
 				Quaternion rotation;
-				rigidBodyGetTransform(&position, &rotation, body);
-
-				PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>();
-				PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
-				dynamic->setKinematicTarget(transform);
+				if (rigidBodyGetTransform(&position, &rotation, body))
+				{
+					PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>();
+					PxTransform transform(PxVec3(position.x, position.y, position.z), PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+					dynamic->setKinematicTarget(transform);
+				}
 
 
 				/*
@@ -838,6 +839,7 @@ RFAPI void Physics_RigidBodySetTransform(RigidBody* body, const Vector3& positio
 		if (PxRigidDynamic* dynamic = body->actor->is<PxRigidDynamic>())
 		{
 			dynamic->setKinematicTarget(transform);
+			//rigidBodySetTransform(position, rotation, body);
 		}
 		else
 		{
