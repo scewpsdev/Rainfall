@@ -9,11 +9,16 @@ using System.Threading.Tasks;
 using System.Reflection.Emit;
 using System.Reflection;
 
-public class Game3D<T> : Game where T : Game
+
+public class GamePixel<T> : Game where T : Game
 {
-	public static new T instance => (T)Game.instance;
+	public static new T instance { get => (T)Game.instance; }
 	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(T))?.GetName().Name;
 
+
+	int idealScale = 4;
+	public int scale;
+	public int width, height;
 
 	int versionMajor;
 	int versionMinor;
@@ -22,18 +27,19 @@ public class Game3D<T> : Game where T : Game
 
 	bool loadResourcePackages;
 
-	bool debugStats = false;
+	public bool debugStats = false;
 
 	Stack<State> stateMachine = new Stack<State>();
 
 
-	protected Game3D(int versionMajor, int versionMinor, int versionPatch, char versionSuffix, bool loadResourcePackages)
+	protected GamePixel(int versionMajor, int versionMinor, int versionPatch, char versionSuffix, bool loadResourcePackages, int idealScale)
 	{
 		this.versionMajor = versionMajor;
 		this.versionMinor = versionMinor;
 		this.versionPatch = versionPatch;
 		this.versionSuffix = versionSuffix;
 		this.loadResourcePackages = loadResourcePackages;
+		this.idealScale = idealScale;
 	}
 
 	public void compileResources()
@@ -74,15 +80,14 @@ public class Game3D<T> : Game where T : Game
 			Resource.LoadPackageHeader("datam.dat");
 		}
 
-		InputManager.LoadBindings();
-		GraphicsManager.Init();
+		// pixel perfect correction
+		scale = (int)MathF.Round(Display.width / 1920.0f * idealScale);
+		width = (int)MathF.Ceiling(Display.width / (float)scale);
+		height = (int)MathF.Ceiling(Display.height / (float)scale);
 
-		Renderer.Init(Display.width, Display.height, graphics);
+		Renderer.Init(graphics, width, height);
 
-
-		Physics.Init();
 		Audio.Init();
-		AudioManager.Init();
 	}
 
 	public override void destroy()
@@ -91,26 +96,36 @@ public class Game3D<T> : Game where T : Game
 			stateMachine.Pop().destroy();
 
 		Audio.Shutdown();
-		Physics.Shutdown();
+	}
+
+	protected override void onViewportSizeEvent(int newWidth, int newHeight)
+	{
+		// pixel perfect correction
+		scale = (int)MathF.Round(newWidth / 1920.0f * idealScale);
+		width = (int)MathF.Ceiling(newWidth / (float)scale);
+		height = (int)MathF.Ceiling(newHeight / (float)scale);
+
+		Renderer.Resize(width, height);
 	}
 
 	public void pushState(State state)
 	{
+		State lastState = stateMachine.Count > 0 ? stateMachine.Peek() : null;
 		stateMachine.Push(state);
 		state.game = this;
 		state.init();
+		state.onSwitchTo(lastState);
 	}
 
 	public void popState()
 	{
-		stateMachine.Pop().destroy();
+		State lastState = stateMachine.Peek();
+		lastState.destroy();
+		stateMachine.Pop();
 		if (stateMachine.Count == 0)
 			terminate();
-	}
-
-	protected override void onViewportSizeEvent(int width, int height)
-	{
-		Renderer.Resize(width, height);
+		else
+			stateMachine.Peek().onSwitchTo(lastState);
 	}
 
 	protected override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
@@ -145,15 +160,12 @@ public class Game3D<T> : Game where T : Game
 		if (Input.IsKeyPressed(KeyCode.F11) || ImGui.IsKeyPressed(KeyCode.F11, false))
 			Display.ToggleFullscreen();
 
-//#if DEBUG
+#if DEBUG
 		if (Input.IsKeyPressed(KeyCode.F10) || ImGui.IsKeyPressed(KeyCode.F10, false))
 			debugStats = !debugStats;
-//#endif
+#endif
 
 		Audio.Update();
-		AudioManager.Update();
-
-		Physics.Update();
 
 		if (stateMachine.TryPeek(out State state))
 			state.update();
@@ -168,8 +180,6 @@ public class Game3D<T> : Game where T : Game
 	public override void draw()
 	{
 		Renderer.Begin();
-
-		GraphicsManager.Draw();
 
 		if (stateMachine.TryPeek(out State state))
 			state.draw(graphics);
@@ -221,8 +231,6 @@ public class Game3D<T> : Game where T : Game
 		graphics.drawDebugText(0, y++, 0x1F, str);
 
 		y = graphics.drawDebugInfo(0, y, 0x1F);
-
-		y = Renderer.DrawDebugStats(0, y, 0x1F);
 
 		y++;
 

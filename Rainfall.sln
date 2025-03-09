@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperCartDrifter", "HyperCa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Soulslike", "Soulslike\Soulslike.csproj", "{63BE9E22-1EC6-4792-991A-D0AFA13083D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7DRL", "7DRL\7DRL.csproj", "{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -212,6 +214,24 @@ Global
 		{63BE9E22-1EC6-4792-991A-D0AFA13083D4}.ReleaseLight|x64.Build.0 = Release|x64
 		{63BE9E22-1EC6-4792-991A-D0AFA13083D4}.ReleaseLight|x86.ActiveCfg = Release|Any CPU
 		{63BE9E22-1EC6-4792-991A-D0AFA13083D4}.ReleaseLight|x86.Build.0 = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Debug|x64.Build.0 = Debug|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Debug|x86.Build.0 = Debug|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Release|x64.ActiveCfg = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Release|x64.Build.0 = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Release|x86.ActiveCfg = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.Release|x86.Build.0 = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.ReleaseLight|Any CPU.ActiveCfg = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.ReleaseLight|Any CPU.Build.0 = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.ReleaseLight|x64.ActiveCfg = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.ReleaseLight|x64.Build.0 = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.ReleaseLight|x86.ActiveCfg = Release|Any CPU
+		{2EBE52C2-39C3-454F-9D8D-80412ACAFFE1}.ReleaseLight|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
