@@ -19,7 +19,7 @@ public class AttackAction : PlayerAction
 	public Weapon weapon;
 	public AttackData attack;
 
-	float damageMultiplier;
+	float damageMultiplier = 1;
 
 	float damageStartTime;
 	float damageEndTime;
@@ -48,8 +48,8 @@ public class AttackAction : PlayerAction
 		if (chargeAmount != -1)
 		{
 			animationSpeed = MathHelper.Remap(chargeAmount, 0, 1, 1, 0.85f);
-			damageMultiplier = MathHelper.Remap(chargeAmount, 0, 1, 1, 2);
-			staminaCost = MathHelper.Remap(chargeAmount, 0, 1, 1, 2);
+			damageMultiplier = MathHelper.Remap(chargeAmount, 0, 1, 1.5f, 3);
+			staminaCost = MathHelper.Remap(chargeAmount, 0, 1, 1, 1.5f);
 		}
 
 		if (weapon.twoHanded)
@@ -127,7 +127,7 @@ public class AttackAction : PlayerAction
 		//lockYaw = inDamageWindow;
 	}
 
-	void processHit(ref HitData hit, Player player)
+	void processHit(ref HitData hit, Vector3 direction, Player player)
 	{
 		Entity entity = hit.body.entity as Entity;
 		if (entity is Hittable)
@@ -139,7 +139,9 @@ public class AttackAction : PlayerAction
 			if (!hitEntities.Contains(entity))
 			{
 				hitEntities.Add(entity);
-				hittable.hit(player, weapon);
+
+				float damage = weapon.damage * damageMultiplier;
+				hittable.hit((int)MathF.Ceiling(damage), false, direction, player, weapon, hit.body);
 
 				if (hittable is Creature)
 				{
@@ -194,7 +196,7 @@ public class AttackAction : PlayerAction
 				int numHits = Physics.Raycast(origin, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.CreatureHitbox);
 				for (int i = 0; i < numHits; i++)
 				{
-					processHit(ref hits[i], player);
+					processHit(ref hits[i], direction / distance, player);
 				}
 			}
 

@@ -229,7 +229,7 @@ public static class Renderer
 		fontData = Resource.GetFontData("fonts/dpcomic.ttf");
 		font = fontData.createFont(14, false);
 
-		smallFont = new PixelFont("fonts/font2.png");
+		smallFont = new PixelFont("fonts/font3.png");
 	}
 
 	public static void Resize(int width, int height)
@@ -744,7 +744,7 @@ public static class Renderer
 
 			uiDraws.Add(new UIDraw { position = new Vector2(x + cursor * size, y), size = new Vector2(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
-			cursor += rect.size.x;
+			cursor += rect.size.x + 1;
 		}
 		return cursor;
 	}
@@ -776,7 +776,7 @@ public static class Renderer
 
 			uiDraws.Add(new UIDraw { position = new Vector2(x + cursor * size, y), size = new Vector2(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
-			cursor += rect.size.x;
+			cursor += rect.size.x + 1;
 		}
 		return cursor;
 	}
@@ -803,7 +803,7 @@ public static class Renderer
 
 		uiDraws.Add(new UIDraw { position = new Vector2(x, y), size = new Vector2(w * size, h * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
-		return rect.size.x;
+		return rect.size.x + 1;
 	}
 
 	static string RemoveFormatCharacters(string str)

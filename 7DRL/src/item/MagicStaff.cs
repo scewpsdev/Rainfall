@@ -6,7 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public interface Hittable
+public class MagicStaff : Item
 {
-	void hit(int damage, bool criticalHit, Vector3 hitDirection, Entity by, Item item, RigidBody hitbox);
+	public MagicStaff()
+		: base("magic_staff", "Magic Staff", new Sprite(sprites, 0, 0))
+	{
+	}
 }

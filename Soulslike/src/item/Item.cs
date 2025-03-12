@@ -37,6 +37,8 @@ public abstract class Item
 	public bool hidesArms = false;
 	public bool hidesHands = false;
 
+	public int damage = 1;
+
 
 	public Item(ItemType type, string name, string displayName)
 	{

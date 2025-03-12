@@ -1,16 +1,22 @@
 ﻿using Rainfall;
 using System;
+using System.Net.Http.Headers;
 
 
 public struct TileData
 {
 	public int value;
 	public bool solid;
+	public bool explored;
+	public bool visible;
 	public Entity entity;
 }
 
 public class GameState : State
 {
+	public const float TILE_PIXELS = 16;
+
+
 	public static GameState instance;
 
 
@@ -19,7 +25,10 @@ public class GameState : State
 
 	public Player player;
 
+	Vector2 cameraAnchor;
 	Vector2 cameraPosition;
+	float cameraWidth, cameraHeight;
+	Vector2i hoveredTile;
 
 
 	public GameState()
@@ -34,16 +43,24 @@ public class GameState : State
 		spawnEntity(player = new Player(), 5, 5);
 		spawnEntity(new SkeletonEnemy(), 10, 10);
 
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				setTile(x, y, TileType.rockFloor);
+			}
+		}
+
 		for (int x = 0; x < width; x++)
 		{
-			setTile(x, 0, 1);
-			setTile(x, height - 1, 1);
+			setTile(x, 0, TileType.rockWall);
+			setTile(x, height - 1, TileType.rockWall);
 		}
 
 		for (int y = 0; y < height; y++)
 		{
-			setTile(0, y, 1);
-			setTile(width - 1, y, 1);
+			setTile(0, y, TileType.rockWall);
+			setTile(width - 1, y, TileType.rockWall);
 		}
 	}
 
@@ -61,6 +78,13 @@ public class GameState : State
 		ref TileData tile = ref getTile(x, y);
 		tile.value = value;
 		tile.solid = value != 0;
+	}
+
+	public void setTile(int x, int y, TileType tile)
+	{
+		ref TileData dat = ref getTile(x, y);
+		dat.value = tile.id;
+		dat.solid = tile.wall;
 	}
 
 	public void spawnEntity(Entity entity, int x, int y)
@@ -173,6 +197,19 @@ public class GameState : State
 		if (Input.IsKeyPressed(KeyCode.C) || Input.IsKeyPressed(KeyCode.NumPad3))
 			movement += new Vector2i(1, -1);
 
+		{
+			Vector2i cursorPosition = Renderer.cursorPosition;
+			Vector2 uv = cursorPosition / (Vector2)Renderer.size;
+			Vector2 ndc = (uv - 0.5f) * new Vector2(1, -1);
+			Vector2 worldPosition = cameraPosition + ndc * new Vector2(cameraWidth, cameraHeight);
+			hoveredTile = (Vector2i)Vector2.Floor(worldPosition);
+
+			if (Input.IsMouseButtonPressed(MouseButton.Left, true))
+			{
+				movement = hoveredTile - new Vector2i(player.x, player.y);
+			}
+		}
+
 		if (Math.Abs(movement.x) > 1)
 			movement.x = MathF.Sign(movement.x);
 		if (Math.Abs(movement.y) > 1)
@@ -194,15 +231,17 @@ public class GameState : State
 			advance(1.0f / player.speed);
 		}
 
-		cameraPosition = new Vector2(player.displayX + 0.5f, player.displayY + 0.5f);
+		cameraAnchor = new Vector2(player.displayX + 0.5f, player.displayY + 0.5f);
+
+		cameraWidth = Program.instance.width / TILE_PIXELS;
+		cameraHeight = Program.instance.height / TILE_PIXELS;
+		float viewportWidth = (Renderer.UIWidth - HUD.Width) / (float)Renderer.UIWidth * cameraWidth;
+		cameraPosition = new Vector2(cameraAnchor.x + (0.5f * cameraWidth - 0.5f * viewportWidth), cameraAnchor.y);
 	}
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		float cameraWidth = Program.instance.width / 16.0f;
-		float cameraHeight = Program.instance.height / 16.0f;
-		float viewportWidth = (Renderer.UIWidth - HUD.Width) / (float)Renderer.UIWidth * cameraWidth;
-		Renderer.SetCamera(new Vector2(cameraPosition.x + (0.5f * cameraWidth - 0.5f * viewportWidth), cameraPosition.y), cameraWidth, cameraHeight);
+		Renderer.SetCamera(cameraPosition, cameraWidth, cameraHeight);
 
 		Renderer.ambientLight = Vector3.One;
 
@@ -222,6 +261,11 @@ public class GameState : State
 					else
 					{
 						Renderer.DrawSprite(x, y, 1, 1, tile.sprite, false, tile.color);
+					}
+
+					if (hoveredTile.x == x && hoveredTile.y == y)
+					{
+						Renderer.DrawSprite(x, y, 1, 1, null, false, 0x3FFFFFFF);
 					}
 				}
 

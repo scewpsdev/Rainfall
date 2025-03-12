@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 public class Enemy : Entity
 {
+	public bool stunned = false;
+
+
 	public Enemy()
 	{
 	}
@@ -17,6 +20,10 @@ public class Enemy : Entity
 		health -= player.damage;
 		if (health <= 0)
 			death();
+		else
+		{
+			stunned = true;
+		}
 	}
 
 	public virtual void death()
@@ -26,7 +33,14 @@ public class Enemy : Entity
 
 	public override void update()
 	{
-		GameState.instance.moveEntity(this, x - direction, y);
-		direction *= -1;
+		if (stunned)
+		{
+			stunned = false;
+		}
+		else
+		{
+			GameState.instance.moveEntity(this, x - direction, y);
+			direction *= -1;
+		}
 	}
 }

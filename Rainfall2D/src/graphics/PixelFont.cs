@@ -87,7 +87,7 @@ namespace Rainfall2D
 					if (rect == null)
 						rect = getCharacterRect('?');
 
-					cursor += rect.size.x;
+					cursor += rect.size.x + 1;
 				}
 				else
 				{

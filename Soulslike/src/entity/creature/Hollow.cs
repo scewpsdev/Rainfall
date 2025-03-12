@@ -11,5 +11,8 @@ public class Hollow : Creature
 	public Hollow()
 		: base("hollow")
 	{
+		addAttack(new CreatureAttack("attack1", null, "attack1", new Vector2i(16, 30), 35, DamageType.Strike));
+
+		ai = new SimpleAI(this);
 	}
 }

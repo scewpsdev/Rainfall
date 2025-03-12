@@ -151,8 +151,8 @@ public class WorldManager : Entity
 		if (sun != null)
 			Renderer.DrawDirectionalLight(sun);
 
-		Cubemap skybox = skyboxes[skyboxes.Count - 1];
-		Renderer.DrawEnvironmentMap(skybox, 0.5f);
-		Renderer.DrawSky(skybox, 1, Quaternion.Identity);
+		//Cubemap skybox = skyboxes[skyboxes.Count - 1];
+		//Renderer.DrawEnvironmentMap(skybox, 0.5f);
+		//Renderer.DrawSky(skybox, 1, Quaternion.Identity);
 	}
 }

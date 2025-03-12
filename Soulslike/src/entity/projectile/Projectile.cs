@@ -18,6 +18,8 @@ public abstract class Projectile : Entity
 	protected bool spins = false;
 	protected float gravity = 0;
 
+	int damage = 10;
+
 
 	public Projectile(string path, Vector3 offset)
 	{
@@ -51,7 +53,7 @@ public abstract class Projectile : Entity
 		if (other.entity is Hittable)
 		{
 			Hittable hittable = other.entity as Hittable;
-			hittable.hit(this, null);
+			hittable.hit(damage, false, velocity.normalized, this, null, other);
 		}
 
 		remove();

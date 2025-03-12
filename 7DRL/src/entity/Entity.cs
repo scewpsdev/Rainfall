@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Entity
 {
-	public static SpriteSheet sprites = new SpriteSheet(Resource.GetTexture("sprites/entities.png", false), 16, 16);
+	public static SpriteSheet sprites = new SpriteSheet(Resource.GetTexture("sprites/entities.png", false), 8, 8);
 
 
 	public int x, y;

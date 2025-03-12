@@ -164,7 +164,7 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 		if (compute)
 			success = CompileBGFXShader(filepathStr.c_str(), outpath, "compute") && success;
 
-		bool rainfallShader = extension == ".shader" && name != "bgfx_shader" && name != "bgfx_compute" && name != "common" && name != "shaderlib" && name != "utils" && name != "material";
+		bool rainfallShader = extension == ".shader" && name != "bgfx_shader" && name != "bgfx_compute" && name != "common" && name != "shaderlib" && name != "utils" && name != "material" && name != "pbr";
 		if (rainfallShader)
 			success = CompileRainfallShader(filepathStr.c_str(), outpath) && success;
 	}

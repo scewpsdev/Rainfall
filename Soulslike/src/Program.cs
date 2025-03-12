@@ -39,6 +39,8 @@ internal class Program : Game3D<Program>
 		renderSettings.ssaoEnabled = false;
 		Renderer.SetSettings(renderSettings);
 
+		FontManager.LoadFont("default", "font/libre-baskerville.regular.ttf");
+
 		pushState(new GameState());
 	}
 

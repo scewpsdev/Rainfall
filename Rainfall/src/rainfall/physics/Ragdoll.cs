@@ -57,10 +57,8 @@ namespace Rainfall
 
 				if (hitboxData.ContainsKey(node.name))
 				{
-					SceneFormat.ColliderData hitbox = hitboxData[node.name];
-
-					bool knee = node.name.IndexOf("leg", StringComparison.OrdinalIgnoreCase) >= 0 && node.name.IndexOf("lower", StringComparison.OrdinalIgnoreCase) >= 0;
-					bool elbow = node.name.IndexOf("arm", StringComparison.OrdinalIgnoreCase) >= 0 && node.name.IndexOf("lower", StringComparison.OrdinalIgnoreCase) >= 0;
+					bool knee = node.name.IndexOf("leg", StringComparison.OrdinalIgnoreCase) >= 0 && node.name.IndexOf("lower", StringComparison.OrdinalIgnoreCase) >= 0 || node.name.IndexOf("shin", StringComparison.OrdinalIgnoreCase) >= 0;
+					bool elbow = node.name.IndexOf("arm", StringComparison.OrdinalIgnoreCase) >= 0 && (node.name.IndexOf("lower", StringComparison.OrdinalIgnoreCase) >= 0 || node.name.IndexOf("fore", StringComparison.OrdinalIgnoreCase) >= 0);
 
 					JointType jointType = JointType.Spherical;
 					if (knee)
@@ -75,12 +73,15 @@ namespace Rainfall
 					Matrix localPose = node.transform.inverted * animator.getNodeLocalTransform(node);
 					link = Physics.Physics_RagdollCreateLink(ragdoll, parentLink, jointType, globalTransform, localPose.translation, localPose.rotation.eulers, velocity, rotationVelocity.eulers);
 
-					if (hitbox.type == SceneFormat.ColliderType.Box)
-						Physics.Physics_RagdollLinkAddBoxCollider(link, hitbox.size * 0.5f, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
-					else if (hitbox.type == SceneFormat.ColliderType.Sphere)
-						Physics.Physics_RagdollLinkAddSphereCollider(link, hitbox.radius, hitbox.offset, filterGroup, filterMask);
-					else if (hitbox.type == SceneFormat.ColliderType.Capsule)
-						Physics.Physics_RagdollLinkAddCapsuleCollider(link, hitbox.radius, hitbox.height, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
+					if (hitboxData.TryGetValue(node.name, out SceneFormat.ColliderData hitbox))
+					{
+						if (hitbox.type == SceneFormat.ColliderType.Box)
+							Physics.Physics_RagdollLinkAddBoxCollider(link, hitbox.size * 0.5f, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
+						else if (hitbox.type == SceneFormat.ColliderType.Sphere)
+							Physics.Physics_RagdollLinkAddSphereCollider(link, hitbox.radius, hitbox.offset, filterGroup, filterMask);
+						else if (hitbox.type == SceneFormat.ColliderType.Capsule)
+							Physics.Physics_RagdollLinkAddCapsuleCollider(link, hitbox.radius, hitbox.height, hitbox.offset, Quaternion.FromEulerAngles(hitbox.eulers), filterGroup, filterMask);
+					}
 
 					if (parentLink != IntPtr.Zero)
 					{

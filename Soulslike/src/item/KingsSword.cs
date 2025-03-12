@@ -13,9 +13,12 @@ public class KingsSword : Weapon
 	{
 		//twoHanded = true;
 
+		damage = 15;
+
 		initBlade(0.1f, 0.85f);
 
 		addAttack(new AttackData("attack1", "attack2", null, "attack1", new Vector2i(10, 18), 18));
 		addAttack(new AttackData("attack2", "attack1", null, "attack2", new Vector2i(10, 18), 18));
+		setParry(15);
 	}
 }

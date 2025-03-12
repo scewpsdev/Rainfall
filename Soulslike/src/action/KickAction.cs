@@ -49,7 +49,7 @@ public class KickAction : PlayerAction
 				if (entity is Hittable)
 				{
 					Hittable hittable = entity as Hittable;
-					hittable.hit(player, null);
+					hittable.hit(5, false, direction, player, null, body);
 				}
 			}
 		}

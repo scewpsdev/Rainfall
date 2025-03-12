@@ -18,8 +18,8 @@
 [X] Lower body
 [ ] Shields
 [X] Armor & Equipment
-[ ] Enemy hp bar
-[ ] Ragdolls
+[X] Enemy hp bar
+[X] Ragdolls
 [ ] Skeleton enemy
 [ ] Bow
 [ ] Crossbow

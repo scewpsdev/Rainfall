@@ -25,7 +25,7 @@ public class Program : GamePixel<Program>
 	public const char VERSION_SUFFIX = 'a';
 
 
-	const int idealScale = 4;
+	const int idealScale = 3;
 
 
 	public Program()

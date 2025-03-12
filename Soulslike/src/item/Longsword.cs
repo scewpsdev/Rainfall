@@ -13,6 +13,8 @@ public class Longsword : Weapon
 	{
 		twoHanded = true;
 
+		damage = 20;
+
 		initBlade(0.1f, 1.0f);
 
 		addAttack(new AttackData("attack1", "attack2", "heavy2", "attack1", new Vector2i(15, 27), 40));

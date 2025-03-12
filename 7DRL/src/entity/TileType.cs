@@ -10,11 +10,15 @@ public class TileType
 {
 	static Dictionary<int, TileType> tileTypes = new Dictionary<int, TileType>();
 
-	static SpriteSheet sprites = new SpriteSheet(Resource.GetTexture("sprites/tiles.png", false), 16, 16);
+	static SpriteSheet sprites = new SpriteSheet(Resource.GetTexture("sprites/tiles.png", false), 8, 8);
+
+	public static TileType rockFloor;
+	public static TileType rockWall;
 
 	static TileType()
 	{
-		InitTileType(new TileType(1) { sprite = new Sprite(sprites, 0, 0), color = 0xFF999999 });
+		InitTileType(rockFloor = new TileType(1) { sprite = new Sprite(sprites, 1, 0), wall = false });
+		InitTileType(rockWall = new TileType(2) { sprite = new Sprite(sprites, 0, 0), color = 0xFF999999 });
 	}
 
 	static void InitTileType(TileType tile)

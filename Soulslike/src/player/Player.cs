@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Player : Entity
+public class Player : Entity, Hittable
 {
 	public const float DEFAULT_VIEWMODEL_AIM = 0.2f;
 	const float SPRINT_SPEED_MULTIPLIER = 2.0f;
@@ -176,11 +176,11 @@ public class Player : Entity
 			*/
 		};
 
-		playerBody = new RigidBody(this, RigidBodyType.Kinematic, PhysicsFilter.Player, 0);
-		playerBody.addCapsuleCollider(FirstPersonController.COLLIDER_RADIUS, FirstPersonController.COLLIDER_HEIGHT, Vector3.Up * FirstPersonController.COLLIDER_HEIGHT * 0.5f, Quaternion.Identity);
+		playerBody = new RigidBody(this, RigidBodyType.Kinematic, PhysicsFilter.PlayerHitbox, 0);
+		playerBody.addCapsuleCollider(FirstPersonController.COLLIDER_RADIUS + 0.1f, FirstPersonController.COLLIDER_HEIGHT, Vector3.Up * FirstPersonController.COLLIDER_HEIGHT * 0.5f, Quaternion.Identity);
 
-		//setRightWeapon(new KingsSword());
-		//setGloves(new LeatherGauntlets());
+		setRightWeapon(new KingsSword());
+		setGloves(new LeatherGauntlets());
 		setRing(0, new SapphireRing());
 	}
 
@@ -318,6 +318,23 @@ public class Player : Entity
 		rings[idx] = item;
 	}
 
+	public void hit(int damage, bool criticalHit, Vector3 hitDirection, Entity by, Item item, RigidBody hitbox)
+	{
+		Console.WriteLine("hit");
+		/*
+		health -= damage;
+
+		if (health <= 0)
+		{
+			death();
+		}
+		else
+		{
+			//actionManager.queueAction(new CreatureStaggerAction());
+		}
+		*/
+	}
+
 	void updateMovement()
 	{
 		controller.inputLeft = false;
@@ -424,16 +441,20 @@ public class Player : Entity
 		{
 			if (InputManager.IsPressed("Attack1", true) || InputManager.IsDown("Attack1") && !rightWeapon.useTrigger && actionManager.currentAction == null)
 			{
-				rightWeapon.use(this, 0);
-				lastRightWeaponDown = Time.currentTime;
+				if (InputManager.IsDown("Charge"))
+				{
+					rightWeapon.useCharged(this, 0);
+					lastRightWeaponDown = -1;
+				}
+				else
+				{
+					rightWeapon.use(this, 0);
+					lastRightWeaponDown = Time.currentTime;
+				}
 			}
-			else if (InputManager.IsDown("Attack1") && rightWeapon.useTrigger && lastRightWeaponDown != -1 && (Time.currentTime - lastRightWeaponDown) / 1e9f > WEAPON_CHARGE_TIME)
-			{
-				rightWeapon.useCharged(this, 0);
-				lastRightWeaponDown = -1;
-			}
+			//else if (InputManager.IsDown("Attack1") && rightWeapon.useTrigger && lastRightWeaponDown != -1 && (Time.currentTime - lastRightWeaponDown) / 1e9f > WEAPON_CHARGE_TIME)
 		}
-		if (rightWeapon != null && rightWeapon.twoHanded)
+		if (rightWeapon != null && (rightWeapon.twoHanded || leftWeapon == null))
 		{
 			if (InputManager.IsPressed("Attack2", true) || InputManager.IsDown("Attack2") && !rightWeapon.secondaryUseTrigger && actionManager.currentAction == null)
 			{

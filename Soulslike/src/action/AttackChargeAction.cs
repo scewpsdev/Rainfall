@@ -35,6 +35,7 @@ public class AttackChargeAction : PlayerAction
 
 		viewmodelAim = 1;
 		lockYaw = true;
+		movementSpeedMultiplier = 0.5f;
 	}
 
 	public override void onStarted(Player player)
