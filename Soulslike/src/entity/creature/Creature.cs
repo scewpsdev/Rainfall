@@ -100,6 +100,7 @@ public class Creature : Entity, Hittable
 		}
 		else
 		{
+			actionManager.cancelAllActions();
 			actionManager.queueAction(new CreatureStaggerAction());
 		}
 	}

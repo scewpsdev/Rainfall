@@ -121,7 +121,7 @@ static bool CompileOtherResource(const char* path, const char* out)
 
 static bool IsShader(const std::string& extension)
 {
-	return extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh";
+	return extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh" || extension == ".shd";
 }
 
 static bool IsTexture(const std::string& extension)
@@ -164,7 +164,7 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 		if (compute)
 			success = CompileBGFXShader(filepathStr.c_str(), outpath, "compute") && success;
 
-		bool rainfallShader = extension == ".shader" && name != "bgfx_shader" && name != "bgfx_compute" && name != "common" && name != "shaderlib" && name != "utils" && name != "material" && name != "pbr";
+		bool rainfallShader = extension == ".shd";
 		if (rainfallShader)
 			success = CompileRainfallShader(filepathStr.c_str(), outpath) && success;
 	}
@@ -235,7 +235,8 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 			(strncmp(&name[name.size() - 3], "vsh", 3) == 0 ||
 				strncmp(&name[name.size() - 3], "fsh", 3) == 0 ||
 				strncmp(&name[name.size() - 3], "csh", 3) == 0) ||
-			extension == ".shader")
+			//extension == ".shader" ||
+			extension == ".shd")
 			;
 		else
 		{

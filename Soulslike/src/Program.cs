@@ -37,6 +37,7 @@ internal class Program : Game3D<Program>
 		renderSettings.bloomStrength = 0.05f;
 		renderSettings.bloomEnabled = false;
 		renderSettings.ssaoEnabled = false;
+		renderSettings.exposure = 8;
 		Renderer.SetSettings(renderSettings);
 
 		FontManager.LoadFont("default", "font/libre-baskerville.regular.ttf");

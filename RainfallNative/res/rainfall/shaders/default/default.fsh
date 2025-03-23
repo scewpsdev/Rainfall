@@ -111,7 +111,7 @@ void main()
 		v_texcoord0 += interpolatedOffset;
 	}
 
-	vec4 albedo = mix(vec4_splat(1.0), linearToSRGB(texture2D(s_diffuse, v_texcoord0)), u_hasTexCoords * u_hasDiffuse) * vec4(linearToSRGB(color), 1.0);
+	vec4 albedo = mix(vec4_splat(1.0), texture2D(s_diffuse, v_texcoord0), u_hasTexCoords * u_hasDiffuse) * vec4(linearToSRGB(color), 1.0);
 	float roughness = mix(roughnessFactor, texture2D(s_roughness, v_texcoord0).g, u_hasTexCoords * u_hasRoughness);
 	float metallic = mix(metallicFactor, texture2D(s_metallic, v_texcoord0).b, u_hasTexCoords * u_hasMetallic);
 	vec3 emissive = mix(emissionColor, texture2D(s_emissive, v_texcoord0).rgb, u_hasTexCoords * u_hasEmissive);

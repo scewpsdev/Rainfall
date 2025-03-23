@@ -59,6 +59,8 @@ public class Weapon : Item
 	List<AttackData> attacks = new List<AttackData>();
 	Dictionary<string, int> attackNameMap = new Dictionary<string, int>();
 
+	public string parryAttack;
+
 	bool canParry = false;
 	public float parryWindow = 0;
 
@@ -125,6 +127,10 @@ public class Weapon : Item
 			{
 				nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextAttack];
 				lastCancelledAttack = player.actionManager.currentAction;
+			}
+			else if (player.actionManager.currentAction != null && player.actionManager.currentAction is ParryHitAction && parryAttack != null)
+			{
+				nextAttack = attackNameMap[parryAttack];
 			}
 
 			player.actionManager.queueAction(new AttackAction(this, attacks[nextAttack], hand));

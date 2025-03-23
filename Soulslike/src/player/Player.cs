@@ -69,6 +69,9 @@ public class Player : Entity, Hittable
 
 	Item[] rings = new Item[4];
 
+	public float health = 100;
+	public int maxHealth = 100;
+
 	public Interactable interactableInFocus = null;
 
 
@@ -321,18 +324,29 @@ public class Player : Entity, Hittable
 	public void hit(int damage, bool criticalHit, Vector3 hitDirection, Entity by, Item item, RigidBody hitbox)
 	{
 		Console.WriteLine("hit");
-		/*
-		health -= damage;
 
-		if (health <= 0)
+		if (actionManager.currentAction != null && actionManager.currentAction is ParryAction)
 		{
-			death();
+			ParryAction parryAction = actionManager.currentAction as ParryAction;
+			if (parryAction.inParryWindow)
+			{
+				damage = 0;
+
+				actionManager.cancelAllActions();
+				actionManager.queueAction(new ParryHitAction(parryAction.weapon, parryAction.hand));
+			}
 		}
-		else
+
+		if (damage > 0)
 		{
-			//actionManager.queueAction(new CreatureStaggerAction());
+			health -= damage;
+			//if (health <= 0)
+			//	death();
+			//else
+			{
+
+			}
 		}
-		*/
 	}
 
 	void updateMovement()
