@@ -31,9 +31,8 @@ namespace Rainfall
 			}
 			else
 			{
-				FileStream stream = new FileStream(path + ".bin", FileMode.Open);
-				SceneFormat.DeserializeScene(stream, out entities, out uint selectedEntity);
-				stream.Close();
+				string src = Resource.GetText(path);
+				SceneFormat.DeserializeScene(src, out entities, out uint selectedEntity);
 
 				entityDataCache.Add(path, entities);
 			}
@@ -52,6 +51,10 @@ namespace Rainfall
 
 		public static unsafe void CreateEntityFromData(SceneFormat.EntityData entityData, string path, Entity entity)
 		{
+			entity.load(entityData);
+			return;
+
+			/*
 			entity.name = entityData.name;
 			entity.isStatic = entityData.isStatic;
 
@@ -240,6 +243,7 @@ namespace Rainfall
 					particles.handle->textureAtlas = Resource.GetTexture(CombinePath(new string((sbyte*)particles.handle->textureAtlasPath), path)).handle;
 				entity.particles.Add(particles);
 			}
+			*/
 		}
 
 		public static T Load<T>(string path) where T : Entity, new()

@@ -182,8 +182,8 @@ public class Player : Entity, Hittable
 		playerBody = new RigidBody(this, RigidBodyType.Kinematic, PhysicsFilter.PlayerHitbox, 0);
 		playerBody.addCapsuleCollider(FirstPersonController.COLLIDER_RADIUS + 0.1f, FirstPersonController.COLLIDER_HEIGHT, Vector3.Up * FirstPersonController.COLLIDER_HEIGHT * 0.5f, Quaternion.Identity);
 
-		setRightWeapon(new KingsSword());
-		setGloves(new LeatherGauntlets());
+		//setRightWeapon(new KingsSword());
+		//setGloves(new LeatherGauntlets());
 		setRing(0, new SapphireRing());
 	}
 
@@ -286,6 +286,9 @@ public class Player : Entity, Hittable
 			idleAnim.layers[2] = null;
 			runAnim.layers[2] = null;
 		}
+
+		if (item != null)
+			actionManager.queueAction(new EquipAction(item, 0));
 	}
 
 	public void setWeapon(int hand, Item weapon)
@@ -410,7 +413,7 @@ public class Player : Entity, Hittable
 
 		cameraHeight = controller.isDucked ? CAMERA_HEIGHT_DUCKED :
 			controller.inDuckTimer != -1 ? MathHelper.Lerp(CAMERA_HEIGHT, CAMERA_HEIGHT_DUCKED, controller.inDuckTimer / FirstPersonController.DUCK_TRANSITION_DURATION) :
-			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 5 * Time.deltaTime) :
+			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 2 * Time.deltaTime) :
 			CAMERA_HEIGHT;
 
 		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch) * animator.getNodeLocalTransform(cameraNode) * leftHandAnimator.getNodeLocalTransform(cameraNode) * rightHandAnimator.getNodeLocalTransform(cameraNode));
