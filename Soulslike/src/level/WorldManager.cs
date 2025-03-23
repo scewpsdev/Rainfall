@@ -164,11 +164,7 @@ public class WorldManager : Entity
 			Renderer.DrawDirectionalLight(sun);
 
 		Cubemap skybox = skyboxes[skyboxes.Count - 1];
-<<<<<<< HEAD
-		Renderer.DrawEnvironmentMap(skybox, 0.5f);
-=======
 		Renderer.DrawEnvironmentMap(skybox, 0.25f);
->>>>>>> 970fa27a9bde72b3cc6a3783c3d772d8999c8a16
 		Renderer.DrawSky(skybox, 1, Quaternion.Identity);
 	}
 }
