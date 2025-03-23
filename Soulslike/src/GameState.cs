@@ -46,7 +46,7 @@ public class GameState : State
 		*/
 
 		scene.addEntity(camera = new Camera());
-		scene.addEntity(player = new Player(camera), world.map1.spawnPoint);
+		scene.addEntity(player = new Player(camera), world.spawnPoint);
 	}
 
 	public override void destroy()

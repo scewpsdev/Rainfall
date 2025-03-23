@@ -10,10 +10,12 @@ public class WorldManager : Entity
 {
 	Scene scene;
 
-	public MapPiece map1;
+	MapPiece map1;
 
 	DirectionalLight sun;
 	List<Cubemap> skyboxes = new List<Cubemap>();
+
+	public Matrix spawnPoint = Matrix.Identity;
 
 	public Cubemap skybox;
 
@@ -22,11 +24,21 @@ public class WorldManager : Entity
 	{
 		scene = GameState.instance.scene;
 
-		//sun = new DirectionalLight(new Vector3(-1, -1, 1).normalized, Vector3.One * 3, Renderer.graphics);
-		Cubemap globalSkybox = Resource.GetCubemap($"level/cubemap_equirect.png");
+		sun = new DirectionalLight(new Vector3(-1, -1, 1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 3, Renderer.graphics);
+		Cubemap globalSkybox = Resource.GetCubemap("level/cubemap_equirect.png");
 		skyboxes.Add(globalSkybox);
 
-		map1 = loadMap(1);
+		//map1 = loadMap(1);
+		//spawnPoint = map1.spawnPoint;
+		scene.addEntity(new Entity().load("level/testmap/testmap.rfs"));
+
+		scene.addEntity(new Fireplace(), new Vector3(0, 0, 0));
+
+		scene.addEntity(new ItemEntity(new Longsword()), new Vector3(2, 1.5f, 0));
+		scene.addEntity(new ItemEntity(new KingsSword()), new Vector3(3, 1.5f, 0));
+		scene.addEntity(new ItemEntity(new Dagger()), new Vector3(4, 1.5f, 0));
+
+		scene.addEntity(new Hollow(), new Vector3(2, 0, -2));
 
 		AudioManager.SetAmbientSound(Resource.GetSound("audio/dungeon_ambient_1.ogg"), 0.2f);
 	}
@@ -151,8 +163,8 @@ public class WorldManager : Entity
 		if (sun != null)
 			Renderer.DrawDirectionalLight(sun);
 
-		//Cubemap skybox = skyboxes[skyboxes.Count - 1];
-		//Renderer.DrawEnvironmentMap(skybox, 0.5f);
-		//Renderer.DrawSky(skybox, 1, Quaternion.Identity);
+		Cubemap skybox = skyboxes[skyboxes.Count - 1];
+		Renderer.DrawEnvironmentMap(skybox, 0.25f);
+		Renderer.DrawSky(skybox, 1, Quaternion.Identity);
 	}
 }

@@ -13,20 +13,28 @@
 [X] Thrust weapon
 [X] Blunt impact
 [X] Wall impact
-[ ] Blocks & Parries
-[ ] Steps
 [X] Lower body
-[ ] Shields
 [X] Armor & Equipment
 [X] Enemy hp bar
 [X] Ragdolls
-[ ] Skeleton enemy
+[ ] Steps
+[ ] Draw animations
+[ ] Health & Stamina
+[ ] Item texture atlases
+[ ] Shields
+[ ] Blocks & Parries
+[ ] Healing flask
+[ ] Firebomb & Throwing Knife
 [ ] Bow
 [ ] Crossbow
 [ ] Spells
-[ ] Healing flask
-[ ] Firebomb & Throwing Knife
-[ ] Starting cave
+[ ] Skeleton enemy
+[ ] Knight boss
+	[ ] Drops halberd -> pick up animation
+[ ] Doors
+[ ] Ladders & Ropes
+[ ] Chests
+[ ] Inventory
 [ ] Custom shader language
 
 

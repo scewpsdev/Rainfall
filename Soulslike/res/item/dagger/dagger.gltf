@@ -15,40 +15,29 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cylinder.002"
+			"name":"Cylinder.001"
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.003",
+			"name":"Material.001",
+			"normalTexture":{
+				"index":0
+			},
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.2422812283039093,
-					0.2422812283039093,
-					0.2422812283039093,
-					1
-				],
-				"roughnessFactor":0.13779526948928833
-			}
-		},
-		{
-			"doubleSided":true,
-			"name":"Material.004",
-			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.18116427958011627,
-					0.09084172546863556,
-					0.033104777336120605,
-					1
-				],
-				"metallicFactor":0
+				"baseColorTexture":{
+					"index":1
+				},
+				"metallicRoughnessTexture":{
+					"index":2
+				}
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.002",
+			"name":"Cylinder.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -58,142 +47,112 @@
 					},
 					"indices":3,
 					"material":0
-				},
-				{
-					"attributes":{
-						"POSITION":4,
-						"NORMAL":5,
-						"TEXCOORD_0":6
-					},
-					"indices":7,
-					"material":1
 				}
 			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
+		{
+			"sampler":0,
+			"source":2
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"dagger_normal.png.001",
+			"uri":"textures/dagger_normal.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"dagger_diffuse.png.001",
+			"uri":"textures/dagger_diffuse.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"dagger_occlusionRoughnessMetallic.png.001",
+			"uri":"textures/dagger_occlusionRoughnessMetallic.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":795,
+			"count":3969,
 			"max":[
-				0.012124460190534592,
-				0.3895092010498047,
-				0.0767926573753357
+				0.012519152835011482,
+				0.3895092308521271,
+				0.07678370922803879
 			],
 			"min":[
-				-0.012142297811806202,
-				-0.11746947467327118,
-				-0.07677476108074188
+				-0.012519155628979206,
+				-0.11746948957443237,
+				-0.07678370922803879
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":795,
+			"count":3969,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":795,
+			"count":3969,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1959,
-			"type":"SCALAR"
-		},
-		{
-			"bufferView":4,
-			"componentType":5126,
-			"count":300,
-			"max":[
-				0.010400363244116306,
-				0.04083964228630066,
-				0.015061162412166595
-			],
-			"min":[
-				-0.010418232530355453,
-				-0.041451044380664825,
-				-0.015043266117572784
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":300,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":300,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":7,
-			"componentType":5123,
-			"count":576,
+			"count":16182,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":9540,
+			"byteLength":47628,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":9540,
-			"byteOffset":9540,
+			"byteLength":47628,
+			"byteOffset":47628,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6360,
-			"byteOffset":19080,
+			"byteLength":31752,
+			"byteOffset":95256,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3918,
-			"byteOffset":25440,
+			"byteLength":32364,
+			"byteOffset":127008,
 			"target":34963
-		},
+		}
+	],
+	"samplers":[
 		{
-			"buffer":0,
-			"byteLength":3600,
-			"byteOffset":29360,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":3600,
-			"byteOffset":32960,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":2400,
-			"byteOffset":36560,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":1152,
-			"byteOffset":38960,
-			"target":34963
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":40112,
+			"byteLength":159372,
 			"uri":"dagger.bin"
 		}
 	]
