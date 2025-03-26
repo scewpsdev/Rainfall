@@ -19,6 +19,10 @@ uniform vec4 u_cameraFrustum;
 #define u_cameraNear u_cameraFrustum.x
 #define u_cameraFar u_cameraFrustum.y
 
+uniform vec4 u_vignetteData;
+#define u_vignetteColor u_vignetteData.rgb
+#define u_vignetteFalloff u_vignetteData.a
+
 
 vec3 ThreshholdBloom(vec3 bloom)
 {
@@ -97,6 +101,19 @@ vec3 BayerDither(vec3 color, vec2 uv)
 	return result;
 }
 
+// https://www.shadertoy.com/view/lsKSWR
+vec3 Vignette(vec3 color, vec2 uv)
+{
+	float intensity = 15.0;
+	float falloff = u_vignetteFalloff;
+
+	uv *= 1.0 - uv.yx;
+	float vig = uv.x * uv.y * intensity;
+	vig = pow(vig, falloff);
+
+	return mix(u_vignetteColor, color, vig);
+}
+
 void main()
 {
 	vec3 hdr = texture2D(s_hdrBuffer, v_texcoord0).rgb;
@@ -109,6 +126,7 @@ void main()
 	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
 	hdr *= exposure;
 	vec3 tonemapped = Tonemap(hdr);
+	tonemapped = Vignette(tonemapped, v_texcoord0);
 	//tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);

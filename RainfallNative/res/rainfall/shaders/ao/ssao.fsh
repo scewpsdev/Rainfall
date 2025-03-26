@@ -3,10 +3,10 @@ $input v_texcoord0
 #include "../common/common.shader"
 
 
-#define KERNEL_SIZE 64
-#define SSAO_RADIUS 1.0
-#define SSAO_POWER 2.0
-#define DEPTH_BIAS 0.000001
+//#define KERNEL_SIZE 64
+//#define SSAO_RADIUS 1.0
+//#define SSAO_POWER 2.0
+//#define DEPTH_BIAS 0.000001
 
 
 SAMPLER2D(s_depthBuffer, 0);
@@ -112,7 +112,7 @@ void main_()
 #define INTENSITY 2
 #define SCALE 2.5
 #define BIAS 0.05
-#define SAMPLE_RAD 0.05
+#define SAMPLE_RAD 0.01
 #define MAX_DISTANCE 0.5
 
 #define MOD3 vec3(.1031,.11369,.13787)

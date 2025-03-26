@@ -28,6 +28,14 @@ public static class GraphicsManager
 	public static float environmentMapIntensity = 1.0f;
 	public static DirectionalLight sun = null;
 
+	public static bool bloomEnabled = true;
+	public static float bloomStrength = 0.1f;
+	public static float bloomFalloff = 5.0f;
+
+	public static bool vignetteEnabled = true;
+	public static Vector3 vignetteColor = Vector3.Zero;
+	public static float vignetteFalloff = 0.12f;
+
 
 	public static void Init()
 	{
@@ -82,13 +90,24 @@ public static class GraphicsManager
 	{
 		Display.vsync = settings.vsync;
 		Display.fpsCap = settings.fpsCap;
-		Renderer.simplifiedLighting = settings.potato;
-		Renderer.ambientOcclusionEnabled = settings.ambientOcclusion;
-		Renderer.bloomEnabled = settings.bloom;
+		//Renderer.simplifiedLighting = settings.potato;
+		//Renderer.ambientOcclusionEnabled = settings.ambientOcclusion;
+		//Renderer.bloomEnabled = settings.bloom;
 	}
 
 	public static void Draw()
 	{
+		RendererSettings renderSettings = new RendererSettings(0);
+		renderSettings.bloomEnabled = bloomEnabled;
+		renderSettings.bloomStrength = bloomStrength;
+		renderSettings.bloomFalloff = bloomFalloff;
+		renderSettings.vignetteEnabled = vignetteEnabled;
+		renderSettings.vignetteColor = vignetteColor;
+		renderSettings.vignetteFalloff = vignetteFalloff;
+		//renderSettings.ssaoEnabled = false;
+		//renderSettings.exposure = 8;
+		Renderer.SetSettings(renderSettings);
+
 		if (environmentMap != null)
 			Renderer.DrawEnvironmentMap(environmentMap, environmentMapIntensity);
 		if (skybox != null)

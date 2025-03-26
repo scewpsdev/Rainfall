@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using Rainfall;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace Rainfall
@@ -112,6 +113,11 @@ namespace Rainfall
 			Physics.Physics_RigidBodyAddSphereCollider(body, radius, position, filterGroup, filterMask, friction, friction, restitution);
 		}
 
+		public void addSphereCollider(float radius, Vector3 position, uint filterGroup, uint filterMask, float friction = 0.5f, float restitution = 0.1f)
+		{
+			Physics.Physics_RigidBodyAddSphereCollider(body, radius, position, filterGroup, filterMask, friction, friction, restitution);
+		}
+
 		public void addBoxCollider(Vector3 halfExtents, Vector3 position, Quaternion rotation, float friction = 0.5f, float restitution = 0.1f)
 		{
 			Physics.Physics_RigidBodyAddBoxCollider(body, halfExtents, position, rotation, filterGroup, filterMask, friction, friction, restitution);
@@ -176,6 +182,11 @@ namespace Rainfall
 		public void addBoxTrigger(Vector3 halfExtents, Vector3 position, Quaternion rotation)
 		{
 			Physics.Physics_RigidBodyAddBoxTrigger(body, halfExtents, position, rotation, filterGroup, filterMask);
+		}
+
+		public void addBoxTrigger(Vector3 position, Vector3 size)
+		{
+			addBoxTrigger(size * 0.5f, position + 0.5f * size, Quaternion.Identity);
 		}
 
 		public void addBoxTrigger(Vector3 halfExtents)

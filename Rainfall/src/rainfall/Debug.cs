@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -45,5 +46,13 @@ namespace Rainfall
 				return new Vector2i(width, height);
 			}
 		}
+
+		public static void Error(string str)
+		{
+			Console_ErrorStr(str);
+		}
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern void Console_ErrorStr(string str);
 	}
 }

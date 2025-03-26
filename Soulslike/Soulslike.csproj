@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="src\player\FirstPersonController_.cs" />
+    <Compile Remove="src\systems\player\FirstPersonController_.cs" />
   </ItemGroup>
 
   <ItemGroup>

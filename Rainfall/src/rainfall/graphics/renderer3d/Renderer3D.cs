@@ -31,6 +31,11 @@ namespace Rainfall
 		public Vector3 fogColor = Vector3.One;
 		public float fogStrength = 0.0f;
 
+		internal byte _vignetteEnabled = 1;
+		public bool vignetteEnabled { get => _vignetteEnabled != 0; set { _vignetteEnabled = (byte)(value ? 1 : 0); } }
+		public Vector3 vignetteColor = Vector3.Zero;
+		public float vignetteFalloff = 0.12f;
+
 		internal byte physicsDebugDraw = 0;
 
 		public RendererSettings(int _)
@@ -46,18 +51,8 @@ namespace Rainfall
 		static Quaternion cameraRotation;
 		public static Matrix pv;
 
-		public static Vector3 fogColor = new Vector3(1.0f);
-		public static float fogIntensity = 0.0f;
-
-		public static Vector3 vignetteColor = new Vector3(0.0f);
-		public static float vignetteFalloff = 0.0f; // default value: 0.37f
-
 		public static int meshRenderCounter = 0;
 		public static int meshCulledCounter = 0;
-
-		public static bool simplifiedLighting = false;
-		public static bool ambientOcclusionEnabled = true;
-		public static bool bloomEnabled = true;
 
 
 		public static void Init(int width, int height, GraphicsDevice graphics)

@@ -75,6 +75,11 @@ void Console_Error(const char* format, ...)
 	fputs(COLOR(RESET), stderr);
 }
 
+RFAPI void Console_ErrorStr(const char* str)
+{
+	Console_Error("%s", str);
+}
+
 void Console_Warn(const char* format, ...)
 {
 	fputs(COLOR(YELLOW), stderr);

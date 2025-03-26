@@ -33,12 +33,10 @@ internal class Program : Game3D<Program>
 	{
 		base.init();
 
-		RendererSettings renderSettings = new RendererSettings(0);
-		renderSettings.bloomStrength = 0.05f;
-		renderSettings.bloomEnabled = false;
-		renderSettings.ssaoEnabled = false;
-		renderSettings.exposure = 8;
-		Renderer.SetSettings(renderSettings);
+		GraphicsManager.bloomStrength = 0.05f;
+		GraphicsManager.bloomEnabled = false;
+		//GraphicsManager.ssaoEnabled = false;
+		//GraphicsManager.exposure = 8;
 
 		FontManager.LoadFont("default", "font/libre-baskerville.regular.ttf");
 

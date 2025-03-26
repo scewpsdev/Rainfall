@@ -72,6 +72,10 @@ struct Renderer3DSettings
 	Vector3 fogColor = Vector3::One;
 	float fogStrength = 0.0f;
 
+	bool vignetteEnabled = true;
+	Vector3 vignetteColor = Vector3::Zero;
+	float vignetteFalloff = 0.12f;
+
 	bool physicsDebugDraw = false;
 };
 
@@ -473,7 +477,9 @@ RFAPI void Renderer3D_Resize(int width, int height)
 	};
 	tonemappingRT = Graphics_CreateRenderTarget(2, tonemappingRTAttachments, tonemappingRTTextures, tonemappingRTTextureInfos);
 
-	RenderTargetAttachment ssaoRTAttachment(width / 2, height / 2, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
+	int ssaoWidth = width; // / 2;
+	int ssaoHeight = height; // / 2;
+	RenderTargetAttachment ssaoRTAttachment(ssaoWidth, ssaoHeight, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
 	ssaoRT = Graphics_CreateRenderTarget(1, &ssaoRTAttachment, &ssaoRTTexture, &ssaoRTTextureInfo);
 
 	RenderTargetAttachment ssaoBlurRTAttachment(width, height, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
@@ -1823,6 +1829,9 @@ static void TonemappingPass(uint16_t target)
 
 	Vector4 cameraFrustum(cameraNear, cameraFar, 0, 0);
 	Graphics_SetUniform(shader->getUniform("u_cameraFrustum", bgfx::UniformType::Vec4), &cameraFrustum);
+
+	Vector4 vignetteData(settings.vignetteColor, settings.vignetteEnabled ? settings.vignetteFalloff : 0);
+	Graphics_SetUniform(shader->getUniform("u_vignetteData", bgfx::UniformType::Vec4), &vignetteData);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }

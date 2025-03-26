@@ -19,6 +19,7 @@
 [X] Ragdolls
 [ ] Steps
 [ ] Draw animations
+[ ] Halberd, Hammer
 [ ] Health & Stamina
 [ ] Item texture atlases
 [ ] Shields

@@ -222,6 +222,10 @@ public class Entity : PhysicsEntity
 					Matrix nodeTransform = entityTransform * model.skeleton.getNodeTransform(node);
 					hitboxes[nodeName].setTransform(nodeTransform.translation, nodeTransform.rotation);
 				}
+				else
+				{
+					Debug.Assert(false);
+				}
 			}
 		}
 	}
