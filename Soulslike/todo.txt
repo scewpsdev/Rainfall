@@ -18,24 +18,33 @@
 [X] Enemy hp bar
 [X] Ragdolls
 [ ] Steps
-[ ] Draw animations
-[ ] Halberd, Hammer
-[ ] Health & Stamina
+[X] Draw animations
+[ ] Halberd, Hammer, Spear
+[ ] Health (& Stamina?)
 [ ] Item texture atlases
 [ ] Shields
 [ ] Blocks & Parries
+[ ] Inventory & Loadouts
 [ ] Healing flask
 [ ] Firebomb & Throwing Knife
 [ ] Bow
 [ ] Crossbow
-[ ] Spells
-[ ] Skeleton enemy
-[ ] Knight boss
-	[ ] Drops halberd -> pick up animation
+[ ] Spells & Staffs
+[ ] Barrels & Crates
+[ ] Chests
 [ ] Doors
 [ ] Ladders & Ropes
-[ ] Chests
-[ ] Inventory
+[ ] Skeleton enemy
+[ ] Spider enemy
+[ ] Knight boss
+	[ ] Drops halberd -> pick up animation
+[ ] Dungeon generation
+	[ ] Room templates (max per floor value)
+	[ ] Elevator room that leads up to next floor, needs a key to activate?
+	[ ] Trap rooms
+	[ ] Platforming rooms
+	[ ] Map room that shows floor (maybe with marked secret treasure?)
+	[ ] Boss room
 [ ] Custom shader language
 
 

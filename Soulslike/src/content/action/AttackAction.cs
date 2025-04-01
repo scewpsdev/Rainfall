@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 public class AttackAction : PlayerAction
 {
-	const float HIT_FREEZE_LENGTH = 0.1f;
-	const float HIT_FREEZE_SPEED = 0.3f;
+	const float HIT_FREEZE_LENGTH = 0.3f;
+	const float HIT_FREEZE_SPEED = 0.1f;
 
 
 	static Sound[] swing = Resource.GetSounds("sound/item/swing", 3);
@@ -149,15 +149,12 @@ public class AttackAction : PlayerAction
 					Creature creature = entity as Creature;
 					Sound[] hitSound = attack.damageType == DamageType.Thrust ? creature.stabSound : creature.slashSound;
 					Audio.PlayOrganic(hitSound, hit.position);
-				}
-			}
 
-			if (hittable is Creature)
-			{
-				// blood particles
-				ParticleEffect bloodEffect = new ParticleEffect("effect/blood.rfs", null);
-				GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
-				lastEnemyHit = Time.currentTime;
+					// blood particles
+					ParticleEffect bloodEffect = new ParticleEffect("effect/blood.rfs", null);
+					GameState.instance.scene.addEntity(bloodEffect, hit.position, Quaternion.LookAt(-hit.normal));
+					lastEnemyHit = Time.currentTime;
+				}
 			}
 		}
 		else
