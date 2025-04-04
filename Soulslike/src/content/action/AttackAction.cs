@@ -53,6 +53,8 @@ public class AttackAction : PlayerAction
 			staminaCost = MathHelper.Remap(chargeAmount, 0, 1, 1, 1.5f);
 		}
 
+		animationSpeed *= 0.7f;
+
 		if (weapon.twoHanded)
 		{
 			animationName[hand ^ 1] = attack.animation;

@@ -55,7 +55,7 @@ public static class HUD
 		else
 		{
 			GraphicsManager.vignetteFalloff = 0.12f;
-			GraphicsManager.vignetteColor = Vector3.Zero;
+			GraphicsManager.vignetteColor = new Vector3(0.5f);
 		}
 	}
 }
