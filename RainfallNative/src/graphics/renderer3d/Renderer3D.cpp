@@ -1843,6 +1843,8 @@ static void DebugDrawPass(uint16_t target)
 
 	Graphics_SetViewTransform(RenderPass::Debug, projection, view);
 
+	Graphics_SetDepthTest(DepthTest::Always);
+
 	debugLineRenderer.begin(debugLineDraws.size);
 	for (int i = 0; i < debugLineDraws.size; i++)
 	{

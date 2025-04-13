@@ -67,6 +67,8 @@ public class Player : Entity, Hittable
 
 	Animator helmetAnimator, bodyArmorAnimator, glovesAnimator, bootsAnimator;
 
+	Sound[] stepSound;
+
 	Item[] rings = new Item[4];
 
 	public float health = 100;
@@ -121,6 +123,8 @@ public class Player : Entity, Hittable
 
 		actionManager = new ActionManager(this);
 
+		stepSound = Resource.GetSounds("sound/step/step_bare", 3);
+
 		Input.cursorMode = CursorMode.Disabled;
 	}
 
@@ -149,6 +153,11 @@ public class Player : Entity, Hittable
 		};
 		controller.onStep = () =>
 		{
+			Sound[] stepSound = this.stepSound;
+			if (boots != null && boots.stepSound != null)
+				stepSound = boots.stepSound;
+			Audio.PlayOrganic(stepSound, position + rotation * Vector3.Forward);
+
 			/*
 			if (!isDucked && player.stepSound != null)
 			{
@@ -574,13 +583,13 @@ public class Player : Entity, Hittable
 
 	void updateAnimations()
 	{
-		runAnim.animationSpeed = isSprinting ? SPRINT_SPEED_MULTIPLIER : 1.0f;
-		bodyRunAnim.animationSpeed = isSprinting ? SPRINT_SPEED_MULTIPLIER : 1;
+		runAnim.animationSpeed = (isSprinting ? SPRINT_SPEED_MULTIPLIER : 1) * (FirstPersonController.STEP_FREQUENCY / 0.6f);
+		bodyRunAnim.animationSpeed = (isSprinting ? SPRINT_SPEED_MULTIPLIER : 1) * (FirstPersonController.STEP_FREQUENCY / 0.6f);
 
 		if (actionManager.currentAction != null)
 			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
 
-		AnimationState moveAnim = controller.isMoving ? runAnim : idleAnim;
+		AnimationState moveAnim = controller.isMoving && controller.isGrounded ? runAnim : idleAnim;
 
 		if (actionManager.currentAction != null && actionManager.currentAction.fullBodyAnimation)
 			animator.setAnimation(currentActionAnim);

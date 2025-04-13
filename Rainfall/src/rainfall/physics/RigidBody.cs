@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using Rainfall;
@@ -119,6 +120,11 @@ namespace Rainfall
 		}
 
 		public void addBoxCollider(Vector3 halfExtents, Vector3 position, Quaternion rotation, float friction = 0.5f, float restitution = 0.1f)
+		{
+			Physics.Physics_RigidBodyAddBoxCollider(body, halfExtents, position, rotation, filterGroup, filterMask, friction, friction, restitution);
+		}
+
+		public void addBoxCollider(Vector3 halfExtents, Vector3 position, Quaternion rotation, uint filterGroup, uint filterMask, float friction = 0.5f, float restitution = 0.1f)
 		{
 			Physics.Physics_RigidBodyAddBoxCollider(body, halfExtents, position, rotation, filterGroup, filterMask, friction, friction, restitution);
 		}

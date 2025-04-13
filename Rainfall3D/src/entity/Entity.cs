@@ -18,6 +18,7 @@ public class Entity : PhysicsEntity
 	public List<Action> removeCallbacks = new List<Action>();
 
 	public Model model = null;
+	public int meshIdx = -1;
 	public Animator animator = null;
 	public Matrix modelTransform = Matrix.Identity;
 
@@ -281,7 +282,12 @@ public class Entity : PhysicsEntity
 	{
 		Matrix transform = getModelMatrix();
 		if (model != null)
-			Renderer.DrawModel(model, transform * modelTransform, animator, isStatic);
+		{
+			if (meshIdx != -1)
+				Renderer.DrawMesh(model, meshIdx, transform * modelTransform, animator, isStatic);
+			else
+				Renderer.DrawModel(model, transform * modelTransform, animator, isStatic);
+		}
 		for (int i = 0; i < lights.Count; i++)
 			Renderer.DrawPointLight(lights[i], transform);
 		for (int i = 0; i < particles.Count; i++)

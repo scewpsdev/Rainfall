@@ -120,7 +120,8 @@ public class Creature : Entity, Hittable
 	void updateMovement()
 	{
 		Vector3 velocity = rootMotionVelocity;
-		body.setVelocity(velocity);
+		body.setVelocityX(velocity.x);
+		body.setVelocityZ(velocity.z);
 
 		body.setRotation(Quaternion.FromAxisAngle(Vector3.Up, yaw));
 	}

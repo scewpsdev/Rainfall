@@ -54,7 +54,7 @@ public class FirstPersonController
 	const float DODGE_RELEASE_WINDOW = 0.3f;
 	public const float DUCK_TRANSITION_DURATION = 0.24f;
 
-	public const float STEP_FREQUENCY = 0.6f;
+	public const float STEP_FREQUENCY = 0.8f;
 	const float FALL_IMPACT_MIN_SPEED = 1.0f;
 	const float FALL_DMG_THRESHHOLD = 12.0f;
 

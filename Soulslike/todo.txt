@@ -17,7 +17,7 @@
 [X] Armor & Equipment
 [X] Enemy hp bar
 [X] Ragdolls
-[ ] Steps
+[X] Steps
 [X] Draw animations
 [ ] Halberd, Hammer, Spear
 [ ] Health (& Stamina?)
@@ -45,6 +45,12 @@
 	[ ] Platforming rooms
 	[ ] Map room that shows floor (maybe with marked secret treasure?)
 	[ ] Boss room
+[ ] Tavern hub
+	[ ] keep track of player progress, stats and unlocks
+	[ ] class selector
+	[ ] map portals
+	[ ] merchants for buying and selling starting gear
+	[ ] unlockable areas for easter eggs or lore? (maybe cool view of the castle from maingame?)
 [ ] Custom shader language
 
 

@@ -43,8 +43,8 @@ void CreateSceneMaterials(SceneData* scene)
 					materialData->height ? materialData->height->handle.idx : bgfx::kInvalidHandle
 				);
 
-				bool animated = scene->meshes[i].skeletonID != -1;
-				material->shader = animated ? defaultAnimatedShader : defaultShader;
+				//bool animated = scene->meshes[i].skeletonID != -1;
+				//material->shader = animated ? defaultAnimatedShader : defaultShader;
 
 				materials.emplace(materialData, material);
 			}

@@ -20,27 +20,29 @@ public class ItemEntity : Entity, Interactable
 
 	public override void init()
 	{
-		body = new RigidBody(this, RigidBodyType.Dynamic, PhysicsFilter.Pickup | PhysicsFilter.Interactable);
+		float restitution = 0.1f;
+
+		body = new RigidBody(this, RigidBodyType.Dynamic, PhysicsFilter.Pickup | PhysicsFilter.Interactable, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.Pickup | PhysicsFilter.Ragdoll);
 		for (int i = 0; i < item.colliders.Count; i++)
 		{
 			SceneFormat.ColliderData collider = item.colliders[i];
 			if (!collider.trigger)
 			{
 				if (collider.type == SceneFormat.ColliderType.Box)
-					body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity);
+					body.addBoxCollider(collider.size * 0.5f, collider.offset, Quaternion.Identity, 0.5f, restitution);
 				else if (collider.type == SceneFormat.ColliderType.Sphere)
-					body.addSphereCollider(collider.radius, collider.offset);
+					body.addSphereCollider(collider.radius, collider.offset, 0.5f, restitution);
 				else if (collider.type == SceneFormat.ColliderType.Capsule)
-					body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity);
+					body.addCapsuleCollider(collider.radius, collider.size.y, collider.offset, Quaternion.Identity, 0.5f, restitution);
 				else if (collider.type == SceneFormat.ColliderType.Mesh)
-					body.addMeshColliders(collider.meshCollider, Matrix.Identity);
+					body.addMeshColliders(collider.meshCollider, Matrix.Identity, 0.5f, restitution);
 				else if (collider.type == SceneFormat.ColliderType.ConvexMesh)
-					body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity);
+					body.addConvexMeshColliders(collider.meshCollider, Matrix.Identity, 0.5f, restitution);
 				else
 					Debug.Assert(false);
 			}
 		}
-		body.addSphereCollider(model.boundingSphere.radius, model.boundingSphere.center, PhysicsFilter.Pickup | PhysicsFilter.Interactable, 0);
+		body.addBoxCollider(model.boundingBox.size * 0.5f, model.boundingBox.center, Quaternion.Identity, PhysicsFilter.Pickup | PhysicsFilter.Interactable, 0);
 	}
 
 	public override void destroy()

@@ -221,7 +221,7 @@ public class EditorInstance
 		Renderer.DrawEnvironmentMap(environmentMap, previewLighting ? 0 : 0.2f);
 
 		int gridSize = 10;
-		uint gridColor = 0xFF1F1F1F; ;
+		uint gridColor = 0xFF1F1F1F;
 		for (int i = -gridSize; i <= gridSize; i++)
 		{
 			Renderer.DrawDebugLine(new Vector3(-gridSize, 0, i), new Vector3(gridSize, 0, i), gridColor);

@@ -92,3 +92,8 @@ void Console_Warn(const char* format, ...)
 
 	fputs(COLOR(RESET), stderr);
 }
+
+RFAPI void Console_WarnStr(const char* str)
+{
+	Console_Warn("%s", str);
+}

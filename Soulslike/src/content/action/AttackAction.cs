@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class AttackAction : PlayerAction
 {
 	const float HIT_FREEZE_LENGTH = 0.3f;
-	const float HIT_FREEZE_SPEED = 0.1f;
+	const float HIT_FREEZE_SPEED = 0.2f;
 
 
 	static Sound[] swing = Resource.GetSounds("sound/item/swing", 3);
@@ -53,7 +53,7 @@ public class AttackAction : PlayerAction
 			staminaCost = MathHelper.Remap(chargeAmount, 0, 1, 1, 1.5f);
 		}
 
-		animationSpeed *= 0.7f;
+		//animationSpeed *= 0.7f;
 
 		if (weapon.twoHanded)
 		{
@@ -144,6 +144,14 @@ public class AttackAction : PlayerAction
 				hitEntities.Add(entity);
 
 				float damage = weapon.damage * damageMultiplier;
+
+				bool isEffective = hit.distance >= weapon.bladeEffectiveRange.x && hit.distance <= weapon.bladeEffectiveRange.y;
+				if (!isEffective)
+				{
+					damage *= 0.5f;
+					Debug.Warn("ineffective hit! " + hit.distance);
+				}
+
 				hittable.hit((int)MathF.Ceiling(damage), false, direction, player, weapon, hit.body);
 
 				if (hittable is Creature)
@@ -182,6 +190,9 @@ public class AttackAction : PlayerAction
 		Vector3 origin = player.rightWeaponTransform * weapon.bladeBase;
 		Vector3 tip = player.rightWeaponTransform * weapon.bladeTip;
 
+		if (lastTip == Vector3.Zero)
+			lastTip = tip;
+
 		float damageWindowProgress = MathHelper.Clamp(MathHelper.Remap(elapsedTime, damageStartTime, damageEndTime, 0, 1), 0, 1);
 		float trailAlpha = 1 - MathF.Pow(damageWindowProgress * 2 - 1, 2);
 		trail.update(origin, tip, trailAlpha);
@@ -190,14 +201,15 @@ public class AttackAction : PlayerAction
 		{
 			Vector3 hitDirection = (tip - lastTip).normalized;
 
-			int subSteps = 4;
+			Span<HitData> hits = stackalloc HitData[16];
+
+			int subSteps = 8;
 			for (int j = 0; j < subSteps; j++)
 			{
 				Vector3 dst = Vector3.Lerp(lastTip, tip, (j + 1) / (float)subSteps);
 				Vector3 direction = dst - origin;
 				float distance = direction.length;
 
-				Span<HitData> hits = stackalloc HitData[16];
 				int numHits = Physics.Raycast(origin, direction / distance, distance, hits, QueryFilterFlags.Default, PhysicsFilter.Default | PhysicsFilter.CreatureHitbox);
 				for (int i = 0; i < numHits; i++)
 				{

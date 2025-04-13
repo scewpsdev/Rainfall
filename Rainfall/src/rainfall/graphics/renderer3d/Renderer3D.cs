@@ -333,8 +333,8 @@ namespace Rainfall
 			bool isLeafNode = node.children == null;
 			if (isLeafNode)
 			{
-				Vector3 endPoint = nodeTransform * (Vector3.Up * 0.1f);
-				DrawDebugLine(nodeTransform.translation, endPoint, color);
+				//Vector3 endPoint = nodeTransform * (Vector3.Up * 0.1f);
+				//DrawDebugLine(nodeTransform.translation, endPoint, color);
 			}
 			else
 			{

@@ -52,7 +52,15 @@ namespace Rainfall
 			Console_ErrorStr(str);
 		}
 
+		public static void Warn(string str)
+		{
+			Console_WarnStr(str);
+		}
+
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		static extern void Console_ErrorStr(string str);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		static extern void Console_WarnStr(string str);
 	}
 }

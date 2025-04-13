@@ -34,6 +34,7 @@ public abstract class Item
 	public Vector3 sfxSourcePosition = Vector3.Zero;
 
 	public Sound[] equipSound;
+	public Sound[] stepSound;
 
 	public bool twoHanded = false;
 	public float viewmodelAim = Player.DEFAULT_VIEWMODEL_AIM;

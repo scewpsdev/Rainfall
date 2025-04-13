@@ -64,6 +64,7 @@ public class Weapon : Item
 	public string parryAttack;
 
 	public Vector3 bladeBase, bladeTip;
+	public Vector2 bladeEffectiveRange;
 
 
 	public Weapon(string name, string displayName)
@@ -76,6 +77,15 @@ public class Weapon : Item
 	{
 		bladeBase = new Vector3(0, basePoint, 0);
 		bladeTip = new Vector3(0, tipPoint, 0);
+		bladeEffectiveRange = new Vector2(basePoint, tipPoint);
+		sfxSourcePosition = bladeTip;
+	}
+
+	protected void initBlade(float basePoint, float tipPoint, float effectiveBasePoint, float effectiveTipPoint)
+	{
+		bladeBase = new Vector3(0, basePoint, 0);
+		bladeTip = new Vector3(0, tipPoint, 0);
+		bladeEffectiveRange = new Vector2(effectiveBasePoint, effectiveTipPoint);
 		sfxSourcePosition = bladeTip;
 	}
 

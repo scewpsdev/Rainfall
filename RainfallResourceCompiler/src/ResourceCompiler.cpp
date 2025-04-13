@@ -174,7 +174,9 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 	}
 	else if (IsGeometry(extension))
 	{
-		success = CompileGeometry(filepathStr.c_str(), outpath, optimizeSceneGraph);
+		bool isLevel = name.find("_level") != std::string::npos;
+
+		success = CompileGeometry(filepathStr.c_str(), outpath, optimizeSceneGraph && !isLevel);
 	}
 	else
 	{

@@ -37,8 +37,10 @@ namespace Rainfall
 			this.z1 = z1;
 		}
 
-		public Vector3 size { get => new Vector3(x1 - x0, y1 - y0, z1 - z0); }
-		public Vector3 center { get => new Vector3(x0 + x1, y0 + y1, z0 + z1) * 0.5f; }
+		public Vector3 size => new Vector3(x1 - x0, y1 - y0, z1 - z0);
+		public Vector3 center => new Vector3(x0 + x1, y0 + y1, z0 + z1) * 0.5f;
+		public Vector3 min => new Vector3(x0, y0, z0);
+		public Vector3 max => new Vector3(x1, y1, z1);
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

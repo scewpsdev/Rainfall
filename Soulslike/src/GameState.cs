@@ -29,6 +29,8 @@ public class GameState : State
 
 		scene.addEntity(world = new WorldManager());
 
+		DungeonGenerator.Generate(world, scene);
+
 		/*
 		Entity testmap = new Entity();
 		testmap.model = Resource.GetModel("testmap.gltf");
