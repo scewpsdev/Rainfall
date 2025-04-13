@@ -22,6 +22,7 @@ public struct RoomDefinition
 	public Vector3i min;
 	public Vector3i max;
 	public List<DoorwayDefinition> doorwayDefinitions;
+	public Func<Room> roomEntityCreator;
 }
 
 public struct TileData
@@ -95,7 +96,7 @@ public class DungeonGenerator
 	public static List<RoomDefinition> roomDefinitions = new List<RoomDefinition>();
 
 
-	static void LoadRoomDefinition(string path)
+	static void LoadRoomDefinition(string path, Func<Room> roomEntityCreator = null)
 	{
 		RoomDefinition definition = new RoomDefinition();
 
@@ -104,6 +105,8 @@ public class DungeonGenerator
 		definition.min = (Vector3i)Vector3.Ceil(definition.model.boundingBox.min / TILE_SIZE - 0.01f);
 		definition.max = Vector3i.Max((Vector3i)Vector3.Ceil(definition.model.boundingBox.max / TILE_SIZE - 0.01f), Vector3i.One);
 		definition.doorwayDefinitions = new List<DoorwayDefinition>();
+		definition.roomEntityCreator = roomEntityCreator;
+
 		for (int i = 0; i < definition.model.skeleton.nodes.Length; i++)
 		{
 			Node node = definition.model.skeleton.nodes[i];
@@ -120,6 +123,11 @@ public class DungeonGenerator
 		roomDefinitions.Add(definition);
 	}
 
+	static void LoadRoomDefinition<T>(string path) where T : Room, new()
+	{
+		LoadRoomDefinition(path, () => new T());
+	}
+
 	public static void Init()
 	{
 		LoadRoomDefinition("level/dungeon/rooms/room1/room1.gltf");
@@ -127,12 +135,12 @@ public class DungeonGenerator
 		LoadRoomDefinition("level/dungeon/rooms/room3/room3.gltf");
 		LoadRoomDefinition("level/dungeon/rooms/room4/room4.gltf");
 		LoadRoomDefinition("level/dungeon/rooms/room5/room5.gltf");
-		LoadRoomDefinition("level/dungeon/rooms/room6/room6.gltf");
+		LoadRoomDefinition<ElevatorRoom>("level/dungeon/rooms/room6/room6.gltf");
 	}
 
 	static Room CreateRoom(RoomDefinition definition)
 	{
-		Room room = new Room();
+		Room room = definition.roomEntityCreator != null ? definition.roomEntityCreator() : new Room();
 		room.definitionId = definition.id;
 		room.model = definition.model;
 		room.body = new RigidBody(room, RigidBodyType.Static);
@@ -149,9 +157,10 @@ public class DungeonGenerator
 
 	static void PlaceRoom(Room room, Matrix transform, Scene scene, Tilemap tilemap, List<Room> rooms)
 	{
-		scene.addEntity(room, transform);
 		tilemap.placeRoom(room, transform);
 		rooms.Add(room);
+
+		scene.addEntity(room, transform);
 	}
 
 	static Matrix RoomTransform(Vector3i position, Vector3i direction)
@@ -170,6 +179,18 @@ public class DungeonGenerator
 		List<Tuple<int, int>> roomCandidates = new List<Tuple<int, int>>();
 		for (int i = 0; i < roomDefinitions.Count; i++)
 		{
+			bool roomTypeFound = false;
+			for (int j = 0; j < rooms.Count; j++)
+			{
+				if (rooms[j].definitionId == i)
+				{
+					roomTypeFound = true;
+					break;
+				}
+			}
+			if (roomTypeFound)
+				continue;
+
 			for (int j = 0; j < roomDefinitions[i].doorwayDefinitions.Count; j++)
 			{
 				roomCandidates.Add(new Tuple<int, int>(i, j));

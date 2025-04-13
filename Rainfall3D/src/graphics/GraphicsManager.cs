@@ -36,6 +36,8 @@ public static class GraphicsManager
 	public static Vector3 vignetteColor = Vector3.Zero;
 	public static float vignetteFalloff = 0.12f;
 
+	public static bool ssaoEnabled = true;
+
 
 	public static void Init()
 	{
@@ -104,7 +106,7 @@ public static class GraphicsManager
 		renderSettings.vignetteEnabled = vignetteEnabled;
 		renderSettings.vignetteColor = vignetteColor;
 		renderSettings.vignetteFalloff = vignetteFalloff;
-		//renderSettings.ssaoEnabled = false;
+		renderSettings.ssaoEnabled = ssaoEnabled;
 		//renderSettings.exposure = 8;
 		Renderer.SetSettings(renderSettings);
 

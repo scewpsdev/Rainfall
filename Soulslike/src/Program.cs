@@ -50,8 +50,8 @@ internal class Program : Game3D<Program>
 		LaunchParams launchParams = new LaunchParams(args);
 		launchParams.fpsCap = 60;
 #if DEBUG
-		launchParams.width = 1280;
-		launchParams.height = 720;
+		launchParams.width = 800;
+		launchParams.height = 600;
 		//launchParams.maximized = true;
 #else
 		launchParams.width = 1280;

@@ -9,6 +9,7 @@ public class Entity : PhysicsEntity
 {
 	public string name;
 	public bool isStatic;
+	public Scene scene;
 
 	public Vector3 position = Vector3.Zero;
 	public Quaternion rotation = Quaternion.Identity;

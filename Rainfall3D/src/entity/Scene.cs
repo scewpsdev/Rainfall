@@ -104,6 +104,8 @@ public class Scene
 		}
 		entityList.Add(entity);
 
+		entity.scene = this;
+
 		if (init)
 			entity.init();
 	}
