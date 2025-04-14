@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 public enum ItemType
 {
-	None = 0,
-
 	Weapon,
 	Armor,
 	Ring,
+
+	Count
 }
 
 public abstract class Item
@@ -22,6 +22,57 @@ public abstract class Item
 	public static Sound equipHeavy = Resource.GetSound("sound/item/equip_heavy.ogg");
 	public static Sound equipRing = Resource.GetSound("sound/item/equip_ring.ogg");
 	public static Sound[] equipArmor = Resource.GetSounds("sound/item/equip_chainmail", 2);
+
+	static List<Item> items = new List<Item>();
+	static Dictionary<string, Item> nameMap = new Dictionary<string, Item>();
+	static Dictionary<ItemType, List<Item>> itemTypeMap = new Dictionary<ItemType, List<Item>>();
+
+	public static void Init()
+	{
+		itemTypeMap.Add(ItemType.Weapon, new List<Item>());
+		itemTypeMap.Add(ItemType.Armor, new List<Item>());
+		itemTypeMap.Add(ItemType.Ring, new List<Item>());
+
+		InitType<KingsSword>();
+		InitType<Longsword>();
+		InitType<Dagger>();
+		InitType<Spear>();
+		InitType<BrokenSword>();
+		InitType<LightCrossbow>();
+		InitType<DarkwoodStaff>();
+		//InitType<LeatherGauntlets>();
+		InitType<SapphireRing>();
+	}
+
+	static void InitType<T>() where T : Item, new()
+	{
+		Item item = new T();
+		items.Add(item);
+		nameMap.Add(item.name, item);
+		itemTypeMap[item.type].Add(item);
+	}
+
+	public static Item GetType(string name)
+	{
+		if (nameMap.TryGetValue(name, out Item item))
+			return item;
+		return null;
+	}
+
+	public static Item CreateRandom(ItemType type, Random random)
+	{
+		List<Item> itemList = itemTypeMap[type];
+		int idx = random.Next() % itemList.Count;
+		Item item = itemList[idx].copy();
+		return item;
+	}
+
+	public static Item CreateRandom(Random random)
+	{
+		int idx = random.Next() % items.Count;
+		Item item = items[idx].copy();
+		return item;
+	}
 
 
 	public ItemType type;
@@ -64,6 +115,12 @@ public abstract class Item
 
 			colliders = entity.colliders;
 		}
+	}
+
+	public Item copy()
+	{
+		Item copy = (Item)MemberwiseClone();
+		return copy;
 	}
 
 	public virtual void use(Player player, int hand)

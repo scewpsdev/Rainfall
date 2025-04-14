@@ -40,6 +40,7 @@ internal class Program : Game3D<Program>
 
 		FontManager.LoadFont("default", "font/libre-baskerville.regular.ttf");
 
+		Item.Init();
 		DungeonGenerator.Init();
 
 		pushState(new GameState());

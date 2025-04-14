@@ -52,6 +52,7 @@
 	[ ] merchants for buying and selling starting gear
 	[ ] unlockable areas for easter eggs or lore? (maybe cool view of the castle from maingame?)
 [ ] Custom shader language
+[ ] Spot lights
 
 
 Moveset inspiration:

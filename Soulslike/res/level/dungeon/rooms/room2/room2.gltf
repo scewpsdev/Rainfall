@@ -10,7 +10,8 @@
 			"nodes":[
 				0,
 				1,
-				2
+				2,
+				3
 			]
 		}
 	],
@@ -19,9 +20,9 @@
 			"mesh":0,
 			"name":"Plane",
 			"translation":[
-				3.5,
+				0.47803616523742676,
 				0,
-				3
+				0.00888681411743164
 			]
 		},
 		{
@@ -33,17 +34,26 @@
 				1.6292068494294654e-07
 			],
 			"translation":[
-				3.5313572883605957,
+				0.5,
 				0,
-				18.572580337524414
+				9.502704620361328
 			]
 		},
 		{
 			"name":"__connector1",
 			"translation":[
-				3.534534454345703,
+				0.5125706195831299,
 				0,
-				-0.5992408990859985
+				-3.5903539657592773
+			]
+		},
+		{
+			"mesh":1,
+			"name":"Plane.001",
+			"translation":[
+				0.5,
+				0,
+				0
 			]
 		}
 	],
@@ -75,19 +85,19 @@
 			"name":"PlaneAction",
 			"samplers":[
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":5
+					"output":9
 				},
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":6
+					"output":10
 				},
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":7
+					"output":11
 				}
 			]
 		},
@@ -118,19 +128,19 @@
 			"name":"EmptyAction",
 			"samplers":[
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":8
+					"output":12
 				},
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":9
+					"output":13
 				},
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":10
+					"output":14
 				}
 			]
 		},
@@ -161,19 +171,62 @@
 			"name":"EmptyAction.001",
 			"samplers":[
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":11
+					"output":15
 				},
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":12
+					"output":16
 				},
 				{
-					"input":4,
+					"input":8,
 					"interpolation":"LINEAR",
-					"output":13
+					"output":17
+				}
+			]
+		},
+		{
+			"channels":[
+				{
+					"sampler":0,
+					"target":{
+						"node":3,
+						"path":"translation"
+					}
+				},
+				{
+					"sampler":1,
+					"target":{
+						"node":3,
+						"path":"rotation"
+					}
+				},
+				{
+					"sampler":2,
+					"target":{
+						"node":3,
+						"path":"scale"
+					}
+				}
+			],
+			"name":"Plane.001Action",
+			"samplers":[
+				{
+					"input":8,
+					"interpolation":"LINEAR",
+					"output":18
+				},
+				{
+					"input":8,
+					"interpolation":"LINEAR",
+					"output":19
+				},
+				{
+					"input":8,
+					"interpolation":"LINEAR",
+					"output":20
 				}
 			]
 		}
@@ -191,6 +244,19 @@
 					"indices":3
 				}
 			]
+		},
+		{
+			"name":"Plane.001",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":4,
+						"NORMAL":5,
+						"TEXCOORD_0":6
+					},
+					"indices":7
+				}
+			]
 		}
 	],
 	"accessors":[
@@ -201,7 +267,7 @@
 			"max":[
 				3,
 				0,
-				15
+				8.991113662719727
 			],
 			"min":[
 				-3,
@@ -231,6 +297,40 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
+			"count":24,
+			"max":[
+				3,
+				3,
+				9
+			],
+			"min":[
+				-3,
+				0,
+				-3
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":5,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":6,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":7,
+			"componentType":5123,
+			"count":36,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":8,
+			"componentType":5126,
 			"count":1,
 			"max":[
 				0
@@ -241,40 +341,16 @@
 			"type":"SCALAR"
 		},
 		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":1,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":1,
-			"type":"VEC4"
-		},
-		{
-			"bufferView":7,
-			"componentType":5126,
-			"count":1,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":8,
-			"componentType":5126,
-			"count":1,
-			"type":"VEC3"
-		},
-		{
 			"bufferView":9,
 			"componentType":5126,
 			"count":1,
-			"type":"VEC4"
+			"type":"VEC3"
 		},
 		{
 			"bufferView":10,
 			"componentType":5126,
 			"count":1,
-			"type":"VEC3"
+			"type":"VEC4"
 		},
 		{
 			"bufferView":11,
@@ -286,10 +362,52 @@
 			"bufferView":12,
 			"componentType":5126,
 			"count":1,
-			"type":"VEC4"
+			"type":"VEC3"
 		},
 		{
 			"bufferView":13,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":14,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":15,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":16,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":17,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":18,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":19,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":20,
 			"componentType":5126,
 			"count":1,
 			"type":"VEC3"
@@ -322,58 +440,97 @@
 		},
 		{
 			"buffer":0,
+			"byteLength":288,
+			"byteOffset":140,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":428,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":716,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":908,
+			"target":34963
+		},
+		{
+			"buffer":0,
 			"byteLength":4,
-			"byteOffset":140
+			"byteOffset":980
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":144
+			"byteOffset":984
 		},
 		{
 			"buffer":0,
 			"byteLength":16,
-			"byteOffset":156
+			"byteOffset":996
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":172
+			"byteOffset":1012
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":184
+			"byteOffset":1024
 		},
 		{
 			"buffer":0,
 			"byteLength":16,
-			"byteOffset":196
+			"byteOffset":1036
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":212
+			"byteOffset":1052
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":224
+			"byteOffset":1064
 		},
 		{
 			"buffer":0,
 			"byteLength":16,
-			"byteOffset":236
+			"byteOffset":1076
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":252
+			"byteOffset":1092
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":1104
+		},
+		{
+			"buffer":0,
+			"byteLength":16,
+			"byteOffset":1116
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":1132
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":264,
+			"byteLength":1144,
 			"uri":"room2.bin"
 		}
 	]

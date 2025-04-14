@@ -15,6 +15,12 @@ public struct DoorwayDefinition
 	public Matrix localTransform => Matrix.CreateTranslation((localPosition + new Vector3(0.5f, 0, 0.5f) - localDirection * 0.5f) * DungeonGenerator.TILE_SIZE) * Matrix.CreateRotation(Quaternion.LookAt((Vector3)localDirection));
 }
 
+public struct ItemSpawn
+{
+	public Vector3 localPosition;
+	public Quaternion localRotation;
+}
+
 public struct RoomDefinition
 {
 	public int id;
@@ -22,6 +28,7 @@ public struct RoomDefinition
 	public Vector3i min;
 	public Vector3i max;
 	public List<DoorwayDefinition> doorwayDefinitions;
+	public List<ItemSpawn> itemSpawns;
 	public Func<Room> roomEntityCreator;
 }
 
@@ -96,8 +103,10 @@ public class DungeonGenerator
 	public static List<RoomDefinition> roomDefinitions = new List<RoomDefinition>();
 
 
-	static void LoadRoomDefinition(string path, Func<Room> roomEntityCreator = null)
+	static void LoadRoomDefinition(string name, Func<Room> roomEntityCreator = null)
 	{
+		string path = $"level/dungeon/rooms/{name}/{name}.gltf";
+
 		RoomDefinition definition = new RoomDefinition();
 
 		definition.id = roomDefinitions.Count;
@@ -105,6 +114,7 @@ public class DungeonGenerator
 		definition.min = (Vector3i)Vector3.Ceil(definition.model.boundingBox.min / TILE_SIZE - 0.01f);
 		definition.max = Vector3i.Max((Vector3i)Vector3.Ceil(definition.model.boundingBox.max / TILE_SIZE - 0.01f), Vector3i.One);
 		definition.doorwayDefinitions = new List<DoorwayDefinition>();
+		definition.itemSpawns = new List<ItemSpawn>();
 		definition.roomEntityCreator = roomEntityCreator;
 
 		for (int i = 0; i < definition.model.skeleton.nodes.Length; i++)
@@ -118,24 +128,36 @@ public class DungeonGenerator
 				Debug.Assert(MathF.Abs(connector.localDirection.length - 1) < 0.01f);
 				definition.doorwayDefinitions.Add(connector);
 			}
+			else if (node.name.StartsWith("__item"))
+			{
+				ItemSpawn item = new ItemSpawn();
+				item.localPosition = node.transform.translation;
+				item.localRotation = node.transform.rotation;
+				definition.itemSpawns.Add(item);
+			}
 		}
 
 		roomDefinitions.Add(definition);
 	}
 
-	static void LoadRoomDefinition<T>(string path) where T : Room, new()
+	static void LoadRoomDefinition<T>(string name) where T : Room, new()
 	{
-		LoadRoomDefinition(path, () => new T());
+		LoadRoomDefinition(name, () => new T());
 	}
 
 	public static void Init()
 	{
-		LoadRoomDefinition("level/dungeon/rooms/room1/room1.gltf");
-		LoadRoomDefinition("level/dungeon/rooms/room2/room2.gltf");
-		LoadRoomDefinition("level/dungeon/rooms/room3/room3.gltf");
-		LoadRoomDefinition("level/dungeon/rooms/room4/room4.gltf");
-		LoadRoomDefinition("level/dungeon/rooms/room5/room5.gltf");
-		LoadRoomDefinition<ElevatorRoom>("level/dungeon/rooms/room6/room6.gltf");
+		LoadRoomDefinition("room1");
+		LoadRoomDefinition("room2");
+		LoadRoomDefinition("room3");
+		LoadRoomDefinition("room4");
+		LoadRoomDefinition("room5");
+		LoadRoomDefinition<ElevatorRoom>("room6");
+		LoadRoomDefinition("room7");
+		LoadRoomDefinition("room8");
+		LoadRoomDefinition("room9");
+		LoadRoomDefinition("room10");
+		LoadRoomDefinition("room11");
 	}
 
 	static Room CreateRoom(RoomDefinition definition)
@@ -157,8 +179,8 @@ public class DungeonGenerator
 
 	static void PlaceRoom(Room room, Matrix transform, Scene scene, Tilemap tilemap, List<Room> rooms)
 	{
-		tilemap.placeRoom(room, transform);
 		rooms.Add(room);
+		tilemap.placeRoom(room, transform);
 
 		scene.addEntity(room, transform);
 	}
@@ -267,6 +289,34 @@ public class DungeonGenerator
 				break;
 		}
 
+		List<Item> items = new List<Item>();
+		int numItems = 5;
+		for (int i = 0; i < numItems; i++)
+		{
+			Item item = Item.CreateRandom(random);
+			items.Add(item);
+		}
+
+		List<Tuple<Room, ItemSpawn>> itemSpawns = new List<Tuple<Room, ItemSpawn>>();
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			RoomDefinition definition = rooms[i].definition;
+			for (int j = 0; j < definition.itemSpawns.Count; j++)
+			{
+				itemSpawns.Add(new Tuple<Room, ItemSpawn>(rooms[i], definition.itemSpawns[j]));
+			}
+		}
+
+		MathHelper.ShuffleList(itemSpawns, random);
+
+		for (int i = 0; i < Math.Min(items.Count, itemSpawns.Count); i++)
+		{
+			ItemEntity itemEntity = new ItemEntity(items[i]);
+			Vector3 position = itemSpawns[i].Item1.getModelMatrix() * itemSpawns[i].Item2.localPosition;
+			Quaternion rotation = MathHelper.RandomQuaternion(random);
+			scene.addEntity(itemEntity, position, rotation);
+		}
+
 		world.spawnPoint = Matrix.CreateTranslation(room.center);
 
 		//scene.addEntity(loadMapBlender("level/hub/hub_level.gltf"));
@@ -277,10 +327,10 @@ public class DungeonGenerator
 
 		scene.addEntity(new Fireplace(), room.center + new Vector3(-1, 0, -2));
 
-		scene.addEntity(new ItemEntity(new Longsword()), room.center + new Vector3(2, 1.5f, 0));
-		scene.addEntity(new ItemEntity(new KingsSword()), room.center + new Vector3(3, 1.5f, 0));
-		scene.addEntity(new ItemEntity(new Dagger()), room.center + new Vector3(4, 1.5f, 0));
-		scene.addEntity(new ItemEntity(new Spear()), room.center + new Vector3(5, 1.5f, 0));
+		//scene.addEntity(new ItemEntity(new Longsword()), room.center + new Vector3(2, 1.5f, 0));
+		//scene.addEntity(new ItemEntity(new KingsSword()), room.center + new Vector3(3, 1.5f, 0));
+		//scene.addEntity(new ItemEntity(new Dagger()), room.center + new Vector3(4, 1.5f, 0));
+		//scene.addEntity(new ItemEntity(new Spear()), room.center + new Vector3(5, 1.5f, 0));
 
 		scene.addEntity(new Hollow(), room.center + new Vector3(2, 0, -2));
 

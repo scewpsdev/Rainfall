@@ -193,7 +193,7 @@ public class Player : Entity, Hittable
 
 		//setRightWeapon(new KingsSword());
 		//setGloves(new LeatherGauntlets());
-		setRing(0, new SapphireRing());
+		//setRing(0, new SapphireRing());
 	}
 
 	void playSound(Sound[] sound)
@@ -479,18 +479,22 @@ public class Player : Entity, Hittable
 		{
 			if (InputManager.IsPressed("Attack1", true) || InputManager.IsDown("Attack1") && !rightWeapon.useTrigger && actionManager.currentAction == null)
 			{
-				if (InputManager.IsDown("Charge"))
-				{
-					rightWeapon.useCharged(this, 0);
-					lastRightWeaponDown = -1;
-				}
-				else
+				//if (InputManager.IsDown("Charge"))
+				//{
+				//	rightWeapon.useCharged(this, 0);
+				//	lastRightWeaponDown = -1;
+				//}
+				//else
 				{
 					rightWeapon.use(this, 0);
 					lastRightWeaponDown = Time.currentTime;
 				}
 			}
-			//else if (InputManager.IsDown("Attack1") && rightWeapon.useTrigger && lastRightWeaponDown != -1 && (Time.currentTime - lastRightWeaponDown) / 1e9f > WEAPON_CHARGE_TIME)
+			else if (InputManager.IsDown("Attack1") && rightWeapon.useTrigger && lastRightWeaponDown != -1 && (Time.currentTime - lastRightWeaponDown) / 1e9f > WEAPON_CHARGE_TIME)
+			{
+				rightWeapon.useCharged(this, 0);
+				lastRightWeaponDown = -1;
+			}
 		}
 		if (rightWeapon != null && (rightWeapon.twoHanded || leftWeapon == null))
 		{

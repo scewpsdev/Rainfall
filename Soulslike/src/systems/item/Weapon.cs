@@ -154,7 +154,6 @@ public class Weapon : Item
 	{
 		if (getFirstChargedAttack(out int nextAttack))
 		{
-			/*
 			Debug.Assert(player.actionManager.actionQueue.Count > 0);
 			PlayerAction lastQueuedAction = player.actionManager.actionQueue[player.actionManager.actionQueue.Count - 1];
 			Debug.Assert(lastQueuedAction is AttackAction);
@@ -172,15 +171,14 @@ public class Weapon : Item
 			player.actionManager.queueAction(chargeAction);
 			if (lastQueuedAction.hasStarted)
 				chargeAction.animationTransitionDuration = 0;
-			*/
 
-			if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction && (player.actionManager.currentAction as AttackAction).attack.nextCharged != null)
-				nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextCharged];
-			else if (lastCancelledAttack != null && (Time.currentTime - lastCancelledAttack.startTime) / 1e9f < lastCancelledAttack.duration / lastCancelledAttack.animationSpeed && lastCancelledAttack is AttackAction && (lastCancelledAttack as AttackAction).attack.nextCharged != null)
-				nextAttack = attackNameMap[(lastCancelledAttack as AttackAction).attack.nextCharged];
+			//if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction && (player.actionManager.currentAction as AttackAction).attack.nextCharged != null)
+			//	nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextCharged];
+			//else if (lastCancelledAttack != null && (Time.currentTime - lastCancelledAttack.startTime) / 1e9f < lastCancelledAttack.duration / lastCancelledAttack.animationSpeed && lastCancelledAttack is AttackAction && (lastCancelledAttack as AttackAction).attack.nextCharged != null)
+			//	nextAttack = attackNameMap[(lastCancelledAttack as AttackAction).attack.nextCharged];
 
-			AttackChargeAction chargeAction = new AttackChargeAction(this, attacks[nextAttack], hand);
-			player.actionManager.queueAction(chargeAction);
+			//AttackChargeAction chargeAction = new AttackChargeAction(this, attacks[nextAttack], hand);
+			//player.actionManager.queueAction(chargeAction);
 			//if (lastQueuedAction.hasStarted)
 			//	chargeAction.animationTransitionDuration = 0;
 		}
