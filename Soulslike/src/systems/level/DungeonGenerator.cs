@@ -158,6 +158,7 @@ public class DungeonGenerator
 		LoadRoomDefinition("room9");
 		LoadRoomDefinition("room10");
 		LoadRoomDefinition("room11");
+		LoadRoomDefinition("room12");
 	}
 
 	static Room CreateRoom(RoomDefinition definition)
@@ -273,14 +274,15 @@ public class DungeonGenerator
 
 	public static void Generate(WorldManager world, Scene scene)
 	{
-		Tilemap tilemap = new Tilemap(100, 100, 100);
+		Tilemap tilemap = new Tilemap(50, 15, 50);
 		List<Room> rooms = new List<Room>();
 
 		uint seed = Hash.hash("12345");
 		Random random = new Random((int)seed);
 
-		Room room = CreateRoom(roomDefinitions[0]);
-		PlaceRoom(room, RoomTransform(new Vector3i(20, 20, 20), Vector3i.Forward), scene, tilemap, rooms);
+		RoomDefinition startingRoomDefinition = roomDefinitions[11];
+		Room startingRoom = CreateRoom(startingRoomDefinition);
+		PlaceRoom(startingRoom, RoomTransform(new Vector3i(20, 5, 20), Vector3i.Forward), scene, tilemap, rooms);
 
 		int maxRooms = 9;
 		while (rooms.Count < maxRooms)
@@ -317,7 +319,11 @@ public class DungeonGenerator
 			scene.addEntity(itemEntity, position, rotation);
 		}
 
-		world.spawnPoint = Matrix.CreateTranslation(room.center);
+		world.spawnPoint = Matrix.CreateTranslation(startingRoom.center);
+
+		Entity testLight = new Entity();
+		testLight.pointLights.Add(new PointLight(Vector3.Zero, Vector3.One, Renderer.graphics));
+		scene.addEntity(testLight, startingRoom.getModelMatrix() * new Vector3(-5, 1, 2));
 
 		//scene.addEntity(loadMapBlender("level/hub/hub_level.gltf"));
 
@@ -325,14 +331,14 @@ public class DungeonGenerator
 		//spawnPoint = map1.spawnPoint;
 		//scene.addEntity(new Entity().load("level/testmap/testmap.rfs"));
 
-		scene.addEntity(new Fireplace(), room.center + new Vector3(-1, 0, -2));
+		//scene.addEntity(new Fireplace(), startingRoom.center + new Vector3(-1, 0, -2));
 
 		//scene.addEntity(new ItemEntity(new Longsword()), room.center + new Vector3(2, 1.5f, 0));
 		//scene.addEntity(new ItemEntity(new KingsSword()), room.center + new Vector3(3, 1.5f, 0));
 		//scene.addEntity(new ItemEntity(new Dagger()), room.center + new Vector3(4, 1.5f, 0));
 		//scene.addEntity(new ItemEntity(new Spear()), room.center + new Vector3(5, 1.5f, 0));
 
-		scene.addEntity(new Hollow(), room.center + new Vector3(2, 0, -2));
+		scene.addEntity(new Hollow(), startingRoom.center + new Vector3(2, 0, -2));
 
 		AudioManager.SetAmbientSound(Resource.GetSound("sound/ambient/dungeon_ambient_1.ogg"), 0.2f);
 	}

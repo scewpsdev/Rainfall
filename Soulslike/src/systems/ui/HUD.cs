@@ -50,12 +50,12 @@ public static class HUD
 			float falloff = MathHelper.Lerp(0.12f, 0.37f, anim);
 			Vector3 color = Vector3.Lerp(Vector3.Zero, new Vector3(1, 0.3f, 0.3f), anim);
 			GraphicsManager.vignetteFalloff = falloff;
-			GraphicsManager.vignetteColor = color;
+			GraphicsManager.vignetteColor = new Vector4(color, 1);
 		}
 		else
 		{
 			GraphicsManager.vignetteFalloff = 0.12f;
-			GraphicsManager.vignetteColor = new Vector3(0.5f);
+			GraphicsManager.vignetteColor = new Vector4(0, 0, 0, 0.5f);
 		}
 	}
 }

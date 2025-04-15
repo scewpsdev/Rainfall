@@ -241,6 +241,8 @@ namespace Rainfall
 		public float xdir, ydir, zdir;
 		public Vector3 color;
 
+		public int nodeId;
+
 		public Vector3 position { get => new Vector3(x, y, z); }
 		public Vector3 direction { get => new Vector3(xdir, ydir, zdir); }
 	}

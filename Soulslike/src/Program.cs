@@ -33,8 +33,8 @@ internal class Program : Game3D<Program>
 	{
 		base.init();
 
-		GraphicsManager.bloomStrength = 0.05f;
-		GraphicsManager.bloomEnabled = false;
+		//GraphicsManager.bloomStrength = 0.05f;
+		//GraphicsManager.bloomEnabled = false;
 		//GraphicsManager.ssaoEnabled = false;
 		//GraphicsManager.exposure = 8;
 

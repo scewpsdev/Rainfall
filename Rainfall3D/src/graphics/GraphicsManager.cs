@@ -33,7 +33,7 @@ public static class GraphicsManager
 	public static float bloomFalloff = 5.0f;
 
 	public static bool vignetteEnabled = true;
-	public static Vector3 vignetteColor = Vector3.Zero;
+	public static Vector4 vignetteColor = new Vector4(0, 0, 0, 1);
 	public static float vignetteFalloff = 0.12f;
 
 	public static bool ssaoEnabled = true;

@@ -225,6 +225,8 @@ struct LightData
 	float x, y, z;
 	float xdir, ydir, zdir;
 	Vector3 color;
+
+	int nodeId;
 };
 
 struct SceneData

@@ -20,8 +20,10 @@ uniform vec4 u_cameraFrustum;
 #define u_cameraFar u_cameraFrustum.y
 
 uniform vec4 u_vignetteData;
+uniform vec4 u_vignetteData1;
 #define u_vignetteColor u_vignetteData.rgb
-#define u_vignetteFalloff u_vignetteData.a
+#define u_vignetteAlpha u_vignetteData.a
+#define u_vignetteFalloff u_vignetteData1.r
 
 
 vec3 ThreshholdBloom(vec3 bloom)
@@ -111,7 +113,7 @@ vec3 Vignette(vec3 color, vec2 uv)
 	float vig = uv.x * uv.y * intensity;
 	vig = pow(vig, falloff);
 
-	return mix(u_vignetteColor, color, vig);
+	return mix(u_vignetteColor, color, 1 - u_vignetteAlpha * (1 - vig));
 }
 
 void main()

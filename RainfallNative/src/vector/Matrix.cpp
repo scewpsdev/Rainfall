@@ -30,7 +30,7 @@ Matrix::Matrix(const Vector4& col0, const Vector4& col1, const Vector4& col2, co
 	columns[3] = col3;
 }
 
-Matrix::Matrix(float elements[16])
+Matrix::Matrix(const float elements[16])
 {
 	memcpy(this->elements, elements, sizeof(this->elements));
 }
@@ -193,8 +193,6 @@ Matrix Matrix::Transform(const Vector3& position, const Quaternion& rotation, co
 
 Matrix Matrix::Perspective(float fovy, float aspect, float near, float far)
 {
-	__debugbreak();
-
 	// TODO homogenous depth check
 
 	Matrix matrix = Identity;

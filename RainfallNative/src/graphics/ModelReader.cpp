@@ -323,6 +323,8 @@ static void ReadLight(bx::ReaderI* reader, LightData& light, bx::Error* err)
 	bx::read(reader, light.ydir, err);
 	bx::read(reader, light.zdir, err);
 	bx::read(reader, light.color, err);
+
+	light.nodeId = -1;
 }
 
 static void ReadLights(bx::ReaderI* reader, SceneData& scene, bx::Error* err)

@@ -73,7 +73,7 @@ struct Renderer3DSettings
 	float fogStrength = 0.0f;
 
 	bool vignetteEnabled = true;
-	Vector3 vignetteColor = Vector3::Zero;
+	Vector4 vignetteColor = { 0, 0, 0, 1 };
 	float vignetteFalloff = 0.12f;
 
 	bool physicsDebugDraw = false;
@@ -117,6 +117,13 @@ struct PointLightDraw
 	Vector3 position;
 	Vector3 color;
 	float radius;
+
+	bool hasShadowMap = false;
+	uint16_t shadowMap = bgfx::kInvalidHandle;
+	uint16_t shadowMapRTs[6] = { bgfx::kInvalidHandle, bgfx::kInvalidHandle, bgfx::kInvalidHandle, bgfx::kInvalidHandle, bgfx::kInvalidHandle, bgfx::kInvalidHandle };
+	int shadowMapRes = 0;
+	float shadowMapNear = 0;
+	bool shadowMapNeedsUpdate = false;
 
 	bool culled = false;
 };
@@ -239,6 +246,14 @@ static const short skydomeIndices[] = { 0, 1, 2, 2, 1, 3, 1, 0, 3, 0, 2, 3 };
 static uint16_t skydome = bgfx::kInvalidHandle;
 static uint16_t skydomeIBO = bgfx::kInvalidHandle;
 
+static const float cubemapFaceRotations[6][16] = {
+	{ 0, 0, -1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 1 },
+	{ 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1 },
+	{ 1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 1 },
+	{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1 },
+	{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1 },
+	{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
+};
 static uint16_t emptyCubemap = bgfx::kInvalidHandle;
 
 static bgfx::TextureHandle blueNoise64;
@@ -276,6 +291,7 @@ static bgfx::DynamicIndexBufferHandle lightInstancePredicates;
 static bgfx::DynamicVertexBufferHandle lightCulledInstanceBuffer;
 static Shader* lightIndirectShader;
 static Shader* streamCompactionShader;
+static uint16_t pointShadowMapBuffer[MAX_POINT_SHADOWS];
 
 static List<ParticleSystemDraw> particleSystemDraws;
 static int numVisibleParticleSystems;
@@ -646,10 +662,28 @@ static float CalculateLightRadius(Vector3 color)
 	return radius;
 }
 
-RFAPI void Renderer3D_DrawPointLight(Vector3 position, Vector3 color)
+RFAPI void Renderer3D_DrawPointLight(Vector3 position, Vector3 color, bool hasShadowMap, uint16_t shadowMap, uint16_t shadowMapRTs[6], int shadowMapRes, float shadowMapNear, bool shadowMapNeedsUpdate)
 {
 	float radius = CalculateLightRadius(color);
-	pointLightDraws.add({ position, color, radius });
+	PointLightDraw draw;
+	draw.position = position;
+	draw.color = color;
+	draw.radius = radius;
+	draw.hasShadowMap = hasShadowMap;
+	if (hasShadowMap)
+	{
+		draw.shadowMap = shadowMap;
+		draw.shadowMapRTs[0] = shadowMapRTs[0];
+		draw.shadowMapRTs[1] = shadowMapRTs[1];
+		draw.shadowMapRTs[2] = shadowMapRTs[2];
+		draw.shadowMapRTs[3] = shadowMapRTs[3];
+		draw.shadowMapRTs[4] = shadowMapRTs[4];
+		draw.shadowMapRTs[5] = shadowMapRTs[5];
+		draw.shadowMapRes = shadowMapRes;
+		draw.shadowMapNear = shadowMapNear;
+		draw.shadowMapNeedsUpdate = shadowMapNeedsUpdate;
+	}
+	pointLightDraws.add(draw);
 }
 
 RFAPI void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color, bool shadowsNeedUpdate, int shadowMapRes, RenderTarget cascade0, RenderTarget cascade1, RenderTarget cascade2)
@@ -969,12 +1003,20 @@ static void CullLights()
 
 	const bgfx::Memory* lightBufferMem = bgfx::alloc(numVisibleLights * 2 * sizeof(Vector4));
 	Vector4* lightBufferData = (Vector4*)lightBufferMem->data;
+	int numPointShadows = 0;
 	for (int i = 0; i < numVisibleLights; i++)
 	{
 		lightBufferData[i * 2 + 0].xyz = pointLightDraws[i].position;
 		lightBufferData[i * 2 + 0].w = pointLightDraws[i].radius;
 		lightBufferData[i * 2 + 1].xyz = pointLightDraws[i].color;
-		lightBufferData[i * 2 + 1].w = (float)numVisibleLights;
+		lightBufferData[i * 2 + 1].w = -1;
+
+		if (pointLightDraws[i].hasShadowMap)
+		{
+			lightBufferData[i * 2 + 1].w = numPointShadows;
+			pointShadowMapBuffer[numPointShadows] = pointLightDraws[i].shadowMap;
+			numPointShadows++;
+		}
 	}
 
 	bgfx::update(lightBuffer, 0, lightBufferMem);
@@ -1328,9 +1370,51 @@ static void UpdateDirectionalShadows()
 	}
 }
 
+static void UpdatePointShadows()
+{
+	int numPointShadows = 0;
+	for (int i = 0; i < pointLightDraws.size; i++)
+	{
+		PointLightDraw draw = pointLightDraws[i];
+
+		if (!draw.hasShadowMap || !draw.shadowMapNeedsUpdate)
+			continue;
+
+		for (int face = 0; face < 6; face++)
+		{
+			Graphics_ResetState();
+
+			Graphics_SetRenderTarget(RenderPass::PointShadow + numPointShadows * 6 + face, draw.shadowMapRTs[face], draw.shadowMapRes, draw.shadowMapRes);
+			Graphics_ClearRenderTarget(RenderPass::PointShadow + numPointShadows * 6 + face, draw.shadowMapRTs[face], false, true, 0, 1);
+
+			Matrix shadowMapProjection = Matrix::Perspective(PI * 0.5f, 1.0f, draw.shadowMapNear, draw.radius);
+			Matrix shadowMapView = cubemapFaceRotations[face] * Matrix::Translate(-draw.position);
+			Graphics_SetViewTransform(RenderPass::PointShadow + numPointShadows * 6 + face, shadowMapProjection, shadowMapView);
+
+			for (int j = 0; j < meshDraws.size; j++)
+			{
+				MeshData* mesh = meshDraws[j].mesh;
+				Material* material = meshDraws[j].material;
+				AnimationState* animation = meshDraws[j].animation;
+
+				Matrix transform = meshDraws[j].transform;
+
+				SkeletonState* skeleton = nullptr;
+				if (animation && mesh->skeletonID != -1)
+					skeleton = animation->skeletons[mesh->skeletonID];
+
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face);
+			}
+		}
+
+		numPointShadows++;
+	}
+}
+
 static void ShadowPass()
 {
 	UpdateDirectionalShadows();
+	UpdatePointShadows();
 }
 
 static void AmbientOcclusionPass()
@@ -1412,6 +1496,13 @@ static void RenderPointLights()
 	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
 
 	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
+
+	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
+	{
+		char uniformName[16];
+		sprintf(uniformName, "s_shadowMap%d", i);
+		Graphics_SetTexture(shader->getUniform(uniformName, bgfx::UniformType::Sampler), 5 + i, bgfx::TextureHandle{ pointShadowMapBuffer[i] });
+	}
 
 	Vector4 u_cameraPosition(cameraPosition, (float)numVisibleLights);
 	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -1830,8 +1921,9 @@ static void TonemappingPass(uint16_t target)
 	Vector4 cameraFrustum(cameraNear, cameraFar, 0, 0);
 	Graphics_SetUniform(shader->getUniform("u_cameraFrustum", bgfx::UniformType::Vec4), &cameraFrustum);
 
-	Vector4 vignetteData(settings.vignetteColor, settings.vignetteEnabled ? settings.vignetteFalloff : 0);
-	Graphics_SetUniform(shader->getUniform("u_vignetteData", bgfx::UniformType::Vec4), &vignetteData);
+	Vector4 vignetteData1 = Vector4(settings.vignetteFalloff, 0, 0, 0);
+	Graphics_SetUniform(shader->getUniform("u_vignetteData", bgfx::UniformType::Vec4), &settings.vignetteColor);
+	Graphics_SetUniform(shader->getUniform("u_vignetteData1", bgfx::UniformType::Vec4), &vignetteData1);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }

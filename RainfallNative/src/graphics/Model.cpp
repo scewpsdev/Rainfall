@@ -334,6 +334,18 @@ static void InitializeAnimation(AnimationData& animation, SceneData& scene)
 	}
 }
 
+static void InitializeLight(LightData& light, SceneData& scene)
+{
+	for (int i = 0; i < scene.numNodes; i++)
+	{
+		if (strcmp(scene.nodes[i].name, light.name) == 0)
+		{
+			light.nodeId = scene.nodes[i].id;
+			break;
+		}
+	}
+}
+
 void InitializeScene(SceneData& scene, const char* scenePath, uint64_t textureFlags)
 {
 	for (int i = 0; i < scene.numNodes; i++)
@@ -355,6 +367,10 @@ void InitializeScene(SceneData& scene, const char* scenePath, uint64_t textureFl
 	for (int i = 0; i < scene.numAnimations; i++)
 	{
 		InitializeAnimation(scene.animations[i], scene);
+	}
+	for (int i = 0; i < scene.numLights; i++)
+	{
+		InitializeLight(scene.lights[i], scene);
 	}
 }
 

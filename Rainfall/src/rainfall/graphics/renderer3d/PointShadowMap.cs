@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 public class PointShadowMap
 {
+	public const int resolution = 512;
+
 	public Cubemap cubemap;
 	public RenderTarget[] renderTargets = new RenderTarget[6];
 	internal float nearPlane;
 
-	internal bool needsUpdate = true;
+	public bool needsUpdate = true;
 
 
-	public PointShadowMap(int resolution, float nearPlane, GraphicsDevice graphics)
+	public PointShadowMap(float nearPlane, GraphicsDevice graphics)
 	{
 		this.nearPlane = nearPlane;
 

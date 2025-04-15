@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 public class PointLight
 {
-	const int RESOLUTION = 512;
-
-
 	public Vector3 offset;
 	public Vector3 color;
 	public float radius = 4.0f;
@@ -23,7 +20,7 @@ public class PointLight
 		this.offset = position;
 		this.color = color;
 
-		shadowMap = new PointShadowMap(RESOLUTION, nearPlane, graphics);
+		shadowMap = new PointShadowMap(nearPlane, graphics);
 	}
 
 	public PointLight(Vector3 position, Vector3 color)

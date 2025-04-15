@@ -105,7 +105,7 @@ public class FirstPersonController
 	{
 		this.player = player;
 		this.filterMask = filterMask;
-		controller = new CharacterController(player, COLLIDER_RADIUS, Vector3.Zero, COLLIDER_HEIGHT, 0.2f, filterMask, new CollisionCallback(this));
+		controller = new CharacterController(player, COLLIDER_RADIUS, Vector3.Zero, COLLIDER_HEIGHT, 0.3f, filterMask, new CollisionCallback(this));
 	}
 
 	public void destroy()

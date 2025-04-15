@@ -64,8 +64,8 @@ public abstract class Projectile : Entity
 		Matrix transform = getModelMatrix();
 		if (model != null)
 			Renderer.DrawModel(model, Matrix.CreateTranslation(offset) * transform * modelTransform, animator, isStatic);
-		for (int i = 0; i < lights.Count; i++)
-			Renderer.DrawPointLight(lights[i], transform);
+		for (int i = 0; i < pointLights.Count; i++)
+			Renderer.DrawPointLight(pointLights[i], transform);
 		for (int i = 0; i < particles.Count; i++)
 		{
 			particles[i].handle->spawnOffset = particleOffset + rotation.conjugated * offset;

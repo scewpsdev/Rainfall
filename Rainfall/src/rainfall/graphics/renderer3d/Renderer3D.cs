@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace Rainfall
 
 		internal byte _vignetteEnabled = 1;
 		public bool vignetteEnabled { get => _vignetteEnabled != 0; set { _vignetteEnabled = (byte)(value ? 1 : 0); } }
-		public Vector3 vignetteColor = Vector3.Zero;
+		public Vector4 vignetteColor = new Vector4(0, 0, 0, 1);
 		public float vignetteFalloff = 0.12f;
 
 		internal byte physicsDebugDraw = 0;
@@ -390,12 +391,28 @@ namespace Rainfall
 
 		public static void DrawLight(Vector3 position, Vector3 color)
 		{
-			Renderer3D_DrawPointLight(position, color);
+			Renderer3D_DrawPointLight(position, color, 0, 0, null, 0, 0, 0);
 		}
 
 		public static void DrawPointLight(PointLight light, Matrix transform)
 		{
-			DrawLight(transform * light.offset, light.color);
+			if (light.shadowMap != null)
+			{
+				Span<ushort> shadowMap = stackalloc ushort[6];
+				shadowMap[0] = light.shadowMap.renderTargets[0].handle;
+				shadowMap[1] = light.shadowMap.renderTargets[1].handle;
+				shadowMap[2] = light.shadowMap.renderTargets[2].handle;
+				shadowMap[3] = light.shadowMap.renderTargets[3].handle;
+				shadowMap[4] = light.shadowMap.renderTargets[4].handle;
+				shadowMap[5] = light.shadowMap.renderTargets[5].handle;
+				fixed (ushort* shadowMapPtr = shadowMap)
+					Renderer3D_DrawPointLight(transform * light.offset, light.color, 1, light.shadowMap.cubemap.handle, shadowMapPtr, PointShadowMap.resolution, light.shadowMap.nearPlane, (byte)(light.shadowMap.needsUpdate ? 1 : 0));
+				light.shadowMap.needsUpdate = false;
+			}
+			else
+			{
+				Renderer3D_DrawPointLight(transform * light.offset, light.color, 0, 0, null, 0, 0, 0);
+			}
 		}
 
 		public static void DrawDirectionalLight(DirectionalLight light)
@@ -496,7 +513,7 @@ namespace Rainfall
 		extern static void Renderer3D_DrawCloth(IntPtr cloth, IntPtr material, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color);
+		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color, byte hasShadowMap, ushort shadowMap, ushort* shadowMapRTs, int shadowMapRes, float shadowMapNear, byte shadowMapNeedsUpdate);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color, byte shadowsNeedUpdate, int shadowMapRes, ushort cascade0, ushort cascade1, ushort cascade2);

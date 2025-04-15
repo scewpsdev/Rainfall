@@ -15,7 +15,7 @@ public class Torch : Entity
 	public override void init()
 	{
 		load("entity/object/torch/torch.rfs");
-		lightColor = lights[0].color;
+		lightColor = pointLights[0].color;
 
 		simplex = new Simplex();
 	}
@@ -25,6 +25,6 @@ public class Torch : Entity
 		base.update();
 
 		float lightIntensity = simplex.sample1f(GetHashCode() % 10 + Time.currentTime / 1e9f);
-		lights[0].color = lightColor * (1 + lightIntensity * 0.2f);
+		pointLights[0].color = lightColor * (1 + lightIntensity * 0.2f);
 	}
 }

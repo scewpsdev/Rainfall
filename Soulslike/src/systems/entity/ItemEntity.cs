@@ -50,9 +50,15 @@ public class ItemEntity : Entity, Interactable
 		body.destroy();
 	}
 
+	bool canInteract(Player player)
+	{
+		return player.actionManager.currentAction == null;
+	}
+
 	public void interact(Player player)
 	{
-		player.giveItem(item);
+		//player.giveItem(item);
+		player.actionManager.queueAction(new PickUpAction(item));
 		remove();
 	}
 

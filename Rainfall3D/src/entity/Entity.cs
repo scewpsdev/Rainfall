@@ -33,7 +33,8 @@ public class Entity : PhysicsEntity
 	public Dictionary<string, RigidBody> hitboxes;
 	public uint hitboxFilterGroup = 1, hitboxFilterMask = 1;
 
-	public List<PointLight> lights = new List<PointLight>();
+	public List<PointLight> pointLights = new List<PointLight>();
+	public List<PointLight> spotLights = new List<PointLight>();
 
 	public List<ParticleSystem> particles = new List<ParticleSystem>();
 	//public Vector3 particleOffset = Vector3.Zero;
@@ -155,7 +156,7 @@ public class Entity : PhysicsEntity
 		for (int i = 0; i < entity.lights.Count; i++)
 		{
 			PointLight light = new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity);
-			lights.Add(light);
+			pointLights.Add(light);
 		}
 
 		for (int i = 0; i < entity.particles.Length; i++)
@@ -191,12 +192,12 @@ public class Entity : PhysicsEntity
 			hitboxes.Clear();
 			hitboxes = null;
 		}
-		if (lights != null)
+		if (pointLights != null)
 		{
-			foreach (PointLight light in lights)
+			foreach (PointLight light in pointLights)
 				light.destroy(Renderer.graphics);
-			lights.Clear();
-			lights = null;
+			pointLights.Clear();
+			pointLights = null;
 		}
 		if (particles != null)
 		{
@@ -287,10 +288,22 @@ public class Entity : PhysicsEntity
 			if (meshIdx != -1)
 				Renderer.DrawMesh(model, meshIdx, transform * modelTransform, animator, isStatic);
 			else
+			{
 				Renderer.DrawModel(model, transform * modelTransform, animator, isStatic);
+
+				for (int i = 0; i < model.lightCount; i++)
+				{
+					LightData light = model.getLight(i);
+					Node lightNode = model.skeleton.getNode(light.nodeId);
+					Vector3 lightPosition = getModelMatrix() * lightNode.transform * light.position;
+
+					Vector3 color = light.color * 0.002f;
+					Renderer.DrawLight(lightPosition, color);
+				}
+			}
 		}
-		for (int i = 0; i < lights.Count; i++)
-			Renderer.DrawPointLight(lights[i], transform);
+		for (int i = 0; i < pointLights.Count; i++)
+			Renderer.DrawPointLight(pointLights[i], transform);
 		for (int i = 0; i < particles.Count; i++)
 			Renderer.DrawParticleSystem(particles[i]);
 	}

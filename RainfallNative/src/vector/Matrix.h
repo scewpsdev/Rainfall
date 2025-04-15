@@ -23,7 +23,7 @@ struct Matrix
 	Matrix();
 	Matrix(float diagonal);
 	Matrix(const Vector4& col0, const Vector4& col1, const Vector4& col2, const Vector4& col3);
-	Matrix(float elements[16]);
+	Matrix(const float elements[16]);
 
 	Vector3 translation() const;
 	Vector3 scale() const;
