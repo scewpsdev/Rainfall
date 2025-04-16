@@ -141,7 +141,7 @@ public class Weapon : Item
 			else if (player.actionManager.currentAction != null && player.actionManager.currentAction is ParryHitAction && parryAttack != null)
 			{
 				nextAttack = attackNameMap[parryAttack];
-				player.actionManager.cancelAction();
+				//player.actionManager.cancelAction();
 			}
 
 			player.actionManager.queueAction(new AttackAction(this, attacks[nextAttack], hand));

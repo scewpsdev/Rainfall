@@ -28,7 +28,7 @@ public class ParryHitAction : PlayerAction
 		mirrorAnimation = hand == 1;
 
 		animationTransitionDuration = 1 / 24.0f;
-		followUpCancelTime = weapon.parryWindow * 2;
+		followUpCancelTime = weapon.parryWindow;
 
 		viewmodelAim = 1;
 

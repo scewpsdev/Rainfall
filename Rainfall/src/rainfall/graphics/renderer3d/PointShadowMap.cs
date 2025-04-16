@@ -21,7 +21,7 @@ public class PointShadowMap
 	{
 		this.nearPlane = nearPlane;
 
-		cubemap = graphics.createCubemap(resolution, TextureFormat.D16F, (ulong)TextureFlags.RenderTarget);
+		cubemap = graphics.createCubemap(resolution, TextureFormat.D16F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.CompareLEqual);
 
 		for (int i = 0; i < renderTargets.Length; i++)
 		{

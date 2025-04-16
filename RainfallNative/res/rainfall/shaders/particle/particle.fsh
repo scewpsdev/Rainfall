@@ -17,8 +17,10 @@ uniform vec4 u_lightInfo; // numPointLights, emissiveStrength, lightInfluence, a
 
 vec3 L(vec3 color, float distanceSq)
 {
-	float maxBrightness = 400.0;
-	float attenuation = 1.0 / (1.0 / maxBrightness + distanceSq);
+	//float maxBrightness = 400.0;
+	//float attenuation = 1.0 / (1.0 / maxBrightness + distanceSq);
+	float dist = sqrt(distanceSq);
+	float attenuation = 1.0 / (1.0 + 1 * dist + 2 * distanceSq);
 	vec3 radiance = color * attenuation;
 
 	return radiance;
@@ -33,10 +35,12 @@ vec3 CalculatePointLights(vec3 position)
 		vec3 lightPosition = u_pointLight_position[i].xyz;
 		vec3 lightColor = u_pointLight_color[i].rgb * u_pointLight_color[i].a;
 
-		float distanceSq = dot(lightPosition - position, lightPosition - position);
+		vec3 toLight = lightPosition - position;
+		float distanceSq = dot(toLight, toLight);
 		vec3 light = L(lightColor, distanceSq);
+		float ndotl = max(dot(normalize(toLight), vec3(0, 1, 0)), 0);
 
-		result += i < u_numPointLights ? light : vec3(0.0, 0.0, 0.0);
+		result += i < u_numPointLights ? light * ndotl : vec3(0.0, 0.0, 0.0);
 	}
 
 	return result;
@@ -65,10 +69,9 @@ void main()
 		discard;
 
 	vec4 final = vec4(0, 0, 0, albedo.a);
-	final.rgb += u_emissiveStrength * albedo.rgb;
-
 	vec3 light = CalculatePointLights(v_position);
-	final.rgb += light * albedo.rgb;
+	final.rgb = albedo.rgb * u_emissiveStrength;
+	final.rgb += albedo.rgb * light * max(1 - u_emissiveStrength, 0);
 
 	if (u_additive > 0.5)
 	{

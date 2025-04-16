@@ -603,7 +603,7 @@ static void ProcessLight(LightData& light, aiLight* ailight)
 	light.xdir = ailight->mDirection.x;
 	light.ydir = ailight->mDirection.y;
 	light.zdir = ailight->mDirection.z;
-	light.color = Vector3{ ailight->mColorDiffuse.r, ailight->mColorDiffuse.g, ailight->mColorDiffuse.b };
+	light.color = Vector3{ ailight->mColorDiffuse.r * 0.002f, ailight->mColorDiffuse.g * 0.002f, ailight->mColorDiffuse.b * 0.002f };
 }
 
 static void ProcessLights(SceneData& scene, const aiScene* aiscene)
@@ -648,7 +648,7 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
 		| aiProcess_PopulateArmatureData
-		| aiProcess_RemoveRedundantMaterials
+		//| aiProcess_RemoveRedundantMaterials
 		;
 
 	if (optimizeGraph)

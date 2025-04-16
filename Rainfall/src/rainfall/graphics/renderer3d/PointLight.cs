@@ -13,6 +13,7 @@ public class PointLight
 	public float radius = 4.0f;
 
 	public PointShadowMap shadowMap;
+	public bool dynamicShadowMap = false;
 
 
 	public PointLight(Vector3 position, Vector3 color, GraphicsDevice graphics, float nearPlane = 0.1f)

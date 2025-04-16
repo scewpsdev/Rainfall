@@ -778,15 +778,19 @@ static bool FrustumCulling(const Sphere& boundingSphere, Matrix transform, bool 
 
 static int MeshDrawComparator(const MeshDraw* a, const MeshDraw* b)
 {
-	int ia = a->culled * 1;
-	int ib = b->culled * 1;
+	float das = (a->transform.translation() - cameraPosition).lengthSquared();
+	float dbs = (b->transform.translation() - cameraPosition).lengthSquared();
+	float ia = a->culled * 1000000 + das;
+	float ib = b->culled * 1000000 + dbs;
 	return ia < ib ? -1 : ia > ib ? 1 : 0;
 }
 
 static int PointLightDrawComparator(const PointLightDraw* a, const PointLightDraw* b)
 {
-	int ia = a->culled * 1;
-	int ib = b->culled * 1;
+	float das = (a->position - cameraPosition).lengthSquared();
+	float dbs = (b->position - cameraPosition).lengthSquared();
+	float ia = a->culled * 1000000 + das;
+	float ib = b->culled * 1000000 + dbs;
 	return ia < ib ? -1 : ia > ib ? 1 : 0;
 }
 
@@ -808,7 +812,7 @@ static void FrustumCullObjects()
 	}
 	for (int i = 0; i < occluderMeshes.size; i++)
 	{
-		occluderMeshes[i].culled = !FrustumCulling(occluderMeshes[i].mesh->boundingSphere, occluderMeshes[i].transform, meshDraws[i].animation != nullptr, frustumPlanes);
+		occluderMeshes[i].culled = !FrustumCulling(occluderMeshes[i].mesh->boundingSphere, occluderMeshes[i].transform, occluderMeshes[i].animation != nullptr, frustumPlanes);
 	}
 
 	qsort(meshDraws.buffer, meshDraws.size, sizeof(MeshDraw), (_CoreCrtNonSecureSearchSortCompareFunction)MeshDrawComparator);
@@ -837,11 +841,11 @@ static void FrustumCullObjects()
 	qsort(particleSystemDraws.buffer, particleSystemDraws.size, sizeof(ParticleSystemDraw), (_CoreCrtNonSecureSearchSortCompareFunction)ParticleSystemDrawComparator);
 }
 
-static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, SkeletonState* skeleton, bgfx::ViewId view, bgfx::IndirectBufferHandle indirect = BGFX_INVALID_HANDLE, int indirectID = 0)
+static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, SkeletonState* skeleton, bgfx::ViewId view, CullState cullState = CullState::ClockWise, bgfx::IndirectBufferHandle indirect = BGFX_INVALID_HANDLE, int indirectID = 0)
 {
 	Shader* shader = material->shader ? material->shader : skeleton ? defaultAnimatedShader : defaultShader;
 
-	Graphics_SetCullState(CullState::ClockWise);
+	Graphics_SetCullState(cullState);
 
 	bgfx::setTransform(&transform.m00);
 
@@ -1003,6 +1007,7 @@ static void CullLights()
 
 	const bgfx::Memory* lightBufferMem = bgfx::alloc(numVisibleLights * 2 * sizeof(Vector4));
 	Vector4* lightBufferData = (Vector4*)lightBufferMem->data;
+
 	int numPointShadows = 0;
 	for (int i = 0; i < numVisibleLights; i++)
 	{
@@ -1011,7 +1016,7 @@ static void CullLights()
 		lightBufferData[i * 2 + 1].xyz = pointLightDraws[i].color;
 		lightBufferData[i * 2 + 1].w = -1;
 
-		if (pointLightDraws[i].hasShadowMap)
+		if (pointLightDraws[i].hasShadowMap && numPointShadows < MAX_POINT_SHADOWS)
 		{
 			lightBufferData[i * 2 + 1].w = numPointShadows;
 			pointShadowMapBuffer[numPointShadows] = pointLightDraws[i].shadowMap;
@@ -1241,7 +1246,7 @@ static void GeometryPass()
 				skeleton = animation->skeletons[0];
 		}
 
-		DrawMesh(mesh, transform, material, skeleton, RenderPass::Geometry, indirectBuffer, i);
+		DrawMesh(mesh, transform, material, skeleton, RenderPass::Geometry, CullState::ClockWise, indirectBuffer, i);
 	}
 
 	for (int i = 0; i < geometryDraws.size; i++)
@@ -1352,6 +1357,21 @@ static void UpdateDirectionalShadows()
 			Graphics_SetViewTransform(RenderPass::Shadow0 + i, cascadeProjections[i], cascadeViews[i]);
 			directionalLightShadowMapMatrix[i] = cascadePV;
 
+			for (int j = 0; j < occluderMeshes.size; j++)
+			{
+				MeshData* mesh = occluderMeshes[j].mesh;
+				Material* material = occluderMeshes[j].material;
+				AnimationState* animation = occluderMeshes[j].animation;
+
+				Matrix transform = occluderMeshes[j].transform;
+
+				SkeletonState* skeleton = nullptr;
+				if (animation && mesh->skeletonID != -1)
+					skeleton = animation->skeletons[mesh->skeletonID];
+
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::CounterClockWise);
+			}
+
 			for (int j = 0; j < meshDraws.size; j++)
 			{
 				MeshData* mesh = meshDraws[j].mesh;
@@ -1364,7 +1384,7 @@ static void UpdateDirectionalShadows()
 				if (animation && mesh->skeletonID != -1)
 					skeleton = animation->skeletons[mesh->skeletonID];
 
-				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i);
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::CounterClockWise);
 			}
 		}
 	}
@@ -1389,7 +1409,27 @@ static void UpdatePointShadows()
 
 			Matrix shadowMapProjection = Matrix::Perspective(PI * 0.5f, 1.0f, draw.shadowMapNear, draw.radius);
 			Matrix shadowMapView = cubemapFaceRotations[face] * Matrix::Translate(-draw.position);
+			Matrix shadowMapPV = shadowMapProjection * shadowMapView;
 			Graphics_SetViewTransform(RenderPass::PointShadow + numPointShadows * 6 + face, shadowMapProjection, shadowMapView);
+
+			Vector4 shadowMapFrustumPlanes[6];
+			GetFrustumPlanes(shadowMapPV, shadowMapFrustumPlanes);
+
+			for (int j = 0; j < occluderMeshes.size; j++)
+			{
+				MeshData* mesh = occluderMeshes[j].mesh;
+				Material* material = occluderMeshes[j].material;
+				AnimationState* animation = occluderMeshes[j].animation;
+
+				Matrix transform = occluderMeshes[j].transform;
+
+				SkeletonState* skeleton = nullptr;
+				if (animation && mesh->skeletonID != -1)
+					skeleton = animation->skeletons[mesh->skeletonID];
+
+				if (FrustumCulling(mesh->boundingSphere, transform, skeleton, shadowMapFrustumPlanes))
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face, CullState::CounterClockWise);
+			}
 
 			for (int j = 0; j < meshDraws.size; j++)
 			{
@@ -1403,7 +1443,8 @@ static void UpdatePointShadows()
 				if (animation && mesh->skeletonID != -1)
 					skeleton = animation->skeletons[mesh->skeletonID];
 
-				DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face);
+				if (FrustumCulling(mesh->boundingSphere, transform, skeleton, shadowMapFrustumPlanes))
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face, CullState::CounterClockWise);
 			}
 		}
 

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Torch : Entity
+public class TorchEntity : Entity
 {
 	Vector3 lightColor;
 	Simplex simplex;

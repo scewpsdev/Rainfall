@@ -208,6 +208,17 @@ public class Entity : PhysicsEntity
 		}
 	}
 
+	public void createModelLights(bool shadow = false)
+	{
+		for (int i = 0; i < model.lightCount; i++)
+		{
+			LightData light = model.getLight(i);
+			Node lightNode = model.skeleton.getNode(light.nodeId);
+			Vector3 lightPosition = lightNode.transform * light.position;
+			pointLights.Add(shadow ? new PointLight(lightPosition, light.color, Renderer.graphics) : new PointLight(lightPosition, light.color));
+		}
+	}
+
 	public virtual void init()
 	{
 		if (body != null)
@@ -288,19 +299,7 @@ public class Entity : PhysicsEntity
 			if (meshIdx != -1)
 				Renderer.DrawMesh(model, meshIdx, transform * modelTransform, animator, isStatic);
 			else
-			{
 				Renderer.DrawModel(model, transform * modelTransform, animator, isStatic);
-
-				for (int i = 0; i < model.lightCount; i++)
-				{
-					LightData light = model.getLight(i);
-					Node lightNode = model.skeleton.getNode(light.nodeId);
-					Vector3 lightPosition = getModelMatrix() * lightNode.transform * light.position;
-
-					Vector3 color = light.color * 0.002f;
-					Renderer.DrawLight(lightPosition, color);
-				}
-			}
 		}
 		for (int i = 0; i < pointLights.Count; i++)
 			Renderer.DrawPointLight(pointLights[i], transform);

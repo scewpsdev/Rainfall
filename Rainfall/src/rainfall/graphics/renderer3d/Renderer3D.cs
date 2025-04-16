@@ -407,7 +407,7 @@ namespace Rainfall
 				shadowMap[5] = light.shadowMap.renderTargets[5].handle;
 				fixed (ushort* shadowMapPtr = shadowMap)
 					Renderer3D_DrawPointLight(transform * light.offset, light.color, 1, light.shadowMap.cubemap.handle, shadowMapPtr, PointShadowMap.resolution, light.shadowMap.nearPlane, (byte)(light.shadowMap.needsUpdate ? 1 : 0));
-				light.shadowMap.needsUpdate = false;
+				light.shadowMap.needsUpdate = light.dynamicShadowMap;
 			}
 			else
 			{

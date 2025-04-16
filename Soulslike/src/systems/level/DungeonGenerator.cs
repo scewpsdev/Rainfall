@@ -48,9 +48,8 @@ public class Tilemap
 		tiles = new TileData[width * height * depth];
 	}
 
-	public bool canPlaceRoom(Room room, Matrix transform)
+	public bool canPlaceRoom(RoomDefinition definition, Matrix transform)
 	{
-		RoomDefinition definition = DungeonGenerator.roomDefinitions[room.definitionId];
 		Vector3 v0 = transform * (definition.min * DungeonGenerator.TILE_SIZE);
 		Vector3 v1 = transform * (definition.max * DungeonGenerator.TILE_SIZE);
 		Vector3i min = (Vector3i)Vector3.Floor(Vector3.Min(v0, v1) / DungeonGenerator.TILE_SIZE + 0.01f);
@@ -183,6 +182,10 @@ public class DungeonGenerator
 		rooms.Add(room);
 		tilemap.placeRoom(room, transform);
 
+		room.isStatic = true;
+		room.createModelLights(true);
+		foreach (PointLight light in room.pointLights)
+			light.dynamicShadowMap = true;
 		scene.addEntity(room, transform);
 	}
 
@@ -224,19 +227,20 @@ public class DungeonGenerator
 		for (int i = 0; i < roomCandidates.Count; i++)
 		{
 			int nextRoomId = roomCandidates[i].Item1; // MathHelper.RandomInt(0, roomDefinitions.Count - 1, random);
-			Room nextRoom = CreateRoom(roomDefinitions[nextRoomId]);
+			RoomDefinition definition = roomDefinitions[nextRoomId];
 			int otherDoorwayId = roomCandidates[i].Item2; // MathHelper.RandomInt(0, roomDefinitions[nextRoom.definitionId].doorwayDefinitions.Count - 1, random);
-			DoorwayDefinition otherDoorwayDefinition = roomDefinitions[nextRoom.definitionId].doorwayDefinitions[otherDoorwayId];
+			DoorwayDefinition otherDoorwayDefinition = definition.doorwayDefinitions[otherDoorwayId];
 
 			DoorwayDefinition doorwayDefinition = roomDefinitions[doorway.room.definitionId].doorwayDefinitions[doorway.doorwayId];
 			Matrix doorwayTransform = doorway.room.getModelMatrix() * doorwayDefinition.localTransform;
 			Matrix otherDoorwayTransform = doorwayTransform * Matrix.CreateRotation(Vector3.Up, MathF.PI);
 			Matrix nextRoomTransform = otherDoorwayTransform * otherDoorwayDefinition.localTransform.inverted;
 
-			if (tilemap.canPlaceRoom(nextRoom, nextRoomTransform))
+			if (tilemap.canPlaceRoom(definition, nextRoomTransform))
 			{
-				PlaceRoom(nextRoom, nextRoomTransform, scene, tilemap, rooms);
-				ConnectRooms(nextRoom, otherDoorwayId, doorway.room, doorway.doorwayId);
+				Room room = CreateRoom(definition);
+				PlaceRoom(room, nextRoomTransform, scene, tilemap, rooms);
+				ConnectRooms(room, otherDoorwayId, doorway.room, doorway.doorwayId);
 				return true;
 			}
 		}
@@ -274,7 +278,7 @@ public class DungeonGenerator
 
 	public static void Generate(WorldManager world, Scene scene)
 	{
-		Tilemap tilemap = new Tilemap(50, 15, 50);
+		Tilemap tilemap = new Tilemap(100, 15, 100);
 		List<Room> rooms = new List<Room>();
 
 		uint seed = Hash.hash("12345");
@@ -282,9 +286,9 @@ public class DungeonGenerator
 
 		RoomDefinition startingRoomDefinition = roomDefinitions[11];
 		Room startingRoom = CreateRoom(startingRoomDefinition);
-		PlaceRoom(startingRoom, RoomTransform(new Vector3i(20, 5, 20), Vector3i.Forward), scene, tilemap, rooms);
+		PlaceRoom(startingRoom, RoomTransform(new Vector3i(40, 5, 40), Vector3i.Forward), scene, tilemap, rooms);
 
-		int maxRooms = 9;
+		int maxRooms = 11;
 		while (rooms.Count < maxRooms)
 		{
 			if (!PropagateRooms(maxRooms, scene, tilemap, rooms, random))
@@ -320,10 +324,6 @@ public class DungeonGenerator
 		}
 
 		world.spawnPoint = Matrix.CreateTranslation(startingRoom.center);
-
-		Entity testLight = new Entity();
-		testLight.pointLights.Add(new PointLight(Vector3.Zero, Vector3.One, Renderer.graphics));
-		scene.addEntity(testLight, startingRoom.getModelMatrix() * new Vector3(-5, 1, 2));
 
 		//scene.addEntity(loadMapBlender("level/hub/hub_level.gltf"));
 
@@ -373,7 +373,7 @@ public class DungeonGenerator
 					else if (entityName == "iron_door")
 						entity = new IronDoor();
 					else if (entityName == "torch")
-						entity = new Torch();
+						entity = new TorchEntity();
 					else if (entityName.StartsWith("ladder"))
 						entity = new Ladder(int.Parse(entityName.Substring(6)));
 

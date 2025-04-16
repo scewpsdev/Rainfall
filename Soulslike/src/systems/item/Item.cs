@@ -42,6 +42,7 @@ public abstract class Item
 		InitType<DarkwoodStaff>();
 		//InitType<LeatherGauntlets>();
 		InitType<SapphireRing>();
+		InitType<Torch>();
 	}
 
 	static void InitType<T>() where T : Item, new()
@@ -80,7 +81,7 @@ public abstract class Item
 	public string displayName;
 	public Model model;
 	public Model moveset;
-	public List<SceneFormat.ColliderData> colliders;
+	public SceneFormat.EntityData entityData;
 
 	public Vector3 sfxSourcePosition = Vector3.Zero;
 
@@ -109,11 +110,9 @@ public abstract class Item
 
 		if (SceneFormat.Read($"item/{typeStr}/{name}/{name}.rfs", out List<SceneFormat.EntityData> entities, out _))
 		{
-			SceneFormat.EntityData entity = entities[0];
-			model = entity.model;
+			entityData = entities[0];
+			model = entityData.model;
 			moveset = Resource.GetModel($"item/{typeStr}/{name}/{name}_moveset.gltf");
-
-			colliders = entity.colliders;
 		}
 	}
 

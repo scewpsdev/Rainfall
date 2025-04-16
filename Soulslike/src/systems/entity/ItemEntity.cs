@@ -20,12 +20,18 @@ public class ItemEntity : Entity, Interactable
 
 	public override void init()
 	{
+		bodyFilterGroup = PhysicsFilter.Pickup | PhysicsFilter.Interactable;
+		bodyFilterMask = PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.Pickup | PhysicsFilter.Ragdoll;
+
+		load(item.entityData);
+
+		/*
 		float restitution = 0.1f;
 
 		body = new RigidBody(this, RigidBodyType.Dynamic, PhysicsFilter.Pickup | PhysicsFilter.Interactable, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.Pickup | PhysicsFilter.Ragdoll);
-		for (int i = 0; i < item.colliders.Count; i++)
+		for (int i = 0; i < item.entityData.colliders.Count; i++)
 		{
-			SceneFormat.ColliderData collider = item.colliders[i];
+			SceneFormat.ColliderData collider = item.entityData.colliders[i];
 			if (!collider.trigger)
 			{
 				if (collider.type == SceneFormat.ColliderType.Box)
@@ -42,6 +48,8 @@ public class ItemEntity : Entity, Interactable
 					Debug.Assert(false);
 			}
 		}
+		*/
+
 		body.addBoxCollider(model.boundingBox.size * 0.5f, model.boundingBox.center, Quaternion.Identity, PhysicsFilter.Pickup | PhysicsFilter.Interactable, 0);
 	}
 
@@ -50,7 +58,7 @@ public class ItemEntity : Entity, Interactable
 		body.destroy();
 	}
 
-	bool canInteract(Player player)
+	public bool canInteract(Player player)
 	{
 		return player.actionManager.currentAction == null;
 	}
@@ -60,10 +68,5 @@ public class ItemEntity : Entity, Interactable
 		//player.giveItem(item);
 		player.actionManager.queueAction(new PickUpAction(item));
 		remove();
-	}
-
-	public override void update()
-	{
-		body.getTransform(out position, out rotation);
 	}
 }

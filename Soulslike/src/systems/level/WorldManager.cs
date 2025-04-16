@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class WorldManager : Entity
 {
-	Scene scene;
-
 	DirectionalLight sun;
 	List<Cubemap> skyboxes = new List<Cubemap>();
 
@@ -20,8 +18,6 @@ public class WorldManager : Entity
 
 	public override void init()
 	{
-		scene = GameState.instance.scene;
-
 		//sun = new DirectionalLight(new Vector3(-1, -1, 1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 3, Renderer.graphics);
 		//Cubemap globalSkybox = Resource.GetCubemap("level/cubemap_equirect.png");
 		//skyboxes.Add(globalSkybox);

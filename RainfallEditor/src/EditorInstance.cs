@@ -234,7 +234,7 @@ public class EditorInstance
 		}
 
 		if (previewLighting)
-			Renderer.DrawModel(invertedBox, Matrix.CreateScale(10));
+			Renderer.DrawModel(invertedBox, Matrix.CreateTranslation(0, 10, 0) * Matrix.CreateScale(10));
 
 		frame = Renderer.End();
 	}

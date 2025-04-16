@@ -107,7 +107,7 @@ vec3 RenderPointLight(vec3 position, vec3 normal, vec3 view, vec3 albedo, float 
 }
 
 // Point light indirect specular lighting
-vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, vec3 lightColor, samplerCube shadowMap, float shadowMapNear)
+vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, float ao, vec3 lightPosition, vec3 lightColor, samplerCubeShadow shadowMap, float shadowMapNear)
 {
 	vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 	vec3 fLambert = albedo / PI;
@@ -132,7 +132,7 @@ vec3 RenderPointLightShadow(vec3 position, vec3 normal, vec3 view, vec3 albedo, 
 	vec3 kd = (1.0 - ks) * (1.0 - metallic);
 
 	float ndotwi = max(dot(wi, normal), 0.0);
-	float shadow = CalculatePointShadow(position, lightPosition, shadowMap, shadowMapNear);
+	float shadow = CalculatePointShadow(position, lightPosition, shadowMap, shadowMapNear, 30);
 
 	vec3 s = (specular * ao + fLambert * kd * ao) * radiance * ndotwi * shadow;
 

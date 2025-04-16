@@ -62,6 +62,8 @@ public class Player : Entity, Hittable
 	Model rightWeaponModel, leftWeaponModel;
 	Model rightWeaponMoveset, leftWeaponMoveset;
 	Animator rightWeaponAnimator, leftWeaponAnimator;
+	PointLight rightWeaponLight;
+	ParticleSystem rightWeaponParticles;
 
 	Item helmet, bodyArmor, gloves, boots;
 
@@ -134,7 +136,7 @@ public class Player : Entity, Hittable
 
 		yaw = rotation.eulers.y;
 
-		controller = new FirstPersonController(this, PhysicsFilter.Default);
+		controller = new FirstPersonController(this, PhysicsFilter.Default | PhysicsFilter.Creature);
 		controller.canJump = () =>
 		{
 			//return stats.stamina > 0;
@@ -194,6 +196,7 @@ public class Player : Entity, Hittable
 		//setRightWeapon(new KingsSword());
 		//setGloves(new LeatherGauntlets());
 		//setRing(0, new SapphireRing());
+		setRightWeapon(new Torch());
 	}
 
 	void playSound(Sound[] sound)
@@ -241,6 +244,16 @@ public class Player : Entity, Hittable
 			Animator.Destroy(rightWeaponAnimator);
 			rightWeaponAnimator = null;
 		}
+		if (rightWeaponLight != null)
+		{
+			rightWeaponLight.destroy(Renderer.graphics);
+			rightWeaponLight = null;
+		}
+		if (rightWeaponParticles != null)
+		{
+			ParticleSystem.Destroy(rightWeaponParticles);
+			rightWeaponParticles = null;
+		}
 
 		rightWeapon = item;
 
@@ -255,6 +268,13 @@ public class Player : Entity, Hittable
 			rightWeaponMoveset = moveset;
 			if (model.isAnimated)
 				rightWeaponAnimator = Animator.Create(model);
+			if (item.entityData.lights.Count > 0)
+				rightWeaponLight = new PointLight(item.entityData.lights[0].offset, item.entityData.lights[0].color * item.entityData.lights[0].intensity);
+			if (item.entityData.particles.Length > 0)
+			{
+				rightWeaponParticles = ParticleSystem.Create(rightWeaponTransform);
+				rightWeaponParticles.setData(item.entityData.particles[0]);
+			}
 
 			if (rightHandBoneMask == null)
 			{
@@ -295,6 +315,8 @@ public class Player : Entity, Hittable
 		{
 			rightWeaponModel = null;
 			rightWeaponMoveset = null;
+			rightWeaponLight = null;
+			rightWeaponParticles = null;
 
 			idleAnim.layers[1] = null;
 			runAnim.layers[1] = null;
@@ -694,6 +716,9 @@ public class Player : Entity, Hittable
 		updateMovement();
 		updateActions();
 		updateAnimations();
+
+		if (rightWeaponParticles != null)
+			rightWeaponParticles.setTransform(rightWeaponTransform);
 	}
 
 	public override void fixedUpdate(float delta)
@@ -722,6 +747,10 @@ public class Player : Entity, Hittable
 			rightWeaponModel = actionManager.currentAction.weaponModel[0];
 		if (rightWeaponModel != null)
 			Renderer.DrawModel(rightWeaponModel, rightWeaponTransform, rightWeaponAnimator);
+		if (rightWeaponLight != null)
+			Renderer.DrawPointLight(rightWeaponLight, rightWeaponTransform);
+		if (rightWeaponParticles != null)
+			Renderer.DrawParticleSystem(rightWeaponParticles);
 
 		Model leftWeaponModel = this.leftWeaponModel;
 		if (actionManager.currentAction != null && actionManager.currentAction.overrideWeaponModel[1])

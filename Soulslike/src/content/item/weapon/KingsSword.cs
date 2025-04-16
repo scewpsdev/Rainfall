@@ -11,8 +11,6 @@ public class KingsSword : Weapon
 	public KingsSword()
 		: base("kings_sword", "King's Sword")
 	{
-		//twoHanded = true;
-
 		damage = 15;
 
 		initBlade(0.1f, 0.85f);
