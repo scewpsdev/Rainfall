@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rainfall;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,7 @@ public class Torch : Weapon
 		damage = 5;
 
 		initBlade(0.25f, 0.4f);
+
+		equipSound = [Resource.GetSound("sound/item/ignite.ogg")];
 	}
 }
