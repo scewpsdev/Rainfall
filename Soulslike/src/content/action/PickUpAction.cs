@@ -15,7 +15,8 @@ public class PickUpAction : PlayerAction
 	{
 		this.item = item;
 
-		animationName[0] = "pick_up";
+		animationName[0] = "pickup";
+		viewmodelAim[0] = 1;
 
 		addSoundEffect(new ActionSfx(Item.equipLight));
 	}

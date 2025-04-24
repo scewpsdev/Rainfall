@@ -30,7 +30,7 @@ public class ParryHitAction : PlayerAction
 		animationTransitionDuration = 1 / 24.0f;
 		followUpCancelTime = weapon.parryWindow;
 
-		viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 
 		addSoundEffect(new ActionSfx(Resource.GetSound("sound/item/parry.ogg")));
 	}

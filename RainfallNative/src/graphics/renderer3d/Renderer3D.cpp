@@ -763,7 +763,7 @@ static bool FrustumCulling(const Sphere& boundingSphere, Vector4 planes[6])
 static bool FrustumCulling(const Sphere& boundingSphere, Matrix transform, bool isAnimated, Vector4 planes[6])
 {
 	Vector4 boundingSpherePos = (transform * Vector4(boundingSphere.center, 1.0f));
-	float boundingSphereRadius = sqrtf(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * boundingSphere.radius * (isAnimated ? 2 : 1);
+	float boundingSphereRadius = sqrtf(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * boundingSphere.radius * (isAnimated ? 10 : 1);
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -1369,7 +1369,7 @@ static void UpdateDirectionalShadows()
 				if (animation && mesh->skeletonID != -1)
 					skeleton = animation->skeletons[mesh->skeletonID];
 
-				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::CounterClockWise);
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::None);
 			}
 
 			for (int j = 0; j < meshDraws.size; j++)
@@ -1384,7 +1384,7 @@ static void UpdateDirectionalShadows()
 				if (animation && mesh->skeletonID != -1)
 					skeleton = animation->skeletons[mesh->skeletonID];
 
-				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::CounterClockWise);
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::None);
 			}
 		}
 	}

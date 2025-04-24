@@ -21,7 +21,7 @@ public class CrossbowShootAction : PlayerAction
 		animationName[hand ^ 1] = "shoot";
 		animationSet[hand ^ 1] = weapon.moveset;
 
-		viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 		swayAmount = 0.1f;
 
 		animationTransitionDuration = 0.05f;

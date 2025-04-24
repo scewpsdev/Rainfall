@@ -33,7 +33,7 @@ public class AttackChargeAction : PlayerAction
 
 		followUpCancelTime = attack.chargeCancelFrame / 24.0f;
 
-		viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 		lockYaw = true;
 		movementSpeedMultiplier = 0.5f;
 	}

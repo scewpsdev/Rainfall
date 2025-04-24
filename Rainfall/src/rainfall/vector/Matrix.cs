@@ -384,6 +384,14 @@ namespace Rainfall
 			return new Quaternion(qx, qy, qz, qw).normalized;
 		}
 
+		public static Matrix LerpTransform(Matrix a, Matrix b, float t)
+		{
+			Vector3 translation = Vector3.Lerp(a.translation, b.translation, t);
+			Quaternion rotation = Quaternion.Slerp(a.rotation, b.rotation, t);
+			Vector3 scale = Vector3.Lerp(a.scale, b.scale, t);
+			return CreateTransform(translation, rotation, scale);
+		}
+
 		public static Matrix CreateTranslation(float x, float y, float z, float w)
 		{
 			Matrix matrix = Identity;

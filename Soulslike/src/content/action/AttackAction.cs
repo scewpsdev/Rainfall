@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class AttackAction : PlayerAction
 {
-	const float HIT_FREEZE_LENGTH = 0.3f;
+	const float HIT_FREEZE_LENGTH = 0.1f;
 	const float HIT_FREEZE_SPEED = 0.2f;
 
 
@@ -34,7 +34,7 @@ public class AttackAction : PlayerAction
 	long lastEnemyHit = -1;
 	long slowdownTime = -1;
 	long lastWallHit = -1;
-	bool inReflect = false;
+	public bool inReflect = false;
 
 
 	public AttackAction(Weapon weapon, AttackData attack, int hand, float chargeAmount = -1)
@@ -69,7 +69,7 @@ public class AttackAction : PlayerAction
 
 		//lockYaw = true;
 
-		viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 
 		addSoundEffect(new ActionSfx(attack.damageType == DamageType.Thrust ? stab : swing, 1, 1.0f / followUpCancelTime * 0.5f * animationSpeed * (chargeAmount != -1 ? 0.8f : 1), damageStartTime, true));
 	}
@@ -136,8 +136,6 @@ public class AttackAction : PlayerAction
 		if (entity is Hittable)
 		{
 			Hittable hittable = entity as Hittable;
-
-			lockYaw = true;
 
 			if (!hitEntities.Contains(entity))
 			{
@@ -231,10 +229,6 @@ public class AttackAction : PlayerAction
 				}
 			}
 			*/
-		}
-		else
-		{
-			lockYaw = false;
 		}
 
 		lastTip = tip;
