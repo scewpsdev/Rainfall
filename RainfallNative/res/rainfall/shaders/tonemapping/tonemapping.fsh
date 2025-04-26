@@ -129,7 +129,7 @@ void main()
 	hdr *= exposure;
 	vec3 tonemapped = Tonemap(hdr);
 	tonemapped = Vignette(tonemapped, v_texcoord0);
-	//tonemapped = BayerDither(tonemapped, v_texcoord0);
+	tonemapped = BayerDither(tonemapped, v_texcoord0);
 
 	gl_FragColor = vec4(tonemapped, 1.0);
 }

@@ -11,6 +11,9 @@ public class WorldManager : Entity
 	DirectionalLight sun;
 	List<Cubemap> skyboxes = new List<Cubemap>();
 
+	public Vector3 fogColor = Vector3.One;
+	public float fogStrength = 0.0f;
+
 	public Matrix spawnPoint = Matrix.Identity;
 
 	public Cubemap skybox;
@@ -18,9 +21,9 @@ public class WorldManager : Entity
 
 	public override void init()
 	{
-		sun = new DirectionalLight(new Vector3(-1, -1, 1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 3, Renderer.graphics);
-		Cubemap globalSkybox = Resource.GetCubemap("level/cubemap_equirect.png");
-		skyboxes.Add(globalSkybox);
+		//sun = new DirectionalLight(new Vector3(-1, -1, 1).normalized, new Vector3(1.0f, 0.9f, 0.7f) * 3, Renderer.graphics);
+		//Cubemap globalSkybox = Resource.GetCubemap("level/cubemap_equirect.png");
+		//skyboxes.Add(globalSkybox);
 	}
 
 	public override void destroy()
@@ -51,5 +54,8 @@ public class WorldManager : Entity
 				Renderer.DrawSky(skybox, 1, Quaternion.Identity);
 			}
 		}
+
+		GraphicsManager.fogColor = fogColor;
+		GraphicsManager.fogStrength = fogStrength;
 	}
 }

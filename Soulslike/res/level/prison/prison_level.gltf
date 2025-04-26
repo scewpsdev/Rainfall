@@ -10,7 +10,16 @@
 			"nodes":[
 				0,
 				1,
-				2
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11
 			]
 		}
 	],
@@ -56,6 +65,114 @@
 				1.5,
 				-0.555814266204834
 			]
+		},
+		{
+			"name":"Object: torch 0",
+			"translation":[
+				-0.5,
+				2,
+				-7.5
+			]
+		},
+		{
+			"name":"Object: torch 0.001",
+			"translation":[
+				7.5,
+				2,
+				-7.5
+			]
+		},
+		{
+			"name":"Object: torch 0.002",
+			"rotation":[
+				0,
+				-0.7071068286895752,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				16,
+				2,
+				-8.5
+			]
+		},
+		{
+			"name":"Object: torch 0.003",
+			"rotation":[
+				0,
+				-0.7071068286895752,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				16,
+				2,
+				-3.5
+			]
+		},
+		{
+			"name":"Object: torch 0.004",
+			"rotation":[
+				0,
+				0.7071068286895752,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				-12,
+				2,
+				-8.5
+			]
+		},
+		{
+			"name":"Object: torch 0.005",
+			"rotation":[
+				0,
+				0.7071068286895752,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				-12,
+				2,
+				-3.5
+			]
+		},
+		{
+			"name":"Object: torch 0.006",
+			"rotation":[
+				0,
+				-0.70710688829422,
+				0,
+				0.7071066498756409
+			],
+			"translation":[
+				-20,
+				2,
+				-15
+			]
+		},
+		{
+			"name":"Object: prison_gate:activatable0 0",
+			"rotation":[
+				0,
+				0.7071068286895752,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				-8.5,
+				0,
+				-6
+			]
+		},
+		{
+			"name":"Object: lever:activatable0 0",
+			"translation":[
+				-7.5,
+				1.5,
+				-7.5
+			]
 		}
 	],
 	"animations":[
@@ -64,26 +181,26 @@
 				{
 					"sampler":0,
 					"target":{
-						"node":0,
+						"node":4,
 						"path":"translation"
 					}
 				},
 				{
 					"sampler":1,
 					"target":{
-						"node":0,
+						"node":4,
 						"path":"rotation"
 					}
 				},
 				{
 					"sampler":2,
 					"target":{
-						"node":0,
+						"node":4,
 						"path":"scale"
 					}
 				}
 			],
-			"name":"EmptyAction",
+			"name":"Object: torch 0.001Action.001",
 			"samplers":[
 				{
 					"input":0,
@@ -107,26 +224,26 @@
 				{
 					"sampler":0,
 					"target":{
-						"node":1,
+						"node":5,
 						"path":"translation"
 					}
 				},
 				{
 					"sampler":1,
 					"target":{
-						"node":1,
+						"node":5,
 						"path":"rotation"
 					}
 				},
 				{
 					"sampler":2,
 					"target":{
-						"node":1,
+						"node":5,
 						"path":"scale"
 					}
 				}
 			],
-			"name":"EmptyAction.001",
+			"name":"Object: torch 0.001Action.002",
 			"samplers":[
 				{
 					"input":0,
@@ -150,26 +267,26 @@
 				{
 					"sampler":0,
 					"target":{
-						"node":2,
+						"node":6,
 						"path":"translation"
 					}
 				},
 				{
 					"sampler":1,
 					"target":{
-						"node":2,
+						"node":6,
 						"path":"rotation"
 					}
 				},
 				{
 					"sampler":2,
 					"target":{
-						"node":2,
+						"node":6,
 						"path":"scale"
 					}
 				}
 			],
-			"name":"EmptyAction.002",
+			"name":"Object: torch 0.001Action.003",
 			"samplers":[
 				{
 					"input":0,
@@ -185,6 +302,221 @@
 					"input":0,
 					"interpolation":"LINEAR",
 					"output":9
+				}
+			]
+		},
+		{
+			"channels":[
+				{
+					"sampler":0,
+					"target":{
+						"node":7,
+						"path":"translation"
+					}
+				},
+				{
+					"sampler":1,
+					"target":{
+						"node":7,
+						"path":"rotation"
+					}
+				},
+				{
+					"sampler":2,
+					"target":{
+						"node":7,
+						"path":"scale"
+					}
+				}
+			],
+			"name":"Object: torch 0.001Action.004",
+			"samplers":[
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":10
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":11
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":12
+				}
+			]
+		},
+		{
+			"channels":[
+				{
+					"sampler":0,
+					"target":{
+						"node":8,
+						"path":"translation"
+					}
+				},
+				{
+					"sampler":1,
+					"target":{
+						"node":8,
+						"path":"rotation"
+					}
+				},
+				{
+					"sampler":2,
+					"target":{
+						"node":8,
+						"path":"scale"
+					}
+				}
+			],
+			"name":"Object: torch 0.001Action.005",
+			"samplers":[
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":13
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":14
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":15
+				}
+			]
+		},
+		{
+			"channels":[
+				{
+					"sampler":0,
+					"target":{
+						"node":9,
+						"path":"translation"
+					}
+				},
+				{
+					"sampler":1,
+					"target":{
+						"node":9,
+						"path":"rotation"
+					}
+				},
+				{
+					"sampler":2,
+					"target":{
+						"node":9,
+						"path":"scale"
+					}
+				}
+			],
+			"name":"Object: torch 0.001Action.006",
+			"samplers":[
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":16
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":17
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":18
+				}
+			]
+		},
+		{
+			"channels":[
+				{
+					"sampler":0,
+					"target":{
+						"node":10,
+						"path":"translation"
+					}
+				},
+				{
+					"sampler":1,
+					"target":{
+						"node":10,
+						"path":"rotation"
+					}
+				},
+				{
+					"sampler":2,
+					"target":{
+						"node":10,
+						"path":"scale"
+					}
+				}
+			],
+			"name":"Object: prison_gate 0Action",
+			"samplers":[
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":19
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":20
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":21
+				}
+			]
+		},
+		{
+			"channels":[
+				{
+					"sampler":0,
+					"target":{
+						"node":11,
+						"path":"translation"
+					}
+				},
+				{
+					"sampler":1,
+					"target":{
+						"node":11,
+						"path":"rotation"
+					}
+				},
+				{
+					"sampler":2,
+					"target":{
+						"node":11,
+						"path":"scale"
+					}
+				}
+			],
+			"name":"Object: prison_gate 0Action.001",
+			"samplers":[
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":22
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":23
+				},
+				{
+					"input":0,
+					"interpolation":"LINEAR",
+					"output":24
 				}
 			]
 		}
@@ -255,6 +587,96 @@
 			"componentType":5126,
 			"count":1,
 			"type":"VEC3"
+		},
+		{
+			"bufferView":10,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":11,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":12,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":13,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":14,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":15,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":16,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":17,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":18,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":19,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":20,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":21,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":22,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":23,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":24,
+			"componentType":5126,
+			"count":1,
+			"type":"VEC3"
 		}
 	],
 	"bufferViews":[
@@ -307,11 +729,86 @@
 			"buffer":0,
 			"byteLength":12,
 			"byteOffset":112
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":124
+		},
+		{
+			"buffer":0,
+			"byteLength":16,
+			"byteOffset":136
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":152
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":164
+		},
+		{
+			"buffer":0,
+			"byteLength":16,
+			"byteOffset":176
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":192
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":204
+		},
+		{
+			"buffer":0,
+			"byteLength":16,
+			"byteOffset":216
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":232
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":244
+		},
+		{
+			"buffer":0,
+			"byteLength":16,
+			"byteOffset":256
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":272
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":284
+		},
+		{
+			"buffer":0,
+			"byteLength":16,
+			"byteOffset":296
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":312
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":124,
+			"byteLength":324,
 			"uri":"prison_level.bin"
 		}
 	]

@@ -13,6 +13,7 @@ public class MapLoader
 	{
 		world.spawnPoint = Matrix.Identity;
 
+		/*
 		LoadMap([
 			"level/testmap/testmap1.gltf",
 			"level/testmap/testmap2.gltf"
@@ -25,8 +26,8 @@ public class MapLoader
 			"level/testmap/testmap_level.gltf"
 		],
 		scene);
+		*/
 
-		/*
 		LoadMap([
 			"level/prison/prison.gltf"
 		],
@@ -37,13 +38,15 @@ public class MapLoader
 			"level/prison/prison_level.gltf"
 		],
 		scene);
-		*/
 
 		world.spawnPoint = Matrix.CreateTranslation(1.5f, 0, -2.5f);
 
 		scene.addEntity(new Hollow(), new Vector3(-2, 0, -2));
-		scene.addEntity(new ItemEntity(new KingsSword()), new Vector3(1, 0, -4));
-		scene.addEntity(new ItemEntity(new WoodenRoundShield()), new Vector3(2, 0, -4));
+		//scene.addEntity(new ItemEntity(new KingsSword()), new Vector3(1, 0, -4));
+		//scene.addEntity(new ItemEntity(new WoodenRoundShield()), new Vector3(2, 0, -4));
+
+		world.fogColor = new Vector3(0.3f);
+		world.fogStrength = 0.01f;
 
 		AudioManager.SetAmbientSound(Resource.GetSound("sound/ambient/dungeon_ambient_1.ogg"), 0.2f);
 	}
@@ -62,6 +65,7 @@ public class MapLoader
 	{
 		Model model = Resource.GetModel(path);
 		Entity entity = new Entity() { model = model };
+		entity.createModelLights();
 		scene.addEntity(entity);
 	}
 
@@ -77,6 +81,10 @@ public class MapLoader
 	static void LoadNodes(string path, Scene scene)
 	{
 		Model model = Resource.GetModel(path);
+
+		Dictionary<string, Entity> entitiesWithID = new Dictionary<string, Entity>();
+		Dictionary<string, Entity> entitiesLookingForID = new Dictionary<string, Entity>();
+
 		for (int i = 0; i < model.skeleton.nodes.Length; i++)
 		{
 			Node node = model.skeleton.nodes[i];
@@ -91,22 +99,62 @@ public class MapLoader
 			}
 			else if (node.name.StartsWith("Object: "))
 			{
-				string objectName = node.name;
-				if (objectName.LastIndexOf(' ') > 7)
-					objectName = objectName.Substring(0, objectName.LastIndexOf(' '));
-				objectName = objectName.Substring(8);
+				string objectType = node.name;
+				if (objectType.LastIndexOf(' ') > 7)
+					objectType = objectType.Substring(0, objectType.LastIndexOf(' '));
+				objectType = objectType.Substring(8);
+
+				string objectArgs = null;
+				int argDelim = objectType.LastIndexOf(':');
+				if (argDelim != -1)
+				{
+					objectArgs = objectType.Substring(argDelim + 1);
+					objectType = objectType.Substring(0, argDelim);
+				}
 
 				Entity entity = null;
-				if (objectName.StartsWith("ladder"))
+				if (objectType == "ladder")
 				{
-					int height = int.Parse(objectName.Substring(7));
+					Debug.Assert(objectArgs != null);
+					int height = int.Parse(objectArgs);
 					entity = new Ladder(height);
 				}
-				else if (objectName.StartsWith("crate"))
+				else if (objectType == "crate")
 				{
 					entity = new Crate();
 				}
+				else if (objectType == "torch")
+				{
+					entity = new TorchEntity();
+				}
+				else if (objectType == "prison_gate")
+				{
+					Debug.Assert(objectArgs != null);
+					entity = new PrisonGate();
+					entitiesWithID.Add(objectArgs, entity);
+				}
+				else if (objectType == "lever")
+				{
+					Debug.Assert(objectArgs != null);
+					entity = new Lever();
+					entitiesLookingForID.Add(objectArgs, entity);
+				}
+				else
+				{
+					Debug.Assert(false);
+				}
 				scene.addEntity(entity, node.transform);
+			}
+
+			foreach (var pair in entitiesLookingForID)
+			{
+				if (entitiesWithID.TryGetValue(pair.Key, out Entity entity))
+				{
+					if (pair.Value is Lever)
+					{
+						(pair.Value as Lever).activatable = (Activatable)entity;
+					}
+				}
 			}
 		}
 	}

@@ -193,7 +193,7 @@ struct AnimationData
 struct NodeData
 {
 	int id;
-	char name[32];
+	char name[64];
 	int armatureID;
 	Matrix transform;
 

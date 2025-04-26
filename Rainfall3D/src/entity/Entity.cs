@@ -26,7 +26,7 @@ public class Entity : PhysicsEntity
 	public RigidBody body = null;
 	public RigidBodyType bodyType = RigidBodyType.Null;
 	public float bodyDensity = 1;
-	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
+	//public uint bodyFilterGroup = 1, bodyFilterMask = 1;
 	public float bodyFriction = 0.5f;
 	public float bodyRestitution = 0.1f;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
@@ -40,7 +40,7 @@ public class Entity : PhysicsEntity
 	//public Vector3 particleOffset = Vector3.Zero;
 
 
-	public Entity load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1)
+	public Entity load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1, bool pointLightsShadow = false)
 	{
 		name = entity.name;
 		isStatic = entity.isStatic;
@@ -155,7 +155,8 @@ public class Entity : PhysicsEntity
 
 		for (int i = 0; i < entity.lights.Count; i++)
 		{
-			PointLight light = new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity);
+			PointLight light = pointLightsShadow ? new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity, Renderer.graphics)
+				: new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity);
 			pointLights.Add(light);
 		}
 
@@ -169,11 +170,11 @@ public class Entity : PhysicsEntity
 		return this;
 	}
 
-	public Entity load(string path, uint filterGroup = 1, uint filterMask = 1)
+	public Entity load(string path, uint filterGroup = 1, uint filterMask = 1, bool pointLightsShadow = false)
 	{
 		if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out _))
 		{
-			load(entities[0], filterGroup, filterMask);
+			load(entities[0], filterGroup, filterMask, pointLightsShadow);
 		}
 		return this;
 	}

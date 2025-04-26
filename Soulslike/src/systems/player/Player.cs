@@ -21,7 +21,7 @@ public class Player : Entity, Hittable
 	public const float DEFAULT_VIEWMODEL_AIM = 0.2f;
 	const float SPRINT_SPEED_MULTIPLIER = 1.5f;
 	const float DUCK_SPEED_MULTIPLIER = 0.5f;
-	const float REACH_DISTANCE = 3.0f;
+	const float REACH_DISTANCE = 1.5f;
 	const float CAMERA_HEIGHT = 1.5f;
 	const float CAMERA_HEIGHT_DUCKED = 0.9f;
 	const float WEAPON_CHARGE_TIME = 0.2f;
@@ -101,6 +101,7 @@ public class Player : Entity, Hittable
 		this.camera = camera;
 
 		camera.fov = 100;
+		camera.far = 1000;
 
 		model = Resource.GetModel("player_test.gltf");
 		modelTransform = /*Matrix.CreateTranslation(0, cameraHeight, 0) **/ Matrix.CreateRotation(Vector3.Up, MathF.PI);

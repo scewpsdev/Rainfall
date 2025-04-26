@@ -13,6 +13,7 @@ public class PointShadowMap
 	public Cubemap cubemap;
 	public RenderTarget[] renderTargets = new RenderTarget[6];
 	internal float nearPlane;
+	internal float farPlane;
 
 	public bool needsUpdate = true;
 

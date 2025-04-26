@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "3488758278"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "lever.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.20000000298023224, 0.31299999356269836, 0.2290000021457672 ]
+offset = [ 0, 0, 0.04500000178813934 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3488758278"

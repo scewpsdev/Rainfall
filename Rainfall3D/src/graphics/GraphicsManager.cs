@@ -38,6 +38,9 @@ public static class GraphicsManager
 
 	public static bool ssaoEnabled = true;
 
+	public static Vector3 fogColor = Vector3.One;
+	public static float fogStrength = 0.0f;
+
 
 	public static void Init()
 	{
@@ -107,6 +110,8 @@ public static class GraphicsManager
 		renderSettings.vignetteColor = vignetteColor;
 		renderSettings.vignetteFalloff = vignetteFalloff;
 		renderSettings.ssaoEnabled = ssaoEnabled;
+		renderSettings.fogColor = fogColor;
+		renderSettings.fogStrength = fogStrength;
 		//renderSettings.exposure = 8;
 		Renderer.SetSettings(renderSettings);
 

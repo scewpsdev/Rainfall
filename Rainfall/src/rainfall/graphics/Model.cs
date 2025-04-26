@@ -189,7 +189,7 @@ namespace Rainfall
 	public unsafe struct NodeData
 	{
 		public int id { get; internal set; }
-		internal fixed byte name[32];
+		internal fixed byte name[64];
 		public int armatureID { get; internal set; }
 		public Matrix transform { get; internal set; }
 
