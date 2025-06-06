@@ -131,6 +131,7 @@ static bool keepRunning;
 uint32_t width, height;
 uint32_t reset;
 uint32_t debug;
+uint32_t frameIdx;
 bool captureFrame = false;
 
 int fpsCap;
@@ -704,7 +705,7 @@ static bool Loop(const ApplicationCallbacks& callbacks)
 
 	ImGuiLayerEndFrame();
 
-	bgfx::frame(captureFrame);
+	frameIdx = bgfx::frame(captureFrame);
 	captureFrame = false;
 
 	int64_t afterFrame = Application_GetTimestamp();

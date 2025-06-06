@@ -304,6 +304,8 @@ static int FindNodeWithName(const char* name, SceneData& scene)
 static void ProcessNode(NodeData& node, SceneData& scene, aiNode* ainode, int& idCounter, std::unordered_map<aiNode*, int>& nodeMap)
 {
 	node.id = idCounter;
+	BX_ASSERT(ainode->mName.length < sizeof(node.name) / sizeof(char), "Node name exceeds 64 characters");
+	memset(node.name, 0, sizeof(node.name));
 	strcpy(node.name, ainode->mName.C_Str());
 	node.armatureID = -1;
 	nodeMap.emplace(ainode, node.id);

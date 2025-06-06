@@ -30,7 +30,7 @@ public class Spike : Entity, Hittable
 				Hittable hittable = hits[i].entity as Hittable;
 				if (hits[i].entity.velocity.y < -3.5f && hits[i].entity.position.y - hits[i].entity.velocity.y * Time.deltaTime > position.y + 0.5f)
 				{
-					float damage = (-3.5f - hits[i].entity.velocity.y) * 0.4f;
+					float damage = (-3.5f - hits[i].entity.velocity.y) * 0.15f; //0.4f;
 					hittable.hit(damage, this, null);
 				}
 			}

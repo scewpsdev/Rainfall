@@ -21,7 +21,7 @@ public class StaffOfIllumination : Staff
 		staffCharges = 10;
 		maxStaffCharges = 10;
 
-		value = 9;
+		value = 6;
 		canDrop = false;
 
 		sprite = new Sprite(tileset, 5, 4);

@@ -14,6 +14,8 @@ public class Shortbow : Bow
 	{
 		displayName = "Shortbow";
 
+		isSecondaryItem = true;
+
 		baseDamage = 1;
 		baseAttackRate = 2.5f;
 		baseAttackRange = 30; // arrow speed

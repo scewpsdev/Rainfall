@@ -260,6 +260,11 @@ namespace Rainfall
 			return new Vector3(Math.Max(a.x, b.x), Math.Max(a.y, b.y), Math.Max(a.z, b.z));
 		}
 
+		public static float Max(Vector3 v)
+		{
+			return MathF.Max(v.x, MathF.Max(v.y, v.z));
+		}
+
 		public static Vector3 Floor(Vector3 v)
 		{
 			return new Vector3(MathF.Floor(v.x), MathF.Floor(v.y), MathF.Floor(v.z));

@@ -16,7 +16,7 @@ public class MagicArrowStaff : Staff
 	{
 		displayName = "Magic Arrow Staff";
 
-		value = 30;
+		value = 12;
 
 		sprite = new Sprite(tileset, 8, 1);
 		renderOffset.x = 0.4f;

@@ -116,6 +116,8 @@ public abstract class Item
 {
 	public static readonly SpriteSheet tileset = new SpriteSheet(Resource.GetTexture("sprites/items.png", false), 16, 16);
 
+	public static readonly Sprite defaultTrail = new Sprite(Entity.effectsTileset, 0, 4);
+
 	public static readonly Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
 	public static readonly Sound[] parryHit = [Resource.GetSound("sounds/parry3.ogg")];
 	public static readonly Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 7);
@@ -271,6 +273,7 @@ public abstract class Item
 	public AttackAnim anim = AttackAnim.SwingSideways;
 	public float attackAcceleration = 3;
 	public float attackCooldown = 1.0f;
+	public float attackDashDistance = 1.0f;
 	public bool customAttackRender = false;
 	public float postAttackLinger = 0.25f;
 	public Vector2 size = new Vector2(1);
@@ -309,6 +312,8 @@ public abstract class Item
 	public float ingameSpriteLayer = Entity.LAYER_PLAYER_ARMOR;
 	public int ingameSpriteSize { get => ingameSprite.width / GameState.instance.player.sprite.width; }
 	public bool ingameSpriteCoversArms = false;
+
+	public Sprite trailSprite = defaultTrail;
 
 	public Vector4 gloveColor = new Vector4(1, 0, 1, 1);
 
@@ -514,7 +519,7 @@ public abstract class Item
 	{
 	}
 
-	public virtual void onHit(Player player, Entity by, float damage)
+	public virtual void onPlayerHit(Player player, Entity by, float damage)
 	{
 	}
 

@@ -28,6 +28,7 @@ namespace Rainfall
 		public float bloomFalloff = 5.0f;
 
 		public float exposure = 1.0f;
+		public float eyeAdaptionSpeed = 1.0f;
 
 		public Vector3 fogColor = Vector3.One;
 		public float fogStrength = 0.0f;
@@ -82,12 +83,12 @@ namespace Rainfall
 			Renderer3D_SetSettings(settings);
 		}
 
-		public static unsafe void DrawMesh(MeshData* mesh, Material material, Matrix transform, Animator animator = null, bool isOccluder = false)
+		public static unsafe void DrawMesh(MeshData* mesh, Material material, Matrix transform, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
-			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+			Renderer3D_DrawMesh(mesh, transform, material.handle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0), (byte)(renderShadowMap ? 1 : 0));
 		}
 
-		public static unsafe void DrawMesh(Model model, int meshID, Material material, Matrix transform, Animator animator = null, bool isOccluder = false)
+		public static unsafe void DrawMesh(Model model, int meshID, Material material, Matrix transform, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
 			MeshData* mesh = model.getMeshData(meshID);
 			IntPtr materialHandle = material != null ? material.handle : mesh->materialID != -1 ? Material.Material_GetForData(model.getMaterialData(mesh->materialID)) : Material.Material_GetDefault();
@@ -102,46 +103,46 @@ namespace Rainfall
 					transform = transform * mesh->node->transform;
 				}
 			}
-			Renderer3D_DrawMesh(mesh, transform, materialHandle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
+			Renderer3D_DrawMesh(mesh, transform, materialHandle, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0), (byte)(renderShadowMap ? 1 : 0));
 		}
 
-		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null, bool isOccluder = false)
+		public static unsafe void DrawMesh(Model model, int meshID, Matrix transform, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
-			DrawMesh(model, meshID, null, transform, animator, isOccluder);
+			DrawMesh(model, meshID, null, transform, animator, isOccluder, renderShadowMap);
 		}
 
-		public static void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false)
+		public static void DrawModel(Model model, Matrix transform, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
 			for (int i = 0; i < model.meshCount; i++)
 			{
-				DrawMesh(model, i, transform, animator, isOccluder);
+				DrawMesh(model, i, transform, animator, isOccluder, renderShadowMap);
 			}
 			//Renderer3D_DrawScene(model.scene, transform, animator != null ? animator.handle : IntPtr.Zero, (byte)(isOccluder ? 1 : 0));
 		}
 
-		public static void DrawModel(Model model, Matrix transform, Material material, Animator animator = null, bool isOccluder = false)
+		public static void DrawModel(Model model, Matrix transform, Material material, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
 			for (int i = 0; i < model.meshCount; i++)
 			{
-				DrawMesh(model, i, material, transform, animator, isOccluder);
+				DrawMesh(model, i, material, transform, animator, isOccluder, renderShadowMap);
 			}
 		}
 
-		public static void DrawModel(Model model, Vector3 position, Quaternion rotation, Vector3 scale, Animator animator = null, bool isOccluder = false)
+		public static void DrawModel(Model model, Vector3 position, Quaternion rotation, Vector3 scale, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
 			Matrix transform = Matrix.CreateTransform(position, rotation, scale);
 			for (int i = 0; i < model.meshCount; i++)
 			{
-				DrawMesh(model, i, transform, animator, isOccluder);
+				DrawMesh(model, i, transform, animator, isOccluder, renderShadowMap);
 			}
 		}
 
-		public static void DrawModel(Model model, Vector3 position, Quaternion rotation, Animator animator = null, bool isOccluder = false)
+		public static void DrawModel(Model model, Vector3 position, Quaternion rotation, Animator animator = null, bool isOccluder = false, bool renderShadowMap = true)
 		{
 			Matrix transform = Matrix.CreateTransform(position, rotation);
 			for (int i = 0; i < model.meshCount; i++)
 			{
-				DrawMesh(model, i, transform, animator, isOccluder);
+				DrawMesh(model, i, transform, animator, isOccluder, renderShadowMap);
 			}
 		}
 
@@ -184,14 +185,13 @@ namespace Rainfall
 			Renderer3D_DrawEnvironmentMapMask(position, size, falloff);
 		}
 
-		public static void DrawReflectionProbe(Vector3 position, Vector3 size)
+		public static void DrawReflectionProbe(ReflectionProbe reflectionProbe, bool needsUpdate)
 		{
-			Renderer3D_DrawReflectionProbe(position, size);
-		}
-
-		public static void DrawReflectionProbe(ReflectionProbe reflectionProbe)
-		{
-			Renderer3D_DrawReflectionProbe(reflectionProbe.position, reflectionProbe.size);
+			Span<ushort> renderTargets = stackalloc ushort[6];
+			for (int i = 0; i < 6; i++)
+				renderTargets[i] = reflectionProbe.renderTargets[i].handle;
+			fixed (ushort* renderTargetsPtr = renderTargets)
+				Renderer3D_DrawReflectionProbe(reflectionProbe.position, reflectionProbe.size, reflectionProbe.farPlane, reflectionProbe.cubemap.handle, renderTargetsPtr, reflectionProbe.resolution, reflectionProbe.ambientLight, (byte)(needsUpdate ? 1 : 0));
 		}
 
 		public static void DrawDebugLine(Vector3 position0, Vector3 position1, uint color)
@@ -417,7 +417,11 @@ namespace Rainfall
 
 		public static void DrawDirectionalLight(DirectionalLight light)
 		{
-			Renderer3D_DrawDirectionalLight(light.direction, light.color, (byte)(light.shadowMap.needsUpdate ? 1 : 0), light.shadowMap.resolution, light.shadowMap.renderTargets[0].handle, light.shadowMap.renderTargets[1].handle, light.shadowMap.renderTargets[2].handle);
+			if (light.dynamicShadowMap)
+				Renderer3D_DrawDirectionalLightDynamic(light.direction, light.color, (byte)(light.shadowMap.needsUpdate ? 1 : 0), light.shadowMap.resolution, light.shadowMap.renderTargets[0].handle, light.shadowMap.renderTargets[1].handle, light.shadowMap.renderTargets[2].handle);
+			else
+				Renderer3D_DrawDirectionalLightStatic(light.position, light.direction, light.volumeSize, light.color, (byte)(light.shadowMap.needsUpdate ? 1 : 0), light.shadowMap.resolution, light.shadowMap.renderTargets[0].handle);
+			light.shadowMap.needsUpdate = light.dynamicShadowMap;
 		}
 
 		public static void DrawWater(Vector3 position, float size)
@@ -426,7 +430,7 @@ namespace Rainfall
 			Debug.Assert(false);
 		}
 
-		public static void DrawWater(Vector3 position, Model model)
+		public static void DrawWater(Vector3 position, Model model, int meshIdx)
 		{
 			// TODO implement
 		}
@@ -501,10 +505,10 @@ namespace Rainfall
 		extern static void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix proj, float fov, float aspect, float near, float far);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation, byte isOccluder);
+		extern unsafe static void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, IntPtr material, IntPtr animation, byte isOccluder, byte renderShadowMap);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern unsafe static void Renderer3D_DrawScene(SceneData* scene, Matrix transform, IntPtr animation, byte isOccluder);
+		extern unsafe static void Renderer3D_DrawScene(SceneData* scene, Matrix transform, IntPtr animation, byte isOccluder, byte renderShadowMap);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawCustomGeometry(int numVertexBuffers, ushort* vertexBuffers, byte dynamicVertexBuffers, ushort indexBuffer, PrimitiveType primitiveType, BlendState blendState, Matrix transform, IntPtr material);
@@ -516,7 +520,10 @@ namespace Rainfall
 		extern static void Renderer3D_DrawPointLight(Vector3 position, Vector3 color, byte hasShadowMap, ushort shadowMap, ushort* shadowMapRTs, int shadowMapRes, float shadowMapNear, byte shadowMapNeedsUpdate);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color, byte shadowsNeedUpdate, int shadowMapRes, ushort cascade0, ushort cascade1, ushort cascade2);
+		extern static void Renderer3D_DrawDirectionalLightDynamic(Vector3 direction, Vector3 color, byte shadowsNeedUpdate, int shadowMapRes, ushort cascade0, ushort cascade1, ushort cascade2);
+
+		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		extern static void Renderer3D_DrawDirectionalLightStatic(Vector3 position, Vector3 direction, Vector3 size, Vector3 color, byte shadowsNeedUpdate, int shadowMapRes, ushort shadowMap);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static unsafe void Renderer3D_DrawParticleSystem(ParticleSystemData* particleSystem);
@@ -531,7 +538,7 @@ namespace Rainfall
 		extern static void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		extern static void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size);
+		extern static void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size, float farPlane, ushort cubemap, ushort* renderTargets, int resolution, Vector3 ambientLight, byte needsUpdate);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		extern static void Renderer3D_DrawDebugLine(Vector3 position0, Vector3 position1, uint color);

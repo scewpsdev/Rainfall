@@ -17,8 +17,14 @@ public class GlassBottle : Item
 
 		value = 2;
 
-		isActiveItem = false;
+		//isActiveItem = false;
 
 		sprite = new Sprite(tileset, 3, 5);
+	}
+
+	public override bool use(Player player)
+	{
+		player.hud.showMessage("The bottle is empty.");
+		return false;
 	}
 }

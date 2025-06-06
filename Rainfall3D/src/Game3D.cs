@@ -36,7 +36,7 @@ public class Game3D<T> : Game where T : Game
 		this.loadResourcePackages = loadResourcePackages;
 	}
 
-	public void compileResources()
+	public void compileResources(string projectPath)
 	{
 #if DEBUG
 		string config = "Debug";
@@ -44,13 +44,15 @@ public class Game3D<T> : Game where T : Game
 		string config = "Release";
 #endif
 
-		CompileFolder($"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}", $"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
-		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", $"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
+		string binaryPath = projectPath + $"\\bin\\{config}\\net8.0";
 
-		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+		CompileFolder(projectPath, binaryPath + "\\assets");
+		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", binaryPath + "\\assets");
+
+		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"" + binaryPath + "\"");
 	}
 
-	public void packageResources()
+	public void packageResources(string projectPath)
 	{
 #if DEBUG
 		string config = "Debug";
@@ -58,7 +60,9 @@ public class Game3D<T> : Game where T : Game
 		string config = "Release";
 #endif
 
-		PackageFolder($"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
+		string binaryPath = projectPath + $"\\bin\\{config}\\net8.0";
+
+		PackageFolder(binaryPath + "\\assets");
 	}
 
 	public override void init()
@@ -145,10 +149,10 @@ public class Game3D<T> : Game where T : Game
 		if (Input.IsKeyPressed(KeyCode.F11) || ImGui.IsKeyPressed(KeyCode.F11, false))
 			Display.ToggleFullscreen();
 
-//#if DEBUG
+		//#if DEBUG
 		if (Input.IsKeyPressed(KeyCode.F10) || ImGui.IsKeyPressed(KeyCode.F10, false))
 			debugStats = !debugStats;
-//#endif
+		//#endif
 
 		Audio.Update();
 		AudioManager.Update();
@@ -238,7 +242,7 @@ public class Game3D<T> : Game where T : Game
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 		startInfo.FileName = "cmd.exe";
-		startInfo.Arguments = $"/C {resCompilerDir}\\RainfallResourceCompiler.exe res {outDir} png ogg vsh fsh csh ttf rfs gltf glb";
+		startInfo.Arguments = $"/C {resCompilerDir}\\RainfallResourceCompiler.exe res {outDir} png hdr ogg vsh fsh csh ttf rfs gltf glb";
 		startInfo.WorkingDirectory = projectDir;
 		process.StartInfo = startInfo;
 		process.Start();

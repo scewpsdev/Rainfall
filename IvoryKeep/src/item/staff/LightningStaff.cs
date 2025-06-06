@@ -16,7 +16,7 @@ public class LightningStaff : Staff
 	{
 		displayName = "Lightning Staff";
 
-		value = 30;
+		value = 15;
 
 		sprite = new Sprite(tileset, 8, 2);
 		renderOffset.x = 0.4f;

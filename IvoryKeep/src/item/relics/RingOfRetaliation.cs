@@ -25,7 +25,7 @@ public class RingOfRetaliation : Item
 		value = 30;
 	}
 
-	public override void onHit(Player player, Entity by, float damage)
+	public override void onPlayerHit(Player player, Entity by, float damage)
 	{
 		if ((Time.currentTime - lastHit) > timeThreshhold)
 		{

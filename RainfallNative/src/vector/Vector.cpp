@@ -182,6 +182,11 @@ Vector4::Vector4(const Vector3& xyz, float w)
 {
 }
 
+Vector4::Vector4(float x, const Vector3& yzw)
+	: x(x), y(yzw.x), z(yzw.y), w(yzw.z)
+{
+}
+
 float& Vector4::operator[](int index)
 {
 	return elements[index];

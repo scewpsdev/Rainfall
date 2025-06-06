@@ -27,7 +27,17 @@ public static class DebugConsole
 
 	static string RunCommand(string cmd, string[] args)
 	{
-		if (cmd == "create_entity")
+		if (cmd == "reset")
+		{
+			string seed = null;
+			if (args.Length > 0)
+			{
+				Debug.Assert(args.Length == 1);
+				seed = args[0];
+			}
+			GameState.instance.reset(seed, false);
+		}
+		else if (cmd == "create_entity")
 		{
 			if (args.Length > 0)
 			{

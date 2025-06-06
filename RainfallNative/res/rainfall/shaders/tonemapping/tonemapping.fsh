@@ -60,20 +60,51 @@ vec3 ACESFilmic(vec3 color)
     return clamp((color * (a * color + b)) / (color * (c * color + d ) + e), 0.0, 1.0);
 }
 
-vec3 Tonemap(vec3 color)
+// The code in this file was originally written by Stephen Hill (@self_shadow), who deserves all
+// credit for coming up with this fit and implementing it. Buy him a beer next time you see him. :)
+
+// sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
+static const mat3 ACESInputMat =
 {
-	//color = toFilmic(color);
+    {0.59719, 0.35458, 0.04823},
+    {0.07600, 0.90834, 0.01566},
+    {0.02840, 0.13383, 0.83777}
+};
 
-	color = toAcesFilmic(color * 2);
-	//color = linearToSRGB(color);
-	color = pow(color, vec3_splat(1.0 / 2.2)); // Gamma correction
+// ODT_SAT => XYZ => D60_2_D65 => sRGB
+static const mat3 ACESOutputMat =
+{
+    { 1.60475, -0.53108, -0.07367},
+    {-0.10208,  1.10813, -0.00605},
+    {-0.00327, -0.07276,  1.07602}
+};
 
+vec3 RRTAndODTFit(vec3 v)
+{
+    vec3 a = v * (v + 0.0245786f) - 0.000090537f;
+    vec3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;
+    return a / b;
+}
+
+vec3 ACESFitted(vec3 color)
+{
+    color = mul(ACESInputMat, color);
+
+    // Apply RRT and ODT
+    color = RRTAndODTFit(color);
+
+    color = mul(ACESOutputMat, color);
+
+    // Clamp to [0, 1]
+    color = saturate(color);
+
+    return color;
+}
+
+vec3 GammaCorrection(vec3 color)
+{
+	color = pow(color, vec3_splat(1.0 / 2.2));
 	return color;
-
-	//color = vec3(1.0, 1.0, 1.0) - exp(-color * exposure); // Convert to LDR space
-	//color = pow(color, vec3_splat(1.0 / 2.2)); // Gamma correction
-	
-	//return color;
 }
 
 vec3 BayerDither(vec3 color, vec2 uv)
@@ -127,9 +158,11 @@ void main()
 
 	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
 	hdr *= exposure;
-	vec3 tonemapped = Tonemap(hdr);
-	tonemapped = Vignette(tonemapped, v_texcoord0);
-	//tonemapped = BayerDither(tonemapped, v_texcoord0);
 
-	gl_FragColor = vec4(tonemapped, 1.0);
+	vec3 color = ACESFitted(hdr);
+	color = GammaCorrection(color);
+	color = Vignette(color, v_texcoord0);
+	color = BayerDither(color, v_texcoord0);
+
+	gl_FragColor = vec4(color, 1.0);
 }

@@ -63,4 +63,11 @@
     </None>
   </ItemGroup>
 
+	<Target Name="Test" AfterTargets="Build">
+		<Message Text="Compiling resources" Importance="High" />
+		<Exec Command="D:\Dev\Rainfall\RainfallResourceCompiler\bin\x64\Debug\RainfallResourceCompiler.exe res bin/$(Configuration)/net8.0/assets png ogg vsh fsh csh ttf rfs gltf glb" />
+		<Exec Command="xcopy /y D:\Dev\Rainfall\RainfallNative\bin\x64\$(Configuration)\RainfallNative.dll bin\$(Configuration)\net8.0" />
+		<Message Text="Done" Importance="High" />
+	</Target>
+
 </Project>

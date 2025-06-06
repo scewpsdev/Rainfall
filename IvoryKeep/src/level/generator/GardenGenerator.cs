@@ -26,10 +26,10 @@ public partial class LevelGenerator
 	public void generateGardens(string seed, out Level[] areaGardens)
 	{
 		areaGardens = new Level[4];
-		areaGardens[0] = new Level(13, "Royal Gardens", 80, 80, TileType.dirt, 30, 80);
-		areaGardens[1] = new Level(14, "", 100, 40, TileType.dirt, 35, 90);
-		areaGardens[2] = new Level(15, "", 40, 100, TileType.dirt, 40, 100);
-		areaGardens[3] = new Level(-1, "", 40, 100);
+		areaGardens[0] = new Level(13, "gardens1",  "Royal Gardens", 80, 80, TileType.dirt, 30, 80);
+		areaGardens[1] = new Level(14, "gardens2", "", 100, 40, TileType.dirt, 35, 90);
+		areaGardens[2] = new Level(15, "gardens3", "", 40, 100, TileType.dirt, 40, 100);
+		areaGardens[3] = new Level(-1, "gardens_boss_room", "", 40, 100);
 
 		List<Mob> createEnemy()
 		{

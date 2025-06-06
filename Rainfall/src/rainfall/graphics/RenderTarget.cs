@@ -63,6 +63,8 @@ namespace Rainfall
 			this.format = texture.info.format;
 			this._texture = texture.handle;
 			this._generateMipmaps = generateMipmaps ? (byte)1 : (byte)0;
+
+			Debug.Assert(texture.info.numMips > 1 == generateMipmaps);
 		}
 
 		public RenderTargetAttachment(Cubemap cubemap, int idx, bool generateMipmaps = false)
@@ -75,6 +77,8 @@ namespace Rainfall
 			this._textureLayer = idx;
 			this._isCubemap = 1;
 			this._generateMipmaps = generateMipmaps ? (byte)1 : (byte)0;
+
+			Debug.Assert(cubemap.info.numMips > 1 == generateMipmaps);
 		}
 
 		public bool generateMipmaps

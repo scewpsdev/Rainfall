@@ -19,9 +19,8 @@
 #include <bgfx/bgfx.h>
 
 
-#define MAX_REFLECTION_PROBES 4
 #define MAX_POINT_SHADOWS 8
-#define BLOOM_STEP_COUNT 6
+#define MAX_BLOOM_STEP_COUNT 12
 #define MAX_INDIRECT_DRAWS 1024
 #define MAX_POINT_LIGHTS 1024
 #define MAX_PARTICLE_SYSTEMS 1024
@@ -42,14 +41,14 @@ enum RenderPass
 	Shadow2,
 	PointShadow,
 	ReflectionProbe = PointShadow + MAX_POINT_SHADOWS * 6,
-	AmbientOcclusion = ReflectionProbe + MAX_REFLECTION_PROBES * 6,
+	AmbientOcclusion = ReflectionProbe + 6 * 2, // one pass for gbuffer pass and one for deferred shading
 	AmbientOcclusionBlur,
 	Deferred,
 	Forward,
 	DistanceFog,
 	BloomDownsample_,
-	BloomUpsample_ = BloomDownsample_ + BLOOM_STEP_COUNT,
-	Composite = BloomUpsample_ + BLOOM_STEP_COUNT - 1,
+	BloomUpsample_ = BloomDownsample_ + MAX_BLOOM_STEP_COUNT,
+	Composite = BloomUpsample_ + MAX_BLOOM_STEP_COUNT - 1,
 	Tonemapping,
 	UI,
 	Debug,
@@ -68,6 +67,7 @@ struct Renderer3DSettings
 	float bloomFalloff = 5.0f;
 
 	float exposure = 1.0f;
+	float eyeAdaptionSpeed = 1.0f;
 
 	Vector3 fogColor = Vector3::One;
 	float fogStrength = 0.0f;
@@ -79,6 +79,35 @@ struct Renderer3DSettings
 	bool physicsDebugDraw = false;
 };
 
+struct GBuffer
+{
+	uint16_t renderTarget = bgfx::kInvalidHandle;
+	bgfx::TextureHandle textures[5];
+	bgfx::TextureInfo textureInfos[5];
+};
+
+static GBuffer CreateGBuffer(int width, int height)
+{
+	GBuffer gbuffer;
+
+	RenderTargetAttachment gbufferAttachments[5] =
+	{
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA32F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA16F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
+		RenderTargetAttachment(width, height, bgfx::TextureFormat::D32F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP, true)
+	};
+	gbuffer.renderTarget = Graphics_CreateRenderTarget(5, gbufferAttachments, gbuffer.textures, gbuffer.textureInfos);
+
+	return gbuffer;
+}
+
+static void DestroyGBuffer(GBuffer& gbuffer)
+{
+	bgfx::destroy(bgfx::FrameBufferHandle{ gbuffer.renderTarget });
+}
+
 struct MeshDraw
 {
 	MeshData* mesh;
@@ -86,6 +115,7 @@ struct MeshDraw
 	AABB boundingBox;
 	Material* material;
 	AnimationState* animation = nullptr;
+	bool renderShadowMap = false;
 
 	bool culled = false;
 };
@@ -146,6 +176,12 @@ struct ReflectionProbeDraw
 {
 	Vector3 position;
 	Vector3 size;
+	float farPlane;
+	uint16_t cubemap;
+	uint16_t renderTargets[6];
+	int resolution;
+	Vector3 ambientLight;
+	bool needsUpdate;
 };
 
 struct DebugLineDraw
@@ -160,9 +196,7 @@ static Renderer3DSettings settings;
 
 static int width, height;
 
-static uint16_t gbuffer = bgfx::kInvalidHandle;
-static bgfx::TextureHandle gbufferTextures[5];
-static bgfx::TextureInfo gbufferTextureInfos[5];
+static GBuffer gbuffer;
 
 static uint16_t hzb = bgfx::kInvalidHandle;
 static bgfx::TextureInfo hzbTextureInfo;
@@ -183,6 +217,12 @@ static bgfx::TextureInfo compositeRTTextureInfo;
 static uint16_t tonemappingRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle tonemappingRTTextures[2];
 static bgfx::TextureInfo tonemappingRTTextureInfos[2];
+static bgfx::TextureHandle luminanceReadbackTexture;
+static char* luminanceDataBuffer;
+static float targetExposure = 1;
+static float currentExposure = 1;
+static uint32_t nextLuminanceReadbackFrame = UINT32_MAX;
+extern uint32_t frameIdx;
 
 static uint16_t ssaoRT = bgfx::kInvalidHandle;
 static bgfx::TextureHandle ssaoRTTexture;
@@ -204,13 +244,14 @@ static bgfx::UniformHandle u_projectionView;
 static bgfx::UniformHandle u_projectionInv;
 static bgfx::UniformHandle u_projectionViewInv;
 
-static uint16_t bloomDownsampleRTs[BLOOM_STEP_COUNT];
-static bgfx::TextureHandle bloomDownsampleRTTextures[BLOOM_STEP_COUNT];
-static bgfx::TextureInfo bloomDownsampleRTTextureInfos[BLOOM_STEP_COUNT];
+static int bloomStepCount = 1;
+static uint16_t bloomDownsampleRTs[MAX_BLOOM_STEP_COUNT];
+static bgfx::TextureHandle bloomDownsampleRTTextures[MAX_BLOOM_STEP_COUNT];
+static bgfx::TextureInfo bloomDownsampleRTTextureInfos[MAX_BLOOM_STEP_COUNT];
 static Shader* bloomDownsampleShader;
-static uint16_t bloomUpsampleRTs[BLOOM_STEP_COUNT - 1];
-static bgfx::TextureHandle bloomUpsampleRTTextures[BLOOM_STEP_COUNT - 1];
-static bgfx::TextureInfo bloomUpsampleRTTextureInfos[BLOOM_STEP_COUNT - 1];
+static uint16_t bloomUpsampleRTs[MAX_BLOOM_STEP_COUNT - 1];
+static bgfx::TextureHandle bloomUpsampleRTTextures[MAX_BLOOM_STEP_COUNT - 1];
+static bgfx::TextureInfo bloomUpsampleRTTextureInfos[MAX_BLOOM_STEP_COUNT - 1];
 static Shader* bloomUpsampleShader;
 
 Shader* defaultShader;
@@ -219,6 +260,7 @@ static Shader* deferredPointShader;
 static Shader* deferredDirectionalShader;
 static Shader* deferredEmissiveShader;
 static Shader* deferredEnvironmentShader;
+static Shader* deferredSimpleShader;
 static Shader* deferredReflectionProbeShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
@@ -302,7 +344,10 @@ static Shader* particleIndirectShader;
 static bool renderDirectionalLight;
 static Vector3 directionalLightDirection;
 static Vector3 directionalLightColor;
+static Vector3 directionalLightPosition;
+static Vector3 directionalLightVolumeSize;
 static bool directionalLightShadowsNeedUpdate;
+static bool directionalLightIsDynamic;
 static int directionalLightShadowMapRes;
 static bgfx::FrameBufferHandle directionalLightShadowMapRTs[3];
 static float directionalLightShadowMapFar[3];
@@ -313,6 +358,9 @@ float environmentIntensity;
 static List<EnvironmentMapMask> environmentMapMasks;
 
 static List<ReflectionProbeDraw> reflectionProbeDraws;
+static GBuffer environmentMapGBuffers[6];
+static const int environmentMapGbufferResolution = 64;
+static List<ReflectionProbeDraw> queuedReflectionProbeUpdates;
 
 static uint16_t skyTexture = bgfx::kInvalidHandle;
 static float skyIntensity;
@@ -326,10 +374,10 @@ RFAPI void Renderer3D_Resize(int width, int height);
 
 RFAPI void Renderer3D_Init(int width, int height)
 {
-	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	for (int i = 0; i < MAX_BLOOM_STEP_COUNT; i++)
 	{
 		bloomDownsampleRTs[i] = bgfx::kInvalidHandle;
-		if (i < BLOOM_STEP_COUNT - 1)
+		if (i < MAX_BLOOM_STEP_COUNT - 1)
 			bloomUpsampleRTs[i] = bgfx::kInvalidHandle;
 	}
 
@@ -341,6 +389,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	deferredDirectionalShader = ReadShader("assets/rainfall/shaders/deferred/deferred.vsh", "assets/rainfall/shaders/deferred/deferred_directional.fsh");
 	deferredEmissiveShader = ReadShader("assets/rainfall/shaders/deferred/deferred.vsh", "assets/rainfall/shaders/deferred/deferred_emissive.fsh");
 	deferredEnvironmentShader = ReadShader("assets/rainfall/shaders/deferred/deferred.vsh", "assets/rainfall/shaders/deferred/deferred_environment.fsh");
+	deferredSimpleShader = ReadShader("assets/rainfall/shaders/deferred/deferred.vsh", "assets/rainfall/shaders/deferred/deferred_simple.fsh");
 	deferredReflectionProbeShader = ReadShader("assets/rainfall/shaders/deferred/deferred_reflection_probe.vsh", "assets/rainfall/shaders/deferred/deferred_reflection_probe.fsh");
 	hzbDownsampleShader = ReadShaderCompute("assets/rainfall/shaders/hzb/hzb_downsample.csh");
 	meshIndirectShader = ReadShaderCompute("assets/rainfall/shaders/occlusion_culling/mesh_indirect.csh");
@@ -384,7 +433,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	skydomeIBO = Graphics_CreateIndexBuffer(skydomeIndicesMemory, BufferFlags::None);
 
 	bgfx::TextureInfo cubemapInfo;
-	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, 0, &cubemapInfo);
+	emptyCubemap = Graphics_CreateCubemap(250, bgfx::TextureFormat::RG11B10F, false, 0, &cubemapInfo);
 
 	blueNoise64 = ReadTexture("assets/rainfall/LDR_LLL1_0.png", BGFX_SAMPLER_POINT, nullptr, nullptr, nullptr);
 
@@ -415,6 +464,14 @@ RFAPI void Renderer3D_Init(int width, int height)
 
 	particleAabbBuffer = bgfx::DynamicVertexBufferHandle{ Graphics_CreateDynamicVertexBuffer(lightLayout, 2, MAX_PARTICLE_SYSTEMS, BGFX_BUFFER_COMPUTE_READ) };
 
+	for (int i = 0; i < 6; i++)
+		environmentMapGBuffers[i] = CreateGBuffer(environmentMapGbufferResolution, environmentMapGbufferResolution);
+
+	luminanceReadbackTexture = bgfx::createTexture2D(16, 16, false, 1, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_BLIT_DST | BGFX_TEXTURE_READ_BACK);
+	bgfx::TextureInfo luminanceReadbackTextureInfo;
+	bgfx::calcTextureSize(luminanceReadbackTextureInfo, 16, 16, 1, false, false, 1, bgfx::TextureFormat::RG11B10F);
+	luminanceDataBuffer = (char*)BX_ALLOC(Application_GetAllocator(), luminanceReadbackTextureInfo.storageSize);
+
 	s_depth = bgfx::createUniform("s_depth", bgfx::UniformType::Sampler);
 	s_normals = bgfx::createUniform("s_normals", bgfx::UniformType::Sampler);
 	s_ao = bgfx::createUniform("s_ao", bgfx::UniformType::Sampler);
@@ -432,8 +489,8 @@ RFAPI void Renderer3D_Resize(int width, int height)
 	::width = width;
 	::height = height;
 
-	if (gbuffer != bgfx::kInvalidHandle)
-		bgfx::destroy(bgfx::FrameBufferHandle{ gbuffer });
+	if (gbuffer.renderTarget != bgfx::kInvalidHandle)
+		DestroyGBuffer(gbuffer);
 	if (hzb != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::TextureHandle{ hzb });
 	if (deferredRT != bgfx::kInvalidHandle)
@@ -448,23 +505,15 @@ RFAPI void Renderer3D_Resize(int width, int height)
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
 	if (ssaoBlurRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoBlurRT });
-	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	for (int i = 0; i < MAX_BLOOM_STEP_COUNT; i++)
 	{
 		if (bloomDownsampleRTs[i] != bgfx::kInvalidHandle)
 			Graphics_DestroyRenderTarget(bloomDownsampleRTs[i]);
-		if (i < BLOOM_STEP_COUNT - 1 && bloomUpsampleRTs[i] != bgfx::kInvalidHandle)
+		if (i < MAX_BLOOM_STEP_COUNT - 1 && bloomUpsampleRTs[i] != bgfx::kInvalidHandle)
 			Graphics_DestroyRenderTarget(bloomUpsampleRTs[i]);
 	}
 
-	RenderTargetAttachment gbufferAttachments[5] =
-	{
-		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA32F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
-		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA16F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
-		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
-		RenderTargetAttachment(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP),
-		RenderTargetAttachment(width, height, bgfx::TextureFormat::D32F, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP, true)
-	};
-	gbuffer = Graphics_CreateRenderTarget(5, gbufferAttachments, gbufferTextures, gbufferTextureInfos);
+	gbuffer = CreateGBuffer(width, height);
 
 	hzbWidth = ipow(2, (int)floor(log2((double)width + 0.5)));
 	hzbHeight = ipow(2, (int)floor(log2((double)height + 0.5)));
@@ -501,24 +550,31 @@ RFAPI void Renderer3D_Resize(int width, int height)
 	RenderTargetAttachment ssaoBlurRTAttachment(width, height, bgfx::TextureFormat::R8, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
 	ssaoBlurRT = Graphics_CreateRenderTarget(1, &ssaoBlurRTAttachment, &ssaoBlurRTTexture, &ssaoBlurRTTextureInfo);
 
+
+	bloomStepCount = 0;
+	int s = max(width, height);
+	while (s >>= 1)
+		bloomStepCount++;
+
 	int bloomRTWidth = width / 2;
 	int bloomRTHeight = height / 2;
-	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	for (int i = 0; i < bloomStepCount; i++)
 	{
 		RenderTargetAttachment bloomRTAttachment(bloomRTWidth, bloomRTHeight, bgfx::TextureFormat::RG11B10F, BGFX_TEXTURE_RT | BGFX_SAMPLER_UVW_CLAMP);
+
 		bloomDownsampleRTs[i] = Graphics_CreateRenderTarget(1, &bloomRTAttachment, &bloomDownsampleRTTextures[i], &bloomDownsampleRTTextureInfos[i]);
-		if (i < BLOOM_STEP_COUNT - 1)
+		if (i < bloomStepCount - 1)
 			bloomUpsampleRTs[i] = Graphics_CreateRenderTarget(1, &bloomRTAttachment, &bloomUpsampleRTTextures[i], &bloomUpsampleRTTextureInfos[i]);
 
-		bloomRTWidth /= 2;
-		bloomRTHeight /= 2;
+		bloomRTWidth = max(bloomRTWidth / 2, 1);
+		bloomRTHeight = max(bloomRTHeight / 2, 1);
 	}
 }
 
 RFAPI void Renderer3D_Terminate()
 {
-	if (gbuffer != bgfx::kInvalidHandle)
-		bgfx::destroy(bgfx::FrameBufferHandle{ gbuffer });
+	if (gbuffer.renderTarget != bgfx::kInvalidHandle)
+		DestroyGBuffer(gbuffer);
 	if (hzb != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::TextureHandle{ hzb });
 	if (forwardRT != bgfx::kInvalidHandle)
@@ -531,11 +587,11 @@ RFAPI void Renderer3D_Terminate()
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoRT });
 	if (ssaoBlurRT != bgfx::kInvalidHandle)
 		bgfx::destroy(bgfx::FrameBufferHandle{ ssaoBlurRT });
-	for (int i = 0; i < BLOOM_STEP_COUNT; i++)
+	for (int i = 0; i < MAX_BLOOM_STEP_COUNT; i++)
 	{
 		if (bloomDownsampleRTs[i] != bgfx::kInvalidHandle)
 			Graphics_DestroyRenderTarget(bloomDownsampleRTs[i]);
-		if (i < BLOOM_STEP_COUNT - 1 && bloomUpsampleRTs[i] != bgfx::kInvalidHandle)
+		if (i < MAX_BLOOM_STEP_COUNT - 1 && bloomUpsampleRTs[i] != bgfx::kInvalidHandle)
 			Graphics_DestroyRenderTarget(bloomUpsampleRTs[i]);
 	}
 
@@ -573,6 +629,9 @@ RFAPI void Renderer3D_Terminate()
 
 	Graphics_DestroyIndirectBuffer(particleIndirectBuffer.idx);
 	Graphics_DestroyDynamicVertexBuffer(particleAabbBuffer.idx);
+
+	bgfx::destroy(luminanceReadbackTexture);
+	BX_FREE(Application_GetAllocator(), luminanceDataBuffer);
 }
 
 RFAPI void Renderer3D_SetSettings(Renderer3DSettings settings)
@@ -597,7 +656,7 @@ RFAPI void Renderer3D_SetCamera(Vector3 position, Quaternion rotation, Matrix pr
 	GetFrustumPlanes(pv, frustumPlanes);
 }
 
-RFAPI void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, Material* material, AnimationState* animation, bool isOccluder)
+RFAPI void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, Material* material, AnimationState* animation, bool isOccluder, bool renderShadowMap)
 {
 	//if (mesh->node)
 	//	transform = transform * mesh->node->transform;
@@ -605,14 +664,14 @@ RFAPI void Renderer3D_DrawMesh(MeshData* mesh, Matrix transform, Material* mater
 	AABB worldSpaceBoundingBox = TransformBoundingBox(mesh->boundingBox, transform);
 
 	if (isOccluder)
-		occluderMeshes.add({ mesh, transform, worldSpaceBoundingBox, material, animation });
+		occluderMeshes.add({ mesh, transform, worldSpaceBoundingBox, material, animation, renderShadowMap });
 	else if (material->isForward)
 		forwardDraws.add({ mesh, transform, worldSpaceBoundingBox, material, animation });
 	else
-		meshDraws.add({ mesh, transform, worldSpaceBoundingBox, material, animation });
+		meshDraws.add({ mesh, transform, worldSpaceBoundingBox, material, animation, renderShadowMap });
 }
 
-RFAPI void Renderer3D_DrawScene(SceneData* scene, Matrix transform, AnimationState* animation, bool isOccluder)
+RFAPI void Renderer3D_DrawScene(SceneData* scene, Matrix transform, AnimationState* animation, bool isOccluder, bool renderShadowMap)
 {
 	for (int i = 0; i < scene->numMeshes; i++)
 	{
@@ -620,7 +679,7 @@ RFAPI void Renderer3D_DrawScene(SceneData* scene, Matrix transform, AnimationSta
 		Material* material = Material_GetDefault();
 		if (mesh->materialID != -1)
 			material = Material_GetForData(&scene->materials[mesh->materialID]);
-		Renderer3D_DrawMesh(mesh, transform, material, animation, isOccluder);
+		Renderer3D_DrawMesh(mesh, transform, material, animation, isOccluder, renderShadowMap);
 	}
 }
 
@@ -686,16 +745,32 @@ RFAPI void Renderer3D_DrawPointLight(Vector3 position, Vector3 color, bool hasSh
 	pointLightDraws.add(draw);
 }
 
-RFAPI void Renderer3D_DrawDirectionalLight(Vector3 direction, Vector3 color, bool shadowsNeedUpdate, int shadowMapRes, RenderTarget cascade0, RenderTarget cascade1, RenderTarget cascade2)
+RFAPI void Renderer3D_DrawDirectionalLightDynamic(Vector3 direction, Vector3 color, bool shadowsNeedUpdate, int shadowMapRes, RenderTarget cascade0, RenderTarget cascade1, RenderTarget cascade2)
 {
 	renderDirectionalLight = true;
 	directionalLightDirection = direction;
 	directionalLightColor = color;
 	directionalLightShadowsNeedUpdate = shadowsNeedUpdate;
+	directionalLightIsDynamic = true;
 	directionalLightShadowMapRes = shadowMapRes;
 	directionalLightShadowMapRTs[0] = { cascade0 };
 	directionalLightShadowMapRTs[1] = { cascade1 };
 	directionalLightShadowMapRTs[2] = { cascade2 };
+}
+
+RFAPI void Renderer3D_DrawDirectionalLightStatic(Vector3 position, Vector3 direction, Vector3 size, Vector3 color, bool shadowsNeedUpdate, int shadowMapRes, RenderTarget shadowMap)
+{
+	renderDirectionalLight = true;
+	directionalLightDirection = direction;
+	directionalLightColor = color;
+	directionalLightPosition = position;
+	directionalLightVolumeSize = size;
+	directionalLightShadowsNeedUpdate = shadowsNeedUpdate;
+	directionalLightIsDynamic = false;
+	directionalLightShadowMapRes = shadowMapRes;
+	directionalLightShadowMapRTs[0] = { shadowMap };
+	directionalLightShadowMapRTs[1] = BGFX_INVALID_HANDLE;
+	directionalLightShadowMapRTs[2] = BGFX_INVALID_HANDLE;
 }
 
 RFAPI void Renderer3D_DrawParticleSystem(ParticleSystem* particleSystem)
@@ -716,14 +791,24 @@ RFAPI void Renderer3D_DrawEnvironmentMap(uint16_t envir, float intensity)
 	environmentIntensity = intensity;
 }
 
+// TODO remove this
 RFAPI void Renderer3D_DrawEnvironmentMapMask(Vector3 position, Vector3 size, float falloff)
 {
 	environmentMapMasks.add({ position, size, falloff });
 }
 
-RFAPI void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size)
+RFAPI void Renderer3D_DrawReflectionProbe(Vector3 position, Vector3 size, float farPlane, uint16_t cubemap, uint16_t* renderTargets, int resolution, Vector3 ambientLight, bool needsUpdate)
 {
-	reflectionProbeDraws.add({ position, size });
+	ReflectionProbeDraw draw;
+	draw.position = position;
+	draw.size = size;
+	draw.farPlane = farPlane;
+	draw.cubemap = cubemap;
+	memcpy(draw.renderTargets, renderTargets, sizeof(uint16_t) * 6);
+	draw.resolution = resolution;
+	draw.ambientLight = ambientLight;
+	draw.needsUpdate = needsUpdate;
+	reflectionProbeDraws.add(draw);
 }
 
 RFAPI void Renderer3D_DrawDebugLine(Vector3 position0, Vector3 position1, uint32_t color)
@@ -763,7 +848,7 @@ static bool FrustumCulling(const Sphere& boundingSphere, Vector4 planes[6])
 static bool FrustumCulling(const Sphere& boundingSphere, Matrix transform, bool isAnimated, Vector4 planes[6])
 {
 	Vector4 boundingSpherePos = (transform * Vector4(boundingSphere.center, 1.0f));
-	float boundingSphereRadius = sqrtf(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * boundingSphere.radius * (isAnimated ? 2 : 1);
+	float boundingSphereRadius = sqrtf(transform.m00 * transform.m00 + transform.m01 * transform.m01 + transform.m02 * transform.m02) * boundingSphere.radius * (isAnimated ? 10 : 1);
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -776,6 +861,18 @@ static bool FrustumCulling(const Sphere& boundingSphere, Matrix transform, bool 
 	return true;
 }
 
+static uint16_t GetEnvironmentMapForPosition(Vector3 position)
+{
+	for (int i = 0; i < reflectionProbeDraws.size; i++)
+	{
+		Vector3 min = reflectionProbeDraws[i].position - 0.5f * reflectionProbeDraws[i].size;
+		Vector3 max = reflectionProbeDraws[i].position + 0.5f * reflectionProbeDraws[i].size;
+		if (position.x >= min.x && position.x <= max.x && position.x >= min.y && position.y <= max.y && position.z >= min.z && position.z <= max.z)
+			return reflectionProbeDraws[i].cubemap;
+	}
+	return environmentMap;
+}
+
 static int MeshDrawComparator(const MeshDraw* a, const MeshDraw* b)
 {
 	float das = (a->transform.translation() - cameraPosition).lengthSquared();
@@ -785,10 +882,11 @@ static int MeshDrawComparator(const MeshDraw* a, const MeshDraw* b)
 	return ia < ib ? -1 : ia > ib ? 1 : 0;
 }
 
+static Vector3 pointLightDrawComparatorRefPosition;
 static int PointLightDrawComparator(const PointLightDraw* a, const PointLightDraw* b)
 {
-	float das = (a->position - cameraPosition).lengthSquared();
-	float dbs = (b->position - cameraPosition).lengthSquared();
+	float das = (a->position - pointLightDrawComparatorRefPosition).lengthSquared();
+	float dbs = (b->position - pointLightDrawComparatorRefPosition).lengthSquared();
 	float ia = a->culled * 1000000 + das;
 	float ib = b->culled * 1000000 + dbs;
 	return ia < ib ? -1 : ia > ib ? 1 : 0;
@@ -827,6 +925,7 @@ static void FrustumCullObjects()
 			numVisibleLights++;
 	}
 
+	pointLightDrawComparatorRefPosition = cameraPosition;
 	qsort(pointLightDraws.buffer, pointLightDraws.size, sizeof(PointLightDraw), (_CoreCrtNonSecureSearchSortCompareFunction)PointLightDrawComparator);
 
 	numVisibleParticleSystems = 0;
@@ -902,7 +1001,8 @@ static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, Skele
 	if (skeleton)
 		bgfx::setUniform(shader->getUniform("u_boneTransforms", bgfx::UniformType::Mat4, MAX_BONES), skeleton->boneTransforms, skeleton->numBones);
 
-	Vector4 u_cameraPosition(cameraPosition, 0);
+	float time = (Application_GetCurrentTime()) / 1e9f;
+	Vector4 u_cameraPosition(cameraPosition, time);
 	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
 
 	if (indirect.idx != bgfx::kInvalidHandle)
@@ -913,9 +1013,11 @@ static void DrawMesh(MeshData* mesh, Matrix transform, Material* material, Skele
 
 static void DoDepthPrepass()
 {
+	bgfx::setMarker("Depth Prepass");
+
 	Graphics_ResetState();
-	Graphics_SetRenderTarget(RenderPass::DepthPrepass, gbuffer, width, height);
-	Graphics_ClearRenderTarget(RenderPass::DepthPrepass, gbuffer, true, true, 0, 1);
+	Graphics_SetRenderTarget(RenderPass::DepthPrepass, gbuffer.renderTarget, width, height);
+	Graphics_ClearRenderTarget(RenderPass::DepthPrepass, gbuffer.renderTarget, true, true, 0, 1);
 	Graphics_SetViewTransform(RenderPass::DepthPrepass, projection, view);
 
 	for (int i = 0; i < occluderMeshes.size; i++)
@@ -933,13 +1035,14 @@ static void DoDepthPrepass()
 		if (animation && mesh->skeletonID != -1)
 			skeleton = animation->skeletons[mesh->skeletonID];
 
-		bgfx::setMarker("Depth Prepass");
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::DepthPrepass);
 	}
 }
 
 static void BuildHZB()
 {
+	bgfx::setMarker("HZB Downsample");
+
 	int numDownsamples = (int)floorf(log2f((float)max(hzbWidth, hzbHeight))) + 1;
 	int w = hzbWidth;
 	int h = hzbHeight;
@@ -947,13 +1050,12 @@ static void BuildHZB()
 	{
 		Graphics_ResetState();
 
-		uint16_t src = i == 0 ? gbufferTextures[4].idx : hzb;
+		uint16_t src = i == 0 ? gbuffer.textures[4].idx : hzb;
 		uint16_t dst = hzb;
 
 		Graphics_SetComputeTexture(0, src, max(i - 1, 0), bgfx::Access::Read);
 		Graphics_SetComputeTexture(1, dst, i, bgfx::Access::Write);
 
-		bgfx::setMarker("HZB Downsample");
 		Graphics_ComputeDispatch(RenderPass::HZB, hzbDownsampleShader, w / 16 + 1, h / 16 + 1, 1);
 
 		w /= 2;
@@ -1018,7 +1120,7 @@ static void CullLights()
 
 		if (pointLightDraws[i].hasShadowMap && numPointShadows < MAX_POINT_SHADOWS)
 		{
-			lightBufferData[i * 2 + 1].w = numPointShadows;
+			lightBufferData[i * 2 + 1].w = (float)numPointShadows;
 			pointShadowMapBuffer[numPointShadows] = pointLightDraws[i].shadowMap;
 			numPointShadows++;
 		}
@@ -1222,12 +1324,12 @@ static void DrawCloth(Cloth* cloth, const Matrix& transform, Material* material,
 
 static void GeometryPass()
 {
+	bgfx::setMarker("Geometry Pass");
+
 	Graphics_ResetState();
 
-	Graphics_SetRenderTarget(RenderPass::Geometry, gbuffer, width, height);
+	Graphics_SetRenderTarget(RenderPass::Geometry, gbuffer.renderTarget, width, height);
 	Graphics_SetViewTransform(RenderPass::Geometry, projection, view);
-
-	bgfx::setMarker("Geometry Pass");
 
 	for (int i = 0; i < numVisibleMeshes; i++)
 	{
@@ -1266,21 +1368,21 @@ static void GeometryPass()
 	}
 }
 
-void CalculateCascade(float near, float far, Matrix* lightProjection, Matrix* lightView)
+void CalculateCascade(Vector3 position, Quaternion rotation, float fov, float aspect, float near, float far, Matrix* lightProjection, Matrix* lightView)
 {
-	Vector3 forward = cameraRotation.forward();
-	Vector3 up = cameraRotation.up();
-	Vector3 right = cameraRotation.right();
+	Vector3 forward = rotation.forward();
+	Vector3 up = rotation.up();
+	Vector3 right = rotation.right();
 
-	float halfHeight = tanf(cameraFOV * 0.5f / 180.0f * PI);
+	float halfHeight = tanf(fov * 0.5f / 180.0f * PI);
 	float farHalfHeight = far * halfHeight;
 	float nearHalfHeight = near * halfHeight;
 
-	float farHalfWidth = farHalfHeight * cameraAspect;
-	float nearHalfWidth = nearHalfHeight * cameraAspect;
+	float farHalfWidth = farHalfHeight * aspect;
+	float nearHalfWidth = nearHalfHeight * aspect;
 
-	Vector3 centerFar = cameraPosition + forward * far;
-	Vector3 centerNear = cameraPosition + forward * near;
+	Vector3 centerFar = position + forward * far;
+	Vector3 centerNear = position + forward * near;
 
 	Vector3 corners[8];
 	corners[0] = centerFar + up * farHalfHeight + right * farHalfWidth;
@@ -1329,9 +1431,25 @@ static void CalculateCascadeMatrices(Vector3 position, Quaternion rotation, floa
 
 	for (int i = 0; i < 3; i++)
 	{
-		CalculateCascade(NEAR_PLANES[i], FAR_PLANES[i], &projections[i], &views[i]);
+		CalculateCascade(position, rotation, fov, aspect, NEAR_PLANES[i], FAR_PLANES[i], &projections[i], &views[i]);
 		directionalLightShadowMapFar[i] = FAR_PLANES[i];
 	}
+}
+
+static void CalculateStaticCascadeMatrices(Vector3 position, Quaternion rotation, float fov, float aspect, Matrix* projection, Matrix* view)
+{
+	Vector3 localMin = -0.5f * directionalLightVolumeSize;
+	Vector3 localMax = 0.5f * directionalLightVolumeSize;
+
+	Quaternion lightRotation = Quaternion::LookAt(Vector3::Zero, directionalLightDirection);
+	Vector3 boxPosition = directionalLightPosition + directionalLightDirection * 0.5f * directionalLightVolumeSize.z;
+
+	*projection = Matrix::Orthographic(localMin.x, localMax.x, localMin.y, localMax.y, localMin.z, localMax.z);
+	*view = (Matrix::Translate(boxPosition) * Matrix::Rotate(lightRotation)).inverted();
+
+	directionalLightShadowMapFar[0] = 1000;
+	directionalLightShadowMapFar[1] = 1000;
+	directionalLightShadowMapFar[2] = 1000;
 }
 
 static void UpdateDirectionalShadows()
@@ -1341,24 +1459,80 @@ static void UpdateDirectionalShadows()
 		if (!directionalLightShadowsNeedUpdate)
 			return;
 
-		Matrix cascadeProjections[3];
-		Matrix cascadeViews[3];
-
-		CalculateCascadeMatrices(cameraPosition, cameraRotation, cameraFOV, cameraAspect, cascadeProjections, cascadeViews);
-
-		for (int i = 0; i < 3; i++)
+		if (directionalLightIsDynamic)
 		{
+			Matrix cascadeProjections[3];
+			Matrix cascadeViews[3];
+
+			CalculateCascadeMatrices(cameraPosition, cameraRotation, cameraFOV, cameraAspect, cascadeProjections, cascadeViews);
+
+			for (int i = 0; i < 3; i++)
+			{
+				Graphics_ResetState();
+
+				Graphics_SetRenderTarget(RenderPass::Shadow0 + i, directionalLightShadowMapRTs[i], directionalLightShadowMapRes, directionalLightShadowMapRes);
+				Graphics_ClearRenderTarget(RenderPass::Shadow0 + i, directionalLightShadowMapRTs[i].idx, false, true, 0, 1);
+
+				Matrix cascadePV = cascadeProjections[i] * cascadeViews[i];
+				Graphics_SetViewTransform(RenderPass::Shadow0 + i, cascadeProjections[i], cascadeViews[i]);
+				directionalLightShadowMapMatrix[i] = cascadePV;
+
+				for (int j = 0; j < occluderMeshes.size; j++)
+				{
+					if (!occluderMeshes[j].renderShadowMap)
+						continue;
+
+					MeshData* mesh = occluderMeshes[j].mesh;
+					Material* material = occluderMeshes[j].material;
+					AnimationState* animation = occluderMeshes[j].animation;
+
+					Matrix transform = occluderMeshes[j].transform;
+
+					SkeletonState* skeleton = nullptr;
+					if (animation && mesh->skeletonID != -1)
+						skeleton = animation->skeletons[mesh->skeletonID];
+
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::None);
+				}
+
+				for (int j = 0; j < meshDraws.size; j++)
+				{
+					if (!meshDraws[j].renderShadowMap)
+						continue;
+
+					MeshData* mesh = meshDraws[j].mesh;
+					Material* material = meshDraws[j].material;
+					AnimationState* animation = meshDraws[j].animation;
+
+					Matrix transform = meshDraws[j].transform;
+
+					SkeletonState* skeleton = nullptr;
+					if (animation && mesh->skeletonID != -1)
+						skeleton = animation->skeletons[mesh->skeletonID];
+
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::None);
+				}
+			}
+		}
+		else
+		{
+			Matrix projection, view;
+			CalculateStaticCascadeMatrices(cameraPosition, cameraRotation, cameraFOV, cameraAspect, &projection, &view);
+
 			Graphics_ResetState();
 
-			Graphics_SetRenderTarget(RenderPass::Shadow0 + i, directionalLightShadowMapRTs[i], directionalLightShadowMapRes, directionalLightShadowMapRes);
-			Graphics_ClearRenderTarget(RenderPass::Shadow0 + i, directionalLightShadowMapRTs[i].idx, false, true, 0, 1);
+			Graphics_SetRenderTarget(RenderPass::Shadow0, directionalLightShadowMapRTs[0], directionalLightShadowMapRes, directionalLightShadowMapRes);
+			Graphics_ClearRenderTarget(RenderPass::Shadow0, directionalLightShadowMapRTs[0].idx, false, true, 0, 1);
 
-			Matrix cascadePV = cascadeProjections[i] * cascadeViews[i];
-			Graphics_SetViewTransform(RenderPass::Shadow0 + i, cascadeProjections[i], cascadeViews[i]);
-			directionalLightShadowMapMatrix[i] = cascadePV;
+			Matrix cascadePV = projection * view;
+			Graphics_SetViewTransform(RenderPass::Shadow0, projection, view);
+			directionalLightShadowMapMatrix[0] = cascadePV;
 
 			for (int j = 0; j < occluderMeshes.size; j++)
 			{
+				if (!occluderMeshes[j].renderShadowMap)
+					continue;
+
 				MeshData* mesh = occluderMeshes[j].mesh;
 				Material* material = occluderMeshes[j].material;
 				AnimationState* animation = occluderMeshes[j].animation;
@@ -1369,11 +1543,14 @@ static void UpdateDirectionalShadows()
 				if (animation && mesh->skeletonID != -1)
 					skeleton = animation->skeletons[mesh->skeletonID];
 
-				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::CounterClockWise);
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0, CullState::None);
 			}
 
 			for (int j = 0; j < meshDraws.size; j++)
 			{
+				if (!meshDraws[j].renderShadowMap)
+					continue;
+
 				MeshData* mesh = meshDraws[j].mesh;
 				Material* material = meshDraws[j].material;
 				AnimationState* animation = meshDraws[j].animation;
@@ -1384,7 +1561,7 @@ static void UpdateDirectionalShadows()
 				if (animation && mesh->skeletonID != -1)
 					skeleton = animation->skeletons[mesh->skeletonID];
 
-				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::CounterClockWise);
+				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0, CullState::None);
 			}
 		}
 	}
@@ -1417,6 +1594,9 @@ static void UpdatePointShadows()
 
 			for (int j = 0; j < occluderMeshes.size; j++)
 			{
+				if (!occluderMeshes[j].renderShadowMap)
+					continue;
+
 				MeshData* mesh = occluderMeshes[j].mesh;
 				Material* material = occluderMeshes[j].material;
 				AnimationState* animation = occluderMeshes[j].animation;
@@ -1428,11 +1608,14 @@ static void UpdatePointShadows()
 					skeleton = animation->skeletons[mesh->skeletonID];
 
 				if (FrustumCulling(mesh->boundingSphere, transform, skeleton, shadowMapFrustumPlanes))
-					DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face, CullState::CounterClockWise);
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face, CullState::None);
 			}
 
 			for (int j = 0; j < meshDraws.size; j++)
 			{
+				if (!meshDraws[j].renderShadowMap)
+					continue;
+
 				MeshData* mesh = meshDraws[j].mesh;
 				Material* material = meshDraws[j].material;
 				AnimationState* animation = meshDraws[j].animation;
@@ -1444,7 +1627,7 @@ static void UpdatePointShadows()
 					skeleton = animation->skeletons[mesh->skeletonID];
 
 				if (FrustumCulling(mesh->boundingSphere, transform, skeleton, shadowMapFrustumPlanes))
-					DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face, CullState::CounterClockWise);
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::PointShadow + numPointShadows * 6 + face, CullState::None);
 			}
 		}
 
@@ -1454,12 +1637,173 @@ static void UpdatePointShadows()
 
 static void ShadowPass()
 {
+	bgfx::setMarker("Shadow Pass");
+
 	UpdateDirectionalShadows();
 	UpdatePointShadows();
 }
 
+static void EnvironmentMapPass()
+{
+	for (int i = 0; i < reflectionProbeDraws.size; i++)
+	{
+		if (reflectionProbeDraws[i].needsUpdate)
+			queuedReflectionProbeUpdates.add(reflectionProbeDraws[i]);
+	}
+
+	if (queuedReflectionProbeUpdates.size > 0)
+	{
+		ReflectionProbeDraw draw = queuedReflectionProbeUpdates[0];
+		queuedReflectionProbeUpdates.removeAt(0);
+
+		const int maxPointLights = 16;
+		const int maxPointShadows = 4;
+		uint16_t pointLightShadowMaps[maxPointShadows];
+		int numPointShadows = 0;
+
+		List<PointLightDraw> pointLightsCopy;
+		pointLightsCopy.addAll(pointLightDraws);
+		pointLightDrawComparatorRefPosition = draw.position;
+		qsort(pointLightsCopy.buffer, pointLightsCopy.size, sizeof(PointLightDraw), (_CoreCrtNonSecureSearchSortCompareFunction)PointLightDrawComparator);
+
+		int tmp = 0;
+		for (int i = 0; i < pointLightsCopy.size; i++)
+		{
+			if (pointLightsCopy[i].hasShadowMap)
+			{
+				if (tmp < maxPointShadows)
+					tmp++;
+				else
+					pointLightsCopy.removeAt(i--);
+			}
+		}
+
+		int numPointLights = min(pointLightsCopy.size, maxPointLights);
+		Vector4 pointLightPositions[maxPointLights];
+		Vector4 pointLightColors[maxPointLights];
+		for (int j = 0; j < numPointLights; j++)
+		{
+			pointLightPositions[j].xyz = pointLightsCopy[j].position;
+			pointLightPositions[j].w = pointLightsCopy[j].radius;
+			pointLightColors[j].xyz = pointLightsCopy[j].color;
+			pointLightColors[j].w = -1;
+
+			if (pointLightsCopy[j].hasShadowMap && numPointShadows < maxPointShadows)
+			{
+				pointLightColors[j].w = (float)numPointShadows;
+				pointLightShadowMaps[numPointShadows] = pointLightsCopy[j].shadowMap;
+				numPointShadows++;
+			}
+		}
+
+		DestroyList(pointLightsCopy);
+
+
+		for (int face = 0; face < 6; face++)
+		{
+			GBuffer& faceRT = environmentMapGBuffers[face];
+
+			Graphics_ResetState();
+
+			Graphics_SetRenderTarget(RenderPass::ReflectionProbe + face, faceRT.renderTarget, environmentMapGbufferResolution, environmentMapGbufferResolution);
+			Graphics_ClearRenderTarget(RenderPass::ReflectionProbe + face, faceRT.renderTarget, true, true, 0, 1);
+
+			Matrix shadowMapProjection = Matrix::Perspective(PI * 0.5f, 1.0f, 0.1f, draw.farPlane);
+			Matrix shadowMapView = cubemapFaceRotations[face] * Matrix::Translate(-draw.position);
+			Matrix shadowMapPV = shadowMapProjection * shadowMapView;
+			Graphics_SetViewTransform(RenderPass::ReflectionProbe + face, shadowMapProjection, shadowMapView);
+
+			Vector4 shadowMapFrustumPlanes[6];
+			GetFrustumPlanes(shadowMapPV, shadowMapFrustumPlanes);
+
+			for (int j = 0; j < occluderMeshes.size; j++)
+			{
+				if (!occluderMeshes[j].renderShadowMap)
+					continue;
+
+				MeshData* mesh = occluderMeshes[j].mesh;
+				Material* material = occluderMeshes[j].material;
+				AnimationState* animation = occluderMeshes[j].animation;
+
+				Matrix transform = occluderMeshes[j].transform;
+
+				SkeletonState* skeleton = nullptr;
+				if (animation && mesh->skeletonID != -1)
+					skeleton = animation->skeletons[mesh->skeletonID];
+
+				if (FrustumCulling(mesh->boundingSphere, transform, skeleton, shadowMapFrustumPlanes))
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::ReflectionProbe + face, CullState::None);
+			}
+
+			for (int j = 0; j < meshDraws.size; j++)
+			{
+				if (!meshDraws[j].renderShadowMap)
+					continue;
+
+				MeshData* mesh = meshDraws[j].mesh;
+				Material* material = meshDraws[j].material;
+				AnimationState* animation = meshDraws[j].animation;
+
+				Matrix transform = meshDraws[j].transform;
+
+				SkeletonState* skeleton = nullptr;
+				if (animation && mesh->skeletonID != -1)
+					skeleton = animation->skeletons[mesh->skeletonID];
+
+				if (FrustumCulling(mesh->boundingSphere, transform, skeleton, shadowMapFrustumPlanes))
+					DrawMesh(mesh, transform, material, skeleton, RenderPass::ReflectionProbe + face, CullState::None);
+			}
+
+
+
+			// DEFERRED SHADING
+
+
+
+			Graphics_ResetState();
+			Graphics_SetRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], draw.resolution, draw.resolution);
+			Graphics_ClearRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], true, false, 0x000000FF, 1);
+
+			Shader* shader = deferredSimpleShader;
+
+			//Graphics_SetBlendState(BlendState::Additive);
+			Graphics_SetDepthTest(DepthTest::None);
+			Graphics_SetCullState(CullState::ClockWise);
+
+			Graphics_SetVertexBuffer(quad);
+
+			Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, faceRT.textures[0]);
+			Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, faceRT.textures[1]);
+			Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, faceRT.textures[2]);
+			Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, faceRT.textures[3]);
+
+			Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
+
+			Vector4 u_cameraPosition(cameraPosition, (float)numPointLights);
+			Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+			Vector4 u_ambientLight(draw.ambientLight, 0);
+			Graphics_SetUniform(shader->getUniform("u_ambientLight", bgfx::UniformType::Vec4), &u_ambientLight);
+
+			Graphics_SetUniform(shader->getUniform("u_pointLightPositions", bgfx::UniformType::Vec4, 16), pointLightPositions, 16);
+			Graphics_SetUniform(shader->getUniform("u_pointLightColors", bgfx::UniformType::Vec4, 16), pointLightColors, 16);
+
+			for (int i = 0; i < numPointShadows; i++)
+			{
+				char uniformName[16];
+				sprintf(uniformName, "s_shadowMap%d", i);
+				Graphics_SetTexture(shader->getUniform(uniformName, bgfx::UniformType::Sampler), 5 + i, bgfx::TextureHandle{ pointLightShadowMaps[i] });
+			}
+
+			Graphics_Draw(RenderPass::ReflectionProbe + 6 + face, shader);
+		}
+	}
+}
+
 static void AmbientOcclusionPass()
 {
+	bgfx::setMarker("Ambient Occlusion Pass");
+
 	if (!settings.ssaoEnabled)
 	{
 		Graphics_ResetState();
@@ -1477,8 +1821,8 @@ static void AmbientOcclusionPass()
 
 	Graphics_SetRenderTarget(RenderPass::AmbientOcclusion, ssaoRT, ssaoRTTextureInfo.width, ssaoRTTextureInfo.height);
 
-	bgfx::setTexture(0, s_depth, gbufferTextures[4]);
-	bgfx::setTexture(1, s_normals, gbufferTextures[1]);
+	bgfx::setTexture(0, s_depth, gbuffer.textures[4]);
+	bgfx::setTexture(1, s_normals, gbuffer.textures[1]);
 
 	bgfx::setTexture(2, s_noise, blueNoise64, BGFX_SAMPLER_POINT);
 
@@ -1503,7 +1847,7 @@ static void AmbientOcclusionPass()
 
 	Graphics_SetRenderTarget(RenderPass::AmbientOcclusionBlur, ssaoBlurRT, ssaoBlurRTTextureInfo.width, ssaoBlurRTTextureInfo.height);
 
-	bgfx::setTexture(0, s_depth, gbufferTextures[4]);
+	bgfx::setTexture(0, s_depth, gbuffer.textures[4]);
 	bgfx::setTexture(1, s_ao, ssaoRTTexture);
 
 	bgfx::setUniform(u_cameraFrustum, &cameraFrustum);
@@ -1511,6 +1855,103 @@ static void AmbientOcclusionPass()
 	bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ quad });
 
 	bgfx::submit((bgfx::ViewId)RenderPass::AmbientOcclusionBlur, ssaoBlurShader->program);
+}
+
+static void RenderEnvironmentMaps()
+{
+	if (environmentMap == bgfx::kInvalidHandle)
+		return;
+
+	Shader* shader = deferredEnvironmentShader;
+
+	Graphics_ResetState();
+
+	Graphics_SetBlendState(BlendState::Alpha);
+	Graphics_SetDepthTest(DepthTest::None);
+	Graphics_SetCullState(CullState::ClockWise);
+
+	Graphics_SetVertexBuffer(quad);
+
+	Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbuffer.textures[0]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbuffer.textures[1]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbuffer.textures[2]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbuffer.textures[3]);
+
+	Graphics_SetTexture(shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler), 4, bgfx::TextureHandle{ environmentMap });
+
+	int numEnvironmentMasks = min(environmentMapMasks.size, 4);
+
+	Vector4 environmentData(environmentIntensity, (float)numEnvironmentMasks, 0, 0);
+	Graphics_SetUniform(shader->getUniform("u_environmentData", bgfx::UniformType::Vec4), &environmentData);
+
+	Vector4 maskPositions[4];
+	Vector4 maskSizes[4];
+	for (int i = 0; i < numEnvironmentMasks; i++)
+	{
+		maskPositions[i] = Vector4(environmentMapMasks[i].position, 0);
+		maskSizes[i] = Vector4(environmentMapMasks[i].size, environmentMapMasks[i].falloff);
+	}
+	Graphics_SetUniform(shader->getUniform("u_maskPosition", bgfx::UniformType::Vec4, 4), maskPositions, numEnvironmentMasks);
+	Graphics_SetUniform(shader->getUniform("u_maskSize", bgfx::UniformType::Vec4, 4), maskSizes, numEnvironmentMasks);
+
+	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoBlurRTTexture);
+
+	Vector4 u_cameraPosition(cameraPosition, 0);
+	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+	Graphics_Draw(RenderPass::Deferred, shader);
+}
+
+static int ReflectionProbeComparator(const ReflectionProbeDraw* a, const ReflectionProbeDraw* b)
+{
+	float sa = a->size.x * a->size.y * a->size.z;
+	float sb = b->size.x * b->size.y * b->size.z;
+	return sa > sb ? -1 : sb > sa ? 1 : 0;
+}
+
+static void RenderReflectionProbes()
+{
+	Shader* shader = deferredReflectionProbeShader;
+
+	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
+
+	qsort(reflectionProbeDraws.buffer, reflectionProbeDraws.size, sizeof(ReflectionProbeDraw), (_CoreCrtNonSecureSearchSortCompareFunction)ReflectionProbeComparator);
+
+	for (int i = 0; i < reflectionProbeDraws.size; i++)
+	{
+		Graphics_ResetState();
+
+		Graphics_SetBlendState(BlendState::Alpha);
+		Graphics_SetDepthTest(DepthTest::None);
+		Graphics_SetCullState(CullState::CounterClockWise);
+
+		Graphics_SetVertexBuffer(box);
+		Graphics_SetIndexBuffer(boxIBO);
+
+		Matrix boxTransform = Matrix::Translate(reflectionProbeDraws[i].position) * Matrix::Scale((reflectionProbeDraws[i].size + 2) * 0.5f);
+		Graphics_SetTransform(RenderPass::Deferred, boxTransform);
+
+		Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbuffer.textures[0]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbuffer.textures[1]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbuffer.textures[2]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbuffer.textures[3]);
+
+		Graphics_SetTexture(shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler).idx, 4, reflectionProbeDraws[i].cubemap);
+
+		Vector4 cubemapPosition(reflectionProbeDraws[i].position, 0);
+		Vector4 cubemapSize(reflectionProbeDraws[i].size, 0);
+		Vector4 cubemapOrigin(reflectionProbeDraws[i].position, 0);
+		Graphics_SetUniform(shader->getUniform("u_reflectionPosition", bgfx::UniformType::Vec4), &cubemapPosition);
+		Graphics_SetUniform(shader->getUniform("u_reflectionSize", bgfx::UniformType::Vec4), &cubemapSize);
+		Graphics_SetUniform(shader->getUniform("u_reflectionOrigin", bgfx::UniformType::Vec4), &cubemapOrigin);
+
+		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoBlurRTTexture);
+
+		Vector4 u_cameraPosition(cameraPosition, 0);
+		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
+
+		Graphics_Draw(RenderPass::Deferred, shader);
+	}
 }
 
 static void RenderPointLights()
@@ -1531,10 +1972,10 @@ static void RenderPointLights()
 
 	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
 
-	Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbuffer.textures[0]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbuffer.textures[1]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbuffer.textures[2]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbuffer.textures[3]);
 
 	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
 
@@ -1567,10 +2008,10 @@ static void RenderDirectionalLights()
 
 		Graphics_SetVertexBuffer(quad);
 
-		Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
-		Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
-		Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
-		Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbuffer.textures[0]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbuffer.textures[1]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbuffer.textures[2]);
+		Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbuffer.textures[3]);
 
 		Vector4 lightDirection(directionalLightDirection, 0);
 		Vector4 lightColor(directionalLightColor, 0);
@@ -1578,113 +2019,37 @@ static void RenderDirectionalLights()
 		Graphics_SetUniform(shader->getUniform("u_lightColor", bgfx::UniformType::Vec4), &lightColor);
 
 		Vector4 farPlanes;
-		for (int i = 0; i < 3; i++)
+		farPlanes[0] = directionalLightShadowMapFar[0];
+		farPlanes[1] = directionalLightShadowMapFar[1];
+		farPlanes[2] = directionalLightShadowMapFar[2];
+
+		if (directionalLightIsDynamic)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				char s_shadowMap[32];
+				sprintf(s_shadowMap, "s_shadowMap%d", i);
+				Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 4 + i, bgfx::getTexture(directionalLightShadowMapRTs[i]));
+
+				char u_toLightSpace[32];
+				sprintf(u_toLightSpace, "u_toLightSpace%d", i);
+				Graphics_SetUniform(shader->getUniform(u_toLightSpace, bgfx::UniformType::Mat4), &directionalLightShadowMapMatrix[i]);
+			}
+		}
+		else
 		{
 			char s_shadowMap[32];
-			sprintf(s_shadowMap, "s_shadowMap%d", i);
-			Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 4 + i, bgfx::getTexture(directionalLightShadowMapRTs[i]));
+			sprintf(s_shadowMap, "s_shadowMap%d", 0);
+			Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 4 + 0, bgfx::getTexture(directionalLightShadowMapRTs[0]));
 
 			char u_toLightSpace[32];
-			sprintf(u_toLightSpace, "u_toLightSpace%d", i);
-			Graphics_SetUniform(shader->getUniform(u_toLightSpace, bgfx::UniformType::Mat4), &directionalLightShadowMapMatrix[i]);
-
-			farPlanes[i] = directionalLightShadowMapFar[i];
+			sprintf(u_toLightSpace, "u_toLightSpace%d", 0);
+			Graphics_SetUniform(shader->getUniform(u_toLightSpace, bgfx::UniformType::Mat4), &directionalLightShadowMapMatrix[0]);
 		}
 
 		Graphics_SetUniform(shader->getUniform("u_params", bgfx::UniformType::Vec4), &farPlanes);
 
 		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 7, ssaoBlurRTTexture);
-
-		Vector4 u_cameraPosition(cameraPosition, 0);
-		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
-
-		Graphics_Draw(RenderPass::Deferred, shader);
-	}
-}
-
-static void RenderEnvironmentMaps()
-{
-	if (environmentMap == bgfx::kInvalidHandle)
-		return;
-
-	Shader* shader = deferredEnvironmentShader;
-
-	Graphics_ResetState();
-
-	Graphics_SetBlendState(BlendState::Additive);
-	Graphics_SetDepthTest(DepthTest::None);
-	Graphics_SetCullState(CullState::ClockWise);
-
-	Graphics_SetVertexBuffer(quad);
-
-	Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
-
-	Graphics_SetTexture(shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler), 4, bgfx::TextureHandle{ environmentMap });
-
-	int numEnvironmentMasks = min(environmentMapMasks.size, 4);
-
-	Vector4 environmentData(environmentIntensity, (float)numEnvironmentMasks, 0, 0);
-	Graphics_SetUniform(shader->getUniform("u_environmentData", bgfx::UniformType::Vec4), &environmentData);
-
-	Vector4 maskPositions[4];
-	Vector4 maskSizes[4];
-	for (int i = 0; i < numEnvironmentMasks; i++)
-	{
-		maskPositions[i] = Vector4(environmentMapMasks[i].position, 0);
-		maskSizes[i] = Vector4(environmentMapMasks[i].size, environmentMapMasks[i].falloff);
-	}
-	Graphics_SetUniform(shader->getUniform("u_maskPosition", bgfx::UniformType::Vec4, 4), maskPositions, numEnvironmentMasks);
-	Graphics_SetUniform(shader->getUniform("u_maskSize", bgfx::UniformType::Vec4, 4), maskSizes, numEnvironmentMasks);
-
-	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoBlurRTTexture);
-
-	Vector4 u_cameraPosition(cameraPosition, 0);
-	Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
-
-	Graphics_Draw(RenderPass::Deferred, shader);
-}
-
-static void RenderReflectionProbes()
-{
-	return;
-	// TODO implement
-
-	Shader* shader = deferredReflectionProbeShader;
-
-	Graphics_SetViewTransform(RenderPass::Deferred, projection, view);
-
-	for (int i = 0; i < reflectionProbeDraws.size; i++)
-	{
-		Graphics_ResetState();
-
-		Graphics_SetBlendState(BlendState::Additive);
-		Graphics_SetDepthTest(DepthTest::None);
-		Graphics_SetCullState(CullState::CounterClockWise);
-
-		Graphics_SetVertexBuffer(box);
-		Graphics_SetIndexBuffer(boxIBO);
-
-		Matrix boxTransform = Matrix::Translate(reflectionProbeDraws[i].position + reflectionProbeDraws[i].size * 0.5f) * Matrix::Scale(reflectionProbeDraws[i].size * 0.5f);
-		Graphics_SetTransform(RenderPass::Deferred, boxTransform);
-
-		Graphics_SetTexture(shader->getUniform("s_gbuffer0", bgfx::UniformType::Sampler), 0, gbufferTextures[0]);
-		Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
-		Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, gbufferTextures[2]);
-		Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
-
-		Graphics_SetTexture(shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler).idx, 4, environmentMap);
-
-		Vector4 cubemapPosition(reflectionProbeDraws[i].position, 0);
-		Vector4 cubemapSize(reflectionProbeDraws[i].size, 0);
-		Vector4 cubemapOrigin(reflectionProbeDraws[i].position, 0);
-		Graphics_SetUniform(shader->getUniform("u_cubemapPosition", bgfx::UniformType::Vec4), &cubemapPosition);
-		Graphics_SetUniform(shader->getUniform("u_cubemapSize", bgfx::UniformType::Vec4), &cubemapSize);
-		Graphics_SetUniform(shader->getUniform("u_cubemapOrigin", bgfx::UniformType::Vec4), &cubemapOrigin);
-
-		Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 5, ssaoBlurRTTexture);
 
 		Vector4 u_cameraPosition(cameraPosition, 0);
 		Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -1705,21 +2070,25 @@ static void RenderEmissive()
 
 	Graphics_SetVertexBuffer(quad);
 
-	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbufferTextures[1]);
-	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbufferTextures[3]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer1", bgfx::UniformType::Sampler), 1, gbuffer.textures[1]);
+	Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, gbuffer.textures[3]);
 
 	Graphics_Draw(RenderPass::Deferred, shader);
 }
 
 static void DeferredPass()
 {
+	bgfx::setMarker("Deferred Pass");
+
+	bgfx::setViewMode(RenderPass::Deferred, bgfx::ViewMode::Sequential);
+
 	Graphics_SetRenderTarget(RenderPass::Deferred, deferredRT, width, height);
 	Graphics_ClearRenderTarget(RenderPass::Deferred, deferredRT, true, true, 0, 1);
 
-	RenderPointLights();
-	RenderDirectionalLights();
 	RenderEnvironmentMaps();
 	RenderReflectionProbes();
+	RenderPointLights();
+	RenderDirectionalLights();
 	RenderEmissive();
 }
 
@@ -1737,8 +2106,13 @@ static void RenderForwardMeshes()
 		if (animation && mesh->skeletonID != -1)
 			skeleton = animation->skeletons[mesh->skeletonID];
 
+		Graphics_SetBlendState(BlendState::Alpha);
+
 		Graphics_SetTexture(material->shader->getUniform("s_deferredFrame", bgfx::UniformType::Sampler), 0, deferredRTTextures[0]);
-		Graphics_SetTexture(material->shader->getUniform("s_deferredDepth", bgfx::UniformType::Sampler), 1, gbufferTextures[4]);
+		Graphics_SetTexture(material->shader->getUniform("s_deferredDepth", bgfx::UniformType::Sampler), 1, gbuffer.textures[4]);
+
+		uint16_t cubemap = GetEnvironmentMapForPosition(transform.translation());
+		Graphics_SetTexture(material->shader->getUniform("s_environmentMap", bgfx::UniformType::Sampler), 4, bgfx::TextureHandle{ cubemap });
 
 		DrawMesh(mesh, transform, material, skeleton, RenderPass::Forward);
 	}
@@ -1874,6 +2248,8 @@ static void RenderSky()
 
 static void ForwardPass()
 {
+	bgfx::setMarker("Forward Pass");
+
 	Graphics_ResetState();
 	Graphics_SetRenderTarget(RenderPass::Forward, forwardRT, width, height);
 	Graphics_SetViewTransform(RenderPass::Forward, projection, view);
@@ -1918,27 +2294,71 @@ static void BloomUpsample(int idx, bgfx::TextureHandle texture0, bgfx::TextureHa
 
 static void BloomPass()
 {
+	bgfx::setMarker("Bloom Pass");
+
 	if (!settings.bloomEnabled)
 		return;
 
 	bgfx::TextureHandle input = forwardRTTextures[0];
 
-	BloomDownsample(0, input, bloomDownsampleRTs[0], bloomDownsampleRTTextureInfos[0].width, bloomDownsampleRTTextureInfos[0].height);
-	BloomDownsample(1, bloomDownsampleRTTextures[0], bloomDownsampleRTs[1], bloomDownsampleRTTextureInfos[1].width, bloomDownsampleRTTextureInfos[1].height);
-	BloomDownsample(2, bloomDownsampleRTTextures[1], bloomDownsampleRTs[2], bloomDownsampleRTTextureInfos[2].width, bloomDownsampleRTTextureInfos[2].height);
-	BloomDownsample(3, bloomDownsampleRTTextures[2], bloomDownsampleRTs[3], bloomDownsampleRTTextureInfos[3].width, bloomDownsampleRTTextureInfos[3].height);
-	BloomDownsample(4, bloomDownsampleRTTextures[3], bloomDownsampleRTs[4], bloomDownsampleRTTextureInfos[4].width, bloomDownsampleRTTextureInfos[4].height);
-	BloomDownsample(5, bloomDownsampleRTTextures[4], bloomDownsampleRTs[5], bloomDownsampleRTTextureInfos[5].width, bloomDownsampleRTTextureInfos[5].height);
+	for (int i = 0; i < bloomStepCount; i++)
+	{
+		BloomDownsample(i, input, bloomDownsampleRTs[i], bloomDownsampleRTTextureInfos[i].width, bloomDownsampleRTTextureInfos[i].height);
+		input = bloomDownsampleRTTextures[i];
+	}
 
-	BloomUpsample(0, bloomDownsampleRTTextures[5], bloomDownsampleRTTextures[4], bloomUpsampleRTs[4], bloomUpsampleRTTextureInfos[4].width, bloomUpsampleRTTextureInfos[4].height);
-	BloomUpsample(1, bloomUpsampleRTTextures[4], bloomDownsampleRTTextures[3], bloomUpsampleRTs[3], bloomUpsampleRTTextureInfos[3].width, bloomUpsampleRTTextureInfos[3].height);
-	BloomUpsample(2, bloomUpsampleRTTextures[3], bloomDownsampleRTTextures[2], bloomUpsampleRTs[2], bloomUpsampleRTTextureInfos[2].width, bloomUpsampleRTTextureInfos[2].height);
-	BloomUpsample(3, bloomUpsampleRTTextures[2], bloomDownsampleRTTextures[1], bloomUpsampleRTs[1], bloomUpsampleRTTextureInfos[1].width, bloomUpsampleRTTextureInfos[1].height);
-	BloomUpsample(4, bloomUpsampleRTTextures[1], bloomDownsampleRTTextures[0], bloomUpsampleRTs[0], bloomUpsampleRTTextureInfos[0].width, bloomUpsampleRTTextureInfos[0].height);
+	bgfx::TextureHandle input0 = bloomDownsampleRTTextures[bloomStepCount - 1];
+
+	for (int i = bloomStepCount - 2; i >= 0; i--)
+	{
+		bgfx::TextureHandle input1 = bloomDownsampleRTTextures[i];
+		BloomUpsample(bloomStepCount - 2 - i, input0, input1, bloomUpsampleRTs[i], bloomUpsampleRTTextureInfos[i].width, bloomUpsampleRTTextureInfos[i].height);
+		input0 = bloomUpsampleRTTextures[i];
+	}
+}
+
+static Vector3 DecodeRG11B10(char* buffer)
+{
+	uint32_t bits = *(uint32_t*)buffer;
+	uint32_t rb = (bits & 0b11111111111);
+	uint32_t gb = (bits & 0b1111111111100000000000) >> 11;
+	uint32_t bb = (bits & 0b11111111110000000000000000000000) >> 22;
+	//uint32_t rb = buffer[0] << 3 + (buffer[1] & 0b11100000) >> 5;
+	//uint32_t gb = buffer[1] & 0b11111 << 6 + buffer[2] & 0b11111100 >> 2;
+	//uint32_t bb = buffer[2] & 0b11 << 8 + buffer[3];
+	uint32_t expr = (rb & 0b11111000000) >> 6;
+	uint32_t expg = (gb & 0b11111000000) >> 6;
+	uint32_t expb = (bb & 0b1111100000) >> 5;
+	uint32_t manr = rb & 0b111111;
+	uint32_t mang = gb & 0b111111;
+	uint32_t manb = bb & 0b11111;
+	float r = powf(2, (float)expr - 15) * (1.0f + manr / (float)0b1000000);
+	float g = powf(2, (float)expg - 15) * (1.0f + mang / (float)0b1000000);
+	float b = powf(2, (float)expb - 15) * (1.0f + manb / (float)0b100000);
+	return Vector3(r, g, b);
 }
 
 static void TonemappingPass(uint16_t target)
 {
+	bgfx::setMarker("Tonemapping Pass");
+
+	bgfx::blit(RenderPass::Tonemapping, luminanceReadbackTexture, 0, 0, bloomDownsampleRTTextures[bloomStepCount - 1], 0, 0, 1, 1);
+
+	if (nextLuminanceReadbackFrame == UINT32_MAX)
+	{
+		nextLuminanceReadbackFrame = bgfx::readTexture(luminanceReadbackTexture, luminanceDataBuffer);
+	}
+	else if (frameIdx >= nextLuminanceReadbackFrame)
+	{
+		Vector3 color = DecodeRG11B10(luminanceDataBuffer);
+		float luminance = color.x * 0.3f + color.y * 0.59f + color.z * 0.11f;
+		targetExposure = powf(1.0f / luminance * 0.1f, 1.0f / 4);
+		nextLuminanceReadbackFrame = UINT32_MAX;
+	}
+
+	float adaptionSpeed = currentExposure < targetExposure ? settings.eyeAdaptionSpeed : 2 * settings.eyeAdaptionSpeed;
+	currentExposure = mix(currentExposure, targetExposure, adaptionSpeed * Application_GetFrameTime());
+
 	Graphics_ResetState();
 	Graphics_SetRenderTarget(RenderPass::Tonemapping, target, width, height);
 	Graphics_ClearRenderTarget(RenderPass::Tonemapping, target, true, true, 0x0, 1);
@@ -1953,7 +2373,7 @@ static void TonemappingPass(uint16_t target)
 	Graphics_SetTexture(shader->getUniform("s_depth", bgfx::UniformType::Sampler), 1, forwardRTTextures[1]);
 	Graphics_SetTexture(shader->getUniform("s_bloom", bgfx::UniformType::Sampler), 2, bloomUpsampleRTTextures[0]);
 
-	Vector4 params(settings.exposure, settings.bloomStrength, settings.bloomFalloff, 0);
+	Vector4 params(currentExposure * settings.exposure, settings.bloomStrength, settings.bloomFalloff, 0);
 	Graphics_SetUniform(u_params, &params);
 
 	Vector4 fogData(settings.fogColor, settings.fogStrength);
@@ -1971,6 +2391,8 @@ static void TonemappingPass(uint16_t target)
 
 static void DebugDrawPass(uint16_t target)
 {
+	bgfx::setMarker("Debug Draw Pass");
+
 	Graphics_ResetState();
 	Graphics_SetRenderTarget(RenderPass::Debug, target, width, height);
 
@@ -2001,11 +2423,12 @@ RFAPI uint16_t Renderer3D_End()
 
 	GeometryPass(); // render visible models here
 	ShadowPass();
+	EnvironmentMapPass();
 	AmbientOcclusionPass();
 	DeferredPass(); // render visible lights here
 
 	Graphics_Blit(RenderPass::Forward, forwardRTTextures[0], deferredRTTextures[0]);
-	Graphics_Blit(RenderPass::Forward, forwardRTTextures[1], gbufferTextures[4]);
+	Graphics_Blit(RenderPass::Forward, forwardRTTextures[1], gbuffer.textures[4]);
 
 	ForwardPass(); // render visible particles here
 	BloomPass();
@@ -2078,6 +2501,9 @@ RFAPI int Renderer3D_DrawDebugStats(int x, int y, uint8_t color)
 	Graphics_DrawDebugText(x, y++, color, str);
 
 	sprintf(str, "Geometry Pass: %.2f ms", GetGPUTime(RenderPass::Geometry) * 1000);
+	Graphics_DrawDebugText(x, y++, color, str);
+
+	sprintf(str, "Shadow Pass: %.2f ms", GetCumulativeGPUTime(RenderPass::Shadow0, RenderPass::AmbientOcclusion - RenderPass::Shadow0) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
 	sprintf(str, "AO Pass: %.2f ms", GetCumulativeGPUTime(RenderPass::AmbientOcclusion, 2) * 1000);

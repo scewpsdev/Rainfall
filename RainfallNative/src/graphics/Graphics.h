@@ -187,7 +187,7 @@ RFAPI Texture Graphics_CreateTexture3DImmutable(int width, int height, int depth
 RFAPI Texture Graphics_CreateTexture3DMutable(int width, int height, int depth, bool hasMips, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info);
 RFAPI void Graphics_SetTexture3DData(Texture texture, int mip, int x, int y, int z, int width, int height, int depth, const bgfx::Memory* memory);
 RFAPI Texture Graphics_CreateCubemapFromMemory(const bgfx::Memory* memory, uint64_t flags, bgfx::TextureInfo* info);
-RFAPI Texture Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info);
+RFAPI Texture Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, bool mipmaps, uint64_t flags, bgfx::TextureInfo* info);
 RFAPI void Graphics_DestroyTexture(Texture texture);
 RFAPI Shader* Graphics_CreateShader(const bgfx::Memory* vertexMemory, const bgfx::Memory* fragmentMemory);
 RFAPI Shader* Graphics_CreateShaderCompute(const bgfx::Memory* computeMemory);

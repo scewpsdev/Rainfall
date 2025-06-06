@@ -1,5 +1,5 @@
 flags = [ 1615716108 ]
-runs_finished = 1
+runs_finished = 4
 highscores = [ {
 score = 0
 floor = -1
@@ -54,7 +54,7 @@ name = builder_merchant
 dialogues = [  ]
 }, {
 name = blacksmith
-dialogues = [ 1971503161 ]
+dialogues = [ 1971503161, 583095836, 3748389534 ]
 }, {
 name = tinkerer
 dialogues = [  ]

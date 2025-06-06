@@ -26,5 +26,7 @@ public class WizardsCloak : Item
 
 		//ingameSpriteColor = 0xFF676898;
 		ingameSpriteCoversArms = true;
+
+		buff = new ItemBuff(this) { manaRecoveryModifier = 1.1f };
 	}
 }

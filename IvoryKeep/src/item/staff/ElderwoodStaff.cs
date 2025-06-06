@@ -22,7 +22,7 @@ public class ElderwoodStaff : Staff
 
 		intelligenceScaling = 0.8f;
 
-		value = 37;
+		value = 42;
 
 		sprite = new Sprite(tileset, 1, 6);
 		renderOffset.x = 0.2f;

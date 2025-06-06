@@ -65,6 +65,9 @@ public abstract class AI
 		distance = toEntity.length;
 		toTarget = distance != 0 ? toEntity / distance : Vector2.Right;
 		HitData hit = GameState.instance.level.raycastTiles(mob.position + mob.collider.center, toTarget, distance + 0.1f);
-		return hit == null;
+
+		float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
+		float effectiveAwareness = mob.awareness * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+		return distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction && hit == null || distance < effectiveAwareness * 2;
 	}
 }

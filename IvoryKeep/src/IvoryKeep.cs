@@ -63,8 +63,12 @@ public class IvoryKeep : Game
 
 		Settings.Load();
 
+#if DEBUG
+		pushState(new GameState(0, null));
+#else
 		pushState(new MainMenuState());
 		pushState(new SplashScreenState());
+#endif
 	}
 
 	public override void destroy()

@@ -6,6 +6,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <stdio.h>
 
 
 RFAPI ParticleSystem* ParticleSystem_Create(int maxParticles, Matrix transform)
@@ -134,7 +135,12 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta)
 		if (system->spawnShape == ParticleSpawnShape::Point)
 			velocity += RandomPointOnSphere(system->random) * system->radialVelocity;
 		else
-			velocity += (system->transform * Vector4(localPosition, 0)).xyz.normalized() * system->radialVelocity;
+		{
+			Vector3 r = localPosition.normalized() * system->radialVelocity;
+			if (!system->follow)
+				r = (system->transform * Vector4(localPosition, 0)).xyz;
+			velocity += r;
+		}
 	}
 
 	float rotationVelocity = 0.0f;

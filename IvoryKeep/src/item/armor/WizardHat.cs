@@ -24,5 +24,7 @@ public class WizardHat : Item
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/pointy_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteColor = 0xFF4c358f; // 0xFF874774;
 										//ingameSpriteColor = 0xFF676898;
+
+		buff = new ItemBuff(this) { manaRecoveryModifier = 1.1f };
 	}
 }

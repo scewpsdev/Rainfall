@@ -338,13 +338,8 @@ public class AdvancedAI : AI
 
 			if (canSeeEntity(GameState.instance.player, out Vector2 toTarget, out float distance))
 			{
-				float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
-				float effectiveAwareness = mob.awareness * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
-				if (distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction || distance < effectiveAwareness * effectiveAggroRange)
-				{
-					Entity newTarget = GameState.instance.player;
-					setTarget(newTarget);
-				}
+				Entity newTarget = GameState.instance.player;
+				setTarget(newTarget);
 			}
 		}
 

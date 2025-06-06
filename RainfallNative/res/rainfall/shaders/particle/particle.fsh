@@ -68,9 +68,8 @@ void main()
 	if (albedo.a < 0.001)
 		discard;
 
-	vec4 final = vec4(0, 0, 0, albedo.a);
+	vec4 final = vec4(albedo.rgb * u_emissiveStrength, albedo.a);
 	vec3 light = CalculatePointLights(v_position);
-	final.rgb = albedo.rgb * u_emissiveStrength;
 	final.rgb += albedo.rgb * light * max(1 - u_emissiveStrength, 0);
 
 	if (u_additive > 0.5)

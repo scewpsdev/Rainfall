@@ -32,11 +32,17 @@ public static class GraphicsManager
 	public static float bloomStrength = 0.1f;
 	public static float bloomFalloff = 5.0f;
 
+	public static float exposure = 1.0f;
+	public static float eyeAdaptionSpeed = 1.0f;
+
 	public static bool vignetteEnabled = true;
 	public static Vector4 vignetteColor = new Vector4(0, 0, 0, 1);
 	public static float vignetteFalloff = 0.12f;
 
 	public static bool ssaoEnabled = true;
+
+	public static Vector3 fogColor = Vector3.One;
+	public static float fogStrength = 0.0f;
 
 
 	public static void Init()
@@ -100,14 +106,17 @@ public static class GraphicsManager
 	public static void Draw()
 	{
 		RendererSettings renderSettings = new RendererSettings(0);
+		renderSettings.ssaoEnabled = ssaoEnabled;
 		renderSettings.bloomEnabled = bloomEnabled;
 		renderSettings.bloomStrength = bloomStrength;
 		renderSettings.bloomFalloff = bloomFalloff;
+		renderSettings.exposure = exposure;
+		renderSettings.eyeAdaptionSpeed = eyeAdaptionSpeed;
 		renderSettings.vignetteEnabled = vignetteEnabled;
 		renderSettings.vignetteColor = vignetteColor;
 		renderSettings.vignetteFalloff = vignetteFalloff;
-		renderSettings.ssaoEnabled = ssaoEnabled;
-		//renderSettings.exposure = 8;
+		renderSettings.fogColor = fogColor;
+		renderSettings.fogStrength = fogStrength;
 		Renderer.SetSettings(renderSettings);
 
 		if (environmentMap != null)

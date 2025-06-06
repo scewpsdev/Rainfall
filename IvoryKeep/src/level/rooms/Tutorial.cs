@@ -35,6 +35,21 @@ public class TutorialExitDoor : Door
 		layer2 = new Sprite(tileset, 9, 17, 3, 4);
 	}
 
+	public override void init(Level level)
+	{
+		base.init(level);
+
+		int x0 = (int)MathF.Floor(position.x) - 1;
+		int y0 = (int)MathF.Floor(position.y + 0.001f);
+		for (int y = y0; y < y0 + 2; y++)
+		{
+			for (int x = x0; x < x0 + 3; x++)
+			{
+				level.setBGTile(x, y, null);
+			}
+		}
+	}
+
 	public override void render()
 	{
 		base.render();
@@ -45,9 +60,11 @@ public class TutorialExitDoor : Door
 		vertex = ParallaxObject.ParallaxEffect(position, 0.2f);
 		Renderer.DrawSprite(vertex.x + rect.position.x, vertex.y + rect.position.y, vertex.z, rect.size.x, rect.size.y, 0, layer2, false, new Vector4(3, 3, 3, 1));
 
-		Renderer.DrawSprite(position.x + 1.5f, position.y, LAYER_BG, 10, 10, 0, null, false, new Vector4(0, 0, 0, 1));
-		Renderer.DrawSprite(position.x - 1.5f - 10, position.y, LAYER_BG, 10, 10, 0, null, false, new Vector4(0, 0, 0, 1));
-		Renderer.DrawSprite(position.x - 1.5f, position.y + 3, LAYER_BG, 10, 10, 0, null, false, new Vector4(0, 0, 0, 1));
+		//Renderer.DrawSprite(position.x + 1.5f, position.y, LAYER_BG, 10, 10, 0, null, false, new Vector4(0, 0, 0, 1));
+		//Renderer.DrawSprite(position.x - 1.5f - 10, position.y, LAYER_BG, 10, 10, 0, null, false, new Vector4(0, 0, 0, 1));
+		//Renderer.DrawSprite(position.x - 1.5f, position.y + 3, LAYER_BG, 10, 10, 0, null, false, new Vector4(0, 0, 0, 1));
+
+		Renderer.DrawLight(position + new Vector2(0, 1), new Vector3(0.6f, 0.8f, 1.0f) * 4, 14);
 	}
 }
 

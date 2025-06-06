@@ -55,6 +55,7 @@ public class Door : Entity, Interactable
 
 	public virtual void interact(Player player)
 	{
+		locked = false;
 		// unlock from the other side
 		if (otherDoor != null)
 			otherDoor.locked = false;

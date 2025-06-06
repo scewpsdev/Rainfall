@@ -177,7 +177,8 @@ vec3 RenderDirectionalLight(vec3 position, vec3 normal, vec3 view, float distanc
 	//case 2: radiance = vec3(0, 0, 1); break;
 	}
 	
-	vec3 s = specular * shadow + fLambert * kd * radiance * ndotwi * shadow;
+	//vec3 s = specular * shadow + fLambert * kd * radiance * ndotwi * shadow;
+	vec3 s = (specular + fLambert * kd) * radiance * ndotwi * shadow;
 
 	return s;
 }
@@ -308,8 +309,8 @@ vec4 CalculateReflectionWeights(vec3 position,
 
 vec4 SampleCubemapParallax(samplerCube cubemap, vec3 position, vec3 direction, float lod, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin)
 {
-	vec3 boxMin = cubemapPosition;
-	vec3 boxMax = cubemapPosition + cubemapSize;
+	vec3 boxMin = cubemapPosition - 0.5 * cubemapSize;
+	vec3 boxMax = cubemapPosition + 0.5f * cubemapSize;
 
 	vec3 firstPlaneIntersect = (boxMax - position) / direction;
 	vec3 secondPlaneIntersect = (boxMin - position) / direction;
@@ -324,9 +325,11 @@ vec4 SampleCubemapParallax(samplerCube cubemap, vec3 position, vec3 direction, f
 	return textureCubeLod(cubemap, boxToIntersection, lod);
 }
 
-vec3 RenderReflectionsParallax(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, samplerCube environmentMap, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin)
+vec4 RenderReflectionsParallax(vec3 position, vec3 normal, vec3 view, vec3 albedo, float roughness, float metallic, samplerCube environmentMap, vec3 cubemapPosition, vec3 cubemapSize, vec3 cubemapOrigin)
 {
-	vec3 irradiance = SRGBToLinear(SampleCubemapParallax(environmentMap, position, normal, log2(textureSize(environmentMap, 0).x), cubemapPosition, cubemapSize, cubemapOrigin).rgb);
+	float maxCubemapLod = log2(textureSize(environmentMap, 0).x);
+
+	vec3 irradiance = SampleCubemapParallax(environmentMap, position, normal, maxCubemapLod, cubemapPosition, cubemapSize, cubemapOrigin).rgb;
 
 	vec3 diffuse = irradiance * albedo;
 
@@ -335,16 +338,22 @@ vec3 RenderReflectionsParallax(vec3 position, vec3 normal, vec3 view, vec3 albed
 	vec3 kd = (1.0 - ks) * (1.0 - metallic);
 
 	vec3 r = reflect(-view, normal);
-	float lodFactor = 1.0 - exp(-roughness * 12);
+	//float lodFactor = 1 - exp(-(1 - roughness) * 0.25);
+	float lodFactor = pow(1 - roughness, 3);
+	float lod = maxCubemapLod - lodFactor * 10;
 
-	vec3 prefiltered = SRGBToLinear(SampleCubemapParallax(environmentMap, position, r, lodFactor * log2(textureSize(environmentMap, 0).x), cubemapPosition, cubemapSize, cubemapOrigin).rgb);
+	vec3 prefiltered = SampleCubemapParallax(environmentMap, position, r, lod, cubemapPosition, cubemapSize, cubemapOrigin).rgb;
 
 	vec2 brdfInteg = vec2(1.0, 0.0);
 	vec3 specular = prefiltered * (ks * brdfInteg.r + brdfInteg.g);
 
 	vec3 ambient = kd * diffuse + specular;
 
-	return ambient;
+	vec3 ap = abs(position - cubemapPosition) - 0.5 * cubemapSize;
+	float distanceFromBorder = max(ap.x, max(ap.y, ap.z));
+	float fadeout = 1 - smoothstep(0, 1, distanceFromBorder);
+
+	return vec4(ambient, fadeout);
 }
 
 vec3 SampleEnvironmentIrradiance(vec3 position, vec3 normal, samplerCube environmentMap, float environmentIntensity)

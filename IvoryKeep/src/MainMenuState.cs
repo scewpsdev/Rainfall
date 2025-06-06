@@ -106,7 +106,6 @@ public class MainMenuState : State
 
 				case 5: // Quit
 					IvoryKeep.instance.popState();
-					IvoryKeep.instance.terminate();
 					break;
 
 				default:

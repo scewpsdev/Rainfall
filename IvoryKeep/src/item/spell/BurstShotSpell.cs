@@ -28,6 +28,7 @@ public class BurstShotSpell : Spell
 		manaCost = 0.3f;
 		knockback = 1.0f;
 		trigger = false;
+		cancelOnRelease = false;
 
 		spellIcon = new Sprite(tileset, 4, 7);
 	}

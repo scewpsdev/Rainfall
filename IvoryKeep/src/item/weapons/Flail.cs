@@ -96,7 +96,7 @@ public class Flail : Weapon
 						attack.swingDir = player.direction == 1 ? 0 : 1;
 
 						chainOrigin = attack.getWorldOrigin(player);
-						Vector2 direction = attack.worldDirection;
+						Vector2 direction = attack.getWorldDirection(-1);
 						float range = attack.currentRange;
 
 						headPosition = chainOrigin + direction * range;

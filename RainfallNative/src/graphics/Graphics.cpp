@@ -285,11 +285,11 @@ RFAPI Texture Graphics_CreateCubemapFromMemory(const bgfx::Memory* memory, uint6
 	return handle.idx;
 }
 
-RFAPI Texture Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, uint64_t flags, bgfx::TextureInfo* info)
+RFAPI Texture Graphics_CreateCubemap(int size, bgfx::TextureFormat::Enum format, bool mipmaps, uint64_t flags, bgfx::TextureInfo* info)
 {
-	bgfx::TextureHandle handle = bgfx::createTextureCube(size, false, 1, format, flags, nullptr);
+	bgfx::TextureHandle handle = bgfx::createTextureCube(size, mipmaps, 1, format, flags, nullptr);
 	if (info)
-		bgfx::calcTextureSize(*info, size, size, 1, true, false, 1, format);
+		bgfx::calcTextureSize(*info, size, size, 1, true, mipmaps, 1, format);
 	return handle.idx;
 }
 

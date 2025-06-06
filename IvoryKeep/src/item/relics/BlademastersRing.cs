@@ -12,7 +12,7 @@ public class BlademastersRing : Item
 		: base("blademasters_ring", ItemType.Relic)
 	{
 		displayName = "Blademaster's Ring";
-		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two weapons effortlessly.";
+		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two light weapons effortlessly.";
 
 		value = 35;
 

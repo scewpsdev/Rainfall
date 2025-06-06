@@ -24,6 +24,6 @@ public class LargeWizardHat : Item
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/large_wizard_hat.png", false), 0, 0, 32, 32);
 		ingameSpriteColor = 0xFF567850;
 
-		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
+		buff = new ItemBuff(this) { manaRecoveryModifier = 1.2f };
 	}
 }

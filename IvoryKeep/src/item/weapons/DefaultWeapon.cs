@@ -19,6 +19,7 @@ public class DefaultWeapon : Weapon
 		baseDamage = 0.8f;
 		baseAttackRange = 0.7f;
 		baseAttackRate = 2;
+		attackDashDistance = 0.1f;
 		knockback = 5;
 		anim = AttackAnim.Stab;
 		actionMovementSpeed = 0.8f;

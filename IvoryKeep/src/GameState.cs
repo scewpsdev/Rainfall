@@ -1,5 +1,6 @@
 ﻿using Rainfall;
 using System;
+using System.Drawing;
 
 
 public class RunStats
@@ -73,10 +74,12 @@ public class GameState : State
 	public SaveFile save;
 	public RunStats run;
 	string seed = null;
+	bool customRun;
 	public LevelGenerator generator;
 
 	//public Level startingCave;
 	public Level introBridge;
+	public Level graveyard;
 	public Level hub;
 	public Level cliffside;
 	public Level tutorial;
@@ -104,6 +107,9 @@ public class GameState : State
 	public BossRoom currentBossRoom;
 	public long bossFightStarted = -1;
 
+	public string currentCheckpointLevel;
+	public Vector2 currentCheckpoint;
+
 	public bool isPaused = false;
 	public bool consoleOpen = false;
 	public bool onscreenPrompt = false;
@@ -116,34 +122,39 @@ public class GameState : State
 
 	public GameState(int saveID, string seed, bool customRun = false, bool dailyRun = false)
 	{
-		this.seed = seed;
 		instance = this;
 
 		save = customRun ? SaveFile.customRun : dailyRun ? SaveFile.dailyRun : SaveFile.Load(saveID);
 		QuestManager.Init();
 		NPCManager.Init();
 
-		reset();
+		reset(seed, customRun);
 	}
 
-	void reset(StartingClass startingClass = null, bool quickRestart = false)
+	public void reset(string seed, bool customRun, StartingClass startingClass = null, bool quickRestart = false)
 	{
 		destroy();
 
+		this.seed = seed;
+		this.customRun = customRun;
+
+		seed = seed != null ? seed : "12345" /*Hash.hash(Time.timestamp).ToString()*/;
+
 		currentBoss = null;
 
-		run = new RunStats(seed != null ? seed : Hash.hash(Time.timestamp).ToString(), seed != null);
+		run = new RunStats(seed, customRun);
 
 		QuestManager.Init();
 		NPCManager.Init();
 
 		generator = new LevelGenerator();
 
-		introBridge = new Level(-1, "");
-		hub = new Level(-1, "Hollow's Refuge");
+		introBridge = new Level(-1, "intro", "");
+		graveyard = new Level(-1, "graveyard", "");
+		hub = new Level(-1, "hub", "Hollow's Refuge");
 		//tutorial = new Level(-1, "Tutorial");
-		cliffside = new Level(-1, "Cliffside");
-		tutorial = new Level(-1, "Abandoned Mineshaft");
+		cliffside = new Level(-1, "cliffside", "Cliffside");
+		tutorial = new Level(-1, "tutorial", "Abandoned Mineshaft");
 
 		//Door tutorialEntrance = new Door(cliffside, null);
 		Door tutorialExit = new Door(hub, null);
@@ -156,15 +167,77 @@ public class GameState : State
 		camera = new PlayerCamera(player);
 
 
-		generator.generateCaves(run.seed, out areaCaves);
-		generator.generateDungeons(run.seed, out areaDungeons);
-		generator.generateMines(run.seed, out areaMines);
+		Level cemetary = new Level(-1, "cemetary", "Cemetary");
+		Level smallCave = new Level(-1, "cemetary_cave", "");
+		Level outskirts = new Level(-1, "cemetary_outskirts", "Cemetary Outskirts");
+		RoomDefSet cemetarySet = new RoomDefSet("level/graveyard/rooms.png", false);
+
+		Level caves1 = new Level(-1, "caves1", "Cave Entrance");
+		RoomDefSet cavesSet = new RoomDefSet("level/caves/rooms.png", false);
+
+		generator.generateSingleRoomLevel(cemetary, new Room(cemetarySet, 0), null /*new Room(cemetarySet, 1)*/, TileType.stone, TileType.bricks);
+		generator.generateSingleRoomLevel(smallCave, new Room(cemetarySet, 1), null, TileType.stone, TileType.bricks);
+		generator.generateSingleRoomLevel(outskirts, new Room(cemetarySet, 2), null, TileType.dirt, TileType.stone, TileType.grass);
+
+		generator.generateSingleRoomLevel(caves1, new Room(cavesSet, 0), null, TileType.dirt, TileType.stone);
+		generator.generateCaveBackground(caves1, new Simplex(Hash.hash(caves1.name + "fdjflkdjflkj"), 3), TileType.dirt, TileType.stone);
+
+		generator.generateCaves(seed, out areaCaves);
+		generator.generateDungeons(seed, out areaDungeons);
+		generator.generateMines(seed, out areaMines);
 		//generator.generateGardens(run.seed, out areaGardens);
 
+		cemetary.addEntity(new Rat(), cemetary.rooms[0].getMarker(0x4) + 0.5f);
+		cemetary.addEntity(new Rat(), cemetary.rooms[0].getMarker(0x5) + 0.5f);
+
+		generateOutskirts(outskirts);
+		generateCaves1(caves1, outskirts);
+
+		generator.connectDoors(generator.generateDoor(cemetary, 0x2), generator.generateDoor(smallCave, 0x1));
+		generator.connectDoors(generator.generateDoor(smallCave, 0x2), generator.generateDoor(cemetary, 0x3));
+		generator.connectDoors(cemetary.entrance, outskirts.entrance);
+
+		generator.connectDoors(outskirts.exit, caves1.entrance);
+
+
+		{
+
+
+			/*
+			generator.generateHub(hub);
+
+
+			// Hub
+			{
+				hub.addEntity(new Hub(hub.rooms[0]));
+			}
+			*/
+
+
+
+		}
+
+
+		if (currentCheckpointLevel != null)
+		{
+			level = null;
+			switchLevel(Level.GetByName(currentCheckpointLevel), currentCheckpoint);
+			levelSwitchTime = -1;
+			return;
+		}
+		else
+		{
+			level = null;
+			switchLevel(outskirts, outskirts.getMarker(0x2));
+			levelSwitchTime = -1;
+			return;
+		}
+
+
 		generator.generateIntroBridge(introBridge);
+		generator.generateSingleRoomLevel(graveyard, new Room("level/graveyard/graveyard.png"), null, TileType.bricks, TileType.stone);
 		generator.generateCliffside(cliffside);
 		generator.generateTutorial(tutorial);
-		generator.generateHub(hub);
 
 		// Intro
 		{
@@ -173,6 +246,13 @@ public class GameState : State
 			introBridge.ambientSound = Resource.GetSound("sounds/ambience2.ogg");
 
 			loadScene("level/intro/bridge.gltf", introBridge);
+		}
+
+		// Graveyard
+		{
+			graveyard.bg = Resource.GetTexture("level/graveyard/layers/bg.png", false);
+
+			loadScene("level/graveyard/graveyard.gltf", graveyard);
 		}
 
 		// Cliffside
@@ -199,51 +279,36 @@ public class GameState : State
 			tutorial.addEntity(cliffsideDoor, (Vector2)tutorial.rooms[0].getMarker(0x21));
 		}
 
-		// Hub
-		{
-			hub.addEntity(new Hub(hub.rooms[0]));
-		}
-
-
-		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
-		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
-		hub.addEntity(dungeonDoor, (Vector2)hub.rooms[0].getMarker(11));
-		areaCaves[0].entrance.destination = hub;
-		areaCaves[0].entrance.otherDoor = dungeonDoor;
-
-		Door castleGate = new CastleGate(null, null);
-		hub.addEntity(castleGate, (Vector2)hub.rooms[0].getMarker(16));
-
-
-		generator.connectDoors(areaCaves[areaCaves.Length - 1].exit, areaDungeons[0].entrance);
-
-
-		Door hubElevator = new Door(null, null);
-		hub.addEntity(hubElevator, (Vector2)hub.rooms[0].getMarker(0x12));
-
-		generator.connectDoors(areaCaves[areaCaves.Length - 2].rooms[0].doorways[0].door, areaMines[0].entrance);
-		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[0].door, hubElevator);
-		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door, areaMines[areaMines.Length - 1].exit);
-		hubElevator.locked = true;
-		areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door.locked = true;
-
-		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
-
 		//generator.connectDoors(areaDungeons[areaDungeons.Length - 1].exit, areaGardens[0].entrance);
 		//areaGardens[areaGardens.Length - 1].exit.finalExit = true;
+
+
+		/*
+#if DEBUG
+		level = null;
+		switchLevel(areaCaves[0], areaCaves[0].entrance.getSpawnPoint());
+		levelSwitchTime = -1;
+		return;
+#else
+		*/
+		level = null;
+		switchLevel(graveyard, (Vector2)graveyard.rooms[0].getMarker(0x22));
+		levelSwitchTime = -1;
+		return;
+		//#endif
 
 
 		if (save.isDaily)
 		{
 			level = null;
-			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
+			switchLevel(areaCaves[0], areaCaves[0].entrance.getSpawnPoint());
 			player.setStartingClass(StartingClass.startingClasses[Hash.hash(seed) % StartingClass.startingClasses.Length]);
 			levelSwitchTime = -1;
 		}
 		else if (quickRestart && save.hasFlag(SaveFile.FLAG_TUTORIAL_FINISHED))
 		{
 			level = null;
-			switchLevel(areaCaves[0], areaCaves[0].entrance.position);
+			switchLevel(areaCaves[0], areaCaves[0].entrance.getSpawnPoint());
 			if (startingClass != null)
 				player.setStartingClass(startingClass);
 			else
@@ -286,11 +351,105 @@ public class GameState : State
 		{
 			level = null;
 			switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
-			//switchLevel(introBridge, (Vector2)introBridge.rooms[0].getMarker(0x22));
 			levelSwitchTime = -1;
 
 			player.actions.queueAction(new UnconciousAction());
 		}
+	}
+
+	void generateOutskirts(Level outskirts)
+	{
+		outskirts.addEntity(new Checkpoint(), outskirts.rooms[0].getMarker(0x1) + new Vector2(0.5f, 0));
+		{
+			BrokenWanderer npc = NPCManager.brokenWanderer;
+			npc.clearShop();
+			outskirts.addEntity(npc, outskirts.rooms[0].getMarker(0x3) + new Vector2(0.5f, 0));
+		}
+
+		{
+			NPC blacksmith = NPCManager.blacksmith;
+			blacksmith.direction = -1;
+			blacksmith.addShopItem(new Torch());
+			blacksmith.addShopItem(new Bomb(), 7);
+			blacksmith.addShopItem(new IronKey(), 8);
+			blacksmith.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
+			outskirts.addEntity(blacksmith, outskirts.rooms[0].getMarker(0x4) + new Vector2(0.5f, 0));
+		}
+
+		//level.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
+		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
+		{
+			RatNPC rat = NPCManager.rat;
+			rat.clearShop();
+			rat.direction = 1;
+			outskirts.addEntity(rat, (Vector2)outskirts.rooms[0].getMarker(0x0e));
+
+			outskirts.addEntity(new RopeEntity(13), outskirts.rooms[0].getMarker(0x0e) + new Vector2(6, -1));
+		}
+
+		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
+		{
+			TravellingMerchant gatekeeper = new TravellingMerchant(null, outskirts);
+			outskirts.addEntity(gatekeeper, (Vector2)outskirts.rooms[0].getMarker(17));
+		}
+
+		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
+		{
+			level.addEntity(NPCManager.logan, outskirts.rooms[0].getMarker(0x5) + new Vector2(0.5f, 0));
+		}
+
+		for (int i = 0; i < save.highscores.Length; i++)
+		{
+			Vector2 position = outskirts.rooms[0].getMarker(15) + new Vector2(i * 5, 0);
+			outskirts.addEntity(new Pedestal(), position);
+
+			if (save.highscores[i].score > 0)
+			{
+				string[] label =
+					i == 0 ? ["Fastest Time:", save.highscores[i].time != -1 ? StringUtils.TimeToString(save.highscores[i].time) : "???"] :
+					i == 1 ? ["Highest Score:", save.highscores[i].score.ToString()] :
+					i == 2 ? ["Highest Floor:", save.highscores[i].floor != -1 ? (save.highscores[i].floor + 1).ToString() : "???"] :
+					i == 3 ? ["Most kills:", save.highscores[i].kills.ToString()] : ["???"];
+				uint color = RunStats.recordColors[i];
+				outskirts.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);
+			}
+		}
+
+		Door dungeonDoor = new DungeonGate(areaCaves[0], areaCaves[0].entrance, ParallaxObject.ZToLayer(0.15f));
+		outskirts.exit = dungeonDoor;
+		dungeonDoor.collider = new FloatRect(-1, -2.5f, 2, 2);
+		outskirts.addEntity(dungeonDoor, outskirts.getMarker(0x2, 0, 2));
+		generator.connectDoors(dungeonDoor, areaCaves[0].entrance);
+
+		Door castleGate = new CastleGate(null, null);
+		outskirts.addEntity(castleGate, (Vector2)outskirts.rooms[0].getMarker(16));
+
+		generator.connectDoors(areaCaves[areaCaves.Length - 1].exit, areaDungeons[0].entrance);
+
+		generator.connectDoors(areaCaves[areaCaves.Length - 2].rooms[0].doorways[0].door, areaMines[0].entrance);
+		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door, areaMines[areaMines.Length - 1].exit);
+
+		/*
+		Door hubElevator = new Door(null, null);
+		outskirts.addEntity(hubElevator, (Vector2)outskirts.rooms[0].getMarker(0x12));
+		generator.connectDoors(areaCaves[areaCaves.Length - 1].rooms[0].doorways[0].door, hubElevator);
+		hubElevator.locked = true;
+		*/
+		areaCaves[areaCaves.Length - 1].rooms[0].doorways[1].door.locked = true;
+
+		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
+
+		outskirts.bg = Resource.GetTexture("level/hub/bg.png");
+	}
+
+	void generateCaves1(Level caves1, Level lastLevel)
+	{
+		Door entranceDoor = new TutorialExitDoor(null); // new CaveEntranceDoor(lastLevel, lastLevel.exit);
+		caves1.entrance = entranceDoor;
+		caves1.addEntity(entranceDoor, caves1.getMarker(0x1, 0.5f));
+		generator.connectDoors(entranceDoor, lastLevel.exit);
+
+		caves1.ambientLight = new Vector3(0.3f);
 	}
 
 	unsafe void loadScene(string path, Level level)
@@ -348,7 +507,7 @@ public class GameState : State
 							for (int j = k * 4; j < k * 4 + 4; j++)
 							{
 								PositionNormalTangent* vertex = &mesh->vertices[j];
-								Vector3 position = node.transform * vertex->position;
+								Vector3 position = node.transform.translation + node.transform.scale * vertex->position;
 								min = Vector2.Min(min, position.xy);
 								max = Vector2.Max(max, position.xy);
 								z = position.z;
@@ -370,6 +529,7 @@ public class GameState : State
 							entity.sprite = new Sprite(texture, u0, v0, w, h);
 							entity.rect = new FloatRect(-0.5f * size, size);
 							entity.z = z;
+							entity.rotation = node.transform.rotation.angle;
 
 							//entity.rect = new FloatRect(-0.5f * size, size);
 							level.addEntity(entity, center);
@@ -445,11 +605,11 @@ public class GameState : State
 	{
 		if (level == /*tutorial*/ cliffside && newLevel == hub)
 			save.setFlag(SaveFile.FLAG_TUTORIAL_FINISHED);
-		else if (newLevel == areaCaves[0])
+		else if (areaCaves != null && newLevel == areaCaves[0])
 			save.setFlag(SaveFile.FLAG_CAVES_FOUND);
-		else if (newLevel == areaMines[0])
+		else if (areaMines != null && newLevel == areaMines[0])
 			save.setFlag(SaveFile.FLAG_MINES_FOUND);
-		else if (newLevel == areaDungeons[0])
+		else if (areaDungeons != null && newLevel == areaDungeons[0])
 			save.setFlag(SaveFile.FLAG_DUNGEONS_FOUND);
 
 		this.newLevel = newLevel;
@@ -582,14 +742,14 @@ public class GameState : State
 			if (newLevel.floor > run.floor)
 			{
 				run.floor = newLevel.floor;
-				if (newLevel.name != null && newLevel.name != "")
-					run.areaName = newLevel.name;
+				if (newLevel.displayName != null && newLevel.displayName != "")
+					run.areaName = newLevel.displayName;
 			}
 
 			level = newLevel;
 			newLevel = null;
 
-			player.hud.onLevelSwitch(level.name);
+			player.hud.onLevelSwitch(level.displayName);
 
 			setAmbience(level.ambientSound);
 		}
@@ -608,7 +768,8 @@ public class GameState : State
 
 	public override void draw(GraphicsDevice graphics)
 	{
-		level.render();
+		if (level != null)
+			level.render();
 
 		if ((Time.currentTime - levelSwitchTime) / 1e9f < 2 * LEVEL_FADE)
 		{
@@ -627,13 +788,13 @@ public class GameState : State
 				{
 					Audio.PlayBackground(UISound.uiConfirm2);
 					GameOverScreen.Destroy();
-					reset(player.startingClass, true);
+					reset(seed, customRun, player.startingClass, true);
 				}
 				if (InputManager.IsPressed("UIConfirm2"))
 				{
 					Audio.PlayBackground(UISound.uiConfirm2);
 					GameOverScreen.Destroy();
-					reset();
+					reset(seed, customRun);
 				}
 			}
 			else

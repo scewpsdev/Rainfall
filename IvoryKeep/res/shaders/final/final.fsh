@@ -58,7 +58,7 @@ void main()
 	vec3 bloom = texture2D(s_bloom, v_texcoord0).rgb;
 	vec3 color = hdr.rgb + ThreshholdBloom(bloom) * bloomStrength;
 
-	vec3 final = linearToSRGB(color);
+	vec3 final = linearToSRGB(color); 
 	final = Vignette(final, v_texcoord0);
 	final = Dither(final, v_texcoord0);
 

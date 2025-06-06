@@ -468,9 +468,9 @@ namespace Rainfall
 			Native.Graphics.Graphics_DestroyTexture(texture.handle);
 		}
 
-		public Cubemap createCubemap(int size, TextureFormat format, ulong flags = 0)
+		public Cubemap createCubemap(int size, TextureFormat format, bool mipmaps, ulong flags = 0)
 		{
-			ushort handle = Native.Graphics.Graphics_CreateCubemap(size, format, flags, out TextureInfo info);
+			ushort handle = Native.Graphics.Graphics_CreateCubemap(size, format, (byte)(mipmaps ? 1 : 0), flags, out TextureInfo info);
 			if (handle != ushort.MaxValue)
 				return new Cubemap(handle, info);
 			return null;

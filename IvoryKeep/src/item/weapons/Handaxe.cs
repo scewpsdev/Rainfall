@@ -15,14 +15,14 @@ public class Handaxe : Weapon
 
 		baseDamage = 1.4f;
 		baseAttackRange = 1.0f;
-		baseAttackRate = 1.5f;
+		baseAttackRate = 2.0f;
 
 		projectileItem = true;
 		projectileSpins = true;
 		projectileSticks = true;
 		doubleBladed = false;
 		secondaryChargeTime = 0;
-		anim = AttackAnim.SwingOverhead;
+		anim = AttackAnim.SwingSideways;
 
 		strengthScaling = 0.3f;
 		dexterityScaling = 0.3f;

@@ -16,6 +16,35 @@ public class DungeonGate : Door
 
 		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
 	}
+
+	public override void render()
+	{
+		base.render();
+
+		Vector2 dungeonEntrancePosition = position;
+		int numSteps = 20;
+		float width = 1.2f;
+		float z = 0.15f;
+		for (int i = 0; i < numSteps; i++)
+		{
+			// vertical
+			{
+				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF6e6e6e);
+			}
+			// horizontal
+			{
+				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
+				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
+				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF767676);
+			}
+		}
+	}
 }
 
 public class CastleGate : Door
@@ -64,7 +93,8 @@ public class Hub : Entity
 	public override void init(Level level)
 	{
 		level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2i(1, 2), Vector2i.Left), new Vector2(-1, 29));
-		GameState.instance.cliffside.exit.otherDoor = level.entrance;
+		if (GameState.instance.cliffside.exit != null)
+			GameState.instance.cliffside.exit.otherDoor = level.entrance;
 
 		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/hub/parallax1.png", false), 1.0f), new Vector2(level.width, level.height) * 0.5f + new Vector2(-17, 0));
 		//level.addEntity(new ParallaxObject(Resource.GetTexture("level/hub/parallax2.png", false), 0.01f), new Vector2(level.width, level.height) * 0.5f + new Vector2(4, 0));

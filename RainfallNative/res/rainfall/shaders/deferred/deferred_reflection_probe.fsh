@@ -43,11 +43,12 @@ void main()
 	float distance = length(toCamera);
 	vec3 view = toCamera / distance;
 
-	vec3 lightS = RenderReflectionsParallax(position, normal, view, albedo, roughness, metallic, s_environmentMap, u_reflectionPosition, u_reflectionSize, u_reflectionOrigin);
+	vec4 lightS = RenderReflectionsParallax(position, normal, view, albedo, roughness, metallic, s_environmentMap, u_reflectionPosition, u_reflectionSize, u_reflectionOrigin);
 
-	float ao = texture2D(s_ao, v_texcoord0).r;
-	lightS *= ao;
+	//float ao = texture2D(s_ao, v_texcoord0).r;
+	//lightS *= ao;
 
-	gl_FragColor = vec4(lightS, 1.0);
-	//gl_FragColor.rgb += 0.01;
+	//lightS = textureCubeLod(s_environmentMap, -view, 0).rgb;
+
+	gl_FragColor = lightS;
 }

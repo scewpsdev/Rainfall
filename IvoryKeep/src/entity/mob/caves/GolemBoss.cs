@@ -54,7 +54,7 @@ public class GolemBoss : Mob
 		ai.loseRange = 100;
 		ai.patrol = false;
 		//ai.hesitation = 4;
-		ai.hesitation = 4;
+		ai.hesitation = 3;
 		ai.minRunDistance = 4;
 
 

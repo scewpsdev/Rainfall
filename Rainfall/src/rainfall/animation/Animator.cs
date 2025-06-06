@@ -79,7 +79,7 @@ namespace Rainfall
 		public IntPtr handle;
 		public Model model { get; private set; }
 
-		List<AnimationState> states = new List<AnimationState>();
+		public List<AnimationState> states = new List<AnimationState>();
 		List<float> stateAnimationTimers = new List<float>();
 		List<float> stateTransitionTimers = new List<float>();
 
@@ -123,10 +123,7 @@ namespace Rainfall
 			foreach (AnimationTransition transition in transitions)
 			{
 				if (transition.from == from && transition.to == to)
-				{
-					//Console.WriteLine(transition.duration);
 					return transition.duration;
-				}
 			}
 			if (from.transitionFromDuration != -1.0f)
 				return from.transitionFromDuration;

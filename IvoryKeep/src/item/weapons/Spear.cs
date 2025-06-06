@@ -13,9 +13,9 @@ public class Spear : Weapon
 	{
 		displayName = "Spear";
 
-		baseDamage = 1.5f;
-		baseAttackRange = 2.0f;
-		baseAttackRate = 1.6f;
+		baseDamage = 1.1f;
+		baseAttackRange = 1.5f;
+		baseAttackRate = 2.0f;
 		baseWeight = 1.5f;
 
 		strengthScaling = 0.1f;

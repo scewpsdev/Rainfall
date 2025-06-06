@@ -50,10 +50,10 @@ public class ParallaxObject : Entity
 
 		float scale = (10 - z) * 0.1f;
 		Vector2 center = rect.center;
-		float width = sprite.spriteSheet.texture.width / 16.0f * scale;
-		float height = sprite.spriteSheet.texture.height / 16.0f * scale;
+		float width = rect.size.x; // * scale; //sprite.spriteSheet.texture.width / 16.0f * scale;
+		float height = rect.size.y; // * scale; //sprite.spriteSheet.texture.height / 16.0f * scale;
 
-		Renderer.DrawParallaxSprite(position.x + center.x - 0.5f * width, position.y + center.y - 0.5f * height, z, width, height, 0, sprite, Vector4.One);
+		Renderer.DrawParallaxSprite(position.x + center.x - 0.5f * width, position.y + center.y - 0.5f * height, z, width, height, rotation, sprite, Vector4.One);
 	}
 
 	public static Vector3 ParallaxEffect(Vector2 vertex, float layer)

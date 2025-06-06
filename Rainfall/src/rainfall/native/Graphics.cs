@@ -249,7 +249,7 @@ namespace Rainfall
 			internal static extern void Graphics_SetTexture3DData(ushort texture, int mip, int x, int y, int z, int width, int height, int depth, IntPtr memory);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-			internal static extern ushort Graphics_CreateCubemap(int size, TextureFormat format, ulong flags, out TextureInfo info);
+			internal static extern ushort Graphics_CreateCubemap(int size, TextureFormat format, byte mipmaps, ulong flags, out TextureInfo info);
 
 			[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void Graphics_DestroyTexture(ushort texture);

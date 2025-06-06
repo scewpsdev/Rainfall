@@ -189,7 +189,7 @@ namespace Rainfall
 	public unsafe struct NodeData
 	{
 		public int id { get; internal set; }
-		internal fixed byte name[32];
+		internal fixed byte name[64];
 		public int armatureID { get; internal set; }
 		public Matrix transform { get; internal set; }
 
@@ -362,9 +362,9 @@ namespace Rainfall
 			return -1;
 		}
 
-		public unsafe byte* getMeshName(int index)
+		public unsafe string getMeshName(int index)
 		{
-			return scene->meshes[index].node->name;
+			return new string((sbyte*)scene->meshes[index].node->name);
 		}
 
 		public unsafe int meshCount

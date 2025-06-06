@@ -20,12 +20,26 @@ public class HitData
 
 public class Level
 {
+	static List<Level> loadedLevels = new List<Level>();
+
+	public static Level GetByName(string name)
+	{
+		foreach (Level level in loadedLevels)
+		{
+			if (level.name == name)
+				return level;
+		}
+		return null;
+	}
+
+
 	public const int COLLISION_X = 1 << 0;
 	public const int COLLISION_Y = 1 << 1;
 
 
-	public string name;
 	public int floor;
+	public string name;
+	public string displayName;
 	public float minLootValue, maxLootValue;
 	public float avgLootValue => (minLootValue + maxLootValue) * 0.5f;
 
@@ -66,18 +80,21 @@ public class Level
 	}
 
 
-	public Level(int floor, string name, float minLootValue = 0, float maxLootValue = 0)
+	public Level(int floor, string name, string displayName, float minLootValue = 0, float maxLootValue = 0)
 	{
 		this.floor = floor;
 		this.name = name;
+		this.displayName = displayName;
 		this.minLootValue = minLootValue;
 		this.maxLootValue = maxLootValue;
 
 		resize(20, 20);
+
+		loadedLevels.Add(this);
 	}
 
-	public Level(int floor, string name, int width, int height, TileType defaultTile, float minLootValue = 0, float maxLootValue = 0)
-		: this(floor, name, minLootValue, maxLootValue)
+	public Level(int floor, string name, string displayName, int width, int height, TileType defaultTile, float minLootValue = 0, float maxLootValue = 0)
+		: this(floor, name, displayName, minLootValue, maxLootValue)
 	{
 		resize(width, height, defaultTile);
 	}
@@ -187,6 +204,11 @@ public class Level
 		return getTile((Vector2i)Vector2.Floor(v));
 	}
 
+	public Vector2 getMarker(uint marker, float xoffset = 0.0f, float yoffset = 0.0f)
+	{
+		return rooms[0].getMarker(marker) + new Vector2(xoffset, yoffset);
+	}
+
 	public void reset()
 	{
 		foreach (Entity entity in entities)
@@ -214,6 +236,8 @@ public class Level
 			Renderer.graphics.destroyTexture(lightmap);
 			lightmap = null;
 		}
+
+		loadedLevels.Remove(this);
 	}
 
 	public void addEntity(Entity entity, bool init = true)

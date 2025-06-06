@@ -47,7 +47,7 @@ namespace Rainfall
 
 				for (int i = 0; i < scene->numNodes; i++)
 				{
-					nodes[i] = new Node(scene->nodes[i].id, Marshal.PtrToStringAnsi((IntPtr)scene->nodes[i].name), scene->nodes[i].transform);
+					nodes[i] = new Node(scene->nodes[i].id, new string((sbyte*)scene->nodes[i].name), scene->nodes[i].transform);
 
 					nodes[i].meshes = new int[scene->nodes[i].numMeshes];
 					for (int j = 0; j < scene->nodes[i].numMeshes; j++)

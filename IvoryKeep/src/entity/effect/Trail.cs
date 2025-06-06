@@ -119,7 +119,7 @@ public class WeaponTrail
 				u0 -= w;
 
 				u0 = Math.Max(u0, sprite.position.x);
-				w = Math.Max(w, sprite.position.x + sprite.size.x - u0);
+				w = Math.Min(w, sprite.position.x + sprite.size.x - u0);
 			}
 
 			Renderer.DrawSpriteEx(new Vector3(vertex3.xy, 0), new Vector3(vertex2.xy, 0), new Vector3(vertex0.xy, 0), new Vector3(vertex1.xy, 0), texture, u0, v0, w, h, color * new Vector4(1, 1, 1, alpha), additive);

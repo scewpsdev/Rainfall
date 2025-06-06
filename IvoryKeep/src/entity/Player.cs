@@ -23,7 +23,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float STUN_DURATION = 1.0f;
 	const float FALL_STUN_DISTANCE = 8;
 	const float FALL_DAMAGE_DISTANCE = 10;
-	const float MANA_KILL_REWARD = 0.5f;
+	const float MANA_KILL_REWARD = 0.2f; //0.5f;
+	const float MANA_HIT_REWARD = 0.2f;
 #if DEBUG
 	const float SPRINT_MANA_COST = 0.5f;
 #else
@@ -41,7 +42,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
-	public const float defaultManaRecoveryRate = 0.04f;
+	public const float defaultManaRecoveryRate = 0.01f;
 	public float coinCollectDistance = 1.0f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
@@ -82,6 +83,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public bool isClimbing = false;
 	public bool isLookingUp = false;
 	float fallDistance = 0;
+	public Vector2 lastStableGround = Vector2.Zero;
 
 	ParticleEffect wallSlideParticles;
 
@@ -414,6 +416,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return equipPassiveItem(item);
 		if (item.type == ItemType.Spell)
 			return attuneSpell((Spell)item);
+
+		// add it back since we couldnt equip it
+		storedItems.Add(item);
 
 		return false;
 	}
@@ -908,7 +913,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			for (int i = 0; i < items.Count; i++)
 			{
 				if (isEquipped(items[i]))
-					items[i].onHit(this, by, damage);
+					items[i].onPlayerHit(this, by, damage);
 			}
 
 			if (health <= 0)
@@ -1066,6 +1071,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		QuestManager.onKill(mob);
 	}
 
+	public void onEnemyHit(Mob mob)
+	{
+		if (mana < maxMana)
+			mana = MathF.Min(mana + MANA_HIT_REWARD, maxMana);
+	}
+
 	public void awardXP(int amount)
 	{
 		xp += amount;
@@ -1178,7 +1189,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			//isSprinting = InputManager.IsDown("Sprint") && (isSprinting ? mana > 0 : mana > 0.2f) && delta.lengthSquared > 0;
 			if (InputManager.IsPressed("Sprint") && isGrounded)
-				actions.queueAction(new BackhopAction());
+			{
+				if (InputManager.IsDown("Left") || InputManager.IsDown("Right"))
+					actions.queueAction(new DodgeAction());
+				else
+					actions.queueAction(new BackhopAction());
+			}
 
 			isDucked = InputManager.IsDown("Down") && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
@@ -1198,6 +1214,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				lastGrounded = Time.currentTime;
 				airJumpsLeft = airJumps;
+				lastStableGround = position;
 			}
 
 			if (InputManager.IsPressed("Jump") && (actions.currentAction == null || actions.currentAction.canJump))

@@ -942,10 +942,10 @@ public static class Renderer
 		return lines.ToArray();
 	}
 
+	const float perspectiveDistance = 10;
 	public static void SetCamera(Vector2 position, float width, float height)
 	{
-		float distance = 10;
-		float fov = MathF.Atan2(0.5f * height, distance) * 2;
+		float fov = MathF.Atan2(0.5f * height, perspectiveDistance) * 2;
 		Matrix perspective = Matrix.CreatePerspective(fov, Display.aspectRatio, 0.1f, 500);
 		Matrix ortho = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix transform = Matrix.CreateTranslation(new Vector3(position, 0));
@@ -966,7 +966,7 @@ public static class Renderer
 
 		Matrix orthoView = transform.inverted;
 
-		transform.m32 = distance;
+		transform.m32 = perspectiveDistance;
 		Matrix perspectiveView = transform.inverted;
 
 		Renderer.ortho = ortho;
@@ -1207,6 +1207,10 @@ public static class Renderer
 
 			if (draw.useTransform)
 			{
+				float pixelSize = (perspectiveDistance - draw.position.z) / perspectiveDistance / 16;
+				draw.transform.m30 = MathF.Round(draw.transform.m30 / pixelSize) * pixelSize;
+				draw.transform.m31 = MathF.Round(draw.transform.m31 / pixelSize) * pixelSize;
+
 				spriteBatch.draw(
 					draw.size.x, draw.size.y, 0.0f - i * 0.0000001f,
 					draw.transform,
@@ -1216,6 +1220,11 @@ public static class Renderer
 			}
 			else
 			{
+				// pixel perfect correction
+				float pixelSize = (perspectiveDistance - draw.position.z) / perspectiveDistance / 16;
+				draw.position.x = MathF.Round(draw.position.x / pixelSize) * pixelSize;
+				draw.position.y = MathF.Round(draw.position.y / pixelSize) * pixelSize;
+
 				parallaxBatch.draw(
 					draw.position.x, draw.position.y, draw.position.z - i * 0.0000001f,
 					draw.size.x, draw.size.y,

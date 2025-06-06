@@ -16,7 +16,7 @@ public class MissileStaff : Staff
 	{
 		displayName = "Magic Missile Staff";
 
-		value = 35;
+		value = 20;
 
 		sprite = new Sprite(tileset, 8, 9);
 		renderOffset.x = 0.4f;

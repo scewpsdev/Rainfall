@@ -86,6 +86,17 @@ namespace Rainfall
 			return MathF.Abs(a - b) < epsilon;
 		}
 
+		public static float AngleDelta(float a, float b)
+		{
+			a = (a + MathF.PI * 2.0f) % (MathF.PI * 2.0f);
+			b = (b + MathF.PI * 2.0f) % (MathF.PI * 2.0f);
+			if (a - b > MathF.PI)
+				a -= MathF.PI * 2.0f;
+			else if (b - a > MathF.PI)
+				b -= MathF.PI * 2.0f;
+			return b - a;
+		}
+
 		public static float Remap(float f, float min, float max, float newMin, float newMax)
 		{
 			return (f - min) / (max - min) * (newMax - newMin) + newMin;

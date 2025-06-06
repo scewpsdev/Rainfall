@@ -15,16 +15,16 @@ public class Zweihander : Weapon
 
 		baseDamage = 2.5f;
 		baseAttackRange = 1.6f;
-		baseAttackRate = 1.0f;
-		anim = AttackAnim.SwingOverhead;
+		baseAttackRate = 0.9f;
+		anim = AttackAnim.SwingSideways;
 		attackAcceleration = 1;
 		twoHanded = true;
 		baseWeight = 2.5f;
 
 		canBlock = true;
 
-		attackEndAngle = -0.25f * MathF.PI;
-		attackStartAngle = MathF.PI;
+		attackEndAngle = -0.75f * MathF.PI;
+		attackStartAngle = 0.75f * MathF.PI;
 		//doubleBladed = true;
 
 		strengthScaling = 0.3f;
@@ -37,5 +37,16 @@ public class Zweihander : Weapon
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
+	}
+
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+	{
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+
+		if (idx % 2 == 1)
+		{
+			startAngle = MathF.PI * 0.75f;
+			endAngle = -0.85f * MathF.PI;
+		}
 	}
 }

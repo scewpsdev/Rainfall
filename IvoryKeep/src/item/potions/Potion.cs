@@ -69,7 +69,7 @@ public class Potion : Item
 			if (player.actions.actionQueue.Count <= 1)
 			{
 				player.actions.queueAction(new PotionDrinkAction(this));
-				return true;
+				return false;
 			}
 			return false;
 		}

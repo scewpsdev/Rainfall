@@ -13,7 +13,8 @@ public class MagicStaff : Staff
 	{
 		displayName = "Magic Staff";
 
-		value = 10;
+		value = 30;
+		rarity = 3;
 
 		sprite = new Sprite(tileset, 2, 6);
 		renderOffset.x = 0.2f;

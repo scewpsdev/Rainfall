@@ -68,13 +68,15 @@ public class SpellCastAction : EntityAction
 		direction = player.lookDirection.normalized;
 		charDirection = MathF.Abs(player.lookDirection.x) > 0.001f ? MathF.Sign(player.lookDirection.x) : player.direction;
 
-		if (player.currentAttackInput == null || !player.currentAttackInput.isDown())
+		if ((player.currentAttackInput == null || !player.currentAttackInput.isDown()) && spell.cancelOnRelease)
 		{
 			cancel();
 			cancelled = true;
 		}
 
 		spell.update(player);
+
+		speedMultiplier = elapsedTime < duration - 0.2f ? 0.7f : 0.1f;
 	}
 
 	public override void render(Player player)

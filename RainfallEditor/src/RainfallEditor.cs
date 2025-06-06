@@ -299,7 +299,7 @@ public unsafe class RainfallEditor : Game
 		process.Start();
 		process.WaitForExit();
 
-		string compiledPath = "../../../../../" + outDir + "\\" + assetName;
+		string compiledPath = "../../../../" + outDir + "\\" + assetName;
 
 		//Resource.UnloadAsset(compiledPath);
 
@@ -362,10 +362,10 @@ public unsafe class RainfallEditor : Game
 		string config = "Release";
 #endif
 
-		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0");
-		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
+		CompileFolder("D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME, "D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0");
 
-		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
+		RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 		//RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
 
 		LaunchParams launchParams = new LaunchParams(args);

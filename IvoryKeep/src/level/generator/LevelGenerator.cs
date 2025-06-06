@@ -1,6 +1,7 @@
 ﻿using Rainfall;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -165,6 +166,11 @@ public class Room
 		height = def.height;
 		roomDefID = def.id;
 		set = def.set;
+	}
+
+	public Room(RoomDefSet set, int id)
+		: this(set.roomDefs[id])
+	{
 	}
 
 	public Room(string path)
@@ -1121,7 +1127,16 @@ public partial class LevelGenerator
 			|| enemy.gravity == 0 && (down != null || up != null))
 		{
 			enemy.direction = random.NextSingle() < 0.5f ? 1 : -1;
-			enemy.itemDropChance = MathHelper.Lerp(0.05f, 0.1f, progress);
+			float itemDropChance = MathHelper.Lerp(0.05f, 0.1f, progress);
+
+			while (itemDropChance > 0 && random.NextSingle() < itemDropChance)
+			{
+				Item[] drops = Item.CreateRandom(random, DropRates.mob, getLootValue(new Vector2(x, y)) * enemy.itemDropValueMultiplier);
+				foreach (Item drop in drops)
+					enemy.itemDrops.Add(drop);
+				itemDropChance--;
+			}
+
 			level.addEntity(enemy, new Vector2(x + 0.5f, y + 0.5f));
 			objectFlags[x + y * level.width] = true;
 			return true;
@@ -1188,8 +1203,18 @@ public partial class LevelGenerator
 		door2.destination = door1.level;
 	}
 
-	public void generateSingleRoomLevel(Level level, Room room, Room bgRoom, TileType primaryTile, TileType secondaryTile, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
+	public Door generateDoor(Level level, uint marker)
 	{
+		Door door = new Door(null, null);
+		Vector2 position = level.rooms[0].getMarker(marker) + new Vector2(0.5f, 0);
+		level.addEntity(door, position);
+		return door;
+	}
+
+	public void generateSingleRoomLevel(Level level, Room room, Room bgRoom, TileType primaryTile, TileType secondaryTile, TileType tertiaryTile = null, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
+	{
+		random = new Random((int)Hash.hash(level.name));
+
 		level.resize(room.width, room.height);
 
 		createContainer = null;
@@ -1199,11 +1224,11 @@ public partial class LevelGenerator
 		objectFlags = new bool[level.width * level.height];
 		Array.Fill(objectFlags, false);
 
-		placeRoom(room, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile);
+		placeRoom(room, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile, tertiaryTile != null ? (int x, int y) => tertiaryTile : null);
 		level.rooms = [room];
 
 		if (bgRoom != null)
-			placeRoomBG(bgRoom, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile);
+			placeRoomBG(bgRoom, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile, tertiaryTile != null ? (int x, int y) => tertiaryTile : null);
 
 		RoomDef def = room.set.roomDefs[room.roomDefID];
 		for (int i = 0; i < def.doorDefs.Count; i++)
@@ -1215,7 +1240,7 @@ public partial class LevelGenerator
 
 			if (i == 0 && entranceMarker == 0 && level.entrance == null)
 				level.entrance = door;
-			else if (i == 1 && exitMarker == 0 && level.exit == null)
+			else if (i == 1 && exitMarker == 0 && level.exit == null || i == 0 && exitMarker == 0 && level.exit == null && entranceDoor != null)
 				level.exit = door;
 		}
 
@@ -1247,7 +1272,7 @@ public partial class LevelGenerator
 			roomDefID = def.id,
 			set = specialSet
 		};
-		generateSingleRoomLevel(level, room, null, primaryTile, secondaryTile, entranceMarker, exitMarker, entranceDoor, exitDoor);
+		generateSingleRoomLevel(level, room, null, primaryTile, secondaryTile, null, entranceMarker, exitMarker, entranceDoor, exitDoor);
 		return room;
 	}
 

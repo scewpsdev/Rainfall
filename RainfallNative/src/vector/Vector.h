@@ -132,6 +132,7 @@ struct Vector4
 	Vector4(float f);
 	Vector4(float x, float y, float z, float w);
 	Vector4(const Vector3& xyz, float w);
+	Vector4(float x, const Vector3& yzw);
 
 	float& operator[](int index);
 	const float& operator[](int index) const;

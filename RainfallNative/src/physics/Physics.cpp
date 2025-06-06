@@ -1102,7 +1102,7 @@ RFAPI CharacterController* Physics_CreateCharacterController(float radius, float
 	desc.height = height - 2 * radius; // -2.0f * desc.contactOffset;
 	desc.contactOffset = 0.01f;
 	desc.stepOffset = stepOffset;
-	desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
+	desc.climbingMode = PxCapsuleClimbingMode::eEASY;
 	desc.slopeLimit = 0.5f;
 	desc.reportCallback = hitCallback;
 

@@ -21,7 +21,7 @@ public class AstralScepter : Staff
 		knockback = 2.0f;
 		twoHanded = true;
 
-		value = 75;
+		value = 55;
 
 		intelligenceScaling = 1.0f;
 

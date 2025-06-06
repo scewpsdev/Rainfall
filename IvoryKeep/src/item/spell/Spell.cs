@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 public abstract class Spell : Item
 {
 	public bool canCastWithoutMana = false;
+	public bool cancelOnRelease = true;
 
 
 	protected Spell(string name)

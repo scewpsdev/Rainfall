@@ -26,7 +26,7 @@ public class Entity : PhysicsEntity
 	public RigidBody body = null;
 	public RigidBodyType bodyType = RigidBodyType.Null;
 	public float bodyDensity = 1;
-	public uint bodyFilterGroup = 1, bodyFilterMask = 1;
+	//public uint bodyFilterGroup = 1, bodyFilterMask = 1;
 	public float bodyFriction = 0.5f;
 	public float bodyRestitution = 0.1f;
 	public Dictionary<string, SceneFormat.ColliderData> hitboxData;
@@ -35,12 +35,13 @@ public class Entity : PhysicsEntity
 
 	public List<PointLight> pointLights = new List<PointLight>();
 	public List<PointLight> spotLights = new List<PointLight>();
+	public DirectionalLight directionalLight = null;
 
 	public List<ParticleSystem> particles = new List<ParticleSystem>();
 	//public Vector3 particleOffset = Vector3.Zero;
 
 
-	public Entity load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1)
+	public Entity load(SceneFormat.EntityData entity, uint filterGroup = 1, uint filterMask = 1, bool pointLightsShadow = false)
 	{
 		name = entity.name;
 		isStatic = entity.isStatic;
@@ -155,7 +156,8 @@ public class Entity : PhysicsEntity
 
 		for (int i = 0; i < entity.lights.Count; i++)
 		{
-			PointLight light = new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity);
+			PointLight light = pointLightsShadow ? new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity, Renderer.graphics)
+				: new PointLight(entity.lights[i].offset, entity.lights[i].color * entity.lights[i].intensity);
 			pointLights.Add(light);
 		}
 
@@ -169,11 +171,11 @@ public class Entity : PhysicsEntity
 		return this;
 	}
 
-	public Entity load(string path, uint filterGroup = 1, uint filterMask = 1)
+	public Entity load(string path, uint filterGroup = 1, uint filterMask = 1, bool pointLightsShadow = false)
 	{
 		if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out _))
 		{
-			load(entities[0], filterGroup, filterMask);
+			load(entities[0], filterGroup, filterMask, pointLightsShadow);
 		}
 		return this;
 	}
@@ -215,7 +217,14 @@ public class Entity : PhysicsEntity
 			LightData light = model.getLight(i);
 			Node lightNode = model.skeleton.getNode(light.nodeId);
 			Vector3 lightPosition = lightNode.transform * light.position;
-			pointLights.Add(shadow ? new PointLight(lightPosition, light.color, Renderer.graphics) : new PointLight(lightPosition, light.color));
+			if (light.type == LightType.Point)
+			{
+				pointLights.Add(shadow ? new PointLight(lightPosition, light.color, Renderer.graphics) : new PointLight(lightPosition, light.color));
+			}
+			else
+			{
+				directionalLight = new DirectionalLight((lightNode.transform * new Vector4(light.direction, 0)).xyz, light.color, Renderer.graphics);
+			}
 		}
 	}
 
@@ -297,12 +306,14 @@ public class Entity : PhysicsEntity
 		if (model != null)
 		{
 			if (meshIdx != -1)
-				Renderer.DrawMesh(model, meshIdx, transform * modelTransform, animator, isStatic);
+				Renderer.DrawMesh(model, meshIdx, transform * modelTransform, animator, isStatic, isStatic);
 			else
-				Renderer.DrawModel(model, transform * modelTransform, animator, isStatic);
+				Renderer.DrawModel(model, transform * modelTransform, animator, isStatic, isStatic);
 		}
 		for (int i = 0; i < pointLights.Count; i++)
 			Renderer.DrawPointLight(pointLights[i], transform);
+		if (directionalLight != null)
+			Renderer.DrawDirectionalLight(directionalLight);
 		for (int i = 0; i < particles.Count; i++)
 			Renderer.DrawParticleSystem(particles[i]);
 	}

@@ -18,7 +18,7 @@ public class RingOfThorns : Item
 		value = 33;
 	}
 
-	public override void onHit(Player player, Entity by, float damage)
+	public override void onPlayerHit(Player player, Entity by, float damage)
 	{
 		if (by is Hittable)
 		{

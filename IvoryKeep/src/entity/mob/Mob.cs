@@ -186,6 +186,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		if (deathSound != null)
 			Audio.PlayOrganic(deathSound, new Vector3(position, 0), 3);
 
+		/*
 		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
 		{
 			Item[] drops = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue * itemDropValueMultiplier);
@@ -200,6 +201,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 			itemDropChance--;
 		}
+		*/
 		for (int i = 0; i < itemDrops.Count; i++)
 		{
 			Vector2 itemVelocity = new Vector2(MathHelper.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
@@ -519,7 +521,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		updateActions();
 		updateAnimation();
 
-		if (health < phaseTransitionHealth * maxHealth && phase == 0)
+		if (isBoss && health < phaseTransitionHealth * maxHealth && phase == 0)
 		{
 			phase++;
 			onPhaseTransition();
