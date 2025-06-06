@@ -25,7 +25,7 @@ public class EquipAction : PlayerAction
 
 		followUpCancelTime = 0;
 
-		//viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 		animationTransitionDuration = 0;
 
 		if (item.equipSound != null)

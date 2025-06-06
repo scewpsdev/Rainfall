@@ -69,6 +69,7 @@ public class FirstPersonController
 	public bool inputJump, inputDuck;
 
 	Vector3 fsu = Vector3.Zero;
+	public Vector3 rootMotionDisplacement = Vector3.Zero;
 
 	public bool isDucked { get; private set; } = false;
 	public float inDuckTimer = -1.0f;
@@ -438,14 +439,10 @@ public class FirstPersonController
 				Vector3 displacement = velocity * Time.deltaTime;
 
 				// Root Motion
-				/*
-				if (isGrounded && currentAction != null && currentAction.rootMotion)
+				if (isGrounded)
 				{
-					Vector3 rootMotionDisplacement = currentActionState[2].layers[0].rootMotionDisplacement;
-					rootMotionDisplacement = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI + yaw) * rootMotionDisplacement;
 					displacement += rootMotionDisplacement;
 				}
-				*/
 
 				ControllerCollisionFlag flags = controller.move(displacement);
 				if ((flags & ControllerCollisionFlag.Down) != 0)

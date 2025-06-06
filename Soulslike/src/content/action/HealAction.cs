@@ -16,6 +16,6 @@ public class HealAction : PlayerAction
 		overrideWeaponModel[hand] = true;
 		weaponModel[hand] = Resource.GetModel("item/healing_potion/healing_potion.gltf");
 
-		viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 	}
 }

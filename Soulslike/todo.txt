@@ -51,6 +51,12 @@
 	[ ] map portals
 	[ ] merchants for buying and selling starting gear
 	[ ] unlockable areas for easter eggs or lore? (maybe cool view of the castle from maingame?)
+[ ] Tutorial prison area
+[ ] Main menu & character creator
+[ ] Cliff hub area
+	[ ] Fisherman
+[ ] Inventory
+	[ ] 3D item preview
 [ ] Custom shader language
 [ ] Spot lights
 

@@ -29,7 +29,8 @@ public class GameState : State
 
 		scene.addEntity(world = new WorldManager());
 
-		DungeonGenerator.Generate(world, scene);
+		//DungeonGenerator.Generate(world, scene);
+		MapLoader.Run(world, scene);
 
 		/*
 		Entity testmap = new Entity();

@@ -12,6 +12,7 @@ public class ThrowItemAction : PlayerAction
 		: base("throw_item", hand)
 	{
 		animationName[hand] = "throw_item";
+		viewmodelAim[hand] = 1;
 
 		followUpCancelTime = 10 / 24.0f;
 

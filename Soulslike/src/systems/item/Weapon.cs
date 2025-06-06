@@ -133,7 +133,7 @@ public class Weapon : Item
 	{
 		if (getFirstAttack(out int nextAttack))
 		{
-			if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction)
+			if (player.actionManager.currentAction != null && player.actionManager.currentAction is AttackAction && !(player.actionManager.currentAction as AttackAction).inReflect)
 			{
 				nextAttack = attackNameMap[(player.actionManager.currentAction as AttackAction).attack.nextAttack];
 				lastCancelledAttack = player.actionManager.currentAction;

@@ -25,7 +25,7 @@ public class BackhopAction : EntityAction
 		duration = windupTime + dashTime;
 		iframesStartTime = windupTime;
 		iframesEndTime = duration;
-
+		
 		turnToCrosshair = false;
 	}
 

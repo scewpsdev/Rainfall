@@ -7,14 +7,21 @@ using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
+
+enum CameraMode
+{
+	FirstPerson,
+	ThirdPerson,
+}
 
 public class Player : Entity, Hittable
 {
 	public const float DEFAULT_VIEWMODEL_AIM = 0.2f;
-	const float SPRINT_SPEED_MULTIPLIER = 2.0f;
+	const float SPRINT_SPEED_MULTIPLIER = 1.5f;
 	const float DUCK_SPEED_MULTIPLIER = 0.5f;
-	const float REACH_DISTANCE = 3.0f;
+	const float REACH_DISTANCE = 1.5f;
 	const float CAMERA_HEIGHT = 1.5f;
 	const float CAMERA_HEIGHT_DUCKED = 0.9f;
 	const float WEAPON_CHARGE_TIME = 0.2f;
@@ -23,17 +30,23 @@ public class Player : Entity, Hittable
 	public float pitch, yaw;
 	float camerayaw;
 	float cameraHeight;
+	CameraMode cameraMode = CameraMode.FirstPerson;
 
 	bool isSprinting;
 
-	float currentViewmodelAim = 0;
+	float rightViewmodelAim = 0, leftViewmodelAim = 0;
 
-	AnimationState idleAnim;
-	AnimationState runAnim;
+	AnimationState idleAnim, runAnim;
+	AnimationState fallAnim;
+	AnimationState duckAnim, sneakAnim;
 
 	public Node rightWeaponNode, leftWeaponNode;
+	Node rightShoulderNode, leftShoulderNode;
+	Node spineNode, chestNode, neckNode;
 	Node cameraNode;
 	Node[] ringNodes = new Node[4];
+	Matrix defaultPoseCameraRotation;
+	Matrix defaultPoseNeckTransform;
 
 	Animator rightHandAnimator, leftHandAnimator;
 	bool[] rightHandBoneMask, leftHandBoneMask;
@@ -41,20 +54,24 @@ public class Player : Entity, Hittable
 	public Matrix rightWeaponTransform;
 	public Matrix leftWeaponTransform;
 
-	Model bodyModel;
-	Node spine005Node, upperArmR, upperArmL;
-	Animator bodyAnimator;
-	AnimationState bodyIdleAnim;
-	AnimationState bodyRunAnim;
-	AnimationState bodyFallAnim;
-	AnimationState bodyDuckAnim;
-	AnimationState bodySneakAnim;
+
+	//Node spine005Node, upperArmR, upperArmL;
+	//Animator bodyAnimator;
+	//AnimationState bodyIdleAnim;
+	//AnimationState bodyRunAnim;
+	//AnimationState bodyFallAnim;
+	//AnimationState bodyDuckAnim;
+	//AnimationState bodySneakAnim;
 
 	public FirstPersonController controller;
 	RigidBody playerBody;
 	public ActionManager actionManager;
 	AnimationState actionAnim1, actionAnim2;
 	public AnimationState currentActionAnim;
+
+	public Node rootMotionNode;
+	Vector3 lastRootMotion = Vector3.One;
+	PlayerAction lastRootMotionAction;
 
 	public Item rightWeapon, leftWeapon;
 	public long lastRightWeaponDown = -1, lastLeftWeaponDown = -1;
@@ -83,45 +100,65 @@ public class Player : Entity, Hittable
 	{
 		this.camera = camera;
 
-		camera.fov = 90;
+		camera.fov = 100;
+		camera.far = 1000;
 
-		model = Resource.GetModel("viewmodel.gltf");
-		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		model = Resource.GetModel("player_test.gltf");
+		modelTransform = /*Matrix.CreateTranslation(0, cameraHeight, 0) **/ Matrix.CreateRotation(Vector3.Up, MathF.PI);
 		animator = Animator.Create(model);
 
-		animator.setAnimation(Animator.CreateAnimation(model, "default"));
-		animator.update();
-		animator.applyAnimation();
+		//animator.setAnimation(Animator.CreateAnimation(model, "default"));
+		//animator.update();
+		//animator.applyAnimation();
 
-		rightWeaponNode = model.skeleton.getNode("weapon_r");
-		leftWeaponNode = model.skeleton.getNode("weapon_l");
-		cameraNode = model.skeleton.getNode("camera");
-		ringNodes[0] = model.skeleton.getNode("index_01_r");
-		ringNodes[1] = model.skeleton.getNode("ring_01_r");
-		ringNodes[2] = model.skeleton.getNode("index_01_l");
-		ringNodes[3] = model.skeleton.getNode("ring_01_l");
+		rootMotionNode = model.skeleton.getNode("Root");
+		rightWeaponNode = model.skeleton.getNode("Weapon.R");
+		leftWeaponNode = model.skeleton.getNode("Weapon.L");
+		rightShoulderNode = model.skeleton.getNode("Shoulder.R");
+		leftShoulderNode = model.skeleton.getNode("Shoulder.L");
+		cameraNode = model.skeleton.getNode("Camera");
+		ringNodes[0] = model.skeleton.getNode("Finger1A.R");
+		ringNodes[1] = model.skeleton.getNode("Finger3A.R");
+		ringNodes[2] = model.skeleton.getNode("Finger1A.L");
+		ringNodes[3] = model.skeleton.getNode("Finger3A.L");
 
 		idleAnim = Animator.CreateAnimation(model, [new AnimationLayer(model, "idle", true), null, null], 0.4f);
+		idleAnim.animationSpeed = 0.001f;
 		runAnim = Animator.CreateAnimation(model, [new AnimationLayer(model, "run", true), null, null], 0.4f);
+		fallAnim = Animator.CreateAnimation(model, [new AnimationLayer(model, "fall", true), null, null], 0.4f);
+		duckAnim = Animator.CreateAnimation(model, [new AnimationLayer(model, "duck", true), null, null], 0.2f);
+		duckAnim.transitionFromDuration = 0.2f;
+		duckAnim.animationSpeed = 0.001f;
+		sneakAnim = Animator.CreateAnimation(model, [new AnimationLayer(model, "sneak", true), null, null], 0.4f);
 		actionAnim1 = Animator.CreateAnimation(model, [new AnimationLayer(model, "default", false), null, null], 0.1f);
 		actionAnim2 = Animator.CreateAnimation(model, [new AnimationLayer(model, "default", false), null, null], 0.1f);
 
 		rightHandAnimator = Animator.Create(model);
 		leftHandAnimator = Animator.Create(model);
 
-		bodyModel = Resource.GetModel("player.gltf");
-		spine005Node = bodyModel.skeleton.getNode("spine.005");
-		upperArmR = bodyModel.skeleton.getNode("upper_arm.R");
-		upperArmL = bodyModel.skeleton.getNode("upper_arm.L");
-		bodyAnimator = Animator.Create(bodyModel);
-		bodyIdleAnim = Animator.CreateAnimation(bodyModel, "idle", true, 0.4f);
-		bodyIdleAnim.animationSpeed = 0.001f;
-		bodyRunAnim = Animator.CreateAnimation(bodyModel, "run", true, 0.4f);
-		bodyFallAnim = Animator.CreateAnimation(bodyModel, "fall", true, 0.1f);
-		bodyDuckAnim = Animator.CreateAnimation(bodyModel, "duck", true, 0.2f);
-		bodyDuckAnim.transitionFromDuration = 0.2f;
-		bodyDuckAnim.animationSpeed = 0.001f;
-		bodySneakAnim = Animator.CreateAnimation(bodyModel, "sneak", true, 0.4f);
+		//bodyModel = Resource.GetModel("player_test.gltf");
+		//cameraAnchorNode = bodyModel.skeleton.getNode("Camera");
+		spineNode = model.skeleton.getNode("Spine");
+		chestNode = model.skeleton.getNode("Chest");
+		neckNode = model.skeleton.getNode("Neck");
+		//spine005Node = bodyModel.skeleton.getNode("spine.005");
+		//upperArmR = bodyModel.skeleton.getNode("upper_arm.R");
+		//upperArmL = bodyModel.skeleton.getNode("upper_arm.L");
+		//bodyAnimator = Animator.Create(bodyModel);
+		//bodyIdleAnim = Animator.CreateAnimation(model, "idle", true, 0.4f);
+		//bodyIdleAnim.animationSpeed = 0.001f;
+		//bodyRunAnim = Animator.CreateAnimation(model, "run", true, 0.4f);
+		//bodyFallAnim = Animator.CreateAnimation(model, "fall", true, 0.1f);
+		//bodyDuckAnim = Animator.CreateAnimation(model, "duck", true, 0.2f);
+		//bodyDuckAnim.transitionFromDuration = 0.2f;
+		//bodyDuckAnim.animationSpeed = 0.001f;
+		//bodySneakAnim = Animator.CreateAnimation(model, "sneak", true, 0.4f);
+
+		animator.setAnimation(idleAnim);
+		animator.update();
+		animator.applyAnimation();
+		defaultPoseCameraRotation = Matrix.CreateRotation(animator.getNodeTransform(cameraNode).rotation);
+		defaultPoseNeckTransform = animator.getNodeLocalTransform(neckNode);
 
 		actionManager = new ActionManager(this);
 
@@ -196,7 +233,7 @@ public class Player : Entity, Hittable
 		//setRightWeapon(new KingsSword());
 		//setGloves(new LeatherGauntlets());
 		//setRing(0, new SapphireRing());
-		setRightWeapon(new Torch());
+		//setRightWeapon(new Torch());
 	}
 
 	void playSound(Sound[] sound)
@@ -237,6 +274,18 @@ public class Player : Entity, Hittable
 		actionManager.queueAction(new ThrowItemAction(hand));
 	}
 
+	bool isArmBone(Node node, string suffix)
+	{
+		bool arm = node.name.StartsWith("Shoulder") || node.name.StartsWith("Arm") || node.name.StartsWith("Hand") || node.name.StartsWith("Thumb") || node.name.StartsWith("Finger") || node.name.StartsWith("Weapon");
+		if (arm)
+		{
+			if (suffix != null)
+				return node.name.EndsWith(suffix);
+			return true;
+		}
+		return false;
+	}
+
 	public void setRightWeapon(Item item)
 	{
 		if (rightWeaponAnimator != null)
@@ -254,14 +303,11 @@ public class Player : Entity, Hittable
 			ParticleSystem.Destroy(rightWeaponParticles);
 			rightWeaponParticles = null;
 		}
-
 		rightWeapon = item;
-
 		if (item != null)
 		{
 			Model model = item.model;
 			Model moveset = item.moveset;
-
 			actionManager.queueAction(new EquipAction(item, 0));
 
 			rightWeaponModel = model;
@@ -285,30 +331,39 @@ public class Player : Entity, Hittable
 				for (int i = 0; i < moveset.skeleton.nodes.Length; i++)
 				{
 					Node node = moveset.skeleton.nodes[i];
-					if (node.name.EndsWith("_r"))
+					if (isArmBone(node, ".R"))
 						rightHandBoneMask[i] = true;
-					else if (node.name.EndsWith("_l"))
+					else if (isArmBone(node, ".L"))
 						leftHandBoneMask[i] = true;
 					else
 					{
-						rightHandBoneMask[i] = true;
-						leftHandBoneMask[i] = true;
+						rightHandBoneMask[i] = false;
+						leftHandBoneMask[i] = false;
 					}
 				}
 			}
 
 			idleAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
 			runAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
+			fallAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
+			duckAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
+			sneakAnim.layers[1] = new AnimationLayer(moveset, "idle", true, rightHandBoneMask);
 
 			if (item.twoHanded)
 			{
 				idleAnim.layers[2] = new AnimationLayer(moveset, "idle", true, leftHandBoneMask);
 				runAnim.layers[2] = new AnimationLayer(moveset, "idle", true, leftHandBoneMask);
+				fallAnim.layers[2] = new AnimationLayer(moveset, "idle", true, leftHandBoneMask);
+				duckAnim.layers[2] = new AnimationLayer(moveset, "idle", true, leftHandBoneMask);
+				sneakAnim.layers[2] = new AnimationLayer(moveset, "idle", true, leftHandBoneMask);
 			}
 			else
 			{
 				idleAnim.layers[2] = null;
 				runAnim.layers[2] = null;
+				fallAnim.layers[2] = null;
+				duckAnim.layers[2] = null;
+				sneakAnim.layers[2] = null;
 			}
 		}
 		else
@@ -320,9 +375,15 @@ public class Player : Entity, Hittable
 
 			idleAnim.layers[1] = null;
 			runAnim.layers[1] = null;
+			fallAnim.layers[1] = null;
+			duckAnim.layers[1] = null;
+			sneakAnim.layers[1] = null;
 
 			idleAnim.layers[2] = null;
 			runAnim.layers[2] = null;
+			fallAnim.layers[2] = null;
+			duckAnim.layers[2] = null;
+			sneakAnim.layers[2] = null;
 		}
 	}
 
@@ -423,9 +484,20 @@ public class Player : Entity, Hittable
 		controller.inputJump = Input.IsKeyPressed(KeyCode.Space);
 		controller.inputDuck = InputManager.IsDown("Duck");
 
-
 		isSprinting = InputManager.IsDown("Sprint");
 		controller.maxSpeed = getCurrentMaxSpeed();
+
+		controller.rootMotionDisplacement = Vector3.Zero;
+		if (actionManager.currentAction != null && actionManager.currentAction.rootMotion)
+		{
+			animator.getRootMotion(out Vector3 rootMotion, out _, out bool hasLooped);
+			if (!hasLooped && lastRootMotion != Vector3.One && actionManager.currentAction == lastRootMotionAction)
+			{
+				controller.rootMotionDisplacement = Quaternion.FromAxisAngle(Vector3.Up, MathF.PI + yaw) * (rootMotion - lastRootMotion);
+			}
+			lastRootMotion = rootMotion;
+			lastRootMotionAction = actionManager.currentAction;
+		}
 
 		controller.update();
 
@@ -459,21 +531,16 @@ public class Player : Entity, Hittable
 			controller.isGrounded ? MathHelper.Linear(cameraHeight, CAMERA_HEIGHT, 2 * Time.deltaTime) :
 			CAMERA_HEIGHT;
 
-		camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch) * animator.getNodeLocalTransform(cameraNode) * leftHandAnimator.getNodeLocalTransform(cameraNode) * rightHandAnimator.getNodeLocalTransform(cameraNode));
-
-		modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
-		modelTransform = weaponSway * modelTransform;
-		if (actionManager.currentAction == null || !actionManager.currentAction.ignorePitch)
-			modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * modelTransform;
-		modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * modelTransform;
-
-		rightWeaponTransform = getModelMatrix() * modelTransform * rightHandAnimator.getNodeTransform(rightWeaponNode);
-		leftWeaponTransform = getModelMatrix() * modelTransform * leftHandAnimator.getNodeTransform(leftWeaponNode);
+		//modelTransform = Matrix.CreateRotation(Vector3.Up, MathF.PI);
+		//modelTransform = weaponSway * modelTransform;
+		//if (actionManager.currentAction == null || !actionManager.currentAction.ignorePitch)
+		//	modelTransform = Matrix.CreateRotation(Vector3.Right, pitch) * modelTransform;
+		//modelTransform = Matrix.CreateTranslation(0, cameraHeight, 0) * modelTransform;
 	}
 
 	float getCurrentMaxSpeed()
 	{
-		const float defaultSpeed = 3.6f;
+		const float defaultSpeed = 3.2f; // 3.6f;
 		float speed = defaultSpeed;
 		if (actionManager.currentAction != null)
 			speed *= actionManager.currentAction.movementSpeedMultiplier;
@@ -496,6 +563,9 @@ public class Player : Entity, Hittable
 			actionManager.queueAction(new KickAction());
 		if (Input.IsKeyPressed(KeyCode.G))
 			throwWeapon(0);
+
+		if (Input.IsKeyPressed(KeyCode.F5))
+			cameraMode = (cameraMode == CameraMode.FirstPerson ? CameraMode.ThirdPerson : CameraMode.FirstPerson);
 
 		if (rightWeapon != null)
 		{
@@ -572,7 +642,7 @@ public class Player : Entity, Hittable
 		// Walk animation
 		Vector2 viewmodelWalkAnim = Vector2.Zero;
 		viewmodelWalkAnim.x = 0.03f * MathF.Sin(controller.distanceWalked * FirstPersonController.STEP_FREQUENCY * MathF.PI);
-		viewmodelWalkAnim.y = 0.015f * -MathF.Abs(MathF.Cos(controller.distanceWalked * FirstPersonController.STEP_FREQUENCY * MathF.PI));
+		viewmodelWalkAnim.y = 0.015f * (0.5f - MathF.Abs(MathF.Cos(controller.distanceWalked * FirstPersonController.STEP_FREQUENCY * MathF.PI)));
 		//viewmodelWalkAnim *= 1 - MathHelper.Smoothstep(1.0f, 1.5f, movementSpeed);
 		viewmodelWalkAnim *= 1 - MathF.Exp(-controller.velocity.xz.length);
 		//viewmodelWalkAnim *= (sprinting && runAnim.layers[1 + 0] != null && runAnim.layers[1 + 0].animationName == "run" || movement.isMoving && walkAnim.layers[1 + 0] != null && walkAnim.layers[1 + 0].animationName == "walk") ? 0 : 1;
@@ -591,9 +661,9 @@ public class Player : Entity, Hittable
 		sway.y -= landBob;
 
 		// Look sway
-		float swayYawDst = -1.0f * InputManager.lookVector.x;
-		float swayPitchDst = -1.0f * InputManager.lookVector.y;
-		float swayRollDst = -1.0f * InputManager.lookVector.x;
+		float swayYawDst = -0.3f * InputManager.lookVector.x;
+		float swayPitchDst = -0.7f * InputManager.lookVector.y;
+		float swayRollDst = -0.3f * InputManager.lookVector.x;
 		viewmodelLookSwayAnim = Vector3.Lerp(viewmodelLookSwayAnim, new Vector3(swayPitchDst, swayYawDst, swayRollDst), 5.0f * Time.deltaTime);
 		pitchSway += viewmodelLookSwayAnim.x;
 		yawSway += viewmodelLookSwayAnim.y;
@@ -609,18 +679,25 @@ public class Player : Entity, Hittable
 
 	void updateAnimations()
 	{
-		runAnim.animationSpeed = (isSprinting ? SPRINT_SPEED_MULTIPLIER : 1) * (FirstPersonController.STEP_FREQUENCY / 0.6f);
-		bodyRunAnim.animationSpeed = (isSprinting ? SPRINT_SPEED_MULTIPLIER : 1) * (FirstPersonController.STEP_FREQUENCY / 0.6f);
+		runAnim.animationSpeed = (isSprinting ? SPRINT_SPEED_MULTIPLIER : 1) * (FirstPersonController.STEP_FREQUENCY / 0.6f / 1.5f);
+		//bodyRunAnim.animationSpeed = (isSprinting ? SPRINT_SPEED_MULTIPLIER : 1) * (FirstPersonController.STEP_FREQUENCY / 0.6f / 1.5f);
 
 		if (actionManager.currentAction != null)
 			currentActionAnim.animationSpeed = actionManager.currentAction.animationSpeed;
 
-		AnimationState moveAnim = controller.isMoving && controller.isGrounded ? runAnim : idleAnim;
+		//AnimationState moveAnim = controller.isMoving && controller.isGrounded ? runAnim : idleAnim;
+		AnimationState moveAnim = !controller.isGrounded ? fallAnim : controller.inDuckTimer != -1 ? (controller.isMoving ? sneakAnim : duckAnim) : controller.isMoving ? runAnim : idleAnim;
 
-		if (actionManager.currentAction != null && actionManager.currentAction.fullBodyAnimation)
+		if (actionManager.currentAction != null && actionManager.currentAction.animationName[2] != null)
+		{
 			animator.setAnimation(currentActionAnim);
+			animator.timer = actionManager.currentAction.elapsedTime;
+		}
 		else
+		{
 			animator.setAnimation(moveAnim);
+			animator.timer = controller.distanceWalked / controller.maxSpeed;
+		}
 
 		if (actionManager.currentAction != null && actionManager.currentAction.animationName[0] != null)
 		{
@@ -650,52 +727,24 @@ public class Player : Entity, Hittable
 		for (int i = 0; i < model.skeleton.nodes.Length; i++)
 		{
 			Node node = model.skeleton.nodes[i];
-			if (node.name.EndsWith("_r"))
+			if (isArmBone(node, ".R"))
 				animator.setNodeLocalTransform(node, rightHandAnimator.getNodeLocalTransform(node));
-			else if (node.name.EndsWith("_l"))
+			if (isArmBone(node, ".L"))
 				animator.setNodeLocalTransform(node, leftHandAnimator.getNodeLocalTransform(node));
 			//else
 			//	Console.Error.WriteLine("Invalid arm bone " + node.name);
 		}
 
-		float itemViewmodelAim = rightWeapon != null ? rightWeapon.viewmodelAim : leftWeapon != null ? leftWeapon.viewmodelAim : DEFAULT_VIEWMODEL_AIM;
-		float viewmodelAim = actionManager.currentAction != null ? actionManager.currentAction.viewmodelAim : itemViewmodelAim;
-		currentViewmodelAim = MathHelper.Lerp(currentViewmodelAim, viewmodelAim, 5 * Time.deltaTime);
-
-		bool animateCamera = actionManager.currentAction != null && actionManager.currentAction.animateCameraRotation;
-
-		/*
-		Matrix spine2Transform = animator.getNodeLocalTransform(spine2Node);
-		spine2Transform = Matrix.CreateRotation(Vector3.Left, 0.5f * currentViewmodelAim * pitch) * spine2Transform;
-		animator.setNodeLocalTransform(spine2Node, spine2Transform);
-
-		Matrix spine3Transform = animator.getNodeLocalTransform(spine3Node);
-		spine3Transform = Matrix.CreateRotation(Vector3.Left, 0.5f * currentViewmodelAim * pitch) * spine3Transform;
-		animator.setNodeLocalTransform(spine3Node, spine3Transform);
-
-		Matrix spine4Transform = animator.getNodeLocalTransform(cameraNode);
-		spine4Transform = Matrix.CreateRotation(Vector3.Left, (1 - currentViewmodelAim) * pitch) * spine4Transform;
-		animator.setNodeLocalTransform(cameraNode, spine4Transform);
-
-		Matrix cameraAnimation = animator.getNodeTransform(cameraNode) * defaultPoseCameraRotation.inverted;
-
-		if (!animateCamera)
 		{
-			// This makes it so that the camera is looking straight in default pose, which matches the preview in blender.
-			// Otherwise it will look down since the bone is not pointing straight up
-			Matrix cameraRotationStable = Matrix.CreateRotation(Vector3.Left, pitch);
-			Matrix rotationCorrection = Matrix.CreateTranslation(cameraAnimation.translation) * cameraRotationStable * cameraAnimation.inverted;
-			Matrix correctedCameraAnimation = rotationCorrection * cameraAnimation;
-			cameraAnimation = correctedCameraAnimation;
-
-			Matrix weaponSway = calculateWeaponSway();
-
-			animator.setNodeTransform(shoulderRNode, weaponSway * rotationCorrection * animator.getNodeTransform(shoulderRNode));
-			animator.setNodeTransform(shoulderLNode, weaponSway * rotationCorrection * animator.getNodeTransform(shoulderLNode));
+			float itemViewmodelAim = rightWeapon != null ? rightWeapon.viewmodelAim : DEFAULT_VIEWMODEL_AIM;
+			float viewmodelAim = actionManager.currentAction != null ? actionManager.currentAction.viewmodelAim[0] : itemViewmodelAim;
+			rightViewmodelAim = MathHelper.Lerp(rightViewmodelAim, viewmodelAim, (viewmodelAim > rightViewmodelAim ? 10 : 2) * Time.deltaTime);
 		}
-		*/
-
-		animator.applyAnimation();
+		{
+			float itemViewmodelAim = leftWeapon != null ? leftWeapon.viewmodelAim : DEFAULT_VIEWMODEL_AIM;
+			float viewmodelAim = actionManager.currentAction != null ? actionManager.currentAction.viewmodelAim[1] : itemViewmodelAim;
+			leftViewmodelAim = MathHelper.Lerp(leftViewmodelAim, viewmodelAim, (viewmodelAim > leftViewmodelAim ? 10 : 2) * Time.deltaTime);
+		}
 
 		if (rightWeaponAnimator != null)
 		{
@@ -703,12 +752,58 @@ public class Player : Entity, Hittable
 		}
 
 
-		AnimationState bodyMoveAnim = !controller.isGrounded ? bodyFallAnim : controller.inDuckTimer != -1 ? (controller.isMoving ? bodySneakAnim : bodyDuckAnim) : controller.isMoving ? bodyRunAnim : bodyIdleAnim;
-		bodyAnimator.setAnimation(bodyMoveAnim);
-		bodyAnimator.setNodeLocalTransform(upperArmR, Matrix.CreateScale(0));
-		bodyAnimator.setNodeLocalTransform(upperArmL, Matrix.CreateScale(0));
-		//bodyAnimator.timer = animator.timer;
-		bodyAnimator.applyAnimation();
+		Matrix spine2Transform = animator.getNodeLocalTransform(spineNode);
+		spine2Transform = Matrix.CreateRotation(Vector3.Left, 0.1f * pitch) * spine2Transform;
+		animator.setNodeLocalTransform(spineNode, spine2Transform);
+
+		Matrix spine3Transform = animator.getNodeLocalTransform(chestNode);
+		spine3Transform = Matrix.CreateRotation(Vector3.Left, 0.1f * pitch) * spine3Transform;
+		animator.setNodeLocalTransform(chestNode, spine3Transform);
+
+		// ignore neck animation, so the viewmodel doesn't move around after applying correction factor
+		animator.setNodeLocalTransform(neckNode, defaultPoseNeckTransform);
+		Matrix cameraBeforeNeckTransform = animator.getNodeTransform(cameraNode);
+
+		Matrix spine4Transform = animator.getNodeLocalTransform(neckNode);
+		spine4Transform = Matrix.CreateRotation(Vector3.Left, 0.8f * pitch) * spine4Transform;
+		animator.setNodeLocalTransform(neckNode, spine4Transform);
+
+		bool animateCamera = actionManager.currentAction != null && actionManager.currentAction.animateCameraRotation;
+		if (!animateCamera)
+		{
+			// This makes it so that the camera is looking straight in default pose, which matches the preview in blender.
+			// Otherwise it will look down since the bone is not pointing straight up
+			Matrix cameraAfterNeckTransform = animator.getNodeTransform(cameraNode);
+			Matrix rotationCorrection = Matrix.CreateTranslation(cameraAfterNeckTransform.translation) * Matrix.CreateRotation(Vector3.Left, pitch) * cameraAfterNeckTransform.inverted;
+			Matrix correctedCameraAnimation = rotationCorrection * cameraAfterNeckTransform * defaultPoseCameraRotation;
+			animator.setNodeTransform(cameraNode, correctedCameraAnimation);
+
+			Matrix cameraDelta = Matrix.CreateTranslation(cameraAfterNeckTransform.translation) * Matrix.CreateRotation(Vector3.Left, pitch) * defaultPoseCameraRotation * cameraBeforeNeckTransform.inverted; // cameraAnimation * defaultPoseCameraRotation * cameraBeforeNeckTransform.inverted;
+
+			Matrix weaponSway = calculateWeaponSway();
+
+			Matrix chestTransform = animator.getNodeTransform(chestNode);
+
+			Matrix rightViewmodelAimTransform = (rightWeapon != null ? chestTransform * weaponSway * chestTransform.inverted : Matrix.Identity) * Matrix.LerpTransform(Matrix.Identity, cameraDelta, rightViewmodelAim);
+			Matrix leftViewmodelAimTransform = (leftWeapon != null ? chestTransform * weaponSway * chestTransform.inverted : Matrix.Identity) * Matrix.LerpTransform(Matrix.Identity, cameraDelta, leftViewmodelAim);
+
+			animator.setNodeTransform(rightShoulderNode, rightViewmodelAimTransform * animator.getNodeTransform(rightShoulderNode));
+			animator.setNodeTransform(leftShoulderNode, leftViewmodelAimTransform * animator.getNodeTransform(leftShoulderNode));
+
+			animator.setNodeTransform(rightWeaponNode, rightViewmodelAimTransform * animator.getNodeTransform(rightWeaponNode));
+			animator.setNodeTransform(leftWeaponNode, leftViewmodelAimTransform * animator.getNodeTransform(leftWeaponNode));
+		}
+		/*
+		*/
+
+		rightWeaponTransform = getModelMatrix() * modelTransform * animator.getNodeTransform(rightWeaponNode) * Matrix.CreateRotation(Vector3.Right, MathF.PI * 0.5f);
+		leftWeaponTransform = getModelMatrix() * modelTransform * animator.getNodeTransform(leftWeaponNode);
+
+		//camera.setTransform(getModelMatrix() * Matrix.CreateTranslation(0, cameraHeight, 0) * Matrix.CreateRotation(Vector3.Up, camerayaw) * Matrix.CreateRotation(Vector3.Right, pitch) * animator.getNodeLocalTransform(cameraNode) * leftHandAnimator.getNodeLocalTransform(cameraNode) * rightHandAnimator.getNodeLocalTransform(cameraNode));
+		Vector3 cameraOffset = cameraMode == CameraMode.FirstPerson ? Vector3.Zero : new Vector3(0, 0.5f, 2);
+		camera.setTransform(getModelMatrix() * Matrix.CreateRotation(Vector3.Up, MathF.PI) * animator.getNodeTransform(cameraNode) * defaultPoseCameraRotation.inverted * Matrix.CreateTranslation(cameraOffset.x, cameraOffset.y, -cameraOffset.z) * Matrix.CreateRotation(Vector3.Up, -MathF.PI));
+
+		animator.applyAnimation();
 	}
 
 	public override void update()
@@ -737,10 +832,10 @@ public class Player : Entity, Hittable
 	{
 		Matrix transform = getModelMatrix() * modelTransform;
 
-		if ((gloves == null || !gloves.hidesArms) && (bodyArmor == null || !bodyArmor.hidesArms))
-			Renderer.DrawMesh(model, 0, transform, animator); // arms
-		if (gloves == null || !gloves.hidesHands)
-			Renderer.DrawMesh(model, 1, transform, animator); // hands
+		//if ((gloves == null || !gloves.hidesArms) && (bodyArmor == null || !bodyArmor.hidesArms))
+		//	Renderer.DrawMesh(model, 0, transform, animator); // arms
+		//if (gloves == null || !gloves.hidesHands)
+		//	Renderer.DrawMesh(model, 1, transform, animator); // hands
 
 		Model rightWeaponModel = this.rightWeaponModel;
 		if (actionManager.currentAction != null && actionManager.currentAction.overrideWeaponModel[0])
@@ -770,7 +865,12 @@ public class Player : Entity, Hittable
 			}
 		}
 
-		Renderer.DrawModel(bodyModel, getModelMatrix() * Matrix.CreateTranslation(bodyAnimator.getNodeTransform(spine005Node).translation * new Vector3(1, 0, 1) + new Vector3(0, cameraHeight - bodyAnimator.getNodeTransform(spine005Node).translation.y, 0.2f)) * Matrix.CreateRotation(Vector3.Up, MathF.PI), bodyAnimator);
+		Matrix bodyTransform = getModelMatrix()
+			//* Matrix.CreateTranslation(bodyAnimator.getNodeTransform(spine005Node).translation * new Vector3(1, 0, 1) + new Vector3(0, cameraHeight - bodyAnimator.getNodeTransform(spine005Node).translation.y, 0.2f))
+			//* Matrix.CreateTranslation(-bodyAnimator.getNodeTransform(cameraAnchorNode).translation * new Vector3(1, 0, 1))
+			//* Matrix.CreateRotation(Vector3.Up, MathF.PI);
+			* modelTransform;
+		Renderer.DrawModel(model, bodyTransform, animator);
 
 		if (rightWeapon != null)
 			rightWeapon.draw(this, rightWeaponAnimator);

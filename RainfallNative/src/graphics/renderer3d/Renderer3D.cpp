@@ -1544,6 +1544,7 @@ static void UpdateDirectionalShadows()
 					skeleton = animation->skeletons[mesh->skeletonID];
 
 				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0, CullState::None);
+				//DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::None);
 			}
 
 			for (int j = 0; j < meshDraws.size; j++)
@@ -1562,6 +1563,7 @@ static void UpdateDirectionalShadows()
 					skeleton = animation->skeletons[mesh->skeletonID];
 
 				DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0, CullState::None);
+				//DrawMesh(mesh, transform, material, skeleton, RenderPass::Shadow0 + i, CullState::None);
 			}
 		}
 	}

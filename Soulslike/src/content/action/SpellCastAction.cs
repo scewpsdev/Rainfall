@@ -20,7 +20,7 @@ public class SpellCastAction : PlayerAction
 		animationName[hand] = "cast";
 		animationSet[hand] = weapon.moveset;
 
-		viewmodelAim = 0.5f;
+		viewmodelAim[hand] = 0.5f;
 	}
 
 	public override void update(Player player)

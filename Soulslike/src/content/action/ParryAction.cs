@@ -30,7 +30,7 @@ public class ParryAction : PlayerAction
 
 		//lockYaw = true;
 
-		viewmodelAim = 1;
+		viewmodelAim[hand] = 1;
 	}
 
 	public bool inParryWindow => elapsedTime < weapon.parryWindow;

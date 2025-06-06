@@ -115,8 +115,15 @@ public static class GraphicsManager
 		renderSettings.vignetteEnabled = vignetteEnabled;
 		renderSettings.vignetteColor = vignetteColor;
 		renderSettings.vignetteFalloff = vignetteFalloff;
+<<<<<<< HEAD
 		renderSettings.fogColor = fogColor;
 		renderSettings.fogStrength = fogStrength;
+=======
+		renderSettings.ssaoEnabled = ssaoEnabled;
+		renderSettings.fogColor = fogColor;
+		renderSettings.fogStrength = fogStrength;
+		//renderSettings.exposure = 8;
+>>>>>>> 80b9d29927959fe0a7bbc2bb4c1a8b9f3754759d
 		Renderer.SetSettings(renderSettings);
 
 		if (environmentMap != null)

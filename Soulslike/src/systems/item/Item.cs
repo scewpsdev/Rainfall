@@ -43,6 +43,7 @@ public abstract class Item
 		//InitType<LeatherGauntlets>();
 		InitType<SapphireRing>();
 		InitType<Torch>();
+		InitType<WoodenRoundShield>();
 	}
 
 	static void InitType<T>() where T : Item, new()
@@ -89,7 +90,7 @@ public abstract class Item
 	public Sound[] stepSound;
 
 	public bool twoHanded = false;
-	public float viewmodelAim = Player.DEFAULT_VIEWMODEL_AIM;
+	public float viewmodelAim = 1.0f;
 
 	public bool useTrigger = true;
 	public bool secondaryUseTrigger = true;

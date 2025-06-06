@@ -10,7 +10,7 @@ rigidBodyType = Dynamic
 colliders = [ {
 type = Box
 trigger = 0
-size = [ 1, 1, 1 ]
+size = [ 0.800000011920929, 0.800000011920929, 0.800000011920929 ]
 offset = [ 0, 0, 0 ]
 rotation = [ 0, 0, 0 ]
 } ]

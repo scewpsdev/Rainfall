@@ -20,10 +20,7 @@ public class ItemEntity : Entity, Interactable
 
 	public override void init()
 	{
-		bodyFilterGroup = PhysicsFilter.Pickup | PhysicsFilter.Interactable;
-		bodyFilterMask = PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.Pickup | PhysicsFilter.Ragdoll;
-
-		load(item.entityData);
+		load(item.entityData, PhysicsFilter.Pickup | PhysicsFilter.Interactable, PhysicsFilter.Default | PhysicsFilter.Creature | PhysicsFilter.Pickup | PhysicsFilter.Ragdoll);
 
 		/*
 		float restitution = 0.1f;

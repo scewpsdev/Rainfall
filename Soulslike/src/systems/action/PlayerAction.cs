@@ -69,7 +69,7 @@ public class PlayerAction
 	//public Vector3 movementInput = Vector3.Zero;
 	public bool inputLeft, inputRight, inputForward, inputBack;
 	public float maxSpeed = 0.0f;
-	public float viewmodelAim = Player.DEFAULT_VIEWMODEL_AIM;
+	public float[] viewmodelAim = [Player.DEFAULT_VIEWMODEL_AIM, Player.DEFAULT_VIEWMODEL_AIM];
 	public float swayAmount = 1.0f;
 
 	public float iframesStartTime = 0.0f;

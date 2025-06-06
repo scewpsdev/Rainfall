@@ -21,7 +21,8 @@ public class SitAction : PlayerAction
 		animateCameraRotation = true;
 
 		duration = 5;
-		viewmodelAim = 0;
+		viewmodelAim[0] = 0;
+		viewmodelAim[1] = 0;
 		lockYaw = true;
 		movementSpeedMultiplier = 0.0f;
 	}

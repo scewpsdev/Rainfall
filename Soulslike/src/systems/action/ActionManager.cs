@@ -52,7 +52,7 @@ public class ActionManager
 				//anim.layers[1 + i].looping = false;
 				anim.layers[(i + 1) % 3].mirrored = currentAction.mirrorAnimation;
 				anim.layers[(i + 1) % 3].rootMotion = currentAction.rootMotion;
-				//anim.layers[1 + i].rootMotionNode = player.rootMotionNode;
+				anim.layers[(i + 1) % 3].rootMotionNode = player.rootMotionNode;
 				anim.animationSpeed = currentAction.animationSpeed;
 				anim.transitionDuration = currentAction.animationTransitionDuration;
 

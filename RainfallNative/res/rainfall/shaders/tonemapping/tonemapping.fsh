@@ -158,6 +158,12 @@ void main()
 
 	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
 	hdr *= exposure;
+<<<<<<< HEAD
+=======
+	vec3 tonemapped = Tonemap(hdr);
+	tonemapped = Vignette(tonemapped, v_texcoord0);
+	tonemapped = BayerDither(tonemapped, v_texcoord0);
+>>>>>>> 80b9d29927959fe0a7bbc2bb4c1a8b9f3754759d
 
 	vec3 color = ACESFitted(hdr);
 	color = GammaCorrection(color);

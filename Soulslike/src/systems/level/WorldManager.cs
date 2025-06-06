@@ -11,6 +11,9 @@ public class WorldManager : Entity
 	DirectionalLight sun;
 	List<Cubemap> skyboxes = new List<Cubemap>();
 
+	public Vector3 fogColor = Vector3.One;
+	public float fogStrength = 0.0f;
+
 	public Matrix spawnPoint = Matrix.Identity;
 
 	public Cubemap skybox;
@@ -51,5 +54,8 @@ public class WorldManager : Entity
 				Renderer.DrawSky(skybox, 1, Quaternion.Identity);
 			}
 		}
+
+		GraphicsManager.fogColor = fogColor;
+		GraphicsManager.fogStrength = fogStrength;
 	}
 }
