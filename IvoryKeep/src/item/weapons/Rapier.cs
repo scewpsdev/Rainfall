@@ -14,7 +14,7 @@ public class Rapier : Weapon
 		displayName = "Rapier";
 
 		baseDamage = 0.9f;
-		baseAttackRange = 1.2f;
+		baseAttackRange = 1.0f;
 		baseAttackRate = 2;
 		attackCooldown = 2;
 		baseWeight = 1.5f;

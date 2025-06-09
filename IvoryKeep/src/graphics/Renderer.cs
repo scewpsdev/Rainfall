@@ -245,16 +245,19 @@ public static class Renderer
 			graphics.destroyRenderTarget(lighting);
 		if (composite != null)
 			graphics.destroyRenderTarget(composite);
-		if (bloomDownsampleChain != null)
+		for (int i = 0; i < bloomDownsampleChain.Length; i++)
 		{
-			for (int i = 0; i < bloomDownsampleChain.Length; i++)
+			if (bloomDownsampleChain[i] != null)
 				graphics.destroyRenderTarget(bloomDownsampleChain[i]);
 		}
-		if (bloomUpsampleChain != null)
+		Array.Fill(bloomDownsampleChain, null);
+		for (int i = 0; i < bloomUpsampleChain.Length; i++)
 		{
-			for (int i = 0; i < bloomUpsampleChain.Length; i++)
+			if (bloomUpsampleChain[i] != null)
 				graphics.destroyRenderTarget(bloomUpsampleChain[i]);
 		}
+		Array.Fill(bloomUpsampleChain, null);
+
 
 		gbuffer = graphics.createRenderTarget(new RenderTargetAttachment[]
 		{
@@ -276,6 +279,7 @@ public static class Renderer
 		{
 			new RenderTargetAttachment(Display.width, Display.height, TextureFormat.RG11B10F, (ulong)TextureFlags.RenderTarget | (uint)SamplerFlags.Point | (uint)SamplerFlags.Clamp),
 		});
+
 
 		for (int i = 0; i < BLOOM_CHAIN_LENGTH; i++)
 		{

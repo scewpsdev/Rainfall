@@ -26,7 +26,7 @@ public partial class LevelGenerator
 	public void generateGardens(string seed, out Level[] areaGardens)
 	{
 		areaGardens = new Level[4];
-		areaGardens[0] = new Level(13, "gardens1",  "Royal Gardens", 80, 80, TileType.dirt, 30, 80);
+		areaGardens[0] = new Level(13, "gardens1", "Royal Gardens", 80, 80, TileType.dirt, 30, 80);
 		areaGardens[1] = new Level(14, "gardens2", "", 100, 40, TileType.dirt, 35, 90);
 		areaGardens[2] = new Level(15, "gardens3", "", 40, 100, TileType.dirt, 40, 100);
 		areaGardens[3] = new Level(-1, "gardens_boss_room", "", 40, 100);
@@ -165,16 +165,20 @@ public partial class LevelGenerator
 				}
 			}
 
-			placeRoom(rooms[i], level, (int x, int y) =>
+			placeRoom(rooms[i], level, (int x, int y, int idx) =>
 			{
-				TileType left = level.getTile(x - 1, y);
-				TileType right = level.getTile(x + 1, y);
-				TileType down = level.getTile(x, y - 1);
-				TileType up = level.getTile(x, y + 1);
+				if (idx == 0)
+				{
+					TileType left = level.getTile(x - 1, y);
+					TileType right = level.getTile(x + 1, y);
+					TileType down = level.getTile(x, y - 1);
+					TileType up = level.getTile(x, y + 1);
 
-				bool edgeTile = /*left == null || right == null || down == null ||*/ up == null;
-				float type = simplex.sample2f(x * 0.05f, y * 0.05f);
-				return edgeTile ? (type > -0.3f ? TileType.grass : TileType.path) : TileType.dirt;
+					bool edgeTile = /*left == null || right == null || down == null ||*/ up == null;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f);
+					return edgeTile ? (type > -0.3f ? TileType.grass : TileType.path) : TileType.dirt;
+				}
+				return TileType.dirt;
 			});
 		}
 

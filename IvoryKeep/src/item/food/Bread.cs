@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Bread : Item
 {
 	public Bread()
-		: base("Bread", ItemType.Food)
+		: base("bread", ItemType.Food)
 	{
 		displayName = "Bread";
 		stackable = true;

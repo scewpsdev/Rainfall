@@ -38,9 +38,9 @@ public class BrokenWanderer : NPC
 
 
 		addOneTimeDialogue("""
-			That entrance over there? It leads into the caverns below. Tunnels that twist and turn...
+			That entrance over there? It leads into the caverns below. Tunnels that twist and turn.
 			The deeper you go, the less sense it all makes.
-			So many travellers got lost down there...
+			So many travellers got lost down there.
 			""");
 
 		addOneTimeDialogue("""
@@ -49,28 +49,28 @@ public class BrokenWanderer : NPC
 			""");
 
 		addOneTimeDialogue("""
-			Have you seen that big stone gate in the back? Nobody knows how to open it.
-			It's been like this since I got here. I wonder where it could lead...
+			I once knew a way out. But the caves - they shift and change.
+			They're \balive\0 you know. Mocking us.
+			But it's not so bad up here.
+			I for one am done risking my neck for some trinkets.
 			""");
 
 		addOneTimeDialogue("""
 			Are the stories true? Word is the ancient castle on the hill got overrun.
-			A fortress so strong and mighty, I never thought it possible for anything to get over those walls...
+			A fortress so strong and mighty, I never thought it possible for anything to get over those walls.
 			It must have happened quite some time ago, considering the inhabitants are long gone.
-			I wonder where they all went...
+			I wonder where they all went\1...
 			""");
 
 		addOneTimeDialogue("""
 			This land was once golden, they say. Glorious and prosperous.
-			But now? Only relics of a kingdom that died with its pride.
+			But now? Only ruins of a kingdom that died with its pride.
 			\3And yet, people still come here, chasing whispers of treasure and glory...
 			""");
 
 		addOneTimeDialogue("""
-			I once knew a way out of here. Or thought I did... But the caves - they shift and change.
-			They're \balive\0 you know. Mocking us.
-			But it's not so bad up here.
-			I for one am done risking my neck for some trinkets.
+			Have you seen that big stone gate in the back? Nobody knows how to open it.
+			It's been like this since I got here. I wonder where it could lead...
 			""");
 
 		addDialogue("""

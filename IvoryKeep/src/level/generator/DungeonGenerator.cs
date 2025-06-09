@@ -171,11 +171,15 @@ public partial class LevelGenerator
 
 		for (int i = 0; i < rooms.Count; i++)
 		{
-			placeRoom(rooms[i], level, (int x, int y) =>
+			placeRoom(rooms[i], level, (int x, int y, int idx) =>
 			{
-				float progress = 1 - y / (float)level.height;
-				float type = simplex.sample2f(x * 0.05f, y * 0.05f);
-				return type > -0.5f ? TileType.bricks : TileType.stone;
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)level.height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f);
+					return type > -0.5f ? TileType.bricks : TileType.stone;
+				}
+				return TileType.stone;
 			});
 		}
 

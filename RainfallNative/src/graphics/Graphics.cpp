@@ -370,14 +370,23 @@ RFAPI RenderTarget Graphics_CreateRenderTarget(int numAttachments, const RenderT
 		attachments[i].init(texture, bgfx::Access::Write, BGFX_CUBE_MAP_POSITIVE_X + attachmentInfo[i].textureLayer, attachmentInfo[i].isCubemap ? 1 : 1, 0, attachmentInfo[i].generateMipmaps ? BGFX_RESOLVE_AUTO_GEN_MIPS : BGFX_RESOLVE_NONE);
 	}
 
-	bgfx::FrameBufferHandle handle = bgfx::createFrameBuffer(numAttachments, attachments, attachmentInfo[0].texture.idx == bgfx::kInvalidHandle);
-	if (!bgfx::isValid(handle))
+	if (bgfx::isFrameBufferValid(numAttachments, attachments))
 	{
-		Console_Error("Failed to validate framebuffer %i", (int)handle.idx);
+		bgfx::FrameBufferHandle handle = bgfx::createFrameBuffer(numAttachments, attachments, attachmentInfo[0].texture.idx == bgfx::kInvalidHandle);
+		if (!bgfx::isValid(handle))
+		{
+			int numFramebuffers = bgfx::getStats()->numFrameBuffers;
+			int maxFramebuffers = bgfx::getCaps()->limits.maxFrameBuffers;
+			__debugbreak();
+		}
+		return handle.idx;
+	}
+	else
+	{
+		bgfx::isFrameBufferValid(numAttachments, attachments);
+		Console_Error("Failed to validate framebuffer");
 		return BGFX_INVALID_HANDLE;
 	}
-
-	return handle.idx;
 }
 
 RFAPI void Graphics_DestroyRenderTarget(RenderTarget renderTarget)

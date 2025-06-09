@@ -138,7 +138,7 @@ public class GameState : State
 		this.seed = seed;
 		this.customRun = customRun;
 
-		seed = seed != null ? seed : "12345" /*Hash.hash(Time.timestamp).ToString()*/;
+		seed = seed != null ? seed : "abcdfdfdf" /*Hash.hash(Time.timestamp).ToString()*/;
 
 		currentBoss = null;
 
@@ -172,15 +172,9 @@ public class GameState : State
 		Level outskirts = new Level(-1, "cemetary_outskirts", "Cemetary Outskirts");
 		RoomDefSet cemetarySet = new RoomDefSet("level/graveyard/rooms.png", false);
 
-		Level caves1 = new Level(-1, "caves1", "Cave Entrance");
-		RoomDefSet cavesSet = new RoomDefSet("level/caves/rooms.png", false);
-
 		generator.generateSingleRoomLevel(cemetary, new Room(cemetarySet, 0), null /*new Room(cemetarySet, 1)*/, TileType.stone, TileType.bricks);
 		generator.generateSingleRoomLevel(smallCave, new Room(cemetarySet, 1), null, TileType.stone, TileType.bricks);
 		generator.generateSingleRoomLevel(outskirts, new Room(cemetarySet, 2), null, TileType.dirt, TileType.stone, TileType.grass);
-
-		generator.generateSingleRoomLevel(caves1, new Room(cavesSet, 0), null, TileType.dirt, TileType.stone);
-		generator.generateCaveBackground(caves1, new Simplex(Hash.hash(caves1.name + "fdjflkdjflkj"), 3), TileType.dirt, TileType.stone);
 
 		generator.generateCaves(seed, out areaCaves);
 		generator.generateDungeons(seed, out areaDungeons);
@@ -191,13 +185,13 @@ public class GameState : State
 		cemetary.addEntity(new Rat(), cemetary.rooms[0].getMarker(0x5) + 0.5f);
 
 		generateOutskirts(outskirts);
-		generateCaves1(caves1, outskirts);
+		Level[] caves = generateCaves(outskirts);
 
 		generator.connectDoors(generator.generateDoor(cemetary, 0x2), generator.generateDoor(smallCave, 0x1));
 		generator.connectDoors(generator.generateDoor(smallCave, 0x2), generator.generateDoor(cemetary, 0x3));
 		generator.connectDoors(cemetary.entrance, outskirts.entrance);
 
-		generator.connectDoors(outskirts.exit, caves1.entrance);
+		generator.connectDoors(outskirts.exit, caves[0].entrance);
 
 
 		{
@@ -442,14 +436,128 @@ public class GameState : State
 		outskirts.bg = Resource.GetTexture("level/hub/bg.png");
 	}
 
-	void generateCaves1(Level caves1, Level lastLevel)
+	Level[] generateCaves(Level lastLevel)
 	{
-		Door entranceDoor = new TutorialExitDoor(null); // new CaveEntranceDoor(lastLevel, lastLevel.exit);
-		caves1.entrance = entranceDoor;
-		caves1.addEntity(entranceDoor, caves1.getMarker(0x1, 0.5f));
-		generator.connectDoors(entranceDoor, lastLevel.exit);
+		Level[] caves = new Level[4];
 
-		caves1.ambientLight = new Vector3(0.3f);
+		RoomDefSet cavesSet = new RoomDefSet("level/caves/rooms.png", false);
+
+		{
+			caves[0] = new Level(-1, "caves0", "Cave Entrance");
+
+			Simplex simplex = new Simplex(Hash.hash("abcdfdfdf") + 0, 3);
+			Simplex bgSimplex = new Simplex(Hash.hash("abcdfdfdf") + 0, 3);
+
+			generator.generateSingleRoomLevel(caves[0], new Room(cavesSet, 1), null, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)caves[0].height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					return type > -0.1f ? TileType.dirt : TileType.stone;
+				}
+				return TileType.stone;
+			},
+			0x1, 0, new TutorialExitDoor(null));
+			generator.generateCaveBackground(caves[0], bgSimplex, TileType.dirt, TileType.stone);
+
+			int x0 = (int)MathF.Floor(caves[0].entrance.position.x) - 1;
+			int y0 = (int)MathF.Floor(caves[0].entrance.position.y + 0.001f);
+			for (int y = y0; y < y0 + 2; y++)
+			{
+				for (int x = x0; x < x0 + 3; x++)
+				{
+					caves[0].setBGTile(x, y, null);
+				}
+			}
+
+			generator.connectDoors(caves[0].entrance, lastLevel.exit);
+
+			loadScene("level/caves/caves0_level.gltf", caves[0]);
+
+			caves[0].ambientSound = Resource.GetSound("sounds/ambience.ogg");
+			caves[0].ambientLight = new Vector3(1.0f);
+		}
+
+		{
+			caves[1] = new Level(-1, "caves1", "");
+
+			Simplex simplex = new Simplex(Hash.hash(caves[1].name), 3);
+			Simplex bgSimplex = new Simplex(Hash.hash(caves[1].name + "lfdslkjf"), 3);
+
+			generator.generateSingleRoomLevel(caves[1], new Room(cavesSet, 2), null, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)caves[1].height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					return type > -0.1f ? TileType.dirt : TileType.stone;
+				}
+				return TileType.stone;
+			}, 0x1);
+			generator.generateCaveBackground(caves[1], bgSimplex, TileType.dirt, TileType.stone);
+
+			generator.connectDoors(caves[1].entrance, caves[0].exit);
+
+			loadScene("level/caves/caves1_level.gltf", caves[1]);
+
+			caves[1].ambientSound = Resource.GetSound("sounds/ambience.ogg");
+			caves[1].ambientLight = new Vector3(0.3f);
+		}
+
+		{
+			caves[2] = new Level(-1, "caves2", "");
+
+			Simplex simplex = new Simplex(Hash.hash(caves[2].name), 3);
+			Simplex bgSimplex = new Simplex(Hash.hash(caves[2].name + "lfdslkjf"), 3);
+
+			generator.generateSingleRoomLevel(caves[2], new Room(cavesSet, 3), null, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)caves[2].height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					return type > -0.1f ? TileType.dirt : TileType.stone;
+				}
+				return TileType.stone;
+			});
+			generator.generateCaveBackground(caves[2], bgSimplex, TileType.dirt, TileType.stone);
+
+			generator.connectDoors(caves[2].entrance, caves[1].exit);
+
+			loadScene("level/caves/caves2_level.gltf", caves[2]);
+
+			caves[2].ambientSound = Resource.GetSound("sounds/ambience.ogg");
+			caves[2].ambientLight = new Vector3(0.1f);
+		}
+
+		{
+			caves[3] = new Level(-1, "caves3", "");
+
+			Simplex simplex = new Simplex(Hash.hash(caves[3].name), 3);
+			Simplex bgSimplex = new Simplex(Hash.hash(caves[3].name + "lfdslkjf"), 3);
+
+			generator.generateSingleRoomLevel(caves[3], new Room(cavesSet, 4), null, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)caves[3].height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					return type > -0.1f ? TileType.dirt : TileType.stone;
+				}
+				return TileType.stone;
+			});
+			generator.generateCaveBackground(caves[3], bgSimplex, TileType.dirt, TileType.stone);
+
+			generator.connectDoors(caves[3].entrance, caves[2].exit);
+
+			loadScene("level/caves/caves3_level.gltf", caves[3]);
+
+			caves[3].ambientSound = Resource.GetSound("sounds/ambience.ogg");
+			caves[3].ambientLight = new Vector3(0.3f);
+		}
+
+		return caves;
 	}
 
 	unsafe void loadScene(string path, Level level)
@@ -480,6 +588,67 @@ public class GameState : State
 				level.bg = texture;
 
 				continue;
+			}
+
+			string name = node.name;
+			if (name.StartsWith("object") || name.StartsWith("item"))
+			{
+				string nodeType = name.Substring(0, name.IndexOf(' '));
+
+				name = name.Substring(name.IndexOf(' ') + 1);
+				if (name.Length > 4 && name[name.Length - 4] == '.' && int.TryParse(name.Substring(name.Length - 3), out _))
+					name = name.Substring(0, name.Length - 4);
+				string[] args = name.Trim().Split(" ");
+
+				if (nodeType == "object")
+				{
+					if (args[0].StartsWith("type="))
+					{
+						string type = args[0].Substring(5);
+						Entity entity = EntityType.CreateInstance(type);
+
+						for (int i = 1; i < args.Length; i++)
+						{
+							if (type == "barrel")
+							{
+								Barrel barrel = entity as Barrel;
+								if (args[i].StartsWith("item="))
+								{
+									barrel.items = [Item.GetItemPrototype(args[i].Substring(5)).copy()];
+								}
+								else if (args[i].StartsWith("coins="))
+								{
+									barrel.coins = int.Parse(args[i].Substring(6));
+								}
+							}
+							else if (type == "chest")
+							{
+								Chest chest = entity as Chest;
+								if (args[i].StartsWith("item="))
+								{
+									chest.items = [Item.GetItemPrototype(args[i].Substring(5)).copy()];
+								}
+								else if (args[i].StartsWith("coins="))
+								{
+									chest.coins = int.Parse(args[i].Substring(6));
+								}
+							}
+						}
+
+						level.addEntity(entity, node.transform.translation.xy);
+					}
+				}
+
+				if (nodeType == "item")
+				{
+					if (args[0].StartsWith("type="))
+					{
+						string type = args[0].Substring(5);
+						Item item = Item.GetItemPrototype(type);
+						ItemEntity entity = new ItemEntity(item.copy());
+						level.addEntity(entity, node.transform.translation.xy);
+					}
+				}
 			}
 
 			for (int i = 0; i < node.meshes.Length; i++)

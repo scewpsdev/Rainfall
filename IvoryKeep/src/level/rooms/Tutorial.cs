@@ -35,21 +35,6 @@ public class TutorialExitDoor : Door
 		layer2 = new Sprite(tileset, 9, 17, 3, 4);
 	}
 
-	public override void init(Level level)
-	{
-		base.init(level);
-
-		int x0 = (int)MathF.Floor(position.x) - 1;
-		int y0 = (int)MathF.Floor(position.y + 0.001f);
-		for (int y = y0; y < y0 + 2; y++)
-		{
-			for (int x = x0; x < x0 + 3; x++)
-			{
-				level.setBGTile(x, y, null);
-			}
-		}
-	}
-
 	public override void render()
 	{
 		base.render();

@@ -38,6 +38,7 @@ public static class EntityType
 		InitType<Barbarian>("barbarian");
 
 		InitType<Fountain>("fountain");
+		InitType<Checkpoint>("checkpoint");
 		InitType<Barrel>("barrel");
 		InitType<Chest>("chest");
 		InitType<ExplosiveBarrel>("explosive_barrel");

@@ -55,7 +55,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float mana = 2;
 	public float maxMana => magic * 0.5f;
 
-	public int hp = 6;
+	public int hp = 10; //6;
 	public int magic = 4;
 	public int strength = 1;
 	public int dexterity = 1;
@@ -196,6 +196,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		ladderSound = Resource.GetSounds("sounds/step_wood", 3);
 		hitSound = Resource.GetSounds("sounds/flesh", 2);
 		wallTouchSound = Resource.GetSound("sounds/wall_touch.ogg");
+
+		health = maxHealth;
+		mana = maxMana;
 	}
 
 	public override void init(Level level)

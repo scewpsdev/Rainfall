@@ -335,7 +335,7 @@ public partial class LevelGenerator
 		return result;
 	}
 
-	TileType translateTileColor(uint color, int x, int y, int xx, int yy, Room room, RoomDef roomDef, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc, Func<int, int, TileType> getTileTertiaryFunc)
+	TileType translateTileColor(uint color, int x, int y, int xx, int yy, Room room, RoomDef roomDef, Level level, Func<int, int, int, TileType> getTileFunc)
 	{
 		switch (color)
 		{
@@ -346,11 +346,11 @@ public partial class LevelGenerator
 			case 0xFFFF0000:
 				return null;
 			case 0xFFFFFFFF:
-				return getTileFunc(x + xx, y + yy);
+				return getTileFunc(x + xx, y + yy, 0);
 			case 0xFF7F7F7F:
-				return getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone;
+				return getTileFunc(x + xx, y + yy, 1);
 			case 0xFFAFAFAF:
-				return getTileTertiaryFunc != null ? getTileTertiaryFunc(x + xx, y + yy) : TileType.sand;
+				return getTileFunc(x + xx, y + yy, 2);
 			case 0xFF0000FF:
 				return TileType.platform;
 			case 0xFFFF7F7F:
@@ -382,8 +382,8 @@ public partial class LevelGenerator
 				if (tileType < 0.5f)
 					return null;
 				else if (tileType < 0.95f)
-					return getTileFunc(x + xx, y + yy);
-				return getTileSecondaryFunc != null ? getTileSecondaryFunc(x + xx, y + yy) : TileType.stone;
+					return getTileFunc(x + xx, y + yy, 0);
+				return getTileFunc(x + xx, y + yy, 1);
 			default:
 				if ((color | 0x0000FF00) == 0xFFFFFFFF) // marker
 					room.addMarker((color & 0x0000FF00) >> 8, x + xx, y + yy);
@@ -393,7 +393,7 @@ public partial class LevelGenerator
 		}
 	}
 
-	void placeRoom(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null, Func<int, int, TileType> getTileTertiaryFunc = null)
+	void placeRoom(Room room, Level level, Func<int, int, int, TileType> getTileFunc)
 	{
 		int x = room.x;
 		int y = room.y;
@@ -407,7 +407,7 @@ public partial class LevelGenerator
 			{
 				//uint color = rooms[roomDef.x + xx + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
 				uint color = roomDef.getTile(xx, yy);
-				TileType tile = translateTileColor(color, x, y, xx, yy, room, roomDef, level, getTileFunc, getTileSecondaryFunc, getTileTertiaryFunc);
+				TileType tile = translateTileColor(color, x, y, xx, yy, room, roomDef, level, getTileFunc);
 				level.setTile(x + xx, y + yy, tile);
 			}
 		}
@@ -426,7 +426,7 @@ public partial class LevelGenerator
 		*/
 	}
 
-	void placeRoomBG(Room room, Level level, Func<int, int, TileType> getTileFunc, Func<int, int, TileType> getTileSecondaryFunc = null, Func<int, int, TileType> getTileTertiaryFunc = null)
+	void placeRoomBG(Room room, Level level, Func<int, int, int, TileType> getTileFunc)
 	{
 		int x = room.x;
 		int y = room.y;
@@ -440,7 +440,7 @@ public partial class LevelGenerator
 			{
 				//uint color = rooms[roomDef.x + xx + (roomDef.y + roomDef.height - yy - 1) * roomsInfo.width];
 				uint color = roomDef.getTile(xx, yy);
-				TileType tile = translateTileColor(color, x, y, xx, yy, room, roomDef, level, getTileFunc, getTileSecondaryFunc, getTileTertiaryFunc);
+				TileType tile = translateTileColor(color, x, y, xx, yy, room, roomDef, level, getTileFunc);
 				if (tile != null)
 					level.setBGTile(x + xx, y + yy, tile);
 			}
@@ -1213,6 +1213,20 @@ public partial class LevelGenerator
 
 	public void generateSingleRoomLevel(Level level, Room room, Room bgRoom, TileType primaryTile, TileType secondaryTile, TileType tertiaryTile = null, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
 	{
+		generateSingleRoomLevel(level, room, bgRoom, (int x, int y, int idx) =>
+		{
+			if (idx == 0)
+				return primaryTile;
+			else if (idx == 1 && secondaryTile != null)
+				return secondaryTile;
+			else if (idx == 2 && tertiaryTile != null)
+				return tertiaryTile;
+			return TileType.stone;
+		}, entranceMarker, exitMarker, entranceDoor, exitDoor);
+	}
+
+	public void generateSingleRoomLevel(Level level, Room room, Room bgRoom, Func<int, int, int, TileType> getTile, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
+	{
 		random = new Random((int)Hash.hash(level.name));
 
 		level.resize(room.width, room.height);
@@ -1224,11 +1238,11 @@ public partial class LevelGenerator
 		objectFlags = new bool[level.width * level.height];
 		Array.Fill(objectFlags, false);
 
-		placeRoom(room, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile, tertiaryTile != null ? (int x, int y) => tertiaryTile : null);
+		placeRoom(room, level, getTile);
 		level.rooms = [room];
 
 		if (bgRoom != null)
-			placeRoomBG(bgRoom, level, (int x, int y) => primaryTile, (int x, int y) => secondaryTile, tertiaryTile != null ? (int x, int y) => tertiaryTile : null);
+			placeRoomBG(bgRoom, level, getTile);
 
 		RoomDef def = room.set.roomDefs[room.roomDefID];
 		for (int i = 0; i < def.doorDefs.Count; i++)
@@ -1238,9 +1252,9 @@ public partial class LevelGenerator
 			level.addEntity(door, position);
 			room.doorways.Add(new Doorway(room, def.doorDefs[i]) { door = door });
 
-			if (i == 0 && entranceMarker == 0 && level.entrance == null)
+			if (level.entrance == null && entranceMarker == 0)
 				level.entrance = door;
-			else if (i == 1 && exitMarker == 0 && level.exit == null || i == 0 && exitMarker == 0 && level.exit == null && entranceDoor != null)
+			else if (level.exit == null && exitMarker == 0)
 				level.exit = door;
 		}
 

@@ -564,7 +564,8 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 	uint32_t nextReset = BGFX_RESET_NONE |
 		(vsync ? BGFX_RESET_VSYNC : 0)
 		;
-	bool needsReset = nextReset != reset;
+
+	bool wasResized = false;
 
 	while (const Event* ev = eventQueue.poll())
 	{
@@ -611,8 +612,7 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 			SizeEvent* sizeEvent = (SizeEvent*)ev;
 			width = sizeEvent->width;
 			height = sizeEvent->height;
-			needsReset = true;
-			callbacks.onViewportSizeEvent(sizeEvent->width, sizeEvent->height);
+			wasResized = true;
 			break;
 		}
 
@@ -640,11 +640,13 @@ static bool ProcessEvents(const ApplicationCallbacks& callbacks)
 		BX_FREE(Application_GetAllocator(), (void*)ev);
 	}
 
-	if (needsReset)
+	if (nextReset != reset || wasResized)
 	{
 		reset = nextReset;
 		bgfx::reset(width, height, reset);
 	}
+	if (wasResized)
+		callbacks.onViewportSizeEvent(width, height);
 
 	return true;
 }

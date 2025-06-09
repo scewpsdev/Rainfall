@@ -15,7 +15,9 @@ public class DodgeAction : EntityAction
 	const float speed = dashDistance / dashTime;
 
 	int direction;
-	bool hopStarted = false;
+
+	ParticleEffect particles;
+
 
 	public DodgeAction()
 		: base("dodge")
@@ -34,6 +36,8 @@ public class DodgeAction : EntityAction
 		direction = player.direction;
 		player.velocity.y = player.jumpPower * 0.5f;
 		Audio.Play(player.jumpSound, new Vector3(player.position, 0));
+
+		GameState.instance.level.addEntity(particles = ParticleEffects.CreateDeathEffect(player, direction), player.position);
 	}
 
 	public override void onFinished(Player player)
