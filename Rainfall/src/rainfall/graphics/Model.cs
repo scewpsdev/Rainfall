@@ -69,7 +69,7 @@ namespace Rainfall
 	{
 		PositionNormalTangent* positionsNormalsTangents;
 		public Vector2* texcoords;
-		uint* vertexColors;
+		public uint* vertexColors;
 		IntPtr boneWeights;
 
 		public PositionNormalTangent* vertices { get => positionsNormalsTangents; }
@@ -87,12 +87,12 @@ namespace Rainfall
 
 		public NodeData* node;
 
-		UInt16 vertexNormalTangentBuffer;
-		UInt16 texcoordBuffer;
-		UInt16 vertexColorBuffer;
-		UInt16 boneWeightBuffer;
+		internal UInt16 vertexNormalTangentBuffer;
+		internal UInt16 texcoordBuffer;
+		internal UInt16 vertexColorBuffer;
+		internal UInt16 boneWeightBuffer;
 
-		UInt16 indexBuffer;
+		internal UInt16 indexBuffer;
 
 
 		public PositionNormalTangent getVertex(int index)

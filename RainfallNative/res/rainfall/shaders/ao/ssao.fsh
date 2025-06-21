@@ -112,7 +112,7 @@ void main_()
 #define INTENSITY 2
 #define SCALE 2.5
 #define BIAS 0.05
-#define SAMPLE_RAD 0.01
+#define SAMPLE_RAD 0.1
 #define MAX_DISTANCE 0.5
 
 #define MOD3 vec3(.1031,.11369,.13787)

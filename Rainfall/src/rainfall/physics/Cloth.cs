@@ -8,73 +8,115 @@ using System.Runtime.InteropServices;
 
 namespace Rainfall
 {
-	public class Cloth
+	[StructLayout(LayoutKind.Sequential)]
+	public struct ClothParams
+	{
+		public float stiffness = 1.0f;
+		public float inertia = 1.0f;
+		public Vector3 gravity = new Vector3(0, -9.81f, 0);
+
+		public ClothParams(int _)
+		{
+		}
+	}
+
+	public unsafe class Cloth
 	{
 		[StructLayout(LayoutKind.Sequential)]
-		struct ClothData
+		internal struct ClothData
 		{
 			IntPtr cloth;
 			IntPtr fabric;
-			IntPtr mesh;
+			internal MeshData* mesh;
 
 			internal Vector3 position;
 			internal Quaternion rotation;
-			UInt16 animatedVertexBuffer;
+			internal UInt16 animatedVertexBuffer;
 		}
 
 
-		internal IntPtr handle;
+		internal ClothData* handle;
 
 
-		public unsafe Cloth(Model model, float[] invMasses, Vector3 position, Quaternion rotation)
+		public unsafe Cloth(MeshData* mesh, Animator animator, float[] invMasses, ClothParams clothParams, Vector3 position, Quaternion rotation)
 		{
 			fixed (float* invMassesPtr = invMasses)
-				handle = Physics_CreateCloth(model.getMeshData(0), invMassesPtr, position, rotation);
+				handle = (ClothData*)Physics_CreateCloth(mesh, Matrix.Identity, animator != null ? animator.handle : IntPtr.Zero, invMassesPtr, clothParams, position, rotation);
+		}
+
+		public unsafe Cloth(Model model, int meshIdx, Animator animator, Vector3 position, Quaternion rotation, ClothParams clothParams)
+		{
+			MeshData* mesh = model.getMeshData(meshIdx);
+			Node meshNode = model.skeleton.getNode(mesh->nodeID);
+			float[] invMasses = createDefaultInvMasses(mesh);
+			fixed (float* invMassesPtr = invMasses)
+				handle = (ClothData*)Physics_CreateCloth(mesh, meshNode.transform, animator != null ? animator.handle : IntPtr.Zero, invMassesPtr, clothParams, position, rotation);
+		}
+
+		static unsafe float[] createDefaultInvMasses(MeshData* mesh)
+		{
+			float[] invMasses = new float[mesh->vertexCount];
+			for (int i = 0; i < mesh->vertexCount; i++)
+			{
+				invMasses[i] = 1;
+				if (mesh->vertexColors != null)
+				{
+					uint color = mesh->getVertexColor(i);
+					uint r = (color & 0x00FF0000) >> 16;
+					uint b = (color & 0x000000FF) >> 0;
+					if (r == 0xFF && b == 0xFF)
+					{
+						uint g = (color & 0x0000FF00) >> 8;
+						invMasses[i] = g == 255 ? 1 : 0; // g / 255.0f;
+					}
+				}
+			}
+			return invMasses;
 		}
 
 		public void destroy()
 		{
-			Physics_DestroyCloth(handle);
+			Physics_DestroyCloth((IntPtr)handle);
 		}
 
 		public void setTransform(Vector3 position, Quaternion rotation, bool teleport = false)
 		{
 			if (teleport)
-				Physics_ClothSetTransform(handle, position, rotation);
+				Physics_ClothSetTransform((IntPtr)handle, position, rotation);
 			else
-				Physics_ClothMoveTo(handle, position, rotation);
+				Physics_ClothMoveTo((IntPtr)handle, position, rotation);
 		}
 
 		public unsafe Vector3 position
 		{
-			get => ((ClothData*)handle)->position;
+			get => handle->position;
 		}
 
 		public unsafe Quaternion rotation
 		{
-			get => ((ClothData*)handle)->rotation;
+			get => handle->rotation;
 		}
 
 		public unsafe void setSpheres(Span<Vector4> spheres, int first, int last)
 		{
 			fixed (Vector4* spheresPtr = spheres)
-				Physics_ClothSetSpheres(handle, spheresPtr, spheres.Length, first, last);
+				Physics_ClothSetSpheres((IntPtr)handle, spheresPtr, spheres.Length, first, last);
 		}
 
 		public int numSpheres
 		{
-			get => Physics_ClothGetNumSpheres(handle);
+			get => Physics_ClothGetNumSpheres((IntPtr)handle);
 		}
 
 		public unsafe void setCapsules(Span<Vector2i> capsules, int first, int last)
 		{
 			fixed (Vector2i* capsulesPtr = capsules)
-				Physics_ClothSetCapsules(handle, capsulesPtr, capsules.Length, first, last);
+				Physics_ClothSetCapsules((IntPtr)handle, capsulesPtr, capsules.Length, first, last);
 		}
 
 		public int numCapsules
 		{
-			get => Physics_ClothGetNumCapsules(handle);
+			get => Physics_ClothGetNumCapsules((IntPtr)handle);
 		}
 
 		public static void SetWind(Vector3 wind)
@@ -87,7 +129,7 @@ namespace Rainfall
 		static extern void Physics_ClothsSetWind(Vector3 wind);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
-		static extern unsafe IntPtr Physics_CreateCloth(MeshData* mesh, float* invMasses, Vector3 position, Quaternion rotation);
+		static extern unsafe IntPtr Physics_CreateCloth(MeshData* mesh, Matrix meshLocalTransform, IntPtr animator, float* invMasses, ClothParams clothParams, Vector3 position, Quaternion rotation);
 
 		[DllImport(Native.Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		static extern void Physics_DestroyCloth(IntPtr cloth);

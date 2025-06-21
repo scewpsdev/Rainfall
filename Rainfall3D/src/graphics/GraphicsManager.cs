@@ -44,6 +44,8 @@ public static class GraphicsManager
 	public static Vector3 fogColor = Vector3.One;
 	public static float fogStrength = 0.0f;
 
+	public static Texture colorLUT;
+
 
 	public static void Init()
 	{
@@ -115,15 +117,11 @@ public static class GraphicsManager
 		renderSettings.vignetteEnabled = vignetteEnabled;
 		renderSettings.vignetteColor = vignetteColor;
 		renderSettings.vignetteFalloff = vignetteFalloff;
-<<<<<<< HEAD
-		renderSettings.fogColor = fogColor;
-		renderSettings.fogStrength = fogStrength;
-=======
 		renderSettings.ssaoEnabled = ssaoEnabled;
 		renderSettings.fogColor = fogColor;
 		renderSettings.fogStrength = fogStrength;
+		renderSettings.colorLUT = colorLUT;
 		//renderSettings.exposure = 8;
->>>>>>> 80b9d29927959fe0a7bbc2bb4c1a8b9f3754759d
 		Renderer.SetSettings(renderSettings);
 
 		if (environmentMap != null)

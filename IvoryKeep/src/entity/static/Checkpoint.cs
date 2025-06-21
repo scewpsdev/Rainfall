@@ -120,8 +120,8 @@ public class Checkpoint : Entity, Interactable
 			Audio.SetPaused(source, true);
 			Audio.SetSourceLooping(source, true);
 
-			GameState.instance.currentCheckpointLevel = level.name;
-			GameState.instance.currentCheckpoint = player.lastStableGround != Vector2.Zero ? player.lastStableGround : player.position;
+			GameState.instance.save.currentCheckpointLevel = level.name;
+			GameState.instance.save.currentCheckpoint = player.lastStableGround != Vector2.Zero ? player.lastStableGround : player.position;
 		}
 		else
 		{

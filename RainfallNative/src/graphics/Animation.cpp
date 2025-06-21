@@ -222,3 +222,17 @@ RFAPI void Animation_UpdateAnimationState(AnimationState* state, SceneData* scen
 		}
 	}
 }
+
+Vector3 SkinVertex(Vector3 position, Vector4 weights, Vector4 indices, SkeletonState* skeleton)
+{
+	Matrix boneTransform(0.0f);
+	for (int i = 0; i < 16; i++)
+	{
+		boneTransform.elements[i] += skeleton->boneTransforms[(int)(indices[0] + 0.5f)].elements[i] * weights[0];
+		boneTransform.elements[i] += skeleton->boneTransforms[(int)(indices[1] + 0.5f)].elements[i] * weights[1];
+		boneTransform.elements[i] += skeleton->boneTransforms[(int)(indices[2] + 0.5f)].elements[i] * weights[2];
+		boneTransform.elements[i] += skeleton->boneTransforms[(int)(indices[3] + 0.5f)].elements[i] * weights[3];
+	}
+	Vector4 vertex = boneTransform * Vector4(position, 1.0f);
+	return vertex.xyz;
+}

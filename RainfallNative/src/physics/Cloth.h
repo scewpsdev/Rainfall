@@ -18,6 +18,8 @@ namespace nv::cloth
 	class Fabric;
 }
 
+struct AnimationState;
+
 struct Cloth
 {
 	nv::cloth::Cloth* cloth;
@@ -28,6 +30,9 @@ struct Cloth
 	Quaternion rotation;
 	bgfx::DynamicVertexBufferHandle animatedPosition;
 	bgfx::DynamicVertexBufferHandle animatedNormalTangent;
+
+	AnimationState* animator;
+	Vector3* lastAnimatedParticles = nullptr;
 };
 
 

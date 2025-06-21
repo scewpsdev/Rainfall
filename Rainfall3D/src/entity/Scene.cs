@@ -169,8 +169,9 @@ public class Scene
 
 	public void update()
 	{
-		foreach (List<Entity> entityList in entities.Values)
+		for (int j = 0; j < entities.Count; j++)
 		{
+			List<Entity> entityList = entities.Values.ElementAt(j);
 			for (int i = 0; i < entityList.Count; i++)
 			{
 				entityList[i].update();

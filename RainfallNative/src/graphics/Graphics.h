@@ -229,7 +229,7 @@ RFAPI void Graphics_GetDebugTextSize(int* outWidth, int* outHeight);
 RFAPI void Graphics_ComputeDispatch(int pass, Shader* shader, int numX, int numY, int numZ);
 RFAPI void Graphics_Blit(int pass, Texture dst, Texture src);
 inline void Graphics_Blit(int pass, bgfx::TextureHandle dst, bgfx::TextureHandle src) { Graphics_Blit(pass, dst.idx, src.idx); }
-RFAPI void Graphics_BlitEx(int pass, Texture dst, int dstMip, int dstX, int dstY, int dstZ, Texture src, int srcMip, int srcX, int srcY, int srcZ, int width, int height, int depth);
+RFAPI void Graphics_BlitEx(int pass, Texture dst, int dstMip, int dstX, int dstY, int dstZ, Texture src, int srcMip = 0, int srcX = 0, int srcY = 0, int srcZ = 0, int width = UINT16_MAX, int height = UINT16_MAX, int depth = UINT16_MAX);
 RFAPI void Graphics_CompleteFrame();
 RFAPI void Graphics_GetRenderStats(bgfx::Stats* renderStats);
 RFAPI int Graphics_DrawDebugInfo(int x, int y, uint8_t color);

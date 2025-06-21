@@ -1415,9 +1415,9 @@ static int Sweep(const PxGeometry& geometry, const Vector3& position, const Quat
 
 	if (scene->sweep(geometry, transform, PxVec3(direction.x, direction.y, direction.z), maxDistance, hitBuffer, hitFlags, queryFilterData))
 	{
-		for (uint32_t i = 0; i < hitBuffer.getNbTouches(); i++)
+		for (uint32_t i = 0; i < hitBuffer.getNbAnyHits(); i++)
 		{
-			const PxSweepHit* hit = &hitBuffer.getTouches()[i];
+			const PxSweepHit* hit = &hitBuffer.getAnyHit(i);
 
 			hits[i].distance = hit->distance;
 			hits[i].position = Vector3(hit->position.x, hit->position.y, hit->position.z);
@@ -1427,7 +1427,7 @@ static int Sweep(const PxGeometry& geometry, const Vector3& position, const Quat
 		}
 	}
 
-	return hitBuffer.getNbTouches();
+	return hitBuffer.getNbAnyHits();
 }
 
 RFAPI int Physics_SweepBox(const Vector3& halfExtents, const Vector3& position, const Quaternion& rotation, const Vector3& direction, float maxDistance, HitData* hits, int maxHits, PxQueryFlag::Enum flags, uint32_t filterMask)

@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "3630501017"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "crossbow.glb"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.7879999876022339, 0.08699999749660492, 0.07500000298023224 ]
+offset = [ -0.01899999938905239, 0.027000000700354576, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.16899999976158142, 0.07900000363588333, 0.6769999861717224 ]
+offset = [ -0.296999990940094, 0.03700000047683716, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3630501017"

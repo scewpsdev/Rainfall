@@ -26,6 +26,10 @@ public class LevelTransition : Door
 
 	public override Vector2 getSpawnPoint()
 	{
+		if (direction != Vector2i.Up)
+			return position + 0.5f - direction;
+		else
+			return position + 0.5f - 2 * direction;
 		return new Vector2(position.x + 0.5f * size.x - direction.x, position.y);
 	}
 

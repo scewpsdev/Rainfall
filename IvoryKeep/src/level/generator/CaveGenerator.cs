@@ -81,11 +81,11 @@ public partial class LevelGenerator
 		Vector3 lightAmbience = Vector3.One;
 		Vector3 mediumAmbience = new Vector3(0.2f);
 		Vector3 darkAmbience = new Vector3(0.001f);
-		areaCaves[0] = new Level(0, "caves1", "Caves I", 40, 40, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
-		areaCaves[1] = new Level(1, "caves2", "Caves II", 50, 50, TileType.dirt, 2, 8) { ambientLight = mediumAmbience };
-		areaCaves[2] = new Level(2, "caves3", "Caves III", 50, 50, TileType.dirt, 4, 12) { ambientLight = darkAmbience };
-		areaCaves[3] = new Level(3, "caves4", "Caves IV", 50, 70, TileType.dirt, 7, 16) { ambientLight = mediumAmbience };
-		areaCaves[4] = new Level(4, "caves5", "Caves V", 60, 40, TileType.dirt, 10, 18) { ambientLight = lightAmbience };
+		areaCaves[0] = new Level(0, "caves_floor_1", "Caves I", 40, 40, TileType.dirt, 1, 5) { ambientLight = lightAmbience };
+		areaCaves[1] = new Level(1, "caves_floor_2", "Caves II", 50, 50, TileType.dirt, 2, 8) { ambientLight = mediumAmbience };
+		areaCaves[2] = new Level(2, "caves_floor_3", "Caves III", 50, 50, TileType.dirt, 4, 12) { ambientLight = darkAmbience };
+		areaCaves[3] = new Level(3, "caves_floor_4", "Caves IV", 50, 70, TileType.dirt, 7, 16) { ambientLight = mediumAmbience };
+		areaCaves[4] = new Level(4, "caves_floor_5", "Caves V", 60, 40, TileType.dirt, 10, 18) { ambientLight = lightAmbience };
 		areaCaves[5] = new Level(-1, "caves_boss_room", "", 10, 18) { ambientLight = lightAmbience }; // loot value will affect what the blacksmith sells in the hub
 		areaCaves[6] = new Level(-1, "caves_exit", "") { ambientLight = lightAmbience };
 		areaCaves[7] = new Level(-1, "caves_elevator_room", "") { ambientLight = lightAmbience };

@@ -38,6 +38,9 @@ namespace Rainfall
 		public Vector4 vignetteColor = new Vector4(0, 0, 0, 1);
 		public float vignetteFalloff = 0.12f;
 
+		internal ushort _colorLUT = ushort.MaxValue;
+		public Texture colorLUT { set { _colorLUT = value != null ? value.handle : ushort.MaxValue; } }
+
 		internal byte physicsDebugDraw = 0;
 
 		public RendererSettings(int _)
@@ -167,7 +170,7 @@ namespace Rainfall
 		public static void DrawCloth(Cloth cloth, MaterialData* materialData, Vector3 position, Quaternion rotation)
 		{
 			IntPtr material = Material.Material_GetForData(materialData);
-			Renderer3D_DrawCloth(cloth.handle, material, position, rotation);
+			Renderer3D_DrawCloth((IntPtr)cloth.handle, material, position, rotation);
 		}
 
 		public static void DrawSky(Cubemap skybox, float intensity, Quaternion rotation)

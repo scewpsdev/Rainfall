@@ -84,5 +84,4 @@ void main()
 	lightS *= ao;
 
 	gl_FragColor = vec4(lightS, 1.0);
-	//gl_FragColor.rgb += 0.01;
 }

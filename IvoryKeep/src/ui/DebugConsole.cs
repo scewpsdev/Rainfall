@@ -158,6 +158,13 @@ public static class DebugConsole
 		{
 			if (args.Length > 0)
 			{
+				Level level = Level.GetByName(args[0]);
+				if (level != null)
+				{
+					GameState.instance.switchLevel(level, level.entrance.getSpawnPoint());
+				}
+
+				/*
 				string areaName = args[0].Substring(0, args[0].Length - 1);
 				if (int.TryParse(args[0].Substring(args[0].Length - 1), out int floor))
 				{
@@ -168,7 +175,7 @@ public static class DebugConsole
 						{
 							Level level = area[floor - 1];
 							GameState.instance.switchLevel(level, level.entrance.getSpawnPoint());
-							/*
+							///*
 							for (int i = 0; i < area.Length; i++)
 							{
 								if (area[i].floor - area[0].floor == floor - 1)
@@ -178,10 +185,11 @@ public static class DebugConsole
 									break;
 								}
 							}
-							*/
+							///
 						}
 					}
 				}
+				*/
 			}
 		}
 		if (cmd == "teleport")

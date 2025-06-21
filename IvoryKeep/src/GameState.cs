@@ -107,9 +107,6 @@ public class GameState : State
 	public BossRoom currentBossRoom;
 	public long bossFightStarted = -1;
 
-	public string currentCheckpointLevel;
-	public Vector2 currentCheckpoint;
-
 	public bool isPaused = false;
 	public bool consoleOpen = false;
 	public bool onscreenPrompt = false;
@@ -123,6 +120,9 @@ public class GameState : State
 	public GameState(int saveID, string seed, bool customRun = false, bool dailyRun = false)
 	{
 		instance = this;
+
+		player = new Player();
+		camera = new PlayerCamera(player);
 
 		save = customRun ? SaveFile.customRun : dailyRun ? SaveFile.dailyRun : SaveFile.Load(saveID);
 		QuestManager.Init();
@@ -162,10 +162,6 @@ public class GameState : State
 		Door tutorialExitDoor = new Door(tutorial, tutorialExit);
 
 		tutorialExit.otherDoor = tutorialExitDoor;
-
-		player = new Player();
-		camera = new PlayerCamera(player);
-
 
 		Level cemetary = new Level(-1, "cemetary", "Cemetary");
 		Level smallCave = new Level(-1, "cemetary_cave", "");
@@ -212,17 +208,18 @@ public class GameState : State
 		}
 
 
-		if (currentCheckpointLevel != null)
+		if (save.currentCheckpointLevel != null && Level.GetByName(save.currentCheckpointLevel) != null)
 		{
 			level = null;
-			switchLevel(Level.GetByName(currentCheckpointLevel), currentCheckpoint);
+			switchLevel(Level.GetByName(save.currentCheckpointLevel), save.currentCheckpoint);
 			levelSwitchTime = -1;
 			return;
 		}
 		else
 		{
 			level = null;
-			switchLevel(outskirts, outskirts.getMarker(0x2));
+			//switchLevel(outskirts, outskirts.getMarker(0x2));
+			switchLevel(cemetary, cemetary.getMarker(0x1));
 			levelSwitchTime = -1;
 			return;
 		}
@@ -438,7 +435,7 @@ public class GameState : State
 
 	Level[] generateCaves(Level lastLevel)
 	{
-		Level[] caves = new Level[4];
+		Level[] caves = new Level[6];
 
 		RoomDefSet cavesSet = new RoomDefSet("level/caves/rooms.png", false);
 
@@ -557,6 +554,62 @@ public class GameState : State
 			caves[3].ambientLight = new Vector3(0.3f);
 		}
 
+		{
+			caves[4] = new Level(-1, "caves4", "");
+
+			Simplex simplex = new Simplex(Hash.hash(caves[4].name), 3);
+			Simplex bgSimplex = new Simplex(Hash.hash(caves[4].name + "lfdslkjf"), 3);
+
+			generator.generateSingleRoomLevel(caves[4], new Room(cavesSet, 5), null, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)caves[4].height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					return type > -0.1f ? TileType.dirt : TileType.stone;
+				}
+				return TileType.stone;
+			});
+			generator.generateCaveBackground(caves[4], bgSimplex, TileType.dirt, TileType.stone);
+
+			caves[4].addEntity(caves[4].exit = new Door(null), caves[4].getMarker(0x1, 0.5f));
+
+			generator.connectDoors(caves[4].entrance, caves[3].exit);
+
+			loadScene("level/caves/caves4_level.gltf", caves[4]);
+
+			caves[4].ambientSound = Resource.GetSound("sounds/ambience.ogg");
+			caves[4].ambientLight = new Vector3(1.0f);
+		}
+
+		{
+			caves[5] = new Level(-1, "caves_boss", "");
+
+			Simplex simplex = new Simplex(Hash.hash(caves[5].name), 3);
+			Simplex bgSimplex = new Simplex(Hash.hash(caves[5].name + "lfdslkjf"), 3);
+
+			generator.generateSingleRoomLevel(caves[5], new Room(cavesSet, 6), null, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)caves[5].height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					return type > -0.1f ? TileType.dirt : TileType.stone;
+				}
+				return TileType.stone;
+			});
+			generator.generateCaveBackground(caves[5], bgSimplex, TileType.dirt, TileType.stone);
+
+			caves[5].addEntity(new CavesBossRoom(caves[5].rooms[0]));
+
+			generator.connectDoors(caves[5].entrance, caves[4].exit);
+
+			//loadScene("level/caves/caves5_level.gltf", caves[5]);
+
+			//caves[5].ambientSound = Resource.GetSound("sounds/ambience.ogg");
+			caves[5].ambientLight = new Vector3(1.0f);
+		}
+
 		return caves;
 	}
 
@@ -631,6 +684,14 @@ public class GameState : State
 								else if (args[i].StartsWith("coins="))
 								{
 									chest.coins = int.Parse(args[i].Substring(6));
+								}
+							}
+							else if (entity is NPC)
+							{
+								NPC npc = entity as NPC;
+								if (args[i].StartsWith("direction="))
+								{
+									npc.direction = int.Parse(args[i].Substring(10));
 								}
 							}
 						}
@@ -718,6 +779,11 @@ public class GameState : State
 		if (save != null && save.id != -1)
 			SaveFile.Save(save);
 
+		if (player.level != null)
+			player.level.removeEntity(player);
+		if (camera.level != null)
+			camera.level.removeEntity(camera);
+
 		if (ambientSource != 0)
 			Audio.StopSource(ambientSource);
 
@@ -802,6 +868,9 @@ public class GameState : State
 		run.hasWon = hasWon;
 		run.killedBy = killedBy;
 		run.killedByName = killedByName;
+
+		currentBoss = null;
+		bossFightStarted = -1;
 
 		SaveFile.OnRunFinished(run, save);
 		GameOverScreen.Init();
@@ -957,12 +1026,14 @@ public class GameState : State
 				{
 					Audio.PlayBackground(UISound.uiConfirm2);
 					GameOverScreen.Destroy();
+					SaveFile.Save(save);
 					reset(seed, customRun, player.startingClass, true);
 				}
 				if (InputManager.IsPressed("UIConfirm2"))
 				{
 					Audio.PlayBackground(UISound.uiConfirm2);
 					GameOverScreen.Destroy();
+					SaveFile.Save(save);
 					reset(seed, customRun);
 				}
 			}

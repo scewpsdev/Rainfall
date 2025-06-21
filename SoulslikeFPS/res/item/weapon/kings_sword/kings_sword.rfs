@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "2793757243"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "kings_sword.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.026000000536441803, 0.9819999933242798, 0.07000000029802322 ]
+offset = [ 0, 0.3449999988079071, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.03400000184774399, 0.03500000014901161, 0.2070000022649765 ]
+offset = [ 0, 0.10000000149011612, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2793757243"

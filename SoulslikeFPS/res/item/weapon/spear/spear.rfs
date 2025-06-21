@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "2043525425"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "spear.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.11800000071525574, 1.8200000524520874, 2 ]
+offset = [ 0, 0.43799999356269836, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.1469999998807907, 0.4359999895095825, 0.07599999755620956 ]
+offset = [ 0, 1.093999981880188, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2043525425"

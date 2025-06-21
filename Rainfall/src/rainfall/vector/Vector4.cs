@@ -115,6 +115,11 @@ namespace Rainfall
 			return new Vector4(a.x * b, a.y * b, a.z * b, a.w * b);
 		}
 
+		public static Vector4 operator /(Vector4 a, float b)
+		{
+			return new Vector4(a.x / b, a.y / b, a.z / b, a.w / b);
+		}
+
 		public static Vector4 operator +(Vector4 a, Vector4 b)
 		{
 			return new Vector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);

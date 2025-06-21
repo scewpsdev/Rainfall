@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "358273549"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "dagger.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.03400000184774399, 0.5149999856948853, 0.04600000008940697 ]
+offset = [ 0, 0.13699999451637268, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.04899999871850014, 0.032999999821186066, 0.1599999964237213 ]
+offset = [ 0, 0.05299999937415123, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "358273549"

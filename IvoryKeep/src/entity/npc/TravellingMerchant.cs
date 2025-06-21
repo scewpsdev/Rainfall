@@ -58,12 +58,19 @@ public class TravellingMerchant : NPC
 		{
 			buysItems = true;
 			//canAttune = true;
-			populateShop(random, 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
+			//populateShop(random, 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
 		}
 	}
 
 	public TravellingMerchant()
 		: this(Random.Shared, GameState.instance.level)
 	{
+	}
+
+	public override void init(Level level)
+	{
+		base.init(level);
+
+		populateShop(new Random(12345), 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
 	}
 }

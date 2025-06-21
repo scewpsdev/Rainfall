@@ -11,7 +11,7 @@ public class BurstShotSpell : Spell
 {
 	Player player;
 	Item staff;
-	float speed;
+	float duration;
 
 	long castTime = -1;
 	int castedProjectiles = 0;
@@ -37,7 +37,7 @@ public class BurstShotSpell : Spell
 	{
 		this.player = player;
 		this.staff = staff;
-		this.speed = duration * attackRate;
+		this.duration = duration;
 
 		castTime = Time.currentTime;
 		castedProjectiles = 0;
@@ -71,8 +71,8 @@ public class BurstShotSpell : Spell
 
 		if (castTime != -1)
 		{
-			float elapsed = (Time.currentTime - castTime) / 1e9f * speed;
-			int projectilesShouldCast = Math.Min((int)(elapsed / 0.1f) + 1, 3);
+			float elapsed = (Time.currentTime - castTime) / 1e9f;
+			int projectilesShouldCast = Math.Min((int)(elapsed / 0.1f * attackRate) + 1, 3);
 			if (castedProjectiles < projectilesShouldCast)
 			{
 				shoot();

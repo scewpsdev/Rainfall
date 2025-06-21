@@ -11,6 +11,8 @@ public class Camera : Entity
 	public float near = 0.05f;
 	public float far = 100.0f;
 
+	public float pitch, yaw, roll;
+
 
 	public override void draw(GraphicsDevice graphics)
 	{

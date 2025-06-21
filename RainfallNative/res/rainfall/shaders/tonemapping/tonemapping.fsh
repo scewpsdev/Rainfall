@@ -23,7 +23,10 @@ uniform vec4 u_vignetteData;
 uniform vec4 u_vignetteData1;
 #define u_vignetteColor u_vignetteData.rgb
 #define u_vignetteAlpha u_vignetteData.a
-#define u_vignetteFalloff u_vignetteData1.r
+#define u_vignetteFalloff u_vignetteData1[0]
+#define u_hasColorLUT u_vignetteData1[1]
+
+SAMPLER3D(s_colorLUT, 3);
 
 
 vec3 ThreshholdBloom(vec3 bloom)
@@ -134,6 +137,13 @@ vec3 BayerDither(vec3 color, vec2 uv)
 	return result;
 }
 
+vec3 ColorLUT(vec3 color)
+{
+	//return texture3D(s_colorLUT, vec3_splat(0.5)).rgb;
+	vec3 coord = color.rgb;
+	return texture3D(s_colorLUT, coord).rgb;
+}
+
 // https://www.shadertoy.com/view/lsKSWR
 vec3 Vignette(vec3 color, vec2 uv)
 {
@@ -158,15 +168,13 @@ void main()
 
 	hdr += ThreshholdBloom(texture2D(s_bloom, v_texcoord0).rgb) * bloomStrength;
 	hdr *= exposure;
-<<<<<<< HEAD
-=======
-	vec3 tonemapped = Tonemap(hdr);
-	tonemapped = Vignette(tonemapped, v_texcoord0);
-	tonemapped = BayerDither(tonemapped, v_texcoord0);
->>>>>>> 80b9d29927959fe0a7bbc2bb4c1a8b9f3754759d
 
 	vec3 color = ACESFitted(hdr);
 	color = GammaCorrection(color);
+	
+	if (u_hasColorLUT)
+		color = ColorLUT(color);
+
 	color = Vignette(color, v_texcoord0);
 	color = BayerDither(color, v_texcoord0);
 

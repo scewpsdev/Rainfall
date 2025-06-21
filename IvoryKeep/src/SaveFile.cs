@@ -63,6 +63,9 @@ public class SaveFile
 	public RunData[] highscores = new RunData[0];
 	public HashSet<uint> flags = new HashSet<uint>();
 
+	public string currentCheckpointLevel;
+	public Vector2 currentCheckpoint;
+
 
 	public bool hasFlag(uint flag)
 	{
@@ -123,6 +126,11 @@ public class SaveFile
 			save.highscores = new RunData[highscoresDat.size];
 			for (int i = 0; i < highscoresDat.size; i++)
 				save.highscores[i] = LoadRun(highscoresDat[i].obj);
+
+			dat.getStringContent("checkpoint_level", out save.currentCheckpointLevel);
+			dat.getVector2("checkpoint_position", out save.currentCheckpoint);
+
+			LoadInventory(save, dat, GameState.instance.player);
 		}
 		else
 		{
@@ -172,6 +180,80 @@ public class SaveFile
 		return data;
 	}
 
+	static void LoadInventory(SaveFile save, DatFile file, Player player)
+	{
+		if (file.getArray("items", out DatArray itemsArray))
+		{
+			for (int i = 0; i < itemsArray.size; i++)
+			{
+				itemsArray[i].obj.getIdentifier("type", out string itemType);
+				Item item = Item.GetItemPrototype(itemType).copy();
+				itemsArray[i].obj.getInteger("stack_size", out item.stackSize);
+				player.items.Add(item);
+				item.deserialize(itemsArray[i].obj);
+			}
+		}
+
+		if (file.getInteger("hand_item", out int handItemIdx))
+		{
+			if (handItemIdx != -1)
+				player.handItem = player.items[handItemIdx];
+		}
+
+		if (file.getInteger("offhand_item", out int offhandItemIdx))
+		{
+			if (offhandItemIdx != -1)
+				player.offhandItem = player.items[offhandItemIdx];
+		}
+
+		if (file.getInteger("num_active_items", out int numActiveItems))
+		{
+			for (int i = 0; i < numActiveItems; i++)
+			{
+				file.getInteger("active_item" + i, out int activeItemIdx);
+				if (activeItemIdx != -1)
+					player.activeItems[i] = player.items[activeItemIdx];
+			}
+		}
+
+		if (file.getInteger("num_spell_items", out int numSpellItems))
+		{
+			for (int i = 0; i < numSpellItems; i++)
+			{
+				file.getInteger("spell_item" + i, out int spellItemIdx);
+				if (spellItemIdx != -1)
+					player.spellItems.Add((Spell)player.items[spellItemIdx]);
+			}
+		}
+
+		if (file.getInteger("num_passive_items", out int numPassiveItems))
+		{
+			for (int i = 0; i < numPassiveItems; i++)
+			{
+				file.getInteger("passive_item" + i, out int passiveItemIdx);
+				if (passiveItemIdx != -1)
+					player.passiveItems.Add(player.items[passiveItemIdx]);
+			}
+		}
+
+		if (file.getInteger("num_stored_items", out int numStoredItems))
+		{
+			for (int i = 0; i < numStoredItems; i++)
+			{
+				file.getInteger("stored_item" + i, out int storedItemIdx);
+				if (storedItemIdx != -1)
+					player.storedItems.Add(player.items[storedItemIdx]);
+			}
+		}
+
+		if (file.getIdentifier("carried_object", out string carriedObject))
+		{
+			Entity obj = EntityType.CreateInstance(carriedObject);
+			if (obj != null)
+				player.carriedObject = (Object)obj;
+		}
+	}
+
 	public static DatFile Save(SaveFile save)
 	{
 		DatFile file = new DatFile();
@@ -216,6 +298,14 @@ public class SaveFile
 		}
 		file.addArray("highscores", new DatArray(highscoresDat));
 
+		if (save.currentCheckpointLevel != null)
+		{
+			file.addString("checkpoint_level", save.currentCheckpointLevel);
+			file.addVector2("checkpoint_position", save.currentCheckpoint);
+		}
+
+		SaveInventory(save, file, GameState.instance.player);
+
 		file.addArray("npcs", NPCManager.SaveNPCs());
 
 		file.serialize(save.path);
@@ -228,6 +318,44 @@ public class SaveFile
 		Console.WriteLine("Saved file " + save.id);
 
 		return file;
+	}
+
+	static void SaveInventory(SaveFile save, DatFile file, Player player)
+	{
+		DatValue[] itemValues = new DatValue[player.items.Count];
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			DatObject itemObj = new DatObject()
+			{
+				fields =
+				[
+					new DatField("type", new DatValue(player.items[i].name, DatValueType.Identifier)),
+					new DatField("stack_size", new DatValue(player.items[i].stackSize))
+				]
+			};
+			player.items[i].serialize(itemObj);
+			itemValues[i] = new DatValue(itemObj);
+		}
+		file.addArray("items", new DatArray(itemValues));
+
+		file.addInteger("hand_item", player.handItem != null ? player.items.IndexOf(player.handItem) : -1);
+		file.addInteger("offhand_item", player.offhandItem != null ? player.items.IndexOf(player.offhandItem) : -1);
+
+		file.addInteger("num_active_items", player.activeItems.Length);
+		for (int i = 0; i < player.activeItems.Length; i++)
+			file.addInteger("active_item" + i, player.activeItems[i] != null ? player.items.IndexOf(player.activeItems[i]) : -1);
+		file.addInteger("num_spell_items", player.spellCapacity);
+		for (int i = 0; i < player.spellCapacity; i++)
+			file.addInteger("spell_item" + i, i < player.spellItems.Count ? player.items.IndexOf(player.spellItems[i]) : -1);
+		file.addInteger("num_passive_items", player.passiveItems.Count);
+		for (int i = 0; i < player.passiveItems.Count; i++)
+			file.addInteger("passive_item" + i, i < player.passiveItems.Count ? player.items.IndexOf(player.passiveItems[i]) : -1);
+		file.addInteger("num_stored_items", player.storeCapacity);
+		for (int i = 0; i < player.storeCapacity; i++)
+			file.addInteger("stored_item" + i, i < player.storedItems.Count ? player.items.IndexOf(player.storedItems[i]) : -1);
+
+		if (player.carriedObject != null)
+			file.addIdentifier("carried_object", player.carriedObject.name);
 	}
 
 	public static void LoadQuest(DatObject obj, Quest quest, NPC npc)

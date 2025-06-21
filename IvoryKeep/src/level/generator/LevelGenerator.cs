@@ -1247,8 +1247,11 @@ public partial class LevelGenerator
 		RoomDef def = room.set.roomDefs[room.roomDefID];
 		for (int i = 0; i < def.doorDefs.Count; i++)
 		{
-			LevelTransition door = new LevelTransition(null, null, new Vector2i(1, 3), def.doorDefs[i].direction);
 			Vector2 position = (Vector2)def.doorDefs[i].position + def.doorDefs[i].direction;
+			Vector2i size = def.doorDefs[i].direction.x != 0 ? new Vector2i(1, 3) : new Vector2i(3, 1);
+			if (def.doorDefs[i].direction == Vector2i.Up)
+				position += Vector2i.Up;
+			LevelTransition door = new LevelTransition(null, null, size, def.doorDefs[i].direction);
 			level.addEntity(door, position);
 			room.doorways.Add(new Doorway(room, def.doorDefs[i]) { door = door });
 

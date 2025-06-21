@@ -41,7 +41,7 @@ enum RenderPass
 	Shadow2,
 	PointShadow,
 	ReflectionProbe = PointShadow + MAX_POINT_SHADOWS * 6,
-	AmbientOcclusion = ReflectionProbe + 6 * 2, // one pass for gbuffer pass and one for deferred shading
+	AmbientOcclusion = ReflectionProbe + 6 * 3, // one pass for gbuffer pass, one for deferred shading, one for forward meshes
 	AmbientOcclusionBlur,
 	Deferred,
 	Forward,
@@ -75,6 +75,8 @@ struct Renderer3DSettings
 	bool vignetteEnabled = true;
 	Vector4 vignetteColor = { 0, 0, 0, 1 };
 	float vignetteFalloff = 0.12f;
+
+	uint16_t colorLUT = bgfx::kInvalidHandle;
 
 	bool physicsDebugDraw = false;
 };
@@ -867,7 +869,7 @@ static uint16_t GetEnvironmentMapForPosition(Vector3 position)
 	{
 		Vector3 min = reflectionProbeDraws[i].position - 0.5f * reflectionProbeDraws[i].size;
 		Vector3 max = reflectionProbeDraws[i].position + 0.5f * reflectionProbeDraws[i].size;
-		if (position.x >= min.x && position.x <= max.x && position.x >= min.y && position.y <= max.y && position.z >= min.z && position.z <= max.z)
+		if (position.x >= min.x && position.x <= max.x && position.y >= min.y && position.y <= max.y && position.z >= min.z && position.z <= max.z)
 			return reflectionProbeDraws[i].cubemap;
 	}
 	return environmentMap;
@@ -1757,14 +1759,46 @@ static void EnvironmentMapPass()
 			}
 
 
+			// SKY
+
+
+			if (skyTexture != bgfx::kInvalidHandle)
+			{
+				Shader* shader = skyShader;
+
+				Graphics_ResetState();
+
+				Graphics_SetRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], draw.resolution, draw.resolution);
+				Graphics_ClearRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], true, true, 0x000000FF, 1);
+
+				Graphics_SetBlendState(BlendState::Alpha);
+				Graphics_SetCullState(CullState::None);
+
+				Graphics_SetVertexBuffer(skydome);
+				Graphics_SetIndexBuffer(skydomeIBO);
+
+				Graphics_SetTransform(RenderPass::ReflectionProbe + 6 + face, skyTransform);
+
+				Graphics_SetViewTransform(RenderPass::ReflectionProbe + 6 + face, shadowMapProjection, shadowMapView);
+
+				Vector4 skyData(skyIntensity, 0, 0, 0);
+				Graphics_SetUniform(shader->getUniform("u_skyData", bgfx::UniformType::Vec4), &skyData);
+
+				Graphics_SetTexture(shader->getUniform("s_skyTexture", bgfx::UniformType::Sampler), 0, bgfx::TextureHandle{ skyTexture });
+
+				Graphics_Draw(RenderPass::ReflectionProbe + 6 + face, shader);
+			}
+			else
+			{
+				Graphics_ClearRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], true, true, 0x000000FF, 1);
+			}
+
 
 			// DEFERRED SHADING
 
 
-
 			Graphics_ResetState();
-			Graphics_SetRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], draw.resolution, draw.resolution);
-			Graphics_ClearRenderTarget(RenderPass::ReflectionProbe + 6 + face, draw.renderTargets[face], true, false, 0x000000FF, 1);
+			Graphics_SetRenderTarget(RenderPass::ReflectionProbe + 12 + face, draw.renderTargets[face], draw.resolution, draw.resolution);
 
 			Shader* shader = deferredSimpleShader;
 
@@ -1779,7 +1813,18 @@ static void EnvironmentMapPass()
 			Graphics_SetTexture(shader->getUniform("s_gbuffer2", bgfx::UniformType::Sampler), 2, faceRT.textures[2]);
 			Graphics_SetTexture(shader->getUniform("s_gbuffer3", bgfx::UniformType::Sampler), 3, faceRT.textures[3]);
 
-			Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
+			//Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 4, ssaoBlurRTTexture);
+
+			if (skyTexture != bgfx::kInvalidHandle)
+			{
+				Graphics_SetTexture(shader->getUniform("s_skybox", bgfx::UniformType::Sampler), 4, { skyTexture });
+				Vector4 skySettings(skyIntensity, 0, 0, 0);
+				Graphics_SetUniform(shader->getUniform("u_skySettings", bgfx::UniformType::Vec4), &skySettings);
+			}
+			else
+			{
+				Graphics_SetTexture(shader->getUniform("s_skybox", bgfx::UniformType::Sampler), 4, { emptyCubemap });
+			}
 
 			Vector4 u_cameraPosition(cameraPosition, (float)numPointLights);
 			Graphics_SetUniform(shader->getUniform("u_cameraPosition", bgfx::UniformType::Vec4), &u_cameraPosition);
@@ -1797,7 +1842,53 @@ static void EnvironmentMapPass()
 				Graphics_SetTexture(shader->getUniform(uniformName, bgfx::UniformType::Sampler), 5 + i, bgfx::TextureHandle{ pointLightShadowMaps[i] });
 			}
 
-			Graphics_Draw(RenderPass::ReflectionProbe + 6 + face, shader);
+			// Directional light
+
+			if (renderDirectionalLight)
+			{
+				Vector4 lightDirection(directionalLightDirection, 1);
+				Vector4 lightColor(directionalLightColor, 0);
+				Graphics_SetUniform(shader->getUniform("u_directionalLightDirection", bgfx::UniformType::Vec4), &lightDirection);
+				Graphics_SetUniform(shader->getUniform("u_directionalLightColor", bgfx::UniformType::Vec4), &lightColor);
+
+				Vector4 farPlanes;
+				farPlanes[0] = directionalLightShadowMapFar[0];
+				farPlanes[1] = directionalLightShadowMapFar[1];
+				farPlanes[2] = directionalLightShadowMapFar[2];
+
+				if (directionalLightIsDynamic)
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						char s_shadowMap[32];
+						sprintf(s_shadowMap, "s_shadowMap%d", 4 + i);
+						Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 9 + i, bgfx::getTexture(directionalLightShadowMapRTs[i]));
+
+						char u_toLightSpace[32];
+						sprintf(u_toLightSpace, "u_toLightSpace%d", 4 + i);
+						Graphics_SetUniform(shader->getUniform(u_toLightSpace, bgfx::UniformType::Mat4), &directionalLightShadowMapMatrix[i]);
+					}
+				}
+				else
+				{
+					char s_shadowMap[32];
+					sprintf(s_shadowMap, "s_shadowMap%d", 4 + 0);
+					Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 9 + 0, bgfx::getTexture(directionalLightShadowMapRTs[0]));
+
+					char u_toLightSpace[32];
+					sprintf(u_toLightSpace, "u_toLightSpace%d", 4 + 0);
+					Graphics_SetUniform(shader->getUniform(u_toLightSpace, bgfx::UniformType::Mat4), &directionalLightShadowMapMatrix[0]);
+				}
+
+				Graphics_SetUniform(shader->getUniform("u_params", bgfx::UniformType::Vec4), &farPlanes);
+			}
+			else
+			{
+				Vector4 lightDirection(0, 0, 0, 0);
+				Graphics_SetUniform(shader->getUniform("u_directionalLightDirection", bgfx::UniformType::Vec4), &lightDirection);
+			}
+
+			Graphics_Draw(RenderPass::ReflectionProbe + 12 + face, shader);
 		}
 	}
 }
@@ -2384,9 +2475,12 @@ static void TonemappingPass(uint16_t target)
 	Vector4 cameraFrustum(cameraNear, cameraFar, 0, 0);
 	Graphics_SetUniform(shader->getUniform("u_cameraFrustum", bgfx::UniformType::Vec4), &cameraFrustum);
 
-	Vector4 vignetteData1 = Vector4(settings.vignetteFalloff, 0, 0, 0);
+	Vector4 vignetteData1 = Vector4(settings.vignetteFalloff, settings.colorLUT != bgfx::kInvalidHandle ? 1 : 0, 0, 0);
 	Graphics_SetUniform(shader->getUniform("u_vignetteData", bgfx::UniformType::Vec4), &settings.vignetteColor);
 	Graphics_SetUniform(shader->getUniform("u_vignetteData1", bgfx::UniformType::Vec4), &vignetteData1);
+
+	if (settings.colorLUT != bgfx::kInvalidHandle)
+		Graphics_SetTexture(shader->getUniform("s_colorLUT", bgfx::UniformType::Sampler), 3, { settings.colorLUT }, BGFX_SAMPLER_UVW_CLAMP);
 
 	Graphics_Draw(RenderPass::Tonemapping, shader);
 }

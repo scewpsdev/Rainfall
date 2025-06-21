@@ -369,6 +369,14 @@ public abstract class Item
 		return copy;
 	}
 
+	public virtual void serialize(DatObject obj)
+	{
+	}
+
+	public virtual void deserialize(DatObject obj)
+	{
+	}
+
 	public uint id
 	{
 		get => Hash.hash(name);
