@@ -13,7 +13,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="src\systems\player\FirstPersonController_.cs" />
+    <Compile Remove="src\action\item\**" />
+    <Compile Remove="src\action_\**" />
+    <EmbeddedResource Remove="src\action\item\**" />
+    <EmbeddedResource Remove="src\action_\**" />
+    <None Remove="src\action\item\**" />
+    <None Remove="src\action_\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\player\FirstPersonController_.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -362,8 +362,9 @@ SceneData* ReadScene(const char* path, uint64_t textureFlags)
 		char compiledPath[256];
 		sprintf(compiledPath, "%s.bin", path);
 
+		bx::Error err;
 		bx::FileReader reader;
-		if (bx::open(&reader, compiledPath))
+		if (bx::open(&reader, compiledPath, &err))
 		{
 			SceneData* scene = BX_NEW(Application_GetAllocator(), SceneData);
 			ReadSceneData(&reader, *scene);

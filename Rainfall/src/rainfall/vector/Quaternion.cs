@@ -232,7 +232,7 @@ namespace Rainfall
 			return FromAxisAngle(Vector3.UnitY, eulers.y) * FromAxisAngle(Vector3.UnitX, eulers.x) * FromAxisAngle(Vector3.UnitZ, eulers.z);
 		}
 
-		public static Quaternion LookAt(Vector3 eye, Vector3 at, Vector3 up)
+		public static Quaternion LookAt(Vector3 forward)
 		{
 			/*
 			Vector3 forward = (at - eye).normalized;
@@ -248,9 +248,10 @@ namespace Rainfall
 			*/
 
 			///*
-			Vector3 forward = (at - eye).normalized;
 			if (forward == Vector3.Zero)
 				return Identity;
+
+			forward = forward.normalized;
 
 			float d = Vector3.Dot(Vector3.Forward, forward);
 
@@ -269,12 +270,8 @@ namespace Rainfall
 
 		public static Quaternion LookAt(Vector3 eye, Vector3 at)
 		{
-			return LookAt(eye, at, Vector3.Up);
-		}
-
-		public static Quaternion LookAt(Vector3 dir)
-		{
-			return LookAt(Vector3.Zero, dir, Vector3.Up);
+			Vector3 forward = (at - eye).normalized;
+			return LookAt(forward);
 		}
 	}
 }

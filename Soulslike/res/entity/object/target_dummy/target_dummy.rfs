@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "237800765"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "target_dummy.gltf"
+rigidBodyType = Kinematic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.7279999852180481, 2.4019999504089355, 2 ]
+offset = [ 0, 1.1829999685287476, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "237800765"

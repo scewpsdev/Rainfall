@@ -13,19 +13,39 @@ struct ClothCollider
 	internal Matrix parentInvDefaultTransform;
 }
 
-public class ClothEntity : Entity
+public class ArmorEntity : Entity
 {
+	Armor armor;
 	Cloth cloth;
 	ClothCollider[] colliders;
 	Vector4[] spheres;
 
 
-	public ClothEntity(Model model, int meshIdx, Animator animator, ClothParams clothParams)
+	public ArmorEntity(Armor armor, Player player)
 	{
-		this.model = model;
-		this.animator = animator;
+		this.armor = armor;
 
-		cloth = new Cloth(model, meshIdx, animator, position, rotation, clothParams);
+		model = armor.model;
+		animator = armor.model != null ? Animator.Create(armor.model) : armor.cloth != null ? Animator.Create(armor.cloth) : null;
+
+		if (armor.cloth != null)
+		{
+			animator.setAnimation(player.defaultAnim);
+			animator.update();
+			animator.applyAnimation();
+
+			ClothParams clothParams = new ClothParams(0);
+			clothParams.inertia = 0.1f;
+			clothParams.gravity = new Vector3(0, -3, 0);
+
+			cloth = new Cloth(armor.cloth, 0, animator, player.position, player.rotation * Quaternion.FromAxisAngle(Vector3.Up, MathF.PI), clothParams);
+
+			setSpheres(
+				[new Vector4(0, 1.2f, 0, 0.2f), new Vector4(0, 0.1f, 0, 0.2f), new Vector4(0, 1.6f, 0, 0.1f)],
+				[animator.model.skeleton.getNode("Chest"), animator.model.skeleton.getNode("Hips"), animator.model.skeleton.getNode("Head")]
+			);
+			setCapsules([new Vector2i(0, 1)]);
+		}
 	}
 
 	public void setSpheres(Span<Vector4> spheres, Node[] parents)
@@ -52,7 +72,8 @@ public class ClothEntity : Entity
 	{
 		base.init();
 
-		cloth.setTransform(position, rotation, true);
+		if (cloth != null)
+			cloth.setTransform(position, rotation, true);
 	}
 
 	Simplex simplex = new Simplex(12345, 3);
@@ -71,17 +92,25 @@ public class ClothEntity : Entity
 			}
 		}
 
-		cloth.setSpheres(spheres, 0, cloth.numSpheres);
-		cloth.setTransform(position, rotation);
+		if (cloth != null)
+		{
+			cloth.setSpheres(spheres, 0, cloth.numSpheres);
+			cloth.setTransform(position, rotation);
+		}
 	}
 
 	public unsafe override void draw(GraphicsDevice graphics)
 	{
-		Renderer.DrawCloth(cloth, model.getMaterialData(0), position, rotation);
+		base.draw(graphics);
 
-		/*
-		foreach (Vector4 sphere in spheres)
-			Renderer.DrawDebugSphere(sphere.w, Matrix.CreateTranslation(rotation * (sphere.xyz) + position), 0xFFFF0000);
-		*/
+		if (cloth != null)
+		{
+			Renderer.DrawCloth(cloth, armor.cloth.getMaterialData(0), position, rotation);
+
+			/*
+			foreach (Vector4 sphere in spheres)
+				Renderer.DrawDebugSphere(sphere.w, Matrix.CreateTranslation(rotation * (sphere.xyz) + position), 0xFFFF0000);
+			*/
+		}
 	}
 }

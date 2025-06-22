@@ -26,6 +26,18 @@ namespace Rainfall
 			this.name = name;
 			this.transform = transform;
 		}
+
+		public bool hasParent(Node node)
+		{
+			Node n = parent;
+			while (n != null)
+			{
+				if (n.name == node.name)
+					return true;
+				n = n.parent;
+			}
+			return false;
+		}
 	}
 
 	public class Skeleton
