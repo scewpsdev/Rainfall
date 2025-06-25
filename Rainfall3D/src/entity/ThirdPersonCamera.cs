@@ -40,6 +40,7 @@ public class ThirdPersonCamera : Camera
 	public override void fixedUpdate(float delta)
 	{
 		Vector3 targetAnchor = target.position + offset;
-		anchor = Vector3.Lerp(anchor, targetAnchor, 12 * delta);
+		float anchorDistance = Vector3.Distance(targetAnchor, anchor);
+		anchor = Vector3.Lerp(anchor, targetAnchor, anchorDistance * 20 * delta);
 	}
 }
