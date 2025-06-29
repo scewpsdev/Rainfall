@@ -69,8 +69,8 @@ public class Player : Entity
 
 		controller = new CharacterController(this, 0.3f, Vector3.Zero, 2.0f);
 
-		//setRightWeapon(new KingsSword());
-		setRightWeapon(new Longsword());
+		setRightWeapon(new KingsSword());
+		//setRightWeapon(new Longsword());
 		//setArmor(ArmorSlot.Hands, new LeatherGauntlets());
 		//setArmor(ArmorSlot.Body, new TestCape());
 		//setArmor(ArmorSlot.Head, new IronHelmet());
