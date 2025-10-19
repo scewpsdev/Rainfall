@@ -1,0 +1,12 @@
+name = "iron_helmet"
+displayName = "Iron Helmet"
+description = "thicc armor"
+category = armor
+
+entity = "iron_helmet.rfs"
+icon = "iron_helmet_icon.png"
+
+armorType = helmet
+baseAbsorption = 1.5
+
+equipSound = "../../sfx/equip_heavy.ogg"

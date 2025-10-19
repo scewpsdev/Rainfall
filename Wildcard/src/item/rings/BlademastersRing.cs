@@ -1,0 +1,32 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class BlademastersRing : Item
+{
+	public BlademastersRing()
+		: base("blademasters_ring", ItemType.Relic)
+	{
+		displayName = "Blademaster's Ring";
+		//description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two light weapons effortlessly.";
+		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to throw weapons.";
+
+		baseValue = 35;
+
+		sprite = new Sprite(tileset, 2, 10);
+	}
+
+	public override void onEquip(Player player)
+	{
+		player.canThrowWeapons = true;
+	}
+
+	public override void onUnequip(Player player)
+	{
+		player.canThrowWeapons = false;
+	}
+}

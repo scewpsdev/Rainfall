@@ -1,0 +1,20 @@
+name = "flask_regeneration"
+displayName = "Flask of Regeneration"
+description = "orange juice"
+category = consumable
+
+entity = "flask_regeneration.rfs"
+moveset = "flask_regeneration_moveset.gltf"
+icon = "flask_regeneration_icon.png"
+
+useSounds = [
+	{sound = "../../sfx/heal.ogg", time = 0.7},
+	{sound = "sfx/cork.ogg", gain = 0.3, time = 0.2}
+]
+
+consumableType = regenerate
+consumableEffectStat = health
+consumableEffectAmount = 8
+consumableEffectFrame = 22
+consumableEffectDuration = 40.0
+consumableUseTwoHanded = 1

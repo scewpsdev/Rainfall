@@ -1,0 +1,107 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <RootNamespace />
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
+    <ErrorReport>none</ErrorReport>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\entity\**" />
+    <Compile Remove="src\item\**" />
+    <Compile Remove="src\level\generator\**" />
+    <Compile Remove="src\level\rooms\**" />
+    <Compile Remove="src\ui\**" />
+    <EmbeddedResource Remove="src\entity\**" />
+    <EmbeddedResource Remove="src\item\**" />
+    <EmbeddedResource Remove="src\level\generator\**" />
+    <EmbeddedResource Remove="src\level\rooms\**" />
+    <EmbeddedResource Remove="src\ui\**" />
+    <None Remove="src\entity\**" />
+    <None Remove="src\item\**" />
+    <None Remove="src\level\generator\**" />
+    <None Remove="src\level\rooms\**" />
+    <None Remove="src\ui\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\action\AttackAction.cs" />
+    <Compile Remove="src\action\BackhopAction.cs" />
+    <Compile Remove="src\action\BlockAction.cs" />
+    <Compile Remove="src\action\BowShootAction.cs" />
+    <Compile Remove="src\action\CrossbowShootAction.cs" />
+    <Compile Remove="src\action\DodgeAction.cs" />
+    <Compile Remove="src\action\GunShootAction.cs" />
+    <Compile Remove="src\action\PickaxeSwingAction.cs" />
+    <Compile Remove="src\action\PotionDrinkAction.cs" />
+    <Compile Remove="src\action\SpellCastAction.cs" />
+    <Compile Remove="src\action\UnconciousAction.cs" />
+    <Compile Remove="src\level\LevelGenerator - Copy.cs" />
+    <Compile Remove="src\level\WorldManager.cs" />
+    <Compile Remove="src\SaveFile.cs" />
+    <Compile Remove="src\StartingClass.cs" />
+    <Compile Remove="src\WorldEventListener.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="src\entity\Entity.cs" />
+    <Compile Include="src\entity\Player.cs" />
+    <Compile Include="src\entity\PlayerCamera.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="res\level\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rainfall2D\Rainfall2D.csproj" />
+    <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GameSettings.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="GraphicsSettings.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="InputBindings__.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="settings\InputBindings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+	<!--
+	<Target Name="Test" AfterTargets="Build">
+		<Message Text="Compiling resources" Importance="High" />
+		<Exec Command="D:\Dev\Rainfall\RainfallResourceCompiler\bin\x64\Debug\RainfallResourceCompiler.exe res bin/$(Configuration)/net8.0/assets png ogg vsh fsh csh ttf rfs gltf glb" />
+		<Exec Command="xcopy /y D:\Dev\Rainfall\RainfallNative\bin\x64\$(Configuration)\RainfallNative.dll bin\$(Configuration)\net8.0" />
+		<Message Text="Done" Importance="High" />
+	</Target>
+	-->
+
+</Project>

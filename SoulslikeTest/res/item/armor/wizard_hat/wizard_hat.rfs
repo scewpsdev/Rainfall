@@ -1,0 +1,32 @@
+entities = [ {
+name = "Entity"
+id = "190280114"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "wizard_hat.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Sphere
+trigger = 0
+size = [ 0.2280000001192093, 0.13199999928474426, 2 ]
+offset = [ 0, 0.02800000086426735, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.550000011920929, 0.05000000074505806, 0.550000011920929 ]
+offset = [ 0, -0.04500000178813934, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.550000011920929, 0.05000000074505806, 0.550000011920929 ]
+offset = [ 0, -0.04500000178813934, 0 ]
+rotation = [ 0, 0.7853981852531433, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "190280114"

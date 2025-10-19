@@ -1,0 +1,44 @@
+entities = [ {
+name = "Entity"
+id = "1340965599"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "wooden_round_shield.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Sphere
+trigger = 0
+size = [ 0.10000000149011612, 2, 2 ]
+offset = [ 0.014000000432133675, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.052000001072883606, 0.10000000149011612, 0.34700000286102295 ]
+offset = [ 0.020999999716877937, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.052000001072883606, 0.34700000286102295, 0.10000000149011612 ]
+offset = [ 0.020999999716877937, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.052000001072883606, 0.20000000298023224, 0.30000001192092896 ]
+offset = [ 0.020999999716877937, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.052000001072883606, 0.30000001192092896, 0.20000000298023224 ]
+offset = [ 0.020999999716877937, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "1340965599"

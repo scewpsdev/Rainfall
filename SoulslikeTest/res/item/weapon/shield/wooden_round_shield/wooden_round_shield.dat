@@ -1,0 +1,23 @@
+name = "wooden_round_shield"
+displayName = "Wooden Round Shield"
+description = "small shield, its pretty bad :c"
+category = weapon
+
+entity = "wooden_round_shield.rfs"
+moveset = "wooden_round_shield_moveset.gltf"
+icon = "wooden_round_shield_icon.png"
+
+weaponType = shield
+
+baseAbsorption = 8
+attacks = [
+	{
+		type = heavy
+		name = parry
+		animation = "parry"
+		parryFrameStart = 6
+		parryFrameEnd = 10
+		staminaCost: 3.5
+	}
+]
+blockSound = "../../../sfx/block_wood.ogg"

@@ -1,0 +1,66 @@
+[X] Viewmodel implementation
+[X] Viewmodel keeps action transform
+[X] Ladder animation
+[ ] Door open animation
+[ ] Sword pickup animation
+[ ] Vaulting
+[X] Attacks
+[X] Charged Heavy Attacks
+[X] Weapon trail
+[X] Blood effect
+[X] 3D Weapon sound
+[X] Hit slowdown
+[X] Thrust weapon
+[X] Blunt impact
+[X] Wall impact
+[X] Lower body
+[X] Armor & Equipment
+[X] Enemy hp bar
+[X] Ragdolls
+[X] Steps
+[X] Draw animations
+[ ] Halberd, Hammer, Spear
+[ ] Health (& Stamina?)
+[ ] Item texture atlases
+[ ] Shields
+[ ] Blocks & Parries
+[ ] Inventory & Loadouts
+[ ] Healing flask
+[ ] Firebomb & Throwing Knife
+[ ] Bow
+[ ] Crossbow
+[ ] Spells & Staffs
+[ ] Barrels & Crates
+[ ] Chests
+[ ] Doors
+[ ] Ladders & Ropes
+[ ] Skeleton enemy
+[ ] Spider enemy
+[ ] Knight boss
+	[ ] Drops halberd -> pick up animation
+[ ] Dungeon generation
+	[ ] Room templates (max per floor value)
+	[ ] Elevator room that leads up to next floor, needs a key to activate?
+	[ ] Trap rooms
+	[ ] Platforming rooms
+	[ ] Map room that shows floor (maybe with marked secret treasure?)
+	[ ] Boss room
+[ ] Tavern hub
+	[ ] keep track of player progress, stats and unlocks
+	[ ] class selector
+	[ ] map portals
+	[ ] merchants for buying and selling starting gear
+	[ ] unlockable areas for easter eggs or lore? (maybe cool view of the castle from maingame?)
+[ ] Tutorial prison area
+[ ] Main menu & character creator
+[ ] Cliff hub area
+	[ ] Fisherman
+[ ] Inventory
+	[ ] 3D item preview
+[ ] Custom shader language
+[ ] Spot lights
+
+
+Moveset inspiration:
+- raya lucaria knight
+- godskin noble rapier

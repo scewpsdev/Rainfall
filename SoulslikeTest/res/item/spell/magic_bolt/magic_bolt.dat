@@ -1,0 +1,27 @@
+name = "magic_bolt"
+displayName = "Magic Bolt"
+description = "magic pew pew"
+category = spell
+
+entity = "../spell.rfs"
+moveset = "magic_bolt_moveset.gltf"
+icon = "magic_bolt_icon.png"
+
+baseDamage = 5
+
+attacks = [
+	{
+		type = cast
+		name = cast
+		animation = "cast"
+		manaCost = 1.5
+		projectiles = [
+			{
+				name = "magic_bolt"
+				frame = 17
+				sfx = "../../sfx/cast.ogg"
+			},
+			{ name = "magic_bolt_cast_effect", frame = 0, follow = 1 }
+		]
+	}
+]

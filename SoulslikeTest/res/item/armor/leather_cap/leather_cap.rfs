@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "190280114"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "leather_cap.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.09399999678134918, 0.16099999845027924, 0.2070000022649765 ]
+offset = [ 0, 0.03999999910593033, -0.026000000536441803 ]
+rotation = [ 0.8946557641029358, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.1459999978542328, 0.0689999982714653, 0.14100000262260437 ]
+offset = [ 0, 0.029999999329447746, -0.017999999225139618 ]
+rotation = [ -0.6949900984764099, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "190280114"

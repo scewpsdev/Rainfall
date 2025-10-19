@@ -1,0 +1,11 @@
+name = "arrow"
+category = projectile
+
+entityData = "../../../item/arrow/arrow/arrow.rfs"
+
+projectileSpeed = 30
+projectileGravity = -10
+
+itemDrop = "arrow"
+
+hitSound = "../sfx/projectile_hit.ogg"

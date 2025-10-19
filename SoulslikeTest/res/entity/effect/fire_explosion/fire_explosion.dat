@@ -1,0 +1,10 @@
+name = "fire_explosion"
+category = effect
+
+entityData = "fire_explosion.rfs"
+
+effectDamage = 80
+effectPoiseDamage = 500
+effectDamageRadius = 1.4
+
+idleSound = "../sfx/explosion.ogg"

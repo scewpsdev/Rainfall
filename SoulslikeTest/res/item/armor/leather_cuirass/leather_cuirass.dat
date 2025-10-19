@@ -1,0 +1,12 @@
+name = "leather_cuirass"
+displayName = "Leather Cuirass"
+description = "thicc armor"
+category = armor
+
+entity = "leather_cuirass.rfs"
+icon = "leather_cuirass_icon.png"
+
+armorType = torso
+baseAbsorption = 2
+
+equipSound = "../../sfx/equip_light.ogg"

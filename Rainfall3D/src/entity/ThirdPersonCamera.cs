@@ -1,0 +1,48 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class ThirdPersonCamera : Camera
+{
+	Entity target;
+	Vector3 offset;
+	Vector3 anchor;
+
+	float distance = 4;
+
+
+	public ThirdPersonCamera(Entity target, Vector3 offset)
+	{
+		this.target = target;
+		this.offset = offset;
+
+		fov = 43;
+	}
+
+	public override void init()
+	{
+		base.init();
+
+		Input.cursorMode = CursorMode.Disabled;
+	}
+
+	public override void update()
+	{
+		yaw -= 0.001f * Input.cursorMove.x;
+		pitch -= 0.001f * Input.cursorMove.y;
+
+		rotation = Quaternion.AxisAngle(Vector3.Up, yaw) * Quaternion.AxisAngle(Vector3.Right, pitch);
+		position = anchor + rotation.back * distance;
+	}
+
+	public override void fixedUpdate(float delta)
+	{
+		Vector3 targetAnchor = target.position + offset;
+		float anchorDistance = Vector3.Distance(targetAnchor, anchor);
+		anchor = Vector3.Lerp(anchor, targetAnchor, anchorDistance * 20 * delta);
+	}
+}

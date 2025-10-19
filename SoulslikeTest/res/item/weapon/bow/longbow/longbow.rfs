@@ -1,0 +1,21 @@
+entities = [ {
+name = "Entity"
+id = "913033379"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "longbow.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = ConvexMesh
+trigger = 0
+size = [ 2, 2, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0 ]
+mesh = "longbow.gltf"
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "913033379"

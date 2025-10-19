@@ -1,0 +1,12 @@
+name = "iron_sabatons"
+displayName = "Iron Sabatons"
+description = "thicc armor"
+category = armor
+
+entity = "iron_sabatons.rfs"
+icon = "iron_sabatons_icon.png"
+
+armorType = boots
+baseAbsorption = 1
+
+equipSound = "../../sfx/equip_heavy.ogg"

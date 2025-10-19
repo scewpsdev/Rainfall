@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Test3D": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "2357946882"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "prison_gate.gltf"
+rigidBodyType = Kinematic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 3, 2.5, 0.25 ]
+offset = [ 0, 1.25, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2357946882"

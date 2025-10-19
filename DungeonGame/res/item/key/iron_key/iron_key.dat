@@ -1,0 +1,24 @@
+id: 7001
+name: iron_key
+displayName: "Iron Key"
+category: key
+inventorySize = [1, 1]
+
+model: "iron_key.gltf"
+
+colliders: [
+	{
+		type = box
+		size = [0.1, 0.12, 0.02]
+		offset = [0.0, 0.0, 0.0]
+	},
+	{
+		type: box
+		size = [0.26, 0.06, 0.02]
+		offset = [0.13, -0.02, 0.0]
+	}
+]
+
+icon: "iron_key_icon.png"
+
+description: "iron key"

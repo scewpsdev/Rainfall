@@ -1,0 +1,12 @@
+name = "leather_pants"
+displayName = "Leather Pants"
+description = "thicc armor"
+category = armor
+
+entity = "leather_pants.rfs"
+icon = "leather_pants_icon.png"
+
+armorType = pants
+baseAbsorption = 1.5
+
+equipSound = "../../sfx/equip_light.ogg"

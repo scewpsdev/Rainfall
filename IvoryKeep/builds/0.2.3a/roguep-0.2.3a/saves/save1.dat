@@ -1,0 +1,207 @@
+flags = [ 1615716108, 952437344, 219332589, 417135138, 777027450, 3124495028, 3925083804 ]
+runs_finished = 2
+highscores = [ {
+score = 0
+floor = -1
+time = -1
+kills = 0
+items0 = [ {
+
+}, {
+
+} ]
+items1 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+}, {
+score = 19925
+floor = 6
+time = 603.38330078125
+kills = 57
+items0 = [ {
+type = spell_book_burst_shot
+stack_size = 1
+}, {
+
+} ]
+items1 = [ {
+type = scroll_of_identify
+stack_size = 1
+}, {
+type = golden_apple
+stack_size = 1
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+type = large_wizard_hat_red
+stack_size = 1
+}, {
+type = chainmail_gauntlets
+stack_size = 1
+}, {
+type = backpack
+stack_size = 1
+}, {
+type = ring_of_retaliation
+stack_size = 1
+}, {
+type = bloodfang
+stack_size = 1
+}, {
+type = spellweaver
+stack_size = 1
+}, {
+type = ring_of_retaliation
+stack_size = 1
+} ]
+}, {
+score = 19925
+floor = 6
+time = 603.38330078125
+kills = 57
+items0 = [ {
+type = spell_book_burst_shot
+stack_size = 1
+}, {
+
+} ]
+items1 = [ {
+type = scroll_of_identify
+stack_size = 1
+}, {
+type = golden_apple
+stack_size = 1
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+type = large_wizard_hat_red
+stack_size = 1
+}, {
+type = chainmail_gauntlets
+stack_size = 1
+}, {
+type = backpack
+stack_size = 1
+}, {
+type = ring_of_retaliation
+stack_size = 1
+}, {
+type = bloodfang
+stack_size = 1
+}, {
+type = spellweaver
+stack_size = 1
+}, {
+type = ring_of_retaliation
+stack_size = 1
+} ]
+}, {
+score = 19925
+floor = 6
+time = 603.38330078125
+kills = 57
+items0 = [ {
+type = spell_book_burst_shot
+stack_size = 1
+}, {
+
+} ]
+items1 = [ {
+type = scroll_of_identify
+stack_size = 1
+}, {
+type = golden_apple
+stack_size = 1
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+type = large_wizard_hat_red
+stack_size = 1
+}, {
+type = chainmail_gauntlets
+stack_size = 1
+}, {
+type = backpack
+stack_size = 1
+}, {
+type = ring_of_retaliation
+stack_size = 1
+}, {
+type = bloodfang
+stack_size = 1
+}, {
+type = spellweaver
+stack_size = 1
+}, {
+type = ring_of_retaliation
+stack_size = 1
+} ]
+} ]
+npcs = [ {
+name = broken_wanderer
+dialogues = [ 2508811269, 1166170361 ]
+}, {
+name = blacksmith
+dialogues = [ 651630786 ]
+}, {
+name = builder_merchant
+dialogues = [  ]
+}, {
+name = travelling_merchant
+dialogues = [  ]
+}, {
+name = logan
+dialogues = [  ]
+quests = [ {
+name = logan_quest
+state = Uninitialized
+staff_found = 0
+} ]
+}, {
+name = rat_npc
+dialogues = [ 2610346675 ]
+quests = [ {
+name = cheese_quest
+state = Uninitialized
+snake_kills = 0
+} ]
+}, {
+name = barbarian
+dialogues = [  ]
+}, {
+name = knight
+dialogues = [  ]
+}, {
+name = hunter
+dialogues = [  ]
+}, {
+name = thief
+dialogues = [  ]
+} ]
+stashed_items = [  ]

@@ -1,0 +1,3 @@
+name = "bed"
+entityData = "bed.rfs"
+category = object

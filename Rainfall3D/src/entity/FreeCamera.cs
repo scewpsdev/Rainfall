@@ -1,0 +1,62 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class FreeCamera : Camera
+{
+	const float CAMERA_SENSITIVITY = 0.0015f;
+
+
+	public override void init()
+	{
+		base.init();
+
+		Input.cursorMode = CursorMode.Disabled;
+
+		pitch = rotation.eulers.x;
+		yaw = rotation.eulers.y;
+	}
+
+	public override void update()
+	{
+		base.update();
+
+		Vector3 delta = Vector3.Zero;
+		if (Input.IsKeyDown(KeyCode.A))
+			delta.x--;
+		if (Input.IsKeyDown(KeyCode.D))
+			delta.x++;
+		if (Input.IsKeyDown(KeyCode.W))
+			delta.z--;
+		if (Input.IsKeyDown(KeyCode.S))
+			delta.z++;
+		if (Input.IsKeyDown(KeyCode.Space))
+			delta.y++;
+		if (Input.IsKeyDown(KeyCode.Ctrl))
+			delta.y--;
+
+		if (delta.lengthSquared > 0)
+		{
+			delta = delta.normalized;
+			float speed = 20 * (Input.IsKeyDown(KeyCode.Shift) ? 3 : Input.IsKeyDown(KeyCode.Alt) ? 0.5f : 1);
+			Vector3 velocity = rotation * delta * speed;
+			position += velocity * Time.deltaTime;
+		}
+
+		yaw -= Input.cursorMove.x * CAMERA_SENSITIVITY;
+		pitch -= Input.cursorMove.y * CAMERA_SENSITIVITY;
+		pitch = Mathf.Clamp(pitch, -0.5f * MathF.PI, 0.5f * MathF.PI);
+		rotation = Quaternion.AxisAngle(Vector3.UnitY, yaw) * Quaternion.AxisAngle(Vector3.UnitX, pitch);
+	}
+
+	public override void draw(GraphicsDevice graphics)
+	{
+		base.draw(graphics);
+
+		Renderer.SetCamera(position, rotation, fov, Display.aspectRatio, near, far);
+	}
+}

@@ -1,0 +1,9 @@
+name = "fire_missile"
+category = projectile
+
+entityData = "fire_missile.rfs"
+
+projectileGravity = 0.0
+projectileSpeed = 12
+projectileRemoveOnHit = 1
+projectileHitSpawnEntity = "fire_explosion"

@@ -1,0 +1,65 @@
+entities = [ {
+name = "Entity"
+id = "1024717028"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "torch.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.06400000303983688, 0.5989999771118164, 2 ]
+offset = [ 0, 0.11999999731779099, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.054999999701976776, 0.13600000739097595, 0.07100000232458115 ]
+offset = [ 0.0020000000949949026, 0.3310000002384186, 0.0020000000949949026 ]
+rotation = [ 0, 0.7853981852531433, 0 ]
+} ]
+lights = [ {
+color = [ 0.9215686321258545, 0.2549019753932953, 0 ]
+intensity = 10
+offset = [ 0, 0.3199999928474426, 0 ]
+} ]
+particles = [ {
+lifetime = 0.6809999942779541
+size = 0.024000000208616257
+follow = 1
+emissionRate = 27.399999618530273
+spawnShape = Sphere
+spawnOffset = [ 0, 0.2590000033378601, 0 ]
+spawnRadius = 0.03700000047683716
+gravity = 0.7720000147819519
+drag = 0.06700000166893005
+startVelocity = [ 0, 0.052000001072883606, 0 ]
+radialVelocity = 0
+startRotation = 0
+rotationSpeed = 0
+applyEntityVelocity = 0
+applyCentrifugalForce = 0
+rotateAlongMovement = 0
+movementStretch = 0
+textureAtlas = "..\..\..\texture\particle\fire2.png"
+atlasSize = [ 4, 1 ]
+numFrames = 4
+randomFrame = 0
+linearFiltering = 1
+color = [ 1, 1, 1, 1 ]
+additive = 0
+emissiveIntensity = 1.5
+randomVelocity = [ 0.01899999938905239, 0.05299999937415123, 0.01899999938905239 ]
+randomRotation = 0.21199999749660492
+randomRotationSpeed = 3.0019664764404297
+randomLifetime = 0.5979999899864197
+velocityNoise = 0
+sizeAnim = [ 0.024000000208616257, 0.15199999511241913, 0.07900000363588333 ]
+colorAnim0 = [ 0.9420849680900574, 0.611082136631012, 0, 0 ]
+colorAnim1 = [ 0.92277991771698, 0.2565256655216217, 0, 1 ]
+colorAnim2 = [ 0, 0, 0, 0 ]
+} ]
+} ]
+selectedEntity = "1024717028"

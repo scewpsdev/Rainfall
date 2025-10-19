@@ -1,0 +1,48 @@
+name = "hollow"
+displayName = "Hollow"
+category = mob
+
+entityData = "hollow.rfs"
+
+ai = hostile
+
+rightHandItem = spear
+
+itemDrops = [
+	{ item = spear, dropChance = 0.05 }
+]
+
+hitSound = [
+	"../../sfx/hit/flesh1.ogg",
+	"../../sfx/hit/flesh2.ogg",
+]
+stepSound = [
+	"../../sfx/step/stone1.ogg",
+	"../../sfx/step/stone2.ogg"
+]
+landSound = [
+	"../../sfx/step/stone_land.ogg"
+]
+
+health = 10
+poise = 5
+
+baseDamage = 4
+attacks = [
+	{
+		name = light1
+		animation = "attack_light1"
+		damageFrames = [16, 24]
+	},
+	{
+		name = light2
+		animation = "attack_light2"
+		damageFrames = [20, 36]
+	},
+	{
+		name = turn_back
+		animation = "turn_back"
+		triggerAngleMin = -230
+		triggerAngleMax = -130
+	}
+]

@@ -1,0 +1,32 @@
+entities = [ {
+name = "Entity"
+id = "2406340928"
+static = 0
+position = [ 0.0024176063016057014, 0, 2.0309414686028177E-13 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1.0000011920928955, 0.9999998211860657, 1 ]
+model = "broadsword.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.07400000095367432, 0.7170000076293945, 0.010999999940395355 ]
+offset = [ 0, 0.43799999356269836, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.1979999989271164, 0.023000000044703484, 0.02500000037252903 ]
+offset = [ 0, 0.07400000095367432, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.052000001072883606, 0.2290000021457672, 0.017000000923871994 ]
+offset = [ 0, -0.041999999433755875, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2406340928"

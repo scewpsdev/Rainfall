@@ -1,0 +1,24 @@
+entities = [ {
+name = "Entity"
+id = "210005599"
+static = 1
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "fountain.gltf"
+rigidBodyType = Static
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 1.8980000019073486, 2.6489999294281006, 2 ]
+offset = [ 0, 0.5400000214576721, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [ {
+color = [ 0.25868725776672363, 0.5620816946029663, 1 ]
+intensity = 8.100000381469727
+offset = [ 0, 1.1799999475479126, 0 ]
+} ]
+particles = [  ]
+} ]
+selectedEntity = "210005599"

@@ -1,0 +1,32 @@
+entities = [ {
+name = "Entity"
+id = "2048233353"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "broken_sword.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.050999999046325684, 0.3009999990463257, 0.01600000075995922 ]
+offset = [ 0, 0.21899999678134918, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Capsule
+trigger = 0
+size = [ 0.029999999329447746, 0.1599999964237213, 2 ]
+offset = [ 0, -0.009999999776482582, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.19900000095367432, 0.024000000208616257, 0.026000000536441803 ]
+offset = [ 0, 0.07800000160932541, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2048233353"

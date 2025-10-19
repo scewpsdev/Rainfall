@@ -1,0 +1,26 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class WizardsLegacy : Item
+{
+	public WizardsLegacy()
+		: base("wizards_legacy", ItemType.Relic)
+	{
+		displayName = "Wizard's Legacy";
+		description = "Increases mana recovery rate by 50%";
+		stackable = true;
+		tumbles = false;
+		canDrop = false;
+
+		baseValue = 27;
+
+		sprite = new Sprite(tileset, 5, 6);
+
+		buff = new ItemBuff(this) { manaRecoveryModifier = 1.5f };
+	}
+}

@@ -1,0 +1,25 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class MinesBossRoom : BossRoom
+{
+	public MinesBossRoom()
+	{
+		boss = new Raya() { itemDrops = [new LostSigil()] };
+
+		track = new MultilayerTrack("sounds/ost/nighthaven/nighthaven", 3);
+		trackHasRoomLayer = true;
+	}
+
+	public override void init(Level level)
+	{
+		base.init(level);
+
+		setActivateTrigger(new Vector2(14, 1), new Vector2(8, 5));
+	}
+}

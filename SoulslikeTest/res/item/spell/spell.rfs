@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "2888798245"
+static = 0
+position = [ 0.07411248981952667, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "spell.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.1340000033378601, 0.41499999165534973, 2 ]
+offset = [ 0, 0, 0 ]
+rotation = [ 0, 0, 1.5707963705062866 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.4000000059604645, 0.03400000184774399, 0.07599999755620956 ]
+offset = [ 0, -0.0430000014603138, 0.019999999552965164 ]
+rotation = [ -0.08115781843662262, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2888798245"

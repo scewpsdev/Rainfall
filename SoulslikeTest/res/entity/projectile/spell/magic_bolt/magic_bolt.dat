@@ -1,0 +1,8 @@
+name = "magic_bolt"
+category = projectile
+
+entityData = "magic_bolt.rfs"
+
+projectileGravity = 0.0
+projectileRemoveOnHit = 1
+projectileHitSpawnEntity = "magic_impact"

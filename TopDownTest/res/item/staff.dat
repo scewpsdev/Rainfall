@@ -1,0 +1,4 @@
+name = "staff"
+displayName = "Staff"
+sprite = "staff.png"
+//icon = "staff_icon.png"

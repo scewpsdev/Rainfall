@@ -1,0 +1,29 @@
+id = 4001
+name = magic_arrow
+displayName = "Magic Arrow"
+category = spell
+
+model = "../spell.gltf"
+colliders = [
+	{
+		type: box
+		size: [0.2, 0.06, 0.06]
+	}
+]
+
+moveset = "magic_arrow_moveset.gltf"
+
+icon = "magic_arrow_icon.png"
+
+description: "blue marbol"
+
+baseDamage = 80
+
+spellManaCost = 20
+
+spellProjectiles = [
+	{
+		castTime = 0.833
+		type = arrow
+	}
+]

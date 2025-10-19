@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "7DRL": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

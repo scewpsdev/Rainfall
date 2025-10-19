@@ -1,0 +1,91 @@
+entities = [ {
+name = "Entity"
+id = "1101608145"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "bob.gltf"
+colliders = [  ]
+boneColliders = [ {
+bone = "Hip"
+type = Sphere
+trigger = 0
+size = [ 0.13600000739097595, 0.460999995470047, 0.05000000074505806 ]
+offset = [ 0, 0.07599999755620956, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Chest"
+type = Capsule
+trigger = 0
+size = [ 0.14399999380111694, 0.30399999022483826, 0.05000000074505806 ]
+offset = [ 0, 0.08799999952316284, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Head"
+type = Sphere
+trigger = 0
+size = [ 0.1379999965429306, 0.05000000074505806, 0.05000000074505806 ]
+offset = [ 0, 0.02500000037252903, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Upper Arm.L"
+type = Capsule
+trigger = 0
+size = [ 0.07199999690055847, 0.19141128659248352, 0.05000000074505806 ]
+offset = [ 0, 0.04100000113248825, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Lower Arm.L"
+type = Capsule
+trigger = 0
+size = [ 0.0560000017285347, 0.23000000417232513, 0.05000000074505806 ]
+offset = [ 0, 0.12200000137090683, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Upper Arm.R"
+type = Capsule
+trigger = 0
+size = [ 0.07199999690055847, 0.19141125679016113, 0.05000000074505806 ]
+offset = [ 0, 0.04100000113248825, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Lower Arm.R"
+type = Capsule
+trigger = 0
+size = [ 0.0560000017285347, 0.23000000417232513, 0.05000000074505806 ]
+offset = [ 0, 0.12200000137090683, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Leg_Upper.L"
+type = Capsule
+trigger = 0
+size = [ 0.10199999809265137, 0.30300000309944153, 0.05000000074505806 ]
+offset = [ 0, 0.17187517881393433, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Leg_Lower.L"
+type = Capsule
+trigger = 0
+size = [ 0.09200000017881393, 0.335999995470047, 0.05000000074505806 ]
+offset = [ 0, 0.18730713427066803, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Leg_Upper.R"
+type = Capsule
+trigger = 0
+size = [ 0.10199999809265137, 0.30300000309944153, 0.05000000074505806 ]
+offset = [ 0, 0.1718752533197403, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+bone = "Leg_Lower.R"
+type = Capsule
+trigger = 0
+size = [ 0.09200000017881393, 0.335999995470047, 0.05000000074505806 ]
+offset = [ 0, 0.18730714917182922, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "1101608145"

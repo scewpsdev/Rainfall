@@ -1,0 +1,12 @@
+name = "iron_greaves"
+displayName = "Iron Greaves"
+description = "thicc armor"
+category = armor
+
+entity = "iron_greaves.rfs"
+icon = "iron_greaves_icon.png"
+
+armorType = pants
+baseAbsorption = 2
+
+equipSound = "../../sfx/equip_heavy.ogg"

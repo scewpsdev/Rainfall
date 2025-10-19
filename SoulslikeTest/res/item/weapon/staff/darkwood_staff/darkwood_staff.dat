@@ -1,0 +1,14 @@
+name = "darkwood_staff"
+displayName = "Darkwood Staff"
+description = "magic stick"
+category = weapon
+
+entity = "darkwood_staff.rfs"
+moveset = "../staff_moveset.gltf"
+icon = "darkwood_staff_icon.png"
+
+weaponType = staff
+castOrigin = [0, 0.45, 0]
+
+blockSound = "../../../sfx/block_wood.ogg"
+equipSound = "../../../sfx/equip_light.ogg"

@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "190280114"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "iron_sabatons.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.17599999904632568, 0.0430000014603138, 0.2240000069141388 ]
+offset = [ 0, -0.02800000086426735, 0.04399999976158142 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.1550000011920929, 0.11299999803304672, 0.06300000101327896 ]
+offset = [ 0, 0.006000000052154064, -0.017000000923871994 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "190280114"

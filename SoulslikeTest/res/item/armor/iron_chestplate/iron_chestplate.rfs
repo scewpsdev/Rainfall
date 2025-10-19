@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "3349192805"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "iron_chestplate.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.32100000977516174, 0.31299999356269836, 0.22699999809265137 ]
+offset = [ 0, 0.11299999803304672, 0.014999999664723873 ]
+rotation = [ 0.10471976548433304, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.2630000114440918, 0.2329999953508377, 0.18400000035762787 ]
+offset = [ 0, -0.15600000321865082, -0.008999999612569809 ]
+rotation = [ 0.0815068781375885, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "3349192805"

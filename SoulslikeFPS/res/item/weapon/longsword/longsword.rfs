@@ -1,0 +1,26 @@
+entities = [ {
+name = "Entity"
+id = "2611792996"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "longsword.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.050999999046325684, 1.2519999742507935, 0.029999999329447746 ]
+offset = [ 0, 0.45100000500679016, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.0430000014603138, 0.03400000184774399, 0.26499998569488525 ]
+offset = [ 0, 0.10000000149011612, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2611792996"

@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseLight|Win32">
+      <Configuration>ReleaseLight</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseLight|x64">
+      <Configuration>ReleaseLight</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a266d521-2370-40ec-8345-3f0f5451235c}</ProjectGuid>
+    <RootNamespace>RainfallNative</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\net7.0\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\net7.0\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\net7.0\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\net7.0\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\net7.0\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\net7.0\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|x64'">
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BX_CONFIG_DEBUG;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\lib\bgfx;$(ProjectDir)lib\lib\glfw\$(Configuration);$(ProjectDir)lib\lib\physx\$(Configuration);$(ProjectDir)lib\lib\openal;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_decode$(Configuration).lib;bimg_encode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BX_CONFIG_DEBUG;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\lib\bgfx;$(ProjectDir)lib\lib\glfw\$(Configuration);$(ProjectDir)lib\lib\physx\$(Configuration);$(ProjectDir)lib\lib\openal;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_decode$(Configuration).lib;bimg_encode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BX_CONFIG_DEBUG;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\lib\bgfx;$(ProjectDir)lib\lib\glfw\$(Configuration);$(ProjectDir)lib\lib\physx\$(Configuration);$(ProjectDir)lib\lib\openal;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_decode$(Configuration).lib;bimg_encode$(Configuration).lib;shaderc$(Configuration).lib;texturec$(Configuration).lib;fcpp$(Configuration).lib;glslang$(Configuration).lib;glsl-optimizer$(Configuration).lib;spirv-cross$(Configuration).lib;spirv-opt$(Configuration).lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=0;PX_PHYSX_STATIC_LIB;WITH_WINMM;BX_CONFIG_DEBUG;BUILD_DLL;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;$(ProjectDir)lib\include\soloud;$(ProjectDir)lib\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\lib\bgfx;$(ProjectDir)lib\lib\glfw\$(Configuration);$(ProjectDir)lib\lib\physx\$(Configuration);$(ProjectDir)lib\lib\nvcloth\$(Configuration);$(ProjectDir)lib\lib\fastwfc\$(Configuration);$(ProjectDir)lib\lib\zlib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_decode$(Configuration).lib;bimg_encode$(Configuration).lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;NvCloth.lib;zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/VERBOSE:UNUSEDLIBS %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=0;PX_PHYSX_STATIC_LIB;WITH_WINMM;BX_CONFIG_DEBUG;BUILD_DLL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;$(ProjectDir)lib\include\soloud;$(ProjectDir)lib\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ExceptionHandling>false</ExceptionHandling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\lib\bgfx;$(ProjectDir)lib\lib\glfw\$(Configuration);$(ProjectDir)lib\lib\physx\$(Configuration);$(ProjectDir)lib\lib\nvcloth\$(Configuration);$(ProjectDir)lib\lib\fastwfc\$(Configuration);$(ProjectDir)lib\lib\zlib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;bgfx$(Configuration).lib;bx$(Configuration).lib;bimg$(Configuration).lib;bimg_decode$(Configuration).lib;bimg_encode$(Configuration).lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;NvCloth.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/VERBOSE:UNUSEDLIBS %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLight|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=0;PX_PHYSX_STATIC_LIB;WITH_WINMM;BX_CONFIG_DEBUG;BUILD_DLL;NDEBUG;_CONSOLE;RAINFALL_EXCLUDE_PHYSICS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include;$(ProjectDir)lib\include\physx;$(ProjectDir)lib\include\pxshared;$(ProjectDir)lib\include\soloud;$(ProjectDir)lib\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ExceptionHandling>false</ExceptionHandling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\lib\bgfx;$(ProjectDir)lib\lib\glfw\Release;$(ProjectDir)lib\lib\fastwfc\Release;$(ProjectDir)lib\lib\zlib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;bgfxRelease.lib;bxRelease.lib;bimgRelease.lib;bimg_decodeRelease.lib;bimg_encodeRelease.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/VERBOSE:UNUSEDLIBS %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\audio\Audio.cpp" />
+    <ClCompile Include="src\audio\soloud\audiosource\wav\dr_impl.cpp" />
+    <ClCompile Include="src\audio\soloud\audiosource\wav\soloud_wav.cpp" />
+    <ClCompile Include="src\audio\soloud\audiosource\wav\soloud_wavstream.cpp" />
+    <ClCompile Include="src\audio\soloud\audiosource\wav\stb_vorbis.c" />
+    <ClCompile Include="src\audio\soloud\backend\winmm\soloud_winmm.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_audiosource.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_bus.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_3d.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_basicops.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_faderops.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_filterops.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_getters.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_setters.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_core_voiceops.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_fader.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_fft.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_fft_lut.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_file.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_filter.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_misc.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_queue.cpp" />
+    <ClCompile Include="src\audio\soloud\core\soloud_thread.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_bassboostfilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_biquadresonantfilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_dcremovalfilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_echofilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_fftfilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_flangerfilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_freeverbfilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_lofifilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_robotizefilter.cpp" />
+    <ClCompile Include="src\audio\soloud\filter\soloud_waveshaperfilter.cpp" />
+    <ClCompile Include="src\Console.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Event.cpp" />
+    <ClCompile Include="src\graphics\Animation.cpp" />
+    <ClCompile Include="src\graphics\LineRenderer.cpp" />
+    <ClCompile Include="src\graphics\Material.cpp" />
+    <ClCompile Include="src\graphics\ParticleSystem.cpp" />
+    <ClCompile Include="src\graphics\renderer3d\Renderer3D.cpp" />
+    <ClCompile Include="src\imguizmo\GraphEditor.cpp" />
+    <ClCompile Include="src\imguizmo\ImCurveEdit.cpp" />
+    <ClCompile Include="src\imguizmo\ImGradient.cpp" />
+    <ClCompile Include="src\imguizmo\ImGuizmo.cpp" />
+    <ClCompile Include="src\imguizmo\ImSequencer.cpp" />
+    <ClCompile Include="src\imgui\cimgui.cpp" />
+    <ClCompile Include="src\imgui\imgui.cpp" />
+    <ClCompile Include="src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\nfd\nfd_common.c" />
+    <ClCompile Include="src\nfd\nfd_win.cpp" />
+    <ClCompile Include="src\graphics\Font.cpp" />
+    <ClCompile Include="src\graphics\Graphics.cpp" />
+    <ClCompile Include="src\graphics\Model.cpp" />
+    <ClCompile Include="src\graphics\ModelReader.cpp" />
+    <ClCompile Include="src\graphics\Shader.cpp" />
+    <ClCompile Include="src\graphics\SpriteBatch.cpp" />
+    <ClCompile Include="src\Hash.cpp" />
+    <ClCompile Include="src\physics\Cloth.cpp" />
+    <ClCompile Include="src\physics\FilterShader.cpp" />
+    <ClCompile Include="src\physics\Physics.cpp" />
+    <ClCompile Include="src\Platform.cpp" />
+    <ClCompile Include="src\Resource.cpp" />
+    <ClCompile Include="src\utils\ImGuiLayer.cpp" />
+    <ClCompile Include="src\utils\Simplex.cpp" />
+    <ClCompile Include="src\utils\wfc\propagator.cpp" />
+    <ClCompile Include="src\utils\wfc\wave.cpp" />
+    <ClCompile Include="src\utils\wfc\wfc.cpp" />
+    <ClCompile Include="src\vector\Math.cpp" />
+    <ClCompile Include="src\vector\Matrix.cpp" />
+    <ClCompile Include="src\vector\Quaternion.cpp" />
+    <ClCompile Include="src\vector\Vector.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\graphics\Material.h" />
+    <ClInclude Include="src\graphics\ParticleSystem.h" />
+    <ClInclude Include="src\graphics\renderer3d\Renderer3D.h" />
+    <ClInclude Include="src\physics\Cloth.h" />
+    <ClInclude Include="src\physics\FilterShader.h" />
+    <ClInclude Include="src\physics\Physics.h" />
+    <ClInclude Include="src\Platform.h" />
+    <ClInclude Include="src\graphics\LineRenderer.h" />
+    <ClInclude Include="src\imgui\cimgui.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\audio\Audio.h" />
+    <ClInclude Include="src\audio\soloud\audiosource\wav\dr_flac.h" />
+    <ClInclude Include="src\audio\soloud\audiosource\wav\dr_mp3.h" />
+    <ClInclude Include="src\audio\soloud\audiosource\wav\dr_wav.h" />
+    <ClInclude Include="src\audio\soloud\audiosource\wav\stb_vorbis.h" />
+    <ClInclude Include="src\Console.h" />
+    <ClInclude Include="src\Event.h" />
+    <ClInclude Include="src\graphics\Animation.h" />
+    <ClInclude Include="src\imguizmo\GraphEditor.h" />
+    <ClInclude Include="src\imguizmo\ImCurveEdit.h" />
+    <ClInclude Include="src\imguizmo\ImGradient.h" />
+    <ClInclude Include="src\imguizmo\ImGuizmo.h" />
+    <ClInclude Include="src\imguizmo\ImSequencer.h" />
+    <ClInclude Include="src\imguizmo\ImZoomSlider.h" />
+    <ClInclude Include="src\imgui\imconfig.h" />
+    <ClInclude Include="src\imgui\imgui.h" />
+    <ClInclude Include="src\imgui\imgui_internal.h" />
+    <ClInclude Include="src\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\nfd\common.h" />
+    <ClInclude Include="src\nfd\nfd.h" />
+    <ClInclude Include="src\nfd\nfd_common.h" />
+    <ClInclude Include="src\nfd\simple_exec.h" />
+    <ClInclude Include="src\graphics\Font.h" />
+    <ClInclude Include="src\graphics\Geometry.h" />
+    <ClInclude Include="src\graphics\Graphics.h" />
+    <ClInclude Include="src\graphics\Model.h" />
+    <ClInclude Include="src\graphics\ModelReader.h" />
+    <ClInclude Include="src\graphics\Shader.h" />
+    <ClInclude Include="src\graphics\SpriteBatch.h" />
+    <ClInclude Include="src\Hash.h" />
+    <ClInclude Include="src\Input.h" />
+    <ClInclude Include="src\Rainfall.h" />
+    <ClInclude Include="src\Resource.h" />
+    <ClInclude Include="src\utils\ImGuiLayer.h" />
+    <ClInclude Include="src\utils\List.h" />
+    <ClInclude Include="src\utils\Random.h" />
+    <ClInclude Include="src\utils\Simplex.h" />
+    <ClInclude Include="src\utils\wfc\direction.hpp" />
+    <ClInclude Include="src\utils\wfc\overlapping_wfc.hpp" />
+    <ClInclude Include="src\utils\wfc\propagator.hpp" />
+    <ClInclude Include="src\utils\wfc\tiling_wfc.hpp" />
+    <ClInclude Include="src\utils\wfc\utils\array2D.hpp" />
+    <ClInclude Include="src\utils\wfc\utils\array3D.hpp" />
+    <ClInclude Include="src\utils\wfc\wave.hpp" />
+    <ClInclude Include="src\utils\wfc\wfc.hpp" />
+    <ClInclude Include="src\utils\wfc\utils\array_2d.hpp" />
+    <ClInclude Include="src\utils\wfc\utils\array_3d.hpp" />
+    <ClInclude Include="src\utils\wfc\utils\helper.hpp" />
+    <ClInclude Include="src\utils\wfc\utils\xoshiro256ss.hpp" />
+    <ClInclude Include="src\vector\Gradient.h" />
+    <ClInclude Include="src\vector\Math.h" />
+    <ClInclude Include="src\vector\Matrix.h" />
+    <ClInclude Include="src\vector\Quaternion.h" />
+    <ClInclude Include="src\vector\Vector.h" />
+    <ClInclude Include="src\zlib-1.3.1\zconf.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\rainfall\shaders\deferred\deferred_point.vs" />
+    <None Include="res\shaders\rainfall\bgfx\bgfx_shader.shader" />
+    <None Include="res\shaders\rainfall\common\common.shader" />
+    <None Include="res\shaders\rainfall\common\shaderlib.shader" />
+    <None Include="res\shaders\rainfall\common\utils.shader" />
+    <None Include="res\shaders\rainfall\default\default.fs" />
+    <None Include="res\shaders\rainfall\default\default.vs" />
+    <None Include="res\shaders\rainfall\default\default_animated.vs" />
+    <None Include="res\shaders\rainfall\default\varying.def.sc" />
+    <None Include="res\shaders\rainfall\deferred\deferred.vs" />
+    <None Include="res\shaders\rainfall\deferred\deferred.vs.shader" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.fs" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.fs.shader" />
+    <None Include="res\shaders\rainfall\deferred\deferred_point.vs" />
+    <None Include="res\shaders\rainfall\deferred\pbr.shader" />
+    <None Include="res\shaders\rainfall\deferred\shadow_mapping.shader" />
+    <None Include="res\shaders\rainfall\deferred\varying.def.sc" />
+    <None Include="res\shaders\rainfall\tonemapping\tonemapping.fs.shader" />
+    <None Include="res\shaders\rainfall\tonemapping\tonemapping.vs.shader" />
+    <None Include="res\shaders\rainfall\tonemapping\varying.def.sc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

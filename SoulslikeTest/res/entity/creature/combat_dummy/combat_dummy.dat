@@ -1,0 +1,12 @@
+name = "combat_dummy"
+displayName = "Combat Dummy"
+category = combatdummy
+
+entityData = "combat_dummy.rfs"
+
+ai = none
+hitSound = [
+	"../sfx/hit/wood1.ogg",
+	"../sfx/hit/wood2.ogg",
+	"../sfx/hit/wood3.ogg"
+]

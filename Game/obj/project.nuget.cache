@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "NwYUDz5l53ef6oXGfTWzEhL20KgLalTnc68BlCZ1Xn5iJQRQ0ayN9TMLCgU8mopuwcH+SaUWXrpGJ0xV2vrrMQ==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\Game\\Game.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

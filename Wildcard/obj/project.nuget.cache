@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "cqFXzI3USdAIHQ10xvLwldA3Jujkm9EEgIUMdna7wCfj/3YW1ywUvI2fKZZnCUAlJAxVob87WZShFrKqy1XgKw==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Rainfall\\Wildcard\\Wildcard.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.4\\microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.4\\microsoft.net.illink.tasks.8.0.4.nupkg.sha512",
+    "C:\\Users\\faris\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.4\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

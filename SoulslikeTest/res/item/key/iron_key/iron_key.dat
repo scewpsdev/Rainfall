@@ -1,0 +1,8 @@
+name = "iron_key"
+displayName = "Iron Key"
+description = "iron key"
+category = key
+
+entity = "iron_key.rfs"
+moveset = "../key_moveset.gltf"
+icon = "iron_key_icon.png"

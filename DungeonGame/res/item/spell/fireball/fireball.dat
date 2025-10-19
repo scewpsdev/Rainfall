@@ -1,0 +1,61 @@
+id = 4004
+name = fireball
+displayName = "Fireball"
+category = spell
+
+model = "../spell.gltf"
+renderModel = 0
+colliders = [
+	{
+		type: box
+		size: [0.2, 0.06, 0.06]
+	}
+]
+
+lights: [
+	{
+		position: [0.0, 0.0, 0.0]
+		color: [2.7738395,0.9894696,0.25998735]
+		intensity: 0.4
+		flicker: true
+	}
+]
+
+particleSystems = [
+	{
+		emissionRate = 200.0
+		lifetime = 0.5
+		spawnOffset = [0, 0, 0]
+		spawnRadius = 0.03
+		spawnShape = sphere
+		size = [0.02, 0.005]
+		initialVelocity = [0, 0, 0]
+		gravity = 1.0
+		followMode = follow
+		additive = 1
+		tint = [2.7738395,0.5894696,0.25998735]
+		randomRotation = 1
+		randomLifetime = 1
+	}
+]
+
+moveset = "fireball_moveset.gltf"
+
+icon = "fireball_icon.png"
+
+description: "fireball very cool"
+
+baseDamage = 60
+
+spellManaCost = 15
+
+spellProjectiles = [
+	{
+		type = fireball
+		castFrame = 31
+		//sfx = "../../../../sfx/ignite.ogg"
+	}
+]
+
+sfxDraw = "../../../../sfx/ignite.ogg"
+sfxCast = "../../../../sfx/ignite.ogg"

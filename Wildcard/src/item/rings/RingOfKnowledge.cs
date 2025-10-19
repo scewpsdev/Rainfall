@@ -1,0 +1,32 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class RingOfKnowledge : Item
+{
+	public RingOfKnowledge()
+		: base("ring_of_knowledge", ItemType.Relic)
+	{
+		displayName = "Ring of Knowledge";
+		description = "Allows it's bearer to identify items immediately";
+		stackable = false;
+
+		baseValue = 25;
+
+		sprite = new Sprite(tileset, 15, 10);
+	}
+
+	public override void update(Entity entity)
+	{
+		Player player = entity as Player;
+		if (player != null)
+		{
+			for (int i = 0; i < player.items.Count; i++)
+				player.items[i].identify();
+		}
+	}
+}

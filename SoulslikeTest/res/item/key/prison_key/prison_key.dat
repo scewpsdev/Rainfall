@@ -1,0 +1,9 @@
+name = "prison_key"
+displayName = "Prison Key"
+description = "Opens a prison cell in the underground prison. Looks like somebody threw it in here on purpose.."
+category = key
+
+entity = "prison_key.rfs"
+moveset = "../key_moveset.gltf"
+icon = "prison_key_icon.png"
+isLoot = 0

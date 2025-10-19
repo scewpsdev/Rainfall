@@ -1,0 +1,20 @@
+entities = [ {
+name = "Entity"
+id = "1595748941"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+model = "darkwood_staff.glb"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Capsule
+trigger = 0
+size = [ 0.10000000149011612, 0.9340000152587891, 0.06700000166893005 ]
+offset = [ -0.004000000189989805, -0.13699999451637268, 0 ]
+rotation = [ 0.0013962633674964309, 0, 0.007155850064009428 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "1595748941"

@@ -1,0 +1,49 @@
+Ideas
+
+- red hearts for life, blue hearts for armor
+- buff icons are shown with the amount
+- map with explored areas
+- destructible walls
+
+Classes
+- Warrior
+- Hunter
+- Thief
+- Wizard
+- Knight
+- Fool
+
+Weapons
+- Revolver
+- Sniper/Crossbow
+- Railgun
+- Machinegun
+- Rocket launcher
+- Grenade launcher
+- Flamethrower
+- Wunderwaffe
+- Longsword
+
+Secondary
+- Kite shield
+- Torch
+- Magnet
+- Dagger
+- Bonkstick
+- Pickaxe
+
+Buffs
+- Speed
+- Damage
+- Firerate
+- Luck
+- Riccochet
+- Bullet penetration
+- Knockback
+- Reload speed
+- Explosive power
+- Lifesteal
+- Scavenger
+- Regeneration
+- Dual Wield
+- Dodgeroll/Dash

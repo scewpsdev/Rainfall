@@ -1,0 +1,8 @@
+name = "arrow"
+displayName = "Arrow"
+description = "pointy stick"
+category = arrow
+
+entity = "arrow.rfs"
+moveset = "../arrow_moveset.gltf"
+icon = "arrow_icon.png"

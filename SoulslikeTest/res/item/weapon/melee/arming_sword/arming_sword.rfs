@@ -1,0 +1,32 @@
+entities = [ {
+name = "Entity"
+id = "2406340928"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ -2.8062939125272912E-11, 4.20032446324381E-11, 1.1787344933461777E-21, 1 ]
+scale = [ 1.0000011920928955, 0.9999998211860657, 1 ]
+model = "arming_sword.gltf"
+rigidBodyType = Dynamic
+colliders = [ {
+type = Box
+trigger = 0
+size = [ 0.061000000685453415, 0.7590000033378601, 0.017999999225139618 ]
+offset = [ 0, 0.4410000145435333, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.2240000069141388, 0.03200000151991844, 0.03500000014901161 ]
+offset = [ 0, 0.07000000029802322, 0 ]
+rotation = [ 0, 0, 0 ]
+}, {
+type = Box
+trigger = 0
+size = [ 0.05299999937415123, 0.15700000524520874, 0.028999999165534973 ]
+offset = [ 0, -0.01899999938905239, 0 ]
+rotation = [ 0, 0, 0 ]
+} ]
+lights = [  ]
+particles = [  ]
+} ]
+selectedEntity = "2406340928"

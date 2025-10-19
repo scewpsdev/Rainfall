@@ -1,0 +1,29 @@
+id = 4003
+name = magic_orb
+displayName = "Magic Orb"
+category = spell
+
+model = "../spell.gltf"
+colliders = [
+	{
+		type: box
+		size: [0.2, 0.06, 0.06]
+	}
+]
+
+moveset = "magic_orb_moveset.gltf"
+
+icon = "magic_orb_icon.png"
+
+description: "big blue marbol"
+
+baseDamage = 30
+
+spellManaCost = 15
+
+spellProjectiles = [
+	{
+		castTime = 0.833
+		type = orb
+	}
+]
