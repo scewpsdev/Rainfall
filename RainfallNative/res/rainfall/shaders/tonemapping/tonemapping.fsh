@@ -145,8 +145,8 @@ vec3 Vignette(vec3 color, vec2 uv)
 
 vec3 ThreshholdBloom(vec3 bloom)
 {
-	//return bloom * (1.0 - exp(-RGBToLuminance(bloom) * bloomFalloff));
-	return bloom;
+	return bloom * (1.0 - exp(-RGBToLuminance(bloom) * bloomFalloff));
+	//return bloom;
 }
 
 void main()

@@ -273,7 +273,7 @@ static Shader* deferredEmissiveShader;
 static Shader* deferredEnvironmentShader;
 static Shader* deferredSimpleShader;
 static Shader* deferredReflectionProbeShader;
-static Shader* compositeShader;
+static Shader* fogShader;
 static Shader* tonemappingShader;
 static Shader* particleShader;
 static Shader* skyShader;
@@ -419,7 +419,7 @@ RFAPI void Renderer3D_Init(int width, int height)
 	lightIndirectShader = ReadShaderCompute("assets/rainfall/shaders/occlusion_culling/light_indirect.csh");
 	streamCompactionShader = ReadShaderCompute("assets/rainfall/shaders/occlusion_culling/stream_compaction.csh");
 	particleIndirectShader = ReadShaderCompute("assets/rainfall/shaders/occlusion_culling/particle_indirect.csh");
-	compositeShader = ReadShader("assets/rainfall/shaders/composite/composite.vsh", "assets/rainfall/shaders/composite/composite.fsh");
+	fogShader = ReadShader("assets/rainfall/shaders/fog/fog.vsh", "assets/rainfall/shaders/fog/fog.fsh");
 	tonemappingShader = ReadShader("assets/rainfall/shaders/tonemapping/tonemapping.vsh", "assets/rainfall/shaders/tonemapping/tonemapping.fsh");
 	particleShader = ReadShader("assets/rainfall/shaders/particle/particle.vsh", "assets/rainfall/shaders/particle/particle.fsh");
 	skyShader = ReadShader("assets/rainfall/shaders/sky/sky.vsh", "assets/rainfall/shaders/sky/sky.fsh");
@@ -694,7 +694,7 @@ RFAPI void Renderer3D_Terminate()
 	Graphics_DestroyShader(hzbDownsampleShader);
 	Graphics_DestroyShader(meshIndirectShader);
 	Graphics_DestroyShader(lightIndirectShader);
-	Graphics_DestroyShader(compositeShader);
+	Graphics_DestroyShader(fogShader);
 	Graphics_DestroyShader(tonemappingShader);
 	Graphics_DestroyShader(particleShader);
 	Graphics_DestroyShader(skyShader);
@@ -2381,7 +2381,7 @@ static void RenderForwardMeshes()
 		farPlanes[1] = directionalLightShadowMapFar[1];
 		farPlanes[2] = directionalLightShadowMapFar[2];
 
-		if (directionalLightIsDynamic)
+		if (renderDirectionalLight && directionalLightIsDynamic)
 		{
 			for (int i = 0; i < 3; i++)
 			{
@@ -2398,7 +2398,7 @@ static void RenderForwardMeshes()
 		{
 			char s_shadowMap[32];
 			sprintf(s_shadowMap, "s_shadowMap%d", 0);
-			Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 6 + 0, bgfx::getTexture(directionalLightShadowMapRTs[0]));
+			Graphics_SetTexture(shader->getUniform(s_shadowMap, bgfx::UniformType::Sampler), 6 + 0, renderDirectionalLight ? bgfx::getTexture(directionalLightShadowMapRTs[0]) : bgfx::TextureHandle BGFX_INVALID_HANDLE);
 
 			char u_toLightSpace[32];
 			sprintf(u_toLightSpace, "u_toLightSpace%d", 0);
@@ -2578,9 +2578,9 @@ static void ForwardPass()
 	RenderParticles();
 }
 
-static void CompositePass()
+static void FogPass()
 {
-	bgfx::setMarker("Composite Pass");
+	bgfx::setMarker("Fog Pass");
 
 	Graphics_ResetState();
 	Graphics_SetRenderTarget(RenderPass::Composite, compositeRT, width, height);
@@ -2589,12 +2589,11 @@ static void CompositePass()
 	Graphics_SetDepthTest(DepthTest::None);
 	Graphics_SetCullState(CullState::ClockWise);
 
-	Shader* shader = compositeShader;
+	Shader* shader = fogShader;
 
 	Graphics_SetVertexBuffer(quad);
 	Graphics_SetTexture(shader->getUniform("s_hdrBuffer", bgfx::UniformType::Sampler), 0, forwardRTTextures[0], BGFX_SAMPLER_POINT);
 	Graphics_SetTexture(shader->getUniform("s_depth", bgfx::UniformType::Sampler), 1, forwardRTTextures[1], BGFX_SAMPLER_POINT);
-	Graphics_SetTexture(shader->getUniform("s_ao", bgfx::UniformType::Sampler), 2, ssaoRTTexture[0], BGFX_SAMPLER_POINT);
 
 	Graphics_SetTexture(shader->getUniform("s_positions", bgfx::UniformType::Sampler), 3, gbuffer.textures[0], BGFX_SAMPLER_POINT);
 
@@ -2713,7 +2712,7 @@ static void TonemappingPass(uint16_t target)
 		Vector3 color = DecodeRG11B10(luminanceDataBuffer);
 		float luminance = color.x * 0.3f + color.y * 0.59f + color.z * 0.11f;
 		//targetExposure = powf(1.0f / luminance * 0.1f, 1.0f / 4);
-		targetExposure = 1.0f / luminance * 0.1f;
+		targetExposure = 0.18f / luminance; // luminance of 0.18 corresponds to middle gray
 		nextLuminanceReadbackFrame = UINT32_MAX;
 	}
 
@@ -2795,7 +2794,7 @@ RFAPI uint16_t Renderer3D_End()
 	Graphics_Blit(RenderPass::Forward, forwardRTTextures[1], gbuffer.textures[4]);
 
 	ForwardPass(); // render visible particles here
-	CompositePass();
+	FogPass();
 	BloomPass();
 	TonemappingPass(settings.showFrame ? bgfx::kInvalidHandle : tonemappingRT);
 

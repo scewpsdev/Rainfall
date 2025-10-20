@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 public class Entity : PhysicsEntity
 {
 	public string name;
-	public bool isStatic;
 	public Scene scene;
+
+	public bool isStatic = false;
+	public bool renderShadowMap = true;
+	public bool isOccluder = false;
 
 	Entity parent = null;
 	List<Entity> children;
@@ -372,11 +375,11 @@ public class Entity : PhysicsEntity
 		if (model != null)
 		{
 			if (meshIdx != -1)
-				Renderer.DrawMesh(model, meshIdx, material, transform * modelTransform, animator, isStatic);
+				Renderer.DrawMesh(model, meshIdx, material, transform * modelTransform, animator, isOccluder, renderShadowMap);
 			else if (meshNode != null)
-				Renderer.DrawModelNode(model, meshNode, material, transform * modelTransform, animator, isStatic);
+				Renderer.DrawModelNode(model, meshNode, material, transform * modelTransform, animator, isOccluder, renderShadowMap);
 			else
-				Renderer.DrawModel(model, transform * modelTransform, material, animator, isStatic);
+				Renderer.DrawModel(model, transform * modelTransform, material, animator, isOccluder, renderShadowMap);
 		}
 		for (int i = 0; i < pointLights.Count; i++)
 			Renderer.DrawPointLight(pointLights[i], transform);
