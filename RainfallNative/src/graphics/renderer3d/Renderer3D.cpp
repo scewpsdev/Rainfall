@@ -2090,7 +2090,7 @@ static void AmbientOcclusionPass()
 		float lod = (float)(SSAO_STEPS - i - 1);
 		Vector4 params((float)i, lod, ssaoRTTextureInfo[0].width, ssaoRTTextureInfo[0].height);
 		bgfx::setUniform(ssaoShader->getUniform("u_params", bgfx::UniformType::Vec4), &params);
-		Vector4 params2(settings.ssaoQuality, 0, 0, 0);
+		Vector4 params2((float)settings.ssaoQuality, 0, 0, 0);
 		bgfx::setUniform(ssaoShader->getUniform("u_params2", bgfx::UniformType::Vec4), &params2);
 
 		bgfx::setVertexBuffer(0, bgfx::VertexBufferHandle{ quad });
@@ -2740,8 +2740,8 @@ static void TonemappingPass(uint16_t target)
 	Vector4 params(currentExposure * settings.exposure, settings.bloomStrength, settings.bloomFalloff, 0);
 	Graphics_SetUniform(u_params, &params);
 
-	Vector4 vignetteData = settings.vignetteColor * Vector4(1, 1, 1, settings.vignetteEnabled ? 1 : 0);
-	Vector4 vignetteData1 = Vector4(settings.vignetteFalloff, settings.colorLUT != bgfx::kInvalidHandle ? 1 : 0, 0, 0);
+	Vector4 vignetteData = settings.vignetteColor * Vector4(1, 1, 1, settings.vignetteEnabled ? 1.0f : 0.0f);
+	Vector4 vignetteData1 = Vector4(settings.vignetteFalloff, settings.colorLUT != bgfx::kInvalidHandle ? 1.0f : 0.0f, 0, 0);
 	Graphics_SetUniform(shader->getUniform("u_vignetteData", bgfx::UniformType::Vec4), &vignetteData);
 	Graphics_SetUniform(shader->getUniform("u_vignetteData1", bgfx::UniformType::Vec4), &vignetteData1);
 
