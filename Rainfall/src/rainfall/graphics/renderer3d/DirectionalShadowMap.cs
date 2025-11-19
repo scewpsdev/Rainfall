@@ -11,8 +11,8 @@ public class DirectionalShadowMap
 {
 	public const int NUM_SHADOW_CASCADES = 3;
 
-	static readonly float[] NEAR_PLANES = new float[] { -10, 0, 0 };
-	public static readonly float[] FAR_PLANES = new float[] { 50, 0, 0 };
+	static readonly float[] NEAR_PLANES = new float[] { 0, 5, 15 };
+	public static readonly float[] FAR_PLANES = new float[] { 5, 15, 50 };
 
 
 	public RenderTarget[] renderTargets = new RenderTarget[NUM_SHADOW_CASCADES];

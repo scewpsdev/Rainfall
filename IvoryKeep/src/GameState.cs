@@ -329,12 +329,15 @@ public class GameState : State
 		}
 		else
 		{
-			//level = null;
-			//switchLevel(cliffside, (Vector2)cliffside.rooms[0].getMarker(0x22));
-			//levelSwitchTime = -1;
-
+			/*
 			level = null;
 			switchLevel(cemetary, cemetary.getMarker(0x1));
+			levelSwitchTime = -1;
+			*/
+
+			level = null;
+			Vector2 spawnPosition = (Vector2)hub.rooms[0].getMarker(10);
+			switchLevel(hub, spawnPosition);
 			levelSwitchTime = -1;
 
 			player.actions.queueAction(new UnconciousAction());

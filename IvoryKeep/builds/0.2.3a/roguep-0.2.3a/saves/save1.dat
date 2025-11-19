@@ -164,11 +164,31 @@ stack_size = 1
 } ]
 } ]
 npcs = [ {
+name = barbarian
+dialogues = [  ]
+}, {
+name = knight
+dialogues = [  ]
+}, {
+name = hunter
+dialogues = [  ]
+}, {
+name = thief
+dialogues = [  ]
+}, {
 name = broken_wanderer
 dialogues = [ 2508811269, 1166170361 ]
 }, {
 name = blacksmith
 dialogues = [ 651630786 ]
+}, {
+name = rat_npc
+dialogues = [ 2610346675 ]
+quests = [ {
+name = cheese_quest
+state = Uninitialized
+snake_kills = 0
+} ]
 }, {
 name = builder_merchant
 dialogues = [  ]
@@ -183,25 +203,5 @@ name = logan_quest
 state = Uninitialized
 staff_found = 0
 } ]
-}, {
-name = rat_npc
-dialogues = [ 2610346675 ]
-quests = [ {
-name = cheese_quest
-state = Uninitialized
-snake_kills = 0
-} ]
-}, {
-name = barbarian
-dialogues = [  ]
-}, {
-name = knight
-dialogues = [  ]
-}, {
-name = hunter
-dialogues = [  ]
-}, {
-name = thief
-dialogues = [  ]
 } ]
 stashed_items = [  ]
