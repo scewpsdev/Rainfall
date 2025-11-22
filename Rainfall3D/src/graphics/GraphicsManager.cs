@@ -117,7 +117,6 @@ public static class GraphicsManager
 		renderSettings.vignetteEnabled = vignetteEnabled;
 		renderSettings.vignetteColor = vignetteColor;
 		renderSettings.vignetteFalloff = vignetteFalloff;
-		renderSettings.ssaoEnabled = ssaoEnabled;
 		renderSettings.fogColor = fogColor;
 		renderSettings.fogStrength = fogStrength;
 		renderSettings.colorLUT = colorLUT;
