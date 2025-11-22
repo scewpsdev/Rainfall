@@ -121,7 +121,7 @@ static bool CompileOtherResource(const char* path, const char* out)
 
 static bool IsShader(const std::string& extension)
 {
-	return extension == ".glsl" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh" || extension == ".shd";
+	return extension == ".glsl" || extension == ".vert" || extension == ".frag" || extension == ".comp" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh" || extension == ".shd";
 }
 
 static bool IsTexture(const std::string& extension)
@@ -153,22 +153,18 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 
 	if (IsShader(extension))
 	{
-		bool vertex = extension == ".vsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".vsh", 4) == 0;
-		bool fragment = extension == ".fsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".fsh", 4) == 0;
-		bool compute = extension == ".csh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".csh", 4) == 0;
-
-		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".vs", 3) == 0)
+		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".vs", 3) == 0 || extension == ".vert")
 			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "vertex");
-		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".fs", 3) == 0)
+		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".fs", 3) == 0 || extension == ".frag")
 			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "fragment");
-		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".cs", 3) == 0)
+		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".cs", 3) == 0 || extension == ".comp")
 			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "compute");
 
-		if (vertex)
+		if (extension == ".vsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".vsh", 4) == 0)
 			success = CompileBGFXShader(filepathStr.c_str(), outpath, "vertex");
-		if (fragment)
+		if (extension == ".fsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".fsh", 4) == 0)
 			success = CompileBGFXShader(filepathStr.c_str(), outpath, "fragment");
-		if (compute)
+		if (extension == ".csh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".csh", 4) == 0)
 			success = CompileBGFXShader(filepathStr.c_str(), outpath, "compute");
 
 		bool rainfallShader = extension == ".shd";
@@ -246,6 +242,7 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 				strncmp(&name[name.size() - 3], "csh", 3) == 0) ||
 			//extension == ".shader" ||
 			extension == ".glsl" ||
+			extension == ".vert" || extension == ".frag" || extension == ".comp" ||
 			extension == ".shd")
 			;
 		else
