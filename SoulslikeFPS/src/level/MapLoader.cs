@@ -11,7 +11,7 @@ public class MapLoader
 {
 	public static void Run(WorldManager world, Scene scene)
 	{
-		/*
+		///*
 		LoadMap([
 			"level/testmap/testmap1.gltf",
 			"level/testmap/testmap2.gltf"
@@ -24,7 +24,7 @@ public class MapLoader
 			"level/testmap/testmap_level.gltf"
 		],
 		world, scene);
-		*/
+		//*/
 
 		/*
 		LoadMap([
@@ -65,6 +65,7 @@ public class MapLoader
 		world, scene);
 		*/
 
+		/*
 		LoadMap([
 			"map/testmap/testmap.gltf"
 		],
@@ -75,6 +76,7 @@ public class MapLoader
 			"map/testmap/testmap.gltf"
 		],
 		world, scene);
+		*/
 
 		//world.spawnPoint = Matrix.CreateTranslation(1.5f, 0, -2.5f);
 

@@ -57,7 +57,7 @@ public class GameState : State
 		//scene.addEntity(camera = new ThirdPersonCamera(clothPlayer, new Vector3(0, 1.4f, 0)));
 
 		scene.addEntity(camera = new Camera());
-		scene.addEntity(player = new Player(camera), world.spawnPoints["default"]);
+		scene.addEntity(player = new Player(camera)); //, world.spawnPoints["default"]);
 
 		//scene.addEntity(new GrassField());
 	}
