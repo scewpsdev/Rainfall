@@ -23,7 +23,7 @@ public class Rat : Mob
 
 		ai = new WanderAI(this);
 
-		health = 1;
+		health = 2;
 		poise = 0;
 		speed = 2;
 	}

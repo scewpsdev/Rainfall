@@ -109,6 +109,6 @@ public class Tutorial : Entity
 
 		//level.addEntity(new ItemGate(), (Vector2)level.rooms[0].getMarker(09));
 
-		GameState.instance.setAmbience(caveAmbience);
+		//GameState.instance.setAmbience(caveAmbience);
 	}
 }

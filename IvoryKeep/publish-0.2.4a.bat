@@ -10,7 +10,7 @@ del bin\Release\net8.0\publish\*.pdb
 
 del res\asset_table
 
-cmd /C ..\RainfallResourceCompiler\bin\x64\Debug\RainfallResourceCompiler.exe res bin\Release\net8.0\publish\assets png ogg vsh fsh csh ttf rfs gltf --preserve-scenegraph
+cmd /C ..\RainfallResourceCompiler\bin\x64\Debug\RainfallResourceCompiler.exe res bin\Release\net8.0\publish\assets png ogg vsh fsh csh ttf rfs gltf tmx --preserve-scenegraph
 cmd /C ..\RainfallResourceCompiler\bin\x64\Debug\RainfallResourceCompiler.exe bin\Release\net8.0\publish\assets --package --compress
 move bin\Release\net8.0\publish\assets\dataa.dat bin\Release\net8.0\publish
 move bin\Release\net8.0\publish\assets\datag.dat bin\Release\net8.0\publish
@@ -42,6 +42,6 @@ move ..\roguep-%appversion%.zip .
 :: xcopy /y /e /q .\ ..\..\..\..\builds\%appversion%\
 xcopy /y roguep-%appversion%.zip ..\..\..\..\builds\%appversion%\
 
-butler push roguep-%appversion%.zip scewps/ivory-keep:%appversion%-windows --userversion=%version%
+butler push roguep-%appversion%.zip scewps/ivory-keep:%appversion%-windows --userversion=%appversion%
 
 pause

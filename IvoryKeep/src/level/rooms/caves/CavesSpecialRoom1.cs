@@ -96,12 +96,12 @@ public class CavesSpecialRoom1 : Entity
 
 	void onRoomEnter(Player player)
 	{
-		ambience = GameState.instance.ambience;
-		GameState.instance.setAmbience(null);
+		ambience = AudioManager.ambience;
+		AudioManager.SetAmbience(null);
 	}
 
 	void onRoomLeave(Player player)
 	{
-		GameState.instance.setAmbience(ambience);
+		AudioManager.SetAmbience(ambience);
 	}
 }

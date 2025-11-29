@@ -60,7 +60,7 @@ public class SaveFile
 	public bool isDaily, isCustom;
 
 	public int runsFinished = 0;
-	public RunData[] highscores = new RunData[0];
+	public RunData[] highscores = new RunData[4];
 	public HashSet<uint> flags = new HashSet<uint>();
 
 	public List<Item> stashedItems = new List<Item>();
@@ -125,8 +125,8 @@ public class SaveFile
 			}
 
 			DatArray highscoresDat = dat.getField("highscores").array;
-			save.highscores = new RunData[highscoresDat.size];
-			for (int i = 0; i < highscoresDat.size; i++)
+			save.highscores = new RunData[4];
+			for (int i = 0; i < Math.Min(highscoresDat.size, 4); i++)
 				save.highscores[i] = LoadRun(highscoresDat[i].obj);
 
 			dat.getStringContent("checkpoint_level", out save.currentCheckpointLevel);

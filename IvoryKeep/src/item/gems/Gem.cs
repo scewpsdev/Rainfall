@@ -12,6 +12,7 @@ public abstract class Gem : Item
 	{
 		stackable = false;
 		baseValue = 50;
+		isSecondaryItem = true;
 	}
 
 	public override bool use(Player player)

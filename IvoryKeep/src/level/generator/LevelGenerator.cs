@@ -545,6 +545,7 @@ public partial class LevelGenerator
 
 	MultilayerTrack caveAmbientTrack;
 	MultilayerTrack minesAmbientTrack;
+	MultilayerTrack catacombsAmbientTrack;
 
 	Func<Item[], Container> createContainer = null;
 	Func<ExplosiveObject> createExplosiveObject = null;
@@ -587,8 +588,9 @@ public partial class LevelGenerator
 		dungeonsSet = new RoomDefSet("level/level3/rooms3.png");
 		gardensSet = new RoomDefSet("level/level4/rooms4.png");
 
-		caveAmbientTrack = new MultilayerTrack("sounds/ost/caves/caves", 1);
-		minesAmbientTrack = new MultilayerTrack("sounds/ost/mines/mines", 2);
+		caveAmbientTrack = new MultilayerTrack("sounds/ost/area/caves", 1);
+		minesAmbientTrack = new MultilayerTrack("sounds/ost/area/mines", 1);
+		catacombsAmbientTrack = new MultilayerTrack("sounds/ost/area/catacombs", 1);
 	}
 
 	public void setObjectFlag(int x, int y)

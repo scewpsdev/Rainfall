@@ -62,7 +62,7 @@ public class Cliffside : Entity
 
 	void onBeachEnter()
 	{
-		GameState.instance.setAmbience(level.ambientSound);
+		//GameState.instance.setAmbience(level.ambientSound);
 	}
 
 	public override void render()

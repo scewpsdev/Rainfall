@@ -26,7 +26,7 @@ public class Beetle : Mob
 
 		spawnRate = 0.1f;
 
-		health = 1;
+		health = 2;
 		poise = 0;
 
 		speed = 2;

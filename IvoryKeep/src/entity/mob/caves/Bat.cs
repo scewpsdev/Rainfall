@@ -13,7 +13,7 @@ public class Bat : Mob
 	{
 		displayName = "Bat";
 
-		health = 1;
+		health = 2;
 		poise = 0;
 		gravity = 0;
 		speed = 1.5f;

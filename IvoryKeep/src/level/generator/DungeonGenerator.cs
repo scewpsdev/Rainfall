@@ -103,6 +103,8 @@ public partial class LevelGenerator
 
 		level.rooms = rooms;
 		level.ambientSound = Resource.GetSound("sounds/ambience.ogg");
+		level.ambientTrack = catacombsAmbientTrack;
+		level.ambientTrackHasIdleLayer = true;
 
 		objectFlags = new bool[width * height];
 		Array.Fill(objectFlags, false);

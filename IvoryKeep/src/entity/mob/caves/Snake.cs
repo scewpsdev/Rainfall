@@ -23,7 +23,7 @@ public class Snake : Mob
 
 		collider = new FloatRect(-0.3f, 0, 0.6f, 0.9f);
 
-		health = 1;
+		health = 3;
 		speed = 3;
 
 		ai = new SnakeAI(this);

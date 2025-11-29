@@ -29,6 +29,8 @@ public class MainMenuState : State
 
 	UIParticleEffect particles;
 
+	Sound mainMenuAmbience;
+
 	long startTime = -1;
 
 
@@ -38,6 +40,8 @@ public class MainMenuState : State
 		splashSmall = new Sprite(Resource.GetTexture("sprites/ui/splash2.png", false), 0, 64, 256, 32);
 
 		particles = new UIParticleEffect(null, "effects/menu.rfs");
+
+		mainMenuAmbience = Resource.GetSound("sounds/ost/misc/menu.ogg");
 	}
 
 	public override void onSwitchTo(State from)
@@ -186,7 +190,7 @@ public class MainMenuState : State
 		drawLine("A Game by Scewps");
 		drawLine("");
 		drawLine("Soundtrack:");
-		drawLine("");
+		back();
 		drawLineRight("Scewps");
 		drawLineRight("Abstraction");
 		drawLine("");
@@ -286,6 +290,7 @@ public class MainMenuState : State
 	public override void update()
 	{
 		particles.update();
+		AudioManager.SetAmbience(mainMenuAmbience);
 	}
 
 	public override void draw(GraphicsDevice graphics)

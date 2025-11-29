@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 public class MagicMissileProjectile : Projectile
 {
 	const float speed = 16;
-	const float radius = 2;
+	const float radius = 3;
 	float explosionDamage;
 
 	public MagicMissileProjectile(Vector2 direction, Vector2 startVelocity, Vector2 offset, Player player, Item staff, Item spell)

@@ -103,9 +103,6 @@ public class GameState : State
 	public Player player;
 	public PlayerCamera camera;
 
-	uint ambientSource;
-	public Sound ambience;
-
 	public Mob currentBoss { get; private set; }
 	public float currentBossMaxHealth;
 	public BossRoom currentBossRoom;
@@ -857,11 +854,10 @@ public class GameState : State
 		if (camera.level != null)
 			camera.level.removeEntity(camera);*/
 
-		if (ambientSource != 0)
-			Audio.StopSource(ambientSource);
+		AudioManager.SetAmbience(null);
 
 		if (level != null && level.ambientTrack != null)
-			level.ambientTrack.stop(); 
+			level.ambientTrack.stop();
 
 		hub?.destroy();
 		cliffside?.destroy();
@@ -898,22 +894,6 @@ public class GameState : State
 	{
 		lastFreezeTime = Time.timestamp;
 		freezeDuration = duration;
-	}
-
-	public void setAmbience(Sound ambience)
-	{
-		if (ambientSource != 0)
-		{
-			Audio.FadeoutSource(ambientSource, 2);
-			ambientSource = 0;
-		}
-		if (ambience != null)
-		{
-			ambientSource = Audio.PlayBackground(ambience, 0.6f, 1, true, 2);
-			Audio.SetInaudibleBehavior(ambientSource, true, false);
-			Audio.SetProtect(ambientSource, true);
-		}
-		this.ambience = ambience;
 	}
 
 	public void setAmbientLayer(int layer)
@@ -1098,7 +1078,7 @@ public class GameState : State
 
 			player.hud.onLevelSwitch(level.displayName);
 
-			setAmbience(level.ambientSound);
+			AudioManager.SetAmbience(level.ambientSound);
 		}
 
 		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
