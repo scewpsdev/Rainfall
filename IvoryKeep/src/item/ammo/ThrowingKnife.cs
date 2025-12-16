@@ -35,7 +35,7 @@ public class ThrowingKnife : Item
 	{
 		Item knife = player.removeItemSingle(this);
 		ItemEntity entity = player.throwItem(knife, player.lookDirection.normalized, speed);
-		entity.gravity = -1;
+		entity.flyStraightOnThrow = true;
 		return true;
 	}
 }

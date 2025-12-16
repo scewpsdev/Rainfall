@@ -14,9 +14,9 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>D:\Dev\Snowfall\Snowfall\res assets png ogg vsh fsh csh glsl shader ttf rfs gltf glb</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>D:\Dev\ScoopsField\ScoopsField\res res png ogg vsh fsh csh glsl vert frag comp shader ttf rfs gltf glb</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\Dev\Snowfall\Snowfall\bin\x64\Debug</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>D:\Dev\ScoopsField\bin\x64\Debug</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>res D:\Dev\2025\Reverse\Reverse\bin\Debug\net8.0\assets png ogg vsh fsh csh shader ttf rfs gltf glb</LocalDebuggerCommandArguments>

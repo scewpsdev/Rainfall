@@ -257,9 +257,13 @@ static void ProcessMesh(MeshData& mesh, aiMesh* aimesh, int skeletonID)
 
 	for (int i = 0; i < (int)aimesh->mNumFaces; i++)
 	{
-		mesh.indexData[i * 3 + 0] = aimesh->mFaces[i].mIndices[0];
-		mesh.indexData[i * 3 + 1] = aimesh->mFaces[i].mIndices[1];
-		mesh.indexData[i * 3 + 2] = aimesh->mFaces[i].mIndices[2];
+		for (int j = 0; j < 3; j++)
+		{
+			if (j < aimesh->mFaces[i].mNumIndices)
+				mesh.indexData[i * 3 + j] = aimesh->mFaces[i].mIndices[j];
+			else
+				mesh.indexData[i * 3 + j] = -1;
+		}
 	}
 
 
@@ -728,6 +732,7 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 	unsigned int flags = 0
 		| aiProcess_ValidateDataStructure
 		| aiProcess_Triangulate
+		| aiProcess_GenNormals
 		| aiProcess_CalcTangentSpace
 		| aiProcess_JoinIdenticalVertices
 		| aiProcess_SplitLargeMeshes
@@ -735,6 +740,7 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 		| aiProcess_OptimizeMeshes
 		| aiProcess_FlipUVs
 		| aiProcess_PopulateArmatureData
+		| aiProcess_LimitBoneWeights
 		//| aiProcess_RemoveRedundantMaterials
 		;
 

@@ -25,10 +25,9 @@ public class StartingClass
 	public static StartingClass thief;
 	public static StartingClass wizard;
 	public static StartingClass fool;
+	public static StartingClass dev;
 
 	public static StartingClass[] startingClasses;
-
-	public static StartingClass dev;
 
 	static StartingClass()
 	{

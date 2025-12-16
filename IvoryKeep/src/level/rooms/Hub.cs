@@ -85,7 +85,7 @@ public class Hub : Entity
 
 	Texture stairs;
 
-	public Blacksmith blacksmith;
+	Blacksmith blacksmith;
 
 	public Elevator[] elevators = new Elevator[3];
 
@@ -99,7 +99,8 @@ public class Hub : Entity
 
 	public override void init(Level level)
 	{
-		level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2i(1, 2), Vector2i.Left), new Vector2(-1, 29));
+		//level.addEntity(level.entrance = new LevelTransition(GameState.instance.cliffside, GameState.instance.cliffside.exit, new Vector2i(1, 2), Vector2i.Left), new Vector2(-1, 29));
+
 		//if (GameState.instance.cliffside.exit != null)
 		//	GameState.instance.cliffside.exit.otherDoor = level.entrance;
 
@@ -108,7 +109,7 @@ public class Hub : Entity
 
 		//level.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
 
-		level.addEntity(new Fountain(FountainEffect.None), level.rooms[0].getMarker(11) + new Vector2(7, 0));
+		level.addEntity(new Fountain(FountainEffect.None), new Vector2(level.width - 4.5f, 2));
 
 
 		SaveFile save = GameState.instance.save;
@@ -117,15 +118,20 @@ public class Hub : Entity
 		{
 			StartingClass startingClass = StartingClass.startingClasses[i];
 			//Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
-			Vector2 position = new Vector2(2 + i * 1.5f, 0);
-			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), level.rooms[0].getMarker(10) + position);
+			float x = i - StartingClass.startingClasses.Length / 2;
+			x += x >= 0 ? 1 : 0;
+			x = level.width / 2 + x * 1.5f;
+			Vector2 position = new Vector2(x, 2);
+			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), position);
 		}
 
 #if DEBUG
-		level.addEntity(new ArmorStand(StartingClass.dev, -1), level.rooms[0].getMarker(10) + new Vector2(2 + StartingClass.startingClasses.Length * 1.5f, 0));
+		level.addEntity(new ArmorStand(StartingClass.dev, -1), new Vector2(level.width / 2 + 2 + StartingClass.startingClasses.Length * 1.5f, 2));
 #endif
 
-		level.addEntity(new StashChest(StashChestMode.Retrieve), (Vector2)room.getMarker(0x13));
+		level.addEntity(new StashChest(StashChestMode.Retrieve) { flipped = true }, new Vector2(2, 2));
+
+		return;
 
 		for (int i = 0; i < elevators.Length; i++)
 		{
@@ -191,6 +197,8 @@ public class Hub : Entity
 
 	public override void render()
 	{
+		return;
+
 		Vector2 dungeonEntrancePosition = (Vector2)room.getMarker(0x0b);
 		int numSteps = 20;
 		float width = 1.2f;

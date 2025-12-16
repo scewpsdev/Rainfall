@@ -37,7 +37,7 @@ public class GolemBoss : Mob
 		rect = new FloatRect(-4, -1, 8, 4);
 
 		health = 50;
-		poise = 10;
+		poise = 20;
 		speed = 3;
 		damage = 1.0f;
 		jumpPower = 16;

@@ -341,8 +341,8 @@ public abstract class Item
 		this.name = name;
 		this.type = type;
 
-		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo || type == ItemType.Gem || type == ItemType.Potion;
-		isActiveItem = /*type == ItemType.Potion ||*/ type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility;
+		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo || type == ItemType.Potion;
+		isActiveItem = /*type == ItemType.Potion ||*/ type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility || type == ItemType.Gem;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
 		stackable = type == ItemType.Food /*|| type == ItemType.Potion*/ || type == ItemType.Relic || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;

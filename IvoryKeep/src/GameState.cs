@@ -126,7 +126,7 @@ public class GameState : State
 		//QuestManager.Init(save);
 		//NPCManager.Init();
 
-		reset(seed, customRun);
+		reset(seed, customRun || dailyRun);
 	}
 
 	public void reset(string seed, bool customRun, StartingClass startingClass = null, bool quickRestart = false)
@@ -172,6 +172,7 @@ public class GameState : State
 
 
 		generator.generateSingleRoomLevel(hub, new Room(generator.hubSet, 0), null, TileType.dirt, TileType.stone);
+		hub.addEntity(new Hub(hub.rooms[0]));
 		hub.getEntity<DungeonGate>().layer = ParallaxObject.ZToLayer(0.15f);
 		hub.isSafeLevel = true;
 
@@ -1115,7 +1116,8 @@ public class GameState : State
 				{
 					Audio.PlayBackground(UISound.uiConfirm2);
 					GameOverScreen.Destroy();
-					SaveFile.Save(save);
+					if (!customRun)
+						SaveFile.Save(save);
 					reset(seed, customRun, player.startingClass, true);
 				}
 				if (InputManager.IsPressed("UIConfirm2"))

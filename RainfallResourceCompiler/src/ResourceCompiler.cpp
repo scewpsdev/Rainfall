@@ -16,6 +16,7 @@
 #include <mutex>
 
 
+static bool success = true;
 static bool optimizeSceneGraph = true;
 
 static int assetsCompiled = 0;
@@ -195,6 +196,7 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 	else
 	{
 		printf("Failed to compile resource %s\n", (const char*)file.c_str());
+		::success = false;
 	}
 }
 
@@ -496,7 +498,7 @@ int main(int argc, char* argv[])
 			WriteAssetTable(assetTableFile.c_str());
 		}
 
-		return 0;
+		return success ? 0 : 1;
 	}
 
 	printf("Usage: ResourceCompiler.exe <res folder> <out folder> [formats...]\n");

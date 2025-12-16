@@ -19,6 +19,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 	int pierces = 0;
 	public float damage;
 	public bool stuck = false;
+	public bool flyStraightOnThrow = false;
 	Vector2i stuckTile = Vector2i.Zero;
 
 	public float rotationVelocity = 0;
@@ -212,7 +213,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 			*/
 		}
 
-		velocity.y += gravity * Time.deltaTime;
+		if (!flyStraightOnThrow || ricochets > 0)
+			velocity.y += gravity * Time.deltaTime;
 
 		if (GameState.instance.level.hitTiles(position) != null)
 			velocity = Vector2.Zero;

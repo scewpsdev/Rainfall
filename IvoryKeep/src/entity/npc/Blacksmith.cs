@@ -89,7 +89,8 @@ public class Blacksmith : NPC, WorldEventListener
 	public void onBossKilled(Mob boss)
 	{
 		clearShop();
-		populateShop(GameState.instance.generator.random, 8, 10, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		Random random = new Random((int)Hash.combine(Hash.hash(GameState.instance.run.seed), (uint)boss.level.floor));
+		populateShop(random, 8, 10, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 		buysItems = true;
 
 		if (GameState.instance.areaCaves.Contains(boss.level))

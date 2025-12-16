@@ -287,10 +287,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		//if (handItem != null && handItem.twoHanded)
 		//	unequipItem(handItem);
+		/*
 		if (handItem != null && handItem.twoHanded && !canEquipOnehanded)
 		{
 			dropItem(handItem);
 		}
+		*/
 
 		offhandItem = item;
 		offhandItem.onEquip(this);
@@ -466,6 +468,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
 	}
 
+	bool canUseOffhandItem(Item item)
+	{
+		return handItem == null || item.isSecondaryItem /*|| canEquipOffhand*/; // (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
+	}
+
 	bool canEquipActiveItem(Item item)
 	{
 		for (int i = 0; i < activeItems.Length; i++)
@@ -505,7 +512,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
-		if (canEquipHandItem(item))
+		if (canEquipHandItem(item) && !item.twoHanded && handItem != null && !handItem.twoHanded && offhandItem == null)
+			equipOffhandItem(item);
+		else if (canEquipHandItem(item))
 			equipHandItem(item);
 		else if (item.isSecondaryItem && canEquipOffhandItem(item) && offhandItem == null)
 			equipOffhandItem(item);
@@ -1695,7 +1704,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (offhandItem != null)
+							if (offhandItem != null && canUseOffhandItem(offhandItem))
 							{
 								if (offhandItem.trigger)
 								{
@@ -2129,7 +2138,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (!isAlive)
 			return;
 
-		uint color = 0xFFFFFFFF;
+		uint color = 0xFF7F7F7F;
 		ParticleEffect particles = handParticles;
 
 		if (item == null)
@@ -2152,8 +2161,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 				else
 				{
-					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(true).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(true).y);
-					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, MathF.PI * 0.5f, item.sprite, false, color);
+					Vector2 weaponPosition = new Vector2(position.x - 0.25f * direction, position.y + 0.5f);
+					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, MathF.PI * -0.5f, item.sprite, false, color);
 					if (particles != null)
 					{
 						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
@@ -2211,7 +2220,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				//if (actions.currentAction != null)
 				{
 					renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
-					renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+
+					if (offhandItem != null)
+					{
+						if (canUseOffhandItem(offhandItem))
+							renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
+						else
+							renderBackItem(LAYER_PLAYER_BG, offhandItem);
+					}
 				}
 			}
 		}
