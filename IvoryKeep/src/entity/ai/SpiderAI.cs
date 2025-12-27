@@ -47,7 +47,7 @@ public class SpiderAI : AdvancedAI
 		if (newTarget is Player)
 		{
 			Player player = (Player)newTarget;
-			if (player.hasItemEquipped<Torch>() || player.hasItemEquipped<Lantern>())
+			if (mob is Spider && player.hasItemEquipped<Torch>() || player.hasItemEquipped<Lantern>())
 				fleeing = true;
 		}
 	}

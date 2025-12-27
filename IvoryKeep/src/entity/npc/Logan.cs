@@ -89,9 +89,9 @@ public class Logan : NPC
 				Hooray, or something. Here, take this.
 				""").addCallback(() =>
 			{
-				Item staff = player.getItem("questline_logan_staff");
+				Item staff = GameState.instance.player.getItem("questline_logan_staff");
 				if (staff != null)
-					player.removeItem(staff);
+					GameState.instance.player.removeItem(staff);
 
 				closeScreen();
 				GameState.instance.save.unlockStartingClass(StartingClass.wizard);

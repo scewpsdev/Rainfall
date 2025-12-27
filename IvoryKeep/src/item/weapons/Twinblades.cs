@@ -13,7 +13,7 @@ public class Twinblades : Weapon
 	{
 		displayName = "Twinblades";
 
-		baseDamage = 1.5f;
+		baseDamage = 1.3f;
 		baseAttackRange = 1.3f;
 		baseAttackRate = 1.0f;
 		attackStartAngle = 2.75f * MathF.PI;
@@ -26,7 +26,7 @@ public class Twinblades : Weapon
 
 		dexterityScaling = 0.8f;
 
-		baseValue = 26;
+		baseValue = 46;
 
 		sprite = new Sprite(tileset, 10, 8, 2, 1);
 		size = new Vector2(2, 1);

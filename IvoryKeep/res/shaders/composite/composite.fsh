@@ -23,7 +23,7 @@ void main()
 	hdr.rgb = mix(parallax.rgb, hdr.rgb, hdr.a);
 	vec4 material = texture2D(s_material, v_texcoord0 + cameraFract);
 	vec3 lighting = texture2D(s_lighting, v_texcoord0 + cameraFract).rgb;
-	lighting *= 2;
+	//lighting *= 2;
 
 	vec3 final = SRGBToLinear(linearToSRGB(hdr.rgb) * mix(vec4_splat(1), linearToSRGB(lighting), material.r));
 

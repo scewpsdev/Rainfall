@@ -53,12 +53,12 @@ public enum AttackAnim
 
 public class Infusion
 {
-	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.2f };
+	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.2f, rangeMultiplier = 1 / 1.2f };
 	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.8f };
-	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.5f, weightMultiplier = 0.5f, damageMultiplier = 0.667f };
-	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 0.667f, weightMultiplier = 1.5f, damageMultiplier = 1.5f };
-	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f };
-	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.7f };
+	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.5f, weightMultiplier = 0.5f, damageMultiplier = 1 / 1.5f };
+	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 1 / 1.5f, weightMultiplier = 1.5f, damageMultiplier = 1.5f };
+	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f, weightMultiplier = 1.25f };
+	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.7f, weightMultiplier = 0.7f };
 	public static readonly Infusion Flawless = new Infusion("Flawless") { damageMultiplier = 1.1f, attackSpeedMultiplier = 1.1f, weightMultiplier = 0.9f, rangeMultiplier = 1.1f };
 	public static readonly Infusion Broken = new Infusion("Broken") { damageMultiplier = 0.5f, attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, rangeMultiplier = 0.7f };
 

@@ -244,7 +244,7 @@ public class Level
 		entities.Add(entity);
 		entity.level = this;
 
-		if (entity.collider != null && overlapTiles(entity.position + entity.collider.min, entity.position + entity.collider.max, false, false))
+		if (entity.velocity != Vector2.Zero && entity.collider != null && overlapTiles(entity.position + entity.collider.min, entity.position + entity.collider.max, false, false))
 		{
 			entity.position = Vector2.Floor(entity.position) + 0.5f;
 		}
@@ -334,7 +334,7 @@ public class Level
 	public void render()
 	{
 		//Renderer.ambientLight = ambientLight;
-		Renderer.ambientLight = Vector3.One * MathF.Pow(lightLevel / 5.0f, 3.0f);
+		Renderer.ambientLight = Vector3.One * MathF.Pow(lightLevel / 5.0f, 3.0f) * 2;
 		Renderer.bloomStrength = 0.01f;
 		Renderer.vignetteFalloff = 0.1f;
 

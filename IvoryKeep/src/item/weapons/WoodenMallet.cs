@@ -13,7 +13,7 @@ public class WoodenMallet : Weapon
 	{
 		displayName = "Wooden Mallet";
 
-		baseDamage = 2.25f;
+		baseDamage = 1.8f;
 		baseAttackRange = 1.2f;
 		baseAttackRate = 0.9f;
 		anim = AttackAnim.SwingOverhead;

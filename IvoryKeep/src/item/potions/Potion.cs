@@ -132,7 +132,7 @@ public abstract class Potion : Item
 		int effectShift = (int)(Hash.hash(GameState.instance.run.seed) % (int)PotionEffectType.Count);
 		int idx = ((int)effect + effectShift) % (int)PotionEffectType.Count;
 		//sprite = potionSprites[idx];
-		displayName = potionNames[idx];
+		displayName = (throwable ? "Throwable " : "") + potionNames[idx];
 		//potionColor = potionColors[idx];
 		if (!GameState.instance.identifiedPotions.Contains(name))
 			GameState.instance.identifiedPotions.Add(name);

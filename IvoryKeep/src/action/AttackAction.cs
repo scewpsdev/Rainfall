@@ -206,7 +206,7 @@ public class AttackAction : EntityAction
 					hitSoundPlayed = true;
 				}
 
-				GameState.instance.freeze(0.05f);
+				//GameState.instance.freeze(0.05f);
 
 				//if (critical)
 				//	GameState.instance.level.addEntity(Effects.CreateCriticalEffect(), hit.entity.position + hit.entity.collider.center);
