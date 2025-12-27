@@ -124,7 +124,7 @@ RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, float deltaTime, const Vecto
 	handle source = defaultBus.play3dClocked(deltaTime, *sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0);
 	soloud.setPause(source, true);
 	soloud.setRelativePlaySpeed(source, pitch);
-	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
+	soloud.set3dSourceAttenuation(source, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff * 5);
 	soloud.set3dSourceMinMaxDistance(source, 1, 500);
 	soloud.fadeVolume(source, gain * _3dVolume, 0.0001f);
 	soloud.setPause(source, false);
@@ -134,9 +134,9 @@ RFAPI uint32_t Audio_SourcePlay(AudioSource* sound, float deltaTime, const Vecto
 	{
 		handle reverbSource = reverbBus.play3d(*sound, position.x, position.y, position.z, 0.0f, 0.0f, 0.0f, 0, true);
 		soloud.setRelativePlaySpeed(reverbSource, pitch);
-		soloud.set3dSourceAttenuation(reverbSource, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff);
+		soloud.set3dSourceAttenuation(reverbSource, SoLoud::AudioSource::INVERSE_DISTANCE, rolloff * 5);
 		soloud.set3dSourceMinMaxDistance(reverbSource, 1, 500);
-		soloud.fadeVolume(source, gain, 0.0001f);
+		soloud.fadeVolume(source, gain * _3dVolume, 0.0001f);
 		soloud.setPause(reverbSource, false);
 	}
 

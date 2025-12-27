@@ -15,10 +15,11 @@ public class Halberd : Weapon
 
 		baseDamage = 1.6f;
 		baseAttackRange = 1.4f;
-		baseAttackRate = 1.6f;
+		baseAttackRate = 1.2f;
 		twoHanded = true;
 		baseWeight = 2.5f;
 		doubleBladed = false;
+		anim = AttackAnim.Stab;
 
 		strengthScaling = 0.2f;
 		dexterityScaling = 0.4f;

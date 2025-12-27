@@ -42,12 +42,12 @@ public class Weapon : Item
 			int attackIdx = 0;
 			if (player.actions.currentAction != null && player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == this)
 				attackIdx = (player.actions.currentAction as AttackAction).attackIdx + 1;
-			//getAttackAnim(player, attackIdx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range);
-			AttackAnim anim = this.anim == AttackAnim.Stab ? AttackAnim.Stab : AttackAnim.SwingOverhead;
-			int swingDir = 0;
-			float startAngle = attackStartAngle;
-			float endAngle = attackEndAngle;
-			float range = attackRange;
+			getAttackAnim(player, attackIdx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range);
+			//AttackAnim anim = this.anim == AttackAnim.Stab ? AttackAnim.Stab : AttackAnim.SwingOverhead;
+			//int swingDir = 0;
+			//float startAngle = attackStartAngle;
+			//float endAngle = attackEndAngle;
+			//float range = attackRange;
 
 			float attackDamage = getAttackDamage(player);
 			float attackRate = this.attackRate;
@@ -58,7 +58,7 @@ public class Weapon : Item
 			if (mainHand && player.offhandItem != null && player.offhandItem.name == name)
 			{
 				powerstancedWeapon = player.offhandItem;
-				attackRate *= 1.25f;
+				attackRate *= 1.5f;
 			}
 			else if (!mainHand && player.handItem != null && player.handItem.name == name)
 			{

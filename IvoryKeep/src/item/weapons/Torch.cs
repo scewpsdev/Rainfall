@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 public class Torch : Item
 {
+	ParticleEffect particles;
+
+
 	public Torch()
 		: base("torch", ItemType.Utility)
 	{
@@ -35,7 +38,18 @@ public class Torch : Item
 
 	public override ParticleEffect createParticleEffect(Entity entity)
 	{
-		return ParticleEffects.CreateTorchEffect(entity);
+		return particles = ParticleEffects.CreateTorchEffect(entity);
+	}
+
+	public override void onLevelSwitch(Level to)
+	{
+		GameState.instance.moveEntityToLevel(particles, to);
+	}
+
+	public override bool use(Player player)
+	{
+		player.throwItem(this);
+		return true;
 	}
 
 	public override void render(Entity entity)

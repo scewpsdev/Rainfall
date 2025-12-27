@@ -12,23 +12,23 @@ public class GiantsGauntlet : Item
 		: base("duelists_gauntlets", ItemType.Relic)
 	{
 		displayName = "Duelist's Gauntlets";
-		description = "Forged in ancient times for warriors of unmatched dexterity, enabling it's bearer to wield two weapons at once.";
+		description = "Forged in ancient times for warriors of unmatched strength, enabling it's bearer to throw weapons at their enemies.";
 
 		armorSlot = ArmorSlot.Gloves;
 		gloveColor = 0xFF4c3435;
 
-		baseValue = 45;
+		baseValue = 35;
 
 		sprite = new Sprite(tileset, 10, 9);
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.canEquipOnehanded = true;
+		player.canThrowWeapons = true;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.canEquipOnehanded = false;
+		player.canThrowWeapons = false;
 	}
 }

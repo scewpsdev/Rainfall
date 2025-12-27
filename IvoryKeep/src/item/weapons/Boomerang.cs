@@ -13,8 +13,9 @@ public class Boomerang : Weapon
 	{
 		displayName = "Boomerang";
 
-		baseDamage = 2;
+		baseDamage = 1.25f;
 		baseAttackRange = 4;
+		baseAttackRate = 1;
 		baseWeight = 1;
 
 		baseValue = 12;

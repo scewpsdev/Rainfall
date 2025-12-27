@@ -18,7 +18,7 @@ public class RoundShield : Shield
 		baseWeight = 0.5f;
 
 		blockCharge = 0.08f;
-		actionMovementSpeed = 0.8f;
+		blockMovementSpeed = 0.8f;
 		blockAbsorption = 0.7f;
 
 		sprite = new Sprite(tileset, 7, 7);

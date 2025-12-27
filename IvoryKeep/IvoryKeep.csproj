@@ -44,6 +44,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotnetSpiderLite.HtmlAgilityPack" Version="0.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Rainfall2D\Rainfall2D.csproj" />
     <ProjectReference Include="..\Rainfall\Rainfall.csproj" />
   </ItemGroup>

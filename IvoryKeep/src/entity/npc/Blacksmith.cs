@@ -39,13 +39,25 @@ public class Blacksmith : NPC, WorldEventListener
 
 	public override void init(Level level)
 	{
-		setOneTimeInititalDialogue("""
+		if (level == GameState.instance.hub)
+		{
+			setOneTimeInititalDialogue("""
 			Another wanderer poking their nose in places it don't belong.
 			If you have no interest in my wares keep walking. You disturb my focus.
 			""")?.addCallback(() =>
-		{
-			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
-		});
+			{
+				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
+			});
+
+			addOneTimeDialogue("""
+			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
+			""");
+
+			addDialogue("""
+			Hmm?
+			I'm not up for chatting.
+			""");
+		}
 
 		if (progression.initialDialogue == null)
 		{
@@ -53,15 +65,6 @@ public class Blacksmith : NPC, WorldEventListener
 				Take what you need, if you can bear the weight.
 				""");
 		}
-
-		addOneTimeDialogue("""
-			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
-			""");
-
-		addDialogue("""
-			Hmm?
-			I'm not up for chatting.
-			""");
 
 		GameState.instance.worldEventListeners.Add(this);
 	}
@@ -123,5 +126,6 @@ public class Blacksmith : NPC, WorldEventListener
 		}
 
 		canUpgrade = true;
+		canInfuse = true;
 	}
 }

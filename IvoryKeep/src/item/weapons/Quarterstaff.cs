@@ -41,6 +41,6 @@ public class Quarterstaff : Weapon
 	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
 		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
-		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : idx % 2 == 1 ? AttackAnim.Stab : AttackAnim.SwingOverhead;
+		anim = idx % 2 == 0 ? AttackAnim.SwingOverhead : AttackAnim.SwingSideways;
 	}
 }

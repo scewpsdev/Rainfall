@@ -49,6 +49,7 @@ public class AdvancedAI : AI
 	AIState state = AIState.Default;
 	public int walkDirection = 1;
 	public bool patrol = true;
+	public bool fleeing = false;
 	public string runAnim = "run";
 
 	protected bool useAStar = false;
@@ -57,7 +58,7 @@ public class AdvancedAI : AI
 	float walkSpeed;
 
 	public List<AIAction> actions = new List<AIAction>();
-	AIAction currentAction = null;
+	public AIAction currentAction = null;
 	AIAction lastAction = null;
 	AIAction triggeredAction = null;
 	public int hesitation = 0;
@@ -268,6 +269,8 @@ public class AdvancedAI : AI
 			else if (distance >= minRunDistance)
 			{
 				walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
+				if (fleeing)
+					walkDirection *= -1;
 
 				if (walkDirection == -1)
 					mob.inputLeft = true;
@@ -304,6 +307,8 @@ public class AdvancedAI : AI
 					chargeTime = Time.currentTime;
 
 					walkDirection = targetPosition.x < mob.position.x ? -1 : 1;
+					if (fleeing)
+						walkDirection *= -1;
 					actionDirection = walkDirection;
 
 					if (walkDirection == 1)
@@ -343,7 +348,7 @@ public class AdvancedAI : AI
 			//for (int i = (int)MathF.Floor(mob.collider.min.y + 0.01f); i <= (int)MathF.Floor(mob.collider.max.y - 0.01f); i++)
 			{
 				//TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
-				HitData hit = mob.level.raycast(mob.center + new Vector2(0, 0), new Vector2(walkDirection, 0), 0.5f * mob.collider.size.x + mob.velocity.x * Time.deltaTime);
+				HitData hit = mob.level.raycast(mob.center + new Vector2(0, 0), new Vector2(walkDirection, 0), 0.5f * mob.collider.size.x + mob.velocity.x * Time.deltaTime + 0.1f);
 				if (hit != null)
 				{
 					hitsWall = true;

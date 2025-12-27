@@ -28,6 +28,8 @@ public class ArrowTrap : Entity, Hittable
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
+		if (by is Projectile && (by as Projectile).shooter == this)
+			return true;
 		shoot();
 		return true;
 	}

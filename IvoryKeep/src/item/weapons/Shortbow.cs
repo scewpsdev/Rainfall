@@ -16,9 +16,9 @@ public class Shortbow : Bow
 
 		isSecondaryItem = true;
 
-		baseDamage = 1;
+		baseDamage = 1.5f;
 		baseAttackRate = 2.5f;
-		baseAttackRange = 7; // arrow speed
+		baseAttackRange = 4; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		baseWeight = 1;

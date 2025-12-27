@@ -21,7 +21,7 @@ public class Crossbow : Weapon
 
 		baseDamage = 4;
 		baseAttackRate = 1.0f;
-		baseAttackRange = 60; // arrow speed
+		baseAttackRange = 7; // arrow speed
 		knockback = 12.0f;
 		trigger = true;
 		twoHanded = true;

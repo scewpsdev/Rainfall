@@ -18,7 +18,7 @@ public class Bloodfang : Item
 		stackable = true;
 		tumbles = false;
 
-		baseValue = 35;
+		baseValue = 45;
 
 		sprite = new Sprite(tileset, 15, 6);
 	}

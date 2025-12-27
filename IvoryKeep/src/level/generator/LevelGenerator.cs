@@ -9,568 +9,30 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
-public enum MapTile
+public abstract class LevelGenerator
 {
-	None,
-	Tile0,
-	Tile1,
-	Tile2,
-	PushableBlock,
-	Platform,
-	ArrowTrap,
-	Ladder,
-	Trampoline,
-	LadderPlatform,
-	Water,
-	Spike,
-	ExplosiveObject,
-	ItemSpawn,
-	EnemySpawn,
-	RandomTile,
-	Placeholder,
+	public static RoomDefSet hubSet;
+	public static RoomDefSet cavesSet;
+	public static RoomDefSet cavesSpecialSet;
 
-	Count
-}
+	protected static RoomDefSet specialSet;
+	protected static RoomDefSet minesSet;
+	protected static RoomDefSet dungeonsSet;
+	protected static RoomDefSet gardensSet;
 
-public struct DoorDef
-{
-	public Vector2i position;
-	public Vector2i direction;
-}
+	protected static MultilayerTrack cavesAmbientTrack;
+	protected static MultilayerTrack minesAmbientTrack;
+	protected static MultilayerTrack dungeonsAmbientTrack;
 
-public struct EntitySpawnDef
-{
-	public Vector2 position;
-	public string name;
-}
-
-public struct MarkerDef
-{
-	public Vector2 position;
-	public uint id;
-}
-
-public struct RoomDef
-{
-	public int id;
-	public RoomDefSet set;
-
-	//public int x;
-	//public int y;
-	public int width;
-	public int height;
-	public MapTile[] data;
-	public bool mirrored;
-	public int mirroredFrom;
-	public List<DoorDef> doorDefs;
-	public List<EntitySpawnDef> entities;
-	public List<MarkerDef> markers;
-
-
-	public MapTile getTile(int x, int y)
-	{
-		if (mirrored)
-			x = width - x - 1;
-		if (x >= 0 && x < width && y >= 0 && y < height)
-			return data[x + y * width];
-		return MapTile.None;
-
-		/*
-		if (mirrored)
-			x = width - x - 1;
-		y = height - y - 1;
-		x += this.x;
-		y += this.y;
-		return set.rooms[x + y * set.roomsInfo.width];
-		*/
-	}
-
-	public Vector2 getEntityPosition(Room room, int idx)
-	{
-		Vector2 localpos = entities[idx].position;
-		if (mirrored)
-			localpos.x = width - localpos.x;
-		return new Vector2(room.x, room.y) + localpos;
-	}
-}
-
-public class RoomDefSet
-{
-	public uint[] rooms;
-	public TextureInfo roomsInfo;
-
-	public int width { get => roomsInfo.width; }
-	public int height { get => roomsInfo.height; }
-
-	public List<RoomDef> roomDefs = new List<RoomDef>();
-
-	public RoomDefSet(string path, bool createMirroredRooms = true)
-	{
-		if (path != null)
-			loadRoomImage(path);
-
-		if (createMirroredRooms)
-		{
-			// mirrored defs
-			int numRoomDefs = roomDefs.Count;
-			for (int i = 0; i < numRoomDefs; i++)
-			{
-				RoomDef def = roomDefs[i];
-				def.id = roomDefs.Count;
-				def.mirrored = true;
-				def.mirroredFrom = roomDefs[i].id;
-				def.doorDefs = new List<DoorDef>(roomDefs[i].doorDefs);
-				for (int j = 0; j < def.doorDefs.Count; j++)
-				{
-					DoorDef doorDef = def.doorDefs[j];
-					doorDef.position.x = def.width - doorDef.position.x - 1;
-					doorDef.direction.x *= -1;
-					def.doorDefs[j] = doorDef;
-				}
-				roomDefs.Add(def);
-			}
-		}
-	}
-
-	MapTile translateMapTileColor(uint color)
-	{
-		switch (color)
-		{
-			case 0x00000000:
-			case 0xFF000000:
-			case 0xFFFF0000:
-				return MapTile.None;
-			case 0xFFFFFFFF:
-				return MapTile.Tile0;
-			case 0xFF7F7F7F:
-				return MapTile.Tile1;
-			case 0xFFAFAFAF:
-				return MapTile.Tile2;
-			case 0xFF0000FF:
-				return MapTile.Platform;
-			case 0xFFFF7F7F:
-				return MapTile.ArrowTrap;
-			case 0xFF00FF00:
-				return MapTile.Ladder;
-			case 0xFFFF7F00:
-				return MapTile.Trampoline;
-			case 0xFF00FFFF:
-				return MapTile.LadderPlatform;
-			case 0xFF007fff:
-				return MapTile.Water;
-			case 0xFFff6100:
-				return MapTile.Spike;
-			case 0xFFff9600:
-				return MapTile.ExplosiveObject;
-			case 0xFF00cf5f:
-				return MapTile.ItemSpawn;
-			case 0xFFFFFF00:
-				return MapTile.RandomTile;
-			default:
-				return MapTile.None;
-		}
-	}
-
-	unsafe void loadRoomImage(string path)
-	{
-		Texture roomsTexture = Resource.GetTexture(path, false, true);
-		roomsTexture.getImageData(out ImageData image);
-		rooms = new uint[image.width * image.height];
-		for (int i = 0; i < image.width * image.height; i++)
-			rooms[i] = image.data[i];
-		roomsInfo = roomsTexture.info;
-		image.free();
-
-		for (int y = 0; y < roomsInfo.height; y++)
-		{
-			for (int x = 0; x < roomsInfo.width; x++)
-			{
-				uint pixel = rooms[x + y * roomsInfo.width];
-				if (pixel != 0xFFFF00FF)
-				{
-					uint top = y > 0 ? rooms[x + (y - 1) * roomsInfo.width] : 0xFFFF00FF;
-					uint left = x > 0 ? rooms[x - 1 + y * roomsInfo.width] : 0xFFFF00FF;
-					if (top == 0xFFFF00FF && left == 0xFFFF00FF)
-					{
-						int roomWidth = 0, roomHeight = 0;
-						for (int xx = x; xx < roomsInfo.width; xx++)
-						{
-							if (rooms[xx + y * roomsInfo.width] != 0xFFFF00FF)
-								roomWidth++;
-							else
-								break;
-						}
-						for (int yy = y; yy < roomsInfo.height; yy++)
-						{
-							if (rooms[x + yy * roomsInfo.width] != 0xFFFF00FF)
-								roomHeight++;
-							else
-								break;
-						}
-
-						MapTile[] data = new MapTile[roomWidth * roomHeight];
-						List<DoorDef> doorDefs = new List<DoorDef>();
-						List<MarkerDef> markers = new List<MarkerDef>();
-
-						for (int yy = y; yy < y + roomHeight; yy++)
-						{
-							for (int xx = x; xx < x + roomWidth; xx++)
-							{
-								if (rooms[xx + yy * roomsInfo.width] == 0xFFFF0000)
-								{
-									Vector2i doorPosition = new Vector2i(xx - x, roomHeight - (yy - y) - 1);
-									Vector2i doorDirection =
-										yy == y ? Vector2i.Up :
-										yy == y + roomHeight - 1 ? Vector2i.Down :
-										xx == x ? Vector2i.Left :
-										xx == x + roomWidth - 1 ? Vector2i.Right :
-										Vector2i.Zero;
-									doorDefs.Add(new DoorDef { position = doorPosition, direction = doorDirection });
-								}
-								else
-								{
-									uint color = rooms[xx + yy * roomsInfo.width];
-									if ((color | 0x0000FF00) == 0xFFFFFFFF && color != 0xFFFF00FF && color != 0xFFFFFFFF) // marker
-									{
-										uint markerID = (color & 0x0000FF00) >> 8;
-										markers.Add(new MarkerDef() { id = markerID, position = new Vector2(xx - x, roomHeight - (yy - y) - 1) });
-									}
-									else
-									{
-										data[(xx - x) + (roomHeight - (yy - y) - 1) * roomWidth] = translateMapTileColor(color);
-									}
-								}
-							}
-						}
-
-						roomDefs.Add(new RoomDef { id = roomDefs.Count, set = this, /*x = x, y = y,*/ width = roomWidth, height = roomHeight, data = data, doorDefs = doorDefs, markers = markers });
-					}
-				}
-			}
-		}
-	}
-
-	MapTile translateMapTileID(int id)
-	{
-		switch (id)
-		{
-			case 0:
-				return MapTile.None;
-			case 1:
-				return MapTile.Tile0;
-			case 2:
-				return MapTile.PushableBlock;
-			case 3:
-				return MapTile.Placeholder;
-			case 17:
-				return MapTile.Platform;
-			case 18:
-				return MapTile.Ladder;
-			case 19:
-				return MapTile.Spike;
-			case 20:
-				return MapTile.Trampoline;
-			case 25:
-				return MapTile.ItemSpawn;
-			case 26:
-				return MapTile.EnemySpawn;
-			default:
-				return MapTile.None;
-		}
-	}
-
-	public void loadTmx(string path)
-	{
-		string xml = Resource.GetText(path);
-
-		MemoryStream stream = new MemoryStream();
-		StreamWriter writer = new StreamWriter(stream);
-		writer.Write(xml);
-		writer.Flush();
-		stream.Position = 0;
-		TiledMap map = new TiledMap(stream);
-
-		int width = map.Width;
-		int height = map.Height;
-
-		RoomDef roomDef = new RoomDef();
-		roomDef.id = roomDefs.Count;
-		roomDef.set = this;
-		roomDef.width = width;
-		roomDef.height = height;
-		roomDef.data = new MapTile[width * height];
-		roomDef.doorDefs = new List<DoorDef>();
-		roomDef.entities = new List<EntitySpawnDef>();
-		roomDef.markers = new List<MarkerDef>();
-
-		for (int i = 0; i < map.Layers.Length; i++)
-		{
-			TiledLayer layer = map.Layers[i];
-			if (layer.type == TiledLayerType.TileLayer)
-			{
-				Debug.Assert(layer.width == width && layer.height == height);
-				for (int y = 0; y < height; y++)
-				{
-					for (int x = 0; x < width; x++)
-					{
-						int data = layer.data[x + (height - y - 1) * width];
-						if (data >= 8 && data < 12)
-						{
-							Vector2i doorPosition = new Vector2i(x, y);
-							Vector2i doorDirection =
-								data == 9 ? Vector2i.Right :
-								data == 10 ? Vector2i.Left :
-								data == 11 ? Vector2i.Down :
-								data == 12 ? Vector2i.Up :
-								Vector2i.Zero;
-							roomDef.doorDefs.Add(new DoorDef { position = doorPosition, direction = doorDirection });
-						}
-						else if (data != 0)
-						{
-							MapTile tile = translateMapTileID(data);
-							roomDef.data[x + y * width] = tile;
-						}
-					}
-				}
-			}
-			else if (layer.type == TiledLayerType.ObjectLayer)
-			{
-				for (int j = 0; j < layer.objects.Length; j++)
-				{
-					TiledObject obj = layer.objects[j];
-
-					Vector2 position = new Vector2(obj.x, obj.y) / new Vector2(map.TileWidth, map.TileHeight);
-					position.y = height - position.y;
-
-					if (obj.type == "marker")
-					{
-						uint id = Convert.ToUInt32(obj.name, 16);
-						roomDef.markers.Add(new MarkerDef() { id = id, position = position });
-					}
-					else
-					{
-						EntitySpawnDef entityDef = new EntitySpawnDef();
-						entityDef.position = position;
-						entityDef.name = obj.name;
-						roomDef.entities.Add(entityDef);
-					}
-				}
-			}
-		}
-
-		roomDefs.Add(roomDef);
-
-		stream.Close();
-	}
-}
-
-public class Room
-{
-	public int roomDefID;
-	public RoomDefSet set;
-	public int x, y;
-	public int width, height;
-	public List<Doorway> doorways = new List<Doorway>();
-	public bool isMainPath = false;
-	public bool hasObject = false;
-	public bool spawnEnemies = true;
-	public Entity entity = null;
-
-	Dictionary<uint, Vector2> markers = new Dictionary<uint, Vector2>();
-	public List<Vector2i> spawnLocations = new List<Vector2i>();
-
-
-	public Room()
-	{
-	}
-
-	public Room(RoomDef def)
-	{
-		x = 0;
-		y = 0;
-		width = def.width;
-		height = def.height;
-		roomDefID = def.id;
-		set = def.set;
-	}
-
-	public Room(RoomDefSet set, int id)
-		: this(set.roomDefs[id])
-	{
-	}
-
-	public Room(string path)
-		: this(new RoomDefSet(path).roomDefs[0])
-	{
-	}
-
-	public void addMarker(uint id, float x, float y)
-	{
-		markers.Add(id, new Vector2(x, y));
-	}
-
-	public bool tryGetMarker(uint id, out Vector2i value)
-	{
-		if (markers.TryGetValue(id, out Vector2 pos))
-		{
-			value = (Vector2i)pos;
-			return true;
-		}
-		value = Vector2i.Zero;
-		return false;
-	}
-
-	public Vector2i getMarker(uint id)
-	{
-		if (markers.TryGetValue(id, out Vector2 pos))
-			return (Vector2i)pos;
-		Debug.Assert(false);
-		return Vector2i.Zero;
-	}
-
-	public int countConnectedDoorways()
-	{
-		int connectedDoorways = 0;
-		for (int j = 0; j < doorways.Count; j++)
-		{
-			if (doorways[j].otherDoorway != null)
-				connectedDoorways++;
-		}
-		return connectedDoorways;
-	}
-
-	public bool getFloorSpawn(Level level, Random random, bool[] objectFlags, out Vector2i pos)
-	{
-		int offset = random.Next() % this.width;
-		for (int i = 0; i < this.width; i++)
-		{
-			int x = this.x + (offset + i) % this.width;
-			for (int y = this.y; y < this.y + this.height; y++)
-			{
-				if (objectFlags[x + y * level.width])
-					break;
-				if (y > 0 && level.getTile(x, y) == null && (level.getTile(x, y - 1) == null || level.getTile(x, y - 1).isSolid && level.getTile(x, y - 1).visible) && level.getTile(x, y + 1) == null)
-				{
-					if (level.getTile(x, y - 1) == null)
-						level.setTile(x, y - 1, TileType.platform);
-
-					pos = new Vector2i(x, y);
-					return true;
-				}
-			}
-		}
-		pos = Vector2i.Zero;
-		return false;
-	}
-
-	public bool getSpawn(Level level, Random random, bool[] objectFlags, out Vector2i pos)
-	{
-		int offset = random.Next() % this.width;
-		for (int i = 0; i < this.width; i++)
-		{
-			int x = this.x + (offset + i) % this.width;
-			for (int y = this.y; y < this.y + this.height; y++)
-			{
-				if (objectFlags[x + y * level.width])
-					break;
-				if (y > 0 && level.getTile(x, y) == null)
-				{
-					pos = new Vector2i(x, y);
-					return true;
-				}
-			}
-		}
-		pos = Vector2i.Zero;
-		return false;
-	}
-
-	public bool getSpawn(Level level, Random random, bool[] objectFlags, Func<Vector2i, bool> isTileSuitable, out Vector2i pos)
-	{
-		int offset = random.Next() % this.width;
-		for (int i = 0; i < this.width; i++)
-		{
-			int x = this.x + (offset + i) % this.width;
-			for (int y = this.y; y < this.y + this.height; y++)
-			{
-				if (objectFlags[x + y * level.width])
-					break;
-				if (isTileSuitable(new Vector2i(x, y)))
-				{
-					pos = new Vector2i(x, y);
-					return true;
-				}
-			}
-		}
-		pos = Vector2i.Zero;
-		return false;
-	}
-
-	public bool containsEntity(Entity entity)
-	{
-		return entity.position.x >= x + 1 && entity.position.x <= x + width - 1 &&
-			entity.position.y >= y + 0.5f && entity.position.y <= y + height - 0.5f;
-	}
-}
-
-public class Doorway
-{
-	public Room room;
-	public DoorDef doorDef;
-	public Doorway otherDoorway;
-	public Door door;
-
-	public Doorway(Room room, DoorDef doorDef)
-	{
-		this.room = room;
-		this.doorDef = doorDef;
-	}
-
-	public Vector2i position => doorDef.position;
-	public Vector2i direction => doorDef.direction;
-}
-
-public partial class LevelGenerator
-{
-	public RoomDefSet hubSet;
-	RoomDefSet cavesSet;
-	RoomDefSet cavesSpecialSet;
-
-	RoomDefSet specialSet;
-	RoomDefSet minesSet;
-	RoomDefSet dungeonsSet;
-	RoomDefSet gardensSet;
-
-	MultilayerTrack caveAmbientTrack;
-	MultilayerTrack minesAmbientTrack;
-	MultilayerTrack catacombsAmbientTrack;
-
-	Func<Item[], Container> createContainer = null;
-	Func<ExplosiveObject> createExplosiveObject = null;
-
-	string seed;
-	Level level;
-	public Random random;
-	//Simplex simplex;
-
-	Level lastLevel, nextLevel;
-	Door lastExit;
-
-	List<Room> rooms;
-
-	bool[] objectFlags;
-
-	//List<Type> spawnedNPCs = new List<Type>();
-
-
-	public LevelGenerator()
+	static LevelGenerator()
 	{
 		specialSet = new RoomDefSet("level/rooms_special.png", false);
 
 		hubSet = new RoomDefSet(null);
 		hubSet.loadTmx("level/rooms/hub.tmx");
+		hubSet.loadTmx("level/rooms/hub2.tmx");
 
 		cavesSet = new RoomDefSet("level/level1/rooms1.png");
 		for (int i = 0; i < 16; i++)
@@ -588,9 +50,659 @@ public partial class LevelGenerator
 		dungeonsSet = new RoomDefSet("level/level3/rooms3.png");
 		gardensSet = new RoomDefSet("level/level4/rooms4.png");
 
-		caveAmbientTrack = new MultilayerTrack("sounds/ost/area/caves", 1);
+		cavesAmbientTrack = new MultilayerTrack("sounds/ost/area/caves", 1);
 		minesAmbientTrack = new MultilayerTrack("sounds/ost/area/mines", 1);
-		catacombsAmbientTrack = new MultilayerTrack("sounds/ost/area/catacombs", 1);
+		dungeonsAmbientTrack = new MultilayerTrack("sounds/ost/area/catacombs", 1);
+	}
+
+
+	public string name;
+	public string displayName;
+
+	RoomDefSet roomSet;
+	TileType primaryTile;
+	TileType secondaryTile;
+	protected TileType bgPrimaryTile;
+	protected TileType bgSecondaryTile;
+
+	protected bool spawnStartingWeapon = false;
+
+	string seed;
+	public Random random;
+
+	protected Level level;
+	protected Simplex simplex;
+
+	Level lastLevel, nextLevel;
+	Door lastExit;
+
+	List<Room> rooms;
+
+	bool[] objectFlags;
+
+	//List<Type> spawnedNPCs = new List<Type>();
+
+	Door secretDoor;
+
+
+	public LevelGenerator(string name, string displayName, RoomDefSet roomSet, TileType primaryTile, TileType secondaryTile, string seed)
+	{
+		this.name = name;
+		this.displayName = displayName;
+		this.roomSet = roomSet;
+		this.primaryTile = primaryTile;
+		this.secondaryTile = secondaryTile;
+		this.seed = seed;
+
+		random = new Random((int)Hash.hash(seed));
+	}
+
+	public abstract int getNumFloors();
+	public abstract string getLevelName(int floor);
+	public abstract int getLootValue(int floor);
+	public abstract void getLevelSize(int floor, out int width, out int height);
+	public virtual TileType getDefaultTile(int floor)
+	{
+		TileType defaultTile = primaryTile;
+		float rockyLevelChance = 0.1f;
+		if (random.NextSingle() < rockyLevelChance)
+			defaultTile = secondaryTile;
+		return defaultTile;
+	}
+
+	public abstract int getAmbientLight();
+	public abstract Sound getAmbientSound();
+	public abstract MultilayerTrack getAmbientTrack();
+
+	public abstract Door createEntranceDoor(Level lastLevel, Door lastExit);
+
+	public abstract BossRoom createBossRoom(Room room);
+	public abstract RoomDef[] getSecretRoomDefs();
+	public abstract Entity createSecretRoomEntity(int type, Room room);
+
+	public virtual TileType getTile(int x, int y, int idx, TileType tile) => tile;
+
+	public abstract float[] getDroprates();
+	public abstract int getNumItems(int floor);
+
+	public abstract Container createContainer(Item[] items);
+	public abstract ExplosiveObject createExplosiveObject();
+
+	public abstract List<Mob> createEnemy(Level level);
+	public abstract NPC createNPC(int type, Level level);
+
+	public virtual void onFloorFinish(Level level)
+	{
+	}
+
+
+	public void generateNoiseBackground(Level level, Simplex simplex, TileType tile1, TileType tile2)
+	{
+		for (int y = 0; y < level.height; y++)
+		{
+			for (int x = 0; x < level.width; x++)
+			{
+				float progress = 1 - y / (float)level.height;
+				float type = simplex.sample2f(x * 0.05f, -y * 0.05f) - progress * 0.4f;
+				float mask = simplex.sample2f(-x * 0.05f, y * 0.05f);
+				TileType tile = mask < 0 ? null : type > -0.1f ? tile1 : tile2;
+				level.setBGTile(x, y, tile);
+			}
+		}
+	}
+
+	public void generateArea(out Level[] levels)
+	{
+		int numFloors = getNumFloors();
+		levels = new Level[numFloors + 1];
+		for (int i = 0; i < numFloors; i++)
+		{
+			getLevelSize(i, out int width, out int height);
+
+			levels[i] = new Level(i, name + i, getLevelName(i), width, height, getDefaultTile(i), getLootValue(i));
+		}
+		levels[numFloors + 0] = new Level(-1, name + (numFloors + 0), "", getLootValue(numFloors - 1));
+
+		for (int i = 0; i < numFloors; i++)
+		{
+			generateFloor(i, i == 0, i == numFloors - 1, levels[i], levels[i + 1], i > 0 ? levels[i - 1] : null, i > 0 ? levels[i - 1].exit : null);
+		}
+
+		generateBossFloor(levels[numFloors], null, levels[numFloors - 1], levels[numFloors - 1].exit);
+
+		/*
+		generateSingleRoomLevel(areaCaves[numFloors + 1], specialSet, 16, TileType.stone, TileType.dirt, 0x1, 0x2);
+		generateSingleRoomLevel(areaCaves[numFloors + 2], specialSet, 17, TileType.stone, TileType.dirt, 0x1, 0x2, null, new DungeonEntrance(null, null));
+
+		// mines entrance
+		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(7, 1), Vector2i.Down);
+		areaCaves[numFloors + 1].addEntity(minesEntrance, areaCaves[numFloors + 1].rooms[0].getMarker(0x3) + new Vector2(-3, 0));
+		areaCaves[numFloors + 1].rooms[0].doorways.Add(new Doorway(areaCaves[numFloors + 1].rooms[0], new DoorDef()) { door = minesEntrance });
+
+		// elevator that leads to the hub
+		Door elevator1 = new Door(null, null);
+		areaCaves[numFloors + 2].addEntity(elevator1, (Vector2)areaCaves[numFloors + 2].rooms[0].getMarker(0x3) + new Vector2(0.5f, 0));
+		areaCaves[numFloors + 2].rooms[0].doorways.Add(new Doorway(areaCaves[numFloors + 2].rooms[0], new DoorDef()) { door = elevator1 });
+
+		// elevator that leads to the mines exit
+		Door elevator2 = new Door(null, null);
+		areaCaves[numFloors + 2].addEntity(elevator2, (Vector2)areaCaves[numFloors + 2].rooms[0].getMarker(0x4) + new Vector2(0.5f, 0));
+		areaCaves[numFloors + 2].rooms[0].doorways.Add(new Doorway(areaCaves[numFloors + 2].rooms[0], new DoorDef()) { door = elevator2 });
+
+		connectDoors(areaCaves[numFloors].exit, areaCaves[numFloors + 1].entrance);
+		connectDoors(areaCaves[numFloors + 1].exit, areaCaves[numFloors + 2].entrance);
+		*/
+
+
+		if (secretDoor != null)
+		{
+			Level level = new Level(-1, name + "_secret_floor", "", numFloors * 4);
+			Room room = createSecretRoom(null);
+
+			generateSingleRoomLevel(level, room, null, primaryTile, secondaryTile);
+
+			secretDoor.sprite = new Sprite(Entity.tileset, 5, 4, 2, 2);
+			secretDoor.rect = new FloatRect(-1, -0.5f, 2, 2);
+			secretDoor.interactRange = 0.5f;
+
+			connectDoors(level.entrance, secretDoor);
+		}
+
+
+		//generateSingleRoomLevel(areaCaves[6], specialSet, 16, TileType.stone, TileType.dirt, 0x1, 0x2);
+		//generateSingleRoomLevel(areaCaves[7], specialSet, 17, TileType.stone, TileType.dirt, 0x1, 0x2, null, new DungeonEntrance(null, null));
+
+		/*
+		// mines entrance
+		LevelTransition minesEntrance = new LevelTransition(null, null, new Vector2i(11, 2), Vector2i.Down);
+		areaCaves[6].addEntity(minesEntrance, areaCaves[6].rooms[0].getMarker(0x3) + new Vector2(-5, -2));
+		areaCaves[6].rooms[0].doorways.Add(new Doorway(areaCaves[6].rooms[0], new DoorDef()) { door = minesEntrance });
+
+		// elevator that leads to the hub
+		Door elevator1 = new Door(null, null);
+		areaCaves[7].addEntity(elevator1, (Vector2)areaCaves[7].rooms[0].getMarker(0x3) + new Vector2(0.5f, 0));
+		areaCaves[7].rooms[0].doorways.Add(new Doorway(areaCaves[7].rooms[0], new DoorDef()) { door = elevator1 });
+
+		// elevator that leads to the mines exit
+		Door elevator2 = new Door(null, null);
+		areaCaves[7].addEntity(elevator2, (Vector2)areaCaves[7].rooms[0].getMarker(0x4) + new Vector2(0.5f, 0));
+		areaCaves[7].rooms[0].doorways.Add(new Doorway(areaCaves[7].rooms[0], new DoorDef()) { door = elevator2 });
+
+		connectDoors(areaCaves[5].exit, areaCaves[6].entrance);
+		connectDoors(areaCaves[6].exit, areaCaves[7].entrance);
+		*/
+	}
+
+	void generateFloor(int floor, bool spawnStartingRoom, bool spawnBossRoom, Level level, Level nextLevel, Level lastLevel, Door lastExit)
+	{
+		this.level = level;
+		this.nextLevel = nextLevel;
+		this.lastLevel = lastLevel;
+		this.lastExit = lastExit;
+
+		rooms = new List<Room>();
+
+		int width = level.width;
+		int height = level.height;
+
+		//int width = spawnStartingRoom ? Mathf.RandomInt(60, 80, random) : Mathf.RandomInt(40, 80, random);
+		//int height = Math.Max((floor == 4 ? 3600 : 2400) / width, 20);
+
+		level.rooms = rooms;
+		level.ambientSound = getAmbientSound();
+		level.ambientTrack = getAmbientTrack();
+		level.ambientTrackHasIdleLayer = true;
+		//level.fogFalloff = 0.04f;
+		//level.fogColor = new Vector3(0.1f);
+
+		level.lightLevel = getAmbientLight();
+
+		objectFlags = new bool[width * height];
+		Array.Fill(objectFlags, false);
+
+		rooms.Clear();
+		RoomDef? startingRoomDef = spawnStartingRoom ? specialSet.roomDefs[2] : spawnBossRoom ? specialSet.roomDefs[3] : null;
+		generateMainRooms(roomSet, startingRoomDef, spawnBossRoom);
+		if (spawnBossRoom)
+			rooms.Reverse();
+		Room startingRoom = rooms[0];
+
+		Room exitRoom = rooms[rooms.Count - 1];
+
+		if (!spawnBossRoom)
+		{
+			List<Room> mainRoomsCopy = new List<Room>(rooms);
+			mainRoomsCopy.Sort((Room a, Room b) =>
+			{
+				int da = Math.Abs(a.x + a.width / 2 - (startingRoom.x + startingRoom.width / 2)) + Math.Abs(a.y + a.height / 2 - (startingRoom.y + startingRoom.height / 2));
+				int db = Math.Abs(b.x + b.width / 2 - (startingRoom.x + startingRoom.width / 2)) + Math.Abs(b.y + b.height / 2 - (startingRoom.y + startingRoom.height / 2));
+				return da < db ? -1 : da > db ? 1 : 0;
+			});
+			exitRoom = mainRoomsCopy[mainRoomsCopy.Count - 1];
+		}
+
+		generateExtraRooms(roomSet, (Doorway doorway) =>
+		{
+			Room room = createSecretRoom(doorway);
+			if (room != null)
+			{
+				room.spawnEnemies = false;
+				return true;
+			}
+
+			return false;
+		});
+
+
+		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
+
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			placeRoom(rooms[i], level, (int x, int y, int idx) =>
+			{
+				if (idx == 0)
+				{
+					float progress = 1 - y / (float)level.height;
+					float type = simplex.sample2f(x * 0.05f, y * 0.05f) - progress * 0.4f;
+					TileType tile = type > -0.1f ? primaryTile : secondaryTile;
+					tile = getTile(x, y, idx, tile);
+					return tile;
+				}
+				return secondaryTile;
+			});
+		}
+
+
+		float randomFloorChance = 0.2f;
+		if (secretDoor == null && random.NextSingle() < randomFloorChance)
+		{
+			Room room = rooms[random.Next() % rooms.Count];
+			if (room.getSpawn(level, random, objectFlags, (Vector2i tile) =>
+			{
+				return level.getTile(tile) != null && level.getTile(tile).isSolid && level.getTile(tile).health == 1 && getRoom(tile.x, tile.y) != null && (level.getTile(tile.x - 1, tile.y) == null || level.getTile(tile.x + 1, tile.y) == null);
+			},
+			out Vector2i tile))
+			{
+				Door door = new Door(null);
+				level.addEntity(door, tile + new Vector2(0.5f, 0));
+				setObjectFlag(tile.x, tile.y);
+				level.setTile(tile.x, tile.y, TileType.dirt);
+
+				secretDoor = door;
+			}
+		}
+
+
+		generateNoiseBackground(level, simplex, bgPrimaryTile != null ? bgPrimaryTile : primaryTile, bgSecondaryTile != null ? bgSecondaryTile : secondaryTile);
+
+
+		Door entranceDoor = floor == 0 ? createEntranceDoor(lastLevel, lastExit) : new Door(lastLevel, lastExit);
+		createDoors(spawnStartingRoom, spawnBossRoom, startingRoom, exitRoom, entranceDoor, out Vector2i entrancePosition, out Vector2i exitPosition);
+
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			if (rooms[i].entity != null)
+			{
+				level.addEntity(rooms[i].entity, new Vector2(rooms[i].x, rooms[i].y));
+			}
+		}
+
+		if (spawnStartingRoom)
+		{
+			startingRoom.spawnEnemies = false;
+
+			for (int y = entrancePosition.y; y < entrancePosition.y + 4; y++)
+			{
+				for (int x = entrancePosition.x - 2; x < entrancePosition.x + 3; x++)
+				{
+					if (x >= entrancePosition.x - 1 && x <= entrancePosition.x + 1 && y >= entrancePosition.y && y <= entrancePosition.y + 2)
+						level.setBGTile(x, y, null);
+					else
+						level.setBGTile(x, y, secondaryTile);
+				}
+			}
+		}
+
+		/*
+		if (spawnBossRoom)
+		{
+			exitRoom.spawnEnemies = false;
+			level.addEntity(new CavesBossRoom(exitRoom));
+		}
+		*/
+
+		List<Room> deadEnds = new List<Room>();
+		List<Room> mainRooms = new List<Room>();
+		for (int i = 0; i < rooms.Count; i++)
+		{
+			Room room = rooms[i];
+			bool isDeadEnd = !room.isMainPath;
+			if (isDeadEnd)
+				deadEnds.Add(room);
+			else if (room.isMainPath)
+				mainRooms.Add(room);
+		}
+
+
+		List<Item[]> items = generateItems(level.avgLootValue, getDroprates());
+
+		if (spawnStartingWeapon && floor == 0)
+		{
+			float staffChance = 0.1f;
+			ItemType itemType = random.NextSingle() < staffChance ? ItemType.Staff : ItemType.Weapon;
+			Item startingWeapon = Item.CreateRandom(ItemType.Weapon, random, 0);
+			if (startingWeapon.requiredAmmo != null)
+			{
+				Item ammo = Item.GetItemPrototype(startingWeapon.requiredAmmo).copy();
+				ammo.stackSize = 30;
+				items.Add([startingWeapon, ammo]);
+			}
+			else if (startingWeapon.type == ItemType.Staff)
+			{
+				Item startingSpell = new MagicArrowSpell();
+				items.Add([startingWeapon, startingSpell]);
+			}
+			else
+			{
+				items.Add([startingWeapon]);
+			}
+		}
+
+		//float keyChance = 0.25f;
+		//if (random.NextSingle() < keyChance)
+		//	items.Add([new IronKey()]);
+
+		Mathf.ShuffleList(deadEnds, random);
+		Mathf.ShuffleList(mainRooms, random);
+
+		lockDeadEnds(deadEnds, items);
+
+
+		spawnItems(items, deadEnds);
+
+
+		float lockedChestChance = 0.1f;
+		spawnRoomObject(deadEnds, lockedChestChance, false, (Vector2i tile, Random random, Room room) =>
+		{
+			Item[] item = Item.CreateRandom(random, getDroprates(), getRoomLootValue(room));
+			level.addEntity(new Chest(item, random.Next() % 2 == 1, ChestType.Silver), tile + new Vector2(0.5f, 0));
+
+			IronKey key = new IronKey();
+			spawnItems([[key]], deadEnds);
+		});
+
+
+		// Fountain
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			Fountain fountain = new Fountain(random);
+			level.addEntity(fountain, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Coins
+		spawnRoomObject(deadEnds, 1, true, (Vector2i tile, Random random, Room room) =>
+		{
+			int amount = Mathf.RandomInt(2, 7, random);
+			level.addEntity(new CoinStack(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
+		});
+
+		// Gems
+		spawnRoomObject(deadEnds, 0.2f, true, (Vector2i tile, Random random, Room room) =>
+		{
+			Item gem = Item.CreateRandom(ItemType.Gem, random, getRoomLootValue(room));
+			level.addEntity(new ItemEntity(gem), tile + 0.5f);
+		});
+
+		// Arrow trap
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile != null && tile.isSolid && (x > 0 && left == null || x < width - 1 && right == null) && y != entrancePosition.y)
+			{
+				float arrowTrapChance = 0.001f;
+				if (random.NextSingle() < arrowTrapChance)
+				{
+					int direction = right == null ? 1 : left == null ? -1 : random.Next() % 2 * 2 - 1;
+					level.setTile(x, y, TileType.dummy);
+					level.addEntity(new ArrowTrap(new Vector2(direction, 0)), new Vector2(x, y));
+					objectFlags[x + y * width] = true;
+				}
+			}
+		});
+
+		// Spring
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && up == null)
+			{
+				TileType upUp = level.getTile(x, y + 2);
+				if (upUp == null)
+				{
+					float springChance = 0.01f;
+					if (random.NextSingle() < springChance)
+					{
+						level.addEntity(new Trampoline(), new Vector2(x + 0.5f, y));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Spike
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && up == null)
+			{
+				TileType upLeft = level.getTile(x - 1, y + 1);
+				TileType upRight = level.getTile(x + 1, y + 1);
+
+				if (upLeft == null && left == null || upRight == null && right == null)
+				{
+					float spikeChance = 0.015f;
+					if (random.NextSingle() < spikeChance)
+					{
+						level.addEntity(new Spike(), new Vector2(x, y));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Spike Trap
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && up != null && up.isSolid)
+			{
+				TileType downDown = level.getTile(x, y - 2);
+				TileType downLeft = level.getTile(x - 1, y - 1);
+				TileType downRight = level.getTile(x + 1, y - 1);
+
+				if (down == null && downDown == null && (left != null && right != null || left == null && downLeft == null || right == null && downRight == null) && x != entrancePosition.x)
+				{
+					float spikeTrapChance = 0.01f;
+					if (random.NextSingle() < spikeTrapChance)
+					{
+						level.addEntity(new SpikeTrap(), new Vector2(x + 0.5f, y + 0.5f));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Torch
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if ((floor == 2 || floor == 3) && tile == null && down == null && up == null)
+			{
+				TileType downDown = level.getTile(x, y - 2);
+				if (downDown != null)
+				{
+					float torchChance = 0.01f;
+					if (random.NextSingle() < torchChance)
+					{
+						level.addEntity(new TorchEntity(), new Vector2(x + 0.5f, y + 0.5f));
+						objectFlags[x + y * width] = true;
+					}
+				}
+			}
+		});
+
+		// Barrel
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && down.isSolid && down.visible)
+			{
+				float barrelChance = MathF.Max(simplex.sample2f(x * 0.04f, y * 0.04f) * 0.3f - 0.12f, 0);
+				if (random.NextSingle() < barrelChance)
+				{
+					float explosiveBarrel = 0.1f;
+					if (random.NextSingle() < explosiveBarrel)
+					{
+						level.addEntity(createExplosiveObject(), new Vector2(x + 0.5f, y));
+					}
+					else
+					{
+						level.addEntity(createContainer(null), new Vector2(x + 0.5f, y));
+					}
+					setObjectFlag(x, y);
+				}
+			}
+		});
+
+		// Rock
+		spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+		{
+			if (tile == null && down != null && down.isSolid && down.visible)
+			{
+				float rockChance = 0.01f;
+				if (random.NextSingle() < rockChance)
+				{
+					if (random.NextSingle() < 0.9f)
+					{
+						level.addEntity(new Rock(), new Vector2(x + 0.5f, y));
+					}
+					else
+					{
+						level.addEntity(new Skull(), new Vector2(x + 0.5f, y));
+					}
+					setObjectFlag(x, y);
+				}
+			}
+		});
+
+		// Anvil
+		if (floor == getNumFloors() - 1)
+		{
+			spawnRoomObject(deadEnds, deadEnds.Count, false, (Vector2i tile, Random random, Room room) =>
+			{
+				level.addEntity(new Anvil(), new Vector2(tile.x + 0.5f, tile.y));
+			});
+		}
+
+
+		spawnEnemies(createEnemy, entrancePosition);
+
+
+		if (spawnBossRoom)
+		{
+			spawnRoomObject([exitRoom], 1.0f, false, (Vector2i pos, Random random, Room room) =>
+			{
+				spawnNPC(pos.x, pos.y);
+			});
+		}
+
+		spawnRoomObject(deadEnds, 1.0f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			spawnNPC(tile.x, tile.y);
+		});
+
+
+		onFloorFinish(level);
+
+		/*
+		// Builder merchant
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			BuilderMerchant npc = new BuilderMerchant(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Traveller merchant
+		spawnRoomObject(deadEnds, 0.2f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			TravellingMerchant npc = new TravellingMerchant(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Logan
+		spawnRoomObject(deadEnds, 0.3f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			Logan npc = new Logan(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Blacksmith
+		spawnRoomObject(deadEnds, 0.5f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			Blacksmith npc = new Blacksmith(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Tinkerer
+		spawnRoomObject(deadEnds, 0.3f, false, (Vector2i tile, Random random, Room room) =>
+		{
+			Tinkerer npc = new Tinkerer(random, level);
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+		});
+
+		// Rat NPC
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED) && !ratSpawned)
+		{
+			spawnRoomObject(deadEnds, !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? 0.7f : 0.1f, false, (Vector2i tile, Random random, Room room) =>
+			{
+				RatNPC npc = new RatNPC();
+				npc.direction = random.Next() % 2 * 2 - 1;
+				level.addEntity(npc, new Vector2(tile.x + 0.5f, tile.y));
+				ratSpawned = true;
+			});
+		}
+		*/
+
+		level.updateLightmap(0, 0, width, height);
+	}
+
+	void generateBossFloor(Level level, Level nextLevel, Level lastLevel, Door lastDoor)
+	{
+		Room room = generateSingleRoomLevel(level, specialSet, 4, primaryTile, secondaryTile);
+
+		//level.fogFalloff = 0.1f;
+		//level.fogColor = new Vector3(0.0f);
+
+		level.entrance.destination = lastLevel;
+		level.entrance.otherDoor = lastDoor;
+		lastDoor.otherDoor = level.entrance;
+
+		Simplex simplex = new Simplex(Hash.hash(seed) + (uint)level.floor, 3);
+		generateNoiseBackground(level, simplex, primaryTile, secondaryTile);
+
+		level.addEntity(createBossRoom(room));
+	}
+
+	Room createSecretRoom(Doorway doorway)
+	{
+		RoomDef[] secretRooms = getSecretRoomDefs();
+
+		int type = random.Next() % secretRooms.Length;
+		RoomDef roomDef = secretRooms[type];
+		Room room = doorway != null ? fillDoorway(doorway, roomDef, roomDef.set) : new Room(roomDef);
+		if (room != null)
+			room.entity = createSecretRoomEntity(type, room);
+
+		return room;
 	}
 
 	public void setObjectFlag(int x, int y)
@@ -994,7 +1106,7 @@ public partial class LevelGenerator
 
 		TileType left = level.getTile(x - 1, y);
 		TileType right = level.getTile(x + 1, y);
-		Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, DropRates.defaultDroprates, roomLootValue);
+		Item[] items = scam ? [new Bomb().cook()] : Item.CreateRandom(random, getDroprates(), roomLootValue);
 		Chest chest = new Chest(items, left != null && right == null);
 		level.addEntity(chest, new Vector2(x + 0.5f, y));
 
@@ -1010,12 +1122,14 @@ public partial class LevelGenerator
 
 	List<Item[]> generateItems(float avgValue, float[] dropRates)
 	{
-		int numItems = Mathf.RollDice(2, 2, random) - 2; // rooms.Count / 4;
+		int numItems = 3; // getNumItems(level.floor); // rooms.Count / 4;
+		int totalValue = (int)MathF.Ceiling(numItems * avgValue);
 		List<Item[]> items = new List<Item[]>();
-		for (int i = 0; i < numItems; i++)
+		while (totalValue > 0)
 		{
-			Item[] item = Item.CreateRandom(random, dropRates, avgValue);
+			Item[] item = Item.CreateRandom(random, dropRates, Mathf.RandomFloat(1, totalValue));
 			items.Add(item);
+			totalValue -= item[0].getValue();
 		}
 		return items;
 	}
@@ -1064,19 +1178,9 @@ public partial class LevelGenerator
 		}
 	}
 
-	public void spawnNPC(int x, int y, List<NPC> npcs)
+	public void spawnNPC(int x, int y)
 	{
-		npcs = new List<NPC>(npcs);
-		for (int i = 0; i < npcs.Count; i++)
-		{
-			if (level.getEntity(npcs[i].GetType()) != null)
-				npcs.RemoveAt(i--);
-		}
-
-		if (npcs.Count == 0)
-			return;
-
-		NPC npc = npcs[random.Next() % npcs.Count];
+		NPC npc = createNPC(random.Next(), level);
 		npc.direction = random.Next() % 2 * 2 - 1;
 		level.addEntity(npc, new Vector2(x + 0.5f, y));
 		setObjectFlag(x, y);
@@ -1360,7 +1464,7 @@ public partial class LevelGenerator
 		return spawned;
 	}
 
-	void spawnTileObject(Action<int, int, TileType, TileType, TileType, TileType, TileType> spawnFunc)
+	protected void spawnTileObject(Action<int, int, TileType, TileType, TileType, TileType, TileType> spawnFunc)
 	{
 		for (int y = 0; y < level.height; y++)
 		{
@@ -1513,7 +1617,7 @@ public partial class LevelGenerator
 
 			while (itemDropChance > 0 && random.NextSingle() < itemDropChance)
 			{
-				Item[] drops = Item.CreateRandom(random, DropRates.defaultDroprates, getLootValue(new Vector2(x, y)) * enemy.itemDropValueMultiplier);
+				Item[] drops = Item.CreateRandom(random, getDroprates(), getLootValue(new Vector2(x, y)) * enemy.itemDropValueMultiplier);
 				foreach (Item drop in drops)
 					enemy.itemDrops.Add(drop);
 				itemDropChance--;
@@ -1527,13 +1631,13 @@ public partial class LevelGenerator
 		return false;
 	}
 
-	void spawnEnemies(Func<List<Mob>> createEnemy, Vector2i entrancePosition)
+	void spawnEnemies(Func<Level, List<Mob>> createEnemy, Vector2i entrancePosition)
 	{
 		List<Mob> mobInstances = new List<Mob>();
 		int numMobs = rooms.Count * 2 / 3; // Mathf.RandomInt(rooms.Count, rooms.Count * 3 / 2, random);
 		for (int i = 0; i < numMobs; i++)
 		{
-			List<Mob> mobTypes = createEnemy();
+			List<Mob> mobTypes = createEnemy(level);
 			float cumulativeRarity = 0;
 			foreach (Mob type in mobTypes)
 				cumulativeRarity += type.spawnRate;
@@ -1613,9 +1717,6 @@ public partial class LevelGenerator
 
 		level.resize(room.width, room.height);
 
-		createContainer = null;
-		createExplosiveObject = null;
-
 		this.level = level;
 		objectFlags = new bool[level.width * level.height];
 		Array.Fill(objectFlags, false);
@@ -1676,49 +1777,5 @@ public partial class LevelGenerator
 		};
 		generateSingleRoomLevel(level, room, null, primaryTile, secondaryTile, null, entranceMarker, exitMarker, entranceDoor, exitDoor);
 		return room;
-	}
-
-	public void generateStartingCave(Level level)
-	{
-		generateSingleRoomLevel(level, specialSet, 6, TileType.stone, TileType.dirt);
-
-		level.fogFalloff = 0.1f;
-		//level.fogColor = new Vector3(0.1f);
-		level.fogColor = new Vector3(0.0f);
-		level.isSafeLevel = true;
-	}
-
-	public void generateHub(Level level)
-	{
-		generateSingleRoomLevel(level, new Room("level/hub/hub.png"), new Room("level/hub/hub1.png"), TileType.dirt, TileType.stone);
-
-		level.addEntity(new Hub(level.rooms[0]));
-
-		level.isSafeLevel = true;
-		level.fogFalloff = 0.1f;
-		//level.fogColor = new Vector3(0.1f);
-		level.fogColor = new Vector3(0.0f);
-	}
-
-	public void generateCliffside(Level level)
-	{
-		generateSingleRoomLevel(level, new Room("level/cliffside/room.png"), new Room("level/cliffside/room1.png"), TileType.dirt, TileType.stone);
-
-		level.isSafeLevel = true;
-	}
-
-	public void generateTutorial(Level level)
-	{
-		generateSingleRoomLevel(level, specialSet, 1, TileType.dirt, TileType.stone);
-
-		level.isSafeLevel = true;
-
-		Simplex simplex = new Simplex(12345, 3);
-		generateCaveBackground(level, simplex, TileType.dirt, TileType.stone);
-	}
-
-	public void generateIntroBridge(Level level)
-	{
-		generateSingleRoomLevel(level, new Room("level/intro/bridge.png"), null, TileType.bricks, TileType.stone);
 	}
 }

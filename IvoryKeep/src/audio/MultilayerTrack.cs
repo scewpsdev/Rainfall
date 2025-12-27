@@ -32,7 +32,7 @@ public class MultilayerTrack
 		{
 			for (int i = 0; i < sounds.Length; i++)
 			{
-				sources[i] = Audio.PlayBackground(sounds[i], 0);
+				sources[i] = Audio.PlayMusic(sounds[i], 0);
 				Audio.SetSourceLooping(sources[i], true);
 				Audio.SetInaudibleBehavior(sources[i], true, false);
 				Audio.SetProtect(sources[i], true);

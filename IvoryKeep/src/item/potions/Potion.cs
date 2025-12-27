@@ -83,7 +83,7 @@ public abstract class Potion : Item
 
 	PotionEffectType effect;
 	public List<PotionEffect> effects = new List<PotionEffect>();
-	bool throwable = false;
+	public bool throwable = false;
 	bool randomized = false;
 	uint potionColor = 0xFFFF00FF;
 
@@ -100,7 +100,7 @@ public abstract class Potion : Item
 
 		//displayName = "Potion";
 		baseValue = 20;
-		//stackable = true;
+		stackable = true;
 		identified = false;
 		//sprite = new Sprite(tileset, 4, 5);
 		//canDrop = false;
@@ -214,11 +214,13 @@ public abstract class Potion : Item
 		{
 			baseValue++;
 			name = "throwable_" + name;
-			//displayName = "Throwable " + displayName;
+			displayName = "Throwable " + displayName;
 			projectileItem = true;
 			projectileSpins = true;
 			breakOnWallHit = true;
 			breakOnEnemyHit = true;
+			isHandItem = false;
+			isActiveItem = true;
 			throwable = true;
 		}
 		return this;
@@ -238,14 +240,12 @@ public abstract class Potion : Item
 
 	public override bool use(Player player)
 	{
-		/*
 		if (throwable)
 		{
 			player.throwItem(this, player.lookDirection);
 			return true;
 		}
 		else
-		*/
 		{
 			if (player.actions.actionQueue.Count <= 1)
 			{

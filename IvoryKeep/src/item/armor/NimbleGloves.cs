@@ -16,7 +16,7 @@ public class NimbleGloves : Item
 		armorSlot = ArmorSlot.Gloves;
 
 		baseArmor = 1;
-		baseValue = 35;
+		baseValue = 45;
 
 		sprite = new Sprite(tileset, 9, 9);
 		ingameSprite = new Sprite("sprites/items/armor/nimble_gloves.png", 0, 0, 32, 32);

@@ -57,9 +57,10 @@ internal class SpikeTrap : Entity, Hittable
 		}
 		else if (!falling)
 		{
-			HitData hit = GameState.instance.level.raycast(position, new Vector2(0, -1), 10, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM | FILTER_PROJECTILE | FILTER_OBJECT);
+			HitData hit = GameState.instance.level.raycast(position + new Vector2(0, -1), new Vector2(0, -1), 10, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM | FILTER_PROJECTILE | FILTER_OBJECT);
 			if (hit != null && hit.entity != null)
 			{
+				Console.WriteLine(hit.entity);
 				trigger();
 				GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Down, 8, Mathf.ARGBToVector(0xFF47362a).xyz), position);
 			}

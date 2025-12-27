@@ -13,19 +13,23 @@ public class ElderwoodStaff : Staff
 	{
 		displayName = "Elderwood Staff";
 
-		baseDamage = 0.6f;
-		baseAttackRate = 1.8f;
-		manaCost = 0.7f;
-		trigger = false;
+		baseDamage = 0.8f;
+		baseAttackRate = 1.25f;
+		manaCost = 0.8f;
+		//trigger = false;
 		//isSecondaryItem = true;
 		secondaryChargeTime = 0;
 
 		intelligenceScaling = 0.8f;
 
-		baseValue = 42;
+		baseValue = 18;
 
-		sprite = new Sprite(tileset, 1, 6);
-		renderOffset.x = 0.2f;
+		//sprite = new Sprite(tileset, 1, 6);
+		//renderOffset.x = 0.2f;
+
+		sprite = new Sprite(tileset, 11, 11);
+		renderOffset.x = -0.2f;
+		renderOffset.y = 0.1f;
 
 		castSound = Resource.GetSounds("sounds/cast", 3);
 	}

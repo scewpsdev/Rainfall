@@ -60,7 +60,7 @@ public class BlockAction : EntityAction
 				cancel();
 		}
 
-		speedMultiplier = elapsedTime >= shield.blockCharge && player.isGrounded ? shield.actionMovementSpeed : 1;
+		speedMultiplier = elapsedTime >= shield.blockCharge && player.isGrounded ? shield.blockMovementSpeed : 1;
 	}
 
 	public float progress
@@ -70,12 +70,14 @@ public class BlockAction : EntityAction
 
 	public bool isParrying
 	{
-		get => elapsedTime > shield.blockCharge && elapsedTime < shield.blockCharge + shield.parryWindow;
+		//get => elapsedTime > shield.blockCharge && elapsedTime < shield.blockCharge + shield.parryWindow;
+		get => elapsedTime < shield.parryWindow;
 	}
 
 	public bool isBlocking
 	{
-		get => elapsedTime >= shield.blockCharge + shield.parryWindow && elapsedTime < duration;
+		//get => elapsedTime >= shield.blockCharge + shield.parryWindow && elapsedTime < duration;
+		get => elapsedTime >= shield.parryWindow && elapsedTime < duration;
 	}
 
 	public override Matrix getItemTransform(Player player, bool mainHand)
@@ -86,7 +88,7 @@ public class BlockAction : EntityAction
 			float parryRotation = shield.parryWeaponRotation;
 			rotation = isParrying ? parryRotation : elapsedTime < shield.blockCharge ? elapsedTime / shield.blockCharge * parryRotation : (1 - (elapsedTime - shield.blockCharge - shield.parryWindow) / postActionLinger) * parryRotation;
 		}
-		Matrix shieldTransform = Matrix.CreateTranslation(progress * 0.5f, 0, 0)
+		Matrix shieldTransform = Matrix.CreateTranslation(progress * 0.4f, 0, 0)
 			* Matrix.CreateTranslation(player.getWeaponOrigin(mainHand).x, player.getWeaponOrigin(mainHand).y, 0)
 			* (shield.type == ItemType.Weapon ? Matrix.CreateTranslation(-0.2f, 0.3f, 0) * Matrix.CreateRotation(Vector3.UnitZ, rotation) : Matrix.Identity)
 			;

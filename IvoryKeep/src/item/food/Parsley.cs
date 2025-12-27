@@ -28,7 +28,7 @@ public class Parsley : Item
 	public override bool use(Player player)
 	{
 		base.use(player);
-		if (player.hasStatusEffect("poison", out StatusEffect effect))
+		while (player.hasStatusEffect("poison", out StatusEffect effect))
 			player.removeStatusEffect(effect);
 		return true;
 	}

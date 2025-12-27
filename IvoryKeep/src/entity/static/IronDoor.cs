@@ -154,7 +154,7 @@ public class IronDoor : Entity, Interactable, Hittable
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		if (item is Bomb)
+		if (item is Bomb || by is ExplosiveObject || by is MagicMissileProjectile)
 		{
 			remove();
 			return true;

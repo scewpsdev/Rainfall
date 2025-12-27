@@ -28,7 +28,7 @@ public class UIParticleEffect : Entity
 		textureAtlases = new Texture[entityData.particles.Length];
 		for (int i = 0; i < entityData.particles.Length; i++)
 		{
-			ParticleSystem system = ParticleSystem.Create(Matrix.Identity, 250);
+			ParticleSystem system = ParticleSystem.Create(Matrix.Identity, 1000);
 			system.setData(entityData.particles[i]);
 			systems[i] = system;
 

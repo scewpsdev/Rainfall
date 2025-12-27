@@ -25,6 +25,7 @@ public class SkeletonArcher : Mob
 
 		health = 4;
 		speed = 2;
+		damage = 1.5f;
 
 		ai = new ArcherAI(this);
 	}

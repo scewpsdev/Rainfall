@@ -238,6 +238,14 @@ public static class DebugConsole
 				}
 			}
 		}
+		if (cmd == "starting_class")
+		{
+			if (args.Length == 1)
+			{
+				StartingClass startingClass = StartingClass.GetByName(args[0]);
+				GameState.instance.player.setStartingClass(startingClass);
+			}
+		}
 
 		return null;
 	}

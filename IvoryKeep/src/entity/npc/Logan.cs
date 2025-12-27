@@ -73,7 +73,7 @@ public class Logan : NPC
 
 			addDialogue("""
 				Fine then, let's see if you're up to a real challenge.
-				Word is, there's an ancient magic staff hidden somewhere deep in those weeping catacombs.
+				Word is, there's an ancient magic staff hidden somewhere deep in those crystal caverns.
 				Find it for me and you might even earn yourself a proper wizard's robes!
 				That's if the beast guarding it doesn't rip you to pieces first. But you look sturdy enough, I suppose!
 				Hehe.
@@ -100,13 +100,15 @@ public class Logan : NPC
 			});
 		});
 
-		if (progression.initialDialogue == null && GameState.instance.save.hasFlag(SaveFile.FLAG_CASTLE_UNLOCKED))
+		/*
+		if (progression.initialDialogue == null GameState.instance.save.hasFlag(SaveFile.FLAG_CASTLE_UNLOCKED))
 		{
 			setOneTimeInititalDialogue("""
-				\1Oh ho!\0 Look at you, finding all the fancy trinkets. That thing's got \dpower\0, no doubt about it.
+				\1Oh ho!\0 Look at you, finding all the fancy trinkets. That thing you found's got \dpower\0, no doubt about it.
 				Let me see that. \1Hmm... \0Yep, it's magic all right. Old magic. Twisted.
 				""");
 		}
+		*/
 
 		if (progression.initialDialogue == null && progression.loganQuest.state == QuestState.InProgress && level == GameState.instance.hub)
 		{
@@ -154,7 +156,7 @@ public class Logan : NPC
 
 		if (level != GameState.instance.hub)
 		{
-			populateShop(GameState.instance.generator.random, 5, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff/*, ItemType.Spell*/, ItemType.Scroll);
+			populateShop(GameState.instance.generator.random, 5, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
 			buysItems = true;
 			//canAttune = true;
 			canIdentify = true;

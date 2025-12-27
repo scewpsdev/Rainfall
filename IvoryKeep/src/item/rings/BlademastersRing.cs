@@ -13,7 +13,7 @@ public class BlademastersRing : Item
 	{
 		displayName = "Blademaster's Ring";
 		//description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two light weapons effortlessly.";
-		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to throw weapons.";
+		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two weapons.";
 
 		baseValue = 35;
 
@@ -22,11 +22,13 @@ public class BlademastersRing : Item
 
 	public override void onEquip(Player player)
 	{
-		player.canThrowWeapons = true;
+		player.canEquipOffhand = true;
+		player.canEquipOnehanded = true;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.canThrowWeapons = false;
+		player.canEquipOffhand = false;
+		player.canEquipOnehanded = true;
 	}
 }

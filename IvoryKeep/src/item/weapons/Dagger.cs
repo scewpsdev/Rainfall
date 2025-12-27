@@ -14,8 +14,8 @@ public class Dagger : Weapon
 		displayName = "Dagger";
 
 		baseDamage = 0.8f;
-		baseAttackRange = 1.1f;
-		baseAttackRate = 3;
+		baseAttackRange = 1.3f;
+		baseAttackRate = 4;
 
 		projectileItem = true;
 		projectileSticks = true;
@@ -25,7 +25,6 @@ public class Dagger : Weapon
 		baseWeight = 1;
 		secondaryChargeTime = 0;
 		criticalChanceModifier = 2.0f;
-		actionMovementSpeed = 0.8f;
 		anim = AttackAnim.Stab;
 
 		dexterityScaling = 0.7f;

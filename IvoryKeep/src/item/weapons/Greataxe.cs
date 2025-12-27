@@ -13,9 +13,9 @@ public class Greataxe : Weapon
 	{
 		displayName = "Greataxe";
 
-		baseDamage = 2.8f;
+		baseDamage = 2.1f;
 		baseAttackRange = 1.8f;
-		baseAttackRate = 0.8f;
+		baseAttackRate = 0.9f;
 		knockback = 8;
 		anim = AttackAnim.SwingOverhead;
 		attackAcceleration = 1;

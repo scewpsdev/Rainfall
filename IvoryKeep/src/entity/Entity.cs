@@ -60,6 +60,9 @@ public class Entity
 	public string displayName;
 	public string nameSubtitle;
 
+	public bool coinTarget = false;
+	public float coinFollowDistance = 1.5f;
+
 
 	public virtual void init(Level level)
 	{

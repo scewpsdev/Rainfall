@@ -166,6 +166,12 @@ public static unsafe class ParticleEffects
 		return effect;
 	}
 
+	public static ParticleEffect CreateLanternEffect(Entity entity)
+	{
+		ParticleEffect effect = new ParticleEffect(entity, "effects/lantern.rfs");
+		return effect;
+	}
+
 	public static ParticleEffect CreateCriticalEffect()
 	{
 		ParticleEffect effect = new ParticleEffect(null, "effects/critical.rfs") { layer = Entity.LAYER_FG };

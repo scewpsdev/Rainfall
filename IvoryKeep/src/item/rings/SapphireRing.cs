@@ -14,7 +14,7 @@ public class SapphireRing : Item
 		displayName = "Sapphire Ring";
 
 		description = "Increases energy recovery rate";
-		baseValue = 45;
+		baseValue = 25;
 
 		sprite = new Sprite(tileset, 13, 5);
 

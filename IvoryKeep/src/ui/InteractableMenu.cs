@@ -8,12 +8,20 @@ using System.Threading.Tasks;
 
 public static class InteractableMenu
 {
+	const int lineHeight = 12;
+	const int headerHeight = 12 + 1;
+
+
+	public static void GetSize(int numOptions, out int width, out int height)
+	{
+		width = 120;
+		height = headerHeight + numOptions * lineHeight;
+	}
+
 	public static int Render(Vector2 pos, string title, List<string> options, out bool closed, ref int selectedOption)
 	{
-		int lineHeight = 12;
-		int headerHeight = 12 + 1;
-		int width = 120;
-		int height = headerHeight + options.Count * lineHeight;
+		GetSize(options.Count, out int width, out int height);
+
 		float x = Math.Min(pos.x, Renderer.UIWidth - width - 2);
 		float y = Math.Max(pos.y - height, 2);
 

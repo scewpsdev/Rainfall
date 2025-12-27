@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 public class Milk : Item
 {
 	public Milk()
-		: base("milk", ItemType.Potion)
+		: base("milk", ItemType.Food)
 	{
 		displayName = "Milk";
 
@@ -60,5 +60,6 @@ public class Milk : Item
 				}
 			}
 		}
+		player.addStatusEffect(new HealStatusEffect(1, 20));
 	}
 }

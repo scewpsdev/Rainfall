@@ -23,7 +23,6 @@ public class DefaultWeapon : Weapon
 		attackDashDistance = 0.1f;
 		knockback = 4;
 		//anim = AttackAnim.Stab;
-		actionMovementSpeed = 0.8f;
 		attackAcceleration = 1;
 
 		canParry = true;

@@ -17,6 +17,8 @@ public abstract class SpellBook : Staff
 		this.spell = spell;
 
 		displayName = "Spell Book";
+		isSecondaryItem = true;
+		isActiveItem = true;
 
 		baseValue = 14 + spell.getValue() / 2;
 

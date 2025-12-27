@@ -5,6 +5,9 @@
     },
     "activeFile": "rooms/level1/special1.tmx",
     "expandedProjectPaths": [
+        "rooms",
+        ".",
+        "rooms/level1"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -12,43 +15,54 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3,
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 480.25,
+                "y": 111.75
+            }
+        },
+        "rooms/hub2.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 404.8333333333333,
-                "y": 113.33333333333334
+                "x": 800.125,
+                "y": 112.125
             }
         },
         "rooms/level1/room1.tmx": {
             "scale": 5.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 204.8181818181818,
-                "y": 64.72727272727273
+                "x": 80.09090909090911,
+                "y": 63.909090909090914
             }
         },
         "rooms/level1/room10.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 211.625,
-                "y": 17
+                "x": 39.875,
+                "y": 15.875
             }
         },
         "rooms/level1/room11.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 203.625,
-                "y": 33
+                "x": 31.875,
+                "y": 31.875
             }
         },
         "rooms/level1/room12.tmx": {
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 681.6666666666666,
-                "y": 218.66666666666669
+                "x": 224.33333333333337,
+                "y": 215.66666666666663
             }
         },
         "rooms/level1/room13.tmx": {
@@ -79,48 +93,48 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 503.25,
-                "y": 162
+                "x": 160.25,
+                "y": 159.75
             }
         },
         "rooms/level1/room2.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 203.625,
-                "y": 65
+                "x": 31.875,
+                "y": 63.875
             }
         },
         "rooms/level1/room3.tmx": {
             "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 251.625,
-                "y": 65
+                "x": 80.125,
+                "y": 63.875
             }
         },
         "rooms/level1/room4.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 251.625,
-                "y": 65
+                "x": 80.125,
+                "y": 63.875
             }
         },
         "rooms/level1/room5.tmx": {
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 308.8333333333333,
-                "y": 73.33333333333334
+                "x": 79.83333333333331,
+                "y": 71.83333333333331
             }
         },
         "rooms/level1/room6.tmx": {
             "scale": 2.7015625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 325.9224985540775,
-                "y": 89.5777906304222
+                "x": 71.99537304800461,
+                "y": 87.91208791208791
             }
         },
         "rooms/level1/room7.tmx": {
@@ -135,24 +149,32 @@
             "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 308.8333333333333,
-                "y": 65.33333333333334
+                "x": 79.83333333333331,
+                "y": 63.833333333333314
             }
         },
         "rooms/level1/room9.tmx": {
             "scale": 2.7015625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 301.86234817813767,
-                "y": 65.51764025448234
+                "x": 47.935222672064754,
+                "y": 63.85193753614806
             }
         },
         "rooms/level1/special1.tmx": {
             "scale": 2.7015625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 160.09253903990742,
-                "y": 62.186234817813784
+                "x": 160.09253903990748,
+                "y": 62.371312897628684
+            }
+        },
+        "rooms/level1/special2.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 800.6666666666667,
+                "y": 343.33333333333326
             }
         },
         "tiletypes.tsx": {
@@ -161,42 +183,32 @@
         }
     },
     "last.imagePath": "D:/Dev/Rainfall/IvoryKeep/res/level",
-    "map.height": 20,
+    "map.height": 14,
     "map.lastUsedFormat": "tmx",
     "map.renderOrder": "1",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 20,
+    "map.width": 40,
     "openFiles": [
-        "rooms/level1/room1.tmx",
-        "rooms/level1/room2.tmx",
-        "rooms/level1/room3.tmx",
-        "rooms/level1/room4.tmx",
-        "rooms/level1/room5.tmx",
-        "rooms/level1/room6.tmx",
-        "rooms/level1/room8.tmx",
         "rooms/hub.tmx",
-        "rooms/level1/room9.tmx",
-        "rooms/level1/room10.tmx",
-        "rooms/level1/room11.tmx",
-        "rooms/level1/room12.tmx",
-        "rooms/level1/room16.tmx",
-        "rooms/level1/special1.tmx"
+        "rooms/hub2.tmx",
+        "rooms/level1/special1.tmx",
+        "rooms/level1/special2.tmx"
     ],
     "project": "IvoryKeep.tiled-project",
     "recentFiles": [
-        "rooms/level1/room1.tmx",
-        "rooms/level1/room2.tmx",
-        "rooms/level1/room3.tmx",
-        "rooms/level1/room4.tmx",
-        "rooms/level1/room5.tmx",
-        "rooms/level1/room6.tmx",
-        "rooms/level1/room8.tmx",
         "rooms/hub.tmx",
-        "rooms/level1/room9.tmx",
-        "rooms/level1/room10.tmx",
-        "rooms/level1/room11.tmx",
-        "rooms/level1/room12.tmx"
+        "rooms/hub2.tmx",
+        "rooms/level1/special2.tmx",
+        "rooms/level1/special1.tmx",
+        "rooms/level1/room8.tmx",
+        "rooms/level1/room6.tmx",
+        "rooms/level1/room5.tmx",
+        "rooms/level1/room4.tmx",
+        "rooms/level1/room3.tmx",
+        "rooms/level1/room2.tmx",
+        "rooms/level1/room1.tmx",
+        "rooms/level1/room9.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

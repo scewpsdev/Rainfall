@@ -16,7 +16,7 @@ public class Longbow : Bow
 
 		baseDamage = 2.5f;
 		baseAttackRate = 1.8f;
-		baseAttackRange = 14; // arrow speed
+		baseAttackRange = 7; // arrow speed
 		knockback = 8.0f;
 		trigger = false;
 		twoHanded = true;

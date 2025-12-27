@@ -16,7 +16,7 @@ public class TripleShotStaff : Staff
 	{
 		displayName = "Triple Shot Staff";
 
-		baseValue = 30;
+		baseValue = 18;
 
 		sprite = new Sprite(tileset, 12, 11);
 		renderOffset.x = -0.2f;

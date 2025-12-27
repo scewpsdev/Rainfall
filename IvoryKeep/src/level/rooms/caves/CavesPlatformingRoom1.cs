@@ -41,6 +41,6 @@ public class CavesPlatformingRoom1 : Entity
 				level.addEntity(new TorchEntity(), new Vector2(x + 0.5f, y + 0.5f));
 		}
 
-		level.ambientLight = Vector3.Zero;
+		level.lightLevel = 1;
 	}
 }

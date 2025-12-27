@@ -23,7 +23,7 @@ public class BlacksteelGlaive : Weapon
 		attackAcceleration = 1;
 		anim = AttackAnim.SwingOverhead;
 
-		baseValue = 35;
+		baseValue = 60;
 
 		strengthScaling = 0.3f;
 		dexterityScaling = 0.3f;

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.5.33502.453
+VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RainfallNative", "RainfallNative\RainfallNative.vcxproj", "{A266D521-2370-40EC-8345-3F0F5451235C}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -21,11 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rainfall2D", "Rainfall2D\Ra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RainfallEditor", "RainfallEditor\RainfallEditor.csproj", "{573A5983-26EE-4E68-AA99-3130F1A91382}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixelEngine", "PixelEngine\PixelEngine.csproj", "{5D9944CF-C75C-4584-9CEF-6662F42A5537}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IvoryKeep", "IvoryKeep\IvoryKeep.csproj", "{3E334FA7-B54C-466E-BD27-413C11CD75A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulslikeFPS", "SoulslikeFPS\SoulslikeFPS.csproj", "{85BC90B7-9801-E498-83CD-97A7A2D8A151}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoulslikeFPS", "SoulslikeFPS\SoulslikeFPS.csproj", "{85BC90B7-9801-E498-83CD-97A7A2D8A151}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,24 +136,6 @@ Global
 		{573A5983-26EE-4E68-AA99-3130F1A91382}.ReleaseLight|Any CPU.Build.0 = Release|Any CPU
 		{573A5983-26EE-4E68-AA99-3130F1A91382}.ReleaseLight|x64.ActiveCfg = Release|x64
 		{573A5983-26EE-4E68-AA99-3130F1A91382}.ReleaseLight|x86.ActiveCfg = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Debug|x64.ActiveCfg = Debug|x64
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Debug|x64.Build.0 = Debug|x64
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Debug|x86.Build.0 = Debug|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Release|x64.ActiveCfg = Release|x64
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Release|x64.Build.0 = Release|x64
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Release|x86.ActiveCfg = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.Release|x86.Build.0 = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.ReleaseLight|Any CPU.ActiveCfg = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.ReleaseLight|Any CPU.Build.0 = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.ReleaseLight|x64.ActiveCfg = Release|x64
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.ReleaseLight|x64.Build.0 = Release|x64
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.ReleaseLight|x86.ActiveCfg = Release|Any CPU
-		{5D9944CF-C75C-4584-9CEF-6662F42A5537}.ReleaseLight|x86.Build.0 = Release|Any CPU
 		{3E334FA7-B54C-466E-BD27-413C11CD75A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E334FA7-B54C-466E-BD27-413C11CD75A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E334FA7-B54C-466E-BD27-413C11CD75A6}.Debug|x64.ActiveCfg = Debug|x64

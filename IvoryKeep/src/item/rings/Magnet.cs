@@ -21,11 +21,11 @@ public class Magnet : Item
 
 	public override void onEquip(Player player)
 	{
-		player.coinCollectDistance *= 10;
+		player.coinFollowDistance *= 10;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.coinCollectDistance /= 10;
+		player.coinFollowDistance /= 10;
 	}
 }

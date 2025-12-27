@@ -44,6 +44,6 @@ public class EarthSpell : Spell
 
 		player.level.addEntity(ParticleEffects.CreateScrollUseEffect(player), player.position + player.collider.center);
 
-		return false;
+		return true;
 	}
 }

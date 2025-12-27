@@ -581,6 +581,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 				if (outline != 0)
 					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, rotation, sprite, direction == -1, outline);
+				else
+					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, rotation, sprite, direction == -1, 0xFF000000);
 
 				for (int i = 0; i < statusEffects.Count; i++)
 				{

@@ -35,6 +35,10 @@ public class State
 	{
 	}
 
+	public virtual void onSwitchFrom(State to)
+	{
+	}
+
 	public virtual void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)
 	{
 	}

@@ -32,6 +32,8 @@ public class Leprechaun : Mob
 		jumpPower = 7;
 		//gravity = -16;
 		//damage = 0.5f;
+
+		coinTarget = true;
 	}
 
 	public override void onDeath(Entity by, Item item)

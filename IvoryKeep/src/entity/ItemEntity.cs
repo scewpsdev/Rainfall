@@ -74,7 +74,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		{
 			particles = item.createParticleEffect(this);
 			particles.layer = LAYER_INTERACTABLE - 0.01f;
-			GameState.instance.level.addEntity(particles, position + item.particlesOffset);
+			level.addEntity(particles, position + item.particlesOffset);
 		}
 
 		if (thrower != null)

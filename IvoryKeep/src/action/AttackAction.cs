@@ -197,7 +197,7 @@ public class AttackAction : EntityAction
 					//	player.addImpulse(-direction * (4 - Vector2.Dot(currentImpulse, -direction)));
 
 					float downwardsFactor = MathF.Max(Vector2.Dot(direction, Vector2.Down), 0);
-					player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 0.75f);
+					player.velocity.y = MathF.Max(player.velocity.y, downwardsFactor * player.jumpPower * 1.0f);
 				}
 
 				if (weapon.hitSound != null && !hitSoundPlayed)
@@ -205,6 +205,8 @@ public class AttackAction : EntityAction
 					Audio.PlayOrganic(weapon.hitSound, new Vector3(hit.entity.position + hit.entity.collider.center, 0));
 					hitSoundPlayed = true;
 				}
+
+				GameState.instance.freeze(0.05f);
 
 				//if (critical)
 				//	GameState.instance.level.addEntity(Effects.CreateCriticalEffect(), hit.entity.position + hit.entity.collider.center);
@@ -295,7 +297,7 @@ public class AttackAction : EntityAction
 		if (inDamageWindow)
 			player.direction = charDirection;
 		//speedMultiplier = player.isGrounded ? (currentProgress < 1 ? 0 : 0.5f) : 1;
-		//speedMultiplier = player.isGrounded ? (currentProgress < 1 ? 0.5f : 1) : 1;
+		speedMultiplier = player.isGrounded && currentProgress < 1 && player.attackSlowdown ? 0.25f : 1;
 
 		//float actionMovementDst = Mathf.Smoothstep(0, 1, currentProgress) / weapon.attackRate;
 		//actionMovement = currentProgress < 1 && player.isGrounded ? player.direction * (actionMovementDst - lastActionMovement) / Time.deltaTime : 0;

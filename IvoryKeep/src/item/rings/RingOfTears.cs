@@ -16,7 +16,7 @@ public class RingOfTears : Item
 	{
 		displayName = "Ring of Tears";
 
-		description = "Increases attack when health is low";
+		description = "Increases critical attack chance when health is low";
 
 		baseValue = 110;
 
@@ -35,12 +35,14 @@ public class RingOfTears : Item
 			buff.active = player.health <= 1.1f;
 		}
 
-		buff.meleeDamageModifier = 1 + dmgBuff;
+		buff.criticalChanceModifier = 8;
+		//buff.meleeDamageModifier = 1 + dmgBuff;
 	}
 
 	public override void upgrade()
 	{
 		base.upgrade();
-		dmgBuff += 0.1f;
+		buff.criticalChanceModifier += 4;
+		//dmgBuff += 0.1f;
 	}
 }

@@ -18,7 +18,7 @@ public class AutomaticCrossbow : Weapon
 
 		baseDamage = 1;
 		baseAttackRate = 3;
-		baseAttackRange = 40; // arrow speed
+		baseAttackRange = 4; // arrow speed
 		knockback = 2.0f;
 		trigger = false;
 		//requiredAmmo = "arrow";

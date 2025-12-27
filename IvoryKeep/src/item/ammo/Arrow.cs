@@ -20,6 +20,7 @@ public class Arrow : Item
 		//maxPierces = 1;
 		breakOnEnemyHit = true;
 		stackable = true;
+		canDrop = false;
 
 		baseValue = 1;
 

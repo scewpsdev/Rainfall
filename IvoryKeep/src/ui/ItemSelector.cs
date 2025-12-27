@@ -27,7 +27,7 @@ public static class ItemSelector
 		height = headerHeight + shopHeight;
 	}
 
-	static void GetSize(int numItems, bool renderInfoPanel, out int width, out int height)
+	public static void GetSize(int numItems, bool renderInfoPanel, out int width, out int height)
 	{
 		GetSize(numItems, renderInfoPanel, out width, out height, out _, out _);
 	}

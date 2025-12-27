@@ -16,7 +16,7 @@ public class BurstShotStaff : Staff
 	{
 		displayName = "Burst Shot Staff";
 
-		baseValue = 30;
+		baseValue = 18;
 
 		sprite = new Sprite(tileset, 13, 11);
 		renderOffset.x = -0.2f;

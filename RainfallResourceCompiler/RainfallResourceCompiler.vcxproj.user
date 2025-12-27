@@ -17,10 +17,12 @@
     <LocalDebuggerCommandArguments>D:\Dev\ScoopsField\ScoopsField\res res png ogg vsh fsh csh glsl vert frag comp shader ttf rfs gltf glb</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>D:\Dev\ScoopsField\bin\x64\Debug</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArgumentsHistory>D:\Dev\ScoopsField\ScoopsField\res res png ogg vsh fsh csh glsl vert frag comp shader ttf rfs gltf glb|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>res D:\Dev\2025\Reverse\Reverse\bin\Debug\net8.0\assets png ogg vsh fsh csh shader ttf rfs gltf glb</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>D:\Dev\2025\Reverse\Reverse</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArgumentsHistory>res D:\Dev\2025\Reverse\Reverse\bin\Debug\net8.0\assets png ogg vsh fsh csh shader ttf rfs gltf glb|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
 </Project>

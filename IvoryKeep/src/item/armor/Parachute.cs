@@ -26,7 +26,7 @@ public class Parachute : Item
 
 		baseArmor = 1;
 		armorSlot = ArmorSlot.Back;
-		baseValue = 35;
+		baseValue = 38;
 
 		sprite = new Sprite(tileset, 4, 9);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/parachute.png", false), 0, 0, 32, 32);

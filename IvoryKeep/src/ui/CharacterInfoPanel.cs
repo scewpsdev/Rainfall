@@ -28,7 +28,7 @@ public static class CharacterInfoPanel
 
 		//y += Renderer.smallFont.size + 4;
 
-		PlayerThumbnail.Render(x + 4, y, 32, 32);
+		PlayerThumbnail.Render(x + 4, y, 32, 32, GameState.instance.save.name);
 
 		string className = player.startingClass != null ? player.startingClass.name : "No Class";
 		uint classColor = player.startingClass != null ? player.startingClass.color : UIColors.TEXT_SUBTLE;

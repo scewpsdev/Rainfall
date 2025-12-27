@@ -57,6 +57,8 @@ public class SaveFile
 	public int id;
 	public string path;
 	public DatFile file;
+
+	public string name;
 	public bool isDaily, isCustom;
 
 	public int runsFinished = 0;
@@ -64,9 +66,6 @@ public class SaveFile
 	public HashSet<uint> flags = new HashSet<uint>();
 
 	public List<Item> stashedItems = new List<Item>();
-
-	public string currentCheckpointLevel;
-	public Vector2 currentCheckpoint;
 
 
 	public bool hasFlag(uint flag)
@@ -91,7 +90,9 @@ public class SaveFile
 		if (!hasFlag(h))
 		{
 			setFlag(h);
-			GameState.instance.player.hud.showMessage($"Unlocked starting class \"{startingClass.name}\"!");
+
+			if (GameState.instance != null)
+				GameState.instance.player.hud.showMessage($"Unlocked starting class \"{startingClass.name}\"!");
 		}
 	}
 
@@ -100,20 +101,76 @@ public class SaveFile
 		return hasFlag(Hash.hash(startingClass.name));
 	}
 
+	public void unlockAll()
+	{
+		setFlag(FLAG_TUTORIAL_FINISHED);
+		setFlag(FLAG_CAVES_FOUND);
+		setFlag(FLAG_MINES_FOUND);
+		setFlag(FLAG_DUNGEONS_FOUND);
+		setFlag(FLAG_CASTLE_UNLOCKED);
+		setFlag(FLAG_NPC_RAT_MET);
+		setFlag(FLAG_NPC_RAT_QUESTLINE_COMPLETED);
+		setFlag(FLAG_NPC_TRAVELLER_MET);
+		setFlag(FLAG_NPC_BLACKSMITH_MET);
+		setFlag(FLAG_NPC_TINKERER_MET);
+		setFlag(FLAG_NPC_GATEKEEPER_MET);
+		setFlag(FLAG_NPC_LOGAN_MET);
+		setFlag(FLAG_NPC_BARBARIAN_MET);
+		setFlag(FLAG_NPC_KNIGHT_MET);
+		setFlag(FLAG_NPC_HUNTER_MET);
+		setFlag(FLAG_NPC_THIEF_MET);
+
+		for (int i = 0; i < StartingClass.startingClasses.Length; i++)
+			unlockStartingClass(StartingClass.startingClasses[i]);
+	}
+
+
+	public static string GetSaveFilePath(int saveID)
+	{
+		return "saves/save" + (saveID + 1) + ".dat";
+	}
+
+	public static SaveFile Create(int saveID, string name)
+	{
+		string path = GetSaveFilePath(saveID);
+		SaveFile save = new SaveFile() { id = saveID, path = path, name = name };
+
+		save.highscores = new RunData[4];
+		for (int i = 0; i < save.highscores.Length; i++)
+		{
+			save.highscores[i].score = 0;
+			save.highscores[i].floor = -1;
+			save.highscores[i].time = -1;
+			save.highscores[i].kills = 0;
+			save.highscores[i].handItems = new Item[2];
+			save.highscores[i].activeItems = new Item[5];
+			save.highscores[i].passiveItems = new Item[4];
+		}
+
+		save.unlockStartingClass(StartingClass.barbarian);
+		save.unlockStartingClass(StartingClass.knight);
+		save.unlockStartingClass(StartingClass.hunter);
+		save.unlockStartingClass(StartingClass.thief);
+		save.unlockStartingClass(StartingClass.wizard);
+
+		save.file = Save(save);
+
+		return save;
+	}
 
 	public static SaveFile Load(int saveID)
 	{
-		string path = "saves/save" + (saveID + 1) + ".dat";
-		SaveFile save = new SaveFile() { id = saveID, path = path };
+		string path = GetSaveFilePath(saveID);
 
-#if DEBUG
-		if (File.Exists(path) && saveID != 2)
-#else
 		if (File.Exists(path))
-#endif
 		{
+			SaveFile save = new SaveFile() { id = saveID, path = path };
 			DatFile dat = new DatFile(File.ReadAllText(path), path);
 			save.file = dat;
+
+			dat.getStringContent("name", out save.name);
+			if (save.name == null)
+				save.name = "Larry";
 
 			dat.getInteger("runs_finished", out save.runsFinished);
 
@@ -129,9 +186,6 @@ public class SaveFile
 			for (int i = 0; i < Math.Min(highscoresDat.size, 4); i++)
 				save.highscores[i] = LoadRun(highscoresDat[i].obj);
 
-			dat.getStringContent("checkpoint_level", out save.currentCheckpointLevel);
-			dat.getVector2("checkpoint_position", out save.currentCheckpoint);
-
 			if (dat.getArray("npcs", out DatArray npcsData))
 			{
 				QuestManager.LoadNPCs(npcsData);
@@ -146,25 +200,16 @@ public class SaveFile
 			}
 
 			//LoadInventory(save, dat, GameState.instance.player);
-		}
-		else
-		{
-			save.highscores = new RunData[4];
-			for (int i = 0; i < save.highscores.Length; i++)
-			{
-				save.highscores[i].score = 0;
-				save.highscores[i].floor = -1;
-				save.highscores[i].time = -1;
-				save.highscores[i].kills = 0;
-				save.highscores[i].handItems = new Item[2];
-				save.highscores[i].activeItems = new Item[5];
-				save.highscores[i].passiveItems = new Item[4];
-			}
 
-			save.file = Save(save);
+#if DEBUG
+			if (saveID == 2)
+				save.unlockAll();
+#endif
+
+			return save;
 		}
 
-		return save;
+		return null;
 	}
 
 	static RunData LoadRun(DatObject run)
@@ -204,9 +249,13 @@ public class SaveFile
 			Item item = null;
 			if (itemsArray[i].obj.getIdentifier("type", out string itemType))
 			{
-				item = Item.GetItemPrototype(itemType).copy();
-				itemsArray[i].obj.getInteger("stack_size", out item.stackSize);
-				item.deserialize(itemsArray[i].obj);
+				Item itemPrototype = Item.GetItemPrototype(itemType);
+				if (itemPrototype != null)
+				{
+					item = itemPrototype.copy();
+					itemsArray[i].obj.getInteger("stack_size", out item.stackSize);
+					item.deserialize(itemsArray[i].obj);
+				}
 			}
 			items[i] = item;
 		}
@@ -305,6 +354,8 @@ public class SaveFile
 			file.addArray("flags", new DatArray(flags));
 		}
 
+		file.addString("name", save.name);
+
 		file.addInteger("runs_finished", save.runsFinished);
 
 		DatValue[] highscoresDat = new DatValue[save.highscores.Length];
@@ -323,12 +374,6 @@ public class SaveFile
 			highscoresDat[i] = new DatValue(run);
 		}
 		file.addArray("highscores", new DatArray(highscoresDat));
-
-		if (save.currentCheckpointLevel != null)
-		{
-			file.addString("checkpoint_level", save.currentCheckpointLevel);
-			file.addVector2("checkpoint_position", save.currentCheckpoint);
-		}
 
 		//SaveInventory(save, file, GameState.instance.player);
 
@@ -448,11 +493,13 @@ public class SaveFile
 			{
 				HighscoreRun(run, 0, save);
 				run.timeRecord = true;
+				Leaderboards.OnRunFinishedTime(run, save);
 			}
 			if (run.score > save.highscores[1].score)
 			{
 				HighscoreRun(run, 1, save);
 				run.scoreRecord = true;
+				Leaderboards.OnRunFinishedScore(run, save);
 			}
 			if (run.floor > save.highscores[2].floor)
 			{

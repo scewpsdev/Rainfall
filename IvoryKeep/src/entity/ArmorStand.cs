@@ -60,7 +60,7 @@ public class ArmorStand : Entity, Interactable
 
 		if (outline != 0)
 		{
-			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BG + 0.002f, 1, 1, 0, sprite, direction == -1, outline);
+			Renderer.DrawOutline(position.x - 0.5f, position.y, LAYER_BGBG, 1, 1, 0, sprite, direction == -1, outline);
 
 			if (renderClass)
 			{
@@ -68,15 +68,15 @@ public class ArmorStand : Entity, Interactable
 				{
 					if (startingClass.items[i].ingameSprite != null)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * startingClass.items[i].ingameSpriteSize, LAYER_BG + 0.002f, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].ingameSpriteSize, position.y + 1.0f / 16 + 0.5f - 0.5f * startingClass.items[i].ingameSpriteSize, LAYER_BGBG, startingClass.items[i].ingameSpriteSize, startingClass.items[i].ingameSpriteSize, 0, startingClass.items[i].ingameSprite, direction == -1, outline);
 					}
 					else if (startingClass.items[i].isSecondaryItem)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(false).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(false).y, LAYER_BG + 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(false).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(false).y, LAYER_BGBG, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
 					}
 					else if (startingClass.items[i].isHandItem)
 					{
-						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BG + 0.002f, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
+						Renderer.DrawOutline(position.x - 0.5f * startingClass.items[i].size.x + startingClass.items[i].renderOffset.x * direction + getWeaponOrigin(true).x, position.y + 1.0f / 16 - 0.5f * startingClass.items[i].size.y + getWeaponOrigin(true).y, LAYER_BGBG, startingClass.items[i].size.x, startingClass.items[i].size.y, 0, startingClass.items[i].sprite, direction == -1, outline);
 					}
 				}
 			}

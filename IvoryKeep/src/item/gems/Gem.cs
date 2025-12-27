@@ -11,8 +11,8 @@ public abstract class Gem : Item
 		: base(name, ItemType.Gem)
 	{
 		stackable = false;
-		baseValue = 50;
-		isSecondaryItem = true;
+		baseValue = 40;
+		//isSecondaryItem = true;
 	}
 
 	public override bool use(Player player)

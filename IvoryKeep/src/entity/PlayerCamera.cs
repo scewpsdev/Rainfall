@@ -69,7 +69,7 @@ public class PlayerCamera : Entity
 
 		float x0 = 0.0f + 0.5f * width;
 		float x1 = GameState.instance.level.width - 0.5f * width;
-		float y0 = (level.isSafeLevel || level.floor == -1) ? 0.5f * height : 0.0f; // + 0.5f * height;
+		float y0 = (level.isSafeLevel || level.floor == -1) ? 0.4f * height : 0.0f; // + 0.5f * height;
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
 		HitData currentCameraFrame = GameState.instance.level.sample(position, FILTER_CAMERA_FRAME);
@@ -87,6 +87,8 @@ public class PlayerCamera : Entity
 
 		target.x = Mathf.Clamp(target.x, x0, x1);
 		target.y = Mathf.Clamp(target.y, y0, y1);
+		if (target.y - 0.5f * height + 3.0f > player.position.y)
+			target.y = player.position.y - 3.0f + 0.5f * height;
 
 		/*
 		if (InputManager.IsDown("Down") && player.currentLadder == null)
@@ -112,8 +114,8 @@ public class PlayerCamera : Entity
 				target += aimDirection * 0.1f * player.aimDistance;
 		}
 
-		position.x = Mathf.Lerp(position.x, target.x, 4 * Time.deltaTime);
-		position.y = Mathf.Lerp(position.y, target.y, 8 * Time.deltaTime);
+		position.x = Mathf.Lerp(position.x, target.x, 2 * Time.deltaTime);
+		position.y = Mathf.Lerp(position.y, target.y, (target.y < position.y - 4 ? 12 : 4) * Time.deltaTime);
 		//velocity = Vector2.Lerp(velocity, player.velocity, 10 * Time.deltaTime);
 		//position += velocity * Time.deltaTime;
 

@@ -91,16 +91,16 @@ public class LightningProjectile : Entity
 		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
 
 		HitData[] hits = new HitData[16];
-		int numHits = GameState.instance.level.raycastNoBlock(lastPosition, displacement.normalized, displacement.length, hits, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		int numHits = GameState.instance.level.raycast(lastPosition, displacement.normalized, displacement.length, hits, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
 		for (int i = 0; i < numHits; i++)
 		{
 			HitData hit = hits[i];
 			if (hit.entity != null)
 			{
-				if (hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
+				if ((hit.entity != shooter || ricochets > 0) && !hitEntities.Contains(hit.entity) && hit.entity is Hittable)
 				{
 					Hittable hittable = hit.entity as Hittable;
-					hittable.hit(damage, shooter, spell);
+					hittable.hit(damage, shooter, spell, displayName);
 					hitEntities.Add(hit.entity);
 					damage = MathF.Max(damage - 1, 0);
 					if (damage < 0.1f)
@@ -111,6 +111,11 @@ public class LightningProjectile : Entity
 					}
 
 					level.addEntity(ParticleEffects.CreateCastEffect(), hit.position);
+
+					velocity = Mathf.RandomVector2(-1, 1).normalized * velocity.length;
+					cornerPoints.Add(new Vector3(position, Time.currentTime / 1e9f));
+					ricochets++;
+					break;
 				}
 			}
 			else

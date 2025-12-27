@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ public class BossRoom : Entity
 		level.ambientTrackHasIdleLayer = trackHasRoomLayer;
 
 		boss.isBoss = true;
+		boss.itemDrops.Add(new IronKey());
 
 		level.addEntity(gate0 = new BossGate(true), (Vector2)room.getMarker(0x2));
 		level.addEntity(gate1 = new BossGate(true), (Vector2)room.getMarker(0x3));
@@ -88,6 +90,14 @@ public class BossRoom : Entity
 
 		gate0.open();
 		gate1.open();
+
+		for (int i = 0; i < 3; i++)
+		{
+			ChestType chestType = (ChestType)Mathf.RandomInt((int)ChestType.Red, (int)ChestType.Silver, Random.Shared);
+			Chest chest = new Chest(null, false, chestType);
+			chest.items = chest.createThemedItems(level.avgLootValue * 2, DropRates.defaultDroprates, Random.Shared);
+			level.addEntity(chest, new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f + (i - 1) * 2.0f, gate0.position.y));
+		}
 
 		GameState.instance.setAmbientLayer(-1);
 

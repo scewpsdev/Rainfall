@@ -56,7 +56,7 @@ public class CavesSpecialRoom1 : Entity
 		level.addEntity(new TorchEntity(), position + new Vector2(6.5f, 3.5f));
 
 		if (generator.random.NextSingle() < 0.8f)
-			generator.spawnNPC(room.x + Mathf.RandomInt(2, 5, generator.random), room.y + 1, generator.getCaveNPCList());
+			generator.spawnNPC(room.x + Mathf.RandomInt(2, 5, generator.random), room.y + 1);
 		else
 		{
 			int numChests = Mathf.RandomInt(1, 6, generator.random);
@@ -65,27 +65,8 @@ public class CavesSpecialRoom1 : Entity
 			for (int i = 0; i < numChests; i++)
 			{
 				ChestType chestType = (ChestType)Mathf.RandomInt((int)ChestType.Red, (int)ChestType.Silver, generator.random);
-				ItemType itemType = ItemType.Count;
-				float itemValue = generator.getRoomLootValue(room) * 2;
-				if (chestType == ChestType.Red)
-				{
-					itemType = generator.random.NextSingle() < 0.9f ? ItemType.Weapon : ItemType.Shield;
-				}
-				else if (chestType == ChestType.Blue)
-				{
-					float f = generator.random.NextSingle();
-					itemType = f < 0.4f ? ItemType.Staff : /*f < 0.8f ? ItemType.Spell :*/ f < 0.9f ? ItemType.Potion : ItemType.Scroll;
-				}
-				else if (chestType == ChestType.Green)
-				{
-					itemType = generator.random.NextSingle() < 0.9f ? ItemType.Armor : ItemType.Shield;
-				}
-				else if (chestType == ChestType.Silver)
-				{
-					itemValue = generator.getRoomLootValue(room) * 3;
-				}
-				Item[] items = itemType != ItemType.Count ? [Item.CreateRandom(itemType, generator.random, itemValue)] : Item.CreateRandom(generator.random, DropRates.defaultDroprates, itemValue);
-				Chest chest = new Chest(items, i < numChests / 2, chestType);
+				Chest chest = new Chest(null, i < numChests / 2, chestType);
+				chest.items = chest.createThemedItems(generator.getRoomLootValue(room) * 2, generator.getDroprates(), generator.random);
 				level.addEntity(chest, new Vector2(room.x + xpos + i * 1.5f + 0.5f, room.y + 1));
 				generator.setObjectFlag(room.x + xpos + i, room.y + 1);
 			}

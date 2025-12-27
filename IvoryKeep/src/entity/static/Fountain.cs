@@ -144,7 +144,7 @@ public class Fountain : Entity, Interactable
 		{
 			player.removeItem(player.handItem);
 
-			foreach (Item item in Item.CreateRandom(Random.Shared, DropRates.defaultDroprates, level.avgLootValue))
+			foreach (Item item in Item.CreateRandom(Random.Shared, DropRates.cavesDroprates, level.avgLootValue))
 				player.dropItem(item);
 		}
 		else

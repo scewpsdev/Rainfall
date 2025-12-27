@@ -61,6 +61,10 @@ public static class GameOverScreen
 			Renderer.DrawUITextBMP(x + width - textWidth, y, str, 1, color);
 		}
 
+		drawLeft("Adventurer");
+		drawRight(game.save.name, 0xFFAAAAAA);
+		y += lineHeight;
+
 		drawLeft("Score");
 		drawRight(game.run.score.ToString(), game.run.scoreRecord ? RunStats.recordColors[1] : 0xFFAAAAAA);
 		if (game.run.scoreRecord && scoreRecordParticles == null && !particlesEmitted)
@@ -173,7 +177,7 @@ public static class GameOverScreen
 		int padding = 8;
 
 		int playerViewSize = 32;
-		PlayerThumbnail.Render(x + width / 4 - playerViewSize / 2, y + padding, playerViewSize, playerViewSize);
+		PlayerThumbnail.Render(x + width / 4 - playerViewSize / 2, y + padding, playerViewSize, playerViewSize, GameState.instance.save.name);
 
 		RenderRunStats(GameState.instance, x + padding, y + padding + playerViewSize, width / 2 - 2 * padding, height - 2 * padding);
 		Vector2i selectedCell = Vector2i.Zero;

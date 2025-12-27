@@ -33,6 +33,8 @@ public static class ItemInfoPanel
 
 		string rarityString = "\\x0x" + item.rarityColor.ToString("X") + "\\" + item.rarityString + "\\x0\\";
 		string itemTypeStr = item.type.ToString();
+		if (item.type == ItemType.Potion && (item as Potion).throwable)
+			itemTypeStr = "Throwable " + itemTypeStr;
 		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + (item.isSecondaryItem ? "Secondary " : "") + itemTypeStr;
 		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width - 4);
 		foreach (string line in itemInfoLines)
@@ -77,56 +79,67 @@ public static class ItemInfoPanel
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
 			drawRightStr(str, color);
 		}
-		void drawComparisonStr(string str, int comparison)
+		void drawComparisonStr(string str, string toStr, int comparison)
 		{
 			int textWidth = Renderer.MeasureUITextBMP(str, str.Length, 1).x;
 			uint color = comparison == 1 ? UIColors.TEXT_UPGRADE : comparison == -1 ? UIColors.TEXT_DOWNGRADE : UIColors.TEXT_COMPARABLE;
 			Renderer.DrawUITextBMP(x + width - 1 - textWidth, y, str, 1, color);
+
+			toStr = toStr + " > ";
+			int toStrWidth = Renderer.MeasureUITextBMP(toStr, toStr.Length, 1).x;
+			Renderer.DrawUITextBMP(x + width - 1 - textWidth - toStrWidth, y, toStr, 1, UIColors.TEXT);
 		}
 		void drawComparison(float value, float to, bool flipComparison = false)
 		{
 			string str = MathF.Abs(value - MathF.Round(value)) < 0.0001f ? ((int)value).ToString() : value.ToString("0.0");
+			string toStr = to.ToString("0.0");
 			int comparison = MathF.Sign(value - to) * (flipComparison ? -1 : 1);
-			drawComparisonStr(str, comparison);
+			drawComparisonStr(str, toStr, comparison);
 		}
 
 		if (item.type == ItemType.Weapon || item.type == ItemType.Staff)
 		{
 			drawLeft("Attack");
 			float infusedDamage = item.getInfusedDamage();
-			drawRight(infusedDamage);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(infusedDamage, compareItem.getInfusedDamage());
+			else
+				drawRight(infusedDamage);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Speed");
-			drawRight(item.attackRate);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRate, compareItem.attackRate);
+			else
+				drawRight(item.attackRate);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Range");
-			drawRight(item.attackRange);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.attackRange, compareItem.attackRange);
+			else
+				drawRight(item.attackRange);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Knockback");
-			drawRight(item.knockback);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.knockback, compareItem.knockback);
+			else
+				drawRight(item.knockback);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Critical");
-			drawRight((int)(item.criticalChanceModifier - 1) * 100);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-				drawComparison((int)(item.criticalChanceModifier - 1) * 100, (int)(compareItem.criticalChanceModifier - 1) * 100);
+				drawComparison((int)(GameState.instance.player.criticalChance * item.criticalChanceModifier) * 100, (int)(GameState.instance.player.criticalChance * compareItem.criticalChanceModifier) * 100);
+			else
+				drawRight((int)(GameState.instance.player.criticalChance * item.criticalChanceModifier) * 100);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Weight");
-			drawRight(item.weight);
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 				drawComparison(item.weight, compareItem.weight, true);
+			else
+				drawRight(item.weight);
 			y += Renderer.smallFont.size + 1;
 
 			if (item.buff != null)
@@ -134,9 +147,10 @@ public static class ItemInfoPanel
 				if (item.buff.criticalAttackModifier > 1)
 				{
 					drawLeft("Crit Modifier");
-					drawRight(item.buff.criticalAttackModifier);
 					if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.buff != null)
 						drawComparison(item.buff.criticalAttackModifier, compareItem.buff.criticalAttackModifier, true);
+					else
+						drawRight(item.buff.criticalAttackModifier);
 					y += Renderer.smallFont.size + 1;
 				}
 			}

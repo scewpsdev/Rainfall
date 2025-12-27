@@ -26,7 +26,7 @@ public class Projectile : Entity, Hittable
 
 	int ricochets = 0;
 	protected Vector2 offset;
-	float currentDistance = 0;
+	public float currentDistance = 0;
 
 	List<Entity> hitEntities = new List<Entity>();
 
@@ -53,6 +53,8 @@ public class Projectile : Entity, Hittable
 	public override void init(Level level)
 	{
 		//trail = new Trail(20, trailColor, position);
+		dropRange *= shooter is Player ? ((Player)shooter).getProjectileRangeModifier() : 1;
+		maxRange *= shooter is Player ? ((Player)shooter).getProjectileRangeModifier() : 1;
 	}
 
 	public virtual void onHit(Vector2 normal)

@@ -72,7 +72,7 @@ public abstract class AI
 		HitData hit = GameState.instance.level.raycastSolid(mob.position + mob.collider.center, toTarget, distance + 0.1f);
 
 		float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
-		float effectiveAwareness = awareness * (GameState.instance.player.isDucked ? 0.5f : 1.0f);
+		float effectiveAwareness = awareness * (GameState.instance.player.isDucked ? 0.25f : 1.0f);
 		return distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction && hit == null || distance < effectiveAwareness * 2;
 	}
 }

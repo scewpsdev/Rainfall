@@ -61,21 +61,32 @@ public class CastleGate : Door
 		rect = new FloatRect(-4, 0, 8, 8);
 
 		collider = new FloatRect(-4, 0, 8, 2);
+
+		locked = true;
+		interactRange = 2;
 	}
 
-	public override bool canInteract(Player player)
+	public CastleGate()
+		: this(null)
 	{
+	}
+}
+
+public class HubSpawn : Door
+{
+	public HubSpawn()
+		: base(null, null, false, 0)
+	{
+	}
+
+    public override bool canInteract(Player player)
+    {
 		return false;
-		//Item helmet = player.getArmorItem(ArmorSlot.Helmet);
-		//return helmet != null && helmet.name == "lost_sigil";
-	}
+    }
 
-	public override void interact(Player player)
-	{
-		base.interact(player);
-
-		player.removeItem(player.getItem("lost_sigil"));
-	}
+    public override void render()
+    {
+    }
 }
 
 
@@ -88,6 +99,8 @@ public class Hub : Entity
 	Blacksmith blacksmith;
 
 	public Elevator[] elevators = new Elevator[3];
+
+	public Door pedestalRoomEntrance;
 
 
 	public Hub(Room room)
@@ -109,7 +122,9 @@ public class Hub : Entity
 
 		//level.addEntity(tutorialExitDoor, hub.rooms[0].getMarker(01) + new Vector2(0.5f, 0));
 
-		level.addEntity(new Fountain(FountainEffect.None), new Vector2(level.width - 4.5f, 2));
+		level.addEntity(new Fountain(FountainEffect.None), level.getMarker(0x2) + new Vector2(-2, 0));
+
+		level.addEntity(new HubSpawn(), level.getMarker(0xA));
 
 
 		SaveFile save = GameState.instance.save;
@@ -120,16 +135,24 @@ public class Hub : Entity
 			//Vector2 position = new Vector2(-StartingClass.startingClasses.Length / 2 * 1.5f - 0.5f + i * 1.5f + i * 2 / StartingClass.startingClasses.Length * 2.5f, 0);
 			float x = i - StartingClass.startingClasses.Length / 2;
 			x += x >= 0 ? 1 : 0;
-			x = level.width / 2 + x * 1.5f;
+			x = level.getMarker(0xA).x + x * 1.5f;
 			Vector2 position = new Vector2(x, 2);
 			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), position);
 		}
 
 #if DEBUG
-		level.addEntity(new ArmorStand(StartingClass.dev, -1), new Vector2(level.width / 2 + 2 + StartingClass.startingClasses.Length * 1.5f, 2));
+		level.addEntity(new ArmorStand(StartingClass.dev, -1), new Vector2(level.getMarker(0xA).x + 2 + StartingClass.startingClasses.Length * 1.5f, 2));
 #endif
 
 		level.addEntity(new StashChest(StashChestMode.Retrieve) { flipped = true }, new Vector2(2, 2));
+
+
+		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
+		{
+			level.addEntity(new Logan() /*NPCManager.logan*/, level.getMarker(0xd));
+		}
+
+		level.addEntity(pedestalRoomEntrance = new Door(GameState.instance.hub2, null), level.getMarker(0x2));
 
 		return;
 
@@ -155,43 +178,10 @@ public class Hub : Entity
 			level.addEntity(blacksmith, level.rooms[0].getMarker(10) + new Vector2(-3, 0));
 		}
 
-		//level.addEntity(new IronDoor(save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) ? null : "dummy_key"), new Vector2(38.5f, 23));
-		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && !save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
-		{
-			RatNPC rat = new RatNPC(); // NPCManager.rat;
-			rat.clearShop();
-			rat.direction = 1;
-			level.addEntity(rat, (Vector2)level.rooms[0].getMarker(0x0e));
-
-			level.addEntity(new RopeEntity(13), new Vector2(46, 23));
-		}
-
 		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
 		{
 			TravellingMerchant gatekeeper = new TravellingMerchant(null, level);
 			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
-		}
-
-		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
-		{
-			level.addEntity(new Logan() /*NPCManager.logan*/, new Vector2(56, 23));
-		}
-
-		for (int i = 0; i < save.highscores.Length; i++)
-		{
-			Vector2 position = room.getMarker(15) + new Vector2(i * 5, 0);
-			level.addEntity(new Pedestal(), position);
-
-			if (save.highscores[i].score > 0)
-			{
-				string[] label =
-					i == 0 ? ["Fastest Time:", save.highscores[i].time != -1 ? StringUtils.TimeToString(save.highscores[i].time) : "???"] :
-					i == 1 ? ["Highest Score:", save.highscores[i].score.ToString()] :
-					i == 2 ? ["Highest Floor:", save.highscores[i].floor != -1 ? (save.highscores[i].floor + 1).ToString() : "???"] :
-					i == 3 ? ["Most kills:", save.highscores[i].kills.ToString()] : ["???"];
-				uint color = RunStats.recordColors[i];
-				level.addEntity(new HighscoreDummy(save.highscores[i], label, color), position + Vector2.Up);
-			}
 		}
 	}
 

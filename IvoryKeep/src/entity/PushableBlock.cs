@@ -13,6 +13,7 @@ public class PushableBlock : Entity, Hittable
 
 
 	Sprite sprite;
+	int health = 6;
 
 
 	public PushableBlock()
@@ -114,6 +115,13 @@ public class PushableBlock : Entity, Hittable
 		if (byName == "Explosion")
 		{
 			breakBlock();
+			return true;
+		}
+		else
+		{
+			health--;
+			if (health == 0)
+				breakBlock();
 			return true;
 		}
 		return false;

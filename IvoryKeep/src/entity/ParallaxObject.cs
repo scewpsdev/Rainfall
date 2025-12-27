@@ -41,7 +41,7 @@ public class ParallaxObject : Entity
 	public override void render()
 	{
 		float distance = -z;
-		float fog = MathF.Exp(-distance * GameState.instance.level.fogFalloff);
+		//float fog = MathF.Exp(-distance * GameState.instance.level.fogFalloff);
 
 		//Vector3 vertex = ParallaxEffect(position, MathF.Log2(1 - 0.1f * z));
 

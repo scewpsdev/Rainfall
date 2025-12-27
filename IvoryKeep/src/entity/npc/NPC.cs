@@ -3,7 +3,6 @@ using Rainfall;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
@@ -20,6 +19,7 @@ public enum NPCState
 	SellMenu,
 	CraftingMenu,
 	UpgradeMenu,
+	InfuseMenu,
 	AttuneMenu,
 	IdentifyMenu,
 	QuestList,
@@ -144,6 +144,7 @@ public abstract class NPC : Mob, Interactable
 	public bool buysItems = false;
 	protected bool canCraft = false;
 	protected bool canUpgrade = false;
+	protected bool canInfuse = false;
 	//protected bool canAttune = false;
 	protected bool canIdentify = false;
 	public float voicePitch = 1.0f;
@@ -160,6 +161,13 @@ public abstract class NPC : Mob, Interactable
 
 	List<Item> upgradeItems = new List<Item>();
 	List<int> upgradePrices = new List<int>();
+
+	List<Item> infuseItems = new List<Item>();
+	List<int> infusePrices = new List<int>();
+	Item infuseItem = null;
+	int infusePrice = -1;
+	Item infusedCompareItem = null;
+	int selectedInfusionOption;
 
 	List<Item> attuneStaffs = new List<Item>();
 	List<Item> attuneSpells = new List<Item>();
@@ -362,7 +370,7 @@ public abstract class NPC : Mob, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || progression.initialDialogue != null || progression.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0)) || (canIdentify && player.items.Count > 0) /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || progression.initialDialogue != null || progression.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0) || (canInfuse && player.items.Count > 0) || (canIdentify && player.items.Count > 0))  /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -464,6 +472,24 @@ public abstract class NPC : Mob, Interactable
 			{
 				upgradeItems.Add(player.items[i]);
 				upgradePrices.Add(player.items[i].upgradeCost);
+			}
+		}
+	}
+
+	void initInfuseMenu()
+	{
+		state = NPCState.InfuseMenu;
+		selectedItem = 0;
+		infuseItems.Clear();
+		infusePrices.Clear();
+		infuseItem = null;
+		infusePrice = -1;
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Armor)
+			{
+				infuseItems.Add(player.items[i]);
+				infusePrices.Add(player.items[i].getValue() * 2);
 			}
 		}
 	}
@@ -718,7 +744,21 @@ public abstract class NPC : Mob, Interactable
 					}
 				}
 				if (hasUpgradable)
-					options.Add("Smithing");
+					options.Add("Reinforce");
+			}
+			if (canInfuse && player.items.Count >= 1)
+			{
+				bool hasInfusable = false;
+				for (int i = 0; i < player.items.Count; i++)
+				{
+					if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Armor)
+					{
+						hasInfusable = true;
+						break;
+					}
+				}
+				if (hasInfusable)
+					options.Add("Infuse");
 			}
 			//if (canAttune && player.hasItemOfType(ItemType.Staff))
 			//	options.Add("Attune");
@@ -746,9 +786,13 @@ public abstract class NPC : Mob, Interactable
 				{
 					initCraftingMenu();
 				}
-				else if (options[option] == "Smithing")
+				else if (options[option] == "Reinforce")
 				{
 					initUpgradeMenu();
+				}
+				else if (options[option] == "Infuse")
+				{
+					initInfuseMenu();
 				}
 				else if (options[option] == "Attune")
 				{
@@ -915,7 +959,7 @@ public abstract class NPC : Mob, Interactable
 			Item upgradedItem = upgradeItems[selectedItem].copy();
 			upgradedItem.upgrade();
 
-			int choice = ItemSelector.Render(menuAnchor, "Smithing", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
+			int choice = ItemSelector.Render(menuAnchor, "Reinforce", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
 			if (choice != -1)
 			{
 				if (upgradePrices[selectedItem] <= player.money)
@@ -930,6 +974,75 @@ public abstract class NPC : Mob, Interactable
 
 			if (closed)
 				initMenu();
+		}
+		else if (state == NPCState.InfuseMenu)
+		{
+			if (infuseItem == null)
+			{
+				int choice = ItemSelector.Render(menuAnchor, "Infuse", infuseItems, infusePrices, player.money, player, true, infusedCompareItem, infusedCompareItem != null, out bool secondary, out bool closed, ref selectedItem);
+
+				if (choice != -1)
+				{
+					if (infusePrices[choice] <= player.money)
+					{
+						infuseItem = infuseItems[choice];
+						infusePrice = infusePrices[choice];
+						selectedInfusionOption = 0;
+					}
+				}
+				if (closed)
+					initMenu();
+			}
+			else
+			{
+				List<Infusion> possibleInfusions = new List<Infusion>();
+				if (infuseItem.type == ItemType.Weapon)
+				{
+					possibleInfusions.Add(Infusion.Sharp);
+					possibleInfusions.Add(Infusion.Light);
+					possibleInfusions.Add(Infusion.Heavy);
+					possibleInfusions.Add(Infusion.Long);
+				}
+				else if (infuseItem.type == ItemType.Armor)
+				{
+					possibleInfusions.Add(Infusion.ArmorHeavy);
+					possibleInfusions.Add(Infusion.ArmorLight);
+				}
+				else
+				{
+					Debug.Assert(false);
+				}
+
+				List<string> infusionLabels = new List<string>();
+				for (int i = 0; i < possibleInfusions.Count; i++)
+				{
+					if (infuseItem.infusions.Contains(possibleInfusions[i]))
+						possibleInfusions.RemoveAt(i--);
+				}
+				for (int i = 0; i < possibleInfusions.Count; i++)
+					infusionLabels.Add(possibleInfusions[i].name);
+
+				infusedCompareItem = infuseItem.copy();
+				infusedCompareItem.addInfusion(possibleInfusions[selectedInfusionOption]);
+				int option = ShopMenu.Render(menuAnchor, "Select infusion", infusionLabels, null, null, 0, true, infusedCompareItem, infuseItem, out bool secondary, out bool closed, ref selectedInfusionOption);
+				//InteractableMenu.GetSize(possibleInfusions.Count, out int menuWidth, out int menuHeight);
+				//ItemInfoPanel.Render(infusedCompareItem, menuAnchor.x + menuWidth, menuAnchor.y, 90, menuHeight, infuseItem);
+
+				if (option != -1)
+				{
+					Infusion infusion = possibleInfusions[option];
+					infuseItem.addInfusion(infusion);
+					player.money -= infusePrice;
+					Audio.Play(upgradeSound, new Vector3(position, 0));
+					infuseItem = null;
+				}
+
+				if (closed)
+				{
+					infuseItem = null;
+					infusedCompareItem = null;
+				}
+			}
 		}
 		else if (state == NPCState.AttuneMenu)
 		{

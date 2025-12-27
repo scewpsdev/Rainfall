@@ -19,7 +19,7 @@ public enum ItemType
 	Relic,
 	Staff,
 	Scroll,
-	//Spell,
+	Spell,
 	Utility,
 	Ammo,
 	Gem,
@@ -173,9 +173,11 @@ public abstract class Item
 
 		return damage;
 	}
+
 	public float getAttackDamage(Player player)
 	{
 		float damage = getInfusedDamage();
+		return damage;
 
 		float hardCap = 20;
 		float strengthSaturation = 1 - MathF.Pow(1 - MathF.Min((player.strength - 1) / (hardCap - 1), 1), 2);
@@ -228,8 +230,9 @@ public abstract class Item
 	public float parryWindow = 0.25f;
 	public float parryWeaponRotation = 0.5f * MathF.PI;
 	public float blockCharge = 0.15f;
-	public float actionMovementSpeed = 0.4f;
+	public float blockMovementSpeed = 0.4f;
 	public float blockAbsorption = 0.8f;
+	public float knockbackAbsorption = 0.0f;
 	public float damageReflect = 0.0f;
 	public bool doubleBladed = false;
 	public float criticalChanceModifier = 1.0f;
@@ -341,12 +344,12 @@ public abstract class Item
 		this.name = name;
 		this.type = type;
 
-		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo || type == ItemType.Potion;
-		isActiveItem = /*type == ItemType.Potion ||*/ type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility || type == ItemType.Gem;
+		isHandItem = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Ammo /*|| type == ItemType.Potion*/;
+		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility || type == ItemType.Gem;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
-		stackable = type == ItemType.Food /*|| type == ItemType.Potion*/ || type == ItemType.Relic || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;
-		upgradable = type == ItemType.Weapon || type == ItemType.Staff /*|| type == ItemType.Spell*/ || type == ItemType.Armor;
+		stackable = type == ItemType.Food || type == ItemType.Potion || type == ItemType.Relic || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;
+		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor || type == ItemType.Relic;
 
 		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponSwing : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
@@ -355,7 +358,7 @@ public abstract class Item
 		pickupSound = type == ItemType.Weapon ? weaponPickup : type == ItemType.Potion ? potionPickup : defaultPickup;
 		equipSound = type == ItemType.Relic ? ringEquip : type == ItemType.Weapon ? heavyEquip : type == ItemType.Armor ? mediumEquip : lightEquip;
 
-		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 6 : /*type == ItemType.Spell ? 1 :*/ 4;
+		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 6 : type == ItemType.Spell ? 1 : 4;
 		baseWeight = type == ItemType.Weapon ? 2 : type == ItemType.Shield ? 2 : type == ItemType.Staff ? 1 : type == ItemType.Armor ? 1 : 0;
 	}
 
@@ -459,6 +462,11 @@ public abstract class Item
 			baseDamage *= 1.1f;
 		else if (type == ItemType.Armor || type == ItemType.Shield)
 			baseArmor++;
+		else if (type == ItemType.Spell)
+		{
+			manaCost *= 0.8f;
+			baseDamage *= 1.2f;
+		}
 	}
 
 	public int upgradeCost
@@ -545,6 +553,10 @@ public abstract class Item
 	{
 	}
 
+	public virtual void onLevelSwitch(Level to)
+	{
+	}
+
 	public virtual void update(Entity entity)
 	{
 		/*
@@ -616,12 +628,12 @@ public abstract class Item
 		InitType(new WizardsCloak());
 		InitType(new CrimsonPotion());
 		InitType(new Boomerang());
-		//InitType(new Quarterstaff());
-		//InitType(new Spear());
+		InitType(new Quarterstaff());
+		InitType(new Spear());
 		InitType(new Torch());
 		InitType(new RingOfSwiftness());
 		InitType(new AmethystRing());
-		InitType(new MagicArrowStaff());
+		//InitType(new MagicArrowStaff());
 		//InitType(new PotionOfGreaterHealing());
 		InitType(new Lantern());
 		InitType(new BarbarianHelmet());
@@ -636,7 +648,7 @@ public abstract class Item
 		InitType(new ScrollOfEarth());
 		InitType(new RingOfTears());
 		InitType(new Sapphire());
-		InitType(new LightningStaff());
+		//InitType(new LightningStaff());
 		InitType(new Bread());
 		InitType(new BluePotion());
 		InitType(new Apple());
@@ -648,23 +660,23 @@ public abstract class Item
 		InitType(new Ruby());
 		InitType(new ScrollOfDexterity());
 		InitType(new IronShield());
-		//InitType(new ThornShield());
-		//InitType(new Scimitar());
+		InitType(new ThornShield());
+		InitType(new Scimitar());
 		InitType(new WizardHat());
-		//InitType(new Zweihander());
+		InitType(new Zweihander());
 		InitType(new TravellingCloak());
 		InitType(new Shortbow());
 		InitType(new Longbow());
 		InitType(new AutomaticCrossbow());
 		InitType(new Crossbow());
-		//InitType(new BrokenSword());
+		InitType(new BrokenSword());
 		//InitType(new OldHuntersRing());
-		//InitType(new WoodenMallet());
+		InitType(new WoodenMallet());
 		InitType(new ScrollOfMonsterTaming());
 		InitType(new Backpack());
 		InitType(new ThrowingKnife());
 		//InitType(new StaffOfIllumination());
-		//InitType(new Halberd());
+		InitType(new Halberd());
 		InitType(new LargeWizardHat());
 		InitType(new RingOfDexterity());
 		InitType(new Greathammer());
@@ -684,12 +696,12 @@ public abstract class Item
 		InitType(new Lockpick());
 		InitType(new SapphireRing());
 		//InitType(new AssassinsDagger());
-		//InitType(new RoyalGreatsword());
+		InitType(new RoyalGreatsword());
 		InitType(new Magnet());
-		//InitType(new MagicArrowSpell());
-		//InitType(new MagicStaff());
-		//InitType(new LightningSpell());
-		//InitType(new IlluminationSpell());
+		InitType(new MagicArrowSpell());
+		InitType(new MagicStaff());
+		InitType(new LightningSpell());
+		InitType(new IlluminationSpell());
 		InitType(new DarkHood());
 		InitType(new DarkCloak());
 		InitType(new WizardsLegacy());
@@ -703,34 +715,34 @@ public abstract class Item
 		InitType(new Flamberge());
 		InitType(new LifegemRing());
 		InitType(new Bloodfang());
-		InitType(new Deadeye());
+		InitType(new MagnifyingGlass());
 		InitType(new KeenEdge());
 		InitType(new SmokeyPotion());
-		//InitType(new HuntersHat());
-		//InitType(new OldHuntersHat());
-		//InitType(new BurstShotSpell());
-		//InitType(new ElderwoodStaff());
-		//InitType(new AstralScepter());
-		//InitType(new MissileSpell());
+		InitType(new HuntersHat());
+		InitType(new OldHuntersHat());
+		InitType(new BurstShotSpell());
+		InitType(new ElderwoodStaff());
+		InitType(new AstralScepter());
+		InitType(new MissileSpell());
 		InitType(new WoodenShield());
 		InitType(new BattleAxe());
-		//InitType(new MoonbladeAxe());
+		InitType(new MoonbladeAxe());
 		InitType(new Shortsword());
 		InitType(new IronArmor());
-		//InitType(new Formation());
 		InitType(new LeatherCap());
-		//InitType(new TripleShotSpell());
-		//InitType(new HealingSpell());
+		InitType(new TripleShotSpell());
+		InitType(new HealingSpell());
 		InitType(new ClimbingGear());
-		//InitType(new WingProsthetics());
+		InitType(new WingProsthetics());
 		InitType(new ChainmailArmor());
-		//InitType(new RoundShield());
-		//InitType(new Twinblades());
+		InitType(new RoundShield());
+		InitType(new Twinblades());
 		InitType(new AdventurersHood());
 		//InitType(new AK47());
 		InitType(new WizardsHood());
 		//InitType(new LostScroll());
 		//InitType(new LostSigil());
+		InitType(new QuestlineLoganStaff());
 		InitType(new LeatherGauntlets());
 		InitType(new ChainmailGauntlets());
 		InitType(new IronGauntlets());
@@ -739,8 +751,8 @@ public abstract class Item
 		InitType(new IronSabatons());
 		InitType(new Parachute());
 		InitType(new Jetpack());
-		//InitType(new SpectralShield());
-		InitType(new MissileStaff());
+		InitType(new SpectralShield());
+		//InitType(new MissileStaff());
 		InitType(new BlademastersRing());
 		InitType(new GiantsGauntlet());
 		//InitType(new Parsley());
@@ -751,28 +763,34 @@ public abstract class Item
 		InitType(new AdventurersHoodBlue());
 		InitType(new Flail());
 		InitType(new SteelHammer());
-		//InitType(new Shir());
-		//InitType(new Katana());
+		InitType(new Shir());
+		InitType(new Katana());
 		InitType(new IronHelmet());
-		//InitType(new ScrollOfProtection());
-		//InitType(new RingOfKnowledge());
+		InitType(new ScrollOfProtection());
+		InitType(new FieryPotion());
+		InitType(new GoldenPotion());
+		InitType(new RingOfKnowledge());
 		InitType(new Broadsword());
-		//InitType(new EarthSpell());
-		//InitType(new TeleportationSpell());
+		InitType(new EarthSpell());
+		InitType(new TeleportationSpell());
 		InitType(new Milk());
-		InitType(new TripleShotStaff());
-		InitType(new BurstShotStaff());
+		//InitType(new TripleShotStaff());
+		//InitType(new BurstShotStaff());
+		InitType(new Greatshield());
+		InitType(new RingOfGiants());
+		InitType(new RingOfAgility());
+		InitType(new ShadowStepRing());
 
-		//InitType(new MagicArrowSpellBook());
-		//InitType(new LightningSpellBook());
-		//InitType(new TripleShotSpellBook());
-		//InitType(new BurstShotSpellBook());
-		//InitType(new MissileSpellBook());
-		//InitType(new IlluminationSpellBook());
-		//InitType(new HealSpellBook());
-		//InitType(new SpectralShieldSpellBook());
-		//InitType(new EarthSpellBook());
-		//InitType(new TeleportationSpellBook());
+		InitType(new MagicArrowSpellBook());
+		InitType(new LightningSpellBook());
+		InitType(new TripleShotSpellBook());
+		InitType(new BurstShotSpellBook());
+		InitType(new MissileSpellBook());
+		InitType(new IlluminationSpellBook());
+		InitType(new HealSpellBook());
+		InitType(new SpectralShieldSpellBook());
+		InitType(new EarthSpellBook());
+		InitType(new TeleportationSpellBook());
 	}
 
 	static void InitType(Item item)
@@ -805,7 +823,7 @@ public abstract class Item
 		return items;
 	}
 
-	static Item CreateRandom(List<Item> items, Random random, float meanValue)
+	public static Item CreateRandom(List<Item> items, Random random, float meanValue)
 	{
 		items = new List<Item>(items);
 		Mathf.ShuffleList(items, random);
@@ -842,7 +860,7 @@ public abstract class Item
 			}
 		}
 
-		//Item item = items[random.Next() % items.Count];
+		item = items[random.Next() % items.Count];
 
 		Debug.Assert(item != null);
 
@@ -877,14 +895,12 @@ public abstract class Item
 			newItem.stackSize += Mathf.RandomInt(1, difference, random);
 		}
 
-		/*
 		if (newItem.type == ItemType.Potion)
 		{
 			Potion potion = newItem as Potion;
-			if (random.NextSingle() < potion.throwableChance)
+			if (random.NextSingle() < 0.5f)
 				potion.makeThrowable();
 		}
-		*/
 
 		return newItem;
 
@@ -935,24 +951,31 @@ public abstract class Item
 		return CreateRandom(items, random, meanValue);
 	}
 
-	public static Item[] CreateRandom(Random random, float[] distribution, float meanValue)
+	public static ItemType GetTypeFromDroprates(Random random, float[] droprates)
 	{
-		//Item item = CreateRandom(itemTypes, random, meanValue);
-		//return [item];
-
 		ItemType type = ItemType.Count;
 
 		float f = random.NextSingle();
 		float r = 0;
 		for (int i = 0; i < (int)ItemType.Count; i++)
 		{
-			r += distribution[i];
+			r += droprates[i];
 			if (f < r)
 			{
 				type = (ItemType)i;
 				break;
 			}
 		}
+
+		return type;
+	}
+
+	public static Item[] CreateRandom(Random random, float[] distribution, float meanValue)
+	{
+		//Item item = CreateRandom(itemTypes, random, meanValue);
+		//return [item];
+
+		ItemType type = GetTypeFromDroprates(random, distribution);
 
 		if (type != ItemType.Count)
 		{

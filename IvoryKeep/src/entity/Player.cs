@@ -24,8 +24,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	const float STUN_DURATION = 1.0f;
 	public const float FALL_STUN_DISTANCE = 8;
 	const float FALL_DAMAGE_DISTANCE = 10;
-	const float MANA_KILL_REWARD = 0.2f; //0.5f;
-	const float MANA_HIT_REWARD = 0.2f;
+	const float MANA_KILL_REWARD = 0.4f; //0.5f;
+	const float MANA_HIT_REWARD = 0.1f;
 #if DEBUG
 	const float SPRINT_MANA_COST = 0.5f;
 #else
@@ -38,25 +38,24 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float climbingSpeed = 5;
 	public float jumpPower = 10; //12; //10.5f;
 	public float gravity = -22;
-	public bool canWallJump = false;
+	public bool canWallJump = true;
 	public float wallJumpPower = 10;
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
 	public const float defaultManaRecoveryRate = 0.01f;
-	public float coinCollectDistance = 1.0f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
 	//public float maxHealth = 3;
-	public float health = 3;
+	public float health = 4;
 	public float maxHealth => hp * 0.5f;
 
 	//public float maxMana = 2;
 	public float mana = 2;
 	public float maxMana => magic * 0.5f;
 
-	public int hp = 6;
+	public int hp = 8;
 	public int magic = 4;
 	public int strength = 1;
 	public int dexterity = 1;
@@ -92,7 +91,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public bool isStunned = false;
 	public bool isVisible = true;
 
-	public float visibility { get => (isVisible ? 1 : 0.25f) * Mathf.Lerp(0.5f, 1.0f, level.lightLevel) * (isDucked ? 0.5f : 1.0f); }
+	public float visibility { get => (isVisible ? 1 : 0.25f) * Mathf.Lerp(0.2f, 1.0f, level.lightLevel / 5.0f) * (isDucked ? 0.5f : 1.0f); }
 
 	Sprite stunnedIcon;
 	MobCorpse corpse;
@@ -130,7 +129,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public List<Item> items = new List<Item>();
 	public Item handItem = null;
 	public Item offhandItem = null;
-	public Item[] activeItems = new Item[4];
+	public const int defaultItemCapacity = 3;
+	public Item[] activeItems = new Item[defaultItemCapacity];
 	public int selectedActiveItem = 0;
 	public List<Spell> spellItems = new List<Spell>();
 	public int spellCapacity = 4;
@@ -142,9 +142,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public Item blockingItem = null;
 	public bool unlimitedArrows = false;
-	public bool canEquipOffhand = true; //false;
+	public bool canEquipOffhand = false;
 	public bool canEquipOnehanded = false;
 	public bool canThrowWeapons = false;
+	public bool attackSlowdown = true;
+	public bool canDodge = false;
 
 	public HUD hud;
 	InventoryUI inventoryUI;
@@ -202,6 +204,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		health = maxHealth;
 		mana = maxMana;
+
+		coinTarget = true;
 	}
 
 	public override void init(Level level)
@@ -213,11 +217,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public override void onLevelSwitch(Level newLevel)
 	{
-		if (handParticles != null)
-			GameState.instance.moveEntityToLevel(handParticles, newLevel);
-		if (offhandParticles != null)
-			GameState.instance.moveEntityToLevel(offhandParticles, newLevel);
 		GameState.instance.moveEntityToLevel(wallSlideParticles, newLevel);
+
+		for (int i = 0; i < items.Count; i++)
+			items[i].onLevelSwitch(newLevel);
 	}
 
 	public void setStartingClass(StartingClass startingClass)
@@ -380,8 +383,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return equipActiveItem(item);
 		if (item.isPassiveItem)
 			return equipPassiveItem(item);
-		//if (item.type == ItemType.Spell)
-		//	return attuneSpell((Spell)item);
+		if (item.type == ItemType.Spell)
+			return attuneSpell((Spell)item);
 
 		// add it back since we couldnt equip it
 		//storedItems.Add(item);
@@ -470,7 +473,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	bool canUseOffhandItem(Item item)
 	{
-		return handItem == null || item.isSecondaryItem /*|| canEquipOffhand*/; // (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
+		return true /*handItem == null *//*|| item.isSecondaryItem*/ /*|| canEquipOffhand*/; // (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
 	}
 
 	bool canEquipActiveItem(Item item)
@@ -497,6 +500,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
+		if (item.type == ItemType.Spell && hasItemOfType(item.name))
+		{
+			Item spellItem = getItem(item.name);
+			spellItem.upgrade();
+			return;
+		}
+
 		items.Add(item);
 		//items.Sort((a, b) => a.type.CompareTo(b.type));
 		items.Sort((Item item1, Item item2) =>
@@ -512,16 +522,19 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return score1 > score2 ? 1 : score1 < score2 ? -1 : 0;
 		});
 
-		if (canEquipHandItem(item) && !item.twoHanded && handItem != null && !handItem.twoHanded && offhandItem == null)
+		//if (canEquipHandItem(item) && !item.twoHanded && handItem != null && !handItem.twoHanded && offhandItem == null)
+		//	equipOffhandItem(item);
+		//else 
+		if (handItem != null && (!handItem.twoHanded && !item.twoHanded || canEquipOnehanded) && canEquipOffhandItem(item) && offhandItem == null)
 			equipOffhandItem(item);
 		else if (canEquipHandItem(item))
 			equipHandItem(item);
-		else if (item.isSecondaryItem && canEquipOffhandItem(item) && offhandItem == null)
+		else if (item.isSecondaryItem && (!handItem.twoHanded && !item.twoHanded || canEquipOnehanded) && canEquipOffhandItem(item) /*&& offhandItem == null*/)
 			equipOffhandItem(item);
 		else if (item.isActiveItem && canEquipActiveItem(item))
 			equipActiveItem(item);
-		//else if (item.type == ItemType.Spell && spellItems.Count < spellCapacity)
-		//	attuneSpell((Spell)item);
+		else if (item.type == ItemType.Spell && spellItems.Count < spellCapacity)
+			attuneSpell((Spell)item);
 		else if (canEquipPassiveItem(item))
 			equipPassiveItem(item);
 		else
@@ -577,11 +590,34 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return false;
 	}
 
+	public bool hasItemOfType(string name)
+	{
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (items[i].name == name)
+				return true;
+		}
+		return false;
+	}
+
 	public bool hasItemOfType(ItemType type)
 	{
 		for (int i = 0; i < items.Count; i++)
 		{
 			if (items[i].type == type)
+				return true;
+		}
+		return false;
+	}
+
+	public bool hasItemEquipped<T>() where T : Item
+	{
+		if (handItem != null && handItem.GetType() == typeof(T) ||
+			offhandItem != null && offhandItem.GetType() == typeof(T))
+			return true;
+		for (int i = 0; i < passiveItems.Count; i++)
+		{
+			if (passiveItems[i].GetType() == typeof(T))
 				return true;
 		}
 		return false;
@@ -803,6 +839,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if (mob != null)
 			by = mob;
 
+		Vector2 knockback = Vector2.Zero;
+		if (by != null)
+		{
+			if (by.collider != null)
+			{
+				float knockbackStrength = item != null ? item.knockback : 8.0f;
+				knockback = (position - by.center).normalized * knockbackStrength * 3;
+				knockback.y = Math.Max(knockback.y, 1);
+			}
+		}
+
 		bool invincible = lastIFrameTrigger != -1 && (Time.currentTime - lastIFrameTrigger) / 1e9f < iframeDuration;
 		if (actions.currentAction != null)
 			invincible = invincible || (actions.currentAction.elapsedTime >= actions.currentAction.iframesStartTime && actions.currentAction.elapsedTime <= actions.currentAction.iframesEndTime);
@@ -817,15 +864,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			// play sound
 			// play particle effect
 
-			if (blockAction.isParrying)
+			if (blockAction.isParrying && mob != null && mob.ai is AdvancedAI && (mob.ai as AdvancedAI).currentAction != null)
 			{
 				damage = 0;
 				triggerInvincibility = false;
+				knockback *= 1 - blockingItem.knockbackAbsorption;
 
 				blockAction.duration = blockAction.elapsedTime + 0.3f;
 
 				lastIFrameTrigger = Time.currentTime;
 				iframeDuration = 0.25f;
+
+				//knockback *= Vector2.Zero;
 
 				level.addEntity(new ParryEffect(this), position + new Vector2(0.25f * direction, getWeaponOrigin(((BlockAction)actions.currentAction).mainHand).y));
 
@@ -836,37 +886,43 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			else if (blockAction.isBlocking)
 			{
 				damage *= 1 - blockingItem.blockAbsorption;
+				knockback *= 1 - blockingItem.knockbackAbsorption;
 
 				Audio.Play(blockingItem.blockSound, new Vector3(position, 0), 2);
 			}
 
 			if (mob != null)
 			{
-				if (projectile == null && itemEntity == null)
+				if (projectile == null && itemEntity == null && blockAction.isParrying)
 				{
 					mob.stun(3, blockAction.isParrying);
-					mob.addImpulse(new Vector2(direction, 0.1f) * 8);
+					mob.addImpulse(new Vector2(direction, 0.1f) * 15);
 					if (blockingItem.damageReflect > 0)
 						mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
 				}
-				else
-				{
-					if (projectile != null)
-					{
-						projectile.velocity.x *= -1.0f;
-						projectile.velocity.y = MathF.Max(projectile.velocity.y, 0);
-					}
-					else if (itemEntity != null)
-					{
-						itemEntity.velocity.x *= -1.0f;
-						itemEntity.velocity.y = MathF.Max(itemEntity.velocity.y, 0);
-					}
-				}
 			}
 
-			if (damage < 0.0001f)
-				return false;
+			if (projectile != null)
+			{
+				projectile.velocity.x *= -1.0f;
+				projectile.velocity.y = MathF.Max(projectile.velocity.y, 0);
+				if (blockingItem.damageReflect > 0)
+					projectile.currentDistance = 0;
+			}
+			else if (itemEntity != null)
+			{
+				itemEntity.velocity.x *= -1.0f;
+				itemEntity.velocity.y = MathF.Max(itemEntity.velocity.y, 0);
+			}
 		}
+
+		if (knockback != Vector2.Zero)
+		{
+			addImpulse(knockback);
+		}
+
+		if (damage < 0.0001f)
+			return false;
 
 		float totalArmor = getTotalArmor();
 		float armorAbsorption = Item.GetArmorAbsorption(totalArmor);
@@ -896,17 +952,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		if (by != null)
 		{
-			Vector2 enemyPosition = by.position + (by.collider != null ? by.collider.center : Vector2.Zero);
-
-			if (by.collider != null)
-			{
-				float knockbackStrength = item != null ? item.knockback : 8.0f;
-				Vector2 knockback = (position - enemyPosition).normalized * knockbackStrength;
-				addImpulse(knockback);
-			}
-
 			if (triggerInvincibility)
-				GameState.instance.level.addEntity(ParticleEffects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+				GameState.instance.level.addEntity(ParticleEffects.CreateBloodEffect((position - by.center).normalized), position + collider.center);
 		}
 		else
 		{
@@ -1066,11 +1113,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		*/
 
 		availableStatUpgrades++;
-		//hp++;
-		//magic++;
-		//strength++;
-		//dexterity++;
-		//intelligence++;
+		if (playerLevel % 2 == 1)
+		{
+			hp++;
+			magic++;
+			dexterity++;
+			strength++;
+			intelligence++;
+		}
 
 		//if (playerLevel % 5 == 0)
 		//	GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
@@ -1145,13 +1195,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (canWallJump)
 			{
-				if (/*InputManager.IsDown("Right") &&*/ GameState.instance.level.overlapSolid(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, collider.max.y - 0.05f)))
+				if (InputManager.IsDown("Right") && GameState.instance.level.overlapSolid(position + new Vector2(0, 0.1f), position + new Vector2(collider.max.x + 0.2f, collider.max.y - 0.05f)))
 				{
 					//if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
 					lastWallTouchRight = Time.currentTime;
 				}
-				if (/*InputManager.IsDown("Left") &&*/ GameState.instance.level.overlapSolid(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.05f)))
+				if (InputManager.IsDown("Left") && GameState.instance.level.overlapSolid(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.05f)))
 				{
 					//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
@@ -1159,22 +1209,28 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				}
 			}
 
-			isSprinting = inputSprint && (isSprinting ? mana > 0 : mana > 0.2f); // && delta.lengthSquared > 0;
-			/*
-			if (InputManager.IsPressed("Sprint"))
-				lastDodgeInput = Time.currentTime;
-			if (InputManager.IsPressed("Sprint") || (Time.currentTime - lastDodgeInput) / 1e9f < JUMP_BUFFER)
+			if (canDodge)
 			{
-				if (isGrounded && numOverlaysOpen == 0)
+				isSprinting = false;
+
+				if (InputManager.IsPressed("Sprint"))
+					lastDodgeInput = Time.currentTime;
+				if (InputManager.IsPressed("Sprint") || (Time.currentTime - lastDodgeInput) / 1e9f < JUMP_BUFFER)
 				{
-					if (InputManager.IsDown("Left") || InputManager.IsDown("Right"))
-						actions.queueAction(new DodgeAction());
-					else
-						actions.queueAction(new BackhopAction());
-					lastDodgeInput = -1;
+					if (isGrounded && numOverlaysOpen == 0)
+					{
+						if (InputManager.IsDown("Left") || InputManager.IsDown("Right"))
+							actions.queueAction(new DodgeAction());
+						else
+							actions.queueAction(new BackhopAction());
+						lastDodgeInput = -1;
+					}
 				}
 			}
-			*/
+			else
+			{
+				isSprinting = inputSprint && (isSprinting ? mana > 0 : mana > 0.2f); // && delta.lengthSquared > 0;
+			}
 
 			isDucked = inputDown && numOverlaysOpen == 0;
 			collider.size.y = isDucked ? 0.4f : 0.8f;
@@ -1201,7 +1257,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (isClimbing)
 				{
-					velocity.y = inputDown ? -0.5f * jumpPower : jumpPower;
+					velocity.y = (inputDown ? -0.5f : 1) * jumpPower * getJumpPowerModifier();
 					lastJumpInput = 0;
 					lastGrounded = 0;
 					lastLadderJumpedFrom = currentLadder;
@@ -1213,14 +1269,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					lastJumpInput = Time.currentTime;
 					if (isGrounded || (Time.currentTime - lastGrounded) / 1e9f < COYOTE_TIME)
 					{
-						velocity.y = jumpPower;
+						velocity.y = jumpPower * getJumpPowerModifier();
 						Audio.Play(jumpSound, new Vector3(position, 0));
 						lastJumpInput = 0;
 						lastGrounded = 0;
 					}
 					else if (airJumpsLeft > 0)
 					{
-						velocity.y = jumpPower;
+						velocity.y = jumpPower * getJumpPowerModifier();
 						lastJumpInput = 0;
 						airJumpsLeft--;
 						level.addEntity(ParticleEffects.CreateAirJumpEffect(this), position);
@@ -1229,7 +1285,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					{
 						if ((Time.currentTime - lastWallTouchRight) / 1e9f < COYOTE_TIME)
 						{
-							velocity.y = jumpPower; // * 0.75f;
+							velocity.y = jumpPower * getJumpPowerModifier(); // * 0.75f;
 							wallJumpVelocity = -wallJumpPower;
 							wallJumpFactor = 1.0f;
 							lastWallTouchRight = 0;
@@ -1237,7 +1293,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
 						{
-							velocity.y = jumpPower; // * 0.75f;
+							velocity.y = jumpPower * getJumpPowerModifier(); // * 0.75f;
 							wallJumpVelocity = wallJumpPower;
 							wallJumpFactor = 1.0f;
 							lastWallTouchLeft = 0;
@@ -1249,7 +1305,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			{
 				if (isGrounded || (Time.currentTime - lastGrounded) / 1e9f < COYOTE_TIME)
 				{
-					velocity.y = jumpPower;
+					velocity.y = jumpPower * getJumpPowerModifier();
 					Audio.Play(jumpSound, new Vector3(position, 0));
 					lastJumpInput = 0;
 					lastGrounded = 0;
@@ -1956,8 +2012,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		updateAnimation();
 
 		//Audio.UpdateListener(new Vector3(position, 5), Quaternion.Identity);
-		Audio.UpdateListener(new Vector3(GameState.instance.camera.position, 10), Quaternion.Identity);
-		Audio.Set3DVolume(50.0f);
+		Audio.UpdateListener(new Vector3(position, 10), Quaternion.Identity);
+		Audio.Set3DVolume(500.0f);
+		Audio.SetMusicVolume(0.5f);
 
 		if (numOverlaysOpen == 0)
 			Input.cursorMode = CursorMode.Hidden;
@@ -2057,7 +2114,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					item = renderWeapon;
 					Matrix weaponTransform = actions.currentAction.getItemTransform(this, mainHand);
-					Renderer.DrawOutline(item.size.x, item.size.y, Matrix.CreateTranslation(position.x, position.y, layer) * weaponTransform, item.sprite, false, 0x7F000000);
+					Renderer.DrawOutline(item.size.x, item.size.y, Matrix.CreateTranslation(position.x, position.y, layer) * weaponTransform, item.sprite, false, 0xFF000000);
 					Renderer.DrawSprite(item.size.x, item.size.y, Matrix.CreateTranslation(position.x, position.y, layer) * weaponTransform, item.sprite, color);
 
 					if (item != DefaultWeapon.instance)
@@ -2189,7 +2246,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (show)
 			{
-				Renderer.DrawOutline(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing && isGrounded ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0x7F000000);
+				Renderer.DrawOutline(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing && isGrounded ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0xFF000000);
 				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing && isGrounded ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
 			}
 
@@ -2252,7 +2309,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				itemBuffs[i].render(this);
 		}
 
-		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
+		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 5);
 
 		if (GameState.instance.run.active)
 		{
@@ -2295,6 +2352,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return value;
 	}
 
+	public float getJumpPowerModifier()
+	{
+		float value = 1;
+		foreach (ItemBuff modifier in itemBuffs)
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.jumpPowerModifier, modifier.item.stackSize);
+		}
+		value *= MathF.Pow(equipLoadModifier, 0.5f);
+		return value;
+	}
+
 	public float getWallControlModifier()
 	{
 		float value = 1;
@@ -2303,6 +2372,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (modifier.active)
 				value *= MathF.Pow(modifier.wallControlModifier, modifier.item.stackSize);
 		}
+		value *= MathF.Pow(1.08f, swiftness - 1);
 		return value;
 	}
 
@@ -2314,6 +2384,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (modifier.active)
 				value *= MathF.Pow(modifier.meleeDamageModifier, modifier.item.stackSize);
 		}
+		value *= MathF.Pow(1.08f, strength - 1);
 		return value;
 	}
 
@@ -2325,6 +2396,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (modifier.active)
 				value *= MathF.Pow(modifier.rangedDamageModifier, modifier.item.stackSize);
 		}
+		value *= MathF.Pow(1.08f, dexterity - 1);
 		return value;
 	}
 
@@ -2336,6 +2408,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (modifier.active)
 				value *= MathF.Pow(modifier.magicDamageModifier, modifier.item.stackSize);
 		}
+		value *= MathF.Pow(1.08f, intelligence - 1);
 		return value;
 	}
 
@@ -2346,6 +2419,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			if (modifier.active)
 				value *= MathF.Pow(modifier.attackSpeedModifier, modifier.item.stackSize);
+		}
+		value *= MathF.Pow(1.08f, dexterity - 1);
+		return value;
+	}
+
+	public float getProjectileRangeModifier()
+	{
+		float value = 1;
+		foreach (ItemBuff modifier in itemBuffs)
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.projectileRangeModifier, modifier.item.stackSize);
 		}
 		return value;
 	}

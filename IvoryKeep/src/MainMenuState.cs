@@ -12,6 +12,7 @@ enum MainMenuScreen
 {
 	Main,
 	SaveSelect,
+	SaveCreate,
 	CustomRunSettings,
 	Options,
 	Credits,
@@ -24,6 +25,9 @@ public class MainMenuState : State
 
 	MainMenuScreen screen = MainMenuScreen.Main;
 	int currentButton = 0;
+
+	int creditsScroll = 0;
+	int creditsHeight;
 
 	Sprite splash, splashSmall;
 
@@ -68,7 +72,7 @@ public class MainMenuState : State
 			true,
 			true,
 			true,
-			true,
+			false, //true,
 			true,
 			true
 		];
@@ -106,6 +110,7 @@ public class MainMenuState : State
 
 				case 4: // Credits
 					screen = MainMenuScreen.Credits;
+					creditsScroll = 0;
 					break;
 
 				case 5: // Quit
@@ -128,19 +133,48 @@ public class MainMenuState : State
 
 	void saveSelect()
 	{
-		string[] labels = [
-			"File 1",
-			"File 2",
-			"File 3",
-		];
-		bool[] enabled = [true, true, true];
+		string[] labels = new string[3];
+		bool[] enabled = new bool[3];
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (IvoryKeep.instance.saves[i] != null)
+				labels[i] = IvoryKeep.instance.saves[i].name;
+			else
+				labels[i] = "Save <" + (i + 1) + ">";
+		}
+
+		Array.Fill(enabled, true);
 
 		int selection = FullscreenMenu.Render(labels, enabled, ref currentButton);
 		if (selection != -1)
 		{
-			screen = MainMenuScreen.Main;
-			IvoryKeep.instance.pushState(new GameState(selection, null));
+			if (IvoryKeep.instance.saves[selection] != null)
+			{
+				screen = MainMenuScreen.Main;
+				IvoryKeep.instance.pushState(new GameState(selection, null));
+			}
+			else
+			{
+				saveCreateID = selection;
+				screen = MainMenuScreen.SaveCreate;
+			}
 		}
+	}
+
+	StringBuilder saveFileNameStr = new StringBuilder();
+	int saveCreateID = -1;
+
+	void saveCreate()
+	{
+		int width = 60;
+		int height = 15;
+		int x = Renderer.UIWidth / 2 - width / 2;
+		int y = Renderer.UIHeight / 2 - height / 2;
+
+		Renderer.DrawUISprite(x - 2, y - 2, width + 4, height + 4, null, false, 0xFFAAAAAA);
+		Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFF000000);
+		Renderer.DrawUITextBMP(x, Renderer.UIHeight / 2 - Renderer.smallFont.size / 2, saveFileNameStr.ToString() + "_", 1, 0xFFFFFFFF);
 	}
 
 	StringBuilder customRunSeedStr = new StringBuilder();
@@ -165,10 +199,16 @@ public class MainMenuState : State
 
 	void credits()
 	{
-		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splashSmall.width / 2, 10, splashSmall.width, splashSmall.height, 0, splashSmall, 0xFF888888);
+		if (InputManager.IsDown("UIDown") || InputManager.IsDown("Down"))
+			creditsScroll = Math.Min(creditsScroll + 1, creditsHeight - Renderer.UIHeight);
+		if (InputManager.IsDown("UIUp") || InputManager.IsDown("Up"))
+			creditsScroll = Math.Max(creditsScroll - 1, 0);
 
 		int x = 100;
-		int y = 55;
+		int y = 10 - creditsScroll;
+
+		Renderer.DrawUISprite(Renderer.UIWidth / 2 - splashSmall.width / 2, y, splashSmall.width, splashSmall.height, 0, splashSmall, 0xFF888888);
+		y += 45;
 
 		void drawLine(string str)
 		{
@@ -222,11 +262,21 @@ public class MainMenuState : State
 		drawLineRight("Audacity");
 		drawLineRight("Reaper");
 		drawLineRight("Tiled");
+		drawLineRight("Leaderboards.Dev");
+
+		y += 10;
+
+		if (creditsHeight == 0)
+			creditsHeight = y - creditsScroll;
 	}
 
 	public override void onCharEvent(byte length, uint value)
 	{
-		if (screen == MainMenuScreen.CustomRunSettings)
+		if (screen == MainMenuScreen.SaveCreate)
+		{
+			saveFileNameStr.Append((char)value);
+		}
+		else if (screen == MainMenuScreen.CustomRunSettings)
 		{
 			customRunSeedStr.Append((char)value);
 		}
@@ -237,6 +287,22 @@ public class MainMenuState : State
 		if (screen == MainMenuScreen.SaveSelect)
 		{
 			if (InputManager.IsPressed("UIQuit", true) || InputManager.IsPressed("UIBack", true))
+			{
+				screen = MainMenuScreen.Main;
+				Audio.PlayBackground(UISound.uiBack);
+			}
+		}
+		else if (screen == MainMenuScreen.SaveCreate)
+		{
+			if (key == KeyCode.Backspace && modifiers == KeyModifier.None && down && saveFileNameStr.Length > 0)
+				saveFileNameStr.Remove(saveFileNameStr.Length - 1, 1);
+			if (key == KeyCode.Return && modifiers == KeyModifier.None && down)
+			{
+				IvoryKeep.instance.pushState(new GameState(saveCreateID, null, saveFileNameStr.ToString()));
+				saveCreateID = -1;
+				screen = MainMenuScreen.Main;
+			}
+			if (InputManager.IsPressed("UIQuit", true))
 			{
 				screen = MainMenuScreen.Main;
 				Audio.PlayBackground(UISound.uiBack);
@@ -299,6 +365,8 @@ public class MainMenuState : State
 			mainScreen();
 		else if (screen == MainMenuScreen.SaveSelect)
 			saveSelect();
+		else if (screen == MainMenuScreen.SaveCreate)
+			saveCreate();
 		else if (screen == MainMenuScreen.CustomRunSettings)
 			customRun();
 		else if (screen == MainMenuScreen.Options)

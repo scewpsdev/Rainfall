@@ -64,14 +64,16 @@ public class Level
 	List<Entity> colliders = new List<Entity>();
 
 	public Texture bg = null;
-	public Vector3 ambientLight = new Vector3(1.0f);
-	public Vector3 fogColor = new Vector3(0.0f);
-	public float fogFalloff = 0.0f;
+	public int lightLevel = 5;
+	//public Vector3 ambientLight = new Vector3(1.0f);
+	//public Vector3 fogColor = new Vector3(0.0f);
+	//public float fogFalloff = 0.0f;
 
 	public Sound ambientSound = null;
 	public MultilayerTrack ambientTrack;
 	public bool ambientTrackHasIdleLayer;
 
+	/*
 	public float lightLevel
 	{
 		get
@@ -80,6 +82,7 @@ public class Level
 			return MathF.Max(MathF.Max(srgb.x, srgb.y), srgb.z);
 		}
 	}
+	*/
 
 
 	public Level(int floor, string name, string displayName, float avgLootValue = 0)
@@ -241,6 +244,11 @@ public class Level
 		entities.Add(entity);
 		entity.level = this;
 
+		if (entity.collider != null && overlapTiles(entity.position + entity.collider.min, entity.position + entity.collider.max, false, false))
+		{
+			entity.position = Vector2.Floor(entity.position) + 0.5f;
+		}
+
 		if (init)
 			entity.init(this);
 	}
@@ -325,7 +333,8 @@ public class Level
 
 	public void render()
 	{
-		Renderer.ambientLight = ambientLight;
+		//Renderer.ambientLight = ambientLight;
+		Renderer.ambientLight = Vector3.One * MathF.Pow(lightLevel / 5.0f, 3.0f);
 		Renderer.bloomStrength = 0.01f;
 		Renderer.vignetteFalloff = 0.1f;
 
@@ -430,6 +439,36 @@ public class Level
 	public void removeEntityCollider(Entity collider)
 	{
 		colliders.Remove(collider);
+	}
+
+	bool overlapTiles(Vector2 min, Vector2 max, bool falling, bool downInput)
+	{
+		int x0 = (int)MathF.Floor(min.x + 0.01f);
+		int x1 = (int)MathF.Floor(max.x - 0.01f);
+		int y0 = (int)MathF.Floor(min.y + 0.01f);
+		int y1 = (int)MathF.Floor(max.y - 0.01f);
+		for (int y = y0; y <= y1; y++)
+		{
+			for (int x = x0; x <= x1; x++)
+			{
+				//if (x < 0 || x >= width /*|| y < 0*/ || y >= height)
+				//	return true;
+				TileType tile = getTile(x, y);
+				if (tile != null)
+				{
+					if (tile.isSolid)
+						return true;
+					else if (tile.isPlatform && falling && !downInput && min.y - (y + tile.platformHeight) > -0.25f)
+					{
+						Vector2 t0 = new Vector2(x, y);
+						Vector2 t1 = new Vector2(x + 1, y + tile.platformHeight);
+						if (t1.x > min.x && t1.y > min.y && t0.x < max.x && t1.y < max.y)
+							return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	bool overlapSolid(Vector2 min, Vector2 max, bool falling, bool downInput, FloatRect ignoreCollider, uint filterMask)
@@ -816,6 +855,33 @@ public class Level
 		if (hit != null || hitDistance != range)
 			return new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
 		return null;
+	}
+
+	public int raycast(Vector2 origin, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)
+	{
+		int numHits = 0;
+
+		for (int i = 0; i < entities.Count; i++)
+		{
+			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
+			{
+				Vector2 min = entities[i].position + entities[i].collider.min;
+				Vector2 max = entities[i].position + entities[i].collider.max;
+				if (hitBoundingBox(origin, direction, min, max, out Vector2 position, out float distance, out Vector2 normal))
+				{
+					if (numHits < hits.Length && distance < range)
+						hits[numHits++] = new HitData() { entity = entities[i], position = position, distance = distance, normal = normal };
+				}
+			}
+		}
+
+		HitData hit = raycastSolid(origin, direction, range, filterMask);
+		if (hit != null)
+		{
+			hits[numHits++] = hit;
+		}
+
+		return numHits;
 	}
 
 	public int raycastNoBlock(Vector2 origin, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)

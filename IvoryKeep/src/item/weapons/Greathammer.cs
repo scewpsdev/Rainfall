@@ -13,7 +13,7 @@ public class Greathammer : Weapon
 	{
 		displayName = "Greathammer";
 
-		baseDamage = 3.0f;
+		baseDamage = 2.3f;
 		baseAttackRange = 1.8f;
 		baseAttackRate = 0.7f;
 		knockback = 12;

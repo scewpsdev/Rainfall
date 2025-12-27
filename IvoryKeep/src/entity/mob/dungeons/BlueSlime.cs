@@ -16,6 +16,7 @@ public class BlueSlime : Slime
 
 		health = 8;
 		jumpPower = 12;
+		damage = 1.5f;
 
 		ai = new SpiderAI(this, 0.75f)
 		{

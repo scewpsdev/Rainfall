@@ -10,6 +10,8 @@ public class ItemBuff
 {
 	public static Sprite movementSpeedModifierIcon = new Sprite(StatusEffect.tileset, 2, 1);
 	public static Sprite attackDamageModifierIcon = new Sprite(StatusEffect.tileset, 3, 0);
+	public static Sprite rangedDamageModifierIcon = new Sprite(StatusEffect.tileset, 1, 2);
+	public static Sprite magicDamageModifierIcon = new Sprite(StatusEffect.tileset, 3, 3);
 	public static Sprite attackSpeedModifierIcon = new Sprite(StatusEffect.tileset, 3, 1);
 	public static Sprite manaCostModifierIcon = new Sprite(StatusEffect.tileset, 2, 2);
 	public static Sprite stealthAttackModifierIcon = new Sprite(StatusEffect.tileset, 3, 2);
@@ -23,8 +25,11 @@ public class ItemBuff
 
 	public float movementSpeedModifier = 1.0f;
 	public float wallControlModifier = 1.0f;
+	public float jumpPowerModifier = 1.0f;
 	public float meleeDamageModifier = 1.0f;
 	public float rangedDamageModifier = 1.0f;
+	public float attackRangeModifier = 1.0f;
+	public float projectileRangeModifier = 1.0f;
 	public float magicDamageModifier = 1.0f;
 	public float attackSpeedModifier = 1.0f;
 	public float manaCostModifier = 1.0f;

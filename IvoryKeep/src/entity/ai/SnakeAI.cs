@@ -10,24 +10,42 @@ public class SnakeAI : AdvancedAI
 {
 	public float dashChargeTime = 0.4f;
 	public float dashCooldownTime = 1.0f;
-	float dashDuration = 0.15f;
-	float dashSpeedMultiplier = 3;
+	float dashSpeed = 8;
 	float dashTriggerDistance = 2;
+	float dashDistance = 2;
+	//float dashDuration = 0.15f;
+
+	float mobSpeed;
 
 
 	public SnakeAI(Mob mob)
 		: base(mob)
 	{
-		aggroRange = 4.0f;
-		loseRange = 5.0f;
-		loseTime = 3.0f;
+		aggroRange = 5.0f;
+		loseRange = 10.0f;
+		loseTime = 4.0f;
 
 		runAnim = "idle";
 		hesitation = 0;
 
-		addAction("attack", dashDuration, "idle", dashChargeTime, "idle", dashCooldownTime, mob.speed * dashSpeedMultiplier, (AIAction action, Vector2 toTarget, float distance) =>
+		mobSpeed = mob.speed;
+
+		float dashDuration = dashDistance / dashSpeed;
+		addAction("attack", dashDuration, "idle", dashChargeTime, "idle", dashCooldownTime, dashSpeed, (AIAction action, Vector2 toTarget, float distance) =>
 		{
 			return distance < dashTriggerDistance;
 		});
+	}
+
+	public override void update()
+	{
+		base.update();
+		if (currentAction == null)
+		{
+			if (target != null)
+				mob.speed = mobSpeed * 2;
+			else
+				mob.speed = mobSpeed;
+		}
 	}
 }

@@ -39,4 +39,16 @@ public class SpiderAI : AdvancedAI
 		});
 		jump.cooldownSpeed = chargeSpeed;
 	}
+
+	protected override void onTargetSwitched(Entity newTarget)
+	{
+		base.onTargetSwitched(newTarget);
+		fleeing = false;
+		if (newTarget is Player)
+		{
+			Player player = (Player)newTarget;
+			if (player.hasItemEquipped<Torch>() || player.hasItemEquipped<Lantern>())
+				fleeing = true;
+		}
+	}
 }

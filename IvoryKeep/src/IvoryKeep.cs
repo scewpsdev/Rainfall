@@ -21,7 +21,7 @@ public class IvoryKeep : Game
 {
 	public const int VERSION_MAJOR = 0;
 	public const int VERSION_MINOR = 2;
-	public const int VERSION_PATCH = 4;
+	public const int VERSION_PATCH = 5;
 	public const char VERSION_SUFFIX = 'a';
 
 
@@ -29,13 +29,15 @@ public class IvoryKeep : Game
 	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(IvoryKeep))?.GetName().Name;
 
 
-	const int idealScale = 5;
+	const int idealScale = 4;
 	public int scale;
 	public int width, height;
 
 	public bool debugStats = false;
 
 	Stack<State> stateMachine = new Stack<State>();
+
+	public SaveFile[] saves = new SaveFile[3];
 
 
 	public override void init()
@@ -65,14 +67,23 @@ public class IvoryKeep : Game
 
 		Settings.Load();
 
+		for (int i = 0; i < 3; i++)
+		{
+			if (File.Exists(SaveFile.GetSaveFilePath(i)))
+				saves[i] = SaveFile.Load(i);
+		}
+
 #if DEBUG
 		pushState(new MainMenuState());
 		//pushState(new SplashScreenState());
-		pushState(new GameState(0, null));
+		if (saves[2] != null)
+			pushState(new GameState(2, null));
 #else
 		pushState(new MainMenuState());
 		pushState(new SplashScreenState());
 #endif
+
+		Leaderboards.FetchLeaderboardData();
 	}
 
 	public override void destroy()
@@ -100,6 +111,7 @@ public class IvoryKeep : Game
 		state.game = this;
 		state.init();
 		state.onSwitchTo(lastState);
+		lastState?.onSwitchFrom(state);
 	}
 
 	public void popState()
@@ -110,7 +122,10 @@ public class IvoryKeep : Game
 		if (stateMachine.Count == 0)
 			terminate();
 		else
+		{
 			stateMachine.Peek().onSwitchTo(lastState);
+			lastState.onSwitchFrom(stateMachine.Peek());
+		}
 	}
 
 	protected override void onKeyEvent(KeyCode key, KeyModifier modifiers, bool down)

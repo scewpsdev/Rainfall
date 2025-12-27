@@ -23,7 +23,7 @@ public class Shir : Weapon
 		strengthScaling = 0.5f;
 		dexterityScaling = 0.7f;
 
-		baseValue = 26;
+		baseValue = 46;
 
 		sprite = new Sprite(tileset, 6, 10, 2, 1);
 		icon = new Sprite(tileset, 6, 10);

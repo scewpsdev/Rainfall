@@ -216,26 +216,6 @@ public class HUD
 		}
 	}
 
-	void ___renderHealth()
-	{
-		int width = (int)MathF.Round(player.maxHealth * 20);
-		int height = 7;
-		int x = Renderer.UIWidth / 2 - 8 - 2 - width;
-		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
-
-		Renderer.DrawUISprite(x - 1, y, width + 2, height, null, false, frameColor);
-		Renderer.DrawUISprite(x, y - 1, width, height + 2, null, false, frameColor);
-
-		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
-
-		int barWidth = (int)MathF.Ceiling(player.health * 20);
-		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF841e1e);
-		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFFd84343);
-
-		string countTxt = ((int)MathF.Floor(player.health * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxHealth * 10)).ToString();
-		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
-	}
-
 	void renderMana()
 	{
 		for (int i = 0; i < player.maxMana; i++)
@@ -260,9 +240,9 @@ public class HUD
 		}
 	}
 
-	void ___renderMana()
+	void ___renderHealth()
 	{
-		int width = (int)MathF.Round(player.maxMana * 20);
+		int width = (int)MathF.Round(player.maxHealth * 10);
 		int height = 7;
 		int x = Renderer.UIWidth / 2 + 8 + 1;
 		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
@@ -272,9 +252,29 @@ public class HUD
 
 		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
 
+		int barWidth = (int)MathF.Ceiling(player.health * 10);
+		Renderer.DrawUISprite(x, y, barWidth, height, null, false, 0xFF841e1e);
+		Renderer.DrawUISprite(x, y, barWidth, height / 2, null, false, 0xFFd84343);
+
+		string countTxt = ((int)MathF.Floor(player.health * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxHealth * 10)).ToString();
+		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
+	}
+
+	void ___renderMana()
+	{
+		int width = (int)MathF.Round(player.maxMana * 20);
+		int height = 7;
+		int x = Renderer.UIWidth / 2 - 8 - 1 - width;
+		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
+
+		Renderer.DrawUISprite(x - 1, y, width + 2, height, null, false, frameColor);
+		Renderer.DrawUISprite(x, y - 1, width, height + 2, null, false, frameColor);
+
+		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
+
 		int barWidth = (int)MathF.Ceiling(player.mana * 20);
-		Renderer.DrawUISprite(x, y, barWidth, height, null, false, 0xFF4d4195);
-		Renderer.DrawUISprite(x, y, barWidth, height / 2, null, false, 0xFF6555c8);
+		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF4d4195);
+		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFF6555c8);
 
 		string countTxt = ((int)MathF.Floor(player.mana * 10 + 0.001f)).ToString() + "/" + ((int)(player.maxMana * 10)).ToString();
 		Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(countTxt).x / 2, y, countTxt, 1, 0xFFAAAAAA);
@@ -310,8 +310,14 @@ public class HUD
 	void renderMoney()
 	{
 		int size = 8;
-		int x = Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8;
+		//int x = Renderer.UIWidth / 2 - 8 - size;
+		//int y = Renderer.UIHeight - 4 - 16 - 12 - 12;
+		int x = Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) + (player.spellItems.Count > 0 ? -player.spellItems.Count * (16 + 1) - 1 - 8 : 0) - 4 - 8;
 		int y = Renderer.UIHeight - 4 - 16 + 5;
+
+		//int x = Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8;
+		//int x = Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) + (player.spellItems.Count > 0 ? -player.spellItems.Count * (16 + 1) - 1 - 8 : 0) - 4 - 8;
+		//int y = Renderer.UIHeight - 4 - 16 + 5;
 
 		Renderer.DrawUISprite(x, y, size, size, gold, false);
 
@@ -376,11 +382,11 @@ public class HUD
 	{
 		int size = 8;
 		int x = Renderer.UIWidth / 2 + 8;
-		int y = Renderer.UIHeight - 4 - 16 - 12 - 12;
+		int y = Renderer.UIHeight - 4 - 16 - 12 - 12 - 2;
 
 		void renderIcon(Sprite sprite, uint spriteColor, bool positive, float progress = -1)
 		{
-			uint color = positive ? 0xFF777777 : 0xFF886666;
+			uint color = positive ? 0xFF338811 : 0xFF881111;
 
 			Renderer.DrawUISprite(x, y, size + 2, size + 2, null, false, color);
 			Renderer.DrawUISprite(x + 1, y + 1, size, size, null, false, 0xFF222222);
@@ -403,19 +409,21 @@ public class HUD
 				if (modifier.movementSpeedModifier != 1)
 					renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.movementSpeedModifier > 1);
 				if (modifier.wallControlModifier != 1)
-					renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.movementSpeedModifier > 1);
+					renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.wallControlModifier > 1);
+				if (modifier.jumpPowerModifier != 1)
+					renderIcon(ItemBuff.movementSpeedModifierIcon, 0xFFFFFFFF, modifier.jumpPowerModifier > 1);
 				if (modifier.meleeDamageModifier != 1)
 					renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
 				if (modifier.rangedDamageModifier != 1)
-					renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
+					renderIcon(ItemBuff.rangedDamageModifierIcon, 0xFFFFFFFF, modifier.rangedDamageModifier > 1);
 				if (modifier.magicDamageModifier != 1)
-					renderIcon(ItemBuff.attackDamageModifierIcon, 0xFFFFFFFF, modifier.meleeDamageModifier > 1);
+					renderIcon(ItemBuff.magicDamageModifierIcon, 0xFFFFFFFF, modifier.magicDamageModifier > 1);
 				if (modifier.attackSpeedModifier != 1)
 					renderIcon(ItemBuff.attackSpeedModifierIcon, 0xFFFFFFFF, modifier.attackSpeedModifier > 1);
 				if (modifier.manaCostModifier != 1)
 					renderIcon(ItemBuff.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaCostModifier < 1);
 				if (modifier.manaRecoveryModifier != 1)
-					renderIcon(ItemBuff.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaCostModifier < 1);
+					renderIcon(ItemBuff.manaCostModifierIcon, 0xFFFFFFFF, modifier.manaRecoveryModifier > 1);
 				if (modifier.stealthAttackModifier != 1)
 					renderIcon(ItemBuff.stealthAttackModifierIcon, 0xFFFFFFFF, modifier.stealthAttackModifier > 1);
 				if (modifier.defenseModifier != 1)
@@ -425,7 +433,7 @@ public class HUD
 				if (modifier.criticalAttackModifier != 1)
 					renderIcon(ItemBuff.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalAttackModifier > 1);
 				if (modifier.criticalChanceModifier != 1)
-					renderIcon(ItemBuff.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalAttackModifier > 1);
+					renderIcon(ItemBuff.criticalAttackModifierIcon, 0xFFFFFFFF, modifier.criticalChanceModifier > 1);
 			}
 		}
 
@@ -713,7 +721,9 @@ public class HUD
 		int size = 16;
 		int width = player.spellItems.Count * (size + 1) - 1;
 		int height = size;
-		int x = Renderer.UIWidth / 2 + 8 + player.activeItems.Length * (size + 1) - 1 + 8;
+		//int x = Renderer.UIWidth / 2 + 8 + player.activeItems.Length * (size + 1) - 1 + 8;
+		int x = Renderer.UIWidth / 2 - 8 - 2 * (size + 1) - 1 - 8 - player.spellItems.Count * (size + 1);
+		//int x = Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) + (player.spellItems.Count > 0 ? -player.spellItems.Count * (16 + 1) : 0) - 4 - 8;
 		int y = Renderer.UIHeight - 4 - size;
 
 		for (int i = 0; i < player.spellItems.Count; i++)
@@ -751,6 +761,12 @@ public class HUD
 				Renderer.DrawUISprite(xx, yy + 1, 1, size - 2, null, false, frameSelectedColor);
 				Renderer.DrawUISprite(xx + size - 1, yy + 1, 1, size - 2, null, false, frameSelectedColor);
 			}
+
+			if (player.spellItems[i] != null)
+			{
+				if (player.spellItems[i].upgradeLevel > 0)
+					Renderer.DrawUITextBMP(xx + size - size / 4, yy + size - Renderer.smallFont.size + 2, "+" + player.spellItems[i].upgradeLevel.ToString(), 1, txtColor);
+			}
 		}
 
 		if (player.getSelectedSpell() != null)
@@ -777,8 +793,8 @@ public class HUD
 
 		if (enabled)
 		{
-			renderHealth();
-			renderMana();
+			___renderHealth();
+			___renderMana();
 			renderXP();
 			renderMoney();
 			renderArmor();

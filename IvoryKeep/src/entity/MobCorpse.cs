@@ -32,6 +32,7 @@ public class MobCorpse : Object, Interactable
 
 		this.collider = collider;
 		filterGroup = FILTER_DECORATION;
+		canPickUp = false;
 
 		this.velocity.y = MathF.Max(this.velocity.y, 5);
 		gravity = -30;
@@ -98,26 +99,28 @@ public class MobCorpse : Object, Interactable
 		}
 	}
 
-	/*
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
+		/*
+			Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
 
-		if (passiveItems != null)
-		{
-			for (int i = 0; i < passiveItems.Count; i++)
+			if (passiveItems != null)
 			{
-				if (passiveItems[i].ingameSprite != null)
+				for (int i = 0; i < passiveItems.Count; i++)
 				{
-					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f, LAYER_PLAYER_ARMOR, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					if (passiveItems[i].ingameSprite != null)
+					{
+						Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f, LAYER_PLAYER_ARMOR, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					}
 				}
 			}
-		}
+		*/
+
+		base.render();
 
 		if (renderLight)
 		{
-			Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 7);
+			Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 2);
 		}
 	}
-	*/
 }

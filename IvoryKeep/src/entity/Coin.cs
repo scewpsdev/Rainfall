@@ -60,24 +60,20 @@ public class Coin : Entity
 	public override void init(Level level)
 	{
 		spawnTime = Time.currentTime;
-		target = GameState.instance.player;
+		//target = GameState.instance.player;
 
 		rotationSpeed = Mathf.RandomFloat(-1, 1);
 	}
 
 	public override void update()
 	{
-		float followDistance = GameState.instance.player.coinCollectDistance;
-		if (target != null && target is Player)
-			followDistance = (target as Player).coinCollectDistance;
-
 		Vector2 displacement = velocity * Time.deltaTime;
 
 		if (target != null)
 		{
 			Vector2 toTarget = target.position + target.collider.center - position;
 			float distance = toTarget.length;
-			if (distance < followDistance && !target.removed)
+			//if (distance < followDistance && !target.removed)
 			{
 				//float speed = (1 - distance / followDistance * 0.5f) * 1;
 				//velocity += speed * toTarget / distance * 0.3f;
@@ -116,21 +112,23 @@ public class Coin : Entity
 					}
 				}
 			}
+			/*
 			else
 			{
 				target = null;
 			}
+			*/
 		}
 		if (target == null)
 		{
 			velocity.x = Mathf.Lerp(velocity.x, 0, 5 * Time.deltaTime);
 			velocity.y += -20 * Time.deltaTime;
 
-			HitData[] hits = new HitData[32];
-			int numHits = GameState.instance.level.overlap(position - followDistance, position + followDistance, hits, FILTER_PLAYER | FILTER_MOB);
+			HitData[] hits = new HitData[64];
+			int numHits = GameState.instance.level.overlap(position - 20, position + 20, hits, FILTER_PLAYER | FILTER_MOB);
 			for (int i = 0; i < numHits; i++)
 			{
-				if (hits[i].entity is Player || hits[i].entity is Leprechaun)
+				if (hits[i].entity != null && hits[i].entity.coinTarget && (hits[i].entity.center - position).length < hits[i].entity.coinFollowDistance)
 				{
 					target = hits[i].entity;
 					break;
@@ -144,19 +142,19 @@ public class Coin : Entity
 				//displacement = MathF.Min(displacement.length, hit.distance) * displacement.normalized;
 				displacement.y = MathF.Sign(displacement.y) * MathF.Min(MathF.Abs(displacement.y), hit.distance);
 			}
-		}
 
-		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, false);
-		if ((collisionFlags & Level.COLLISION_X) != 0)
-			velocity.x *= -0.5f;
-		if ((collisionFlags & Level.COLLISION_Y) != 0)
-		{
-			if (MathF.Abs(velocity.y) > 4)
-				velocity.x += Mathf.RandomFloat(-2, 2);
-			velocity.y *= -0.5f;
+			int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, false);
+			if ((collisionFlags & Level.COLLISION_X) != 0)
+				velocity.x *= -0.5f;
+			if ((collisionFlags & Level.COLLISION_Y) != 0)
+			{
+				if (MathF.Abs(velocity.y) > 4)
+					velocity.x += Mathf.RandomFloat(-2, 2);
+				velocity.y *= -0.5f;
+			}
+			if (collisionFlags != 0)
+				rotationSpeed = Mathf.RandomFloat(-2, 2);
 		}
-		if (collisionFlags != 0)
-			rotationSpeed = Mathf.RandomFloat(-2, 2);
 
 		position += displacement;
 

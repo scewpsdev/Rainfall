@@ -71,6 +71,6 @@ public class TravellingMerchant : NPC
 	{
 		base.init(level);
 
-		populateShop(GameState.instance.generator.random, 7, 12, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, ItemType.Relic, ItemType.Utility);
+		populateShop(GameState.instance.generator.random, 7, 12, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, ItemType.Staff, ItemType.Spell, ItemType.Relic);
 	}
 }

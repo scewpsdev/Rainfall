@@ -16,12 +16,12 @@ public class AstralScepter : Staff
 		baseDamage = 2;
 		baseAttackRate = 0.7f;
 		manaCost = 2;
-		trigger = false;
+		//trigger = false;
 		secondaryChargeTime = 0;
 		knockback = 2.0f;
 		twoHanded = true;
 
-		baseValue = 55;
+		baseValue = 35;
 
 		intelligenceScaling = 1.0f;
 

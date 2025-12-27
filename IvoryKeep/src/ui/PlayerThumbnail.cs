@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public static class PlayerThumbnail
 {
-	public static void Render(int x, int y, int width, int height)
+	public static void Render(int x, int y, int width, int height, string name)
 	{
 		Player player = GameState.instance.player;
 
@@ -45,5 +45,8 @@ public static class PlayerThumbnail
 			int h = (int)MathF.Round(player.handItem.size.y * size);
 			Renderer.DrawUISprite(xx + width / 2 - w / 2 + (int)(player.getWeaponOrigin(true).x * size + player.handItem.renderOffset.x * size), yy + size / 2 - (h - size) - (int)(player.getWeaponOrigin(true).y * size + player.handItem.renderOffset.y * size), w, h, player.handItem.sprite);
 		}
+
+		if (name != null)
+			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(name).x / 2, y + height - 2, name, 1, 0xFF7F7F7F);
 	}
 }

@@ -19,7 +19,7 @@ public class BerserkersChain : Item
 		: base("berserkers_chain", ItemType.Relic)
 	{
 		displayName = "Berserker's Chain";
-		description = "Consecutive kills temporarily increase attack speed";
+		description = "Consecutive kills temporarily increase critical attack chance";
 		stackable = true;
 		tumbles = false;
 		canDrop = false;
@@ -47,12 +47,12 @@ public class BerserkersChain : Item
 		if (buffLevel > threshhold && lastBuffLevel <= threshhold)
 			buff.active = true;
 
-		buff.attackSpeedModifier = damageMultiplier;
+		buff.criticalChanceModifier = damageMultiplier;
 
 		lastKill = Time.currentTime;
 	}
 
-	float damageMultiplier => 1 + MathF.Max(buffLevel - threshhold, 0) * 0.025f;
+	float damageMultiplier => 1 + MathF.Max(buffLevel - threshhold, 0) * 0.05f /*0.025f*/;
 
 	public override void update(Entity entity)
 	{
@@ -72,7 +72,7 @@ public class BerserkersChain : Item
 					if (buffLevel <= threshhold && lastBuffLevel > threshhold)
 						buff.active = false;
 
-					buff.attackSpeedModifier = damageMultiplier;
+					buff.criticalChanceModifier = damageMultiplier;
 				}
 			}
 

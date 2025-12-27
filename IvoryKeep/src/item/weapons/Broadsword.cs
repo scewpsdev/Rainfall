@@ -47,6 +47,7 @@ public class Broadsword : Weapon
 		{
 			startAngle = MathF.PI;
 			endAngle = -0.5f * MathF.PI;
+			anim = AttackAnim.SwingOverhead;
 		}
 		else
 		{

@@ -32,6 +32,6 @@ public class GlowingFlower : Entity
 	public override void render()
 	{
 		Renderer.DrawSprite(position.x - 0.5f, position.y, LAYER_BG, 1, 2, 0, sprite);
-		Renderer.DrawLight(position + Vector2.Up * 1.25f, new Vector3(0.7f, 1.0f, 0.9f) * 10, 9);
+		Renderer.DrawLight(position + Vector2.Up * 1.25f, new Vector3(0.7f, 0.7f, 1.0f) * 2, 3);
 	}
 }

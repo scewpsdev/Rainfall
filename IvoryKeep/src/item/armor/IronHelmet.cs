@@ -17,7 +17,7 @@ public class IronHelmet : Item
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 1.5f;
 
-		baseValue = 36;
+		baseValue = 50;
 
 		sprite = new Sprite(tileset, 12, 0);
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/iron_helmet.png", false), 0, 0, 32, 32);

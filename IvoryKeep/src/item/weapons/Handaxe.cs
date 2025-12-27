@@ -22,7 +22,7 @@ public class Handaxe : Weapon
 		projectileSticks = true;
 		doubleBladed = false;
 		secondaryChargeTime = 0;
-		anim = AttackAnim.SwingSideways;
+		anim = AttackAnim.SwingOverhead;
 
 		strengthScaling = 0.3f;
 		dexterityScaling = 0.3f;
@@ -32,6 +32,15 @@ public class Handaxe : Weapon
 		sprite = new Sprite(tileset, 15, 4);
 		renderOffset.x = 0.2f;
 	}
+
+    protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+    {
+        base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+		if (idx % 2 == 0)
+			anim = AttackAnim.SwingOverhead;
+		else
+			anim = AttackAnim.SwingSideways;
+    }
 
 	/*
 	public override bool useSecondary(Player player)

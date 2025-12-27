@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 public enum ChestType
 {
 	Normal,
-	Red, // Weapons
+	Red, // Melee
 	Blue, // Magic
-	Green, // Armor
+	Green, // Ranged
 	Silver, // Anything
 }
 
@@ -139,5 +140,43 @@ public class Chest : Container
 				items = null;
 		}
 		base.breakContainer();
+	}
+
+	public Item[] createThemedItems(float value, float[] droprates, Random random)
+	{
+		ItemType itemType = ItemType.Count;
+		WeaponType weaponType = WeaponType.None;
+		float f = random.NextSingle();
+		if (type == ChestType.Red)
+		{
+			itemType = f < 0.2f ? ItemType.Armor : f < 0.9f ? ItemType.Weapon : ItemType.Shield;
+			weaponType = WeaponType.Melee;
+		}
+		else if (type == ChestType.Blue)
+		{
+			itemType = f < 0.4f ? ItemType.Staff : f < 0.8f ? ItemType.Spell : f < 0.9f ? ItemType.Potion : ItemType.Scroll;
+		}
+		else if (type == ChestType.Green)
+		{
+			itemType = f < 0.9f ? ItemType.Weapon : ItemType.Shield;
+			weaponType = WeaponType.Ranged;
+		}
+		else if (type == ChestType.Silver)
+		{
+			itemType = Item.GetTypeFromDroprates(random, droprates);
+			value *= 2;
+		}
+
+		List<Item> candidates = Item.GetItemPrototypesOfType(itemType);
+		if (weaponType != WeaponType.None)
+		{
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				if (candidates[i].type == ItemType.Weapon && ((Weapon)candidates[i]).weaponType != weaponType)
+					candidates.RemoveAt(i--);
+			}
+		}
+
+		return [Item.CreateRandom(candidates, random, value)];
 	}
 }

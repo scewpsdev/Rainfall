@@ -18,6 +18,7 @@ public class Object : Entity, Hittable, Interactable
 	public bool tumbles = true;
 	public float rotationVelocity = 0;
 	public int numRestRotations = 4;
+	public bool canPickUp = true;
 
 	protected bool hitsEnemies = true;
 	protected bool hitsPlayer = true;
@@ -56,7 +57,7 @@ public class Object : Entity, Hittable, Interactable
 
 	public virtual bool canInteract(Player player)
 	{
-		return player.isDucked && player.carriedObject == null;
+		return canPickUp && player.isDucked && player.carriedObject == null;
 	}
 
 	public virtual void interact(Player player)

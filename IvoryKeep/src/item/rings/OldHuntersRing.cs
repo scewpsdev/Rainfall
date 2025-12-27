@@ -13,20 +13,12 @@ public class OldHuntersRing : Item
 	{
 		displayName = "Old Hunter's Ring";
 
-		description = "Unlimited arrows";
+		description = "Increases projectile range";
 
-		baseValue = 100;
+		baseValue = 40;
 
 		sprite = new Sprite(tileset, 0, 4);
-	}
 
-	public override void onEquip(Player player)
-	{
-		player.unlimitedArrows = true;
-	}
-
-	public override void onUnequip(Player player)
-	{
-		player.unlimitedArrows = false;
+		buff = new ItemBuff(this) { projectileRangeModifier = 1.5f };
 	}
 }

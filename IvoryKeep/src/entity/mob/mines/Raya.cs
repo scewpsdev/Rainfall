@@ -72,7 +72,7 @@ public class Raya : Mob
 			const float dashCooldown = 0.8f;
 
 			AIAction dash = ai.addAction("dash", dashCharge, dashDuration, dashCooldown, dashSpeed, dashTriggerDistance);
-			dash.actionColliders = [new FloatRect(0, 0, 2, 2)];
+			dash.actionColliders = [new FloatRect(0, 0, 2, 1.5f)];
 
 			dash.onStarted = (AIAction action) =>
 			{
@@ -210,6 +210,12 @@ public class Raya : Mob
 			};
 		}
 	}
+
+    public override void onDeath(Entity by, Item item)
+    {
+        base.onDeath(by, item);
+		GameState.instance.hub.getEntity<CastleGate>().locked = false;
+    }
 }
 
 public class RayaBladeEffect : Entity

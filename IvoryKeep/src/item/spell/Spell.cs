@@ -13,7 +13,7 @@ public abstract class Spell : Item
 
 
 	protected Spell(string name)
-		: base(name, ItemType.Count)
+		: base(name, ItemType.Spell)
 	{
 		tumbles = false;
 		upgradable = false;

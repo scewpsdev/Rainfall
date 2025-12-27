@@ -13,11 +13,11 @@ public class BrokenSword : Weapon
 	{
 		displayName = "Broken Sword";
 
-		baseDamage = 0.8f;
+		baseDamage = 1;
 		baseAttackRange = 1;
 		baseAttackRate = 2;
 		baseWeight = 1;
-		canBlock = true;
+		//canBlock = true;
 		parryWeaponRotation = -0.3f * MathF.PI;
 
 		baseValue = 2;
@@ -30,5 +30,11 @@ public class BrokenSword : Weapon
 
 		//ingameSprite = new Sprite("sprites/items/weapon/broken_sword.png", 0, 0, 32, 32);
 		//ingameSpriteSize = 2;
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		player.throwItem(this);
+		return true;
 	}
 }

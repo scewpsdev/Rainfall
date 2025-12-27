@@ -39,7 +39,6 @@ public static class EntityType
 		InitType<Barbarian>("barbarian");
 
 		InitType<Fountain>("fountain");
-		InitType<Checkpoint>("checkpoint");
 		InitType<Barrel>("barrel");
 		InitType<Chest>("chest");
 		InitType<ExplosiveBarrel>("explosive_barrel");
@@ -60,6 +59,7 @@ public static class EntityType
 		InitType<PushableBlock>("pushable_block");
 
 		InitType<DungeonGate>("dungeon_gate");
+		InitType<CastleGate>("castle_gate");
 	}
 
 	static void InitType<T>(string name) where T : Entity, new()
