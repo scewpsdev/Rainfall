@@ -23,7 +23,7 @@ public abstract class SpellBook : Staff
 		baseValue = 14 + spell.getValue() / 2;
 
 		sprite = new Sprite(tileset, 1, 11);
-		renderOffset.x = 0.6f;
+		renderOffset.x = 0.4f;
 
 		intelligenceScaling = 0.05f;
 	}

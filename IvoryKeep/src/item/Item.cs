@@ -283,6 +283,7 @@ public abstract class Item
 	public float postAttackLinger = 0.25f;
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.1f, 0.0f);
+	public float backRotation = MathF.PI * -0.5f;
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
 
 	public bool projectileItem = false;
@@ -348,7 +349,7 @@ public abstract class Item
 		isActiveItem = type == ItemType.Potion || type == ItemType.Scroll || type == ItemType.Food || type == ItemType.Utility || type == ItemType.Gem;
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
-		stackable = type == ItemType.Food || type == ItemType.Potion || type == ItemType.Relic || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;
+		stackable = type == ItemType.Food || type == ItemType.Potion /*|| type == ItemType.Relic*/ || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;
 		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor || type == ItemType.Relic;
 
 		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponSwing : type == ItemType.Potion ? potionUse : null;
@@ -670,7 +671,7 @@ public abstract class Item
 		InitType(new AutomaticCrossbow());
 		InitType(new Crossbow());
 		InitType(new BrokenSword());
-		//InitType(new OldHuntersRing());
+		InitType(new OldHuntersRing());
 		InitType(new WoodenMallet());
 		InitType(new ScrollOfMonsterTaming());
 		InitType(new Backpack());

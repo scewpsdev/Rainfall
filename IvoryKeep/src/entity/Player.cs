@@ -257,10 +257,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		//if (item.twoHanded && offhandItem != null)
 		//	unequipItem(offhandItem);
+		/*
 		if (item.twoHanded && !canEquipOnehanded && offhandItem != null)
 		{
 			dropItem(offhandItem);
 		}
+		*/
 
 		handItem = item;
 		handItem.onEquip(this);
@@ -471,9 +473,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		return (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
 	}
 
-	bool canUseOffhandItem(Item item)
+	bool canUseOffhandItem()
 	{
-		return true /*handItem == null *//*|| item.isSecondaryItem*/ /*|| canEquipOffhand*/; // (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
+		return (handItem == null || !handItem.twoHanded && !offhandItem.twoHanded || canEquipOnehanded) && (offhandItem.isSecondaryItem || canEquipOffhand || handItem == null); // true /*handItem == null *//*|| item.isSecondaryItem*/ /*|| canEquipOffhand*/; // (item.isSecondaryItem || item.isHandItem && canEquipOffhand); /*&& (!item.twoHanded || canEquipOnehanded)) && (offhandItem == null || handItem != null) && (!item.isHandItem || handItem != null) && (handItem == null || !handItem.twoHanded || canEquipOnehanded)*/;
 	}
 
 	bool canEquipActiveItem(Item item)
@@ -500,7 +502,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
-		if (item.type == ItemType.Spell && hasItemOfType(item.name))
+		if ((item.type == ItemType.Spell || item.type == ItemType.Relic) && hasItemOfType(item.name))
 		{
 			Item spellItem = getItem(item.name);
 			spellItem.upgrade();
@@ -525,13 +527,13 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//if (canEquipHandItem(item) && !item.twoHanded && handItem != null && !handItem.twoHanded && offhandItem == null)
 		//	equipOffhandItem(item);
 		//else 
-		if (handItem != null && (!handItem.twoHanded && !item.twoHanded || canEquipOnehanded) && canEquipOffhandItem(item) && offhandItem == null)
+		if ((item.isHandItem || item.isSecondaryItem) && handItem != null && /*canEquipOffhandItem(item) && */offhandItem == null)
 			equipOffhandItem(item);
 		else if (canEquipHandItem(item))
 			equipHandItem(item);
 		else if (item.isSecondaryItem && (!handItem.twoHanded && !item.twoHanded || canEquipOnehanded) && canEquipOffhandItem(item) /*&& offhandItem == null*/)
 			equipOffhandItem(item);
-		else if (item.isActiveItem && canEquipActiveItem(item))
+		else if (item.isActiveItem /*&& canEquipActiveItem(item)*/)
 			equipActiveItem(item);
 		else if (item.type == ItemType.Spell && spellItems.Count < spellCapacity)
 			attuneSpell((Spell)item);
@@ -1646,7 +1648,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
 				if (currentLadder == null)
 				{
-					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down")) && lastLadderJumpedFrom != hoveredLadder)
+					if (hoveredLadder != null && (InputManager.IsDown("Up") || InputManager.IsDown("Down") && !isGrounded) && lastLadderJumpedFrom != hoveredLadder)
 					{
 						currentLadder = hoveredLadder;
 						impulseVelocity = 0;
@@ -1760,7 +1762,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						}
 						else
 						{
-							if (offhandItem != null && canUseOffhandItem(offhandItem))
+							if (offhandItem != null && canUseOffhandItem())
 							{
 								if (offhandItem.trigger)
 								{
@@ -2219,7 +2221,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				else
 				{
 					Vector2 weaponPosition = new Vector2(position.x - 0.25f * direction, position.y + 0.5f);
-					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, MathF.PI * -0.5f, item.sprite, false, color);
+					float weaponRotation = item.backRotation * (direction == -1 || isClimbing ? -1 : 1);
+					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, weaponRotation, item.sprite, direction == -1 || isClimbing, color);
 					if (particles != null)
 					{
 						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
@@ -2271,16 +2274,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (show && carriedObject == null)
 			{
-				//if (isClimbing && actions.currentAction == null)
-				//	renderBackItem(LAYER_PLAYER_ARMOR, handItem);
-				//else 
+				if (isClimbing && actions.currentAction == null && offhandItem != null && !canUseOffhandItem())
+					renderBackItem(LAYER_PLAYER_ARMOR, offhandItem);
+				else
 				//if (actions.currentAction != null)
 				{
 					renderHandItem(LAYER_PLAYER_ITEM_MAIN, true, handItem);
 
 					if (offhandItem != null)
 					{
-						if (canUseOffhandItem(offhandItem))
+						if (canUseOffhandItem())
 							renderHandItem(LAYER_PLAYER_ITEM_SECONDARY, false, offhandItem);
 						else
 							renderBackItem(LAYER_PLAYER_BG, offhandItem);

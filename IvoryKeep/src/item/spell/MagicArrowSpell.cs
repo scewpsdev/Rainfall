@@ -17,6 +17,7 @@ public class MagicArrowSpell : Spell
 
 		baseDamage = 0.8f;
 		baseAttackRate = 3;
+		baseAttackRange = 5;
 		manaCost = 0.1f;
 		knockback = 1.0f;
 		trigger = false;

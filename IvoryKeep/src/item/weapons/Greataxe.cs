@@ -31,5 +31,6 @@ public class Greataxe : Weapon
 		sprite = new Sprite(tileset, 0, 5, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.5f;
+		backRotation = 0.75f * MathF.PI;
 	}
 }

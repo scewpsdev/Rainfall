@@ -117,8 +117,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		health -= damage;
 
-		//if (damage >= 0.1f)
-		//	GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage * 10), new Vector2(Mathf.RandomFloat(-1, 1), 1) * 3, buffedHit), new Vector2(Mathf.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), Mathf.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
+		if (damage >= 0.1f)
+			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage * 10), new Vector2(Mathf.RandomFloat(-1, 1), 1) * 3, buffedHit), new Vector2(Mathf.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), Mathf.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
 
 		if (buffedHit)
 		{

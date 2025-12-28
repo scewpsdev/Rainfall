@@ -146,11 +146,16 @@ public abstract class Potion : Item
 			identify();
 	}
 
-	public override void applyEffect(Entity entity)
+	public PotionEffectType getTrueEffect()
 	{
 		int effectShift = (int)(Hash.hash(GameState.instance.run.seed) % (int)PotionEffectType.Count);
 		int idx = ((int)this.effect + effectShift) % (int)PotionEffectType.Count;
-		PotionEffectType effect = (PotionEffectType)idx;
+		return (PotionEffectType)idx;
+	}
+
+	public override void applyEffect(Entity entity)
+	{
+		PotionEffectType effect = getTrueEffect();
 
 		Player player = entity as Player;
 		StatusEffectReceiver statusEffect = entity as StatusEffectReceiver;
@@ -307,6 +312,9 @@ public abstract class Potion : Item
 
 		GameState.instance.level.addEntity(ParticleEffects.CreatePotionExplodeEffect(color), entity.position);
 		GameState.instance.level.addEntity(new PotionExplodeEffect(spillRadius, color), entity.position);
+		ParticleEffect potionParticleEffect = CreatePotionParticleEffect(getTrueEffect());
+		if (potionParticleEffect != null)
+			GameState.instance.level.addEntity(potionParticleEffect, entity.position);
 
 		Audio.PlayOrganic(breakSound, new Vector3(entity.position, 0), 3);
 	}
@@ -316,5 +324,30 @@ public abstract class Potion : Item
 		int effectShift = (int)(Hash.hash(GameState.instance.run.seed) % (int)PotionEffectType.Count);
 		int idx = ((int)effect + (int)PotionEffectType.Count - effectShift) % (int)PotionEffectType.Count;
 		return potionConstructors[idx]();
+	}
+
+	public static ParticleEffect CreatePotionParticleEffect(PotionEffectType effect)
+	{
+		switch (effect)
+		{
+			case PotionEffectType.Water:
+				return null;
+			case PotionEffectType.Poison:
+				return PoisonStatusEffect.createParticleEffect(null, 16, 1.5f);
+			case PotionEffectType.Burn:
+				return null;
+			case PotionEffectType.Mana:
+				return ManaRechargeEffect.createParticleEffect(null, 4, 2);
+			case PotionEffectType.Healing:
+				return HealStatusEffect.createParticleEffect(null, 1, 1.5f);
+			case PotionEffectType.Invisibility:
+				return InvisibilityStatusEffect.createParticleEffect(null, 10);
+			case PotionEffectType.Teleport:
+				return ParticleEffects.CreateScrollUseEffect(null);
+			case PotionEffectType.Lucky:
+				return null;
+			default:
+				return null;
+		}
 	}
 }

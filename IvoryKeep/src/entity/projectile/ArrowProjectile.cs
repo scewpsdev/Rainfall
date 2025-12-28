@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 public class ArrowProjectile : Projectile
 {
-	public ArrowProjectile(Vector2 direction, Vector2 offset, Player player, Item bow, Item arrow)
-		: base(direction * 40, Vector2.Zero, offset, player, arrow, arrow.baseDamage * bow.getAttackDamage(player))
+	public ArrowProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item bow, Item arrow)
+		: base(direction * 40, Vector2.Zero, offset, shooter, arrow, arrow.baseDamage * (shooter is Player ? bow.getAttackDamage(shooter as Player) : shooter is Mob ? ((Mob)shooter).damage : 1))
 	{
 		maxSpeed = 40;
 		gravity = -50;

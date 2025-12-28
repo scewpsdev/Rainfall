@@ -486,7 +486,7 @@ public abstract class NPC : Mob, Interactable
 		infusePrice = -1;
 		for (int i = 0; i < player.items.Count; i++)
 		{
-			if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Armor)
+			if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor)
 			{
 				infuseItems.Add(player.items[i]);
 				infusePrices.Add(player.items[i].getValue() * 2);
@@ -751,7 +751,7 @@ public abstract class NPC : Mob, Interactable
 				bool hasInfusable = false;
 				for (int i = 0; i < player.items.Count; i++)
 				{
-					if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Armor)
+					if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor)
 					{
 						hasInfusable = true;
 						break;
@@ -996,7 +996,7 @@ public abstract class NPC : Mob, Interactable
 			else
 			{
 				List<Infusion> possibleInfusions = new List<Infusion>();
-				if (infuseItem.type == ItemType.Weapon)
+				if (infuseItem.type == ItemType.Weapon || infuseItem.type == ItemType.Staff)
 				{
 					possibleInfusions.Add(Infusion.Sharp);
 					possibleInfusions.Add(Infusion.Light);

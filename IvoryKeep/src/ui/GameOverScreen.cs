@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 
 public static class GameOverScreen
@@ -177,7 +178,10 @@ public static class GameOverScreen
 		int padding = 8;
 
 		int playerViewSize = 32;
-		PlayerThumbnail.Render(x + width / 4 - playerViewSize / 2, y + padding, playerViewSize, playerViewSize, GameState.instance.save.name);
+		PlayerThumbnail.Render(x + width / 4 - playerViewSize / 2, y + padding, playerViewSize, playerViewSize);
+
+		string name = GameState.instance.save.name;
+		Renderer.DrawUITextBMP(x + width / 4 - Renderer.MeasureUITextBMP(name).x / 2, y + padding + playerViewSize - 2, name, 1, 0xFF7F7F7F);
 
 		RenderRunStats(GameState.instance, x + padding, y + padding + playerViewSize, width / 2 - 2 * padding, height - 2 * padding);
 		Vector2i selectedCell = Vector2i.Zero;

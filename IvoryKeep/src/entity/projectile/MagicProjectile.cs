@@ -21,7 +21,7 @@ public class MagicProjectile : Projectile
 		//maxSpeed = 40;
 		//acceleration = 50;
 		maxRicochets = 0;
-		maxRange = 5;
+		maxRange = spell.attackRange * player.getProjectileRangeModifier();
 
 		sprite = new Sprite(Item.tileset, 9, 1);
 		spriteColor = new Vector4(1.5f);

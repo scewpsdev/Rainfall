@@ -28,12 +28,14 @@ public static class CharacterInfoPanel
 
 		//y += Renderer.smallFont.size + 4;
 
-		PlayerThumbnail.Render(x + 4, y, 32, 32, GameState.instance.save.name);
+		PlayerThumbnail.Render(x + 4, y, 32, 32);
 
+		string playerName = GameState.instance.save.name;
 		string className = player.startingClass != null ? player.startingClass.name : "No Class";
 		uint classColor = player.startingClass != null ? player.startingClass.color : UIColors.TEXT_SUBTLE;
+		Renderer.DrawUITextBMP(x + 4 + 32 + 4, y + 0 + 4, playerName, 1, UIColors.TEXT);
 		Renderer.DrawUITextBMP(x + 4 + 32 + 4, y + 8 + 4, className, 1, classColor);
-		Renderer.DrawUITextBMP(x + 4 + 32 + 4, y + 24 - 4, "Level " + player.playerLevel.ToString(), 1, UIColors.TEXT);
+		Renderer.DrawUITextBMP(x + 4 + 32 + 4, y + 24 - 4, "Level " + player.playerLevel.ToString(), 1, UIColors.TEXT_SUBTLE);
 
 		y += 32 + 4;
 
@@ -80,7 +82,8 @@ public static class CharacterInfoPanel
 				bool hovered = Renderer.IsHovered(x, y, width, Renderer.smallFont.size);
 				if (hovered)
 					selectedLevelStat = idx;
-				if (selectedLevelStat == idx)
+				//if (selectedLevelStat == idx)
+				if (false)
 				{
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
 					float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;

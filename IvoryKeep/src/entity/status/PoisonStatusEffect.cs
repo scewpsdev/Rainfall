@@ -27,17 +27,21 @@ public class PoisonStatusEffect : StatusEffect
 		lastUpdate = Time.currentTime;
 	}
 
-	public override unsafe void init(Entity entity)
+	public static unsafe ParticleEffect createParticleEffect(Entity entity, float duration, float amount)
 	{
-		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 16), duration, 5.0f, 0.25f, 0xFFAFAF2A), player.position + new Vector2(0, 0.5f));
-
 		ParticleEffect effect = new ParticleEffect(entity, "effects/potion_effect.rfs");
 		effect.systems[0].handle->colorAnim.value0.value.xyz = Mathf.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = Mathf.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
+		return effect;
+	}
 
-		GameState.instance.level.addEntity(effect, entity.position + new Vector2(0, 0.5f));
+	public override void init(Entity entity)
+	{
+		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 16), duration, 5.0f, 0.25f, 0xFFAFAF2A), player.position + new Vector2(0, 0.5f));
+
+		GameState.instance.level.addEntity(createParticleEffect(entity, duration, amount), entity.position + new Vector2(0, 0.5f));
 	}
 
 	public override bool update(Entity entity)

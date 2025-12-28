@@ -34,13 +34,19 @@ public class ArcherAI : AdvancedAI
 			float xspeed = 10;
 			Vector2 velocity = ProjectileTrajectory.Calculate(toTarget.x, toTarget.y, xspeed, gravity);
 
+			/*
 			Arrow arrow = new Arrow();
 			arrow.breakOnWallHit = true;
 			arrow.baseDamage = 1;
 			arrow.knockback = 10;
 			ItemEntity entity = new ItemEntity(arrow, mob, velocity);
 			entity.bounciness = 0.3f;
-			GameState.instance.level.addEntity(entity, position);
+			*/
+
+			ArrowProjectile arrow = new ArrowProjectile(velocity.normalized, Vector2.Zero, mob, Item.GetItemPrototype("shortbow"), Item.GetItemPrototype("arrow"));
+			arrow.velocity = velocity;
+			arrow.gravity = gravity;
+			GameState.instance.level.addEntity(arrow, position);
 
 			Audio.PlayOrganic(shootSound, new Vector3(mob.position, 0));
 

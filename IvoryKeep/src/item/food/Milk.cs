@@ -21,6 +21,8 @@ public class Milk : Item
 
 		sprite = new Sprite(tileset, 8, 12);
 
+		useSound = potionUse;
+
 		/*
 		addEffect(new ManaEffect(4, 30));
 

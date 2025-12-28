@@ -24,18 +24,19 @@ public class Zweihander : Weapon
 		canBlock = true;
 
 		attackEndAngle = -0.75f * MathF.PI;
-		attackStartAngle = 0.75f * MathF.PI;
+		attackStartAngle = 1.0f * MathF.PI;
 		//doubleBladed = true;
 
 		strengthScaling = 0.3f;
 		dexterityScaling = 0.2f;
 
-		baseValue = 18;
+		baseValue = 28;
 
 		sprite = new Sprite(tileset, 7, 3, 2, 1);
 		icon = new Sprite(tileset.texture, 7 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.4f;
+		renderOffset.x = 0.2f;
+		backRotation = -0.25f * MathF.PI;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 

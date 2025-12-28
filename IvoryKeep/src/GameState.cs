@@ -265,7 +265,7 @@ public class GameState : State
 		if (camera.level != null)
 			camera.level.removeEntity(camera);*/
 
-		AudioManager.SetAmbience(null);
+		//AudioManager.SetAmbience(null);
 
 		if (level != null && level.ambientTrack != null)
 			level.ambientTrack.stop();

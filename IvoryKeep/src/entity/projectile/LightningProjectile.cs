@@ -13,7 +13,7 @@ public class LightningProjectile : Entity
 
 	float speed = 200;
 	int maxRicochets = 3;
-	float maxDistance = 10;
+	float maxRange = 5;
 
 	float damage;
 
@@ -51,6 +51,7 @@ public class LightningProjectile : Entity
 		velocity = direction * speed;
 
 		damage = spell.baseDamage * staff.getAttackDamage(player) * player.getMagicDamageModifier();
+		maxRange = spell.attackRange * player.getProjectileRangeModifier();
 
 		lightning = Resource.GetTexture("sprites/lightning.png", false);
 		trail = new Sprite(new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16), 2, 0);
@@ -83,7 +84,7 @@ public class LightningProjectile : Entity
 
 		Vector2 tangent = new Vector2(displacement.y, -displacement.x).normalized;
 
-		if (distance >= maxDistance)
+		if (distance >= maxRange)
 			active = false;
 
 		rotation = MathF.Atan2(velocity.y, velocity.x);

@@ -23,17 +23,21 @@ public class InvisibilityStatusEffect : StatusEffect
 		lastUpdate = Time.currentTime;
 	}
 
-	public override unsafe void init(Entity entity)
+	public static unsafe ParticleEffect createParticleEffect(Entity entity, float duration)
 	{
-		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, 0xFFFF4D40), player.position + new Vector2(0, 0.5f));
-
 		ParticleEffect effect = new ParticleEffect(entity, "effects/potion_effect.rfs");
 		effect.systems[0].handle->colorAnim.value0.value.xyz = Mathf.ARGBToVector(0x7Fabb6bd).xyz;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = Mathf.ARGBToVector(0x7Fabb6bd).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.systems[0].handle->bursts[0].count = (int)(duration * 20);
+		return effect;
+	}
 
-		GameState.instance.level.addEntity(effect, entity.position + new Vector2(0, 0.5f));
+	public override void init(Entity entity)
+	{
+		//GameState.instance.level.addEntity(new ParticleEffect(player, (int)(amount * 8), duration, 5.0f, 0.25f, 0xFFFF4D40), player.position + new Vector2(0, 0.5f));
+
+		GameState.instance.level.addEntity(createParticleEffect(entity, duration), entity.position + new Vector2(0, 0.5f));
 	}
 
 	public override bool update(Entity entity)

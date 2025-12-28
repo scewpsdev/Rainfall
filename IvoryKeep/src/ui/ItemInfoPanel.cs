@@ -268,23 +268,33 @@ public static class ItemInfoPanel
 			}
 		}
 
-		/*
 		if (item.type == ItemType.Spell)
 		{
 			drawLeft("Attack");
 			float infusedDamage = item.getInfusedDamage();
 			drawRight(infusedDamage);
-			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(infusedDamage, compareItem.getInfusedDamage());
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Speed");
 			drawRight(item.attackRate);
-			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
+			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(item.attackRate, compareItem.attackRate);
 			y += Renderer.smallFont.size + 1;
+
+			drawLeft("Range");
+			drawRight(item.attackRange);
+			if (compareItem != null && item.type == ItemType.Spell)
+				drawComparison(item.attackRange, compareItem.attackRange);
+			y += Renderer.smallFont.size + 1;
+
+			drawLeft("Mana Cost");
+			drawRight(item.manaCost);
+			if (compareItem != null && item.type == ItemType.Spell)
+				drawComparison(item.manaCost, compareItem.manaCost);
+			y += Renderer.smallFont.size + 1;
 		}
-		*/
 
 		Item itemInInv = GameState.instance.player.getItem(item.name);
 		if (itemInInv != null && item.stackable)

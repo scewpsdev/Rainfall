@@ -670,6 +670,8 @@ public class InventoryUI
 
 			inventoryHeight = DrawEquipment3(x, y, width, inventoryHeight, player, ref selectedCell, out Item selected);
 
+			characterHeight = CharacterInfoPanel.Render(5, 5, 120, characterHeight, player);
+
 			/*
 			Renderer.DrawUISprite(0, 0, Renderer.UIWidth, Renderer.UIHeight, 0, null, 0x7F000000);
 

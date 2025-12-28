@@ -10,10 +10,10 @@ public class Projectile : Entity, Hittable
 {
 	protected float maxSpeed = 100;
 	protected float acceleration = 0;
-	protected float gravity = 0;
+	public float gravity = 0;
 	protected float rotationSpeed = 0;
 	protected int maxRicochets = 0;
-	protected float damage = 1;
+	public float damage = 1;
 	protected float maxRange = 1000;
 	protected float dropRange = 0;
 

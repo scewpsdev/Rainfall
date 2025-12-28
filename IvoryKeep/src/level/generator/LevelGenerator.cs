@@ -415,10 +415,10 @@ public abstract class LevelGenerator
 		Mathf.ShuffleList(deadEnds, random);
 		Mathf.ShuffleList(mainRooms, random);
 
-		lockDeadEnds(deadEnds, items);
-
 
 		spawnItems(items, deadEnds);
+
+		lockDeadEnds(deadEnds, items); // this depends on spawned objects
 
 
 		float lockedChestChance = 0.1f;
@@ -891,9 +891,9 @@ public abstract class LevelGenerator
 				int xx = position.x - rooms[i].x;
 				int yy = position.y - rooms[i].y;
 
-				for (int y = yy; y < yy + height; y++)
+				for (int y = yy; y < rooms[i].height; y++)
 				{
-					for (int x = xx; x < xx + width; x++)
+					for (int x = xx; x < rooms[i].width; x++)
 					{
 						if (x >= 0 && x < rooms[i].width && y >= 0 && y < rooms[i].height)
 						{
@@ -1172,9 +1172,11 @@ public abstract class LevelGenerator
 				});
 			}
 
-			Debug.Assert(placed);
-
-			items.RemoveAt(0);
+			//Debug.Assert(placed);
+			if (placed)
+			{
+				items.RemoveAt(0);
+			}
 		}
 	}
 
@@ -1195,7 +1197,7 @@ public abstract class LevelGenerator
 		if (room == null)
 			return null;
 
-		room.isMainPath = true;
+		room.isMainPath = false;
 
 		List<Doorway> emptyDoorways = new List<Doorway>();
 		for (int i = 0; i < room.doorways.Count; i++)

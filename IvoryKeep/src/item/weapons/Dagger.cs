@@ -21,7 +21,7 @@ public class Dagger : Weapon
 		projectileSticks = true;
 		//projectileAims = true;
 		projectileSpins = true;
-		isSecondaryItem = true;
+		//isSecondaryItem = true;
 		baseWeight = 1;
 		secondaryChargeTime = 0;
 		criticalChanceModifier = 2.0f;
