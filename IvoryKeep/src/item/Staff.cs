@@ -23,6 +23,8 @@ public class Staff : Item
 		baseValue = 30;
 
 		useSound = null;
+
+		backRotation = 0;
 	}
 
 	/*

@@ -30,7 +30,6 @@ public class LevelTransition : Door
 			return position + 0.5f - direction;
 		else
 			return position + 0.5f - 2 * direction;
-		return new Vector2(position.x + 0.5f * size.x - direction.x, position.y);
 	}
 
 	public override void update()

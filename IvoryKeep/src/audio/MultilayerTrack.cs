@@ -17,12 +17,20 @@ public class MultilayerTrack
 
 	public MultilayerTrack(string name, int count)
 	{
-		sources = new uint[count];
-		sounds = new Sound[count];
-
-		for (int i = 0; i < count; i++)
+		if (count > 0)
 		{
-			sounds[i] = Resource.GetSound(name + (i + 1) + ".ogg");
+			sources = new uint[count];
+			sounds = new Sound[count];
+			for (int i = 0; i < count; i++)
+			{
+				sounds[i] = Resource.GetSound(name + (i + 1) + ".ogg");
+			}
+		}
+		else
+		{
+			sources = new uint[1];
+			sounds = new Sound[1];
+			sounds[0] = Resource.GetSound(name + ".ogg");
 		}
 	}
 

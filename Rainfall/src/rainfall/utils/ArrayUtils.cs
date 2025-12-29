@@ -28,6 +28,16 @@ public static class ArrayUtils
 		return newArr;
 	}
 
+	public static int IndexOf<T>(T[] arr, T t)
+	{
+		for (int i = 0; i < arr.Length; i++)
+		{
+			if (arr[i].Equals(t))
+				return i;
+		}
+		return -1;
+	}
+
 	public static T[] RemoveAt<T>(T[] arr, int idx)
 	{
 		T[] newArr = new T[arr.Length - 1];

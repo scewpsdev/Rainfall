@@ -45,11 +45,14 @@ public class Bomb : Item
 
 	public override bool use(Player player)
 	{
-		ItemEntity entity = player.dropItem(this);
-		entity.velocity += player.velocity;
-		//player.throwItem(this, player.lookDirection.normalized, Vector2.Dot(player.lookDirection.normalized, Vector2.Down) > 0.5f ? 1 : 10);
-		ignite();
-		return true;
+		if (player.dropItem(this, out ItemEntity entity))
+		{
+			entity.velocity += player.velocity;
+			//player.throwItem(this, player.lookDirection.normalized, Vector2.Dot(player.lookDirection.normalized, Vector2.Down) > 0.5f ? 1 : 10);
+			ignite();
+			return false;
+		}
+		return false;
 	}
 
 	public void ignite()

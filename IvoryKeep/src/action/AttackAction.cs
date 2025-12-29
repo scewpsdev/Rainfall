@@ -25,7 +25,7 @@ public class AttackAction : EntityAction
 	public List<Entity> hitEntities = new List<Entity>();
 	float maxRange = 0;
 	float lastProgress = 0;
-	float lastActionMovement = 0;
+	//float lastActionMovement = 0;
 
 	public bool useSoundPlayed = false;
 	bool hitSoundPlayed = false;
@@ -372,7 +372,7 @@ public class AttackAction : EntityAction
 	{
 		float rotation = getCurrentAngle(currentProgress);
 		bool flip = charDirection < 0;
-		Matrix weaponTransform = Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x, 0, 0);
+		Matrix weaponTransform = Matrix.CreateTranslation(currentRange - 0.5f * weapon.size.x + weapon.weaponTipMargin, 0, 0);
 		if (swingDir % 2 == 1)
 			weaponTransform = Matrix.CreateRotation(Vector3.UnitX, MathF.PI) * weaponTransform;
 		if (anim == AttackAnim.SwingSideways)

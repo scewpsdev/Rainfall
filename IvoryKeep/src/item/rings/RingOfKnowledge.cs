@@ -26,7 +26,10 @@ public class RingOfKnowledge : Item
 		if (player != null)
 		{
 			for (int i = 0; i < player.items.Count; i++)
-				player.items[i].identify();
+			{
+				if (!player.items[i].identified)
+					player.items[i].identify();
+			}
 		}
 	}
 }

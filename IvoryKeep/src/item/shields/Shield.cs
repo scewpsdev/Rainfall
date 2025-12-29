@@ -15,6 +15,8 @@ public class Shield : Item
 		rarity = 0.2f;
 		renderOffset.x = 0;
 		canBlock = true;
+
+		backRotation = 0;
 	}
 
 	public override bool use(Player player)

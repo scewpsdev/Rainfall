@@ -130,9 +130,9 @@ public static class ItemInfoPanel
 
 			drawLeft("Critical");
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-				drawComparison((int)(GameState.instance.player.criticalChance * item.criticalChanceModifier) * 100, (int)(GameState.instance.player.criticalChance * compareItem.criticalChanceModifier) * 100);
+				drawComparison((int)MathF.Round(GameState.instance.player.criticalChance * item.criticalChanceModifier * 100), (int)MathF.Round(GameState.instance.player.criticalChance * compareItem.criticalChanceModifier * 100));
 			else
-				drawRight((int)(GameState.instance.player.criticalChance * item.criticalChanceModifier) * 100);
+				drawRight((int)MathF.Round(GameState.instance.player.criticalChance * item.criticalChanceModifier * 100));
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Weight");

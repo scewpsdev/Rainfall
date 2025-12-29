@@ -24,7 +24,6 @@ public class Chest : Container
 	bool open = false;
 
 	Sprite closedSprite, openSprite;
-	bool flipped;
 
 	Sound[] openSound;
 	Sound closeSound;
@@ -96,11 +95,36 @@ public class Chest : Container
 			if (locked)
 			{
 				Item key = player.getItem("iron_key");
+				Item lockpick = player.getItem("lockpick");
 				if (key != null)
 				{
-					locked = false;
+					unlock();
 					player.removeItemSingle(key);
-					Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
+				}
+				else if (lockpick != null)
+				{
+					const float successChance = 0.4f;
+					if (Random.Shared.NextSingle() < successChance)
+					{
+						unlock();
+						player.removeItemSingle(lockpick);
+						player.hud.showMessage("Lock picked successfully.");
+					}
+					else
+					{
+						const float breakChance = 0.7f;
+						if (Random.Shared.NextSingle() < breakChance)
+						{
+							player.removeItemSingle(lockpick);
+							player.hud.showMessage("The lockpick breaks.");
+							Audio.PlayOrganic(Item.weaponHit, new Vector3(position, 0));
+						}
+						else
+						{
+							Audio.PlayOrganic(lockedSound, new Vector3(position, 0));
+						}
+						return;
+					}
 				}
 				else
 				{
@@ -114,11 +138,16 @@ public class Chest : Container
 			sprite = openSprite;
 			GameState.instance.run.chestsOpened++;
 
-			Debug.Assert(items != null);
 			dropItems();
 
 			Audio.Play(openSound, new Vector3(position, 0));
 		}
+	}
+
+	void unlock()
+	{
+		locked = false;
+		Audio.PlayOrganic(unlockSound, new Vector3(position, 0));
 	}
 
 	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
@@ -135,9 +164,12 @@ public class Chest : Container
 	{
 		if (locked)
 		{
-			float itemLostChance = 0.8f;
+			const float itemLostChance = 0.8f;
 			if (Random.Shared.NextSingle() < itemLostChance)
-				items = null;
+			{
+				const float trashChance = 0.2f;
+				items = Random.Shared.NextSingle() < trashChance ? [new Trash()] : null;
+			}
 		}
 		base.breakContainer();
 	}

@@ -54,19 +54,19 @@ public enum AttackAnim
 public class Infusion
 {
 	public static readonly Infusion Sharp = new Infusion("Sharp") { damageMultiplier = 1.2f, rangeMultiplier = 1 / 1.2f };
-	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 0.8f };
+	public static readonly Infusion Blunt = new Infusion("Blunt") { damageMultiplier = 1 / 1.2f, valueModifier = 0.7f };
 	public static readonly Infusion Light = new Infusion("Light") { attackSpeedMultiplier = 1.5f, weightMultiplier = 0.5f, damageMultiplier = 1 / 1.5f };
 	public static readonly Infusion Heavy = new Infusion("Heavy") { attackSpeedMultiplier = 1 / 1.5f, weightMultiplier = 1.5f, damageMultiplier = 1.5f };
-	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.25f, weightMultiplier = 1.25f };
-	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.7f, weightMultiplier = 0.7f };
-	public static readonly Infusion Flawless = new Infusion("Flawless") { damageMultiplier = 1.1f, attackSpeedMultiplier = 1.1f, weightMultiplier = 0.9f, rangeMultiplier = 1.1f };
-	public static readonly Infusion Broken = new Infusion("Broken") { damageMultiplier = 0.5f, attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, rangeMultiplier = 0.7f };
+	public static readonly Infusion Long = new Infusion("Long") { rangeMultiplier = 1.3f, weightMultiplier = 1.3f, valueModifier = 1.2f };
+	public static readonly Infusion Short = new Infusion("Short") { rangeMultiplier = 0.7f, weightMultiplier = 0.7f, valueModifier = 0.8f };
+	public static readonly Infusion Flawless = new Infusion("Flawless") { damageMultiplier = 1.1f, attackSpeedMultiplier = 1.1f, weightMultiplier = 0.9f, rangeMultiplier = 1.1f, valueModifier = 1.5f };
+	public static readonly Infusion Broken = new Infusion("Broken") { damageMultiplier = 0.5f, attackSpeedMultiplier = 1.2f, weightMultiplier = 0.5f, rangeMultiplier = 0.7f, valueModifier = 0.4f };
 
 	public static readonly Infusion ArmorHeavy = new Infusion("Heavy") { armorMultiplier = 1.5f, weightMultiplier = 1.5f };
 	public static readonly Infusion ArmorLight = new Infusion("Light") { armorMultiplier = 0.75f, weightMultiplier = 0.5f };
-	public static readonly Infusion ArmorFlawless = new Infusion("Flawless") { armorMultiplier = 1.25f, weightMultiplier = 0.75f };
-	public static readonly Infusion ArmorBattered = new Infusion("Battered") { armorMultiplier = 0.75f, weightMultiplier = 1.0f };
-	public static readonly Infusion ArmorBroken = new Infusion("Broken") { armorMultiplier = 0.5f, weightMultiplier = 0.75f };
+	public static readonly Infusion ArmorFlawless = new Infusion("Flawless") { armorMultiplier = 1.25f, weightMultiplier = 0.75f, valueModifier = 1.5f };
+	public static readonly Infusion ArmorBattered = new Infusion("Battered") { armorMultiplier = 0.75f, weightMultiplier = 0.9f, valueModifier = 0.8f };
+	public static readonly Infusion ArmorBroken = new Infusion("Broken") { armorMultiplier = 0.5f, weightMultiplier = 0.75f, valueModifier = 0.5f };
 
 	public static readonly Infusion[] weaponInfusions = [Sharp, Blunt, Light, Heavy, Long, Short, Flawless, Broken];
 	public static readonly Infusion[] armorInfusions = [ArmorHeavy, ArmorLight, ArmorFlawless, ArmorBattered, ArmorBroken];
@@ -99,6 +99,7 @@ public class Infusion
 
 
 	public string name;
+	public float valueModifier = 1.0f;
 
 	public float damageMultiplier = 1.0f;
 	public float attackSpeedMultiplier = 1.0f;
@@ -135,6 +136,8 @@ public abstract class Item
 	public static readonly Sound[] weaponThrust = Resource.GetSounds("sounds/swing_dagger", 4);
 	public static readonly Sound[] potionUse = [Resource.GetSound("sounds/use_potion.ogg")];
 
+	public static readonly Sound[] heal = [Resource.GetSound("sounds/heal.ogg")];
+
 	static readonly string[] scalingLetters = ["-", "D", "C", "B", "A", "S"];
 
 	public static string GetScalingLetter(float scaling)
@@ -147,7 +150,23 @@ public abstract class Item
 
 	public string name;
 	public ItemType type;
-	public string displayName = "???";
+	private string _displayName = "???";
+	public string displayName
+	{
+		get
+		{
+			string str = _displayName;
+			if (this is Potion && ((Potion)this).throwable)
+				str = "Throwable " + str;
+			if (cursed && identified)
+				str = "Cursed " + str;
+			return str;
+		}
+		set
+		{
+			_displayName = value;
+		}
+	}
 	public string description = null;
 	public bool stackable = false;
 	public int stackSize = 1;
@@ -177,8 +196,8 @@ public abstract class Item
 	public float getAttackDamage(Player player)
 	{
 		float damage = getInfusedDamage();
-		return damage;
 
+		/*
 		float hardCap = 20;
 		float strengthSaturation = 1 - MathF.Pow(1 - MathF.Min((player.strength - 1) / (hardCap - 1), 1), 2);
 		float dexteritySaturation = 1 - MathF.Pow(1 - MathF.Min((player.dexterity - 1) / (hardCap - 1), 1), 2);
@@ -187,6 +206,7 @@ public abstract class Item
 		damage *= 1 + strengthScaling * strengthSaturation;
 		damage *= 1 + dexterityScaling * dexteritySaturation;
 		damage *= 1 + intelligenceScaling * intelligenceSaturation;
+		*/
 
 		return damage;
 	}
@@ -284,6 +304,7 @@ public abstract class Item
 	public Vector2 size = new Vector2(1);
 	public Vector2 renderOffset = new Vector2(0.1f, 0.0f);
 	public float backRotation = MathF.PI * -0.5f;
+	public float weaponTipMargin = 0;
 	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
 
 	public bool projectileItem = false;
@@ -295,6 +316,7 @@ public abstract class Item
 	public bool breakOnEnemyHit = false;
 	public bool tumbles = true;
 	public bool canIgnite = false;
+	public float cursedChance = 0.05f;
 
 	public Sprite sprite = null;
 	Sprite _icon = null;
@@ -328,6 +350,8 @@ public abstract class Item
 
 	public bool upgradable = false;
 	public int upgradeLevel = 0;
+
+	public bool cursed { get; private set; } = false;
 
 	public Sound[] useSound;
 	public Sound[] castSound;
@@ -494,6 +518,25 @@ public abstract class Item
 
 	public virtual void identify()
 	{
+		if (!identified)
+		{
+			identified = true;
+		}
+	}
+
+	public void setCursed(bool cursed)
+	{
+		if (cursed && !this.cursed)
+		{
+			this.cursed = true;
+			baseValue /= 2;
+			identified = false;
+		}
+		else if (!cursed && this.cursed)
+		{
+			this.cursed = false;
+			baseValue *= 2;
+		}
 	}
 
 	public bool addInfusion(Infusion infusion)
@@ -501,6 +544,7 @@ public abstract class Item
 		if (!infusions.Contains(infusion))
 		{
 			infusions.Add(infusion);
+			baseValue = (int)MathF.Round(baseValue * infusion.valueModifier);
 			return true;
 		}
 		return false;
@@ -686,7 +730,7 @@ public abstract class Item
 		InitType(new Rapier());
 		InitType(new Handaxe());
 		InitType(new Greataxe());
-		//InitType(new Amogus());
+		InitType(new Amogus());
 		//InitType(new GlassBottle());
 		InitType(new PalePotion());
 		InitType(new GreenPotion());
@@ -739,7 +783,7 @@ public abstract class Item
 		InitType(new RoundShield());
 		InitType(new Twinblades());
 		InitType(new AdventurersHood());
-		//InitType(new AK47());
+		InitType(new AK47());
 		InitType(new WizardsHood());
 		//InitType(new LostScroll());
 		//InitType(new LostSigil());
@@ -781,6 +825,8 @@ public abstract class Item
 		InitType(new RingOfGiants());
 		InitType(new RingOfAgility());
 		InitType(new ShadowStepRing());
+		InitType(new ScrollOfUncurse());
+		InitType(new Trash());
 
 		InitType(new MagicArrowSpellBook());
 		InitType(new LightningSpellBook());
@@ -899,9 +945,13 @@ public abstract class Item
 		if (newItem.type == ItemType.Potion)
 		{
 			Potion potion = newItem as Potion;
-			if (random.NextSingle() < 0.5f)
+			const float throwableChance = 0.5f;
+			if (random.NextSingle() < throwableChance)
 				potion.makeThrowable();
 		}
+
+		if (random.NextSingle() < newItem.cursedChance)
+			newItem.setCursed(true);
 
 		return newItem;
 

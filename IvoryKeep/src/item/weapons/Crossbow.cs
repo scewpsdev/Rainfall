@@ -19,8 +19,8 @@ public class Crossbow : Weapon
 	{
 		displayName = "Crossbow";
 
-		baseDamage = 4;
-		baseAttackRate = 1.0f;
+		baseDamage = 3.2f;
+		baseAttackRate = 0.7f;
 		baseAttackRange = 7; // arrow speed
 		knockback = 12.0f;
 		trigger = true;
@@ -32,6 +32,7 @@ public class Crossbow : Weapon
 
 		sprite = new Sprite(tileset, 12, 3);
 		renderOffset.x = 0.5f;
+		backRotation = 0.5f * MathF.PI;
 
 		useSound = Resource.GetSounds("sounds/crossbow", 6);
 		reloadSound = Resource.GetSound("sounds/crossbow_reload.ogg");

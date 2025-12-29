@@ -63,7 +63,7 @@ public class BossRoom : Entity
 
 	public void onPhaseTransition(int phase)
 	{
-		GameState.instance.setAmbientLayer(phase);
+		AudioManager.SetAmbientTrackLayer(phase);
 	}
 
 	public override void onLevelSwitch(Level newLevel)
@@ -81,7 +81,7 @@ public class BossRoom : Entity
 		gate0.close();
 		gate1.close();
 
-		GameState.instance.setAmbientLayer(0);
+		AudioManager.SetAmbientTrackLayer(-1);
 	}
 
 	void stopBossfight()
@@ -99,7 +99,7 @@ public class BossRoom : Entity
 			level.addEntity(chest, new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f + (i - 1) * 2.0f, gate0.position.y));
 		}
 
-		GameState.instance.setAmbientLayer(-1);
+		AudioManager.SetAmbientTrack(null, false);
 
 		foreach (WorldEventListener listener in GameState.instance.worldEventListeners)
 			listener.onBossKilled(boss);

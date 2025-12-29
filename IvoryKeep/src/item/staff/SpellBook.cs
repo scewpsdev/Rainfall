@@ -23,9 +23,11 @@ public abstract class SpellBook : Staff
 		baseValue = 14 + spell.getValue() / 2;
 
 		sprite = new Sprite(tileset, 1, 11);
-		renderOffset.x = 0.4f;
+		renderOffset.x = 0.25f;
 
 		intelligenceScaling = 0.05f;
+
+		cursedChance = 0.1f;
 	}
 
 	public override bool use(Player player)

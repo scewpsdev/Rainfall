@@ -23,17 +23,21 @@ public struct LeaderboardEntry
 
 public static class Leaderboards
 {
+	const string url = "DHK9cC8tiJ6Lx1wBv_pOSd14GxMkiZC8jAvnkbA2Jd8";
+	const string speedrunUrl = "IFwcyVt6KlAe6vts-yqc-lEk2Z4O9eHKmRdIqDuKUj0";
+
+
 	public static List<LeaderboardEntry> leaderboard = new List<LeaderboardEntry>();
 
 
 	public static void OnRunFinishedScore(RunStats run, SaveFile save)
 	{
-		SendLeaderboardRun(save.name, "DHK9cC8tiJ6Lx1wBv_pOSd14GxMkiZC8jAvnkbA2Jd8", run.score.ToString()); // Score leaderboard
+		_ = SendLeaderboardRun(save.name, url, run.score.ToString()); // Score leaderboard
 	}
 
 	public static void OnRunFinishedTime(RunStats run, SaveFile save)
 	{
-		SendLeaderboardRun(save.name, "IFwcyVt6KlAe6vts-yqc-lEk2Z4O9eHKmRdIqDuKUj0", (run.duration / 60).ToString()); // Speedrun leaderboard
+		_ = SendLeaderboardRun(save.name, speedrunUrl, (run.duration / 60).ToString()); // Speedrun leaderboard
 	}
 
 	async static Task SendLeaderboardRun(string name, string leaderboardToken, string score)

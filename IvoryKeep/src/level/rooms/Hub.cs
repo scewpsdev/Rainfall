@@ -154,14 +154,14 @@ public class Hub : Entity
 
 		level.addEntity(pedestalRoomEntrance = new Door(GameState.instance.hub2, null), level.getMarker(0x2));
 
-		return;
-
+		/*
 		for (int i = 0; i < elevators.Length; i++)
 		{
 			elevators[i] = new Elevator();
 			elevators[i].locked = true;
 			level.addEntity(elevators[i], (Vector2)room.getMarker(0x14 + (uint)i));
 		}
+		*/
 
 		{
 			BrokenWanderer npc = new BrokenWanderer(); // NPCManager.brokenWanderer;
@@ -170,26 +170,26 @@ public class Hub : Entity
 		}
 
 		{
-			blacksmith = new Blacksmith(); // NPCManager.blacksmith;
+			blacksmith = level.getEntity<Blacksmith>(); // NPCManager.blacksmith;
 			blacksmith.addShopItem(new Torch());
 			blacksmith.addShopItem(new Bomb(), 7);
 			blacksmith.addShopItem(new IronKey(), 8);
 			blacksmith.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
-			level.addEntity(blacksmith, level.rooms[0].getMarker(10) + new Vector2(-3, 0));
 		}
 
 		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
 		{
 			TravellingMerchant gatekeeper = new TravellingMerchant(null, level);
-			level.addEntity(gatekeeper, (Vector2)room.getMarker(17));
+			level.addEntity(gatekeeper, level.getEntity<CastleGate>().position + new Vector2(3, 0));
 		}
 	}
 
 	public override void render()
 	{
-		return;
-
-		Vector2 dungeonEntrancePosition = (Vector2)room.getMarker(0x0b);
+		base.render();
+		
+		/*
+		Vector2 dungeonEntrancePosition = (Vector2)room.getMarker(0xa);
 		int numSteps = 20;
 		float width = 1.2f;
 		float z = 0.15f;
@@ -212,5 +212,6 @@ public class Hub : Entity
 				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF767676);
 			}
 		}
+		*/
 	}
 }

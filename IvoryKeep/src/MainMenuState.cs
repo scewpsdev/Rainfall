@@ -33,7 +33,7 @@ public class MainMenuState : State
 
 	UIParticleEffect particles;
 
-	Sound mainMenuAmbience;
+	MultilayerTrack mainMenuAmbience;
 
 	long startTime = -1;
 
@@ -45,12 +45,13 @@ public class MainMenuState : State
 
 		particles = new UIParticleEffect(null, "effects/menu.rfs");
 
-		mainMenuAmbience = Resource.GetSound("sounds/ost/misc/menu.ogg");
+		mainMenuAmbience = new MultilayerTrack("sounds/ost/misc/menu", 0);
 	}
 
 	public override void onSwitchTo(State from)
 	{
 		startTime = Time.timestamp;
+		AudioManager.SetAmbientTrack(mainMenuAmbience, true);
 	}
 
 	void mainScreen()
@@ -152,6 +153,7 @@ public class MainMenuState : State
 			if (IvoryKeep.instance.saves[selection] != null)
 			{
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 				IvoryKeep.instance.pushState(new GameState(selection, null));
 			}
 			else
@@ -289,6 +291,7 @@ public class MainMenuState : State
 			if (InputManager.IsPressed("UIQuit", true) || InputManager.IsPressed("UIBack", true))
 			{
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 				Audio.PlayBackground(UISound.uiBack);
 			}
 		}
@@ -301,10 +304,12 @@ public class MainMenuState : State
 				IvoryKeep.instance.pushState(new GameState(saveCreateID, null, saveFileNameStr.ToString()));
 				saveCreateID = -1;
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 			}
 			if (InputManager.IsPressed("UIQuit", true))
 			{
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 				Audio.PlayBackground(UISound.uiBack);
 			}
 		}
@@ -316,10 +321,12 @@ public class MainMenuState : State
 			{
 				IvoryKeep.instance.pushState(new GameState(-1, customRunSeedStr.ToString(), true));
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 			}
 			if (InputManager.IsPressed("UIQuit", true))
 			{
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 				Audio.PlayBackground(UISound.uiBack);
 			}
 		}
@@ -332,6 +339,7 @@ public class MainMenuState : State
 			if (InputManager.IsPressed("UIBack", true) || InputManager.IsPressed("UIQuit", true))
 			{
 				screen = MainMenuScreen.Main;
+				currentButton = 0;
 				Audio.PlayBackground(UISound.uiBack);
 			}
 		}
@@ -356,7 +364,6 @@ public class MainMenuState : State
 	public override void update()
 	{
 		particles.update();
-		AudioManager.SetAmbience(mainMenuAmbience);
 	}
 
 	public override void draw(GraphicsDevice graphics)

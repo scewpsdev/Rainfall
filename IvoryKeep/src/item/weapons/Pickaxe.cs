@@ -24,6 +24,7 @@ public class Pickaxe : Weapon
 
 		sprite = new Sprite(tileset, 0, 1);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 	}
 
 	public override bool use(Player player)

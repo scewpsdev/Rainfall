@@ -29,6 +29,19 @@ public class RatNPCSave : NPCSaveData
 	}
 }
 
+public class WondrousCheese : Cheese
+{
+	public WondrousCheese()
+		: base()
+	{
+		name = "wondrous_cheese";
+		displayName = "Wondrous Cheese";
+		stackable = false;
+
+		baseValue *= 2;
+	}
+}
+
 public class RatNPC : NPC
 {
 	new RatNPCSave progression;
@@ -64,9 +77,7 @@ public class RatNPC : NPC
 			Yes, yes. That must be it. I'll give you one for free, good?
 			""")?.addCallback(() =>
 		{
-			Cheese wondrousCheese = new Cheese();
-			wondrousCheese.name = "wondrous_cheese";
-			wondrousCheese.displayName = "Wondrous Cheese";
+			WondrousCheese wondrousCheese = new WondrousCheese();
 			addShopItem(wondrousCheese, 0);
 
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_RAT_MET);
@@ -97,7 +108,7 @@ public class RatNPC : NPC
 				You did it! Here is your reward, as promised.
 				""").addCallback(() =>
 			{
-				GameState.instance.level.addEntity(new ItemEntity(new Cheese() { name = "wondrous_cheese", displayName = "Wondrous Cheese", stackable = false }), position + Vector2.Up);
+				GameState.instance.level.addEntity(new ItemEntity(new WondrousCheese()), position + Vector2.Up);
 				GameState.instance.save.unlockStartingClass(StartingClass.fool);
 				closeScreen();
 
@@ -114,7 +125,7 @@ public class RatNPC : NPC
 		if (level.floor != -1)
 		{
 			populateShop(GameState.instance.generator.random, 3, 5, 5, ItemType.Food);
-			addShopItem(new Cheese() { name = "wondrous_cheese", displayName = "Wondrous Cheese", stackable = false }, 0);
+			addShopItem(new WondrousCheese(), 0);
 		}
 	}
 }

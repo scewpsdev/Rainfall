@@ -14,7 +14,7 @@ public class Dagger : Weapon
 		displayName = "Dagger";
 
 		baseDamage = 0.8f;
-		baseAttackRange = 1.3f;
+		baseAttackRange = 1.1f;
 		baseAttackRate = 4;
 
 		projectileItem = true;
@@ -33,18 +33,14 @@ public class Dagger : Weapon
 
 		sprite = new Sprite(tileset, 8, 6);
 		renderOffset.x = 0.1f; // 0.2f;
+		weaponTipMargin = 2 / 16.0f;
 
 		useSound = weaponThrust;
 	}
 
 	public override bool useSecondary(Player player)
 	{
-		return base.useSecondary(player);
-		Vector2 direction = player.lookDirection.normalized; // (player.lookDirection.normalized + new Vector2(MathF.Sign(player.velocity.x), 0)).normalized;
-		if (Settings.game.aimMode == AimMode.Simple)
-			direction = (direction + Vector2.Up * 0.1f).normalized;
-		ItemEntity entity = player.throwItem(this, direction, 20);
-		entity.rotationVelocity = -MathF.PI * 5;
+		player.throwItem(this);
 		return true;
 	}
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public class Backpack : Item
 {
-	int bonusActiveSlots = 3;
+	Item[] itemSlots = new Item[3];
 	bool equipped = false;
 	int increaseStorageAmount = 0;
 
@@ -33,11 +33,11 @@ public class Backpack : Item
 	public override void upgrade()
 	{
 		base.upgrade();
-		bonusActiveSlots++;
+		Array.Resize(ref itemSlots, itemSlots.Length + 1);
 		if (equipped) increaseStorageAmount++;
 	}
 
-	void resizeStorage(Player player, int amount)
+	void resizePlayerHotbar(Player player, int amount)
 	{
 		if (amount < player.activeItems.Length)
 		{
@@ -45,7 +45,14 @@ public class Backpack : Item
 			{
 				Item item = player.activeItems[i];
 				if (item != null)
-					player.dropItem(item);
+				{
+					if (!player.removeItem(item))
+					{
+						player.items.Remove(item);
+						player.activeItems[ArrayUtils.IndexOf(player.activeItems, item)] = null;
+					}
+				}
+				itemSlots[i - amount] = item;
 			}
 		}
 		Item[] newStorage = new Item[amount];
@@ -55,13 +62,22 @@ public class Backpack : Item
 
 	public override void onEquip(Player player)
 	{
-		resizeStorage(player, player.activeItems.Length + bonusActiveSlots);
+		resizePlayerHotbar(player, player.activeItems.Length + itemSlots.Length);
+		for (int i = 0; i < itemSlots.Length; i++)
+		{
+			if (itemSlots[i] != null)
+			{
+				player.items.Add(itemSlots[i]);
+				player.activeItems[player.activeItems.Length - itemSlots.Length + i] = itemSlots[i];
+			}
+		}
+		Array.Fill(itemSlots, null);
 		equipped = true;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		resizeStorage(player, player.activeItems.Length - bonusActiveSlots);
+		resizePlayerHotbar(player, player.activeItems.Length - itemSlots.Length);
 		equipped = false;
 	}
 
@@ -74,7 +90,7 @@ public class Backpack : Item
 		{
 			if (increaseStorageAmount != 0)
 			{
-				resizeStorage(player, player.activeItems.Length + increaseStorageAmount);
+				resizePlayerHotbar(player, player.activeItems.Length + increaseStorageAmount);
 				increaseStorageAmount = 0;
 			}
 		}

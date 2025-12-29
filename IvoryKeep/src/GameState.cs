@@ -265,10 +265,9 @@ public class GameState : State
 		if (camera.level != null)
 			camera.level.removeEntity(camera);*/
 
-		//AudioManager.SetAmbience(null);
+		AudioManager.SetAmbience(null);
 
-		if (level != null && level.ambientTrack != null)
-			level.ambientTrack.stop();
+		//AudioManager.SetAmbientTrack(null, false);
 
 		hub?.destroy();
 		cliffside?.destroy();
@@ -318,24 +317,6 @@ public class GameState : State
 	{
 		lastFreezeTime = Time.timestamp;
 		freezeDuration = duration;
-	}
-
-	public void setAmbientLayer(int layer)
-	{
-		if (level.ambientTrack != null)
-		{
-			if (layer != -1)
-			{
-				if (!level.ambientTrack.running)
-					level.ambientTrack.start();
-
-				level.ambientTrack.setLayer(layer + (level.ambientTrackHasIdleLayer ? 1 : 0));
-			}
-			else
-			{
-				level.ambientTrack.stop();
-			}
-		}
 	}
 
 	public void switchLevel(Level newLevel, Vector2 spawnPosition)
@@ -488,16 +469,7 @@ public class GameState : State
 					run.areaName = newLevel.displayName;
 			}
 
-			if (level == null || newLevel.ambientTrack != level.ambientTrack)
-			{
-				if (level != null && level.ambientTrack != null)
-					level.ambientTrack.stop();
-				if (newLevel.ambientTrack != null && newLevel.ambientTrackHasIdleLayer)
-				{
-					newLevel.ambientTrack.start();
-					newLevel.ambientTrack.setLayer(0);
-				}
-			}
+			AudioManager.SetAmbientTrack(newLevel.ambientTrack, newLevel.ambientTrackHasIdleLayer);
 
 			level = newLevel;
 			newLevel = null;
@@ -507,7 +479,7 @@ public class GameState : State
 			AudioManager.SetAmbience(level.ambientSound);
 		}
 
-		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= GAME_OVER_SCREEN_DELAY))
+		if (!isPaused && !onscreenPrompt && newLevel == null && !(run.endedTime != -1 && (Time.currentTime - run.endedTime) / 1e9f >= 2 * GAME_OVER_SCREEN_DELAY))
 		{
 			if (!freeze)
 			{

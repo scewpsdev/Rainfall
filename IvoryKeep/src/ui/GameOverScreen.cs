@@ -177,6 +177,10 @@ public static class GameOverScreen
 
 		int padding = 8;
 
+		Player player = GameState.instance.player;
+		player.animator.setAnimation("idle");
+		player.animator.update(player.sprite);
+
 		int playerViewSize = 32;
 		PlayerThumbnail.Render(x + width / 4 - playerViewSize / 2, y + padding, playerViewSize, playerViewSize);
 

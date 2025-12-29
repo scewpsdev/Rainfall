@@ -31,10 +31,4 @@ public class BrokenSword : Weapon
 		//ingameSprite = new Sprite("sprites/items/weapon/broken_sword.png", 0, 0, 32, 32);
 		//ingameSpriteSize = 2;
 	}
-
-	public override bool useSecondary(Player player)
-	{
-		player.throwItem(this);
-		return true;
-	}
 }

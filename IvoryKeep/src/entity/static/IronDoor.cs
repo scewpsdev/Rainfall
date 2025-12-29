@@ -69,17 +69,27 @@ public class IronDoor : Entity, Interactable, Hittable
 					}
 					else if (lockpick != null)
 					{
-						float succeedChance = 0.7f;
+						const float succeedChance = 0.4f;
 						if (Random.Shared.NextSingle() < succeedChance)
 						{
 							setOpen(true);
+							player.removeItemSingle(lockpick);
 							player.hud.showMessage("Picked lock successfully");
 						}
 						else
 						{
-							player.hud.showMessage("The lockpick breaks");
+							const float breakChance = 0.7f;
+							if (Random.Shared.NextSingle() < breakChance)
+							{
+								player.removeItemSingle(lockpick);
+								player.hud.showMessage("The lockpick breaks.");
+								Audio.PlayOrganic(Item.weaponHit, new Vector3(position, 0));
+							}
+							else
+							{
+								Audio.PlayOrganic(lockedSound, new Vector3(position, 0));
+							}
 						}
-						player.removeItem(lockpick);
 					}
 
 					this.key = null;

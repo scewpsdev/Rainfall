@@ -22,6 +22,7 @@ public enum NPCState
 	InfuseMenu,
 	AttuneMenu,
 	IdentifyMenu,
+	UncurseMenu,
 	QuestList,
 }
 
@@ -147,6 +148,7 @@ public abstract class NPC : Mob, Interactable
 	protected bool canInfuse = false;
 	//protected bool canAttune = false;
 	protected bool canIdentify = false;
+	protected bool canUncurse = false;
 	public float voicePitch = 1.0f;
 	public int voicePitchVariation = 2;
 
@@ -177,6 +179,9 @@ public abstract class NPC : Mob, Interactable
 
 	List<Item> identifyItems = new List<Item>();
 	List<int> identifyPrices = new List<int>();
+
+	List<Item> uncurseItems = new List<Item>();
+	List<int> uncursePrices = new List<int>();
 
 	Sound[] tradeSound;
 	Sound upgradeSound;
@@ -370,7 +375,7 @@ public abstract class NPC : Mob, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || progression.initialDialogue != null || progression.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0) || (canInfuse && player.items.Count > 0) || (canIdentify && player.items.Count > 0))  /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || progression.initialDialogue != null || progression.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0) || (canInfuse && player.items.Count > 0) || (canIdentify && player.items.Count > 0) || (canUncurse && player.items.Count > 0))  /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
 	}
 
 	public float getRange()
@@ -486,7 +491,8 @@ public abstract class NPC : Mob, Interactable
 		infusePrice = -1;
 		for (int i = 0; i < player.items.Count; i++)
 		{
-			if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor)
+			bool infusable = player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor;
+			if (infusable && player.items[i].infusions.Count == 0)
 			{
 				infuseItems.Add(player.items[i]);
 				infusePrices.Add(player.items[i].getValue() * 2);
@@ -524,6 +530,22 @@ public abstract class NPC : Mob, Interactable
 			{
 				identifyItems.Add(player.items[i]);
 				identifyPrices.Add((int)MathF.Ceiling(player.items[i].getValue() * 0.25f));
+			}
+		}
+	}
+
+	void initUncurseMenu()
+	{
+		state = NPCState.UncurseMenu;
+		selectedItem = 0;
+		uncurseItems.Clear();
+		uncursePrices.Clear();
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].cursed)
+			{
+				uncurseItems.Add(player.items[i]);
+				uncursePrices.Add((int)MathF.Ceiling(player.items[i].getValue() * 0.3f));
 			}
 		}
 	}
@@ -751,7 +773,8 @@ public abstract class NPC : Mob, Interactable
 				bool hasInfusable = false;
 				for (int i = 0; i < player.items.Count; i++)
 				{
-					if (player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor)
+					bool infusable = player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor;
+					if (infusable && player.items[i].infusions.Count == 0)
 					{
 						hasInfusable = true;
 						break;
@@ -764,6 +787,8 @@ public abstract class NPC : Mob, Interactable
 			//	options.Add("Attune");
 			if (canIdentify && player.items.Count > 0)
 				options.Add("Identify");
+			if (canUncurse && player.items.Count > 0)
+				options.Add("Remove Curse");
 			if (progression.dialogues.Count > 0)
 				options.Add("Talk");
 			if (QuestManager.getQuestList(name, out _))
@@ -801,6 +826,10 @@ public abstract class NPC : Mob, Interactable
 				else if (options[option] == "Identify")
 				{
 					initIdentifyMenu();
+				}
+				else if (options[option] == "Remove Curse")
+				{
+					initUncurseMenu();
 				}
 				else if (options[option] == "Talk")
 				{
@@ -900,14 +929,20 @@ public abstract class NPC : Mob, Interactable
 				}
 				else
 				{
-					GameState.instance.player.removeItem(item);
-					addShopItem(item);
-					GameState.instance.player.money += price * item.stackSize;
+					if (GameState.instance.player.removeItem(item))
+					{
+						addShopItem(item);
+						GameState.instance.player.money += price * item.stackSize;
 
-					if (selectedItem == player.items.Count)
-						selectedItem--;
-					if (player.items.Count == 0)
-						initMenu();
+						if (selectedItem == player.items.Count)
+							selectedItem--;
+						if (player.items.Count == 0)
+							initMenu();
+					}
+					else
+					{
+						GameState.instance.player.hud.showMessage("The item cannot be sold.");
+					}
 				}
 
 				Audio.Play(tradeSound, new Vector3(position, 0));
@@ -1154,6 +1189,28 @@ public abstract class NPC : Mob, Interactable
 					Audio.Play(Item.lightEquip, new Vector3(position, 0));
 					identifyItems.RemoveAt(choice);
 					identifyPrices.RemoveAt(choice);
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.UncurseMenu)
+		{
+			int choice = ItemSelector.Render(menuAnchor, "Remove Curse", uncurseItems, uncursePrices, player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				if (uncursePrices[selectedItem] <= player.money)
+				{
+					Item item = uncurseItems[choice];
+					Debug.Assert(item.cursed);
+					item.setCursed(false);
+					player.money -= uncursePrices[choice];
+					Audio.Play(Item.heal, new Vector3(position, 0));
+					uncurseItems.RemoveAt(choice);
+					uncursePrices.RemoveAt(choice);
+
+					player.hud.showMessage($"Removed curse from " + item.displayName);
 				}
 			}
 

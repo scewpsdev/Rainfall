@@ -18,12 +18,12 @@
 
 static void ConstructBoundingInfo(MeshData& mesh, aiMesh* aimesh)
 {
-	mesh.boundingBox.x0 = INFINITY;
-	mesh.boundingBox.y0 = INFINITY;
-	mesh.boundingBox.z0 = INFINITY;
-	mesh.boundingBox.x1 = -INFINITY;
-	mesh.boundingBox.y1 = -INFINITY;
-	mesh.boundingBox.z1 = -INFINITY;
+	mesh.boundingBox.x0 = FLT_MAX;
+	mesh.boundingBox.y0 = FLT_MAX;
+	mesh.boundingBox.z0 = FLT_MAX;
+	mesh.boundingBox.x1 = -FLT_MAX;
+	mesh.boundingBox.y1 = -FLT_MAX;
+	mesh.boundingBox.z1 = -FLT_MAX;
 
 	for (int i = 0; i < (int)aimesh->mNumVertices; i++)
 	{
@@ -87,12 +87,12 @@ static aiMatrix4x4 GetMeshTransform(SceneData& scene, const aiScene* aiscene, in
 
 static void ConstructSceneBoundingInfo(SceneData& scene, const aiScene* aiscene)
 {
-	scene.boundingBox.x0 = INFINITY;
-	scene.boundingBox.y0 = INFINITY;
-	scene.boundingBox.z0 = INFINITY;
-	scene.boundingBox.x1 = -INFINITY;
-	scene.boundingBox.y1 = -INFINITY;
-	scene.boundingBox.z1 = -INFINITY;
+	scene.boundingBox.x0 = FLT_MAX;
+	scene.boundingBox.y0 = FLT_MAX;
+	scene.boundingBox.z0 = FLT_MAX;
+	scene.boundingBox.x1 = -FLT_MAX;
+	scene.boundingBox.y1 = -FLT_MAX;
+	scene.boundingBox.z1 = -FLT_MAX;
 
 	for (int i = 0; i < scene.numMeshes; i++)
 	{
@@ -257,7 +257,7 @@ static void ProcessMesh(MeshData& mesh, aiMesh* aimesh, int skeletonID)
 
 	for (int i = 0; i < (int)aimesh->mNumFaces; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (uint32_t j = 0; j < 3; j++)
 		{
 			if (j < aimesh->mFaces[i].mNumIndices)
 				mesh.indexData[i * 3 + j] = aimesh->mFaces[i].mIndices[j];
@@ -327,7 +327,7 @@ static int GetMetadataSize(aiMetadataEntry* metadata)
 
 static void PrintMetadata(aiMetadata* data)
 {
-	for (int i = 0; i < data->mNumProperties; i++)
+	for (uint32_t i = 0; i < data->mNumProperties; i++)
 	{
 		aiString* key = &data->mKeys[i];
 		aiMetadataEntry* value = &data->mValues[i];
@@ -373,7 +373,7 @@ static void ProcessNode(NodeData& node, SceneData& scene, aiNode* ainode, int& i
 	{
 		node.properties = new CustomProperty[ainode->mMetaData->mNumProperties];
 		memset(node.properties, 0, ainode->mMetaData->mNumProperties * sizeof(CustomProperty));
-		for (int i = 0; i < ainode->mMetaData->mNumProperties; i++)
+		for (uint32_t i = 0; i < ainode->mMetaData->mNumProperties; i++)
 		{
 			aiString* key = &ainode->mMetaData->mKeys[i];
 			aiMetadataEntry* value = &ainode->mMetaData->mValues[i];

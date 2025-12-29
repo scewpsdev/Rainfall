@@ -20,6 +20,9 @@ public class TravellingMerchant : NPC
 		animator.addAnimation("idle", 2, 1, true);
 		animator.setAnimation("idle");
 
+		voicePitch = 0;
+		canUncurse = true;
+
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
 		{
 			progression.initialDialogue = new Dialogue();

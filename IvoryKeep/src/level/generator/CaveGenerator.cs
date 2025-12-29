@@ -146,7 +146,7 @@ public class CaveGenerator : LevelGenerator
 		if (type == 1) return new CavesSpecialRoom2(room, this);
 		if (type == 2) return new CavesSpecialRoom3(room, this);
 		if (type == 3) return new CavesPlatformingRoom1(room, this);
-		if (type == 4) return new PrisonCellRoom(room, this);
+		if (type == 4) return !GameState.instance.save.areAllStartingClassesUnlocked() ? new PrisonCellRoom(room, this) : new CavesSpecialRoom1(room, this);
 		return null;
 	}
 
@@ -155,8 +155,8 @@ public class CaveGenerator : LevelGenerator
 		return DropRates.cavesDroprates;
 	}
 
-    public override int getNumItems(int floor)
-    {
+	public override int getNumItems(int floor)
+	{
 		return Mathf.RollDice(2, 2, random);
 	}
 

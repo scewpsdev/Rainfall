@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 public class Parachute : Item
 {
-	float activateSpeed = -15;
-	float fallSpeed = -5;
+	//float activateSpeed = -15;
+	float fallSpeed = -2.5f;
 
 	bool active = false;
 	float rotation = 0;
@@ -41,11 +41,15 @@ public class Parachute : Item
 
 			if (!active && player.fallDistance >= Player.FALL_STUN_DISTANCE && player.velocity.y <= Player.MAX_FALL_SPEED)
 				active = true;
+			if (InputManager.IsPressed("Jump", true) && !player.isGrounded && player.velocity.y < 0)
+				active = true;
 
 			if (active)
 			{
 				player.velocity.y = MathF.Max(player.velocity.y, fallSpeed);
 				if (player.isGrounded || player.velocity.y > 0)
+					active = false;
+				if (InputManager.IsReleased("Jump", true))
 					active = false;
 			}
 		}

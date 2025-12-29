@@ -82,8 +82,9 @@ public static class CharacterInfoPanel
 				bool hovered = Renderer.IsHovered(x, y, width, Renderer.smallFont.size);
 				if (hovered)
 					selectedLevelStat = idx;
-				//if (selectedLevelStat == idx)
-				if (false)
+
+				/*
+				if (selectedLevelStat == idx)
 				{
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
 					float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
@@ -96,6 +97,7 @@ public static class CharacterInfoPanel
 						Audio.PlayBackground(UISound.uiSwitch);
 					}
 				}
+				*/
 			}
 
 			drawLeft(name, color);
@@ -117,7 +119,7 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size;
 
 		drawLeft("Equip Load", UIColors.TEXT_SPEED);
-		drawRightValueCompare(player.getTotalEquipLoad(), 10, UIColors.TEXT);
+		drawRightValueCompare(player.getTotalEquipLoad(), player.maxEquipLoad, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Armor", UIColors.TEXT_ARMOR);

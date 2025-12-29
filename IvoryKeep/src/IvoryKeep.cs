@@ -83,7 +83,7 @@ public class IvoryKeep : Game
 		pushState(new SplashScreenState());
 #endif
 
-		Leaderboards.FetchLeaderboardData();
+		_ = Leaderboards.FetchLeaderboardData();
 	}
 
 	public override void destroy()

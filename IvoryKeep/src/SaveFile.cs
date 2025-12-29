@@ -101,6 +101,16 @@ public class SaveFile
 		return hasFlag(Hash.hash(startingClass.name));
 	}
 
+	public bool areAllStartingClassesUnlocked()
+	{
+		for (int i = 0; i < StartingClass.startingClasses.Length; i++)
+		{
+			if (!isStartingClassUnlocked(StartingClass.startingClasses[i]))
+				return false;
+		}
+		return true;
+	}
+
 	public void unlockAll()
 	{
 		setFlag(FLAG_TUTORIAL_FINISHED);

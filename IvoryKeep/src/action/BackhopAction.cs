@@ -41,9 +41,8 @@ public class BackhopAction : EntityAction
 
 	public override void update(Player player)
 	{
-		if (elapsedTime + Time.deltaTime * animationSpeed >= windupTime && !hopStarted && InputManager.IsDown("Sprint"))
-			;
-		else
+		bool hopPaused = elapsedTime + Time.deltaTime * animationSpeed >= windupTime && !hopStarted && InputManager.IsDown("Sprint");
+		if (!hopPaused)
 			elapsedTime += Time.deltaTime * animationSpeed;
 
 		if (elapsedTime < windupTime)

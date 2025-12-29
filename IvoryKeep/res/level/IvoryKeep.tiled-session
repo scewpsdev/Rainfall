@@ -15,11 +15,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2,
-            "selectedLayer": 0,
+            "scale": 3,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 286.75,
-                "y": 220.75
+                "x": 321.5,
+                "y": 185.16666666666669
             }
         },
         "rooms/hub2.tmx": {
@@ -165,8 +165,8 @@
             "scale": 2.7015625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 160.09253903990748,
-                "y": 62.371312897628684
+                "x": 96.05552342394446,
+                "y": 40.16194331983806
             }
         },
         "rooms/level1/special2.tmx": {

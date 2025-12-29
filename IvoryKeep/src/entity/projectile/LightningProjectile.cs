@@ -21,6 +21,7 @@ public class LightningProjectile : Entity
 	Item spell;
 
 	Texture lightning;
+	Sprite sprite;
 	Sprite trail, trailFade;
 
 	bool active = true;
@@ -53,6 +54,7 @@ public class LightningProjectile : Entity
 		damage = spell.baseDamage * staff.getAttackDamage(player) * player.getMagicDamageModifier();
 		maxRange = spell.attackRange * player.getProjectileRangeModifier();
 
+		sprite = new Sprite(Item.tileset, 9, 2);
 		lightning = Resource.GetTexture("sprites/lightning.png", false);
 		trail = new Sprite(new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16), 2, 0);
 		trailFade = new Sprite(new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16), 3, 0);
@@ -147,8 +149,8 @@ public class LightningProjectile : Entity
 
 	public override void render()
 	{
-		//if (active)
-		//	Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
+		if (active)
+			Renderer.DrawSprite(position.x - 0.5f + offset.x, position.y - 0.5f + offset.y, 0, 1, 1, rotation, sprite, false, new Vector4(3.0f));
 
 		for (int i = 0; i < cornerPoints.Count; i++)
 		{

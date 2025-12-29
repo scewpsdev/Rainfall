@@ -602,6 +602,4 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		get => health > 0;
 	}
-
-	public Vector2 center => position + collider.center;
 }

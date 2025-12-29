@@ -18,7 +18,7 @@ public class ScrollOfIdentify : Item
 		baseValue = 7;
 
 		sprite = new Sprite(tileset, 4, 10);
-		spellIcon = new Sprite(tileset, 11, 2);
+		//spellIcon = new Sprite(tileset, 11, 2);
 	}
 
 	public override bool use(Player player)

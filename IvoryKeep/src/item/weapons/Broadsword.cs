@@ -28,6 +28,7 @@ public class Broadsword : Weapon
 
 		sprite = new Sprite(tileset, 11, 10);
 		renderOffset.x = 0.2f;
+		weaponTipMargin = 1 / 16.0f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/shortsword.png", false), 0, 0, 32, 32);
 		//ingameSpriteSize = 2;
 		//ingameSpriteLayer = Entity.LAYER_PLAYER_ITEM_SECONDARY;

@@ -84,7 +84,6 @@ public abstract class Potion : Item
 	PotionEffectType effect;
 	public List<PotionEffect> effects = new List<PotionEffect>();
 	public bool throwable = false;
-	bool randomized = false;
 	uint potionColor = 0xFFFF00FF;
 
 	public float spillRadius = 1.5f;
@@ -206,7 +205,7 @@ public abstract class Potion : Item
 					player.hud.showMessage("Everything around you starts spinning.");
 				break;
 			case PotionEffectType.Lucky:
-				//player.luck *= 2;
+				player.luck *= 2;
 				if (player != null)
 					player.hud.showMessage("You feel like luck is on your side.");
 				break;
@@ -219,7 +218,6 @@ public abstract class Potion : Item
 		{
 			baseValue++;
 			name = "throwable_" + name;
-			displayName = "Throwable " + displayName;
 			projectileItem = true;
 			projectileSpins = true;
 			breakOnWallHit = true;

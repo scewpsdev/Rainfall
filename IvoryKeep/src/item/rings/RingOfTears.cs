@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class RingOfTears : Item
 {
-	float dmgBuff = 0.5f;
+	float dmgBuff = 8; //0.5f;
 
 
 	public RingOfTears()
@@ -35,14 +35,13 @@ public class RingOfTears : Item
 			buff.active = player.health <= 1.1f;
 		}
 
-		buff.criticalChanceModifier = 8;
+		buff.criticalChanceModifier = dmgBuff;
 		//buff.meleeDamageModifier = 1 + dmgBuff;
 	}
 
 	public override void upgrade()
 	{
 		base.upgrade();
-		buff.criticalChanceModifier += 4;
-		//dmgBuff += 0.1f;
+		dmgBuff += 4;
 	}
 }

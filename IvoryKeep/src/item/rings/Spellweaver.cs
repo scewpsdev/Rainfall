@@ -13,7 +13,6 @@ public class Spellweaver : Item
 	{
 		displayName = "Spellweaver";
 		description = "Reduces spell mana cost by 20%";
-		stackable = true;
 		tumbles = false;
 
 		baseValue = 27;

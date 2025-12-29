@@ -63,9 +63,6 @@ public class GolemBoss : Mob
 		Sound landSound = Resource.GetSound("sounds/land.ogg");
 
 
-		const float jumpSpeed = 1.5f;
-
-
 		{
 			const float slamCharge = 1.2f;
 			const float slamCooldown = 1.0f;

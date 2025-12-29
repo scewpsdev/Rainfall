@@ -44,8 +44,8 @@ public class InventoryUI
 
 	Player player;
 
-	int currentItemTab = 0;
-	int selectedItemIdx = 0;
+	//int currentItemTab = 0;
+	//int selectedItemIdx = 0;
 	Vector2i selectedCell = Vector2i.Zero;
 	int sidePanelHeight = 40;
 	int inventoryHeight = 120;
@@ -62,7 +62,7 @@ public class InventoryUI
 		player.inventoryOpen = true;
 		player.numOverlaysOpen++;
 		selectedCell = new Vector2i(0, 0);
-		currentItemTab = 0;
+		//currentItemTab = 0;
 		CharacterInfoPanel.OnOpen();
 	}
 
@@ -760,8 +760,18 @@ public class InventoryUI
 				if (InputManager.IsPressed("UIConfirm2", true) || Input.IsMouseButtonPressed(MouseButton.Right, true))
 				//if (choice != -1 && secondary)
 				{
-					player.throwItem(selected, true);
-					player.removeItem(selected);
+					if (player.removeItem(selected))
+						player.throwItem(selected, true);
+					else
+						player.hud.showMessage("The item cannot be dropped.");
+				}
+
+				if (InputManager.IsPressed("UIConfirm3", true))
+				{
+					if (selected == player.handItem || selected == player.offhandItem)
+					{
+						Mathf.Swap(ref player.handItem, ref player.offhandItem);
+					}
 				}
 			}
 
@@ -827,8 +837,7 @@ public class InventoryUI
 		}
 
 		// Minimap
-		//if (player.inventoryOpen)
-		if (false)
+		if (player.inventoryOpen && player.collectedMaps.Contains(player.level))
 		{
 			int width = 64;
 			int height = 48;

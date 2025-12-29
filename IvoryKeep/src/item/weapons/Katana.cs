@@ -30,7 +30,8 @@ public class Katana : Weapon
 		sprite = new Sprite(tileset, 8, 10, 2, 1);
 		icon = new Sprite(tileset, 8.25f, 10);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.0f;
+		renderOffset.x = 0.35f;
+		weaponTipMargin = 6 / 16.0f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
 	}
 

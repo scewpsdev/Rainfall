@@ -92,11 +92,11 @@ static bool CompileTexture(const char* path, const char* out, TextureType type)
 		image->m_depth *= (image->m_width / image->m_height);
 		image->m_width = image->m_height;
 		rgb8_t* data = (rgb8_t*)image->m_data;
-		for (int z = 0; z < image->m_depth; z++)
+		for (uint32_t z = 0; z < image->m_depth; z++)
 		{
-			for (int y = 0; y < z; y++)
+			for (uint32_t y = 0; y < z; y++)
 			{
-				for (int x = 0; x < image->m_width; x++)
+				for (uint32_t x = 0; x < image->m_width; x++)
 				{
 					rgb8_t& pixel0 = data[x + z * image->m_width + y * image->m_width * image->m_height];
 					rgb8_t& pixel1 = data[x + y * image->m_width + z * image->m_width * image->m_height];

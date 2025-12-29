@@ -33,6 +33,7 @@ public class Spear : Weapon
 		sprite = new Sprite(tileset, 6, 1, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 
 		useSound = weaponThrust;
 	}

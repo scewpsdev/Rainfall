@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,9 @@ public static class AudioManager
 {
 	public static Sound ambience { get; private set; }
 	static uint ambienceSource;
+
+	static MultilayerTrack ambientTrack;
+	static bool ambientHasIdle;
 
 
 	public static void SetAmbience(Sound ambience)
@@ -29,5 +33,29 @@ public static class AudioManager
 			}
 			AudioManager.ambience = ambience;
 		}
+	}
+
+	public static void SetAmbientTrack(MultilayerTrack track, bool hasIdleLayer)
+	{
+		if (ambientTrack != track)
+		{
+			if (ambientTrack != null)
+				ambientTrack.stop();
+
+			if (track != null && hasIdleLayer)
+			{
+				track.start();
+				track.setLayer(0);
+			}
+
+			ambientTrack = track;
+			ambientHasIdle = hasIdleLayer;
+		}
+	}
+
+	public static void SetAmbientTrackLayer(int layer)
+	{
+		Debug.Assert(ambientTrack != null);
+		ambientTrack.setLayer(layer + (ambientHasIdle ? 1 : 0));
 	}
 }

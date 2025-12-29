@@ -13,7 +13,7 @@ public class Lockpick : Item
 	{
 		displayName = "Lockpick";
 
-		baseValue = 4;
+		baseValue = 7;
 		stackable = false;
 		//isActiveItem = false;
 

@@ -23,6 +23,8 @@ public class Bow : Weapon
 
 		useSound = [Resource.GetSound("sounds/bow_draw.ogg")];
 		hitSound = woodHit;
+
+		backRotation = 0.75f * MathF.PI;
 	}
 
 	public override bool use(Player player)

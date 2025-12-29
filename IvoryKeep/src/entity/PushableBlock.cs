@@ -124,6 +124,5 @@ public class PushableBlock : Entity, Hittable
 				breakBlock();
 			return true;
 		}
-		return false;
 	}
 }

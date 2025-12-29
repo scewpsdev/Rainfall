@@ -130,8 +130,7 @@ public class Fountain : Entity, Interactable
 
 	public bool canInteract(Player player)
 	{
-		//return !consumed;
-		return true;
+		return effect != FountainEffect.None || potionEffects.Count > 0;
 	}
 
 	public void interact(Player player)
@@ -145,7 +144,9 @@ public class Fountain : Entity, Interactable
 			player.removeItem(player.handItem);
 
 			foreach (Item item in Item.CreateRandom(Random.Shared, DropRates.cavesDroprates, level.avgLootValue))
-				player.dropItem(item);
+			{
+				level.addEntity(new ItemEntity(item), player.center);
+			}
 		}
 		else
 		{
