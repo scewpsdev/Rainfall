@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ public static class UIColors
 	public const uint TEXT_SPEED = 0xFF6c8c50;
 	public const uint TEXT_ARMOR = 0xFF7582ae;
 	public const uint TEXT_MONEY = 0xFFf4d16b;
+	public const uint TEXT_CURSED = 0xFFa44fd5;
 
 	public const uint TEXT_RARITY_GARBAGE = 0xFFBBCDCD;
 	public const uint TEXT_RARITY_COMMON = 0xFFFFFFFF;
@@ -33,4 +35,15 @@ public static class UIColors
 	public const uint TEXT_RARITY_RARE = 0xFF6373E3;
 	public const uint TEXT_RARITY_EXCEEDINGLY_RARE = 0xFF923EE1;
 	public const uint TEXT_RARITY_LEGENDARY = 0xFFEBA462;
+
+
+	public static string BeginFormatColor(uint color)
+	{
+		return "\\x0x" + color.ToString("X") + "\\";
+	}
+
+	public static string EndFormatColor()
+	{
+		return "\\x0\\";
+	}
 }

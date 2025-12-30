@@ -28,6 +28,7 @@ public class AstralScepter : Staff
 		sprite = new Sprite(tileset, 5, 7, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
+		backRotation = 0.5f * MathF.PI;
 
 		castSound = Resource.GetSounds("sounds/cast", 3);
 	}

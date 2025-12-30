@@ -20,6 +20,7 @@ public class HealingSpell : Spell
 		manaCost = 2;
 		trigger = false;
 		upgradable = false;
+		needsCharging = true;
 
 		spellIcon = new Sprite(tileset, 4, 8);
 

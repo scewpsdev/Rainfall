@@ -19,7 +19,7 @@ public class BossRoom : Entity
 	EventTrigger activateTrigger;
 
 	protected MultilayerTrack track;
-	protected bool trackHasRoomLayer;
+	protected bool trackHasIdleLayer;
 
 
 	public BossRoom(Room room, int area)
@@ -31,7 +31,7 @@ public class BossRoom : Entity
 	public override void init(Level level)
 	{
 		level.ambientTrack = track;
-		level.ambientTrackHasIdleLayer = trackHasRoomLayer;
+		level.ambientTrackHasIdleLayer = trackHasIdleLayer;
 
 		boss.isBoss = true;
 		boss.itemDrops.Add(new IronKey());
@@ -81,7 +81,7 @@ public class BossRoom : Entity
 		gate0.close();
 		gate1.close();
 
-		AudioManager.SetAmbientTrackLayer(-1);
+		AudioManager.SetAmbientTrackLayer(0);
 	}
 
 	void stopBossfight()

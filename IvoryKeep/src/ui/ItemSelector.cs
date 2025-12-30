@@ -52,7 +52,7 @@ public static class ItemSelector
 		closed = false;
 
 		int shopWidth = Math.Min(Math.Max(60, 1 + lineHeight + 5 + longestLineWidth + 1), width);
-		int shopHeight = Math.Min(items.Count, maxItems) * lineHeight;
+		int shopHeight = Math.Max(Math.Min(items.Count, maxItems), 1) * lineHeight;
 
 		float top = y;
 

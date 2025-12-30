@@ -12,6 +12,7 @@ public class DarkCloak : Item
 		: base("dark_cloak", ItemType.Armor)
 	{
 		displayName = "Dark Cloak";
+		description = "-10% visibility";
 
 		baseArmor = 1;
 		armorSlot = ArmorSlot.Body;
@@ -24,5 +25,7 @@ public class DarkCloak : Item
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/cloak.png", false), 0, 0, 32, 32);
 		ingameSpriteColor = 0xFF443c56; // 0xFF2e2739;
 		ingameSpriteCoversArms = true;
+
+		buff = new ItemBuff(this) { visibilityModifier = 0.9f };
 	}
 }

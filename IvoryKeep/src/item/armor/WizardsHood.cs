@@ -12,6 +12,7 @@ public class WizardsHood : Item
 		: base("wizards_hood", ItemType.Armor)
 	{
 		displayName = "Wizard's Hood";
+		description = "+10% mana recovery";
 
 		baseArmor = 0.5f;
 		armorSlot = ArmorSlot.Helmet;

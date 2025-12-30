@@ -15,7 +15,7 @@ public class BlademastersRing : Item
 		//description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two light weapons effortlessly.";
 		description = "An ornate ring once worn by a legendary duelist. Allows it's bearer to wield two weapons.";
 
-		baseValue = 35;
+		baseValue = 25;
 
 		sprite = new Sprite(tileset, 2, 10);
 	}

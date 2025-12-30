@@ -34,6 +34,7 @@ public class ItemBuff
 	public float attackSpeedModifier = 1.0f;
 	public float manaCostModifier = 1.0f;
 	public float manaRecoveryModifier = 1.0f;
+	public float visibilityModifier = 1.0f;
 	public float stealthAttackModifier = 1.0f;
 	public float defenseModifier = 1.0f;
 	public float accuracyModifier = 1.0f;

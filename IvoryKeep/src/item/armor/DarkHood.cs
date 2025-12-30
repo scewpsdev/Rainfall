@@ -12,6 +12,7 @@ public class DarkHood : Item
 		: base("dark_hood", ItemType.Armor)
 	{
 		displayName = "Dark Hood";
+		description = "-10% visibility";
 
 		baseArmor = 0.5f;
 		armorSlot = ArmorSlot.Helmet;
@@ -23,5 +24,7 @@ public class DarkHood : Item
 		spriteColor = 0xFF443c56; // 0xFF2e2739;
 		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/hood.png", false), 0, 0, 32, 32);
 		ingameSpriteColor = 0xFF443c56; // 0xFF2e2739;
+
+		buff = new ItemBuff(this) { visibilityModifier = 0.9f };
 	}
 }

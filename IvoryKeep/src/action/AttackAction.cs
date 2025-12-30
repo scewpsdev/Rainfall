@@ -297,7 +297,8 @@ public class AttackAction : EntityAction
 		if (inDamageWindow)
 			player.direction = charDirection;
 		//speedMultiplier = player.isGrounded ? (currentProgress < 1 ? 0 : 0.5f) : 1;
-		speedMultiplier = player.isGrounded && currentProgress < 1 && player.attackSlowdown ? 0.25f : 1;
+		bool slowdownWindow = elapsedTime / duration > 0.75f / (1 + attackCooldown) && elapsedTime / duration < (1.0f + 0.5f * attackCooldown) / (1 + attackCooldown);
+		speedMultiplier = player.isGrounded && slowdownWindow && player.attackSlowdown ? 0.25f : 1;
 
 		//float actionMovementDst = Mathf.Smoothstep(0, 1, currentProgress) / weapon.attackRate;
 		//actionMovement = currentProgress < 1 && player.isGrounded ? player.direction * (actionMovementDst - lastActionMovement) / Time.deltaTime : 0;

@@ -94,7 +94,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public bool isStunned = false;
 	public bool isVisible = true;
 
-	public float visibility { get => (isVisible ? 1 : 0.25f) * Mathf.Lerp(0.2f, 1.0f, level.lightLevel / 5.0f) * (isDucked ? 0.5f : 1.0f); }
+	public float visibility { get => (isVisible ? 1 : 0.25f) * Mathf.Lerp(0.2f, 1.0f, level.lightLevel / 5.0f) * (isDucked ? 0.5f : 1.0f) * getVisibilityModifier(); }
 
 	Sprite stunnedIcon;
 	MobCorpse corpse;
@@ -112,6 +112,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	long lastGrounded = -10000000000;
 	long lastWallTouchRight = -10000000000;
 	long lastWallTouchLeft = -10000000000;
+	long wallTouchStart;
 
 	public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
@@ -573,6 +574,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			return false;
 		}
 
+		for (int i = 0; i < items.Count; i++)
+		{
+			items[i].onItemPickUp(this, item);
+		}
+
 		QuestManager.onItemPickup(item);
 		return true;
 	}
@@ -894,7 +900,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (by.collider != null)
 			{
 				float knockbackStrength = item != null ? item.knockback : 8.0f;
-				knockback = (position - by.center).normalized * knockbackStrength * 3;
+				knockback = (position - by.center).normalized * knockbackStrength;
 				knockback.y = Math.Max(knockback.y, 1);
 			}
 		}
@@ -1248,14 +1254,29 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					//if ((Time.currentTime - lastWallTouchRight) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
+					if (wallTouchStart == 0 && velocity.y < 0)
+						wallTouchStart = Time.currentTime;
 					lastWallTouchRight = Time.currentTime;
+				}
+				else
+				{
+					lastWallTouchRight = 0;
 				}
 				if (InputManager.IsDown("Left") && GameState.instance.level.overlapSolid(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.05f)))
 				{
 					//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
 					//	Audio.PlayOrganic(wallTouchSound, new Vector3(position, 0), 1.0f);
+					if (wallTouchStart == 0 && velocity.y < 0)
+						wallTouchStart = Time.currentTime;
 					lastWallTouchLeft = Time.currentTime;
 				}
+				else
+				{
+					lastWallTouchLeft = 0;
+				}
+
+				if (lastWallTouchRight == 0 && lastWallTouchLeft == 0)
+					wallTouchStart = 0;
 			}
 
 			if (canDodge)
@@ -1338,6 +1359,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 							wallJumpVelocity = -wallJumpPower;
 							wallJumpFactor = 1.0f;
 							lastWallTouchRight = 0;
+							wallTouchStart = 0;
 						}
 
 						if ((Time.currentTime - lastWallTouchLeft) / 1e9f < COYOTE_TIME)
@@ -1346,6 +1368,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 							wallJumpVelocity = wallJumpPower;
 							wallJumpFactor = 1.0f;
 							lastWallTouchLeft = 0;
+							wallTouchStart = 0;
 						}
 					}
 				}
@@ -1505,7 +1528,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			velocity.y = MathF.Max(velocity.y, MAX_FALL_SPEED);
 
 			if (lastWallTouchLeft == Time.currentTime && inputLeft || lastWallTouchRight == Time.currentTime && inputRight)
-				velocity.y = MathF.Max(velocity.y, -16 / wallControl);
+			{
+				bool paused = !isGrounded && wallTouchStart != 0 && (Time.currentTime - wallTouchStart) / 1e9f < 3 / 60.0f;
+				velocity.y = paused ? MathF.Max(velocity.y, 0) : MathF.Max(velocity.y, -16 / wallControl);
+			}
 
 			wallJumpFactor = Mathf.MoveTowards(wallJumpFactor, 0, wallControl * getWallControlModifier() * Time.deltaTime);
 			velocity.x = Mathf.Lerp(velocity.x, wallJumpVelocity, wallJumpFactor);
@@ -2505,6 +2531,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		{
 			if (modifier.active)
 				value *= MathF.Pow(modifier.manaRecoveryModifier, modifier.item.stackSize);
+		}
+		return value;
+	}
+
+	public float getVisibilityModifier()
+	{
+		float value = 1;
+		foreach (ItemBuff modifier in itemBuffs)
+		{
+			if (modifier.active)
+				value *= MathF.Pow(modifier.visibilityModifier, modifier.item.stackSize);
 		}
 		return value;
 	}

@@ -33,8 +33,7 @@ public class ThrowingKnife : Item
 
 	public override bool use(Player player)
 	{
-		Item knife = player.removeItemSingle(this);
-		ItemEntity entity = player.throwItem(knife, player.lookDirection.normalized, speed);
+		ItemEntity entity = player.throwItem(this, player.lookDirection.normalized, speed);
 		entity.flyStraightOnThrow = true;
 		return true;
 	}

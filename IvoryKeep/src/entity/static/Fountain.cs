@@ -130,7 +130,7 @@ public class Fountain : Entity, Interactable
 
 	public bool canInteract(Player player)
 	{
-		return effect != FountainEffect.None || potionEffects.Count > 0;
+		return potionEffects.Count > 0;
 	}
 
 	public void interact(Player player)

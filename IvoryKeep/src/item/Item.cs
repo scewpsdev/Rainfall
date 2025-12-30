@@ -431,11 +431,67 @@ public abstract class Item
 			StringBuilder result = new StringBuilder();
 			if (stackable && stackSize > 1)
 				result.Append(stackSize).Append("x ");
+			if (cursed && identified)
+				result.Append("Cursed ");
 			foreach (Infusion infusion in infusions)
 				result.Append(infusion.name).Append(' ');
-			result.Append(displayName);
+			result.Append(_displayName);
 			if (upgradeLevel > 0)
 				result.Append(" +").Append(upgradeLevel);
+			return result.ToString();
+		}
+	}
+
+	public string fullDisplayNameFormatted
+	{
+		get
+		{
+			StringBuilder result = new StringBuilder();
+			if (stackable && stackSize > 1)
+			{
+				result.Append(UIColors.BeginFormatColor(UIColors.TEXT_SUBTLE));
+				result.Append(stackSize).Append("x ");
+				result.Append(UIColors.EndFormatColor());
+			}
+			if (cursed && identified)
+			{
+				result.Append(UIColors.BeginFormatColor(UIColors.TEXT_CURSED));
+				result.Append("Cursed ");
+				result.Append(UIColors.EndFormatColor());
+			}
+			foreach (Infusion infusion in infusions)
+			{
+				result.Append(UIColors.BeginFormatColor(UIColors.TEXT_SUBTLE));
+				result.Append(infusion.name).Append(' ');
+				result.Append(UIColors.EndFormatColor());
+			}
+			result.Append(_displayName);
+			if (upgradeLevel > 0)
+			{
+				result.Append(UIColors.BeginFormatColor(UIColors.TEXT_SUBTLE));
+				result.Append(" +").Append(upgradeLevel);
+				result.Append(UIColors.EndFormatColor());
+			}
+			return result.ToString();
+		}
+	}
+
+	public string fullItemTypeFormatted
+	{
+		get
+		{
+			StringBuilder result = new StringBuilder();
+			result.Append(UIColors.BeginFormatColor(rarityColor));
+			result.Append(rarityString);
+			result.Append(UIColors.EndFormatColor());
+			result.Append(' ');
+			if (type == ItemType.Potion && (this as Potion).throwable)
+				result.Append("Throwable ");
+			if (twoHanded)
+				result.Append("Two Handed ");
+			if (isSecondaryItem)
+				result.Append("Secondary ");
+			result.Append(type.ToString());
 			return result.ToString();
 		}
 	}
@@ -466,13 +522,13 @@ public abstract class Item
 			float r = rarity * MathF.Exp(-0.04f * getValue());
 			if (r >= 1.0f)
 				return UIColors.TEXT_RARITY_GARBAGE;
-			if (r >= 0.5f)
+			if (r >= 0.3f)
 				return UIColors.TEXT_RARITY_COMMON;
-			if (r >= 0.05f)
+			if (r >= 0.01f)
 				return UIColors.TEXT_RARITY_UNCOMMON;
-			if (r >= 0.005f)
+			if (r >= 0.001f)
 				return UIColors.TEXT_RARITY_RARE;
-			if (r >= 0.0005f)
+			if (r >= 0.0001f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
@@ -595,6 +651,10 @@ public abstract class Item
 	}
 
 	public virtual void onEnemyHit(Player player, Mob mob, float damage, bool critical)
+	{
+	}
+
+	public virtual void onItemPickUp(Player player, Item item)
 	{
 	}
 

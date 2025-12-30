@@ -14,11 +14,11 @@ public class Lockpick : Item
 		displayName = "Lockpick";
 
 		baseValue = 7;
+		rarity = 0.05f;
 		stackable = false;
 		//isActiveItem = false;
 
 		sprite = new Sprite(tileset, 9, 5);
 
-		rarity = 0.1f;
 	}
 }

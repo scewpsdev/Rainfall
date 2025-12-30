@@ -15,7 +15,7 @@ public class MinesBossRoom : BossRoom
 		boss = new Raya() { itemDrops = [new QuestlineLoganStaff()] };
 
 		track = new MultilayerTrack("sounds/ost/nighthaven/nighthaven", 3);
-		trackHasRoomLayer = true;
+		trackHasIdleLayer = true;
 	}
 
 	public override void init(Level level)

@@ -12,6 +12,7 @@ public class WizardsCloak : Item
 		: base("wizards_cloak", ItemType.Armor)
 	{
 		displayName = "Wizard's Cloak";
+		description = "+10% mana recovery";
 
 		baseArmor = 1;
 		armorSlot = ArmorSlot.Body;

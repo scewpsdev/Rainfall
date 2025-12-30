@@ -33,5 +33,6 @@ public class Greathammer : Weapon
 		sprite = new Sprite(tileset, 10, 4, 2, 1);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.7f;
+		backRotation = 0.5f * MathF.PI;
 	}
 }

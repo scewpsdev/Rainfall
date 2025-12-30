@@ -13,11 +13,12 @@ public class Katana : Weapon
 	{
 		displayName = "Katana";
 
-		baseDamage = 1.2f;
-		baseAttackRange = 1.2f;
-		baseAttackRate = 1.5f;
+		baseDamage = 1.9f;
+		baseAttackRange = 1.4f;
+		baseAttackRate = 1.2f;
 		attackCooldown = 2.5f;
 		baseWeight = 2.5f;
+		criticalChanceModifier = 1.5f;
 
 		canParry = true;
 		parryWeaponRotation = -0.3f * MathF.PI;

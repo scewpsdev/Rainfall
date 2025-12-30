@@ -31,7 +31,7 @@ public class Crossbow : Weapon
 		baseValue = 17;
 
 		sprite = new Sprite(tileset, 12, 3);
-		renderOffset.x = 0.5f;
+		renderOffset.x = 0.35f;
 		backRotation = 0.5f * MathF.PI;
 
 		useSound = Resource.GetSounds("sounds/crossbow", 6);

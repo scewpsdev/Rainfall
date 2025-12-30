@@ -397,7 +397,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 						compareItem = player.passiveItems[slotIdx];
 				}
 
-				sidePanelHeight = (int)ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem);
+				sidePanelHeight = (int)MathF.Round(ItemInfoPanel.Render(item, x, y, sidePanelWidth, sidePanelHeight, compareItem));
 
 				//renderTooltip();
 			}

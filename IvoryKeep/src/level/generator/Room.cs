@@ -80,6 +80,16 @@ public class Room
 		return connectedDoorways;
 	}
 
+	public Door getDoorWithDirection(Vector2i direction)
+	{
+		for (int i = 0; i < doorways.Count; i++)
+		{
+			if (doorways[i].direction == direction)
+				return doorways[i].door;
+		}
+		return null;
+	}
+
 	public bool getFloorSpawn(Level level, Random random, bool[] objectFlags, out Vector2i pos)
 	{
 		int offset = random.Next() % this.width;

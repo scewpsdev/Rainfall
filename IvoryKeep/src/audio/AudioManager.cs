@@ -56,6 +56,8 @@ public static class AudioManager
 	public static void SetAmbientTrackLayer(int layer)
 	{
 		Debug.Assert(ambientTrack != null);
+		if (layer >= 0 && !ambientTrack.running)
+			ambientTrack.start();
 		ambientTrack.setLayer(layer + (ambientHasIdle ? 1 : 0));
 	}
 }

@@ -24,6 +24,9 @@ public class Halberd : Weapon
 		strengthScaling = 0.2f;
 		dexterityScaling = 0.4f;
 
+		attackStartAngle = 0.75f * MathF.PI;
+		attackEndAngle = -1.0f * MathF.PI;
+
 		baseValue = 16;
 
 		sprite = new Sprite(tileset, 7, 4, 2, 1);

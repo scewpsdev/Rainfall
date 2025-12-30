@@ -76,7 +76,7 @@ public class DungeonGenerator : LevelGenerator
 		secretRooms[1] = specialSet.roomDefs[random.Next() % 2 == 0 ? 7 : 8];
 		secretRooms[2] = specialSet.roomDefs[random.Next() % 2 == 0 ? 9 : 10];
 		secretRooms[3] = specialSet.roomDefs[11];
-		secretRooms[4] = cavesSpecialSet.roomDefs[0];
+		secretRooms[4] = !GameState.instance.save.areAllStartingClassesUnlocked() ? cavesSpecialSet.roomDefs[0] : specialSet.roomDefs[6];
 		secretRooms[5] = specialSet.roomDefs[20];
 
 		return secretRooms;

@@ -15,10 +15,12 @@ public class Flamberge : Weapon
 
 		baseDamage = 1.5f;
 		baseAttackRange = 1.7f;
-		baseAttackRate = 1.0f;
+		baseAttackRate = 0.9f;
 		criticalChanceModifier = 2.0f;
 		twoHanded = true;
 		baseWeight = 2;
+		canBlock = true;
+
 		attackStartAngle = 0.75f * MathF.PI;
 		attackEndAngle = -0.25f * MathF.PI;
 		anim = AttackAnim.SwingOverhead;
@@ -30,7 +32,7 @@ public class Flamberge : Weapon
 		sprite = new Sprite(tileset, 12, 6, 2, 1);
 		icon = new Sprite(tileset.texture, 12 * 16, 6 * 16, 16, 16);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.3f;
+		renderOffset.x = 0.4f;
 		//backRotation = -0.25f * MathF.PI;
 		weaponTipMargin = 3 / 16.0f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));

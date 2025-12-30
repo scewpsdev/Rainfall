@@ -23,20 +23,15 @@ public static class ItemInfoPanel
 		Renderer.DrawUISprite(x + width / 2 - sprite.width / 2, y, sprite.width, sprite.height, sprite, false, Mathf.VectorToARGB(item.spriteColor));
 		y += sprite.height + 1;
 
-		string[] nameLines = Renderer.SplitMultilineText(item.fullDisplayName, width);
+		string[] nameLines = Renderer.SplitMultilineText(item.fullDisplayNameFormatted, width);
 		foreach (string line in nameLines)
 		{
-			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
+			Renderer.DrawUITextBMPFormatted(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
 			y += Renderer.smallFont.size;
 		}
 		y++;
 
-		string rarityString = "\\x0x" + item.rarityColor.ToString("X") + "\\" + item.rarityString + "\\x0\\";
-		string itemTypeStr = item.type.ToString();
-		if (item.type == ItemType.Potion && (item as Potion).throwable)
-			itemTypeStr = "Throwable " + itemTypeStr;
-		string itemInfo = rarityString + " " + (item.twoHanded ? "Two Handed " : "") + (item.isSecondaryItem ? "Secondary " : "") + itemTypeStr;
-		string[] itemInfoLines = Renderer.SplitMultilineText(itemInfo, width - 4);
+		string[] itemInfoLines = Renderer.SplitMultilineText(item.fullItemTypeFormatted, width - 4);
 		foreach (string line in itemInfoLines)
 		{
 			Renderer.DrawUITextBMPFormatted(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT_SUBTLE);
@@ -50,17 +45,6 @@ public static class ItemInfoPanel
 			string spellName = spellBook.spell.displayName;
 			Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(spellName).x / 2, y, spellName, 1, UIColors.TEXT_MANA);
 			y += Renderer.smallFont.size + 4;
-		}
-
-		if (item.description != null)
-		{
-			string[] descriptionLines = Renderer.SplitMultilineText(item.description, width);
-			foreach (string line in descriptionLines)
-			{
-				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
-				y += Renderer.smallFont.size;
-			}
-			y += 4;
 		}
 
 		void drawLeft(string str, uint color = UIColors.TEXT)
@@ -294,6 +278,17 @@ public static class ItemInfoPanel
 			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(item.manaCost, compareItem.manaCost);
 			y += Renderer.smallFont.size + 1;
+		}
+
+		if (item.description != null)
+		{
+			string[] descriptionLines = Renderer.SplitMultilineText(item.description, width);
+			foreach (string line in descriptionLines)
+			{
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
+				y += Renderer.smallFont.size;
+			}
+			y += 4;
 		}
 
 		Item itemInInv = GameState.instance.player.getItem(item.name);

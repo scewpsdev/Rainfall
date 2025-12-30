@@ -205,7 +205,7 @@ public abstract class LevelGenerator
 			secretDoor.rect = new FloatRect(-1, -0.5f, 2, 2);
 			secretDoor.interactRange = 0.5f;
 
-			connectDoors(level.entrance, secretDoor);
+			connectDoors(level.rooms[0].getDoorWithDirection(Vector2i.Left), secretDoor);
 		}
 
 

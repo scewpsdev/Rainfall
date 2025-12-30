@@ -21,6 +21,7 @@ public abstract class SpellBook : Staff
 		isActiveItem = true;
 
 		baseValue = 14 + spell.getValue() / 2;
+		rarity = 0.05f;
 
 		sprite = new Sprite(tileset, 1, 11);
 		renderOffset.x = 0.25f;

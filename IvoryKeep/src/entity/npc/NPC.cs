@@ -926,6 +926,8 @@ public abstract class NPC : Mob, Interactable
 					copy.stackSize = 1;
 					addShopItem(copy);
 					GameState.instance.player.money += price;
+
+					Audio.Play(tradeSound, new Vector3(position, 0));
 				}
 				else
 				{
@@ -933,6 +935,8 @@ public abstract class NPC : Mob, Interactable
 					{
 						addShopItem(item);
 						GameState.instance.player.money += price * item.stackSize;
+
+						Audio.Play(tradeSound, new Vector3(position, 0));
 
 						if (selectedItem == player.items.Count)
 							selectedItem--;
@@ -944,8 +948,6 @@ public abstract class NPC : Mob, Interactable
 						GameState.instance.player.hud.showMessage("The item cannot be sold.");
 					}
 				}
-
-				Audio.Play(tradeSound, new Vector3(position, 0));
 			}
 
 			if (closed)
@@ -1059,7 +1061,7 @@ public abstract class NPC : Mob, Interactable
 
 				infusedCompareItem = infuseItem.copy();
 				infusedCompareItem.addInfusion(possibleInfusions[selectedInfusionOption]);
-				int option = ShopMenu.Render(menuAnchor, "Select infusion", infusionLabels, null, null, 0, true, infusedCompareItem, infuseItem, out bool secondary, out bool closed, ref selectedInfusionOption);
+				int option = ShopMenu.Render(menuAnchor, "Select infusion", infusionLabels, null, null, player.money, true, infusedCompareItem, infuseItem, out bool secondary, out bool closed, ref selectedInfusionOption);
 				//InteractableMenu.GetSize(possibleInfusions.Count, out int menuWidth, out int menuHeight);
 				//ItemInfoPanel.Render(infusedCompareItem, menuAnchor.x + menuWidth, menuAnchor.y, 90, menuHeight, infuseItem);
 

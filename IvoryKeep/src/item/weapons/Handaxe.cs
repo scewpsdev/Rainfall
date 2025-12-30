@@ -31,6 +31,7 @@ public class Handaxe : Weapon
 
 		sprite = new Sprite(tileset, 15, 4);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 	}
 
     protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)

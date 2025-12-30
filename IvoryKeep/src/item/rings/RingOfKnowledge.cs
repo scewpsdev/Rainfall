@@ -20,16 +20,18 @@ public class RingOfKnowledge : Item
 		sprite = new Sprite(tileset, 15, 10);
 	}
 
-	public override void update(Entity entity)
+	public override void onItemPickUp(Player player, Item item)
 	{
-		Player player = entity as Player;
-		if (player != null)
+		if (!item.identified)
+			item.identify();
+	}
+
+	public override void onEquip(Player player)
+	{
+		for (int i = 0; i < player.items.Count; i++)
 		{
-			for (int i = 0; i < player.items.Count; i++)
-			{
-				if (!player.items[i].identified)
-					player.items[i].identify();
-			}
+			if (!player.items[i].identified)
+				player.items[i].identify();
 		}
 	}
 }
