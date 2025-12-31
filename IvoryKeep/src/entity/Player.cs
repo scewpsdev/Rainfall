@@ -173,11 +173,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		actions = new ActionQueue(this);
 
-		collider = new FloatRect(-0.15f, 0, 0.3f, 0.9f);
+		collider = new FloatRect(-0.15f, 0, 0.3f, 0.8f);
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/player.png", false), 0, 0, 32, 32);
-		rect = new FloatRect(-1, 0, 2, 2);
+		rect = new FloatRect(-1, -0.5f, 2, 2);
 		animator = new SpriteAnimator();
 
 		animator.addAnimation("idle", 4, 1, true);
@@ -189,6 +189,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		animator.addAnimation("dead", 1, 1, true);
 		animator.addAnimation("dead_falling", 1, 1, true);
 		animator.addAnimation("stun", 1, 1, true);
+		animator.addAnimation("duck", 1, 1, true);
+		animator.addAnimation("sneak", 6, 0.666f, true);
 		animator.addAnimation("backhop", 16, 3, 0.2f, false);
 
 		animator.addAnimationEvent("run", 3, onStep);
@@ -1947,21 +1949,39 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				{
 					if (isGrounded)
 					{
-						if (isMoving)
+						if (isDucked)
 						{
-							animator.setAnimation("run");
-							animator.startTime = startTime;
-							animator.getAnimation("run").fps = currentSpeedModifier * 12;
-						}
-						else
-						{
-							if (isLookingUp)
+							if (isMoving)
 							{
-								animator.setAnimation("look_up");
+								animator.setAnimation("sneak");
+								animator.startTime = startTime;
+								animator.getAnimation("sneak").fps = currentSpeedModifier * 12;
 							}
 							else
 							{
-								animator.setAnimation("idle");
+								animator.setAnimation("duck");
+							}
+						}
+						else
+						{
+							if (isMoving)
+							{
+								animator.setAnimation("run");
+								animator.startTime = startTime;
+								animator.getAnimation("run").fps = currentSpeedModifier * 12;
+							}
+							else
+							{
+								if (isLookingUp)
+								{
+									animator.startTime = startTime;
+									animator.setAnimation("look_up");
+								}
+								else
+								{
+									animator.startTime = startTime;
+									animator.setAnimation("idle");
+								}
 							}
 						}
 					}
@@ -2105,12 +2125,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			: ((animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length - 1) % animator.getAnimation(animator.currentAnimation).length); // sway
 
 		Vector2i animOffset = Vector2i.Zero;
-		if (animator.currentAnimation == "idle")
+		if (animator.currentAnimation == "idle" || animator.currentAnimation == "look_up")
 			animOffset.y = -frame / 2;
 		else if (animator.currentAnimation == "run")
 		{
 			animOffset.y = frame % 4 - frame % 4 / 3 * 2;
 			animOffset.x = -Math.Abs((frame + (mainHand ? 5 : 1)) % 8 - 3) + 2;
+		}
+		else if (animator.currentAnimation == "sneak")
+		{
+			animOffset.x = -Math.Abs((frame + (mainHand ? 4 : 1)) % 6 - 2) + 2;
 		}
 		else if (animator.currentAnimation == "jump")
 			animOffset = new Vector2i(1, 2);
@@ -2119,7 +2143,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		else if (animator.currentAnimation == "stun")
 			animOffset.y = -2;
 		if (isDucked && !isClimbing && isGrounded)
-			animOffset.y = -3;
+			animOffset.y = -2;
 		return new Vector2((!mainHand ? 3 / 16.0f : -2 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
 	}
 
@@ -2128,7 +2152,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		int frame = (animator.lastFrameIdx + animator.getAnimation(animator.currentAnimation).length) % animator.getAnimation(animator.currentAnimation).length;
 
 		Vector2i animOffset = Vector2i.Zero;
-		if (animator.currentAnimation == "idle")
+		if (animator.currentAnimation == "idle" || animator.currentAnimation == "look_up")
 			animOffset.y = -frame / 2;
 		else if (animator.currentAnimation == "run")
 			animOffset.y = frame % 4 - frame % 4 / 3 * 2;
@@ -2324,8 +2348,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 			if (show)
 			{
-				Renderer.DrawOutline(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing && isGrounded ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0xFF000000);
-				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, (isDucked && !isClimbing && isGrounded ? 0.5f : 1) * rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
+				Renderer.DrawOutline(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, /*(isDucked && !isClimbing && isGrounded ? 0.5f : 1) **/ rect.size.y, sprite, direction == -1, 0xFF000000);
+				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, /*(isDucked && !isClimbing && isGrounded ? 0.5f : 1) **/ rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
 			}
 
 			if (handItem != null)

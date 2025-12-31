@@ -12,7 +12,7 @@ public class Nightstalker : Item
 		: base("nightstalker", ItemType.Relic)
 	{
 		displayName = "Nightstalker";
-		description = "Attacks against unsuspecting enemies are critical attacks";
+		description = "Attacks from behind are critical";
 		//stackable = true;
 		tumbles = false;
 		canDrop = false;

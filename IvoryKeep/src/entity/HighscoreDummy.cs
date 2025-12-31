@@ -43,7 +43,7 @@ public class HighscoreDummy : Entity
 
 	public override void render()
 	{
-		Renderer.DrawSprite(position.x - 1.0f, position.y, 2, 2, sprite, flipped, 0xFF555555);
+		Renderer.DrawSprite(position.x - 1.0f, position.y - 0.5f, 2, 2, sprite, flipped, 0xFF555555);
 
 		for (int i = 0; i < data.passiveItems.Length; i++)
 		{

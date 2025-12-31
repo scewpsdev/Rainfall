@@ -26,7 +26,7 @@ public static class PlayerThumbnail
 
 		//player.animator.setAnimation("idle");
 		//player.animator.update(player.sprite);
-		Renderer.DrawUISprite(xx + width / 2 - player.sprite.size.x / 2, yy - 16, size * 2, size * 2, player.sprite);
+		Renderer.DrawUISprite(xx + width / 2 - player.sprite.size.x / 2, yy - 8, size * 2, size * 2, player.sprite);
 
 		for (int i = 0; i < player.passiveItems.Count; i++)
 		{
