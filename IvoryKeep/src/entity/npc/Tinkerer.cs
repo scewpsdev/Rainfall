@@ -9,6 +9,28 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public class TinkererSave : NPCSaveData
+{
+	public override void init(SaveFile save)
+	{
+		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_TINKERER_MET))
+		{
+			setInititalDialogue("""
+				\\cAh, a customer!
+				You'd be surprised how good business is down here.
+				As long as you don't ask me how I get the wares I sell, know that they could be yours...\\3 For a price, of course.
+				""").addCallback(() =>
+			{
+				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_TINKERER_MET);
+			});
+		}
+
+		addOneTimeDialogue("You're looking for the lost sigil, aren't you? Everyone is. Let me know if you find it, and we can make a deal.");
+
+		addDialogue("Let's talk trade.");
+	}
+}
+
 public class Tinkerer : NPC
 {
 	public Tinkerer()
@@ -26,30 +48,13 @@ public class Tinkerer : NPC
 		canCraft = true;
 	}
 
+	public override NPCSaveData createSave()
+	{
+		return new TinkererSave();
+	}
+
 	public override void init(Level level)
 	{
-		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_TINKERER_MET))
-		{
-			progression.initialDialogue = new Dialogue();
-			progression.initialDialogue.addVoiceLine("\\cAh, a customer!");
-			progression.initialDialogue.addVoiceLine("You'd be surprised how good business is down here.");
-			progression.initialDialogue.addVoiceLine("But don't ask me how I get by wares. Just know that they can be yours...\\3 For a price, of course.").addCallback(() =>
-			{
-				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_TINKERER_MET);
-			});
-		}
-
-		{
-			Dialogue dialogue = new Dialogue();
-			dialogue.addVoiceLine("You're looking for the lost sigil, aren't you? Everyone is. Let me know if you find it.");
-			addDialogue(dialogue);
-		}
-		{
-			Dialogue dialogue = new Dialogue();
-			dialogue.addVoiceLine("Let's talk trade.");
-			addDialogue(dialogue);
-		}
-
 		populateShop(GameState.instance.generator.random, 8, 14, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, ItemType.Utility);
 	}
 

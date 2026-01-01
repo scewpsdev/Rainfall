@@ -97,6 +97,7 @@ public abstract class LevelGenerator
 		random = new Random((int)Hash.hash(seed));
 	}
 
+	public abstract string getAreaName();
 	public abstract int getNumFloors();
 	public abstract string getLevelName(int floor);
 	public abstract int getLootValue(int floor);
@@ -162,6 +163,9 @@ public abstract class LevelGenerator
 			levels[i] = new Level(i, name + i, getLevelName(i), width, height, getDefaultTile(i), getLootValue(i));
 		}
 		levels[numFloors + 0] = new Level(-1, name + (numFloors + 0), "", getLootValue(numFloors - 1));
+
+		foreach (Level level in levels)
+			level.areaName = getAreaName();
 
 		for (int i = 0; i < numFloors; i++)
 		{
@@ -1187,6 +1191,7 @@ public abstract class LevelGenerator
 		level.addEntity(npc, new Vector2(x + 0.5f, y));
 		setObjectFlag(x, y);
 
+		// TODO limit to 1 per type again
 		//spawnedNPCs.Add(npc.GetType());
 	}
 

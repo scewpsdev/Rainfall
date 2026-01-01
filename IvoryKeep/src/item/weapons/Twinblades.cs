@@ -32,4 +32,11 @@ public class Twinblades : Weapon
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
 	}
+
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+	{
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+		if (idx % 4 >= 2)
+			anim = AttackAnim.SwingSideways;
+	}
 }

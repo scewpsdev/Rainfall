@@ -500,16 +500,16 @@ public abstract class Item
 	{
 		get
 		{
-			float r = rarity * MathF.Exp(-0.04f * getValue());
+			float r = /*rarity **/ MathF.Exp(-0.04f * getValue());
 			if (r >= 1.0f)
 				return "Garbage";
-			if (r >= 0.3f)
+			if (r >= 0.5f)
 				return "Common";
-			if (r >= 0.01f)
+			if (r >= 0.05f)
 				return "Uncommon";
-			if (r >= 0.001f)
+			if (r >= 0.005f)
 				return "Rare";
-			if (r >= 0.0001f)
+			if (r >= 0.0005f)
 				return "Exceedingly Rare";
 			return "Legendary";
 		}
@@ -519,16 +519,16 @@ public abstract class Item
 	{
 		get
 		{
-			float r = rarity * MathF.Exp(-0.04f * getValue());
+			float r = /*rarity **/ MathF.Exp(-0.04f * getValue());
 			if (r >= 1.0f)
 				return UIColors.TEXT_RARITY_GARBAGE;
-			if (r >= 0.3f)
+			if (r >= 0.5f)
 				return UIColors.TEXT_RARITY_COMMON;
-			if (r >= 0.01f)
+			if (r >= 0.05f)
 				return UIColors.TEXT_RARITY_UNCOMMON;
-			if (r >= 0.001f)
+			if (r >= 0.005f)
 				return UIColors.TEXT_RARITY_RARE;
-			if (r >= 0.0001f)
+			if (r >= 0.0005f)
 				return UIColors.TEXT_RARITY_EXCEEDINGLY_RARE;
 			return UIColors.TEXT_RARITY_LEGENDARY;
 		}
@@ -536,7 +536,7 @@ public abstract class Item
 
 	public virtual void upgrade()
 	{
-		baseValue += upgradeCost / 2;
+		baseValue += upgradeCost / 3;
 		upgradeLevel++;
 		//value = value + Mathf.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)

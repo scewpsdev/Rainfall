@@ -13,6 +13,11 @@ public class MineGenerator : LevelGenerator
 	{
 	}
 
+	public override string getAreaName()
+	{
+		return "Crystal Mines";
+	}
+
 	public override int getNumFloors()
 	{
 		return 4;
@@ -148,7 +153,7 @@ public class MineGenerator : LevelGenerator
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new BuilderMerchant(random, level));
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
 

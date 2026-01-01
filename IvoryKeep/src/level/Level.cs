@@ -40,6 +40,7 @@ public class Level
 	public int floor;
 	public string name;
 	public string displayName;
+	public string areaName;
 	public float avgLootValue;
 
 	public bool isSafeLevel = false;

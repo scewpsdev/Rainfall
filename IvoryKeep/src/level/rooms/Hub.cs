@@ -147,7 +147,7 @@ public class Hub : Entity
 		level.addEntity(new StashChest(StashChestMode.Retrieve) { flipped = true }, new Vector2(2, 2));
 
 
-		if (QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
+		if (QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
 		{
 			level.addEntity(new Logan() /*NPCManager.logan*/, level.getMarker(0xd));
 		}
@@ -162,12 +162,6 @@ public class Hub : Entity
 			level.addEntity(elevators[i], (Vector2)room.getMarker(0x14 + (uint)i));
 		}
 		*/
-
-		{
-			BrokenWanderer npc = new BrokenWanderer(); // NPCManager.brokenWanderer;
-			npc.clearShop();
-			level.addEntity(npc, level.rooms[0].getMarker(10) + new Vector2(-11, 0));
-		}
 
 		{
 			blacksmith = level.getEntity<Blacksmith>(); // NPCManager.blacksmith;

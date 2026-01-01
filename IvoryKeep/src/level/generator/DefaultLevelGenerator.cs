@@ -13,6 +13,11 @@ public class DefaultLevelGenerator : LevelGenerator
 	{
 	}
 
+	public override string getAreaName()
+	{
+		return "???";
+	}
+
 	public override int getNumFloors()
 	{
 		return 5;
@@ -135,7 +140,7 @@ public class DefaultLevelGenerator : LevelGenerator
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new BuilderMerchant(random, level));
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
 

@@ -79,7 +79,7 @@ public static class GameOverScreen
 		y += lineHeight;
 
 		drawLeft("Area");
-		drawRight(game.run.areaName, 0xFFAAAAAA);
+		drawRight(game.level.areaName, 0xFFAAAAAA);
 		y += lineHeight;
 
 		drawLeft("Floor");

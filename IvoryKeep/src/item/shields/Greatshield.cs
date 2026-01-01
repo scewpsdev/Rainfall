@@ -18,6 +18,7 @@ public class Greatshield : Shield
 		baseWeight = 3;
 		blockAbsorption = 1.0f;
 		knockbackAbsorption = 0.8f;
+		blockMovementSpeed = 0.2f;
 
 		sprite = new Sprite(tileset, 14, 11);
 	}

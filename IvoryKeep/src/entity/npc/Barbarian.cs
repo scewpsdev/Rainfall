@@ -21,10 +21,11 @@ public class Barbarian : NPC
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_BARBARIAN_MET))
 		{
-			progression.initialDialogue = new Dialogue();
-			progression.initialDialogue.addVoiceLine("Hah! About time someone with some sense came along.");
-			progression.initialDialogue.addVoiceLine("For a while I thought, the world is falling apart, and here I am dying in a damn prison cell.");
-			progression.initialDialogue.addVoiceLine("I owe you stranger...").addCallback(() =>
+			save.setInititalDialogue("""
+				Hah! About time someone with some sense came along.
+				For a while I thought this damn prison cell would be the last thing I ever see!
+				I owe you stranger...
+				""").addCallback(() =>
 			{
 				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BARBARIAN_MET);
 				GameState.instance.save.unlockStartingClass(StartingClass.barbarian);

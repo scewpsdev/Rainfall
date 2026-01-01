@@ -3,9 +3,77 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
+
+public class BlacksmithSave : NPCSaveData, WorldEventListener
+{
+	public override void init(SaveFile save)
+	{
+		GameState.instance.worldEventListeners.Add(this);
+
+		if (npc.level == GameState.instance.hub)
+		{
+			setOneTimeInititalDialogue("""
+			Another wanderer poking their nose in places it don't belong.
+			If you have no interest in my wares keep walking. You disturb my focus.
+			""")?.addCallback(() =>
+			{
+				save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
+			});
+
+			addOneTimeDialogue("""
+			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
+			""");
+
+			addDialogue("""
+			Hmm?
+			I'm not up for chatting.
+			""");
+		}
+
+		if (initialDialogue == null)
+		{
+			setInititalDialogue("""
+				Take what you need, if you can bear the weight.
+				""");
+		}
+	}
+
+	public void onBossKilled(Mob boss)
+	{
+		if (GameState.instance.areaCaves.Contains(boss.level))
+		{
+			setInititalDialogue("""
+				Guess I could see about sharpening that blade of yours.
+				Go on, let me have a look.
+				""");
+		}
+		else if (GameState.instance.areaMines.Contains(boss.level))
+		{
+			setInititalDialogue("""
+				You're still alive?
+				Hah.
+				Let's see about getting that gear of yours in shape.
+				""");
+		}
+		else if (GameState.instance.areaDungeons.Contains(boss.level))
+		{
+			setInititalDialogue("""
+				Serious about this, huh? Reckon you might even stand a chance.
+				Now give me your weapons.
+				""");
+			addDialogue("""
+				Back when the royal knights came to me, they wanted weapons that could slay giants.
+				Look where it got them.
+				\1Promise me you will do better...
+				Ah, don't listen to me.
+				""");
+		}
+	}
+}
 
 public class Blacksmith : NPC, WorldEventListener
 {
@@ -39,34 +107,12 @@ public class Blacksmith : NPC, WorldEventListener
 
 	public override void init(Level level)
 	{
-		if (level == GameState.instance.hub)
-		{
-			setOneTimeInititalDialogue("""
-			Another wanderer poking their nose in places it don't belong.
-			If you have no interest in my wares keep walking. You disturb my focus.
-			""")?.addCallback(() =>
-			{
-				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
-			});
-
-			addOneTimeDialogue("""
-			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
-			""");
-
-			addDialogue("""
-			Hmm?
-			I'm not up for chatting.
-			""");
-		}
-
-		if (progression.initialDialogue == null)
-		{
-			setInititalDialogue("""
-				Take what you need, if you can bear the weight.
-				""");
-		}
-
 		GameState.instance.worldEventListeners.Add(this);
+	}
+
+	public override NPCSaveData createSave()
+	{
+		return new BlacksmithSave();
 	}
 
 	public override void update()
@@ -85,8 +131,16 @@ public class Blacksmith : NPC, WorldEventListener
 	public override void onLevelSwitch(Level newLevel)
 	{
 		base.onLevelSwitch(newLevel);
-		if (newLevel != level && level != GameState.instance.hub)
-			remove();
+
+		// if we are in the boss room and the player leaves after the boss is killed, despawn
+		if (newLevel != level)
+		{
+			BossRoom bossRoom = level.getEntity<BossRoom>();
+			if (bossRoom != null && !bossRoom.boss.isAlive)
+			{
+				remove();
+			}
+		}
 	}
 
 	public void onBossKilled(Mob boss)
@@ -95,36 +149,6 @@ public class Blacksmith : NPC, WorldEventListener
 		Random random = new Random((int)Hash.combine(Hash.hash(GameState.instance.run.seed), (uint)boss.level.floor));
 		populateShop(random, 8, 10, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 		buysItems = true;
-
-		if (GameState.instance.areaCaves.Contains(boss.level))
-		{
-			setInititalDialogue("""
-				Guess I could see about sharpening that blade of yours.
-				Go on, let me have a look.
-				""");
-		}
-		else if (GameState.instance.areaMines.Contains(boss.level))
-		{
-			setInititalDialogue("""
-				You're still alive?
-				Hah.
-				Let's see about getting that gear of yours in shape.
-				""");
-		}
-		else if (GameState.instance.areaDungeons.Contains(boss.level))
-		{
-			setInititalDialogue("""
-				Serious about this, huh? Reckon you might even stand a chance.
-				Now give me your weapons.
-				""");
-			addDialogue("""
-				Back when the royal knights came to me, they wanted weapons that could slay giants.
-				Look where it got them.
-				\1Promise me you will do better...
-				Ah, don't listen to me.
-				""");
-		}
-
 		canUpgrade = true;
 		canInfuse = true;
 	}

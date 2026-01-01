@@ -13,8 +13,8 @@ public class Dagger : Weapon
 	{
 		displayName = "Dagger";
 
-		baseDamage = 0.8f;
-		baseAttackRange = 1.1f;
+		baseDamage = 0.6f;
+		baseAttackRange = 0.9f;
 		baseAttackRate = 4;
 
 		projectileItem = true;

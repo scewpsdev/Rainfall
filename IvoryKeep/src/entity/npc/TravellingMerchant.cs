@@ -8,6 +8,38 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public class SikoSave : NPCSaveData
+{
+	public override void init(SaveFile save)
+	{
+		if (!save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
+		{
+			setOneTimeInititalDialogue("""
+				So you've found your way here. Curious.
+				Many wander, but few arrive.
+				""").addCallback(() =>
+			{
+				save.setFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET);
+			});
+		}
+		else
+		{
+			setInititalDialogue("\\d...");
+		}
+
+		if (npc.level == GameState.instance.hub)
+		{
+			addDialogue("The castle looms beyond, doesn't it? I wonder what's left of it...");
+		}
+		else
+		{
+			addOneTimeDialogue("""
+			   After all that's happened, the castle walls still stand tall...
+			   """);
+		}
+	}
+}
+
 public class TravellingMerchant : NPC
 {
 	public TravellingMerchant(Random random, Level level)
@@ -23,46 +55,17 @@ public class TravellingMerchant : NPC
 		voicePitch = 0;
 		canUncurse = true;
 
-		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
-		{
-			progression.initialDialogue = new Dialogue();
-			progression.initialDialogue.addVoiceLine("So, you've found your way here. Curious.");
-			progression.initialDialogue.addVoiceLine("Many wander, but few arrive.");
-			progression.initialDialogue.screens[progression.initialDialogue.screens.Count - 1].addCallback(() =>
-			{
-				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET);
-			});
-		}
-		else
-		{
-			progression.initialDialogue = new Dialogue();
-			progression.initialDialogue.addVoiceLine("\\d...");
-		}
-
-		if (level == GameState.instance.hub)
-		{
-			{
-				Dialogue dialogue = new Dialogue();
-				dialogue.addVoiceLine("The castle looms beyond, doesn't it? I wonder what's left of it...");
-				addDialogue(dialogue);
-			}
-		}
-		else
-		{
-			{
-				Dialogue dialogue = new Dialogue();
-				dialogue.addVoiceLine("After all that's happened, the castle walls still stand tall...");
-				dialogue.addVoiceLine("What? Sorry, I was just talking to myself.");
-				addDialogue(dialogue);
-			}
-		}
-
 		if (level != GameState.instance.hub)
 		{
 			buysItems = true;
 			//canAttune = true;
 			//populateShop(random, 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
 		}
+	}
+
+	public override NPCSaveData createSave()
+	{
+		return new SikoSave();
 	}
 
 	public TravellingMerchant()

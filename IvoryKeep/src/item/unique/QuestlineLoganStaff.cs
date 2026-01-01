@@ -24,7 +24,7 @@ public class QuestlineLoganStaff : Item
 		//sprite = new Sprite(tileset, 2, 6);
 		//renderOffset.x = 0.2f;
 
-		sprite = new Sprite(tileset, 13, 8);
+		sprite = new Sprite(tileset, 13, 11);
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/lost_sigil.png", false), 0, 0, 32, 32);
 	}
 }

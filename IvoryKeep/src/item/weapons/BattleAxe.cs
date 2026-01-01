@@ -14,7 +14,7 @@ public class BattleAxe : Weapon
 		displayName = "Battle Axe";
 
 		baseDamage = 1.8f;
-		baseAttackRange = 1.0f;
+		baseAttackRange = 1.1f;
 		baseAttackRate = 1.0f;
 		anim = AttackAnim.SwingOverhead;
 		attackAcceleration = 1;
@@ -28,6 +28,7 @@ public class BattleAxe : Weapon
 
 		sprite = new Sprite(tileset, 8, 7, 2, 1);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.2f;
+		renderOffset.x = 0.4f;
+		weaponTipMargin = 5 / 16.0f;
 	}
 }

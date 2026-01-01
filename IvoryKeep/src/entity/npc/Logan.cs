@@ -13,14 +13,10 @@ public class LoganSave : NPCSaveData
 {
 	public LoganQuest loganQuest = new LoganQuest();
 
-	public LoganSave(string name) : base(name)
-	{
-	}
-
 	public override void load(DatObject obj)
 	{
 		base.load(obj);
-		SaveFile.LoadQuest(obj, loganQuest, name);
+		SaveFile.LoadQuest(GameState.instance.save, obj, loganQuest, name);
 	}
 
 	public override void save(DatObject obj)
@@ -28,33 +24,9 @@ public class LoganSave : NPCSaveData
 		base.save(obj);
 		SaveFile.SaveQuest(obj, loganQuest, name);
 	}
-}
 
-public class Logan : NPC
-{
-	new LoganSave progression;
-
-
-	public Logan()
-			: base("logan")
+	public override void init(SaveFile save)
 	{
-		displayName = "Big Fat Logan";
-
-		sprite = new Sprite(Resource.GetTexture("sprites/merchant4.png", false), 0, 0, 16, 16);
-		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 2, 1, true);
-		animator.setAnimation("idle");
-	}
-
-	public override NPCSaveData createSave()
-	{
-		return new LoganSave(name);
-	}
-
-	public override void init(Level level)
-	{
-		progression = (LoganSave)base.progression;
-
 		setOneTimeInititalDialogue("""
 			Mm, you seem quite lucid! A \drare\0 thing in these times.
 			\cBuy my shit.
@@ -63,7 +35,7 @@ public class Logan : NPC
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_LOGAN_MET);
 		});
 
-		if (progression.initialDialogue == null && progression.loganQuest.state == QuestState.Uninitialized && GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_LOGAN_MET) && GameState.instance.save.hasFlag(SaveFile.FLAG_DUNGEONS_FOUND))
+		if (initialDialogue == null && loganQuest.state == QuestState.Uninitialized && save.hasFlag(SaveFile.FLAG_NPC_LOGAN_MET) && save.hasFlag(SaveFile.FLAG_MINES_FOUND) && save.hasFlag(SaveFile.FLAG_NPC_LOGAN_ITEM_SOLD))
 		{
 			setOneTimeInititalDialogue("""
 				\1Aha... \0You again.
@@ -79,10 +51,10 @@ public class Logan : NPC
 				Hehe.
 				""").addCallback(() =>
 			{
-				progression.loganQuest.state = QuestState.InProgress;
+				loganQuest.state = QuestState.InProgress;
 			});
 		}
-		QuestManager.addQuestCompletionCallback(name, progression.loganQuest.name, (Quest _) =>
+		QuestManager.addQuestCompletionCallback(GameState.instance.save, name, loganQuest.name, (Quest _) =>
 		{
 			setInititalDialogue("""
 				Ha, look at you! You actually did it! Maybe you're not as useless as the rest of the rabble.
@@ -93,10 +65,10 @@ public class Logan : NPC
 				if (staff != null)
 					GameState.instance.player.removeItem(staff);
 
-				closeScreen();
+				npc.closeScreen();
 				GameState.instance.save.unlockStartingClass(StartingClass.wizard);
 
-				progression.loganQuest.collect();
+				loganQuest.collect();
 			});
 		});
 
@@ -110,21 +82,21 @@ public class Logan : NPC
 		}
 		*/
 
-		if (progression.initialDialogue == null && progression.loganQuest.state == QuestState.InProgress && level == GameState.instance.hub)
+		if (initialDialogue == null && loganQuest.state == QuestState.InProgress && npc.level == GameState.instance.hub)
 		{
 			setOneTimeInititalDialogue("""
 				Found that staff yet? Come see me if you do.
 				""");
 		}
 
-		if (progression.initialDialogue == null && Random.Shared.NextSingle() < 0.1f)
+		if (initialDialogue == null && Random.Shared.NextSingle() < 0.1f)
 		{
 			setOneTimeInititalDialogue("""
 					The king, the archives, the underworld... everyone's so serious about it all.
 					Me? I just want to blow things up.
 					""");
 		}
-		if (progression.initialDialogue == null)
+		if (initialDialogue == null)
 		{
 			int i = Random.Shared.Next();
 			if (i % 4 == 0)
@@ -153,7 +125,29 @@ public class Logan : NPC
 					""");
 			}
 		}
+	}
+}
 
+public class Logan : NPC
+{
+	public Logan()
+			: base("logan")
+	{
+		displayName = "Big Fat Logan";
+
+		sprite = new Sprite(Resource.GetTexture("sprites/merchant4.png", false), 0, 0, 16, 16);
+		animator = new SpriteAnimator();
+		animator.addAnimation("idle", 2, 1, true);
+		animator.setAnimation("idle");
+	}
+
+	public override NPCSaveData createSave()
+	{
+		return new LoganSave();
+	}
+
+	public override void init(Level level)
+	{
 		if (level != GameState.instance.hub)
 		{
 			populateShop(GameState.instance.generator.random, 5, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
@@ -161,5 +155,11 @@ public class Logan : NPC
 			//canAttune = true;
 			canIdentify = true;
 		}
+	}
+
+	public override void onItemSold(Item item)
+	{
+		base.onItemSold(item);
+		GameState.instance.save.setFlag(SaveFile.FLAG_NPC_LOGAN_ITEM_SOLD);
 	}
 }

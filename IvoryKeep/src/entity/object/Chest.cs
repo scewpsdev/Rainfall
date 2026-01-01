@@ -167,7 +167,7 @@ public class Chest : Container
 			const float itemLostChance = 0.8f;
 			if (Random.Shared.NextSingle() < itemLostChance)
 			{
-				const float trashChance = 0.2f;
+				const float trashChance = 0.1f;
 				items = Random.Shared.NextSingle() < trashChance ? [new Trash()] : null;
 			}
 		}
@@ -195,8 +195,8 @@ public class Chest : Container
 		}
 		else if (type == ChestType.Silver)
 		{
-			itemType = Item.GetTypeFromDroprates(random, droprates);
-			value *= 2;
+			itemType = ItemType.Relic; // Item.GetTypeFromDroprates(random, droprates);
+			//value *= 2;
 		}
 
 		List<Item> candidates = Item.GetItemPrototypesOfType(itemType);

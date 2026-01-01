@@ -67,6 +67,11 @@ public class CaveGenerator : LevelGenerator
 		spawnStartingWeapon = true;
 	}
 
+	public override string getAreaName()
+	{
+		return "Forgotten Cavern";
+	}
+
 	public override int getNumFloors()
 	{
 		return 5;
@@ -189,7 +194,7 @@ public class CaveGenerator : LevelGenerator
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new BuilderMerchant(random, level));
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
 

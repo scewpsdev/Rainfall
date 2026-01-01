@@ -7,20 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class BrokenWanderer : NPC
+public class BrokenWandererSave : NPCSaveData
 {
-	public BrokenWanderer()
-		: base("broken_wanderer")
-	{
-		displayName = "Broken Wanderer";
-
-		sprite = new Sprite(Resource.GetTexture("sprites/npc/traveller.png", false), 0, 0, 16, 16);
-		animator = new SpriteAnimator();
-		animator.addAnimation("idle", 2, 3, true);
-		animator.setAnimation("idle");
-	}
-
-	public override void init(Level level)
+	public override void init(SaveFile save)
 	{
 		setOneTimeInititalDialogue("""
 			Oh, a traveler? It's rare to find one still breathing.
@@ -30,7 +19,7 @@ public class BrokenWanderer : NPC
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_TRAVELLER_MET);
 		});
 
-		if (progression.initialDialogue == null && GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND))
+		if (initialDialogue == null && GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND))
 			setOneTimeInititalDialogue("""
 				You've been below, haven't you? I can see it in your eyes.
 				The caves... they leave their mark, even if you come back whole.
@@ -77,5 +66,28 @@ public class BrokenWanderer : NPC
 			Still here? You're either brave or a fool.
 			I wonder - are they so different in the end?
 			""");
+	}
+}
+
+public class BrokenWanderer : NPC
+{
+	public BrokenWanderer()
+		: base("broken_wanderer")
+	{
+		displayName = "Broken Wanderer";
+
+		sprite = new Sprite(Resource.GetTexture("sprites/npc/traveller.png", false), 0, 0, 16, 16);
+		animator = new SpriteAnimator();
+		animator.addAnimation("idle", 2, 3, true);
+		animator.setAnimation("idle");
+	}
+
+	public override NPCSaveData createSave()
+	{
+		return new BrokenWandererSave();
+	}
+
+	public override void init(Level level)
+	{
 	}
 }

@@ -21,8 +21,7 @@ public class Hunter : NPC
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_HUNTER_MET))
 		{
-			progression.initialDialogue = new Dialogue();
-			progression.initialDialogue.addVoiceLine("...").addCallback(() =>
+			save.setInititalDialogue("...").addCallback(() =>
 			{
 				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_HUNTER_MET);
 				GameState.instance.save.unlockStartingClass(StartingClass.hunter);

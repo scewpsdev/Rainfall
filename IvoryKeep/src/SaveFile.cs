@@ -43,6 +43,7 @@ public class SaveFile
 	public static readonly uint FLAG_NPC_GATEKEEPER_MET = Hash.hash("gatekeeper_questline_init");
 
 	public static readonly uint FLAG_NPC_LOGAN_MET = Hash.hash("logan_questline_init");
+	public static readonly uint FLAG_NPC_LOGAN_ITEM_SOLD = Hash.hash("logan_item_sold");
 
 	public static readonly uint FLAG_NPC_BARBARIAN_MET = Hash.hash("barbarian_questline_init");
 	public static readonly uint FLAG_NPC_KNIGHT_MET = Hash.hash("knight_questline_init");
@@ -64,6 +65,11 @@ public class SaveFile
 	public int runsFinished = 0;
 	public RunData[] highscores = new RunData[4];
 	public HashSet<uint> flags = new HashSet<uint>();
+
+	public Dictionary<string, DatObject> npcData = new Dictionary<string, DatObject>();
+	public Dictionary<string, NPCSaveData> npcSaves = new Dictionary<string, NPCSaveData>();
+	public Dictionary<string, List<Quest>> npcQuests = new Dictionary<string, List<Quest>>();
+	public Dictionary<string, Action<Quest>> npcQuestCompletionCallbacks = new Dictionary<string, Action<Quest>>();
 
 	public List<Item> stashedItems = new List<Item>();
 
@@ -135,6 +141,8 @@ public class SaveFile
 	}
 
 
+
+
 	public static string GetSaveFilePath(int saveID)
 	{
 		return "saves/save" + (saveID + 1) + ".dat";
@@ -156,12 +164,6 @@ public class SaveFile
 			save.highscores[i].activeItems = new Item[5];
 			save.highscores[i].passiveItems = new Item[4];
 		}
-
-		save.unlockStartingClass(StartingClass.barbarian);
-		save.unlockStartingClass(StartingClass.knight);
-		save.unlockStartingClass(StartingClass.hunter);
-		save.unlockStartingClass(StartingClass.thief);
-		save.unlockStartingClass(StartingClass.wizard);
 
 		save.file = Save(save);
 
@@ -198,8 +200,8 @@ public class SaveFile
 
 			if (dat.getArray("npcs", out DatArray npcsData))
 			{
-				QuestManager.LoadNPCs(npcsData);
-				QuestManager.Update();
+				QuestManager.LoadNPCs(save, npcsData);
+				QuestManager.Update(save);
 			}
 
 			if (dat.getArray("stashed_items", out DatArray stashedItemsArray))
@@ -387,7 +389,7 @@ public class SaveFile
 
 		//SaveInventory(save, file, GameState.instance.player);
 
-		file.addArray("npcs", QuestManager.SaveNPCs());
+		file.addArray("npcs", QuestManager.SaveNPCs(save));
 
 		file.addArray("stashed_items", SaveItemList(save.stashedItems.ToArray()));
 
@@ -465,7 +467,7 @@ public class SaveFile
 			file.addIdentifier("carried_object", player.carriedObject.name);
 	}
 
-	public static void LoadQuest(DatObject obj, Quest quest, string npcName)
+	public static void LoadQuest(SaveFile save, DatObject obj, Quest quest, string npcName)
 	{
 		if (obj.getArray("quests", out DatArray quests))
 		{
@@ -478,7 +480,7 @@ public class SaveFile
 					quest.load(quests[i].obj);
 
 					if (quest.state == QuestState.InProgress || quest.state == QuestState.Completed)
-						QuestManager.AddActiveQuest(npcName, quest);
+						QuestManager.AddActiveQuest(save, npcName, quest);
 				}
 			}
 		}

@@ -97,15 +97,16 @@ public class Dialogue
 public class NPCSaveData
 {
 	public string name;
+	public NPC npc;
+
 	public Dialogue initialDialogue;
 	public List<Dialogue> dialogues = new List<Dialogue>();
 	public HashSet<uint> finishedDialogues = new HashSet<uint>();
 	public Dialogue currentDialogue;
 
 
-	public NPCSaveData(string name)
+	public NPCSaveData()
 	{
-		this.name = name;
 	}
 
 	public virtual void load(DatObject obj)
@@ -124,6 +125,79 @@ public class NPCSaveData
 			dialogues.addUInteger(h);
 		obj.addArray("dialogues", dialogues);
 	}
+
+	public virtual void init(SaveFile save)
+	{
+	}
+
+	public void addDialogue(Dialogue dialogue)
+	{
+		dialogues.Add(dialogue);
+	}
+
+	public DialogueScreen setOneTimeInititalDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		uint h = Hash.hash(txt);
+		if (!finishedDialogues.Contains(h))
+		{
+			Dialogue dialogue = new Dialogue();
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			initialDialogue = dialogue;
+			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+			lastScreen.addCallback(() =>
+			{
+				finishedDialogues.Add(h);
+			});
+			return lastScreen;
+		}
+		return null;
+	}
+
+	public DialogueScreen setInititalDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		Dialogue dialogue = new Dialogue();
+		for (int i = 0; i < screens.Length; i++)
+			dialogue.addVoiceLine(screens[i]);
+		initialDialogue = dialogue;
+		return dialogue.screens[dialogue.screens.Count - 1];
+	}
+
+	public DialogueScreen addOneTimeDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		uint h = Hash.hash(txt);
+		if (!finishedDialogues.Contains(h))
+		{
+			Dialogue dialogue = new Dialogue();
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			addDialogue(dialogue);
+			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+			lastScreen.addCallback(() =>
+			{
+				finishedDialogues.Add(h);
+			});
+			return lastScreen;
+		}
+		return null;
+	}
+
+	public DialogueScreen addDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		Dialogue dialogue = new Dialogue();
+		for (int i = 0; i < screens.Length; i++)
+			dialogue.addVoiceLine(screens[i]);
+		addDialogue(dialogue);
+		return dialogue.screens[dialogue.screens.Count - 1];
+	}
 }
 
 public abstract class NPC : Mob, Interactable
@@ -133,7 +207,7 @@ public abstract class NPC : Mob, Interactable
 
 	protected NPCState state = NPCState.None;
 	protected Player player;
-	protected NPCSaveData progression;
+	protected NPCSaveData save;
 
 	long lastCharacterTime;
 	int currentCharacter = 0;
@@ -144,8 +218,8 @@ public abstract class NPC : Mob, Interactable
 
 	public bool buysItems = false;
 	protected bool canCraft = false;
-	protected bool canUpgrade = false;
-	protected bool canInfuse = false;
+	public bool canUpgrade = false;
+	public bool canInfuse = false;
 	//protected bool canAttune = false;
 	protected bool canIdentify = false;
 	protected bool canUncurse = false;
@@ -199,12 +273,12 @@ public abstract class NPC : Mob, Interactable
 		tradeSound = Resource.GetSounds("sounds/trade", 12);
 		upgradeSound = Resource.GetSound("sounds/upgrade.ogg");
 
-		progression = QuestManager.RegisterProgression(this);
+		save = QuestManager.RegisterProgression(GameState.instance.save, this);
 	}
 
 	public virtual NPCSaveData createSave()
 	{
-		return new NPCSaveData(name);
+		return new NPCSaveData();
 	}
 
 	public override void destroy()
@@ -217,7 +291,7 @@ public abstract class NPC : Mob, Interactable
 		closeScreen();
 	}
 
-	protected void populateShop(Random random, int minItems, int maxItems, float meanValue, params ItemType[] types)
+	public void populateShop(Random random, int minItems, int maxItems, float meanValue, params ItemType[] types)
 	{
 		int numItems = Mathf.RandomInt(minItems, maxItems, random);
 
@@ -299,83 +373,18 @@ public abstract class NPC : Mob, Interactable
 		shopItems.Clear();
 	}
 
-	public void addDialogue(Dialogue dialogue)
-	{
-		progression.dialogues.Add(dialogue);
-	}
-
-	protected DialogueScreen setOneTimeInititalDialogue(string txt)
-	{
-		txt = txt.ReplaceLineEndings("\n");
-		string[] screens = txt.Split('\n');
-		uint h = Hash.hash(txt);
-		if (!progression.finishedDialogues.Contains(h))
-		{
-			Dialogue dialogue = new Dialogue();
-			for (int i = 0; i < screens.Length; i++)
-				dialogue.addVoiceLine(screens[i]);
-			progression.initialDialogue = dialogue;
-			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
-			lastScreen.addCallback(() =>
-			{
-				progression.finishedDialogues.Add(h);
-			});
-			return lastScreen;
-		}
-		return null;
-	}
-
-	protected DialogueScreen setInititalDialogue(string txt)
-	{
-		txt = txt.ReplaceLineEndings("\n");
-		string[] screens = txt.Split('\n');
-		Dialogue dialogue = new Dialogue();
-		for (int i = 0; i < screens.Length; i++)
-			dialogue.addVoiceLine(screens[i]);
-		progression.initialDialogue = dialogue;
-		return dialogue.screens[dialogue.screens.Count - 1];
-	}
-
-	protected DialogueScreen addOneTimeDialogue(string txt)
-	{
-		txt = txt.ReplaceLineEndings("\n");
-		string[] screens = txt.Split('\n');
-		uint h = Hash.hash(txt);
-		if (!progression.finishedDialogues.Contains(h))
-		{
-			Dialogue dialogue = new Dialogue();
-			for (int i = 0; i < screens.Length; i++)
-				dialogue.addVoiceLine(screens[i]);
-			addDialogue(dialogue);
-			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
-			lastScreen.addCallback(() =>
-			{
-				progression.finishedDialogues.Add(h);
-			});
-			return lastScreen;
-		}
-		return null;
-	}
-
-	protected DialogueScreen addDialogue(string txt)
-	{
-		txt = txt.ReplaceLineEndings("\n");
-		string[] screens = txt.Split('\n');
-		Dialogue dialogue = new Dialogue();
-		for (int i = 0; i < screens.Length; i++)
-			dialogue.addVoiceLine(screens[i]);
-		addDialogue(dialogue);
-		return dialogue.screens[dialogue.screens.Count - 1];
-	}
-
 	public virtual Item craftItem(Item item1, Item item2)
 	{
 		return null;
 	}
 
+	public virtual void onItemSold(Item item)
+	{
+	}
+
 	public bool canInteract(Player player)
 	{
-		return state == NPCState.None && (shopItems.Count > 0 || progression.initialDialogue != null || progression.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0) || (canInfuse && player.items.Count > 0) || (canIdentify && player.items.Count > 0) || (canUncurse && player.items.Count > 0))  /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(name, out _);
+		return state == NPCState.None && (shopItems.Count > 0 || save.initialDialogue != null || save.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0) || (canInfuse && player.items.Count > 0) || (canIdentify && player.items.Count > 0) || (canUncurse && player.items.Count > 0))  /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(GameState.instance.save, name, out _);
 	}
 
 	public float getRange()
@@ -388,9 +397,9 @@ public abstract class NPC : Mob, Interactable
 		openScreen();
 		this.player = player;
 
-		if (progression.initialDialogue != null)
+		if (save.initialDialogue != null)
 		{
-			initDialogue(progression.initialDialogue);
+			initDialogue(save.initialDialogue);
 		}
 		else
 		{
@@ -412,12 +421,12 @@ public abstract class NPC : Mob, Interactable
 	{
 		if (state == NPCState.None)
 		{
-			state = progression.initialDialogue != null ? NPCState.Dialogue : NPCState.Menu;
+			state = save.initialDialogue != null ? NPCState.Dialogue : NPCState.Menu;
 			GameState.instance.player.numOverlaysOpen++;
 		}
 	}
 
-	protected void closeScreen()
+	public void closeScreen()
 	{
 		if (state != NPCState.None)
 		{
@@ -430,7 +439,7 @@ public abstract class NPC : Mob, Interactable
 	void initDialogue(Dialogue dialogue)
 	{
 		state = NPCState.Dialogue;
-		progression.currentDialogue = dialogue;
+		save.currentDialogue = dialogue;
 		lastCharacterTime = Time.currentTime;
 		currentCharacter = 0;
 		dialogueFinished = false;
@@ -591,7 +600,7 @@ public abstract class NPC : Mob, Interactable
 
 		if (state == NPCState.Dialogue)
 		{
-			DialogueScreen voiceLine = progression.currentDialogue.screens[0];
+			DialogueScreen voiceLine = save.currentDialogue.screens[0];
 
 			int lineHeight = 8;
 			int headerHeight = 12 + 1;
@@ -721,21 +730,21 @@ public abstract class NPC : Mob, Interactable
 
 			if (dialogueFinished && InputManager.IsPressed("Interact", true))
 			{
-				DialogueScreen screen = progression.currentDialogue.screens[0];
-				progression.currentDialogue.screens.RemoveAt(0);
+				DialogueScreen screen = save.currentDialogue.screens[0];
+				save.currentDialogue.screens.RemoveAt(0);
 
 				lastCharacterTime = Time.currentTime;
 				currentCharacter = 0;
 				dialogueFinished = false;
 				dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
-				if (progression.currentDialogue.screens.Count == 0)
+				if (save.currentDialogue.screens.Count == 0)
 				{
 					initMenu();
-					if (progression.currentDialogue == progression.initialDialogue)
-						progression.initialDialogue = null;
+					if (save.currentDialogue == save.initialDialogue)
+						save.initialDialogue = null;
 					else
-						progression.dialogues.Remove(progression.currentDialogue);
-					progression.currentDialogue = null;
+						save.dialogues.Remove(save.currentDialogue);
+					save.currentDialogue = null;
 				}
 
 				for (int i = 0; i < screen.callbacks.Count; i++)
@@ -789,9 +798,9 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Identify");
 			if (canUncurse && player.items.Count > 0)
 				options.Add("Remove Curse");
-			if (progression.dialogues.Count > 0)
+			if (save.dialogues.Count > 0)
 				options.Add("Talk");
-			if (QuestManager.getQuestList(name, out _))
+			if (QuestManager.getQuestList(GameState.instance.save, name, out _))
 				options.Add("Quests");
 			options.Add("Leave");
 
@@ -833,7 +842,7 @@ public abstract class NPC : Mob, Interactable
 				}
 				else if (options[option] == "Talk")
 				{
-					initDialogue(progression.dialogues[0]);
+					initDialogue(save.dialogues[0]);
 				}
 				else if (options[option] == "Quests")
 				{
@@ -871,6 +880,7 @@ public abstract class NPC : Mob, Interactable
 					item.stackSize--;
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
+					onItemSold(copy);
 				}
 				else if (player.money >= price * item.stackSize)
 				{
@@ -885,6 +895,7 @@ public abstract class NPC : Mob, Interactable
 						initMenu();
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
+					onItemSold(item);
 				}
 			}
 
@@ -1222,7 +1233,7 @@ public abstract class NPC : Mob, Interactable
 		else if (state == NPCState.QuestList)
 		{
 			List<string> labels = new List<string>();
-			if (QuestManager.getQuestList(name, out List<Quest> quests))
+			if (QuestManager.getQuestList(GameState.instance.save, name, out List<Quest> quests))
 			{
 				for (int i = 0; i < quests.Count; i++)
 					labels.Add(quests[i].displayName);

@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "rooms/level1/special2.tmx",
+    "activeFile": "rooms/hub.tmx",
     "expandedProjectPaths": [
-        "rooms",
+        "rooms/level1",
         ".",
-        "rooms/level1"
+        "rooms"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -15,11 +15,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3,
+            "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 480.16666666666663,
-                "y": 111.83333333333331
+                "x": 396.75,
+                "y": 151.25
             }
         },
         "rooms/hub2.tmx": {
@@ -165,8 +165,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 172.75,
-                "y": 74.75
+                "x": 160.25,
+                "y": 71.75
             }
         },
         "rooms/level1/special2.tmx": {
@@ -197,10 +197,10 @@
     ],
     "project": "IvoryKeep.tiled-project",
     "recentFiles": [
-        "rooms/hub.tmx",
-        "rooms/hub2.tmx",
-        "rooms/level1/special1.tmx",
         "rooms/level1/special2.tmx",
+        "rooms/level1/special1.tmx",
+        "rooms/hub2.tmx",
+        "rooms/hub.tmx",
         "rooms/level1/room8.tmx",
         "rooms/level1/room6.tmx",
         "rooms/level1/room5.tmx",

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class BatAI : AdvancedAI
 {
-	float shootCooldown = 1.0f;
+	float shootCooldown = 2.0f;
 
 	public bool preferVerticalMovement = false;
 	public bool canShoot = false;

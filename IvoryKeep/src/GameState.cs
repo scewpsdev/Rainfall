@@ -11,7 +11,6 @@ public class RunStats
 	public string seed;
 	public float duration = 0.0f;
 	public int floor = -1;
-	public string areaName;
 	public int kills = 0;
 	public int chestsOpened = 0;
 	public int stepsWalked = 0;
@@ -252,6 +251,8 @@ public class GameState : State
 
 			player.actions.queueAction(new UnconciousAction());
 		}
+
+		QuestManager.InitNPCSaves(save);
 	}
 
 	public override void destroy()
@@ -437,7 +438,7 @@ public class GameState : State
 		Time.paused = isPaused || onscreenPrompt || freeze;
 
 		run.update(isPaused || onscreenPrompt || freeze);
-		QuestManager.Update();
+		QuestManager.Update(save);
 
 		if (newLevel != null && (Time.currentTime - levelSwitchTime) / 1e9f >= LEVEL_FADE)
 		{
@@ -465,8 +466,6 @@ public class GameState : State
 			if (newLevel.floor > run.floor)
 			{
 				run.floor = newLevel.floor;
-				if (newLevel.displayName != null && newLevel.displayName != "")
-					run.areaName = newLevel.displayName;
 			}
 
 			AudioManager.SetAmbientTrack(newLevel.ambientTrack, newLevel.ambientTrackHasIdleLayer);

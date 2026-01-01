@@ -50,6 +50,13 @@ public class MainMenuState : State
 
 	public override void onSwitchTo(State from)
 	{
+		Array.Fill(IvoryKeep.instance.saves, null);
+		for (int i = 0; i < 3; i++)
+		{
+			if (File.Exists(SaveFile.GetSaveFilePath(i)))
+				IvoryKeep.instance.saves[i] = SaveFile.Load(i);
+		}
+
 		startTime = Time.timestamp;
 		AudioManager.SetAmbientTrack(mainMenuAmbience, true);
 	}

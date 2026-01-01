@@ -14,6 +14,11 @@ public class DungeonGenerator : LevelGenerator
 	{
 	}
 
+	public override string getAreaName()
+	{
+		return "The Weeping Catacombs";
+	}
+
 	public override int getNumFloors()
 	{
 		return 4;
@@ -21,12 +26,12 @@ public class DungeonGenerator : LevelGenerator
 
 	public override string getLevelName(int floor)
 	{
-		return floor == 0 ? "Weeping Catacombs" : "";
+		return floor == 0 ? "The Weeping Catacombs" : "";
 	}
 
 	public override int getLootValue(int floor)
 	{
-		return 48 + (floor + 1) * 4;
+		return 39 + (floor + 1) * 4;
 	}
 
 	public override void getLevelSize(int floor, out int width, out int height)
@@ -136,7 +141,7 @@ public class DungeonGenerator : LevelGenerator
 	{
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
 

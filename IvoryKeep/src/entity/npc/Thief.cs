@@ -21,8 +21,7 @@ public class Thief : NPC
 
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_THIEF_MET))
 		{
-			progression.initialDialogue = new Dialogue();
-			progression.initialDialogue.addVoiceLine("...").addCallback(() =>
+			save.setInititalDialogue("...").addCallback(() =>
 			{
 				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_THIEF_MET);
 				GameState.instance.save.unlockStartingClass(StartingClass.thief);

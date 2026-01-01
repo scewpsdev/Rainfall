@@ -16,6 +16,11 @@ public class GardenGenerator : LevelGenerator
 		bgSecondaryTile = TileType.tree;
 	}
 
+	public override string getAreaName()
+	{
+		return "Royal Gardens";
+	}
+
 	public override int getNumFloors()
 	{
 		return 3;
@@ -28,7 +33,7 @@ public class GardenGenerator : LevelGenerator
 
 	public override int getLootValue(int floor)
 	{
-		return 36 + (floor + 1) * 4;
+		return 27 + (floor + 1) * 4;
 	}
 
 	public override void getLevelSize(int floor, out int width, out int height)
@@ -146,7 +151,7 @@ public class GardenGenerator : LevelGenerator
 	{
 		List<NPC> npcs = new List<NPC>();
 		npcs.Add(new TravellingMerchant(random, level));
-		if (!QuestManager.tryGetQuest("logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
+		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
 

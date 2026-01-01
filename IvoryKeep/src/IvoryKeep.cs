@@ -67,17 +67,11 @@ public class IvoryKeep : Game
 
 		Settings.Load();
 
-		for (int i = 0; i < 3; i++)
-		{
-			if (File.Exists(SaveFile.GetSaveFilePath(i)))
-				saves[i] = SaveFile.Load(i);
-		}
-
 #if DEBUG
 		pushState(new MainMenuState());
 		//pushState(new SplashScreenState());
-		if (saves[2] != null)
-			pushState(new GameState(2, null));
+		if (saves[1] != null)
+			pushState(new GameState(1, null));
 #else
 		pushState(new MainMenuState());
 		pushState(new SplashScreenState());

@@ -21,8 +21,9 @@ public class BuilderMerchant : NPC
 
 		buysItems = true;
 
-		progression.initialDialogue = new Dialogue();
-		progression.initialDialogue.addVoiceLine("Howdy!");
+		save.setInititalDialogue("""
+			Howdy!
+			""");
 
 		populateShop(random, 8, 14, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Food, ItemType.Utility, ItemType.Ammo);
 	}

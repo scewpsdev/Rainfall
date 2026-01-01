@@ -15,7 +15,7 @@ public class RoyalGreatsword : Weapon
 
 		baseDamage = 3;
 		baseAttackRange = 1.8f;
-		baseAttackRate = 1.5f;
+		baseAttackRate = 0.7f;
 		twoHanded = true;
 		baseWeight = 3;
 		canBlock = true;

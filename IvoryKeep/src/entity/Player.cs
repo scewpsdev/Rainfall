@@ -52,8 +52,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float maxHealth => hp * 0.5f;
 
 	//public float maxMana = 2;
-	public float mana = 2;
-	public float maxMana => magic * 0.5f;
+	public float mana = 1;
+	public float maxMana => magic * 0.25f;
 
 	public float maxEquipLoad = 10;
 
@@ -581,7 +581,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			items[i].onItemPickUp(this, item);
 		}
 
-		QuestManager.onItemPickup(item);
+		QuestManager.onItemPickup(GameState.instance.save, item);
 		return true;
 	}
 
@@ -1138,7 +1138,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		for (int i = 0; i < items.Count; i++)
 			items[i].onKill(this, mob);
 
-		QuestManager.onKill(mob);
+		QuestManager.onKill(GameState.instance.save, mob);
 	}
 
 	public void onEnemyHit(Mob mob)
@@ -1170,13 +1170,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		*/
 
 		availableStatUpgrades++;
-		if (playerLevel % 2 == 1)
+		//if (playerLevel % 2 == 1)
 		{
 			hp++;
-			magic++;
-			dexterity++;
+			//magic++;
+			//dexterity++;
 			strength++;
 			intelligence++;
+		}
+		if (playerLevel % 2 == 1)
+		{
+			magic++;
+			dexterity++;
 		}
 
 		//if (playerLevel % 5 == 0)
@@ -2358,10 +2363,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				offhandItem.render(this);
 			for (int i = passiveItems.Count - 1; i >= 0; i--)
 			{
-				if (passiveItems[i].ingameSprite != null && show && (passiveItems[i].armorSlot != ArmorSlot.Gloves || renderArms && (actions.currentAction == null || actions.currentAction.renderWeaponMain == null && actions.currentAction.renderWeaponSecondary == null)))
+				if (passiveItems[i].ingameSprite != null && show && passiveItems[i].armorSlot != ArmorSlot.Gloves)
 				{
-					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
-					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 				passiveItems[i].render(this);
 			}
@@ -2387,6 +2392,16 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						else
 							renderBackItem(LAYER_PLAYER_BG, offhandItem);
 					}
+				}
+			}
+
+			// render gloves above weapon
+			for (int i = 0; i < passiveItems.Count; i++)
+			{
+				if (passiveItems[i].armorSlot == ArmorSlot.Gloves && renderArms && (actions.currentAction == null || actions.currentAction.renderWeaponMain == null && actions.currentAction.renderWeaponSecondary == null))
+				{
+					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 			}
 		}
