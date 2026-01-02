@@ -1,5 +1,6 @@
 flags = [ 1615716108, 417135138 ]
-runs_finished = 0
+name = "scewps"
+runs_finished = 1
 highscores = [ {
 score = 0
 floor = -1
@@ -31,95 +32,62 @@ items2 = [ {
 
 } ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
+score = 8744
+floor = 1
+time = 180.47691345214844
+kills = 35
 items0 = [ {
 
 }, {
 
 } ]
 items1 = [ {
-
-}, {
-
-}, {
-
-}, {
-
-}, {
-
-} ]
-items2 = [ {
-
-}, {
-
+type = lockpick
+stack_size = 1
 }, {
 
 }, {
 
 } ]
+items2 = [  ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
+score = 8744
+floor = 1
+time = 180.47691345214844
+kills = 35
 items0 = [ {
 
 }, {
 
 } ]
 items1 = [ {
-
-}, {
-
-}, {
-
-}, {
-
-}, {
-
-} ]
-items2 = [ {
-
-}, {
-
+type = lockpick
+stack_size = 1
 }, {
 
 }, {
 
 } ]
+items2 = [  ]
 }, {
-score = 0
-floor = -1
-time = -1
-kills = 0
+score = 8744
+floor = 1
+time = 180.47691345214844
+kills = 35
 items0 = [ {
 
 }, {
 
 } ]
 items1 = [ {
-
-}, {
-
-}, {
-
-}, {
-
-}, {
-
-} ]
-items2 = [ {
-
-}, {
-
+type = lockpick
+stack_size = 1
 }, {
 
 }, {
 
 } ]
+items2 = [  ]
 } ]
 npcs = [ {
 name = blacksmith
@@ -143,11 +111,14 @@ staff_found = 0
 } ]
 }, {
 name = rat_npc
-dialogues = [ 2610346675 ]
+dialogues = [  ]
 quests = [ {
 name = cheese_quest
 state = Uninitialized
 snake_kills = 0
 } ]
+}, {
+name = anvil
+dialogues = [  ]
 } ]
 stashed_items = [  ]

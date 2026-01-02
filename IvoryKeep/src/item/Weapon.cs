@@ -55,16 +55,19 @@ public class Weapon : Item
 			bool mainHand = player.handItem == this;
 
 			Item powerstancedWeapon = null;
-			if (mainHand && player.offhandItem != null && player.offhandItem.name == name)
+			if (player.canEquipOffhand)
 			{
-				powerstancedWeapon = player.offhandItem;
-				attackRate *= 1.5f;
-			}
-			else if (!mainHand && player.handItem != null && player.handItem.name == name)
-			{
-				powerstancedWeapon = player.handItem;
-				attackRate /= 1.5f;
-				attackDamage += 0.5f * powerstancedWeapon.getAttackDamage(player);
+				if (mainHand && player.offhandItem != null && player.offhandItem.name == name)
+				{
+					powerstancedWeapon = player.offhandItem;
+					attackRate *= 1.5f;
+				}
+				else if (!mainHand && player.handItem != null && player.handItem.name == name)
+				{
+					powerstancedWeapon = player.handItem;
+					attackRate /= 1.5f;
+					attackDamage += 0.5f * powerstancedWeapon.getAttackDamage(player);
+				}
 			}
 
 			player.actions.queueAction(new AttackAction(this, mainHand, anim, attackIdx, attackRate, attackDamage, range, startAngle, endAngle, powerstancedWeapon) { swingDir = swingDir });

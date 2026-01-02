@@ -55,7 +55,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float mana = 1;
 	public float maxMana => magic * 0.25f;
 
-	public float maxEquipLoad = 10;
+	public float maxEquipLoad = 15;
 
 	public int hp = 8;
 	public int magic = 4;
@@ -1170,6 +1170,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		*/
 
 		availableStatUpgrades++;
+		/*
 		//if (playerLevel % 2 == 1)
 		{
 			hp++;
@@ -1183,6 +1184,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			magic++;
 			dexterity++;
 		}
+		*/
 
 		//if (playerLevel % 5 == 0)
 		//	GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
@@ -1265,10 +1267,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 						wallTouchStart = Time.currentTime;
 					lastWallTouchRight = Time.currentTime;
 				}
-				else
-				{
-					lastWallTouchRight = 0;
-				}
 				if (InputManager.IsDown("Left") && GameState.instance.level.overlapSolid(position + new Vector2(collider.min.x - 0.2f, 0.1f), position + new Vector2(0.0f, collider.max.y - 0.05f)))
 				{
 					//if ((Time.currentTime - lastWallTouchLeft) / 1e9f > COYOTE_TIME && velocity.y < -0.5f)
@@ -1276,10 +1274,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					if (wallTouchStart == 0 && velocity.y < 0)
 						wallTouchStart = Time.currentTime;
 					lastWallTouchLeft = Time.currentTime;
-				}
-				else
-				{
-					lastWallTouchLeft = 0;
 				}
 
 				if (lastWallTouchRight == 0 && lastWallTouchLeft == 0)
@@ -1537,6 +1531,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (lastWallTouchLeft == Time.currentTime && inputLeft || lastWallTouchRight == Time.currentTime && inputRight)
 			{
 				bool paused = !isGrounded && wallTouchStart != 0 && (Time.currentTime - wallTouchStart) / 1e9f < 3 / 60.0f;
+				paused = false;
 				velocity.y = paused ? MathF.Max(velocity.y, 0) : MathF.Max(velocity.y, -16 / wallControl);
 			}
 
@@ -2431,7 +2426,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				itemBuffs[i].render(this);
 		}
 
-		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 5);
+		Renderer.DrawLight(position + new Vector2(0, 0.5f), new Vector3(1.0f) * 1.5f, 6);
 
 		if (GameState.instance.run.active)
 		{
@@ -2445,7 +2440,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		get => health > 0;
 	}
 
-	public float equipLoadModifier => MathF.Exp(-getTotalEquipLoad() * 0.02f);
+	public float equipLoadModifier => MathF.Exp(-getTotalEquipLoad() * 0.013f);
 
 	public float currentSpeedModifier
 	{

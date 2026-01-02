@@ -13,7 +13,7 @@ public class GardensBossRoom : BossRoom
 	public GardensBossRoom(Room room)
 		: base(room, 3)
 	{
-		boss = new GolemBoss() { health = 120 };
+		boss = new GolemBoss() { health = 80 };
 	}
 
 	public override void update()

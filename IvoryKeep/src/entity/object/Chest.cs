@@ -14,6 +14,8 @@ public enum ChestType
 	Blue, // Magic
 	Green, // Ranged
 	Silver, // Anything
+
+	Last
 }
 
 public class Chest : Container
@@ -196,7 +198,7 @@ public class Chest : Container
 		else if (type == ChestType.Silver)
 		{
 			itemType = ItemType.Relic; // Item.GetTypeFromDroprates(random, droprates);
-			//value *= 2;
+			value *= 2;
 		}
 
 		List<Item> candidates = Item.GetItemPrototypesOfType(itemType);

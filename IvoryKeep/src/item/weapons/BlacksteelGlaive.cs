@@ -13,9 +13,9 @@ public class BlacksteelGlaive : Weapon
 	{
 		displayName = "Blacksteel Glaive";
 
-		baseDamage = 2.4f;
+		baseDamage = 2.0f;
 		baseAttackRange = 1.3f;
-		baseAttackRate = 1.2f;
+		baseAttackRate = 1.1f;
 		twoHanded = true;
 		baseWeight = 2.5f;
 		doubleBladed = false;
@@ -32,9 +32,9 @@ public class BlacksteelGlaive : Weapon
 		icon = new Sprite(tileset.texture, 11 * 16 + 16, 9 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 	}
 
-	/*
 	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
 		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
@@ -57,5 +57,4 @@ public class BlacksteelGlaive : Weapon
 			anim = AttackAnim.Stab;
 		}
 	}
-	*/
 }

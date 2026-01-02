@@ -83,7 +83,6 @@ public static class CharacterInfoPanel
 				if (hovered)
 					selectedLevelStat = idx;
 
-				/*
 				if (selectedLevelStat == idx)
 				{
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
@@ -97,7 +96,6 @@ public static class CharacterInfoPanel
 						Audio.PlayBackground(UISound.uiSwitch);
 					}
 				}
-				*/
 			}
 
 			drawLeft(name, color);

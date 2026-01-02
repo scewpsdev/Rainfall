@@ -16,7 +16,7 @@ public class Anvil : NPC
 		sprite = new Sprite(tileset, 1, 2);
 		collider = new FloatRect(-0.5f, 0, 1, 10.0f / 16);
 		platformCollider = true;
-		filterGroup = FILTER_OBJECT;
+		filterGroup = FILTER_DEFAULT | FILTER_OBJECT;
 
 		canUpgrade = true;
 		turnTowardsPlayer = false;

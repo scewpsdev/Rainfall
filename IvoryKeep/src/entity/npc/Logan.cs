@@ -150,7 +150,7 @@ public class Logan : NPC
 	{
 		if (level != GameState.instance.hub)
 		{
-			populateShop(GameState.instance.generator.random, 5, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
+			populateShop(GameState.instance.generator.random, 7, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
 			buysItems = true;
 			//canAttune = true;
 			canIdentify = true;

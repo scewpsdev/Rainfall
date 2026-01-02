@@ -428,8 +428,10 @@ public abstract class LevelGenerator
 		float lockedChestChance = 0.1f;
 		spawnRoomObject(deadEnds, lockedChestChance, false, (Vector2i tile, Random random, Room room) =>
 		{
-			Item[] item = Item.CreateRandom(random, getDroprates(), getRoomLootValue(room));
-			level.addEntity(new Chest(item, random.Next() % 2 == 1, ChestType.Silver), tile + new Vector2(0.5f, 0));
+			//Item[] item = Item.CreateRandom(random, getDroprates(), getRoomLootValue(room));
+			Chest chest = new Chest(null, random.Next() % 2 == 1, (ChestType)(random.Next() % (int)ChestType.Last));
+			chest.items = chest.createThemedItems(getRoomLootValue(room), getDroprates(), random);
+			level.addEntity(chest, tile + new Vector2(0.5f, 0));
 
 			IronKey key = new IronKey();
 			spawnItems([[key]], deadEnds);

@@ -147,7 +147,7 @@ public class Blacksmith : NPC, WorldEventListener
 	{
 		clearShop();
 		Random random = new Random((int)Hash.combine(Hash.hash(GameState.instance.run.seed), (uint)boss.level.floor));
-		populateShop(random, 8, 10, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 10, 14, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
 		buysItems = true;
 		canUpgrade = true;
 		canInfuse = true;
