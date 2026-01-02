@@ -206,7 +206,7 @@ public class Chest : Container
 		{
 			for (int i = 0; i < candidates.Count; i++)
 			{
-				if (candidates[i].type == ItemType.Weapon && ((Weapon)candidates[i]).weaponType != weaponType)
+				if (candidates[i] != null && candidates[i].type == ItemType.Weapon && candidates[i] is Weapon && ((Weapon)candidates[i]).weaponType != weaponType)
 					candidates.RemoveAt(i--);
 			}
 		}

@@ -429,7 +429,8 @@ public abstract class LevelGenerator
 		spawnRoomObject(deadEnds, lockedChestChance, false, (Vector2i tile, Random random, Room room) =>
 		{
 			//Item[] item = Item.CreateRandom(random, getDroprates(), getRoomLootValue(room));
-			Chest chest = new Chest(null, random.Next() % 2 == 1, (ChestType)(random.Next() % (int)ChestType.Last));
+			ChestType chestType = (ChestType)(random.Next() % ((int)ChestType.Last - 1) + 1);
+			Chest chest = new Chest(null, random.Next() % 2 == 1, chestType);
 			chest.items = chest.createThemedItems(getRoomLootValue(room), getDroprates(), random);
 			level.addEntity(chest, tile + new Vector2(0.5f, 0));
 

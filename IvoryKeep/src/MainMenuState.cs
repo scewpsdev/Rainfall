@@ -80,7 +80,7 @@ public class MainMenuState : State
 			true,
 			true,
 			true,
-			false, //true,
+			true,
 			true,
 			true
 		];

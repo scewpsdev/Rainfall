@@ -46,12 +46,13 @@ public class RunStats
 		{
 			int result = 0;
 
-			result += hasWon ? 5000 : 0;
+			result += hasWon ? 20000 : 0;
 			result += floor * 1000;
-			result += kills * 200;
+			result += kills * 100;
 			result += chestsOpened * 17;
-			result += stepsWalked * 5;
-			result += (int)(MathF.Exp(-hitsTaken * 0.2f) * duration);
+			result += stepsWalked * 1;
+			// TODO add total money collected and player level
+			//result += (int)(MathF.Exp(-hitsTaken * 0.2f) * duration);
 
 			return result;
 		}
