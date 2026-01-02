@@ -44,10 +44,10 @@ public class DungeonGenerator : LevelGenerator
 			width = 60;
 	}
 
-    public override TileType getDefaultTile(int floor)
-    {
+	public override TileType getDefaultTile(int floor)
+	{
 		return null;
-    }
+	}
 
 	public override int getAmbientLight()
 	{
@@ -74,12 +74,35 @@ public class DungeonGenerator : LevelGenerator
 		return new DungeonsBossRoom(room);
 	}
 
-	public override RoomDef[] getSecretRoomDefs()
+	public override RoomDef[] getDeadEndRoomDefs()
 	{
 		RoomDef[] secretRooms = new RoomDef[6];
 		secretRooms[0] = specialSet.roomDefs[6];
 		secretRooms[1] = specialSet.roomDefs[random.Next() % 2 == 0 ? 7 : 8];
 		secretRooms[2] = specialSet.roomDefs[random.Next() % 2 == 0 ? 9 : 10];
+		secretRooms[3] = specialSet.roomDefs[11];
+		secretRooms[4] = !GameState.instance.save.areAllStartingClassesUnlocked() ? cavesSpecialSet.roomDefs[0] : specialSet.roomDefs[6];
+		secretRooms[5] = specialSet.roomDefs[20];
+
+		return secretRooms;
+	}
+
+	public override Entity createDeadEndRoomEntity(int type, Room room)
+	{
+		if (type == 0) return new CavesSpecialRoom1(room, this);
+		if (type == 1) return new CavesSpecialRoom2(room, this);
+		if (type == 2) return new CavesSpecialRoom3(room, this);
+		if (type == 3) return new CavesPlatformingRoom1(room, this);
+		if (type == 4) return !GameState.instance.save.areAllStartingClassesUnlocked() ? new PrisonCellRoom(room, this) : new CavesSpecialRoom1(room, this);
+		return null;
+	}
+
+	public override RoomDef[] getSecretRoomDefs()
+	{
+		RoomDef[] secretRooms = new RoomDef[6];
+		secretRooms[0] = specialSet.roomDefs[6];
+		secretRooms[1] = specialSet.roomDefs[7];
+		secretRooms[2] = specialSet.roomDefs[9];
 		secretRooms[3] = specialSet.roomDefs[11];
 		secretRooms[4] = !GameState.instance.save.areAllStartingClassesUnlocked() ? cavesSpecialSet.roomDefs[0] : specialSet.roomDefs[6];
 		secretRooms[5] = specialSet.roomDefs[20];
@@ -102,8 +125,8 @@ public class DungeonGenerator : LevelGenerator
 		return DropRates.cavesDroprates;
 	}
 
-    public override int getNumItems(int floor)
-    {
+	public override int getNumItems(int floor)
+	{
 		return Mathf.RollDice(2, 2, random) - 1;
 	}
 

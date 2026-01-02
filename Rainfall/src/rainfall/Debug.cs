@@ -12,7 +12,11 @@ namespace Rainfall
 	{
 		public static void Assert(bool condition)
 		{
-			System.Diagnostics.Debug.Assert(condition);
+			if (!condition)
+			{
+				Console.Error.WriteLine("Assertion failed.");
+				//System.Diagnostics.Debug.Assert(condition);
+			}
 		}
 
 		public static void CaptureFrame()

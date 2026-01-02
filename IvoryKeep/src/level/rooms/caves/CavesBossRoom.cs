@@ -16,7 +16,7 @@ public class CavesBossRoom : BossRoom
 		//AdvancedAI ai = boss.ai as AdvancedAI;
 		//ai.walkDirection = -1;
 
-		track = new MultilayerTrack("sounds/ost/battle/ost", 2);
+		track = battleTrack;
 	}
 
 	public override void init(Level level)

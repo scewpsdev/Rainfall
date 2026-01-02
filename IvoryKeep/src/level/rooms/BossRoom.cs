@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 public class BossRoom : Entity
 {
+	public static MultilayerTrack battleTrack = new MultilayerTrack("sounds/ost/battle/ost", 2);
+
+
 	Room room;
 	public Mob boss;
 	int area;

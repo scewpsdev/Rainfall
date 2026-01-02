@@ -41,7 +41,7 @@ public abstract class LevelGenerator
 		}
 
 		cavesSpecialSet = new RoomDefSet(null);
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			cavesSpecialSet.loadTmx($"level/rooms/level1/special{i + 1}.tmx");
 		}
@@ -118,6 +118,8 @@ public abstract class LevelGenerator
 	public abstract Door createEntranceDoor(Level lastLevel, Door lastExit);
 
 	public abstract BossRoom createBossRoom(Room room);
+	public abstract RoomDef[] getDeadEndRoomDefs();
+	public abstract Entity createDeadEndRoomEntity(int type, Room room);
 	public abstract RoomDef[] getSecretRoomDefs();
 	public abstract Entity createSecretRoomEntity(int type, Room room);
 
@@ -201,7 +203,7 @@ public abstract class LevelGenerator
 		if (secretDoor != null)
 		{
 			Level level = new Level(-1, name + "_secret_floor", "", numFloors * 4);
-			Room room = createSecretRoom(null);
+			Room room = createSecretRoom();
 
 			generateSingleRoomLevel(level, room, null, primaryTile, secondaryTile);
 
@@ -287,7 +289,7 @@ public abstract class LevelGenerator
 
 		generateExtraRooms(roomSet, (Doorway doorway) =>
 		{
-			Room room = createSecretRoom(doorway);
+			Room room = createDeadEndRoom(doorway);
 			if (room != null)
 			{
 				room.spawnEnemies = false;
@@ -699,13 +701,27 @@ public abstract class LevelGenerator
 		level.addEntity(createBossRoom(room));
 	}
 
-	Room createSecretRoom(Doorway doorway)
+	Room createDeadEndRoom(Doorway doorway)
+	{
+		RoomDef[] roomDefs = getDeadEndRoomDefs();
+
+		int type = random.Next() % roomDefs.Length;
+		RoomDef roomDef = roomDefs[type];
+		Debug.Assert(doorway != null);
+		Room room = fillDoorway(doorway, roomDef, roomDef.set);
+		if (room != null)
+			room.entity = createDeadEndRoomEntity(type, room);
+
+		return room;
+	}
+
+	Room createSecretRoom()
 	{
 		RoomDef[] secretRooms = getSecretRoomDefs();
 
 		int type = random.Next() % secretRooms.Length;
 		RoomDef roomDef = secretRooms[type];
-		Room room = doorway != null ? fillDoorway(doorway, roomDef, roomDef.set) : new Room(roomDef);
+		Room room = new Room(roomDef);
 		if (room != null)
 			room.entity = createSecretRoomEntity(type, room);
 
@@ -1179,7 +1195,18 @@ public abstract class LevelGenerator
 				});
 			}
 
-			//Debug.Assert(placed);
+			if (!placed)
+			{
+				spawnTileObject((int x, int y, TileType tile, TileType left, TileType right, TileType down, TileType up) =>
+				{
+					if (tile == null && down != null)
+					{
+						spawnItem(x, y, item);
+					}
+				});
+			}
+
+			Debug.Assert(placed);
 			if (placed)
 			{
 				items.RemoveAt(0);
@@ -1314,7 +1341,7 @@ public abstract class LevelGenerator
 			emptyDoorways.RemoveAt(0);
 		}
 
-		Debug.Assert(rooms.Count > 1);
+		//Debug.Assert(rooms.Count > 1);
 	}
 
 	void generateExtraRooms(RoomDefSet set, Func<Doorway, bool> createSpecialRoom)
@@ -1600,6 +1627,7 @@ public abstract class LevelGenerator
 		TileType downLeft = level.getTile(x - 1, y - 1);
 		TileType downRight = level.getTile(x + 1, y - 1);
 
+		/*
 		Vector2 exitPosition = level.exit.position;
 
 		float furthestDistance = 0;
@@ -1617,13 +1645,14 @@ public abstract class LevelGenerator
 			progress *= 0.5f + random.NextSingle();
 		else
 			progress = 1 - (1 - progress) * (0.5f + random.NextSingle());
+		*/
 
 		if (!enemy.canFly && enemy.gravity != 0 && left == null && right == null && up == null && down != null && (downLeft != null || downRight != null)
 			|| enemy.canFly && left == null && right == null
 			|| enemy.gravity == 0 && (down != null || up != null))
 		{
 			enemy.direction = random.NextSingle() < 0.5f ? 1 : -1;
-			float itemDropChance = Mathf.Lerp(0.05f, 0.1f, progress);
+			float itemDropChance = 0.05f; // Mathf.Lerp(0.05f, 0.1f, progress);
 
 			while (itemDropChance > 0 && random.NextSingle() < itemDropChance)
 			{
@@ -1723,7 +1752,7 @@ public abstract class LevelGenerator
 
 	public void generateSingleRoomLevel(Level level, Room room, Room bgRoom, Func<int, int, int, TileType> getTile, uint entranceMarker = 0, uint exitMarker = 0, Door entranceDoor = null, Door exitDoor = null)
 	{
-		random = new Random((int)Hash.hash(level.name));
+		random = new Random((int)Hash.hash(seed));
 
 		level.resize(room.width, room.height);
 

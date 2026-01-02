@@ -796,7 +796,7 @@ struct BGFXCallbacks : bgfx::CallbackI
 		, va_list _argList
 	) override
 	{
-		Console_LogV(_format, _argList);
+		//Console_LogV(_format, _argList);
 	}
 
 	/// Profiler region begin.
