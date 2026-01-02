@@ -881,6 +881,7 @@ public abstract class NPC : Mob, Interactable
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
 					onItemSold(copy);
+					player.hud.showMessage("Sold " + copy.fullDisplayName);
 				}
 				else if (player.money >= price * item.stackSize)
 				{
@@ -896,6 +897,7 @@ public abstract class NPC : Mob, Interactable
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
 					onItemSold(item);
+					player.hud.showMessage("Sold " + item.fullDisplayName);
 				}
 			}
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 public enum StashChestMode
 {
+	None,
 	Store,
 	Retrieve,
 }
@@ -50,6 +51,20 @@ public class StashChest : Object, Interactable
 		level.removeEntityCollider(this);
 	}
 
+	void openScreen()
+	{
+		menuOpen = true;
+		GameState.instance.player.numOverlaysOpen++;
+		selectedItem = 0;
+	}
+
+	void closeScreen()
+	{
+		mode = StashChestMode.None;
+		menuOpen = false;
+		GameState.instance.player.numOverlaysOpen--;
+	}
+
 	public override bool canInteract(Player player)
 	{
 		return open;
@@ -59,9 +74,7 @@ public class StashChest : Object, Interactable
 	{
 		if (!menuOpen)
 		{
-			menuOpen = true;
-			player.numOverlaysOpen++;
-			selectedItem = 0;
+			openScreen();
 		}
 	}
 
@@ -80,8 +93,7 @@ public class StashChest : Object, Interactable
 			float maxDistance = getRange();
 			if ((player.position + player.collider.center - position).lengthSquared > maxDistance * maxDistance)
 			{
-				menuOpen = false;
-				player.numOverlaysOpen--;
+				closeScreen();
 			}
 		}
 	}
@@ -92,7 +104,24 @@ public class StashChest : Object, Interactable
 
 		if (menuOpen)
 		{
-			if (mode == StashChestMode.Store)
+			if (mode == StashChestMode.None)
+			{
+				Vector2 menuAnchor = GameState.instance.camera.worldToScreen(position + new Vector2(0, 2));
+				List<string> options = ["Store Item", "Retrieve Item"];
+				int choice = InteractableMenu.Render(menuAnchor, "Stash", options, out bool closed, ref selectedItem);
+
+				if (choice != -1)
+				{
+					mode = choice == 0 ? StashChestMode.Store : StashChestMode.Retrieve;
+					selectedItem = 0;
+				}
+				else if (closed)
+				{
+					menuOpen = false;
+					GameState.instance.player.numOverlaysOpen--;
+				}
+			}
+			else if (mode == StashChestMode.Store)
 			{
 				Vector2 menuAnchor = GameState.instance.camera.worldToScreen(position + new Vector2(0, 2));
 				int choice = ItemSelector.Render(menuAnchor, "Stash item", GameState.instance.player.items, null, 0, GameState.instance.player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
@@ -106,13 +135,11 @@ public class StashChest : Object, Interactable
 					open = false;
 					sprite = closedSprite;
 
-					menuOpen = false;
-					GameState.instance.player.numOverlaysOpen--;
+					closeScreen();
 				}
 				else if (closed)
 				{
-					menuOpen = false;
-					GameState.instance.player.numOverlaysOpen--;
+					mode = StashChestMode.None;
 				}
 			}
 			else
@@ -128,13 +155,11 @@ public class StashChest : Object, Interactable
 					open = false;
 					sprite = closedSprite;
 
-					menuOpen = false;
-					GameState.instance.player.numOverlaysOpen--;
+					closeScreen();
 				}
 				else if (closed)
 				{
-					menuOpen = false;
-					GameState.instance.player.numOverlaysOpen--;
+					mode = StashChestMode.None;
 				}
 			}
 		}

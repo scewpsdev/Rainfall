@@ -28,6 +28,7 @@ public class ScrollOfWeaponEnchantment : Item
 			player.handItem.upgrade();
 			player.handItem.onEquip(player);
 			player.hud.showMessage("Your weapon shimmers lightly.");
+			Audio.PlayOrganic(heal, new Vector3(player.position, 0));
 		}
 		else if (player.offhandItem != null)
 		{
@@ -35,6 +36,7 @@ public class ScrollOfWeaponEnchantment : Item
 			player.offhandItem.upgrade();
 			player.offhandItem.onEquip(player);
 			player.hud.showMessage("Your weapon shimmers lightly.");
+			Audio.PlayOrganic(heal, new Vector3(player.position, 0));
 		}
 		else
 		{

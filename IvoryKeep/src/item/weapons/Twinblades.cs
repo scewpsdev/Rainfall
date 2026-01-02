@@ -36,7 +36,7 @@ public class Twinblades : Weapon
 	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
 		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
-		if (idx % 4 >= 2)
+		if (idx % 2 == 1)
 			anim = AttackAnim.SwingSideways;
 	}
 }

@@ -1613,6 +1613,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public bool useActiveItem(Item item)
 	{
+		if (item.cursed)
+		{
+			hud.showMessage("This item cannot be used.");
+			return false;
+		}
 		if (item.stackable && item.stackSize > 1)
 		{
 			Item copy = item.copy();

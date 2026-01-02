@@ -144,7 +144,7 @@ public class Hub : Entity
 		level.addEntity(new ArmorStand(StartingClass.dev, -1), new Vector2(level.getMarker(0xA).x + 2 + StartingClass.startingClasses.Length * 1.5f, 2));
 #endif
 
-		level.addEntity(new StashChest(StashChestMode.Retrieve) { flipped = true }, new Vector2(2, 2));
+		//level.addEntity(new StashChest(StashChestMode.Retrieve) { flipped = true }, new Vector2(2, 2));
 
 
 		if (QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
