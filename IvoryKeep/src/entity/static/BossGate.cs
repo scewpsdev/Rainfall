@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class BossGate : Entity
 {
 	Sprite sprite;
-	int height = 3;
+	public int height = 3;
 
 	public bool isOpen;
 
@@ -61,4 +61,6 @@ public class BossGate : Entity
 			}
 		}
 	}
+
+	public Vector2 bottomPosition => position + new Vector2(0, -height + 1);
 }

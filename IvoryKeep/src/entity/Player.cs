@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Player : Entity, Hittable, StatusEffectReceiver
+public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 {
 	const float JUMP_BUFFER = 0.2f;
 	const float COYOTE_TIME = 0.15f;
@@ -43,12 +43,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
-	public const float defaultManaRecoveryRate = 0.01f;
+	public const float defaultManaRecoveryRate = 0.015f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
 	//public float maxHealth = 3;
-	public float health = 4;
+	public float health = 3;
 	public float maxHealth => hp * 0.5f;
 
 	//public float maxMana = 2;
@@ -57,7 +57,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 	public float maxEquipLoad = 15;
 
-	public int hp = 8;
+	public int hp = 6;
 	public int magic = 4;
 	public int strength = 1;
 	public int dexterity = 1;
@@ -66,10 +66,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public int luck = 1;
 
 	public int money = 0;
+	public void giveMoney(int amount) { money += amount; GameState.instance.run.coinsCollected += amount; }
+	public float coinFollowDistance = 1.0f;
+	public float getCoinFollowDistance() { return coinFollowDistance; }
+
 	public int playerLevel = 1;
 	public int xp = 0;
 
-	public int nextLevelXP => (int)MathF.Round(30 * (MathF.Exp((playerLevel - 1) * 0.1f) + (playerLevel - 1) * 0.6f));
+	public int nextLevelXP => (int)MathF.Round(20 * (MathF.Exp((playerLevel - 1) * 0.1f) + (playerLevel - 1) * 0.6f));
 	public int availableStatUpgrades = 0;
 
 	public List<ItemBuff> itemBuffs = new List<ItemBuff>();
@@ -142,7 +146,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	public Spell getSelectedSpell() => spellItems.Count > 0 ? spellItems[selectedSpellItem = Mathf.Clamp(selectedSpellItem, 0, spellItems.Count - 1)] : null;
 	public List<Item> passiveItems = new List<Item>();
 
-	public HashSet<Level> collectedMaps = new HashSet<Level>();
+	public HashSet<string> collectedMaps = new HashSet<string>();
 
 	ParticleEffect handParticles, offhandParticles;
 
@@ -212,8 +216,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 
 		health = maxHealth;
 		mana = maxMana;
-
-		coinTarget = true;
 	}
 
 	public override void init(Level level)
@@ -531,7 +533,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		if ((item.type == ItemType.Spell || item.type == ItemType.Relic) && hasItemOfType(item.name))
 		{
 			Item spellItem = getItem(item.name);
-			spellItem.upgrade();
+			for (int i = 0; i < item.upgradeLevel; i++)
+				spellItem.upgrade();
 			return true;
 		}
 
@@ -907,6 +910,9 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
+		if (projectile != null)
+			stun(projectile);
+
 		bool invincible = lastIFrameTrigger != -1 && (Time.currentTime - lastIFrameTrigger) / 1e9f < iframeDuration;
 		if (actions.currentAction != null)
 			invincible = invincible || (actions.currentAction.elapsedTime >= actions.currentAction.iframesStartTime && actions.currentAction.elapsedTime <= actions.currentAction.iframesEndTime);
@@ -939,24 +945,27 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 				Audio.Play(blockingItem.parrySound, new Vector3(position, 0), 2);
 
 				GameState.instance.freeze(0.2f);
+
+				mob.stun(3, blockAction.isParrying);
+				mob.addImpulse(new Vector2(direction, 0.1f) * 15);
+				if (blockingItem.damageReflect > 0)
+					mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
 			}
 			else if (blockAction.isBlocking)
 			{
 				damage *= 1 - blockingItem.blockAbsorption;
 				knockback *= 1 - blockingItem.knockbackAbsorption;
 
-				Audio.Play(blockingItem.blockSound, new Vector3(position, 0), 2);
-			}
+				consumeMana(blockingItem.manaCost);
+				if (mana == 0)
+					stun(null);
 
-			if (mob != null)
-			{
-				if (projectile == null && itemEntity == null && blockAction.isParrying)
-				{
-					mob.stun(3, blockAction.isParrying);
-					mob.addImpulse(new Vector2(direction, 0.1f) * 15);
-					if (blockingItem.damageReflect > 0)
-						mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
-				}
+				Audio.Play(blockingItem.blockSound, new Vector3(position, 0), 2);
+
+				mob.stun(1, false);
+				mob.addImpulse(new Vector2(direction, 0.1f) * 15);
+				if (blockingItem.damageReflect > 0)
+					mob.hit(blockingItem.damageReflect, this, blockingItem, null, false);
 			}
 
 			if (projectile != null)
@@ -1039,6 +1048,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			impulseVelocity += MathF.Sign(position.x - by.position.x) * 5;
 		}
 		addStatusEffect(new StunStatus(STUN_DURATION));
+		GameState.instance.level.addEntity(new StatusTriggerText(this, "STUNNED", UIColors.TEXT_SUBTLE), position + Vector2.Up * 1);
+
 		if (actions.currentAction != null)
 			actions.currentAction.cancel();
 	}
@@ -1161,6 +1172,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 	{
 		playerLevel++;
 
+		GameState.instance.run.levelUps++;
+
 		/*
 		if (playerLevel % 4 == 0)
 		{
@@ -1189,7 +1202,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 		//if (playerLevel % 5 == 0)
 		//	GameState.instance.level.addEntity(new RelicOffer(), position + Vector2.Up * 0.5f);
 
-		GameState.instance.level.addEntity(new LevelUpEffect(this), position + Vector2.Up * 1);
+		GameState.instance.level.addEntity(new StatusTriggerText(this, "LEVEL UP", UIColors.TEXT_UPGRADE), position + Vector2.Up);
 
 		addStatusEffect(new HealStatusEffect(maxHealth, 2));
 		addStatusEffect(new ManaRechargeEffect(maxMana, 2));
@@ -1288,7 +1301,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 					lastDodgeInput = Time.currentTime;
 				if (InputManager.IsPressed("Sprint") || (Time.currentTime - lastDodgeInput) / 1e9f < JUMP_BUFFER)
 				{
-					if (isGrounded && numOverlaysOpen == 0)
+					if (isGrounded && numOverlaysOpen == 0 && mana >= DodgeAction.manaCost)
 					{
 						if (InputManager.IsDown("Left") || InputManager.IsDown("Right"))
 							actions.queueAction(new DodgeAction());
@@ -2477,7 +2490,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver
 			if (modifier.active)
 				value *= MathF.Pow(modifier.jumpPowerModifier, modifier.item.stackSize);
 		}
-		value *= Mathf.Clamp(Mathf.Remap(getTotalEquipLoad() / maxEquipLoad, 0.7f, 1.0f, 1, 0.7f), 0.7f, 1);
+		value *= Mathf.Clamp(Mathf.Remap(getTotalEquipLoad() / maxEquipLoad, 0.8f, 1.0f, 1, 0.7f), 0.7f, 1);
 		return value;
 	}
 

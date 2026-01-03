@@ -37,10 +37,7 @@ public class Handaxe : Weapon
     protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
     {
         base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
-		if (idx % 2 == 0)
-			anim = AttackAnim.SwingOverhead;
-		else
-			anim = AttackAnim.SwingSideways;
+		anim = idx % 2 == 0 ? AttackAnim.SwingOverhead : AttackAnim.SwingSideways;
     }
 
 	/*

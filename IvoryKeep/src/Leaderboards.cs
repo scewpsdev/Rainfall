@@ -23,11 +23,12 @@ public struct LeaderboardEntry
 
 public static class Leaderboards
 {
-	const string leaderboardName = "Caves";
 #if DISTRIBUTION
 	const string leaderboardToken = "_jXnJgThAOw41p2FX8718T6oKWTxUg-WXVYZj8ktcYw";
+	const string leaderboardName = "Caves";
 #else
 	const string leaderboardToken = "DHK9cC8tiJ6Lx1wBv_pOSd14GxMkiZC8jAvnkbA2Jd8";
+	const string leaderboardName = "IvoryKeep";
 #endif
 	//const string speedrunUrl = "IFwcyVt6KlAe6vts-yqc-lEk2Z4O9eHKmRdIqDuKUj0";
 

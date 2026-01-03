@@ -75,8 +75,8 @@ namespace Rainfall
 		static void Game_OnInternalErrorEvent(string msg)
 		{
 			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
-			Console.Error.WriteLine("Internal error occured: " + msg);
-			Console.Error.WriteLine(stackTrace.ToString());
+			Debug.Error("Internal error occured: " + msg);
+			Debug.Error(stackTrace.ToString());
 		}
 
 		static void Game_OnAxisEvent(GamepadAxis axis, int value, ushort gamepadHandle)

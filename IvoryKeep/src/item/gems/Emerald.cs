@@ -13,6 +13,8 @@ public class Emerald : Gem
 	{
 		displayName = "Emerald";
 
+		baseValue = 100;
+
 		sprite = new Sprite(tileset, 1, 3);
 	}
 }

@@ -13,6 +13,8 @@ public class Ruby : Gem
 	{
 		displayName = "Ruby";
 
+		baseValue = 70;
+
 		sprite = new Sprite(tileset, 2, 3);
 	}
 }

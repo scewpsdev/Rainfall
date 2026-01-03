@@ -11,6 +11,6 @@ public class DungeonsBossRoom : BossRoom
 	public DungeonsBossRoom(Room room)
 		: base(room, 2)
 	{
-		boss = new Garran();
+		bosses.Add(new Garran());
 	}
 }

@@ -58,6 +58,7 @@ public class BackhopAction : EntityAction
 				player.velocity.y = player.jumpPower * 0.5f;
 				Audio.Play(player.jumpSound, new Vector3(player.position, 0));
 				hopStarted = true;
+				player.consumeMana(DodgeAction.manaCost);
 			}
 
 			actionMovement = -speed * direction;

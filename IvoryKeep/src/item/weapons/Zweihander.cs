@@ -35,7 +35,7 @@ public class Zweihander : Weapon
 		sprite = new Sprite(tileset, 7, 3, 2, 1);
 		icon = new Sprite(tileset.texture, 7 * 16 + 8, 3 * 16, 16, 16);
 		size = new Vector2(2, 1);
-		renderOffset.x = 0.35f;
+		renderOffset.x = 0.45f;
 		//backRotation = -0.25f * MathF.PI;
 		weaponTipMargin = 3 / 16.0f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));

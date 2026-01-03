@@ -3,14 +3,17 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "rooms/hub.tmx",
+    "activeFile": "rooms/hub3.tmx",
     "expandedProjectPaths": [
-        "rooms/level1",
         ".",
+        "rooms/level1",
         "rooms"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "D:/Dev/Rainfall/IvoryKeep/res/tiletypes.tsx": {
+            "scaleInDock": 1
+        },
         "rooms/hub.tmx": {
             "expandedObjectLayers": [
                 2
@@ -26,11 +29,27 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 4,
+            "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 800.125,
-                "y": 112.125
+                "x": 234.99999999999997,
+                "y": 66.33333333333331
+            }
+        },
+        "rooms/hub3.tmx": {
+            "scale": 1.8524999999999998,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 239.9460188933874,
+                "y": 202.15924426450744
+            }
+        },
+        "rooms/level1/hub3.tmx": {
+            "scale": 1.8524999999999998,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 239.9460188933874,
+                "y": 120.10796221322539
             }
         },
         "rooms/level1/room1.tmx": {
@@ -170,11 +189,14 @@
             }
         },
         "rooms/level1/special2.tmx": {
-            "scale": 0.75,
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 800.6666666666667,
-                "y": 343.33333333333326
+                "x": 240.99999999999997,
+                "y": 114.99999999999997
             }
         },
         "tiletypes.tsx": {
@@ -182,33 +204,35 @@
             "scaleInEditor": 1
         }
     },
+    "last.externalTilesetPath": "D:/Dev/Rainfall/IvoryKeep/res/level",
     "last.imagePath": "D:/Dev/Rainfall/IvoryKeep/res/level",
-    "map.height": 14,
+    "map.height": 15,
     "map.lastUsedFormat": "tmx",
     "map.renderOrder": "1",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 40,
+    "map.width": 30,
     "openFiles": [
         "rooms/hub.tmx",
         "rooms/hub2.tmx",
         "rooms/level1/special1.tmx",
-        "rooms/level1/special2.tmx"
+        "rooms/level1/special2.tmx",
+        "rooms/hub3.tmx"
     ],
     "project": "IvoryKeep.tiled-project",
     "recentFiles": [
-        "rooms/level1/special2.tmx",
-        "rooms/level1/special1.tmx",
-        "rooms/hub2.tmx",
         "rooms/hub.tmx",
+        "rooms/hub2.tmx",
+        "rooms/level1/special1.tmx",
+        "rooms/level1/special2.tmx",
+        "rooms/hub3.tmx",
+        "rooms/level1/hub3.tmx",
         "rooms/level1/room8.tmx",
         "rooms/level1/room6.tmx",
         "rooms/level1/room5.tmx",
         "rooms/level1/room4.tmx",
         "rooms/level1/room3.tmx",
-        "rooms/level1/room2.tmx",
-        "rooms/level1/room1.tmx",
-        "rooms/level1/room9.tmx"
+        "rooms/level1/room2.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

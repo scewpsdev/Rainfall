@@ -39,6 +39,6 @@ public class Katana : Weapon
 	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
 	{
 		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
-		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : AttackAnim.Stab;
+		anim = idx % 3 == 0 ? AttackAnim.SwingSideways : idx % 3 == 1 ? AttackAnim.SwingOverhead : AttackAnim.Stab;
 	}
 }

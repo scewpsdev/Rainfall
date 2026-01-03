@@ -38,6 +38,8 @@ public class Chest : Container
 	{
 		this.type = type;
 
+		displayName = "Chest";
+
 		locked = type != ChestType.Normal;
 
 		closedSprite = type == ChestType.Normal ? new Sprite(tileset, 0, 0) :
@@ -85,7 +87,7 @@ public class Chest : Container
 
 	public override bool canInteract(Player player)
 	{
-		return !open;
+		return base.canInteract(player) || !open;
 	}
 
 	public override void interact(Player player)

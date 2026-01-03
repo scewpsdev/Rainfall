@@ -13,6 +13,8 @@ public class Sapphire : Gem
 	{
 		displayName = "Sapphire";
 
+		baseValue = 80;
+
 		sprite = new Sprite(tileset, 0, 3);
 	}
 }

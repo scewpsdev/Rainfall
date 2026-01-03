@@ -35,8 +35,8 @@ public class Jetpack : Item
 		isPassiveItem = true;
 		armorSlot = ArmorSlot.Back;
 		baseValue = 42;
-		rarity = 0.04f;
-		//manaCost = 1;
+		rarity = 0.1f;
+		manaCost = 0.25f;
 		baseWeight = 5;
 
 		sprite = new Sprite(tileset, 6, 9);
@@ -49,6 +49,9 @@ public class Jetpack : Item
 		particles.bounciness = 0.7f;
 
 		sound = Resource.GetSound("sounds/jetpack.ogg");
+
+		buff = new ItemBuff(this) { movementSpeedModifier = 1.5f };
+		buff.active = false;
 	}
 
 	public override void onUnequip(Player player)
@@ -89,6 +92,8 @@ public class Jetpack : Item
 			lastInputDown = inputDown;
 			inputDown = InputManager.IsDown("Jump");
 
+			buff.active = active;
+
 			//player.canWallJump = !(active || player.velocity.y < 2 || player.mana > 0.5f);
 
 			if (inputDown)
@@ -107,10 +112,10 @@ public class Jetpack : Item
 						player.velocity.y = Mathf.Clamp(player.velocity.y, 0, maxVelocity);
 					}
 
-					//player.consumeMana(manaCost * Time.deltaTime);
+					player.consumeMana(manaCost * Time.deltaTime);
 
-					//if (player.mana <= 0)
-					//	deactivate();
+					if (player.mana <= 0)
+						deactivate();
 
 					float tick = 0.2f;
 					if ((Time.currentTime - lastTick) / 1e9f > tick)
@@ -157,7 +162,7 @@ public class Jetpack : Item
 			particles.render();
 			float brightness = 1 - MathF.Exp(-particles.systems[0].numParticles * 0.1f);
 			if (brightness > 0)
-				Renderer.DrawLight(player.position + Vector2.Down * 2, Mathf.ARGBToVector(0xFF2273c0).xyz * 20 * brightness, 4);
+				Renderer.DrawLight(player.position + Vector2.Down * 2, Mathf.ARGBToVector(0xFF2273c0).xyz * 40 * brightness, 4);
 		}
 	}
 }

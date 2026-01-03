@@ -85,9 +85,9 @@ public class Container : Object
 	protected override void onCollision(bool x, bool y, bool isEntity)
 	{
 		if (isEntity)
-			hit(velocity.length / 8);
-		else if (velocity.length > 8)
-			hit((velocity.length - 8) / 8);
+			hit(velocity.length / 12);
+		else if (velocity.length > 12)
+			hit((velocity.length - 12) / 12);
 
 		base.onCollision(x, y, isEntity);
 	}

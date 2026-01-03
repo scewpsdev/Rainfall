@@ -534,7 +534,7 @@ public class HUD
 
 		if (player.offhandItem != null)
 		{
-			Renderer.DrawUISprite(x, y, size, size, player.offhandItem.sprite);
+			Renderer.DrawUISprite(x, y, size, size, player.offhandItem.icon);
 
 			if (player.offhandItem.stackable && player.offhandItem.stackSize > 1)
 				Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, player.offhandItem.stackSize.ToString(), 1, txtColor);
@@ -785,13 +785,7 @@ public class HUD
 
 	public void render()
 	{
-		if (player.numOverlaysOpen > 0)
-		{
-			Input.cursorMode = CursorMode.Normal;
-			return;
-		}
-
-		if (enabled)
+		if (enabled && player.numOverlaysOpen == 0)
 		{
 			___renderHealth();
 			___renderMana();
@@ -812,7 +806,6 @@ public class HUD
 				flipItems = false;
 			*/
 
-			renderMessages();
 			renderPopup();
 
 			// Aim Direction
@@ -850,6 +843,8 @@ public class HUD
 			}
 			*/
 		}
+
+		renderMessages();
 
 		if (screenFade != 1)
 		{

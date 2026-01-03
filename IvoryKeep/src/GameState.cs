@@ -15,6 +15,8 @@ public class RunStats
 	public int chestsOpened = 0;
 	public int stepsWalked = 0;
 	public int hitsTaken = 0;
+	public int coinsCollected = 0;
+	public int levelUps = 0;
 
 	public bool active = true;
 	public bool isCustomRun = false;
@@ -46,13 +48,19 @@ public class RunStats
 		{
 			int result = 0;
 
-			result += hasWon ? 20000 : 0;
-			result += floor * 1000;
-			result += kills * 100;
+			result += hasWon ? 10000 : 0;
+			result += floor * 100;
+			result += kills * 50;
 			result += chestsOpened * 17;
 			result += stepsWalked * 1;
-			// TODO add total money collected and player level
-			//result += (int)(MathF.Exp(-hitsTaken * 0.2f) * duration);
+			result += coinsCollected * 10;
+			result += levelUps * 100;
+
+			if (hasWon)
+			{
+				result += (int)MathF.Round(Math.Min(300.0f / duration, 1) * 5000);
+				result += (int)MathF.Round(1.0f / (1 + hitsTaken) * 5000);
+			}
 
 			return result;
 		}
@@ -93,6 +101,7 @@ public class GameState : State
 	public Level[] areaDungeons;
 	public Level[] areaMines;
 	public Level[] areaGardens;
+	public Level finalRoom;
 
 	public Level level;
 
@@ -176,6 +185,7 @@ public class GameState : State
 		//tutorial = new Level(-1, "Tutorial");
 		cliffside = new Level(-1, "cliffside", "Cliffside");
 		tutorial = new Level(-1, "tutorial", "Abandoned Mineshaft");
+		finalRoom = new Level(-1, "final_room", "Hall of Victory");
 
 		//Door tutorialEntrance = new Door(cliffside, null);
 		Door tutorialExit = new Door(hub, null);
@@ -189,6 +199,8 @@ public class GameState : State
 		hub.addEntity(new Hub(hub.rooms[0]));
 		hub.getEntity<DungeonGate>().layer = ParallaxObject.ZToLayer(0.15f);
 		hub.isSafeLevel = true;
+		hub.ambientTrack = MainMenuState.menuTrack;
+		hub.ambientTrackHasIdleLayer = true;
 
 		generator.generateSingleRoomLevel(hub2, new Room(LevelGenerator.hubSet, 1), null, TileType.dirt, TileType.stone);
 		hub2.addEntity(new HubPedestalRoom(hub2.rooms[0]));
@@ -196,6 +208,7 @@ public class GameState : State
 
 		generator.connectDoors(hub.getEntity<Hub>().pedestalRoomEntrance, hub2.entrance);
 
+		generator.generateSingleRoomLevel(finalRoom, new Room(LevelGenerator.hubSet, 2), null, TileType.bricks, TileType.rock, null, 0, 0x1);
 
 		new CaveGenerator(seed).generateArea(out areaCaves);
 		new MineGenerator(seed).generateArea(out areaMines);
@@ -210,7 +223,8 @@ public class GameState : State
 
 		generator.connectDoors(hub.getEntity<CastleGate>(), areaGardens[0].entrance);
 		generator.connectDoors(areaGardens[areaGardens.Length - 1].exit, areaDungeons[0].entrance);
-		areaDungeons[areaDungeons.Length - 1].exit.finalExit = true;
+		generator.connectDoors(areaDungeons[areaDungeons.Length - 1].exit, finalRoom.entrance);
+		finalRoom.exit.finalExit = true;
 
 
 		if (save.isDaily)
@@ -517,6 +531,17 @@ public class GameState : State
 
 				if (InputManager.IsPressed("UIConfirm"))
 				{
+					Console.WriteLine("Won: " + run.hasWon);
+					Console.WriteLine("Floor: " + run.floor);
+					Console.WriteLine("Kills: " + run.kills);
+					Console.WriteLine("Chests opened: " + run.chestsOpened);
+					Console.WriteLine("Steps walked: " + run.stepsWalked);
+					Console.WriteLine("Coins collected: " + run.coinsCollected);
+					Console.WriteLine("Level Ups: " + run.levelUps);
+					Console.WriteLine("Time: " + run.duration);
+					Console.WriteLine("Hits taken: " + run.hitsTaken);
+					Console.WriteLine("Score: " + run.score);
+
 					Audio.PlayBackground(UISound.uiConfirm2);
 					GameOverScreen.Destroy();
 					if (!customRun)

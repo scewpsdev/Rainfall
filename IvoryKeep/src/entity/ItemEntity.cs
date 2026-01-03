@@ -213,6 +213,13 @@ public class ItemEntity : Entity, Interactable, Hittable
 			*/
 		}
 
+		// Prevent items from getting stuck in walls and accelerating infinitely
+		if (level.overlapSolid(position + collider.min, position + collider.max))
+		{
+			position = Vector2.Floor(position) + 0.5f;
+			velocity = Vector2.Zero;
+		}
+
 		if (!flyStraightOnThrow || ricochets > 0)
 			velocity.y += gravity * Time.deltaTime;
 

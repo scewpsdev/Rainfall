@@ -648,6 +648,11 @@ public class InventoryUI
 
 	public void render()
 	{
+		if (player.numOverlaysOpen > 0)
+		{
+			Input.cursorMode = CursorMode.Normal;
+		}
+
 		if (!player.inventoryOpen && player.numOverlaysOpen == 0 && InputManager.IsPressed("Inventory", true))
 		{
 			openScreen();
@@ -837,10 +842,12 @@ public class InventoryUI
 		}
 
 		// Minimap
-		if (player.inventoryOpen && player.collectedMaps.Contains(player.level))
+		if (/*player.inventoryOpen &&*/ player.level.areaName != null && player.collectedMaps.Contains(player.level.areaName))
 		{
-			int width = 64;
-			int height = 48;
+			Level level = GameState.instance.level;
+
+			int width = level.width;
+			int height = level.height;
 			int x = Renderer.UIWidth - 5 - width;
 			int y = Renderer.UIHeight - 5 - height;
 
@@ -848,15 +855,13 @@ public class InventoryUI
 			int scrollx = playerTile.x - width / 2;
 			int scrolly = playerTile.y - height / 2;
 
-			for (int yy = scrolly; yy < scrolly + height; yy++)
+			for (int yy = 0; yy < height; yy++)
 			{
-				for (int xx = scrollx; xx < scrollx + width; xx++)
+				for (int xx = 0; xx < width; xx++)
 				{
-					TileType tile = GameState.instance.level.getTile(xx, yy);
-					if (tile != null)
-					{
-						Renderer.DrawUISprite(x + xx - scrollx, y + height - (yy - scrolly) - 1, 1, 1, null, false, tile.particleColor);
-					}
+					TileType tile = level.getTile(xx, yy);
+					uint color = tile != null ? 0xFF73665f : 0xFF000000;
+					Renderer.DrawUISprite(x + xx - scrollx, y + height - (yy - scrolly) - 1, 1, 1, null, false, color);
 				}
 			}
 

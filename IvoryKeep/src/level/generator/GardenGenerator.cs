@@ -21,6 +21,11 @@ public class GardenGenerator : LevelGenerator
 		return "Royal Gardens";
 	}
 
+	public override int getAreaFirstFloor()
+	{
+		return 9;
+	}
+
 	public override int getNumFloors()
 	{
 		return 3;
@@ -133,7 +138,7 @@ public class GardenGenerator : LevelGenerator
 
 		bool edgeTile = /*left == null || right == null || down == null ||*/ up == null;
 		float type = simplex.sample2f(x * 0.05f, y * 0.05f);
-		return edgeTile ? (type > -0.3f ? TileType.grass : TileType.path) : TileType.dirt;
+		return edgeTile ? (type > -0.3f ? TileType.grass : TileType.path) : tile;
 	}
 
 	public override float[] getDroprates()

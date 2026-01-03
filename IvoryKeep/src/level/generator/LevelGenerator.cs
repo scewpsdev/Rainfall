@@ -33,6 +33,7 @@ public abstract class LevelGenerator
 		hubSet = new RoomDefSet(null);
 		hubSet.loadTmx("level/rooms/hub.tmx");
 		hubSet.loadTmx("level/rooms/hub2.tmx");
+		hubSet.loadTmx("level/rooms/hub3.tmx");
 
 		cavesSet = new RoomDefSet("level/level1/rooms1.png");
 		for (int i = 0; i < 16; i++)
@@ -98,6 +99,8 @@ public abstract class LevelGenerator
 	}
 
 	public abstract string getAreaName();
+	public abstract int getAreaFirstFloor();
+	public int getLocalFloor() => level.floor != -1 ? level.floor - getAreaFirstFloor() : -1;
 	public abstract int getNumFloors();
 	public abstract string getLevelName(int floor);
 	public abstract int getLootValue(int floor);
@@ -162,7 +165,7 @@ public abstract class LevelGenerator
 		{
 			getLevelSize(i, out int width, out int height);
 
-			levels[i] = new Level(i, name + i, getLevelName(i), width, height, getDefaultTile(i), getLootValue(i));
+			levels[i] = new Level(getAreaFirstFloor() + i, name + i, getLevelName(i), width, height, getDefaultTile(i), getLootValue(i));
 		}
 		levels[numFloors + 0] = new Level(-1, name + (numFloors + 0), "", getLootValue(numFloors - 1));
 

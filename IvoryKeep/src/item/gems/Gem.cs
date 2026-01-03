@@ -11,7 +11,7 @@ public abstract class Gem : Item
 		: base(name, ItemType.Gem)
 	{
 		stackable = false;
-		baseValue = 40;
+		baseValue = 80;
 		//isSecondaryItem = true;
 	}
 

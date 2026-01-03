@@ -107,12 +107,21 @@ public static class SpellEffects
 
 	public static void TeleportEntity(Entity entity, bool onGround, Vector2 center, float maxRange = 20)
 	{
+		BossRoom bossRoom = entity.level.getEntity<BossRoom>();
+
 		for (int i = 0; i < 1000; i++)
 		{
 			int x0 = Math.Max(3, (int)(center.x - maxRange));
 			int x1 = Math.Min(GameState.instance.level.width - 4, (int)(center.x + maxRange));
 			int y0 = Math.Max(3, (int)(center.y - maxRange));
 			int y1 = Math.Min(GameState.instance.level.height - 4, (int)(center.y + maxRange));
+
+			if (bossRoom != null)
+			{
+				x0 = (int)MathF.Round(bossRoom.gate0.position.x + 1);
+				x1 = (int)MathF.Round(bossRoom.gate1.position.x - 1);
+			}
+
 			int x = Mathf.RandomInt(x0, x1);
 			int y = Mathf.RandomInt(y0, y1);
 			TileType tile = GameState.instance.level.getTile(x, y);

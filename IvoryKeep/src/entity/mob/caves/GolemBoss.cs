@@ -53,7 +53,7 @@ public class GolemBoss : Mob
 		ai.loseRange = 100;
 		ai.patrol = false;
 		//ai.hesitation = 4;
-		ai.hesitation = 3;
+		ai.hesitation = 4;
 		ai.minRunDistance = 4;
 		ai.awareness = 1;
 
@@ -64,7 +64,7 @@ public class GolemBoss : Mob
 
 
 		{
-			const float slamCharge = 1.2f;
+			const float slamCharge = 1.0f; // 1.2f;
 			const float slamCooldown = 1.0f;
 			const float slamDistance = 1;
 			const float slamDuration = 0.1f;
@@ -88,9 +88,9 @@ public class GolemBoss : Mob
 		}
 
 		{
-			const float dashChargeTime = 1.25f;
+			const float dashChargeTime = 1.0f; // 1.25f;
 			const float dashCooldownTime = 1.0f;
-			const float dashDistance = 6;
+			const float dashDistance = 7;
 			const float dashDuration = 0.25f;
 			const float dashSpeed = dashDistance / dashDuration;
 			const float dashTriggerDistance = 8;
@@ -109,14 +109,14 @@ public class GolemBoss : Mob
 				level.addEntity(new MobWeaponTrail(this, new Vector2(21, 21) / 16.0f, MathF.PI * -0.75f, MathF.PI * 0.75f, 32 / 16.0f, 0.1f, dashDistance / dashSpeed + dashCooldownTime));
 				Audio.Play(Item.weaponSwing, new Vector3(ai.mob.position, 0), 1, 0.5f);
 			};
-			dash.actionColliders = [new FloatRect(0, 0, 3, 2)];
+			dash.actionColliders = [new FloatRect(0, 0, 2, 1.5f)];
 		}
 
 		{
-			const float jumpAttackSpeed = 7.0f;
+			const float jumpAttackSpeed = 9;
 			const float jumpTriggerDistance = 16;
 
-			jumpAttack = ai.addAction("jump", 0.5f, 100, 1, jumpAttackSpeed, jumpTriggerDistance, 5);
+			jumpAttack = ai.addAction("jump", 0.4f /*0.5f*/, 100, 1, jumpAttackSpeed, jumpTriggerDistance, 5);
 			jumpAttack.onStarted = (AIAction action) =>
 			{
 				ai.mob.inputJump = true;
@@ -144,11 +144,11 @@ public class GolemBoss : Mob
 		}
 
 		{
-			AIAction stepback = ai.addAction("jump", 0.2f, 100, 0.2f, -8, 5);
+			AIAction stepback = ai.addAction("jump", 0.2f, 100, 0.2f, -10, 5);
 			stepback.onStarted = (AIAction action) =>
 			{
 				ai.mob.inputJump = true;
-				ai.mob.jumpPower = 10;
+				ai.mob.jumpPower = 6;
 
 				Audio.Play(jumpSound, new Vector3(ai.mob.position, 0));
 			};
@@ -179,12 +179,12 @@ public class GolemBoss : Mob
 	public override void onPhaseTransition()
 	{
 		AdvancedAI ai = this.ai as AdvancedAI;
-		ai.hesitation = 2;
-		speed = 8;
+		ai.hesitation = 0;
+		//speed = 8;
 		foreach (AIAction action in ai.actions)
 		{
-			action.chargeTime *= 0.7f;
-			action.walkSpeed *= 1.5f;
+			//action.chargeTime *= 0.7f;
+			//action.walkSpeed *= 1.5f;
 		}
 	}
 

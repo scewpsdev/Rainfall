@@ -38,7 +38,7 @@ public class CavesSurvivalRoom : Entity
 		waves.Add(new Wave() { enemies = [new Bat(), new Bat(), new Bat(), new Bat(), new Bat()] });
 		waves.Add(new Wave() { enemies = [new GreenSpider(), new SkeletonArcher()] });
 		waves.Add(new Wave() { enemies = [new SkeletonArcher(), new SkeletonArcher(), new OrangeBat()] });
-		waves.Add(new Wave() { enemies = [new Golem()] });
+		waves.Add(new Wave() { enemies = [new Golem() { itemDrops = [Item.CreateRandom(ItemType.Relic, generator.random, generator.getRoomLootValue(room) * 2)] }] });
 	}
 
 	public override void init(Level level)
@@ -67,6 +67,7 @@ public class CavesSurvivalRoom : Entity
 
 			enemy.ai.aggroRange = 100;
 			enemy.ai.loseRange = 100;
+			enemy.ai.awareness = 100;
 			enemy.itemDropChance = 0;
 
 			if (enemy.canFly)

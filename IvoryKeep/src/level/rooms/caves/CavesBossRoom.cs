@@ -11,7 +11,7 @@ public class CavesBossRoom : BossRoom
 	public CavesBossRoom(Room room)
 		: base(room, 0)
 	{
-		boss = new GolemBoss();
+		bosses.Add(new GolemBoss());
 		//boss.direction = -1;
 		//AdvancedAI ai = boss.ai as AdvancedAI;
 		//ai.walkDirection = -1;

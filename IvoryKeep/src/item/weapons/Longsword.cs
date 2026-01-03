@@ -25,12 +25,16 @@ public class Longsword : Weapon
 
 		baseValue = 14;
 
-		//sprite = new Sprite(tileset, 0, 10, 2, 1);
 		sprite = new Sprite(tileset, 1, 1);
-		//size = new Vector2(2, 1);
 		//icon = new Sprite(tileset.texture, 12, 10 * 16, 16, 16);
-		//renderOffset.x = -0.2f;
 		renderOffset.x = 0.25f;
+		//renderOffset.x = 0.25f;
 		//ingameSprite = new Sprite(Resource.GetTexture("sprites/sword.png", false));
+	}
+
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+	{
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+		anim = idx % 2 == 0 ? AttackAnim.SwingOverhead : AttackAnim.SwingSideways;
 	}
 }

@@ -178,13 +178,12 @@ public static class ItemInfoPanel
 
 			// Scaling values
 
-			/*
 			{
 				drawLeft("STR");
 				string scalingStr = Item.GetScalingLetter(item.strengthScaling);
 				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-					drawComparisonStr(scalingStr, MathF.Sign(compareItem.strengthScaling - item.strengthScaling));
+					drawComparisonStr(Item.GetScalingLetter(compareItem.strengthScaling), scalingStr, MathF.Sign(compareItem.strengthScaling - item.strengthScaling));
 				y += Renderer.smallFont.size + 1;
 			}
 
@@ -193,7 +192,7 @@ public static class ItemInfoPanel
 				string scalingStr = Item.GetScalingLetter(item.dexterityScaling);
 				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-					drawComparisonStr(scalingStr, MathF.Sign(compareItem.dexterityScaling - item.dexterityScaling));
+					drawComparisonStr(Item.GetScalingLetter(compareItem.dexterityScaling), scalingStr, MathF.Sign(compareItem.dexterityScaling - item.dexterityScaling));
 				y += Renderer.smallFont.size + 1;
 			}
 
@@ -202,10 +201,9 @@ public static class ItemInfoPanel
 				string scalingStr = Item.GetScalingLetter(item.intelligenceScaling);
 				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-					drawComparisonStr(scalingStr, MathF.Sign(compareItem.intelligenceScaling - item.intelligenceScaling));
+					drawComparisonStr(Item.GetScalingLetter(compareItem.intelligenceScaling), scalingStr, MathF.Sign(compareItem.intelligenceScaling - item.intelligenceScaling));
 				y += Renderer.smallFont.size + 1;
 			}
-			*/
 		}
 		else if (item.type == ItemType.Armor)
 		{

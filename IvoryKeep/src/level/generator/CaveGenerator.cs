@@ -72,6 +72,11 @@ public class CaveGenerator : LevelGenerator
 		return "Forgotten Cavern";
 	}
 
+	public override int getAreaFirstFloor()
+	{
+		return 0;
+	}
+
 	public override int getNumFloors()
 	{
 		return 5;
@@ -208,7 +213,8 @@ public class CaveGenerator : LevelGenerator
 			mobs.Add(new Spider());
 		mobs.Add(new Snake());
 		mobs.Add(new Bat());
-		mobs.Add(new Slime());
+		if (getLocalFloor() >= 3)
+			mobs.Add(new Slime());
 		mobs.Add(new Beetle());
 		return mobs;
 	}

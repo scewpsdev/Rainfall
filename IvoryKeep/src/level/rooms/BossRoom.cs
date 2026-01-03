@@ -13,11 +13,11 @@ public class BossRoom : Entity
 
 
 	Room room;
-	public Mob boss;
+	protected List<Mob> bosses = new List<Mob>();
 	int area;
 
-	BossGate gate0;
-	BossGate gate1;
+	public BossGate gate0;
+	public BossGate gate1;
 
 	EventTrigger activateTrigger;
 
@@ -36,8 +36,9 @@ public class BossRoom : Entity
 		level.ambientTrack = track;
 		level.ambientTrackHasIdleLayer = trackHasIdleLayer;
 
-		boss.isBoss = true;
-		boss.itemDrops.Add(new IronKey());
+		foreach (Mob boss in bosses)
+			boss.isBoss = true;
+		bosses[0].itemDrops.Add(new IronKey());
 
 		level.addEntity(gate0 = new BossGate(true), (Vector2)room.getMarker(0x2));
 		level.addEntity(gate1 = new BossGate(true), (Vector2)room.getMarker(0x3));
@@ -57,7 +58,7 @@ public class BossRoom : Entity
 	{
 		level.addEntity(activateTrigger = new EventTrigger(size, (Player player) =>
 		{
-			if (GameState.instance.currentBoss == null && boss.level == null)
+			if (GameState.instance.currentBoss == null && bosses[0].level == null)
 			{
 				startBossfight();
 			}
@@ -75,11 +76,15 @@ public class BossRoom : Entity
 
 	void startBossfight()
 	{
-		GameState.instance.setBoss(boss, this);
-		boss.ai.aggroRange = 100;
-		boss.ai.loseRange = 100;
+		GameState.instance.setBoss(bosses[0], this);
+		for (int i = 0; i < bosses.Count; i++)
+		{
+			Mob boss = bosses[i];
+			boss.ai.aggroRange = 100;
+			boss.ai.loseRange = 100;
 
-		level.addEntity(boss, room.getMarker(1) + new Vector2(0.5f));
+			level.addEntity(boss, room.getMarker(1) + new Vector2(0.5f + i * 2, 0.5f));
+		}
 
 		gate0.close();
 		gate1.close();
@@ -94,18 +99,22 @@ public class BossRoom : Entity
 		gate0.open();
 		gate1.open();
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 2; i++)
 		{
-			ChestType chestType = (ChestType)Mathf.RandomInt((int)ChestType.Red, (int)ChestType.Silver, Random.Shared);
+			ChestType chestType = (ChestType)Mathf.RandomInt((int)ChestType.Red, (int)ChestType.Green, Random.Shared);
 			Chest chest = new Chest(null, false, chestType);
 			chest.items = chest.createThemedItems(level.avgLootValue * 2, DropRates.defaultDroprates, Random.Shared);
-			level.addEntity(chest, new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f + (i - 1) * 2.0f, gate0.position.y));
+			level.addEntity(chest, new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f - 2.0f, gate0.bottomPosition.y + 1));
+		}
+
+		{
+			level.addEntity(new RelicPlinth(level.avgLootValue * 2, Random.Shared), new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f + 2.0f, gate0.bottomPosition.y));
 		}
 
 		AudioManager.SetAmbientTrack(null, false);
 
 		foreach (WorldEventListener listener in GameState.instance.worldEventListeners)
-			listener.onBossKilled(boss);
+			listener.onBossKilled(bosses[0]);
 	}
 
 	bool isInRoom(Entity entity)
@@ -118,7 +127,7 @@ public class BossRoom : Entity
 	{
 		if (GameState.instance.currentBoss == null)
 		{
-			if (boss.level == null && activateTrigger == null && isInRoom(GameState.instance.player))
+			if (bosses[0].level == null && activateTrigger == null && isInRoom(GameState.instance.player))
 			{
 				startBossfight();
 			}
@@ -126,10 +135,23 @@ public class BossRoom : Entity
 
 		if (GameState.instance.currentBoss != null)
 		{
-			if (!boss.isAlive)
+			if (!bossAlive)
 			{
 				stopBossfight();
 			}
+		}
+	}
+
+	public bool bossAlive
+	{
+		get
+		{
+			for (int i = 0; i < bosses.Count; i++)
+			{
+				if (bosses[i].isAlive)
+					return false;
+			}
+			return true;
 		}
 	}
 }

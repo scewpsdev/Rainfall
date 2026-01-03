@@ -96,18 +96,19 @@ public class Coin : Entity
 						{
 							int value = TYPE_VALUES[(int)type];
 
-							if (hit.entity is Player)
-								(target as Player).money += value;
-							else if (hit.entity is Leprechaun)
-								(target as Leprechaun).money += value;
+							if (hit.entity is CoinTarget)
+							{
+								CoinTarget coinTarget = hit.entity as CoinTarget;
+								coinTarget.giveMoney(value);
 
-							if (Random.Shared.NextSingle() < 0.4f)
-								GameState.instance.level.addEntity(ParticleEffects.CreateCoinBlinkEffect(), position + Mathf.RandomVector2(-0.5f, 0.5f));
+								if (Random.Shared.NextSingle() < 0.4f)
+									GameState.instance.level.addEntity(ParticleEffects.CreateCoinBlinkEffect(), position + Mathf.RandomVector2(-0.5f, 0.5f));
 
-							Audio.Play(collectSound, new Vector3(position, 0));
+								Audio.Play(collectSound, new Vector3(position, 0));
 
-							remove();
-							break;
+								remove();
+								break;
+							}
 						}
 					}
 				}
@@ -128,10 +129,14 @@ public class Coin : Entity
 			int numHits = GameState.instance.level.overlap(position - 20, position + 20, hits, FILTER_PLAYER | FILTER_MOB);
 			for (int i = 0; i < numHits; i++)
 			{
-				if (hits[i].entity != null && hits[i].entity.coinTarget && (hits[i].entity.center - position).length < hits[i].entity.coinFollowDistance)
+				if (hits[i].entity != null && hits[i].entity is CoinTarget)
 				{
-					target = hits[i].entity;
-					break;
+					CoinTarget coinTarget = hits[i].entity as CoinTarget;
+					if ((hits[i].entity.center - position).length < coinTarget.getCoinFollowDistance())
+					{
+						target = hits[i].entity;
+						break;
+					}
 				}
 			}
 

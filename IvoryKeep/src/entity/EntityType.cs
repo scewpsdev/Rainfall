@@ -57,6 +57,7 @@ public static class EntityType
 		InitType<Rock>("rock");
 		InitType<Skull>("skull");
 		InitType<PushableBlock>("pushable_block");
+		InitType<RelicPlinth>("relic_plinth");
 
 		InitType<DungeonGate>("dungeon_gate");
 		InitType<CastleGate>("castle_gate");

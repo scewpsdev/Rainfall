@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Leprechaun : Mob
+public class Leprechaun : Mob, CoinTarget
 {
 	public int money = 0;
 
@@ -32,8 +32,11 @@ public class Leprechaun : Mob
 		jumpPower = 7;
 		//gravity = -16;
 		//damage = 0.5f;
+	}
 
-		coinTarget = true;
+	public void giveMoney(int amount)
+	{
+		money += amount;
 	}
 
 	public override void onDeath(Entity by, Item item)

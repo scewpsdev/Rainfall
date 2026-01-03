@@ -13,6 +13,8 @@ public class Diamond : Gem
 	{
 		displayName = "Diamond";
 
+		baseValue = 120;
+
 		sprite = new Sprite(tileset, 3, 0);
 	}
 }

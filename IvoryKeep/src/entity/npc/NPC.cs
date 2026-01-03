@@ -231,7 +231,7 @@ public abstract class NPC : Mob, Interactable
 	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
 	int selectedItem = 0;
 	//int infoPanelHeight = 90;
-	protected float buyTax = 0.4f;
+	protected float buyTax = 0.6f;
 	List<Item> craftingItems = new List<Item>();
 	Item craftingItem1, craftingItem2;
 
@@ -923,7 +923,7 @@ public abstract class NPC : Mob, Interactable
 			List<int> prices = new List<int>(player.items.Count);
 			for (int i = 0; i < items.Count; i++)
 			{
-				prices.Add(Math.Max((int)MathF.Round(items[i].getValue() * buyTax), 1));
+				prices.Add(Math.Max((int)MathF.Round(items[i].getValue() * (1 - buyTax)), 1));
 			}
 
 			int itemIdx = ItemSelector.Render(menuAnchor, "Sell", items, prices, -player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);

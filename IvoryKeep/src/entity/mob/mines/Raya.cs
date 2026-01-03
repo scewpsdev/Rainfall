@@ -211,7 +211,15 @@ public class Raya : Mob
 		}
 	}
 
-    public override void onDeath(Entity by, Item item)
+	public override void onPhaseTransition()
+	{
+		AdvancedAI ai = this.ai as AdvancedAI;
+		ai.hesitation = 0;
+
+		// phase transition
+	}
+
+	public override void onDeath(Entity by, Item item)
     {
         base.onDeath(by, item);
 		GameState.instance.hub.getEntity<CastleGate>().locked = false;
@@ -223,6 +231,7 @@ public class RayaBladeEffect : Entity
 	const float appearDelay = 0.5f;
 	const float lingerDuration = 0.5f;
 	const float stabDuration = 0.1f;
+	const float damage = 3;
 
 	Raya raya;
 	Sprite sprite;
@@ -254,7 +263,7 @@ public class RayaBladeEffect : Entity
 				if (hits[i].entity != null && hits[i].entity != this && hits[i].entity != raya && hits[i].entity is Hittable)
 				{
 					Hittable hittable = hits[i].entity as Hittable;
-					hittable.hit(raya.damage, raya);
+					hittable.hit(damage, raya);
 				}
 			}
 

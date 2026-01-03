@@ -14,7 +14,7 @@ namespace Rainfall
 		{
 			if (!condition)
 			{
-				Console.Error.WriteLine("Assertion failed.");
+				Error("Assertion failed.");
 				//System.Diagnostics.Debug.Assert(condition);
 			}
 		}

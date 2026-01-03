@@ -12,7 +12,7 @@ public class MinesBossRoom : BossRoom
 		: base(room, 1)
 	//: base(room, new Garran() { itemDrops = [new LostSigil()] })
 	{
-		boss = new Raya() { itemDrops = [new QuestlineLoganStaff()] };
+		bosses.Add(new Raya() { itemDrops = [new QuestlineLoganStaff()] });
 
 		track = new MultilayerTrack("sounds/ost/nighthaven/nighthaven", 3);
 		trackHasIdleLayer = true;

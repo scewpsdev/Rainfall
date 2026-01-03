@@ -442,7 +442,7 @@ public class Level
 		colliders.Remove(collider);
 	}
 
-	bool overlapTiles(Vector2 min, Vector2 max, bool falling, bool downInput)
+	public bool overlapTiles(Vector2 min, Vector2 max, bool falling, bool downInput)
 	{
 		int x0 = (int)MathF.Floor(min.x + 0.01f);
 		int x1 = (int)MathF.Floor(max.x - 0.01f);

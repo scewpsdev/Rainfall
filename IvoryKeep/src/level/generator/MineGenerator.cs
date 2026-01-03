@@ -18,6 +18,11 @@ public class MineGenerator : LevelGenerator
 		return "Crystal Mines";
 	}
 
+	public override int getAreaFirstFloor()
+	{
+		return 5;
+	}
+
 	public override int getNumFloors()
 	{
 		return 4;
@@ -162,11 +167,11 @@ public class MineGenerator : LevelGenerator
 			mobs.Add(new GreenSpider());
 		else
 			mobs.Add(new SkeletonArcher());
-		if (level.floor >= 1)
+		if (getLocalFloor() >= 1)
 			mobs.Add(new OrangeBat());
-		if (level.floor >= 2)
+		if (getLocalFloor() >= 2)
 			mobs.Add(new BlueSlime());
-		if (level.floor >= 3)
+		if (getLocalFloor() >= 3)
 			mobs.Add(new SkeletonArcher());
 		return mobs;
 	}

@@ -18,6 +18,11 @@ public class DefaultLevelGenerator : LevelGenerator
 		return "???";
 	}
 
+	public override int getAreaFirstFloor()
+	{
+		return 0;
+	}
+
 	public override int getNumFloors()
 	{
 		return 5;

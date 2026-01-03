@@ -15,7 +15,7 @@ public class Nightstalker : Item
 		description = "Attacks from behind are critical";
 		//stackable = true;
 		tumbles = false;
-		canDrop = false;
+		//canDrop = false;
 
 		baseValue = 22;
 

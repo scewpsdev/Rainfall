@@ -197,7 +197,6 @@ public abstract class Item
 	{
 		float damage = getInfusedDamage();
 
-		/*
 		float hardCap = 20;
 		float strengthSaturation = 1 - MathF.Pow(1 - MathF.Min((player.strength - 1) / (hardCap - 1), 1), 2);
 		float dexteritySaturation = 1 - MathF.Pow(1 - MathF.Min((player.dexterity - 1) / (hardCap - 1), 1), 2);
@@ -206,7 +205,8 @@ public abstract class Item
 		damage *= 1 + strengthScaling * strengthSaturation;
 		damage *= 1 + dexterityScaling * dexteritySaturation;
 		damage *= 1 + intelligenceScaling * intelligenceSaturation;
-		*/
+
+		damage *= player.getMeleeDamageModifier();
 
 		return damage;
 	}
@@ -374,7 +374,7 @@ public abstract class Item
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
 		stackable = type == ItemType.Food || type == ItemType.Potion /*|| type == ItemType.Relic*/ || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;
-		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor || type == ItemType.Relic;
+		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor /*|| type == ItemType.Relic*/;
 
 		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponSwing : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
@@ -385,6 +385,9 @@ public abstract class Item
 
 		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 6 : type == ItemType.Spell ? 1 : 4;
 		baseWeight = type == ItemType.Weapon ? 2 : type == ItemType.Shield ? 2 : type == ItemType.Staff ? 1 : type == ItemType.Armor ? 1 : 0;
+
+		if (type == ItemType.Relic)
+			cursedChance = 0.9f;
 	}
 
 	public virtual Item copy()
@@ -507,9 +510,9 @@ public abstract class Item
 				return "Common";
 			if (r >= 0.05f)
 				return "Uncommon";
-			if (r >= 0.005f)
+			if (r >= 0.002f)
 				return "Rare";
-			if (r >= 0.0005f)
+			if (r >= 0.0002f)
 				return "Exceedingly Rare";
 			return "Legendary";
 		}
@@ -536,7 +539,7 @@ public abstract class Item
 
 	public virtual void upgrade()
 	{
-		baseValue += upgradeCost / 3;
+		baseValue += upgradeCost / 4;
 		upgradeLevel++;
 		//value = value + Mathf.IPow(upgradeLevel, 2) * 10; //Math.Min(value * 3 / 2, value + 1);
 		if (type == ItemType.Weapon || type == ItemType.Staff)
@@ -887,6 +890,8 @@ public abstract class Item
 		InitType(new ShadowStepRing());
 		InitType(new ScrollOfUncurse());
 		InitType(new Trash());
+		InitType(new DungeonMap());
+		InitType(new Claymore());
 
 		InitType(new MagicArrowSpellBook());
 		InitType(new LightningSpellBook());

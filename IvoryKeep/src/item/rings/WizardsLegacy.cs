@@ -15,7 +15,7 @@ public class WizardsLegacy : Item
 		description = "Increases mana recovery rate by 50%";
 		stackable = true;
 		tumbles = false;
-		canDrop = false;
+		//canDrop = false;
 
 		baseValue = 27;
 

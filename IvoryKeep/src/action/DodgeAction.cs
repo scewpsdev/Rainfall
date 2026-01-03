@@ -13,6 +13,7 @@ public class DodgeAction : EntityAction
 	const float dashTime = 0.2f;
 	const float dashDistance = 3;
 	const float speed = dashDistance / dashTime;
+	public const float manaCost = 0.4f;
 
 	int direction;
 
@@ -37,6 +38,7 @@ public class DodgeAction : EntityAction
 		direction = player.direction;
 		player.velocity.y = player.jumpPower * 0.5f;
 		Audio.Play(player.jumpSound, new Vector3(player.position, 0));
+		player.consumeMana(manaCost);
 
 		GameState.instance.level.addEntity(particles = ParticleEffects.CreateDeathEffect(player, direction), player.position);
 	}

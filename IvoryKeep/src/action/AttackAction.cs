@@ -152,7 +152,7 @@ public class AttackAction : EntityAction
 		{
 			Hittable hittable = hit.entity as Hittable;
 
-			float damage = attackDamage * player.getMeleeDamageModifier();
+			float damage = attackDamage;
 
 			bool critical = false;
 			if (entity is Mob)

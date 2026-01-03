@@ -77,6 +77,18 @@ public class TravellingMerchant : NPC
 	{
 		base.init(level);
 
-		populateShop(GameState.instance.generator.random, 7, 12, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, /*ItemType.Spell, */ItemType.Relic);
+		if (!level.name.StartsWith("caves"))
+			populateShop(GameState.instance.generator.random, 7, 12, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, /*ItemType.Spell, */ItemType.Relic);
+
+		if (level.areaName != null)
+		{
+			const float mapChance = 0.2f;
+			if (GameState.instance.generator.random.NextSingle() < mapChance)
+			{
+				DungeonMap map = new DungeonMap();
+				map.setArea(level);
+				addShopItem(map);
+			}
+		}
 	}
 }

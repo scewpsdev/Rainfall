@@ -21,8 +21,8 @@ public class BerserkersChain : Item
 		displayName = "Berserker's Chain";
 		description = "Consecutive kills temporarily increase critical attack chance";
 		stackable = true;
-		tumbles = false;
-		canDrop = false;
+		//tumbles = false;
+		//canDrop = false;
 
 		baseValue = 25;
 

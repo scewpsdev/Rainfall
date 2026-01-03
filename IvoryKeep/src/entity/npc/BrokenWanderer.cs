@@ -19,7 +19,7 @@ public class BrokenWandererSave : NPCSaveData
 			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_TRAVELLER_MET);
 		});
 
-		if (initialDialogue == null && GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND))
+		if (initialDialogue == null && GameState.instance.save.hasFlag(SaveFile.FLAG_MINES_FOUND))
 			setOneTimeInititalDialogue("""
 				You've been below, haven't you? I can see it in your eyes.
 				The caves... they leave their mark, even if you come back whole.

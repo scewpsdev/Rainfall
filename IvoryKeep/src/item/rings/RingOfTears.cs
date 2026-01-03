@@ -18,7 +18,7 @@ public class RingOfTears : Item
 
 		description = "Increases critical attack chance when health is low";
 
-		baseValue = 110;
+		baseValue = 90;
 
 		sprite = new Sprite(tileset, 10, 2);
 

@@ -23,6 +23,14 @@ public class MainMenuState : State
 	const float FADEIN = 1;
 
 
+	public static MultilayerTrack menuTrack;
+
+	static MainMenuState()
+	{
+		menuTrack = new MultilayerTrack("sounds/ost/misc/menu", 0);
+	}
+
+
 	MainMenuScreen screen = MainMenuScreen.Main;
 	int currentButton = 0;
 
@@ -33,8 +41,6 @@ public class MainMenuState : State
 
 	UIParticleEffect particles;
 
-	MultilayerTrack mainMenuAmbience;
-
 	long startTime = -1;
 
 
@@ -44,8 +50,6 @@ public class MainMenuState : State
 		splashSmall = new Sprite(Resource.GetTexture("sprites/ui/splash2.png", false), 0, 64, 256, 32);
 
 		particles = new UIParticleEffect(null, "effects/menu.rfs");
-
-		mainMenuAmbience = new MultilayerTrack("sounds/ost/misc/menu", 0);
 	}
 
 	public override void onSwitchTo(State from)
@@ -58,7 +62,7 @@ public class MainMenuState : State
 		}
 
 		startTime = Time.timestamp;
-		AudioManager.SetAmbientTrack(mainMenuAmbience, true);
+		AudioManager.SetAmbientTrack(menuTrack, true);
 	}
 
 	void mainScreen()

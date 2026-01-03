@@ -44,7 +44,7 @@ public class Tinkerer : NPC
 		animator.setAnimation("idle");
 
 		buysItems = true;
-		buyTax = 0.55f;
+		buyTax = 0.4f;
 		canCraft = true;
 	}
 

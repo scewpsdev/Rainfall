@@ -23,7 +23,7 @@ public static class ItemSelector
 	{
 		shopWidth = Math.Max(minShopWidth, lineHeight + 5 + longestLineWidth + 1);
 		shopHeight = Math.Max(Math.Min(numItems, maxItems), 1) * lineHeight;
-		width = shopWidth + (renderInfoPanel ? 1 + sidePanelWidth : 0);
+		width = shopWidth + (renderInfoPanel ? 2 + sidePanelWidth : 0);
 		height = headerHeight + shopHeight;
 	}
 

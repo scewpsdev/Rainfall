@@ -101,15 +101,19 @@ public static class CharacterInfoPanel
 			drawLeft(name, color);
 			drawRightValue(value, color);
 		}
+		uint blinkText(uint color)
+		{
+			return Mathf.ColorAlpha(color, MathF.Sin(Time.gameTime) * 0.5f + 0.5f);
+		}
 
 		y += 4;
 
 		drawLeft("Health", UIColors.TEXT_HEALTH);
-		drawRight(formatValue(player.health) + "/" + formatValue(player.maxHealth), player.availableStatUpgrades > 0 && selectedLevelStat == 0 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRight(formatValue(player.health) + "/" + formatValue(player.maxHealth), player.availableStatUpgrades > 0 && selectedLevelStat == 0 ? blinkText(UIColors.TEXT_UPGRADE) : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Mana", UIColors.TEXT_MANA);
-		drawRight(formatValue(player.mana) + "/" + formatValue(player.maxMana), player.availableStatUpgrades > 0 && selectedLevelStat == 1 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRight(formatValue(player.mana) + "/" + formatValue(player.maxMana), player.availableStatUpgrades > 0 && selectedLevelStat == 1 ? blinkText(UIColors.TEXT_UPGRADE) : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Speed", UIColors.TEXT_SPEED);
@@ -167,7 +171,7 @@ public static class CharacterInfoPanel
 		drawRightValueRelative(player.getMagicDamageModifier(), 1, UIColors.TEXT);
 		y += Renderer.smallFont.size;
 		drawLeft("Movement Speed", UIColors.TEXT);
-		drawRightValueRelative(player.getMovementSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 3 ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRightValueRelative(player.getMovementSpeedModifier(), 1, player.availableStatUpgrades > 0 && selectedLevelStat == 3 ? blinkText(UIColors.TEXT_UPGRADE) : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		drawLeft("Mana Recovery Rate", UIColors.TEXT);
@@ -182,7 +186,7 @@ public static class CharacterInfoPanel
 		y += Renderer.smallFont.size;
 
 		drawLeft("Attack Rating", UIColors.TEXT);
-		drawRightValue(player.handItem != null ? player.handItem.getAttackDamage(player) : DefaultWeapon.instance.getAttackDamage(player), player.availableStatUpgrades > 0 && (selectedLevelStat == 0 || selectedLevelStat == 1 || selectedLevelStat == 2) ? UIColors.TEXT_UPGRADE : UIColors.TEXT);
+		drawRightValue(player.handItem != null ? player.handItem.getAttackDamage(player) : DefaultWeapon.instance.getAttackDamage(player), player.availableStatUpgrades > 0 && (selectedLevelStat == 0 || selectedLevelStat == 1 || selectedLevelStat == 2) ? blinkText(UIColors.TEXT_UPGRADE) : UIColors.TEXT);
 		y += Renderer.smallFont.size;
 
 		y += -2 + 4;

@@ -101,7 +101,6 @@ public class Blacksmith : NPC, WorldEventListener
 		animator.setAnimation("smith");
 		turnTowardsPlayer = false;
 
-		buyTax = 0.5f;
 		voicePitch = 0.75f;
 	}
 
@@ -120,7 +119,7 @@ public class Blacksmith : NPC, WorldEventListener
 		base.update();
 
 		BossRoom bossRoom = level.getEntity<BossRoom>();
-		if (bossRoom != null && bossRoom.boss.isAlive)
+		if (bossRoom != null && bossRoom.bossAlive)
 			animator.setAnimation("idle");
 		else if (state == NPCState.None)
 			animator.setAnimation("smith");
@@ -136,7 +135,7 @@ public class Blacksmith : NPC, WorldEventListener
 		if (newLevel != level)
 		{
 			BossRoom bossRoom = level.getEntity<BossRoom>();
-			if (bossRoom != null && !bossRoom.boss.isAlive)
+			if (bossRoom != null && !bossRoom.bossAlive)
 			{
 				remove();
 			}
@@ -147,7 +146,7 @@ public class Blacksmith : NPC, WorldEventListener
 	{
 		clearShop();
 		Random random = new Random((int)Hash.combine(Hash.hash(GameState.instance.run.seed), (uint)boss.level.floor));
-		populateShop(random, 10, 14, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Armor, ItemType.Ammo);
+		populateShop(random, 10, 14, boss.level.avgLootValue * 2, ItemType.Weapon, ItemType.Shield, ItemType.Staff, ItemType.Armor, ItemType.Ammo);
 		buysItems = true;
 		canUpgrade = true;
 		canInfuse = true;

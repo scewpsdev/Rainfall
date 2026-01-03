@@ -19,6 +19,11 @@ public class DungeonGenerator : LevelGenerator
 		return "The Weeping Catacombs";
 	}
 
+	public override int getAreaFirstFloor()
+	{
+		return 12;
+	}
+
 	public override int getNumFloors()
 	{
 		return 4;
@@ -31,7 +36,7 @@ public class DungeonGenerator : LevelGenerator
 
 	public override int getLootValue(int floor)
 	{
-		return 39 + (floor + 1) * 4;
+		return 45 + (floor + 1) * 4;
 	}
 
 	public override void getLevelSize(int floor, out int width, out int height)
@@ -150,11 +155,11 @@ public class DungeonGenerator : LevelGenerator
 		mobs.Add(new OrangeBat());
 		mobs.Add(new BlueSlime());
 		mobs.Add(new SkeletonArcher());
-		if (level.floor >= 1)
+		if (getLocalFloor() >= 1)
 			mobs.Add(new Leprechaun());
-		if (level.floor >= 2)
+		if (getLocalFloor() >= 2)
 			mobs.Add(new Stalker());
-		if (level.floor >= 3)
+		if (getLocalFloor() >= 3)
 			mobs.Add(new Gandalf());
 		return mobs;
 	}

@@ -128,10 +128,11 @@ public abstract class Potion : Item
 
 	public override void identify()
 	{
+		base.identify();
 		int effectShift = (int)(Hash.hash(GameState.instance.run.seed) % (int)PotionEffectType.Count);
 		int idx = ((int)effect + effectShift) % (int)PotionEffectType.Count;
 		//sprite = potionSprites[idx];
-		displayName = (throwable ? "Throwable " : "") + potionNames[idx];
+		displayName = /*(throwable ? "Throwable " : "") +*/ potionNames[idx];
 		//potionColor = potionColors[idx];
 		if (!GameState.instance.identifiedPotions.Contains(name))
 			GameState.instance.identifiedPotions.Add(name);
@@ -205,9 +206,11 @@ public abstract class Potion : Item
 					player.hud.showMessage("Everything around you starts spinning.");
 				break;
 			case PotionEffectType.Lucky:
-				player.luck *= 2;
 				if (player != null)
+				{
+					player.luck *= 2;
 					player.hud.showMessage("You feel like luck is on your side.");
+				}
 				break;
 		}
 	}

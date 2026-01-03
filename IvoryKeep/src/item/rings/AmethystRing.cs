@@ -13,7 +13,7 @@ public class AmethystRing : Item
 	{
 		displayName = "Amethyst Ring";
 
-		description = "Increases maximum health by 1";
+		description = "Increases maximum health by 5";
 
 		baseValue = 64;
 
@@ -24,12 +24,12 @@ public class AmethystRing : Item
 	{
 		if (player.health == player.maxHealth)
 			player.health++;
-		player.hp += 2;
+		player.hp += 1;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.hp -= 2;
+		player.hp -= 1;
 		player.health = MathF.Min(player.health, player.maxHealth);
 	}
 }

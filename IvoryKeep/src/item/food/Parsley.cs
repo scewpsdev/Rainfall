@@ -18,7 +18,7 @@ public class Parsley : Item
 
 		baseValue = 12;
 		rarity = 0.1f;
-		canDrop = false;
+		//canDrop = false;
 
 		sprite = new Sprite(tileset, 12, 4);
 
