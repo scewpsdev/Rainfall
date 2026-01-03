@@ -22,13 +22,13 @@ public class ClimbingGear : Item
 
 	public override void onEquip(Player player)
 	{
-		player.canWallJump = true;
+		//player.canWallJump = true;
 		player.wallControl *= 2;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.canWallJump = false;
+		//player.canWallJump = false;
 		player.wallControl /= 2;
 	}
 }

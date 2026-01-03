@@ -50,7 +50,7 @@ public class Container : Object
 		if (breakSound != null)
 			Audio.PlayOrganic(breakSound, new Vector3(position, 0));
 
-		float enemyChance = 0.1f;
+		float enemyChance = 0.04f;
 		if (Random.Shared.NextSingle() < enemyChance)
 		{
 			Mob enemy;
@@ -85,9 +85,9 @@ public class Container : Object
 	protected override void onCollision(bool x, bool y, bool isEntity)
 	{
 		if (isEntity)
-			hit(velocity.length / 12);
-		else if (velocity.length > 12)
-			hit((velocity.length - 12) / 12);
+			hit(velocity.length / 8);
+		else if (velocity.length > 8)
+			hit((velocity.length - 8) / 8);
 
 		base.onCollision(x, y, isEntity);
 	}

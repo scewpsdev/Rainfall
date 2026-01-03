@@ -18,7 +18,7 @@ public class IronKey : Item
 		canDrop = false;
 		isActiveItem = true;
 		isHandItem = false;
-		upgradable = false;
+		maxUpgradeLevel = 0;
 		//stackable = true;
 
 		sprite = new Sprite(tileset, 8, 5);

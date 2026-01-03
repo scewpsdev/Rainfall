@@ -73,7 +73,7 @@ public class RelicPlinth : Entity, Interactable
 			do
 			{
 				relic = Item.CreateRandom(ItemType.Relic, random, value);
-			} while (player.hasItemOfType(relic.name) || !relics.TrueForAll((Item item) =>
+			} while (GameState.instance.player.hasItemOfType(relic.name) && !GameState.instance.player.getItem(relic.name).upgradable || !relics.TrueForAll((Item item) =>
 			{
 				return item.name != relic.name;
 			}));

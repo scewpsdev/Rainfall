@@ -16,6 +16,7 @@ public class AmethystRing : Item
 		description = "Increases maximum health by 5";
 
 		baseValue = 64;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 10, 0);
 	}
@@ -24,12 +25,12 @@ public class AmethystRing : Item
 	{
 		if (player.health == player.maxHealth)
 			player.health++;
-		player.hp += 1;
+		player.hp += upgradeLevel + 1;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.hp -= 1;
+		player.hp -= upgradeLevel + 1;
 		player.health = MathF.Min(player.health, player.maxHealth);
 	}
 }

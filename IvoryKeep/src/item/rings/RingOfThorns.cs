@@ -13,9 +13,13 @@ public class RingOfThorns : Item
 	{
 		displayName = "Ring of Thorns";
 		description = "Damages attacker upon taking a hit";
-		sprite = new Sprite(tileset, 11, 6);
+
 		stackable = false;
+
 		baseValue = 33;
+		maxUpgradeLevel = 3;
+
+		sprite = new Sprite(tileset, 11, 6);
 	}
 
 	public override void onPlayerHit(Player player, Entity by, float damage)
@@ -23,7 +27,7 @@ public class RingOfThorns : Item
 		if (by is Hittable)
 		{
 			Hittable hittable = by as Hittable;
-			float amount = 0.5f;
+			float amount = 0.5f + upgradeLevel * 0.2f;
 			hittable.hit(damage * amount, player, this);
 		}
 	}

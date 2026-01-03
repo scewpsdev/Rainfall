@@ -348,8 +348,10 @@ public abstract class Item
 	public bool hasParticleEffect = false;
 	public Vector2 particlesOffset = Vector2.Zero;
 
-	public bool upgradable = false;
 	public int upgradeLevel = 0;
+	public int maxUpgradeLevel = 0;
+	public bool upgradable { get => maxUpgradeLevel > upgradeLevel; }
+	public bool spawnWithUpgrades = true;
 
 	public bool cursed { get; private set; } = false;
 
@@ -374,7 +376,7 @@ public abstract class Item
 		isPassiveItem = type == ItemType.Armor || type == ItemType.Relic;
 
 		stackable = type == ItemType.Food || type == ItemType.Potion /*|| type == ItemType.Relic*/ || type == ItemType.Scroll /*|| type == ItemType.Gem*/ /*|| type == ItemType.Ammo*/;
-		upgradable = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor /*|| type == ItemType.Relic*/;
+		maxUpgradeLevel = type == ItemType.Weapon || type == ItemType.Staff || type == ItemType.Spell || type == ItemType.Armor /*|| type == ItemType.Relic*/ ? 10 : 0;
 
 		useSound = type == ItemType.Weapon || type == ItemType.Staff ? weaponSwing : type == ItemType.Potion ? potionUse : null;
 		hitSound = type == ItemType.Weapon ? weaponHit : woodHit;
@@ -560,12 +562,12 @@ public abstract class Item
 			if (type == ItemType.Weapon)
 			{
 				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
-				return (int)(dps * 10 * (1 + upgradeLevel * 1.2f));
+				return (int)(baseValue * 0.1f * 10 * (1 + upgradeLevel * 1.2f));
 			}
 			else if (type == ItemType.Staff)
 			{
 				float dps = MathF.Pow(baseDamage, 1.5f) * baseAttackRate;
-				return (int)(dps * 15 * (1 + upgradeLevel * 1.2f));
+				return (int)(baseValue * 0.1f * 15 * (1 + upgradeLevel * 1.2f));
 			}
 			else if (type == ItemType.Armor)
 			{
@@ -979,7 +981,7 @@ public abstract class Item
 		Item newItem = item.copy();
 		ItemType type = item.type;
 
-		while (newItem.getValue() < meanValue * 0.5f && newItem.upgradable)
+		while (newItem.getValue() < meanValue * 0.5f && newItem.upgradable && newItem.spawnWithUpgrades)
 			newItem.upgrade();
 
 		if (type == ItemType.Weapon || type == ItemType.Staff)

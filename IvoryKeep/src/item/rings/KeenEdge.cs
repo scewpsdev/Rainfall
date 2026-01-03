@@ -17,9 +17,16 @@ public class KeenEdge : Item
 		tumbles = false;
 
 		baseValue = 28;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 1, 7);
 
 		buff = new ItemBuff(this) { criticalChanceModifier = 2.0f };
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		buff.criticalChanceModifier = 2.0f + upgradeLevel * 0.5f;
 	}
 }

@@ -12,13 +12,20 @@ public class Spellweaver : Item
 		: base("spellweaver", ItemType.Relic)
 	{
 		displayName = "Spellweaver";
-		description = "Reduces spell mana cost by 20%";
+		description = "Reduces spell mana cost";
 		tumbles = false;
 
 		baseValue = 27;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 15, 7);
 
 		buff = new ItemBuff(this) { manaCostModifier = 0.8f };
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		buff.manaCostModifier = 0.8f - upgradeLevel * 0.1f;
 	}
 }

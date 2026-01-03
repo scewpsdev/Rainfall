@@ -19,6 +19,7 @@ public class RingOfTears : Item
 		description = "Increases critical attack chance when health is low";
 
 		baseValue = 90;
+		maxUpgradeLevel = 1;
 
 		sprite = new Sprite(tileset, 10, 2);
 
@@ -42,6 +43,6 @@ public class RingOfTears : Item
 	public override void upgrade()
 	{
 		base.upgrade();
-		dmgBuff += 4;
+		dmgBuff = 8 + upgradeLevel * 4;
 	}
 }

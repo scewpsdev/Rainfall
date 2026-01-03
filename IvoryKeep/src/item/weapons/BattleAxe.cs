@@ -30,7 +30,7 @@ public class BattleAxe : Weapon
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
 		weaponTipMargin = 5 / 16.0f;
-		backRotation = -0.5f * MathF.PI;
+		backRotation = 0.5f * MathF.PI;
 	}
 
 	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)

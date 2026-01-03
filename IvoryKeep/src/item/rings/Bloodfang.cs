@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class Bloodfang : Item
 {
-	float amount = 0.2f;
-
 	public Bloodfang()
 		: base("bloodfang", ItemType.Relic)
 	{
@@ -19,6 +17,7 @@ public class Bloodfang : Item
 		tumbles = false;
 
 		baseValue = 45;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 15, 6);
 	}
@@ -26,6 +25,6 @@ public class Bloodfang : Item
 	public override void onEnemyHit(Player player, Mob mob, float damage, bool critical)
 	{
 		if (critical)
-			player.heal(damage * amount);
+			player.heal(damage * (0.2f + upgradeLevel * 0.05f));
 	}
 }

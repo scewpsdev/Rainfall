@@ -16,9 +16,16 @@ public class MagnifyingGlass : Item
 		stackable = true;
 
 		baseValue = 28;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 0, 7);
 
 		buff = new ItemBuff(this) { accuracyModifier = 2 };
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		buff.accuracyModifier = 2 + upgradeLevel * 0.5f;
 	}
 }

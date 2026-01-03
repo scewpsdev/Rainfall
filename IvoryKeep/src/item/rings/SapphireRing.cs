@@ -13,11 +13,18 @@ public class SapphireRing : Item
 	{
 		displayName = "Sapphire Ring";
 
-		description = "Increases energy recovery rate";
+		description = "Increases mana recovery rate";
 		baseValue = 25;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 13, 5);
 
-		buff = new ItemBuff(this) { manaRecoveryModifier = 2 };
+		buff = new ItemBuff(this) { manaRecoveryModifier = 1.5f };
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		buff.manaRecoveryModifier = 1.5f + upgradeLevel * 0.5f;
 	}
 }

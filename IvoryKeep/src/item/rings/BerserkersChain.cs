@@ -25,6 +25,7 @@ public class BerserkersChain : Item
 		//canDrop = false;
 
 		baseValue = 25;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 9, 6);
 
@@ -52,7 +53,7 @@ public class BerserkersChain : Item
 		lastKill = Time.currentTime;
 	}
 
-	float damageMultiplier => 1 + MathF.Max(buffLevel - threshhold, 0) * 0.05f /*0.025f*/;
+	float damageMultiplier => 1 + MathF.Max(buffLevel - threshhold, 0) * (0.05f + upgradeLevel * 0.01f) /*0.025f*/;
 
 	public override void update(Entity entity)
 	{

@@ -35,7 +35,7 @@ public class Beetle : Mob
 
 	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
-		gravity = -10;
+		gravity = -20;
 		return base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
 	}
 }

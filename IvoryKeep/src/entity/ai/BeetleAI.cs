@@ -25,8 +25,6 @@ public class BeetleAI : AI
 		mob.inputDown = false;
 		mob.inputUp = false;
 
-		mob.gravity = 0;
-
 		if (walkDirection == Vector2i.Zero)
 		{
 			walkDirection = new Vector2i(mob.direction, 0);
@@ -45,15 +43,17 @@ public class BeetleAI : AI
 		{
 			Mathf.Swap(ref walkDirection, ref downVector);
 			walkDirection *= -1;
+			mob.gravity = 0;
 		}
 		else if (!down && backDown)
 		{
 			Mathf.Swap(ref walkDirection, ref downVector);
 			downVector *= -1;
+			mob.gravity = 0;
 		}
 		else if (!mob.level.overlapSolid(position - 0.5f, position + 0.5f))
 		{
-			mob.gravity = -10;
+			mob.gravity = -20;
 			walkDirection = Vector2i.Right;
 			downVector = Vector2i.Down;
 		}

@@ -22,7 +22,7 @@ public class DungeonMap : Item
 		isPassiveItem = true;
 		isActiveItem = false;
 		isHandItem = false;
-		upgradable = false;
+		maxUpgradeLevel = 0;
 		//stackable = true;
 
 		sprite = new Sprite(tileset, 10, 12);

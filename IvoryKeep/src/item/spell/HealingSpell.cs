@@ -19,7 +19,7 @@ public class HealingSpell : Spell
 		baseDamage = 0;
 		manaCost = 2;
 		trigger = false;
-		upgradable = false;
+		maxUpgradeLevel = 0;
 		needsCharging = true;
 
 		spellIcon = new Sprite(tileset, 4, 8);

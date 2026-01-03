@@ -15,7 +15,7 @@ public class Lockpick : Item
 
 		baseValue = 7;
 		rarity = 0.05f;
-		stackable = false;
+		stackable = true;
 		//isActiveItem = false;
 
 		sprite = new Sprite(tileset, 9, 5);

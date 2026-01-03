@@ -20,9 +20,13 @@ public class RingOfRetaliation : Item
 	{
 		displayName = "Ring of Retaliation";
 		description = "Upon taking damage, restores health from counterattacks";
-		sprite = new Sprite(tileset, 11, 6);
+
 		stackable = false;
+
 		baseValue = 30;
+		maxUpgradeLevel = 3;
+
+		sprite = new Sprite(tileset, 11, 6);
 	}
 
 	public override void onPlayerHit(Player player, Entity by, float damage)
@@ -35,7 +39,7 @@ public class RingOfRetaliation : Item
 
 		lastHit = Time.currentTime;
 		damageTaken += damage;
-		recoveryAmount += 0.15f * damage;
+		recoveryAmount += (0.15f + upgradeLevel * 0.03f) * damage;
 	}
 
 	public override void onEnemyHit(Player player, Mob mob, float damage, bool critical)

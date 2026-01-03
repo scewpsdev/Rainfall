@@ -17,17 +17,18 @@ public class WingProsthetics : Item
 		description = "Allows the wearer to fling themselves upwards mid air";
 
 		baseValue = 25;
+		maxUpgradeLevel = 1;
 
 		sprite = new Sprite(tileset, 7, 8);
 	}
 
 	public override void onEquip(Player player)
 	{
-		player.airJumps++;
+		player.airJumps += upgradeLevel + 1;
 	}
 
 	public override void onUnequip(Player player)
 	{
-		player.airJumps--;
+		player.airJumps -= upgradeLevel + 1;
 	}
 }

@@ -24,7 +24,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	const float STUN_DURATION = 1.0f;
 	public const float FALL_STUN_DISTANCE = 8;
 	const float FALL_DAMAGE_DISTANCE = 10;
-	const float MANA_KILL_REWARD = 0.4f; //0.5f;
+	public const float MANA_KILL_REWARD = 0.4f; //0.5f;
 	const float MANA_HIT_REWARD = 0.1f;
 #if DEBUG
 	const float SPRINT_MANA_COST = 0.5f;
@@ -533,7 +533,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		if ((item.type == ItemType.Spell || item.type == ItemType.Relic) && hasItemOfType(item.name))
 		{
 			Item spellItem = getItem(item.name);
-			for (int i = 0; i < item.upgradeLevel; i++)
+			for (int i = 0; i < item.upgradeLevel + 1; i++)
 				spellItem.upgrade();
 			return true;
 		}
@@ -1102,6 +1102,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		mana = MathF.Max(mana - amount, 0);
 	}
 
+	public void refillMana(float amount)
+	{
+		mana = MathF.Min(mana + amount, maxMana);
+	}
+
 	public StatusEffect addStatusEffect(StatusEffect effect)
 	{
 		statusEffects.Add(effect);
@@ -1152,10 +1157,24 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		QuestManager.onKill(GameState.instance.save, mob);
 	}
 
-	public void onEnemyHit(Mob mob)
+	public void onEnemyMeleeHit(Mob mob, float damage, bool critical)
 	{
 		if (mana < maxMana)
 			mana = MathF.Min(mana + MANA_HIT_REWARD, maxMana);
+		for (int j = 0; j < items.Count; j++)
+		{
+			if (isEquipped(items[j]))
+				items[j].onEnemyHit(this, mob, damage, critical);
+		}
+	}
+
+	public void onEnemyProjectileHit(Mob mob, float damage, bool critical)
+	{
+		for (int j = 0; j < items.Count; j++)
+		{
+			if (isEquipped(items[j]))
+				items[j].onEnemyHit(this, mob, damage, critical);
+		}
 	}
 
 	public void awardXP(int amount)

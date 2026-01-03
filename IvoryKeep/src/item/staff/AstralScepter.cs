@@ -13,15 +13,17 @@ public class AstralScepter : Staff
 	{
 		displayName = "Astral Scepter";
 
-		baseDamage = 2;
+		baseDamage = 1.5f;
 		baseAttackRate = 0.7f;
+		baseAttackRange = 1.7f;
 		manaCost = 2;
 		//trigger = false;
 		secondaryChargeTime = 0;
 		knockback = 2.0f;
 		twoHanded = true;
+		anim = AttackAnim.SwingOverhead;
 
-		baseValue = 35;
+		baseValue = 55;
 
 		intelligenceScaling = 1.0f;
 
@@ -29,13 +31,8 @@ public class AstralScepter : Staff
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.4f;
 		backRotation = 0.5f * MathF.PI;
+		weaponTipMargin = 2 / 16.0f;
 
 		castSound = Resource.GetSounds("sounds/cast", 3);
-	}
-
-	protected override void getAttackAnim(int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle)
-	{
-		base.getAttackAnim(idx, out anim, out swingDir, out startAngle, out endAngle);
-		anim = idx % 2 == 0 ? AttackAnim.Stab : AttackAnim.SwingSideways;
 	}
 }

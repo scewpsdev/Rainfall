@@ -535,14 +535,14 @@ public class Level
 		if (overlapSolid(position + collider.min + new Vector2(0, displacement.y), position + collider.max + new Vector2(0, displacement.y), displacement.y < 0, downInput, collider, filterMask))
 		{
 			// Do corner cutting
-			if (cornerCutting && displacement.y > 0.01f && !sampleTiles(position + displacement + new Vector2(0, collider.max.y)))
+			if (cornerCutting && displacement.y > 0.01f && !sampleSolid(position + displacement + new Vector2(0, collider.max.y)))
 			{
-				if (!sampleTiles(position + displacement + collider.max) && sampleTiles(position + displacement + new Vector2(collider.min.x, collider.max.y)))
+				if (!sampleSolid(position + displacement + collider.max) && sampleSolid(position + displacement + new Vector2(collider.min.x, collider.max.y)))
 				{
 					displacement.x = MathF.Max(displacement.x, 1 - Mathf.Fract(position.x + displacement.x + collider.min.x));
 					return 0;
 				}
-				else if (sampleTiles(position + displacement + collider.max) && !sampleTiles(position + displacement + new Vector2(collider.min.x, collider.max.y)))
+				else if (sampleSolid(position + displacement + collider.max) && !sampleSolid(position + displacement + new Vector2(collider.min.x, collider.max.y)))
 				{
 					displacement.x = MathF.Min(displacement.x, -Mathf.Fract(position.x + displacement.x + collider.max.x));
 					return 0;
@@ -1081,7 +1081,12 @@ public class Level
 	{
 		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
 		TileType tile = getTile(tilePosition);
-		if (tile != null && tile.isSolid && !tile.isPlatform)
+		return tile != null && tile.isSolid && !tile.isPlatform;
+	}
+
+	public bool sampleSolid(Vector2 position)
+	{
+		if (sampleTiles(position))
 			return true;
 
 		for (int i = 0; i < colliders.Count; i++)

@@ -104,7 +104,7 @@ public class BossRoom : Entity
 			ChestType chestType = (ChestType)Mathf.RandomInt((int)ChestType.Red, (int)ChestType.Green, Random.Shared);
 			Chest chest = new Chest(null, false, chestType);
 			chest.items = chest.createThemedItems(level.avgLootValue * 2, DropRates.defaultDroprates, Random.Shared);
-			level.addEntity(chest, new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f - 2.0f, gate0.bottomPosition.y + 1));
+			level.addEntity(chest, new Vector2(gate0.position.x * 0.5f + gate1.position.x * 0.5f - 2.0f + i * 2.0f, gate0.bottomPosition.y + 1));
 		}
 
 		{
@@ -149,9 +149,9 @@ public class BossRoom : Entity
 			for (int i = 0; i < bosses.Count; i++)
 			{
 				if (bosses[i].isAlive)
-					return false;
+					return true;
 			}
-			return true;
+			return false;
 		}
 	}
 }

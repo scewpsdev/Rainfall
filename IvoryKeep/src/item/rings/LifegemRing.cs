@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class LifegemRing : Item
 {
-	float rate = 0.01f;
-
 	bool enabled = false;
 
 
@@ -21,6 +19,7 @@ public class LifegemRing : Item
 		stackable = false;
 
 		baseValue = 67;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 14, 6);
 	}
@@ -40,6 +39,7 @@ public class LifegemRing : Item
 		if (enabled && entity is Player)
 		{
 			Player player = entity as Player;
+			float rate = 0.01f + upgradeLevel * 0.005f;
 			player.heal(rate * Time.deltaTime);
 		}
 	}

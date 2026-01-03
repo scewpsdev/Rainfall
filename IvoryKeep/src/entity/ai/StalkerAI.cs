@@ -46,9 +46,9 @@ public class StalkerAI : AI
 
 		Vector2 position = mob.position + mob.collider.center;
 		Vector2 delta = walkDirection * mob.speed * Time.deltaTime;
-		bool forward = mob.level.sampleTiles(position + walkDirection * 0.25f + delta + downVector * 0.2f) || mob.level.sampleTiles(position + walkDirection * 0.25f + delta - downVector * 0.2f);
-		bool down = mob.level.sampleTiles(position - walkDirection * 0.25f + downVector * 0.5f);
-		bool backDown = mob.level.sampleTiles(position - walkDirection * 0.5f + downVector * 0.5f);
+		bool forward = mob.level.sampleSolid(position + walkDirection * 0.25f + delta + downVector * 0.2f) || mob.level.sampleSolid(position + walkDirection * 0.25f + delta - downVector * 0.2f);
+		bool down = mob.level.sampleSolid(position - walkDirection * 0.25f + downVector * 0.5f);
+		bool backDown = mob.level.sampleSolid(position - walkDirection * 0.5f + downVector * 0.5f);
 		if (forward)
 		{
 			Mathf.Swap(ref walkDirection, ref downVector);

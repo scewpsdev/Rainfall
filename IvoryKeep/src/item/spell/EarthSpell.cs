@@ -19,7 +19,7 @@ public class EarthSpell : Spell
 		baseDamage = 0;
 		manaCost = 1.5f;
 		trigger = false;
-		upgradable = false;
+		maxUpgradeLevel = 0;
 
 		spellIcon = new Sprite(tileset, 4, 8);
 	}

@@ -16,9 +16,16 @@ public class OldHuntersRing : Item
 		description = "Increases projectile range";
 
 		baseValue = 40;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 0, 4);
 
 		buff = new ItemBuff(this) { projectileRangeModifier = 1.5f };
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		buff.projectileRangeModifier = 1.5f + upgradeLevel * 0.5f;
 	}
 }

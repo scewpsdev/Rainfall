@@ -16,9 +16,16 @@ public class RingOfSwiftness : Item
 		description = "Increases speed by 20%";
 
 		baseValue = 35;
+		maxUpgradeLevel = 3;
 
 		sprite = new Sprite(tileset, 9, 0);
 
-		buff = new ItemBuff(this) { movementSpeedModifier = 1.2f };
+		buff = new ItemBuff(this) { movementSpeedModifier = 1.1f };
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		buff.movementSpeedModifier = 1.1f + upgradeLevel * 0.1f;
 	}
 }

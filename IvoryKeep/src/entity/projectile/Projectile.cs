@@ -131,6 +131,9 @@ public class Projectile : Entity, Hittable
 						Mob mob = hit.entity as Mob;
 						Vector2 knockback = (hit.entity.position - position).normalized * (item != null ? item.knockback : 8);
 						mob.addImpulse(knockback);
+
+						if (shooter is Player)
+							player.onEnemyProjectileHit(mob, damage, critical);
 					}
 
 					//remove();

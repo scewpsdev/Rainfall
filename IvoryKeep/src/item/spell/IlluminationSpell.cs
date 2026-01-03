@@ -19,7 +19,7 @@ public class IlluminationSpell : Spell
 		baseDamage = 0;
 		manaCost = 0.5f;
 		trigger = false;
-		upgradable = false;
+		maxUpgradeLevel = 0;
 
 		spellIcon = new Sprite(tileset, 4, 6);
 	}

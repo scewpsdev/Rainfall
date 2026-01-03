@@ -182,12 +182,7 @@ public class AttackAction : EntityAction
 				if (hittable is Mob)
 				{
 					Mob mob = hittable as Mob;
-					player.onEnemyHit(mob);
-					for (int j = 0; j < player.items.Count; j++)
-					{
-						if (player.isEquipped(player.items[j]))
-							player.items[j].onEnemyHit(player, mob, damage, critical);
-					}
+					player.onEnemyMeleeHit(mob, damage, critical);
 				}
 
 				//if (!player.isGrounded)
