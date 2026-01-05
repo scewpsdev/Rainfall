@@ -388,8 +388,8 @@ public abstract class Item
 		knockback = type == ItemType.Weapon || type == ItemType.Staff ? 6 : type == ItemType.Spell ? 1 : 4;
 		baseWeight = type == ItemType.Weapon ? 2 : type == ItemType.Shield ? 2 : type == ItemType.Staff ? 1 : type == ItemType.Armor ? 1 : 0;
 
-		if (type == ItemType.Relic)
-			cursedChance = 0.9f;
+		//if (type == ItemType.Relic)
+		//	cursedChance = 0.9f;
 	}
 
 	public virtual Item copy()

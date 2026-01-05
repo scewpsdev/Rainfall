@@ -242,8 +242,9 @@ public class GameState : State
 				player.setStartingClass(startingClass);
 			else
 			{
-				player.money = 12;
-				player.giveItem(new BrokenSword());
+				//player.money = 12;
+				player.giveItem(new Dagger());
+				player.giveItem(new TravellingCloak());
 			}
 			levelSwitchTime = -1;
 		}
@@ -254,8 +255,9 @@ public class GameState : State
 			switchLevel(hub, spawnPosition);
 			levelSwitchTime = -1;
 
-			player.money = 12;
-			player.giveItem(new BrokenSword());
+			//player.money = 12;
+			player.giveItem(new Dagger());
+			player.giveItem(new TravellingCloak());
 		}
 		else
 		{

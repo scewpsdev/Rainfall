@@ -242,7 +242,7 @@ public class HUD
 
 	void ___renderHealth()
 	{
-		int width = (int)MathF.Round(player.maxHealth * 10);
+		int width = (int)MathF.Round(player.maxHealth * 14);
 		int height = 7;
 		int x = Renderer.UIWidth / 2 + 8 + 1;
 		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
@@ -252,7 +252,7 @@ public class HUD
 
 		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
 
-		int barWidth = (int)MathF.Ceiling(player.health * 10);
+		int barWidth = (int)MathF.Ceiling(player.health * 14);
 		Renderer.DrawUISprite(x, y, barWidth, height, null, false, 0xFF841e1e);
 		Renderer.DrawUISprite(x, y, barWidth, height / 2, null, false, 0xFFd84343);
 
@@ -262,7 +262,7 @@ public class HUD
 
 	void ___renderMana()
 	{
-		int width = (int)MathF.Round(player.maxMana * 20);
+		int width = (int)MathF.Round(player.maxMana * 28);
 		int height = 7;
 		int x = Renderer.UIWidth / 2 - 8 - 1 - width;
 		int y = Renderer.UIHeight - 4 - 16 - 7 - height;
@@ -272,7 +272,7 @@ public class HUD
 
 		Renderer.DrawUISprite(x, y, width, height, null, false, bgColor);
 
-		int barWidth = (int)MathF.Ceiling(player.mana * 20);
+		int barWidth = (int)MathF.Ceiling(player.mana * 28);
 		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height, null, false, 0xFF4d4195);
 		Renderer.DrawUISprite(x + (width - barWidth), y, barWidth, height / 2, null, false, 0xFF6555c8);
 

@@ -11,6 +11,8 @@ public class Container : Object
 	public Item[] items;
 	public int coins = 0;
 
+	public float enemyChance = 0.04f;
+
 	protected Sound[] breakSound;
 
 
@@ -50,7 +52,6 @@ public class Container : Object
 		if (breakSound != null)
 			Audio.PlayOrganic(breakSound, new Vector3(position, 0));
 
-		float enemyChance = 0.04f;
 		if (Random.Shared.NextSingle() < enemyChance)
 		{
 			Mob enemy;

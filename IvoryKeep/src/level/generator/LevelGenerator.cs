@@ -452,9 +452,9 @@ public abstract class LevelGenerator
 		});
 
 		// Coins
-		spawnRoomObject(deadEnds, 1, true, (Vector2i tile, Random random, Room room) =>
+		spawnRoomObject(deadEnds, 0.7f, true, (Vector2i tile, Random random, Room room) =>
 		{
-			int amount = Mathf.RandomInt(2, 7, random);
+			int amount = Mathf.RandomInt(4, 6, random);
 			level.addEntity(new CoinStack(amount), new Vector2(tile.x + 0.5f, tile.y + 0.5f));
 		});
 
