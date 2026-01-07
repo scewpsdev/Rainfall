@@ -24,7 +24,7 @@ public class Garran : Mob
 		itemDropValueMultiplier = 2;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/mob/castle/garran.png", false), 0, 0, 128, 64);
-		collider = new FloatRect(-0.25f, 0, 0.5f, 2.0f);
+		collider = new Hitbox(-0.25f, 0, 0.5f, 2.0f);
 		rect = new FloatRect(-4, -1, 8, 4);
 
 		animator = new SpriteAnimator();

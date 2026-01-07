@@ -28,7 +28,7 @@ public class ThrowingKnife : Item
 		baseValue = 3;
 
 		sprite = new Sprite(tileset, 4, 4);
-		collider = new FloatRect(-1.0f / 16, -1.0f / 16, 2.0f / 16, 2.0f / 16);
+		collider = new Hitbox(-1.0f / 16, -1.0f / 16, 2.0f / 16, 2.0f / 16);
 	}
 
 	public override bool use(Player player)

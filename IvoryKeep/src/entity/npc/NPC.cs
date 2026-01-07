@@ -881,7 +881,7 @@ public abstract class NPC : Mob, Interactable
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
 					onItemSold(copy);
-					player.hud.showMessage("Sold " + copy.fullDisplayName);
+					player.hud.showMessage("Bought " + copy.fullDisplayName);
 				}
 				else if (player.money >= price * item.stackSize)
 				{
@@ -897,7 +897,7 @@ public abstract class NPC : Mob, Interactable
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
 					onItemSold(item);
-					player.hud.showMessage("Sold " + item.fullDisplayName);
+					player.hud.showMessage("Bought " + item.fullDisplayName);
 				}
 			}
 
@@ -941,6 +941,7 @@ public abstract class NPC : Mob, Interactable
 					GameState.instance.player.money += price;
 
 					Audio.Play(tradeSound, new Vector3(position, 0));
+					player.hud.showMessage("Sold " + item.fullDisplayName);
 				}
 				else
 				{
@@ -950,6 +951,7 @@ public abstract class NPC : Mob, Interactable
 						GameState.instance.player.money += price * item.stackSize;
 
 						Audio.Play(tradeSound, new Vector3(position, 0));
+						player.hud.showMessage("Sold " + item.fullDisplayName);
 
 						if (selectedItem == player.items.Count)
 							selectedItem--;

@@ -15,7 +15,7 @@ public class TutorialEntranceDoor : Door
 		sprite = new Sprite(tileset, 6, 9, 3, 2);
 		rect = new FloatRect(-1.5f, 0.0f, 3.0f, 2.0f);
 
-		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
+		collider = new Hitbox(-1.5f, 0.0f, 3, 2);
 	}
 }
 
@@ -29,7 +29,7 @@ public class TutorialExitDoor : Door
 		sprite = new Sprite(tileset, 9, 9, 3, 4);
 		rect = new FloatRect(-1.5f, -1, 3.0f, 4.0f);
 
-		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
+		collider = new Hitbox(-1.5f, 0.0f, 3, 2);
 
 		layer1 = new Sprite(tileset, 9, 13, 3, 4);
 		layer2 = new Sprite(tileset, 9, 17, 3, 4);

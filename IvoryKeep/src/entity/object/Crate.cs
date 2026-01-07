@@ -15,7 +15,7 @@ public class Crate : Container
 		displayName = "Crate";
 
 		sprite = new Sprite(tileset, 8, 1);
-		collider = new FloatRect(-0.4f, 0.1f, 0.8f, 0.8f);
+		collider = new Hitbox(-0.4f, 0.1f, 0.8f, 0.8f);
 		platformCollider = true;
 
 		health = 2;

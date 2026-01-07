@@ -33,7 +33,7 @@ public class GolemBoss : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.375f, 0.0f, 0.75f, 1.5f);
+		collider = new Hitbox(-0.375f, 0.0f, 0.75f, 1.5f);
 		rect = new FloatRect(-4, -1, 8, 4);
 
 		health = 50;

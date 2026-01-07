@@ -18,7 +18,7 @@ public class GreenSpider : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.4f, 0, 0.8f, 0.5f);
+		collider = new Hitbox(-0.4f, 0, 0.8f, 0.5f);
 
 		speed = 6;
 		jumpPower = 9;

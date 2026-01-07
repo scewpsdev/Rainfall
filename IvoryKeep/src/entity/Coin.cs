@@ -52,7 +52,7 @@ public class Coin : Entity
 	{
 		this.type = type;
 
-		collider = new FloatRect(-1 / 16.0f, -1 / 16.0f, 2.0f / 16, 2.0f / 16);
+		collider = new Hitbox(-1 / 16.0f, -1 / 16.0f, 2.0f / 16, 2.0f / 16);
 
 		collectSound = Resource.GetSounds("sounds/coin", 6);
 	}
@@ -92,7 +92,7 @@ public class Coin : Entity
 					for (int i = 0; i < numHits; i++)
 					{
 						HitData hit = hits[i];
-						if (hit != null && hit.entity == target)
+						if (hit.entity == target)
 						{
 							int value = TYPE_VALUES[(int)type];
 
@@ -119,6 +119,9 @@ public class Coin : Entity
 				target = null;
 			}
 			*/
+
+			if (target is Mob && !((Mob)target).isAlive)
+				target = null;
 		}
 		if (target == null)
 		{
@@ -140,8 +143,7 @@ public class Coin : Entity
 				}
 			}
 
-			HitData hit = GameState.instance.level.raycastSolid(position, velocity.normalized, velocity.length * Time.deltaTime);
-			if (hit != null)
+			if (GameState.instance.level.raycastSolid(position, velocity.normalized, velocity.length * Time.deltaTime, out HitData hit))
 			{
 				velocity = Vector2.Zero;
 				//displacement = MathF.Min(displacement.length, hit.distance) * displacement.normalized;

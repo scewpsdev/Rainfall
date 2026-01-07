@@ -25,7 +25,7 @@ public class RelicPlinth : Entity, Interactable
 	public RelicPlinth(float value, Random random)
 	{
 		sprite = new Sprite(tileset, 0, 6);
-		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 7 / 16.0f);
+		collider = new Hitbox(-0.25f, 0.0f, 0.5f, 7 / 16.0f);
 		filterGroup = FILTER_DEFAULT | FILTER_OBJECT;
 		platformCollider = true;
 

@@ -49,8 +49,8 @@ public static class SpellEffects
 			{
 				TileType tile = GameState.instance.level.getTile(x, y);
 				Vector2 tileCenter = new Vector2(x, y) + 0.5f;
-				HitData hit = GameState.instance.level.raycastTilesDestructible(position, (tileCenter - position).normalized, (tileCenter - position).length);
-				if (hit == null && tile != null)
+				bool hasHit = GameState.instance.level.raycastTilesDestructible(position, (tileCenter - position).normalized, (tileCenter - position).length, out HitData hit);
+				if (hasHit && tile != null)
 				{
 					float distance = (tileCenter - position).length - 0.5f;
 					float explosionStrength = 1 - distance / radius;
@@ -81,8 +81,7 @@ public static class SpellEffects
 				float distance = (center - pos).length - hits[i].entity.collider.size.length * 0.5f;
 				if (distance < radius)
 				{
-					HitData hit = GameState.instance.level.raycastTilesDestructible(position, (center - position).normalized, (center - position).length);
-					if (hit == null)
+					if (!GameState.instance.level.raycastTilesDestructible(position, (center - position).normalized, (center - position).length, out _))
 					{
 						hits[i].entity.velocity += (center - pos).normalized * (1 - distance / radius) * 30;
 

@@ -24,7 +24,7 @@ public class OrangeBat : Mob
 			canShoot = true
 		};
 
-		collider = new FloatRect(-0.4f, -0.4f, 0.8f, 0.8f);
+		collider = new Hitbox(-0.4f, -0.4f, 0.8f, 0.8f);
 		sprite = new Sprite(Resource.GetTexture("sprites/orange_bat.png", false), 0, 0, 16, 16);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 3, 0.5f, true);

@@ -223,7 +223,7 @@ public class ItemEntity : Entity, Interactable, Hittable
 		if (!flyStraightOnThrow || ricochets > 0)
 			velocity.y += gravity * Time.deltaTime;
 
-		if (GameState.instance.level.hitTiles(position) != null)
+		if (GameState.instance.level.hitTiles(position, out _))
 			velocity = Vector2.Zero;
 
 		Vector2 displacement = velocity * Time.deltaTime;
@@ -282,8 +282,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 
 		if (damage > 0 /*&& item.projectileItem && thrower != null*/ && velocity.length > 4)
 		{
-			HitData hit = GameState.instance.level.raycast(position, velocity.normalized, velocity.length * Time.deltaTime + collider.size.y * 0.5f + 0.1f, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER | FILTER_OBJECT);
-			if (hit != null)
+			bool hasHit = GameState.instance.level.raycast(position, velocity.normalized, velocity.length * Time.deltaTime + collider.size.y * 0.5f + 0.1f, out HitData hit, FILTER_DEFAULT | FILTER_MOB | FILTER_PLAYER | FILTER_OBJECT);
+			if (hasHit)
 			{
 				if (hit.entity != null && hit.entity != this)
 				{

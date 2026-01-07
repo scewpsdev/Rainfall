@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rainfall
 {
-	public class FloatRect
+	public struct FloatRect
 	{
 		public Vector2 position;
 		public Vector2 size;
@@ -39,6 +39,30 @@ namespace Rainfall
 		public Vector2 center
 		{
 			get => new Vector2(position.x + 0.5f * size.x, position.y + 0.5f * size.y);
+		}
+
+		public static bool operator ==(FloatRect a, FloatRect b)
+		{
+			return a.position == b.position && a.size == b.size;
+		}
+
+		public static bool operator !=(FloatRect a, FloatRect b)
+		{
+			return a.position != b.position || a.size != b.size;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is FloatRect)
+			{
+				return this == (FloatRect)obj;
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
 		}
 	}
 }

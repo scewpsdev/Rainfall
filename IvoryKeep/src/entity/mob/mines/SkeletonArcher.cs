@@ -21,7 +21,7 @@ public class SkeletonArcher : Mob
 		animator.addAnimation("charge", 0, 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.3f, 0, 0.6f, 0.75f);
+		collider = new Hitbox(-0.3f, 0, 0.6f, 0.75f);
 
 		health = 4;
 		speed = 2;

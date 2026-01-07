@@ -23,7 +23,7 @@ public class Leprechaun : Mob, CoinTarget
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.3f, 0, 0.6f, 0.75f);
+		collider = new Hitbox(-0.3f, 0, 0.6f, 0.75f);
 
 		ai = new LeprechaunAI(this);
 
@@ -33,6 +33,8 @@ public class Leprechaun : Mob, CoinTarget
 		//gravity = -16;
 		//damage = 0.5f;
 	}
+
+	public bool isCoinTargetActive() => isAlive;
 
 	public void giveMoney(int amount)
 	{

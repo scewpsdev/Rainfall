@@ -46,7 +46,7 @@ public class LightningProjectile : Entity
 		this.shooter = player;
 		this.spell = spell;
 
-		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
+		collider = new Hitbox(-0.1f, -0.1f, 0.2f, 0.2f);
 		filterGroup = FILTER_PROJECTILE;
 
 		velocity = direction * speed;

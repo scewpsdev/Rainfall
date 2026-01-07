@@ -23,8 +23,7 @@ public class BossGate : Entity
 
 	public override void init(Level level)
 	{
-		HitData hit = level.raycastSolid(position + 0.5f, Vector2.Down, 10);
-		if (hit != null)
+		if (level.raycastSolid(position + 0.5f, Vector2.Down, 10, out HitData hit))
 			height = (int)MathF.Ceiling(hit.distance);
 
 		if (!isOpen)

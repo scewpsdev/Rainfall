@@ -21,7 +21,7 @@ public class Snake : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.3f, 0, 0.6f, 0.9f);
+		collider = new Hitbox(-0.3f, 0, 0.6f, 0.9f);
 
 		health = 3;
 		speed = 1;

@@ -26,8 +26,7 @@ public class TeleportationSpell : Spell
 
 	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
-		HitData hit = player.level.raycastSolid(Vector2.Floor(player.center) + 0.5f, player.lookDirection, 100);
-		if (hit != null)
+		if (player.level.raycastSolid(Vector2.Floor(player.center) + 0.5f, player.lookDirection, 100, out HitData hit))
 		{
 			Vector2 destination = hit.position + hit.normal * 0.5f;
 			player.position = destination;

@@ -30,7 +30,7 @@ public static class CharacterInfoPanel
 
 		PlayerThumbnail.Render(x + 4, y, 32, 32);
 
-		string playerName = GameState.instance.save.name;
+		string playerName = GameState.instance.save.isCustom || GameState.instance.save.isDaily ? "" : GameState.instance.save.name;
 		string className = player.startingClass != null ? player.startingClass.name : "No Class";
 		uint classColor = player.startingClass != null ? player.startingClass.color : UIColors.TEXT_SUBTLE;
 		Renderer.DrawUITextBMP(x + 4 + 32 + 4, y + 0 + 4, playerName, 1, UIColors.TEXT);

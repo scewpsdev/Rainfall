@@ -14,7 +14,7 @@ public class DungeonGate : Door
 		sprite = new Sprite(tileset, 6, 9, 3, 2);
 		rect = new FloatRect(-1.5f, 0.0f, 3.0f, 2.0f);
 
-		collider = new FloatRect(-1.5f, -2, 3, 2);
+		collider = new Hitbox(-1.5f, -2, 3, 2);
 	}
 
 	public DungeonGate()
@@ -60,7 +60,7 @@ public class CastleGate : Door
 		sprite = new Sprite(tileset, 0, 11, 8, 8);
 		rect = new FloatRect(-4, 0, 8, 8);
 
-		collider = new FloatRect(-4, 0, 8, 2);
+		collider = new Hitbox(-4, 0, 8, 2);
 
 		locked = true;
 		interactRange = 2;

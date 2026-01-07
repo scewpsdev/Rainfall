@@ -29,7 +29,7 @@ public class IronDoor : Entity, Interactable, Hittable
 		sprite = key != null ? new Sprite(tileset, 2, 8) : new Sprite(tileset, 3, 8);
 		frameSprite = key != null ? new Sprite(tileset, 2, 9) : new Sprite(tileset, 3, 9);
 
-		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 1);
+		collider = new Hitbox(-0.25f, 0.0f, 0.5f, 1);
 
 		unlockSound = Resource.GetSound("sounds/door_unlock.ogg");
 		lockedSound = Resource.GetSound("sounds/door_locked.ogg");

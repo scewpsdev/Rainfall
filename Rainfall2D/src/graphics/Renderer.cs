@@ -690,9 +690,8 @@ public static class Renderer2D
 		int cursor = 0;
 		for (int i = 0; i < text.Length; i++)
 		{
-			IntRect rect = smallFont.getCharacterRect(text[i]);
-			if (rect == null)
-				rect = smallFont.getCharacterRect('?');
+			if (!smallFont.getCharacterRect(text[i], out IntRect rect))
+				smallFont.getCharacterRect('?', out rect);
 
 			uiDraws.Add(new UIDraw { position = new Vector2(x + cursor * size, y), size = new Vector2(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
@@ -722,9 +721,8 @@ public static class Renderer2D
 				continue;
 			}
 
-			IntRect rect = smallFont.getCharacterRect(text[i]);
-			if (rect == null)
-				rect = smallFont.getCharacterRect('?');
+			if (!smallFont.getCharacterRect(text[i], out IntRect rect))
+				smallFont.getCharacterRect('?', out rect);
 
 			uiDraws.Add(new UIDraw { position = new Vector2(x + cursor * size, y), size = new Vector2(rect.size.x * size, rect.size.y * size), texture = smallFont.texture, rect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy), color = color });
 
@@ -735,9 +733,8 @@ public static class Renderer2D
 
 	public static int DrawUITextBMP(float x, float y, char c, bool flippedX = false, bool flippedY = false, int size = 1, uint color = 0xFFFFFFFF)
 	{
-		IntRect rect = smallFont.getCharacterRect(c);
-		if (rect == null)
-			rect = smallFont.getCharacterRect('?');
+		if (!smallFont.getCharacterRect(c, out IntRect rect))
+			smallFont.getCharacterRect('?', out rect);
 
 		int w = rect.size.x;
 		int h = rect.size.y;
@@ -789,7 +786,8 @@ public static class Renderer2D
 
 	public static Vector2i MeasureUITextBMP(char c)
 	{
-		return smallFont.getCharacterRect(c).size;
+		smallFont.getCharacterRect(c, out IntRect rect);
+		return rect.size;
 	}
 
 	public static Vector2i size
@@ -821,9 +819,8 @@ public static class Renderer2D
 		float cursor = 0;
 		for (int i = 0; i < text.Length; i++)
 		{
-			IntRect rect = smallFont.getCharacterRect(text[i]);
-			if (rect == null)
-				rect = smallFont.getCharacterRect('?');
+			if (!smallFont.getCharacterRect(text[i], out IntRect rect))
+				smallFont.getCharacterRect('?', out rect);
 
 			FloatRect frect = new FloatRect(rect.position / (Vector2)smallFont.texture.size.xy, rect.size / (Vector2)smallFont.texture.size.xy);
 			draws.Add(new SpriteDraw { position = new Vector3(x + cursor + 0.001f, y, z), size = rect.size * scale, texture = smallFont.texture, rect = frect, color = Mathf.ARGBToVector(color) });
@@ -837,9 +834,8 @@ public static class Renderer2D
 		float cursor = 0;
 		for (int i = 0; i < text.Length; i++)
 		{
-			IntRect rect = smallFont.getCharacterRect(text[i]);
-			if (rect == null)
-				rect = smallFont.getCharacterRect('?');
+			if (!smallFont.getCharacterRect(text[i], out IntRect rect))
+				smallFont.getCharacterRect('?', out rect);
 
 			DrawVerticalSprite(x + cursor + 0.001f, y, z, rect.size.x * scale, rect.size.y * scale, 0, smallFont.texture, rect.position.x, rect.position.y, rect.size.x, rect.size.y, Mathf.ARGBToVector(color), false);
 

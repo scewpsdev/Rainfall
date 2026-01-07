@@ -19,7 +19,7 @@ public class Rat : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.4f, 0, 0.8f, 0.55f);
+		collider = new Hitbox(-0.4f, 0, 0.8f, 0.55f);
 
 		ai = new WanderAI(this);
 

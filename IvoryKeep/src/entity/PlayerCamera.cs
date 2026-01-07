@@ -72,7 +72,7 @@ public class PlayerCamera : Entity
 		float y0 = (level.isSafeLevel || level.floor == -1) ? 0.4f * height : 0.0f; // + 0.5f * height;
 		float y1 = GameState.instance.level.height - 0.5f * height;
 
-		HitData currentCameraFrame = GameState.instance.level.sample(position, FILTER_CAMERA_FRAME);
+		GameState.instance.level.sample(position, out HitData currentCameraFrame, FILTER_CAMERA_FRAME);
 		//if (currentCameraFrame != null)
 		//{
 		//	target = currentCameraFrame.entity.position;

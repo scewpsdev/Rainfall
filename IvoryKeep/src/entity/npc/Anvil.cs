@@ -23,7 +23,7 @@ public class Anvil : Object
 		displayName = "Anvil";
 
 		sprite = new Sprite(tileset, 1, 2);
-		collider = new FloatRect(-0.5f, 0, 1, 10.0f / 16);
+		collider = new Hitbox(-0.5f, 0, 1, 10.0f / 16);
 		platformCollider = true;
 		filterGroup = FILTER_DEFAULT | FILTER_OBJECT;
 

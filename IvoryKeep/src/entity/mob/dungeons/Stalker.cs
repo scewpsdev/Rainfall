@@ -44,7 +44,7 @@ public class Stalker : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+		collider = new Hitbox(-0.25f, -0.25f, 0.5f, 0.5f);
 		rect = new FloatRect(-0.5f, -0.5f, 1, 1);
 
 		health = 6;
@@ -63,8 +63,7 @@ public class Stalker : Mob
 
 	public override void init(Level level)
 	{
-		HitData hit = level.raycastSolid(position, Vector2.Down, 1.0f);
-		if (hit != null)
+		if (level.raycastSolid(position, Vector2.Down, 1.0f, out HitData hit))
 			position = hit.position + Vector2.Up * 0.25f;
 
 		leg0.position = leg0.destination = position + Vector2.Rotate(leg0.optimalPosition, rotation);
@@ -90,15 +89,16 @@ public class Stalker : Mob
 			lastLegMoved = Time.currentTime;
 			lastIt++;
 
-			HitData hit = null;
-			if (hit == null)
-				hit = level.raycastSolid(legOrigin, toOptimalHoriz.normalized, 1.0f);
-			if (hit == null)
-				hit = level.raycastSolid(legOrigin + toOptimalHoriz + moveDirection * targetForwardOffset, down, 1.0f);
-			if (hit == null)
-				hit = level.raycastSolid(optimalPoint, (-toOptimalHoriz.normalized + down * 0.5f).normalized, 1.5f);
+			bool hasHit = false;
+			HitData hit = new HitData();
+			if (!hasHit)
+				hasHit = level.raycastSolid(legOrigin, toOptimalHoriz.normalized, 1.0f, out hit);
+			if (!hasHit)
+				hasHit = level.raycastSolid(legOrigin + toOptimalHoriz + moveDirection * targetForwardOffset, down, 1.0f, out hit);
+			if (!hasHit)
+				hasHit = level.raycastSolid(optimalPoint, (-toOptimalHoriz.normalized + down * 0.5f).normalized, 1.5f, out hit);
 
-			if (hit != null)
+			if (hasHit)
 			{
 				if ((hit.position - legOrigin).length < legLength0 + legLength1)
 				{

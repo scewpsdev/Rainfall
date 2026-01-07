@@ -13,7 +13,7 @@ public class ExplosiveBarrel : ExplosiveObject
 		displayName = "Explosive Barrel";
 
 		sprite = new Sprite(tileset, 1, 1);
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 0.75f);
+		collider = new Hitbox(-0.4f, 0.0f, 0.8f, 0.75f);
 		platformCollider = true;
 
 		hitSound = Item.woodHit;

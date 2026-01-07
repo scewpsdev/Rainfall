@@ -41,7 +41,7 @@ public class Projectile : Entity, Hittable
 		this.item = item;
 		this.damage = damage;
 
-		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
+		collider = new Hitbox(-0.1f, -0.1f, 0.2f, 0.2f);
 		filterGroup = FILTER_PROJECTILE;
 
 		this.velocity = velocity;
@@ -99,10 +99,10 @@ public class Projectile : Entity, Hittable
 		//trail.update();
 		//trail.setPosition(position + offset);
 
-		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit == null)
-			hit = GameState.instance.level.sweep(position - displacement, collider, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit != null && (hit.entity == null || hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable))
+		bool hasHit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, out HitData hit, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		if (!hasHit)
+			hasHit = GameState.instance.level.sweep(position - displacement, collider, displacement.normalized, displacement.length, out hit, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		if (hasHit && (hit.entity == null || hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable))
 		{
 			if (hit.entity != null)
 			{

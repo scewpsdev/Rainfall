@@ -27,8 +27,8 @@ public class ScrollOfEarth : Item
 		int x1 = Math.Min((int)pos.x + (1 + numSpikes) * player.direction, GameState.instance.level.width - 1);
 		for (int x = x0; x != x1; x += player.direction)
 		{
-			HitData hit = GameState.instance.level.raycastSolid(new Vector2(x + 0.5f, (int)pos.y + 0.5f), new Vector2(0, 1), 20);
-			if (hit != null && hit.distance > 1)
+			bool hasHit = GameState.instance.level.raycastSolid(new Vector2(x + 0.5f, (int)pos.y + 0.5f), new Vector2(0, 1), 20, out HitData hit);
+			if (hasHit && hit.distance > 1)
 			{
 				SpikeTrap spike = new SpikeTrap();
 				spike.trigger();

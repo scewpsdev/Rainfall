@@ -97,7 +97,7 @@ public class SaveFile
 		{
 			setFlag(h);
 
-			if (GameState.instance != null)
+			if (GameState.instance != null && GameState.instance.player != null)
 				GameState.instance.player.hud.showMessage($"Unlocked starting class \"{startingClass.name}\"!");
 		}
 	}

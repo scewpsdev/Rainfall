@@ -56,7 +56,7 @@ public static class FullscreenMenu
 				bgColor = Mathf.ColorAlpha(bgColor, fade[i]);
 			}
 
-			if (selected || !enabled[i])
+			if (selected || enabled != null && !enabled[i])
 			{
 				Renderer.DrawUITextBMP(x, y, txt, 1, color);
 			}

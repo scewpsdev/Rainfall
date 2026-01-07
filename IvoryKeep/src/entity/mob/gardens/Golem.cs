@@ -27,7 +27,7 @@ public class Golem : Mob
 		animator.addAnimation("dead_falling", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.5f, 0.0f, 1.0f, 1.8f);
+		collider = new Hitbox(-0.5f, 0.0f, 1.0f, 1.8f);
 		rect = new FloatRect(-1.5f, 0, 3, 3);
 
 		health = 20;

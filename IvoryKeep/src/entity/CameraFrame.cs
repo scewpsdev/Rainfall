@@ -15,7 +15,7 @@ public class CameraFrame : Entity
 	{
 		this.size = size;
 
-		collider = new FloatRect(-0.5f * size.x, -0.5f * size.y, size.x, size.y);
+		collider = new Hitbox(-0.5f * size.x, -0.5f * size.y, size.x, size.y);
 		filterGroup = FILTER_CAMERA_FRAME;
 	}
 }

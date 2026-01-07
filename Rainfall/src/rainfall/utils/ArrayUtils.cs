@@ -32,7 +32,7 @@ public static class ArrayUtils
 	{
 		for (int i = 0; i < arr.Length; i++)
 		{
-			if (arr[i].Equals(t))
+			if (arr[i] == null && t == null || arr[i] != null && arr[i].Equals(t))
 				return i;
 		}
 		return -1;

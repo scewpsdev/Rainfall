@@ -22,7 +22,7 @@ public class XPOrb : Entity
 	{
 		//color = Mathf.VectorToARGB(new Vector4(Mathf.ARGBToVector(0xFF66AAAA).xyz * Mathf.RandomVector3(0.8f, 1.5f), 1.0f));
 		color = new Vector4(Mathf.RandomVector3(0.5f, 1.5f), 1.0f);
-		collider = new FloatRect(-1 / 16.0f, -1 / 16.0f, 2.0f / 16, 2.0f / 16);
+		collider = new Hitbox(-1 / 16.0f, -1 / 16.0f, 2.0f / 16, 2.0f / 16);
 
 		collectSound = Resource.GetSounds("sounds/coin", 6);
 	}
@@ -47,8 +47,8 @@ public class XPOrb : Entity
 
 			if ((Time.currentTime - spawnTime) / 1e9f > COLLECT_DELAY)
 			{
-				HitData hit = GameState.instance.level.sample(position, FILTER_PLAYER | FILTER_MOB);
-				if (hit != null && hit.entity == target)
+				bool hasHit = GameState.instance.level.sample(position, out HitData hit, FILTER_PLAYER | FILTER_MOB);
+				if (hasHit && hit.entity == target)
 				{
 					target.awardXP(1);
 

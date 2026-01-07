@@ -24,7 +24,7 @@ public class BoomerangProjectile : Projectile
 	{
 		this.direction = direction;
 
-		collider = new FloatRect(-0.2f, -0.2f, 0.4f, 0.4f);
+		collider = new Hitbox(-0.2f, -0.2f, 0.4f, 0.4f);
 
 		currentRange = item.attackRange;
 
@@ -73,8 +73,7 @@ public class BoomerangProjectile : Projectile
 		rotation += 5 * Time.deltaTime;
 		rotation = (rotation + MathF.PI) % (MathF.PI * 2) - MathF.PI;
 
-		HitData tileHit = GameState.instance.level.hitTiles(position);
-		if (tileHit != null)
+		if (GameState.instance.level.hitTiles(position, out HitData tileHit))
 		{
 			TileType tile = GameState.instance.level.getTile(tileHit.tile);
 			if (tile != null && tile.isSolid)

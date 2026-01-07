@@ -29,7 +29,7 @@ class SpectralShieldEntity : Entity, Hittable
 
 		sprite = new Sprite(tileset, 7, 1);
 
-		collider = new FloatRect(-0.5f, -0.5f, 1, 1);
+		collider = new Hitbox(-0.5f, -0.5f, 1, 1);
 		//filterGroup = FILTER_PROJECTILE;
 	}
 

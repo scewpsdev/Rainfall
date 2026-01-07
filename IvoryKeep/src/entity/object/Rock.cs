@@ -16,7 +16,7 @@ public class Rock : Object
 		health = 20;
 
 		sprite = new Sprite(Item.tileset, 4, 0);
-		collider = new FloatRect(-5 / 16.0f, 0, 10 / 16.0f, 7 / 16.0f);
+		collider = new Hitbox(-5 / 16.0f, 0, 10 / 16.0f, 7 / 16.0f);
 		platformCollider = true;
 
 		hitSound = Resource.GetSounds("sounds/hit_rock", 5);

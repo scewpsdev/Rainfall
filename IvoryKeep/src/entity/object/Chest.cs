@@ -54,7 +54,7 @@ public class Chest : Container
 			type == ChestType.Silver ? new Sprite(tileset, 9, 0) : null;
 		sprite = closedSprite;
 
-		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 5 / 16.0f);
+		collider = new Hitbox(-0.25f, 0.0f, 0.5f, 5 / 16.0f);
 		platformCollider = true;
 		tumbles = false;
 		numRestRotations = 1;

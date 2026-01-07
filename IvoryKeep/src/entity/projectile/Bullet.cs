@@ -32,7 +32,7 @@ public class Bullet : Entity
 		this.shooter = shooter;
 		this.item = item;
 
-		collider = new FloatRect(-0.1f, -0.1f, 0.2f, 0.2f);
+		collider = new Hitbox(-0.1f, -0.1f, 0.2f, 0.2f);
 		filterGroup = FILTER_PROJECTILE;
 
 		velocity = direction * speed;
@@ -58,8 +58,7 @@ public class Bullet : Entity
 
 		offset = Vector2.Lerp(offset, Vector2.Zero, 3 * Time.deltaTime);
 
-		HitData hit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
-		if (hit != null)
+		if (GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, out HitData hit, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT))
 		{
 			if (hit.entity != null)
 			{

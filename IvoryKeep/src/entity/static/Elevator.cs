@@ -14,7 +14,7 @@ public class Elevator : Door
 		sprite = new Sprite(tileset, 3, 4, 2, 2);
 		rect = new FloatRect(-1, 0, 2, 2);
 
-		collider = new FloatRect(-1, 0, 2, 2);
+		collider = new Hitbox(-1, 0, 2, 2);
 	}
 
 	public override void render()

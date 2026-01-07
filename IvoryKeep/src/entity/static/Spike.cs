@@ -16,7 +16,7 @@ public class Spike : Entity //, Hittable
 		displayName = "Spikes";
 
 		sprite = new Sprite(tileset, Mathf.RandomInt(7, 12), 4);
-		collider = new FloatRect(0, 0, 1, 0.3f);
+		collider = new Hitbox(0, 0, 1, 0.3f);
 	}
 
 	public override void update()

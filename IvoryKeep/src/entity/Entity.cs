@@ -6,6 +6,40 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public class Hitbox
+{
+	public Vector2 position;
+	public Vector2 size;
+
+
+	public Hitbox(Vector2 position, Vector2 size)
+	{
+		this.position = position;
+		this.size = size;
+	}
+
+	public Hitbox(float x, float y, float width, float height)
+	{
+		position = new Vector2(x, y);
+		size = new Vector2(width, height);
+	}
+
+	public Vector2 min
+	{
+		get => position;
+	}
+
+	public Vector2 max
+	{
+		get => position + size;
+	}
+
+	public Vector2 center
+	{
+		get => new Vector2(position.x + 0.5f * size.x, position.y + 0.5f * size.y);
+	}
+}
+
 public class Entity
 {
 	public const uint FILTER_DEFAULT = 1 << 0;
@@ -50,7 +84,7 @@ public class Entity
 	public bool removed { get; private set; } = false;
 	public List<Action> removeCallbacks = new List<Action>();
 
-	public FloatRect collider;
+	public Hitbox collider;
 	public bool platformCollider = false;
 	public uint filterGroup = FILTER_DEFAULT;
 

@@ -41,7 +41,7 @@ public class Object : Entity, Hittable, Interactable
 	public Object()
 	{
 		rect = new FloatRect(-0.5f, 0, 1, 1);
-		collider = new FloatRect(-0.5f, 0, 1, 1);
+		collider = new Hitbox(-0.5f, 0, 1, 1);
 		filterGroup = FILTER_DEFAULT | FILTER_OBJECT;
 	}
 

@@ -65,14 +65,16 @@ namespace Rainfall2D
 			image.free();
 		}
 
-		public IntRect getCharacterRect(char character)
+		public bool getCharacterRect(char character, out IntRect rect)
 		{
 			if (charMap.ContainsKey(character))
 			{
 				CharData data = characters[charMap[character]];
-				return new IntRect(data.x, data.y, data.width, data.height);
+				rect = new IntRect(data.x, data.y, data.width, data.height);
+				return true;
 			}
-			return null;
+			rect = new IntRect();
+			return false;
 		}
 
 		public int measureText(string text, int length)
@@ -83,9 +85,8 @@ namespace Rainfall2D
 				char c = text[i];
 				if (c != '\\')
 				{
-					IntRect rect = getCharacterRect(text[i]);
-					if (rect == null)
-						rect = getCharacterRect('?');
+					if (!getCharacterRect(text[i], out IntRect rect))
+						getCharacterRect('?', out rect);
 
 					cursor += rect.size.x;
 				}

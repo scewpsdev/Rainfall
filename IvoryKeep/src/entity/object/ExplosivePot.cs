@@ -14,7 +14,7 @@ public class ExplosivePot : ExplosiveObject
 
 		sprite = new Sprite(tileset, 9, 2, 1, 2);
 		rect = new(-0.5f, 0, 1, 2);
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.0f);
+		collider = new Hitbox(-0.4f, 0.0f, 0.8f, 1.0f);
 		platformCollider = true;
 		tumbles = false;
 		health = 1;

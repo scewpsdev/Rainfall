@@ -19,7 +19,7 @@ public class Beetle : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+		collider = new Hitbox(-0.25f, -0.25f, 0.5f, 0.5f);
 		rect = new FloatRect(-0.5f, -0.5f, 1, 1);
 
 		ai = new BeetleAI(this);

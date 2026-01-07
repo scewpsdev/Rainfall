@@ -38,7 +38,7 @@ public class StalkerAI : AI
 		if (walkDirection == Vector2i.Zero)
 		{
 			walkDirection = new Vector2i(mob.direction, 0);
-			if (mob.level.raycastSolid(mob.position, Vector2.Down, 1) != null)
+			if (mob.level.raycastSolid(mob.position, Vector2.Down, 1, out _))
 				downVector = Vector2i.Down;
 			else
 				downVector = Vector2i.Up;

@@ -348,8 +348,7 @@ public class AdvancedAI : AI
 			//for (int i = (int)MathF.Floor(mob.collider.min.y + 0.01f); i <= (int)MathF.Floor(mob.collider.max.y - 0.01f); i++)
 			{
 				//TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, 0.5f + i));
-				HitData hit = mob.level.raycast(mob.center + new Vector2(0, 0), new Vector2(walkDirection, 0), 0.5f * mob.collider.size.x + mob.velocity.x * Time.deltaTime + 0.1f);
-				if (hit != null)
+				if (mob.level.raycast(mob.center + new Vector2(0, 0), new Vector2(walkDirection, 0), 0.5f * mob.collider.size.x + mob.velocity.x * Time.deltaTime + 0.1f, out _))
 				{
 					hitsWall = true;
 					//break;
@@ -359,9 +358,8 @@ public class AdvancedAI : AI
 				walkDirection *= -1;
 			else
 			{
-				HitData hit = mob.level.raycast(mob.center + new Vector2(walkDirection, 0) * 0.5f * mob.collider.size.x + mob.velocity.x * Time.deltaTime, Vector2.Down, 1);
 				//TileType forwardDownTile = GameState.instance.level.getTile(mob.position + new Vector2(walkDirection == 1 ? mob.collider.max.x + 0.1f : walkDirection == -1 ? mob.collider.min.x - 0.1f : 0, -0.5f));
-				if (mob.isGrounded && !mob.canFly && hit == null)
+				if (mob.isGrounded && !mob.canFly && !mob.level.raycast(mob.center + new Vector2(walkDirection, 0) * 0.5f * mob.collider.size.x + mob.velocity.x * Time.deltaTime, Vector2.Down, 1, out _))
 					walkDirection *= -1;
 			}
 		}

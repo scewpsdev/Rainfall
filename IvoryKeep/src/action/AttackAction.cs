@@ -221,8 +221,7 @@ public class AttackAction : EntityAction
 			lastSpin = currentSpin;
 		}
 
-		HitData tileHit = GameState.instance.level.raycastSolid(origin, direction, currentRange);
-		if (tileHit != null)
+		if (GameState.instance.level.raycastSolid(origin, direction, currentRange, out HitData tileHit))
 			maxRange = MathF.Max(maxRange, tileHit.distance);
 		else
 			maxRange = MathF.Max(maxRange, currentRange);

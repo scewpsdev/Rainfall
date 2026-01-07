@@ -20,7 +20,7 @@ public class CaveEntranceDoor : Door
 		stairs = new Sprite(tileset, 10, 7, 2, 2);
 		rect = new FloatRect(-1.5f, 0, 3, 3);
 
-		collider = new FloatRect(-1.5f, 0.0f, 3, 2);
+		collider = new Hitbox(-1.5f, 0.0f, 3, 2);
 	}
 
 	public override void render()

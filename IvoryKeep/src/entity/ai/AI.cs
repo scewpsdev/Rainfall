@@ -69,10 +69,10 @@ public abstract class AI
 		Vector2 toEntity = entity.position + entity.collider.center - (mob.position + mob.collider.center);
 		distance = toEntity.length;
 		toTarget = distance != 0 ? toEntity / distance : Vector2.Right;
-		HitData hit = GameState.instance.level.raycastSolid(mob.position + mob.collider.center, toTarget, distance + 0.1f);
+		bool hasHit = GameState.instance.level.raycastSolid(mob.position + mob.collider.center, toTarget, distance + 0.1f, out HitData hit);
 
 		float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
 		float effectiveAwareness = awareness * (GameState.instance.player.isDucked ? 0.25f : 1.0f);
-		return distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction && hit == null || distance < effectiveAwareness * 2;
+		return distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction && !hasHit || distance < effectiveAwareness * 2;
 	}
 }

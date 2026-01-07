@@ -305,7 +305,7 @@ public abstract class Item
 	public Vector2 renderOffset = new Vector2(0.1f, 0.0f);
 	public float backRotation = MathF.PI * -0.5f;
 	public float weaponTipMargin = 0;
-	public FloatRect collider = new FloatRect(-0.25f, -0.25f, 0.5f, 0.5f);
+	public Hitbox collider = new Hitbox(-0.25f, -0.25f, 0.5f, 0.5f);
 
 	public bool projectileItem = false;
 	public float projectileRotationOffset = 0.0f;

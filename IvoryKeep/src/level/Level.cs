@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class HitData
+public struct HitData
 {
 	public float distance;
 	public Vector2 position;
@@ -472,7 +472,7 @@ public class Level
 		return false;
 	}
 
-	bool overlapSolid(Vector2 min, Vector2 max, bool falling, bool downInput, FloatRect ignoreCollider, uint filterMask)
+	bool overlapSolid(Vector2 min, Vector2 max, bool falling, bool downInput, Hitbox ignoreCollider, uint filterMask)
 	{
 		int x0 = (int)MathF.Floor(min.x + 0.01f);
 		int x1 = (int)MathF.Floor(max.x - 0.01f);
@@ -519,12 +519,12 @@ public class Level
 		return false;
 	}
 
-	public bool overlapSolid(Vector2 min, Vector2 max, FloatRect ignoreCollider = null, uint filterMask = 1)
+	public bool overlapSolid(Vector2 min, Vector2 max, Hitbox ignoreCollider = null, uint filterMask = 1)
 	{
 		return overlapSolid(min, max, false, false, ignoreCollider, filterMask);
 	}
 
-	public int doCollision(ref Vector2 position, FloatRect collider, ref Vector2 displacement, bool downInput = false, bool cornerCutting = false, uint filterMask = 1)
+	public int doCollision(ref Vector2 position, Hitbox collider, ref Vector2 displacement, bool downInput = false, bool cornerCutting = false, uint filterMask = 1)
 	{
 		int flags = 0;
 		if (overlapSolid(position + collider.min + new Vector2(displacement.x, 0), position + collider.max + new Vector2(displacement.x, 0), false, downInput, collider, filterMask))
@@ -628,7 +628,7 @@ public class Level
 		return null;
 	}
 
-	public HitData raycastSolid(Vector2 origin, Vector2 direction, float range, uint filterMask = 1)
+	public bool raycastSolid(Vector2 origin, Vector2 direction, float range, out HitData outHit, uint filterMask = 1)
 	{
 		if (direction.x == 0)
 			direction.x = 0.00001f;
@@ -698,16 +698,19 @@ public class Level
 			}
 		}
 
+		outHit = new HitData();
+
 		if (!hit)
-			return null;
+			return false;
 
 		if (distance > range)
-			return null;
+			return false;
 
-		return new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile, entity = entity };
+		outHit = new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile, entity = entity };
+		return true;
 	}
 
-	public HitData raycastTilesDestructible(Vector2 origin, Vector2 direction, float range)
+	public bool raycastTilesDestructible(Vector2 origin, Vector2 direction, float range, out HitData outHit)
 	{
 		if (direction.x == 0)
 			direction.x = 0.00001f;
@@ -735,7 +738,10 @@ public class Level
 		}
 
 		if (!hit)
-			return null;
+		{
+			outHit = new HitData();
+			return false;
+		}
 
 		Vector2 normal = (Vector2)(-mm * rs);
 		Vector2i tile = pos;
@@ -745,9 +751,13 @@ public class Level
 		float distance = MathF.Max(mini.x, mini.y);
 
 		if (distance > range)
-			return null;
+		{
+			outHit = new HitData();
+			return false;
+		}
 
-		return new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile };
+		outHit = new HitData() { distance = distance, position = origin + distance * direction, normal = normal, tile = tile };
+		return true;
 	}
 
 	bool hitBoundingBox(Vector2 origin, Vector2 direction, Vector2 minB, Vector2 maxB, out Vector2 position, out float distance, out Vector2 normal)
@@ -826,14 +836,14 @@ public class Level
 		return true;
 	}
 
-	public HitData raycast(Vector2 origin, Vector2 direction, float range, uint filterMask = 1)
+	public bool raycast(Vector2 origin, Vector2 direction, float range, out HitData outHit, uint filterMask = 1)
 	{
-		HitData hit = raycastSolid(origin, direction, range, filterMask);
+		bool hasHit = raycastSolid(origin, direction, range, out HitData hit, filterMask);
 
-		Entity hitEntity = hit != null ? hit.entity : null;
-		Vector2 hitPosition = hit != null ? hit.position : Vector2.Zero;
-		float hitDistance = hit != null ? hit.distance : range;
-		Vector2 hitNormal = hit != null ? hit.normal : Vector2.Zero;
+		Entity hitEntity = hasHit ? hit.entity : null;
+		Vector2 hitPosition = hasHit ? hit.position : Vector2.Zero;
+		float hitDistance = hasHit ? hit.distance : range;
+		Vector2 hitNormal = hasHit ? hit.normal : Vector2.Zero;
 		for (int i = 0; i < entities.Count; i++)
 		{
 			if (entities[i].collider != null && (entities[i].filterGroup & filterMask) != 0 && !entities[i].removed)
@@ -853,9 +863,14 @@ public class Level
 			}
 		}
 
-		if (hit != null || hitDistance != range)
-			return new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
-		return null;
+		if (hasHit || hitDistance != range)
+		{
+			outHit = new HitData() { position = hitPosition, distance = hitDistance, entity = hitEntity, normal = hitNormal };
+			return true;
+		}
+
+		outHit = new HitData();
+		return false;
 	}
 
 	public int raycast(Vector2 origin, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)
@@ -876,8 +891,7 @@ public class Level
 			}
 		}
 
-		HitData hit = raycastSolid(origin, direction, range, filterMask);
-		if (hit != null)
+		if (raycastSolid(origin, direction, range, out HitData hit, filterMask))
 		{
 			hits[numHits++] = hit;
 		}
@@ -990,7 +1004,7 @@ public class Level
 		return entryTime <= 1;
 	}
 
-	public HitData sweep(Vector2 origin, FloatRect rect, Vector2 direction, float range, uint filterMask = 1)
+	public bool sweep(Vector2 origin, Hitbox rect, Vector2 direction, float range, out HitData hit, uint filterMask = 1)
 	{
 		Entity hitEntity = null;
 		float hitDistance = range;
@@ -1014,8 +1028,13 @@ public class Level
 		}
 
 		if (hitDistance != range)
-			return new HitData() { distance = hitDistance, entity = hitEntity, normal = hitNormal };
-		return null;
+		{
+			hit = new HitData() { distance = hitDistance, entity = hitEntity, normal = hitNormal };
+			return true;
+		}
+
+		hit = new HitData();
+		return false;
 	}
 
 	public int sweepNoBlock(Vector2 origin, FloatRect rect, Vector2 direction, float range, Span<HitData> hits, uint filterMask = 1)
@@ -1056,12 +1075,15 @@ public class Level
 		return numHits;
 	}
 
-	public HitData hitTiles(Vector2 position, uint filterMask = 1)
+	public bool hitTiles(Vector2 position, out HitData hit, uint filterMask = 1)
 	{
 		Vector2i tilePosition = (Vector2i)Vector2.Floor(position);
 		TileType tile = getTile(tilePosition);
 		if (tile != null && tile.isSolid && !tile.isPlatform)
-			return new HitData() { position = position, tile = tilePosition };
+		{
+			hit = new HitData() { position = position, tile = tilePosition };
+			return true;
+		}
 
 		for (int i = 0; i < colliders.Count; i++)
 		{
@@ -1070,11 +1092,15 @@ public class Level
 				Vector2 min = colliders[i].position + colliders[i].collider.min;
 				Vector2 max = colliders[i].position + colliders[i].collider.max;
 				if (position.x >= min.x && position.x <= max.x && position.y >= min.y && position.y <= max.y)
-					return new HitData() { position = position, entity = colliders[i] };
+				{
+					hit = new HitData() { position = position, entity = colliders[i] };
+					return true;
+				}
 			}
 		}
 
-		return null;
+		hit = new HitData();
+		return false;
 	}
 
 	public bool sampleTiles(Vector2 position)
@@ -1103,7 +1129,7 @@ public class Level
 		return false;
 	}
 
-	public HitData sample(Vector2 position, uint filterMask = 0)
+	public bool sample(Vector2 position, out HitData hit, uint filterMask = 0)
 	{
 		for (int i = 0; i < entities.Count; i++)
 		{
@@ -1112,11 +1138,16 @@ public class Level
 				Vector2 min = entities[i].position + entities[i].collider.min;
 				Vector2 max = entities[i].position + entities[i].collider.max;
 				if (position.x >= min.x && position.x <= max.x && position.y >= min.y && position.y <= max.y)
-					return new HitData() { position = position, entity = entities[i] };
+				{
+					hit = new HitData() { position = position, entity = entities[i] };
+					return true;
+				}
 			}
 		}
 		if (filterMask == 0)
-			return hitTiles(position);
-		return null;
+			return hitTiles(position, out hit);
+
+		hit = new HitData();
+		return false;
 	}
 }

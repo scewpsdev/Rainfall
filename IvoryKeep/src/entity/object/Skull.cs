@@ -15,7 +15,7 @@ public class Skull : Object
 		damage = 4;
 
 		sprite = new Sprite(Item.tileset, 0, 0);
-		collider = new FloatRect(-4 / 16.0f, 0, 8 / 16.0f, 8 / 16.0f);
+		collider = new Hitbox(-4 / 16.0f, 0, 8 / 16.0f, 8 / 16.0f);
 		platformCollider = true;
 
 		hitSound = Item.woodHit;

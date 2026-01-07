@@ -23,7 +23,7 @@ public class ArrowTrap : Entity, Hittable
 
 		sprite = new Sprite(tileset, 2, 1);
 
-		collider = new FloatRect(0, 0, 1, 1);
+		collider = new Hitbox(0, 0, 1, 1);
 	}
 
 	public bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
@@ -38,8 +38,7 @@ public class ArrowTrap : Entity, Hittable
 	{
 		if (hasAmmo)
 		{
-			HitData hit = GameState.instance.level.raycast(position + new Vector2(0.5f) + direction, direction, RANGE, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM | FILTER_PROJECTILE);
-			if (hit != null)
+			if (GameState.instance.level.raycast(position + new Vector2(0.5f) + direction, direction, RANGE, out HitData hit, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM | FILTER_PROJECTILE))
 			{
 				if (hit.entity != null)
 					shoot();
@@ -50,7 +49,7 @@ public class ArrowTrap : Entity, Hittable
 	void shoot()
 	{
 		Vector2 velocity = (direction + new Vector2(0, 0.1f)) * SPEED;
-		GameState.instance.level.addEntity(new ItemEntity(new Arrow() { baseDamage = 2 }, this, velocity), position + new Vector2(0.5f) + direction.normalized * 0.7f);
+		GameState.instance.level.addEntity(new ArrowProjectile(direction.normalized, Vector2.Zero, this, null, null) { damage = 2 }, position + new Vector2(0.5f) + direction.normalized * 0.7f);
 		hasAmmo = false;
 	}
 

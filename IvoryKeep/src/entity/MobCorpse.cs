@@ -17,7 +17,7 @@ public class MobCorpse : Object, Interactable
 	bool particlesEmitted = false;
 
 
-	public MobCorpse(Sprite sprite, Vector4 spriteColor, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, float impulseVelocity, FloatRect collider, bool renderLight = false, List<Item> passiveItems = null)
+	public MobCorpse(Sprite sprite, Vector4 spriteColor, SpriteAnimator animator, FloatRect rect, int direction, Vector2 velocity, float impulseVelocity, Hitbox collider, bool renderLight = false, List<Item> passiveItems = null)
 		: base()
 	{
 		this.sprite = sprite;

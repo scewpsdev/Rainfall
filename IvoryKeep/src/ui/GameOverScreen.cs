@@ -185,7 +185,8 @@ public static class GameOverScreen
 		PlayerThumbnail.Render(x + width / 4 - playerViewSize / 2, y + padding, playerViewSize, playerViewSize);
 
 		string name = GameState.instance.save.name;
-		Renderer.DrawUITextBMP(x + width / 4 - Renderer.MeasureUITextBMP(name).x / 2, y + padding + playerViewSize - 4, name, 1, 0xFF7F7F7F);
+		if (name != null)
+			Renderer.DrawUITextBMP(x + width / 4 - Renderer.MeasureUITextBMP(name).x / 2, y + padding + playerViewSize - 4, name, 1, 0xFF7F7F7F);
 
 		RenderRunStats(GameState.instance, x + padding, y + padding + playerViewSize, width / 2 - 2 * padding, height - 2 * padding);
 		Vector2i selectedCell = Vector2i.Zero;

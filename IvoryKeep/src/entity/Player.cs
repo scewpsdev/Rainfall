@@ -69,6 +69,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	public void giveMoney(int amount) { money += amount; GameState.instance.run.coinsCollected += amount; }
 	public float coinFollowDistance = 1.0f;
 	public float getCoinFollowDistance() { return coinFollowDistance; }
+	public bool isCoinTargetActive() => isAlive;
 
 	public int playerLevel = 1;
 	public int xp = 0;
@@ -177,7 +178,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	{
 		actions = new ActionQueue(this);
 
-		collider = new FloatRect(-0.15f, 0, 0.3f, 0.8f);
+		collider = new Hitbox(-0.15f, 0, 0.3f, 0.8f);
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/player.png", false), 0, 0, 32, 32);

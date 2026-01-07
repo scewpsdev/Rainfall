@@ -22,7 +22,7 @@ public class Gandalf : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new FloatRect(-0.25f, 0.0f, 0.5f, 0.75f);
+		collider = new Hitbox(-0.25f, 0.0f, 0.5f, 0.75f);
 
 		health = 8;
 		speed = 2;

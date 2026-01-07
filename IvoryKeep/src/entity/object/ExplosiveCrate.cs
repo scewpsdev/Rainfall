@@ -14,7 +14,7 @@ public class ExplosiveCrate : ExplosiveObject
 		displayName = "Explosive Crate";
 
 		sprite = new Sprite(tileset, 9, 1);
-		collider = new FloatRect(-0.4f, 0.1f, 0.8f, 0.8f);
+		collider = new Hitbox(-0.4f, 0.1f, 0.8f, 0.8f);
 		platformCollider = true;
 
 		health = 3;

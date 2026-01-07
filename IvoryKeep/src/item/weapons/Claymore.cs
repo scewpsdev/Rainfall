@@ -27,6 +27,7 @@ public class Claymore : Weapon
 
 		//sprite = new Sprite(tileset, 1, 1);
 		sprite = new Sprite(tileset, 11, 12, 2, 1);
+		icon = new Sprite(tileset, 11, 12);
 		size = new Vector2(2, 1);
 		//icon = new Sprite(tileset.texture, 12, 10 * 16, 16, 16);
 		renderOffset.x = 0.4f;

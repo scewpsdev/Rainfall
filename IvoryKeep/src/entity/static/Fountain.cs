@@ -54,7 +54,7 @@ public class Fountain : Entity, Interactable
 
 		sprite = new Sprite(tileset, 2, 6);
 
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 14 / 16.0f);
+		collider = new Hitbox(-0.4f, 0.0f, 0.8f, 14 / 16.0f);
 		platformCollider = true;
 
 		idleSound = Resource.GetSound("sounds/fountain.ogg");

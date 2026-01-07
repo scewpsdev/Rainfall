@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rainfall
 {
-	public class IntRect
+	public struct IntRect
 	{
 		public Vector2i position;
 		public Vector2i size;

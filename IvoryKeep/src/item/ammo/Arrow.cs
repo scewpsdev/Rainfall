@@ -26,7 +26,7 @@ public class Arrow : Item
 
 		sprite = new Sprite(tileset, 2, 0);
 		renderOffset.x = 0.2f;
-		collider = new FloatRect(-1.0f / 16, -1.0f / 16, 2.0f / 16, 2.0f / 16);
+		collider = new Hitbox(-1.0f / 16, -1.0f / 16, 2.0f / 16, 2.0f / 16);
 
 		hitSound = [Resource.GetSound("sounds/arrow_hit.ogg")];
 	}

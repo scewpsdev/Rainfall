@@ -23,7 +23,7 @@ internal class SpikeTrap : Entity, Hittable
 	{
 		displayName = "Spike Trap";
 
-		collider = new FloatRect(-0.25f, -0.5f, 0.5f, 1.0f);
+		collider = new Hitbox(-0.25f, -0.5f, 0.5f, 1.0f);
 		filterGroup = FILTER_PROJECTILE;
 
 		sprite = new Sprite(tileset, 0, 4);
@@ -59,17 +59,21 @@ internal class SpikeTrap : Entity, Hittable
 		{
 			HitData[] hits = new HitData[16];
 			int numHits = GameState.instance.level.raycast(position, Vector2.Down, 10, hits, FILTER_PLAYER | FILTER_MOB | FILTER_ITEM | FILTER_PROJECTILE | FILTER_OBJECT);
-			HitData closestHit = null;
+			HitData closestHit = new HitData();
+			bool hasHit = false;
 			for (int i = 0; i < numHits; i++)
 			{
 				if (hits[i].entity == null || hits[i].entity != this)
 				{
-					if (closestHit == null || hits[i].distance < closestHit.distance)
+					if (!hasHit || hits[i].distance < closestHit.distance)
+					{
 						closestHit = hits[i];
+						hasHit = true;
+					}
 				}
 			}
 
-			if (closestHit != null)
+			if (hasHit)
 			{
 				trigger();
 				GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Down, 8, Mathf.ARGBToVector(0xFF47362a).xyz), position);

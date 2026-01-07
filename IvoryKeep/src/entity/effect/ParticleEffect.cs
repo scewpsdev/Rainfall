@@ -82,7 +82,7 @@ public class ParticleEffect : Entity
 					ParticleData particle = systemData[j];
 					if (particle.active)
 					{
-						if (GameState.instance.level.hitTiles(particle.position.xy) != null)
+						if (GameState.instance.level.hitTiles(particle.position.xy, out _))
 						{
 							if (bounciness > 0)
 							{

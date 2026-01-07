@@ -34,7 +34,7 @@ public class StashChest : Object, Interactable
 		openSprite = new Sprite(tileset, 11, 0);
 		sprite = openSprite;
 
-		collider = new FloatRect(-0.5f, 0, 1, 10.0f / 16);
+		collider = new Hitbox(-0.5f, 0, 1, 10.0f / 16);
 		platformCollider = true;
 		filterGroup = FILTER_OBJECT;
 

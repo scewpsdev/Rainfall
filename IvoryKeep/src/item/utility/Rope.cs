@@ -38,8 +38,7 @@ public class Rope : Item
 
 		int range = 8;
 
-		HitData hit = GameState.instance.level.raycastSolid(playerTile + 0.5f, Vector2.Up, range);
-		if (hit != null)
+		if (GameState.instance.level.raycastSolid(playerTile + 0.5f, Vector2.Up, range, out HitData hit))
 			range = (int)MathF.Ceiling(hit.distance);
 
 		if (range > 3)

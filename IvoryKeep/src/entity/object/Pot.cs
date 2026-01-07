@@ -14,8 +14,8 @@ public class Pot : Container
 		displayName = "Pot";
 
 		sprite = Random.Shared.NextSingle() < 0.5f ? new Sprite(tileset, 7, 2, 1, 2) : new Sprite(tileset, 8, 2, 1, 2);
-		rect = new(-0.5f, 0, 1, 2);
-		collider = new FloatRect(-0.4f, 0.0f, 0.8f, 1.0f);
+		rect = new FloatRect(-0.5f, 0, 1, 2);
+		collider = new Hitbox(-0.4f, 0.0f, 0.8f, 1.0f);
 		platformCollider = true;
 		tumbles = false;
 		health = 1;
