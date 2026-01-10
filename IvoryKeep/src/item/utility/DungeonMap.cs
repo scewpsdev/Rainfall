@@ -15,6 +15,7 @@ public class DungeonMap : Item
 		: base("map", ItemType.Utility)
 	{
 		displayName = "Map";
+		description = "Hand-drawn map that reveals nearby passages for a certain region.";
 
 		baseValue = 27;
 

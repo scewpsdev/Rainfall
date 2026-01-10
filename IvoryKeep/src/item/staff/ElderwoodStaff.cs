@@ -12,6 +12,7 @@ public class ElderwoodStaff : Staff
 		: base("elderwood_staff")
 	{
 		displayName = "Elderwood Staff";
+		description = "Crafted from ancient timber, it favors speed and flow over raw power.";
 
 		baseDamage = 0.8f;
 		baseAttackRate = 1.25f;

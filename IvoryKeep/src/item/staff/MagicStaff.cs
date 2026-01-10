@@ -12,6 +12,7 @@ public class MagicStaff : Staff
 		: base("magic_staff")
 	{
 		displayName = "Magic Staff";
+		description = "A standard tool for spellcasting, unremarkable but dependable.";
 
 		baseValue = 12;
 		//rarity = 10;

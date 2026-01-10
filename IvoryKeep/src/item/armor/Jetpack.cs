@@ -29,13 +29,13 @@ public class Jetpack : Item
 		: base("jetpack", ItemType.Relic)
 	{
 		displayName = "Alchemical Thrusters";
-		description = "An ingenious alchemical contraption, powered by volatile fluid which ignites under high pressure, releasing bursts of energy.";
+		description = "An ingenious alchemical contraption that ignites spectral fluid under high pressure, allowing it to lift it's bearer to greater heights.";
 
 		baseArmor = 1;
 		isPassiveItem = true;
 		armorSlot = ArmorSlot.Back;
 		baseValue = 42;
-		rarity = 0.1f;
+		rarity = 0.05f;
 		manaCost = 0.25f;
 		baseWeight = 5;
 

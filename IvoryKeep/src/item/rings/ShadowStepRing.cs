@@ -12,9 +12,9 @@ public class ShadowStepRing : Item
 	{
 		displayName = "Shadow Step Ring";
 
-		description = "Allows it's bearer to quickly dash through hazards avoiding damage, but lose the ability to sprint";
+		description = "Allows it's bearer to perform a quickstep, briefly slipping through danger.";
 
-		baseValue = 55;
+		baseValue = 45;
 
 		sprite = new Sprite(tileset, 15, 12);
 	}

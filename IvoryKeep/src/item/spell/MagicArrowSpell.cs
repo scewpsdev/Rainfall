@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ public class MagicArrowSpell : Spell
 		: base("magic_arrow")
 	{
 		displayName = "Magic Arrow";
+		description = "A simple, reliable projection of focussed mana.";
 
 		baseValue = 14;
 
@@ -37,7 +39,15 @@ public class MagicArrowSpell : Spell
 		Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.05f;
 		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
-		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, staff), position);
+		MagicProjectile projectile = new MagicProjectile(direction, player.velocity, offset, player, this, staff);
+		if (player.mana < manaCost)
+		{
+			projectile.maxRange *= 0.5f;
+			projectile.damage *= 0.5f;
+			projectile.spriteColor.w = 0.5f;
+		}
+
+		GameState.instance.level.addEntity(projectile, position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 
 		return true;

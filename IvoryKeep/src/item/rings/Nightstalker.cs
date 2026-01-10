@@ -12,7 +12,7 @@ public class Nightstalker : Item
 		: base("nightstalker", ItemType.Relic)
 	{
 		displayName = "Nightstalker";
-		description = "Attacks from behind are critical";
+		description = "Greatly increases critical attack chance when attacking an enemy from behind";
 		//stackable = true;
 		tumbles = false;
 		//canDrop = false;
@@ -21,6 +21,6 @@ public class Nightstalker : Item
 
 		sprite = new Sprite(tileset, 7, 6);
 
-		buff = new ItemBuff(this) { stealthAttackModifier = 2.0f };
+		buff = new ItemBuff(this) { stealthAttackModifier = 8 };
 	}
 }

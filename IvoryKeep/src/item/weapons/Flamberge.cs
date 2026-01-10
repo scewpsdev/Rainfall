@@ -13,10 +13,12 @@ public class Flamberge : Weapon
 	{
 		displayName = "Flamberge";
 
-		baseDamage = 1.5f;
+		//baseDamage = 1.5f;
+		baseDamage = 0.5f;
 		baseAttackRange = 1.7f;
 		baseAttackRate = 0.9f;
-		criticalChanceModifier = 2.0f;
+		//criticalChanceModifier = 2.0f;
+		bleed = 1;
 		twoHanded = true;
 		baseWeight = 2;
 		canBlock = true;

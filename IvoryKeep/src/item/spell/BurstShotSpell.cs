@@ -20,6 +20,7 @@ public class BurstShotSpell : Spell
 		: base("burst_shot")
 	{
 		displayName = "Burst Shot";
+		description = "Releases three rapid charges of arcane force.";
 
 		baseValue = 17;
 
@@ -30,6 +31,7 @@ public class BurstShotSpell : Spell
 		knockback = 1.0f;
 		trigger = false;
 		needsCharging = false;
+		canCastWithoutMana = true;
 
 		spellIcon = new Sprite(tileset, 4, 7);
 	}
@@ -69,7 +71,15 @@ public class BurstShotSpell : Spell
 		Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.08f;
 		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
-		GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, staff), position);
+		MagicProjectile projectile = new MagicProjectile(direction, player.velocity, offset, player, this, staff);
+		if (player.mana < manaCost)
+		{
+			projectile.maxRange *= 0.5f;
+			projectile.damage *= 0.5f;
+			projectile.spriteColor.w = 0.5f;
+		}
+
+		GameState.instance.level.addEntity(projectile, position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 
 		Audio.PlayOrganic(useSound, new Vector3(player.position, 0));

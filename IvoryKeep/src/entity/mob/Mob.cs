@@ -34,6 +34,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	const float SPRINT_MULTIPLIER = 1.8f;
 	const float STUN_DURATION = 0.4f;
 
+	const float BLEED_RECOVER_DELAY = 2.0f;
+	const float BLEED_RECOVER_RATE = 0.5f;
+
 
 	public float speed = 4;
 	public float climbingSpeed = 4;
@@ -50,6 +53,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public float health = 1;
 	public float damage = 1;
 	public float poise = 1;
+
+	public float bleedBuildup = 0.0f;
+	float bleedResistance => Mathf.Remap(MathF.Exp(-maxHealth * 0.002f), 0, 1, 10, 2);
 
 	public float maxHealth;
 
@@ -116,6 +122,20 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public virtual bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		health -= damage;
+
+		if (by != null && item != null && item.bleed > 0)
+		{
+			Vector2 enemyPosition = by.position;
+			bleedBuildup += item.bleed;
+
+			if (bleedBuildup >= bleedResistance)
+			{
+				ParticleEffect bleedEffect = ParticleEffects.CreateBloodEffectIntense(this, (position - enemyPosition).normalized, 1.0f);
+				GameState.instance.level.addEntity(bleedEffect, position + collider.center);
+				bleedBuildup -= bleedResistance;
+				addStatusEffect(new BleedStatusEffect(damage, 1.0f));
+			}
+		}
 
 		if (damage >= 0.1f)
 			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage * 10), new Vector2(Mathf.RandomFloat(-1, 1), 1) * 3, buffedHit), new Vector2(Mathf.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), Mathf.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
@@ -541,6 +561,11 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		maxHealth = MathF.Max(maxHealth, health);
 
+		if (bleedBuildup > 0 && lastHit != -1 && (Time.currentTime - lastHit) / 1e9f > BLEED_RECOVER_DELAY)
+		{
+			bleedBuildup = MathF.Max(bleedBuildup - 0.1f * BLEED_RECOVER_RATE, 0.0f);
+		}
+
 		if (ai != null)
 			ai.update();
 
@@ -595,6 +620,13 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 					Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, (projectile.direction.angle + projectile.rotationOffset) * direction, projectile.sprite, direction == -1);
 				}
 			}
+		}
+
+		if (bleedBuildup > 0)
+		{
+			// debug bleed status
+			Renderer.DrawSprite(position.x - 0.5f, position.y + 2, 1.0f, 0.05f, null, false, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
+			Renderer.DrawSprite(position.x - 0.5f, position.y + 2, bleedBuildup / bleedResistance, 0.05f, null, false, new Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 		}
 	}
 

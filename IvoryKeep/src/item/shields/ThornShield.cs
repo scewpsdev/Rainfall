@@ -12,6 +12,7 @@ public class ThornShield : Shield
 		: base("thorn_shield")
 	{
 		displayName = "Thorn Shield";
+		description = "A cruelly barbed shield that returns a portion of blocked damage to it's attacker.";
 
 		baseArmor = 3;
 		damageReflect = 1.0f;

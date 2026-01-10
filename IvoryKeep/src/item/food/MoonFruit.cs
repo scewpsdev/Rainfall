@@ -13,7 +13,7 @@ public class MoonFruit : Item
 	{
 		displayName = "Moon Fruit";
 
-		description = "+1 MP";
+		description = "Infused with lunar energy, this fruit permanently deepens mana reserves.";
 
 		baseValue = 40;
 

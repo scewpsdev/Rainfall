@@ -768,7 +768,16 @@ public class InventoryUI
 					if (player.removeItem(selected))
 						player.throwItem(selected, true);
 					else
-						player.hud.showMessage("The item cannot be dropped.");
+					{
+						if (selected == player.handItem || selected == player.offhandItem)
+							player.hud.showMessage($"The item magically sticks to your hand. Unable to drop {selected.fullDisplayName}.");
+						else if (player.isActiveItem(selected, out _))
+							player.hud.showMessage($"The item magically sticks to your pocket. Unable to drop {selected.fullDisplayName}.");
+						else if (player.isSpellItem(selected, out _))
+							player.hud.showMessage($"The spell is engraved in your mind and you seem to be unable to forget it. Failed to unlearn {selected.fullDisplayName}.");
+						else
+							player.hud.showMessage($"Unable to drop {selected.fullDisplayName}.");
+					}
 				}
 
 				if (InputManager.IsPressed("UIConfirm3", true))

@@ -1,4 +1,4 @@
-flags = [ 1615716108, 219332589, 952437344, 417135138, 777027450, 3124495028 ]
+flags = [ 1615716108, 417135138, 273510894, 94734155, 777027450 ]
 name = "scewps"
 runs_finished = 2
 highscores = [ {
@@ -32,117 +32,111 @@ items2 = [ {
 
 } ]
 }, {
-score = 4965
-floor = 4
-time = 653.2172241210938
-kills = 58
+score = 3594
+floor = 3
+time = 276.0447082519531
+kills = 39
 items0 = [ {
-type = battle_axe
+type = broadsword
 stack_size = 1
 }, {
-type = crossbow
+type = scimitar
 stack_size = 1
 } ]
 items1 = [ {
-
+type = scroll_of_identify
+stack_size = 1
 }, {
 
 }, {
 
 } ]
 items2 = [ {
-type = large_wizard_hat_red
-stack_size = 1
-}, {
 type = travelling_cloak
 stack_size = 1
 }, {
-type = keen_edge
+type = leather_gauntlets
 stack_size = 1
 }, {
-type = ring_of_thorns
+type = leather_boots
 stack_size = 1
 } ]
 }, {
-score = 4965
-floor = 4
-time = 653.2172241210938
-kills = 58
+score = 3594
+floor = 3
+time = 276.0447082519531
+kills = 39
 items0 = [ {
-type = battle_axe
+type = broadsword
 stack_size = 1
 }, {
-type = crossbow
+type = scimitar
 stack_size = 1
 } ]
 items1 = [ {
-
+type = scroll_of_identify
+stack_size = 1
 }, {
 
 }, {
 
 } ]
 items2 = [ {
-type = large_wizard_hat_red
-stack_size = 1
-}, {
 type = travelling_cloak
 stack_size = 1
 }, {
-type = keen_edge
+type = leather_gauntlets
 stack_size = 1
 }, {
-type = ring_of_thorns
+type = leather_boots
 stack_size = 1
 } ]
 }, {
-score = 4965
-floor = 4
-time = 653.2172241210938
-kills = 58
+score = 3594
+floor = 3
+time = 276.0447082519531
+kills = 39
 items0 = [ {
-type = battle_axe
+type = broadsword
 stack_size = 1
 }, {
-type = crossbow
+type = scimitar
 stack_size = 1
 } ]
 items1 = [ {
-
+type = scroll_of_identify
+stack_size = 1
 }, {
 
 }, {
 
 } ]
 items2 = [ {
-type = large_wizard_hat_red
-stack_size = 1
-}, {
 type = travelling_cloak
 stack_size = 1
 }, {
-type = keen_edge
+type = leather_gauntlets
 stack_size = 1
 }, {
-type = ring_of_thorns
+type = leather_boots
 stack_size = 1
 } ]
 } ]
 npcs = [ {
 name = blacksmith
-dialogues = [ 651630786, 4134535356 ]
+dialogues = [  ]
 }, {
 name = broken_wanderer
-dialogues = [ 2508811269, 1166170361, 4176899679, 2422327317, 1413869516, 1122499607, 2857450575 ]
+dialogues = [  ]
 }, {
 name = builder_merchant
 dialogues = [  ]
 }, {
 name = travelling_merchant
-dialogues = [ 2640922840, 1317608167 ]
+dialogues = [  ]
 }, {
 name = logan
-dialogues = [  ]
+dialogues = [ 1391610874 ]
 quests = [ {
 name = logan_quest
 state = Uninitialized
@@ -156,5 +150,17 @@ name = cheese_quest
 state = Uninitialized
 snake_kills = 0
 } ]
+}, {
+name = barbarian
+dialogues = [  ]
+}, {
+name = knight
+dialogues = [  ]
+}, {
+name = hunter
+dialogues = [  ]
+}, {
+name = thief
+dialogues = [  ]
 } ]
 stashed_items = [  ]

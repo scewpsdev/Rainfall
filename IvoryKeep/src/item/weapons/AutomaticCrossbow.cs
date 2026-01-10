@@ -13,8 +13,7 @@ public class AutomaticCrossbow : Weapon
 		: base("automatic_crossbow", WeaponType.Ranged)
 	{
 		displayName = "Automatic Crossbow";
-
-		description = "slaps";
+		description = "A sophisticated mechanical bow that fires relentlessly, but is difficult to control.";
 
 		baseDamage = 1;
 		baseAttackRate = 3;

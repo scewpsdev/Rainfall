@@ -14,6 +14,7 @@ public class ScrollOfIdentify : Item
 		: base("scroll_of_identify", ItemType.Scroll)
 	{
 		displayName = "Scroll of Identify";
+		description = "Reveals the true nature of all carried items, including hidden curses.";
 
 		baseValue = 7;
 

@@ -17,6 +17,8 @@ public abstract class SpellBook : Staff
 		this.spell = spell;
 
 		displayName = "Spell Book";
+		description = "A bound memory containing a single spell, cast directly without prior study.";
+
 		isSecondaryItem = true;
 		isActiveItem = true;
 

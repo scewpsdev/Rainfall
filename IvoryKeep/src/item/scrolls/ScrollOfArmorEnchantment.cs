@@ -12,6 +12,7 @@ public class ScrollOfArmorEnchantment : Item
 		: base("scroll_enchant_armor", ItemType.Scroll)
 	{
 		displayName = "Scroll of Armor Enchantment";
+		description = "Ancient runes reinforcing all worn armor.";
 
 		baseValue = 22;
 

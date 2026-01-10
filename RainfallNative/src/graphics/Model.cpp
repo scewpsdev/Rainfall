@@ -385,12 +385,12 @@ T* CopyData(T* data, int length)
 
 static AABB CalculateBoundingBox(int numVertices, PositionNormalTangent* vertices)
 {
-	float x0 = INFINITY;
-	float y0 = INFINITY;
-	float z0 = INFINITY;
-	float x1 = -INFINITY;
-	float y1 = -INFINITY;
-	float z1 = -INFINITY;
+	float x0 = FLT_MAX;
+	float y0 = FLT_MAX;
+	float z0 = FLT_MAX;
+	float x1 = -FLT_MAX;
+	float y1 = -FLT_MAX;
+	float z1 = -FLT_MAX;
 
 	for (int i = 0; i < numVertices; i++)
 	{

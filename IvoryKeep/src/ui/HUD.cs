@@ -539,6 +539,21 @@ public class HUD
 			if (player.offhandItem.stackable && player.offhandItem.stackSize > 1)
 				Renderer.DrawUITextBMP(x + size - size / 4, y + size - Renderer.smallFont.size + 2, player.offhandItem.stackSize.ToString(), 1, txtColor);
 
+			if (player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == player.offhandItem)
+			{
+				AttackAction attackAction = player.actions.currentAction as AttackAction;
+				float progress = MathF.Min(attackAction.elapsedTime / attackAction.duration, 1);
+				int overlayIdx = (int)(progress * 16);
+				Renderer.DrawUISprite(x, y, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
+			}
+			else if (player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).weapon == player.offhandItem)
+			{
+				SpellCastAction spellCast = player.actions.currentAction as SpellCastAction;
+				float progress = MathF.Min(spellCast.elapsedTime / spellCast.duration, 1);
+				int overlayIdx = (int)(progress * 16);
+				Renderer.DrawUISprite(x, y, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
+			}
+
 			if (player.offhandItem.requiredAmmo != null)
 			{
 				Renderer.DrawUISprite(Renderer.UIWidth / 2 - 8 - 2 * (16 + 1) - 4 - 8 - 32 - 32, Renderer.UIHeight - 4 - 16, size, size, Item.GetItemPrototype(player.offhandItem.requiredAmmo).sprite);
@@ -560,6 +575,21 @@ public class HUD
 			Renderer.DrawUISprite(x + size + 1, y, size, size, player.handItem.icon);
 			if (player.handItem.stackable && player.handItem.stackSize > 1)
 				Renderer.DrawUITextBMP(x + size + 1 + size - size / 4, y + size - Renderer.smallFont.size + 2, player.handItem.stackSize.ToString(), 1, txtColor);
+
+			if (player.actions.currentAction is AttackAction && (player.actions.currentAction as AttackAction).weapon == player.handItem)
+			{
+				AttackAction attackAction = player.actions.currentAction as AttackAction;
+				float progress = MathF.Min(attackAction.elapsedTime / attackAction.duration, 1);
+				int overlayIdx = (int)(progress * 16);
+				Renderer.DrawUISprite(x + size + 1, y, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
+			}
+			else if (player.actions.currentAction is SpellCastAction && (player.actions.currentAction as SpellCastAction).weapon == player.handItem)
+			{
+				SpellCastAction spellCast = player.actions.currentAction as SpellCastAction;
+				float progress = MathF.Min(spellCast.elapsedTime / spellCast.duration, 1);
+				int overlayIdx = (int)(progress * 16);
+				Renderer.DrawUISprite(x + size + 1, y, size, size, cooldownOverlay[overlayIdx], false, 0xAF000000);
+			}
 
 			if (player.handItem.requiredAmmo != null)
 			{

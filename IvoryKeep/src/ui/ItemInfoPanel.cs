@@ -139,6 +139,16 @@ public static class ItemInfoPanel
 				}
 			}
 
+			if (item.bleed > 0)
+			{
+				drawLeft("Bleed");
+				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.bleed > 0)
+					drawComparison(item.bleed, compareItem.bleed);
+				else
+					drawRight(item.bleed);
+				y += Renderer.smallFont.size + 1;
+			}
+
 			if (item.type == ItemType.Staff)
 			{
 				Staff staff = item as Staff;

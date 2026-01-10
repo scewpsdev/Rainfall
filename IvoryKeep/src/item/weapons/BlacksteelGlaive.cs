@@ -12,6 +12,7 @@ public class BlacksteelGlaive : Weapon
 		: base("blacksteel_glaive")
 	{
 		displayName = "Blacksteel Glaive";
+		description = "A charred polearm once wielded by royal knights of a distant land.";
 
 		baseDamage = 2.0f;
 		baseAttackRange = 1.3f;

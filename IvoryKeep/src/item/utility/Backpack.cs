@@ -21,7 +21,7 @@ public class Backpack : Item
 		displayName = "Backpack";
 		armorSlot = ArmorSlot.Back;
 
-		description = "Increases inventory space";
+		description = "Expands the bearer's capacity for quick-access items.";
 
 		baseArmor = 1;
 		baseValue = 20;

@@ -11,7 +11,7 @@ public class ArrowProjectile : Projectile
 	const float speed = 40;
 
 	public ArrowProjectile(Vector2 direction, Vector2 offset, Entity shooter, Item bow, Item arrow)
-		: base(direction * speed, Vector2.Zero, offset, shooter, arrow, arrow.baseDamage * (shooter is Player && bow != null ? bow.getAttackDamage(shooter as Player) : shooter is Mob ? ((Mob)shooter).damage : 1))
+		: base(direction * speed, Vector2.Zero, offset, shooter, arrow, (arrow != null ? arrow.baseDamage : 1) * (shooter is Player && bow != null ? bow.getAttackDamage(shooter as Player) : shooter is Mob ? ((Mob)shooter).damage : 1))
 	{
 		maxSpeed = speed;
 		gravity = -50;
@@ -28,7 +28,7 @@ public class ArrowProjectile : Projectile
 	{
 		if (GameState.instance.level.raycastSolid(position - velocity * Time.deltaTime, velocity.normalized, velocity.length * Time.deltaTime, out HitData hit))
 		{
-			ItemEntity entity = new ItemEntity(item, shooter);
+			ItemEntity entity = new ItemEntity(item != null ? item : Item.GetItemPrototype("arrow").copy(), shooter);
 			entity.rotation = velocity.angle + Mathf.RandomFloat(-0.05f, 0.05f);
 			entity.stuck = true;
 			Vector2 arrowPosition = position - velocity * Time.deltaTime + velocity.normalized * hit.distance;

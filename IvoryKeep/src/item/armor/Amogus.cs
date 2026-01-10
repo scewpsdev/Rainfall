@@ -17,7 +17,8 @@ public class Amogus : Item
 
 		baseArmor = 5;
 		armorSlot = ArmorSlot.Body;
-		canDrop = false;
+		//canDrop = false;
+		rarity = 0.01f;
 
 		baseValue = 25;
 

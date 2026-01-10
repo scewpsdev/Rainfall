@@ -12,6 +12,7 @@ public class AstralScepter : Staff
 		: base("astral_scepter")
 	{
 		displayName = "Astral Scepter";
+		description = "A heavy staff infused with a special alloy that conducts mana more effectively, allowing it to strike slowly but with immense force.";
 
 		baseDamage = 1.5f;
 		baseAttackRate = 0.7f;

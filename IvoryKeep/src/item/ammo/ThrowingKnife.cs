@@ -14,6 +14,7 @@ public class ThrowingKnife : Item
 		: base("throwing_knife", ItemType.Ammo)
 	{
 		displayName = "Throwing Knife";
+		description = "A light, easily concealed blade favored by assassins and cowards alike.";
 
 		baseDamage = 2;
 		projectileItem = true;

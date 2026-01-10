@@ -12,6 +12,7 @@ public class IronKey : Item
 		: base("iron_key", ItemType.Utility)
 	{
 		displayName = "Iron Key";
+		description = "A common key cabable of opening most mundane locks.";
 
 		baseValue = 25;
 

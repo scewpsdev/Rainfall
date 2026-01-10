@@ -12,6 +12,7 @@ public class ScrollOfWeaponEnchantment : Item
 		: base("scroll_enchant_weapon", ItemType.Scroll)
 	{
 		displayName = "Scroll of Weapon Enchantment";
+		description = "A script that strengthens the weapon held at the moment of reading.";
 
 		baseValue = 35;
 		rarity = 4;

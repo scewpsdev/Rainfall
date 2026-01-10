@@ -12,13 +12,14 @@ public class DankHat : Item
 		: base("dank_hat", ItemType.Armor)
 	{
 		displayName = "Dank Hat";
+		description = "very epic";
 
 		baseArmor = 0.5f;
 		armorSlot = ArmorSlot.Helmet;
 		baseWeight = 0.2f;
 
 		baseValue = 5;
-		rarity = 0.1f;
+		rarity = 0.01f;
 
 		sprite = new Sprite(tileset, 0, 8);
 		spriteColor = 0xFFB7C17A;

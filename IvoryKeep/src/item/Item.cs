@@ -256,6 +256,7 @@ public abstract class Item
 	public float damageReflect = 0.0f;
 	public bool doubleBladed = false;
 	public float criticalChanceModifier = 1.0f;
+	public float bleed = 0.0f;
 	public float accuracy = 1.0f;
 	public bool trigger = true;
 	public int maxPierces = 0;
@@ -959,14 +960,15 @@ public abstract class Item
 
 		float cumulativeRarity = 0;
 		for (int i = 0; i < items.Count; i++)
-			cumulativeRarity += items[i].rarity;
+			cumulativeRarity += MathF.Exp(-items[i].getValue() * 0.04f) * items[i].rarity;
 
 		float choice = random.NextSingle();
 		float f = 0;
 		Item item = null;
 		for (int i = 0; i < items.Count; i++)
 		{
-			f += items[i].rarity / cumulativeRarity;
+			float v = MathF.Exp(-items[i].getValue() * 0.04f) * items[i].rarity;
+			f += v / cumulativeRarity;
 			if (f >= choice)
 			{
 				item = items[i];

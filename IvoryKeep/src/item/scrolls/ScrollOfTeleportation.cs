@@ -12,6 +12,7 @@ public class ScrollOfTeleportation : Item
 		: base("scroll_teleport", ItemType.Scroll)
 	{
 		displayName = "Scroll of Teleportation";
+		description = "Folds space and distance, casting it's reader to an unknown location.";
 
 		baseValue = 7;
 

@@ -12,6 +12,8 @@ public class GoldenApple : Item
 		: base("golden_apple", ItemType.Food)
 	{
 		displayName = "Golden Apple";
+		description = "A fruit preserved by ancient methods, restoring body and mind in full.";
+
 		stackable = true;
 
 		baseValue = 30;

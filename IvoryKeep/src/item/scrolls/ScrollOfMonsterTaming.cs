@@ -12,6 +12,7 @@ public class ScrollOfMonsterTaming : Item
 		: base("scroll_of_monster_taming", ItemType.Scroll)
 	{
 		displayName = "Scroll of Monster Taming";
+		description = "Calms down enraged minds until provoked.";
 
 		baseValue = 15;
 

@@ -12,6 +12,7 @@ public class Lockpick : Item
 		: base("lockpick", ItemType.Utility)
 	{
 		displayName = "Lockpick";
+		description = "Fragile tool that can open locks cheaply, but may break.";
 
 		baseValue = 7;
 		rarity = 0.05f;

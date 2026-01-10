@@ -960,7 +960,14 @@ public abstract class NPC : Mob, Interactable
 					}
 					else
 					{
-						GameState.instance.player.hud.showMessage("The item cannot be sold.");
+						if (item == player.handItem || item == player.offhandItem)
+							player.hud.showMessage($"The item magically sticks to your hand. Unable to sell {item.fullDisplayName}.");
+						else if (player.isActiveItem(item, out _))
+							player.hud.showMessage($"The item magically sticks to your pocket. Unable to sell {item.fullDisplayName}.");
+						else if (player.isSpellItem(item, out _))
+							player.hud.showMessage($"The spell is engraved in your mind and you seem to be unable to forget it. Failed to sell {item.fullDisplayName}.");
+						else
+							player.hud.showMessage($"Unable to sell {item.fullDisplayName}.");
 					}
 				}
 			}
@@ -1272,7 +1279,8 @@ public abstract class NPC : Mob, Interactable
 				y += 4;
 
 				return (int)MathF.Round(y - top);
-			};
+			}
+			;
 			NPCSelector.Render(menuAnchor, "Quests", labels, renderInfoPanel, out bool secondary, out bool closed, ref selectedItem);
 
 			if (closed)

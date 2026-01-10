@@ -12,6 +12,8 @@ public class Trash : Item
 		: base("trash", ItemType.Utility)
 	{
 		displayName = "Trash";
+		description = "Trash.";
+
 		baseValue = 0;
 		canDrop = false;
 

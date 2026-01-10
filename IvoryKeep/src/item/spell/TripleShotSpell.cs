@@ -16,6 +16,7 @@ public class TripleShotSpell : Spell
 		: base("triple_shot")
 	{
 		displayName = "Triple Shot";
+		description = "Discharges a wide spread of magic bolts at close range.";
 
 		baseValue = 19;
 
@@ -25,6 +26,7 @@ public class TripleShotSpell : Spell
 		manaCost = 0.3f;
 		knockback = 1.0f;
 		trigger = false;
+		canCastWithoutMana = true;
 
 		spellIcon = new Sprite(tileset, 5, 8);
 	}
@@ -52,7 +54,15 @@ public class TripleShotSpell : Spell
 			Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.08f;
 			direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
-			GameState.instance.level.addEntity(new MagicProjectile(direction, player.velocity, offset, player, this, staff), position);
+			MagicProjectile projectile = new MagicProjectile(direction, player.velocity, offset, player, this, staff);
+			if (player.mana < manaCost)
+			{
+				projectile.maxRange *= 0.5f;
+				projectile.damage *= 0.5f;
+				projectile.spriteColor.w = 0.5f;
+			}
+
+			GameState.instance.level.addEntity(projectile, position);
 			GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 
 			Audio.PlayOrganic(useSound, new Vector3(player.position, 0));

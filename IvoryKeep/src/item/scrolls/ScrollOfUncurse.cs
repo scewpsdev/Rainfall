@@ -11,6 +11,7 @@ public class ScrollOfUncurse : Item
 		: base("scroll_of_uncurse", ItemType.Scroll)
 	{
 		displayName = "Scroll of Uncurse";
+		description = "Severs malignant bindings from all carried items.";
 
 		baseValue = 69;
 

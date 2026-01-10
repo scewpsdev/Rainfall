@@ -12,6 +12,7 @@ public class Greatshield : Shield
 		: base("greatshield")
 	{
 		displayName = "Greatshield";
+		description = "A massive shield of unwavering stability, though it's weight may affect it's bearer's agility.";
 
 		baseArmor = 4;
 		baseValue = 52;

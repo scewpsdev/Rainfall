@@ -22,6 +22,8 @@ public class Bomb : Item
 		: base("bomb", ItemType.Utility)
 	{
 		displayName = "Bomb";
+		description = "Volatile vessel filled with gunpowder that detonates after a short delay.";
+
 		stackable = true;
 
 		baseValue = 5;

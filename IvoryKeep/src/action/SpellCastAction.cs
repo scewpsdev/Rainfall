@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class SpellCastAction : EntityAction
 {
-	Item weapon;
+	public Item weapon;
 	public Spell spell;
 	float manaCost;
 
@@ -42,8 +42,8 @@ public class SpellCastAction : EntityAction
 
 	public override void onStarted(Player player)
 	{
-		if (player.mana < manaCost)
-			duration *= 2;
+		//if (player.mana < manaCost)
+		//	duration *= 2;
 
 		if (spell.needsCharging)
 			spell.charge(player, weapon, manaCost, duration);

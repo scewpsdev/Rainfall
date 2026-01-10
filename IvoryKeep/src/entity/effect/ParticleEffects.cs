@@ -17,6 +17,16 @@ public static unsafe class ParticleEffects
 		return effect;
 	}
 
+	public static ParticleEffect CreateBloodEffectIntense(Entity entity, Vector2 direction, float duration)
+	{
+		ParticleEffect effect = new ParticleEffect(entity, "effects/blood.rfs");
+		effect.systems[0].handle->startVelocity = new Vector3(direction, 0);
+		effect.systems[0].handle->bursts[0].count = 200;
+		effect.systems[0].handle->bursts[0].duration = duration;
+		effect.collision = true;
+		return effect;
+	}
+
 	public static ParticleEffect CreateFountainEffect()
 	{
 		ParticleEffect effect = new ParticleEffect(null, "effects/fountain2.rfs");

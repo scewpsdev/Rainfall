@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 public class DodgeAction : EntityAction
 {
-	const float cooldownTime = 0.2f;
+	const float cooldownTime = 0.5f;
 	const float dashTime = 0.2f;
 	const float dashDistance = 3;
 	const float speed = dashDistance / dashTime;
-	public const float manaCost = 0.4f;
+	public const float manaCost = 0.5f;
 
 	int direction;
 

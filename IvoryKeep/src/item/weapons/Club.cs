@@ -27,6 +27,7 @@ public class Club : Weapon
 
 		sprite = new Sprite(tileset, 13, 1);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 
 		hitSound = woodHit;
 	}

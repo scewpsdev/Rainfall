@@ -12,6 +12,7 @@ public class ScrollOfEarth : Item
 		: base("scroll_of_earth", ItemType.Scroll)
 	{
 		displayName = "Scroll of Earth";
+		description = "Calls down crushing rocks from above.";
 
 		baseValue = 18;
 

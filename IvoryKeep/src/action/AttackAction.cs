@@ -160,7 +160,7 @@ public class AttackAction : EntityAction
 				Mob mob = entity as Mob;
 				critical = mob.isStunned && mob.criticalStun
 				|| Random.Shared.NextSingle() < player.criticalChance * weapon.criticalChanceModifier * player.getCriticalChanceModifier()
-					|| /*(mob.ai == null || mob.ai.target != player)*/ mob.direction == -Math.Sign(player.position.x - mob.position.x) && player.getStealthAttackModifier() > 1.5f;
+				* (mob.direction == -Math.Sign(player.position.x - mob.position.x) ? player.getStealthAttackModifier() : 1);
 			}
 			if (critical)
 				damage *= player.getCriticalAttackModifier();

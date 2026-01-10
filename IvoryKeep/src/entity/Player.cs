@@ -43,7 +43,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
-	public const float defaultManaRecoveryRate = 0.015f;
+	public const float defaultManaRecoveryRate = 0.02f;
 	public float aimDistance = 1.0f;
 	public float criticalChance = 0.05f;
 
@@ -158,6 +158,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	public bool canThrowWeapons = false;
 	public bool attackSlowdown = true;
 	public bool canDodge = false;
+	public bool canBackstab = false;
 
 	public HUD hud;
 	InventoryUI inventoryUI;
@@ -1326,7 +1327,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 						if (InputManager.IsDown("Left") || InputManager.IsDown("Right"))
 							actions.queueAction(new DodgeAction());
 						else
-							actions.queueAction(new BackhopAction());
+							actions.queueAction(new BackstepAction());
 						lastDodgeInput = -1;
 					}
 				}
@@ -1643,7 +1644,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	{
 		if (item.cursed)
 		{
-			hud.showMessage("This item cannot be used.");
+			hud.showMessage($"The item magically sticks to your pocket. Unable to use {item.fullDisplayName}.");
 			return false;
 		}
 		if (item.stackable && item.stackSize > 1)

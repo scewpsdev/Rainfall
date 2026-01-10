@@ -11,7 +11,8 @@ public class MissileSpell : Spell
 	public MissileSpell()
 		: base("missile")
 	{
-		displayName = "Missile";
+		displayName = "Magic Missile";
+		description = "Volatile projectile that detonantes on impact. Difficult to both aim and avoid.";
 
 		baseValue = 45;
 

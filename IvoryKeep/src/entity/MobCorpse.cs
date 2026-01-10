@@ -101,20 +101,18 @@ public class MobCorpse : Object, Interactable
 
 	public override void render()
 	{
-		/*
-			Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
+		Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, 0, sprite, direction == -1, spriteColor);
 
-			if (passiveItems != null)
+		if (passiveItems != null)
+		{
+			for (int i = 0; i < passiveItems.Count; i++)
 			{
-				for (int i = 0; i < passiveItems.Count; i++)
+				if (passiveItems[i].ingameSprite != null)
 				{
-					if (passiveItems[i].ingameSprite != null)
-					{
-						Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize - 0.5f, LAYER_PLAYER_ARMOR, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
-					}
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize, LAYER_PLAYER_ARMOR, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize, 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 			}
-		*/
+		}
 
 		base.render();
 

@@ -12,6 +12,7 @@ public class ScrollOfDexterity : Item
 		: base("scroll_of_dexterity", ItemType.Scroll)
 	{
 		displayName = "Scroll of Dexterity";
+		description = "Infuses the held weapon with a lightened form, favoring speed over force.";
 
 		baseValue = 13;
 

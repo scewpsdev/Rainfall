@@ -22,6 +22,7 @@ public class Flail : Weapon
 		: base("flail")
 	{
 		displayName = "Flail";
+		description = "Chained weapon swung in continuous arcs, difficult to control but delivers persistent strikes.";
 
 		baseDamage = 1;
 		baseAttackRange = 2;

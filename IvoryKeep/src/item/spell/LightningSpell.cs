@@ -12,6 +12,7 @@ public class LightningSpell : Spell
 		: base("lightning")
 	{
 		displayName = "Lightning";
+		description = "Wild lightning that ricochets unpredictably.";
 
 		baseValue = 27;
 

@@ -12,6 +12,7 @@ public class ScrollOfMonsterCreation : Item
 		: base("scroll_create_monster", ItemType.Scroll)
 	{
 		displayName = "Scroll of Monster Creation";
+		description = "A forbidden incantation that births hostile creatures nearby.";
 
 		baseValue = 29;
 

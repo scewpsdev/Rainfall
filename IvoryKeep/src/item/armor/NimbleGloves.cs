@@ -12,7 +12,8 @@ public class NimbleGloves : Item
 		: base("nimble_gloves", ItemType.Armor)
 	{
 		displayName = "Nimble Gloves";
-		description = "Increases attack rate by 15%";
+		description = "Fine-woven gloves that hasten the bearer's strikes.";
+
 		armorSlot = ArmorSlot.Gloves;
 
 		baseArmor = 1;

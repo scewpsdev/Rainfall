@@ -15,6 +15,7 @@ public class ScrollOfProtection : Item
 		: base("scroll_of_protection", ItemType.Scroll)
 	{
 		displayName = "Scroll of Protection";
+		description = "Summons spectral wards that orbit the caster.";
 
 		baseValue = 29;
 

@@ -14,14 +14,14 @@ public class Projectile : Entity, Hittable
 	protected float rotationSpeed = 0;
 	protected int maxRicochets = 0;
 	public float damage = 1;
-	protected float maxRange = 1000;
+	public float maxRange = 1000;
 	protected float dropRange = 0;
 
 	public Entity shooter;
 	protected Item item;
 
 	protected Sprite sprite;
-	protected Vector4 spriteColor = Vector4.One;
+	public Vector4 spriteColor = Vector4.One;
 	protected bool additive = false;
 
 	int ricochets = 0;

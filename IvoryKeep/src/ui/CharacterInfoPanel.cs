@@ -86,7 +86,7 @@ public static class CharacterInfoPanel
 				if (selectedLevelStat == idx)
 				{
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, 0xFF222222);
-					float alpha = MathF.Sin(Time.currentTime / 1e9f * 5) * 0.5f + 0.5f;
+					float alpha = MathF.Sin(Time.gameTime * 5) * 0.5f + 0.5f;
 					Renderer.DrawUISprite(x, y, width, Renderer.smallFont.size - 1, null, false, Mathf.ColorAlpha(UIColors.WINDOW_FRAME, alpha));
 					if (hovered && (Input.IsKeyPressed(KeyCode.Return) || Input.IsMouseButtonPressed(MouseButton.Left, true)))
 					{
@@ -103,7 +103,7 @@ public static class CharacterInfoPanel
 		}
 		uint blinkText(uint color)
 		{
-			return Mathf.ColorAlpha(color, MathF.Sin(Time.gameTime) * 0.5f + 0.5f);
+			return Mathf.ColorAlpha(color, MathF.Sin(Time.gameTime * 5) * 0.5f + 0.5f);
 		}
 
 		y += 4;
