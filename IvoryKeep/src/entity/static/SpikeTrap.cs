@@ -73,7 +73,7 @@ internal class SpikeTrap : Entity, Hittable
 				}
 			}
 
-			if (hasHit)
+			if (hasHit && closestHit.entity != null)
 			{
 				trigger();
 				GameState.instance.level.addEntity(ParticleEffects.CreateImpactEffect(Vector2.Down, 8, Mathf.ARGBToVector(0xFF47362a).xyz), position);

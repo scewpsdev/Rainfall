@@ -26,7 +26,6 @@ public class Dagger : Weapon
 		secondaryChargeTime = 0;
 		criticalChanceModifier = 2.0f;
 		anim = AttackAnim.Stab;
-		bleed = 2;
 
 		dexterityScaling = 0.7f;
 

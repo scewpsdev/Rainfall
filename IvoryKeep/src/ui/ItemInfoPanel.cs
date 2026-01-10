@@ -39,6 +39,17 @@ public static class ItemInfoPanel
 		}
 		y += 4;
 
+		if (item.description != null)
+		{
+			string[] descriptionLines = Renderer.SplitMultilineText(item.description, width);
+			foreach (string line in descriptionLines)
+			{
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
+				y += Renderer.smallFont.size;
+			}
+			y += 4;
+		}
+
 		if (item is SpellBook)
 		{
 			SpellBook spellBook = item as SpellBook;
@@ -86,9 +97,9 @@ public static class ItemInfoPanel
 			drawLeft("Attack");
 			float infusedDamage = item.getInfusedDamage();
 			if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-				drawComparison(infusedDamage, compareItem.getInfusedDamage());
+				drawComparison(infusedDamage * 10, compareItem.getInfusedDamage() * 10);
 			else
-				drawRight(infusedDamage);
+				drawRight(infusedDamage * 10);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Speed");
@@ -143,9 +154,9 @@ public static class ItemInfoPanel
 			{
 				drawLeft("Bleed");
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff) && compareItem.bleed > 0)
-					drawComparison(item.bleed, compareItem.bleed);
+					drawComparison(item.bleed * 10, compareItem.bleed * 10);
 				else
-					drawRight(item.bleed);
+					drawRight(item.bleed * 10);
 				y += Renderer.smallFont.size + 1;
 			}
 
@@ -191,62 +202,70 @@ public static class ItemInfoPanel
 			{
 				drawLeft("STR");
 				string scalingStr = Item.GetScalingLetter(item.strengthScaling);
-				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 					drawComparisonStr(Item.GetScalingLetter(compareItem.strengthScaling), scalingStr, MathF.Sign(compareItem.strengthScaling - item.strengthScaling));
+				else
+					drawRightStr(scalingStr);
 				y += Renderer.smallFont.size + 1;
 			}
 
 			{
 				drawLeft("DEX");
 				string scalingStr = Item.GetScalingLetter(item.dexterityScaling);
-				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 					drawComparisonStr(Item.GetScalingLetter(compareItem.dexterityScaling), scalingStr, MathF.Sign(compareItem.dexterityScaling - item.dexterityScaling));
+				else
+					drawRightStr(scalingStr);
 				y += Renderer.smallFont.size + 1;
 			}
 
 			{
-				drawLeft("INT");
 				string scalingStr = Item.GetScalingLetter(item.intelligenceScaling);
 				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
 					drawComparisonStr(Item.GetScalingLetter(compareItem.intelligenceScaling), scalingStr, MathF.Sign(compareItem.intelligenceScaling - item.intelligenceScaling));
+				else
+					drawLeft("INT");
 				y += Renderer.smallFont.size + 1;
 			}
 		}
 		else if (item.type == ItemType.Armor)
 		{
 			drawLeft("Armor");
-			drawRight(item.armor);
 			if (compareItem != null && compareItem.type == ItemType.Armor)
 				drawComparison(item.armor, compareItem.armor);
+			else
+				drawRight(item.armor);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Weight");
-			drawRight(item.weight);
 			if (compareItem != null && compareItem.type == ItemType.Armor)
 				drawComparison(item.weight, compareItem.weight, true);
+			else
+				drawRight(item.weight);
 			y += Renderer.smallFont.size + 1;
 		}
 		else if (item.type == ItemType.Shield)
 		{
 			drawLeft("Protection");
-			drawRight(item.blockAbsorption);
 			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.blockAbsorption, compareItem.blockAbsorption);
+			else
+				drawRight(item.blockAbsorption);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Armor");
-			drawRight(item.armor);
 			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.armor, compareItem.armor);
+			else
+				drawRight(item.armor);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Weight");
-			drawRight(item.weight);
 			if (compareItem != null && compareItem.type == ItemType.Shield)
 				drawComparison(item.weight, compareItem.weight, true);
+			else
+				drawRight(item.weight);
 			y += Renderer.smallFont.size + 1;
 		}
 
@@ -264,39 +283,32 @@ public static class ItemInfoPanel
 		{
 			drawLeft("Attack");
 			float infusedDamage = item.getInfusedDamage();
-			drawRight(infusedDamage);
 			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(infusedDamage, compareItem.getInfusedDamage());
+			else
+				drawRight(infusedDamage);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Speed");
-			drawRight(item.attackRate);
 			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(item.attackRate, compareItem.attackRate);
+			else
+				drawRight(item.attackRate);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Range");
-			drawRight(item.attackRange);
 			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(item.attackRange, compareItem.attackRange);
+			else
+				drawRight(item.attackRange);
 			y += Renderer.smallFont.size + 1;
 
 			drawLeft("Mana Cost");
-			drawRight(item.manaCost);
 			if (compareItem != null && item.type == ItemType.Spell)
 				drawComparison(item.manaCost, compareItem.manaCost);
+			else
+				drawRight(item.manaCost);
 			y += Renderer.smallFont.size + 1;
-		}
-
-		if (item.description != null)
-		{
-			string[] descriptionLines = Renderer.SplitMultilineText(item.description, width);
-			foreach (string line in descriptionLines)
-			{
-				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(line).x / 2, y, line, 1, UIColors.TEXT);
-				y += Renderer.smallFont.size;
-			}
-			y += 4;
 		}
 
 		Item itemInInv = GameState.instance.player.getItem(item.name);

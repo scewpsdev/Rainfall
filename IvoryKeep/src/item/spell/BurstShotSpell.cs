@@ -15,6 +15,7 @@ public class BurstShotSpell : Spell
 
 	long castTime = -1;
 	int castedProjectiles = 0;
+	bool noMana = false;
 
 	public BurstShotSpell()
 		: base("burst_shot")
@@ -58,21 +59,22 @@ public class BurstShotSpell : Spell
 
 		castTime = Time.currentTime;
 		castedProjectiles = 0;
+		noMana = player.mana < manaCost;
 
 		return true;
 	}
 
 	void shoot()
 	{
-		Vector2 position = player.position + new Vector2(0.0f, 0.5f);
-		Vector2 offset = new Vector2(player.direction * 0.5f, -0.1f);
+		Vector2 position = player.center + new Vector2(player.direction * 0.3f, 0.0f);
+		Vector2 offset = new Vector2(player.direction * 0.3f, 0.0f);
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.08f;
 		direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
 
 		MagicProjectile projectile = new MagicProjectile(direction, player.velocity, offset, player, this, staff);
-		if (player.mana < manaCost)
+		if (noMana)
 		{
 			projectile.maxRange *= 0.5f;
 			projectile.damage *= 0.5f;

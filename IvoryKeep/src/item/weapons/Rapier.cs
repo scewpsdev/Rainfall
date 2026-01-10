@@ -19,6 +19,7 @@ public class Rapier : Weapon
 		attackCooldown = 2;
 		baseWeight = 1.5f;
 		secondaryChargeTime = 0.3f;
+		bleed = 0.9f;
 
 		dexterityScaling = 0.9f;
 

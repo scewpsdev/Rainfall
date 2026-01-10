@@ -806,7 +806,7 @@ public abstract class Item
 		InitType(new IronKey());
 		InitType(new Lockpick());
 		InitType(new SapphireRing());
-		//InitType(new AssassinsDagger());
+		InitType(new AssassinsDagger());
 		InitType(new RoyalGreatsword());
 		InitType(new Magnet());
 		InitType(new MagicArrowSpell());

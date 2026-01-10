@@ -87,8 +87,8 @@ public class Container : Object
 	{
 		if (isEntity)
 			hit(velocity.length / 8);
-		else if (velocity.length > 8)
-			hit((velocity.length - 8) / 8);
+		else if (velocity.length > 5)
+			hit((velocity.length - 5) / 8);
 
 		base.onCollision(x, y, isEntity);
 	}

@@ -21,7 +21,7 @@ public static unsafe class ParticleEffects
 	{
 		ParticleEffect effect = new ParticleEffect(entity, "effects/blood.rfs");
 		effect.systems[0].handle->startVelocity = new Vector3(direction, 0);
-		effect.systems[0].handle->bursts[0].count = 200;
+		effect.systems[0].handle->bursts[0].count = 100;
 		effect.systems[0].handle->bursts[0].duration = duration;
 		effect.collision = true;
 		return effect;

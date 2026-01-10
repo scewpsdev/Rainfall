@@ -25,7 +25,7 @@ public class BuilderMerchant : NPC
 			Howdy!
 			""");
 
-		populateShop(random, 8, 14, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Food, ItemType.Utility, ItemType.Ammo);
+		populateShop(random, 8, 14, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Food, ItemType.Utility, ItemType.Ammo, ItemType.Scroll, ItemType.Potion);
 	}
 
 	public BuilderMerchant()

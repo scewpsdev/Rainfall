@@ -629,10 +629,12 @@ public class InventoryUI
 			y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
 		}
 
-		Renderer.DrawUITextBMP(x + 4, y, "M1 to equip", 1, 0xFF7F7F7F);
+		/*
+		Renderer.DrawUITextBMP(x + 4, y, "M1 to use", 1, 0xFF7F7F7F);
 		y += Renderer.smallFont.size + 1;
 		Renderer.DrawUITextBMP(x + 4, y, "M2 to drop", 1, 0xFF7F7F7F);
 		y += Renderer.smallFont.size + 1;
+		*/
 
 		y += 4;
 

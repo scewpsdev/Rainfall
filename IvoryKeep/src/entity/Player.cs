@@ -535,6 +535,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		if ((item.type == ItemType.Spell || item.type == ItemType.Relic) && hasItemOfType(item.name))
 		{
 			Item spellItem = getItem(item.name);
+			if (item.type == ItemType.Spell)
+				hud.showMessage("You deepened your knowledge of " + item.fullDisplayName + ".");
+			else if (item.type == ItemType.Relic)
+				hud.showMessage(item.fullDisplayName + " increased in power.");
 			for (int i = 0; i < item.upgradeLevel + 1; i++)
 				spellItem.upgrade();
 			return true;
@@ -912,9 +916,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 			}
 		}
 
-		if (projectile != null)
-			stun(projectile);
-
 		bool invincible = lastIFrameTrigger != -1 && (Time.currentTime - lastIFrameTrigger) / 1e9f < iframeDuration;
 		if (actions.currentAction != null)
 			invincible = invincible || (actions.currentAction.elapsedTime >= actions.currentAction.iframesStartTime && actions.currentAction.elapsedTime <= actions.currentAction.iframesEndTime);
@@ -997,12 +998,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		damage *= 1 - armorAbsorption;
 		damage /= getDefenseModifier();
 
-		//if (damage >= 1 && (projectile != null || itemEntity != null))
-		//	stun(by);
-
 		health -= damage;
 
 		GameState.instance.run.hitsTaken++;
+
+		//if (damage >= 1 && (projectile != null || itemEntity != null))
+		//	stun(by);
+		if (projectile != null && isAlive)
+			stun(projectile);
 
 		for (int i = 0; i < items.Count; i++)
 		{

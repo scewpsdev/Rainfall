@@ -290,17 +290,8 @@ public abstract class LevelGenerator
 			exitRoom = mainRoomsCopy[mainRoomsCopy.Count - 1];
 		}
 
-		generateExtraRooms(roomSet, (Doorway doorway) =>
-		{
-			Room room = createDeadEndRoom(doorway);
-			if (room != null)
-			{
-				room.spawnEnemies = false;
-				return true;
-			}
 
-			return false;
-		});
+		generateExtraRooms(roomSet);
 
 
 		simplex = new Simplex(Hash.hash(seed) + (uint)floor, 3);
@@ -704,14 +695,13 @@ public abstract class LevelGenerator
 		level.addEntity(createBossRoom(room));
 	}
 
-	Room createDeadEndRoom(Doorway doorway)
+	Room createDeadEndRoom(List<Doorway> doorways)
 	{
 		RoomDef[] roomDefs = getDeadEndRoomDefs();
 
 		int type = random.Next() % roomDefs.Length;
 		RoomDef roomDef = roomDefs[type];
-		Debug.Assert(doorway != null);
-		Room room = fillDoorway(doorway, roomDef, roomDef.set);
+		Room room = fillDoorway(doorways, roomDef, roomDef.set);
 		if (room != null)
 			room.entity = createDeadEndRoomEntity(type, room);
 
@@ -936,11 +926,8 @@ public abstract class LevelGenerator
 		return true;
 	}
 
-	Room fillDoorway(Doorway lastDoorway, RoomDefSet set, bool allowDeadEnd = true)
+	Room fillDoorway(List<Doorway> doorways, RoomDefSet set, bool allowDeadEnd = true)
 	{
-		Room lastRoom = lastDoorway.room;
-		Vector2i matchingDirection = -lastDoorway.direction;
-
 		List<RoomDef> candidates = new List<RoomDef>();
 		candidates.AddRange(set.roomDefs);
 		Mathf.ShuffleList(candidates, random);
@@ -952,6 +939,69 @@ public abstract class LevelGenerator
 
 			if (def.doorDefs.Count == 1 && !allowDeadEnd)
 				continue;
+
+			for (int l = 0; l < doorways.Count; l++)
+			{
+				Doorway lastDoorway = doorways[l];
+				Room lastRoom = lastDoorway.room;
+
+				for (int j = 0; j < def.doorDefs.Count; j++)
+				{
+					Vector2i matchingDirection = -lastDoorway.direction;
+
+					if (def.doorDefs[j].direction == matchingDirection)
+					{
+						Vector2i roomPosition = new Vector2i(lastRoom.x, lastRoom.y) + lastDoorway.position + lastDoorway.direction - def.doorDefs[j].position;
+						Vector2i roomSize = new Vector2i(def.width, def.height);
+						if (fitRoom(roomPosition, roomSize, rooms, level.width, level.height))
+						{
+							Room room = new Room
+							{
+								x = roomPosition.x,
+								y = roomPosition.y,
+								width = roomSize.x,
+								height = roomSize.y,
+								roomDefID = def.id,
+								set = set
+							};
+							for (int k = 0; k < def.doorDefs.Count; k++)
+							{
+								Doorway doorway = new Doorway(room, def.doorDefs[k]);
+								room.doorways.Add(doorway);
+
+								if (k == j)
+								{
+									doorway.otherDoorway = lastDoorway;
+									lastDoorway.otherDoorway = doorway;
+								}
+								else
+								{
+									doorways.Add(doorway);
+									Debug.Assert(doorway.otherDoorway == null);
+								}
+							}
+
+							doorways.Remove(lastDoorway);
+
+							rooms.Add(room);
+
+							return room;
+						}
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	Room fillDoorway(List<Doorway> doorways, RoomDef def, RoomDefSet set)
+	{
+		for (int i = 0; i < doorways.Count; i++)
+		{
+			Doorway lastDoorway = doorways[i];
+			Room lastRoom = lastDoorway.room;
+			Vector2i matchingDirection = -lastDoorway.direction;
 
 			for (int j = 0; j < def.doorDefs.Count; j++)
 			{
@@ -992,52 +1042,9 @@ public abstract class LevelGenerator
 		return null;
 	}
 
-	Room fillDoorway(Doorway lastDoorway, RoomDef def, RoomDefSet set)
+	Room fillDoorway(List<Doorway> doorways, RoomDefSet set, int id)
 	{
-		Room lastRoom = lastDoorway.room;
-		Vector2i matchingDirection = -lastDoorway.direction;
-
-		for (int j = 0; j < def.doorDefs.Count; j++)
-		{
-			if (def.doorDefs[j].direction == matchingDirection)
-			{
-				Vector2i roomPosition = new Vector2i(lastRoom.x, lastRoom.y) + lastDoorway.position + lastDoorway.direction - def.doorDefs[j].position;
-				Vector2i roomSize = new Vector2i(def.width, def.height);
-				if (fitRoom(roomPosition, roomSize, rooms, level.width, level.height))
-				{
-					Room room = new Room
-					{
-						x = roomPosition.x,
-						y = roomPosition.y,
-						width = roomSize.x,
-						height = roomSize.y,
-						roomDefID = def.id,
-						set = set
-					};
-					for (int k = 0; k < def.doorDefs.Count; k++)
-					{
-						Doorway doorway = new Doorway(room, def.doorDefs[k]);
-						if (k == j)
-						{
-							doorway.otherDoorway = lastDoorway;
-							lastDoorway.otherDoorway = doorway;
-						}
-						room.doorways.Add(doorway);
-					}
-
-					rooms.Add(room);
-
-					return room;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	Room fillDoorway(Doorway lastDoorway, RoomDefSet set, int id)
-	{
-		return fillDoorway(lastDoorway, set.roomDefs[id], set);
+		return fillDoorway(doorways, set.roomDefs[id], set);
 	}
 
 	bool fillDoorway(Doorway lastDoorway, Room room)
@@ -1228,9 +1235,9 @@ public abstract class LevelGenerator
 		//spawnedNPCs.Add(npc.GetType());
 	}
 
-	Room propagateMainRooms(Doorway doorway, RoomDefSet set, bool firstLeafPath, int minRooms)
+	Room propagateMainRooms(List<Doorway> doorways, RoomDefSet set, bool firstLeafPath, int minRooms)
 	{
-		Room room = fillDoorway(doorway, set, false);
+		Room room = fillDoorway(doorways, set, false);
 
 		if (room == null)
 			return null;
@@ -1261,9 +1268,9 @@ public abstract class LevelGenerator
 
 			while (emptyDoorways.Count > 0 /*&& (rooms.Count <= minRooms || firstLeafPath)*/)
 			{
-				propagateMainRooms(emptyDoorways[0], set, firstLeafPath, minRooms);
+				propagateMainRooms(emptyDoorways, set, firstLeafPath, minRooms);
 				firstLeafPath = false;
-				emptyDoorways.RemoveAt(0);
+				//emptyDoorways.RemoveAt(0);
 			}
 		}
 
@@ -1297,7 +1304,7 @@ public abstract class LevelGenerator
 
 		int startingRoomX = Mathf.RandomInt(1, level.width - roomDef.width - 1, random); // level.width / 2 - roomDef.width / 2; // random.Next() % Math.Max(level.width - roomDef.width - 6, 1) + 3;
 		int startingRoomY = spawnBossRoom ? Mathf.RandomInt(1, 8, random) : level.height - roomDef.height - Mathf.RandomInt(1, 8, random); // Math.Max(level.height - roomDef.height - 4, 0); // random.Next() % Math.Max(level.height - roomDef.height - 6, 1) + 3;
-		Room room = new Room
+		Room startingRoom = new Room
 		{
 			x = startingRoomX,
 			y = startingRoomY,
@@ -1306,22 +1313,22 @@ public abstract class LevelGenerator
 			roomDefID = roomDefID,
 			set = roomDef.set
 		};
-		room.isMainPath = true;
+		startingRoom.isMainPath = true;
 
 		if (startingRoomX < 0 || startingRoomY < 0)
 			Debug.Assert(false);
 
 		for (int i = 0; i < roomDef.doorDefs.Count; i++)
-			room.doorways.Add(new Doorway(room, roomDef.doorDefs[i]));
+			startingRoom.doorways.Add(new Doorway(startingRoom, roomDef.doorDefs[i]));
 
-		rooms.Add(room);
+		rooms.Add(startingRoom);
 
 
 		List<Doorway> emptyDoorways = new List<Doorway>();
-		for (int i = 0; i < room.doorways.Count; i++)
+		for (int i = 0; i < startingRoom.doorways.Count; i++)
 		{
-			if (room.doorways[i].otherDoorway == null)
-				emptyDoorways.Add(room.doorways[i]);
+			if (startingRoom.doorways[i].otherDoorway == null)
+				emptyDoorways.Add(startingRoom.doorways[i]);
 		}
 		Mathf.ShuffleList(emptyDoorways, random);
 		if (random.NextSingle() < 0.95f)
@@ -1336,18 +1343,21 @@ public abstract class LevelGenerator
 
 		Debug.Assert(emptyDoorways.Count > 0);
 
-		bool firstLeafPath = true;
+		//bool firstLeafPath = true;
 		while (emptyDoorways.Count > 0 /*&& (rooms.Count <= minRooms || firstLeafPath)*/)
 		{
-			propagateMainRooms(emptyDoorways[0], set, firstLeafPath, minRooms);
-			firstLeafPath = false;
-			emptyDoorways.RemoveAt(0);
+			Room room = fillDoorway(emptyDoorways, set, false);
+			if (room == null)
+				break;
+			//propagateMainRooms(emptyDoorways, set, firstLeafPath, minRooms);
+			//firstLeafPath = false;
+			//emptyDoorways.RemoveAt(0);
 		}
 
 		//Debug.Assert(rooms.Count > 1);
 	}
 
-	void generateExtraRooms(RoomDefSet set, Func<Doorway, bool> createSpecialRoom)
+	void generateExtraRooms(RoomDefSet set)
 	{
 		// Spawn special rooms
 
@@ -1362,33 +1372,18 @@ public abstract class LevelGenerator
 				}
 			}
 			Mathf.ShuffleList(emptyDoorways, random);
-			for (int i = 0; i < emptyDoorways.Count; i++)
-			{
-				Doorway emptyDoorway = emptyDoorways[i];
-				bool specialRoom = random.NextSingle() < 0.5f;
-				if (!(specialRoom && createSpecialRoom != null && createSpecialRoom(emptyDoorway)))
-					fillDoorway(emptyDoorway, set);
-			}
-		}
 
-		{
-			List<Doorway> emptyDoorways = new List<Doorway>();
-			for (int i = 0; i < rooms.Count; i++)
+			bool specialRoom = random.NextSingle() < 0.5f;
+			Room room = null;
+			if (specialRoom)
 			{
-				for (int j = 0; j < rooms[i].doorways.Count; j++)
-				{
-					if (rooms[i].doorways[j].otherDoorway == null)
-						emptyDoorways.Add(rooms[i].doorways[j]);
-				}
+				room = createDeadEndRoom(emptyDoorways);
+				if (room != null)
+					room.spawnEnemies = false;
 			}
-			Mathf.ShuffleList(emptyDoorways, random);
-			emptyDoorways.RemoveRange(emptyDoorways.Count / 3, emptyDoorways.Count - emptyDoorways.Count / 3);
-			for (int i = 0; i < emptyDoorways.Count; i++)
+			if (room == null)
 			{
-				Doorway emptyDoorway = emptyDoorways[i];
-				bool specialRoom = random.NextSingle() < 0.1f;
-				if (!(specialRoom && createSpecialRoom != null && createSpecialRoom(emptyDoorway)))
-					fillDoorway(emptyDoorway, set);
+				fillDoorway(emptyDoorways, set, true);
 			}
 		}
 	}

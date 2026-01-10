@@ -32,8 +32,8 @@ public class MagicArrowSpell : Spell
 
 	public override bool cast(Player player, Item staff, float manaCost, float duration)
 	{
-		Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
-		Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
+		Vector2 position = player.center + new Vector2(player.direction * 0.3f, 0.0f);
+		Vector2 offset = new Vector2(player.direction * 0.3f, 0.0f);
 
 		Vector2 direction = (player.lookDirection.normalized + Vector2.Sign(player.velocity) * 0.1f).normalized;
 		Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.05f;

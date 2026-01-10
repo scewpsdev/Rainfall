@@ -389,8 +389,8 @@ public class ItemEntity : Entity, Interactable, Hittable
 				Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(1, 0));
 
 				int sidePanelWidth = 90;
-				float x = Mathf.Clamp(pos.x, 10, Renderer.UIWidth - 10 - sidePanelWidth);
-				float y = Mathf.Clamp(pos.y, Renderer.UIHeight / 2, Renderer.UIHeight - 10 - sidePanelHeight);
+				float x = Mathf.Clamp(pos.x, 2, Renderer.UIWidth - 2 - sidePanelWidth);
+				float y = Mathf.Clamp(pos.y - sidePanelHeight, Renderer.UIHeight / 2, Renderer.UIHeight - 2 - sidePanelHeight);
 
 				Item compareItem = null;
 

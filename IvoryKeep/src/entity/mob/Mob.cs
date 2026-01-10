@@ -93,6 +93,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 	protected bool spawnCorpse = true;
 	public MobCorpse corpse;
+	ParticleEffect bleedEffect;
 
 	Climbable currentLadder = null;
 
@@ -123,17 +124,18 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	{
 		health -= damage;
 
-		if (by != null && item != null && item.bleed > 0)
+		if (health > 0 && by != null && item != null && item.bleed > 0)
 		{
 			Vector2 enemyPosition = by.position;
 			bleedBuildup += item.bleed;
 
 			if (bleedBuildup >= bleedResistance)
 			{
-				ParticleEffect bleedEffect = ParticleEffects.CreateBloodEffectIntense(this, (position - enemyPosition).normalized, 1.0f);
+				float duration = 0.5f;
+				bleedEffect = ParticleEffects.CreateBloodEffectIntense(this, (position - enemyPosition).normalized, duration);
 				GameState.instance.level.addEntity(bleedEffect, position + collider.center);
 				bleedBuildup -= bleedResistance;
-				addStatusEffect(new BleedStatusEffect(damage, 1.0f));
+				addStatusEffect(new BleedStatusEffect(damage, duration));
 			}
 		}
 
@@ -185,6 +187,9 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 		else
 		{
 			onDeath(by, item);
+
+			if (corpse != null && bleedEffect != null)
+				bleedEffect.follow = corpse;
 		}
 
 		ai?.onHit(by);
@@ -563,7 +568,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 
 		if (bleedBuildup > 0 && lastHit != -1 && (Time.currentTime - lastHit) / 1e9f > BLEED_RECOVER_DELAY)
 		{
-			bleedBuildup = MathF.Max(bleedBuildup - 0.1f * BLEED_RECOVER_RATE, 0.0f);
+			bleedBuildup = MathF.Max(bleedBuildup - 0.1f * BLEED_RECOVER_RATE * Time.deltaTime, 0.0f);
 		}
 
 		if (ai != null)
@@ -622,12 +627,14 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			}
 		}
 
+		/*
 		if (bleedBuildup > 0)
 		{
 			// debug bleed status
 			Renderer.DrawSprite(position.x - 0.5f, position.y + 2, 1.0f, 0.05f, null, false, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 			Renderer.DrawSprite(position.x - 0.5f, position.y + 2, bleedBuildup / bleedResistance, 0.05f, null, false, new Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 		}
+		*/
 	}
 
 	public bool isAlive

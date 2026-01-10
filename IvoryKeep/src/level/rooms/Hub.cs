@@ -79,14 +79,14 @@ public class HubSpawn : Door
 	{
 	}
 
-    public override bool canInteract(Player player)
-    {
+	public override bool canInteract(Player player)
+	{
 		return false;
-    }
+	}
 
-    public override void render()
-    {
-    }
+	public override void render()
+	{
+	}
 }
 
 
@@ -137,7 +137,8 @@ public class Hub : Entity
 			x += x >= 0 ? 1 : 0;
 			x = level.getMarker(0xA).x + x * 1.5f;
 			Vector2 position = new Vector2(x, 2);
-			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), position);
+			//level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), position);
+			level.addEntity(new ArmorStand(startingClass), position);
 		}
 
 #if DEBUG
@@ -181,7 +182,7 @@ public class Hub : Entity
 	public override void render()
 	{
 		base.render();
-		
+
 		/*
 		Vector2 dungeonEntrancePosition = (Vector2)room.getMarker(0xa);
 		int numSteps = 20;

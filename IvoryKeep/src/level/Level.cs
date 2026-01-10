@@ -646,7 +646,7 @@ public class Level
 		for (int i = 0; i < 128; i++)
 		{
 			TileType value = getTile(pos.x, pos.y);
-			if (value != null && value.isSolid && (!value.isPlatform || direction.y < 0))
+			if (value != null && (value.isSolid || value.isPlatform && direction.y < 0))
 			{
 				hit = true;
 				break;

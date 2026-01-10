@@ -21,8 +21,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 396.75,
-                "y": 151.25
+                "x": 497.5,
+                "y": 111.75
             }
         },
         "rooms/hub2.tmx": {
@@ -32,16 +32,16 @@
             "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 234.99999999999997,
-                "y": 66.33333333333331
+                "x": 800,
+                "y": 111.66666666666664
             }
         },
         "rooms/hub3.tmx": {
-            "scale": 1.8524999999999998,
+            "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.9460188933874,
-                "y": 202.15924426450744
+                "x": 332,
+                "y": 138
             }
         },
         "rooms/level1/hub3.tmx": {
@@ -184,8 +184,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 160.25,
-                "y": 71.75
+                "x": 160,
+                "y": 71.5
             }
         },
         "rooms/level1/special2.tmx": {
@@ -195,8 +195,8 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 240.99999999999997,
-                "y": 114.99999999999997
+                "x": 240.66666666666669,
+                "y": 114.66666666666666
             }
         },
         "tiletypes.tsx": {

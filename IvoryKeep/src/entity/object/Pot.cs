@@ -28,13 +28,18 @@ public class Pot : Container
 	{
 	}
 
+	protected override void breakContainer()
+	{
+		base.breakContainer();
+
+		GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF8e5252, 20, velocity * 0.25f), position);
+	}
+
 	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
 	{
 		base.hit(damage, by, item, byName, triggerInvincibility);
 		if (health > 0)
 			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF8e5252), position);
-		else
-			GameState.instance.level.addEntity(ParticleEffects.CreateDestroyPotEffect(0xFF8e5252, 20, velocity * 0.5f), position);
 		return true;
 	}
 }

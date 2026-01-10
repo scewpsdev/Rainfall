@@ -23,6 +23,8 @@ public class AstralScepter : Staff
 		knockback = 2.0f;
 		twoHanded = true;
 		anim = AttackAnim.SwingOverhead;
+		attackStartAngle = MathF.PI;
+		attackEndAngle = 0;
 
 		baseValue = 55;
 
