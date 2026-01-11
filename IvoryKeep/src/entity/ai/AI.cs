@@ -18,8 +18,11 @@ public abstract class AI
 	public Entity target { get; private set; }
 	public void setTarget(Entity newTarget)
 	{
-		onTargetSwitched(newTarget);
-		target = newTarget;
+		if (newTarget != target)
+		{
+			onTargetSwitched(newTarget);
+			target = newTarget;
+		}
 	}
 	public bool canSeeTarget = false;
 
@@ -46,7 +49,7 @@ public abstract class AI
 			if (by is Projectile)
 				by = (by as Projectile).shooter;
 			if (by is Player || by is Mob)
-				target = by;
+				setTarget(by);
 		}
 	}
 

@@ -30,5 +30,6 @@ public class SteelHammer : Weapon
 
 		sprite = new Sprite(tileset, 0, 11);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 	}
 }

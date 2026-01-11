@@ -419,8 +419,8 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			impulseVelocity = Mathf.Lerp(impulseVelocity, 0, 8 * Time.deltaTime);
 			if (MathF.Abs(impulseVelocity) < 0.01f)
 				impulseVelocity = 0;
-			if (MathF.Sign(impulseVelocity) == MathF.Sign(velocity.x))
-				velocity.x = 0;
+			//if (MathF.Sign(impulseVelocity) == MathF.Sign(velocity.x))
+			//	impulseVelocity = 0;
 			//else if (velocity.x == 0)
 			//	impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
 			//impulseVelocity.x = impulseVelocity.x - velocity.x;

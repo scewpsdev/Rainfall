@@ -24,7 +24,7 @@ public class TripleShotSpell : Spell
 		baseAttackRate = 1;
 		baseAttackRange = 5;
 		manaCost = 0.3f;
-		knockback = 1.0f;
+		knockback = 3.0f;
 		trigger = false;
 		canCastWithoutMana = true;
 

@@ -38,7 +38,7 @@ public class StartingClass
 		wizard = new StartingClass() { name = "Wizard", color = 0xFF73549d, cost = 12, items = [/*new MagicArrowStaff(),*/ new MagicStaff(), new MagicArrowSpell(), new WizardHat(), new WizardsCloak()/*, new WizardsLegacy()*/], hp = 5, magic = 5, intelligence = 2 };
 		fool = new StartingClass() { name = "Fool", color = 0xFFc89d3b, cost = 12, items = [new Club(), new GlassRing()], hp = 4, magic = 4 };
 
-		dev = new StartingClass() { name = "Dev", items = [new Revolver(), new AmethystRing(), new RingOfSwiftness(), new SapphireRing()], hp = 20, magic = 20 };
+		dev = new StartingClass() { name = "Dev", items = [new Revolver(), new Jetpack(), new AmethystRing(), new RingOfSwiftness(), new SapphireRing()], hp = 20, magic = 20 };
 
 		startingClasses = [barbarian, knight, hunter, thief, wizard, fool];
 	}

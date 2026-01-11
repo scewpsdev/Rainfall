@@ -71,7 +71,7 @@ public class IvoryKeep : Game
 		pushState(new MainMenuState());
 		//pushState(new SplashScreenState());
 		if (saves[1] != null)
-			pushState(new GameState(1, null));
+			pushState(new GameState(0, null));
 #else
 		pushState(new MainMenuState());
 		pushState(new SplashScreenState());

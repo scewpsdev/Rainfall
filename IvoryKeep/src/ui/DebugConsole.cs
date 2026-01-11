@@ -162,7 +162,7 @@ public static class DebugConsole
 			if (args.Length > 0)
 			{
 				Level level = Level.GetByName(args[0]);
-				if (level != null)
+				if (level != null && level.entrance != null)
 				{
 					GameState.instance.switchLevel(level, level.entrance.getSpawnPoint());
 				}

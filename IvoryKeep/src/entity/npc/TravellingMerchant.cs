@@ -62,7 +62,7 @@ public class TravellingMerchant : NPC
 
 		save.addDialogue("\\1...?");
 
-		if (!level.name.StartsWith("caves"))
+		if (level != GameState.instance.hub && !GameState.instance.areaCaves.Contains(level))
 		{
 			populateShop(GameState.instance.generator.random, 7, 12, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, /*ItemType.Spell, */ItemType.Relic);
 

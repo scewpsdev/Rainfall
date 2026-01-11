@@ -37,7 +37,7 @@ public class LoganSave : NPCSaveData
 
 		if (initialDialogue == null && loganQuest.state == QuestState.Uninitialized && save.hasFlag(SaveFile.FLAG_NPC_LOGAN_MET) && save.hasFlag(SaveFile.FLAG_MINES_FOUND) && save.hasFlag(SaveFile.FLAG_NPC_LOGAN_ITEM_SOLD))
 		{
-			setOneTimeInititalDialogue("""
+			setInititalDialogue("""
 				\1Aha... \0You again.
 				Color me impressed, you're not as hopeless as you look, making it this far.
 				Makes me wonder... maybe you're the type who can handle something a bit more interesting.
