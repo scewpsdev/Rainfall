@@ -82,11 +82,6 @@ public class BrokenWanderer : NPC
 		animator.setAnimation("idle");
 	}
 
-	public override NPCSaveData createSave()
-	{
-		return new BrokenWandererSave();
-	}
-
 	public override void init(Level level)
 	{
 	}

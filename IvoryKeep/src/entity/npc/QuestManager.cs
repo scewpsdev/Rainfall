@@ -8,6 +8,24 @@ using System.Threading.Tasks;
 
 public static class QuestManager
 {
+	public static void LoadNPCSaves(SaveFile save)
+	{
+		// questline npcs
+		RegisterProgression<LoganSave>(save, "logan");
+		RegisterProgression<RatNPCSave>(save, "rat_npc");
+		RegisterProgression<BlacksmithSave>(save, "blacksmith");
+		RegisterProgression<BrokenWandererSave>(save, "broken_wanderer");
+		RegisterProgression<TinkererSave>(save, "tinkerer");
+		RegisterProgression<SikoSave>(save, "travelling_merchant");
+
+		// simple npcs
+		RegisterProgression<NPCSaveData>(save, "builder_merchant");
+		RegisterProgression<NPCSaveData>(save, "barbarian");
+		RegisterProgression<NPCSaveData>(save, "knight");
+		RegisterProgression<NPCSaveData>(save, "thief");
+		RegisterProgression<NPCSaveData>(save, "hunter");
+	}
+
 	public static void InitNPCSaves(SaveFile save)
 	{
 		foreach (NPCSaveData npcSave in save.npcSaves.Values)
@@ -38,24 +56,24 @@ public static class QuestManager
 		}
 	}
 
-	public static NPCSaveData RegisterProgression(SaveFile save, NPC npc)
+	public static NPCSaveData RegisterProgression<T>(SaveFile save, string name) where T : NPCSaveData, new()
 	{
 		NPCSaveData progression;
-		if (save.npcSaves.ContainsKey(npc.name))
-			progression = save.npcSaves[npc.name];
+		if (save.npcSaves.ContainsKey(name))
+			progression = save.npcSaves[name];
 		else
 		{
-			progression = npc.createSave();
-			progression.name = npc.name;
-			progression.npc = npc;
-			save.npcSaves.Add(npc.name, progression);
+			progression = new T();
+			progression.name = name;
+			//progression.npc = npc;
+			save.npcSaves.Add(name, progression);
 		}
 
-		if (save.npcData.ContainsKey(npc.name))
+		if (save.npcData.ContainsKey(name))
 		{
-			DatObject npcData = save.npcData[npc.name];
-			progression.load(npcData);
-			save.npcData.Remove(npc.name);
+			DatObject npcData = save.npcData[name];
+			progression.load(save, npcData);
+			save.npcData.Remove(name);
 		}
 
 		return progression;
@@ -83,6 +101,8 @@ public static class QuestManager
 				save.npcData.Add(name, npcData);
 			}
 		}
+
+		LoadNPCSaves(save);
 	}
 
 	public static DatArray SaveNPCs(SaveFile save)
@@ -107,7 +127,7 @@ public static class QuestManager
 	{
 		NPCSaveData progression = GetProgression(save, name);
 		obj.addIdentifier("name", name);
-		progression.save(obj);
+		progression.save(save, obj);
 	}
 
 	public static void onKill(SaveFile save, Mob mob)

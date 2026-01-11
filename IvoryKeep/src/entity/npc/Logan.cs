@@ -13,15 +13,15 @@ public class LoganSave : NPCSaveData
 {
 	public LoganQuest loganQuest = new LoganQuest();
 
-	public override void load(DatObject obj)
+	public override void load(SaveFile save, DatObject obj)
 	{
-		base.load(obj);
-		SaveFile.LoadQuest(GameState.instance.save, obj, loganQuest, name);
+		base.load(save, obj);
+		SaveFile.LoadQuest(save, obj, loganQuest, name);
 	}
 
-	public override void save(DatObject obj)
+	public override void save(SaveFile save, DatObject obj)
 	{
-		base.save(obj);
+		base.save(save, obj);
 		SaveFile.SaveQuest(obj, loganQuest, name);
 	}
 
@@ -52,6 +52,8 @@ public class LoganSave : NPCSaveData
 				""").addCallback(() =>
 			{
 				loganQuest.state = QuestState.InProgress;
+				if (GameState.instance.hub.getEntity<Logan>() == null)
+					GameState.instance.hub.getEntity<Hub>().spawnLogan();
 			});
 		}
 		QuestManager.addQuestCompletionCallback(GameState.instance.save, name, loganQuest.name, (Quest _) =>
@@ -65,7 +67,8 @@ public class LoganSave : NPCSaveData
 				if (staff != null)
 					GameState.instance.player.removeItem(staff);
 
-				npc.closeScreen();
+				currentNPC?.closeScreen();
+
 				GameState.instance.save.unlockStartingClass(StartingClass.wizard);
 
 				loganQuest.collect();
@@ -81,13 +84,6 @@ public class LoganSave : NPCSaveData
 				""");
 		}
 		*/
-
-		if (initialDialogue == null && loganQuest.state == QuestState.InProgress && npc.level == GameState.instance.hub)
-		{
-			setOneTimeInititalDialogue("""
-				Found that staff yet? Come see me if you do.
-				""");
-		}
 
 		if (initialDialogue == null && Random.Shared.NextSingle() < 0.1f)
 		{
@@ -141,14 +137,18 @@ public class Logan : NPC
 		animator.setAnimation("idle");
 	}
 
-	public override NPCSaveData createSave()
-	{
-		return new LoganSave();
-	}
-
 	public override void init(Level level)
 	{
-		if (level != GameState.instance.hub)
+		if (level == GameState.instance.hub)
+		{
+			if (save.initialDialogue == null && ((LoganSave)save).loganQuest.state == QuestState.InProgress)
+			{
+				save.setInititalDialogue("""
+				Found that staff yet? Come see me if you do.
+				""");
+			}
+		}
+		else
 		{
 			populateShop(GameState.instance.generator.random, 7, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
 

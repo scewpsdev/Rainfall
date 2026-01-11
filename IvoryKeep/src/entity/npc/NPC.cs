@@ -54,8 +54,14 @@ public class DialogueScreen
 
 public class Dialogue
 {
+	public uint hash;
 	public List<DialogueScreen> screens = new List<DialogueScreen>();
 
+
+	public Dialogue(uint hash)
+	{
+		this.hash = hash;
+	}
 
 	public DialogueScreen addVoiceLine(string txt)
 	{
@@ -97,7 +103,7 @@ public class Dialogue
 public class NPCSaveData
 {
 	public string name;
-	public NPC npc;
+	public List<NPC> npcs = new List<NPC>();
 
 	public Dialogue initialDialogue;
 	public List<Dialogue> dialogues = new List<Dialogue>();
@@ -109,7 +115,20 @@ public class NPCSaveData
 	{
 	}
 
-	public virtual void load(DatObject obj)
+	public NPC currentNPC
+	{
+		get
+		{
+			foreach (NPC npc in npcs)
+			{
+				if (npc.state != NPCState.None)
+					return npc;
+			}
+			return null;
+		}
+	}
+
+	public virtual void load(SaveFile save, DatObject obj)
 	{
 		if (obj.getArray("dialogues", out DatArray dialogues))
 		{
@@ -118,7 +137,7 @@ public class NPCSaveData
 		}
 	}
 
-	public virtual void save(DatObject obj)
+	public virtual void save(SaveFile save, DatObject obj)
 	{
 		DatArray dialogues = new DatArray();
 		foreach (uint h in finishedDialogues)
@@ -142,7 +161,7 @@ public class NPCSaveData
 		uint h = Hash.hash(txt);
 		if (!finishedDialogues.Contains(h))
 		{
-			Dialogue dialogue = new Dialogue();
+			Dialogue dialogue = new Dialogue(Hash.hash(txt));
 			for (int i = 0; i < screens.Length; i++)
 				dialogue.addVoiceLine(screens[i]);
 			initialDialogue = dialogue;
@@ -160,7 +179,7 @@ public class NPCSaveData
 	{
 		txt = txt.ReplaceLineEndings("\n");
 		string[] screens = txt.Split('\n');
-		Dialogue dialogue = new Dialogue();
+		Dialogue dialogue = new Dialogue(Hash.hash(txt));
 		for (int i = 0; i < screens.Length; i++)
 			dialogue.addVoiceLine(screens[i]);
 		initialDialogue = dialogue;
@@ -174,7 +193,7 @@ public class NPCSaveData
 		uint h = Hash.hash(txt);
 		if (!finishedDialogues.Contains(h))
 		{
-			Dialogue dialogue = new Dialogue();
+			Dialogue dialogue = new Dialogue(Hash.hash(txt));
 			for (int i = 0; i < screens.Length; i++)
 				dialogue.addVoiceLine(screens[i]);
 			addDialogue(dialogue);
@@ -188,15 +207,33 @@ public class NPCSaveData
 		return null;
 	}
 
+	bool hasDialogue(string str, out Dialogue dialogue)
+	{
+		for (int i = 0; i < dialogues.Count; i++)
+		{
+			if (dialogues[i].hash == Hash.hash(str))
+			{
+				dialogue = dialogues[i];
+				return true;
+			}
+		}
+		dialogue = null;
+		return false;
+	}
+
 	public DialogueScreen addDialogue(string txt)
 	{
-		txt = txt.ReplaceLineEndings("\n");
-		string[] screens = txt.Split('\n');
-		Dialogue dialogue = new Dialogue();
-		for (int i = 0; i < screens.Length; i++)
-			dialogue.addVoiceLine(screens[i]);
-		addDialogue(dialogue);
-		return dialogue.screens[dialogue.screens.Count - 1];
+		if (!hasDialogue(txt, out Dialogue d))
+		{
+			txt = txt.ReplaceLineEndings("\n");
+			string[] screens = txt.Split('\n');
+			Dialogue dialogue = new Dialogue(Hash.hash(txt));
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			addDialogue(dialogue);
+			return dialogue.screens[dialogue.screens.Count - 1];
+		}
+		return d.screens[d.screens.Count - 1];
 	}
 }
 
@@ -205,7 +242,7 @@ public abstract class NPC : Mob, Interactable
 	const int DEFAULT_DIALOGUE_SPEED = 25;
 
 
-	protected NPCState state = NPCState.None;
+	public NPCState state = NPCState.None;
 	protected Player player;
 	protected NPCSaveData save;
 
@@ -273,17 +310,17 @@ public abstract class NPC : Mob, Interactable
 		tradeSound = Resource.GetSounds("sounds/trade", 12);
 		upgradeSound = Resource.GetSound("sounds/upgrade.ogg");
 
-		save = QuestManager.RegisterProgression(GameState.instance.save, this);
-	}
-
-	public virtual NPCSaveData createSave()
-	{
-		return new NPCSaveData();
+		save = QuestManager.GetProgression(GameState.instance.save, name);
+		if (save != null)
+			save.npcs.Add(this);
 	}
 
 	public override void destroy()
 	{
 		closeScreen();
+
+		if (save != null)
+			save.npcs.Remove(this);
 	}
 
 	public override void onLevelSwitch(Level newLevel)

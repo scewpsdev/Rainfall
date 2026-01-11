@@ -176,11 +176,11 @@ public class MineGenerator : LevelGenerator
 		return mobs;
 	}
 
-	public override NPC createNPC(int type, Level level)
+	public override List<NPC> getNPCList()
 	{
 		List<NPC> npcs = new List<NPC>();
-		npcs.Add(new BuilderMerchant(random, level));
-		npcs.Add(new TravellingMerchant(random, level));
+		npcs.Add(new BuilderMerchant());
+		npcs.Add(new TravellingMerchant());
 		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
@@ -188,6 +188,6 @@ public class MineGenerator : LevelGenerator
 		if (!GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) || GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED))
 			npcs.Add(new RatNPC() /*NPCManager.rat*/);
 
-		return npcs[random.Next() % npcs.Count];
+		return npcs;
 	}
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public class BuilderMerchant : NPC
 {
-	public BuilderMerchant(Random random, Level level)
+	public BuilderMerchant()
 		: base("builder_merchant")
 	{
 		displayName = "John";
@@ -24,12 +24,10 @@ public class BuilderMerchant : NPC
 		save.setInititalDialogue("""
 			Howdy!
 			""");
-
-		populateShop(random, 8, 14, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Food, ItemType.Utility, ItemType.Ammo, ItemType.Scroll, ItemType.Potion);
 	}
 
-	public BuilderMerchant()
-		: this(Random.Shared, GameState.instance.level)
+	public override void init(Level level)
 	{
+		populateShop(GameState.instance.generator.random, 8, 14, level.avgLootValue, ItemType.Weapon, ItemType.Armor, ItemType.Food, ItemType.Utility, ItemType.Ammo, ItemType.Scroll, ItemType.Potion);
 	}
 }

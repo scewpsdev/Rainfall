@@ -26,23 +26,12 @@ public class SikoSave : NPCSaveData
 		{
 			setInititalDialogue("\\d...");
 		}
-
-		if (npc.level == GameState.instance.hub)
-		{
-			addDialogue("The castle looms beyond, doesn't it? I wonder what's left of it...");
-		}
-		else
-		{
-			addOneTimeDialogue("""
-			   After all that's happened, the castle walls still stand tall...
-			   """);
-		}
 	}
 }
 
 public class TravellingMerchant : NPC
 {
-	public TravellingMerchant(Random random, Level level)
+	public TravellingMerchant()
 		: base("travelling_merchant")
 	{
 		displayName = "Siko";
@@ -54,31 +43,35 @@ public class TravellingMerchant : NPC
 
 		voicePitch = 0;
 		canUncurse = true;
-
-		if (level != GameState.instance.hub)
-		{
-			buysItems = true;
-			//canAttune = true;
-			//populateShop(random, 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
-		}
-	}
-
-	public override NPCSaveData createSave()
-	{
-		return new SikoSave();
-	}
-
-	public TravellingMerchant()
-		: this(Random.Shared, GameState.instance.level)
-	{
 	}
 
 	public override void init(Level level)
 	{
 		base.init(level);
 
+		if (level == GameState.instance.hub)
+		{
+			save.addDialogue("The castle looms beyond, doesn't it? I wonder what's left of it...");
+		}
+		else
+		{
+			save.addOneTimeDialogue("""
+			   After all that's happened, the castle walls still stand tall...
+			   """);
+		}
+
+		save.addDialogue("\\1...?");
+
 		if (!level.name.StartsWith("caves"))
+		{
 			populateShop(GameState.instance.generator.random, 7, 12, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, /*ItemType.Spell, */ItemType.Relic);
+
+			float bottleChance = 0.3f;
+			if (GameState.instance.generator.random.NextSingle() < bottleChance)
+			{
+				addShopItem(new GlassBottle());
+			}
+		}
 
 		if (level.areaName != null)
 		{
@@ -89,6 +82,13 @@ public class TravellingMerchant : NPC
 				map.setArea(level);
 				addShopItem(map);
 			}
+		}
+
+		if (level != GameState.instance.hub)
+		{
+			buysItems = true;
+			//canAttune = true;
+			//populateShop(random, 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
 		}
 	}
 }

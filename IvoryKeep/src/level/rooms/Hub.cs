@@ -150,7 +150,7 @@ public class Hub : Entity
 
 		if (QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) && (loganQuest.state == QuestState.InProgress || loganQuest.state == QuestState.Completed))
 		{
-			level.addEntity(new Logan() /*NPCManager.logan*/, level.getMarker(0xd));
+			spawnLogan();
 		}
 
 		level.addEntity(pedestalRoomEntrance = new Door(GameState.instance.hub2, null), level.getMarker(0x2));
@@ -172,11 +172,16 @@ public class Hub : Entity
 			blacksmith.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
 		}
 
-		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && !GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
+		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))
 		{
-			TravellingMerchant gatekeeper = new TravellingMerchant(null, level);
+			TravellingMerchant gatekeeper = new TravellingMerchant();
 			level.addEntity(gatekeeper, level.getEntity<CastleGate>().position + new Vector2(3, 0));
 		}
+	}
+
+	public void spawnLogan()
+	{
+		level.addEntity(new Logan() /*NPCManager.logan*/, level.getMarker(0xd));
 	}
 
 	public override void render()

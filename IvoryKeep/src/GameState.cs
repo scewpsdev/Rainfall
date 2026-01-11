@@ -164,6 +164,8 @@ public class GameState : State
 
 		run = new RunStats(seed, customRun);
 
+		QuestManager.LoadNPCSaves(save);
+
 		//QuestManager.Init(save);
 		//NPCManager.Init();
 
@@ -174,6 +176,8 @@ public class GameState : State
 
 		generateRoguelikeWorld(seed, startingClass, quickRestart);
 		//generateRPGWorld();
+
+		QuestManager.InitNPCSaves(save);
 	}
 
 	void generateRoguelikeWorld(string seed, StartingClass startingClass, bool quickRestart)
@@ -268,8 +272,6 @@ public class GameState : State
 
 			player.actions.queueAction(new UnconciousAction());
 		}
-
-		QuestManager.InitNPCSaves(save);
 	}
 
 	public override void destroy()

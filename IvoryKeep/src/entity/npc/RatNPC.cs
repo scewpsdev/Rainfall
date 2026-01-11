@@ -11,15 +11,15 @@ public class RatNPCSave : NPCSaveData
 {
 	public CheeseQuest cheeseQuest = new CheeseQuest();
 
-	public override void load(DatObject obj)
+	public override void load(SaveFile save, DatObject obj)
 	{
-		base.load(obj);
-		SaveFile.LoadQuest(GameState.instance.save, obj, cheeseQuest, name);
+		base.load(save, obj);
+		SaveFile.LoadQuest(save, obj, cheeseQuest, name);
 	}
 
-	public override void save(DatObject obj)
+	public override void save(SaveFile save, DatObject obj)
 	{
-		base.save(obj);
+		base.save(save, obj);
 		SaveFile.SaveQuest(obj, cheeseQuest, name);
 	}
 
@@ -35,7 +35,7 @@ public class RatNPCSave : NPCSaveData
 			//WondrousCheese wondrousCheese = new WondrousCheese();
 			//npc.addShopItem(wondrousCheese, 0);
 
-			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_RAT_MET);
+			save.setFlag(SaveFile.FLAG_NPC_RAT_MET);
 		});
 
 		if (initialDialogue == null)
@@ -44,7 +44,7 @@ public class RatNPCSave : NPCSaveData
 				""");
 
 
-		if (GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && cheeseQuest.state == QuestState.Uninitialized)
+		if (save.hasFlag(SaveFile.FLAG_NPC_RAT_MET) && cheeseQuest.state == QuestState.Uninitialized)
 		{
 			addDialogue("""
 				There's something fierce about you. \3I'm wondering...
@@ -54,21 +54,21 @@ public class RatNPCSave : NPCSaveData
 				The milk is very important to me. Nowhere else have I ever found such an \cexquisite\0 kind...
 				""").addCallback(() =>
 			{
-				QuestManager.AddActiveQuest(GameState.instance.save, name, cheeseQuest);
+				QuestManager.AddActiveQuest(save, name, cheeseQuest);
 			});
 		}
-		QuestManager.addQuestCompletionCallback(GameState.instance.save, name, cheeseQuest.name, (Quest _) =>
+		QuestManager.addQuestCompletionCallback(save, name, cheeseQuest.name, (Quest _) =>
 		{
 			setInititalDialogue("""
 				You did it! Here is your reward, as promised.
 				""").addCallback(() =>
 			{
-				GameState.instance.level.addEntity(new ItemEntity(new WondrousCheese()), npc.position + Vector2.Up);
-				GameState.instance.save.unlockStartingClass(StartingClass.fool);
-				npc.closeScreen();
+				GameState.instance.level.addEntity(new ItemEntity(new WondrousCheese()), currentNPC.position + Vector2.Up);
+				save.unlockStartingClass(StartingClass.fool);
+				currentNPC.closeScreen();
 
 				cheeseQuest.collect();
-				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED);
+				save.setFlag(SaveFile.FLAG_NPC_RAT_QUESTLINE_COMPLETED);
 			});
 		});
 
@@ -106,11 +106,6 @@ public class RatNPC : NPC
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 2, 1, true);
 		animator.setAnimation("idle");
-	}
-
-	public override NPCSaveData createSave()
-	{
-		return new RatNPCSave();
 	}
 
 	public override void init(Level level)

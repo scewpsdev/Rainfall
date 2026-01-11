@@ -165,15 +165,15 @@ public class DungeonGenerator : LevelGenerator
 	}
 
 
-	public override NPC createNPC(int type, Level level)
+	public override List<NPC> getNPCList()
 	{
 		List<NPC> npcs = new List<NPC>();
-		npcs.Add(new TravellingMerchant(random, level));
+		npcs.Add(new TravellingMerchant());
 		if (!QuestManager.tryGetQuest(GameState.instance.save, "logan", "logan_quest", out Quest loganQuest) || loganQuest.state != QuestState.InProgress)
 			npcs.Add(new Logan() /*NPCManager.logan*/);
 		//npcs.Add(new Tinkerer() /*NPCManager.tinkerer*/);
 
-		return npcs[type % npcs.Count];
+		return npcs;
 	}
 
 	public override void onFloorFinish(Level level)

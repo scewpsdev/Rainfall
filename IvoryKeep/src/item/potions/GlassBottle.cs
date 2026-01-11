@@ -24,11 +24,4 @@ public class GlassBottle : Item
 		sprite = new Sprite(tileset, 3, 5);
 		renderOffset.x = 0;
 	}
-
-	public override bool use(Player player)
-	{
-		base.use(player);
-		player.throwItem(this);
-		return true;
-	}
 }

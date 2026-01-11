@@ -14,25 +14,7 @@ public class BlacksmithSave : NPCSaveData, WorldEventListener
 	{
 		GameState.instance.worldEventListeners.Add(this);
 
-		if (npc.level == GameState.instance.hub)
-		{
-			setOneTimeInititalDialogue("""
-			Another wanderer poking their nose in places it don't belong.
-			If you have no interest in my wares keep walking. You disturb my focus.
-			""")?.addCallback(() =>
-			{
-				save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
-			});
-
-			addOneTimeDialogue("""
-			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
-			""");
-
-			addDialogue("""
-			Hmm?
-			I'm not up for chatting.
-			""");
-		}
+		// todo add npc field to dialogue
 
 		if (initialDialogue == null)
 		{
@@ -106,12 +88,27 @@ public class Blacksmith : NPC, WorldEventListener
 
 	public override void init(Level level)
 	{
-		GameState.instance.worldEventListeners.Add(this);
-	}
+		if (level == GameState.instance.hub)
+		{
+			save.setOneTimeInititalDialogue("""
+			Another wanderer poking their nose in places it don't belong.
+			If you have no interest in my wares keep walking. You disturb my focus.
+			""")?.addCallback(() =>
+			{
+				GameState.instance.save.setFlag(SaveFile.FLAG_NPC_BLACKSMITH_MET);
+			});
 
-	public override NPCSaveData createSave()
-	{
-		return new BlacksmithSave();
+			save.addOneTimeDialogue("""
+			A thousand souls, and yet none strong enough to escape these \bforsaken\0 ruins. What makes you think you'll fare any better?
+			""");
+		}
+
+		save.addDialogue("""
+			Hmm?
+			I'm not up for chatting.
+			""");
+
+		GameState.instance.worldEventListeners.Add(this);
 	}
 
 	public override void update()

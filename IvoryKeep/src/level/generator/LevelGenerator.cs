@@ -81,7 +81,7 @@ public abstract class LevelGenerator
 
 	bool[] objectFlags;
 
-	//List<Type> spawnedNPCs = new List<Type>();
+	List<NPC> npcs;
 
 	Door secretDoor;
 
@@ -135,7 +135,7 @@ public abstract class LevelGenerator
 	public abstract ExplosiveObject createExplosiveObject();
 
 	public abstract List<Mob> createEnemy(Level level);
-	public abstract NPC createNPC(int type, Level level);
+	public abstract List<NPC> getNPCList();
 
 	public virtual void onFloorFinish(Level level)
 	{
@@ -171,6 +171,8 @@ public abstract class LevelGenerator
 
 		foreach (Level level in levels)
 			level.areaName = getAreaName();
+
+		npcs = getNPCList();
 
 		for (int i = 0; i < numFloors; i++)
 		{
@@ -1226,13 +1228,19 @@ public abstract class LevelGenerator
 
 	public void spawnNPC(int x, int y)
 	{
-		NPC npc = createNPC(random.Next(), level);
-		npc.direction = random.Next() % 2 * 2 - 1;
-		level.addEntity(npc, new Vector2(x + 0.5f, y));
-		setObjectFlag(x, y);
+		if (npcs.Count > 0)
+		{
+			int type = random.Next() % npcs.Count;
+			NPC npc = npcs[type];
+			npcs.RemoveAt(type);
 
-		// TODO limit to 1 per type again
-		//spawnedNPCs.Add(npc.GetType());
+			npc.direction = random.Next() % 2 * 2 - 1;
+			level.addEntity(npc, new Vector2(x + 0.5f, y));
+			setObjectFlag(x, y);
+
+			// TODO limit to 1 per type again
+			//spawnedNPCs.Add(npc.GetType());
+		}
 	}
 
 	Room propagateMainRooms(List<Doorway> doorways, RoomDefSet set, bool firstLeafPath, int minRooms)

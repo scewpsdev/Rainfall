@@ -48,11 +48,6 @@ public class Tinkerer : NPC
 		canCraft = true;
 	}
 
-	public override NPCSaveData createSave()
-	{
-		return new TinkererSave();
-	}
-
 	public override void init(Level level)
 	{
 		populateShop(GameState.instance.generator.random, 8, 14, level.avgLootValue * 2, ItemType.Potion, ItemType.Scroll, ItemType.Utility);
