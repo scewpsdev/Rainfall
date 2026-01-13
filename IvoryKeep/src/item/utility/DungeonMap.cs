@@ -31,9 +31,9 @@ public class DungeonMap : Item
 
 	public void setArea(Level level)
 	{
-		area = level.areaName.ToLowerInvariant().Replace(" ", null);
+		area = level.areaName;
 		displayName = area + " Map";
-		name = "map_" + area;
+		name = "map_" + area.ToLowerInvariant().Replace(" ", null);
 		baseValue = 27 + level.floor * 2;
 	}
 

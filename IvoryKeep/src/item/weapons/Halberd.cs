@@ -33,6 +33,7 @@ public class Halberd : Weapon
 		icon = new Sprite(tileset.texture, 7 * 16 + 12, 4 * 16, 16, 16);
 		size = new Vector2(2, 1);
 		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
 	}
 
 	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)

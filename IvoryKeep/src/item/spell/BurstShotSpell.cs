@@ -13,6 +13,8 @@ public class BurstShotSpell : Spell
 	Item staff;
 	float duration;
 
+	int bulletCount = 3;
+
 	long castTime = -1;
 	int castedProjectiles = 0;
 	bool noMana = false;
@@ -25,7 +27,7 @@ public class BurstShotSpell : Spell
 
 		baseValue = 17;
 
-		baseDamage = 0.9f;
+		baseDamage = 0.7f;
 		baseAttackRate = 1;
 		baseAttackRange = 5;
 		manaCost = 0.3f;
@@ -35,6 +37,12 @@ public class BurstShotSpell : Spell
 		canCastWithoutMana = true;
 
 		spellIcon = new Sprite(tileset, 4, 7);
+	}
+
+	public override void upgrade()
+	{
+		base.upgrade();
+		bulletCount++;
 	}
 
 	/*
@@ -66,8 +74,8 @@ public class BurstShotSpell : Spell
 
 	void shoot()
 	{
-		Vector2 position = player.center + new Vector2(player.direction * 0.3f, 0.0f);
-		Vector2 offset = new Vector2(player.direction * 0.3f, 0.0f);
+		Vector2 position = player.center;
+		Vector2 offset = Vector2.Zero;
 
 		Vector2 direction = player.lookDirection.normalized;
 		Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.08f;
@@ -94,7 +102,7 @@ public class BurstShotSpell : Spell
 		if (castTime != -1)
 		{
 			float elapsed = (Time.currentTime - castTime) / 1e9f;
-			int projectilesShouldCast = Math.Min((int)(elapsed / 0.1f * attackRate) + 1, 3);
+			int projectilesShouldCast = Math.Min((int)(elapsed * 3 * bulletCount * attackRate) + 1, bulletCount);
 			if (castedProjectiles < projectilesShouldCast)
 			{
 				shoot();

@@ -36,7 +36,11 @@ public class LightningSpell : Spell
 		//Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.05f;
 		//direction = (direction + inaccuracy / (staff.accuracy * player.accuracyModifier)).normalized;
 
-		GameState.instance.level.addEntity(new LightningProjectile(direction, offset, player, this, staff), position);
+		LightningProjectile projectile = new LightningProjectile(direction, offset, player, this, staff);
+		projectile.maxRange += upgradeLevel;
+		projectile.maxRicochets += upgradeLevel;
+
+		GameState.instance.level.addEntity(projectile, position);
 		GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
 
 		return true;

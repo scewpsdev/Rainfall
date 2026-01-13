@@ -17,6 +17,8 @@ public class Projectile : Entity, Hittable
 	public float maxRange = 1000;
 	protected float dropRange = 0;
 
+	protected uint filterMask = FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT;
+
 	public Entity shooter;
 	protected Item item;
 
@@ -27,6 +29,7 @@ public class Projectile : Entity, Hittable
 	int ricochets = 0;
 	protected Vector2 offset;
 	public float currentDistance = 0;
+	protected float shootTime = -1;
 
 	List<Entity> hitEntities = new List<Entity>();
 
@@ -55,6 +58,8 @@ public class Projectile : Entity, Hittable
 		//trail = new Trail(20, trailColor, position);
 		dropRange *= shooter is Player ? ((Player)shooter).getProjectileRangeModifier() : 1;
 		maxRange *= shooter is Player ? ((Player)shooter).getProjectileRangeModifier() : 1;
+
+		shootTime = Time.gameTime;
 	}
 
 	public virtual void onHit(Vector2 normal)
@@ -99,9 +104,9 @@ public class Projectile : Entity, Hittable
 		//trail.update();
 		//trail.setPosition(position + offset);
 
-		bool hasHit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, out HitData hit, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+		bool hasHit = GameState.instance.level.raycast(position - displacement, displacement.normalized, displacement.length, out HitData hit, filterMask);
 		if (!hasHit)
-			hasHit = GameState.instance.level.sweep(position - displacement, collider, displacement.normalized, displacement.length, out hit, FILTER_MOB | FILTER_PLAYER | FILTER_DEFAULT);
+			hasHit = GameState.instance.level.sweep(position - displacement, collider, displacement.normalized, displacement.length, out hit, filterMask);
 		if (hasHit && (hit.entity == null || hit.entity != shooter && !hitEntities.Contains(hit.entity) && hit.entity is Hittable))
 		{
 			if (hit.entity != null)

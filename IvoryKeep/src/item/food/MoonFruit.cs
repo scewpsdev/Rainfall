@@ -12,10 +12,10 @@ public class MoonFruit : Item
 		: base("moon_fruit", ItemType.Food)
 	{
 		displayName = "Moon Fruit";
-
 		description = "Infused with lunar energy, this fruit permanently deepens mana reserves.";
 
 		baseValue = 40;
+		stackable = false;
 
 		sprite = new Sprite(tileset, 13, 4);
 
@@ -25,7 +25,7 @@ public class MoonFruit : Item
 	public override bool use(Player player)
 	{
 		base.use(player);
-		player.magic += 2;
+		player.magic += 1;
 		player.addStatusEffect(new ManaRechargeEffect(player.maxMana - player.mana, 3.0f));
 		GameState.instance.level.addEntity(ParticleEffects.CreateConsumableUseEffect(player, player.direction, 0xFFa6f1cc), player.position);
 		return true;

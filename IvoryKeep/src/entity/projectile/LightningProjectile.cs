@@ -12,8 +12,8 @@ public class LightningProjectile : Entity
 
 
 	float speed = 200;
-	int maxRicochets = 3;
-	float maxRange = 5;
+	public int maxRicochets = 3;
+	public float maxRange = 5;
 
 	float damage;
 

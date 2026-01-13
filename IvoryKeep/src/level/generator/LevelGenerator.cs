@@ -401,7 +401,7 @@ public abstract class LevelGenerator
 			}
 			else if (startingWeapon.type == ItemType.Staff)
 			{
-				Item startingSpell = new MagicArrowSpell();
+				Item startingSpell = new MagicArrow();
 				items.Add([startingWeapon, startingSpell]);
 			}
 			else

@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Compile Remove="src\item\ItemType.cs" />
+    <Compile Remove="src\item\spell\MagicArrowSpell_.cs" />
     <Compile Remove="src\level\LevelGenerator - Copy.cs" />
   </ItemGroup>
 

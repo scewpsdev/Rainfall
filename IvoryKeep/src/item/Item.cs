@@ -551,8 +551,8 @@ public abstract class Item
 			baseArmor++;
 		else if (type == ItemType.Spell)
 		{
-			manaCost *= 0.8f;
-			baseDamage *= 1.2f;
+			//manaCost *= 0.8f;
+			//baseDamage *= 1.2f;
 		}
 	}
 
@@ -809,7 +809,7 @@ public abstract class Item
 		InitType(new AssassinsDagger());
 		InitType(new RoyalGreatsword());
 		InitType(new Magnet());
-		InitType(new MagicArrowSpell());
+		InitType(new MagicArrow());
 		InitType(new MagicStaff());
 		InitType(new LightningSpell());
 		InitType(new IlluminationSpell());
@@ -895,6 +895,7 @@ public abstract class Item
 		InitType(new Trash());
 		InitType(new DungeonMap());
 		InitType(new Claymore());
+		InitType(new HomingSpell());
 
 		InitType(new MagicArrowSpellBook());
 		InitType(new LightningSpellBook());

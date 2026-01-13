@@ -137,8 +137,8 @@ public class Hub : Entity
 			x += x >= 0 ? 1 : 0;
 			x = level.getMarker(0xA).x + x * 1.5f;
 			Vector2 position = new Vector2(x, 2);
-			//level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), position);
-			level.addEntity(new ArmorStand(startingClass), position);
+			level.addEntity(new ArmorStand(save.isStartingClassUnlocked(startingClass) ? startingClass : null), position);
+			//level.addEntity(new ArmorStand(startingClass), position);
 		}
 
 #if DEBUG

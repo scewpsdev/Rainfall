@@ -35,7 +35,7 @@ public class StartingClass
 		knight = new StartingClass() { name = "Knight", color = 0xFF7582ae, cost = 12, items = [new Shortsword(), new WoodenShield(), new ChainmailHood(), new ChainmailArmor()], hp = 6, magic = 4 };
 		hunter = new StartingClass() { name = "Hunter", color = 0xFF6c8c50, cost = 12, items = [new Shortbow(), /*new Arrow() { stackSize = 50 }, */new HuntersHat(), new EaglesEye()], hp = 6, magic = 2 };
 		thief = new StartingClass() { name = "Thief", color = 0xFF676767, cost = 12, items = [new Dagger(), new DarkHood(), new DarkCloak(), (new GreenPotion() { stackSize = 3 }).makeThrowable(), new ThrowingKnife() { stackSize = 5 }, /*new Parsley(),*/], hp = 5, magic = 4, dexterity = 2 };
-		wizard = new StartingClass() { name = "Wizard", color = 0xFF73549d, cost = 12, items = [/*new MagicArrowStaff(),*/ new MagicStaff(), new MagicArrowSpell(), new WizardHat(), new WizardsCloak()/*, new WizardsLegacy()*/], hp = 5, magic = 5, intelligence = 2 };
+		wizard = new StartingClass() { name = "Wizard", color = 0xFF73549d, cost = 12, items = [/*new MagicArrowStaff(),*/ new MagicStaff(), new MagicArrow(), new WizardHat(), new WizardsCloak()/*, new WizardsLegacy()*/], hp = 5, magic = 5, intelligence = 2 };
 		fool = new StartingClass() { name = "Fool", color = 0xFFc89d3b, cost = 12, items = [new Club(), new GlassRing()], hp = 4, magic = 4 };
 
 		dev = new StartingClass() { name = "Dev", items = [new Revolver(), new Jetpack(), new AmethystRing(), new RingOfSwiftness(), new SapphireRing()], hp = 20, magic = 20 };

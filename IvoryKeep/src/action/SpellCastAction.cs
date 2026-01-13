@@ -93,6 +93,9 @@ public class SpellCastAction : EntityAction
 
 		spell.update(player);
 
+		bool slowdownWindow = elapsedTime / duration < 0.1f;
+		speedMultiplier = player.isGrounded && slowdownWindow && player.attackSlowdown ? 0.25f : 1;
+
 		//speedMultiplier = spell.needsCharging && elapsedTime < 0.5f * duration ? 1.0f : 0.5f;
 	}
 

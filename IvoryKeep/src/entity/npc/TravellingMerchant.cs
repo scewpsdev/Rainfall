@@ -42,7 +42,6 @@ public class TravellingMerchant : NPC
 		animator.setAnimation("idle");
 
 		voicePitch = 0;
-		canUncurse = true;
 	}
 
 	public override void init(Level level)
@@ -51,16 +50,16 @@ public class TravellingMerchant : NPC
 
 		if (level == GameState.instance.hub)
 		{
-			save.addDialogue("The castle looms beyond, doesn't it? I wonder what's left of it...");
+			save.addDialogue("The castle looms beyond, doesn't it? I wonder what's left of it...", this);
 		}
 		else
 		{
 			save.addOneTimeDialogue("""
 			   After all that's happened, the castle walls still stand tall...
-			   """);
+			   """, this);
 		}
 
-		save.addDialogue("\\1...?");
+		save.addDialogue("\\1...?", this);
 
 		if (level != GameState.instance.hub && !GameState.instance.areaCaves.Contains(level))
 		{
@@ -87,6 +86,7 @@ public class TravellingMerchant : NPC
 		if (level != GameState.instance.hub)
 		{
 			buysItems = true;
+			canUncurse = true;
 			//canAttune = true;
 			//populateShop(random, 7, 12, level.avgLootValue * 2, ItemType.Weapon, ItemType.Armor, ItemType.Staff, ItemType.Relic);
 		}

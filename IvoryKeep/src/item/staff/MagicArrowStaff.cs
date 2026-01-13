@@ -22,7 +22,7 @@ public class MagicArrowStaff : Staff
 		renderOffset.x = -0.2f;
 		renderOffset.y = 0.1f;
 
-		spell = new MagicArrowSpell();
+		spell = new MagicArrow();
 		//maxStaffCharges = 30;
 		//staffCharges = 30;
 	}

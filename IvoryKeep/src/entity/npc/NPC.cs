@@ -55,12 +55,14 @@ public class DialogueScreen
 public class Dialogue
 {
 	public uint hash;
+	public NPC npc;
 	public List<DialogueScreen> screens = new List<DialogueScreen>();
 
 
-	public Dialogue(uint hash)
+	public Dialogue(uint hash, NPC npc = null)
 	{
 		this.hash = hash;
+		this.npc = npc;
 	}
 
 	public DialogueScreen addVoiceLine(string txt)
@@ -186,27 +188,6 @@ public class NPCSaveData
 		return dialogue.screens[dialogue.screens.Count - 1];
 	}
 
-	public DialogueScreen addOneTimeDialogue(string txt)
-	{
-		txt = txt.ReplaceLineEndings("\n");
-		string[] screens = txt.Split('\n');
-		uint h = Hash.hash(txt);
-		if (!finishedDialogues.Contains(h))
-		{
-			Dialogue dialogue = new Dialogue(Hash.hash(txt));
-			for (int i = 0; i < screens.Length; i++)
-				dialogue.addVoiceLine(screens[i]);
-			addDialogue(dialogue);
-			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
-			lastScreen.addCallback(() =>
-			{
-				finishedDialogues.Add(h);
-			});
-			return lastScreen;
-		}
-		return null;
-	}
-
 	bool hasDialogue(string str, out Dialogue dialogue)
 	{
 		for (int i = 0; i < dialogues.Count; i++)
@@ -221,19 +202,54 @@ public class NPCSaveData
 		return false;
 	}
 
-	public DialogueScreen addDialogue(string txt)
+	public DialogueScreen addOneTimeDialogue(string txt, NPC npc = null)
 	{
 		if (!hasDialogue(txt, out Dialogue d))
 		{
 			txt = txt.ReplaceLineEndings("\n");
 			string[] screens = txt.Split('\n');
-			Dialogue dialogue = new Dialogue(Hash.hash(txt));
+			uint h = Hash.hash(txt);
+			if (!finishedDialogues.Contains(h))
+			{
+				Dialogue dialogue = new Dialogue(Hash.hash(txt), npc);
+				for (int i = 0; i < screens.Length; i++)
+					dialogue.addVoiceLine(screens[i]);
+				addDialogue(dialogue);
+				DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+				lastScreen.addCallback(() =>
+				{
+					finishedDialogues.Add(h);
+				});
+				return lastScreen;
+			}
+			return null;
+		}
+		return d.screens[d.screens.Count - 1];
+	}
+
+	public DialogueScreen addDialogue(string txt, NPC npc = null)
+	{
+		if (!hasDialogue(txt, out Dialogue d))
+		{
+			txt = txt.ReplaceLineEndings("\n");
+			string[] screens = txt.Split('\n');
+			Dialogue dialogue = new Dialogue(Hash.hash(txt), npc);
 			for (int i = 0; i < screens.Length; i++)
 				dialogue.addVoiceLine(screens[i]);
 			addDialogue(dialogue);
 			return dialogue.screens[dialogue.screens.Count - 1];
 		}
 		return d.screens[d.screens.Count - 1];
+	}
+
+	public Dialogue getNextDialogue(NPC npc)
+	{
+		for (int i = 0; i < dialogues.Count; i++)
+		{
+			if (dialogues[i].npc == null || dialogues[i].npc == npc)
+				return dialogues[i];
+		}
+		return null;
 	}
 }
 
@@ -671,7 +687,7 @@ public abstract class NPC : Mob, Interactable
 				currentCharacter += numChars;
 				lastCharacterTime = Time.currentTime;
 			}
-			if (!dialogueFinished && InputManager.IsPressed("Interact", true))
+			if (!dialogueFinished && InputManager.IsPressed("UIConfirm", true))
 				currentCharacter = 1000;
 
 			if (numChars > 0 && !dialogueFinished && currentCharacter % 2 == 0)
@@ -765,7 +781,7 @@ public abstract class NPC : Mob, Interactable
 				y += lineHeight;
 			}
 
-			if (dialogueFinished && InputManager.IsPressed("Interact", true))
+			if (dialogueFinished && InputManager.IsPressed("UIConfirm", true))
 			{
 				DialogueScreen screen = save.currentDialogue.screens[0];
 				save.currentDialogue.screens.RemoveAt(0);
@@ -835,7 +851,7 @@ public abstract class NPC : Mob, Interactable
 				options.Add("Identify");
 			if (canUncurse && player.items.Count > 0)
 				options.Add("Remove Curse");
-			if (save.dialogues.Count > 0)
+			if (save.getNextDialogue(this) != null)
 				options.Add("Talk");
 			if (QuestManager.getQuestList(GameState.instance.save, name, out _))
 				options.Add("Quests");
@@ -879,7 +895,7 @@ public abstract class NPC : Mob, Interactable
 				}
 				else if (options[option] == "Talk")
 				{
-					initDialogue(save.dialogues[0]);
+					initDialogue(save.getNextDialogue(this));
 				}
 				else if (options[option] == "Quests")
 				{

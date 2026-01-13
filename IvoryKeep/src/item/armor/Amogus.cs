@@ -23,6 +23,6 @@ public class Amogus : Item
 		baseValue = 25;
 
 		sprite = new Sprite(tileset, 2, 5);
-		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/amogus.png", false), 0, 0, 16, 16);
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/armor/amogus.png", false), 0, 0, 32, 32);
 	}
 }

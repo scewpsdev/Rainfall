@@ -305,9 +305,9 @@ public static class ItemInfoPanel
 
 			drawLeft("Mana Cost");
 			if (compareItem != null && item.type == ItemType.Spell)
-				drawComparison(item.manaCost, compareItem.manaCost);
+				drawComparison(item.manaCost * 10, compareItem.manaCost * 10);
 			else
-				drawRight(item.manaCost);
+				drawRight(item.manaCost * 10);
 			y += Renderer.smallFont.size + 1;
 		}
 
