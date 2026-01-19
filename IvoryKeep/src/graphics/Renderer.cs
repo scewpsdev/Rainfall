@@ -312,6 +312,8 @@ public static class Renderer
 			bloomStepCount++;
 		}
 
+		bloomDownsampleChain = new RenderTarget[bloomStepCount];
+		bloomUpsampleChain = new RenderTarget[bloomStepCount - 1];
 		for (int i = 0; i < bloomStepCount; i++)
 		{
 			int exp = (int)Math.Pow(2, i + 1);
