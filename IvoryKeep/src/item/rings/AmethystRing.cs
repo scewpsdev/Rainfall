@@ -24,7 +24,7 @@ public class AmethystRing : Item
 	public override void onEquip(Player player)
 	{
 		if (player.health == player.maxHealth)
-			player.health++;
+			player.health += upgradeLevel + 1;
 		player.hp += upgradeLevel + 1;
 	}
 

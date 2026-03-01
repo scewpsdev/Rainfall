@@ -246,9 +246,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 			GameState.instance.level.addEntity(obj, throwOrigin);
 		}
 		//if (Random.Shared.NextSingle() < coinDropChance)
-		if (dropCoins)
+		const float coinDropChance = 0.5f;
+		if (dropCoins && Random.Shared.NextSingle() < coinDropChance)
 		{
-			int amount = Mathf.RandomInt(1, Math.Max((int)MathF.Round(maxHealth / 2), 1));
+			int amount = Mathf.RandomInt(1, Math.Max((int)MathF.Round(maxHealth), 1));
 			while (amount > 0)
 			{
 				CoinType type = Coin.SubtractCoinFromValue(ref amount);
