@@ -40,6 +40,7 @@ public static class GraphicsManager
 	public static float vignetteFalloff = 0.12f;
 
 	public static bool ssaoEnabled = true;
+	public static int ssaoQuality = 0;
 
 	public static Vector3 fogColor = Vector3.One;
 	public static float fogStrength = 0.0f;
@@ -109,6 +110,7 @@ public static class GraphicsManager
 	{
 		RendererSettings renderSettings = new RendererSettings(0);
 		renderSettings.ssaoEnabled = ssaoEnabled;
+		renderSettings.ssaoQuality = ssaoQuality;
 		renderSettings.bloomEnabled = bloomEnabled;
 		renderSettings.bloomStrength = bloomStrength;
 		renderSettings.bloomFalloff = bloomFalloff;

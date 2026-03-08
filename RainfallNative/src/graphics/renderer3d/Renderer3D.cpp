@@ -2712,7 +2712,7 @@ static void TonemappingPass(uint16_t target)
 		Vector3 color = DecodeRG11B10(luminanceDataBuffer);
 		float luminance = color.x * 0.3f + color.y * 0.59f + color.z * 0.11f;
 		//targetExposure = powf(1.0f / luminance * 0.1f, 1.0f / 4);
-		targetExposure = 0.18f / luminance; // luminance of 0.18 corresponds to middle gray
+		targetExposure = 0.18f / luminance * 2; // luminance of 0.18 corresponds to middle gray
 		nextLuminanceReadbackFrame = UINT32_MAX;
 	}
 
@@ -2867,7 +2867,7 @@ RFAPI int Renderer3D_DrawDebugStats(int x, int y, uint8_t color)
 	sprintf(str, "Shadow: %.2f ms", GetCumulativeGPUTime(RenderPass::Shadow0, (RenderPass)(RenderPass::ReflectionProbe - 1)) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
-	sprintf(str, "Reflections: %.2f ms", GetCumulativeGPUTime(RenderPass::ReflectionProbe, (RenderPass)(RenderPass::AmbientOcclusion - 1)) * 1000);
+	sprintf(str, "Reflections: %.2f ms", GetCumulativeGPUTime(RenderPass::ReflectionProbe, (RenderPass)(RenderPass::DepthBufferMipGen - 1)) * 1000);
 	Graphics_DrawDebugText(x, y++, color, str);
 
 	sprintf(str, "Ambient Occlusion: %.2f ms", GetCumulativeGPUTime(RenderPass::DepthBufferMipGen, (RenderPass)(RenderPass::Deferred - 1)) * 1000);

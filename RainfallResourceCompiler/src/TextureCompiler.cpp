@@ -24,6 +24,7 @@ enum class TextureType
 	CubemapEquirect,
 	CubemapStrip,
 	CubemapHDR,
+	Lightmap,
 	ColorLUT,
 	Other,
 
@@ -41,6 +42,7 @@ static const char* typeFormats[(int)TextureType::Count] = {
 	"RGBA16F",
 	"RGBA16F",
 	"RGBA16F",
+	"BC6H",
 	nullptr,
 	"BGRA8"
 };
@@ -213,7 +215,14 @@ bool CompileTexture(std::string name, std::string extension, const char* path, c
 	}
 	else if (extension == ".hdr")
 	{
-		type = TextureType::CubemapHDR;
+		if (name.find("cubemap") != std::string::npos)
+		{
+			type = TextureType::CubemapHDR;
+		}
+		else if (name.find("lightmap") != std::string::npos)
+		{
+			type = TextureType::Lightmap;
+		}
 	}
 
 	return CompileTexture(path, outpath, type);
