@@ -288,7 +288,7 @@ public unsafe class RainfallEditor : Game
 		string outDir = "res";
 
 		string projectDir = "D:\\Dev\\Rainfall\\RainfallEditor";
-		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + "bin\\x64\\Debug";
+		string resCompilerDir = "D:\\Dev\\Rainfall\\RainfallResourceCompiler\\" + "bin\\x64\\Release";
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;

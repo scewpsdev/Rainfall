@@ -2558,7 +2558,7 @@ static void RenderAOMask()
 
 	Graphics_SetTexture(shader->getUniform("s_texture", bgfx::UniformType::Sampler), 0, ssaoRTTexture[settings.ssaoQuality]);
 
-	Graphics_Draw(RenderPass::Deferred, shader);
+	Graphics_Draw(RenderPass::Forward, shader);
 }
 
 static void ForwardPass()
@@ -2571,7 +2571,8 @@ static void ForwardPass()
 
 	bgfx::setViewMode(RenderPass::Forward, bgfx::ViewMode::Sequential);
 
-	RenderAOMask();
+	if (settings.ssaoEnabled)
+		RenderAOMask();
 
 	RenderSky();
 	RenderForwardMeshes();

@@ -21,6 +21,7 @@ public class EditorInstance
 
 	Model invertedBox;
 	Cubemap environmentMap;
+	DirectionalLight sun;
 
 	public uint selectedEntity = 0;
 
@@ -44,10 +45,15 @@ public class EditorInstance
 		invertedBox = Resource.GetModel("models/inverted_box.gltf");
 		environmentMap = Resource.GetCubemap("textures/cubemap_equirect.png");
 
-		RendererSettings settings = new RendererSettings(0);
+		sun = new DirectionalLight(-Vector3.One.normalized, Vector3.One, Renderer.graphics);
+
+        RendererSettings settings = new RendererSettings(0);
 		settings.showFrame = false;
 		settings.bloomEnabled = false;
 		settings.ssaoEnabled = false;
+		settings.vignetteEnabled = false;
+		settings.eyeAdaptionSpeed = 0;
+		settings.exposure = 1.0f;
 		Renderer.SetSettings(settings);
 
 		undoStack.Push(SceneFormat.SerializeScene(RainfallEditor.ToEntityData(this), selectedEntity));
@@ -221,10 +227,12 @@ public class EditorInstance
 		//Renderer.DrawEnvironmentMap(environmentMap, previewLighting ? 0 : 1);
 		Renderer.DrawEnvironmentMap(environmentMap, 1);
 		//if (previewLighting)
-		Renderer.DrawSky(environmentMap, 0.1f, Quaternion.Identity);
+		//Renderer.DrawSky(environmentMap, 0.1f, Quaternion.Identity);
+
+		Renderer.DrawDirectionalLight(sun);
 
 		int gridSize = 10;
-		uint gridColor = 0xFF1F1F1F;
+		uint gridColor = 0x3F1F1F1F;
 		for (int i = -gridSize; i <= gridSize; i++)
 		{
 			Renderer.DrawDebugLine(new Vector3(-gridSize, 0, i), new Vector3(gridSize, 0, i), gridColor);

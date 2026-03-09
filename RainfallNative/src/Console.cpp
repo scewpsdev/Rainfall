@@ -65,12 +65,14 @@ void Console_Error(const char* format, ...)
 	va_list args;
 	va_start(args, &format);
 	vsprintf(buffer, format, args);
-	fprintf(stderr, "\n");
 	va_end(args);
 
 	fputs(COLOR(RED), stderr);
 
-	errorCallback(buffer);
+	fputs(buffer, stderr);
+	fprintf(stderr, "\n");
+
+	//errorCallback(buffer);
 
 	fputs(COLOR(RESET), stderr);
 }

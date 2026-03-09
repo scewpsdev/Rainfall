@@ -148,14 +148,14 @@ public class Entity
 			for (int i = 0; i < data.colliders.Count; i++)
 			{
 				SceneFormat.ColliderData collider = data.colliders[i];
-				uint color = collider.trigger ? 0xFFFF0000 : 0xFF00FF00;
+				uint color = collider.trigger ? 0x10FF0000 : 0x1000FF00u;
 				Renderer.DrawDebugCollider(collider, transform, color);
 			}
 
 			if (data.model != null)
 			{
 				if (data.model.scene->numAnimations > 0)
-					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, 0xFF7F7FFF, showDebugBoneColliders);
+					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, 0x1F7F7FFF, showDebugBoneColliders);
 			}
 		}
 
