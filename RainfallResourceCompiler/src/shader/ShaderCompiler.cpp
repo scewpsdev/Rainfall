@@ -195,7 +195,7 @@ bool CompileBGFXShader(const char* path, const char* out, const char* type)
 bool CompileSPIRVShader(const char* path, const char* out, const char* type)
 {
 	char cmd[256];
-	sprintf(cmd, "glslc -fshader-stage=%s -O %s -o %s", type, path, out);
+	sprintf(cmd, "glslc -fshader-stage=%s -O0 %s -o %s", type, path, out);
 	for (int i = 0; i < (int)strlen(cmd); i++)
 	{
 		if (cmd[i] == '\\')
