@@ -159,8 +159,36 @@ static bool CompileTexture(const char* path, const char* out, TextureType type)
 		}
 		else
 		{
+			bx::Error err;
+
+			bx::FileReader reader;
+			if (!bx::open(&reader, path, &err))
+				return false;
+
+			uint32_t inputSize = (uint32_t)bx::getSize(&reader);
+			if (0 == inputSize)
+				return false;
+
+			bx::DefaultAllocator allocator;
+
+			uint8_t* inputData = (uint8_t*)bx::alloc(&allocator, inputSize);
+
+			bx::read(&reader, inputData, inputSize, &err);
+			bx::close(&reader);
+
+			if (!err.isOk())
+				return false;
+
+			bimg::ImageContainer* image = bimg::imageParse(&allocator, inputData, inputSize, bimg::TextureFormat::Count, &err);
+
+			const char* formatName = bimg::getName(image->m_format);
+			printf("%s\n", formatName);
+
+			bimg::imageFree(image);
+			bx::free(&allocator, inputData);
+
 			args.push_back("-t");
-			args.push_back("BGRA8");
+			args.push_back(formatName);
 		}
 
 		if (type != TextureType::Other)
