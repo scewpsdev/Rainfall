@@ -140,7 +140,7 @@ static bool IsSound(const std::string& extension)
 	return extension == ".ogg" || extension == ".wav";
 }
 
-static void CompileFile(const fs::path& file, const std::string& outpathStr)
+static void CompileFile(const fs::path& file, const std::string& outpathStr, bool optimize)
 {
 	const char* outpath = outpathStr.c_str();
 
@@ -148,18 +148,18 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr)
 	std::string name = file.stem().string();
 	std::string extension = file.extension().string();
 
-	printf("%s\n", filepathStr.c_str());
+	fprintf(stderr, "%s\n", filepathStr.c_str());
 
 	bool success = false;
 
 	if (IsShader(extension))
 	{
 		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".vs", 3) == 0 || extension == ".vert")
-			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "vertex");
+			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "vertex", optimize);
 		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".fs", 3) == 0 || extension == ".frag")
-			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "fragment");
+			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "fragment", optimize);
 		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".cs", 3) == 0 || extension == ".comp")
-			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "compute");
+			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "compute", optimize);
 
 		if (extension == ".vsh" || name.size() >= 4 && strncmp(&name[name.size() - 4], ".vsh", 4) == 0)
 			success = CompileBGFXShader(filepathStr.c_str(), outpath, "vertex");
@@ -374,6 +374,7 @@ int main(int argc, char* argv[])
 		bool singleFile = false;
 		bool package = false;
 		bool packageCompress = false;
+		bool optimize = false;
 
 		int argIndex = 0;
 		for (int i = 1; i < argc; i++)
@@ -389,6 +390,8 @@ int main(int argc, char* argv[])
 					package = true;
 				else if (strcmp(arg, "--compress") == 0)
 					packageCompress = true;
+				else if (strcmp(arg, "--optimize") == 0)
+					optimize = true;
 			}
 			else
 			{
@@ -447,7 +450,7 @@ int main(int argc, char* argv[])
 		else if (singleFile)
 		{
 			std::string outpath = outputDirectory + ".bin";
-			CompileFile(rootDirectory, outpath.c_str());
+			CompileFile(rootDirectory, outpath.c_str(), optimize);
 		}
 		else
 		{
@@ -475,7 +478,7 @@ int main(int argc, char* argv[])
 			for (size_t i = 0; i < resourcesToCompile.size(); i++)
 			{
 				ResourceTask task = resourcesToCompile[i];
-				resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath);
+				resourceFutures[i] = std::async(std::launch::async, CompileFile, task.path, task.outpath, optimize);
 				//CompileFile(task.path, task.outpath.c_str());
 			}
 

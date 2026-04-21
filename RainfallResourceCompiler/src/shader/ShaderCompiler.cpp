@@ -192,10 +192,14 @@ bool CompileBGFXShader(const char* path, const char* out, const char* type)
 	return bgfx::compileShader(argc, argv) == 0;
 }
 
-bool CompileSPIRVShader(const char* path, const char* out, const char* type)
+bool CompileSPIRVShader(const char* path, const char* out, const char* type, bool optimize)
 {
 	char cmd[256];
-	sprintf(cmd, "glslc -fshader-stage=%s -fpreserve-bindings -g " "-O0 " "%s -o %s", type, path, out);
+	if (optimize)
+		sprintf(cmd, "glslc -fshader-stage=%s -fpreserve-bindings -g -O %s -o %s", type, path, out);
+	else
+		sprintf(cmd, "glslc -fshader-stage=%s -fpreserve-bindings -g -O0 %s -o %s", type, path, out);
+
 	for (int i = 0; i < (int)strlen(cmd); i++)
 	{
 		if (cmd[i] == '\\')
@@ -405,7 +409,7 @@ static void OnCompilerMessage(CGLCompiler* context, MessageType msgType, const c
 
 		fprintf(stderr, "%s\n", message);
 	}
-	}
+}
 
 bool CompileRainfallShader(const char* path, const char* out)
 {
