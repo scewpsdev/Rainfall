@@ -120,9 +120,9 @@ static bool CompileOtherResource(const char* path, const char* out)
 	return false;
 }
 
-static bool IsShader(const std::string& extension)
+static bool IsShader(const std::string& extension, const std::string& name)
 {
-	return extension == ".glsl" || extension == ".vert" || extension == ".frag" || extension == ".comp" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh" || extension == ".shd";
+	return (extension == ".glsl" && (strncmp(&name[name.size() - 3], ".vs", 3) == 0 || strncmp(&name[name.size() - 3], ".fs", 3) == 0 || strncmp(&name[name.size() - 3], ".cs", 3) == 0)) || extension == ".vert" || extension == ".frag" || extension == ".comp" || extension == ".shader" || extension == ".vsh" || extension == ".fsh" || extension == ".csh" || extension == ".shd";
 }
 
 static bool IsTexture(const std::string& extension)
@@ -152,7 +152,7 @@ static void CompileFile(const fs::path& file, const std::string& outpathStr, boo
 
 	bool success = false;
 
-	if (IsShader(extension))
+	if (IsShader(extension, name))
 	{
 		if (extension == ".glsl" && name.size() >= 3 && strncmp(&name[name.size() - 3], ".vs", 3) == 0 || extension == ".vert")
 			success = CompileSPIRVShader(filepathStr.c_str(), outpath, "vertex", optimize);
@@ -230,9 +230,10 @@ static bool FileHasChanged(fs::path file, std::string& outpath, std::string& ext
 	if (assetTable.size() == 0)
 		return true;
 
-	if (IsShader(extension))
+	std::string name = file.stem().string();
+
+	if (IsShader(extension, name))
 	{
-		std::string name = file.stem().string();
 		if (extension.size() >= 2 && (
 			strncmp(&extension[extension.size() - 3], "vsh", 2) == 0 ||
 			strncmp(&extension[extension.size() - 3], "fsh", 2) == 0 ||
@@ -392,6 +393,11 @@ int main(int argc, char* argv[])
 					packageCompress = true;
 				else if (strcmp(arg, "--optimize") == 0)
 					optimize = true;
+				else
+				{
+					fprintf(stderr, "Undefined cmd arg %s\n", arg);
+					return 1;
+				}
 			}
 			else
 			{
@@ -422,7 +428,8 @@ int main(int argc, char* argv[])
 			{
 				fs::path file = resourcesToCompile[i].path;
 				std::string extension = file.extension().string();
-				if (IsShader(extension))
+				std::string name = file.stem().string();
+				if (IsShader(extension, name))
 					shaders.push_back(resourcesToCompile[i]);
 				else if (IsTexture(extension))
 					textures.push_back(resourcesToCompile[i]);
