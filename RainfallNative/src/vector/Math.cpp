@@ -86,15 +86,6 @@ static float RandomGaussian(Random& random)
 	}
 }
 
-Vector3 RandomPointOnSphere(Random& random)
-{
-	float x = RandomGaussian(random);
-	float y = RandomGaussian(random);
-	float z = RandomGaussian(random);
-	Vector3 p = Vector3(x, y, z);
-	return p.normalized();
-}
-
 AABB TransformBoundingBox(const AABB& localBox, const Matrix& transform)
 {
 	Vector3 size = localBox.max - localBox.min;

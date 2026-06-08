@@ -18,6 +18,7 @@ enum class ParticleSpawnShape
 	Point,
 	Circle,
 	Sphere,
+	Box,
 	Line,
 };
 
@@ -59,12 +60,15 @@ struct ParticleSystem
 	ParticleSpawnShape spawnShape = ParticleSpawnShape::Point;
 	Vector3 spawnOffset = Vector3::Zero;
 	float spawnRadius = 1;
-	Vector3 lineSpawnEnd = Vector3::Right;
+	Vector3 spawnPoint0 = Vector3::Zero, spawnPoint1 = Vector3::Zero;
+	Vector3 spawnSize = Vector3::Zero;
 
 	float gravity = 0;
 	float drag = 0;
 	Vector3 startVelocity = Vector3::Zero;
-	float radialVelocity = 0;
+	float randomVelocity = 0;
+	float randomDirection = 0;
+	bool randomDirectionUniform = false;
 	float startRotation = 0;
 	float rotationSpeed = 0;
 	bool applyEntityVelocity = false;
@@ -84,7 +88,6 @@ struct ParticleSystem
 	float emissiveIntensity = 0;
 	float lightInfluence = 1;
 
-	Vector3 randomVelocity = Vector3::Zero;
 	float randomRotation = 0;
 	float randomRotationSpeed = 0;
 	float randomLifetime = 0;
@@ -96,6 +99,10 @@ struct ParticleSystem
 	int numBursts = 0;
 	ParticleBurst* bursts;
 
+	Matrix transform = Matrix::Identity;
+	Vector3 entityVelocity = Vector3::Zero;
+	Quaternion entityRotationVelocity = Quaternion::Identity;
+
 	Random random;
 	Simplex simplex;
 
@@ -105,10 +112,6 @@ struct ParticleSystem
 	int numParticles = 0;
 
 	int64_t systemStarted, lastEmitted;
-
-	Matrix transform = Matrix::Identity;
-	Vector3 entityVelocity = Vector3::Zero;
-	Quaternion entityRotationVelocity = Quaternion::Identity;
 
 	AABB boundingBox;
 	Sphere boundingSphere;

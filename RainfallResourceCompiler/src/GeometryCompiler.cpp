@@ -742,10 +742,14 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 		| aiProcess_PopulateArmatureData
 		| aiProcess_LimitBoneWeights
 		//| aiProcess_RemoveRedundantMaterials
+		| aiProcess_FindInstances
 		;
 
-	//if (optimizeGraph)
-	//	flags |= aiProcess_OptimizeGraph;
+	if (strstr(path, "map"))
+		optimizeGraph = false;
+
+	if (optimizeGraph)
+		flags |= aiProcess_OptimizeGraph;
 
 	Assimp::Importer importer;
 	if (const aiScene* aiscene = importer.ReadFile(path, flags))

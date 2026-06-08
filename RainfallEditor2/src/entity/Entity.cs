@@ -1,0 +1,216 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class Entity
+{
+	static uint idHash = (uint)Time.timestamp;
+
+	static uint GenerateID()
+	{
+		idHash = Hash.hash(idHash);
+		return idHash;
+	}
+
+
+	public SceneFormat.EntityData data;
+
+	public bool showDebugColliders;
+	public bool[] showDebugBoneColliders;
+
+	public ParticleSystem[] particles;
+
+
+	public Entity(string name)
+	{
+		data = new SceneFormat.EntityData(name, GenerateID());
+	}
+
+	public Entity(string name, uint id)
+	{
+		data = new SceneFormat.EntityData(name, id);
+	}
+
+	public unsafe void reload()
+	{
+		if (data.model != null)
+		{
+			Resource.FreeModel(data.model);
+			data.model = null;
+		}
+
+		if (data.modelPath != null)
+		{
+			data.model = Resource.GetModel(RainfallEditor2.CompileAsset(data.modelPath));
+			if (data.model != null)
+				showDebugBoneColliders = new bool[data.model.skeleton.nodes.Length];
+		}
+		else
+		{
+			data.model = null;
+		}
+
+		for (int i = 0; i < data.colliders.Count; i++)
+		{
+			SceneFormat.ColliderData collider = data.colliders[i];
+
+			if (collider.meshCollider != null)
+			{
+				Resource.FreeModel(collider.meshCollider);
+				collider.meshCollider = null;
+			}
+
+			if (collider.meshColliderPath != null)
+				collider.meshCollider = Resource.GetModel(RainfallEditor2.CompileAsset(collider.meshColliderPath));
+			else
+				collider.meshCollider = null;
+
+			data.colliders[i] = collider;
+		}
+
+		if (particles != null)
+		{
+			foreach (ParticleSystem system in particles)
+				ParticleSystem.Destroy(system);
+		}
+		particles = new ParticleSystem[data.particles.Length];
+		for (int i = 0; i < data.particles.Length; i++)
+		{
+			ParticleSystemData particleData = data.particles[i];
+
+			particles[i] = ParticleSystem.Create(getModelMatrix(), 1000);
+			particles[i].setData(particleData);
+
+			byte* textureAtlasPath = particleData.textureAtlasPath;
+			if (textureAtlasPath[0] != 0)
+				particles[i].textureAtlas = Resource.GetTexture(RainfallEditor2.CompileAsset(new string((sbyte*)particleData.textureAtlasPath)));
+		}
+	}
+
+	public void init()
+	{
+	}
+
+	public void destroy()
+	{
+	}
+
+	public unsafe void update()
+	{
+		Matrix transform = getModelMatrix();
+
+		bool restartEffect = true;
+		for (int i = 0; i < particles.Length; i++)
+		{
+			if (!particles[i].hasFinished)
+			{
+				restartEffect = false;
+				break;
+			}
+		}
+
+		if (particles.Length != data.particles.Length)
+			data.particles = ArrayUtils.Resize(data.particles, particles.Length);
+		for (int i = 0; i < particles.Length; i++)
+		{
+			if (restartEffect)
+				particles[i].restartEffect();
+			particles[i].setTransform(transform, particles[i].handle->applyEntityVelocity);
+
+			if (RainfallEditor2.instance.currentTab.simulatedEntityVelocity != 0)
+			{
+				Vector3 fakeVelocity = RainfallEditor2.instance.currentTab.simulatedEntityVelocity * new Vector3(1, 0, 0);
+				particles[i].handle->entityVelocity = fakeVelocity;
+				//Matrix fakeTransform = Matrix.CreateTranslation(fakeVelocity * Time.deltaTime) * transform;
+				//particles[i].setTransform(fakeTransform, particles[i].handle->applyEntityVelocity);
+				//particles[i].setTransform(transform, false);
+
+				for (int j = 0; j < particles[i].maxParticles; j++)
+				{
+					ParticleData* particle = &particles[i].data[j];
+					if (particle->active)
+						particle->position -= fakeVelocity * Time.deltaTime;
+				}
+			}
+
+			data.particles[i] = *particles[i].handle;
+		}
+	}
+
+	public unsafe void draw(GraphicsDevice graphics)
+	{
+		Matrix transform = getModelMatrix();
+
+		if (data.model != null)
+		{
+			Renderer.DrawModel(data.model, transform);
+		}
+
+		for (int i = 0; i < data.lights.Count; i++)
+		{
+			Renderer.DrawLight(transform * data.lights[i].offset, data.lights[i].color * data.lights[i].intensity);
+		}
+
+		if (RainfallEditor2.instance.currentTab.selectedEntity == data.id && showDebugColliders)
+		{
+			// Debug colliders
+			for (int i = 0; i < data.colliders.Count; i++)
+			{
+				SceneFormat.ColliderData collider = data.colliders[i];
+				uint color = collider.trigger ? 0x20FF0000u : 0x2000FF00u;
+				Renderer.DrawDebugCollider(collider, transform, color);
+			}
+
+			if (data.model != null)
+			{
+				if (data.model.scene->numAnimations > 0)
+					Renderer.DrawDebugSkeleton(data.model.skeleton, data.boneColliders, transform, 0x1F7F7FFF, showDebugBoneColliders);
+			}
+		}
+
+		for (int i = 0; i < particles.Length; i++)
+		{
+			Renderer.DrawParticleSystem(particles[i]);
+		}
+	}
+
+	unsafe ParticleSystemData? getParticlesByName(string name)
+	{
+		foreach (ParticleSystemData particle in data.particles)
+		{
+			byte* namePtr = particle.name;
+			if (StringUtils.CompareStrings(name, namePtr))
+				return particle;
+		}
+		return null;
+	}
+
+	public string newParticleName()
+	{
+		int idx = 0;
+		string name = "Particles";
+		while (getParticlesByName(name) != null)
+		{
+			name = "Particles" + ++idx;
+		}
+		return name;
+	}
+
+	public Matrix getModelMatrix(Vector3 offset)
+	{
+		return Matrix.CreateTranslation(data.position + offset) * Matrix.CreateRotation(data.rotation) * Matrix.CreateScale(data.scale);
+	}
+
+	public Matrix getModelMatrix()
+	{
+		return getModelMatrix(Vector3.Zero);
+	}
+}

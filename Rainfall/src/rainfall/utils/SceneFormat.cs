@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -272,15 +273,22 @@ public static class SceneFormat
 			particle.addNumber("emissionRate", particleData.emissionRate);
 			particle.addIdentifier("spawnShape", particleData.spawnShape.ToString());
 			particle.addVector3("spawnOffset", particleData.spawnOffset);
-			if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere || particleData.spawnShape == ParticleSpawnShape.Line)
+			if (particleData.spawnShape == ParticleSpawnShape.Circle || particleData.spawnShape == ParticleSpawnShape.Sphere || particleData.spawnShape == ParticleSpawnShape.Box|| particleData.spawnShape == ParticleSpawnShape.Line)
 				particle.addNumber("spawnRadius", particleData.spawnRadius);
+			if (particleData.spawnShape == ParticleSpawnShape.Box)
+				particle.addVector3("spawnSize", particleData.spawnSize);
 			if (particleData.spawnShape == ParticleSpawnShape.Line)
-				particle.addVector3("lineEnd", particleData.lineSpawnEnd);
+			{
+				particle.addVector3("spawnPoint0", particleData.spawnPoint0);
+				particle.addVector3("spawnPoint1", particleData.spawnPoint1);
+			}
 
 			particle.addNumber("gravity", particleData.gravity);
 			particle.addNumber("drag", particleData.drag);
 			particle.addVector3("startVelocity", particleData.startVelocity);
-			particle.addNumber("radialVelocity", particleData.radialVelocity);
+			particle.addNumber("randomVelocity", particleData.randomVelocity);
+			particle.addNumber("randomDirection", particleData.randomDirection);
+			particle.addBoolean("randomDirectionUniform", particleData.randomDirectionUniform);
 			particle.addNumber("startRotation", particleData.startRotation);
 			particle.addNumber("rotationSpeed", particleData.rotationSpeed);
 			particle.addBoolean("applyEntityVelocity", particleData.applyEntityVelocity);
@@ -301,8 +309,7 @@ public static class SceneFormat
 			particle.addBoolean("additive", particleData.additive);
 			particle.addNumber("emissiveIntensity", particleData.emissiveIntensity);
 
-			particle.addVector3("randomVelocity", particleData.randomVelocity);
-			particle.addNumber("randomRotation", particleData.randomRotation);
+			particle.addBoolean("randomRotation", particleData.randomRotation != 0);
 			particle.addNumber("randomRotationSpeed", particleData.randomRotationSpeed);
 			particle.addNumber("randomLifetime", particleData.randomLifetime);
 			particle.addNumber("velocityNoise", particleData.velocityNoise);
@@ -341,7 +348,7 @@ public static class SceneFormat
 		return obj;
 	}
 
-	public static void SerializeScene(List<EntityData> entities, uint selectedEntity, Stream stream)
+	public static void SerializeScene(List<EntityData> entities, uint selectedEntity, float simulatedVelocity, Stream stream)
 	{
 		DatFile file = new DatFile();
 
@@ -361,14 +368,15 @@ public static class SceneFormat
 		file.addArray("entities", arr);
 
 		file.addString("selectedEntity", selectedEntity.ToString());
+		file.addNumber("simulatedVelocity", simulatedVelocity);
 
 		file.serialize(stream);
 	}
 
-	public static byte[] SerializeScene(List<EntityData> entities, uint selectedEntity)
+	public static byte[] SerializeScene(List<EntityData> entities, uint selectedEntity, float simulatedVelocity)
 	{
 		MemoryStream stream = new MemoryStream();
-		SerializeScene(entities, selectedEntity, stream);
+		SerializeScene(entities, selectedEntity, simulatedVelocity, stream);
 		byte[] data = stream.ToArray();
 		stream.Close();
 		return data;
@@ -464,12 +472,17 @@ public static class SceneFormat
 					particleData.spawnShape = Utils.ParseEnum<ParticleSpawnShape>(spawnShape);
 				particle.getVector3("spawnOffset", out particleData.spawnOffset);
 				particle.getNumber("spawnRadius", out particleData.spawnRadius);
-				particle.getVector3("lineEnd", out particleData.lineSpawnEnd);
+				particle.getVector3("spawnPoint0", out particleData.spawnPoint0);
+				particle.getVector3("spawnPoint1", out particleData.spawnPoint1);
+				particle.getVector3("spawnSize", out particleData.spawnSize);
 
 				particle.getNumber("gravity", out particleData.gravity);
 				particle.getNumber("drag", out particleData.drag);
 				particle.getVector3("startVelocity", out particleData.startVelocity);
-				particle.getNumber("radialVelocity", out particleData.radialVelocity);
+				particle.getNumber("randomVelocity", out particleData.randomVelocity);
+				particle.getNumber("randomDirection", out particleData.randomDirection);
+				if (particle.getBoolean("randomDirectionUniform", out bool randomDirectionUniform))
+					particleData.randomDirectionUniform = randomDirectionUniform;
 				particle.getNumber("startRotation", out particleData.startRotation);
 				particle.getNumber("rotationSpeed", out particleData.rotationSpeed);
 				if (particle.getBoolean("applyEntityVelocity", out bool applyEntityVelocity))
@@ -498,8 +511,8 @@ public static class SceneFormat
 					particleData.additive = additive;
 				particle.getNumber("emissiveIntensity", out particleData.emissiveIntensity);
 
-				particle.getVector3("randomVelocity", out particleData.randomVelocity);
-				particle.getNumber("randomRotation", out particleData.randomRotation);
+				if (particle.getBoolean("randomRotation", out bool randomRotation))
+					particleData.randomRotation = randomRotation ? 1 : 0;
 				particle.getNumber("randomRotationSpeed", out particleData.randomRotationSpeed);
 				particle.getNumber("randomLifetime", out particleData.randomLifetime);
 				particle.getNumber("velocityNoise", out particleData.velocityNoise);
@@ -546,10 +559,11 @@ public static class SceneFormat
 		return entity;
 	}
 
-	public static void DeserializeScene(string src, out List<EntityData> entities, out uint selectedEntity)
+	public static void DeserializeScene(string src, out List<EntityData> entities, out uint selectedEntity, out float simulatedVelocity)
 	{
 		entities = new List<EntityData>();
 		selectedEntity = 0;
+		simulatedVelocity = 0;
 
 		DatFile file = new DatFile(src, null);
 
@@ -571,9 +585,10 @@ public static class SceneFormat
 
 		if (file.getStringContent("selectedEntity", out string selectedEntityIDStr))
 			selectedEntity = uint.Parse(selectedEntityIDStr);
+		file.getNumber("simulatedVelocity", out simulatedVelocity);
 	}
 
-	public static void DeserializeScene(Stream stream, out List<EntityData> entities, out uint selectedEntity)
+	public static void DeserializeScene(Stream stream, out List<EntityData> entities, out uint selectedEntity, out float simulatedVelocity)
 	{
 		entities = new List<EntityData>();
 		selectedEntity = 0;
@@ -609,26 +624,28 @@ public static class SceneFormat
 
 		if (file.getStringContent("selectedEntity", out string selectedEntityIDStr))
 			selectedEntity = uint.Parse(selectedEntityIDStr);
+		file.getNumber("simulatedVelocity", out simulatedVelocity);
 	}
 
-	public static void DeserializeScene(byte[] data, out List<EntityData> entities, out uint selectedEntity)
+	public static void DeserializeScene(byte[] data, out List<EntityData> entities, out uint selectedEntity, out float simulatedVelocity)
 	{
 		MemoryStream stream = new MemoryStream(data);
-		DeserializeScene(stream, out entities, out selectedEntity);
+		DeserializeScene(stream, out entities, out selectedEntity, out simulatedVelocity);
 		stream.Close();
 	}
 
-	public static bool Read(string path, out List<EntityData> entities, out uint selectedEntity)
+	public static bool Read(string path, out List<EntityData> entities, out uint selectedEntity, out float simulatedVelocity)
 	{
 		string src = Resource.GetText(path);
 		if (src != null)
 		{
-			DeserializeScene(src, out entities, out selectedEntity);
+			DeserializeScene(src, out entities, out selectedEntity, out simulatedVelocity);
 			LoadDependencies(entities, path);
 			return true;
 		}
 		entities = null;
 		selectedEntity = 0;
+		simulatedVelocity = 0;
 		return false;
 	}
 

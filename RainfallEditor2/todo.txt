@@ -1,0 +1,27 @@
+[X] viewport
+[X] menubar
+[X] tabs
+[X] node panel
+[X] properties panel
+	[X] model
+	[X] collider
+	[X] lights
+	[X] particles
+[X] gizmos
+[X] undo/redo
+[X] orthographic view
+[X] debug colliders & bounding volumes
+[X] collider rotation
+[X] removing model, colliders, lights
+[X] mesh colliders
+[X] serialize particles
+[X] particle renaming
+[X] particle velocity input
+[X] centrifugal force
+[X] air resistance
+[X] velocity noise
+[X] particle bursts
+[ ] character hitboxes
+[ ] particle effect timeline
+[ ] custom data
+[ ] terrain tools

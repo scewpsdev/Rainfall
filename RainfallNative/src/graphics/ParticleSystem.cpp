@@ -87,15 +87,30 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta)
 	}
 	else if (system->spawnShape == ParticleSpawnShape::Sphere)
 	{
-		float r = system->spawnRadius * powf(system->random.nextFloat(), 0.333333f);
-		float theta = system->random.nextFloat() * 2 * PI;
-		float phi = system->random.nextFloat() * PI;
-		position = Vector3(r * sinf(phi) * cosf(theta), r * sinf(phi) * sinf(theta), r * cosf(phi));
+		position = system->random.randomPointOnSphere() * system->spawnRadius;
+		//float r = system->spawnRadius * powf(system->random.nextFloat(), 0.333333f);
+		//float theta = system->random.nextFloat() * 2 * PI;
+		//float phi = system->random.nextFloat() * PI;
+		//position = Vector3(r * sinf(phi) * cosf(theta), r * sinf(phi) * sinf(theta), r * cosf(phi));
+	}
+	else if (system->spawnShape == ParticleSpawnShape::Box)
+	{
+		float x = (system->random.nextFloat() * 2 - 1) * system->spawnSize.x;
+		float y = (system->random.nextFloat() * 2 - 1) * system->spawnSize.y;
+		float z = (system->random.nextFloat() * 2 - 1) * system->spawnSize.z;
+		position = Vector3(x, y, z);
+		if (system->spawnRadius > 0)
+		{
+			float r = system->spawnRadius * system->random.nextFloat();
+			float theta = system->random.nextFloat() * 2 * PI;
+			float phi = system->random.nextFloat() * PI;
+			position += Vector3(r * sinf(phi) * cosf(theta), r * sinf(phi) * sinf(theta), r * cosf(phi));
+		}
 	}
 	else if (system->spawnShape == ParticleSpawnShape::Line)
 	{
 		float t = system->random.nextFloat();
-		position = mix(Vector3::Zero, system->lineSpawnEnd, t);
+		position = mix(system->spawnPoint0, system->spawnPoint0, t);
 		if (system->spawnRadius > 0)
 		{
 			float r = system->spawnRadius * system->random.nextFloat();
@@ -112,6 +127,12 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta)
 	Vector3 velocity = system->startVelocity;
 	if (!system->follow)
 		velocity = (system->transform * Vector4(velocity, 0)).xyz;
+
+	if (system->randomDirection)
+		velocity = velocity.length() * system->random.randomDirection(velocity.normalized(), system->randomDirection, system->randomDirectionUniform);
+	if (system->randomVelocity)
+		velocity += velocity * system->randomVelocity * system->random.nextFloat(-1, 1);
+
 	if (system->applyEntityVelocity)
 		velocity += system->entityVelocity;
 	if (system->applyCentrifugalForce)
@@ -129,6 +150,8 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta)
 			velocity += centrifugalVelocity;
 		}
 	}
+
+	/*
 	if (system->randomVelocity.lengthSquared() > 0)
 		velocity += system->random.nextVector3(-1, 1).normalized() * system->randomVelocity;
 	if (system->radialVelocity != 0)
@@ -143,6 +166,7 @@ RFAPI void ParticleSystem_EmitParticle(ParticleSystem* system, float delta)
 			velocity += r;
 		}
 	}
+	*/
 
 	float rotationVelocity = 0.0f;
 	if (system->randomRotationSpeed > 0)
@@ -222,7 +246,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 			float particleTimer = (now - particle->birthTime) / 1e9f;
 
 			particle->velocity.y += 0.5f * system->gravity * delta;
-			particle->velocity += system->drag * particle->velocity.lengthSquared() * -particle->velocity.normalized() / 2;
+			particle->velocity += system->drag * particle->velocity.lengthSquared() * -particle->velocity.normalized() * delta;
 			particle->position += particle->velocity * delta;
 			if (system->velocityNoise > 0)
 			{
@@ -291,6 +315,11 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 RFAPI int ParticleSystem_GetNumParticles(ParticleSystem* system)
 {
 	return system->numParticles;
+}
+
+RFAPI int ParticleSystem_GetMaxParticles(ParticleSystem* system)
+{
+	return system->maxParticles;
 }
 
 RFAPI Particle* ParticleSystem_GetParticleData(ParticleSystem* system)

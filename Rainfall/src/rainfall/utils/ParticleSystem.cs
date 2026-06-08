@@ -19,6 +19,7 @@ namespace Rainfall
 		Point,
 		Circle,
 		Sphere,
+		Box,
 		Line,
 	}
 
@@ -103,12 +104,17 @@ namespace Rainfall
 		public ParticleSpawnShape spawnShape;
 		public Vector3 spawnOffset;
 		public float spawnRadius = 1;
-		public Vector3 lineSpawnEnd = Vector3.Right;
+		public Vector3 spawnPoint0 = Vector3.Zero;
+		public Vector3 spawnPoint1 = Vector3.Zero;
+		public Vector3 spawnSize = Vector3.Zero;
 
 		public float gravity;
 		public float drag;
 		public Vector3 startVelocity;
-		public float radialVelocity;
+		public float randomVelocity;
+		public float randomDirection;
+		byte _randomDirectionUniform;
+		public bool randomDirectionUniform { get => _randomDirectionUniform != 0; set { _randomDirectionUniform = (byte)(value ? 1 : 0); } }
 		public float startRotation;
 		public float rotationSpeed;
 		byte _applyEntityVelocity;
@@ -132,7 +138,6 @@ namespace Rainfall
 		public float emissiveIntensity;
 		public float lightInfluence = 1;
 
-		public Vector3 randomVelocity;
 		public float randomRotation;
 		public float randomRotationSpeed;
 		public float randomLifetime;
@@ -143,6 +148,10 @@ namespace Rainfall
 
 		public int numBursts;
 		public ParticleBurst* bursts;
+
+		public Matrix transform;
+		public Vector3 entityVelocity;
+		public Quaternion entityRotationVelocity;
 
 		public ParticleSystemData(int _)
 		{
@@ -240,7 +249,7 @@ namespace Rainfall
 
 		public void load(string path)
 		{
-			if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out uint _))
+			if (SceneFormat.Read(path, out List<SceneFormat.EntityData> entities, out uint _, out float _))
 			{
 				SceneFormat.EntityData entity = entities[0];
 				setData(entity.particles[0]);
@@ -288,6 +297,11 @@ namespace Rainfall
 			get => Native.ParticleSystem.ParticleSystem_GetNumParticles(handle);
 		}
 
+		public int maxParticles
+		{
+			get => Native.ParticleSystem.ParticleSystem_GetMaxParticles(handle);
+		}
+
 		public unsafe ParticleData* data
 		{
 			get => Native.ParticleSystem.ParticleSystem_GetParticleData(handle);
@@ -324,6 +338,9 @@ namespace Rainfall.Native
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern unsafe int ParticleSystem_GetNumParticles(ParticleSystemData* system);
+
+		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern unsafe int ParticleSystem_GetMaxParticles(ParticleSystemData* system);
 
 		[DllImport(Native.DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern unsafe ParticleData* ParticleSystem_GetParticleData(ParticleSystemData* system);
