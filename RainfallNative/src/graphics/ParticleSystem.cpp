@@ -248,11 +248,13 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 			particle->velocity.y += 0.5f * system->gravity * delta;
 			particle->velocity += system->drag * particle->velocity.lengthSquared() * -particle->velocity.normalized() * delta;
 			particle->position += particle->velocity * delta;
+
+			Vector3 velocityNoise = Vector3::Zero;
 			if (system->velocityNoise > 0)
 			{
 				float t = (Application_GetCurrentTime() + hash(i)) / 1e9f;
-				Vector3 velocityNoise = Vector3(system->simplex.sample1f(t), system->simplex.sample1f(t + 100), system->simplex.sample1f(t + 200)).normalized();
-				particle->position += system->velocityNoise * velocityNoise * delta;
+				velocityNoise = system->velocityNoise * Vector3(system->simplex.sample1f(t), system->simplex.sample1f(t + 100), system->simplex.sample1f(t + 200)).normalized();
+				particle->position += velocityNoise * delta;
 			}
 			particle->velocity.y += 0.5f * system->gravity * delta;
 
@@ -264,7 +266,7 @@ RFAPI void ParticleSystem_Update(ParticleSystem* system, Quaternion invCameraRot
 
 			if (system->rotateAlongMovement)
 			{
-				Vector3 screenSpaceVelocity = invCameraRotation * particle->velocity;
+				Vector3 screenSpaceVelocity = invCameraRotation * (particle->velocity + velocityNoise);
 				particle->rotation = atan2f(screenSpaceVelocity.y, screenSpaceVelocity.x);
 				particle->xscale = 1 + system->movementStretch * screenSpaceVelocity.xy.length();
 			}

@@ -357,16 +357,20 @@ public partial class EditorUI
 						if (particles->sizeAnim.count > 0)
 						{
 							float value0 = particles->sizeAnim.value0.value;
-							if (DragFloat(instance, "Size 0", "particle_size_anim0" + i, ref value0, 0.001f, 0, 10))
+							if (DragFloat(instance, "Start Size", "particle_size_anim0" + i, ref value0, 0.001f, 0, 10))
 								particles->sizeAnim.value0 = new Gradient_float_3.Value { value = value0, position = 0 };
 
+							/*
 							float value1 = particles->sizeAnim.value1.value;
 							if (DragFloat(instance, "Size 1", "particle_size_anim1" + i, ref value1, 0.001f, 0, 10))
 								particles->sizeAnim.value1 = new Gradient_float_3.Value { value = value1, position = 0.5f };
+							*/
 
 							float value2 = particles->sizeAnim.value2.value;
-							if (DragFloat(instance, "Size 2", "particle_size_anim2" + i, ref value2, 0.001f, 0, 10))
+							if (DragFloat(instance, "End Size", "particle_size_anim2" + i, ref value2, 0.001f, 0, 10))
 								particles->sizeAnim.value2 = new Gradient_float_3.Value { value = value2, position = 1 };
+
+							particles->sizeAnim.value1.value = Mathf.Lerp(particles->sizeAnim.value0.value, particles->sizeAnim.value2.value, 0.5f);
 
 							particles->sizeAnim.count = 3;
 						}
@@ -419,16 +423,20 @@ public partial class EditorUI
 						if (particles->colorAnim.count > 0)
 						{
 							Vector4 value0 = particles->colorAnim.value0.value;
-							if (ColorEdit4(instance, "Color 0", "particle_color_anim0" + i, ref value0, true))
+							if (ColorEdit4(instance, "Start Color", "particle_color_anim0" + i, ref value0, true))
 								particles->colorAnim.value0 = new Gradient_Vector4_3.Value { value = value0, position = 0 };
 
+							/*
 							Vector4 value1 = particles->colorAnim.value1.value;
 							if (ColorEdit4(instance, "Color 1", "particle_color_anim1" + i, ref value1, true))
 								particles->colorAnim.value1 = new Gradient_Vector4_3.Value { value = value1, position = 0.5f };
+							*/
 
 							Vector4 value2 = particles->colorAnim.value2.value;
-							if (ColorEdit4(instance, "Color 2", "particle_color_anim2" + i, ref value2, true))
+							if (ColorEdit4(instance, "End Color", "particle_color_anim2" + i, ref value2, true))
 								particles->colorAnim.value2 = new Gradient_Vector4_3.Value { value = value2, position = 1.0f };
+
+							particles->colorAnim.value1.value = Vector4.Lerp(particles->colorAnim.value0.value, particles->colorAnim.value2.value, 0.5f);
 
 							particles->colorAnim.count = 3;
 						}
