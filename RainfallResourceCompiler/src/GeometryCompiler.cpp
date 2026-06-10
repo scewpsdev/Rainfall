@@ -747,6 +747,17 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 
 	if (strstr(path, "map"))
 		optimizeGraph = false;
+	if (strstr(path, "collider"))
+	{
+		flags = aiProcess_PreTransformVertices
+			| aiProcess_ValidateDataStructure
+			| aiProcess_Triangulate
+			| aiProcess_JoinIdenticalVertices
+			| aiProcess_SplitLargeMeshes
+			| aiProcess_ImproveCacheLocality
+			| aiProcess_OptimizeMeshes
+			| aiProcess_Debone;
+	}
 
 	if (optimizeGraph)
 		flags |= aiProcess_OptimizeGraph;
