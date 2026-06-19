@@ -729,6 +729,8 @@ static int CountNodes(const aiNode* ainode)
 
 bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 {
+	Assimp::Importer importer;
+
 	unsigned int flags = 0
 		| aiProcess_ValidateDataStructure
 		| aiProcess_Triangulate
@@ -756,13 +758,44 @@ bool CompileGeometry(const char* path, const char* out, bool optimizeGraph)
 			| aiProcess_SplitLargeMeshes
 			| aiProcess_ImproveCacheLocality
 			| aiProcess_OptimizeMeshes
-			| aiProcess_Debone;
+			| aiProcess_RemoveRedundantMaterials
+			| aiProcess_Debone
+			| aiProcess_RemoveComponent;
+
+		importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+			aiComponent_NORMALS |
+			aiComponent_TANGENTS_AND_BITANGENTS |
+			aiComponent_COLORS |
+			aiComponent_TEXCOORDS |
+			aiComponent_BONEWEIGHTS |
+			aiComponent_ANIMATIONS |
+			aiComponent_TEXTURES |
+			aiComponent_LIGHTS |
+			aiComponent_CAMERAS |
+			aiComponent_MATERIALS);
+	}
+	if (strstr(path, "moveset"))
+	{
+		flags = aiProcess_PreTransformVertices
+			| aiProcess_ValidateDataStructure
+			| aiProcess_OptimizeGraph
+			| aiProcess_RemoveComponent;
+
+		importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+			aiComponent_NORMALS |
+			aiComponent_TANGENTS_AND_BITANGENTS |
+			aiComponent_COLORS |
+			aiComponent_TEXCOORDS |
+			aiComponent_BONEWEIGHTS |
+			aiComponent_TEXTURES |
+			aiComponent_LIGHTS |
+			aiComponent_CAMERAS |
+			aiComponent_MATERIALS);
 	}
 
 	if (optimizeGraph)
 		flags |= aiProcess_OptimizeGraph;
 
-	Assimp::Importer importer;
 	if (const aiScene* aiscene = importer.ReadFile(path, flags))
 	{
 		SceneData scene;
