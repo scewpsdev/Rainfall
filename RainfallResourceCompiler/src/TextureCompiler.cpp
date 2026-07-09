@@ -149,7 +149,9 @@ static bool CompileTexture(const char* path, const char* out, TextureType type)
 		//if (type == TextureType::CubemapEquirect || type == TextureType::CubemapStrip)
 		//	;
 		//else
-		args.push_back("--linear");
+		bool isSRGB = type == TextureType::CubemapEquirect || type == TextureType::CubemapStrip;
+		if (!isSRGB)
+			args.push_back("--linear");
 
 		args.push_back("--validate");
 		if (format)
