@@ -71,7 +71,7 @@ public class Entity
 
 	static Entity()
 	{
-		tileset = new SpriteSheet(Resource.GetTexture("sprites/tiles/objects.png", false), 16, 16);
+		tileset = new SpriteSheet(Resource.GetTexture("sprites/tiles/objects.png", false), 8, 8);
 		effectsTileset = new SpriteSheet(Resource.GetTexture("sprites/effects.png", false), 16, 16);
 	}
 

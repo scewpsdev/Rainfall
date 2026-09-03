@@ -19,11 +19,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	const float SPRINT_MULTIPLIER = 1.5f;
 #endif
 	const float DUCKED_MULTIPLIER = 0.6f;
-	public const float MAX_FALL_SPEED = -18;
+	public const float MAX_FALL_SPEED = -18 * 2;
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
-	public const float FALL_STUN_DISTANCE = 8;
-	const float FALL_DAMAGE_DISTANCE = 10;
+	public const float FALL_STUN_DISTANCE = 8 * 2;
+	const float FALL_DAMAGE_DISTANCE = 10 * 2;
 	public const float MANA_KILL_REWARD = 0.4f; //0.5f;
 	const float MANA_HIT_REWARD = 0.1f;
 #if DEBUG
@@ -31,15 +31,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 #else
 	const float SPRINT_MANA_COST = 0.5f;
 #endif
+	public const float COLLIDER_HEIGHT = 0.8f * 2;
+	public const float COLLIDER_HEIGHT_DUCKED = 0.4f * 2;
 
 
-	public const float defaultSpeed = 6;
+	public const float defaultSpeed = 10; //6;
 	public float speed = defaultSpeed;
-	public float climbingSpeed = 5;
-	public float jumpPower = 10; //12; //10.5f;
-	public float gravity = -22;
+	public float climbingSpeed = 5 * 2;
+	public float jumpPower = 17; //10; //12; //10.5f;
+	public float gravity = -22 * 2;
 	public bool canWallJump = true;
-	public float wallJumpPower = 10;
+	public float wallJumpPower = 10 * 2;
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
@@ -179,24 +181,24 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	{
 		actions = new ActionQueue(this);
 
-		collider = new Hitbox(-0.15f, 0, 0.3f, 0.8f);
+		collider = new Hitbox(-0.15f * 2, 0, 0.3f * 2, COLLIDER_HEIGHT);
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/player.png", false), 0, 0, 32, 32);
-		rect = new FloatRect(-1, -0.5f, 2, 2);
+		rect = new FloatRect(-2, -1, 4, 4);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 4, 0.7f, true);
-		animator.addAnimation("look_up", 4, 1, true);
+		animator.addAnimation("idle", 6, 0.7f, true);
+		animator.addAnimation("look_up", 6, 1, true);
 		animator.addAnimation("run", 8, 0.666f, true);
-		animator.addAnimation("jump", 2, 2, true);
-		animator.addAnimation("fall", 3, 0.333f, true);
+		animator.addAnimation("jump", 4, 2, true);
+		animator.addAnimation("fall", 2, 0.333f, true);
 		animator.addAnimation("climb", 2, 0.5f, true);
 		animator.addAnimation("dead", 1, 1, true);
 		animator.addAnimation("dead_falling", 1, 1, true);
 		animator.addAnimation("stun", 1, 1, true);
 		animator.addAnimation("duck", 1, 1, true);
-		animator.addAnimation("sneak", 6, 0.666f, true);
+		animator.addAnimation("sneak", 8, 0.666f, true);
 		animator.addAnimation("backhop", 16, 3, 0.2f, false);
 
 		animator.addAnimationEvent("run", 3, onStep);
@@ -1340,8 +1342,18 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 				isSprinting = inputSprint && (isSprinting ? mana > 0 : mana > 0.2f); // && delta.lengthSquared > 0;
 			}
 
-			isDucked = inputDown && numOverlaysOpen == 0;
-			collider.size.y = isDucked ? 0.4f : 0.8f;
+			if (!isDucked && inputDown && numOverlaysOpen == 0)
+			{
+				isDucked = true;
+			}
+			else if (isDucked && (!inputDown || numOverlaysOpen != 0))
+			{
+				bool headBlocked = level.overlapSolid(position + collider.min + new Vector2(0, COLLIDER_HEIGHT_DUCKED), position + new Vector2(collider.max.x, COLLIDER_HEIGHT));
+				if (!headBlocked)
+					isDucked = false;
+			}
+
+			collider.size.y = isDucked ? COLLIDER_HEIGHT_DUCKED : COLLIDER_HEIGHT;
 			if (!isDucked)
 			{
 				if (Mathf.Fract(position.y) > 1 - collider.max.y)
@@ -1511,12 +1523,12 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 					*/
 
 					Vector2i playerScreenPos = Display.viewportSize / 2; // new Vector2i(Renderer.UIWidth, Renderer.UIHeight) / 2; // GameState.instance.camera.worldToScreen(position + collider.center);
-					if ((Input.cursorPosition - playerScreenPos).length > maxCursorDistance * 16 * IvoryKeep.instance.scale)
+					if ((Input.cursorPosition - playerScreenPos).length > maxCursorDistance * PlayerCamera.TILE_PIXELS * IvoryKeep.instance.scale)
 					//if (MathF.Abs(Input.cursorPosition.x - playerScreenPos.x) > maxCursorDistance * 16 * IvoryKeep.instance.scale ||
 					//	MathF.Abs(Input.cursorPosition.y - playerScreenPos.y) > maxCursorDistance * 16 * IvoryKeep.instance.scale)
 					{
 						Vector2 dir = (Vector2)(Input.cursorPosition - playerScreenPos);
-						dir = dir.normalized * maxCursorDistance * 16 * IvoryKeep.instance.scale;
+						dir = dir.normalized * maxCursorDistance * PlayerCamera.TILE_PIXELS * IvoryKeep.instance.scale;
 						dir += playerScreenPos;
 
 						int x = (int)dir.x; //Math.Clamp(Input.cursorPosition.x, (int)MathF.Round(playerScreenPos.x - maxCursorDistance * 16 * IvoryKeep.instance.scale), (int)MathF.Round(playerScreenPos.x + maxCursorDistance * 16 * IvoryKeep.instance.scale));
@@ -2020,7 +2032,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 							}
 							else
 							{
-								if (isLookingUp)
+								bool lookingAtNPC = interactableInFocus != null && interactableInFocus is NPC && ((NPC)interactableInFocus).rect.size.y > 2.5f && Math.Sign(((NPC)interactableInFocus).position.x - position.x) == direction;
+								if (isLookingUp || lookingAtNPC)
 								{
 									animator.startTime = startTime;
 									animator.setAnimation("look_up");
@@ -2192,7 +2205,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 			animOffset.y = -2;
 		if (isDucked && !isClimbing && isGrounded)
 			animOffset.y = -2;
-		return new Vector2((!mainHand ? 3 / 16.0f : -2 / 16.0f) + animOffset.x / 16.0f, (!mainHand ? 5 / 16.0f : 4 / 16.0f) + animOffset.y / 16.0f);
+		return new Vector2((!mainHand ? 3 / PlayerCamera.TILE_PIXELSF : -2 / PlayerCamera.TILE_PIXELSF) + animOffset.x / PlayerCamera.TILE_PIXELSF, (!mainHand ? 5 / PlayerCamera.TILE_PIXELSF : 4 / PlayerCamera.TILE_PIXELSF) + animOffset.y / PlayerCamera.TILE_PIXELSF);
 	}
 
 	public Vector2 getBackItemOrigin()
@@ -2213,7 +2226,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		if (isDucked && !isClimbing && isGrounded)
 			animOffset.y = -3;
 
-		return (new Vector2(-3, 8) + animOffset) / 16.0f;
+		return (new Vector2(-3, 8) + animOffset) / PlayerCamera.TILE_PIXELSF;
 	}
 
 	bool renderArms
@@ -2240,14 +2253,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 
 		if (actions.currentAction != null && actions.currentAction.mainHand == mainHand)
 		{
-			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 2.0f / 16, layer, 2.0f / 16, 2.0f / 16, handRotation, null, false, handColor);
+			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / PlayerCamera.TILE_PIXELS, position.y + handPosition.y - 2.0f / PlayerCamera.TILE_PIXELS, layer, 2.0f / PlayerCamera.TILE_PIXELS, 2.0f / PlayerCamera.TILE_PIXELS, handRotation, null, false, handColor);
 		}
 		else
 		{
-			handPosition.x -= 1 / 16.0f;
+			handPosition.x -= 1.0f / PlayerCamera.TILE_PIXELS;
 			if (flip)
 				handPosition.x *= -1;
-			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / 16, position.y + handPosition.y - 2.0f / 16, layer, 2.0f / 16, 2.0f / 16, 0, null, false, handColor);
+			Renderer.DrawSprite(position.x + handPosition.x - 1.0f / PlayerCamera.TILE_PIXELS, position.y + handPosition.y - 2.0f / PlayerCamera.TILE_PIXELS, layer, 2.0f / PlayerCamera.TILE_PIXELS, 2.0f / PlayerCamera.TILE_PIXELS, 0, null, false, handColor);
 		}
 	}
 
@@ -2314,14 +2327,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 
 					if (particles != null)
 					{
-						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
+						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
 						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
 						particles.layer = layer - 0.01f;
 					}
 				}
 				else if (!isClimbing && item != DefaultWeapon.instance)
 				{
-					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
+					Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS + getWeaponOrigin(mainHand).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(mainHand).y);
 					Renderer.DrawOutline(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer + 0.001f, item.size.x, item.size.y, 0, item.sprite, direction == -1, 0x7F000000);
 					Renderer.DrawSprite(weaponPosition.x - 0.5f * item.size.x, weaponPosition.y - 0.5f * item.size.y, layer, item.size.x, item.size.y, 0, item.sprite, direction == -1, color);
 
@@ -2360,7 +2373,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 
 					if (particles != null)
 					{
-						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * 16) / 16 + getWeaponOrigin(true).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(true).y);
+						Vector2 weaponPosition = new Vector2(position.x + (MathF.Round(item.renderOffset.x * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS + getWeaponOrigin(true).x) * direction, position.y + item.renderOffset.y + getWeaponOrigin(true).y);
 						particles.position = weaponPosition + item.particlesOffset * new Vector2i(direction, 1);
 						particles.layer = layer - 0.01f;
 					}
@@ -2391,8 +2404,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		if (isVisible)
 		{
 			Vector2 snappedPosition = position;
-			snappedPosition.x = MathF.Round(snappedPosition.x * 16) / 16;
-			snappedPosition.y = MathF.Round(snappedPosition.y * 16) / 16;
+			snappedPosition.x = MathF.Round(snappedPosition.x * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
+			snappedPosition.y = MathF.Round(snappedPosition.y * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
 
 			if (show)
 			{
@@ -2400,6 +2413,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, /*(isDucked && !isClimbing && isGrounded ? 0.5f : 1) **/ rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
 			}
 
+			/*
 			if (handItem != null)
 				handItem.render(this);
 			if (offhandItem != null)
@@ -2408,8 +2422,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 			{
 				if (passiveItems[i].ingameSprite != null && show && passiveItems[i].armorSlot != ArmorSlot.Gloves)
 				{
-					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
-					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 				passiveItems[i].render(this);
 			}
@@ -2418,6 +2432,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 				if (activeItems[i] != null)
 					activeItems[i].render(this);
 			}
+			*/
 
 			if (show && carriedObject == null)
 			{
@@ -2454,7 +2469,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 
 		if (carriedObject != null)
 		{
-			carriedObject.position = position + new Vector2(0, collider.max.y + 1 / 16.0f);
+			carriedObject.position = position + new Vector2(0, collider.max.y + 1 / PlayerCamera.TILE_PIXELS);
 			carriedObject.rotation = 0;
 			carriedObject.render();
 		}

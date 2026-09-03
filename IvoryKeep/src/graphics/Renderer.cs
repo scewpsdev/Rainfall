@@ -469,10 +469,10 @@ public static class Renderer
 
 	public static void DrawOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)
 	{
-		DrawSpriteSolid(x - 1.0f / 16.0f, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
-		DrawSpriteSolid(x + 1.0f / 16.0f, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
-		DrawSpriteSolid(x, y - 1.0f / 16.0f, z + 0.00001f, width, height, rotation, sprite, flipped, color);
-		DrawSpriteSolid(x, y + 1.0f / 16.0f, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x - 1.0f / PlayerCamera.TILE_PIXELS, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x + 1.0f / PlayerCamera.TILE_PIXELS, y, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x, y - 1.0f / PlayerCamera.TILE_PIXELS, z + 0.00001f, width, height, rotation, sprite, flipped, color);
+		DrawSpriteSolid(x, y + 1.0f / PlayerCamera.TILE_PIXELS, z + 0.00001f, width, height, rotation, sprite, flipped, color);
 	}
 
 	public static void DrawOutline(float x, float y, float width, float height, Sprite sprite, bool flipped = false, uint color = 0xFFFFFFFF)
@@ -482,10 +482,10 @@ public static class Renderer
 
 	public static void DrawOutline(float width, float height, Matrix transform, Sprite sprite, bool flipped, uint color)
 	{
-		DrawSpriteSolid(width, height, Matrix.CreateTranslation(-1.0f / 16, 0, 0.00001f) * transform, sprite, flipped, color);
-		DrawSpriteSolid(width, height, Matrix.CreateTranslation(1.0f / 16, 0, 0.00001f) * transform, sprite, flipped, color);
-		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, -1.0f / 16, 0.00001f) * transform, sprite, flipped, color);
-		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, 1.0f / 16, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(-1.0f / PlayerCamera.TILE_PIXELS, 0, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(1.0f / PlayerCamera.TILE_PIXELS, 0, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, -1.0f / PlayerCamera.TILE_PIXELS, 0.00001f) * transform, sprite, flipped, color);
+		DrawSpriteSolid(width, height, Matrix.CreateTranslation(0, 1.0f / PlayerCamera.TILE_PIXELS, 0.00001f) * transform, sprite, flipped, color);
 	}
 
 	public static void DrawSpriteEx(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Sprite sprite, bool flipped, Vector4 color, bool additive = false, bool solid = false)
@@ -629,10 +629,10 @@ public static class Renderer
 
 	public static void DrawVerticalOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, bool flipped, uint color)
 	{
-		DrawVerticalSpriteSolid(x - 1.0f / 16.0f, y + 0.001f, z, width, height, rotation, sprite, flipped, color);
-		DrawVerticalSpriteSolid(x + 1.0f / 16.0f, y + 0.001f, z, width, height, rotation, sprite, flipped, color);
-		DrawVerticalSpriteSolid(x, y + 0.001f, z - 1.0f / 16.0f, width, height, rotation, sprite, flipped, color);
-		DrawVerticalSpriteSolid(x, y + 0.001f, z + 1.0f / 16.0f, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x - 1.0f / PlayerCamera.TILE_PIXELS, y + 0.001f, z, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x + 1.0f / PlayerCamera.TILE_PIXELS, y + 0.001f, z, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x, y + 0.001f, z - 1.0f / PlayerCamera.TILE_PIXELS, width, height, rotation, sprite, flipped, color);
+		DrawVerticalSpriteSolid(x, y + 0.001f, z + 1.0f / PlayerCamera.TILE_PIXELS, width, height, rotation, sprite, flipped, color);
 	}
 
 	public static void DrawLine(Vector3 vertex0, Vector3 vertex1, Vector4 color)
@@ -681,7 +681,7 @@ public static class Renderer
 
 	public static void DrawParallaxOutline(float x, float y, float z, float width, float height, float rotation, Sprite sprite, Vector4 color)
 	{
-		float pixelSize = (10 - z) * 0.1f / 16;
+		float pixelSize = (10 - z) * 0.1f / PlayerCamera.TILE_PIXELS;
 
 		DrawParallaxSolid(x - pixelSize, y, z, width, height, rotation, sprite, color);
 		DrawParallaxSolid(x + pixelSize, y, z, width, height, rotation, sprite, color);
@@ -997,19 +997,19 @@ public static class Renderer
 		Matrix ortho = Matrix.CreateOrthographic(width, height, 1, -1);
 		Matrix transform = Matrix.CreateTranslation(new Vector3(position, 0));
 
-		float pixelx = transform.m30 * 16;
+		float pixelx = transform.m30 * PlayerCamera.TILE_PIXELS;
 		float snappedx = MathF.Floor(pixelx);
 		float cameraFractX = pixelx - snappedx;
-		transform.m30 = snappedx / 16.0f;
+		transform.m30 = snappedx / PlayerCamera.TILE_PIXELS;
 
-		float pixely = transform.m31 * 16;
+		float pixely = transform.m31 * PlayerCamera.TILE_PIXELS;
 		float snappedy = MathF.Floor(pixely);
 		float cameraFractY = pixely - snappedy;
-		transform.m31 = snappedy / 16.0f;
+		transform.m31 = snappedy / PlayerCamera.TILE_PIXELS;
 
 		// offset by a quarter pixel so that sprites rendered exactly at integer coordinates dont glitch out
-		transform.m30 -= 0.25f / 16;
-		transform.m31 -= 0.25f / 16;
+		transform.m30 -= 0.25f / PlayerCamera.TILE_PIXELS;
+		transform.m31 -= 0.25f / PlayerCamera.TILE_PIXELS;
 
 		Matrix orthoView = transform.inverted;
 
@@ -1057,8 +1057,8 @@ public static class Renderer
 			if (draw.useTransform)
 			{
 				// pixel perfect correction
-				draw.transform.m30 = MathF.Round(draw.transform.m30 * 16) / 16;
-				draw.transform.m31 = MathF.Round(draw.transform.m31 * 16) / 16;
+				draw.transform.m30 = MathF.Round(draw.transform.m30 * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
+				draw.transform.m31 = MathF.Round(draw.transform.m31 * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
 
 				spriteBatch.draw(
 					draw.size.x, draw.size.y, 0.0f - i * 0.0000001f,
@@ -1070,8 +1070,8 @@ public static class Renderer
 			else
 			{
 				// pixel perfect correction
-				draw.position.x = MathF.Round(draw.position.x * 16) / 16;
-				draw.position.y = MathF.Round(draw.position.y * 16) / 16;
+				draw.position.x = MathF.Round(draw.position.x * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
+				draw.position.y = MathF.Round(draw.position.y * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
 
 				spriteBatch.draw(
 					draw.position.x, draw.position.y, draw.position.z - i * 0.0000001f,
@@ -1118,8 +1118,8 @@ public static class Renderer
 			if (draw.useTransform)
 			{
 				// pixel perfect correction
-				draw.transform.m30 = MathF.Round(draw.transform.m30 * 16) / 16;
-				draw.transform.m31 = MathF.Round(draw.transform.m31 * 16) / 16;
+				draw.transform.m30 = MathF.Round(draw.transform.m30 * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
+				draw.transform.m31 = MathF.Round(draw.transform.m31 * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
 
 				additiveBatch.draw(
 					draw.size.x, draw.size.y, 0.0f - i / (float)additiveDraws.Count * 0.0001f,
@@ -1131,8 +1131,8 @@ public static class Renderer
 			else
 			{
 				// pixel perfect correction
-				draw.position.x = MathF.Round(draw.position.x * 16) / 16;
-				draw.position.y = MathF.Round(draw.position.y * 16) / 16;
+				draw.position.x = MathF.Round(draw.position.x * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
+				draw.position.y = MathF.Round(draw.position.y * PlayerCamera.TILE_PIXELS) / PlayerCamera.TILE_PIXELS;
 
 				additiveBatch.draw(
 					draw.position.x, draw.position.y, draw.position.z - i / (float)additiveDraws.Count * 0.0001f,
@@ -1254,7 +1254,7 @@ public static class Renderer
 
 			if (draw.useTransform)
 			{
-				float pixelSize = (perspectiveDistance - draw.position.z) / perspectiveDistance / 16;
+				float pixelSize = (perspectiveDistance - draw.position.z) / perspectiveDistance / PlayerCamera.TILE_PIXELS;
 				draw.transform.m30 = MathF.Round(draw.transform.m30 / pixelSize) * pixelSize;
 				draw.transform.m31 = MathF.Round(draw.transform.m31 / pixelSize) * pixelSize;
 
@@ -1268,7 +1268,7 @@ public static class Renderer
 			else
 			{
 				// pixel perfect correction
-				float pixelSize = (perspectiveDistance - draw.position.z) / perspectiveDistance / 16;
+				float pixelSize = (perspectiveDistance - draw.position.z) / perspectiveDistance / PlayerCamera.TILE_PIXELS;
 				draw.position.x = MathF.Round(draw.position.x / pixelSize) * pixelSize;
 				draw.position.y = MathF.Round(draw.position.y / pixelSize) * pixelSize;
 

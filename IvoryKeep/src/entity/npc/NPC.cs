@@ -442,7 +442,7 @@ public abstract class NPC : Mob, Interactable
 
 	public float getRange()
 	{
-		return 2;
+		return 4;
 	}
 
 	public void interact(Player player)

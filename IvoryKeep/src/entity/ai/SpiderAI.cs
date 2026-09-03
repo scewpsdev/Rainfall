@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class SpiderAI : AdvancedAI
 {
 	float jumpChargeTime = 2.0f;
-	float jumpSpeed = 4;
+	float jumpSpeed = 4 * 2;
 	float chargeSpeed = 0;
 
 

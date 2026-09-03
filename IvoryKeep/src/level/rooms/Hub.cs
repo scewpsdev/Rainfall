@@ -12,9 +12,9 @@ public class DungeonGate : Door
 		: base(destination, otherDoor, false, layer)
 	{
 		sprite = new Sprite(tileset, 6, 9, 3, 2);
-		rect = new FloatRect(-1.5f, 0.0f, 3.0f, 2.0f);
+		rect = new FloatRect(-1.5f, 0.0f, 3, 2);
 
-		collider = new Hitbox(-1.5f, -2, 3, 2);
+		collider = new Hitbox(-4, -4, 8, 4);
 	}
 
 	public DungeonGate()
@@ -34,18 +34,18 @@ public class DungeonGate : Door
 		{
 			// vertical
 			{
-				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
 				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF6e6e6e);
 			}
 			// horizontal
 			{
-				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
-				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
+				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
+				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
 				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF767676);
 			}
 		}
@@ -200,18 +200,18 @@ public class Hub : Entity
 		{
 			// vertical
 			{
-				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + i / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
 				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF6e6e6e);
 			}
 			// horizontal
 			{
-				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
-				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
-				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / 16 - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
+				Vector3 vertex0 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex1 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), i / (float)numSteps * z));
+				Vector3 vertex2 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
+				Vector3 vertex3 = ParallaxObject.ParallaxEffect(new Vector3(dungeonEntrancePosition + new Vector2(-width, 0.5f / PlayerCamera.TILE_PIXELS - 2 + (i + 1) / (float)numSteps * 2), (i + 1) / (float)numSteps * z));
 				Renderer.DrawSpriteEx(vertex0, vertex1, vertex2, vertex3, null, 0, 0, 0, 0, 0xFF767676);
 			}
 		}

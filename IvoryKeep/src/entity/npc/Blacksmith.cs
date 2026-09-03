@@ -70,7 +70,7 @@ public class Blacksmith : NPC, WorldEventListener
 		smithSound = Resource.GetSounds("sounds/smith", 3);
 
 		sprite = new Sprite(Resource.GetTexture("sprites/merchant5.png", false), 0, 0, 64, 32);
-		rect = new FloatRect(-2, 0, 4, 2);
+		rect = new FloatRect(-4, 0, 8, 4);
 		animator = new SpriteAnimator();
 		animator.addAnimation("idle", 2, 1, true);
 		animator.addAnimation("smith", 11, 1, true);

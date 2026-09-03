@@ -38,10 +38,10 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	const float BLEED_RECOVER_RATE = 0.5f;
 
 
-	public float speed = 4;
-	public float climbingSpeed = 4;
-	public float jumpPower = 11;
-	public float gravity = -30;
+	public float speed = 4 * 2;
+	public float climbingSpeed = 4 * 2;
+	public float jumpPower = 11 * 2;
+	public float gravity = -30 * 2;
 
 	public float itemDropChance = 0.1f;
 	public float itemDropValueMultiplier = 1;
@@ -71,7 +71,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public Sprite sprite;
 	public Vector4 spriteColor = Vector4.One;
 	public SpriteAnimator animator;
-	public FloatRect rect = new FloatRect(-0.5f, 0.0f, 1, 1);
+	public FloatRect rect = new FloatRect(-1, 0, 2, 2);
 	protected uint outline = 0;
 
 	public AI ai;

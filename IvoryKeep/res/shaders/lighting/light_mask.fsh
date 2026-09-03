@@ -38,6 +38,9 @@ void main()
 		result += texture2D(s_lightMask, v_texcoord0 + texelSize * StratifiedPoisson(i) * 0.5).r;
 	}
 	result /= 16.0;
-	
-	gl_FragColor = vec4(0, 0, 0, 1 - result);
+
+	result = pow(result, 2.2);
+	result = 1 - result;
+
+	gl_FragColor = vec4(0, 0, 0, result);
 }

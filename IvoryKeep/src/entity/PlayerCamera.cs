@@ -11,6 +11,8 @@ struct ScreenShakeData
 
 public class PlayerCamera : Entity
 {
+	public const int TILE_PIXELS = 8;
+	public const float TILE_PIXELSF = (float)TILE_PIXELS;
 	const float LOOK_DOWN_DELAY = 0.5f;
 
 
@@ -55,8 +57,8 @@ public class PlayerCamera : Entity
 
 	public override void update()
 	{
-		width = IvoryKeep.instance.width / 16.0f; // Display.width / (float)scale / 16.0f;
-		height = IvoryKeep.instance.height / 16.0f; // Display.height / (float)scale / 16.0f;
+		width = IvoryKeep.instance.width / TILE_PIXELSF; // Display.width / (float)scale / 16.0f;
+		height = IvoryKeep.instance.height / TILE_PIXELSF; // Display.height / (float)scale / 16.0f;
 
 		//height = 1080 / 4.0f / 16.0f;
 

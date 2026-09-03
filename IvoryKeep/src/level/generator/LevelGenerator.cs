@@ -1219,7 +1219,7 @@ public abstract class LevelGenerator
 			}
 
 			Debug.Assert(placed);
-			if (placed)
+			//if (placed)
 			{
 				items.RemoveAt(0);
 			}

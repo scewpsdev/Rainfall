@@ -25,6 +25,6 @@ public class Rat : Mob
 
 		health = 2;
 		poise = 0;
-		speed = 2;
+		speed = 2 * 2;
 	}
 }

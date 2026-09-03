@@ -18,10 +18,10 @@ public class GreenSpider : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new Hitbox(-0.4f, 0, 0.8f, 0.5f);
+		collider = new Hitbox(-0.4f * 2, 0, 0.8f * 2, 0.45f * 2);
 
-		speed = 6;
-		jumpPower = 9;
+		speed = 6 * 2;
+		jumpPower = 9 * 2;
 
 		health = 6;
 		poisonResistant = true;
@@ -32,8 +32,8 @@ public class GreenSpider : Mob
 
 		ai = new SpiderAI(this, 0.5f)
 		{
-			aggroRange = 12,
-			loseRange = 15,
+			aggroRange = 12 * 2,
+			loseRange = 15 * 2,
 		};
 	}
 }

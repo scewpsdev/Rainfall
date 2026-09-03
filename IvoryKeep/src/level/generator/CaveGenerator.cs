@@ -94,15 +94,15 @@ public class CaveGenerator : LevelGenerator
 
 	public override void getLevelSize(int floor, out int width, out int height)
 	{
-		width = 40;
-		height = 40;
+		width = 80;
+		height = 80;
 
 		float wideLevelChance = 0.2f;
 		if (random.NextSingle() < wideLevelChance)
-			width = 60;
+			width = 120;
 		float highLevelChance = 0.2f;
 		if (random.NextSingle() < highLevelChance)
-			height = 60;
+			height = 120;
 	}
 
 	public override int getAmbientLight()

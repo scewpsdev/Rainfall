@@ -326,7 +326,7 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => (anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.2f;
+		get => ((anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.2f) * 2;
 	}
 
 	public float getCurrentAngle(float progress)

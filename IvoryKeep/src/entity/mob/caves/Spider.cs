@@ -18,13 +18,13 @@ public class Spider : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new Hitbox(-0.4f, 0, 0.8f, 0.6f);
+		collider = new Hitbox(-0.4f * 2, 0, 0.8f * 2, 0.45f * 2);
 
 		health = 3;
 		poisonResistant = true;
 		hasNightVision = true;
 		canClimb = true;
-		jumpPower = 12;
+		jumpPower = 12 * 2;
 
 		ai = new SpiderAI(this);
 	}

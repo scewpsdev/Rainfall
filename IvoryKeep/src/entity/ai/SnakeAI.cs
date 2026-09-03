@@ -10,9 +10,9 @@ public class SnakeAI : AdvancedAI
 {
 	public float dashChargeTime = 0.8f;
 	public float dashCooldownTime = 1.0f;
-	float dashSpeed = 8;
-	float dashTriggerDistance = 2;
-	float dashDistance = 4;
+	float dashSpeed = 8 * 2;
+	float dashTriggerDistance = 2 * 2;
+	float dashDistance = 4 * 2;
 	//float dashDuration = 0.15f;
 
 	float mobSpeed;
