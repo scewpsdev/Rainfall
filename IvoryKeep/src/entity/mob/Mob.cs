@@ -66,6 +66,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 	public bool canClimb = false;
 	public bool canFly = false;
 	public bool poisonResistant = false;
+	public bool hasNightVision = false;
 
 	public Sprite sprite;
 	public Vector4 spriteColor = Vector4.One;
@@ -355,7 +356,7 @@ public abstract class Mob : Entity, Hittable, StatusEffectReceiver
 				delta.x--;
 			if (inputRight)
 				delta.x++;
-			if (inputUp)
+			if (inputUp && gravity == 0)
 				delta.y++;
 			if (inputDown)
 				delta.y--;

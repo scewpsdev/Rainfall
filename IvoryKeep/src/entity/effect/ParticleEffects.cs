@@ -46,8 +46,12 @@ public static unsafe class ParticleEffects
 	public static ParticleEffect CreateExplosionEffect(int size)
 	{
 		ExplosionEffect effect = new ExplosionEffect();
-		effect.systems[0].handle->radialVelocity = size * 10;
-		effect.systems[1].handle->radialVelocity = size * 10;
+		//effect.systems[0].handle->radialVelocity = size * 10;
+		//effect.systems[1].handle->radialVelocity = size * 10;
+		effect.systems[0].handle->randomDirection = 1;
+		effect.systems[0].handle->startVelocity = new Vector3(size * 3, 0, 0);
+		effect.systems[1].handle->randomDirection = 1;
+		effect.systems[1].handle->startVelocity = new Vector3(size * 3, 0, 0);
 		effect.systems[0].handle->bursts[0].count = size * 6;
 		return effect;
 	}

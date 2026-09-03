@@ -25,6 +25,8 @@ public class GreenSpider : Mob
 
 		health = 6;
 		poisonResistant = true;
+		hasNightVision = true;
+		canClimb = true;
 
 		itemDropChance = 0.8f;
 

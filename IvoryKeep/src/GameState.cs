@@ -212,6 +212,9 @@ public class GameState : State
 
 		generator.connectDoors(hub.getEntity<Hub>().pedestalRoomEntrance, hub2.entrance);
 
+		//generator.generateSingleRoomLevel(tutorial, new Room(LevelGenerator.hubSet, 2), null, TileType.dirt, TileType.stone);
+		//tutorial.addEntity(new Tutorial(tutorial.rooms[0]));
+
 		generator.generateSingleRoomLevel(finalRoom, new Room(LevelGenerator.hubSet, 2), null, TileType.bricks, TileType.rock, null, 0, 0x1);
 
 		new CaveGenerator(seed).generateArea(out areaCaves);
@@ -246,8 +249,8 @@ public class GameState : State
 				player.setStartingClass(startingClass);
 			else
 			{
-				//player.money = 12;
-				player.giveItem(new Dagger());
+				player.money = 8;
+				//player.giveItem(new Dagger());
 				player.giveItem(new TravellingCloak());
 			}
 			levelSwitchTime = -1;
@@ -259,8 +262,8 @@ public class GameState : State
 			switchLevel(hub, spawnPosition);
 			levelSwitchTime = -1;
 
-			//player.money = 12;
-			player.giveItem(new Dagger());
+			player.money = 8;
+			//player.giveItem(new Dagger());
 			player.giveItem(new TravellingCloak());
 		}
 		else
@@ -271,6 +274,9 @@ public class GameState : State
 			levelSwitchTime = -1;
 
 			player.actions.queueAction(new UnconciousAction());
+
+			player.money = 8;
+			player.giveItem(new TravellingCloak());
 		}
 	}
 

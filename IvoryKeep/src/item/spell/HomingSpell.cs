@@ -24,7 +24,7 @@ public class HomingSpell : Spell
 		displayName = "Homing Stars";
 		description = "Summons hovering stars that linger briefly, then surge forward in the direction faced.";
 
-		baseValue = 49;
+		baseValue = 39;
 
 		baseDamage = 0.8f;
 		baseAttackRate = 1;

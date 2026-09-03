@@ -23,6 +23,7 @@ public class SpiderAI : AdvancedAI
 		this.jumpChargeTime = jumpChargeTime;
 
 		patrol = false;
+		useAStar = true;
 
 		AIAction jump = addAction("", 10, 0, jumpChargeTime, jumpSpeed, (AIAction action, Vector2 toTarget, float distance) =>
 		{

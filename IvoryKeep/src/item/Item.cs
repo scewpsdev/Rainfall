@@ -122,6 +122,7 @@ public abstract class Item
 	public static readonly Sound[] weaponHit = Resource.GetSounds("sounds/hit_weapon", 6);
 	public static readonly Sound[] parryHit = [Resource.GetSound("sounds/parry3.ogg")];
 	public static readonly Sound[] woodHit = Resource.GetSounds("sounds/hit_wood", 7);
+	public static readonly Sound[] rockHit = Resource.GetSounds("sounds/hit_rock", 5);
 
 	public static readonly Sound[] defaultPickup = [Resource.GetSound("sounds/pickup.ogg")];
 	public static readonly Sound[] weaponPickup = Resource.GetSounds("sounds/pickup_weapon", 2);

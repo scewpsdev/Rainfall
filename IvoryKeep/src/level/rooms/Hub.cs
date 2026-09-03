@@ -166,10 +166,13 @@ public class Hub : Entity
 
 		{
 			blacksmith = level.getEntity<Blacksmith>(); // NPCManager.blacksmith;
+			blacksmith.addShopItem(new Dagger());
 			blacksmith.addShopItem(new Torch());
 			blacksmith.addShopItem(new Bomb(), 7);
-			blacksmith.addShopItem(new IronKey(), 8);
-			blacksmith.addShopItem(new ThrowingKnife() { stackSize = 8 }, 1);
+			blacksmith.addShopItem(new Lockpick(), 8);
+			blacksmith.addShopItem(new ThrowingKnife() { stackSize = 12 }, 1);
+			blacksmith.addShopItem(new AdventurersHoodBlue());
+			blacksmith.addShopItem(new Bread());
 		}
 
 		if (GameState.instance.save.hasFlag(SaveFile.FLAG_CAVES_FOUND) && GameState.instance.save.hasFlag(SaveFile.FLAG_NPC_GATEKEEPER_MET))

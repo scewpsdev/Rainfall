@@ -22,6 +22,8 @@ public class Spider : Mob
 
 		health = 3;
 		poisonResistant = true;
+		hasNightVision = true;
+		canClimb = true;
 		jumpPower = 12;
 
 		ai = new SpiderAI(this);

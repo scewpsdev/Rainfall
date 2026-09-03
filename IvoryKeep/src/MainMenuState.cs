@@ -276,6 +276,8 @@ public class MainMenuState : State
 		drawLineRight("Reaper");
 		drawLineRight("Tiled");
 		drawLineRight("Leaderboards.Dev");
+		drawLine("");
+		drawLine("No generative AI was used in the making of this game.");
 
 		y += 10;
 

@@ -150,7 +150,7 @@ public class MineGenerator : LevelGenerator
 
 	public override ExplosiveObject createExplosiveObject()
 	{
-		return new ExplosiveBarrel();
+		return new DynamiteObject();
 	}
 
 	public override List<Mob> createEnemy(Level level)

@@ -629,12 +629,12 @@ public class InventoryUI
 			y += (idx + 3) / 4 * (slotSize + ypadding) + 8;
 		}
 
-		/*
-		Renderer.DrawUITextBMP(x + 4, y, "M1 to use", 1, 0xFF7F7F7F);
+		Renderer.DrawUITextBMP(x + 4, y, $"LM/{InputManager.GetBinding("UIConfirm").ToString()}: use item", 1, 0xFF7F7F7F);
 		y += Renderer.smallFont.size + 1;
-		Renderer.DrawUITextBMP(x + 4, y, "M2 to drop", 1, 0xFF7F7F7F);
+		Renderer.DrawUITextBMP(x + 4, y, $"RM/{InputManager.GetBinding("UIConfirm2").ToString()}: drop item", 1, 0xFF7F7F7F);
 		y += Renderer.smallFont.size + 1;
-		*/
+		Renderer.DrawUITextBMP(x + 4, y, $"MM/{InputManager.GetBinding("UIConfirm3").ToString()}: swap items", 1, 0xFF7F7F7F);
+		y += Renderer.smallFont.size + 1;
 
 		y += 4;
 
@@ -782,7 +782,7 @@ public class InventoryUI
 					}
 				}
 
-				if (InputManager.IsPressed("UIConfirm3", true))
+				if (InputManager.IsPressed("UIConfirm3", true) || Input.IsMouseButtonPressed(MouseButton.Middle, true))
 				{
 					if (selected == player.handItem || selected == player.offhandItem)
 					{

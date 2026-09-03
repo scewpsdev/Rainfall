@@ -21,7 +21,7 @@ public class IvoryKeep : Game
 {
 	public const int VERSION_MAJOR = 0;
 	public const int VERSION_MINOR = 2;
-	public const int VERSION_PATCH = 5;
+	public const int VERSION_PATCH = 6;
 	public const char VERSION_SUFFIX = 'a';
 
 
@@ -246,11 +246,11 @@ public class IvoryKeep : Game
 		string config = "Release";
 #endif
 
-		CompileFolder($"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}", $"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
+		CompileFolder($"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}", $"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\x64\\{config}\\net8.0\\assets");
 		//CompileFolder("D:\\Dev\\Rainfall\\RainfallNative", $"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
 		//PackageFolder($"D:\\Dev\\Rainfall\\{ASSEMBLY_NAME}\\bin\\{config}\\net8.0\\assets");
 
-		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
+		Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\bin\\x64\\" + config + "\\RainfallNative.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\x64\\" + config + "\\net8.0\\\"");
 		//Utils.RunCommand("xcopy", "/y \"D:\\Dev\\Rainfall\\RainfallNative\\lib\\lib\\nvcloth\\" + config + "\\NvCloth.dll\" \"D:\\Dev\\Rainfall\\" + ASSEMBLY_NAME + "\\bin\\" + config + "\\net8.0\\\"");
 #endif
 

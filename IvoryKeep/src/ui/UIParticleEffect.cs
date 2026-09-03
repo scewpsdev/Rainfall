@@ -20,7 +20,7 @@ public class UIParticleEffect : Entity
 		this.follow = follow;
 
 		string str = Resource.GetText(file);
-		SceneFormat.DeserializeScene(str, out List<SceneFormat.EntityData> entities, out uint selectedEntity);
+		SceneFormat.DeserializeScene(str, out List<SceneFormat.EntityData> entities, out uint selectedEntity, out float simulatedVelocity);
 
 		SceneFormat.EntityData entityData = entities[0];
 

@@ -727,7 +727,7 @@ public class Level
 		for (int i = 0; i < 128; i++)
 		{
 			TileType value = getTile(pos.x, pos.y);
-			if (value != null && value.health != 1 && value.visible)
+			if (value != null && /*value.health != 1 &&*/ value.visible)
 			{
 				hit = true;
 				break;

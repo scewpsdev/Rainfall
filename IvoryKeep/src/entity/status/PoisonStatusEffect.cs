@@ -33,7 +33,7 @@ public class PoisonStatusEffect : StatusEffect
 		effect.systems[0].handle->colorAnim.value0.value.xyz = Mathf.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->colorAnim.value1.value.xyz = Mathf.ARGBToVector(0xFFAFAF2A).xyz;
 		effect.systems[0].handle->bursts[0].duration = duration;
-		effect.systems[0].handle->bursts[0].count = (int)(amount * 8);
+		effect.systems[0].handle->bursts[0].count = (int)(amount * 24);
 		return effect;
 	}
 

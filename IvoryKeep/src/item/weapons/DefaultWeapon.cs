@@ -24,12 +24,14 @@ public class DefaultWeapon : Weapon
 		knockback = 4;
 		//anim = AttackAnim.Stab;
 		attackAcceleration = 1;
+		anim = AttackAnim.SwingSideways;
 
 		canParry = true;
 		parrySound = [Resource.GetSound("sounds/punch_hit.ogg")];
 		parryWindow = 0.2f;
 		parryWeaponRotation = 0;
 		blockCharge = 0;
+		attackCooldown = 2.0f;
 
 		strengthScaling = 0.5f;
 		dexterityScaling = 0.5f;
@@ -57,5 +59,11 @@ public class DefaultWeapon : Weapon
 		if (player.actions.currentAction == null || player.actions.currentAction is not BlockAction)
 			sprite = attackSprite;
 		base.update(entity);
+	}
+
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+	{
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : AttackAnim.SwingOverhead;
 	}
 }

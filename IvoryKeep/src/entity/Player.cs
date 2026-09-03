@@ -99,7 +99,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	public bool isStunned = false;
 	public bool isVisible = true;
 
-	public float visibility { get => (isVisible ? 1 : 0.25f) * Mathf.Lerp(0.2f, 1.0f, level.lightLevel / 5.0f) * (isDucked ? 0.5f : 1.0f) * getVisibilityModifier(); }
+	public float visibility { get => (isVisible ? 1 : 0.25f) * (isDucked ? 0.5f : 1.0f) * getVisibilityModifier(); }
 
 	Sprite stunnedIcon;
 	MobCorpse corpse;
@@ -186,7 +186,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		rect = new FloatRect(-1, -0.5f, 2, 2);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 4, 1, true);
+		animator.addAnimation("idle", 4, 0.7f, true);
 		animator.addAnimation("look_up", 4, 1, true);
 		animator.addAnimation("run", 8, 0.666f, true);
 		animator.addAnimation("jump", 2, 2, true);
@@ -1760,8 +1760,14 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 						dropObject();
 					else if (handItem != null)
 					{
-						if (!dropItem(handItem))
+						if (dropItem(handItem))
+						{
+							velocity.y = Math.Max(velocity.y, jumpPower);
+						}
+						else
+						{
 							hud.showMessage("This item cannot be dropped.");
+						}
 					}
 				}
 

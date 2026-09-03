@@ -36,6 +36,7 @@ public class Rock : Object
 		else if (velocity.length > 8)
 			hit((velocity.length - 8) / 8);
 
-		base.onCollision(x, y, isEntity);
+		if (!isEntity)
+			base.onCollision(x, y, isEntity);
 	}
 }

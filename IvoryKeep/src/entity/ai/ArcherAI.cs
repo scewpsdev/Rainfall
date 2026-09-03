@@ -53,6 +53,21 @@ public class ArcherAI : AdvancedAI
 			return true;
 		};
 
+		AIAction jump = addAction("jump", 100, 0, 0, mob.speed, (AIAction action, Vector2 toTarget, float targetDistance) =>
+		{
+			TileType forwardTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * action.ai.walkDirection, 0.5f));
+			TileType forwardUpTile = GameState.instance.level.getTile(mob.position + new Vector2(0.5f * action.ai.walkDirection, 1.5f));
+			return forwardTile != null && forwardUpTile == null;
+		});
+		jump.onStarted = (AIAction action) =>
+		{
+			mob.inputJump = true;
+		};
+		jump.onAction = (AIAction action, float elapsed, Vector2 toTarget) =>
+		{
+			return !(!mob.inputJump && mob.isGrounded);
+		};
+
 		addJumpAction();
 	}
 }

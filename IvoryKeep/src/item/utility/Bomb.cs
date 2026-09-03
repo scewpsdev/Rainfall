@@ -50,7 +50,7 @@ public class Bomb : Item
 		if (!cursed)
 		{
 			ItemEntity itemEntity = new ItemEntity(this, null, player.velocity);
-			GameState.instance.level.addEntity(itemEntity, player.center);
+			GameState.instance.level.addEntity(itemEntity, player.center + new Vector2(0, 0.2f));
 			this.ignite();
 			return true;
 		}

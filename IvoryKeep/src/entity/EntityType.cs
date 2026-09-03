@@ -42,6 +42,7 @@ public static class EntityType
 		InitType<Barrel>("barrel");
 		InitType<Chest>("chest");
 		InitType<ExplosiveBarrel>("explosive_barrel");
+		InitType<DynamiteObject>("dynamite");
 		InitType<Spike>("spike");
 		InitType<SpikeTrap>("spike_trap");
 		InitType<Trampoline>("trampoline");

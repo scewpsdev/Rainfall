@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -74,7 +75,10 @@ public abstract class AI
 		toTarget = distance != 0 ? toEntity / distance : Vector2.Right;
 		bool hasHit = GameState.instance.level.raycastSolid(mob.position + mob.collider.center, toTarget, distance + 0.1f, out HitData hit);
 
-		float effectiveAggroRange = aggroRange * GameState.instance.player.visibility;
+		float lightVisibilityModifier = Mathf.Lerp(0.2f, 1.0f, entity.level.lightLevel / 5.0f);
+		if (mob.hasNightVision)
+			lightVisibilityModifier = 1.0f;
+		float effectiveAggroRange = aggroRange * GameState.instance.player.visibility * lightVisibilityModifier;
 		float effectiveAwareness = awareness * (GameState.instance.player.isDucked ? 0.25f : 1.0f);
 		return distance < effectiveAggroRange && MathF.Sign(toTarget.x) == mob.direction && !hasHit || distance < effectiveAwareness * 2;
 	}
