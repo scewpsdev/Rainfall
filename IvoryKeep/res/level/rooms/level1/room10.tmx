@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="../../tiletypes.tsx"/>
  <layer id="1" name="Tile Layer 1" width="5" height="2">
   <data encoding="csv">
-0,0,12,0,0,
+10,0,12,0,9,
 1,1,1,1,1
 </data>
  </layer>

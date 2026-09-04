@@ -38,7 +38,7 @@ public class CavesSpecialRoom3 : Entity
 
 		for (int i = 2; i < room.width - 2; i++)
 		{
-			if (generator.random.NextSingle() < 0.5f)
+			if (generator.random.NextSingle() < 0.8f)
 				level.addEntity(new SpikeTrap(), position + new Vector2(i + 0.5f, room.height - 1.5f));
 		}
 	}

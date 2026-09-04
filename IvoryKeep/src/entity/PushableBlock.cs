@@ -18,7 +18,7 @@ public class PushableBlock : Entity, Hittable
 
 	public PushableBlock()
 	{
-		collider = new Hitbox(-0.49f, -0.5f, 0.98f, 1);
+		collider = new Hitbox(-0.45f, -0.45f, 0.9f, 0.9f);
 		filterGroup = FILTER_DEFAULT | FILTER_OBJECT;
 		sprite = new Sprite(tileset, 5, 3);
 	}

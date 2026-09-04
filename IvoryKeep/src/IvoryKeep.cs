@@ -29,7 +29,7 @@ public class IvoryKeep : Game
 	static readonly string ASSEMBLY_NAME = Assembly.GetAssembly(typeof(IvoryKeep))?.GetName().Name;
 
 
-	const int idealScale = 5;
+	const int idealScale = 4;
 	public int scale;
 	public int width, height;
 

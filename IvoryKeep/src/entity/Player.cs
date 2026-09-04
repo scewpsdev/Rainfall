@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data.Common;
 using System.Linq;
+using System.Numerics;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,11 +20,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	const float SPRINT_MULTIPLIER = 1.5f;
 #endif
 	const float DUCKED_MULTIPLIER = 0.6f;
-	public const float MAX_FALL_SPEED = -18 * 2;
+	public const float MAX_FALL_SPEED = -18;
 	const float HIT_COOLDOWN = 1.0f;
 	const float STUN_DURATION = 1.0f;
-	public const float FALL_STUN_DISTANCE = 8 * 2;
-	const float FALL_DAMAGE_DISTANCE = 10 * 2;
+	public const float FALL_STUN_DISTANCE = 8;
+	const float FALL_DAMAGE_DISTANCE = 10;
 	public const float MANA_KILL_REWARD = 0.4f; //0.5f;
 	const float MANA_HIT_REWARD = 0.1f;
 #if DEBUG
@@ -31,17 +32,17 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 #else
 	const float SPRINT_MANA_COST = 0.5f;
 #endif
-	public const float COLLIDER_HEIGHT = 0.8f * 2;
-	public const float COLLIDER_HEIGHT_DUCKED = 0.4f * 2;
+	public const float COLLIDER_HEIGHT = 0.8f;
+	public const float COLLIDER_HEIGHT_DUCKED = 0.4f;
 
 
-	public const float defaultSpeed = 10; //6;
+	public const float defaultSpeed = 6;
 	public float speed = defaultSpeed;
-	public float climbingSpeed = 5 * 2;
-	public float jumpPower = 17; //10; //12; //10.5f;
-	public float gravity = -22 * 2;
+	public float climbingSpeed = 5;
+	public float jumpPower = 10; //12; //10.5f;
+	public float gravity = -22;
 	public bool canWallJump = true;
-	public float wallJumpPower = 10 * 2;
+	public float wallJumpPower = 10;
 	public float wallControl = 2;
 	public int airJumps = 0;
 	public int airJumpsLeft = 0;
@@ -88,7 +89,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 	float wallJumpFactor;
 	public bool isGrounded = false;
 	bool isMoving = false;
-	bool isSprinting = false;
+	public bool isSprinting = false;
 	public bool isDucked = false;
 	public bool isClimbing = false;
 	public bool isLookingUp = false;
@@ -185,20 +186,20 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		filterGroup = FILTER_PLAYER;
 
 		sprite = new Sprite(Resource.GetTexture("sprites/player.png", false), 0, 0, 32, 32);
-		rect = new FloatRect(-2, -1, 4, 4);
+		rect = new FloatRect(-1, -0.5f, 2, 2);
 		animator = new SpriteAnimator();
 
-		animator.addAnimation("idle", 6, 0.7f, true);
-		animator.addAnimation("look_up", 6, 1, true);
+		animator.addAnimation("idle", 4, 0.7f, true);
+		animator.addAnimation("look_up", 4, 0.7f, true);
 		animator.addAnimation("run", 8, 0.666f, true);
-		animator.addAnimation("jump", 4, 2, true);
-		animator.addAnimation("fall", 2, 0.333f, true);
+		animator.addAnimation("jump", 2, 2, true);
+		animator.addAnimation("fall", 3, 0.333f, true);
 		animator.addAnimation("climb", 2, 0.5f, true);
 		animator.addAnimation("dead", 1, 1, true);
 		animator.addAnimation("dead_falling", 1, 1, true);
 		animator.addAnimation("stun", 1, 1, true);
 		animator.addAnimation("duck", 1, 1, true);
-		animator.addAnimation("sneak", 8, 0.666f, true);
+		animator.addAnimation("sneak", 6, 0.666f, true);
 		animator.addAnimation("backhop", 16, 3, 0.2f, false);
 
 		animator.addAnimationEvent("run", 3, onStep);
@@ -1721,6 +1722,11 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		}
 	}
 
+	void switchHandItems()
+	{
+		Mathf.Swap(ref handItem, ref .offhandItem);
+	}
+
 	void updateActions()
 	{
 		if (isAlive && GameState.instance.run.active)
@@ -1729,6 +1735,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 				switchActiveItem();
 			if (InputManager.IsPressed("SwitchSpell"))
 				switchSpellItem();
+			if (InputManager.IsPressed("UIConfirm3"))
+				switchHandItems();
 			if (InputManager.IsPressed("UseItem") && numOverlaysOpen == 0)
 			{
 				if (activeItems[selectedActiveItem] != null)
@@ -2413,7 +2421,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 				Renderer.DrawSprite(snappedPosition.x + rect.min.x, snappedPosition.y + rect.min.y, rect.size.x, /*(isDucked && !isClimbing && isGrounded ? 0.5f : 1) **/ rect.size.y, sprite, direction == -1, 0xFFFFFFFF);
 			}
 
-			/*
 			if (handItem != null)
 				handItem.render(this);
 			if (offhandItem != null)
@@ -2422,8 +2429,8 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 			{
 				if (passiveItems[i].ingameSprite != null && show && passiveItems[i].armorSlot != ArmorSlot.Gloves)
 				{
-					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
-					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
+					Renderer.DrawOutline(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, 0x7F000000);
+					Renderer.DrawSprite(position.x + rect.min.x * passiveItems[i].ingameSpriteSize, position.y + rect.min.y * passiveItems[i].ingameSpriteSize /*- 0.5f * (isDucked && !isClimbing && isGrounded ? 0.5f : 1)*/, passiveItems[i].ingameSpriteLayer, rect.size.x * passiveItems[i].ingameSpriteSize, rect.size.y * passiveItems[i].ingameSpriteSize * (isDucked && !isClimbing && isGrounded ? 0.5f : 1), 0, passiveItems[i].ingameSprite, direction == -1, passiveItems[i].ingameSpriteColor);
 				}
 				passiveItems[i].render(this);
 			}
@@ -2432,7 +2439,6 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 				if (activeItems[i] != null)
 					activeItems[i].render(this);
 			}
-			*/
 
 			if (show && carriedObject == null)
 			{

@@ -21,7 +21,7 @@ public class Barrel : Container
 		platformCollider = true;
 
 		hitSound = Item.woodHit;
-		breakSound = [Resource.GetSound("sounds/break_wood.ogg")];
+		breakSound = Item.woodBreak;
 	}
 
 	public Barrel()

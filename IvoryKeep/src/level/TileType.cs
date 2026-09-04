@@ -54,7 +54,7 @@ public class TileType
 
 	static TileType()
 	{
-		tileset = new SpriteSheet(Resource.GetTexture("sprites/tiles/tiles.png", false), 8, 8);
+		tileset = new SpriteSheet(Resource.GetTexture("sprites/tiles/tiles.png", false), 16, 16);
 
 		AddTileType(dummy = new TileType() { name = "dummy", visible = false }); // dummy collider
 		AddTileType(dirt = new TileType()
@@ -63,16 +63,11 @@ public class TileType
 			color = 0xFFFFFFFF,
 			particleColor = 0xFF5c4637,
 			health = 1,
-			sprites = [
-				new Sprite(tileset, 1, 1), new Sprite(tileset, 2, 1), new Sprite(tileset, 3, 1), new Sprite(tileset, 4, 1),
-				new Sprite(tileset, 1, 2), new Sprite(tileset, 2, 2), new Sprite(tileset, 3, 2), new Sprite(tileset, 4, 2),
-				new Sprite(tileset, 1, 3), new Sprite(tileset, 2, 3), new Sprite(tileset, 3, 3), new Sprite(tileset, 4, 3),
-				new Sprite(tileset, 1, 4), new Sprite(tileset, 2, 4), new Sprite(tileset, 3, 4), new Sprite(tileset, 4, 4),
-			],
-			left = [new Sprite(tileset, 0, 1), new Sprite(tileset, 0, 2), new Sprite(tileset, 0, 3), new Sprite(tileset, 0, 4)],
-			right = [new Sprite(tileset, 5, 1), new Sprite(tileset, 5, 2), new Sprite(tileset, 5, 3), new Sprite(tileset, 5, 4)],
-			top = [new Sprite(tileset, 1, 0), new Sprite(tileset, 2, 0), new Sprite(tileset, 3, 0), new Sprite(tileset, 4, 0)],
-			bottom= [new Sprite(tileset, 1, 5), new Sprite(tileset, 2, 5), new Sprite(tileset, 3, 5), new Sprite(tileset, 4, 5)],
+			sprites = [new Sprite(tileset, 4, 1), new Sprite(tileset, 9, 1), new Sprite(tileset, 10, 1), new Sprite(tileset, 11, 1), new Sprite(tileset, 12, 1)],
+			left = [new Sprite(tileset, 3, 1)],
+			right = [new Sprite(tileset, 5, 1)],
+			top = [new Sprite(tileset, 4, 0), new Sprite(tileset, 9, 0), new Sprite(tileset, 10, 0), new Sprite(tileset, 11, 0), new Sprite(tileset, 12, 0)],
+			bottom = [new Sprite(tileset, 4, 2), new Sprite(tileset, 9, 2), new Sprite(tileset, 10, 2), new Sprite(tileset, 11, 2), new Sprite(tileset, 12, 2)],
 		});
 		AddTileType(platform = new TileType() { name = "platform", color = 0xFF4488AA, particleColor = 0xFF2e2121, isPlatform = true, isSolid = false, sprites = [new Sprite(tileset, 1, 19)], left = [new Sprite(tileset, 0, 19)], right = [new Sprite(tileset, 2, 19)] });
 		AddTileType(dummyPlatform = new TileType() { name = "dummy_platform", isPlatform = true, platformHeight = 0.75f, isSolid = false, visible = false });
@@ -83,11 +78,11 @@ public class TileType
 			color = 0xFF333333,
 			particleColor = 0xFF50504c,
 			health = 2,
-			sprites = [new Sprite(tileset, 7, 4), new Sprite(tileset, 9, 4), new Sprite(tileset, 10, 4), new Sprite(tileset, 11, 4), new Sprite(tileset, 12, 4)],
-			left = [new Sprite(tileset, 6, 4), new Sprite(tileset, 13, 3), new Sprite(tileset, 13, 4), new Sprite(tileset, 13, 5)],
-			right = [new Sprite(tileset, 8, 4), new Sprite(tileset, 15, 3), new Sprite(tileset, 15, 4), new Sprite(tileset, 15, 5)],
-			top = [new Sprite(tileset, 7, 3), new Sprite(tileset, 9, 3), new Sprite(tileset, 10, 3), new Sprite(tileset, 11, 3), new Sprite(tileset, 12, 3)],
-			bottom = [new Sprite(tileset, 7, 5), new Sprite(tileset, 9, 5), new Sprite(tileset, 10, 5), new Sprite(tileset, 11, 5), new Sprite(tileset, 12, 5)],
+			sprites = [new Sprite(tileset, 4, 4), new Sprite(tileset, 9, 4), new Sprite(tileset, 10, 4), new Sprite(tileset, 11, 4), new Sprite(tileset, 12, 4)],
+			left = [new Sprite(tileset, 3, 4), new Sprite(tileset, 13, 3), new Sprite(tileset, 13, 4), new Sprite(tileset, 13, 5)],
+			right = [new Sprite(tileset, 5, 4), new Sprite(tileset, 15, 3), new Sprite(tileset, 15, 4), new Sprite(tileset, 15, 5)],
+			top = [new Sprite(tileset, 4, 3), new Sprite(tileset, 9, 3), new Sprite(tileset, 10, 3), new Sprite(tileset, 11, 3), new Sprite(tileset, 12, 3)],
+			bottom = [new Sprite(tileset, 4, 5), new Sprite(tileset, 9, 5), new Sprite(tileset, 10, 5), new Sprite(tileset, 11, 5), new Sprite(tileset, 12, 5)],
 		});
 		AddTileType(sand = new TileType()
 		{

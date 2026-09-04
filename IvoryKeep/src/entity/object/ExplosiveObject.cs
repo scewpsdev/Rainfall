@@ -18,7 +18,7 @@ public class ExplosiveObject : Object
 
 
 	float fuseTime = 0.75f;
-	float blastRadius = 3.0f;
+	float blastRadius = 1.5f;
 	float blastDamage = 8;
 
 	uint source;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public class Trampoline : Entity
 {
-	const float STRENGTH = 14 * 2;
+	const float STRENGTH = 14;
 	const float ACTIVE_DURATION = 0.2f;
 
 

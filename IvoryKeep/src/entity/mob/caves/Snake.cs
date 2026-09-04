@@ -21,10 +21,10 @@ public class Snake : Mob
 		animator.addAnimation("dead", 1, 1, true);
 		animator.setAnimation("idle");
 
-		collider = new Hitbox(-0.3f * 2, 0, 0.6f * 2, 0.9f * 2);
+		collider = new Hitbox(-0.3f, 0, 0.6f, 0.9f);
 
 		health = 3;
-		speed = 1 * 2;
+		speed = 1;
 
 		ai = new SnakeAI(this);
 	}

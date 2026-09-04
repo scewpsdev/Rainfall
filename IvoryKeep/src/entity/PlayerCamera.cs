@@ -11,7 +11,7 @@ struct ScreenShakeData
 
 public class PlayerCamera : Entity
 {
-	public const int TILE_PIXELS = 8;
+	public const int TILE_PIXELS = 16;
 	public const float TILE_PIXELSF = (float)TILE_PIXELS;
 	const float LOOK_DOWN_DELAY = 0.5f;
 

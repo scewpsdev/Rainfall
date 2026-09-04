@@ -29,7 +29,7 @@ public class Bat : Mob
 		animator.addAnimation("hanging", 1, 1, true);
 		animator.setAnimation("idle");
 
-		rect = new FloatRect(-1, -1, 2, 2);
+		rect = new FloatRect(-0.5f, -0.5f, 1, 1);
 	}
 
 	public override void update()

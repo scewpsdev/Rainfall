@@ -175,6 +175,8 @@ public class AttackAction : EntityAction
 					if (damage >= mob.poise)
 					{
 						Vector2 knockback = ((entity.position - player.position).normalized + Vector2.Up * 0.2f) * weapon.knockback;
+						if (player.isSprinting)
+							knockback = knockback * new Vector2(2, 1) + new Vector2(0, 1);
 						mob.addImpulse(knockback);
 					}
 				}
@@ -326,7 +328,7 @@ public class AttackAction : EntityAction
 
 	public float currentRange
 	{
-		get => ((anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.2f) * 2;
+		get => ((anim == AttackAnim.Stab ? currentProgress * attackRange : attackRange) + 0.2f);
 	}
 
 	public float getCurrentAngle(float progress)

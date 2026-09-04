@@ -13,7 +13,7 @@ public class Object : Entity, Hittable, Interactable
 	public float bounciness = 0.5f;
 
 	public float health = 1.5f;
-	public float damage = 1;
+	public float damage = 2;
 
 	public bool tumbles = true;
 	public float rotationVelocity = 0;
