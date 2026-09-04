@@ -1,0 +1,61 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class BlacksteelGlaive : Weapon
+{
+	public BlacksteelGlaive()
+		: base("blacksteel_glaive")
+	{
+		displayName = "Blacksteel Glaive";
+		description = "A charred polearm once wielded by royal knights of a distant land.";
+
+		baseDamage = 2.0f;
+		baseAttackRange = 1.3f;
+		baseAttackRate = 1.1f;
+		twoHanded = true;
+		baseWeight = 2.5f;
+		doubleBladed = false;
+		attackCooldown = 1.5f;
+		attackAcceleration = 1;
+		anim = AttackAnim.SwingOverhead;
+
+		baseValue = 60;
+
+		strengthScaling = 0.3f;
+		dexterityScaling = 0.3f;
+
+		sprite = new Sprite(tileset, 11, 9, 2, 1);
+		icon = new Sprite(tileset.texture, 11 * 16 + 16, 9 * 16, 16, 16);
+		size = new Vector2(2, 1);
+		renderOffset.x = 0.2f;
+		backRotation = 0.5f * MathF.PI;
+	}
+
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+	{
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+		if (idx % 3 == 0)
+		{
+			anim = AttackAnim.SwingOverhead;
+			swingDir = 0;
+			startAngle = MathF.PI * 1.5f;
+			endAngle = MathF.PI * -0.25f;
+		}
+		else if (idx % 3 == 1)
+		{
+			anim = AttackAnim.SwingSideways;
+			swingDir = 0;
+			startAngle = MathF.PI * 0.75f;
+			endAngle = MathF.PI * -1.0f;
+		}
+		else
+		{
+			anim = AttackAnim.Stab;
+		}
+	}
+}

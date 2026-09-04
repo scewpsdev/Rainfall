@@ -1,0 +1,646 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+struct StuckProjectile
+{
+	public string item;
+	public Sprite sprite;
+	public Vector2 relativePosition;
+	public Vector2 direction;
+	public float rotationOffset;
+	public bool flipped;
+}
+
+public abstract class Mob : Entity, Hittable, StatusEffectReceiver
+{
+	static Sound[] mobHit = Resource.GetSounds("sounds/flesh", 4);
+	static Sound[] mobDeath = Resource.GetSounds("sounds/death", 9);
+
+	static Mob()
+	{
+		foreach (Sound s in mobHit)
+			s.singleInstance = true;
+		foreach (Sound s in mobDeath)
+			s.singleInstance = true;
+	}
+
+
+	const float SPRINT_MULTIPLIER = 1.8f;
+	const float STUN_DURATION = 0.4f;
+
+	const float BLEED_RECOVER_DELAY = 2.0f;
+	const float BLEED_RECOVER_RATE = 0.5f;
+
+
+	public float speed = 4 * 2;
+	public float climbingSpeed = 4 * 2;
+	public float jumpPower = 11 * 2;
+	public float gravity = -30 * 2;
+
+	public float itemDropChance = 0.1f;
+	public float itemDropValueMultiplier = 1;
+	public List<Item> itemDrops = new List<Item>();
+	//public float coinDropChance = 0.15f;
+	public bool dropCoins = true;
+	public float spawnRate = 1;
+
+	public float health = 1;
+	public float damage = 1;
+	public float poise = 1;
+
+	public float bleedBuildup = 0.0f;
+	float bleedResistance => Mathf.Remap(MathF.Exp(-maxHealth * 0.002f), 0, 1, 10, 2);
+
+	public float maxHealth;
+
+	public bool isBoss = false;
+	protected int phase = 0;
+	protected int numHealthPhases = 1;
+
+	public bool canClimb = false;
+	public bool canFly = false;
+	public bool poisonResistant = false;
+	public bool hasNightVision = false;
+
+	public Sprite sprite;
+	public Vector4 spriteColor = Vector4.One;
+	public SpriteAnimator animator;
+	public FloatRect rect = new FloatRect(-1, 0, 2, 2);
+	protected uint outline = 0;
+
+	public AI ai;
+
+	public bool inputLeft, inputRight, inputUp, inputDown;
+	public bool inputSprint, inputJump;
+
+	public int direction = 1;
+	float currentSpeed;
+	public float impulseVelocity;
+	public bool isGrounded = false;
+	bool isSprinting = false;
+	bool isClimbing = false;
+	float distanceWalked = 0;
+
+	public bool isStunned = false;
+	public bool criticalStun = false;
+	long stunTime = -1;
+	public bool isVisible = true;
+
+	protected bool spawnCorpse = true;
+	public MobCorpse corpse;
+	ParticleEffect bleedEffect;
+
+	Climbable currentLadder = null;
+
+	public Item handItem = null;
+
+	public Sound[] hitSound = mobHit;
+	public Sound[] deathSound = mobDeath;
+
+	public List<StatusEffect> statusEffects = new List<StatusEffect>();
+
+	long lastHit = -1;
+
+	List<StuckProjectile> stuckProjectiles = new List<StuckProjectile>();
+
+
+	public Mob(string name)
+	{
+		this.name = name;
+
+		filterGroup = FILTER_MOB;
+	}
+
+	public override void destroy()
+	{
+	}
+
+	public virtual bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	{
+		health -= damage;
+
+		if (health > 0 && by != null && item != null && item.bleed > 0)
+		{
+			Vector2 enemyPosition = by.position;
+			bleedBuildup += item.bleed;
+
+			if (bleedBuildup >= bleedResistance)
+			{
+				float duration = 0.5f;
+				bleedEffect = ParticleEffects.CreateBloodEffectIntense(this, (position - enemyPosition).normalized, duration);
+				GameState.instance.level.addEntity(bleedEffect, position + collider.center);
+				bleedBuildup -= bleedResistance;
+				addStatusEffect(new BleedStatusEffect(damage, duration));
+			}
+		}
+
+		if (damage >= 0.1f)
+			GameState.instance.level.addEntity(new DamageNumber((int)MathF.Floor(damage * 10), new Vector2(Mathf.RandomFloat(-1, 1), 1) * 3, buffedHit), new Vector2(Mathf.RandomFloat(position.x + collider.min.x, position.x + collider.max.x), Mathf.RandomFloat(position.y + collider.min.y, position.y + collider.max.y)));
+
+		if (buffedHit)
+		{
+			int numCritParticles = (int)(collider.size.x * collider.size.y * 8);
+			for (int i = 0; i < numCritParticles; i++)
+			{
+				GameState.instance.level.addEntity(ParticleEffects.CreateCriticalEffect(), Mathf.RandomVector2(position + collider.min, position + collider.max));
+			}
+		}
+
+		if (hitSound != null && (triggerInvincibility || health <= 0))
+			Audio.PlayOrganic(hitSound, new Vector3(position, 0), 3);
+
+		if (by != null)
+		{
+			Vector2 enemyPosition = by.position;
+			GameState.instance.level.addEntity(ParticleEffects.CreateBloodEffect((position - enemyPosition).normalized), position + collider.center);
+
+			if (item != null && item.projectileItem && item.projectileSticks && item.breakOnEnemyHit)
+			{
+				Vector2 relativePosition = new Vector2(Mathf.Clamp(by.position.x - position.x, collider.min.x, collider.max.x), Mathf.Clamp(by.position.y - position.y, collider.min.y, collider.max.y));
+				Vector2 projectileDirection = (by.velocity.normalized + Mathf.RandomVector2(-1, 1) * 0.1f).normalized;
+				float rotationOffset = item.projectileRotationOffset;
+				bool flipped = false;
+				if (direction == -1)
+				{
+					relativePosition.x *= -1;
+					projectileDirection.x *= -1;
+					rotationOffset *= -1;
+					if (item.projectileSpins && by.velocity.x < 0)
+						flipped = !flipped;
+				}
+				stuckProjectiles.Add(new StuckProjectile { item = item.name, sprite = item.sprite, relativePosition = relativePosition, direction = projectileDirection, rotationOffset = rotationOffset, flipped = flipped });
+			}
+		}
+
+		if (health > 0)
+		{
+			if (damage >= poise && by is not Projectile)
+			{
+				stun();
+			}
+		}
+		else
+		{
+			onDeath(by, item);
+
+			if (corpse != null && bleedEffect != null)
+				bleedEffect.follow = corpse;
+		}
+
+		ai?.onHit(by);
+
+		if ((Time.currentTime - lastHit) / 1e9f > 0.2f)
+			lastHit = Time.currentTime;
+
+		return true;
+	}
+
+	public virtual void onDeath(Entity by, Item item)
+	{
+		Player player = null;
+		if (by is Player || by is ItemEntity && ((ItemEntity)by).thrower is Player || by is Projectile && ((Projectile)by).shooter is Player || by is Object && ((Object)by).thrower is Player)
+		{
+			if (by is Player)
+				player = by as Player;
+			else if (by is ItemEntity)
+				player = ((ItemEntity)by).thrower as Player;
+			else if (by is Projectile)
+				player = ((Projectile)by).shooter as Player;
+			else if (by is Object)
+				player = ((Object)by).thrower as Player;
+			player.onKill(this);
+		}
+
+		if (ai != null)
+			ai.onDeath();
+
+		if (deathSound != null)
+			Audio.PlayOrganic(deathSound, new Vector3(position, 0), 3);
+
+		/*
+		while (itemDropChance > 0 && Random.Shared.NextSingle() < itemDropChance)
+		{
+			Item[] drops = Item.CreateRandom(Random.Shared, DropRates.mob, GameState.instance.level.avgLootValue * itemDropValueMultiplier);
+
+			foreach (Item drop in drops)
+			{
+				Vector2 itemVelocity = new Vector2(Mathf.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+				Vector2 throwOrigin = position + collider.center;
+				ItemEntity obj = new ItemEntity(drop, null, itemVelocity);
+				GameState.instance.level.addEntity(obj, throwOrigin);
+			}
+
+			itemDropChance--;
+		}
+		*/
+		for (int i = 0; i < itemDrops.Count; i++)
+		{
+			Vector2 itemVelocity = new Vector2(Mathf.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+			Vector2 throwOrigin = position + collider.center;
+			ItemEntity obj = new ItemEntity(itemDrops[i], null, itemVelocity);
+			GameState.instance.level.addEntity(obj, throwOrigin);
+		}
+		//if (Random.Shared.NextSingle() < coinDropChance)
+		const float coinDropChance = 0.5f;
+		if (dropCoins && Random.Shared.NextSingle() < coinDropChance)
+		{
+			int amount = Mathf.RandomInt(1, Math.Max((int)MathF.Round(maxHealth), 1));
+			while (amount > 0)
+			{
+				CoinType type = Coin.SubtractCoinFromValue(ref amount);
+				Coin coin = new Coin(type);
+				Vector2 spawnPosition = position + collider.center + Vector2.Rotate(Vector2.UnitX, Mathf.RandomFloat(0, 2 * MathF.PI)) * 0.2f;
+				coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 1;
+				GameState.instance.level.addEntity(coin, spawnPosition);
+			}
+		}
+		/*
+		for (int i = 0; i < stuckProjectiles.Count; i++)
+		{
+			float dropChance = 0.5f;
+			if (Random.Shared.NextSingle() < dropChance)
+			{
+				Vector2 itemVelocity = new Vector2(Mathf.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+				Vector2 throwOrigin = position + collider.center;
+				ItemEntity obj = new ItemEntity(Item.GetItemPrototype(stuckProjectiles[i].item).copy(), null, itemVelocity);
+				GameState.instance.level.addEntity(obj, throwOrigin);
+			}
+		}
+		*/
+
+		if (player != null)
+		{
+			for (int i = 0; i < maxHealth; i++)
+			{
+				XPOrb orb = new XPOrb();
+				Vector2 pos = position + collider.center + Vector2.Rotate(Vector2.Right, i / maxHealth * MathF.PI * 2) * (0.5f + i / maxHealth); // new Vector2(Mathf.RandomFloat(collider.min.x, collider.max.x), Mathf.RandomFloat(collider.min.y, collider.max.y));
+				orb.velocity = (pos - (position + collider.center)).normalized * 3;
+				GameState.instance.level.addEntity(orb, pos);
+			}
+		}
+
+		for (int i = 0; i < statusEffects.Count; i++)
+			statusEffects[i].destroy(this);
+		statusEffects.Clear();
+
+		if (spawnCorpse)
+		{
+			float corpseVelocity = 0;
+			if (by is Projectile)
+				corpseVelocity = MathF.Sign(by.velocity.x) * 6 * 0.5f;
+			else if (by != null && item != null)
+				corpseVelocity = MathF.Sign(position.x - by.position.x) * item.knockback * 0.5f;
+			GameState.instance.level.addEntity(corpse = new MobCorpse(sprite, spriteColor * new Vector4(0.5f, 0.5f, 0.5f, 1), animator, rect, direction, Vector2.Zero, impulseVelocity + corpseVelocity, collider), position);
+		}
+
+		remove();
+	}
+
+	public void stun(float stunDuration = 1, bool critical = false)
+	{
+		if (stunTime == -1 || (Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
+		{
+			stunTime = Time.currentTime + (long)((stunDuration - 1) * STUN_DURATION * 1e9f);
+			criticalStun = critical;
+			isStunned = true;
+		}
+	}
+
+	public StatusEffect addStatusEffect(StatusEffect effect)
+	{
+		statusEffects.Add(effect);
+		effect.init(this);
+		return effect;
+	}
+
+	public void heal(float amount)
+	{
+		health += amount;
+	}
+
+	public void setVisible(bool visible)
+	{
+		isVisible = visible;
+	}
+
+	public void addImpulse(Vector2 impulse)
+	{
+		if (isAlive)
+		{
+			impulseVelocity += impulse.x;
+			velocity.y += impulse.y;
+		}
+		else if (corpse != null)
+		{
+			corpse.addImpulse(impulse);
+		}
+	}
+
+	void updateMovement()
+	{
+		Vector2 delta = Vector2.Zero;
+
+		if ((Time.currentTime - stunTime) / 1e9f > STUN_DURATION)
+			isStunned = false;
+		criticalStun = criticalStun && isStunned;
+
+		if (!isStunned)
+		{
+			if (inputLeft)
+				delta.x--;
+			if (inputRight)
+				delta.x++;
+			if (inputUp && gravity == 0)
+				delta.y++;
+			if (inputDown)
+				delta.y--;
+			if (isClimbing)
+			{
+				if (inputUp)
+				{
+					if (GameState.instance.level.getClimbable(position + new Vector2(0, 0.2f)) != null)
+						delta.y++;
+				}
+				if (inputDown)
+					delta.y--;
+			}
+
+			isSprinting = inputSprint;
+
+			if (inputJump)
+			{
+				if (isGrounded)
+				{
+					velocity.y = jumpPower;
+				}
+				else if (isClimbing)
+				{
+					velocity.y = jumpPower;
+					currentLadder = null;
+					isClimbing = false;
+				}
+			}
+		}
+
+		if (delta.lengthSquared > 0)
+		{
+			//if (isGrounded)
+			{
+				if (Vector2.Rotate(delta, -rotation).x > 0)
+					direction = 1;
+				else if (Vector2.Rotate(delta, -rotation).x < 0)
+					direction = -1;
+
+				currentSpeed = isSprinting ? SPRINT_MULTIPLIER * speed : speed;
+				velocity.x = delta.x * currentSpeed;
+
+				if (canFly)
+					velocity.y = Mathf.Lerp(velocity.y, delta.y * currentSpeed, 5 * Time.deltaTime);
+				else if (gravity == 0)
+					velocity.y = delta.y * currentSpeed;
+			}
+		}
+		else
+		{
+			//if (isGrounded)
+			velocity.x = 0.0f;
+			if (canFly)
+				velocity.y = 0.0f;
+		}
+
+		if (!isClimbing)
+		{
+			velocity.y += gravity * Time.deltaTime;
+
+			impulseVelocity = Mathf.Lerp(impulseVelocity, 0, 8 * Time.deltaTime);
+			if (MathF.Abs(impulseVelocity) < 0.01f)
+				impulseVelocity = 0;
+			//if (MathF.Sign(impulseVelocity) == MathF.Sign(velocity.x))
+			//	impulseVelocity = 0;
+			//else if (velocity.x == 0)
+			//	impulseVelocity.x = MathF.Sign(impulseVelocity.x) * MathF.Min(MathF.Abs(impulseVelocity.x), speed);
+			//impulseVelocity.x = impulseVelocity.x - velocity.x;
+			velocity.x += impulseVelocity;
+		}
+		else
+		{
+			velocity.y = delta.y * climbingSpeed;
+		}
+
+		Vector2 displacement = velocity * Time.deltaTime;
+		int collisionFlags = GameState.instance.level.doCollision(ref position, collider, ref displacement, inputDown);
+
+		isGrounded = false;
+		if ((collisionFlags & Level.COLLISION_Y) != 0)
+		{
+			if (velocity.y < 0)
+				isGrounded = true;
+
+			velocity.y = 0;
+			//impulseVelocity.x *= 0.5f;
+		}
+		if ((collisionFlags & Level.COLLISION_X) != 0)
+		{
+			impulseVelocity = 0;
+		}
+
+		position += displacement;
+		distanceWalked += MathF.Abs(displacement.x);
+
+		if (level.overlapSolid(position + collider.min + 0.1f, position + collider.max - 0.1f))
+		{
+			// Stuck in wall
+			hit(1000);
+		}
+
+		// why is this here?
+		// lol idk just found this in player too wtf
+		//float rotationDst = direction == 1 ? 0 : MathF.PI;
+		//rotation = Mathf.Lerp(rotation, rotationDst, 5 * Time.deltaTime);
+	}
+
+	void updateActions()
+	{
+		if (canClimb)
+		{
+			Climbable hoveredLadder = GameState.instance.level.getClimbable(position + new Vector2(0, 0.1f));
+			if (currentLadder == null)
+			{
+				if (hoveredLadder != null && inputUp)
+				{
+					currentLadder = hoveredLadder;
+					isClimbing = true;
+					velocity = Vector2.Zero;
+				}
+			}
+			else
+			{
+				if (hoveredLadder == null)
+				{
+					currentLadder = null;
+					isClimbing = false;
+				}
+			}
+		}
+
+		if (handItem != null)
+		{
+			/*
+			if (Input.IsKeyPressed(KeyCode.X))
+			{
+				Input.ConsumeKeyEvent(KeyCode.X);
+				handItem.type.use(handItem, this);
+			}
+			*/
+		}
+
+		//actions.update();
+
+
+		{
+			Span<HitData> hits = new HitData[4];
+			int numHits = level.overlap(position + collider.min, position + collider.max, hits, FILTER_PLAYER);
+			for (int i = 0; i < numHits; i++)
+			{
+				if (hits[i].entity != null && hits[i].entity is Player)
+				{
+					Player player = hits[i].entity as Player;
+					if (player.hit(damage, this, handItem))
+					{
+						if (ai != null)
+							ai.onAttack(player);
+					}
+				}
+			}
+		}
+
+		if (actionColliders != null)
+		{
+			foreach (FloatRect actionCollider in actionColliders)
+			{
+				Vector2 min = actionCollider.min;
+				Vector2 max = actionCollider.max;
+
+				if (direction == -1)
+				{
+					Mathf.Swap(ref min.x, ref max.x);
+					min.x *= -1;
+					max.x *= -1;
+				}
+
+				Span<HitData> hits = new HitData[4];
+				int numHits = level.overlap(position + min, position + max, hits, FILTER_PLAYER);
+				for (int i = 0; i < numHits; i++)
+				{
+					if (hits[i].entity != null && hits[i].entity is Player)
+					{
+						Player player = hits[i].entity as Player;
+						if (player.hit(damage, this, handItem))
+						{
+							if (ai != null)
+								ai.onAttack(player);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void updateAnimation()
+	{
+		animator?.update(sprite);
+	}
+
+	public virtual void onPhaseTransition()
+	{
+	}
+
+	public override void update()
+	{
+		if (!isAlive)
+			return;
+
+		maxHealth = MathF.Max(maxHealth, health);
+
+		if (bleedBuildup > 0 && lastHit != -1 && (Time.currentTime - lastHit) / 1e9f > BLEED_RECOVER_DELAY)
+		{
+			bleedBuildup = MathF.Max(bleedBuildup - 0.1f * BLEED_RECOVER_RATE * Time.deltaTime, 0.0f);
+		}
+
+		if (ai != null)
+			ai.update();
+
+		updateMovement();
+		updateActions();
+		updateAnimation();
+
+		int newPhase = numHealthPhases - (int)MathF.Ceiling(health / maxHealth * numHealthPhases);
+		if (isBoss && newPhase > phase)
+		{
+			phase = newPhase;
+			onPhaseTransition();
+			GameState.instance.currentBossRoom.onPhaseTransition(phase);
+		}
+
+		for (int i = 0; i < statusEffects.Count; i++)
+		{
+			if (!statusEffects[i].update(this) && isAlive)
+			{
+				statusEffects[i].destroy(this);
+				statusEffects.RemoveAt(i--);
+			}
+		}
+	}
+
+	public override void render()
+	{
+		if (isVisible)
+		{
+			bool hitMarker = lastHit != -1 && (Time.currentTime - lastHit) / 1e9f < 0.1f;
+
+			if (sprite != null)
+			{
+				if (hitMarker)
+					Renderer.DrawSpriteSolid(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, rotation, sprite, direction == -1, 0xFFFFFFFF);
+				else
+					Renderer.DrawSprite(position.x + rect.position.x, position.y + rect.position.y, LAYER_DEFAULT, rect.size.x, rect.size.y, rotation, sprite, direction == -1, spriteColor);
+
+				if (outline != 0)
+					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, rotation, sprite, direction == -1, outline);
+				else
+					Renderer.DrawOutline(position.x + rect.position.x, position.y + rect.position.y, LAYER_BG, rect.size.x, rect.size.y, rotation, sprite, direction == -1, 0xFF000000);
+
+				for (int i = 0; i < statusEffects.Count; i++)
+				{
+					statusEffects[i].render(this);
+				}
+
+				for (int i = 0; i < stuckProjectiles.Count; i++)
+				{
+					StuckProjectile projectile = stuckProjectiles[i];
+					Renderer.DrawSprite(position.x + projectile.relativePosition.x * direction - 0.5f, position.y + projectile.relativePosition.y - 0.5f, LAYER_BG, 1, 1, (projectile.direction.angle + projectile.rotationOffset) * direction, projectile.sprite, direction == -1);
+				}
+			}
+		}
+
+		/*
+		if (bleedBuildup > 0)
+		{
+			// debug bleed status
+			Renderer.DrawSprite(position.x - 0.5f, position.y + 2, 1.0f, 0.05f, null, false, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
+			Renderer.DrawSprite(position.x - 0.5f, position.y + 2, bleedBuildup / bleedResistance, 0.05f, null, false, new Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+		}
+		*/
+	}
+
+	public bool isAlive
+	{
+		get => health > 0;
+	}
+}

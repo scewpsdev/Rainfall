@@ -1,0 +1,47 @@
+entities = [ {
+name = "Entity"
+id = "50576440"
+static = 0
+position = [ 0, 0, 0 ]
+rotation = [ 0, 0, 0, 1 ]
+scale = [ 1, 1, 1 ]
+colliders = [  ]
+lights = [  ]
+particles = [ {
+lifetime = 0.3199999928474426
+size = 1
+follow = 0
+emissionRate = 0
+spawnShape = Point
+spawnOffset = [ 0, 0, 0 ]
+gravity = 0
+drag = 0
+startVelocity = [ 0, 0, 0 ]
+radialVelocity = 1.3799999952316284
+startRotation = 0
+rotationSpeed = 0
+applyEntityVelocity = 0
+applyCentrifugalForce = 0
+rotateAlongMovement = 0
+movementStretch = 0
+textureAtlas = "..\sprites\critical.png"
+atlasSize = [ 4, 1 ]
+numFrames = 6
+randomFrame = 0
+linearFiltering = 0
+color = [ 1, 1, 1, 1 ]
+additive = 1
+emissiveIntensity = 1
+randomVelocity = [ 0, 0, 0 ]
+randomRotation = 0
+randomRotationSpeed = 0
+randomLifetime = 0.18799999356269836
+velocityNoise = 0
+bursts = [ {
+time = 0
+count = 1
+duration = 0.11999999731779099
+} ]
+} ]
+} ]
+selectedEntity = "50576440"

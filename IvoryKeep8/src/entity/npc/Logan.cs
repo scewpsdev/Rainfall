@@ -1,0 +1,166 @@
+﻿using Rainfall;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class LoganSave : NPCSaveData
+{
+	public LoganQuest loganQuest = new LoganQuest();
+
+	public override void load(SaveFile save, DatObject obj)
+	{
+		base.load(save, obj);
+		SaveFile.LoadQuest(save, obj, loganQuest, name);
+	}
+
+	public override void save(SaveFile save, DatObject obj)
+	{
+		base.save(save, obj);
+		SaveFile.SaveQuest(obj, loganQuest, name);
+	}
+
+	public override void init(SaveFile save)
+	{
+		setOneTimeInititalDialogue("""
+			Mm, you seem quite lucid! A \drare\0 thing in these times.
+			\cBuy my shit.
+			""")?.addCallback(() =>
+		{
+			GameState.instance.save.setFlag(SaveFile.FLAG_NPC_LOGAN_MET);
+		});
+
+		if (initialDialogue == null && loganQuest.state == QuestState.Uninitialized && save.hasFlag(SaveFile.FLAG_NPC_LOGAN_MET) && save.hasFlag(SaveFile.FLAG_MINES_FOUND) && save.hasFlag(SaveFile.FLAG_NPC_LOGAN_ITEM_SOLD))
+		{
+			setInititalDialogue("""
+				\1Aha... \0You again.
+				Color me impressed, you're not as hopeless as you look, making it this far.
+				Makes me wonder... maybe you're the type who can handle something a bit more interesting.
+				""");
+
+			addDialogue("""
+				Fine then, let's see if you're up to a real challenge.
+				Word is, there's an ancient magic staff hidden somewhere deep in those crystal caverns.
+				Find it for me and you might even earn yourself a proper wizard's robes!
+				That's if the beast guarding it doesn't rip you to pieces first. But you look sturdy enough, I suppose!
+				Hehe.
+				""").addCallback(() =>
+			{
+				loganQuest.state = QuestState.InProgress;
+				if (GameState.instance.hub.getEntity<Logan>() == null)
+					GameState.instance.hub.getEntity<Hub>().spawnLogan();
+			});
+		}
+		QuestManager.addQuestCompletionCallback(GameState.instance.save, name, loganQuest.name, (Quest _) =>
+		{
+			setInititalDialogue("""
+				Ha, look at you! You actually did it! Maybe you're not as useless as the rest of the rabble.
+				Hooray, or something. Here, take this.
+				""").addCallback(() =>
+			{
+				Item staff = GameState.instance.player.getItem("questline_logan_staff");
+				if (staff != null)
+					GameState.instance.player.removeItem(staff);
+
+				currentNPC?.closeScreen();
+
+				GameState.instance.save.unlockStartingClass(StartingClass.wizard);
+
+				loganQuest.collect();
+			});
+		});
+
+		/*
+		if (progression.initialDialogue == null GameState.instance.save.hasFlag(SaveFile.FLAG_CASTLE_UNLOCKED))
+		{
+			setOneTimeInititalDialogue("""
+				\1Oh ho!\0 Look at you, finding all the fancy trinkets. That thing you found's got \dpower\0, no doubt about it.
+				Let me see that. \1Hmm... \0Yep, it's magic all right. Old magic. Twisted.
+				""");
+		}
+		*/
+
+		if (initialDialogue == null && Random.Shared.NextSingle() < 0.1f)
+		{
+			setOneTimeInititalDialogue("""
+					The king, the archives, the underworld... everyone's so serious about it all.
+					Me? I just want to blow things up.
+					""");
+		}
+		if (initialDialogue == null)
+		{
+			int i = Random.Shared.Next();
+			if (i % 4 == 0)
+			{
+				setInititalDialogue("""
+					Ah, \byou again\0! My best - and only - customer.
+					""");
+			}
+			else if (i % 4 == 1)
+			{
+				setInititalDialogue("""
+					Well, well, still breathing are we?
+					Very good.
+					""");
+			}
+			else if (i % 4 == 2)
+			{
+				setInititalDialogue("""
+					Go ahead, take a look.
+					""");
+			}
+			else
+			{
+				setInititalDialogue("""
+					Still alive, eh? I'll admit, I'm impressed. Most of my customers are more ghostly by now.
+					""");
+			}
+		}
+	}
+}
+
+public class Logan : NPC
+{
+	public Logan()
+			: base("logan")
+	{
+		displayName = "Big Fat Logan";
+
+		sprite = new Sprite(Resource.GetTexture("sprites/merchant4.png", false), 0, 0, 16, 16);
+		animator = new SpriteAnimator();
+		animator.addAnimation("idle", 2, 1, true);
+		animator.setAnimation("idle");
+	}
+
+	public override void init(Level level)
+	{
+		if (level == GameState.instance.hub)
+		{
+			if (save.initialDialogue == null && ((LoganSave)save).loganQuest.state == QuestState.InProgress)
+			{
+				save.setInititalDialogue("""
+				Found that staff yet? Come see me if you do.
+				""");
+			}
+		}
+		else
+		{
+			populateShop(GameState.instance.generator.random, 7, 10, level.avgLootValue * 1.5f, ItemType.Potion, ItemType.Staff, ItemType.Spell, ItemType.Scroll);
+
+			buysItems = true;
+			//canAttune = true;
+			canIdentify = true;
+		}
+	}
+
+	public override void onItemSold(Item item)
+	{
+		base.onItemSold(item);
+		GameState.instance.save.setFlag(SaveFile.FLAG_NPC_LOGAN_ITEM_SOLD);
+	}
+}

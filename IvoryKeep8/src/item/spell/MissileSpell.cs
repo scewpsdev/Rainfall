@@ -1,0 +1,50 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class MissileSpell : Spell
+{
+	public MissileSpell()
+		: base("missile")
+	{
+		displayName = "Magic Missile";
+		description = "Volatile projectile that detonantes on impact. Difficult to both aim and avoid.";
+
+		baseValue = 45;
+
+		baseDamage = 10;
+		baseAttackRate = 0.5f;
+		manaCost = 1;
+		knockback = 1.0f;
+		trigger = false;
+
+		spellIcon = new Sprite(tileset, 14, 7);
+	}
+
+	public override bool cast(Player player, Item staff, float manaCost, float duration)
+	{
+		if (player.mana >= manaCost)
+		{
+			Vector2 position = player.position + new Vector2(player.direction * 0.3f, 0.5f);
+			Vector2 offset = new Vector2(player.direction * 0.3f, -0.1f);
+
+			Vector2 direction = (player.lookDirection.normalized + Vector2.Up * 0.75f).normalized;
+			Vector2 inaccuracy = Mathf.RandomPointOnCircle(Random.Shared) * 0.05f;
+			direction = (direction + inaccuracy / (staff.accuracy * player.getAccuracyModifier())).normalized;
+
+			MagicMissileProjectile projectile = new MagicMissileProjectile(direction, player.velocity, offset, player, staff, this);
+			projectile.radius += upgradeLevel;
+
+			GameState.instance.level.addEntity(projectile, position);
+			GameState.instance.level.addEntity(new MagicProjectileCastEffect(player), position + offset);
+
+			return true;
+		}
+
+		return false;
+	}
+}

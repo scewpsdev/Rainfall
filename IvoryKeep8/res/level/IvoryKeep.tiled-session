@@ -1,0 +1,242 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "rooms/level1/special1.tmx",
+    "expandedProjectPaths": [
+        "rooms/level1",
+        ".",
+        "rooms"
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "D:/Dev/Rainfall/IvoryKeep/res/tiletypes.tsx": {
+            "scaleInDock": 1
+        },
+        "rooms/hub.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 497.5,
+                "y": 111.75
+            }
+        },
+        "rooms/hub2.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 800,
+                "y": 111.66666666666664
+            }
+        },
+        "rooms/hub3.tmx": {
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 332,
+                "y": 138
+            }
+        },
+        "rooms/level1/hub3.tmx": {
+            "scale": 1.8524999999999998,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 239.9460188933874,
+                "y": 120.10796221322539
+            }
+        },
+        "rooms/level1/room1.tmx": {
+            "scale": 5.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 80.09090909090911,
+                "y": 63.909090909090914
+            }
+        },
+        "rooms/level1/room10.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 39.875,
+                "y": 15.875
+            }
+        },
+        "rooms/level1/room11.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 31.875,
+                "y": 31.875
+            }
+        },
+        "rooms/level1/room12.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 224.33333333333337,
+                "y": 215.66666666666663
+            }
+        },
+        "rooms/level1/room13.tmx": {
+            "scale": 2.7015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160.09253903990742,
+                "y": 111.04684788895318
+            }
+        },
+        "rooms/level1/room14.tmx": {
+            "scale": 2.7015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160.09253903990742,
+                "y": 111.04684788895318
+            }
+        },
+        "rooms/level1/room15.tmx": {
+            "scale": 2.7015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160.09253903990742,
+                "y": 62.186234817813784
+            }
+        },
+        "rooms/level1/room16.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160.25,
+                "y": 159.75
+            }
+        },
+        "rooms/level1/room2.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 31.875,
+                "y": 63.875
+            }
+        },
+        "rooms/level1/room3.tmx": {
+            "scale": 4,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 80.125,
+                "y": 63.875
+            }
+        },
+        "rooms/level1/room4.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 80.125,
+                "y": 63.875
+            }
+        },
+        "rooms/level1/room5.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 79.83333333333331,
+                "y": 71.83333333333331
+            }
+        },
+        "rooms/level1/room6.tmx": {
+            "scale": 2.7015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 71.99537304800461,
+                "y": 87.91208791208791
+            }
+        },
+        "rooms/level1/room7.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 114.16666666666666,
+                "y": 55.66666666666667
+            }
+        },
+        "rooms/level1/room8.tmx": {
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 79.83333333333331,
+                "y": 63.833333333333314
+            }
+        },
+        "rooms/level1/room9.tmx": {
+            "scale": 2.7015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 47.935222672064754,
+                "y": 63.85193753614806
+            }
+        },
+        "rooms/level1/special1.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160,
+                "y": 71.5
+            }
+        },
+        "rooms/level1/special2.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 240.66666666666669,
+                "y": 114.66666666666666
+            }
+        },
+        "tiletypes.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        }
+    },
+    "last.externalTilesetPath": "D:/Dev/Rainfall/IvoryKeep/res/level",
+    "last.imagePath": "D:/Dev/Rainfall/IvoryKeep/res/level",
+    "map.height": 15,
+    "map.lastUsedFormat": "tmx",
+    "map.renderOrder": "1",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 30,
+    "openFiles": [
+        "rooms/hub.tmx",
+        "rooms/hub2.tmx",
+        "rooms/level1/special1.tmx",
+        "rooms/level1/special2.tmx",
+        "rooms/hub3.tmx"
+    ],
+    "project": "IvoryKeep.tiled-project",
+    "recentFiles": [
+        "rooms/hub.tmx",
+        "rooms/hub2.tmx",
+        "rooms/hub3.tmx",
+        "rooms/level1/special2.tmx",
+        "rooms/level1/special1.tmx",
+        "rooms/level1/hub3.tmx",
+        "rooms/level1/room8.tmx",
+        "rooms/level1/room6.tmx",
+        "rooms/level1/room5.tmx",
+        "rooms/level1/room4.tmx",
+        "rooms/level1/room3.tmx",
+        "rooms/level1/room2.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

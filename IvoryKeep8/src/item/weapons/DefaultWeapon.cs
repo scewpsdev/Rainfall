@@ -1,0 +1,69 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class DefaultWeapon : Weapon
+{
+	public static readonly DefaultWeapon instance = new DefaultWeapon();
+
+
+	Sprite attackSprite, blockSprite;
+
+	public DefaultWeapon()
+		: base("default_weapon")
+	{
+		baseDamage = 1;
+		baseAttackRange = 0.8f;
+		baseAttackRate = 2;
+		attackCooldown = 0.3f;
+		attackDashDistance = 0.1f;
+		knockback = 4;
+		//anim = AttackAnim.Stab;
+		attackAcceleration = 1;
+		anim = AttackAnim.SwingSideways;
+
+		canParry = true;
+		parrySound = [Resource.GetSound("sounds/punch_hit.ogg")];
+		parryWindow = 0.2f;
+		parryWeaponRotation = 0;
+		blockCharge = 0;
+		attackCooldown = 2.0f;
+
+		strengthScaling = 0.5f;
+		dexterityScaling = 0.5f;
+
+		attackSprite = new Sprite(tileset, 0, 2);
+		blockSprite = new Sprite(tileset, 1, 8);
+		sprite = attackSprite;
+
+		ingameSprite = new Sprite(Resource.GetTexture("sprites/items/weapon/default.png", false), 0, 0, 32, 32);
+
+		hitSound = [Resource.GetSound("sounds/punch_hit.ogg")];
+		stepSound = Resource.GetSounds("sounds/step_bare", 3);
+		landSound = Resource.GetSounds("sounds/land_bare", 3);
+	}
+
+	public override bool useSecondary(Player player)
+	{
+		sprite = blockSprite;
+		return base.useSecondary(player);
+	}
+
+	public override void update(Entity entity)
+	{
+		Player player = entity as Player;
+		if (player.actions.currentAction == null || player.actions.currentAction is not BlockAction)
+			sprite = attackSprite;
+		base.update(entity);
+	}
+
+	protected override void getAttackAnim(Player player, int idx, out AttackAnim anim, out int swingDir, out float startAngle, out float endAngle, out float range)
+	{
+		base.getAttackAnim(player, idx, out anim, out swingDir, out startAngle, out endAngle, out range);
+		anim = idx % 2 == 0 ? AttackAnim.SwingSideways : AttackAnim.SwingOverhead;
+	}
+}

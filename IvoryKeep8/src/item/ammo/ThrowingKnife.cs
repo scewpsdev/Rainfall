@@ -1,0 +1,41 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class ThrowingKnife : Item
+{
+	float speed = 32;
+
+	public ThrowingKnife()
+		: base("throwing_knife", ItemType.Ammo)
+	{
+		displayName = "Throwing Knife";
+		description = "A light, easily concealed blade favored by assassins and cowards alike.";
+
+		baseDamage = 2;
+		projectileItem = true;
+		projectileRotationOffset = -0.25f * MathF.PI;
+		projectileSticks = true;
+		projectileAims = true;
+		breakOnEnemyHit = true;
+		stackable = true;
+		isHandItem = false;
+		isActiveItem = true;
+
+		baseValue = 3;
+
+		sprite = new Sprite(tileset, 4, 4);
+		collider = new Hitbox(-1.0f / 16, -1.0f / 16, 2.0f / 16, 2.0f / 16);
+	}
+
+	public override bool use(Player player)
+	{
+		ItemEntity entity = player.throwItem(this, player.lookDirection.normalized, speed);
+		entity.flyStraightOnThrow = true;
+		return true;
+	}
+}

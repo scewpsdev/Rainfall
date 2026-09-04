@@ -1,0 +1,95 @@
+﻿using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public class Container : Object
+{
+	public Item[] items;
+	public int coins = 0;
+
+	public float enemyChance = 0.04f;
+
+	protected Sound[] breakSound;
+
+
+	public Container(params Item[] items)
+	{
+		this.items = items;
+	}
+
+	protected void dropItems()
+	{
+		if (items != null)
+		{
+			for (int i = 0; i < items.Length; i++)
+			{
+				Vector2 itemVelocity = new Vector2(Mathf.RandomFloat(-0.2f, 0.2f), 0.5f) * 8;
+				Vector2 throwOrigin = position + new Vector2(0, 0.5f);
+				ItemEntity obj = new ItemEntity(items[i], null, itemVelocity);
+				GameState.instance.level.addEntity(obj, throwOrigin);
+			}
+			items = null;
+		}
+
+		while (coins > 0)
+		{
+			CoinType type = Coin.SubtractCoinFromValue(ref coins);
+			Coin coin = new Coin(type);
+			Vector2 spawnPosition = position + new Vector2(0, 0.5f) + Vector2.Rotate(Vector2.UnitX, Mathf.RandomFloat(0, 2 * MathF.PI)) * 0.2f;
+			coin.velocity = (spawnPosition - position - new Vector2(0, 0.5f)).normalized * 4;
+			GameState.instance.level.addEntity(coin, spawnPosition);
+		}
+	}
+
+	protected virtual void breakContainer()
+	{
+		if (items != null)
+			dropItems();
+		if (breakSound != null)
+			Audio.PlayOrganic(breakSound, new Vector3(position, 0));
+
+		if (Random.Shared.NextSingle() < enemyChance)
+		{
+			Mob enemy;
+			if (Random.Shared.NextSingle() < 0.5f)
+				enemy = new Snake();
+			else
+				enemy = new Spider();
+
+			GameState.instance.level.addEntity(enemy, center);
+		}
+
+		float coinChance = 0.1f;
+		if (Random.Shared.NextSingle() < coinChance)
+		{
+			int numCoins = Mathf.RandomInt(3, 15);
+			SpellEffects.SpawnCoins(numCoins, position);
+		}
+
+		remove();
+	}
+
+	public override bool hit(float damage, Entity by = null, Item item = null, string byName = null, bool triggerInvincibility = true, bool buffedHit = false)
+	{
+		base.hit(damage, by, item, byName, triggerInvincibility, buffedHit);
+
+		if (health <= 0)
+			breakContainer();
+
+		return true;
+	}
+
+	protected override void onCollision(bool x, bool y, bool isEntity)
+	{
+		if (isEntity)
+			hit(velocity.length / 8);
+		else if (velocity.length > 5)
+			hit((velocity.length - 5) / 8);
+
+		base.onCollision(x, y, isEntity);
+	}
+}

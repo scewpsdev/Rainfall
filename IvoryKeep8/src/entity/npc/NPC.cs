@@ -1,0 +1,1343 @@
+﻿using Microsoft.VisualBasic.FileIO;
+using Rainfall;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
+using System.Text;
+using System.Threading.Tasks;
+
+
+public enum NPCState
+{
+	None = 0,
+
+	Dialogue,
+	Menu,
+	Shop,
+	SellMenu,
+	CraftingMenu,
+	UpgradeMenu,
+	InfuseMenu,
+	AttuneMenu,
+	IdentifyMenu,
+	UncurseMenu,
+	QuestList,
+}
+
+enum DialogueEffect : int
+{
+	None = 0,
+	Shaking,
+	Quivering,
+	Dancing,
+	Restless,
+}
+
+public struct DialogueLine
+{
+	public string[] words;
+}
+
+public class DialogueScreen
+{
+	public DialogueLine[] lines;
+
+	public List<Action> callbacks = new List<Action>();
+
+	public void addCallback(Action callback)
+	{
+		callbacks.Add(callback);
+	}
+}
+
+public class Dialogue
+{
+	public uint hash;
+	public NPC npc;
+	public List<DialogueScreen> screens = new List<DialogueScreen>();
+
+
+	public Dialogue(uint hash, NPC npc = null)
+	{
+		this.hash = hash;
+		this.npc = npc;
+	}
+
+	public DialogueScreen addVoiceLine(string txt)
+	{
+		int maxWidth = 120 - 2 * 4;
+		string[] lines = Renderer.SplitMultilineText(txt, maxWidth);
+		DialogueScreen dialogue = new DialogueScreen();
+		dialogue.lines = new DialogueLine[lines.Length];
+		for (int i = 0; i < lines.Length; i++)
+		{
+			DialogueLine line;
+			line.words = lines[i].Split(' ');
+			/*
+			for (int j = 0; j < line.words.Length; j++)
+			{
+				string word = line.words[j];
+				for (int k = 0; k < word.Length; k++)
+				{
+					char c = word[i];
+					if (c == '\\' && k < word.Length - 1)
+					{
+
+						k++;
+					}
+				}
+				if (word.Length >= 3 && word[0] == '\\')
+				{
+					line.effects[j] = (DialogueEffect)(word[1] - '0');
+					line.words[j] = word.Substring(2);
+				}
+			}
+			*/
+			dialogue.lines[i] = line;
+		}
+		screens.Add(dialogue);
+		return dialogue;
+	}
+}
+
+public class NPCSaveData
+{
+	public string name;
+	public List<NPC> npcs = new List<NPC>();
+
+	public Dialogue initialDialogue;
+	public List<Dialogue> dialogues = new List<Dialogue>();
+	public HashSet<uint> finishedDialogues = new HashSet<uint>();
+	public Dialogue currentDialogue;
+
+
+	public NPCSaveData()
+	{
+	}
+
+	public NPC currentNPC
+	{
+		get
+		{
+			foreach (NPC npc in npcs)
+			{
+				if (npc.state != NPCState.None)
+					return npc;
+			}
+			return null;
+		}
+	}
+
+	public virtual void load(SaveFile save, DatObject obj)
+	{
+		if (obj.getArray("dialogues", out DatArray dialogues))
+		{
+			for (int i = 0; i < dialogues.size; i++)
+				finishedDialogues.Add(dialogues[i].uinteger);
+		}
+	}
+
+	public virtual void save(SaveFile save, DatObject obj)
+	{
+		DatArray dialogues = new DatArray();
+		foreach (uint h in finishedDialogues)
+			dialogues.addUInteger(h);
+		obj.addArray("dialogues", dialogues);
+	}
+
+	public virtual void init(SaveFile save)
+	{
+	}
+
+	public void addDialogue(Dialogue dialogue)
+	{
+		dialogues.Add(dialogue);
+	}
+
+	public DialogueScreen setOneTimeInititalDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		uint h = Hash.hash(txt);
+		if (!finishedDialogues.Contains(h))
+		{
+			Dialogue dialogue = new Dialogue(Hash.hash(txt));
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			initialDialogue = dialogue;
+			DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+			lastScreen.addCallback(() =>
+			{
+				finishedDialogues.Add(h);
+			});
+			return lastScreen;
+		}
+		return null;
+	}
+
+	public DialogueScreen setInititalDialogue(string txt)
+	{
+		txt = txt.ReplaceLineEndings("\n");
+		string[] screens = txt.Split('\n');
+		Dialogue dialogue = new Dialogue(Hash.hash(txt));
+		for (int i = 0; i < screens.Length; i++)
+			dialogue.addVoiceLine(screens[i]);
+		initialDialogue = dialogue;
+		return dialogue.screens[dialogue.screens.Count - 1];
+	}
+
+	bool hasDialogue(string str, out Dialogue dialogue)
+	{
+		for (int i = 0; i < dialogues.Count; i++)
+		{
+			if (dialogues[i].hash == Hash.hash(str))
+			{
+				dialogue = dialogues[i];
+				return true;
+			}
+		}
+		dialogue = null;
+		return false;
+	}
+
+	public DialogueScreen addOneTimeDialogue(string txt, NPC npc = null)
+	{
+		if (!hasDialogue(txt, out Dialogue d))
+		{
+			txt = txt.ReplaceLineEndings("\n");
+			string[] screens = txt.Split('\n');
+			uint h = Hash.hash(txt);
+			if (!finishedDialogues.Contains(h))
+			{
+				Dialogue dialogue = new Dialogue(Hash.hash(txt), npc);
+				for (int i = 0; i < screens.Length; i++)
+					dialogue.addVoiceLine(screens[i]);
+				addDialogue(dialogue);
+				DialogueScreen lastScreen = dialogue.screens[dialogue.screens.Count - 1];
+				lastScreen.addCallback(() =>
+				{
+					finishedDialogues.Add(h);
+				});
+				return lastScreen;
+			}
+			return null;
+		}
+		return d.screens[d.screens.Count - 1];
+	}
+
+	public DialogueScreen addDialogue(string txt, NPC npc = null)
+	{
+		if (!hasDialogue(txt, out Dialogue d))
+		{
+			txt = txt.ReplaceLineEndings("\n");
+			string[] screens = txt.Split('\n');
+			Dialogue dialogue = new Dialogue(Hash.hash(txt), npc);
+			for (int i = 0; i < screens.Length; i++)
+				dialogue.addVoiceLine(screens[i]);
+			addDialogue(dialogue);
+			return dialogue.screens[dialogue.screens.Count - 1];
+		}
+		return d.screens[d.screens.Count - 1];
+	}
+
+	public Dialogue getNextDialogue(NPC npc)
+	{
+		for (int i = 0; i < dialogues.Count; i++)
+		{
+			if (dialogues[i].npc == null || dialogues[i].npc == npc)
+				return dialogues[i];
+		}
+		return null;
+	}
+}
+
+public abstract class NPC : Mob, Interactable
+{
+	const int DEFAULT_DIALOGUE_SPEED = 25;
+
+
+	public NPCState state = NPCState.None;
+	protected Player player;
+	protected NPCSaveData save;
+
+	long lastCharacterTime;
+	int currentCharacter = 0;
+	bool dialogueFinished = false;
+	int dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
+
+	int selectedOption = 0;
+
+	public bool buysItems = false;
+	protected bool canCraft = false;
+	public bool canUpgrade = false;
+	public bool canInfuse = false;
+	//protected bool canAttune = false;
+	protected bool canIdentify = false;
+	protected bool canUncurse = false;
+	public float voicePitch = 1.0f;
+	public int voicePitchVariation = 2;
+
+	public bool turnTowardsPlayer = true;
+
+	protected List<Tuple<Item, int>> shopItems = new List<Tuple<Item, int>>();
+	int selectedItem = 0;
+	//int infoPanelHeight = 90;
+	protected float buyTax = 0.6f;
+	List<Item> craftingItems = new List<Item>();
+	Item craftingItem1, craftingItem2;
+
+	List<Item> upgradeItems = new List<Item>();
+	List<int> upgradePrices = new List<int>();
+
+	List<Item> infuseItems = new List<Item>();
+	List<int> infusePrices = new List<int>();
+	Item infuseItem = null;
+	int infusePrice = -1;
+	Item infusedCompareItem = null;
+	int selectedInfusionOption;
+
+	List<Item> attuneStaffs = new List<Item>();
+	List<Item> attuneSpells = new List<Item>();
+	//Staff attuneStaff = null;
+	//int attuneSlotID = -1;
+	//Spell attuneSpell = null;
+
+	List<Item> identifyItems = new List<Item>();
+	List<int> identifyPrices = new List<int>();
+
+	List<Item> uncurseItems = new List<Item>();
+	List<int> uncursePrices = new List<int>();
+
+	Sound[] tradeSound;
+	Sound upgradeSound;
+
+	//Sprite gem;
+
+	Simplex simplex = new Simplex();
+
+
+	public NPC(string name)
+		: base(name)
+	{
+		//gem = HUD.gold;
+
+		tradeSound = Resource.GetSounds("sounds/trade", 12);
+		upgradeSound = Resource.GetSound("sounds/upgrade.ogg");
+
+		save = QuestManager.GetProgression(GameState.instance.save, name);
+		if (save != null)
+			save.npcs.Add(this);
+	}
+
+	public override void destroy()
+	{
+		closeScreen();
+
+		if (save != null)
+			save.npcs.Remove(this);
+	}
+
+	public override void onLevelSwitch(Level newLevel)
+	{
+		closeScreen();
+	}
+
+	public void populateShop(Random random, int minItems, int maxItems, float meanValue, params ItemType[] types)
+	{
+		int numItems = Mathf.RandomInt(minItems, maxItems, random);
+
+		for (int i = 0; i < numItems; i++)
+		{
+			ItemType type = types[random.Next() % types.Length];
+			Item item = Item.CreateRandom(type, random, meanValue);
+			if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
+				addShopItem(item.copy());
+
+			/*
+			float value = MathF.Max(meanValue + meanValue * Mathf.RandomGaussian(random), 0.0f);
+			List<Item> items = Item.GetItemPrototypesOfType(type);
+			items.Sort((Item item1, Item item2) =>
+			{
+				float r1 = MathF.Abs(item1.value - value);
+				float r2 = MathF.Abs(item2.value - value);
+				return r1 > r2 ? 1 : r1 < r2 ? -1 : 0;
+			});
+			Item item = items[0];
+			*/
+			/*
+			ItemType type = types[random.Next() % types.Length];
+			Item item = Item.CreateRandom(type, random, meanValue);
+			if (item.canDrop && (item.stackable || !hasShopItem(item.name)))
+				addShopItem(item.copy());
+			else
+				i--;
+			*/
+		}
+
+		shopItems.Sort((Tuple<Item, int> item1, Tuple<Item, int> item2) =>
+		{
+			int getScore(Item item) => (int)item.type;
+			//item.isHandItem && !item.isSecondaryItem ? 1 :
+			//	item.isHandItem ? 2 :
+			//	item.isSecondaryItem ? 3 :
+			//	item.isActiveItem ? 4 :
+			//	item.isPassiveItem && item.armorSlot != ArmorSlot.None ? 5 + (int)item.armorSlot :
+			//	item.isPassiveItem ? 5 + (int)ArmorSlot.Count : 100;
+			int score1 = getScore(item1.Item1);
+			int score2 = getScore(item2.Item1);
+			return score1 > score2 ? 1 : score1 < score2 ? -1 : item1.Item1.getValue() > item2.Item1.getValue() ? 1 : item1.Item1.getValue() < item2.Item1.getValue() ? -1 : 0;
+		});
+	}
+
+	public void addShopItem(Item item, int price = -1)
+	{
+		if (price == -1)
+			price = (int)MathF.Round(item.getValue());
+
+		if (item.stackable)
+		{
+			for (int i = 0; i < shopItems.Count; i++)
+			{
+				if (shopItems[i].Item1.name == item.name && shopItems[i].Item2 == price)
+				{
+					shopItems[i].Item1.stackSize++;
+					return;
+				}
+			}
+		}
+
+		shopItems.Add(new Tuple<Item, int>(item, price));
+	}
+
+	public bool hasShopItem(string name)
+	{
+		for (int i = 0; i < shopItems.Count; i++)
+		{
+			if (shopItems[i].Item1.name == name)
+				return true;
+		}
+		return false;
+	}
+
+	public void clearShop()
+	{
+		shopItems.Clear();
+	}
+
+	public virtual Item craftItem(Item item1, Item item2)
+	{
+		return null;
+	}
+
+	public virtual void onItemSold(Item item)
+	{
+	}
+
+	public bool canInteract(Player player)
+	{
+		return state == NPCState.None && (shopItems.Count > 0 || save.initialDialogue != null || save.dialogues.Count > 0 || (buysItems && player.items.Count > 0) || (canCraft && player.items.Count >= 2) || (canUpgrade && player.items.Count > 0) || (canInfuse && player.items.Count > 0) || (canIdentify && player.items.Count > 0) || (canUncurse && player.items.Count > 0))  /*|| (canAttune && player.hasItemOfType(ItemType.Staff))*/ || QuestManager.getQuestList(GameState.instance.save, name, out _);
+	}
+
+	public float getRange()
+	{
+		return 4;
+	}
+
+	public void interact(Player player)
+	{
+		openScreen();
+		this.player = player;
+
+		if (save.initialDialogue != null)
+		{
+			initDialogue(save.initialDialogue);
+		}
+		else
+		{
+			initMenu();
+		}
+	}
+
+	public void onFocusEnter(Player player)
+	{
+		outline = OUTLINE_COLOR;
+	}
+
+	public void onFocusLeft(Player player)
+	{
+		outline = 0;
+	}
+
+	void openScreen()
+	{
+		if (state == NPCState.None)
+		{
+			state = save.initialDialogue != null ? NPCState.Dialogue : NPCState.Menu;
+			GameState.instance.player.numOverlaysOpen++;
+		}
+	}
+
+	public void closeScreen()
+	{
+		if (state != NPCState.None)
+		{
+			state = NPCState.None;
+			GameState.instance.player.numOverlaysOpen--;
+			selectedOption = 0;
+		}
+	}
+
+	void initDialogue(Dialogue dialogue)
+	{
+		state = NPCState.Dialogue;
+		save.currentDialogue = dialogue;
+		lastCharacterTime = Time.currentTime;
+		currentCharacter = 0;
+		dialogueFinished = false;
+		dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
+	}
+
+	void initMenu()
+	{
+		state = NPCState.Menu;
+	}
+
+	void initShop()
+	{
+		state = NPCState.Shop;
+		selectedItem = 0;
+	}
+
+	void initSellMenu()
+	{
+		state = NPCState.SellMenu;
+		selectedItem = 0;
+	}
+
+	void initCraftingMenu()
+	{
+		state = NPCState.CraftingMenu;
+		selectedItem = 0;
+		craftingItem1 = null;
+		craftingItem2 = null;
+		craftingItems.Clear();
+		for (int i = 0; i < player.items.Count; i++)
+			craftingItems.Add(player.items[i]);
+	}
+
+	void initUpgradeMenu()
+	{
+		state = NPCState.UpgradeMenu;
+		selectedItem = 0;
+		upgradeItems.Clear();
+		upgradePrices.Clear();
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].upgradable)
+			{
+				upgradeItems.Add(player.items[i]);
+				upgradePrices.Add(player.items[i].upgradeCost);
+			}
+		}
+	}
+
+	void initInfuseMenu()
+	{
+		state = NPCState.InfuseMenu;
+		selectedItem = 0;
+		infuseItems.Clear();
+		infusePrices.Clear();
+		infuseItem = null;
+		infusePrice = -1;
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			bool infusable = player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor;
+			if (infusable && player.items[i].infusions.Count == 0)
+			{
+				infuseItems.Add(player.items[i]);
+				infusePrices.Add(player.items[i].getValue() * 2);
+			}
+		}
+	}
+
+	void initAttuneMenu()
+	{
+		state = NPCState.AttuneMenu;
+		selectedItem = 0;
+		attuneStaffs.Clear();
+		attuneSpells.Clear();
+		//attuneStaff = null;
+		//attuneSlotID = -1;
+		//attuneSpell = null;
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].type == ItemType.Staff)
+				attuneStaffs.Add(player.items[i]);
+			//else if (player.items[i].type == ItemType.Spell)
+			//	attuneSpells.Add(player.items[i]);
+		}
+	}
+
+	void initIdentifyMenu()
+	{
+		state = NPCState.IdentifyMenu;
+		selectedItem = 0;
+		identifyItems.Clear();
+		identifyPrices.Clear();
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (!player.items[i].identified)
+			{
+				identifyItems.Add(player.items[i]);
+				identifyPrices.Add((int)MathF.Ceiling(player.items[i].getValue() * 0.25f));
+			}
+		}
+	}
+
+	void initUncurseMenu()
+	{
+		state = NPCState.UncurseMenu;
+		selectedItem = 0;
+		uncurseItems.Clear();
+		uncursePrices.Clear();
+		for (int i = 0; i < player.items.Count; i++)
+		{
+			if (player.items[i].cursed)
+			{
+				uncurseItems.Add(player.items[i]);
+				uncursePrices.Add((int)MathF.Ceiling(player.items[i].getValue() * 0.3f));
+			}
+		}
+	}
+
+	void initQuestList()
+	{
+		state = NPCState.QuestList;
+		selectedItem = 0;
+	}
+
+	public override void update()
+	{
+		Player player = GameState.instance.player;
+
+		float maxDistance = getRange();
+		if (state != NPCState.None && (InputManager.IsPressed("UIQuit") || (player.position + player.collider.center - position).lengthSquared > maxDistance * maxDistance))
+		{
+			closeScreen();
+		}
+
+		if (turnTowardsPlayer)
+		{
+			const float lookRange = 3;
+			if (player.position.y >= position.y - 1.0f && (player.position - position).lengthSquared < lookRange * lookRange)
+			{
+				direction = MathF.Sign(player.position.x - position.x);
+			}
+		}
+
+		animator?.update(sprite);
+
+		foreach (var pair in shopItems)
+		{
+			pair.Item1.update(this);
+		}
+	}
+
+	public override void render()
+	{
+		base.render();
+
+		Vector2 menuAnchor = GameState.instance.camera.worldToScreen(position + new Vector2(0, 2));
+
+		if (state == NPCState.Dialogue)
+		{
+			DialogueScreen voiceLine = save.currentDialogue.screens[0];
+
+			int lineHeight = 8;
+			int headerHeight = 12 + 1;
+			int width = 120;
+			int height = headerHeight + 4 + voiceLine.lines.Length * lineHeight + 4;
+			float x = Math.Min(menuAnchor.x, Renderer.UIWidth - width - 2);
+			float y = Math.Max(menuAnchor.y - height, 2);
+
+			Renderer.DrawUISprite(x - 1, y - 1, width + 2, height + 2, null, false, 0xFFAAAAAA);
+
+			// speech bubble thingy
+			for (int i = 0; i < 5; i++)
+			{
+				float xx = menuAnchor.x + 4;
+				float yy = y + height + i;
+				int ww = 5 - i;
+
+				Renderer.DrawUISprite(xx, yy, ww, 1, null, false, 0xFF222222);
+			}
+
+			Renderer.DrawUISprite(x, y, width, headerHeight - 1, null, false, 0xFF222222);
+			Renderer.DrawUITextBMP(x + 2, y + 2, displayName, 1, 0xFFAAAAAA);
+			y += headerHeight;
+
+			Renderer.DrawUISprite(x, y, width, voiceLine.lines.Length * lineHeight + 4 + 4, null, false, 0xFF222222);
+			y += 4;
+
+			int numChars = (int)((Time.currentTime - lastCharacterTime) / 1e9f * dialogueSpeed);
+			if (numChars > 0)
+			{
+				currentCharacter += numChars;
+				lastCharacterTime = Time.currentTime;
+			}
+			if (!dialogueFinished && InputManager.IsPressed("UIConfirm", true))
+				currentCharacter = 1000;
+
+			if (numChars > 0 && !dialogueFinished && currentCharacter % 2 == 0)
+			{
+				float pitch = voicePitch;
+				float noteMultiplier = MathF.Pow(2.0f, 1 / 7.0f);
+				int variation = Mathf.RandomInt(-voicePitchVariation, voicePitchVariation);
+				pitch *= MathF.Pow(noteMultiplier, variation);
+				Audio.PlayBackground(UISound.uiClick, 0.2f, pitch);
+			}
+
+			DialogueEffect dialogueEffect = DialogueEffect.None;
+
+			int characterIdx = 0;
+			int spaceWidth = Renderer.MeasureUITextBMP(' ').x;
+			for (int i = 0; i < voiceLine.lines.Length; i++)
+			{
+				Renderer.DrawUISprite(x, y, width, lineHeight, null, false, 0xFF222222);
+
+				if (characterIdx > currentCharacter)
+					break;
+
+				int cursor = 0;
+				for (int j = 0; j < voiceLine.lines[i].words.Length; j++)
+				{
+					if (characterIdx > currentCharacter)
+						break;
+
+					string word = voiceLine.lines[i].words[j];
+
+					for (int k = 0; k < word.Length; k++)
+					{
+						if (characterIdx > currentCharacter)
+							break;
+
+						while (k < word.Length - 1 && word[k] == '\\')
+						{
+							if (characterIdx == currentCharacter)
+							{
+								if (word[k + 1] >= '1' && word[k + 1] <= '9')
+									dialogueSpeed = DEFAULT_DIALOGUE_SPEED + (word[k + 1] - '5') * 3;
+								else if (word[k + 1] == '0')
+									dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
+							}
+							if (word[k + 1] >= 'a' && word[k + 1] <= 'z')
+								dialogueEffect = (DialogueEffect)(word[k + 1] - 'a' + 1);
+							else if (word[k + 1] == '0')
+								dialogueEffect = DialogueEffect.None;
+							k += 2;
+							continue;
+						}
+						if (k >= word.Length)
+							continue;
+
+						Vector2i offset = Vector2i.Zero;
+						if (dialogueEffect == DialogueEffect.Shaking)
+						{
+							float elapsed = Time.currentTime / 1e9f * 10;
+							float amplitude = 2;
+							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k * 1000), simplex.sample1f(-elapsed - k * 1000)) * amplitude);
+						}
+						else if (dialogueEffect == DialogueEffect.Quivering)
+						{
+							float elapsed = Time.currentTime / 1e9f * 4;
+							float amplitude = 1;
+							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k * 1000), simplex.sample1f(-elapsed - k * 1000)) * amplitude);
+						}
+						else if (dialogueEffect == DialogueEffect.Dancing)
+						{
+							float elapsed = Time.currentTime / 1e9f * 1;
+							float amplitude = 2;
+							offset = (Vector2i)Vector2.Round(new Vector2(0, simplex.sample1f(elapsed + k)) * amplitude);
+						}
+						else if (dialogueEffect == DialogueEffect.Restless)
+						{
+							float elapsed = Time.currentTime / 1e9f * 0.5f;
+							float amplitude = 1;
+							offset = (Vector2i)Vector2.Round(new Vector2(simplex.sample1f(elapsed + k), simplex.sample1f(-elapsed - k)) * amplitude);
+						}
+
+						cursor += Renderer.DrawUITextBMP(x + 4 + cursor + offset.x, y + offset.y, word[k], false, false, 1, 0xFFAAAAAA);
+						characterIdx++;
+
+						if (k == word.Length - 1 && j == voiceLine.lines[i].words.Length - 1 && i == voiceLine.lines.Length - 1)
+							dialogueFinished = true;
+					}
+
+					cursor += spaceWidth;
+				}
+
+				y += lineHeight;
+			}
+
+			if (dialogueFinished && InputManager.IsPressed("UIConfirm", true))
+			{
+				DialogueScreen screen = save.currentDialogue.screens[0];
+				save.currentDialogue.screens.RemoveAt(0);
+
+				lastCharacterTime = Time.currentTime;
+				currentCharacter = 0;
+				dialogueFinished = false;
+				dialogueSpeed = DEFAULT_DIALOGUE_SPEED;
+				if (save.currentDialogue.screens.Count == 0)
+				{
+					initMenu();
+					if (save.currentDialogue == save.initialDialogue)
+						save.initialDialogue = null;
+					else
+						save.dialogues.Remove(save.currentDialogue);
+					save.currentDialogue = null;
+				}
+
+				for (int i = 0; i < screen.callbacks.Count; i++)
+					screen.callbacks[i]();
+			}
+
+			if (InputManager.IsPressed("UIBack", true))
+				closeScreen();
+		}
+		else if (state == NPCState.Menu)
+		{
+			List<string> options = new List<string>();
+			if (shopItems.Count > 0)
+				options.Add("Buy");
+			if (buysItems && player.items.Count > 0)
+				options.Add("Sell");
+			if (canCraft && player.items.Count >= 2)
+				options.Add("Craft");
+			if (canUpgrade && player.items.Count >= 1)
+			{
+				bool hasUpgradable = false;
+				for (int i = 0; i < player.items.Count; i++)
+				{
+					if (player.items[i].upgradable)
+					{
+						hasUpgradable = true;
+						break;
+					}
+				}
+				if (hasUpgradable)
+					options.Add("Reinforce");
+			}
+			if (canInfuse && player.items.Count >= 1)
+			{
+				bool hasInfusable = false;
+				for (int i = 0; i < player.items.Count; i++)
+				{
+					bool infusable = player.items[i].type == ItemType.Weapon || player.items[i].type == ItemType.Staff || player.items[i].type == ItemType.Armor;
+					if (infusable && player.items[i].infusions.Count == 0)
+					{
+						hasInfusable = true;
+						break;
+					}
+				}
+				if (hasInfusable)
+					options.Add("Infuse");
+			}
+			//if (canAttune && player.hasItemOfType(ItemType.Staff))
+			//	options.Add("Attune");
+			if (canIdentify && player.items.Count > 0)
+				options.Add("Identify");
+			if (canUncurse && player.items.Count > 0)
+				options.Add("Remove Curse");
+			if (save.getNextDialogue(this) != null)
+				options.Add("Talk");
+			if (QuestManager.getQuestList(GameState.instance.save, name, out _))
+				options.Add("Quests");
+			options.Add("Leave");
+
+			int option = InteractableMenu.Render(menuAnchor, displayName, options, out bool closed, ref selectedOption);
+
+			if (option != -1)
+			{
+				if (options[option] == "Buy")
+				{
+					initShop();
+				}
+				else if (options[option] == "Sell")
+				{
+					initSellMenu();
+				}
+				else if (options[option] == "Craft")
+				{
+					initCraftingMenu();
+				}
+				else if (options[option] == "Reinforce")
+				{
+					initUpgradeMenu();
+				}
+				else if (options[option] == "Infuse")
+				{
+					initInfuseMenu();
+				}
+				else if (options[option] == "Attune")
+				{
+					initAttuneMenu();
+				}
+				else if (options[option] == "Identify")
+				{
+					initIdentifyMenu();
+				}
+				else if (options[option] == "Remove Curse")
+				{
+					initUncurseMenu();
+				}
+				else if (options[option] == "Talk")
+				{
+					initDialogue(save.getNextDialogue(this));
+				}
+				else if (options[option] == "Quests")
+				{
+					initQuestList();
+				}
+				else if (options[option] == "Leave")
+					closeScreen();
+			}
+
+			if (closed)
+				closeScreen();
+		}
+		else if (state == NPCState.Shop)
+		{
+			List<Item> items = new List<Item>(shopItems.Count);
+			List<int> prices = new List<int>(shopItems.Count);
+			for (int i = 0; i < shopItems.Count; i++)
+			{
+				items.Add(shopItems[i].Item1);
+				prices.Add(shopItems[i].Item2);
+			}
+
+			int choice = ItemSelector.Render(menuAnchor, "Buy", items, prices, player.money, null, true, ItemSelector.GetCompareItem(player, items[selectedItem]), false, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				Item item = items[choice];
+				int price = prices[choice];
+
+				if (item.stackable && item.stackSize > 1 && !InputManager.IsDown("Sprint") && player.money >= price)
+				{
+					Item copy = item.copy();
+					copy.stackSize = 1;
+					GameState.instance.player.giveItem(copy);
+					GameState.instance.player.money -= price;
+					item.stackSize--;
+
+					Audio.Play(tradeSound, new Vector3(position, 0));
+					onItemSold(copy);
+					player.hud.showMessage("Bought " + copy.fullDisplayName);
+				}
+				else if (player.money >= price * item.stackSize)
+				{
+					GameState.instance.player.giveItem(item);
+					GameState.instance.player.money -= price * item.stackSize;
+
+					shopItems.RemoveAt(choice);
+
+					if (selectedItem == shopItems.Count)
+						selectedItem--;
+					if (shopItems.Count == 0)
+						initMenu();
+
+					Audio.Play(tradeSound, new Vector3(position, 0));
+					onItemSold(item);
+					player.hud.showMessage("Bought " + item.fullDisplayName);
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.SellMenu)
+		{
+			List<Item> items = new List<Item>(player.items.Count);
+			for (int i = 0; i < player.items.Count; i++)
+			{
+				items.Add(player.items[i]);
+			}
+
+			items.Sort((Item item1, Item item2) =>
+			{
+				int getScore(Item item) => (int)item.type;
+				int score1 = getScore(item1);
+				int score2 = getScore(item2);
+				return score1 > score2 ? 1 : score1 < score2 ? -1 : item1.getValue() > item2.getValue() ? 1 : item1.getValue() < item2.getValue() ? -1 : 0;
+			});
+
+			List<int> prices = new List<int>(player.items.Count);
+			for (int i = 0; i < items.Count; i++)
+			{
+				prices.Add(Math.Max((int)MathF.Round(items[i].getValue() * (1 - buyTax)), 1));
+			}
+
+			int itemIdx = ItemSelector.Render(menuAnchor, "Sell", items, prices, -player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			if (itemIdx != -1)
+			{
+				Item item = items[itemIdx];
+				int price = prices[itemIdx];
+
+				if (item.stackable && item.stackSize > 1 && !InputManager.IsDown("Sprint"))
+				{
+					item.stackSize--;
+					Item copy = item.copy();
+					copy.stackSize = 1;
+					addShopItem(copy);
+					GameState.instance.player.money += price;
+
+					Audio.Play(tradeSound, new Vector3(position, 0));
+					player.hud.showMessage("Sold " + item.fullDisplayName);
+				}
+				else
+				{
+					if (GameState.instance.player.removeItem(item))
+					{
+						addShopItem(item);
+						GameState.instance.player.money += price * item.stackSize;
+
+						Audio.Play(tradeSound, new Vector3(position, 0));
+						player.hud.showMessage("Sold " + item.fullDisplayName);
+
+						if (selectedItem == player.items.Count)
+							selectedItem--;
+						if (player.items.Count == 0)
+							initMenu();
+					}
+					else
+					{
+						if (item == player.handItem || item == player.offhandItem)
+							player.hud.showMessage($"The item magically sticks to your hand. Unable to sell {item.fullDisplayName}.");
+						else if (player.isActiveItem(item, out _))
+							player.hud.showMessage($"The item magically sticks to your pocket. Unable to sell {item.fullDisplayName}.");
+						else if (player.isSpellItem(item, out _))
+							player.hud.showMessage($"The spell is engraved in your mind and you seem to be unable to forget it. Failed to sell {item.fullDisplayName}.");
+						else
+							player.hud.showMessage($"Unable to sell {item.fullDisplayName}.");
+					}
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.CraftingMenu)
+		{
+			int choice = ItemSelector.Render(menuAnchor, craftingItem1 != null ? "Select item 2" : "Select item 1", craftingItems, null, -1, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				Item item = craftingItems[choice];
+
+				if (craftingItem1 == null)
+				{
+					craftingItem1 = item;
+					craftingItems.Remove(item);
+					if (selectedItem == craftingItems.Count)
+						selectedItem--;
+				}
+				else if (craftingItem2 == null)
+				{
+					craftingItem2 = item;
+					Item craftedItem = craftItem(craftingItem1, craftingItem2);
+					if (craftedItem != null)
+					{
+						GameState.instance.level.addEntity(new ItemEntity(craftedItem, null, new Vector2(direction, 1) * 3), position + new Vector2(0, 0.5f));
+						craftingItem1 = null;
+						craftingItem2 = null;
+						closeScreen();
+					}
+					else
+					{
+						player.hud.showMessage("Could not craft anything out of " + craftingItem1.displayName + " and " + craftingItem2.displayName + ".");
+						craftingItem1 = null;
+						craftingItem2 = null;
+						closeScreen();
+					}
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.UpgradeMenu)
+		{
+			Item upgradedItem = upgradeItems[selectedItem].copy();
+			upgradedItem.upgrade();
+
+			int choice = ItemSelector.Render(menuAnchor, "Reinforce", upgradeItems, upgradePrices, player.money, player, true, upgradedItem, true, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				if (upgradePrices[selectedItem] <= player.money)
+				{
+					Item item = upgradeItems[choice];
+					item.upgrade();
+					player.money -= upgradePrices[choice];
+					upgradePrices[choice] = item.upgradeCost;
+					Audio.Play(upgradeSound, new Vector3(position, 0));
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.InfuseMenu)
+		{
+			if (infuseItem == null)
+			{
+				int choice = ItemSelector.Render(menuAnchor, "Infuse", infuseItems, infusePrices, player.money, player, true, infusedCompareItem, infusedCompareItem != null, out bool secondary, out bool closed, ref selectedItem);
+
+				if (choice != -1)
+				{
+					if (infusePrices[choice] <= player.money)
+					{
+						infuseItem = infuseItems[choice];
+						infusePrice = infusePrices[choice];
+						selectedInfusionOption = 0;
+					}
+				}
+				if (closed)
+					initMenu();
+			}
+			else
+			{
+				List<Infusion> possibleInfusions = new List<Infusion>();
+				if (infuseItem.type == ItemType.Weapon || infuseItem.type == ItemType.Staff)
+				{
+					possibleInfusions.Add(Infusion.Sharp);
+					possibleInfusions.Add(Infusion.Light);
+					possibleInfusions.Add(Infusion.Heavy);
+					possibleInfusions.Add(Infusion.Long);
+				}
+				else if (infuseItem.type == ItemType.Armor)
+				{
+					possibleInfusions.Add(Infusion.ArmorHeavy);
+					possibleInfusions.Add(Infusion.ArmorLight);
+				}
+				else
+				{
+					Debug.Assert(false);
+				}
+
+				List<string> infusionLabels = new List<string>();
+				for (int i = 0; i < possibleInfusions.Count; i++)
+				{
+					if (infuseItem.infusions.Contains(possibleInfusions[i]))
+						possibleInfusions.RemoveAt(i--);
+				}
+				for (int i = 0; i < possibleInfusions.Count; i++)
+					infusionLabels.Add(possibleInfusions[i].name);
+
+				infusedCompareItem = infuseItem.copy();
+				infusedCompareItem.addInfusion(possibleInfusions[selectedInfusionOption]);
+				int option = ShopMenu.Render(menuAnchor, "Select infusion", infusionLabels, null, null, player.money, true, infusedCompareItem, infuseItem, out bool secondary, out bool closed, ref selectedInfusionOption);
+				//InteractableMenu.GetSize(possibleInfusions.Count, out int menuWidth, out int menuHeight);
+				//ItemInfoPanel.Render(infusedCompareItem, menuAnchor.x + menuWidth, menuAnchor.y, 90, menuHeight, infuseItem);
+
+				if (option != -1)
+				{
+					Infusion infusion = possibleInfusions[option];
+					infuseItem.addInfusion(infusion);
+					player.money -= infusePrice;
+					Audio.Play(upgradeSound, new Vector3(position, 0));
+					infuseItem = null;
+				}
+
+				if (closed)
+				{
+					infuseItem = null;
+					infusedCompareItem = null;
+				}
+			}
+		}
+		else if (state == NPCState.AttuneMenu)
+		{
+			/*
+			Vector2 pos = GameState.instance.camera.worldToScreen(position + new Vector2(0, 1));
+			pos.x = Math.Min(pos.x, Renderer.UIWidth - 1 - 120 - 90 - 90);
+
+			if (attuneStaff == null)
+			{
+				int choice = ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, false, null, false, out bool secondary, out bool closed, ref selectedItem);
+				if (choice != -1)
+				{
+					attuneStaff = (Staff)attuneStaffs[choice];
+					while (attuneStaff.attunedSpells.Count < attuneStaff.staffAttunementSlots)
+						attuneStaff.attunedSpells.Add(null);
+					selectedItem = 0;
+				}
+
+				if (closed)
+					initMenu();
+			}
+			if (attuneStaff != null)
+			{
+				if (attuneSlotID == -1)
+				{
+					int renderAttunementSelector(float x, float y, int width, int height)
+					{
+						int choice = AttunementSelector.Render(x, y, width, height, attuneStaff, out bool secondary, out bool closed, ref selectedItem);
+
+						Spell selectedSpell = attuneStaff.attunedSpells[selectedItem];
+						if (selectedSpell != null)
+							infoPanelHeight = (int)ItemInfoPanel.Render(selectedSpell, x + width + 1, y, 90, infoPanelHeight);
+
+						if (choice != -1)
+						{
+							if (secondary)
+							{
+								if (attuneStaff.attunedSpells[choice] != null)
+								{
+									Spell oldSpell = attuneStaff.attuneSpell(choice, null);
+									player.giveItem(oldSpell);
+									attuneSpells.Add(oldSpell);
+								}
+							}
+							else
+							{
+								attuneSlotID = choice;
+								selectedItem = 0;
+							}
+						}
+						if (closed)
+						{
+							attuneStaff = null;
+						}
+
+						return height;
+					}
+
+					int staffIdx = attuneStaffs.IndexOf(attuneStaff);
+					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderAttunementSelector, false, out bool secondary, out bool closed, ref staffIdx);
+				}
+				if (attuneSlotID != -1)
+				{
+					int renderSpellSelector(float x, float y, int width, int height)
+					{
+						int choice = ItemSelector.Render(x, y, width, height, "Select spell", attuneSpells, null, -1, null, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+						if (choice != -1)
+						{
+							attuneSpell = (Spell)attuneSpells[choice];
+
+							player.removeItem(attuneSpell);
+							Spell oldSpell = attuneStaff.attuneSpell(attuneSlotID, attuneSpell);
+							attuneSpells.Remove(attuneSpell);
+							if (oldSpell != null)
+							{
+								player.giveItem(oldSpell);
+								attuneSpells.Add(oldSpell);
+							}
+
+							attuneSlotID = -1;
+						}
+						if (closed)
+						{
+							attuneSlotID = -1;
+						}
+
+						int lineHeight = 16;
+						int headerHeight = 12 + 1;
+						int shopHeight = Math.Min(attuneSpells.Count, 10) * lineHeight;
+						return headerHeight + shopHeight;
+					}
+
+					int staffIdx = attuneStaffs.IndexOf(attuneStaff);
+					ItemSelector.Render(pos, "Attune", attuneStaffs, null, -1, player, renderSpellSelector, false, out bool secondary, out bool closed, ref staffIdx);
+				}
+			}
+			*/
+		}
+		else if (state == NPCState.IdentifyMenu)
+		{
+			int choice = ItemSelector.Render(menuAnchor, "Identify", identifyItems, identifyPrices, player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				if (identifyPrices[selectedItem] <= player.money)
+				{
+					Item item = identifyItems[choice];
+					item.identify();
+					player.money -= identifyPrices[choice];
+					Audio.Play(Item.lightEquip, new Vector3(position, 0));
+					identifyItems.RemoveAt(choice);
+					identifyPrices.RemoveAt(choice);
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.UncurseMenu)
+		{
+			int choice = ItemSelector.Render(menuAnchor, "Remove Curse", uncurseItems, uncursePrices, player.money, player, true, null, false, out bool secondary, out bool closed, ref selectedItem);
+			if (choice != -1)
+			{
+				if (uncursePrices[selectedItem] <= player.money)
+				{
+					Item item = uncurseItems[choice];
+					Debug.Assert(item.cursed);
+					item.setCursed(false);
+					player.money -= uncursePrices[choice];
+					Audio.Play(Item.heal, new Vector3(position, 0));
+					uncurseItems.RemoveAt(choice);
+					uncursePrices.RemoveAt(choice);
+
+					player.hud.showMessage($"Removed curse from " + item.displayName);
+				}
+			}
+
+			if (closed)
+				initMenu();
+		}
+		else if (state == NPCState.QuestList)
+		{
+			List<string> labels = new List<string>();
+			if (QuestManager.getQuestList(GameState.instance.save, name, out List<Quest> quests))
+			{
+				for (int i = 0; i < quests.Count; i++)
+					labels.Add(quests[i].displayName);
+			}
+
+			int renderInfoPanel(float x, float y, int width, int height)
+			{
+				float top = y;
+
+				y += 4;
+
+				Quest quest = quests[selectedItem];
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(quest.displayName).x / 2, y, quest.displayName, 1, 0xFFFFFFFF);
+				y += Renderer.smallFont.size;
+				y += 5;
+
+				if (quest.description != null)
+				{
+					string[] descriptionLines = Renderer.SplitMultilineText(quest.description, width - 2);
+					for (int i = 0; i < descriptionLines.Length; i++)
+					{
+						Renderer.DrawUITextBMP(x + 2, y, descriptionLines[i], 1, 0xFFAAAAAA);
+						y += Renderer.smallFont.size;
+					}
+				}
+
+				y += 5;
+				string progress = quest.getProgressString();
+				Renderer.DrawUITextBMP(x + width / 2 - Renderer.MeasureUITextBMP(progress).x / 2, y, progress, 1, 0xFFf4d16b);
+				y += Renderer.smallFont.size;
+
+				y += 4;
+
+				return (int)MathF.Round(y - top);
+			}
+			;
+			NPCSelector.Render(menuAnchor, "Quests", labels, renderInfoPanel, out bool secondary, out bool closed, ref selectedItem);
+
+			if (closed)
+				initMenu();
+		}
+	}
+}

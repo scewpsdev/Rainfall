@@ -1,0 +1,150 @@
+flags = [ 1615716108, 417135138, 777027450, 3124495028, 3925083804, 952437344 ]
+runs_finished = 2
+highscores = [ {
+score = 0
+floor = -1
+time = -1
+kills = 0
+items0 = [ {
+
+}, {
+
+} ]
+items1 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+}, {
+score = 21951
+floor = 6
+time = 643.954833984375
+kills = 64
+items0 = [ {
+type = greataxe
+stack_size = 1
+}, {
+
+} ]
+items1 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+type = lantern
+stack_size = 1
+} ]
+}, {
+score = 21951
+floor = 6
+time = 643.954833984375
+kills = 64
+items0 = [ {
+type = greataxe
+stack_size = 1
+}, {
+
+} ]
+items1 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+type = lantern
+stack_size = 1
+} ]
+}, {
+score = 21951
+floor = 6
+time = 643.954833984375
+kills = 64
+items0 = [ {
+type = greataxe
+stack_size = 1
+}, {
+
+} ]
+items1 = [ {
+
+}, {
+
+}, {
+
+}, {
+
+} ]
+items2 = [ {
+type = lantern
+stack_size = 1
+} ]
+} ]
+npcs = [ {
+name = broken_wanderer
+dialogues = [ 2508811269 ]
+}, {
+name = blacksmith
+dialogues = [  ]
+}, {
+name = rat_npc
+dialogues = [ 2610346675 ]
+quests = [ {
+name = cheese_quest
+state = Uninitialized
+snake_kills = 0
+} ]
+}, {
+name = builder_merchant
+dialogues = [  ]
+}, {
+name = travelling_merchant
+dialogues = [  ]
+}, {
+name = logan
+dialogues = [  ]
+quests = [ {
+name = logan_quest
+state = Uninitialized
+staff_found = 0
+} ]
+}, {
+name = barbarian
+dialogues = [  ]
+}, {
+name = knight
+dialogues = [  ]
+}, {
+name = hunter
+dialogues = [  ]
+}, {
+name = thief
+dialogues = [  ]
+} ]
+stashed_items = [ {
+type = lightning_staff
+stack_size = 1
+} ]
