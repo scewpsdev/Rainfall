@@ -27,7 +27,7 @@ public class CavesSpecialRoom3 : Entity
 			}
 		}
 
-		//level.setTile(room.x, room.y + 1, TileType.wood);
+		//level.setTile(room.x, room.y + 1, TileType.wood);main
 		level.setTile(room.x + room.width - 1, room.y + 1, TileType.wood);
 
 		Vector2i chestPosition = room.getMarker(0x1);

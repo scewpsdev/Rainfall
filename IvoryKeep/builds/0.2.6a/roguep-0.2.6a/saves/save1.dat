@@ -1,4 +1,4 @@
-flags = [ 1615716108 ]
+flags = [ 1615716108, 952437344, 417135138 ]
 name = "abc"
 runs_finished = 0
 highscores = [ {
@@ -143,7 +143,7 @@ name = blacksmith
 dialogues = [  ]
 }, {
 name = broken_wanderer
-dialogues = [  ]
+dialogues = [ 2508811269 ]
 }, {
 name = tinkerer
 dialogues = [  ]

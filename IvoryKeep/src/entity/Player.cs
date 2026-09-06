@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data.Common;
 using System.Linq;
-using System.Numerics;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
@@ -268,7 +267,10 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 		if (handItem != null)
 		{
 			if (!dropItem(handItem))
+			{
+				hud.showMessage("Unable to drop item. It magically sticks to your hand.");
 				return false;
+			}
 		}
 
 		//if (item.twoHanded && offhandItem != null)
@@ -1724,7 +1726,7 @@ public class Player : Entity, Hittable, StatusEffectReceiver, CoinTarget
 
 	void switchHandItems()
 	{
-		Mathf.Swap(ref handItem, ref .offhandItem);
+		Mathf.Swap(ref handItem, ref offhandItem);
 	}
 
 	void updateActions()

@@ -203,7 +203,7 @@ public static class ItemInfoPanel
 				drawLeft("STR");
 				string scalingStr = Item.GetScalingLetter(item.strengthScaling);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-					drawComparisonStr(Item.GetScalingLetter(compareItem.strengthScaling), scalingStr, MathF.Sign(compareItem.strengthScaling - item.strengthScaling));
+					drawComparisonStr(scalingStr, Item.GetScalingLetter(compareItem.strengthScaling), MathF.Sign(item.strengthScaling - compareItem.strengthScaling));
 				else
 					drawRightStr(scalingStr);
 				y += Renderer.smallFont.size + 1;
@@ -213,7 +213,7 @@ public static class ItemInfoPanel
 				drawLeft("DEX");
 				string scalingStr = Item.GetScalingLetter(item.dexterityScaling);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-					drawComparisonStr(Item.GetScalingLetter(compareItem.dexterityScaling), scalingStr, MathF.Sign(compareItem.dexterityScaling - item.dexterityScaling));
+					drawComparisonStr(scalingStr, Item.GetScalingLetter(compareItem.dexterityScaling), MathF.Sign(item.dexterityScaling- compareItem.dexterityScaling));
 				else
 					drawRightStr(scalingStr);
 				y += Renderer.smallFont.size + 1;
@@ -223,7 +223,7 @@ public static class ItemInfoPanel
 				string scalingStr = Item.GetScalingLetter(item.intelligenceScaling);
 				drawRightStr(scalingStr);
 				if (compareItem != null && (item.type == ItemType.Weapon || item.type == ItemType.Staff))
-					drawComparisonStr(Item.GetScalingLetter(compareItem.intelligenceScaling), scalingStr, MathF.Sign(compareItem.intelligenceScaling - item.intelligenceScaling));
+					drawComparisonStr(scalingStr, Item.GetScalingLetter(compareItem.intelligenceScaling), MathF.Sign(item.intelligenceScaling - compareItem.intelligenceScaling));
 				else
 					drawLeft("INT");
 				y += Renderer.smallFont.size + 1;

@@ -118,8 +118,8 @@ public class InputBinding
 		}
 		if (button != MouseButton.None)
 			result.Append((result.Length > 2 ? " / " : "") + "M" + ((int)button).ToString());
-		if (gamepadButton != GamepadButton.None)
-			result.Append((result.Length > 2 ? " / " : "") + "Gamepad " + gamepadButton.ToString());
+		//if (gamepadButton != GamepadButton.None)
+		//	result.Append((result.Length > 2 ? " / " : "") + "Gamepad " + gamepadButton.ToString());
 		if (scrollDelta != 0)
 			result.Append((result.Length > 2 ? " / " : "") + "Scroll " + (scrollDelta > 0 ? "Up" : "Down"));
 		result.Append(" ]");

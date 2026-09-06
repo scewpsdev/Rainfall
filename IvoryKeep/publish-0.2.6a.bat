@@ -32,7 +32,7 @@ xcopy /y ..\RainfallNative\bin\x64\ReleaseLight\RainfallNative.dll bin\Release\n
 
 mkdir bin\Release\net8.0\publish\saves
 
-echo cmd /k IvoryKeep.exe > bin\Release\net8.0\publish\launch.bat
+echo cmd /k IvoryKeep.exe > "bin\Release\net8.0\publish\Launch With Console.bat"
 
 
 cd bin\Release\net8.0\publish
